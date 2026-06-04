@@ -1,0 +1,6 @@
+# Agentic Engineering Framework - Project Configuration
+# framework_path removed (T-498) — fw resolves from .agentic-framework/bin/fw location
+project_name: 832-Workflow-designer
+version: dev
+provider: claude
+initialized_at: 2026-06-04T07:53:19Z

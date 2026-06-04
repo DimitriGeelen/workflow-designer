@@ -1,0 +1,174 @@
+{
+  "hooks": {
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook pre-compact"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook post-compact-resume"
+          }
+        ]
+      },
+      {
+        "matcher": "resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook post-compact-resume"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "EnterPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook block-plan-mode"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook check-active-task"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook check-human-ac-tick"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook check-tier0"
+          }
+        ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook check-agent-dispatch"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook check-project-boundary"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook budget-gate"
+          }
+        ]
+      },
+      {
+        "matcher": "TodoWrite|TaskCreate|TaskUpdate|TaskList|TaskGet",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook block-task-tools"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook checkpoint post-tool"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook error-watchdog"
+          }
+        ]
+      },
+      {
+        "matcher": "Task|TaskOutput",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook check-dispatch"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook loop-detect"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook check-fabric-new-file"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook commit-cadence"
+          }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook audit-task-tools"
+          }
+        ]
+      }
+    ]
+  }
+}

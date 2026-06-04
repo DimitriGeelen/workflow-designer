@@ -1,0 +1,35 @@
+# cockpit
+
+> Flask blueprint: Cockpit
+
+**Type:** route | **Subsystem:** watchtower | **Location:** `web/blueprints/cockpit.py`
+
+## What It Does
+
+web/blueprints/cockpit.py
+
+## Dependencies (4)
+
+| Target | Relationship |
+|--------|-------------|
+| `web/shared.py` | calls |
+| `web/subprocess_utils.py` | calls |
+| `web/blueprints/tasks.py` | calls |
+| `web/blueprints/tasks.py` | registers |
+
+## Used By (8)
+
+| Component | Relationship |
+|-----------|-------------|
+| `web/app.py` | called_by |
+| `web/app.py` | registered_by |
+| `web/blueprints/core.py` | called_by |
+| `web/blueprints/core.py` | registered_by |
+| `web/blueprints/__init__.py` | called_by |
+| `web/blueprints/__init__.py` | registered_by |
+| `tests/playwright/test_api_scan.py` | called_by |
+| `tests/playwright/test_api_scan_actions.py` | called_by |
+
+---
+*Auto-generated from Component Fabric. Card: `web-blueprints-cockpit.yaml`*
+*Last verified: 2026-02-20*

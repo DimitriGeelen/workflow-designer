@@ -1,0 +1,6 @@
+# Agentic Engineering Framework — Scheduled Jobs (managed by cron-registry.yaml)
+# Source of truth: /opt/832-Workflow-designer/.context/cron/agentic-audit.crontab (git-tracked)
+# Installed to: /etc/cron.d/agentic-audit-832-workflow-designer
+# Project: /opt/832-Workflow-designer
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin

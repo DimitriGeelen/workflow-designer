@@ -1,0 +1,14 @@
+# Time-series metrics history
+# Auto-appended by audit.sh on each run
+# 30-day rolling retention
+entries:
+- timestamp: '2026-06-04T08:02:31Z'
+  pass: 68
+  warn: 9
+  fail: 1
+  active_tasks: 5
+  completed_tasks: 0
+  velocity: 1
+  traceability_pct: 100
+  episodic_quality_pct: 100
+  open_gaps: 0

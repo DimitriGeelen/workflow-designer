@@ -1,0 +1,28 @@
+# resume
+
+> Unit tests for agents/resume/resume.sh (12 tests)
+
+**Type:** test | **Subsystem:** tests | **Location:** `tests/unit/resume.bats`
+
+**Tags:** `resume`, `bats`, `unit-test`
+
+## What It Does
+
+Unit tests for agents/resume/resume.sh
+Origin: T-922
+
+## Dependencies (2)
+
+| Target | Relationship |
+|--------|-------------|
+| `agents/resume/resume.sh` | calls |
+| `agents/resume/resume.sh` | tests |
+
+## Related
+
+### Tasks
+- T-922: Add unit tests for agents/resume/resume.sh
+
+---
+*Auto-generated from Component Fabric. Card: `tests-unit-resume.yaml`*
+*Last verified: 2026-04-05*

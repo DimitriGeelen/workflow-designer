@@ -1,0 +1,45 @@
+# review
+
+> Watchtower review blueprint: task review page — shows ACs, research artifacts, recommendation, approval actions.
+
+**Type:** route | **Subsystem:** watchtower | **Location:** `web/blueprints/review.py`
+
+## What It Does
+
+T-1810: paused-dispatch helpers live in lib/ (CLI parity with `fw pause list`).
+
+### Framework Reference
+
+When agent ACs are complete and human ACs remain:
+
+1. **Write your recommendation into the task file** — Add a `## Recommendation` section (Watchtower reads this) with:
+   - **Recommendation:** GO / NO-GO / DEFER
+   - **Rationale:** Why (cite evidence: what was fixed, what was proven, what remains)
+   - **Evidence:** Bullet list of concrete proof (test results, file paths, metrics)
+   You are the advisory. The human is the decision-maker. Never present a blank decision for them to fill in — always tell them what you recommend and why.
+
+*(truncated — see CLAUDE.md for full section)*
+
+## Dependencies (5)
+
+| Target | Relationship |
+|--------|-------------|
+| `web/shared.py` | calls |
+| `web/blueprints/tasks.py` | calls |
+| `web/blueprints/tasks.py` | registers |
+| `web/blueprints/inception.py` | calls |
+| `web/blueprints/inception.py` | registers |
+
+## Used By (6)
+
+| Component | Relationship |
+|-----------|-------------|
+| `web/blueprints/__init__.py` | called_by |
+| `web/blueprints/__init__.py` | registered_by |
+| `web/templates/_review_error.html` | used-by |
+| `web/templates/_review_error.html` | used-by_by |
+| `tests/playwright/test_review_acs.py` | called_by |
+
+---
+*Auto-generated from Component Fabric. Card: `web-blueprints-review.yaml`*
+*Last verified: 2026-03-28*

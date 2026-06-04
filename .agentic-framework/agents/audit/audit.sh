@@ -1,0 +1,4842 @@
+#!/bin/bash
+# Audit Agent - Mechanical Compliance Checks
+# Evaluates framework compliance against specifications
+#
+# Usage:
+#   audit.sh                              # Full audit with terminal output
+#   audit.sh --section structure,quality   # Run only specified sections
+#   audit.sh --output /path/to/dir        # Write YAML report to custom dir
+#   audit.sh --quiet                      # Suppress terminal output (cron-friendly)
+#   audit.sh --cron                       # Shorthand for --output .context/audits/cron --quiet
+#   audit.sh schedule install|remove|status  # Manage cron schedule
+#
+# Sections: structure, compliance, quality, traceability, enforcement,
+#           learning, episodic, observations, gaps, handover, graduation,
+#           research, oe-research, discovery, discovery-trends, deployment
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+FRAMEWORK_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+source "$FRAMEWORK_ROOT/lib/paths.sh"
+source "$FRAMEWORK_ROOT/lib/config.sh"
+source "$FRAMEWORK_ROOT/lib/watchtower.sh"
+AUDITS_DIR="$CONTEXT_DIR/audits"
+
+# --- Schedule Subcommand (dispatch before heavy init) ---
+if [ "${1:-}" = "schedule" ]; then
+    shift
+    # T-602: Project-specific cron filename to prevent multi-project collision
+    # T-604: Cron definitions are git-tracked in PROJECT_ROOT/.context/cron/
+    project_slug=$(basename "$PROJECT_ROOT" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9_-]/-/g')
+    CRON_INSTALL="/etc/cron.d/agentic-audit-${project_slug}"
+    CRON_SOURCE="$PROJECT_ROOT/.context/cron/agentic-audit.crontab"
+    LEGACY_CRON_FILE="/etc/cron.d/agentic-audit"
+    FW_PATH="$(readlink -f "$FRAMEWORK_ROOT/bin/fw" 2>/dev/null || echo "$FRAMEWORK_ROOT/bin/fw")"
+
+    # Helper: copy project cron source to /etc/cron.d/ with sudo degradation
+    _cron_copy_to_system() {
+        local src="$1" dst="$2"
+        if [ "$(id -u)" = "0" ]; then
+            cp "$src" "$dst"
+            chmod 644 "$dst"
+            return 0
+        elif command -v sudo >/dev/null 2>&1; then
+            sudo cp "$src" "$dst"
+            sudo chmod 644 "$dst"
+            return 0
+        else
+            echo ""
+            echo "NOTE: Root permissions required to install cron."
+            echo "Run this command manually:"
+            echo ""
+            echo "  sudo cp \"$src\" \"$dst\" && sudo chmod 644 \"$dst\""
+            echo ""
+            return 1
+        fi
+    }
+
+    # Helper: remove a system cron file with sudo degradation
+    _cron_remove_from_system() {
+        local dst="$1"
+        if [ "$(id -u)" = "0" ]; then
+            rm -f "$dst"
+            return 0
+        elif command -v sudo >/dev/null 2>&1; then
+            sudo rm -f "$dst"
+            return 0
+        else
+            echo "NOTE: Root permissions required to remove cron."
+            echo "Run: sudo rm -f \"$dst\""
+            return 1
+        fi
+    }
+
+    # Generate the cron source file in PROJECT_ROOT (git-tracked)
+    _cron_generate_source() {
+        mkdir -p "$(dirname "$CRON_SOURCE")"
+        cat > "$CRON_SOURCE" << CRONEOF
+# Agentic Engineering Framework — Scheduled Audits (T-184 + T-196 + T-602 + T-604)
+# Source of truth: $CRON_SOURCE (git-tracked)
+# Installed to: $CRON_INSTALL (copy — use 'fw audit schedule install' to sync)
+# Project: $PROJECT_ROOT
+# Two audit tracks: Structural (project well-formed) + OE (controls working)
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+
+# === STRUCTURAL AUDITS (project well-formed) ===
+
+# Task quality + structure integrity + discovery (every 30 min)
+*/30 * * * * root PROJECT_ROOT="$PROJECT_ROOT" "$FW_PATH" audit --section structure,compliance,quality,discovery --cron 2>/dev/null
+
+# Git traceability + episodic completeness + trend discoveries (hourly)
+0 * * * * root PROJECT_ROOT="$PROJECT_ROOT" "$FW_PATH" audit --section traceability,episodic,discovery-trends --cron 2>/dev/null
+
+# Observations + gaps (every 6 hours)
+0 */6 * * * root PROJECT_ROOT="$PROJECT_ROOT" "$FW_PATH" audit --section observations,gaps --cron 2>/dev/null
+
+# === OE AUDITS (controls working — T-195/T-196) ===
+
+# Fast OE checks: CTL-001,003,004,018 + research CTL-014,021,022,023 (every 30 min)
+15,45 * * * * root PROJECT_ROOT="$PROJECT_ROOT" "$FW_PATH" audit --section oe-fast,oe-research --cron 2>/dev/null
+
+# Hourly OE checks: CTL-008,020 (hourly, offset from structural)
+30 * * * * root PROJECT_ROOT="$PROJECT_ROOT" "$FW_PATH" audit --section oe-hourly --cron 2>/dev/null
+
+# Daily OE checks: CTL-002,005,006,007,009,010,011,012,013,019,027 (daily at 7am)
+0 7 * * * root PROJECT_ROOT="$PROJECT_ROOT" "$FW_PATH" audit --section oe-daily --cron 2>/dev/null
+
+# Weekly OE checks: CTL-016 (Monday 9am)
+0 9 * * 1 root PROJECT_ROOT="$PROJECT_ROOT" "$FW_PATH" audit --section oe-weekly --cron 2>/dev/null
+
+# === FULL + MAINTENANCE ===
+
+# Full audit — all sections (daily at 8am)
+0 8 * * * root PROJECT_ROOT="$PROJECT_ROOT" "$FW_PATH" audit --cron 2>/dev/null
+
+# Regenerate component reference docs (daily at 8:15am — T-387)
+15 8 * * * root PROJECT_ROOT="$PROJECT_ROOT" "$FW_PATH" docs --all 2>/dev/null
+
+# Retention: prune cron audit files older than 7 days (daily at 9am)
+0 9 * * * root find "$CONTEXT_DIR/audits/cron" -name "*.yaml" -mtime +7 -delete 2>/dev/null
+CRONEOF
+    }
+
+    case "${1:-status}" in
+        install)
+            if ! command -v crontab >/dev/null 2>&1 && [ ! -d /etc/cron.d ]; then
+                echo "ERROR: cron not available on this system" >&2
+                exit 1
+            fi
+
+            # Migrate legacy cron if present
+            if [ -f "$LEGACY_CRON_FILE" ]; then
+                legacy_project=$(grep -m1 'PROJECT_ROOT=' "$LEGACY_CRON_FILE" 2>/dev/null | sed 's/.*PROJECT_ROOT="\([^"]*\)".*/\1/')
+                if [ -n "$legacy_project" ]; then
+                    echo "NOTE: Migrating legacy cron from $LEGACY_CRON_FILE"
+                    if [ "$legacy_project" = "$PROJECT_ROOT" ]; then
+                        echo "  Same project — removing old file"
+                        _cron_remove_from_system "$LEGACY_CRON_FILE"
+                    else
+                        echo "  WARNING: Legacy cron belongs to $legacy_project"
+                        echo "  That project should run 'fw audit schedule install' to migrate"
+                    fi
+                    echo ""
+                fi
+            fi
+
+            # Handle basename collision
+            if [ -f "$CRON_INSTALL" ]; then
+                existing_project=$(grep -m1 'PROJECT_ROOT=' "$CRON_INSTALL" 2>/dev/null | sed 's/.*PROJECT_ROOT="\([^"]*\)".*/\1/')
+                if [ -n "$existing_project" ] && [ "$existing_project" != "$PROJECT_ROOT" ]; then
+                    echo "WARNING: Cron file $CRON_INSTALL belongs to $existing_project"
+                    echo "  Both projects share basename '$project_slug' — using hash suffix"
+                    project_hash=$(echo "$PROJECT_ROOT" | md5sum | head -c 8)
+                    CRON_INSTALL="/etc/cron.d/agentic-audit-${project_slug}-${project_hash}"
+                fi
+            fi
+
+            # Step 1: Generate source file in project (git-tracked)
+            _cron_generate_source
+            echo "Cron source: $CRON_SOURCE (git-tracked)"
+
+            # Step 2: Copy to system cron directory
+            mkdir -p "$CONTEXT_DIR/audits/cron"
+            if _cron_copy_to_system "$CRON_SOURCE" "$CRON_INSTALL"; then
+                echo "Cron installed: $CRON_INSTALL"
+            fi
+
+            echo ""
+            echo "Schedule:"
+            echo "  Every 30min: structure, compliance, quality (structural)"
+            echo "  :15/:45:     oe-fast, oe-research (OE — control verification)"
+            echo "  Hourly:      traceability, episodic (structural)"
+            echo "  :30:         oe-hourly (OE — git + cron checks)"
+            echo "  Every 6h:    observations, gaps (structural)"
+            echo "  Daily 7am:   oe-daily (OE — deep control checks)"
+            echo "  Daily 8am:   full audit (all sections)"
+            echo "  Daily 8:15:  regenerate component docs (T-387)"
+            echo "  Monday 9am:  oe-weekly (OE — behavioral patterns)"
+            echo "  Daily 9am:   retention cleanup (>7 days)"
+            echo ""
+            echo "Reports: $CONTEXT_DIR/audits/cron/"
+            ;;
+        remove)
+            removed=false
+            if [ -f "$CRON_INSTALL" ]; then
+                if _cron_remove_from_system "$CRON_INSTALL"; then
+                    echo "Cron schedule removed: $CRON_INSTALL"
+                    removed=true
+                fi
+            fi
+            # Also remove legacy file if it belongs to this project
+            if [ -f "$LEGACY_CRON_FILE" ]; then
+                legacy_project=$(grep -m1 'PROJECT_ROOT=' "$LEGACY_CRON_FILE" 2>/dev/null | sed 's/.*PROJECT_ROOT="\([^"]*\)".*/\1/')
+                if [ "$legacy_project" = "$PROJECT_ROOT" ]; then
+                    if _cron_remove_from_system "$LEGACY_CRON_FILE"; then
+                        echo "Legacy cron schedule removed: $LEGACY_CRON_FILE"
+                        removed=true
+                    fi
+                fi
+            fi
+            if [ "$removed" = false ]; then
+                echo "No cron schedule installed for this project."
+            fi
+            echo ""
+            echo "NOTE: Project source file kept at $CRON_SOURCE"
+            echo "  To remove: rm \"$CRON_SOURCE\""
+            ;;
+        status)
+            # Find this project's installed cron file
+            actual_cron=""
+            if [ -f "$CRON_INSTALL" ]; then
+                actual_cron="$CRON_INSTALL"
+            elif [ -f "$LEGACY_CRON_FILE" ]; then
+                legacy_project=$(grep -m1 'PROJECT_ROOT=' "$LEGACY_CRON_FILE" 2>/dev/null | sed 's/.*PROJECT_ROOT="\([^"]*\)".*/\1/')
+                if [ "$legacy_project" = "$PROJECT_ROOT" ]; then
+                    actual_cron="$LEGACY_CRON_FILE"
+                fi
+            fi
+
+            if [ -n "$actual_cron" ]; then
+                echo "Cron schedule: INSTALLED ($actual_cron)"
+
+                # T-604: Drift detection — compare project source vs installed copy
+                if [ -f "$CRON_SOURCE" ]; then
+                    if ! diff -q "$CRON_SOURCE" "$actual_cron" >/dev/null 2>&1; then
+                        echo "  ⚠ DRIFT DETECTED: project source ≠ installed copy"
+                        echo "  Source: $CRON_SOURCE"
+                        echo "  Installed: $actual_cron"
+                        echo ""
+                        echo "  To sync: fw audit schedule install"
+                    else
+                        echo "  Source: $CRON_SOURCE (in sync)"
+                    fi
+                else
+                    echo "  ⚠ No project source file — run 'fw audit schedule install' to generate"
+                fi
+
+                echo ""
+                grep -v "^#" "$actual_cron" | grep -v "^$" | grep -v "^SHELL\|^PATH" | while read -r line; do
+                    echo "  $line"
+                done
+                echo ""
+                # Show latest cron audit
+                local_latest=$(find "$CONTEXT_DIR/audits/cron/" -maxdepth 1 -name '*.yaml' -type f -print0 2>/dev/null | xargs -r -0 ls -t 2>/dev/null | head -1)
+                if [ -n "$local_latest" ]; then
+                    echo "Latest cron audit: $(basename "$local_latest")"
+                    grep -E "^  (pass|warn|fail):" "$local_latest" 2>/dev/null | sed 's/^/  /'
+                else
+                    echo "No cron audit reports yet."
+                fi
+            else
+                echo "Cron schedule: NOT INSTALLED"
+                if [ -f "$CRON_SOURCE" ]; then
+                    echo "  Project source exists: $CRON_SOURCE"
+                    echo "  Install with: fw audit schedule install"
+                else
+                    echo "  Install with: fw audit schedule install"
+                fi
+            fi
+            ;;
+        *)
+            echo "Usage: fw audit schedule {install|remove|status}"
+            exit 1
+            ;;
+    esac
+    exit 0
+fi
+
+# --- Argument Parsing ---
+SECTIONS=""       # Comma-separated section names (empty = all)
+OUTPUT_DIR=""     # Custom output directory (empty = default AUDITS_DIR)
+QUIET=false       # Suppress terminal output
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --section|--sections) SECTIONS="$2"; shift 2 ;;
+        --output) OUTPUT_DIR="$2"; shift 2 ;;
+        --quiet) QUIET=true; shift ;;
+        --cron) OUTPUT_DIR="$CONTEXT_DIR/audits/cron"; QUIET=true; shift ;;
+        -h|--help)
+            echo "Usage: audit.sh [options]"
+            echo ""
+            echo "Options:"
+            echo "  --section NAMES   Comma-separated sections to run (default: all)"
+            echo "  --output DIR      Write YAML report to custom directory"
+            echo "  --quiet           Suppress terminal output (for cron)"
+            echo "  --cron            Shorthand for --output .context/audits/cron --quiet"
+            echo ""
+            echo "Sections: structure, compliance, quality, traceability, enforcement,"
+            echo "          learning, episodic, observations, gaps, handover, graduation,"
+            echo "          oe-research, oe-fast, oe-hourly, oe-daily, oe-weekly,"
+            echo "          discovery, discovery-trends, deployment"
+            echo ""
+            echo "Subcommands:"
+            echo "  schedule install  Install cron entries for periodic audits"
+            echo "  schedule remove   Remove cron entries"
+            echo "  schedule status   Show current schedule and latest results"
+            exit 0
+            ;;
+        *) shift ;;
+    esac
+done
+
+# T-1162/T-866/T-1464: flock guard + timeout — prevent zombie accumulation in cron AND
+# foreground races. Cron-mode (QUIET=true) stays silent on collision; foreground prints
+# a stderr message so the human knows why their audit didn't run.
+AUDIT_LOCK_DIR="${CONTEXT_DIR}/locks"
+mkdir -p "$AUDIT_LOCK_DIR" 2>/dev/null
+AUDIT_LOCK_FILE="$AUDIT_LOCK_DIR/audit.lock"
+AUDIT_TIMEOUT="${FW_AUDIT_TIMEOUT:-600}"
+
+# Clean up stale lock files (older than timeout + 60s buffer)
+if [ -f "$AUDIT_LOCK_FILE" ]; then
+    lock_age=$(( $(date +%s) - $(stat -c %Y "$AUDIT_LOCK_FILE" 2>/dev/null || echo 0) ))
+    if [ "$lock_age" -gt $(( AUDIT_TIMEOUT + 60 )) ]; then
+        rm -f "$AUDIT_LOCK_FILE"
+    fi
+fi
+
+# Use flock if available, otherwise simple lock file
+if command -v flock >/dev/null 2>&1; then
+    exec 200>"$AUDIT_LOCK_FILE"
+    if ! flock -n 200; then
+        # Another audit is running.
+        # Cron mode (QUIET=true): silent exit 0 — preserves zero-zombie cron behaviour.
+        # Foreground: print to stderr so the user understands why nothing ran.
+        if [ "$QUIET" != true ]; then
+            echo "Another audit is already running — exiting" >&2
+        fi
+        exit 0
+    fi
+    # Apply timeout: kill self if still running after AUDIT_TIMEOUT seconds.
+    # T-1464 + T-1772: detach EVERY inherited fd in the watchdog subshell, not
+    # just stdio. The `sleep` child reparents to init when its subshell exits,
+    # carrying any inherited fds — including (a) FD 200, the flock fd, which
+    # silently kept the audit lock held for AUDIT_TIMEOUT (default 600s), and
+    # (b) any pipe fds from a parent shell pipeline (e.g. bats's per-test pipe
+    # at FD 3, which makes the bats orchestrator hang waiting for EOF). Walk
+    # /proc/self/fd and close everything > 2 that we don't already redirect.
+    ( for _fd in /proc/self/fd/*; do
+          _n="${_fd##*/}"
+          case "$_n" in 0|1|2) ;; *) eval "exec $_n>&-" 2>/dev/null ;; esac
+      done
+      sleep "$AUDIT_TIMEOUT" && kill -TERM $$ 2>/dev/null
+    ) </dev/null >/dev/null 2>&1 &
+    AUDIT_TIMEOUT_PID=$!
+    trap "kill $AUDIT_TIMEOUT_PID 2>/dev/null; rm -f '$AUDIT_LOCK_FILE'" EXIT
+else
+    # Fallback: simple lock file (less robust but prevents most zombies)
+    if [ -f "$AUDIT_LOCK_FILE" ]; then
+        if [ "$QUIET" != true ]; then
+            echo "Another audit is already running — exiting" >&2
+        fi
+        exit 0
+    fi
+    echo $$ > "$AUDIT_LOCK_FILE"
+    trap "rm -f '$AUDIT_LOCK_FILE'" EXIT
+fi
+
+# Section filter: returns 0 (true) if section should run
+should_run_section() {
+    [ -z "$SECTIONS" ] && return 0
+    echo ",$SECTIONS," | grep -q ",$1,"
+}
+
+# Colors provided by lib/colors.sh (via paths.sh chain)
+
+# Counters
+PASS_COUNT=0
+WARN_COUNT=0
+FAIL_COUNT=0
+
+# Priority actions
+declare -a PRIORITY_ACTIONS
+
+# Findings for history (format: "LEVEL|CHECK|MESSAGE")
+declare -a FINDINGS
+
+# Timestamp for this audit
+AUDIT_TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+AUDIT_DATE=$(date +"%Y-%m-%d")
+AUDIT_DATETIME=$(date +"%Y-%m-%d-%H%M")
+
+# Logging functions
+pass() {
+    echo -e "${GREEN}[PASS]${NC} $1"
+    PASS_COUNT=$((PASS_COUNT + 1))
+    FINDINGS+=("PASS|$1|")
+}
+
+warn() {
+    echo -e "${YELLOW}[WARN]${NC} $1"
+    echo "       Evidence: $2"
+    echo "       Mitigation: $3"
+    WARN_COUNT=$((WARN_COUNT + 1))
+    PRIORITY_ACTIONS+=("$3")
+    FINDINGS+=("WARN|$1|$3")
+}
+
+fail() {
+    echo -e "${RED}[FAIL]${NC} $1"
+    echo "       Evidence: $2"
+    echo "       Mitigation: $3"
+    FAIL_COUNT=$((FAIL_COUNT + 1))
+    PRIORITY_ACTIONS+=("$3")
+    FINDINGS+=("FAIL|$1|$3")
+}
+
+info() {
+    echo -e "${CYAN}[INFO]${NC} $1"
+    PASS_COUNT=$((PASS_COUNT + 1))
+    FINDINGS+=("INFO|$1|")
+}
+
+# --- New Project Grace Period (T-301) ---
+# Detect new projects: <5 commits and no handover → suppress known day-1 noise
+IS_NEW_PROJECT=false
+_commit_count=$(git -C "$PROJECT_ROOT" rev-list --count HEAD 2>/dev/null || echo "0")
+if [ "$_commit_count" -lt 5 ] && [ ! -f "$CONTEXT_DIR/handovers/LATEST.md" ]; then
+    IS_NEW_PROJECT=true
+fi
+
+# Grace-aware warn/fail: downgrades to info for new projects
+grace_warn() {
+    if [ "$IS_NEW_PROJECT" = true ]; then
+        info "$1 (grace: new project)"
+    else
+        warn "$1" "$2" "$3"
+    fi
+}
+grace_fail() {
+    if [ "$IS_NEW_PROJECT" = true ]; then
+        info "$1 (grace: new project)"
+    else
+        fail "$1" "$2" "$3"
+    fi
+}
+
+# Quiet mode: suppress terminal output (findings still collected for YAML)
+if [ "$QUIET" = true ]; then
+    exec 3>&1 1>/dev/null
+fi
+
+# Header
+echo "=== AUDIT REPORT ==="
+echo "Timestamp: $(date -Iseconds)"
+echo "Project: $PROJECT_ROOT"
+[ -n "$SECTIONS" ] && echo "Sections: $SECTIONS"
+echo ""
+
+# --- Task File Scans (T-955) ---
+# Single-pass Python scans replace 8 separate bash loops over task files.
+# Each scan runs once, results reused by multiple sections.
+
+# Active task scan: replaces loops 1/2/5/9/10 (compliance, quality, research, ownership, D2)
+ACTIVE_SCAN=""
+if should_run_section "compliance" || should_run_section "quality" || should_run_section "oe-research" || should_run_section "oe-daily" || should_run_section "discovery" || should_run_section "discovery-trends"; then
+    ACTIVE_SCAN=$(python3 "$FRAMEWORK_ROOT/agents/audit/active-task-scan.py" \
+        "$TASKS_DIR" "$PROJECT_ROOT/docs/reports" 2>/dev/null || echo "")
+fi
+
+# Completed task scan: replaces loops 3/4/7 (episodic, research artifacts, AC gate)
+# T-1882: also populated when "compliance" section is requested — CTL-028 (status-
+# drift detection) moved to compliance gate so pre-push audit catches the drift
+# class before ship rather than only at oe-daily cron run (was: up to 24h window).
+COMPLETED_SCAN=""
+if should_run_section "episodic" || should_run_section "research" || should_run_section "oe-daily" || should_run_section "compliance"; then
+    COMPLETED_SCAN=$(python3 "$FRAMEWORK_ROOT/agents/audit/completed-task-scan.py" \
+        "$TASKS_DIR" "$CONTEXT_DIR/episodic" "$PROJECT_ROOT/docs/reports" 2>/dev/null || echo "")
+fi
+
+# ============================================
+# SECTION 1: STRUCTURE CHECKS
+# ============================================
+if should_run_section "structure"; then
+echo "=== STRUCTURE CHECKS ==="
+
+# Check .tasks/ directory
+if [ -d "$TASKS_DIR" ]; then
+    pass "Tasks directory exists"
+else
+    fail "Tasks directory missing" \
+         ".tasks/ not found" \
+         "Run: mkdir -p .tasks/{active,completed,templates}"
+fi
+
+# Check subdirectories
+for subdir in active completed templates; do
+    if [ -d "$TASKS_DIR/$subdir" ]; then
+        pass "Tasks/$subdir directory exists"
+    else
+        warn "Tasks/$subdir directory missing" \
+             ".tasks/$subdir not found" \
+             "Run: mkdir -p .tasks/$subdir"
+    fi
+done
+
+# Check template exists
+if [ -f "$TASKS_DIR/templates/default.md" ]; then
+    pass "Task template exists"
+else
+    warn "Task template missing" \
+         ".tasks/templates/default.md not found" \
+         "Copy zzz-default.md to .tasks/templates/default.md"
+fi
+
+# T-1279 (G-052): Detect duplicate task IDs across active/ and completed/.
+# ID collisions are silent downstream failures (episodic confusion, fabric
+# ambiguity, commit traceability loss). Any two files sharing `id: T-NNNN`
+# in their frontmatter should fail the audit.
+dup_output=$(python3 -c "
+import os, re, sys
+from collections import defaultdict
+tasks_dir = os.environ.get('TASKS_DIR', '.tasks')
+id_to_files = defaultdict(list)
+for sub in ('active', 'completed'):
+    d = os.path.join(tasks_dir, sub)
+    if not os.path.isdir(d):
+        continue
+    for f in sorted(os.listdir(d)):
+        if not f.startswith('T-') or not f.endswith('.md'):
+            continue
+        path = os.path.join(d, f)
+        try:
+            with open(path) as fh:
+                for i, line in enumerate(fh):
+                    if i > 30:
+                        break
+                    m = re.match(r'^id:\s*(T-\d+)\s*$', line)
+                    if m:
+                        id_to_files[m.group(1)].append(path)
+                        break
+        except Exception:
+            pass
+dups = {k: v for k, v in id_to_files.items() if len(v) > 1}
+if dups:
+    print('DUPLICATE_IDS_FOUND')
+    for task_id, files in sorted(dups.items()):
+        print(f'  {task_id}:')
+        for f in files:
+            print(f'    - {f}')
+    sys.exit(1)
+print('OK')
+" 2>&1)
+if [ $? -eq 0 ]; then
+    pass "No duplicate task IDs across active/ and completed/"
+else
+    fail "Duplicate task IDs detected (G-052)" \
+         "$dup_output" \
+         "Rename one of each pair: edit filename AND 'id:' frontmatter to a fresh T-NNNN"
+fi
+
+# Validate all project YAML files parse correctly (T-207 regression test).
+# T-1816: extended to .context/arcs/ — broken arc YAML silently 404s the
+# /arcs/<id> page AND silently excludes the arc from the /arcs list page
+# (try/except in web/blueprints/arcs.py:_list_arcs swallows the parse error).
+yaml_fail_count=0
+yaml_pass_count=0
+for yaml_dir in "$PROJECT_ROOT/.context/project" "$PROJECT_ROOT/.context/arcs"; do
+    [ -d "$yaml_dir" ] || continue
+    for yf in "$yaml_dir"/*.yaml; do
+        [ -f "$yf" ] || continue
+        yf_name=$(basename "$yf")
+        yf_rel="${yf#$PROJECT_ROOT/}"
+        parse_err=$(python3 -c "
+import yaml, sys
+try:
+    with open('$yf') as f:
+        data = yaml.safe_load(f)
+    if data is None:
+        print('empty-file'); sys.exit(1)
+    elif not isinstance(data, dict):
+        print('not-a-mapping'); sys.exit(1)
+except yaml.YAMLError as e:
+    print(str(e).split(chr(10))[0]); sys.exit(1)
+" 2>&1)
+        # shellcheck disable=SC2181 # $? needed: parse_err captures output, exit code checked separately
+        if [ $? -eq 0 ]; then
+            yaml_pass_count=$((yaml_pass_count + 1))
+        else
+            yaml_fail_count=$((yaml_fail_count + 1))
+            fail "YAML parse error: $yf_name" \
+                 "$parse_err" \
+                 "Fix the YAML syntax in $yf_rel (quote values containing ':' or '#')"
+        fi
+    done
+done
+if [ "$yaml_fail_count" -eq 0 ] && [ "$yaml_pass_count" -gt 0 ]; then
+    pass "All $yaml_pass_count project YAML files parse correctly"
+fi
+
+# T-2067: task-frontmatter parse check.
+# A mangled `components:` list (or any other YAML break) in a task file
+# made Watchtower `/review/T-XXX` render the "Task Not Found" 404 page —
+# parse_frontmatter returns False (or empty dict on yaml.ScannerError),
+# the route never reaches the 200-for-completed branch. Origins:
+#   - T-2067: update-task.sh:1731 components-regex didn't handle
+#     flow-style continuation lines; 4 corpus victims silently accumulated
+#     (T-2018, T-2059, T-2060, T-2061).
+#   - T-2069: `description: >` folded scalar terminated by blank line,
+#     then col-0 numbered list interpreted as YAML keys; 1 corpus victim
+#     (T-1845). Audit returns `{}` empty dict on yaml.ScannerError —
+#     `if fm:` catches via Python truthiness but the diagnostic mis-attributed
+#     it to the components-regex class. Tightened to distinguish False vs
+#     empty-dict and mention both origin classes.
+fm_fail_count=0
+fm_fail_list=""
+for tdir in "$PROJECT_ROOT/.tasks/active" "$PROJECT_ROOT/.tasks/completed"; do
+    [ -d "$tdir" ] || continue
+    while IFS= read -r tf; do
+        [ -f "$tf" ] || continue
+        # Exit codes: 0=ok, 2=fm is False/None (no frontmatter delimiters),
+        # 3=fm is empty dict (YAML parse error caught by parse_frontmatter)
+        rc=0
+        python3 -c "
+import sys, os
+sys.path.insert(0, '$PROJECT_ROOT')
+try:
+    from web.shared import parse_frontmatter
+except ImportError:
+    sys.exit(0)  # web/ not present (consumer project) — skip silently
+with open(sys.argv[1]) as f:
+    content = f.read()
+fm, _ = parse_frontmatter(content)
+if fm is False or fm is None:
+    sys.exit(2)
+if isinstance(fm, dict) and len(fm) == 0:
+    sys.exit(3)
+sys.exit(0)
+" "$tf" 2>/dev/null
+        rc=$?
+        if [ "$rc" -ne 0 ]; then
+            fm_fail_count=$((fm_fail_count + 1))
+            tf_rel="${tf#$PROJECT_ROOT/}"
+            if [ "$rc" -eq 3 ]; then
+                fm_fail_list="$fm_fail_list\n  $tf_rel  (empty-dict / yaml.ScannerError — T-2069 class: folded scalar or quoting break)"
+            else
+                fm_fail_list="$fm_fail_list\n  $tf_rel  (no/invalid frontmatter delimiters — T-2067 class: components regex mangle)"
+            fi
+        fi
+    done < <(find "$tdir" -maxdepth 1 -name 'T-*.md' -type f)
+done
+if [ "$fm_fail_count" -gt 0 ]; then
+    warn "Task frontmatter: $fm_fail_count task(s) have unparseable YAML" \
+         "Files: $(printf '%b' "$fm_fail_list")" \
+         "T-2067 class (mangled components: list — wrapped flow-style left orphan continuation)." \
+         "T-2069 class (folded scalar 'description: >' terminated by blank line then col-0 lines parsed as keys; quote the description string or move structured body out of frontmatter)."
+fi
+
+# T-1856 (T-NEW-8): Anchor-task existence check.
+# Each .context/arcs/*.yaml may declare `anchor_task: T-XXX` — the originating
+# inception or build task. Symmetric to T-1849's arc_id validation (which
+# guards task→arc refs); this guards arc→task refs. WARN-only, never blocks
+# (audit exit unaffected) — matches T-1846 §4 D4 (warn not block).
+anchor_missing=0
+anchor_checked=0
+if [ -d "$PROJECT_ROOT/.context/arcs" ]; then
+    for af in "$PROJECT_ROOT/.context/arcs"/*.yaml; do
+        [ -f "$af" ] || continue
+        # Extract anchor_task value (single-line scalar). Tolerate quotes + null.
+        anchor=$(awk -F': ' '/^anchor_task:/ {sub(/^anchor_task:[[:space:]]*/, ""); print; exit}' "$af" \
+                 | tr -d ' "' \
+                 | head -c 32)
+        [ -z "$anchor" ] && continue
+        [ "$anchor" = "null" ] && continue
+        anchor_checked=$((anchor_checked + 1))
+        if ! ls "$PROJECT_ROOT"/.tasks/active/"$anchor"-*.md "$PROJECT_ROOT"/.tasks/completed/"$anchor"-*.md 2>/dev/null | grep -q .; then
+            arc_name=$(basename "$af" .yaml)
+            warn "Arc '$arc_name' anchor_task '$anchor' not found in .tasks/{active,completed}/" \
+                 "Arc references a task that does not exist (hostage state in the reverse direction — T-1849 guards task→arc; this guards arc→task)" \
+                 "Either restore the task file, or update '$af' to point at the correct anchor (or set anchor_task: null if it's been retired)"
+            anchor_missing=$((anchor_missing + 1))
+        fi
+    done
+fi
+if [ "$anchor_checked" -gt 0 ] && [ "$anchor_missing" -eq 0 ]; then
+    pass "All $anchor_checked arc anchor_task references resolve to existing tasks"
+fi
+
+# T-1855 (T-NEW-7): Stale-arc warning.
+# For each arc with status: in-progress, check whether ANY task with matching
+# arc_id: (slug or arc-NNN form) has been touched by a commit in the last
+# FW_STALE_ARC_DAYS days (default 30). If no recent activity, emit WARN —
+# the arc may have stalled. WARN-only, never blocks (T-1846 §4 D4).
+# Silent on draft/closed/abandoned arcs and on arcs with zero matching tasks
+# (population unknown — separate signal, not staleness).
+stale_arc_threshold="${FW_STALE_ARC_DAYS:-30}"
+stale_arc_count=0
+arcs_checked_for_staleness=0
+if [ -d "$PROJECT_ROOT/.context/arcs" ] && command -v git >/dev/null 2>&1 \
+    && git -C "$PROJECT_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    for af in "$PROJECT_ROOT/.context/arcs"/*.yaml; do
+        [ -f "$af" ] || continue
+
+        status_val=$(awk -F': ' '/^status:/ {sub(/^status:[[:space:]]*/, ""); print; exit}' "$af" \
+                     | tr -d ' "' | head -c 32)
+        [ "$status_val" = "in-progress" ] || continue
+
+        arc_numeric=$(awk -F': ' '/^id:/ {sub(/^id:[[:space:]]*/, ""); print; exit}' "$af" \
+                      | tr -d ' "' | head -c 32)
+        arc_slug=$(awk -F': ' '/^slug:/ {sub(/^slug:[[:space:]]*/, ""); print; exit}' "$af" \
+                   | tr -d ' "' | head -c 64)
+        [ -z "$arc_slug" ] && arc_slug=$(basename "$af" .yaml)
+
+        # Collect task files whose arc_id: matches slug OR arc-NNN form.
+        matching_tasks=()
+        for d in active completed; do
+            tdir="$PROJECT_ROOT/.tasks/$d"
+            [ -d "$tdir" ] || continue
+            for tf in "$tdir"/T-*.md; do
+                [ -f "$tf" ] || continue
+                ttag=$(awk '/^arc_id:/ {sub(/^arc_id:[[:space:]]*/, ""); gsub(/["\x27]/, ""); print; exit}' "$tf" \
+                       | tr -d ' ' | head -c 64)
+                if [ -n "$ttag" ] && { [ "$ttag" = "$arc_slug" ] || [ "$ttag" = "$arc_numeric" ]; }; then
+                    matching_tasks+=("$tf")
+                fi
+            done
+        done
+
+        # Zero-population arcs can't be assessed for staleness — skip.
+        [ "${#matching_tasks[@]}" -eq 0 ] && continue
+
+        arcs_checked_for_staleness=$((arcs_checked_for_staleness + 1))
+
+        # Any commit since the threshold touching any matching task → fresh.
+        recent=$(git -C "$PROJECT_ROOT" log --since="${stale_arc_threshold}.days.ago" \
+                     --format=%H -- "${matching_tasks[@]}" 2>/dev/null | head -1)
+
+        if [ -z "$recent" ]; then
+            warn "Arc '$arc_slug' has no task commits in the last ${stale_arc_threshold} days (${#matching_tasks[@]} task(s) in arc)" \
+                 "Arc is in-progress but its constituent tasks show no recent git activity — may have stalled" \
+                 "Either close/abandon the arc via 'fw arc close' or run 'fw task update T-XXX --last-update \$(date -u +%FT%TZ)' on a relevant task. Configurable via FW_STALE_ARC_DAYS (default 30)."
+            stale_arc_count=$((stale_arc_count + 1))
+        fi
+    done
+fi
+if [ "$arcs_checked_for_staleness" -gt 0 ] && [ "$stale_arc_count" -eq 0 ]; then
+    pass "All $arcs_checked_for_staleness in-progress arc(s) had task commits within ${stale_arc_threshold} days"
+fi
+
+# T-2169 (T-NEW-C, value-drivers v3 follow-up): retire_when advisory.
+# For each ACTIVE free_driver in policy/value-drivers.yaml that has retire_when:
+# text, run a per-driver recognition heuristic against the corpus. WARN when
+# the heuristic says "looks recognisably met"; INFO when retire_when text is
+# present but no dedicated heuristic exists (manual review). WARN-only, never
+# blocks. One WARN per driver per run (de-duped by construction). Modelled on
+# T-1855 stale-arc. Silence with FW_RETIRE_WHEN_ADVISORY=0.
+if [ "${FW_RETIRE_WHEN_ADVISORY:-1}" != "0" ] \
+   && [ -f "$PROJECT_ROOT/policy/value-drivers.yaml" ] \
+   && command -v python3 >/dev/null 2>&1; then
+    retire_when_findings=$(python3 - "$PROJECT_ROOT" <<'PY' 2>/dev/null
+import sys, os, glob, subprocess, time
+try:
+    import yaml
+except ImportError:
+    sys.exit(0)
+
+project_root = sys.argv[1]
+vd_path = os.path.join(project_root, "policy", "value-drivers.yaml")
+try:
+    with open(vd_path) as fh:
+        vd = yaml.safe_load(fh) or {}
+except Exception:
+    sys.exit(0)
+
+# Active free drivers only — commented-out (candidate) entries don't appear in
+# the parsed dict, so they're skipped by construction.
+free = vd.get("free_drivers") or []
+
+def recall_signals():
+    """F-RECALL retire_when: 4 sub-criteria (a,b,c,d) — return count present."""
+    s = 0
+    # (a) positive-reinforcement / happiness capture in last 30d
+    try:
+        out = subprocess.check_output(
+            ["git", "-C", project_root, "log",
+             "--grep=positive-reinforcement", "--grep=happiness",
+             "--since=30.days.ago", "--format=%H", "-n", "1"],
+            stderr=subprocess.DEVNULL, text=True, timeout=5)
+        if out.strip():
+            s += 1
+    except Exception:
+        pass
+    # (b) preference index file
+    found_b = False
+    for name in ("preference-index.yaml", "preferences.yaml"):
+        if glob.glob(os.path.join(project_root, "**", name), recursive=True):
+            found_b = True
+            break
+    if found_b:
+        s += 1
+    # (c) auto-sync code in agents/ or lib/
+    try:
+        for d in ("agents", "lib"):
+            dpath = os.path.join(project_root, d)
+            if not os.path.isdir(dpath):
+                continue
+            out = subprocess.check_output(
+                ["grep", "-rlE", "auto-sync|CLAUDE-sync", dpath],
+                stderr=subprocess.DEVNULL, text=True, timeout=5)
+            if out.strip():
+                s += 1
+                break
+    except Exception:
+        pass
+    # (d) durable reflection log mtime within last 7 days
+    refl_dir = os.path.join(project_root, ".context")
+    if os.path.isdir(refl_dir):
+        cutoff = time.time() - 7 * 86400
+        hit = False
+        for root, _, files in os.walk(refl_dir):
+            for f in files:
+                if "reflection" in f.lower() and f.endswith(".yaml"):
+                    try:
+                        if os.path.getmtime(os.path.join(root, f)) > cutoff:
+                            hit = True
+                            break
+                    except OSError:
+                        pass
+            if hit:
+                break
+        if hit:
+            s += 1
+    return s
+
+def orch_signal():
+    """F-ORCH retire_when: T-1643 cleanly completed OR G-064 closed."""
+    # (a) T-1643 in completed/ without partial-complete marker
+    for tf in glob.glob(os.path.join(project_root, ".tasks", "completed", "T-1643*.md")):
+        try:
+            with open(tf) as fh:
+                body = fh.read()
+            if "partial-complete" not in body and "[REVIEW]" not in body:
+                return True
+        except Exception:
+            pass
+    # (b) G-064 closed in concerns.yaml
+    cpath = os.path.join(project_root, ".context", "project", "concerns.yaml")
+    if os.path.isfile(cpath):
+        try:
+            with open(cpath) as fh:
+                c = yaml.safe_load(fh) or {}
+            entries = c.get("concerns") or c.get("entries") or []
+            if isinstance(entries, dict):
+                entries = list(entries.values())
+            for entry in entries:
+                if not isinstance(entry, dict):
+                    continue
+                if entry.get("id") == "G-064" and entry.get("status") == "closed":
+                    return True
+        except Exception:
+            pass
+    return False
+
+seen = set()
+for drv in free:
+    if not isinstance(drv, dict):
+        continue
+    drv_id = drv.get("id")
+    rw = drv.get("retire_when")
+    if not drv_id or not rw or not str(rw).strip():
+        continue
+    if drv_id in seen:  # WARN-cap safety
+        continue
+    seen.add(drv_id)
+    if drv_id == "F-RECALL":
+        s = recall_signals()
+        if s >= 4:
+            print(f"WARN|{drv_id}|retire_when condition appears met ({s}/4 signals) — review whether to retire|")
+    elif drv_id == "F-ORCH":
+        if orch_signal():
+            print(f"WARN|{drv_id}|retire_when condition appears met (T-1643 completed cleanly OR G-064 closed) — review whether to retire|")
+    else:
+        print(f"INFO|{drv_id}|retire_when text present, no recognition heuristic — manual review|")
+PY
+)
+    retire_warn=0
+    retire_info=0
+    while IFS='|' read -r rw_level rw_drv rw_msg rw_ctx; do
+        [ -z "$rw_level" ] && continue
+        case "$rw_level" in
+            WARN)
+                warn "free driver $rw_drv: $rw_msg" \
+                     "Retire-when text in policy/value-drivers.yaml appears recognisably satisfied${rw_ctx:+ — $rw_ctx}" \
+                     "Review the driver; if truly retired, comment it out or move to candidates section. Silence with FW_RETIRE_WHEN_ADVISORY=0."
+                retire_warn=$((retire_warn + 1))
+                ;;
+            INFO)
+                info "free driver $rw_drv: $rw_msg"
+                retire_info=$((retire_info + 1))
+                ;;
+        esac
+    done <<<"$retire_when_findings"
+fi
+
+# T-1927 (T-NEW-11, arc-006): per-driver coherence audit.
+# WARN when an arc claims a driver is important (weight ≥ BVP_COHERENCE_ARC_MIN
+# OR arc bvp_scores[Dn] ≥ BVP_COHERENCE_ARC_MIN) but ≥ BVP_COHERENCE_FRACTION of
+# its constituent tasks score that driver ≤ BVP_COHERENCE_TASK_MAX.
+#
+# Per-driver, NOT aggregated (D3 rejected aggregation). Non-blocking — coherence
+# WARNs are signal, not failure; the compliance section still drives exit codes.
+#
+# Thresholds (handoff §7 M4): arc-claims ≥4, task-scores ≤1, fraction ≥0.7.
+# Configurable via env vars; defaults applied if unset.
+BVP_COHERENCE_ARC_MIN="${BVP_COHERENCE_ARC_MIN:-4}"
+BVP_COHERENCE_TASK_MAX="${BVP_COHERENCE_TASK_MAX:-1}"
+BVP_COHERENCE_FRACTION="${BVP_COHERENCE_FRACTION:-0.7}"
+
+# Run a python pass that enumerates in-progress arcs, reads their scoped_drivers
+# and bvp_scores, walks constituent tasks via arc_id (post-T-1850 single source
+# of truth), and emits one line per mismatched driver: "ARC|DRIVER|N_LOW|N_TOTAL".
+bvp_coherence_findings=$(python3 - "$PROJECT_ROOT" "$BVP_COHERENCE_ARC_MIN" "$BVP_COHERENCE_TASK_MAX" "$BVP_COHERENCE_FRACTION" <<'PY' 2>/dev/null
+import sys, re, glob, yaml
+from pathlib import Path
+
+PROJECT_ROOT = Path(sys.argv[1])
+ARC_MIN = int(sys.argv[2])
+TASK_MAX = int(sys.argv[3])
+FRACTION = float(sys.argv[4])
+
+_FM_RE = re.compile(r'^---\n(.*?)\n---', re.S)
+
+def task_score(path, driver_id):
+    """Return int score for driver_id from task frontmatter, or None if absent."""
+    try:
+        text = path.read_text()
+    except Exception:
+        return None
+    m = _FM_RE.match(text)
+    if not m:
+        return None
+    try:
+        fm = yaml.safe_load(m.group(1)) or {}
+    except yaml.YAMLError:
+        return None
+    scores = fm.get('bvp_scores') or {}
+    if not isinstance(scores, dict):
+        return None
+    return scores.get(driver_id)
+
+arcs_dir = PROJECT_ROOT / '.context' / 'arcs'
+if not arcs_dir.is_dir():
+    sys.exit(0)
+
+# Index task files by their `arc_id:` frontmatter value.
+tasks_by_arc = {}
+for sub in ('active', 'completed'):
+    for p in (PROJECT_ROOT / '.tasks' / sub).glob('T-*.md'):
+        try:
+            text = p.read_text()
+        except Exception:
+            continue
+        m = _FM_RE.match(text)
+        if not m:
+            continue
+        try:
+            fm = yaml.safe_load(m.group(1)) or {}
+        except yaml.YAMLError:
+            continue
+        arc_id = fm.get('arc_id')
+        if not arc_id:
+            continue
+        tasks_by_arc.setdefault(arc_id, []).append(p)
+
+for arc_path in sorted(arcs_dir.glob('*.yaml')):
+    try:
+        arc = yaml.safe_load(arc_path.read_text()) or {}
+    except yaml.YAMLError:
+        continue
+    if arc.get('status') != 'in-progress':
+        continue
+    slug = arc.get('slug') or arc_path.stem
+    arc_nnn = arc.get('id')
+
+    # Collect drivers the arc "claims" as important.
+    claims = {}  # driver_id → asserted_value (arc-side)
+    for sd in (arc.get('scoped_drivers') or []):
+        try:
+            w = int(sd.get('weight', 0))
+        except (TypeError, ValueError):
+            continue
+        if w >= ARC_MIN:
+            claims[sd.get('name', '?')] = w
+    arc_bvp = arc.get('bvp_scores') or {}
+    if isinstance(arc_bvp, dict):
+        for did, val in arc_bvp.items():
+            try:
+                v = int(val)
+            except (TypeError, ValueError):
+                continue
+            if v >= ARC_MIN:
+                claims[did] = v
+
+    if not claims:
+        continue
+
+    # Constituents — search by either slug or arc-NNN form per T-1849.
+    constituents = list(tasks_by_arc.get(slug, []))
+    if arc_nnn:
+        constituents += list(tasks_by_arc.get(arc_nnn, []))
+    constituents = list(set(constituents))
+    if not constituents:
+        continue
+
+    for driver_id, claim_val in claims.items():
+        scores = []
+        for p in constituents:
+            s = task_score(p, driver_id)
+            if s is None:
+                continue
+            scores.append(int(s))
+        if not scores:
+            continue
+        n_low = sum(1 for s in scores if s <= TASK_MAX)
+        n_total = len(scores)
+        if n_total == 0:
+            continue
+        frac = n_low / n_total
+        if frac >= FRACTION:
+            print(f"{slug}|{driver_id}|{claim_val}|{n_low}|{n_total}|{frac:.2f}")
+PY
+)
+
+if [ -n "$bvp_coherence_findings" ]; then
+    while IFS='|' read -r c_arc c_driver c_val c_low c_total c_frac; do
+        warn "BVP coherence: arc ${c_arc} claims ${c_driver}=${c_val} but tasks don't support it (${c_low} of ${c_total} constituents score ${c_driver} ≤ ${BVP_COHERENCE_TASK_MAX}, ${c_frac} of fraction threshold ${BVP_COHERENCE_FRACTION})" \
+             "Per-driver coherence check (T-1927, M4)" \
+             "Either revise the arc claim (fw arc approve-driver / adjust bvp_scores) or revise the rubric (R2 detection — systematic single-driver warnings indicate rubric bias, not arc mis-scoring)"
+    done <<< "$bvp_coherence_findings"
+fi
+
+# T-1881 (T-NEW-16, arc-grooming): ctl-arc-tag-only-pattern.
+# After T-1880 consolidation, inline `grep ... arc:<slug>` legacy-tag scans
+# are forbidden outside the canonical helpers. Any NEW occurrence in
+# consumer code is silent-corpus #3 in waiting — a site reinventing the
+# scan and missing the `arc_id` half of the union (L-397).
+#
+# Whitelist: lib/arc_membership.{sh,py} (canonical), lib/arc.sh (legacy
+# wrappers kept as thin shims), lib/migrations/ (one-shot migration),
+# tests/, docs/, .fabric/, .context/ (out-of-scope surfaces).
+#
+# Scope: lib/, web/, agents/, bin/, tools/ — source code paths.
+# Failure mode: FAIL (not WARN) — silent corpora are the exact class
+# this check exists to prevent.
+arc_tag_only_violations=0
+arc_tag_only_evidence=""
+# Pattern: `grep` invocations targeting `arc:<slug>` (legacy tag form)
+# in either `tags: [...]` or as a raw pattern argument. Excludes
+# `current_arc:` and `arc_id:` which are different namespaces.
+arc_tag_only_pattern='grep[^|]*"\^?tags:.*arc:|grep[^|]*arc:[A-Za-z0-9_-]'
+for scan_dir in lib web agents bin tools; do
+    [ -d "$PROJECT_ROOT/$scan_dir" ] || continue
+    while IFS= read -r hit; do
+        [ -z "$hit" ] && continue
+        # Allowlist by path prefix.
+        case "$hit" in
+            *lib/arc_membership.sh:*|*lib/arc_membership.py:*) continue ;;
+            *lib/arc.sh:*) continue ;;
+            *lib/migrations/*) continue ;;
+            *tests/*|*docs/*|*.fabric/*|*.context/*) continue ;;
+        esac
+        arc_tag_only_violations=$((arc_tag_only_violations + 1))
+        arc_tag_only_evidence="$arc_tag_only_evidence$hit\n"
+    done < <(grep -RnE "$arc_tag_only_pattern" \
+                   --include='*.sh' --include='*.py' --include='*.bash' \
+                   "$PROJECT_ROOT/$scan_dir" 2>/dev/null || true)
+done
+if [ "$arc_tag_only_violations" -eq 0 ]; then
+    pass "No inline arc:<slug> tag-only scans outside canonical lib (T-1881)"
+else
+    fail "Found $arc_tag_only_violations inline arc:<slug> tag-only scan(s) outside canonical lib" \
+         "$(printf '%b' "$arc_tag_only_evidence" | head -5)" \
+         "Migrate to lib/arc_membership.{sh,py} (arc_tasks_for / scan_tasks_by_arc_membership). See T-1880 for pattern. Silent-corpus risk class L-397."
+fi
+
+# T-1975 (L-417 prevention): stale-slice-reference scan.
+# When a slice ships, satellite text/tests referencing "ship in T-NNNN"
+# become stale and contradict reality. Origin: T-1971/T-1972/T-1973/T-1974
+# cluster in BVP arc — 4 instances landed in 20 min, all the same pattern:
+# substrate evolved, satellite didn't follow. This check scans source
+# surfaces for two phrasings of the anti-pattern and flags references
+# whose T-NNNN already lives in .tasks/completed/. WARN (not FAIL) until
+# FP rate is measured.
+#
+# Pattern 1: "ship | ships | shipping in T-NNNN" (forecast — present/future)
+# Pattern 2: "once (that )?slice ships"
+# Past-tense "shipped in T-NNNN" is intentionally NOT matched — that's a
+# historical reference (correct documentation), not a stale forecast.
+#
+# Scope: web/templates, web/blueprints, lib (source-of-truth surfaces).
+# Allowlist: tests/, docs/, .fabric/, .context/, .tasks/, audit.sh itself.
+stale_slice_count=0
+stale_slice_evidence=""
+for scan_dir in web/templates web/blueprints lib; do
+    [ -d "$PROJECT_ROOT/$scan_dir" ] || continue
+    while IFS= read -r hit; do
+        [ -z "$hit" ] && continue
+        # Allowlist (out-of-scope or self-referential)
+        case "$hit" in
+            *agents/audit/audit.sh:*) continue ;;
+            *tests/*|*docs/*|*.fabric/*|*.context/*|*.tasks/*) continue ;;
+        esac
+        # Extract T-NNNN from the matched line.
+        t_id=$(echo "$hit" | grep -oE 'T-[0-9]{2,5}' | head -1)
+        if [ -n "$t_id" ]; then
+            # Only flag if T-NNNN resolves to a completed task.
+            if ls "$PROJECT_ROOT/.tasks/completed/${t_id}-"*.md >/dev/null 2>&1; then
+                stale_slice_count=$((stale_slice_count + 1))
+                stale_slice_evidence="$stale_slice_evidence$hit\n"
+            fi
+        else
+            # "once (that )?slice ships" — no T-NNNN to verify; always flag.
+            stale_slice_count=$((stale_slice_count + 1))
+            stale_slice_evidence="$stale_slice_evidence$hit\n"
+        fi
+    done < <(grep -RniE '(\<ship\>|\<ships\>|\<shipping\>)[[:space:]]+in[[:space:]]+T-[0-9]{2,5}|once[[:space:]]+(that[[:space:]]+)?slice[[:space:]]+ships?' \
+                   --include='*.html' --include='*.py' --include='*.sh' \
+                   "$PROJECT_ROOT/$scan_dir" 2>/dev/null || true)
+done
+if [ "$stale_slice_count" -eq 0 ]; then
+    pass "No stale-slice-references (L-417)"
+else
+    warn "Found $stale_slice_count stale-slice-reference(s) — satellite text references a completed task as if still pending" \
+         "$(printf '%b' "$stale_slice_evidence" | head -5)" \
+         "Update the satellite to describe the live behaviour (origin: L-417, T-1971/T-1972/T-1973/T-1974)"
+fi
+
+# T-2096 (OBS-036, sibling to L-417/T-1975): GO-scope-not-propagated scan.
+# Forwards-pointing companion to the L-417 detector above. L-417 catches
+# satellite text claiming "ships in T-NNNN" where T-NNNN is already
+# completed (backwards staleness). This detector catches the inverse:
+# completed inceptions whose Recommendation/Decision claim sub-tasks
+# were filed, but related_tasks: [] AND no other task back-references
+# the inception in their own related_tasks. The GO scope was promised
+# but never actually propagated — humans following the breadcrumbs
+# find a dead-end.
+# Origin: T-2078 (May-29) — Recommendation said "V1 build slices (filed on GO)"
+# but related_tasks: [] and the V1-a/b/c/d slices did not exist until T-2091's
+# G-052 sweep backfilled them as T-2092..T-2095. WARN (not FAIL) until
+# FP rate is measured.
+go_scope_unprop_count=0
+go_scope_unprop_evidence=""
+for task_file in "$PROJECT_ROOT"/.tasks/completed/T-*.md; do
+    [ -f "$task_file" ] || continue
+    # Filter: must be inception
+    grep -qE "^workflow_type: inception$" "$task_file" || continue
+    # Body must contain a propagation-claim phrase
+    grep -qiE "filed on GO|sub-tasks (filed|created)|build slices (filed|created)|child tasks (filed|spun off)" \
+         "$task_file" || continue
+    # related_tasks must be empty (`[]`) or absent
+    if grep -qE "^related_tasks: \[\]" "$task_file"; then
+        :
+    elif ! grep -qE "^related_tasks:" "$task_file"; then
+        :
+    else
+        continue
+    fi
+    # Reverse check: if any other task back-references this inception's id
+    # in its own related_tasks:, propagation happened despite the empty
+    # inception-side field. Skip.
+    t_id=$(basename "$task_file" | grep -oE '^T-[0-9]+')
+    [ -z "$t_id" ] && continue
+    back_refs=$(grep -lE "related_tasks:.*\b${t_id}\b" \
+                     "$PROJECT_ROOT"/.tasks/active/T-*.md \
+                     "$PROJECT_ROOT"/.tasks/completed/T-*.md 2>/dev/null | wc -l)
+    if [ "$back_refs" -gt 0 ]; then
+        continue
+    fi
+    go_scope_unprop_count=$((go_scope_unprop_count + 1))
+    go_scope_unprop_evidence="$go_scope_unprop_evidence$task_file\n"
+done
+if [ "$go_scope_unprop_count" -eq 0 ]; then
+    pass "No GO-scope-not-propagated inception(s) (sibling to L-417)"
+else
+    warn "Found $go_scope_unprop_count GO-scope-not-propagated inception(s) — Recommendation claims sub-tasks were filed but related_tasks:[] and no task back-references" \
+         "$(printf '%b' "$go_scope_unprop_evidence" | head -5)" \
+         "Backfill related_tasks: in the inception OR file the promised siblings (origin: T-2078, T-2091; sibling to L-417/T-1975)"
+fi
+
+# Fabric drift detection (T-212 — component topology integrity)
+if [ -d "$PROJECT_ROOT/.fabric/components" ]; then
+    fabric_cards=$(find "$PROJECT_ROOT/.fabric/components/" -maxdepth 1 -name '*.yaml' -type f 2>/dev/null | wc -l)
+    if [ "$fabric_cards" -gt 0 ]; then
+        drift_result=$(python3 -c "
+import yaml, glob, os
+
+PROJECT_ROOT = '$PROJECT_ROOT'
+FABRIC_DIR = os.path.join(PROJECT_ROOT, '.fabric')
+COMP_DIR = os.path.join(FABRIC_DIR, 'components')
+WATCH_FILE = os.path.join(FABRIC_DIR, 'watch-patterns.yaml')
+
+# Get registered locations
+registered = set()
+for card_path in glob.glob(os.path.join(COMP_DIR, '*.yaml')):
+    with open(card_path) as f:
+        data = yaml.safe_load(f)
+    if data and data.get('location'):
+        registered.add(data['location'])
+
+unregistered = 0
+orphaned = 0
+
+# Check watch patterns
+if os.path.exists(WATCH_FILE):
+    with open(WATCH_FILE) as f:
+        wp = yaml.safe_load(f)
+    for p in wp.get('patterns', []):
+        for match in glob.glob(p['glob']):
+            rel = os.path.relpath(match, PROJECT_ROOT)
+            if rel not in registered:
+                unregistered += 1
+
+# Check orphaned cards
+for card_path in glob.glob(os.path.join(COMP_DIR, '*.yaml')):
+    with open(card_path) as f:
+        data = yaml.safe_load(f)
+    if data and data.get('location'):
+        if not os.path.exists(os.path.join(PROJECT_ROOT, data['location'])):
+            orphaned += 1
+
+print(f'{len(registered)} {unregistered} {orphaned}')
+" 2>&1)
+        fabric_registered=$(echo "$drift_result" | awk '{print $1}')
+        fabric_unreg=$(echo "$drift_result" | awk '{print $2}')
+        fabric_orphan=$(echo "$drift_result" | awk '{print $3}')
+
+        if [ "$fabric_orphan" -gt 0 ]; then
+            warn "Fabric: $fabric_orphan orphaned card(s) (file deleted but card remains)" \
+                 "$fabric_orphan cards reference missing files" \
+                 "Run: fw fabric drift"
+        fi
+        if [ "$fabric_unreg" -gt 0 ]; then
+            pass "Fabric: $fabric_registered registered, $fabric_unreg unregistered (coverage growing)"
+        else
+            pass "Fabric: $fabric_registered registered, 0 unregistered"
+        fi
+
+        # Check for unenriched cards (no depends_on AND no depended_by edges)
+        # Cards explicitly marked `standalone: true` are excluded — these are
+        # one-shot probes/tools with no framework imports by design (T-1754).
+        unenriched_count=$(python3 -c "
+import yaml, glob, os
+COMP_DIR = os.path.join('$PROJECT_ROOT', '.fabric', 'components')
+unenriched = 0
+total = 0
+for f in glob.glob(os.path.join(COMP_DIR, '*.yaml')):
+    with open(f) as fh:
+        d = yaml.safe_load(fh)
+    if not d: continue
+    if d.get('standalone') is True: continue
+    total += 1
+    deps = d.get('depends_on') or []
+    depby = d.get('depended_by') or []
+    if not deps and not depby:
+        unenriched += 1
+print(f'{unenriched} {total}')
+" 2>&1)
+        fabric_unenriched=$(echo "$unenriched_count" | awk '{print $1}')
+        fabric_total=$(echo "$unenriched_count" | awk '{print $2}')
+        fabric_enriched=$((fabric_total - fabric_unenriched))
+
+        if [ "$fabric_unenriched" -gt 10 ]; then
+            warn "Fabric: $fabric_unenriched/$fabric_total cards have no edges" \
+                 "Graph coverage below target" \
+                 "Run: fw fabric enrich"
+        else
+            pass "Fabric edges: $fabric_enriched/$fabric_total cards enriched ($fabric_unenriched without edges)"
+        fi
+    fi
+fi
+
+# Fabric drift: check for unregistered source files
+WATCH_PATTERNS="$PROJECT_ROOT/.fabric/watch-patterns.yaml"
+if [ -f "$WATCH_PATTERNS" ] && [ -d "$PROJECT_ROOT/.fabric/components" ]; then
+    drift_result=$(python3 << 'DRIFTEOF'
+import yaml, glob, os
+
+PROJECT_ROOT = os.environ.get("PROJECT_ROOT", ".")
+COMP_DIR = os.path.join(PROJECT_ROOT, ".fabric", "components")
+WATCH_FILE = os.path.join(PROJECT_ROOT, ".fabric", "watch-patterns.yaml")
+
+# Get all registered locations
+registered = set()
+for f in glob.glob(os.path.join(COMP_DIR, "*.yaml")):
+    try:
+        with open(f) as fh:
+            d = yaml.safe_load(fh)
+        if d and d.get("location"):
+            registered.add(d["location"])
+    except Exception:
+        pass
+
+# Get files matching watch patterns
+with open(WATCH_FILE) as f:
+    data = yaml.safe_load(f)
+patterns = data.get("patterns", []) if data else []
+unregistered = []
+for p in patterns:
+    g = p.get("glob", "") if isinstance(p, dict) else str(p)
+    if not g:
+        continue
+    for match in glob.glob(os.path.join(PROJECT_ROOT, g), recursive=True):
+        rel = os.path.relpath(match, PROJECT_ROOT)
+        if os.path.isfile(match) and rel not in registered:
+            unregistered.append(rel)
+
+print(f"{len(unregistered)} {len(registered)}")
+DRIFTEOF
+    )
+    drift_unreg=$(echo "$drift_result" | awk '{print $1}')
+    drift_total=$(echo "$drift_result" | awk '{print $2}')
+    if [ "$drift_unreg" -gt 0 ] 2>/dev/null; then
+        warn "Fabric drift: $drift_unreg source file(s) have no fabric card" \
+             "$drift_unreg unregistered files matching watch-patterns.yaml" \
+             "Run: fw fabric scan"
+    else
+        pass "Fabric drift: All watched source files registered ($drift_total cards)"
+    fi
+fi
+
+# T-1771 (T-1768 GO follow-up): cron drift check.
+# Mirrors `bin/fw doctor` cron-drift logic so the registry → generated →
+# deployed pipeline is monitored alongside fabric drift, hook threshold,
+# etc. — same surface, same cron, no new alert channel. WARN was the
+# doctor's level; here we use FAIL on substantive drift because cron
+# drift means *tasks won't run* (silent execution failure), strictly
+# more serious than a missing fabric card. Origin: T-1767 (cron-touching
+# task closed work-completed while drift made the new job a no-op for
+# 3 days). G-064 closure path.
+_cron_registry="$PROJECT_ROOT/.context/cron-registry.yaml"
+if [ -f "$_cron_registry" ]; then
+    _cron_source="$PROJECT_ROOT/.context/cron/agentic-audit.crontab"
+    _cron_target_dir="${FW_CRON_INSTALL_DIR:-/etc/cron.d}"
+    _cron_slug=$(basename "$PROJECT_ROOT" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9_-]/-/g')
+    _cron_target="$_cron_target_dir/agentic-audit-${_cron_slug}"
+
+    # T-1943 (T-1942 audit-side sibling): registry → generated drift detection.
+    # Mirrors bin/fw doctor logic so the third leg of the three-step sync
+    # (registry → generated → deployed) is monitored at audit's daily-cron
+    # cadence. FAIL severity because registry → generated drift means the new
+    # cron entry is invisible to the OS scheduler — same "tasks won't run"
+    # class as the deployed-side FAIL below. Origin: T-1935 (bvp-cost-estimator
+    # registry entry sat 3+ days drifted while doctor reported "in sync").
+    # T-1944: dry-run logic extracted to lib/cron_dry_run.py per L-332/L-408
+    # (single source of truth + bash side stays parse-safe).
+    if [ -f "$_cron_source" ]; then
+        _cron_dry_run=$(python3 "$FRAMEWORK_ROOT/lib/cron_dry_run.py" "$PROJECT_ROOT" "$_cron_registry" "$FRAMEWORK_ROOT/bin/fw" 2>/dev/null || echo "__SKIP__")
+        if [ "$_cron_dry_run" != "__SKIP__" ] && [ -n "$_cron_dry_run" ]; then
+            _cron_on_disk=$(cat "$_cron_source" 2>/dev/null)
+            if [ "$_cron_dry_run" != "$_cron_on_disk" ]; then
+                fail "Cron drift: $_cron_registry is ahead of $_cron_source (registry edited but not generated)" \
+                     "Registry has been edited since the generated crontab was produced — new/modified jobs are invisible to the OS scheduler" \
+                     "Run: fw cron generate"
+            fi
+        fi
+    fi
+
+    if [ -f "$_cron_source" ] && [ -f "$_cron_target" ]; then
+        if diff -q "$_cron_source" "$_cron_target" >/dev/null 2>&1; then
+            pass "Cron registry in sync with $_cron_target"
+        else
+            fail "Cron drift: $_cron_source differs from deployed $_cron_target" \
+                 "Registry edits or generator output have not been deployed — cron jobs may be running stale or absent" \
+                 "Run: fw cron install"
+        fi
+    elif [ -f "$_cron_source" ] && [ ! -f "$_cron_target" ]; then
+        fail "Cron drift: generated but not installed at $_cron_target" \
+             "Generated crontab exists but is not deployed — scheduled jobs are not running" \
+             "Run: fw cron install"
+    elif [ ! -f "$_cron_source" ]; then
+        warn "Cron drift: registry present but not generated" \
+             "$_cron_registry exists but $_cron_source is missing" \
+             "Run: fw cron install"
+    fi
+fi
+
+# T-1722: cron-misload lint — detect dormant USER-field crontab files.
+# PL-173 case (2): a source-of-truth crontab at .context/cron/*.crontab uses
+# /etc/cron.d/ USER-field syntax ('m h dom mon dow USER cmd') but no matching
+# /etc/cron.d/ counterpart exists -> the crontab is dormant (jobs don't run).
+# This is the silent-failure mode that ran G-058 for 16 days. The standard
+# registry check above only covers the framework's auto-generated
+# agentic-audit.crontab; this loop covers every other .context/cron/*.crontab
+# (release-mirror-canary, heartbeat, project-specific ad-hoc files, ...).
+_cron_lint_dir="$PROJECT_ROOT/.context/cron"
+if [ -d "$_cron_lint_dir" ]; then
+    _cron_lint_target_dir="${FW_CRON_INSTALL_DIR:-/etc/cron.d}"
+    _cron_lint_slug=$(basename "$PROJECT_ROOT" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9_-]/-/g')
+    for _cf in "$_cron_lint_dir"/*.crontab; do
+        [ -f "$_cf" ] || continue
+        _cf_base=$(basename "$_cf" .crontab)
+        # Skip the framework's own crontab -- handled by the registry check above.
+        [ "$_cf_base" = "agentic-audit" ] && continue
+        # USER-field syntax detection: any non-comment / non-VAR= line whose
+        # first field is cron-numeric (digits/*/-/,) AND whose 6th field looks
+        # like a Unix username (starts with [a-z_] then [a-z0-9_-]*).
+        _cf_userlike=$(awk '
+            /^[[:space:]]*#/ { next }
+            /^[[:space:]]*$/ { next }
+            /^[A-Z_][A-Z0-9_]*=/ { next }
+            NF >= 7 && $1 ~ /^[0-9*,/-]+$/ && $6 ~ /^[a-z_][a-z0-9_-]*$/ { print "yes"; exit }
+        ' "$_cf" 2>/dev/null)
+        [ "$_cf_userlike" = "yes" ] || continue
+        # Find a matching install. Try canonical names first, then content match.
+        _cf_install=""
+        for _cand in \
+            "$_cron_lint_target_dir/$_cf_base" \
+            "$_cron_lint_target_dir/termlink-$_cf_base" \
+            "$_cron_lint_target_dir/${_cron_lint_slug}-$_cf_base"; do
+            if [ -f "$_cand" ]; then
+                _cf_install="$_cand"
+                break
+            fi
+        done
+        if [ -z "$_cf_install" ]; then
+            # Content fallback: pick the first command in the crontab and search
+            # /etc/cron.d/ for any file containing it.
+            _cf_sig=$(awk '/^[0-9*]/ { for (i=7; i<=NF; i++) printf "%s ", $i; print ""; exit }' "$_cf" 2>/dev/null \
+                | head -c 80)
+            if [ -n "$_cf_sig" ] && [ -d "$_cron_lint_target_dir" ]; then
+                _cf_install=$(grep -lF "$_cf_sig" "$_cron_lint_target_dir"/* 2>/dev/null | head -n1)
+            fi
+        fi
+        if [ -n "$_cf_install" ]; then
+            pass "cron(${_cf_base}): USER-field syntax installed at $_cf_install"
+        else
+            fail "cron(${_cf_base}): USER-field syntax but no install in $_cron_lint_target_dir" \
+                 "Source: $_cf. Dormant -- scheduled jobs are not running (PL-173 / G-058 prevention)." \
+                 "Install: sudo cp $_cf $_cron_lint_target_dir/${_cron_lint_slug}-$_cf_base && sudo systemctl reload cron"
+        fi
+    done
+fi
+
+# T-1631 (B-3b of T-1626): Hook-failure threshold check.
+# Reads .hook-counter + .hook-failure-counter (T-1628 telemetry) and
+# warns if any hook is failing in production over threshold. Does NOT
+# auto-register here — that's --register. Audit surfaces the signal;
+# operator runs `fw concerns scan-hooks --register` (or cron job) to
+# materialize G-entries.
+HOOK_THRESHOLD_HELPER="$FRAMEWORK_ROOT/lib/hook-threshold.py"
+HOOK_COUNTER_FILE="$PROJECT_ROOT/.context/working/.hook-counter"
+if [ -f "$HOOK_THRESHOLD_HELPER" ] && [ -f "$HOOK_COUNTER_FILE" ]; then
+    hook_threshold_out=$(PROJECT_ROOT="$PROJECT_ROOT" python3 "$HOOK_THRESHOLD_HELPER" 2>/dev/null)
+    if [ -n "$hook_threshold_out" ]; then
+        hook_failing=$(echo "$hook_threshold_out" | grep -c "^FAIL|" || true)
+        warn "Hook threshold: $hook_failing hook(s) failing over threshold (T-1626)" \
+             "$hook_threshold_out" \
+             "Run: python3 $FRAMEWORK_ROOT/lib/hook-threshold.py --register (or fw upgrade if witness pattern)"
+    else
+        pass "Hook threshold: no hooks failing over threshold"
+    fi
+fi
+
+# T-1845: Audit-time secret-scan + large-file scan. These were both pre-commit
+# only, which misses: --no-verify bypasses, files committed before the hook
+# existed, hook installation drift on cron-run hosts. Audit-mode scan-tree
+# closes the gap — same shape as the cron registry sync check above (the gate
+# was wired but not measured at the audit horizon).
+SECRET_SCANNER="$FRAMEWORK_ROOT/agents/git/lib/secret-scan.sh"
+if [ -x "$SECRET_SCANNER" ]; then
+    _ss_out=$(PROJECT_ROOT="$PROJECT_ROOT" "$SECRET_SCANNER" scan-tree 2>&1)
+    _ss_rc=$?
+    if [ "$_ss_rc" -ne 0 ]; then
+        _ss_count=$(echo "$_ss_out" | grep -c "^  \[" || true)
+        fail "Secret scan: $_ss_count finding(s) in tracked tree (T-1844)" \
+             "$(echo "$_ss_out" | head -5)" \
+             "Remove the secret from source + history (filter-repo if already committed); allowlist false-positives in .secret-scan-allowlist"
+    else
+        pass "Secret scan: tracked tree clean"
+    fi
+fi
+
+LARGE_FILE_SCANNER="$FRAMEWORK_ROOT/agents/git/lib/large-file-scan.sh"
+if [ -x "$LARGE_FILE_SCANNER" ]; then
+    _lf_out=$(PROJECT_ROOT="$PROJECT_ROOT" "$LARGE_FILE_SCANNER" scan-tree 2>&1)
+    _lf_rc=$?
+    if [ "$_lf_rc" -ne 0 ]; then
+        _lf_count=$(echo "$_lf_out" | grep -c "\[BLOCK\]" || true)
+        warn "Large-file gate: $_lf_count tracked file(s) above block threshold (T-1845)" \
+             "$(echo "$_lf_out" | head -5)" \
+             "Untrack + add to .gitignore, or allowlist if deliberate: git rm --cached <path> && echo <path> >> .gitignore"
+    else
+        pass "Large-file gate: tracked tree clean"
+    fi
+fi
+
+echo ""
+fi # end structure
+
+# ============================================
+# SECTION 2: TASK COMPLIANCE CHECKS
+# ============================================
+if should_run_section "compliance"; then
+echo "=== TASK COMPLIANCE CHECKS ==="
+
+# Check each active task (T-955: uses single-pass scan)
+task_count=0
+valid_task_count=0
+
+if [ -n "$ACTIVE_SCAN" ]; then
+    task_count=$(echo "$ACTIVE_SCAN" | python3 -c "import sys,json; print(json.load(sys.stdin)['stats']['total'])" 2>/dev/null || echo "0")
+    valid_task_count=$(echo "$ACTIVE_SCAN" | python3 -c "import sys,json; print(json.load(sys.stdin)['stats']['valid'])" 2>/dev/null || echo "0")
+
+    # Emit warnings for compliance issues
+    while IFS='|' read -r task_name issue; do
+        [ -z "$task_name" ] && continue
+        warn "Task $task_name $issue" \
+             "Compliance check failed" \
+             "Fix $issue in $task_name"
+    done < <(echo "$ACTIVE_SCAN" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for item in data['compliance']['issues']:
+    print(f\"{item['task']}|{item['issue']}\")
+" 2>/dev/null)
+fi
+
+if [ "$task_count" -eq 0 ]; then
+    warn "No active tasks found" \
+         ".tasks/active/ is empty" \
+         "Create tasks for ongoing work"
+else
+    if [ "$valid_task_count" -eq "$task_count" ]; then
+        pass "All $task_count active tasks are valid"
+    else
+        echo "       $valid_task_count of $task_count tasks fully valid"
+    fi
+fi
+
+echo ""
+fi # end compliance
+
+# ============================================
+# SECTION 2B: TASK QUALITY CHECKS (P-001, P-004)
+# ============================================
+if should_run_section "quality"; then
+echo "=== TASK QUALITY CHECKS ==="
+
+# Quality checks (T-955: uses single-pass scan)
+quality_issues=0
+
+if [ -n "$ACTIVE_SCAN" ]; then
+    while IFS='|' read -r task_id issue task_file; do
+        [ -z "$task_id" ] && continue
+        warn "Task $task_id has $issue" \
+             "Quality check failed" \
+             "Fix in $task_file"
+        quality_issues=$((quality_issues + 1))
+    done < <(echo "$ACTIVE_SCAN" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for item in data['quality']['issues']:
+    print(f\"{item['id']}|{item['issue']}|{item['file']}\")
+" 2>/dev/null)
+fi
+
+if [ "$quality_issues" -eq 0 ]; then
+    pass "All active tasks meet quality thresholds"
+fi
+
+echo ""
+fi # end quality
+
+# ============================================
+# SECTION 3: GIT TRACEABILITY CHECKS
+# ============================================
+if should_run_section "traceability"; then
+echo "=== GIT TRACEABILITY CHECKS ==="
+
+if git -C "$PROJECT_ROOT" rev-parse --git-dir > /dev/null 2>&1; then
+    # T-590: Traceability baseline — only count commits after baseline on imported projects
+    TRACE_BASELINE_FILE="$PROJECT_ROOT/.context/project/traceability-baseline"
+    trace_range=""
+    if [ -f "$TRACE_BASELINE_FILE" ]; then
+        trace_base=$(tr -d '[:space:]' < "$TRACE_BASELINE_FILE")
+        if git -C "$PROJECT_ROOT" rev-parse --verify "$trace_base" >/dev/null 2>&1; then
+            trace_range="${trace_base}..HEAD"
+            pass "Traceability baseline active (excluding pre-ingestion commits)"
+        fi
+    fi
+
+    # shellcheck disable=SC2086 # trace_range intentionally unquoted — empty means no range arg
+    total_commits=$(git -C "$PROJECT_ROOT" log --oneline $trace_range 2>/dev/null | wc -l | tr -d ' ')
+    # shellcheck disable=SC2086
+    task_commits=$(git -C "$PROJECT_ROOT" log --oneline $trace_range 2>/dev/null | grep -cE "T-[0-9]+" || true)
+
+    if [ "$total_commits" -gt 0 ]; then
+        pct=$((task_commits * 100 / total_commits))
+
+        if [ "$pct" -ge 80 ]; then
+            pass "Git traceability: $pct% ($task_commits/$total_commits commits reference tasks)"
+        elif [ "$pct" -ge 50 ]; then
+            warn "Git traceability below target: $pct%" \
+                 "$task_commits of $total_commits commits reference tasks" \
+                 "Reference tasks in commit messages: git commit -m 'T-XXX: description'"
+        else
+            fail "Git traceability low: $pct%" \
+                 "Only $task_commits of $total_commits commits reference tasks" \
+                 "Enforce task references in commits"
+        fi
+    fi
+
+    # Check for uncommitted changes (T-1392: filter session-state noise)
+    # Session-state files (watchtower logs/pid, audits, monitors, focus, metrics
+    # history, ephemeral approvals, counters) churn under normal operation and
+    # would otherwise drown out signal from real source/code changes.
+    _SESSION_STATE_FILTER='^\.context/(working/(watchtower\.|session\.yaml|focus\.yaml|\.session-metrics\.yaml|\.tool-counter|\.edit-counter|\.budget-status|\.gate-bypass-log\.yaml|\.approval-notified|\.restart-requested|\.dispatch-approval)|audits/|monitors/|approvals/(pending|resolved)-|project/metrics-history\.yaml|locks/)'
+    _ALL_DIRTY=$(git -C "$PROJECT_ROOT" status --porcelain | awk '{print $2}')
+    if [ -n "$_ALL_DIRTY" ]; then
+        _REAL_DIRTY=$(printf '%s\n' "$_ALL_DIRTY" | grep -Ev "$_SESSION_STATE_FILTER" || true)
+        _NOISE_COUNT=$(printf '%s\n' "$_ALL_DIRTY" | grep -Ec "$_SESSION_STATE_FILTER" || true)
+        if [ -n "$_REAL_DIRTY" ]; then
+            _REAL_COUNT=$(printf '%s\n' "$_REAL_DIRTY" | wc -l | tr -d ' ')
+            warn "Uncommitted changes present" \
+                 "$_REAL_COUNT real file(s) modified ($_NOISE_COUNT session-state file(s) ignored)" \
+                 "Commit changes with task reference or stash"
+        else
+            pass "Working directory clean ($_NOISE_COUNT session-state file(s) churning, ignored)"
+        fi
+    else
+        pass "Working directory clean"
+    fi
+    unset _SESSION_STATE_FILTER _ALL_DIRTY _REAL_DIRTY _NOISE_COUNT _REAL_COUNT
+
+    # Quality Check: Verify task refs in commits exist as actual tasks
+    orphan_refs=0
+    # shellcheck disable=SC2086 # trace_range intentionally unquoted
+    while IFS= read -r commit_line; do
+        task_ref=$(echo "$commit_line" | grep -oE "T-[0-9]+" | head -1)
+        if [ -n "$task_ref" ]; then
+            # Check if task file exists (active or completed)
+            task_file=$(find "$TASKS_DIR" -name "${task_ref}-*.md" -type f 2>/dev/null | head -1)
+            if [ -z "$task_file" ]; then
+                # T-2058: suppress WARN when a later commit explicitly reverted this task
+                # (deliberate orphan). Pattern: any commit message containing "revert ... T-NNNN".
+                # Capture-then-grep avoids SIGPIPE on truncation (L-387 safe pattern).
+                _revert_log=$(git -C "$PROJECT_ROOT" log --all --format=%s 2>/dev/null)
+                if echo "$_revert_log" | grep -qiE "revert[^A-Za-z0-9_].*${task_ref}([^0-9]|$)"; then
+                    # Revert-chain detected — task was intentionally removed from history
+                    continue
+                fi
+                unset _revert_log
+                if [ "$orphan_refs" -eq 0 ]; then
+                    echo ""
+                fi
+                commit_sha=$(echo "$commit_line" | cut -d' ' -f1)
+                warn "Commit $commit_sha references non-existent task $task_ref" \
+                     "Task file for $task_ref not found in .tasks/" \
+                     "Create task or fix commit reference"
+                orphan_refs=$((orphan_refs + 1))
+            fi
+        fi
+    done < <(git -C "$PROJECT_ROOT" log --oneline $trace_range 2>/dev/null)
+
+    if [ "$orphan_refs" -eq 0 ] && [ "$task_commits" -gt 0 ]; then
+        pass "All commit task refs resolve to actual tasks"
+    fi
+
+    # T-1255 (G-007): mirror drift check — github vs origin HEAD divergence.
+    # Only runs when both 'origin' and 'github' remotes are configured.
+    if git -C "$PROJECT_ROOT" remote get-url github >/dev/null 2>&1 \
+       && git -C "$PROJECT_ROOT" remote get-url origin >/dev/null 2>&1; then
+        _origin_head=$(timeout 10 git -C "$PROJECT_ROOT" ls-remote origin main 2>/dev/null | awk '"'"'{print $1}'"'"')
+        _github_head=$(timeout 10 git -C "$PROJECT_ROOT" ls-remote github main 2>/dev/null | awk '"'"'{print $1}'"'"')
+        if [ -n "$_origin_head" ] && [ -n "$_github_head" ]; then
+            if [ "$_origin_head" = "$_github_head" ]; then
+                pass "OneDev → GitHub mirror in sync (origin=github=${_origin_head:0:8})"
+            else
+                warn "OneDev → GitHub mirror drift (G-007): origin=${_origin_head:0:8} github=${_github_head:0:8}" \
+                     "Direct push to github (or onedev down at handover time) likely caused divergence" \
+                     "Investigate handover.sh push loop; ensure only origin is pushed (T-1255)"
+            fi
+        fi
+    fi
+else
+    warn "Not a git repository" \
+         "Git not initialized" \
+         "Run: git init"
+fi
+
+echo ""
+fi # end traceability
+
+# ============================================
+# SECTION 4: ENFORCEMENT CHECKS
+# ============================================
+if should_run_section "enforcement"; then
+echo "=== ENFORCEMENT CHECKS ==="
+
+# Check for bypass log
+if [ -f "$CONTEXT_DIR/bypass-log.yaml" ]; then
+    pass "Bypass log exists"
+else
+    # Only warn if there are commits without task refs (potential bypasses)
+    if [ "$total_commits" -gt "$task_commits" ] 2>/dev/null; then
+        warn "No bypass log found" \
+             "Commits exist without task refs but no bypass log" \
+             "Create .context/bypass-log.yaml to document exceptions"
+    fi
+fi
+
+# T-1573 / F8: Surface .gate-bypass-log.yaml — auth-flag bypasses
+# (--skip-sovereignty, --skip-acceptance-criteria, --skip-rca, etc.) are
+# logged by update-task.sh:32-42 but nothing read the file before now.
+#
+# T-1862: split entries into SAFETY bypasses (--skip-* / --scope-reduction-acknowledged)
+# vs OPERATIONAL overrides (--switch-focus). The former are correctness-gate skips
+# and warrant a low threshold; the latter are routine cross-task work signals
+# from T-1730 and should not contribute to the WARN count. Before this split,
+# 51 normal --switch-focus events drowned out 3 genuine safety bypasses.
+GATE_BYPASS_LOG="$PROJECT_ROOT/.context/working/.gate-bypass-log.yaml"
+if [ -f "$GATE_BYPASS_LOG" ]; then
+    gb_total=$(grep -c "^- timestamp:" "$GATE_BYPASS_LOG" 2>/dev/null || echo 0)
+    cutoff=$(date -u -d "7 days ago" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || \
+             date -u -v-7d +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo "1970-01-01T00:00:00Z")
+    # T-1862: per-class counts. Awk walks entries, classifies by flag.
+    read -r gb_safety gb_drift < <(awk -v cutoff="$cutoff" '
+        BEGIN { in_window=0; current_flag="" }
+        /^- timestamp:/ {
+            # New entry: emit prior classification (if any), reset.
+            if (in_window && current_flag != "") {
+                if (current_flag == "--switch-focus") drift++; else safety++
+            }
+            ts=$0; gsub(/.*timestamp: ['"'"'"]?/, "", ts); gsub(/['"'"'"]?$/, "", ts);
+            in_window = (ts >= cutoff)
+            current_flag = ""
+        }
+        /^  flag:/ {
+            f=$0; gsub(/.*flag: ['"'"'"]?/, "", f); gsub(/['"'"'"]?$/, "", f);
+            current_flag = f
+        }
+        END {
+            # Tail entry.
+            if (in_window && current_flag != "") {
+                if (current_flag == "--switch-focus") drift++; else safety++
+            }
+            print safety+0, drift+0
+        }
+    ' "$GATE_BYPASS_LOG" 2>/dev/null)
+    gb_safety="${gb_safety:-0}"
+    gb_drift="${gb_drift:-0}"
+    gb_recent=$((gb_safety + gb_drift))
+    if [ "$gb_safety" -gt 3 ]; then
+        warn "Gate-bypass log: $gb_safety safety bypasses in last 7 days (+ $gb_drift drift overrides)" \
+             "$gb_total total entries; safety-bypass-as-pattern signal" \
+             "Review .context/working/.gate-bypass-log.yaml — investigate --skip-* / --scope-reduction-acknowledged callers"
+    else
+        pass "Gate-bypass log: $gb_safety safety + $gb_drift drift in last 7 days ($gb_total total)"
+    fi
+else
+    pass "Gate-bypass log: clean (no bypasses recorded)"
+fi
+
+# Check for commit-msg hook (validates task references)
+if [ -f "$PROJECT_ROOT/.git/hooks/commit-msg" ]; then
+    pass "Commit-msg hook installed"
+else
+    warn "No commit-msg hook" \
+         ".git/hooks/commit-msg not found" \
+         "Install hooks: ./agents/git/git.sh install-hooks"
+fi
+
+# Tier 0 Checking: Consequential actions must ALWAYS have task refs
+# Patterns from 011-EnforcementConfig.md
+TIER0_PATTERNS="deploy-to-production|delete-|destroy-|modify-firewall|modify-secrets|database-migrate"
+
+tier0_violations=0
+
+# Check git history for Tier 0 patterns without task refs
+if git -C "$PROJECT_ROOT" rev-parse --git-dir > /dev/null 2>&1; then
+    while IFS= read -r commit_line; do
+        commit_sha=$(echo "$commit_line" | cut -d' ' -f1)
+        commit_msg=$(echo "$commit_line" | cut -d' ' -f2-)
+
+        # Check if commit message contains Tier 0 patterns
+        if echo "$commit_msg" | grep -qiE "$TIER0_PATTERNS"; then
+            # Check if commit has task reference
+            if ! echo "$commit_msg" | grep -qE "T-[0-9]+"; then
+                fail "Tier 0 action without task ref: $commit_sha" \
+                     "Commit '$commit_msg' contains consequential action pattern" \
+                     "Tier 0 actions MUST have task refs - document in bypass-log with explanation"
+                tier0_violations=$((tier0_violations + 1))
+            fi
+        fi
+    done < <(git -C "$PROJECT_ROOT" log --oneline 2>/dev/null)
+fi
+
+# Check bypass log for any Tier 0 patterns (these should never be bypassed)
+if [ -f "$CONTEXT_DIR/bypass-log.yaml" ]; then
+    while IFS= read -r bypass_action; do
+        if echo "$bypass_action" | grep -qiE "$TIER0_PATTERNS"; then
+            action_text=$(echo "$bypass_action" | sed 's/.*action: "//' | sed 's/".*//')
+            fail "Tier 0 action in bypass log" \
+                 "Bypass log contains: $action_text" \
+                 "Tier 0 actions should NEVER be bypassed - review and remediate"
+            tier0_violations=$((tier0_violations + 1))
+        fi
+    done < <(grep "action:" "$CONTEXT_DIR/bypass-log.yaml" 2>/dev/null)
+fi
+
+if [ "$tier0_violations" -eq 0 ]; then
+    pass "No Tier 0 violations detected"
+fi
+
+echo ""
+fi # end enforcement
+
+# ============================================
+# SECTION 5: LEARNING CAPTURE CHECKS
+# ============================================
+if should_run_section "learning"; then
+echo "=== LEARNING CAPTURE CHECKS ==="
+
+# Check practices file (supports both 015-Practices.md and practices.yaml)
+PRACTICES_MD="$PROJECT_ROOT/015-Practices.md"
+PRACTICES_YAML="$PROJECT_ROOT/.context/project/practices.yaml"
+
+if [ -f "$PRACTICES_MD" ]; then
+    practice_count=$(grep -c "^## P-[0-9]" "$PRACTICES_MD" 2>/dev/null || true)
+    if [ "$practice_count" -gt 0 ]; then
+        pass "Practices documented: $practice_count practice(s) in 015-Practices.md"
+
+        # Check if practices have origins
+        practices_with_origin=$(grep -c "Origin:" "$PRACTICES_MD" 2>/dev/null || true)
+        if [ "$practices_with_origin" -ge "$practice_count" ]; then
+            pass "All practices have traceable origins"
+
+            # Quality Check: Verify practice origins reference existing tasks
+            orphan_origins=0
+            while IFS= read -r origin_line; do
+                task_ref=$(echo "$origin_line" | grep -oE "T-[0-9]+" | head -1)
+                if [ -n "$task_ref" ]; then
+                    task_file=$(find "$TASKS_DIR" -name "${task_ref}-*.md" -type f 2>/dev/null | head -1)
+                    if [ -z "$task_file" ]; then
+                        practice_id=$(echo "$origin_line" | grep -oE "P-[0-9]+" | head -1)
+                        warn "Practice ${practice_id:-unknown} references non-existent task $task_ref" \
+                             "Origin task $task_ref not found in .tasks/" \
+                             "Fix origin reference in 015-Practices.md"
+                        orphan_origins=$((orphan_origins + 1))
+                    fi
+                fi
+            done < <(grep "Origin:" "$PRACTICES_MD" 2>/dev/null)
+
+            if [ "$orphan_origins" -eq 0 ]; then
+                pass "All practice origins resolve to actual tasks"
+            fi
+        else
+            warn "Some practices missing origin" \
+                 "$practices_with_origin of $practice_count have Origin: field" \
+                 "Add 'Origin: T-XXX' to each practice"
+        fi
+    else
+        warn "No practices captured yet" \
+             "015-Practices.md exists but no P-XXX entries" \
+             "Extract learnings from completed tasks into practices"
+    fi
+elif [ -f "$PRACTICES_YAML" ]; then
+    practice_count=$(python3 -c "
+import yaml
+with open('$PRACTICES_YAML') as f:
+    data = yaml.safe_load(f) or {}
+print(len(data.get('practices', [])))
+" 2>/dev/null || true)
+    if [ "$practice_count" -gt 0 ]; then
+        pass "Practices documented: $practice_count practice(s) in practices.yaml"
+    else
+        pass "Practices file exists (practices.yaml, no entries yet)"
+    fi
+else
+    warn "Practices file missing" \
+         "No 015-Practices.md or .context/project/practices.yaml found" \
+         "Run: fw init --force (or create practices file manually)"
+fi
+
+# Bugfix-learning coverage (G-016 detective control, T-1192 escalation)
+LEARNINGS_FILE="$CONTEXT_DIR/project/learnings.yaml"
+bugfix_total=0
+bugfix_with_learning=0
+
+if [ -d "$TASKS_DIR/completed" ]; then
+    # Find completed tasks matching bugfix patterns (T-1192: broadened from anchored match)
+    while IFS= read -r task_file; do
+        [ -z "$task_file" ] && continue
+        task_name=$({ grep "^name:" "$task_file" 2>/dev/null || true; } | head -1 | sed 's/^name:[[:space:]]*"*//;s/"*$//')
+        # Match: Fix/Bugfix/Hotfix anywhere, or RCA, or G-0XX gap reference
+        echo "$task_name" | grep -qiE '\bfix\b|\bbugfix\b|\bhotfix\b|\bRCA\b|\bG-[0-9]' || continue
+        task_id=$({ grep "^id:" "$task_file" 2>/dev/null || true; } | head -1 | sed 's/^id:[[:space:]]*//')
+        [ -z "$task_id" ] && continue
+        bugfix_total=$((bugfix_total + 1))
+        # Check if any learning references this task
+        if [ -f "$LEARNINGS_FILE" ] && grep -q "$task_id" "$LEARNINGS_FILE" 2>/dev/null; then
+            bugfix_with_learning=$((bugfix_with_learning + 1))
+        fi
+    done < <(find "$TASKS_DIR/completed" -name "T-*.md" -type f 2>/dev/null)
+fi
+
+if [ "$bugfix_total" -gt 0 ]; then
+    coverage=$((bugfix_with_learning * 100 / bugfix_total))
+    if [ "$coverage" -ge 35 ]; then
+        pass "Bugfix-learning coverage: ${coverage}% ($bugfix_with_learning/$bugfix_total bugfixes have learnings)"
+    elif [ "$coverage" -ge 10 ]; then
+        warn "Bugfix-learning coverage: ${coverage}% ($bugfix_with_learning/$bugfix_total)" \
+             "Only ${coverage}% of bugfixes have associated learnings (target: 35%)" \
+             "Use: fw fix-learned T-XXX 'what was learned from this fix'"
+    else
+        # T-1192: Escalate to FAIL below 10% (G-016 structural enforcement)
+        fail "Bugfix-learning coverage: ${coverage}% ($bugfix_with_learning/$bugfix_total)" \
+             "Critical: below 10% threshold (target: 35%). Bugfix knowledge is being lost." \
+             "After each fix: fw fix-learned T-XXX 'root cause and prevention'"
+    fi
+else
+    pass "Bugfix-learning coverage: no completed bugfix tasks found"
+fi
+
+echo ""
+fi # end learning
+
+# ============================================
+# SECTION 6: EPISODIC MEMORY CHECKS
+# ============================================
+if should_run_section "episodic"; then
+echo "=== EPISODIC MEMORY CHECKS ==="
+
+episodic_dir="$CONTEXT_DIR/episodic"
+
+# Check 1: Every completed task should have an episodic summary (T-955: uses single-pass scan)
+missing_episodic=0
+if [ -n "$COMPLETED_SCAN" ]; then
+    while IFS= read -r task_id; do
+        [ -z "$task_id" ] && continue
+        warn "Completed task $task_id has no episodic summary" \
+             "$episodic_dir/${task_id}.yaml not found" \
+             "Run: ./agents/context/context.sh generate-episodic $task_id"
+        missing_episodic=$((missing_episodic + 1))
+    done < <(echo "$COMPLETED_SCAN" | python3 -c "import sys,json; [print(x) for x in json.load(sys.stdin).get('missing_episodic',[])]" 2>/dev/null)
+fi
+
+if [ "$missing_episodic" -eq 0 ]; then
+    pass "All completed tasks have episodic summaries"
+fi
+
+# Check 2: Episodic quality (non-empty required fields, enrichment status)
+low_quality_episodic=0
+pending_enrichment=0
+
+if [ -d "$episodic_dir" ]; then
+    shopt -s nullglob
+    for episodic_file in "$episodic_dir"/*.yaml; do
+        [ -f "$episodic_file" ] || continue
+        filename=$(basename "$episodic_file")
+        # Skip template
+        [ "$filename" = "TEMPLATE.yaml" ] && continue
+
+        task_id=$(basename "$episodic_file" .yaml)
+
+        # Check enrichment status
+        enrichment_status=$(grep "^enrichment_status:" "$episodic_file" 2>/dev/null | sed 's/enrichment_status: //' | tr -d ' ')
+        if [ "$enrichment_status" = "pending" ]; then
+            pending_enrichment=$((pending_enrichment + 1))
+        fi
+
+        # Check summary is not empty/TODO placeholder
+        # Only flag if the first content line starts with [TODO (actual unfilled placeholder)
+        summary_first_line=$(sed -n '/^summary:/,/^[a-z_]*:/p' "$episodic_file" 2>/dev/null | grep -v "^summary:" | grep -v "^\s*#" | grep -v "^\s*$" | head -1 | sed 's/^[[:space:]]*//')
+        if [ -z "$summary_first_line" ] || echo "$summary_first_line" | grep -q "^\[TODO"; then
+            low_quality_episodic=$((low_quality_episodic + 1))
+        fi
+    done
+    shopt -u nullglob
+fi
+
+if [ "$pending_enrichment" -gt 0 ]; then
+    warn "$pending_enrichment episodic summaries pending enrichment" \
+         "Files with enrichment_status: pending" \
+         "Enrich episodics with actual content, then set enrichment_status: complete"
+fi
+
+if [ "$low_quality_episodic" -gt 0 ] && [ "$pending_enrichment" -eq 0 ]; then
+    warn "$low_quality_episodic episodics have empty or TODO summaries" \
+         "Summary field is empty or contains [TODO]" \
+         "Fill in summary field with actual task description"
+fi
+
+if [ "$pending_enrichment" -eq 0 ] && [ "$low_quality_episodic" -eq 0 ]; then
+    episodic_count=$(find "$episodic_dir" -name "T-*.yaml" -type f 2>/dev/null | wc -l)
+    if [ "$episodic_count" -gt 0 ]; then
+        pass "All $episodic_count episodic summaries have quality content"
+    fi
+fi
+
+# Check 3: Orphaned episodic files (no matching task)
+orphaned_episodic=0
+if [ -d "$episodic_dir" ]; then
+    shopt -s nullglob
+    for episodic_file in "$episodic_dir"/T-*.yaml; do
+        [ -f "$episodic_file" ] || continue
+        task_id=$(basename "$episodic_file" .yaml)
+        task_file=$(find "$TASKS_DIR" -name "${task_id}-*.md" -type f 2>/dev/null | head -1)
+        if [ -z "$task_file" ]; then
+            warn "Orphaned episodic: $task_id has no matching task file" \
+                 "$episodic_file has no corresponding task" \
+                 "Remove orphaned episodic or create matching task"
+            orphaned_episodic=$((orphaned_episodic + 1))
+        fi
+    done
+    shopt -u nullglob
+fi
+
+if [ "$orphaned_episodic" -eq 0 ] && [ -d "$episodic_dir" ]; then
+    pass "No orphaned episodic files"
+fi
+
+echo ""
+fi # end episodic
+
+# ============================================
+# SECTION 7: OBSERVATION INBOX CHECKS
+# ============================================
+if should_run_section "observations"; then
+echo "=== OBSERVATION INBOX CHECKS ==="
+
+INBOX_FILE="$CONTEXT_DIR/inbox.yaml"
+
+if [ -f "$INBOX_FILE" ]; then
+    pending_obs=$(grep -c 'status: pending' "$INBOX_FILE" 2>/dev/null) || pending_obs=0
+    urgent_obs=0
+    stale_obs=0
+
+    if [ "$pending_obs" -gt 0 ]; then
+        # Check for urgent pending observations
+        # Count blocks that have both status: pending and urgent: true
+        urgent_obs=$(python3 -c "
+import re
+with open('$INBOX_FILE') as f:
+    content = f.read()
+blocks = re.split(r'\n  - ', content)
+urgent = sum(1 for b in blocks[1:] if 'status: pending' in b and 'urgent: true' in b)
+print(urgent)
+" 2>/dev/null || true)
+
+        # Check for stale observations (>7 days old)
+        stale_obs=$(python3 -c "
+import re
+from datetime import datetime, timedelta
+with open('$INBOX_FILE') as f:
+    content = f.read()
+blocks = re.split(r'\n  - ', content)
+cutoff = datetime.utcnow() - timedelta(days=7)
+stale = 0
+for b in blocks[1:]:
+    if 'status: pending' not in b:
+        continue
+    m = re.search(r'captured: (\S+)', b)
+    if m:
+        try:
+            ts = datetime.fromisoformat(m.group(1).replace('Z', '+00:00')).replace(tzinfo=None)
+            if ts < cutoff:
+                stale += 1
+        except:
+            pass
+print(stale)
+" 2>/dev/null || true)
+
+        if [ "$urgent_obs" -gt 0 ]; then
+            warn "$urgent_obs urgent observation(s) still pending" \
+                 "Urgent items in .context/inbox.yaml need attention" \
+                 "Run: fw note triage"
+        fi
+
+        if [ "$stale_obs" -gt 0 ]; then
+            warn "$stale_obs observation(s) pending for >7 days" \
+                 "Stale observations in .context/inbox.yaml" \
+                 "Run: fw note triage — promote or dismiss stale items"
+        fi
+
+        if [ "$urgent_obs" -eq 0 ] && [ "$stale_obs" -eq 0 ]; then
+            pass "Observation inbox: $pending_obs pending (none stale or urgent)"
+        fi
+    else
+        pass "Observation inbox clean (0 pending)"
+    fi
+else
+    pass "No observation inbox (not yet initialized)"
+fi
+
+echo ""
+fi # end observations
+
+# ============================================
+# SECTION 8: CONCERNS REGISTER CHECKS (T-397: was gaps register)
+# ============================================
+if should_run_section "gaps"; then
+echo "=== CONCERNS REGISTER CHECKS ==="
+
+# T-397: Unified concerns register (was gaps.yaml)
+GAPS_FILE="$CONTEXT_DIR/project/concerns.yaml"
+[ -f "$GAPS_FILE" ] || GAPS_FILE="$CONTEXT_DIR/project/gaps.yaml"
+
+# T-422: Warn if stale pre-migration files exist
+if [ -f "$CONTEXT_DIR/project/gaps.yaml" ] && [ -f "$CONTEXT_DIR/project/concerns.yaml" ]; then
+    warn "Stale gaps.yaml exists alongside concerns.yaml — remove gaps.yaml (T-397 migration)"
+fi
+if [ -f "$CONTEXT_DIR/project/risks.yaml" ]; then
+    warn "Stale risks.yaml exists — risks are in concerns.yaml (T-397 migration)"
+fi
+
+if [ -f "$GAPS_FILE" ]; then
+    watching_count=$(grep -c 'status: watching' "$GAPS_FILE" 2>/dev/null) || watching_count=0
+    triggered_gaps=0
+
+    if [ "$watching_count" -gt 0 ]; then
+        # Run auto-checkable triggers
+        triggered_gaps=$(python3 << PYEOF
+import yaml, subprocess, os
+
+project_root = os.environ.get('PROJECT_ROOT', '$PROJECT_ROOT')
+
+with open('$GAPS_FILE') as f:
+    data = yaml.safe_load(f)
+
+triggered = 0
+# T-397: concerns.yaml uses 'concerns' key, fallback to 'gaps'
+items = data.get('concerns', data.get('gaps', []))
+for gap in items:
+    if gap.get('status') != 'watching':
+        continue
+    tc = gap.get('trigger_check', {})
+    if tc.get('type') != 'auto':
+        continue
+
+    check_cmd = tc.get('check', '')
+    threshold = tc.get('threshold', '')
+    if not check_cmd:
+        continue
+
+    # Substitute variables
+    check_cmd = check_cmd.replace('$' + 'PROJECT_ROOT', project_root)
+
+    try:
+        result = subprocess.run(check_cmd, shell=True, capture_output=True, text=True, timeout=5)
+        value = int(result.stdout.strip())
+
+        # Parse threshold
+        if threshold.startswith('>= '):
+            target = int(threshold.split('>= ')[1].split()[0])
+            if value >= target:
+                print(f"  TRIGGERED: {gap['id']} — {gap['title']}")
+                print(f"    Value: {value}, Threshold: {threshold}")
+                print(f"    Action: Review gap and decide — build or simplify")
+                triggered += 1
+        elif threshold.startswith('> '):
+            target = int(threshold.split('> ')[1].split()[0])
+            if value > target:
+                print(f"  TRIGGERED: {gap['id']} — {gap['title']}")
+                print(f"    Value: {value}, Threshold: {threshold}")
+                print(f"    Action: Review gap and decide — build or simplify")
+                triggered += 1
+    except:
+        pass
+
+print(triggered)
+PYEOF
+)
+        # Extract just the count (last line)
+        trigger_count=$(echo "$triggered_gaps" | tail -1)
+        trigger_output=$(echo "$triggered_gaps" | head -n -1)
+
+        if [ -n "$trigger_output" ]; then
+            echo "$trigger_output"
+            warn "Gap trigger(s) fired — review gaps register" \
+                 "Auto-check found trigger conditions met" \
+                 "Review .context/project/concerns.yaml and decide: build or simplify"
+        fi
+
+        if [ "${trigger_count:-0}" -eq 0 ]; then
+            pass "Gaps register: $watching_count watching, no triggers fired"
+        fi
+    else
+        pass "Gaps register: no gaps being watched"
+    fi
+else
+    echo -e "  ${CYAN}SKIP${NC}  No concerns register (.context/project/concerns.yaml)"
+fi
+
+echo ""
+fi # end gaps
+
+# ============================================
+# SECTION 8b: HANDOVER OPEN QUESTIONS (G-002)
+# ============================================
+if should_run_section "handover"; then
+echo "=== HANDOVER OPEN QUESTIONS CHECK ==="
+
+HANDOVER_FILE="$CONTEXT_DIR/handovers/LATEST.md"
+
+if [ -f "$HANDOVER_FILE" ]; then
+    # Extract open questions section (between ## Open Questions and next ##)
+    open_questions=$(sed -n '/^## Open Questions/,/^## /p' "$HANDOVER_FILE" | grep -v "^## " | grep -v "^\[TODO" | grep -v "^$" | grep -v "^1\. \[Question")
+
+    if [ -n "$open_questions" ]; then
+        # Count real items (numbered lines or bullet points with content)
+        oq_count=$(echo "$open_questions" | grep -cE "^[0-9]+\.|^- " 2>/dev/null) || oq_count=0
+
+        if [ "$oq_count" -gt 0 ]; then
+            # Check how many are tracked in gaps.yaml or tasks
+            untracked=0
+            while IFS= read -r line; do
+                # Extract the question text (strip numbering/bullets)
+                question=$(echo "$line" | sed 's/^[0-9]*\.\s*//; s/^- //')
+                [ -z "$question" ] && continue
+
+                # Check if any keyword from the question appears in gaps or active tasks
+                tracked=false
+                for keyword in $(echo "$question" | tr ' ' '\n' | grep -E '^[A-Z]' | head -3); do
+                    if grep -qi "$keyword" "$CONTEXT_DIR/project/gaps.yaml" 2>/dev/null; then
+                        tracked=true
+                        break
+                    fi
+                    if grep -rqi "$keyword" "$TASKS_DIR/active/" 2>/dev/null; then
+                        tracked=true
+                        break
+                    fi
+                done
+
+                if [ "$tracked" = false ]; then
+                    untracked=$((untracked + 1))
+                fi
+            done <<< "$(echo "$open_questions" | grep -E "^[0-9]+\.|^- ")"
+
+            if [ "$untracked" -gt 0 ]; then
+                warn "Handover has $untracked open question(s) with no matching gap or task" \
+                     "$untracked of $oq_count open questions in LATEST.md appear untracked" \
+                     "Register via 'fw gaps add' or 'fw task create' — see LATEST.md Open Questions section"
+            else
+                pass "Handover open questions: $oq_count tracked in gaps/tasks"
+            fi
+        else
+            pass "Handover open questions: none (section empty or template placeholder)"
+        fi
+    else
+        pass "Handover open questions: none"
+    fi
+else
+    echo -e "  ${CYAN}SKIP${NC}  No handover file found"
+fi
+
+echo ""
+fi # end handover
+
+# ============================================
+# SECTION 9: GRADUATION PIPELINE CHECK
+# ============================================
+if should_run_section "graduation"; then
+echo "=== GRADUATION PIPELINE CHECKS ==="
+
+LEARNINGS_FILE="$CONTEXT_DIR/project/learnings.yaml"
+if [ -f "$LEARNINGS_FILE" ]; then
+    learning_count=$(grep -c '^  - id: L-' "$LEARNINGS_FILE" 2>/dev/null) || learning_count=0
+
+    if [ "$learning_count" -ge 20 ]; then
+        # Check for promotion candidates using fw promote
+        promote_output=$(PROJECT_ROOT="$PROJECT_ROOT" "$FRAMEWORK_ROOT/bin/fw" promote suggest 2>/dev/null) || true
+        # shellcheck disable=SC2034 # ready_count/almost_count used for debug logging
+        ready_count=$(echo "$promote_output" | grep -c "ready for promotion" 2>/dev/null) || ready_count=0
+        # shellcheck disable=SC2034
+        almost_count=$(echo "$promote_output" | grep -c "^  " 2>/dev/null) || almost_count=0
+
+        if echo "$promote_output" | grep -q "No learnings currently meet"; then
+            pass "Graduation pipeline: $learning_count learnings, no promotions ready yet"
+        else
+            warn "Learnings ready for promotion — review graduation candidates" \
+                 "$learning_count learnings, promotion candidates available" \
+                 "Run: fw promote suggest"
+        fi
+    else
+        pass "Graduation pipeline: $learning_count learnings (threshold: 20)"
+    fi
+else
+    echo -e "  ${CYAN}SKIP${NC}  No learnings file"
+fi
+
+echo ""
+fi # end graduation
+
+# ============================================
+# SECTION 10: INCEPTION RESEARCH ARTIFACT CHECK (T-178/T-185)
+# ============================================
+if should_run_section "research"; then
+echo "=== INCEPTION RESEARCH CHECKS ==="
+
+# Check completed inception tasks for research artifacts (T-955: uses single-pass scan)
+missing_research=0
+if [ -n "$COMPLETED_SCAN" ]; then
+    while IFS= read -r task_id; do
+        [ -z "$task_id" ] && continue
+        warn "Inception task $task_id has no research artifact in docs/reports/" \
+             "Completed inception with no persisted research output" \
+             "Save research findings: docs/reports/${task_id}-*.md"
+        missing_research=$((missing_research + 1))
+    done < <(echo "$COMPLETED_SCAN" | python3 -c "import sys,json; [print(x) for x in json.load(sys.stdin).get('missing_research',[])]" 2>/dev/null)
+fi
+
+if [ "$missing_research" -eq 0 ]; then
+    inception_count=$(echo "$COMPLETED_SCAN" | python3 -c "import sys,json; print(json.load(sys.stdin).get('stats',{}).get('inception_count',0))" 2>/dev/null || echo "0")
+    if [ "$inception_count" -gt 0 ]; then
+        pass "All $inception_count completed inceptions have research artifacts"
+    else
+        pass "No completed inception tasks to check"
+    fi
+fi
+
+echo ""
+fi # end research
+
+# ============================================
+# SECTION 11: RESEARCH PERSISTENCE OE TESTS (C-001/C-002/C-003, T-194)
+# ============================================
+if should_run_section "oe-research"; then
+echo "=== RESEARCH PERSISTENCE OE CHECKS ==="
+
+# C-001 OE: Active inception tasks with started-work should have docs/reports/ artifact (T-955: uses scan)
+c001_missing=0
+if [ -n "$ACTIVE_SCAN" ]; then
+    while IFS='|' read -r task_id issue_type artifact_name; do
+        [ -z "$task_id" ] && continue
+        if [ "$issue_type" = "missing" ]; then
+            warn "C-001: Inception $task_id has no research artifact in docs/reports/" \
+                 "Active inception task without persisted research" \
+                 "Create docs/reports/${task_id}-*.md — the thinking trail IS the artifact"
+            c001_missing=$((c001_missing + 1))
+        elif [ "$issue_type" = "unreferenced" ]; then
+            warn "C-001: Inception $task_id has artifact but task doesn't reference it" \
+                 "$artifact_name exists but not linked in task Updates" \
+                 "Add artifact reference to ## Updates section of $task_id"
+        fi
+    done < <(echo "$ACTIVE_SCAN" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for item in data['research']['issues']:
+    print(f\"{item['id']}|{item['type']}|{item.get('artifact','')}\")
+" 2>/dev/null)
+fi
+
+if [ "$c001_missing" -eq 0 ]; then
+    inception_active=$(echo "$ACTIVE_SCAN" | python3 -c "import sys,json; print(json.load(sys.stdin)['research']['inception_active'])" 2>/dev/null || echo "0")
+    if [ "$inception_active" -gt 0 ]; then
+        pass "C-001: All $inception_active active inceptions have research artifacts"
+    else
+        pass "C-001: No active inception tasks to check"
+    fi
+fi
+
+# C-002 OE: Check commit-msg hook has research artifact check installed
+if grep -q "inception-research-warnings" "$PROJECT_ROOT/.git/hooks/commit-msg" 2>/dev/null; then
+    pass "C-002: commit-msg hook has research artifact check"
+else
+    warn "C-002: commit-msg hook missing research artifact check" \
+         "Hook at .git/hooks/commit-msg doesn't contain C-002 gate" \
+         "Reinstall hooks: fw git install-hooks (or manually add C-002)"
+fi
+
+# C-002 OE: Check warning log for recent inception commits without research
+WARN_LOG="$CONTEXT_DIR/working/.inception-research-warnings"
+if [ -f "$WARN_LOG" ]; then
+    recent_warns=$(grep -c "$(date +%Y-%m-%d)" "$WARN_LOG" 2>/dev/null || true)
+    recent_warns=$(echo "$recent_warns" | tr -d '[:space:]')
+    if [ "$recent_warns" -gt 0 ]; then
+        warn "C-002: $recent_warns inception commit(s) today without docs/reports/ artifact" \
+             "Warnings logged in .inception-research-warnings" \
+             "Review commits and ensure research is persisted"
+    else
+        pass "C-002: No research warnings today"
+    fi
+else
+    pass "C-002: No research warnings logged (clean or first run)"
+fi
+
+# C-003 OE: Check checkpoint hook is wired and firing
+CHECKPOINT_LOG="$CONTEXT_DIR/working/.inception-checkpoint-log"
+if grep -q "inception-research-counter\|INCEPTION_RESEARCH_INTERVAL\|C-003" "$FRAMEWORK_ROOT/agents/context/checkpoint.sh" 2>/dev/null; then
+    pass "C-003: Research checkpoint logic present in checkpoint.sh"
+else
+    warn "C-003: Research checkpoint logic missing from checkpoint.sh" \
+         "checkpoint.sh doesn't contain C-003 inception research check" \
+         "Add C-003 research checkpoint to checkpoint.sh post-tool handler"
+fi
+
+if [ -f "$CHECKPOINT_LOG" ]; then
+    today_prompts=$(grep -c "$(date +%Y-%m-%d)" "$CHECKPOINT_LOG" 2>/dev/null || true)
+    today_prompts=$(echo "$today_prompts" | tr -d '[:space:]')
+    echo "       C-003 checkpoint prompts today: $today_prompts"
+fi
+
+# C-006 OE (T-1716): Active inceptions with template-only Recommendation
+# Detective for the T-679 rule decay pattern (T-1715 meta-RCA). Catches
+# drift between filing-time gate sweeps. See lib/inception_recommendation.sh
+# for the extracted check function (testable in isolation).
+source "$FRAMEWORK_ROOT/lib/inception_recommendation.sh" 2>/dev/null || true
+c006_missing=0
+while IFS= read -r task_id; do
+    [ -z "$task_id" ] && continue
+    warn "C-006: Inception $task_id has template-only Recommendation block" \
+         "T-679 rule decay (T-1715 family); agent filed without recommendation" \
+         "Retrofit: fill in **Recommendation:** GO|NO-GO|DEFER + rationale + evidence; OR re-file via 'fw inception start --recommendation X --rationale ...' (T-1716 gate)"
+    c006_missing=$((c006_missing + 1))
+done < <(find_inceptions_without_recommendation "$PROJECT_ROOT/.tasks/active" 2>/dev/null)
+
+if [ "$c006_missing" -eq 0 ]; then
+    pass "C-006: All active inceptions have a real Recommendation block"
+fi
+
+echo ""
+fi # end oe-research
+
+# ============================================
+# OE-FAST: Controls checked every 30 minutes (T-195)
+# CTL-001, CTL-003, CTL-004, CTL-018
+# ============================================
+if should_run_section "oe-fast"; then
+echo "=== OE-FAST: 30-MINUTE CONTROL CHECKS ==="
+
+# CTL-001 OE: Task-First Gate — focus file exists when source commits happen
+FOCUS_FILE="$CONTEXT_DIR/working/focus.yaml"
+if [ -f "$FOCUS_FILE" ]; then
+    focus_task=$({ grep "^current_task:" "$FOCUS_FILE" 2>/dev/null || true; } | head -1 | sed 's/current_task: *//' | tr -d ' "')
+    if [ -n "$focus_task" ] && [ "$focus_task" != "null" ] && [ "$focus_task" != "~" ]; then
+        pass "CTL-001: Focus file has active task ($focus_task)"
+    else
+        # Only warn if there's evidence of recent activity
+        recent_commits=$(git -C "$PROJECT_ROOT" log --oneline --since="30 minutes ago" 2>/dev/null | wc -l | tr -d ' ')
+        if [ "$recent_commits" -gt 0 ]; then
+            warn "CTL-001: Focus file empty but $recent_commits commit(s) in last 30min" \
+                 "Task-first gate may not be firing" \
+                 "Check .claude/settings.json hook configuration for check-active-task"
+        else
+            pass "CTL-001: Focus file empty (no recent activity — expected)"
+        fi
+    fi
+else
+    warn "CTL-001: Focus file missing ($FOCUS_FILE)" \
+         "Task-first gate may not be creating focus state" \
+         "Run: fw context focus T-XXX"
+fi
+
+# CTL-003 OE: Budget Gate — status file is fresh during active session
+BUDGET_FILE="$CONTEXT_DIR/working/.budget-status"
+if [ -f "$BUDGET_FILE" ]; then
+    budget_age=$(find "$BUDGET_FILE" -mmin -5 2>/dev/null)
+    if [ -n "$budget_age" ]; then
+        pass "CTL-003: Budget status file fresh (< 5min old)"
+    else
+        # Not necessarily an error — no active session means stale file is fine
+        budget_mtime=$(stat -c %Y "$BUDGET_FILE" 2>/dev/null || echo 0)
+        now=$(date +%s)
+        age_min=$(( (now - budget_mtime) / 60 ))
+        if [ "$age_min" -gt 120 ]; then
+            pass "CTL-003: Budget status file stale (${age_min}min — no active session)"
+        else
+            warn "CTL-003: Budget status file stale (${age_min}min old)" \
+                 "Budget gate may not be running during active session" \
+                 "Check PreToolUse hook wiring for budget-gate.sh"
+        fi
+    fi
+else
+    pass "CTL-003: Budget status file absent (no active session)"
+fi
+
+# CTL-004 OE: Context Checkpoint — tool counter behavior
+TOOL_COUNTER="$CONTEXT_DIR/working/.tool-counter"
+if [ -f "$TOOL_COUNTER" ]; then
+    counter_val=$(tr -d '[:space:]' < "$TOOL_COUNTER" 2>/dev/null)
+    counter_val=${counter_val:-0}
+    # After a commit, post-commit hook resets to 0. High values without recent commit = checkpoint working
+    last_commit_age=$(git -C "$PROJECT_ROOT" log -1 --format="%cr" 2>/dev/null || echo "unknown")
+    pass "CTL-004: Tool counter at $counter_val (last commit: $last_commit_age)"
+else
+    pass "CTL-004: Tool counter absent (session not active or first run)"
+fi
+
+# CTL-018 OE: Token Budget Monitor — status file valid JSON
+if [ -f "$BUDGET_FILE" ]; then
+    if python3 -c "import json; d=json.load(open('$BUDGET_FILE')); assert 'level' in d" 2>/dev/null; then
+        budget_level=$(python3 -c "import json; print(json.load(open('$BUDGET_FILE'))['level'])" 2>/dev/null)
+        pass "CTL-018: Budget status valid JSON (level: $budget_level)"
+    else
+        fail "CTL-018: Budget status file is not valid JSON or missing 'level' field" \
+             "$BUDGET_FILE content: $(head -1 "$BUDGET_FILE" 2>/dev/null)" \
+             "Investigate budget-gate.sh output format"
+    fi
+else
+    pass "CTL-018: Budget status absent (no active session — expected)"
+fi
+
+echo ""
+fi # end oe-fast
+
+# ============================================
+# OE-HOURLY: Controls checked every hour (T-195)
+# CTL-008, CTL-020
+# ============================================
+if should_run_section "oe-hourly"; then
+echo "=== OE-HOURLY: HOURLY CONTROL CHECKS ==="
+
+# CTL-008 OE: Task Reference Gate — recent commits have T-XXX prefix
+# T-590: Respect traceability baseline if set
+_ctl008_range=""
+_ctl008_baseline_file="$PROJECT_ROOT/.context/project/traceability-baseline"
+if [ -f "$_ctl008_baseline_file" ]; then
+    _ctl008_base=$(tr -d '[:space:]' < "$_ctl008_baseline_file")
+    if git -C "$PROJECT_ROOT" rev-parse --verify "$_ctl008_base" >/dev/null 2>&1; then
+        _ctl008_range="${_ctl008_base}..HEAD"
+    fi
+fi
+if [ -n "$_ctl008_range" ]; then
+    # shellcheck disable=SC2086 # _ctl008_range intentionally unquoted
+    total_recent=$(git -C "$PROJECT_ROOT" log --oneline -20 $_ctl008_range 2>/dev/null | wc -l | tr -d ' ')
+else
+    total_recent=$(git -C "$PROJECT_ROOT" log --oneline -20 2>/dev/null | wc -l | tr -d ' ')
+fi
+if [ "$total_recent" -gt 0 ]; then
+    if [ -n "$_ctl008_range" ]; then
+        # shellcheck disable=SC2086
+        without_task=$(git -C "$PROJECT_ROOT" log --oneline -20 $_ctl008_range 2>/dev/null | grep -cv '^[a-f0-9]* T-' || true)
+    else
+        without_task=$(git -C "$PROJECT_ROOT" log --oneline -20 2>/dev/null | grep -cv '^[a-f0-9]* T-' || true)
+    fi
+    without_task=$(echo "$without_task" | tr -d '[:space:]')
+    ratio=$(( (total_recent - without_task) * 100 / total_recent ))
+    # shellcheck disable=SC2086 # _ctl008_range intentionally unquoted (empty = no range arg)
+    if [ "$ratio" -ge 95 ]; then
+        pass "CTL-008: Task reference traceability ${ratio}% ($without_task/$total_recent without T-XXX)"
+    elif [ "$ratio" -ge 80 ]; then
+        grace_warn "CTL-008: Task reference traceability ${ratio}% ($without_task/$total_recent without T-XXX)" \
+             "$(git -C "$PROJECT_ROOT" log --oneline -20 ${_ctl008_range} | grep -v '^[a-f0-9]* T-' | head -3)" \
+             "Ensure all commits use T-XXX prefix (commit-msg hook)"
+    else
+        grace_fail "CTL-008: Task reference traceability ${ratio}% ($without_task/$total_recent without T-XXX)" \
+             "Many commits missing task references — hook may not be installed" \
+             "Run: fw git install-hooks"
+    fi
+else
+    pass "CTL-008: No commits to check"
+fi
+
+# CTL-020 OE: Continuous Audit — cron audit files produced recently
+CRON_DIR="$AUDITS_DIR/cron"
+if [ -d "$CRON_DIR" ]; then
+    recent_cron=$(find "$CRON_DIR" -name '*.yaml' -mmin -60 -not -name 'LATEST*' 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$recent_cron" -gt 0 ]; then
+        pass "CTL-020: $recent_cron cron audit file(s) in last hour"
+    else
+        warn "CTL-020: No cron audit files in last hour" \
+             "$(find "$CRON_DIR" -maxdepth 1 -name '*.yaml' -type f -printf '%T@ %p\n' 2>/dev/null | sort -rn | head -1 | cut -d' ' -f2-)" \
+             "Check cron schedule: crontab -l | grep agentic; cat /etc/cron.d/agentic-audit"
+    fi
+else
+    grace_warn "CTL-020: Cron audit directory missing ($CRON_DIR)" \
+         "Directory not created" \
+         "Run: fw audit schedule install"
+fi
+
+echo ""
+fi # end oe-hourly
+
+# ============================================
+# OE-DAILY: Controls checked once per day (T-195)
+# CTL-002, CTL-005, CTL-006, CTL-007, CTL-009, CTL-010, CTL-011, CTL-012, CTL-013, CTL-019
+# ============================================
+if should_run_section "oe-daily"; then
+echo "=== OE-DAILY: DAILY CONTROL CHECKS ==="
+
+# CTL-002 OE: Tier 0 Guard — hook script exists + settings wired
+if [ -x "$FRAMEWORK_ROOT/agents/context/check-tier0.sh" ]; then
+    if grep -q 'check-tier0' "$PROJECT_ROOT/.claude/settings.json" 2>/dev/null; then
+        pass "CTL-002: Tier 0 guard installed and wired in settings.json"
+    else
+        warn "CTL-002: Tier 0 guard script exists but not wired in settings.json" \
+             "check-tier0.sh exists but settings.json doesn't reference it" \
+             "Add PreToolUse Bash hook for check-tier0.sh in .claude/settings.json"
+    fi
+else
+    fail "CTL-002: Tier 0 guard script missing or not executable" \
+         "$FRAMEWORK_ROOT/agents/context/check-tier0.sh" \
+         "Restore check-tier0.sh from git"
+fi
+
+# CTL-005 OE: Error Watchdog — hook script exists + settings wired
+if [ -x "$FRAMEWORK_ROOT/agents/context/error-watchdog.sh" ]; then
+    if grep -q 'error-watchdog' "$PROJECT_ROOT/.claude/settings.json" 2>/dev/null; then
+        pass "CTL-005: Error watchdog installed and wired in settings.json"
+    else
+        warn "CTL-005: Error watchdog script exists but not wired in settings.json" \
+             "error-watchdog.sh exists but settings.json doesn't reference it" \
+             "Add PostToolUse hook for error-watchdog.sh in .claude/settings.json"
+    fi
+else
+    fail "CTL-005: Error watchdog script missing or not executable" \
+         "$FRAMEWORK_ROOT/agents/context/error-watchdog.sh" \
+         "Restore error-watchdog.sh from git"
+fi
+
+# CTL-006 OE: Pre-Compact Handover — handover exists near compaction events
+COMPACT_LOG="$CONTEXT_DIR/working/.compact-log"
+if [ -f "$COMPACT_LOG" ]; then
+    # Check each compaction has a handover within ~5min
+    compact_count=$(wc -l < "$COMPACT_LOG" 2>/dev/null | tr -d ' ')
+    handover_count=$(find "$CONTEXT_DIR/handovers" -maxdepth 1 -name 'S-*.md' -type f 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$handover_count" -ge "$compact_count" ] || [ "$compact_count" -eq 0 ]; then
+        pass "CTL-006: Handover coverage for compactions ($handover_count handovers, $compact_count compactions)"
+    else
+        warn "CTL-006: Fewer handovers ($handover_count) than compactions ($compact_count)" \
+             "Some compactions may not have triggered pre-compact handover" \
+             "Check pre-compact.sh hook configuration in .claude/settings.json"
+    fi
+else
+    pass "CTL-006: No compact log (no compactions recorded)"
+fi
+
+# CTL-007 OE: Post-Compact Resume — settings.json has resume hook
+if grep -q 'post-compact-resume\|SessionStart' "$PROJECT_ROOT/.claude/settings.json" 2>/dev/null; then
+    pass "CTL-007: Post-compact resume hook configured in settings.json"
+else
+    warn "CTL-007: Post-compact resume hook not found in settings.json" \
+         "SessionStart hook missing" \
+         "Add SessionStart:compact hook for post-compact-resume.sh"
+fi
+
+# CTL-009 OE: Inception Commit Gate — active inceptions with >2 commits have decision or bypass
+shopt -s nullglob
+for task_file in "$TASKS_DIR/active"/*.md "$TASKS_DIR/completed"/*.md; do
+    [ -f "$task_file" ] || continue
+    task_workflow=$({ grep "^workflow_type:" "$task_file" 2>/dev/null || true; } | head -1 | cut -d: -f2 | tr -d ' ')
+    [ "$task_workflow" != "inception" ] && continue
+    task_id=$({ grep "^id:" "$task_file" 2>/dev/null || true; } | head -1 | sed 's/id: //' | tr -d ' ')
+    [ -z "$task_id" ] && continue
+
+    # Count commits for this task
+    task_commits=$(git -C "$PROJECT_ROOT" log --oneline --all --grep="$task_id" 2>/dev/null | wc -l | tr -d ' ')
+    if [ "$task_commits" -gt 2 ]; then
+        # Check for decision
+        has_decision=$(grep -c "inception-decision\|fw inception decide\|Decision:.*GO\|Decision:.*NO-GO\|Decision\*\*: DEFER\|Decision: DEFER\|Decision\*\*: SUPERSEDED\|Decision: SUPERSEDED" "$task_file" 2>/dev/null || true)
+        has_decision=$(echo "$has_decision" | tr -d '[:space:]')
+        # Check for bypass log entries
+        has_bypass=$(grep -c "$task_id" "$CONTEXT_DIR/bypass-log.yaml" 2>/dev/null || true)
+        has_bypass=$(echo "$has_bypass" | tr -d '[:space:]')
+        if [ "$has_decision" -gt 0 ]; then
+            pass "CTL-009: Inception $task_id has decision ($task_commits commits)"
+        elif [ "$has_bypass" -gt 0 ]; then
+            warn "CTL-009: Inception $task_id using bypasses ($task_commits commits, $has_bypass bypasses, no decision)" \
+                 "Inception gate bypassed via --no-verify" \
+                 "Record decision: fw inception decide $task_id go|no-go"
+        else
+            fail "CTL-009: Inception $task_id has $task_commits commits but no decision or bypass log" \
+                 "Inception commit gate may not be installed" \
+                 "Run: fw git install-hooks"
+        fi
+    fi
+done
+shopt -u nullglob
+
+# CTL-027 OE: Inception Template Sections — inception tasks must have ## Recommendation and ## Decision (T-1263)
+shopt -s nullglob
+for task_file in "$TASKS_DIR/active"/*.md; do
+    [ -f "$task_file" ] || continue
+    task_workflow=$({ grep "^workflow_type:" "$task_file" 2>/dev/null || true; } | head -1 | cut -d: -f2 | tr -d ' ')
+    [ "$task_workflow" != "inception" ] && continue
+    task_id=$({ grep "^id:" "$task_file" 2>/dev/null || true; } | head -1 | sed 's/id: //' | tr -d ' ')
+    [ -z "$task_id" ] && continue
+
+    _missing=""
+    grep -qE '^## Recommendation[[:space:]]*$' "$task_file" || _missing="## Recommendation"
+    grep -qE '^## Decision[[:space:]]*$' "$task_file" || _missing="${_missing:+$_missing, }## Decision"
+    if [ -n "$_missing" ]; then
+        fail "CTL-027: Inception $task_id missing required sections: $_missing" \
+             "fw inception decide will fail or duplicate decision blocks" \
+             "Add missing sections to task file: $task_file"
+    else
+        pass "CTL-027: Inception $task_id has Recommendation + Decision sections"
+    fi
+done
+shopt -u nullglob
+
+# CTL-010 OE: Bypass Detector — --no-verify commits appear in bypass-log
+BYPASS_LOG="$CONTEXT_DIR/bypass-log.yaml"
+if [ -f "$BYPASS_LOG" ]; then
+    bypass_count=$(grep -c "commit:" "$BYPASS_LOG" 2>/dev/null || true)
+    bypass_count=$(echo "$bypass_count" | tr -d '[:space:]')
+    if [ "$bypass_count" -gt 0 ]; then
+        pass "CTL-010: Bypass log has $bypass_count entries (post-commit detector working)"
+    else
+        pass "CTL-010: Bypass log exists but empty (no bypasses detected)"
+    fi
+else
+    # Check if any commits lack T-XXX (potential unlogged bypasses)
+    no_task=$(git -C "$PROJECT_ROOT" log --oneline -20 2>/dev/null | grep -cv '^[a-f0-9]* T-' || true)
+    no_task=$(echo "$no_task" | tr -d '[:space:]')
+    if [ "$no_task" -gt 0 ]; then
+        grace_warn "CTL-010: No bypass log but $no_task commit(s) without T-XXX prefix" \
+             "post-commit hook may not be creating bypass-log.yaml" \
+             "Check .git/hooks/post-commit exists and is executable"
+    else
+        pass "CTL-010: No bypass log needed (all commits have task references)"
+    fi
+fi
+
+# CTL-011 OE: Audit Push Gate — pre-push hook installed
+if [ -x "$PROJECT_ROOT/.git/hooks/pre-push" ]; then
+    pass "CTL-011: pre-push hook installed and executable"
+else
+    warn "CTL-011: pre-push hook missing or not executable" \
+         "$PROJECT_ROOT/.git/hooks/pre-push" \
+         "Run: fw git install-hooks"
+fi
+
+# CTL-013 OE: Verification Gate — spot-check recently completed tasks
+# (Full re-run of all verification is expensive; check latest 3)
+verify_fail=0
+shopt -s nullglob
+recent_completed=$(find "$TASKS_DIR/completed" -maxdepth 1 -name '*.md' -type f -print0 2>/dev/null | xargs -r -0 ls -t 2>/dev/null | head -3)
+for task_file in $recent_completed; do
+    [ -f "$task_file" ] || continue
+    task_id=$({ grep "^id:" "$task_file" 2>/dev/null || true; } | head -1 | sed 's/id: //' | tr -d ' ')
+
+    # Extract verification commands (skip HTML comment blocks)
+    in_verify=false
+    in_comment=false
+    verify_cmds=()
+    while IFS= read -r line; do
+        if echo "$line" | grep -q "^## Verification"; then
+            in_verify=true
+            continue
+        fi
+        if echo "$line" | grep -q "^## " && [ "$in_verify" = true ]; then
+            break
+        fi
+        if [ "$in_verify" = true ]; then
+            # Track HTML comment blocks (<!-- ... -->)
+            if echo "$line" | grep -q '<!--'; then
+                if ! echo "$line" | grep -q -- '-->'; then
+                    in_comment=true
+                fi
+                continue
+            fi
+            if [ "$in_comment" = true ]; then
+                if echo "$line" | grep -q -- '-->'; then
+                    in_comment=false
+                fi
+                continue
+            fi
+            trimmed="${line#"${line%%[![:space:]]*}"}"
+            [ -z "$trimmed" ] && continue
+            echo "$trimmed" | grep -q '^#' && continue
+            verify_cmds+=("$trimmed")
+        fi
+    done < "$task_file"
+
+    if [ ${#verify_cmds[@]} -gt 0 ]; then
+        cmd_pass=0
+        cmd_fail=0
+        cmd_skipped=0
+        cmd_isolated_pass=0
+        for cmd in "${verify_cmds[@]}"; do
+            # T-1870/L-391: a verification line that invokes `bin/fw audit`
+            # (or `fw audit`) cannot run during CTL-013 — we're already inside
+            # the audit lock, so the nested call exits "Another audit is
+            # already running" and any downstream grep fails. Skip rather
+            # than report a false positive. Safe pattern in such tasks:
+            # grep the most recent saved audit YAML instead.
+            if echo "$cmd" | grep -qE '(\bbin/)?fw +audit\b'; then
+                cmd_skipped=$((cmd_skipped + 1))
+                continue
+            fi
+            if [ -n "${FW_AUDIT_VERIFY_DEBUG:-}" ]; then
+                # T-1475: capture stderr/stdout so CTL-013 false positives can be
+                # diagnosed (OBS-022 — audit reports bats fails, isolated runs pass).
+                _aud_out=$(mktemp 2>/dev/null || echo "/tmp/fw-audit-verify-$$")
+                # FW_AUDIT_VERIFY_TRACE=1 adds bash xtrace for deepest visibility.
+                if [ -n "${FW_AUDIT_VERIFY_TRACE:-}" ]; then
+                    _eval_rc=0
+                    {
+                        echo "PWD=$PWD"
+                        echo "BASH_OPTS=$-"
+                        echo "PATH=$PATH"
+                        env | grep -E '^(BATS|TMPDIR|HOME|SHELL|TERM|TAP)' | sort
+                        set -x
+                        eval "$cmd"
+                        set +x
+                    } >"$_aud_out" 2>&1 || _eval_rc=$?
+                else
+                    # T-1475: brace-grouped redirection (NOT subshell). When the
+                    # eval'd command was bats, the prior subshell variant produced
+                    # rc=1 with no output (Heisenbug — observable failure with
+                    # `( eval "$cmd" ) >X 2>&1`, but a brace-group `{ eval ...; } >X 2>&1`
+                    # passes consistently). Root cause unconfirmed (likely bats
+                    # parent-shell coupling); brace-group sidesteps it.
+                    _eval_rc=0
+                    { eval "$cmd"; } >"$_aud_out" 2>&1 || _eval_rc=$?
+                fi
+                if [ "$_eval_rc" -eq 0 ]; then
+                    cmd_pass=$((cmd_pass + 1))
+                    rm -f "$_aud_out"
+                else
+                    cmd_fail=$((cmd_fail + 1))
+                    echo "DEBUG ($task_id) FAIL (rc=$_eval_rc): $cmd" >&2
+                    echo "DEBUG ($task_id) captured output (first 20 lines):" >&2
+                    head -20 "$_aud_out" >&2 || true
+                    echo "DEBUG ($task_id) ---" >&2
+                    rm -f "$_aud_out"
+                fi
+            else
+                # T-1475 / T-1870: brace-group (not subshell) to sidestep
+                # the bats parent-shell coupling Heisenbug. Match the DEBUG
+                # path's structure (which already uses brace-group). The
+                # earlier implicit subshell variant (`eval ... >/dev/null`)
+                # was a known reproducer.
+                _eval_rc=0
+                { eval "$cmd"; } >/dev/null 2>&1 || _eval_rc=$?
+                # T-1870 / OBS-022 retry: a failing bats command often
+                # fails inside the audit's polluted env but passes in
+                # isolation. Re-run once under `env -i` (clean env). If
+                # that passes, treat as OBS-022 isolation noise — PASS with
+                # a note recorded in cmd_isolated_pass.
+                if [ "$_eval_rc" -ne 0 ] && [[ "$cmd" == bats\ * ]]; then
+                    if env -i PATH=/usr/bin:/usr/local/bin:/root/.cargo/bin HOME="$HOME" \
+                            bash -c "cd '$PROJECT_ROOT' && $cmd" >/dev/null 2>&1; then
+                        _eval_rc=0
+                        cmd_isolated_pass=$((cmd_isolated_pass + 1))
+                    fi
+                fi
+                if [ "$_eval_rc" -eq 0 ]; then
+                    cmd_pass=$((cmd_pass + 1))
+                else
+                    cmd_fail=$((cmd_fail + 1))
+                    # T-1395: FW_AUDIT_VERIFY_DEBUG=1 dumps captured output (T-1475).
+                fi
+            fi
+        done
+        if [ "$cmd_fail" -eq 0 ]; then
+            _notes=""
+            [ "$cmd_skipped" -gt 0 ] && _notes="${_notes}${_notes:+, }$cmd_skipped skipped — nested-audit invocation"
+            [ "$cmd_isolated_pass" -gt 0 ] && _notes="${_notes}${_notes:+, }$cmd_isolated_pass passed only in isolation — OBS-022 bats env-contam"
+            if [ -n "$_notes" ]; then
+                pass "CTL-013: $task_id verification re-run: $cmd_pass/$((cmd_pass + cmd_fail)) pass ($_notes)"
+            else
+                pass "CTL-013: $task_id verification re-run: $cmd_pass/$((cmd_pass + cmd_fail)) pass"
+            fi
+        else
+            warn "CTL-013: $task_id verification re-run: $cmd_fail command(s) failing" \
+                 "Verification commands that passed at completion now fail" \
+                 "Review $task_id — environment may have changed"
+            verify_fail=$((verify_fail + 1))
+        fi
+    fi
+done
+shopt -u nullglob
+
+# CTL-019 OE: Auto-Restart — claude-fw wrapper exists
+if [ -x "$FRAMEWORK_ROOT/bin/claude-fw" ]; then
+    pass "CTL-019: claude-fw wrapper installed and executable"
+else
+    warn "CTL-019: claude-fw wrapper missing or not executable" \
+         "$FRAMEWORK_ROOT/bin/claude-fw" \
+         "Auto-restart won't work without claude-fw wrapper"
+fi
+
+# CTL-025 OE: P-010 Agent/Human AC split — partial-complete tasks have owner:human (T-955: uses scan)
+if [ -n "$ACTIVE_SCAN" ]; then
+    while IFS='|' read -r task_id owner is_valid; do
+        [ -z "$task_id" ] && continue
+        if [ "$is_valid" = "True" ]; then
+            pass "CTL-025: $task_id partial-complete with owner:human ✓"
+        else
+            warn "CTL-025: $task_id is work-completed in active/ but owner is '$owner' (expected: human)" \
+                 "Partial-complete task without human ownership" \
+                 "Run: fw task update $task_id --owner human"
+        fi
+    done < <(echo "$ACTIVE_SCAN" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for item in data['ownership']['issues']:
+    print(f\"{item['id']}|{item['owner']}|{item['valid']}\")
+" 2>/dev/null)
+fi
+
+# CTL-029 OE: stuck partial-complete after Human-AC re-class (T-1903, L-403)
+# Detects tasks in active/ with status: work-completed AND zero unchecked
+# checkboxes (after HTML-comment strip). These are archive-eligible but
+# didn't auto-archive because the partial-complete recheck only re-fires
+# on `--status work-completed` re-invocation. Triggered by T-1894/T-1897-
+# style re-class operations that drain Human ACs to zero after the first
+# work-completed transition.
+ARCHIVE_ELIGIBLE_OUT=$(PROJECT_ROOT="$PROJECT_ROOT" python3 - <<'PYAUDIT_ARCHIVE' 2>/dev/null
+import os, re, sys
+project_root = os.environ.get('PROJECT_ROOT', '.')
+active_dir = os.path.join(project_root, '.tasks', 'active')
+if not os.path.isdir(active_dir):
+    sys.exit(0)
+stuck = []
+for fn in sorted(os.listdir(active_dir)):
+    if not (fn.startswith('T-') and fn.endswith('.md')):
+        continue
+    path = os.path.join(active_dir, fn)
+    try:
+        text = open(path).read()
+    except OSError:
+        continue
+    m = re.search(r'^id:\s*(T-\d+)', text, re.MULTILINE)
+    task_id = m.group(1) if m else fn
+    m = re.search(r'^status:\s*(\S+)', text, re.MULTILINE)
+    if not m or m.group(1) != 'work-completed':
+        continue
+    ac_match = re.search(r'^## Acceptance Criteria\b(.*?)(?=^## )', text, re.MULTILINE | re.DOTALL)
+    if not ac_match:
+        continue
+    ac = re.sub(r'<!--.*?-->', '', ac_match.group(1), flags=re.DOTALL)
+    unchecked = len(re.findall(r'^\s*-\s*\[ \]', ac, re.MULTILINE))
+    total = len(re.findall(r'^\s*-\s*\[[ x]\]', ac, re.MULTILINE))
+    if total > 0 and unchecked == 0:
+        stuck.append(task_id)
+print('|'.join(stuck))
+PYAUDIT_ARCHIVE
+)
+if [ -z "$ARCHIVE_ELIGIBLE_OUT" ]; then
+    pass "CTL-029: No archive-eligible stuck partial-complete tasks (T-1903/L-403)"
+else
+    stuck_count=$(echo "$ARCHIVE_ELIGIBLE_OUT" | tr '|' '\n' | wc -l)
+    warn "CTL-029: $stuck_count stuck partial-complete task(s) — all ACs ticked, in active/ — run: bin/fw task archive-eligible" \
+         "Tasks: $(echo "$ARCHIVE_ELIGIBLE_OUT" | tr '|' ' ')" \
+         "Sweep with: bin/fw task archive-eligible (origin: T-1903, L-403)"
+fi
+
+echo ""
+fi # end oe-daily
+
+# ============================================
+# CTL-026: Human Sovereignty Gate present in update-task.sh (T-1884, L-390 third instance)
+# Originally lived inside the oe-daily block; promoted by T-1884 to fire on
+# `compliance || oe-daily` so the pre-push audit catches a missing/regressed
+# sovereignty gate BEFORE the commit ships. Detection class is different from
+# CTL-028/CTL-012 (framework-source presence check rather than corpus scan),
+# but the detection-window gap is identical — arguably more severe, because
+# the gate-source can be regressed by the very commit being pushed.
+# ============================================
+if should_run_section "compliance" || should_run_section "oe-daily"; then
+    if grep -qi 'sovereignty gate.*R-033' "$FRAMEWORK_ROOT/agents/task-create/update-task.sh" 2>/dev/null; then
+        if grep -q 'human ownership is protected' "$FRAMEWORK_ROOT/agents/task-create/update-task.sh" 2>/dev/null; then
+            pass "CTL-026: Human sovereignty gate present (completion + owner protection)"
+        else
+            warn "CTL-026: Completion gate present but owner protection missing" \
+                 "update-task.sh has sovereignty gate but not owner protection" \
+                 "Check update-task.sh for R-033 owner protection logic"
+        fi
+    else
+        fail "CTL-026: Human sovereignty gate missing from update-task.sh" \
+             "update-task.sh does not contain sovereignty gate" \
+             "Re-implement R-033 gates in update-task.sh"
+    fi
+fi
+
+# ============================================
+# CTL-028: Status-drift detection (T-1870, L-390)
+# Originally lived inside the oe-daily block; promoted by T-1882 to fire on
+# `compliance || oe-daily` so the pre-push audit (which includes compliance)
+# catches the `git mv → completed/` bypass class BEFORE the drift ships,
+# rather than waiting up to 24h for the next oe-daily cron run.
+# ============================================
+if should_run_section "compliance" || should_run_section "oe-daily"; then
+    status_desync_fail=0
+    if [ -n "$COMPLETED_SCAN" ]; then
+        while IFS='|' read -r task_id observed_status; do
+            [ -z "$task_id" ] && continue
+            warn "CTL-028: $task_id is in .tasks/completed/ but frontmatter status='$observed_status' (expected: work-completed)" \
+                 "Likely cause: git mv bypassed the state machine (L-390)" \
+                 "Fix: bin/fw task update $task_id --status work-completed --force, or hand-edit frontmatter to status: work-completed + set date_finished"
+            status_desync_fail=$((status_desync_fail + 1))
+        done < <(echo "$COMPLETED_SCAN" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for item in data.get('status_desync', []):
+    print(f\"{item['id']}|{item['status']}\")
+" 2>/dev/null)
+    fi
+    if [ "$status_desync_fail" -eq 0 ]; then
+        pass "CTL-028: All completed/ tasks have frontmatter status: work-completed"
+    fi
+fi
+
+# ============================================
+# CTL-030: horizon-drift on completed/ tasks (T-2162, arc-009 Slice 3)
+# Stored horizon on completed/ is behaviorally irrelevant after T-2160 (render
+# derives `past` from _location), but a non-null value is a YAML lie. T-2161
+# nulled the existing pile; this rail catches future drift — typically each
+# new task that closes carries `horizon: now` until the migration is re-run.
+# Fix: bin/migrate-horizon-null-completed.sh (idempotent).
+# ============================================
+if should_run_section "compliance" || should_run_section "oe-daily"; then
+    horizon_drift_fail=0
+    if [ -n "$COMPLETED_SCAN" ]; then
+        while IFS='|' read -r task_id observed_horizon; do
+            [ -z "$task_id" ] && continue
+            fail "CTL-030: $task_id is in .tasks/completed/ but stored horizon='$observed_horizon' (expected: null/absent — render derives 'past' from _location, T-2160)" \
+                 "Origin: arc-009 horizon-axis-hardening (T-2160 derived-past, T-2161 migration, T-2162 audit rail)" \
+                 "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+            horizon_drift_fail=$((horizon_drift_fail + 1))
+        done < <(echo "$COMPLETED_SCAN" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for item in data.get('horizon_drift', []):
+    print(f\"{item['id']}|{item['horizon']}\")
+" 2>/dev/null)
+    fi
+    if [ "$horizon_drift_fail" -eq 0 ]; then
+        pass "CTL-030: All completed/ tasks have null/absent stored horizon (arc-009)"
+    fi
+fi
+
+# ============================================
+# CTL-029: completable-but-not-completed detection (T-2055)
+# Active-side mirror of CTL-028. Catches tasks where the agent finished the
+# work (all Agent ACs ticked) but never ran `--status work-completed`, so the
+# task lingers in active/ instead of partial-completing to the human or
+# archiving cleanly.
+# ============================================
+if should_run_section "compliance" || should_run_section "oe-daily"; then
+    completable_warn=0
+    if [ -d "$PROJECT_ROOT/.tasks/active" ]; then
+        while IFS='|' read -r task_id task_status; do
+            [ -z "$task_id" ] && continue
+            warn "CTL-029: $task_id has all Agent ACs ticked but status='$task_status' — completable, not closed" \
+                 "Agent finished the work; task is shipped-but-unclosed (active/-side mirror of CTL-028)" \
+                 "Run: bin/fw task update $task_id --status work-completed"
+            completable_warn=$((completable_warn + 1))
+        done < <(python3 - "$PROJECT_ROOT/.tasks/active" <<'PYEOF' 2>/dev/null
+import os, re, sys
+
+active_dir = sys.argv[1]
+if not os.path.isdir(active_dir):
+    sys.exit(0)
+
+PLACEHOLDER_PAT = re.compile(r"^\s*-\s*\[[ x]\]\s*\[(First|Second|Third|Fourth|Fifth)\s+criterion\]\s*$", re.IGNORECASE)
+AC_PAT = re.compile(r"^\s*-\s*\[([ x])\]")
+
+for fname in sorted(os.listdir(active_dir)):
+    if not fname.endswith(".md") or not fname.startswith("T-"):
+        continue
+    fpath = os.path.join(active_dir, fname)
+    try:
+        with open(fpath, encoding="utf-8") as fh:
+            text = fh.read()
+    except OSError:
+        continue
+
+    fm_match = re.match(r"^---\n(.*?)\n---\n", text, re.DOTALL)
+    if not fm_match:
+        continue
+    fm = fm_match.group(1)
+    task_id_m = re.search(r"^id:\s*(T-\d+)", fm, re.MULTILINE)
+    status_m = re.search(r"^status:\s*(\S+)", fm, re.MULTILINE)
+    if not task_id_m or not status_m:
+        continue
+    task_id = task_id_m.group(1)
+    status = status_m.group(1).strip()
+    if status not in ("started-work", "issues"):
+        continue
+
+    body = text[fm_match.end():]
+    ac_start = re.search(r"^## Acceptance Criteria\s*$", body, re.MULTILINE)
+    if not ac_start:
+        continue
+    after_ac = body[ac_start.end():]
+    next_h2 = re.search(r"^## ", after_ac, re.MULTILINE)
+    ac_block = after_ac[: next_h2.start()] if next_h2 else after_ac
+
+    # Strip HTML comment blocks before scanning (template examples live there)
+    ac_block = re.sub(r"<!--.*?-->", "", ac_block, flags=re.DOTALL)
+
+    # Prefer ### Agent sub-section if present; else use whole AC block
+    agent_h = re.search(r"^### Agent\s*$", ac_block, re.MULTILINE)
+    if agent_h:
+        rest = ac_block[agent_h.end():]
+        next_h3 = re.search(r"^### |^## ", rest, re.MULTILINE)
+        scan = rest[: next_h3.start()] if next_h3 else rest
+    else:
+        scan = ac_block
+
+    ticked = 0
+    unticked = 0
+    real_ac_count = 0
+    for line in scan.splitlines():
+        m = AC_PAT.match(line)
+        if not m:
+            continue
+        if PLACEHOLDER_PAT.match(line):
+            continue
+        real_ac_count += 1
+        if m.group(1) == "x":
+            ticked += 1
+        else:
+            unticked += 1
+
+    if real_ac_count == 0:
+        continue
+    if unticked == 0 and ticked > 0:
+        print(f"{task_id}|{status}")
+PYEOF
+)
+    fi
+    if [ "$completable_warn" -eq 0 ]; then
+        pass "CTL-029: No completable-but-not-completed active tasks"
+    fi
+fi
+
+# ============================================
+# CTL-012: AC-drift detection (T-955, AC-side twin of CTL-028)
+# Originally lived inside the oe-daily block (T-955); promoted by T-1883 to
+# fire on `compliance || oe-daily` so the pre-push audit catches completed
+# tasks with unchecked Agent ACs BEFORE the drift ships. Same detection-window
+# class as CTL-028 (was: up to 24h via oe-daily cron); same prevention class
+# (L-390 meta-lesson extended to the symmetric twin).
+# ============================================
+if should_run_section "compliance" || should_run_section "oe-daily"; then
+    ac_fail=0
+    if [ -n "$COMPLETED_SCAN" ]; then
+        while IFS='|' read -r task_id ac_line; do
+            [ -z "$task_id" ] && continue
+            warn "CTL-012: Completed task $task_id has unchecked AC" \
+                 "$ac_line" \
+                 "Review task completion — AC gate may have been bypassed"
+            ac_fail=$((ac_fail + 1))
+        done < <(echo "$COMPLETED_SCAN" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for item in data.get('unchecked_ac', []):
+    print(f\"{item['id']}|{item['line']}\")
+" 2>/dev/null)
+    fi
+    if [ "$ac_fail" -eq 0 ]; then
+        completed_count=$(echo "$COMPLETED_SCAN" | python3 -c "import sys,json; print(json.load(sys.stdin).get('stats',{}).get('total',0))" 2>/dev/null || echo "0")
+        pass "CTL-012: All $completed_count completed tasks have checked ACs"
+    fi
+fi
+
+# ============================================
+# DISCOVERY: Omission detection (T-239)
+# D1 (episodic quality decay), D2 (human review queue aging),
+# D8 (handover quality decay)
+# ============================================
+if should_run_section "discovery"; then
+echo "=== DISCOVERY: OMISSION DETECTION ==="
+
+# D1: Episodic Quality Decay (Score 25)
+# Scan episodic files for [TODO] placeholders
+ep_dir="$CONTEXT_DIR/episodic"
+if [ -d "$ep_dir" ]; then
+    d1_total=0
+    d1_todo=0
+    shopt -s nullglob
+    for ep_file in "$ep_dir"/T-*.yaml; do
+        [ -f "$ep_file" ] || continue
+        [ "$(basename "$ep_file")" = "TEMPLATE.yaml" ] && continue
+        d1_total=$((d1_total + 1))
+        if grep -qE '^\s*#?\s*\[TODO|: "\[TODO|^- "\[TODO' "$ep_file" 2>/dev/null; then
+            d1_todo=$((d1_todo + 1))
+        fi
+    done
+    shopt -u nullglob
+
+    if [ "$d1_total" -gt 0 ]; then
+        d1_pct=$((d1_todo * 100 / d1_total))
+        if [ "$d1_pct" -gt 50 ]; then
+            fail "D1: Episodic quality — $d1_pct% have [TODO] placeholders ($d1_todo/$d1_total)" \
+                 "More than half of episodic summaries are unfilled" \
+                 "Enrich episodics: fw context generate-episodic T-XXX"
+        elif [ "$d1_pct" -gt 20 ]; then
+            warn "D1: Episodic quality — $d1_pct% have [TODO] placeholders ($d1_todo/$d1_total)" \
+                 "$d1_todo episodic summaries need enrichment" \
+                 "Enrich episodics: fw context generate-episodic T-XXX"
+        else
+            pass "D1: Episodic quality — $d1_pct% [TODO] ($d1_todo/$d1_total)"
+        fi
+    else
+        pass "D1: No episodic files to check"
+    fi
+else
+    pass "D1: No episodic directory"
+fi
+
+# D2: Human Review Queue Aging (Score 20) (T-955: uses single-pass scan)
+# T-373: Tasks awaiting human review are NORMAL. Only escalate when forgotten (>30 days).
+d2_info=0
+d2_warn=0
+d2_fail=0
+d2_details=""
+if [ -n "$ACTIVE_SCAN" ]; then
+    while IFS='|' read -r t_id age_hours age_days; do
+        [ -z "$t_id" ] && continue
+        if [ "$age_hours" -ge 720 ]; then
+            d2_fail=$((d2_fail + 1))
+            d2_details="$d2_details $t_id(${age_days}d)"
+        elif [ "$age_hours" -ge 336 ]; then
+            d2_warn=$((d2_warn + 1))
+            d2_details="$d2_details $t_id(${age_days}d)"
+        else
+            d2_info=$((d2_info + 1))
+        fi
+    done < <(echo "$ACTIVE_SCAN" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+for item in data['review_queue']['tasks']:
+    print(f\"{item['id']}|{item['age_hours']}|{item['age_days']}\")
+" 2>/dev/null)
+fi
+
+# shellcheck disable=SC2034 # d2_total available for debug/summary
+d2_total=$((d2_info + d2_warn + d2_fail))
+if [ "$d2_fail" -gt 0 ]; then
+    fail "D2: Human review queue — $d2_fail task(s) waiting >30d:$d2_details" \
+         "Tasks may be forgotten" \
+         "Review with: fw task verify (lists unchecked Human ACs)"
+elif [ "$d2_warn" -gt 0 ]; then
+    warn "D2: Human review queue — $d2_warn task(s) waiting >14d:$d2_details" \
+         "Aging review items" \
+         "Review with: fw task verify"
+elif [ "$d2_info" -gt 0 ]; then
+    pass "D2: Human review queue — $d2_info task(s) awaiting human action (normal)"
+else
+    pass "D2: Human review queue — no pending items"
+fi
+
+# D8: Handover Quality Decay (Score 20)
+# Scan LATEST.md for [TODO] strings + check archive for TODO rot (T-393)
+HANDOVER_LATEST="$CONTEXT_DIR/handovers/LATEST.md"
+if [ -f "$HANDOVER_LATEST" ]; then
+    d8_todos=$(grep -c '\[TODO' "$HANDOVER_LATEST" 2>/dev/null || true)
+    d8_todos=$(echo "$d8_todos" | tr -d '[:space:]')
+
+    if [ "$d8_todos" -gt 3 ]; then
+        fail "D8: Handover quality — LATEST.md has $d8_todos [TODO] sections" \
+             "Handover is a stale skeleton" \
+             "Fill handover: edit .context/handovers/LATEST.md or run fw handover"
+    elif [ "$d8_todos" -gt 0 ]; then
+        warn "D8: Handover quality — LATEST.md has $d8_todos [TODO] section(s)" \
+             "Some handover sections are unfilled" \
+             "Fill remaining [TODO] sections in LATEST.md"
+    else
+        pass "D8: Handover quality — no [TODO] in LATEST.md"
+    fi
+
+    # D8b: Check last 10 handovers for TODO rot (archive check, T-393)
+    d8b_stale=0
+    d8b_checked=0
+    while IFS= read -r hf; do
+        [ -n "$hf" ] || continue
+        d8b_checked=$((d8b_checked + 1))
+        hf_todos=$(grep -c '\[TODO' "$hf" 2>/dev/null || true)
+        hf_todos=$(echo "$hf_todos" | tr -d '[:space:]')
+        [ "${hf_todos:-0}" -gt 3 ] && d8b_stale=$((d8b_stale + 1))
+    done < <(find "$CONTEXT_DIR/handovers" -maxdepth 1 -name 'S-*.md' -type f -print0 2>/dev/null | xargs -r -0 ls -t 2>/dev/null | head -10)
+    if [ "$d8b_stale" -gt 5 ]; then
+        fail "D8b: Handover archive rot — $d8b_stale/$d8b_checked recent handovers have unfilled [TODO]s" \
+             "Auto-generated handovers are not being filled" \
+             "Clean stale handovers or fix template to reduce [TODO] generation"
+    elif [ "$d8b_stale" -gt 2 ]; then
+        warn "D8b: Handover archive — $d8b_stale/$d8b_checked recent handovers have [TODO]s" \
+             "Some auto-generated handovers were not filled" \
+             "Review and fill recent handovers"
+    elif [ "$d8b_checked" -gt 0 ]; then
+        pass "D8b: Handover archive — $d8b_stale/$d8b_checked recent handovers have [TODO]s"
+    fi
+else
+    grace_warn "D8: No LATEST.md handover file found" \
+         "Missing handover file" \
+         "Run: fw handover"
+fi
+
+# D10: Decision-Without-Dialogue (Score 15, T-248)
+# Tasks with owner:human + inception/specification completed without human AC checks
+d10_result=$(python3 << 'D10EOF'
+import yaml, glob, os, re
+
+PROJECT_ROOT = os.environ.get("PROJECT_ROOT", ".")
+TASKS_DIR = os.path.join(PROJECT_ROOT, ".tasks", "completed")
+from datetime import datetime, timedelta, timezone
+cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+
+def parse_frontmatter(path):
+    try:
+        content = open(path).read()
+        m = re.match(r'^---\n(.*?)\n---', content, re.DOTALL)
+        if m:
+            return yaml.safe_load(m.group(1)) or {}
+    except Exception:
+        pass
+    return {}
+
+def parse_ts(s):
+    if not s or s == "null":
+        return None
+    try:
+        ts = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        return ts
+    except (ValueError, TypeError):
+        return None
+
+flagged = []
+for f in glob.glob(os.path.join(TASKS_DIR, "T-*.md")):
+    fm = parse_frontmatter(f)
+    finished = parse_ts(fm.get("date_finished"))
+    if not finished or finished < cutoff:
+        continue
+    owner = fm.get("owner", "")
+    wtype = fm.get("workflow_type", "")
+    if owner != "human" or wtype not in ("inception", "specification"):
+        continue
+    # Check if any Human AC section exists and has unchecked boxes
+    content = open(f).read()
+    # Look for ### Human section with all boxes checked
+    human_section = re.search(r'### Human\n(.*?)(?=\n##|\Z)', content, re.DOTALL)
+    if not human_section:
+        continue  # no human ACs — fine
+    human_text = human_section.group(1)
+    # T-1889: strip HTML comment blocks before counting — template stubs include
+    # example `- [ ] [REVIEW] ...` lines inside <!-- ... --> that previously
+    # produced false-positive "Human ACs exist but none checked" flags
+    # (origin: T-1455 false-positive during arc-grooming review). Same canonical
+    # strip pattern as lib/inception.sh:517.
+    human_text = re.sub(r'<!--.*?-->', '', human_text, flags=re.DOTALL)
+    checked = human_text.count("[x]")
+    unchecked = human_text.count("[ ]")
+    if unchecked > 0 and checked == 0:
+        # Human ACs exist but none checked — decision without dialogue
+        tid = fm.get("id", "?")
+        flagged.append(tid)
+
+if flagged:
+    shown = flagged[:5]
+    print(f"WARN {len(flagged)} {' '.join(shown)}")
+else:
+    print("PASS 0")
+D10EOF
+)
+d10_level=$(echo "$d10_result" | awk '{print $1}')
+d10_count=$(echo "$d10_result" | awk '{print $2}')
+d10_detail=$(echo "$d10_result" | cut -d' ' -f3-)
+case "$d10_level" in
+    WARN)
+        warn "D10: Decision-without-dialogue — $d10_count task(s): $d10_detail" \
+             "Human-owned inception/spec tasks completed without human AC verification" \
+             "Review flagged tasks — human dialogue may have been skipped"
+        ;;
+    *)
+        pass "D10: Decision-without-dialogue — none detected"
+        ;;
+esac
+
+# D11: Concerns Register Staleness (Score 15, T-248/T-397)
+# Concerns in "watching" status for >30 days with no recent update
+GAPS_FILE="$CONTEXT_DIR/project/concerns.yaml"
+[ -f "$GAPS_FILE" ] || GAPS_FILE="$CONTEXT_DIR/project/gaps.yaml"
+if [ -f "$GAPS_FILE" ]; then
+    d11_result=$(python3 << D11EOF
+import yaml
+from datetime import datetime, timedelta, timezone
+
+cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+gaps_file = "$GAPS_FILE"
+
+try:
+    with open(gaps_file) as f:
+        data = yaml.safe_load(f)
+    gaps = data.get("gaps", []) if data else []
+except Exception:
+    gaps = []
+
+stale = []
+for g in gaps:
+    status = g.get("status", "")
+    if status != "watching":
+        continue
+    opened = g.get("opened", "")
+    try:
+        ts = datetime.fromisoformat(str(opened).replace("Z", "+00:00"))
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        if ts < cutoff:
+            stale.append(g.get("id", "?"))
+    except (ValueError, TypeError):
+        pass
+
+if stale:
+    print(f"WARN {len(stale)} {' '.join(stale)}")
+else:
+    print("PASS 0")
+D11EOF
+)
+    d11_level=$(echo "$d11_result" | awk '{print $1}')
+    d11_count=$(echo "$d11_result" | awk '{print $2}')
+    d11_detail=$(echo "$d11_result" | cut -d' ' -f3-)
+    case "$d11_level" in
+        WARN)
+            warn "D11: Gap register staleness — $d11_count gap(s) watching >30d: $d11_detail" \
+                 "Gaps in watching status for over 30 days" \
+                 "Review: fw gaps — close or escalate stale gaps"
+            ;;
+        *)
+            pass "D11: Gap register staleness — all gaps fresh"
+            ;;
+    esac
+else
+    pass "D11: Gap register — no gaps file"
+fi
+
+echo ""
+fi # end discovery
+
+# ============================================
+# DISCOVERY-TRENDS: Temporal trend detection (T-240)
+# D4 (audit trend regression), D5 (task lifecycle anomalies),
+# D3 (commit velocity anomalies), D7 (commit bunching)
+# D6 (completion velocity trends), D9 (control drift), D12 (bypass growth)
+# ============================================
+if should_run_section "discovery-trends"; then
+echo "=== DISCOVERY: TREND DETECTION ==="
+
+# D4: Audit Trend Regression (Score 20)
+# Compare 7-entry rolling average of warn+fail counts against previous 7-entry window
+METRICS_HISTORY="$CONTEXT_DIR/project/metrics-history.yaml"
+if [ -f "$METRICS_HISTORY" ]; then
+    d4_result=$(python3 << 'D4EOF'
+import yaml, sys
+from pathlib import Path
+
+mf = sys.argv[1] if len(sys.argv) > 1 else ""
+try:
+    with open(mf or "$METRICS_HISTORY") as f:
+        data = yaml.safe_load(f)
+    entries = data.get("entries", [])
+except Exception:
+    entries = []
+
+if len(entries) < 3:
+    print("SKIP insufficient_data")
+    sys.exit(0)
+
+# Current window (last 7 or fewer)
+window = min(7, len(entries))
+current = entries[-window:]
+cur_wf = [e.get("warn", 0) + e.get("fail", 0) for e in current]
+cur_avg = sum(cur_wf) / len(cur_wf)
+
+# Previous window
+if len(entries) > window:
+    prev_end = len(entries) - window
+    prev_start = max(0, prev_end - window)
+    previous = entries[prev_start:prev_end]
+    prev_wf = [e.get("warn", 0) + e.get("fail", 0) for e in previous]
+    prev_avg = sum(prev_wf) / len(prev_wf) if prev_wf else 0
+
+    if prev_avg > 0:
+        pct_change = ((cur_avg - prev_avg) / prev_avg) * 100
+    else:
+        pct_change = 100 if cur_avg > 0 else 0
+
+    # Check for consecutive fails
+    fail_streak = 0
+    for e in reversed(entries):
+        if e.get("fail", 0) > 0:
+            fail_streak += 1
+        else:
+            break
+
+    if fail_streak >= 3:
+        print(f"FAIL streak={fail_streak} cur_avg={cur_avg:.1f} prev_avg={prev_avg:.1f}")
+    elif pct_change > 50:
+        print(f"WARN pct={pct_change:.0f} cur_avg={cur_avg:.1f} prev_avg={prev_avg:.1f}")
+    else:
+        print(f"PASS pct={pct_change:.0f} cur_avg={cur_avg:.1f} prev_avg={prev_avg:.1f}")
+else:
+    print(f"PASS single_window cur_avg={cur_avg:.1f}")
+D4EOF
+)
+    d4_level=$(echo "$d4_result" | awk '{print $1}')
+    case "$d4_level" in
+        FAIL)
+            fail "D4: Audit trend regression — $d4_result" \
+                 "Consecutive audit failures detected" \
+                 "Investigate recurring failures: fw audit"
+            ;;
+        WARN)
+            warn "D4: Audit trend regression — warn+fail avg increased >50% ($d4_result)" \
+                 "Audit health trending worse" \
+                 "Review recent audit findings: fw audit"
+            ;;
+        SKIP)
+            pass "D4: Audit trend — insufficient history (<3 entries)"
+            ;;
+        *)
+            pass "D4: Audit trend — stable ($d4_result)"
+            ;;
+    esac
+else
+    pass "D4: Audit trend — no metrics history yet"
+fi
+
+# D5: Task Lifecycle Anomalies (Score 20)
+# Detect recently completed tasks with suspiciously fast cycle times (last 30 days)
+# Also detect active tasks stuck >7 days without completion
+# Refined in T-249: filter by workflow_type, commit count, effective cycle time
+d5_result=$(python3 << 'D5EOF'
+import yaml, glob, os, re, subprocess
+from datetime import datetime, timedelta, timezone
+
+PROJECT_ROOT = os.environ.get("PROJECT_ROOT", ".")
+TASKS_DIR = os.path.join(PROJECT_ROOT, ".tasks")
+cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+
+# Workflow types expected to complete quickly — not anomalous
+FAST_TYPES = {"test", "specification", "decommission"}
+
+anomalies = []
+
+def parse_frontmatter(path):
+    """Extract YAML frontmatter from markdown task file."""
+    try:
+        content = open(path).read()
+        m = re.match(r'^---\n(.*?)\n---', content, re.DOTALL)
+        if m:
+            return yaml.safe_load(m.group(1)) or {}
+    except Exception:
+        pass
+    return {}
+
+def parse_ts(s):
+    if not s or s == "null":
+        return None
+    try:
+        ts = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        return ts
+    except (ValueError, TypeError):
+        return None
+
+def count_commits(tid):
+    """Count git commits referencing this task ID."""
+    try:
+        r = subprocess.run(
+            ["git", "log", "--oneline", f"--grep={tid}:"],
+            capture_output=True, text=True, timeout=5,
+            cwd=PROJECT_ROOT
+        )
+        return len(r.stdout.strip().split('\n')) if r.stdout.strip() else 0
+    except Exception:
+        return -1  # unknown
+
+# Check completed tasks for suspiciously fast cycle times
+for f in glob.glob(os.path.join(TASKS_DIR, "completed", "T-*.md")):
+    fm = parse_frontmatter(f)
+    finished = parse_ts(fm.get("date_finished"))
+    if not finished or finished < cutoff:
+        continue
+    created = parse_ts(fm.get("created"))
+    if not created:
+        continue
+
+    cycle_min = (finished - created).total_seconds() / 60
+    owner = fm.get("owner", "?")
+    wtype = fm.get("workflow_type", "?")
+    tid = fm.get("id", "?")
+    name = str(fm.get("name", ""))
+
+    # Only flag human-owned tasks — agent tasks completing fast is normal
+    if owner != "human":
+        continue
+
+    # Filter 1: skip workflow types expected to be fast
+    if wtype in FAST_TYPES:
+        continue
+
+    # Filter 2: only flag fast tasks (< 5 min)
+    if cycle_min >= 5:
+        continue
+
+    # Filter 3: skip tasks with 1+ commits (proves work was captured).
+    # Retroactive workflow (work first, task created+closed) produces 1 commit
+    # at completion time — legitimate, not an anomaly. Real concern is 0 commits
+    # AND fast cycle: work-completed without any captured artifact (T-1263).
+    commits = count_commits(tid)
+    if commits >= 1:
+        continue
+
+    # Filter 4: skip administrative batch-evidence/batch-tick tasks (T-1262)
+    if name.startswith("Batch-evidence") or name.startswith("Batch-tick"):
+        continue
+
+    # Remaining: human task, fast, 0-1 commits, non-trivial type — flag it
+    anomalies.append(f"{tid}({cycle_min:.0f}min,{owner})")
+
+# Check active tasks stuck >7 days in started-work (not captured or work-completed)
+for f in glob.glob(os.path.join(TASKS_DIR, "active", "T-*.md")):
+    fm = parse_frontmatter(f)
+    status = fm.get("status", "")
+    if status not in ("started-work", "issues"):
+        continue  # captured/work-completed are normal states for aging
+    created = parse_ts(fm.get("created"))
+    if not created:
+        continue
+    age_days = (datetime.now(timezone.utc) - created).days
+    if age_days > 7:
+        tid = fm.get("id", "?")
+        anomalies.append(f"{tid}({age_days}d-active)")
+
+if anomalies:
+    # Cap output to 10 items for readability
+    shown = anomalies[:10]
+    extra = f" (+{len(anomalies)-10} more)" if len(anomalies) > 10 else ""
+    print(f"WARN {len(anomalies)} {' '.join(shown)}{extra}")
+else:
+    print("PASS 0")
+D5EOF
+)
+d5_level=$(echo "$d5_result" | awk '{print $1}')
+d5_count=$(echo "$d5_result" | awk '{print $2}')
+d5_detail=$(echo "$d5_result" | cut -d' ' -f3-)
+case "$d5_level" in
+    WARN)
+        warn "D5: Task lifecycle — $d5_count anomaly(s): $d5_detail" \
+             "Tasks with unusual cycle times detected" \
+             "Review flagged tasks for process issues"
+        ;;
+    *)
+        pass "D5: Task lifecycle — no anomalies"
+        ;;
+esac
+
+# D13: Inception Limbo (Score 15, T-1490 / OBS-025)
+# Inception tasks where the human decision is recorded but the workflow
+# never reached completed/. Two classes — both now sweep-eligible:
+#   A) status=work-completed + has Decision + Human AC unchecked
+#      (T-1423 sweep ticks AC + moves to completed/ when all ACs check out)
+#   B) status=started-work + has GO/NO-GO Decision + all ACs checked
+#      (T-1514 sweep promotes started-work→work-completed in place, then
+#       runs class A logic. Underlying root cause closed in T-1515:
+#       do_inception_decide now propagates update-task.sh exit codes.)
+d13_result=$(python3 << 'D13EOF'
+import os, glob, re
+
+PROJECT_ROOT = os.environ.get("PROJECT_ROOT", ".")
+ACTIVE = os.path.join(PROJECT_ROOT, ".tasks", "active")
+
+DECISION_RE = re.compile(r"^\*\*Decision\*\*:\s*(GO|NO-GO|DEFER)", re.MULTILINE)
+HUMAN_HEADER_RE = re.compile(r"^### Human\b", re.MULTILINE)
+NEXT_HEADER_RE = re.compile(r"^## ", re.MULTILINE)
+UNCHECKED_RE = re.compile(r"^\s*- \[ \]", re.MULTILINE)
+
+def fm_field(text, name):
+    m = re.search(rf"^{name}:\s*(\S.*?)\s*$", text, re.MULTILINE)
+    return m.group(1).strip() if m else ""
+
+def section(text, header_re):
+    m = header_re.search(text)
+    if not m:
+        return ""
+    rest = text[m.end():]
+    n = NEXT_HEADER_RE.search(rest)
+    return rest[: n.start()] if n else rest
+
+def count_unchecked(text, header_re):
+    sec = section(text, header_re)
+    return len(UNCHECKED_RE.findall(sec))
+
+class_a = []  # work-completed but Human AC unticked
+class_b = []  # started-work but all ACs ticked + decision recorded
+
+for f in sorted(glob.glob(os.path.join(ACTIVE, "T-*.md"))):
+    try:
+        text = open(f).read()
+    except OSError:
+        continue
+    if fm_field(text, "workflow_type") != "inception":
+        continue
+    status = fm_field(text, "status")
+    if not DECISION_RE.search(text):
+        continue
+    tid = fm_field(text, "id")
+    human_unchecked = count_unchecked(text, HUMAN_HEADER_RE)
+    if status == "work-completed" and human_unchecked > 0:
+        class_a.append(f"{tid}(A:{human_unchecked}hu)")
+    elif status == "started-work" and human_unchecked == 0:
+        class_b.append(f"{tid}(B)")
+
+total = len(class_a) + len(class_b)
+if total == 0:
+    print("PASS 0")
+else:
+    parts = class_a + class_b
+    shown = parts[:8]
+    extra = f" (+{total-8} more)" if total > 8 else ""
+    a_n, b_n = len(class_a), len(class_b)
+    print(f"WARN {total} A={a_n}/B={b_n} {' '.join(shown)}{extra}")
+D13EOF
+)
+d13_level=$(echo "$d13_result" | awk '{print $1}')
+d13_count=$(echo "$d13_result" | awk '{print $2}')
+d13_detail=$(echo "$d13_result" | cut -d' ' -f3-)
+case "$d13_level" in
+    WARN)
+        warn "D13: Inception limbo — $d13_count task(s): $d13_detail" \
+             "Decision recorded but workflow stuck in active/" \
+             "Recover both classes with: bin/fw inception sweep (T-1514)"
+        ;;
+    *)
+        pass "D13: Inception limbo — no stuck inceptions"
+        ;;
+esac
+
+# D3: Commit Velocity Anomalies (Score 16)
+# Compare daily commit count against 7-day moving average
+d3_result=$(python3 << 'D3EOF'
+import subprocess, sys
+from datetime import datetime, timedelta, timezone
+from collections import Counter
+
+try:
+    r = subprocess.run(
+        ["git", "log", "--format=%aI", "--since=14 days ago"],
+        capture_output=True, text=True, timeout=10,
+    )
+    if r.returncode != 0 or not r.stdout.strip():
+        print("SKIP no_data")
+        sys.exit(0)
+
+    # Count commits per day
+    daily = Counter()
+    for line in r.stdout.strip().split("\n"):
+        if not line.strip():
+            continue
+        try:
+            dt = datetime.fromisoformat(line.strip())
+            daily[dt.strftime("%Y-%m-%d")] += 1
+        except (ValueError, TypeError):
+            pass
+
+    if len(daily) < 3:
+        print("SKIP insufficient_days")
+        sys.exit(0)
+
+    # Sort by date
+    dates = sorted(daily.keys())
+    today = datetime.now().strftime("%Y-%m-%d")
+    today_count = daily.get(today, 0)
+
+    # 7-day average (excluding today)
+    past_dates = [d for d in dates if d != today][-7:]
+    if not past_dates:
+        print(f"PASS today={today_count}")
+        sys.exit(0)
+
+    avg = sum(daily[d] for d in past_dates) / len(past_dates)
+
+    if avg > 0:
+        ratio = today_count / avg
+        if ratio > 2:
+            print(f"WARN spike today={today_count} avg={avg:.0f} ratio={ratio:.1f}x")
+        elif ratio < 0.3 and today_count > 0:
+            print(f"WARN drop today={today_count} avg={avg:.0f} ratio={ratio:.1f}x")
+        else:
+            print(f"PASS today={today_count} avg={avg:.0f} ratio={ratio:.1f}x")
+    else:
+        print(f"PASS today={today_count} avg=0")
+
+except Exception as e:
+    print(f"SKIP error={e}")
+D3EOF
+)
+d3_level=$(echo "$d3_result" | awk '{print $1}')
+case "$d3_level" in
+    WARN)
+        warn "D3: Commit velocity — $d3_result" \
+             "Unusual commit rate detected" \
+             "Check if velocity reflects budget pressure or unusual activity"
+        ;;
+    SKIP)
+        pass "D3: Commit velocity — insufficient data"
+        ;;
+    *)
+        pass "D3: Commit velocity — normal ($d3_result)"
+        ;;
+esac
+
+# D7: Commit Bunching (Score 16)
+# Detect 5+ commits within any 10-minute window in the last 24h
+d7_result=$(python3 << 'D7EOF'
+import subprocess, sys
+from datetime import datetime, timedelta, timezone
+
+try:
+    r = subprocess.run(
+        ["git", "log", "--format=%aI", "--since=24 hours ago"],
+        capture_output=True, text=True, timeout=10,
+    )
+    if r.returncode != 0 or not r.stdout.strip():
+        print("PASS no_recent_commits")
+        sys.exit(0)
+
+    timestamps = []
+    for line in r.stdout.strip().split("\n"):
+        if not line.strip():
+            continue
+        try:
+            timestamps.append(datetime.fromisoformat(line.strip()))
+        except (ValueError, TypeError):
+            pass
+
+    timestamps.sort()
+
+    if len(timestamps) < 5:
+        print(f"PASS {len(timestamps)}_commits_24h")
+        sys.exit(0)
+
+    # Sliding window: check every 10-min window
+    bunches = 0
+    for i in range(len(timestamps)):
+        window_end = timestamps[i] + timedelta(minutes=10)
+        count = sum(1 for t in timestamps[i:] if t <= window_end)
+        if count >= 5:
+            bunches += 1
+            # Skip ahead to avoid counting overlapping windows
+            break
+
+    if bunches > 0:
+        print(f"INFO {bunches}_bunch(es) {len(timestamps)}_commits_24h")
+    else:
+        print(f"PASS {len(timestamps)}_commits_24h_no_bunching")
+
+except Exception as e:
+    print(f"PASS error={e}")
+D7EOF
+)
+d7_level=$(echo "$d7_result" | awk '{print $1}')
+case "$d7_level" in
+    INFO)
+        # INFO level — just report, don't warn
+        pass "D7: Commit bunching — detected ($d7_result)"
+        ;;
+    *)
+        pass "D7: Commit bunching — none ($d7_result)"
+        ;;
+esac
+
+# D6: Completion Velocity Trends (Score 15, T-248)
+# Detect sustained drops in task completion rate (7-day rolling average)
+d6_result=$(python3 << 'D6EOF'
+import yaml, glob, os, re
+from datetime import datetime, timedelta, timezone
+from collections import Counter
+
+PROJECT_ROOT = os.environ.get("PROJECT_ROOT", ".")
+TASKS_DIR = os.path.join(PROJECT_ROOT, ".tasks", "completed")
+
+def parse_frontmatter(path):
+    try:
+        content = open(path).read()
+        m = re.match(r'^---\n(.*?)\n---', content, re.DOTALL)
+        if m:
+            return yaml.safe_load(m.group(1)) or {}
+    except Exception:
+        pass
+    return {}
+
+now = datetime.now(timezone.utc)
+cutoff = now - timedelta(days=14)
+
+# Count completions per day (last 14 days)
+daily = Counter()
+for f in glob.glob(os.path.join(TASKS_DIR, "T-*.md")):
+    fm = parse_frontmatter(f)
+    finished = fm.get("date_finished")
+    if not finished:
+        continue
+    try:
+        ts = datetime.fromisoformat(str(finished).replace("Z", "+00:00"))
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        if ts >= cutoff:
+            day_key = ts.strftime("%Y-%m-%d")
+            daily[day_key] = daily.get(day_key, 0) + 1
+    except (ValueError, TypeError):
+        pass
+
+if len(daily) < 4:
+    print("PASS insufficient_data")
+else:
+    # Compare last 3 days vs previous 7 days
+    dates = sorted(daily.keys())
+    recent = [daily.get((now - timedelta(days=i)).strftime("%Y-%m-%d"), 0) for i in range(3)]
+    earlier = [daily.get((now - timedelta(days=i)).strftime("%Y-%m-%d"), 0) for i in range(3, 10)]
+    recent_avg = sum(recent) / max(len(recent), 1)
+    earlier_avg = sum(earlier) / max(len(earlier), 1)
+    if earlier_avg > 0 and recent_avg < earlier_avg * 0.3:
+        print(f"WARN drop recent_avg={recent_avg:.1f} vs earlier_avg={earlier_avg:.1f}")
+    else:
+        print(f"PASS recent={recent_avg:.1f} earlier={earlier_avg:.1f}")
+D6EOF
+)
+d6_level=$(echo "$d6_result" | awk '{print $1}')
+case "$d6_level" in
+    WARN)
+        d6_detail=$(echo "$d6_result" | cut -d' ' -f2-)
+        warn "D6: Completion velocity — sustained drop ($d6_detail)" \
+             "Task completion rate dropped >70% vs prior week" \
+             "Check for blockers or process issues slowing work"
+        ;;
+    *)
+        pass "D6: Completion velocity — normal ($d6_result)"
+        ;;
+esac
+
+# D12: Bypass Log Growth (Score 12, T-248)
+# Track --no-verify usage and bypass log entries
+BYPASS_LOG="$PROJECT_ROOT/.context/project/bypass-log.yaml"
+if [ -f "$BYPASS_LOG" ]; then
+    d12_result=$(python3 << D12EOF
+import yaml
+from datetime import datetime, timedelta, timezone
+
+bypass_file = "$BYPASS_LOG"
+now = datetime.now(timezone.utc)
+cutoff_7d = now - timedelta(days=7)
+
+try:
+    with open(bypass_file) as f:
+        data = yaml.safe_load(f)
+    entries = data.get("bypasses", []) if data else []
+except Exception:
+    entries = []
+
+recent = 0
+for e in entries:
+    ts = e.get("timestamp", "")
+    try:
+        dt = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        if dt >= cutoff_7d:
+            recent += 1
+    except (ValueError, TypeError):
+        pass
+
+total = len(entries)
+if recent >= 5:
+    print(f"WARN {recent} recent_7d total={total}")
+elif recent > 0:
+    print(f"INFO {recent} recent_7d total={total}")
+else:
+    print(f"PASS total={total}")
+D12EOF
+)
+    d12_level=$(echo "$d12_result" | awk '{print $1}')
+    case "$d12_level" in
+        WARN)
+            d12_detail=$(echo "$d12_result" | cut -d' ' -f2-)
+            warn "D12: Bypass log growth — $d12_detail bypasses in last 7 days" \
+                 "Elevated bypass rate may indicate enforcement friction" \
+                 "Review bypass reasons: fw git log --bypasses"
+            ;;
+        *)
+            pass "D12: Bypass log — normal ($d12_result)"
+            ;;
+    esac
+else
+    pass "D12: Bypass log — no log file"
+fi
+
+# D9: Control Effectiveness Drift (Score 9, T-248)
+# Detect controls that never fire or always fire across recent audits
+d9_result=$(python3 << 'D9EOF'
+import yaml, glob, os, re
+from collections import Counter
+
+PROJECT_ROOT = os.environ.get("PROJECT_ROOT", ".")
+AUDITS_DIR = os.path.join(PROJECT_ROOT, ".context", "audits", "cron")
+
+# Read last 10 cron audits
+audit_files = sorted(glob.glob(os.path.join(AUDITS_DIR, "*.yaml")))[-10:]
+if len(audit_files) < 3:
+    print("PASS insufficient_audits")
+else:
+    # Count warn/fail per check across audits
+    warn_counts = Counter()
+    total_audits = len(audit_files)
+    for af in audit_files:
+        try:
+            with open(af) as f:
+                data = yaml.safe_load(f)
+            checks = data.get("checks", []) if data else []
+            for check in checks:
+                if check.get("level") in ("warn", "fail"):
+                    warn_counts[check.get("check", "?")] += 1
+        except Exception:
+            pass
+
+    # Find controls that ALWAYS fire (warn/fail in every audit)
+    always_fire = [k for k, v in warn_counts.items() if v >= total_audits and total_audits >= 3]
+    if always_fire:
+        print(f"INFO {len(always_fire)} always-fire: {' '.join(always_fire[:3])}")
+    else:
+        print(f"PASS {total_audits}_audits_checked")
+D9EOF
+)
+d9_level=$(echo "$d9_result" | awk '{print $1}')
+case "$d9_level" in
+    INFO)
+        d9_detail=$(echo "$d9_result" | cut -d' ' -f2-)
+        pass "D9: Control drift — $d9_detail"
+        ;;
+    *)
+        pass "D9: Control drift — normal ($d9_result)"
+        ;;
+esac
+
+echo ""
+
+# D14: Empty Recommendation in inception tasks (T-1497)
+# Pickup-created inceptions land in the "Awaiting Decision" queue with
+# HTML-comment-only Recommendation sections. The do_inception_decide gate
+# (lib/inception.sh + lib/task-audit.sh:audit_inception_recommendation)
+# now blocks decide-time, but capturing the pre-decide state in the audit
+# trail makes the regression visible BEFORE someone tries to decide.
+d14_result=$(python3 << 'D14EOF'
+import os, re, glob
+
+PROJECT_ROOT = os.environ.get("PROJECT_ROOT", ".")
+ACTIVE_DIR = os.path.join(PROJECT_ROOT, ".tasks", "active")
+
+def has_substantive_recommendation(text):
+    # Locate ## Recommendation section body (until next ## heading)
+    # T-1528: H2+ terminator (L-293) — prevents Updates entries with literal
+    # `**Recommendation:**` text from false-positiving the substantive check.
+    m = re.search(r'^## Recommendation\s*$(.*?)(?=^#{2,} |\Z)', text, re.MULTILINE | re.DOTALL)
+    if not m:
+        return True  # no section = different audit concern, not ours
+    body = m.group(1)
+    # Strip multi-line HTML comments
+    body = re.sub(r'<!--.*?-->', '', body, flags=re.DOTALL)
+    # T-1510: accept bulleted (`- **Recommendation:**` / `* **Recommendation:**`)
+    # AND plain (`**Recommendation:**`) forms. Original \s* pattern only
+    # allowed whitespace before the bold marker, so older inception tasks that
+    # authored the recommendation as a list item (T-844, T-705) were
+    # false-positived as empty.
+    return bool(re.search(r'^\s*[-*]?\s*\*\*Recommendation:\*\*\s*\S', body, re.MULTILINE))
+
+empty = []
+for f in glob.glob(os.path.join(ACTIVE_DIR, "T-*.md")):
+    try:
+        with open(f) as fh:
+            text = fh.read()
+    except Exception:
+        continue
+    if "workflow_type: inception" not in text:
+        continue
+    # Only flag tasks where someone could try to decide (started-work or captured)
+    fm = re.match(r'^---\n(.*?)\n---', text, re.DOTALL)
+    if fm:
+        status_m = re.search(r'^status:\s*(\S+)', fm.group(1), re.MULTILINE)
+        if status_m and status_m.group(1) not in ("started-work", "captured"):
+            continue
+    if not has_substantive_recommendation(text):
+        empty.append(os.path.basename(f).split("-")[0] + "-" + os.path.basename(f).split("-")[1])
+
+if empty:
+    # Cap output length so a long list doesn't blow up the audit yaml
+    sample = " ".join(empty[:5])
+    suffix = f" (+{len(empty)-5} more)" if len(empty) > 5 else ""
+    print(f"WARN {len(empty)}_empty: {sample}{suffix}")
+else:
+    print("PASS no_empty_recommendations")
+D14EOF
+)
+d14_level=$(echo "$d14_result" | awk '{print $1}')
+case "$d14_level" in
+    WARN)
+        d14_detail=$(echo "$d14_result" | cut -d' ' -f2-)
+        warn "D14: Empty inception Recommendation — $d14_detail" \
+             "Inception tasks await decision with HTML-comment-only Recommendation" \
+             "Fill ## Recommendation block with **Recommendation:** + rationale before decide"
+        ;;
+    *)
+        pass "D14: Empty inception Recommendation — none ($d14_result)"
+        ;;
+esac
+
+# D15: Inception limbo state (T-1511, OBS-025)
+# Inceptions with status=started-work, owner=human, all Human ACs ticked,
+# but no **Decision**: line in the body. Operator checked the AC boxes
+# intending to complete, then forgot to run `fw inception decide`. The
+# task stays in active/ as a ghost — D5 anomaly only fires on age, so
+# the bug is invisible until tasks rot. Excludes DEFER decisions
+# (intentional keep-active).
+d15_result=$(python3 << 'D15EOF'
+import os, re, glob
+PROJECT_ROOT = os.environ.get("PROJECT_ROOT", ".")
+ACTIVE_DIR = os.path.join(PROJECT_ROOT, ".tasks", "active")
+
+def is_limbo(text):
+    fm = re.match(r'^---\n(.*?)\n---', text, re.DOTALL)
+    if not fm:
+        return False
+    front = fm.group(1)
+    if "workflow_type: inception" not in front:
+        return False
+    status_m = re.search(r'^status:\s*(\S+)', front, re.MULTILINE)
+    owner_m = re.search(r'^owner:\s*(\S+)', front, re.MULTILINE)
+    if not status_m or status_m.group(1) != "started-work":
+        return False
+    if not owner_m or owner_m.group(1) != "human":
+        return False
+    # Decision check — any **Decision**: line means not in limbo
+    if re.search(r'^\*\*Decision\*\*:\s*\S', text, re.MULTILINE):
+        return False
+    # Human ACs — find ### Human section and check for unchecked items
+    human_m = re.search(r'^### Human\s*$(.*?)(?=^### |^## |\Z)', text, re.MULTILINE | re.DOTALL)
+    if not human_m:
+        return False  # no Human section = different shape, not our concern
+    human_body = human_m.group(1)
+    # Strip HTML comments so commented-out templates don't count
+    human_body = re.sub(r'<!--.*?-->', '', human_body, flags=re.DOTALL)
+    unchecked = len(re.findall(r'^- \[ \]', human_body, re.MULTILINE))
+    checked = len(re.findall(r'^- \[x\]', human_body, re.MULTILINE | re.IGNORECASE))
+    # Limbo only when there ARE Human ACs AND none are unchecked
+    return checked > 0 and unchecked == 0
+
+limbo = []
+for f in glob.glob(os.path.join(ACTIVE_DIR, "T-*.md")):
+    try:
+        with open(f) as fh:
+            text = fh.read()
+    except Exception:
+        continue
+    if is_limbo(text):
+        bn = os.path.basename(f)
+        # T-XXXX-slug.md → T-XXXX
+        m = re.match(r'^(T-\d+)', bn)
+        if m:
+            limbo.append(m.group(1))
+
+if limbo:
+    sample = " ".join(limbo[:5])
+    suffix = f" (+{len(limbo)-5} more)" if len(limbo) > 5 else ""
+    print(f"WARN {len(limbo)}_limbo: {sample}{suffix}")
+else:
+    print("PASS no_limbo")
+D15EOF
+)
+d15_level=$(echo "$d15_result" | awk '{print $1}')
+case "$d15_level" in
+    WARN)
+        d15_detail=$(echo "$d15_result" | cut -d' ' -f2-)
+        warn "D15: Inception limbo state — $d15_detail" \
+             "Inception with all Human ACs ticked but no decision recorded — operator forgot to run fw inception decide" \
+             "Run: fw inception decide T-XXX go|no-go|defer --rationale '...'"
+        ;;
+    *)
+        pass "D15: Inception limbo state — none ($d15_result)"
+        ;;
+esac
+
+echo ""
+fi # end discovery-trends
+
+# ============================================
+# OE-WEEKLY: Controls checked once per week (T-195)
+# CTL-016
+# ============================================
+if should_run_section "oe-weekly"; then
+echo "=== OE-WEEKLY: WEEKLY CONTROL CHECKS ==="
+
+# CTL-016 OE: Hypothesis Debugging — healing patterns resolved with mitigation
+PATTERNS_FILE="$CONTEXT_DIR/project/patterns.yaml"
+if [ -f "$PATTERNS_FILE" ]; then
+    total_patterns=$(grep -c "^  - type:" "$PATTERNS_FILE" 2>/dev/null || true)
+    total_patterns=$(echo "$total_patterns" | tr -d '[:space:]')
+    with_mitigation=$(grep -c "mitigation:" "$PATTERNS_FILE" 2>/dev/null || true)
+    with_mitigation=$(echo "$with_mitigation" | tr -d '[:space:]')
+    if [ "$total_patterns" -gt 0 ]; then
+        ratio=$(( with_mitigation * 100 / total_patterns ))
+        if [ "$ratio" -ge 80 ]; then
+            pass "CTL-016: ${ratio}% of failure patterns have mitigations ($with_mitigation/$total_patterns)"
+        else
+            warn "CTL-016: Only ${ratio}% of failure patterns have mitigations ($with_mitigation/$total_patterns)" \
+                 "Failure patterns without recorded resolutions" \
+                 "Run: fw healing patterns — review unmitigated patterns"
+        fi
+    else
+        pass "CTL-016: No failure patterns recorded"
+    fi
+else
+    pass "CTL-016: No patterns file (first run or clean project)"
+fi
+
+echo ""
+fi # end oe-weekly
+
+# ============================================
+# DEPLOYMENT: Pre-deploy quality gates (T-275)
+# Only runs when explicitly requested (--section deployment)
+# Not included in default full audit or pre-push checks
+# ============================================
+if [ -n "$SECTIONS" ] && should_run_section "deployment"; then
+echo "=== DEPLOYMENT CHECKS ==="
+
+# Check active task exists (must deploy under a task)
+FOCUS_FILE="$CONTEXT_DIR/working/focus.yaml"
+if [ -f "$FOCUS_FILE" ]; then
+    FOCUS_TASK=$(grep -E '^(task_id|current_task):' "$FOCUS_FILE" 2>/dev/null | head -1 | awk '{print $2}' | tr -d '"')
+    if [ -n "$FOCUS_TASK" ] && [ "$FOCUS_TASK" != "null" ]; then
+        pass "Deploy gate: Active task $FOCUS_TASK"
+    else
+        fail "Deploy gate: No active task — set focus before deploying" \
+             "focus.yaml has no task_id" \
+             "Run: fw context focus T-XXX"
+    fi
+else
+    fail "Deploy gate: No focus file — initialize session first" \
+         "$FOCUS_FILE not found" \
+         "Run: fw context init && fw context focus T-XXX"
+fi
+
+# Check git is clean (no uncommitted changes to source files)
+DIRTY_SRC=$(cd "$PROJECT_ROOT" && git diff --name-only HEAD -- '*.py' '*.sh' '*.yml' '*.yaml' 'Dockerfile' 2>/dev/null | wc -l | tr -d ' ')
+if [ "$DIRTY_SRC" = "0" ]; then
+    pass "Deploy gate: Git clean (source files)"
+else
+    fail "Deploy gate: $DIRTY_SRC uncommitted source file(s)" \
+         "$(cd "$PROJECT_ROOT" && git diff --name-only HEAD -- '*.py' '*.sh' '*.yml' '*.yaml' 'Dockerfile' 2>/dev/null | head -3)" \
+         "Run: fw git commit -m 'T-XXX: pre-deploy commit'"
+fi
+
+# Check HEAD commit has task reference (traceability)
+HEAD_MSG=$(cd "$PROJECT_ROOT" && git log -1 --format='%s' 2>/dev/null)
+if echo "$HEAD_MSG" | grep -qE '^T-[0-9]+:'; then
+    pass "Deploy gate: HEAD commit has task reference"
+else
+    warn "Deploy gate: HEAD commit lacks T-XXX reference" \
+         "HEAD: $HEAD_MSG" \
+         "Commit with task prefix: fw git commit -m 'T-XXX: ...'"
+fi
+
+# Check deployment files exist
+for deploy_file in Dockerfile deploy/docker-compose.swarm.yml deploy/traefik-routes.yml; do
+    if [ -f "$PROJECT_ROOT/$deploy_file" ]; then
+        pass "Deploy gate: $deploy_file exists"
+    else
+        fail "Deploy gate: $deploy_file missing" \
+             "$deploy_file not found in project root" \
+             "Run: fw deploy scaffold --app <name> --pattern swarm --port-prod <N> --port-dev <N>"
+    fi
+done
+
+# Check health endpoint responds (if server is running)
+_wt_url=$(_watchtower_url 2>/dev/null || echo "http://localhost:$(fw_config "PORT" 3000)")
+_wt_port=$(echo "$_wt_url" | grep -oP ':\K\d+$' || echo "3000")
+if curl -sf --max-time 3 "${_wt_url}/health" >/dev/null 2>&1; then
+    pass "Deploy gate: Health endpoint responds on :${_wt_port}"
+elif curl -sf --max-time 3 http://localhost:5050/health >/dev/null 2>&1; then
+    pass "Deploy gate: Health endpoint responds on :5050"
+else
+    warn "Deploy gate: Health endpoint not reachable" \
+         "Neither :${_wt_port} nor :5050 /health responded" \
+         "Start server: fw serve (or check if health endpoint exists)"
+fi
+
+echo ""
+fi # end deployment
+
+# ============================================
+# ORCHESTRATOR ARC CHECKS (T-1646 — drift defense for MCP-tool task_id enforcement)
+# Origin: T-1641 W10. Probes /opt/termlink, classifies MCP tools, surfaces drift.
+# ============================================
+if should_run_section "orchestrator"; then
+echo "=== ORCHESTRATOR ARC CHECKS ==="
+
+ORCH_SCRIPT="$FRAMEWORK_ROOT/agents/audit/orchestrator-mcp-scan.sh"
+ORCH_LATEST="$CONTEXT_DIR/audits/orchestrator-LATEST.yaml"
+
+if [ ! -x "$ORCH_SCRIPT" ]; then
+    warn "Orchestrator scan: $ORCH_SCRIPT not executable" \
+         "$ORCH_SCRIPT missing or not +x" \
+         "chmod +x $ORCH_SCRIPT"
+elif ! [ -d "${FW_TERMLINK_REPO:-/opt/termlink}/crates/termlink-mcp/src" ] && ! command -v termlink >/dev/null 2>&1; then
+    info "Orchestrator scan: skipped — TermLink repo unreachable on this host"
+else
+    if bash "$ORCH_SCRIPT" >/dev/null 2>&1; then
+        ORCH_STATUS=$(grep -oE '^status: [a-z]+' "$ORCH_LATEST" 2>/dev/null | awk '{print $2}')
+        ORCH_GATED=$(grep -oE '^gated_current: [0-9]+' "$ORCH_LATEST" 2>/dev/null | awk '{print $2}')
+        ORCH_TOTAL=$(grep -oE '^current_count: [0-9]+' "$ORCH_LATEST" 2>/dev/null | awk '{print $2}')
+        pass "Orchestrator-arc MCP scan: $ORCH_STATUS — $ORCH_GATED/$ORCH_TOTAL tools gated"
+    else
+        ORCH_EXIT=$?
+        if [ "$ORCH_EXIT" = "1" ]; then
+            ORCH_WARNS=$(awk '/^warnings:/{flag=1; next} /^errors:/{flag=0} flag' "$ORCH_LATEST" 2>/dev/null | head -1 | sed 's/^- //')
+            # T-1649: tag-format drift uses a different remediation path than baseline drift.
+            if echo "$ORCH_WARNS" | grep -q "TAG-FORMAT-DRIFT"; then
+                warn "Orchestrator-arc tag-format drift: live sessions carry non-canonical prefixes" \
+                     "${ORCH_WARNS:-see $ORCH_LATEST}" \
+                     "Fix at source: update spawn callers (see /orchestrator) or add validator (T-1649 cross-repo half)"
+            else
+                warn "Orchestrator-arc MCP scan: drift detected" \
+                     "${ORCH_WARNS:-see $ORCH_LATEST}" \
+                     "Update .context/audits/orchestrator-mcp-baseline.yaml or investigate ratchet/new-tool"
+            fi
+        elif [ "$ORCH_EXIT" = "2" ]; then
+            ORCH_ERRS=$(awk '/^errors:/{flag=1; next} /^[a-z]/{flag=0} flag' "$ORCH_LATEST" 2>/dev/null | head -1 | sed 's/^- //')
+            fail "Orchestrator-arc MCP scan: regression — gated tool lost its check_task_governance" \
+                 "${ORCH_ERRS:-see $ORCH_LATEST}" \
+                 "Restore the gate or update baseline if removal was intentional (commit body must explain)"
+        else
+            warn "Orchestrator-arc MCP scan: probe failed (exit $ORCH_EXIT)" \
+                 "Cannot reach /opt/termlink via direct read or termlink interact" \
+                 "Check FW_TERMLINK_REPO and TermLink session availability"
+        fi
+    fi
+fi
+
+# T-1798: Workflow → dispatcher coverage check.
+# T-1776 surfaced default.yaml → worker_kind: TermLink at *runtime*
+# (NotImplementedError). The structural prevention is to flag the gap at
+# audit time. lib/workflow_coverage.py cross-references each workflow's
+# declared worker_kind against lib/spawn._DISPATCHERS.keys().
+COVERAGE_HELPER="$FRAMEWORK_ROOT/lib/workflow_coverage.py"
+if [ -f "$COVERAGE_HELPER" ]; then
+    # T-1803: extend with recency + stale flag. Exit codes:
+    #   0 = PASS (ok and not warn)
+    #   1 = FAIL (not ok — unroutable or missing-provider)
+    #   2 = WARN (ok but stale)
+    COVERAGE_OUT=$(PROJECT_ROOT="$PROJECT_ROOT" python3 -c "
+import sys
+sys.path.insert(0, '$FRAMEWORK_ROOT/lib')
+import workflow_coverage
+r = workflow_coverage.check_workflow_dispatcher_coverage()
+r = workflow_coverage.enrich_with_dispatch_recency(r)
+r = workflow_coverage.flag_stale_workflows(r)
+print(workflow_coverage.format_audit_line(r))
+if not r['ok']:
+    sys.exit(1)
+if r.get('warn'):
+    sys.exit(2)
+sys.exit(0)
+" 2>&1)
+    COVERAGE_RC=$?
+    case "$COVERAGE_RC" in
+        0)
+            pass "Workflow dispatcher coverage: $COVERAGE_OUT"
+            ;;
+        2)
+            warn "Workflow dispatcher coverage: $COVERAGE_OUT" \
+                 "Workflows declared but not recently dispatched — consider deprecating" \
+                 "Run: bin/fw resolver workflows ; review which workflows are still relevant"
+            ;;
+        *)
+            fail "Workflow dispatcher coverage: $COVERAGE_OUT" \
+                 "Workflow declares worker_kind without a spawn handler — runtime NotImplementedError trap" \
+                 "Either add a handler to lib/spawn._DISPATCHERS, or change the workflow's worker_kind to a routable one (pi, ollama-loop, TermLink)"
+            ;;
+    esac
+fi
+
+echo ""
+fi # end orchestrator
+
+# ============================================
+# ARC-COMPLETION CHECK (T-1656 / G-062 mechanism #2)
+# Detect arcs whose constituent tasks are mostly completed but where the arc
+# itself was never explicitly closed. Catches the "shipped without three-question
+# check" failure mode codified in CLAUDE.md §Arc Completion Discipline.
+# ============================================
+if should_run_section "arc-completion" || should_run_section "oe-daily"; then
+echo "=== ARC-COMPLETION CHECKS ==="
+
+ARC_DIR="$CONTEXT_DIR/arcs"
+if [ ! -d "$ARC_DIR" ] || ! ls "$ARC_DIR"/*.yaml >/dev/null 2>&1; then
+    info "Arc registry empty — no arcs to evaluate"
+else
+    threshold="${FW_ARC_COMPLETION_THRESHOLD:-0.80}"
+    for arc_yaml in "$ARC_DIR"/*.yaml; do
+        # Parse arc fields (id, status, constituent_tasks).
+        # Use python to avoid yaml-library coupling — simple line scan suffices.
+        eval "$(python3 - "$arc_yaml" "$PROJECT_ROOT" <<'PY'
+import re, sys, os, glob
+text = open(sys.argv[1]).read()
+project_root = sys.argv[2]
+def grab(field, default=""):
+    m = re.search(rf'^{field}:\s*(.*?)$', text, re.MULTILINE)
+    return m.group(1).strip() if m else default
+arc_id = grab("id")
+# T-1848: dual identity. `id:` is now arc-NNN (immutable); `slug:` (or filename
+# stem) is the tag namespace. Tasks tagged `arc:dispatch-safety` won't match
+# `arc:arc-001`. Audit must scan by slug.
+arc_slug = grab("slug") or os.path.basename(sys.argv[1]).replace(".yaml", "")
+status = grab("status")
+ct_line = grab("constituent_tasks", "[]")
+m = re.match(r'\[(.*?)\]', ct_line)
+items = []
+if m and m.group(1).strip():
+    items = [s.strip().strip('"').strip("'") for s in m.group(1).split(",") if s.strip()]
+# Tag-based fallback (T-1813): when constituent_tasks is empty, scan .tasks/ for
+# tasks tagged arc:<slug>. Mirrors lib/arc.sh:_arc_tasks_with_tag.
+# T-1875 (T-NEW-11): extended to union with arc_id: frontmatter scan — the
+# canonical source-of-truth field introduced in T-1849 and populated by the
+# T-1850 migration. Without this union, audit was blind to 163 task-arc
+# relationships across 5 arcs after migration. Mirrors lib/arc.sh:_arc_tasks_for.
+if not items and arc_slug:
+    tag_pattern = f"arc:{arc_slug}"
+    # arc_id may be either slug form (`arc-grooming`) or arc-NNN form (`arc-005`).
+    arc_id_re = re.compile(
+        rf'^\s*arc_id:\s*["\']?({re.escape(arc_slug)}|{re.escape(arc_id)})["\']?\s*$',
+        re.MULTILINE,
+    )
+    seen = set()
+    for d in ("active", "completed"):
+        for f in glob.glob(os.path.join(project_root, ".tasks", d, "T-*.md")):
+            try:
+                tt = open(f).read()
+            except OSError:
+                continue
+            matched = False
+            tags_m = re.search(r'^tags:\s*(.*?)$', tt, re.MULTILINE)
+            if tags_m and tag_pattern in tags_m.group(1):
+                matched = True
+            if not matched and arc_id_re.search(tt):
+                matched = True
+            if matched:
+                id_m = re.search(r'^id:\s*(T-\d+)', tt, re.MULTILINE)
+                if id_m:
+                    seen.add(id_m.group(1))
+    items = sorted(seen)
+print(f'ARC_ID={arc_id!r}')
+print(f'ARC_STATUS={status!r}')
+print(f'ARC_TASKS=({" ".join(items)})')
+PY
+)"
+        # Skip closed arcs and empty arcs.
+        if [ "$ARC_STATUS" != "in-progress" ]; then continue; fi
+        total="${#ARC_TASKS[@]}"
+        if [ "$total" -eq 0 ]; then continue; fi
+
+        # Count tasks at status work-completed across active+completed dirs.
+        completed=0
+        for tid in "${ARC_TASKS[@]}"; do
+            tf=$({ ls "$PROJECT_ROOT"/.tasks/{active,completed}/"$tid"-*.md 2>/dev/null || true; } | head -1)
+            if [ -n "$tf" ] && grep -qE "^status:[[:space:]]*work-completed" "$tf"; then
+                completed=$((completed+1))
+            fi
+        done
+
+        # Compute ratio in shell using awk (portable; no bc dependency).
+        ratio=$(awk -v c="$completed" -v t="$total" 'BEGIN { printf "%.4f", c/t }')
+        # Compare ratio >= threshold (awk again).
+        ge=$(awk -v r="$ratio" -v th="$threshold" 'BEGIN { print (r+0 >= th+0) ? "1" : "0" }')
+
+        if [ "$ge" = "1" ]; then
+            warn "Arc '${ARC_ID}': ${completed}/${total} tasks completed (${ratio}) but arc still in-progress" \
+                 "Threshold ${threshold} reached — code-complete without explicit closure (G-062 signature)" \
+                 "Capture wire-evidence of the arc's headline_mechanic firing, then: fw arc close ${ARC_ID} --demo <path|url> --decision \"...\""
+        else
+            pass "Arc '${ARC_ID}': ${completed}/${total} (${ratio}) — below threshold ${threshold}, no closure pressure"
+        fi
+    done
+fi
+
+echo ""
+fi # end arc-completion
+
+# ============================================
+# SUMMARY (always runs)
+# ============================================
+echo "=== SUMMARY ==="
+echo -e "${GREEN}Pass:${NC} $PASS_COUNT"
+echo -e "${YELLOW}Warn:${NC} $WARN_COUNT"
+echo -e "${RED}Fail:${NC} $FAIL_COUNT"
+echo ""
+
+# Deduplicate and show priority actions
+if [ ${#PRIORITY_ACTIONS[@]} -gt 0 ]; then
+    echo "=== PRIORITY ACTIONS ==="
+    printf '%s\n' "${PRIORITY_ACTIONS[@]}" | sort -u | head -5 | nl
+fi
+
+# ============================================
+# YAML OUTPUT (always runs)
+# ============================================
+
+# Determine output directory and filename
+EFFECTIVE_OUTPUT_DIR="${OUTPUT_DIR:-$AUDITS_DIR}"
+mkdir -p "$EFFECTIVE_OUTPUT_DIR"
+
+# Cron audits use datetime filenames (multiple per day); manual audits use date
+if [ -n "$OUTPUT_DIR" ]; then
+    AUDIT_FILE="$EFFECTIVE_OUTPUT_DIR/$AUDIT_DATETIME.yaml"
+else
+    AUDIT_FILE="$EFFECTIVE_OUTPUT_DIR/$AUDIT_DATE.yaml"
+fi
+
+# Build YAML content
+{
+    echo "# Audit Results - $AUDIT_DATETIME"
+    echo "timestamp: $AUDIT_TIMESTAMP"
+    [ -n "$SECTIONS" ] && echo "sections: \"$SECTIONS\""
+    echo "summary:"
+    echo "  pass: $PASS_COUNT"
+    echo "  warn: $WARN_COUNT"
+    echo "  fail: $FAIL_COUNT"
+    echo "findings:"
+    for finding in "${FINDINGS[@]}"; do
+        level=$(echo "$finding" | cut -d'|' -f1)
+        check=$(echo "$finding" | cut -d'|' -f2)
+        mitigation=$(echo "$finding" | cut -d'|' -f3)
+        # T-687: Properly escape YAML strings — replace " with \" inside quoted values
+        check="${check//\\/\\\\}"   # escape backslashes first
+        check="${check//\"/\\\"}"   # then escape quotes
+        mitigation="${mitigation//\\/\\\\}"
+        mitigation="${mitigation//\"/\\\"}"
+        echo "  - level: $level"
+        echo "    check: \"$check\""
+        if [ -n "$mitigation" ]; then
+            echo "    mitigation: \"$mitigation\""
+        fi
+    done
+} > "$AUDIT_FILE"
+
+# Update LATEST-CRON symlink (only in custom output dirs, not default audits)
+if [ -n "$OUTPUT_DIR" ]; then
+    ln -sf "$(basename "$AUDIT_FILE")" "$EFFECTIVE_OUTPUT_DIR/LATEST-CRON.yaml" 2>/dev/null || true
+fi
+
+# Extract discovery findings (D1-D8) to LATEST.yaml
+if should_run_section "discovery" || should_run_section "discovery-trends"; then
+    DISC_DIR="$AUDITS_DIR/discoveries"
+    mkdir -p "$DISC_DIR"
+    DISC_PASS=0; DISC_WARN=0; DISC_FAIL=0; DISC_TOTAL=0
+    DISC_FINDINGS=""
+    for finding in "${FINDINGS[@]}"; do
+        level=$(echo "$finding" | cut -d'|' -f1)
+        check=$(echo "$finding" | cut -d'|' -f2)
+        mitigation=$(echo "$finding" | cut -d'|' -f3)
+        # Match D1-D9 prefix
+        if echo "$check" | grep -qE '^D[0-9]+:'; then
+            disc_id=$(echo "$check" | grep -oE '^D[0-9]+')
+            DISC_TOTAL=$((DISC_TOTAL + 1))
+            case "$level" in
+                PASS) DISC_PASS=$((DISC_PASS + 1)) ;;
+                WARN) DISC_WARN=$((DISC_WARN + 1)) ;;
+                FAIL) DISC_FAIL=$((DISC_FAIL + 1)) ;;
+            esac
+            DISC_FINDINGS="${DISC_FINDINGS}  - id: $disc_id
+    level: $level
+    check: \"${check//\"/\\\"}\"
+"
+            if [ -n "$mitigation" ]; then
+                DISC_FINDINGS="${DISC_FINDINGS}    mitigation: \"${mitigation//\"/\\\"}\"
+"
+            fi
+        fi
+    done
+    if [ "$DISC_TOTAL" -gt 0 ]; then
+        cat > "$DISC_DIR/LATEST.yaml" << DISCEOF
+timestamp: $AUDIT_TIMESTAMP
+findings:
+$DISC_FINDINGS
+summary:
+  pass: $DISC_PASS
+  warn: $DISC_WARN
+  fail: $DISC_FAIL
+  total: $DISC_TOTAL
+DISCEOF
+    fi
+fi
+
+# Trend detection: Compare with previous audits
+echo ""
+echo "=== TREND ANALYSIS ==="
+
+# Get previous audit files (excluding today)
+shopt -s nullglob
+previous_audits=("$AUDITS_DIR"/*.yaml)
+shopt -u nullglob
+
+# T-1394: rolling window — exclude audits older than FW_AUDIT_TREND_WINDOW_DAYS
+# (default 14). Without this, resolved issues stay flagged forever (e.g.
+# "Uncommitted changes present (39 times)" persists after T-1392 fixed it).
+TREND_WINDOW_DAYS="${FW_AUDIT_TREND_WINDOW_DAYS:-14}"
+TREND_WINDOW_CUTOFF=$(date -d "${TREND_WINDOW_DAYS} days ago" +%Y-%m-%d 2>/dev/null \
+    || date -v-${TREND_WINDOW_DAYS}d +%Y-%m-%d 2>/dev/null \
+    || echo "1970-01-01")
+
+# Filter to only files before today and within window
+past_audits=()
+for f in "${previous_audits[@]}"; do
+    fname=$(basename "$f" .yaml)
+    # Skip cron/, discoveries/ subdir entries — only date-named files
+    case "$fname" in
+        [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]) ;;
+        [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-*) fname="${fname:0:10}" ;;
+        *) continue ;;
+    esac
+    if [ "$fname" = "$AUDIT_DATE" ]; then continue; fi
+    # Lexicographic compare works for YYYY-MM-DD
+    if [[ "$fname" < "$TREND_WINDOW_CUTOFF" ]]; then continue; fi
+    [ -f "$f" ] && past_audits+=("$f")
+done
+
+if [ ${#past_audits[@]} -eq 0 ]; then
+    echo "First audit recorded. Trends will appear after multiple audits."
+else
+    # Count how many times each warning/failure has appeared (temp file, POSIX-safe — no declare -A)
+    ISSUE_COUNTS_FILE=$(mktemp)
+
+    for audit_file in "${past_audits[@]}"; do
+        while IFS= read -r line; do
+            if [[ "$line" =~ ^[[:space:]]+check:[[:space:]]* ]]; then
+                check_name=$(echo "$line" | sed 's/.*check: "//' | sed 's/"$//')
+                echo "$check_name" >> "$ISSUE_COUNTS_FILE"
+            fi
+        done < <(grep -A1 "level: WARN\|level: FAIL" "$audit_file" 2>/dev/null)
+    done
+
+    # Find repeated issues (appeared 3+ times)
+    repeated_issues=()
+    if [ -s "$ISSUE_COUNTS_FILE" ]; then
+        while IFS= read -r count_line; do
+            count=$(echo "$count_line" | awk '{print $1}')
+            check=$(echo "$count_line" | cut -d' ' -f2-)
+            if [ "$count" -ge 3 ] 2>/dev/null; then
+                repeated_issues+=("$check ($count times)")
+            fi
+        done < <(sort "$ISSUE_COUNTS_FILE" | uniq -c | sort -rn)
+    fi
+    rm -f "$ISSUE_COUNTS_FILE"
+
+    if [ ${#repeated_issues[@]} -gt 0 ]; then
+        echo -e "${YELLOW}Repeated issues detected in last ${TREND_WINDOW_DAYS} days (candidates for practice):${NC}"
+        for issue in "${repeated_issues[@]}"; do
+            echo "  - $issue"
+        done
+        echo ""
+        echo -e "${CYAN}Consider creating a practice to address these recurring issues.${NC}"
+        echo "Run: fw context add-learning \"description\" --task T-XXX"
+    else
+        echo -e "${GREEN}No repeated issues in last ${TREND_WINDOW_DAYS} days (across ${#past_audits[@]} audits).${NC}"
+    fi
+
+    # Show trend summary
+    echo ""
+    echo "Audit history: ${#past_audits[@]} audit(s) in last ${TREND_WINDOW_DAYS} days + today"
+fi
+
+echo ""
+echo "Audit saved to: $AUDIT_FILE"
+
+# Retention: prune cron audit files older than 7 days
+if [ -n "$OUTPUT_DIR" ] && [ -d "$OUTPUT_DIR" ]; then
+    find "$OUTPUT_DIR" -name "*.yaml" -mtime +7 -delete 2>/dev/null || true
+fi
+
+# ============================================
+# METRICS HISTORY APPEND (T-238)
+# Appends summary metrics to time-series store after every audit run.
+# Independent of section selection — always computes fresh values.
+# ============================================
+METRICS_HISTORY="$CONTEXT_DIR/project/metrics-history.yaml"
+if [ -d "$CONTEXT_DIR/project" ]; then
+    export AUDIT_PASS="$PASS_COUNT" AUDIT_WARN="$WARN_COUNT" AUDIT_FAIL="$FAIL_COUNT"
+    export PROJECT_ROOT="$PROJECT_ROOT"
+    python3 << 'METRICS_EOF'
+import yaml, glob, os, subprocess, re
+from datetime import datetime, timedelta, timezone
+
+PROJECT_ROOT = os.environ.get("PROJECT_ROOT", os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+METRICS_FILE = os.path.join(PROJECT_ROOT, ".context", "project", "metrics-history.yaml")
+TASKS_DIR = os.path.join(PROJECT_ROOT, ".tasks")
+CONTEXT_DIR = os.path.join(PROJECT_ROOT, ".context")
+
+# Compute metrics
+active_tasks = len(glob.glob(os.path.join(TASKS_DIR, "active", "T-*.md")))
+completed_tasks = len(glob.glob(os.path.join(TASKS_DIR, "completed", "T-*.md")))
+
+# Velocity: commits in last 24h
+try:
+    r = subprocess.run(
+        ["git", "log", "--oneline", "--since=24 hours ago"],
+        capture_output=True, text=True, timeout=10, cwd=PROJECT_ROOT,
+    )
+    velocity = len([l for l in r.stdout.strip().split("\n") if l.strip()]) if r.returncode == 0 else 0
+except Exception:
+    velocity = 0
+
+# Traceability (T-590: respect baseline if set)
+try:
+    trace_cmd = ["git", "log", "--oneline", "--format=%s"]
+    baseline_file = os.path.join(CONTEXT_DIR, "project", "traceability-baseline")
+    if os.path.isfile(baseline_file):
+        baseline_sha = open(baseline_file).read().strip()
+        trace_cmd.append(f"{baseline_sha}..HEAD")
+    else:
+        trace_cmd.extend(["-200"])
+    r = subprocess.run(
+        trace_cmd,
+        capture_output=True, text=True, timeout=10, cwd=PROJECT_ROOT,
+    )
+    lines = [l for l in r.stdout.strip().split("\n") if l.strip()] if r.returncode == 0 else []
+    traced = sum(1 for l in lines if re.search(r"T-\d+", l))
+    traceability_pct = int(round(traced / len(lines) * 100)) if lines else 0
+except Exception:
+    traceability_pct = 0
+
+# Episodic quality: % without [TODO] in summary
+ep_dir = os.path.join(CONTEXT_DIR, "episodic")
+ep_total = 0
+ep_good = 0
+if os.path.isdir(ep_dir):
+    for f in glob.glob(os.path.join(ep_dir, "T-*.yaml")):
+        ep_total += 1
+        try:
+            content = open(f).read()
+            if "[TODO" not in content:
+                ep_good += 1
+        except Exception:
+            pass
+episodic_quality_pct = int(round(ep_good / ep_total * 100)) if ep_total > 0 else 100
+
+# Open gaps
+# T-397: Unified concerns register
+gaps_file = os.path.join(CONTEXT_DIR, "project", "concerns.yaml")
+if not os.path.exists(gaps_file):
+    gaps_file = os.path.join(CONTEXT_DIR, "project", "gaps.yaml")
+open_gaps = 0
+if os.path.exists(gaps_file):
+    try:
+        with open(gaps_file) as f:
+            gd = yaml.safe_load(f)
+        items = (gd or {}).get("concerns", (gd or {}).get("gaps", []))
+        open_gaps = sum(1 for g in items if g.get("status") == "watching")
+    except Exception:
+        pass
+
+# Build entry
+entry = {
+    "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    "pass": int(os.environ.get("AUDIT_PASS", "0")),
+    "warn": int(os.environ.get("AUDIT_WARN", "0")),
+    "fail": int(os.environ.get("AUDIT_FAIL", "0")),
+    "active_tasks": active_tasks,
+    "completed_tasks": completed_tasks,
+    "velocity": velocity,
+    "traceability_pct": traceability_pct,
+    "episodic_quality_pct": episodic_quality_pct,
+    "open_gaps": open_gaps,
+}
+
+# Load existing, append, prune >30 days
+if os.path.exists(METRICS_FILE):
+    try:
+        with open(METRICS_FILE) as f:
+            data = yaml.safe_load(f) or {}
+    except Exception:
+        data = {}
+else:
+    data = {}
+
+entries = data.get("entries", [])
+if not isinstance(entries, list):
+    entries = []
+
+entries.append(entry)
+
+# Prune entries older than 30 days
+cutoff_30d = datetime.now(timezone.utc) - timedelta(days=30)
+pruned = []
+for e in entries:
+    # .get("timestamp", "") returns None when YAML has an explicit null value (T-1402)
+    ts_str = e.get("timestamp") or ""
+    try:
+        ts = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+        if ts >= cutoff_30d:
+            pruned.append(e)
+    except (ValueError, TypeError, AttributeError):
+        pruned.append(e)  # keep unparseable entries
+
+# Downsample: for entries older than 7 days, keep only 1 per calendar day (T-431/A3)
+cutoff_7d = datetime.now(timezone.utc) - timedelta(days=7)
+recent = []
+old_by_day = {}
+for e in pruned:
+    ts_str = e.get("timestamp") or ""
+    try:
+        ts = datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+        if ts >= cutoff_7d:
+            recent.append(e)
+        else:
+            day_key = ts.strftime("%Y-%m-%d")
+            if day_key not in old_by_day:
+                old_by_day[day_key] = e  # keep first (oldest) per day
+    except (ValueError, TypeError, AttributeError):
+        recent.append(e)
+
+pruned = sorted(old_by_day.values(), key=lambda x: x.get("timestamp") or "") + recent
+
+data["entries"] = pruned
+
+with open(METRICS_FILE, "w") as f:
+    # Preserve header comment
+    f.write("# Time-series metrics history\n")
+    f.write("# Auto-appended by audit.sh on each run\n")
+    f.write("# 30-day rolling retention\n")
+    yaml.dump({"entries": pruned}, f, default_flow_style=False, sort_keys=False)
+METRICS_EOF
+fi
+
+echo ""
+echo "=== END AUDIT ==="
+
+# Restore stdout if quiet mode was active
+if [ "$QUIET" = true ]; then
+    exec 1>&3
+fi
+
+# T-709: Push notification on audit failures
+if [ $FAIL_COUNT -gt 0 ] && [ -f "$FRAMEWORK_ROOT/lib/notify.sh" ]; then
+    source "$FRAMEWORK_ROOT/lib/notify.sh"
+    fw_notify "Audit Failures: $FAIL_COUNT" "Pass: $PASS_COUNT | Warn: $WARN_COUNT | Fail: $FAIL_COUNT" "health_check_failed" "audit"
+fi
+
+# Exit code based on findings
+if [ $FAIL_COUNT -gt 0 ]; then
+    exit 2
+elif [ $WARN_COUNT -gt 0 ]; then
+    exit 1
+else
+    exit 0
+fi
