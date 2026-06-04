@@ -1,0 +1,161 @@
+# Audit Results - 2026-06-04-1007
+timestamp: 2026-06-04T08:07:13Z
+summary:
+  pass: 71
+  warn: 3
+  fail: 1
+findings:
+  - level: PASS
+    check: "Tasks directory exists"
+  - level: PASS
+    check: "Tasks/active directory exists"
+  - level: PASS
+    check: "Tasks/completed directory exists"
+  - level: PASS
+    check: "Tasks/templates directory exists"
+  - level: PASS
+    check: "Task template exists"
+  - level: PASS
+    check: "No duplicate task IDs across active/ and completed/"
+  - level: PASS
+    check: "All 8 project YAML files parse correctly"
+  - level: PASS
+    check: "No inline arc:<slug> tag-only scans outside canonical lib (T-1881)"
+  - level: PASS
+    check: "No stale-slice-references (L-417)"
+  - level: PASS
+    check: "No GO-scope-not-propagated inception(s) (sibling to L-417)"
+  - level: PASS
+    check: "Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer"
+  - level: PASS
+    check: "Hook threshold: no hooks failing over threshold"
+  - level: PASS
+    check: "All 5 active tasks are valid"
+  - level: PASS
+    check: "All active tasks meet quality thresholds"
+  - level: PASS
+    check: "Git traceability: 100% (3/3 commits reference tasks)"
+  - level: WARN
+    check: "Uncommitted changes present"
+    mitigation: "Commit changes with task reference or stash"
+  - level: PASS
+    check: "All commit task refs resolve to actual tasks"
+  - level: PASS
+    check: "Bypass log exists"
+  - level: PASS
+    check: "Gate-bypass log: clean (no bypasses recorded)"
+  - level: PASS
+    check: "Commit-msg hook installed"
+  - level: PASS
+    check: "No Tier 0 violations detected"
+  - level: PASS
+    check: "Practices documented: 10 practice(s) in practices.yaml"
+  - level: PASS
+    check: "Bugfix-learning coverage: no completed bugfix tasks found"
+  - level: PASS
+    check: "All completed tasks have episodic summaries"
+  - level: PASS
+    check: "No orphaned episodic files"
+  - level: PASS
+    check: "No observation inbox (not yet initialized)"
+  - level: PASS
+    check: "Gaps register: no gaps being watched"
+  - level: PASS
+    check: "Handover open questions: none (section empty or template placeholder)"
+  - level: PASS
+    check: "Graduation pipeline: 0 learnings (threshold: 20)"
+  - level: PASS
+    check: "No completed inception tasks to check"
+  - level: PASS
+    check: "C-001: No active inception tasks to check"
+  - level: PASS
+    check: "C-002: commit-msg hook has research artifact check"
+  - level: PASS
+    check: "C-002: No research warnings logged (clean or first run)"
+  - level: PASS
+    check: "C-003: Research checkpoint logic present in checkpoint.sh"
+  - level: PASS
+    check: "C-006: All active inceptions have a real Recommendation block"
+  - level: PASS
+    check: "CTL-001: Focus file has active task (T-001)"
+  - level: WARN
+    check: "CTL-003: Budget status file stale (6min old)"
+    mitigation: "Check PreToolUse hook wiring for budget-gate.sh"
+  - level: PASS
+    check: "CTL-004: Tool counter at 0 (last commit: 5 seconds ago)"
+  - level: PASS
+    check: "CTL-018: Budget status valid JSON (level: ok)"
+  - level: PASS
+    check: "CTL-008: Task reference traceability 100% (0/3 without T-XXX)"
+  - level: WARN
+    check: "CTL-020: No cron audit files in last hour"
+    mitigation: "Check cron schedule: crontab -l "
+  - level: PASS
+    check: "CTL-002: Tier 0 guard installed and wired in settings.json"
+  - level: PASS
+    check: "CTL-005: Error watchdog installed and wired in settings.json"
+  - level: PASS
+    check: "CTL-006: No compact log (no compactions recorded)"
+  - level: PASS
+    check: "CTL-007: Post-compact resume hook configured in settings.json"
+  - level: PASS
+    check: "CTL-027: Inception T-002 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-010: Bypass log exists but empty (no bypasses detected)"
+  - level: PASS
+    check: "CTL-011: pre-push hook installed and executable"
+  - level: PASS
+    check: "CTL-019: claude-fw wrapper installed and executable"
+  - level: PASS
+    check: "CTL-029: No archive-eligible stuck partial-complete tasks (T-1903/L-403)"
+  - level: PASS
+    check: "CTL-026: Human sovereignty gate present (completion + owner protection)"
+  - level: PASS
+    check: "CTL-028: All completed/ tasks have frontmatter status: work-completed"
+  - level: PASS
+    check: "CTL-030: All completed/ tasks have null/absent stored horizon (arc-009)"
+  - level: PASS
+    check: "CTL-029: No completable-but-not-completed active tasks"
+  - level: PASS
+    check: "CTL-012: All 0 completed tasks have checked ACs"
+  - level: PASS
+    check: "D1: No episodic files to check"
+  - level: PASS
+    check: "D2: Human review queue — no pending items"
+  - level: PASS
+    check: "D8: Handover quality — no [TODO] in LATEST.md"
+  - level: PASS
+    check: "D8b: Handover archive — 0/1 recent handovers have [TODO]s"
+  - level: PASS
+    check: "D10: Decision-without-dialogue — none detected"
+  - level: PASS
+    check: "D11: Gap register staleness — all gaps fresh"
+  - level: PASS
+    check: "D4: Audit trend — insufficient history (<3 entries)"
+  - level: PASS
+    check: "D5: Task lifecycle — no anomalies"
+  - level: PASS
+    check: "D13: Inception limbo — no stuck inceptions"
+  - level: PASS
+    check: "D3: Commit velocity — insufficient data"
+  - level: PASS
+    check: "D7: Commit bunching — none (PASS 3_commits_24h)"
+  - level: PASS
+    check: "D6: Completion velocity — normal (PASS insufficient_data)"
+  - level: PASS
+    check: "D12: Bypass log — no log file"
+  - level: PASS
+    check: "D9: Control drift — normal (PASS insufficient_audits)"
+  - level: PASS
+    check: "D14: Empty inception Recommendation — none (PASS no_empty_recommendations)"
+  - level: PASS
+    check: "D15: Inception limbo state — none (PASS no_limbo)"
+  - level: PASS
+    check: "CTL-016: No failure patterns recorded"
+  - level: FAIL
+    check: "Orchestrator-arc MCP scan: regression — gated tool lost its check_task_governance"
+    mitigation: "Restore the gate or update baseline if removal was intentional (commit body must explain)"
+  - level: PASS
+    check: "Workflow dispatcher coverage: all 0 workflows route to a registered dispatcher and pi workflows declare a provider; declarable-but-unroutable: ['Task']"
+  - level: INFO
+    check: "Arc registry empty — no arcs to evaluate"
