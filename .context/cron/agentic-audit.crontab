@@ -4,3 +4,21 @@
 # Project: /opt/832-Workflow-designer
 SHELL=/bin/bash
 PATH=/usr/local/bin:/usr/bin:/bin
+
+# Structural audits (30 min)
+*/30 * * * * root cd "/opt/832-Workflow-designer" && PROJECT_ROOT="/opt/832-Workflow-designer" flock -n /var/lock/agentic-cron-structural-30m-832.lock -c '"/opt/832-Workflow-designer/.agentic-framework/bin/fw" audit --section structure,compliance,quality,discovery --cron' 2>&1 | logger -t agentic-cron
+
+# OE fast checks (30 min)
+15,45 * * * * root cd "/opt/832-Workflow-designer" && PROJECT_ROOT="/opt/832-Workflow-designer" flock -n /var/lock/agentic-cron-oe-fast-30m-832.lock -c '"/opt/832-Workflow-designer/.agentic-framework/bin/fw" audit --section oe-fast,oe-research --cron' 2>&1 | logger -t agentic-cron
+
+# OE hourly checks
+30 * * * * root cd "/opt/832-Workflow-designer" && PROJECT_ROOT="/opt/832-Workflow-designer" flock -n /var/lock/agentic-cron-oe-hourly-832.lock -c '"/opt/832-Workflow-designer/.agentic-framework/bin/fw" audit --section oe-hourly --cron' 2>&1 | logger -t agentic-cron
+
+# OE daily checks
+0 7 * * * root cd "/opt/832-Workflow-designer" && PROJECT_ROOT="/opt/832-Workflow-designer" flock -n /var/lock/agentic-cron-oe-daily-832.lock -c '"/opt/832-Workflow-designer/.agentic-framework/bin/fw" audit --section oe-daily --cron' 2>&1 | logger -t agentic-cron
+
+# Full audit (daily)
+0 8 * * * root cd "/opt/832-Workflow-designer" && PROJECT_ROOT="/opt/832-Workflow-designer" flock -n /var/lock/agentic-cron-full-daily-832.lock -c '"/opt/832-Workflow-designer/.agentic-framework/bin/fw" audit --cron' 2>&1 | logger -t agentic-cron
+
+# Cron audit file retention (daily)
+0 9 * * * root cd "/opt/832-Workflow-designer" && python3 -c "import os,datetime; cutoff=str(datetime.date.today()-datetime.timedelta(days=7)); d='.context/audits/cron'; [os.remove(os.path.join(d,f)) for f in os.listdir(d) if f.endswith('.yaml') and len(f)>=15 and f[4]=='-' and f[:10]<cutoff]" 2>&1 | logger -t agentic-cron

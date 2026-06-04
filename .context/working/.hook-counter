@@ -1,0 +1,12 @@
+check-human-ac-tick=3
+check-tier0=3
+check-agent-dispatch=3
+check-project-boundary=3
+budget-gate=3
+checkpoint=3
+error-watchdog=3
+check-dispatch=3
+loop-detect=3
+check-fabric-new-file=3
+commit-cadence=3
+audit-task-tools=3
