@@ -12,7 +12,7 @@ tags: [onboarding, inception]
 components: []
 related_tasks: []
 created: 2026-06-04T07:53:20Z
-last_update: 2026-06-05T09:23:22Z
+last_update: 2026-06-05T09:59:07Z
 date_finished: null
 ---
 
