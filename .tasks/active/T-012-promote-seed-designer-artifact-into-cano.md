@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-06-05T15:27:24Z
-last_update: 2026-06-05T15:27:24Z
+last_update: 2026-06-05T15:33:52Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,22 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+First build slice of the T-002 GO. Promote the seed Workflow Designer artifact +
+docs out of the temporary `zzz-seed-design-files/` scaffolding into a canonical
+repo layout (product source under `src/`, product docs under `docs/designer/`),
+update the root README to point at the canonical locations, and retire the seed
+dir to prevent two-copy drift. Source is preserved via `git mv` (history intact).
+Schema-validation tooling is a SEPARATE later slice (out of scope here).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The designer artifact lives at `src/aef-workflow-designer.html` (non-empty, valid HTML — `<!doctype html>` confirmed)
+- [x] Product docs live under `docs/designer/` (architecture.md, schema.md, user-guide.md, README.md, aef-workflow-designer-complete.md)
+- [x] `zzz-seed-design-files/` is removed (content promoted, no duplicate copies remain)
+- [x] Root `README.md` references the canonical `src/` artifact and `docs/designer/` docs (no dangling links to `zzz-seed-design-files/`)
+- [x] `git mv` used so the artifact retains history (verifiable via `git log --follow src/aef-workflow-designer.html`)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -157,6 +165,18 @@ date_finished: null
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-06-05 — Canonical layout for the product
+- **Chose:** product artifact at `src/aef-workflow-designer.html`; product docs
+  under `docs/designer/`; retire `zzz-seed-design-files/` entirely; move via
+  `git mv` to preserve history.
+- **Why:** clean separation of product (`src/`, `docs/designer/`) from framework
+  tooling (`.agentic-framework/`) and governance artifacts (`docs/reports/`).
+  A single canonical copy prevents the two-copy drift that keeping the seed dir
+  would invite. The single-file constraint means `src/` holds exactly one file.
+- **Rejected:** (a) artifact at repo root — clutters root, mixes product with
+  framework files; (b) keep `zzz-seed-design-files/` as a copy — guarantees drift;
+  (c) copy instead of `git mv` — loses history continuity.
 
 ## Decision
 

@@ -42,8 +42,8 @@ agent to coordinate the integration.**
   user guide. A worked `investigate` seed workflow exercises every schema feature.
 
 Repo pointers (this project):
-- Product artifact + docs: `src/` and `docs/designer/` (being promoted from
-  `zzz-seed-design-files/` under T-012; until then the originals live there).
+- Product artifact: `src/aef-workflow-designer.html` (self-contained, single file).
+- Product docs: `docs/designer/` (architecture, schema, user-guide, combined reference).
 - Goals/architecture inception (decided **GO**): `docs/reports/T-002-aef-workflow-designer-goals.md`.
 
 ## Why it fits the framework (Four Directives)

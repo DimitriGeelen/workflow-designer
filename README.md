@@ -19,19 +19,26 @@ richer than markdown dispatch templates, but usable today without the planned
 | Path | Purpose |
 |------|---------|
 | `CLAUDE.md` | Claude Code operating guide + AEF governance (auto-loaded) |
-| `zzz-seed-design-files/` | Source design material: architecture, schema, user guide, and the implemented `aef-workflow-designer.html` artifact |
+| `src/aef-workflow-designer.html` | The product — self-contained single-file editor (open in any browser) |
+| `docs/designer/` | Product documentation: architecture, schema, user guide, combined reference |
 | `.tasks/` | Governed task system (active / completed / templates) |
 | `.context/` | Context Fabric — working, project, and episodic memory |
 | `.agentic-framework/` | Vendored Agentic Engineering Framework tooling |
 
+## Using it
+
+Open `src/aef-workflow-designer.html` in any modern browser — no server, no build
+step. State is in-memory; **Save** downloads a `.bpmn` file.
+
 ## Design documentation
 
-The complete design lives in `zzz-seed-design-files/`:
+The complete design lives in `docs/designer/`:
 
-- `README.md` — project orientation and feature status
+- `README.md` — designer orientation and feature status
 - `architecture.md` — the *why* behind the data model, routing, and interaction model
 - `schema.md` — the workflow file format and `aef:` extension namespace
 - `user-guide.md` — using the editor
+- `aef-workflow-designer-complete.md` — all docs + artifact source in one file (archival)
 
 ## Governance
 
@@ -48,7 +55,7 @@ fw handover                      # end-of-session handover
 
 ## Status
 
-Bootstrapping. The product design is complete (`zzz-seed-design-files/`) and a
-working single-file artifact exists. Project goals and the canonical repository
-structure for the product are being defined in task **T-002** (inception,
-awaiting go/no-go decision).
+Goals & architecture inception **T-002 = GO**. The working single-file artifact
+and its design docs have been promoted into the canonical layout above
+(`src/` + `docs/designer/`). Next planned slice: schema validation tooling for
+produced workflow files.
