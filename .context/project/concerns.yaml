@@ -1,4 +1,40 @@
 # Concerns Register — Unified gap and risk tracking (T-397)
 # Type: gap (spec-reality) | risk (forward-looking)
 # Status: watching | decided-build | decided-simplify | decided-defer | closed
-concerns: []
+concerns:
+  - id: G-001
+    type: gap
+    status: watching
+    severity: medium
+    title: "fw vendor ships incomplete payload — required runtime files dropped to consumer projects"
+    detected: 2026-06-05
+    origin_task: T-011
+    decision_trigger: >
+      Upstream framework ships the missing files in the vendor payload (or makes
+      the hook hard-fail on missing scanner); then re-vendor here and close G-001.
+    description: |
+      `fw vendor` / `fw init` ships an incomplete payload to consumer projects —
+      required runtime files are silently omitted. This consumer hit it twice
+      during bootstrap, and a sibling consumer hit the same class independently,
+      so it is systemic (not a one-off packaging slip).
+
+      Local instances (this project):
+        - F2 — orchestrator-mcp-scan.sh expects
+          .context/audits/orchestrator-mcp-baseline.yaml, which fw vendor does
+          not copy → first audit FAILs on a fresh consumer. (consumer track: T-006)
+        - F4 — pre-commit secret-scan.sh is absent from the vendor payload, so
+          the secret scan SILENTLY SKIPS (a security control that no-ops is worse
+          than one that's absent). Violates "no silent failures".
+
+      This is an UPSTREAM fix — local edits to .agentic-framework/ are overwritten
+      on re-vendor. Kept here so the gap stays visible in our register / Watchtower
+      / audit until upstream ships the fix and we re-vendor. (Recording this was
+      previously blocked by the F5 onboarding gate; now unblocked → recorded.)
+    evidence:
+      - "F2/F4 confirmed by code inspection during bootstrap (see docs/reports/T-006-*.md, framework-agent-pickup-2026-06-05.md §F2/§F4)."
+      - "Cross-project corroboration: `[fan-dashboard → framework-agent] RCA: fw init vendoring drops required runtime files` on agent-chat-arc 2026-06-05T12:10Z — same class, different consumer."
+      - "Pickup delivered to framework agent 9219671e28054458 (DM + chat-arc) 2026-06-05T10:32Z; no response yet (agent offline)."
+    related:
+      - T-006
+      - T-007
+      - docs/reports/framework-agent-pickup-2026-06-05.md
