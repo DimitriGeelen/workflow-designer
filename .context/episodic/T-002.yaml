@@ -1,0 +1,96 @@
+# ============================================================================
+# EPISODIC MEMORY - T-002: Define goals and architecture for 832-Workflow-designer
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-06-05T11:58:43Z
+# ============================================================================
+
+task_id: T-002
+task_name: "Define goals and architecture for 832-Workflow-designer"
+workflow_type: inception
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-06-04T07:53:20Z
+completed: 2026-06-05T11:11:59Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-06-05T11:23:22+02:00
+last_commit: 2026-06-05T12:08:41+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Inception research — AEF Workflow Designer goals & architecture. Framework-agent pickup — upstream findings + onboarding-gate exemption
+
+# Key outcomes
+outcomes:
+  - '[REVIEW] Problem statement is clear and scoped'
+  - 'Research artifact exists: `docs/reports/T-002-aef-workflow-designer-goals.md`'
+  - 'Problem statement documented (see research artifact §Problem Statement)'
+  - 'Go/no-go decision recorded: `fw inception decide T-002 go --rationale "..."` (reserved for human — foundational decision, owner: human; auto-ticks on decide)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-06-05-1130.yaml'
+  - '.context/audits/cron/2026-06-05-1145.yaml'
+  - '.context/audits/cron/2026-06-05-1200.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/episodic/T-003.yaml'
+  - '.context/locks/T-002.lock'
+  - '.context/locks/T-007.lock'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-003.log'
+  - '.context/working/.hook-counter'
+  - '.context/working/.reviewed-T-002'
+  - '.context/working/watchtower.log'
+  - 'docs/reports/framework-agent-pickup-2026-06-05.md'
+  - 'docs/reports/T-002-aef-workflow-designer-goals.md'
+  - '.tasks/active/T-002-define-project-goals.md'
+  - '.tasks/active/T-007-fw-init-seeds-patternsyaml-with-originta.md'
+  - '.tasks/active/T-008-inception-decisions-not-surfacing-on-wat.md'
+  - '.tasks/completed/T-003-first-governed-commit.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-06-05T11:23:22"
+    action: "T-002: Inception research — AEF Workflow Designer goals & architecture"
+  - time: "2026-06-05T12:08:41"
+    action: "T-002: Framework-agent pickup — upstream findings + onboarding-gate exemption"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 1638 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [onboarding, inception]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1638
+  commits: 2
+  files_changed: 22
+  lines_added: 1044
+  lines_removed: 77
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-002-define-project-goals.md
+generated_by: context-agent-hybrid

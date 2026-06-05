@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-06-05T11:40:40Z ===
+task_id: T-008
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-008.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Inception decisions not surfacing on Watchtower approvals page
+  Duration: 0 days (102 min)
+  Updates: 2
+  Commits: 1
+  Lines: +989 -49 across 31 files
+  Outcomes: 3 AC checked
+  Artifacts: 32 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-008-inception-decisions-not-surfacing-on-wat.md
+--- exit code: 0 ---
