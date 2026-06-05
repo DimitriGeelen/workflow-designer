@@ -1,9 +1,9 @@
-# Audit Results - 2026-06-05-1609
-timestamp: 2026-06-05T14:09:48Z
+# Audit Results - 2026-06-05-1611
+timestamp: 2026-06-05T14:11:41Z
 summary:
-  pass: 77
-  warn: 4
-  fail: 1
+  pass: 78
+  warn: 3
+  fail: 0
 findings:
   - level: PASS
     check: "Tasks directory exists"
@@ -34,7 +34,7 @@ findings:
   - level: PASS
     check: "All active tasks meet quality thresholds"
   - level: PASS
-    check: "Git traceability: 100% (19/19 commits reference tasks)"
+    check: "Git traceability: 100% (20/20 commits reference tasks)"
   - level: WARN
     check: "Uncommitted changes present"
     mitigation: "Commit changes with task reference or stash"
@@ -66,12 +66,8 @@ findings:
     check: "Handover open questions: none (section empty or template placeholder)"
   - level: PASS
     check: "Graduation pipeline: 0 learnings (threshold: 20)"
-  - level: WARN
-    check: "Inception task T-006 has no research artifact in docs/reports/"
-    mitigation: "Save research findings: docs/reports/T-006-*.md"
-  - level: WARN
-    check: "Inception task T-007 has no research artifact in docs/reports/"
-    mitigation: "Save research findings: docs/reports/T-007-*.md"
+  - level: PASS
+    check: "All 3 completed inceptions have research artifacts"
   - level: PASS
     check: "C-001: No active inception tasks to check"
   - level: PASS
@@ -87,11 +83,11 @@ findings:
   - level: PASS
     check: "CTL-003: Budget status file fresh (< 5min old)"
   - level: PASS
-    check: "CTL-004: Tool counter at 14 (last commit: 2 hours ago)"
+    check: "CTL-004: Tool counter at 2 (last commit: 12 seconds ago)"
   - level: PASS
     check: "CTL-018: Budget status valid JSON (level: ok)"
   - level: PASS
-    check: "CTL-008: Task reference traceability 100% (0/19 without T-XXX)"
+    check: "CTL-008: Task reference traceability 100% (0/20 without T-XXX)"
   - level: PASS
     check: "CTL-020: 4 cron audit file(s) in last hour"
   - level: PASS
@@ -103,19 +99,19 @@ findings:
   - level: PASS
     check: "CTL-007: Post-compact resume hook configured in settings.json"
   - level: PASS
-    check: "CTL-009: Inception T-002 has decision (6 commits)"
+    check: "CTL-009: Inception T-002 has decision (7 commits)"
   - level: PASS
-    check: "CTL-009: Inception T-006 has decision (3 commits)"
+    check: "CTL-009: Inception T-006 has decision (4 commits)"
   - level: PASS
-    check: "CTL-009: Inception T-007 has decision (3 commits)"
+    check: "CTL-009: Inception T-007 has decision (4 commits)"
   - level: PASS
     check: "CTL-010: Bypass log exists but empty (no bypasses detected)"
   - level: PASS
     check: "CTL-011: pre-push hook installed and executable"
   - level: PASS
-    check: "CTL-013: T-009 verification re-run: 2/2 pass"
-  - level: PASS
     check: "CTL-013: T-002 verification re-run: 1/1 pass"
+  - level: PASS
+    check: "CTL-013: T-009 verification re-run: 2/2 pass"
   - level: PASS
     check: "CTL-013: T-008 verification re-run: 2/2 pass"
   - level: PASS
@@ -126,11 +122,11 @@ findings:
     check: "CTL-026: Human sovereignty gate present (completion + owner protection)"
   - level: PASS
     check: "CTL-028: All completed/ tasks have frontmatter status: work-completed"
-  - level: FAIL
-    check: "CTL-030: T-002 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
-    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
   - level: PASS
-    check: "CTL-029: No completable-but-not-completed active tasks"
+    check: "CTL-030: All completed/ tasks have null/absent stored horizon (arc-009)"
+  - level: WARN
+    check: "CTL-029: T-010 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-010 --status work-completed"
   - level: PASS
     check: "CTL-012: All 9 completed tasks have checked ACs"
   - level: PASS
@@ -154,7 +150,7 @@ findings:
   - level: PASS
     check: "D3: Commit velocity — insufficient data"
   - level: PASS
-    check: "D7: Commit bunching — none (PASS 9_commits_24h_no_bunching)"
+    check: "D7: Commit bunching — none (PASS 10_commits_24h_no_bunching)"
   - level: PASS
     check: "D6: Completion velocity — normal (PASS insufficient_data)"
   - level: PASS

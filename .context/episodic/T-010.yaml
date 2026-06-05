@@ -1,0 +1,111 @@
+# ============================================================================
+# EPISODIC MEMORY - T-010: Post-onboarding framework health and stabilisation verification
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-06-05T14:11:49Z
+# ============================================================================
+
+task_id: T-010
+task_name: "Post-onboarding framework health and stabilisation verification"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-06-05T14:08:41Z
+completed: 2026-06-05T14:11:36Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-06-05T16:11:32+02:00
+last_commit: 2026-06-05T16:11:32+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Post-onboarding framework health & stabilisation verification
+
+# Key outcomes
+outcomes:
+  - '`fw doctor` reports no FAIL (warnings acceptable, recorded in Findings)'
+  - '`fw audit` shows 0 failures (Pass/Warn/Fail recorded in Findings)'
+  - '`fw gaps` reviewed; any open gaps recorded in Findings (no new gaps introduced this session)'
+  - 'Working tree contains no uncommitted source/product changes (only volatile framework bookkeeping under `.context/working/` and cron audits)'
+  - 'Framework-agent pickup delivery confirmed; response status recorded in Findings'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/approvals/pending-0eec9d92b8eb.yaml'
+  - '.context/audits/2026-06-05.yaml'
+  - '.context/audits/cron/2026-06-05-1400.yaml'
+  - '.context/audits/cron/2026-06-05-1415.yaml'
+  - '.context/audits/cron/2026-06-05-1430.yaml'
+  - '.context/audits/cron/2026-06-05-1445.yaml'
+  - '.context/audits/cron/2026-06-05-1500.yaml'
+  - '.context/audits/cron/2026-06-05-1515.yaml'
+  - '.context/audits/cron/2026-06-05-1530.yaml'
+  - '.context/audits/cron/2026-06-05-1545.yaml'
+  - '.context/audits/cron/2026-06-05-1600.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/audits/orchestrator-LATEST.yaml'
+  - '.context/episodic/T-009.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-009.log'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.pre-compact.lock'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - 'docs/reports/T-006-vendor-mcp-baseline.md'
+  - 'docs/reports/T-007-patterns-field-rename.md'
+  - '.tasks/active/T-010-post-onboarding-framework-health-and-sta.md'
+  - '.tasks/completed/T-002-define-project-goals.md'
+  - '.tasks/completed/T-009-finalize-t-002-relocation-verify-watchto.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-06-05T16:11:32"
+    action: "T-010: Post-onboarding framework health & stabilisation verification"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 35
+  lines_added: 1038
+  lines_removed: 87
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-010-post-onboarding-framework-health-and-sta.md
+generated_by: context-agent-hybrid
