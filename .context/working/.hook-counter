@@ -1,14 +1,14 @@
 commit-cadence=3
 
 check-human-ac-tick=39
-check-tier0=106
-check-project-boundary=133
+check-tier0=107
+check-project-boundary=134
 pre-compact=1
 check-agent-dispatch=3
 post-compact-resume=1
-budget-gate=30
-check-active-task=5
-loop-detect=5
-checkpoint=5
-error-watchdog=1
-audit-task-tools=5
+budget-gate=31
+check-active-task=6
+loop-detect=6
+checkpoint=6
+error-watchdog=2
+audit-task-tools=6

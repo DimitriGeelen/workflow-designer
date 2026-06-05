@@ -150,3 +150,10 @@ decisions:
     origin_task: T-109
     rationale: "Formalizes write-to-disk convention. 2KB gating prevents context explosion (~97% savings in simulation)."
     directives_served: [D1, D2]
+
+  - id: PD-001
+    decision: "product artifact at `src/aef-workflow-designer.html`; product docs"
+    scope: project
+    date: 2026-06-05
+    task: T-012
+    rationale: "Auto-captured from task file on completion"

@@ -1,0 +1,94 @@
+# ============================================================================
+# EPISODIC MEMORY - T-012: Promote seed designer artifact into canonical repo structure
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-06-05T15:35:49Z
+# ============================================================================
+
+task_id: T-012
+task_name: "Promote seed designer artifact into canonical repo structure"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-06-05T15:27:24Z
+completed: 2026-06-05T15:35:48Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-06-05T17:35:36+02:00
+last_commit: 2026-06-05T17:35:36+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Promote designer artifact + docs into canonical src/ and docs/designer/
+
+# Key outcomes
+outcomes:
+  - 'The designer artifact lives at `src/aef-workflow-designer.html` (non-empty, valid HTML — `<!doctype html>` confirmed)'
+  - 'Product docs live under `docs/designer/` (architecture.md, schema.md, user-guide.md, README.md, aef-workflow-designer-complete.md)'
+  - '`zzz-seed-design-files/` is removed (content promoted, no duplicate copies remain)'
+  - 'Root `README.md` references the canonical `src/` artifact and `docs/designer/` docs (no dangling links to `zzz-seed-design-files/`)'
+  - '`git mv` used so the artifact retains history (verifiable via `git log --follow src/aef-workflow-designer.html`)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+  - decision: '2026-06-05 — Canonical layout for the product'
+    chose: 'product artifact at `src/aef-workflow-designer.html`; product docs'
+    rationale: 'clean separation of product (`src/`, `docs/designer/`) from framework'
+    alternatives_rejected: ['(a) artifact at repo root — clutters root, mixes product with']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/locks/T-012.lock'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - 'docs/designer/aef-workflow-designer-complete.md'
+  - 'docs/designer/architecture.md'
+  - 'docs/designer/README.md'
+  - 'docs/designer/schema.md'
+  - 'docs/designer/user-guide.md'
+  - 'docs/reports/framework-integration-pickup-workflow-designer.md'
+  - 'README.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-012-promote-seed-designer-artifact-into-cano.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-06-05T17:35:36"
+    action: "T-012: Promote designer artifact + docs into canonical src/ and docs/designer/"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [product, build]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 8
+  commits: 1
+  files_changed: 9
+  lines_added: 54
+  lines_removed: 30
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-012-promote-seed-designer-artifact-into-cano.md
+generated_by: context-agent-hybrid
