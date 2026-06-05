@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-009: Finalize T-002 relocation; verify Watchtower inception-decide file-move (F7)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-06-05T11:59:40Z
+# ============================================================================
+
+task_id: T-009
+task_name: "Finalize T-002 relocation; verify Watchtower inception-decide file-move (F7)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-06-05T11:57:06Z
+completed: 2026-06-05T11:59:38Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-06-05T13:59:35+02:00
+last_commit: 2026-06-05T13:59:35+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Finalize T-002 relocation; F7 investigated (not a defect)
+
+# Key outcomes
+outcomes:
+  - 'Verify F7: the Watchtower decide route (`web/blueprints/inception.py:486-508`) calls `fw inception decide … --from-watchtower` — the SAME CLI path that moves the file (`:690`). So F7 (Watchtower skips the move) is **NOT supported** — the route is correct.'
+  - 'T-002 relocated to `.tasks/completed/` (re-running `fw task update T-002 --status work-completed` finalized the move; decision was already recorded by the human)'
+  - 'F7 outcome: **not a separate defect** → no upstream escalation. The original non-move was a half-state (status set, move not applied) from the pre-F6 AC-gate timing; it folds into F6. Filing it as a new finding would be unverified noise.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-06-05-1345.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/episodic/T-002.yaml'
+  - '.context/episodic/T-008.yaml'
+  - '.context/locks/T-009.lock'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-008.log'
+  - '.context/working/.hook-counter'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-009-finalize-t-002-relocation-verify-watchto.md'
+  - '.tasks/completed/T-002-define-project-goals.md'
+  - '.tasks/completed/T-008-inception-decisions-not-surfacing-on-wat.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-06-05T13:59:35"
+    action: "T-009: Finalize T-002 relocation; F7 investigated (not a defect)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [upstream-framework, stabilisation]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 14
+  lines_added: 472
+  lines_removed: 21
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-009-finalize-t-002-relocation-verify-watchto.md
+generated_by: context-agent-hybrid
