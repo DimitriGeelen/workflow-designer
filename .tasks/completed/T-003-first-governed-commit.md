@@ -4,16 +4,16 @@ name: "First governed commit for 832-Workflow-designer"
 description: >
   Create the initial project structure and make the first governed commit. This validates
   the governance loop: task reference → commit-msg hook → post-commit advisory.
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [onboarding]
 components: []
 related_tasks: []
 created: 2026-06-04T07:53:20Z
-last_update: 2026-06-05T09:20:22Z
-date_finished: null
+last_update: 2026-06-05T09:21:04Z
+date_finished: 2026-06-05T09:21:04Z
 ---
 
 # T-003: First governed commit for 832-Workflow-designer
@@ -38,3 +38,6 @@ git log -1 --format=%s | grep -q "T-003"
 
 ### 2026-06-05T09:20:22Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-06-05T09:21:04Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

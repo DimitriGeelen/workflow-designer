@@ -4,7 +4,7 @@ name: "fw init seeds patterns.yaml with origin_task field but template expects l
 description: >
   Inception: fw init seeds patterns.yaml with origin_task field but template expects learned_from
 
-status: captured
+status: started-work
 workflow_type: inception
 owner: agent
 horizon: now
@@ -12,7 +12,7 @@ tags: [upstream-framework]
 components: []
 related_tasks: []
 created: 2026-06-04T08:18:55Z
-last_update: 2026-06-04T08:18:55Z
+last_update: 2026-06-05T09:21:27Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -143,3 +143,6 @@ init.sh seeds patterns.yaml with 'origin_task: T-XXX' but the web template (patt
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-06-05T09:21:27Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

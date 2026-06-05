@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-003: First governed commit for 832-Workflow-designer
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-06-05T09:21:04Z
+# ============================================================================
+
+task_id: T-003
+task_name: "First governed commit for 832-Workflow-designer"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-06-04T07:53:20Z
+completed: 2026-06-05T09:21:04Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-06-05T11:21:00+02:00
+last_commit: 2026-06-05T11:21:00+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Initial project structure
+
+# Key outcomes
+outcomes:
+  - 'Create initial project structure (README.md describing the AEF Workflow Designer; product src/ deferred to T-002 GO decision)'
+  - 'Commit using `fw git commit -m "T-003: Initial project structure"`'
+  - 'Commit succeeds (hook validates T-003 reference)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-06-05-1115.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/episodic/T-004.yaml'
+  - '.context/locks/T-003.lock'
+  - '.context/locks/T-004.lock'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-004.log'
+  - '.context/working/.hook-counter'
+  - '.context/working/.new-file-counter'
+  - 'README.md'
+  - '.tasks/active/T-003-first-governed-commit.md'
+  - '.tasks/active/T-004-complete-task-lifecycle.md'
+  - '.tasks/completed/T-004-complete-task-lifecycle.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-06-05T11:21:00"
+    action: "T-003: Initial project structure"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1527 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [onboarding]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1527
+  commits: 1
+  files_changed: 16
+  lines_added: 252
+  lines_removed: 57
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-003-first-governed-commit.md
+generated_by: context-agent-hybrid
