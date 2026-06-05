@@ -1,0 +1,113 @@
+FW_SECRET_KEY not set — using file key at PROJECT_ROOT/.context/working/.fw-secret-key. Set FW_SECRET_KEY for production deployment.
+Werkzeug appears to be used in a production deployment. Consider switching to a production web server instead.
+Watchtower running at http://0.0.0.0:3032
+  Project root: /opt/832-Workflow-designer
+  Framework:    /opt/832-Workflow-designer/.agentic-framework
+
+ * Serving Flask app 'app'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:3032
+ * Running on http://192.168.10.107:3032
+Press CTRL+C to quit
+127.0.0.1 - - [04/Jun/2026 10:19:15] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [04/Jun/2026 10:19:15] "GET /api/_identity HTTP/1.1" 200 -
+192.168.10.107 - - [05/Jun/2026 11:06:11] "GET /api/_identity HTTP/1.1" 200 -
+192.168.10.107 - - [05/Jun/2026 11:06:11] "GET /api/_identity HTTP/1.1" 200 -
+192.168.10.107 - - [05/Jun/2026 11:06:12] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:12] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:13] "GET /approvals HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:13] "GET /approvals/content HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:13] "GET /arcs HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:13] "GET /assumptions HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:13] "GET /bvp HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:13] "GET /cockpit/activity HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:13] "GET /config HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:13] "GET /costs HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:13] "GET /cron HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:13] "GET /decisions HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:13] "GET /directives HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:13] "GET /discoveries HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:13] "GET /docs/generated HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:13] "GET /enforcement HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:13] "GET /escalation-drift HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /fabric HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /fabric/graph HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /fleet HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /gaps HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /graduation HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /hooks HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /inception HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /learnings HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /metrics HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /orchestrator HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /patterns HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /pending HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /project HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /prompts HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /quality HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /reviewer/audit HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /reviewer/overrides HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:14] "GET /risks HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:15] "GET /search HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:15] "GET /search/conversations HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:15] "GET /search/feedback/analytics HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:15] "GET /search/load-conversation HTTP/1.1" 400 -
+127.0.0.1 - - [05/Jun/2026 11:06:15] "GET /sessions HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:15] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:15] "GET /settings/appearance HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:15] "GET /settings/models HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:15] "GET /tasks HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:15] "GET /terminal HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:06:15] "GET /timeline HTTP/1.1" 200 -
+192.168.10.107 - - [05/Jun/2026 11:08:52] "GET /api/_identity HTTP/1.1" 200 -
+192.168.10.107 - - [05/Jun/2026 11:08:52] "GET /api/_identity HTTP/1.1" 200 -
+192.168.10.107 - - [05/Jun/2026 11:08:52] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET /approvals HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET /approvals/content HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET /arcs HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET /assumptions HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET /bvp HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET /cockpit/activity HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET /config HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET /costs HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET /cron HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET /decisions HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET /directives HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET /discoveries HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET /docs/generated HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET /enforcement HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET /escalation-drift HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET /fabric HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:53] "GET /fabric/graph HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /fleet HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /gaps HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /graduation HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /hooks HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /inception HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /learnings HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /metrics HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /orchestrator HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /patterns HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /pending HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /project HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /prompts HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /quality HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /reviewer/audit HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /reviewer/overrides HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /risks HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /search HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /search/conversations HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /search/feedback/analytics HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /search/load-conversation HTTP/1.1" 400 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /sessions HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /settings/appearance HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /settings/models HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /tasks HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /terminal HTTP/1.1" 200 -
+127.0.0.1 - - [05/Jun/2026 11:08:54] "GET /timeline HTTP/1.1" 200 -

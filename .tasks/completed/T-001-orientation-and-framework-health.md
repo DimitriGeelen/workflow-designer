@@ -4,16 +4,16 @@ name: "Orientation: explore framework and verify health for 832-Workflow-designe
 description: >
   Understand what the Agentic Engineering Framework provides: task system, context fabric,
   enforcement hooks, agents. Verify everything is properly installed.
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [onboarding]
 components: []
 related_tasks: []
 created: 2026-06-04T07:53:20Z
-last_update: 2026-06-04T08:15:10Z
-date_finished: null
+last_update: 2026-06-05T09:08:50Z
+date_finished: 2026-06-05T09:08:50Z
 ---
 
 # T-001: Orientation — explore framework and verify health for 832-Workflow-designer
@@ -25,10 +25,10 @@ First task for 832-Workflow-designer. Read CLAUDE.md to understand the framework
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Read CLAUDE.md — understand core principle, task system, enforcement tiers
-- [ ] Run `fw doctor` — all checks pass
-- [ ] Run `fw audit` — note current state
-- [ ] Install git hooks: `fw git install-hooks`
+- [x] Read CLAUDE.md — understand core principle, task system, enforcement tiers
+- [x] Run `fw doctor` — all checks pass (2 warnings, both host-level re: global /root install; no failures)
+- [x] Run `fw audit` — note current state (Pass 75, Warn 2, Fail 0; warns = uncommitted volatile files + cross-repo tag-format drift T-1649)
+- [x] Install git hooks: `fw git install-hooks`
 
 ## Verification
 
@@ -40,3 +40,6 @@ fw audit; test $? -le 1
 
 ### 2026-06-04T07:53:20Z — task-created [fw-init]
 - **Action:** Auto-created by `fw init` (greenfield onboarding)
+
+### 2026-06-05T09:08:50Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

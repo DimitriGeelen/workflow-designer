@@ -1,4 +1,4 @@
-timestamp: 2026-06-04T08:14:56Z
+timestamp: 2026-06-05T09:08:55Z
 findings:
   - id: D1
     level: PASS
@@ -29,7 +29,7 @@ findings:
     check: "D3: Commit velocity — insufficient data"
   - id: D7
     level: PASS
-    check: "D7: Commit bunching — detected (INFO 1_bunch(es) 6_commits_24h)"
+    check: "D7: Commit bunching — none (PASS no_recent_commits)"
   - id: D6
     level: PASS
     check: "D6: Completion velocity — normal (PASS insufficient_data)"
@@ -38,7 +38,7 @@ findings:
     check: "D12: Bypass log — no log file"
   - id: D9
     level: PASS
-    check: "D9: Control drift — normal (PASS insufficient_audits)"
+    check: "D9: Control drift — normal (PASS 10_audits_checked)"
   - id: D14
     level: PASS
     check: "D14: Empty inception Recommendation — none (PASS no_empty_recommendations)"

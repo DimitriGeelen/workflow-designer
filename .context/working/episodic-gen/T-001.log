@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-06-05T09:09:01Z ===
+task_id: T-001
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-001.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Orientation: explore framework and verify health for 832-Workflow-designer
+  Duration: 1 days (1515 min)
+  Updates: 2
+  Commits: 9
+  Lines: +785181 -42 across 2262 files
+  Outcomes: 4 AC checked
+  Challenges: 2 detected from git
+  Artifacts: 2262 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-001-orientation-and-framework-health.md
+--- exit code: 0 ---
