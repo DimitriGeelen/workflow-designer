@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-06-05T09:58:07Z
-last_update: 2026-06-05T09:58:07Z
+last_update: 2026-06-05T11:38:41Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,37 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Investigation. Operator reported pending inception decisions "not surfacing" on
+the Watchtower approvals page. Premise turned out **disproven** — the approvals
+page works correctly; the operator was viewing a different Watchtower instance.
+Two real spin-off defects surfaced during the dig and were filed upstream.
+
+## Findings
+
+1. **Approvals page is correct.** `/approvals` (and `/approvals/content`) on this
+   project's Watchtower (`:3032`, PROJECT_ROOT=/opt/832-Workflow-designer) renders
+   T-002, T-006, T-007 in the "Inception Decisions / pending GO/NO-GO" section.
+   The blueprint filter chain (`web/blueprints/approvals.py:_load_pending_go_decisions`)
+   is sound; `_extract_decision` returns "pending" for all three.
+2. **Root cause of "not surfacing": wrong instance.** Two Watchtowers run on this
+   host — `:3032` serves this project; `:3000` (pid 4110943) serves other projects
+   (001-…, 040-ValueDrivers, 050-email-archive, 999-AEF). The prior handover linked
+   the default `:3000`. Canonical URL is in `.context/working/watchtower.url`.
+3. **Spin-off F1 (filed upstream):** CSRF stale-token POST dead-ends on a bare
+   "Forbidden" page on the approve/GO button (`web/app.py:92-111`, `:359-370`).
+4. **Spin-off F6 (filed upstream + fixed locally):** greenfield onboarding
+   inception was undecidable (self-referential AC, no `@auto-tick-on-decide`
+   marker; `lib/inception.sh:325-337,519-526`).
+
+All findings bundled in `docs/reports/framework-agent-pickup-2026-06-05.md` and
+delivered to the framework agent via termlink (DM + chat-arc broadcast).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Verify whether `/approvals` surfaces this project's pending inception decisions (it does — T-002/T-006/T-007 render on `:3032`)
+- [x] Identify the root cause of the operator's "not surfacing" report (two Watchtower instances; operator viewed `:3000`, a different project)
+- [x] Capture spin-off defects (F1 CSRF dead-end, F6 undecidable inception) and file them upstream (pickup artifact + termlink delivery)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -106,6 +129,11 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+# Approvals page surfaces this project's pending inception decisions:
+out=$(curl -sf "$(cat .context/working/watchtower.url)/approvals/content" 2>/dev/null); echo "$out" | grep -q "T-002"
+# Pickup artifact (upstream findings) exists:
+test -f docs/reports/framework-agent-pickup-2026-06-05.md
 
 ## RCA
 

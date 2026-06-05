@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-06-05T11:12:16Z ===
+task_id: T-007
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer/.agentic-framework
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-007.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: fw init seeds patterns.yaml with origin_task field but template expects learned_from
+  Duration: 1 days (1613 min)
+  Updates: 3
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 4 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-007-fw-init-seeds-patternsyaml-with-originta.md
+--- exit code: 0 ---

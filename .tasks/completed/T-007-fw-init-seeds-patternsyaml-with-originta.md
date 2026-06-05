@@ -4,16 +4,16 @@ name: "fw init seeds patterns.yaml with origin_task field but template expects l
 description: >
   Inception: fw init seeds patterns.yaml with origin_task field but template expects learned_from
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: agent
-horizon: now
+horizon: null
 tags: [upstream-framework]
 components: []
 related_tasks: []
 created: 2026-06-04T08:18:55Z
-last_update: 2026-06-05T09:21:27Z
-date_finished: null
+last_update: 2026-06-05T11:12:15Z
+date_finished: 2026-06-05T11:12:15Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -72,15 +72,15 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -137,7 +137,17 @@ init.sh seeds patterns.yaml with 'origin_task: T-XXX' but the web template (patt
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Recommendation: GO
+
+Rationale:
+
+init.sh seeds patterns.yaml with 'origin_task: T-XXX' but the web template (patterns.html:184) and the canonical pattern.sh use 'learned_from:'. Consumer projects get broken task links in patterns page. Fix: change init.sh seed template to use 'learned_from' consistently.
+
+Evidence:
+
+**Date**: 2026-06-05T11:12:15Z
 
 ## Updates
 
@@ -146,3 +156,18 @@ init.sh seeds patterns.yaml with 'origin_task: T-XXX' but the web template (patt
 
 ### 2026-06-05T09:21:27Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-06-05T11:12:15Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Recommendation: GO
+
+Rationale:
+
+init.sh seeds patterns.yaml with 'origin_task: T-XXX' but the web template (patterns.html:184) and the canonical pattern.sh use 'learned_from:'. Consumer projects get broken task links in patterns page. Fix: change init.sh seed template to use 'learned_from' consistently.
+
+Evidence:
+
+### 2026-06-05T11:12:15Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO

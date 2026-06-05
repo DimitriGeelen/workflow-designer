@@ -1,0 +1,9 @@
+command_hash: 0eec9d92b8eb8ab717c5ed94dca9588c6c58ced20ab0fdc30d7c727685bbf5cb
+command_preview: .agentic-framework/bin/fw inception decide T-002 go --rationale "Adopt
+  seed design as baseline for AEF Workflow Designer" 2>&1 | tail -15
+risk: 'INCEPTION DECISION: GO/NO-GO decisions require human authority. Present your
+  recommendation and rationale, then ask the human to run: fw inception decide T-XXX
+  go|no-go --rationale "..."'
+status: pending
+timestamp: '2026-06-05T11:38:15Z'
+type: tier0

@@ -26,6 +26,7 @@ prioritise the meta-issue (F5): it is the one that suppresses all the others.
 | F3 | `fw init` seeds `patterns.yaml` with `origin_task`; canonical is `learned_from` | Medium | Reliability |
 | F4 | Pre-commit `secret-scan.sh` missing from vendor → silently skipped | Medium | Reliability (no silent failures) |
 | **F5** | **Onboarding gate blocks recording/working upstream-failure tasks** | **High** | **Antifragility, Reliability** |
+| **F6** | **Greenfield onboarding inception is undecidable (self-referential AC, no auto-tick marker)** | **High** | **Usability, Reliability** |
 
 ---
 
@@ -166,13 +167,53 @@ referenced by an installed hook but missing — so the gap is loud, not silent.
 
 ---
 
+## F6 (NEW): greenfield onboarding inception is undecidable out of the box
+
+**Symptom.** `fw init` creates the foundational "define goals & architecture"
+inception (here T-002) whose `### Agent` ACs include a self-referential
+*"Go/no-go decision recorded: `fw inception decide …`"* item. Recording the
+decision is blocked because that AC is unchecked — and the AC can only become
+checked *by* recording the decision. Chicken-and-egg. The operator sees:
+`ERROR: Cannot record decision — 1/3 agent AC unchecked`. Hits **both** the CLI
+(`fw inception decide`) and the Watchtower GO button (`/inception/<id>/decide`).
+
+**Why it deadlocks.** `lib/inception.sh` auto-ticks ceremonial agent ACs only
+when they carry a `<!-- @auto-tick-on-decide -->` marker **or** match a fixed
+wording regex (`AGENT_PATTERNS`: "Problem statement validated" / "Assumptions
+tested" / "Recommendation written with rationale" / "[Inception decision
+recorded]") — `lib/inception.sh:325-337`. The greenfield onboarding inception
+template emits neither the marker nor matching wording for its "Go/no-go
+decision recorded" AC. The decide gate ticks-then-counts
+(`lib/inception.sh:519-526`); the unmarked self-referential AC never ticks, so
+the count is always ≥1 and decide aborts.
+
+**Severity rationale.** Every new consumer project's *foundational* inception is
+undecidable on a clean install — and because it can't be decided, onboarding
+never completes, so the F5 onboarding gate stays permanently engaged. F6
+manufactures the deadlock that F5 then enforces.
+
+**Requested fix (any one).**
+1. In the greenfield onboarding inception template emitted by `fw init`, add
+   `<!-- @auto-tick-on-decide -->` above each ceremonial agent AC (bring it in
+   line with `.tasks/templates/inception.md`, which already has the markers); **or**
+2. add the "Go/no-go decision recorded" wording to `AGENT_PATTERNS`; **or**
+3. drop the self-referential AC entirely — `fw inception decide` *is* that AC,
+   so listing it as a precondition is incoherent.
+
+**Workaround applied in this project:** added the marker to T-002's AC manually
+so the operator can record the decision.
+
 ## Suggested upstream task breakdown
 
+- **bug (priority):** F6 greenfield onboarding inception undecidable (add
+  auto-tick markers to the `fw init` template / drop the self-referential AC).
 - **task (priority):** F5 onboarding-gate exemption for defect/upstream tasks.
 - **bug:** F1 CSRF 403 recoverability on the approvals surface.
 - **bug:** F2 vendor ships orchestrator-mcp baseline (mirrors consumer T-006).
 - **bug:** F3 seed `patterns.yaml` field rename (mirrors consumer T-007).
 - **bug:** F4 vendor ships secret-scan scanner / hard-fail on missing.
 
-One task per item (one bug = one task). F5 first — it unblocks the capture of
-the rest from inside consumer projects.
+One task per item (one bug = one task). **F6 + F5 first** — together they are the
+init deadlock: F6 makes the foundational inception undecidable, and F5 then
+prevents recording any other failure while onboarding is (permanently) stuck.
+Fixing the pair restores a clean bootstrap for every consumer project.
