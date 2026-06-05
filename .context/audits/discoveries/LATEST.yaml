@@ -1,8 +1,8 @@
-timestamp: 2026-06-05T15:00:01Z
+timestamp: 2026-06-05T15:30:01Z
 findings:
   - id: D1
     level: PASS
-    check: "D1: Episodic quality — 0% [TODO] (0/10)"
+    check: "D1: Episodic quality — 0% [TODO] (0/11)"
   - id: D2
     level: PASS
     check: "D2: Human review queue — no pending items"
