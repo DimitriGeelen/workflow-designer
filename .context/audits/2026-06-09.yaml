@@ -1,8 +1,8 @@
-# Audit Results - 2026-06-09-0112
-timestamp: 2026-06-08T23:12:11Z
+# Audit Results - 2026-06-09-0113
+timestamp: 2026-06-08T23:13:28Z
 summary:
-  pass: 77
-  warn: 2
+  pass: 76
+  warn: 3
   fail: 0
 findings:
   - level: PASS
@@ -34,7 +34,7 @@ findings:
   - level: PASS
     check: "All active tasks meet quality thresholds"
   - level: PASS
-    check: "Git traceability: 100% (32/32 commits reference tasks)"
+    check: "Git traceability: 100% (33/33 commits reference tasks)"
   - level: WARN
     check: "Uncommitted changes present"
     mitigation: "Commit changes with task reference or stash"
@@ -83,7 +83,7 @@ findings:
   - level: PASS
     check: "CTL-003: Budget status file fresh (< 5min old)"
   - level: PASS
-    check: "CTL-004: Tool counter at 1 (last commit: 7 seconds ago)"
+    check: "CTL-004: Tool counter at 5 (last commit: 46 seconds ago)"
   - level: PASS
     check: "CTL-018: Budget status valid JSON (level: ok)"
   - level: PASS
@@ -120,8 +120,9 @@ findings:
     check: "CTL-028: All completed/ tasks have frontmatter status: work-completed"
   - level: PASS
     check: "CTL-030: All completed/ tasks have null/absent stored horizon (arc-009)"
-  - level: PASS
-    check: "CTL-029: No completable-but-not-completed active tasks"
+  - level: WARN
+    check: "CTL-029: T-014 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-014 --status work-completed"
   - level: PASS
     check: "CTL-012: All 13 completed tasks have checked ACs"
   - level: PASS
@@ -143,9 +144,9 @@ findings:
   - level: PASS
     check: "D13: Inception limbo — no stuck inceptions"
   - level: PASS
-    check: "D3: Commit velocity — normal (PASS today=5 avg=14 ratio=0.4x)"
+    check: "D3: Commit velocity — normal (PASS today=6 avg=14 ratio=0.4x)"
   - level: PASS
-    check: "D7: Commit bunching — none (PASS 5_commits_24h_no_bunching)"
+    check: "D7: Commit bunching — none (PASS 6_commits_24h_no_bunching)"
   - level: PASS
     check: "D6: Completion velocity — normal (PASS insufficient_data)"
   - level: PASS

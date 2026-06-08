@@ -1,4 +1,4 @@
-timestamp: 2026-06-08T23:12:11Z
+timestamp: 2026-06-08T23:13:28Z
 findings:
   - id: D1
     level: PASS
@@ -26,10 +26,10 @@ findings:
     check: "D13: Inception limbo — no stuck inceptions"
   - id: D3
     level: PASS
-    check: "D3: Commit velocity — normal (PASS today=5 avg=14 ratio=0.4x)"
+    check: "D3: Commit velocity — normal (PASS today=6 avg=14 ratio=0.4x)"
   - id: D7
     level: PASS
-    check: "D7: Commit bunching — none (PASS 5_commits_24h_no_bunching)"
+    check: "D7: Commit bunching — none (PASS 6_commits_24h_no_bunching)"
   - id: D6
     level: PASS
     check: "D6: Completion velocity — normal (PASS insufficient_data)"
