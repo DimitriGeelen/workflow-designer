@@ -1,4 +1,4 @@
-timestamp: 2026-06-08T22:54:36Z
+timestamp: 2026-06-08T22:57:51Z
 findings:
   - id: D1
     level: PASS
@@ -25,11 +25,12 @@ findings:
     level: PASS
     check: "D13: Inception limbo — no stuck inceptions"
   - id: D3
-    level: PASS
-    check: "D3: Commit velocity — insufficient data"
+    level: WARN
+    check: "D3: Commit velocity — WARN drop today=1 avg=14 ratio=0.1x"
+    mitigation: "Check if velocity reflects budget pressure or unusual activity"
   - id: D7
     level: PASS
-    check: "D7: Commit bunching — none (PASS no_recent_commits)"
+    check: "D7: Commit bunching — none (PASS 1_commits_24h)"
   - id: D6
     level: PASS
     check: "D6: Completion velocity — normal (PASS insufficient_data)"
@@ -47,7 +48,7 @@ findings:
     check: "D15: Inception limbo state — none (PASS no_limbo)"
 
 summary:
-  pass: 15
-  warn: 0
+  pass: 14
+  warn: 1
   fail: 0
   total: 15
