@@ -1,7 +1,7 @@
-# Audit Results - 2026-06-09-0057
-timestamp: 2026-06-08T22:57:51Z
+# Audit Results - 2026-06-09-0110
+timestamp: 2026-06-08T23:10:56Z
 summary:
-  pass: 75
+  pass: 76
   warn: 3
   fail: 0
 findings:
@@ -30,11 +30,11 @@ findings:
   - level: PASS
     check: "Hook threshold: no hooks failing over threshold"
   - level: PASS
-    check: "All 1 active tasks are valid"
+    check: "All 2 active tasks are valid"
   - level: PASS
     check: "All active tasks meet quality thresholds"
   - level: PASS
-    check: "Git traceability: 100% (28/28 commits reference tasks)"
+    check: "Git traceability: 100% (30/30 commits reference tasks)"
   - level: WARN
     check: "Uncommitted changes present"
     mitigation: "Commit changes with task reference or stash"
@@ -83,7 +83,7 @@ findings:
   - level: PASS
     check: "CTL-003: Budget status file fresh (< 5min old)"
   - level: PASS
-    check: "CTL-004: Tool counter at 1 (last commit: 10 seconds ago)"
+    check: "CTL-004: Tool counter at 1 (last commit: 6 seconds ago)"
   - level: PASS
     check: "CTL-018: Budget status valid JSON (level: ok)"
   - level: PASS
@@ -104,6 +104,8 @@ findings:
     check: "CTL-009: Inception T-006 has decision (4 commits)"
   - level: PASS
     check: "CTL-009: Inception T-007 has decision (4 commits)"
+  - level: PASS
+    check: "CTL-027: Inception T-015 has Recommendation + Decision sections"
   - level: PASS
     check: "CTL-010: Bypass log exists but empty (no bypasses detected)"
   - level: PASS
@@ -141,10 +143,10 @@ findings:
   - level: PASS
     check: "D13: Inception limbo — no stuck inceptions"
   - level: WARN
-    check: "D3: Commit velocity — WARN drop today=1 avg=14 ratio=0.1x"
+    check: "D3: Commit velocity — WARN drop today=3 avg=14 ratio=0.2x"
     mitigation: "Check if velocity reflects budget pressure or unusual activity"
   - level: PASS
-    check: "D7: Commit bunching — none (PASS 1_commits_24h)"
+    check: "D7: Commit bunching — none (PASS 3_commits_24h)"
   - level: PASS
     check: "D6: Completion velocity — normal (PASS insufficient_data)"
   - level: PASS
