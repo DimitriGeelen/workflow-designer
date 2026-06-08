@@ -252,7 +252,10 @@ if [ "$C1_OK" != true ]; then
     skip "Skipped — C1 scaffold failed"
 else
     # Create first task using fw work-on
-    run_cmd env PROJECT_ROOT="$TARGET_DIR" "$FRAMEWORK_ROOT/bin/fw" work-on "Onboarding test task" --type build
+    # Unset TASKS_DIR/CONTEXT_DIR so they are re-derived from PROJECT_ROOT.
+    # Without this, a parent shell's exported TASKS_DIR/CONTEXT_DIR leaks into
+    # the subprocess and causes task+focus writes to go to the caller's project.
+    run_cmd env -u TASKS_DIR -u CONTEXT_DIR PROJECT_ROOT="$TARGET_DIR" "$FRAMEWORK_ROOT/bin/fw" work-on "Onboarding test task" --type build
 
     if [ $CMD_EXIT -eq 0 ]; then
         pass "fw work-on completed (exit 0)"
@@ -266,8 +269,9 @@ else
         fi
     fi
 
-    # Check task file exists
-    task_file=$(find "$TARGET_DIR/.tasks/active" -maxdepth 1 -name 'T-001*.md' -type f 2>/dev/null | head -1)
+    # Check task file exists — fw init creates T-001..T-005; work-on creates the next ID.
+    # Find the "Onboarding test task" by name rather than by hardcoded T-001 ID.
+    task_file=$(grep -rl 'name: "Onboarding test task"' "$TARGET_DIR/.tasks/active/" 2>/dev/null | head -1)
     if [ -n "$task_file" ]; then
         pass "Task file created: $(basename "$task_file")"
 
@@ -287,14 +291,15 @@ else
         fail "No task file in .tasks/active/"
     fi
 
-    # Check focus is set
+    # Check focus is set (fw init creates T-001..T-005; work-on creates the next ID)
     focus_file="$TARGET_DIR/.context/working/focus.yaml"
     if [ -f "$focus_file" ]; then
-        if grep -q "T-001" "$focus_file"; then
-            pass "Focus set to T-001"
+        focus_task=$(grep "^current_task:" "$focus_file" | awk '{print $2}' 2>/dev/null)
+        if [ -n "$focus_task" ] && [ "$focus_task" != "null" ]; then
+            pass "Focus set to $focus_task"
         else
             focus_content=$(head -3 "$focus_file" 2>/dev/null)
-            warn "Focus file exists but doesn't reference T-001: $focus_content"
+            warn "Focus file exists but has no task set: $focus_content"
         fi
     else
         fail "Focus not set (focus.yaml missing)"
@@ -447,7 +452,7 @@ checkpoint_start "HANDOVER"
 if [ "$C3_OK" != true ]; then
     skip "Skipped — C3 task creation failed"
 else
-    run_cmd env PROJECT_ROOT="$TARGET_DIR" "$FRAMEWORK_ROOT/agents/handover/handover.sh"
+    run_cmd env -u TASKS_DIR -u CONTEXT_DIR PROJECT_ROOT="$TARGET_DIR" "$FRAMEWORK_ROOT/agents/handover/handover.sh"
 
     if [ $CMD_EXIT -eq 0 ]; then
         pass "Handover generation succeeded"
