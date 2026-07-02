@@ -8,8 +8,9 @@
 #   - every warn/*.yaml fixture triggers the rule named by its filename and
 #     exits 1 (WARN only, non-fatal)
 #
-# Fixture naming contract: <RULE-ID>.yaml, where RULE-ID is the exact rule
-# emitted by the validator (e.g. E-NODE-TYPE, W-IO-INPUT).
+# Fixture naming contract: <RULE-ID>.<ext>, where RULE-ID is the exact rule
+# emitted by the validator (e.g. E-NODE-TYPE, W-IO-INPUT, E-XML-ID-DUP) and
+# <ext> is yaml/yml (YAML canonical form) or bpmn/xml (BPMN-XML export form).
 #
 # Exit 0 iff all assertions pass.
 set -u
@@ -45,7 +46,7 @@ assert() {
 }
 
 echo "== golden (must be clean, exit 0) =="
-for f in "$FIXTURES"/valid/*.yaml; do
+for f in "$FIXTURES"/valid/*; do
   [ -e "$f" ] || continue
   run "$f"
   name="$(basename "$f")"
@@ -56,10 +57,11 @@ for f in "$FIXTURES"/valid/*.yaml; do
 done
 
 echo "== invalid (must error, exit 2, expected rule fires) =="
-for f in "$FIXTURES"/invalid/*.yaml; do
+for f in "$FIXTURES"/invalid/*; do
   [ -e "$f" ] || continue
   run "$f"
-  rule="$(basename "$f" .yaml)"
+  base="$(basename "$f")"
+  rule="${base%.*}"
   ok=0
   [ "$CODE" -eq 2 ] || ok=1
   printf '%s\n' "$OUT" | grep -q "\[$rule\]" || ok=1
@@ -72,10 +74,11 @@ for f in "$FIXTURES"/invalid/*.yaml; do
 done
 
 echo "== warn (must warn, exit 1, expected rule fires) =="
-for f in "$FIXTURES"/warn/*.yaml; do
+for f in "$FIXTURES"/warn/*; do
   [ -e "$f" ] || continue
   run "$f"
-  rule="$(basename "$f" .yaml)"
+  base="$(basename "$f")"
+  rule="${base%.*}"
   ok=0
   [ "$CODE" -eq 1 ] || ok=1
   printf '%s\n' "$OUT" | grep -q "\[$rule\]" || ok=1

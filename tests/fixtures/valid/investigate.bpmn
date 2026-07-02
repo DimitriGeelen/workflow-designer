@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Golden valid BPMN-XML export, derived from docs/designer/schema.md section 7.
+     Same workflow as investigate.workflow.yaml. Must validate clean (exit 0):
+     unique bpmn:ids and aef:uids, all flow refs resolve, every flow node is
+     assigned to a lane, and the exclusiveGateway has two outgoing flows. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_investigate" name="investigate">
+
+    <bpmn:laneSet id="LaneSet_investigate">
+      <bpmn:lane id="human" name="Human - Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="130"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework - Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="130"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>frw_1_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_report</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_end</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent - Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="320"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>agt_1_decompose</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_2_gate</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="frw_1_start" name="Investigation requested">
+      <bpmn:extensionElements>
+        <aef:uid value="n_start01"/>
+        <aef:position x="280" y="96"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:serviceTask id="agt_1_decompose" name="Decompose problem">
+      <bpmn:extensionElements>
+        <aef:uid value="n_decomp01"/>
+        <aef:meta tier="2" agentType="primary"/>
+        <aef:position x="440" y="200"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:exclusiveGateway id="agt_2_gate" name="Confidence sufficient?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_gate01"/>
+        <aef:decisionInput>${findings.confidence}</aef:decisionInput>
+        <aef:position x="620" y="200"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:scriptTask id="frw_2_report" name="Write report">
+      <bpmn:extensionElements>
+        <aef:uid value="n_report01"/>
+        <aef:meta tier="1"/>
+        <aef:position x="800" y="96"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:endEvent id="frw_3_end" name="Investigation ready">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end01"/>
+        <aef:meta emits="event:investigate.ready"/>
+        <aef:position x="980" y="96"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="frw_1_start" targetRef="agt_1_decompose">
+      <bpmn:extensionElements><aef:uid value="e_0001"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_2" sourceRef="agt_1_decompose" targetRef="agt_2_gate">
+      <bpmn:extensionElements><aef:uid value="e_0002"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_3" name="sufficient" sourceRef="agt_2_gate" targetRef="frw_2_report">
+      <bpmn:extensionElements><aef:uid value="e_0003"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_4" name="insufficient - loop" sourceRef="agt_2_gate" targetRef="agt_1_decompose">
+      <bpmn:extensionElements>
+        <aef:uid value="e_0004"/>
+        <aef:loopDetour y="165.0"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_5" sourceRef="frw_2_report" targetRef="frw_3_end">
+      <bpmn:extensionElements><aef:uid value="e_0005"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>

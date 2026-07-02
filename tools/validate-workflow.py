@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
-"""Schema validator for AEF Workflow Designer files (YAML canonical form).
+"""Schema validator for AEF Workflow Designer files.
 
-Validates the workflow file format produced by the AEF Workflow Designer against
-the contract in docs/designer/schema.md (see especially section 7.3 "Validation"
-and the required-field tables in sections 3, 4.1, 5, 6.1).
+Validates the workflow files produced by the AEF Workflow Designer against the
+contract in docs/designer/schema.md (see especially section 7.3 "Validation",
+the required-field tables in sections 3/4.1/5/6.1, and the XML mapping in 7.1/7.2).
+
+Two produced formats are supported and auto-detected:
+
+  * YAML canonical form (section 3) -- the AEF-canonical, source-controlled,
+    hand-authorable representation. Edges reference node `uid`s (not displayIds).
+  * BPMN 2.0 XML export (section 7) -- what the designer's Save action emits.
+    Flow references use `bpmn:id` (displayId); `aef:uid` carries stable identity.
 
 This is a STRUCTURAL validator only. It does not execute workflows -- the
 `fw workflow run` runtime executor is explicitly out of scope (T-002 scope fence).
-It operates on the YAML canonical form, which is the AEF-canonical,
-source-controlled, hand-authorable representation and the producer<->executor
-contract. In the YAML form, edges reference node `uid`s (not displayIds).
 
 Exit codes (AEF audit convention):
     0  valid          -- no findings
@@ -17,7 +21,8 @@ Exit codes (AEF audit convention):
     2  invalid        -- one or more hard-rule errors (or a load failure)
 
 Usage:
-    python3 tools/validate-workflow.py <file.yaml> [--json] [--quiet]
+    python3 tools/validate-workflow.py <file> [--format {auto,yaml,xml}]
+                                              [--json] [--quiet]
 
 Standalone by design (not wired into the vendored `fw` CLI) to respect the
 product/framework boundary and Directive 4 (Portability); the framework may
@@ -27,6 +32,7 @@ later adopt it as `fw workflow validate`.
 import argparse
 import json
 import sys
+import xml.etree.ElementTree as ET
 
 try:
     import yaml
@@ -62,6 +68,13 @@ REQUIRED_EDGE_FIELDS = ["uid", "source", "target"]
 
 ERROR = "ERROR"
 WARN = "WARN"
+
+# section 7.2: BPMN + aef extension namespaces
+BPMN_NS = "http://www.omg.org/spec/BPMN/20100524/MODEL"
+AEF_NS = "http://anchorpoint.framework/aef/extensions"
+
+# BPMN local tags that are NOT flow nodes (excluded when collecting node ids)
+XML_NON_FLOWNODE_TAGS = {"laneSet", "sequenceFlow", "extensionElements"}
 
 
 class Finding:
@@ -341,6 +354,136 @@ class Validator:
                     )
 
 
+class XmlValidator:
+    """Validates the BPMN-XML export form (docs/designer/schema.md section 7)."""
+
+    def __init__(self):
+        self.findings = []
+
+    def err(self, rule, location, message):
+        self.findings.append(Finding(ERROR, rule, location, message))
+
+    def warn(self, rule, location, message):
+        self.findings.append(Finding(WARN, rule, location, message))
+
+    @staticmethod
+    def _local(tag):
+        # strip '{namespace}' prefix from an ElementTree tag
+        return tag.rsplit("}", 1)[-1] if "}" in tag else tag
+
+    def validate(self, root):
+        # section 7: root is bpmn:definitions containing a bpmn:process
+        process = root.find("{%s}process" % BPMN_NS)
+        if self._local(root.tag) != "definitions" or process is None:
+            self.err(
+                "E-XML-STRUCTURE",
+                "<root>",
+                "expected <bpmn:definitions> containing a <bpmn:process>",
+            )
+            return
+
+        # -- bpmn:id uniqueness (section 7.3) -------------------------------
+        seen_ids = set()
+        for el in root.iter():
+            el_id = el.get("id")
+            if el_id is None:
+                continue
+            if el_id in seen_ids:
+                self.err(
+                    "E-XML-ID-DUP",
+                    "bpmn:id '%s'" % el_id,
+                    "bpmn:id '%s' is not unique within the document" % el_id,
+                )
+            else:
+                seen_ids.add(el_id)
+
+        # -- aef:uid uniqueness (section 7.3) -------------------------------
+        seen_uids = set()
+        for el in root.iter("{%s}uid" % AEF_NS):
+            value = el.get("value")
+            if value is None:
+                continue
+            if value in seen_uids:
+                self.err(
+                    "E-XML-UID-DUP",
+                    "aef:uid '%s'" % value,
+                    "aef:uid '%s' is not unique within the document" % value,
+                )
+            else:
+                seen_uids.add(value)
+
+        # -- collect flow nodes vs sequence flows ---------------------------
+        flow_node_ids = set()
+        seq_flows = []
+        gateways = []
+        for child in list(process):
+            local = self._local(child.tag)
+            if local == "sequenceFlow":
+                seq_flows.append(child)
+                continue
+            if local in XML_NON_FLOWNODE_TAGS:
+                continue
+            node_id = child.get("id")
+            if node_id is not None:
+                flow_node_ids.add(node_id)
+                if local == "exclusiveGateway":
+                    gateways.append(node_id)
+
+        # -- sequenceFlow endpoint resolution (section 7.3) -----------------
+        outgoing_count = {}
+        for flow in seq_flows:
+            fid = flow.get("id", "?")
+            for attr in ("sourceRef", "targetRef"):
+                ref = flow.get(attr)
+                if ref is not None and ref not in flow_node_ids:
+                    self.err(
+                        "E-XML-FLOW-DANGLING",
+                        "sequenceFlow '%s'" % fid,
+                        "%s '%s' does not resolve to a flow-node bpmn:id"
+                        % (attr, ref),
+                    )
+            src = flow.get("sourceRef")
+            if src is not None:
+                outgoing_count[src] = outgoing_count.get(src, 0) + 1
+
+        # -- lane membership (section 7.3) ----------------------------------
+        assigned = set()
+        lane_set = process.find("{%s}laneSet" % BPMN_NS)
+        if lane_set is not None:
+            for ref_el in lane_set.iter("{%s}flowNodeRef" % BPMN_NS):
+                ref = (ref_el.text or "").strip()
+                if not ref:
+                    continue
+                assigned.add(ref)
+                if ref not in flow_node_ids:
+                    self.err(
+                        "E-XML-LANEREF-DANGLING",
+                        "flowNodeRef '%s'" % ref,
+                        "flowNodeRef '%s' does not resolve to a flow-node bpmn:id"
+                        % ref,
+                    )
+
+        # -- exclusiveGateway outgoing count (section 7.3) ------------------
+        for gid in gateways:
+            count = outgoing_count.get(gid, 0)
+            if count < 2:
+                self.err(
+                    "E-XML-GW-OUTGOING",
+                    "exclusiveGateway '%s'" % gid,
+                    "exclusiveGateway has %d outgoing flow(s); requires >= 2"
+                    % count,
+                )
+
+        # -- unassigned flow nodes (convention, WARN) -----------------------
+        for node_id in sorted(flow_node_ids):
+            if node_id not in assigned:
+                self.warn(
+                    "W-XML-NODE-UNASSIGNED",
+                    "node '%s'" % node_id,
+                    "flow node '%s' is not assigned to any lane" % node_id,
+                )
+
+
 def exit_code(findings):
     if any(f.severity == ERROR for f in findings):
         return 2
@@ -349,15 +492,38 @@ def exit_code(findings):
     return 0
 
 
-def load_workflow(path, validator):
+def detect_format(path, text):
+    """Return 'xml' or 'yaml' from the extension, falling back to content sniff."""
+    lower = path.lower()
+    if lower.endswith((".bpmn", ".xml")):
+        return "xml"
+    if lower.endswith((".yaml", ".yml")):
+        return "yaml"
+    # content sniff: leading '<' (ignoring BOM/whitespace) => XML
+    stripped = text.lstrip("﻿ \t\r\n")
+    return "xml" if stripped.startswith("<") else "yaml"
+
+
+def run_yaml(text):
+    validator = Validator()
     try:
-        with open(path, "r") as fh:
-            return yaml.safe_load(fh)
-    except FileNotFoundError:
-        validator.err("E-LOAD", path, "file not found")
+        doc = yaml.safe_load(text)
     except yaml.YAMLError as exc:
-        validator.err("E-YAML-PARSE", path, "YAML parse error: %s" % exc)
-    return None
+        validator.err("E-YAML-PARSE", "<file>", "YAML parse error: %s" % exc)
+        return validator.findings
+    validator.validate(doc)
+    return validator.findings
+
+
+def run_xml(text):
+    validator = XmlValidator()
+    try:
+        root = ET.fromstring(text)
+    except ET.ParseError as exc:
+        validator.err("E-XML-PARSE", "<file>", "XML parse error: %s" % exc)
+        return validator.findings
+    validator.validate(root)
+    return validator.findings
 
 
 def render_text(path, findings):
@@ -378,9 +544,15 @@ def render_text(path, findings):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(
-        description="Validate an AEF Workflow Designer YAML file against the schema."
+        description="Validate an AEF Workflow Designer file (YAML or BPMN-XML)."
     )
-    parser.add_argument("file", help="path to the workflow YAML file")
+    parser.add_argument("file", help="path to the workflow file (YAML or BPMN-XML)")
+    parser.add_argument(
+        "--format",
+        choices=("auto", "yaml", "xml"),
+        default="auto",
+        help="input format (default: auto-detect by extension/content)",
+    )
     parser.add_argument(
         "--json", action="store_true", help="emit findings as JSON"
     )
@@ -389,12 +561,23 @@ def main(argv=None):
     )
     args = parser.parse_args(argv)
 
-    validator = Validator()
-    doc = load_workflow(args.file, validator)
-    if not any(f.rule in ("E-LOAD", "E-YAML-PARSE") for f in validator.findings):
-        validator.validate(doc)
+    try:
+        with open(args.file, "r") as fh:
+            text = fh.read()
+    except FileNotFoundError:
+        findings = [Finding(ERROR, "E-LOAD", args.file, "file not found")]
+    except OSError as exc:
+        findings = [Finding(ERROR, "E-LOAD", args.file, "cannot read file: %s" % exc)]
+    else:
+        fmt = args.format if args.format != "auto" else detect_format(args.file, text)
+        findings = run_xml(text) if fmt == "xml" else run_yaml(text)
 
-    code = exit_code(validator.findings)
+    # relabel the '<file>' placeholder location with the real path
+    for f in findings:
+        if f.location == "<file>":
+            f.location = args.file
+
+    code = exit_code(findings)
 
     if args.json:
         print(
@@ -402,13 +585,13 @@ def main(argv=None):
                 {
                     "file": args.file,
                     "exit_code": code,
-                    "findings": [f.as_dict() for f in validator.findings],
+                    "findings": [f.as_dict() for f in findings],
                 },
                 indent=2,
             )
         )
     elif not args.quiet:
-        print(render_text(args.file, validator.findings))
+        print(render_text(args.file, findings))
 
     return code
 

@@ -6,21 +6,31 @@ boundary (Directive 4: Portability).
 
 ## validate-workflow.py
 
-Structural schema validator for workflow files in the **YAML canonical form**
-(the AEF-canonical, source-controlled representation; see
-[`docs/designer/schema.md`](../docs/designer/schema.md) §3). It checks structure
-only — it does **not** execute workflows (the `fw workflow run` executor is a
-separate, out-of-scope effort).
+Structural schema validator for the two workflow formats the designer produces
+(see [`docs/designer/schema.md`](../docs/designer/schema.md)):
+
+- **YAML canonical form** (§3) — the AEF-canonical, source-controlled
+  representation. Edges reference node `uid`s.
+- **BPMN 2.0 XML export** (§7) — what the designer's **Save** action emits. Flow
+  references use `bpmn:id`; `aef:uid` carries stable identity.
+
+It checks structure only — it does **not** execute workflows (the
+`fw workflow run` executor is a separate, out-of-scope effort).
 
 ```bash
-python3 tools/validate-workflow.py path/to/workflow.yaml        # human report
-python3 tools/validate-workflow.py path/to/workflow.yaml --json # machine output
+python3 tools/validate-workflow.py path/to/workflow.yaml         # YAML (auto)
+python3 tools/validate-workflow.py path/to/workflow.bpmn         # BPMN-XML (auto)
+python3 tools/validate-workflow.py path/to/file --format xml     # force format
+python3 tools/validate-workflow.py path/to/workflow.yaml --json  # machine output
 ```
 
-**Exit codes** (AEF audit convention): `0` valid · `1` warnings only · `2`
-invalid (hard-rule errors or load failure).
+Format is auto-detected by extension (`.yaml`/`.yml` vs `.bpmn`/`.xml`), falling
+back to a content sniff (leading `<` ⇒ XML); `--format {auto,yaml,xml}` overrides.
 
-### Rules
+**Exit codes** (AEF audit convention): `0` valid · `1` warnings only · `2`
+invalid (hard-rule errors or load/parse failure).
+
+### YAML rules
 
 Hard rules (ERROR, exit 2) — from `schema.md` §7.3 plus the required-field
 tables in §3/§4.1/§5/§6.1:
@@ -47,9 +57,30 @@ Convention rules (WARN, exit 1) — usable but flagged:
 | `W-GW-AMBIGUOUS` | An `exclusiveGateway` has more than one unconditioned outgoing edge (only one may be the default) |
 | `W-IO-INPUT` | A required `io.input` has no upstream node emitting a matching-name output |
 
-Note: in the YAML canonical form, edges reference node **`uid`**s (not
-displayIds). displayId/`bpmn:id` uniqueness is a BPMN-XML concern; XML
-validation is a possible later slice.
+### BPMN-XML rules
+
+Hard rules (ERROR, exit 2) — the §7.3 rules expressed on the XML structure
+(§7.1 identifier mapping, §7.2 `aef:` namespace):
+
+| Rule | Meaning |
+|---|---|
+| `E-XML-PARSE` | Malformed XML |
+| `E-XML-STRUCTURE` | No `<bpmn:process>` under `<bpmn:definitions>` |
+| `E-XML-ID-DUP` | A `bpmn:id` is not unique in the document |
+| `E-XML-UID-DUP` | An `aef:uid` is not unique in the document |
+| `E-XML-FLOW-DANGLING` | A `sequenceFlow` `sourceRef`/`targetRef` does not resolve to a flow-node `bpmn:id` |
+| `E-XML-LANEREF-DANGLING` | A lane `flowNodeRef` does not resolve to a flow-node `bpmn:id` |
+| `E-XML-GW-OUTGOING` | An `exclusiveGateway` has fewer than two outgoing sequence flows |
+
+Convention rule (WARN, exit 1):
+
+| Rule | Meaning |
+|---|---|
+| `W-XML-NODE-UNASSIGNED` | A flow node is not assigned to any lane |
+
+Note: in the YAML canonical form, edges reference node **`uid`**s; in the XML
+export, flow references use **`bpmn:id`** (displayId) while `aef:uid` carries
+stable identity. The two forms carry the same information (schema.md §3).
 
 ## Tests
 

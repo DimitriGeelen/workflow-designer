@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- exclusiveGateway 'agt_1_gate' has only one outgoing sequence flow. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t">
+    <bpmn:laneSet id="LaneSet_t">
+      <bpmn:lane id="agent" name="Agent">
+        <bpmn:flowNodeRef>agt_1_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_1_gate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_2_end</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="agt_1_start">
+      <bpmn:extensionElements><aef:uid value="n_a"/></bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="agt_1_gate">
+      <bpmn:extensionElements><aef:uid value="n_g"/></bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="agt_2_end">
+      <bpmn:extensionElements><aef:uid value="n_b"/></bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_start" targetRef="agt_1_gate">
+      <bpmn:extensionElements><aef:uid value="e_1"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_2" sourceRef="agt_1_gate" targetRef="agt_2_end">
+      <bpmn:extensionElements><aef:uid value="e_2"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>

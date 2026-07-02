@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- sequenceFlow targetRef 'frw_zzz' resolves to no flow node. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t">
+    <bpmn:laneSet id="LaneSet_t">
+      <bpmn:lane id="framework" name="Framework">
+        <bpmn:flowNodeRef>frw_1_a</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_b</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="frw_1_a">
+      <bpmn:extensionElements><aef:uid value="n_a"/></bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="frw_2_b">
+      <bpmn:extensionElements><aef:uid value="n_b"/></bpmn:extensionElements>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_1" sourceRef="frw_1_a" targetRef="frw_zzz">
+      <bpmn:extensionElements><aef:uid value="e_1"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>
