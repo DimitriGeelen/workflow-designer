@@ -148,6 +148,7 @@ class Validator:
         self._check_edges(edges, node_uids)
         self._check_gateways(nodes, edges)
         self._check_parallel_gateways(nodes, edges)
+        self._check_reachability(nodes, edges)
         self._check_required_inputs(nodes, edges)
 
     # -- lanes (section 5, section 2) --------------------------------------
@@ -396,6 +397,97 @@ class Validator:
                         "node '%s'" % uid,
                         "parallel join has no matching parallel fork in the "
                         "workflow (nothing forks into it)",
+                    )
+
+    # -- reachability / dead-ends ------------------------------------------
+
+    def _check_reachability(self, nodes, edges):
+        """Forward reachability from starts and backward reachability to ends.
+
+        Pure graph analysis (no `aef:` inspection). Both findings are WARN:
+
+          W-UNREACHABLE  a node is not forward-reachable from any startEvent.
+                         `linkEventCatch` nodes are additional seeds (they are
+                         cross-workflow entry points), so off-page connectors do
+                         not false-positive.
+          W-DEADEND      no endEvent is backward-reachable from a node (control
+                         never terminates). `linkEventThrow` nodes are additional
+                         backward seeds (they are cross-workflow termini).
+
+        A workflow with no startEvent (resp. endEvent) is skipped for the
+        corresponding check — there is no anchor to measure against, and the
+        missing-event case is a modelling choice the structural rules do not
+        mandate.
+        """
+        by_uid = {
+            n["uid"]: n
+            for n in nodes
+            if isinstance(n, dict) and "uid" in n
+        }
+        if not by_uid:
+            return
+
+        succ = {}
+        pred = {}
+        for e in edges:
+            if not isinstance(e, dict):
+                continue
+            src, tgt = e.get("source"), e.get("target")
+            if src in by_uid and tgt in by_uid:
+                succ.setdefault(src, set()).add(tgt)
+                pred.setdefault(tgt, set()).add(src)
+
+        def _type(uid):
+            return by_uid.get(uid, {}).get("type")
+
+        def _reach(seeds, adj):
+            seen = set(seeds)
+            stack = list(seeds)
+            while stack:
+                cur = stack.pop()
+                for nxt in adj.get(cur, ()):
+                    if nxt not in seen:
+                        seen.add(nxt)
+                        stack.append(nxt)
+            return seen
+
+        # forward reachability from starts (+ linkEventCatch entry points)
+        fwd_seeds = [
+            uid
+            for uid in by_uid
+            if _type(uid) in ("startEvent", "linkEventCatch")
+        ]
+        if fwd_seeds:
+            reachable = _reach(fwd_seeds, succ)
+            for uid in by_uid:
+                if uid not in reachable and _type(uid) not in (
+                    "startEvent",
+                    "linkEventCatch",
+                ):
+                    self.warn(
+                        "W-UNREACHABLE",
+                        "node '%s'" % uid,
+                        "node is not reachable from any startEvent",
+                    )
+
+        # backward reachability to ends (+ linkEventThrow termini)
+        bwd_seeds = [
+            uid
+            for uid in by_uid
+            if _type(uid) in ("endEvent", "linkEventThrow")
+        ]
+        if bwd_seeds:
+            terminating = _reach(bwd_seeds, pred)
+            for uid in by_uid:
+                if uid not in terminating and _type(uid) not in (
+                    "endEvent",
+                    "linkEventThrow",
+                ):
+                    self.warn(
+                        "W-DEADEND",
+                        "node '%s'" % uid,
+                        "no endEvent is reachable from this node (control never "
+                        "terminates)",
                     )
 
     # -- required I/O inputs (section 4.3, section 7.3) --------------------

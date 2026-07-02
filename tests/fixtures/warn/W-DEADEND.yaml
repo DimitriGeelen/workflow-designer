@@ -1,0 +1,14 @@
+# n_x (a scriptTask) has no outgoing edge and is not an end/linkEventThrow, so no
+# endEvent is reachable from it -> control never terminates -> W-DEADEND (WARN).
+# It is reachable from the start, so W-UNREACHABLE does not fire.
+workflowMeta: {id: t, version: 1, schemaVersion: 2}
+pool: {id: Pool_t, name: t}
+lanes:
+  - {id: agent, name: Agent, abbr: agt, authority: initiative, height: 320}
+nodes:
+  - {uid: n_s, type: startEvent, name: Start, lane: agent, x: 100, y: 100}
+  - {uid: n_e, type: endEvent, name: End, lane: agent, x: 300, y: 60}
+  - {uid: n_x, type: scriptTask, name: DeadEnd, lane: agent, x: 300, y: 160}
+edges:
+  - {uid: e_0, source: n_s, target: n_e}
+  - {uid: e_1, source: n_s, target: n_x}

@@ -559,6 +559,10 @@ Additional advisory checks (WARN, non-fatal — the file is still structurally v
 - A parallel fork (out-degree ≥ 2) should have a matching parallel join
   (some `parallelGateway` with in-degree ≥ 2), and vice versa, so forked
   branches reconverge (`W-PGW-UNBALANCED`)
+- Every node should be reachable from a `startEvent` (a `linkEventCatch` also
+  counts as an entry point) (`W-UNREACHABLE`)
+- Every node should be able to reach an `endEvent` (a `linkEventThrow` also
+  counts as a terminus), so control always terminates (`W-DEADEND`)
 
 Validation is not currently enforced by the designer — it will produce
 invalid files if you create one. A future `fw workflow validate` command
