@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-02T21:26:33Z
-last_update: 2026-07-02T21:26:33Z
+last_update: 2026-07-02T21:30:20Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -57,10 +57,10 @@ friction = the v3 design inputs.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `examples/aef-processes/inception-lifecycle.workflow.yaml` generated, faithfully representing the vendored process: lanes = authority model (human/sovereignty, framework/authority, agent/initiative); a human decide step routing to go/no-go/defer; framework transition + terminal states per branch
-- [ ] The generated workflow validates clean with `python3 tools/validate-workflow.py examples/aef-processes/inception-lifecycle.workflow.yaml` (exit 0 — proves the generation logic produced a structurally valid file the judge accepts)
-- [ ] Friction note `docs/reports/T-021-inception-lifecycle-friction.md` captures every point where the current (v2) canonical schema cannot express the real process cleanly, each cross-referenced to the r3 spec SD/section it maps to — these are the Lock-1 / M-slice v3 design inputs
-- [ ] No execution/resolution performed against the vendored framework (authoring + validation only); vendored `.agentic-framework/` read-only, unmodified
+- [x] `examples/aef-processes/inception-lifecycle.workflow.yaml` generated, faithfully representing the vendored process: lanes = authority model (human/sovereignty, framework/authority, agent/initiative); a human decide step routing to go/no-go/defer; framework transition + terminal states per branch
+- [x] The generated workflow validates clean with `python3 tools/validate-workflow.py examples/aef-processes/inception-lifecycle.workflow.yaml` (exit 0 — proves the generation logic produced a structurally valid file the judge accepts)
+- [x] Friction note `docs/reports/T-021-inception-lifecycle-friction.md` captures every point where the current (v2) canonical schema cannot express the real process cleanly, each cross-referenced to the r3 spec SD/section it maps to — these are the Lock-1 / M-slice v3 design inputs
+- [x] No execution/resolution performed against the vendored framework (authoring + validation only); vendored `.agentic-framework/` read-only, unmodified
 
 ### Human
 <!-- All criteria are agent-verifiable (validator exit code + file existence). No Human ACs.
