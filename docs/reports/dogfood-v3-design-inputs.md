@@ -2,27 +2,30 @@
 
 ```yaml
 type: design-input-synthesis
-task: T-024
+task: T-024 (refreshed through T-025 by T-026)
 authored: 2026-07-03
-campaign: first-dogfood (T-021 inception, T-022 task, T-023 healing lifecycles)
+campaign: first-dogfood (T-021 inception, T-022 task, T-023 healing, T-025 tier0)
 sources:
   - docs/reports/T-021-inception-lifecycle-friction.md
   - docs/reports/T-022-task-lifecycle-friction.md
   - docs/reports/T-023-healing-loop-friction.md
+  - docs/reports/T-025-tier0-escalation-friction.md
   - docs/reports/T-020-independent-product-aef-injection-boundary.md   # seam catalogue S1-S8
 corpus:
   - examples/aef-processes/inception-lifecycle.workflow.yaml
   - examples/aef-processes/task-lifecycle.workflow.yaml
   - examples/aef-processes/healing-loop.workflow.yaml
+  - examples/aef-processes/tier0-escalation.workflow.yaml
 ```
 
 ## Purpose
 
-Three dogfood slices each generated a workflow for a **real vendored AEF
+Four dogfood slices each generated a workflow for a **real vendored AEF
 process** and validated it with the standalone judge (`tools/validate-workflow.py`).
-All three passed (exit 0); the generator handled three structurally different
-shapes — a mostly-linear flow (inception), a cyclic state machine (task), and an
-advisory recovery loop (healing) — with zero generation failures. This document
+All four passed (exit 0); the generator handled four structurally different
+shapes — a mostly-linear flow (inception), a cyclic state machine (task), an
+advisory recovery loop (healing), and an ambient enforcement guard (tier0) — with
+zero generation failures. This document
 consolidates what that exercise was *for*: the points where the current **v2
 canonical schema cannot express the real process**, turned into a prioritized set
 of **v3 design inputs**.
@@ -42,22 +45,25 @@ with no first-class field, IS the finding. (The judge also caught a genuine YAML
 error during T-023, a small confirmation that the standalone validator earns its
 place independent of the schema-expressivity question.)
 
-## Consolidated friction register (F1–F10)
+## Consolidated friction register (F1–F12)
 
-Recurrence = number of the three slices in which the friction appears.
+Recurrence = number of the **four** slices mapped so far (T-021 inception,
+T-022 task, T-023 healing, T-025 tier0) in which the friction appears.
 
 | ID | Friction | Recurrence | r3 anchor | T-020 seam |
 |----|----------|:----------:|-----------|:----------:|
-| **F3** | No per-node determinism marker (agent-stochastic vs fw-verb-deterministic) | **3/3** | P4 | S3 / S1 |
-| **F5** | Auto-triggers / sub-process boundaries — no `callActivity` / `onTransition` | **3/3** | SD-9 | S8 |
-| **F1** | Human decision → outgoing-edge mapping not first-class | **3/3** (3 shapes) | SD-11 | S6 |
-| **F7** | Lifecycle is a state machine; schema models flow (cycles as backward edges) | 2/3 | SD-2 | S2 |
-| **F9** | No advisory/binding authority marker on a node or its output | 1/3 (new) | §3.2 / SD-8 | S4 |
-| **F8** | Transition guard / gate-SET with per-gate bypass not first-class | 1/3 | §3.2 / SD-8 | S4 / S3 |
-| **F2** | No workflow-level `execution.mode` (advisory\|guided\|strict) | 1/3 | SD-8 | S3 |
-| **F4** | Tier-0 human-gate semantics not a first-class gate property | 1/3 | §3.2 | S4 / S6 |
-| **F10** | No first-class datastore / knowledge-base resource (RAG read, pattern/learning write) | 1/3 | §2.5 / Fabric | S5 |
-| **F6** | No workflow governance status / `ratified_by` | 1/3 | SD-4 | S4 |
+| **F3** | No per-node determinism marker (agent-stochastic vs fw-verb-deterministic) | **4/4** | P4 | S3 / S1 |
+| **F1** | Human decision → outgoing-edge mapping not first-class | **4/4** (4 shapes) | SD-11 | S6 |
+| **F5** | Auto-triggers / sub-process boundaries — no `callActivity` / `onTransition` | **3/4** | SD-9 | S8 |
+| **F7** | Lifecycle is a state machine; schema models flow (cycles as backward edges) | 2/4 | SD-2 | S2 |
+| **F4** | Tier-0 human-gate semantics not a first-class gate property | 2/4 | §3.2 | S4 / S6 |
+| **F8** | Transition guard / gate-SET with per-gate bypass not first-class | 2/4 | §3.2 / SD-8 | S4 / S3 |
+| **F9** | No advisory/binding authority marker on a node or its output | 1/4 | §3.2 / SD-8 | S4 |
+| **F2** | No workflow-level `execution.mode` (advisory\|guided\|strict) | 1/4 | SD-8 | S3 |
+| **F10** | No first-class datastore / knowledge-base resource (RAG read, pattern/learning write) | 1/4 | §2.5 / Fabric | S5 |
+| **F6** | No workflow governance status / `ratified_by` | 1/4 | SD-4 | S4 |
+| **F11** | No ambient / boundary-interrupting guard construct (Tier-0 fires on *every* command) | 1/4 (new) | §3.2 (new SD) | S4 |
+| **F12** | No single-use / expiring capability (approval-token) construct | 1/4 (new) | SD-4 / §3.2 | S4 |
 
 ### Per-friction detail (with slice provenance)
 
@@ -127,26 +133,33 @@ subsume others), then by product-differentiation value.
 7. **F10 datastore / knowledge resource** and **F6 status/ratified_by** — governance
    completeness; couple to the Fabric work (S5) and the CRUD-symmetry ratification
    model respectively.
+8. **F11 ambient/boundary guard** and **F12 single-use capability token** — the
+   *enforcement* half of the Process-layer thesis (surfaced by the tier0 slice,
+   T-025). Both map to §3.2 / SD-4 (seam S4). F11 declares a guard once and
+   applies it to a node class/tier rather than hand-placing it; F12 is a
+   scoped, single-use, expiring authorization a strict runner consumes. Land
+   these with the F8 gate-set work — together they are "enforcement" in v3.
 
 **M1 (validator → v3 structural parity) immediate slice:** items 1–4 are all
 expressible as additive node/edge fields + validator rules on top of the existing
 T-017/T-018 engine — no execution runtime required, so they stay cleanly on the
-product side of the injection line. Items 5–7 are schema-shape changes that should
-land as a coordinated v3 bump.
+product side of the injection line. Items 5–8 are schema-shape / enforcement
+changes that should land as a coordinated v3 bump.
 
 ## Coverage and next campaign
 
-Processes mapped: **3 of ~8** high-regression candidates. Clean-validation rate:
-**3/3**. Frictions catalogued: **10** (2 universal-3/3 constructs, 1 universal-in-
-substance, 7 process-specific but all mapping to open r3 SDs).
+Processes mapped: **4 of ~8** high-regression candidates (inception, task,
+healing, tier0). Clean-validation rate: **4/4**. Frictions catalogued: **12**
+(F3 and F1 are universal at 4/4; F5 3/4; F4/F8 2/4; the rest process-specific but
+all mapping to open r3 SDs). The enforcement pair F11/F12 was the tier0 slice's
+new yield.
 
-**Un-mapped dogfood candidates (next campaign):** tier0-escalation (Tier-0 approve
-flow — will stress F8/F4), arc-lifecycle (arc membership + slice boundaries —
-likely new composition/grouping friction), assumption validation, session
-handover, decommission. Each new process either hardens a recurrence count or
-surfaces a genuinely new gap; both outcomes are useful. Recommend continuing until
-the friction register stops growing (a "friction-dry" signal), which is the true
-completion criterion for the v3 input-gathering phase.
+**Un-mapped dogfood candidates (next campaign):** arc-lifecycle (arc membership +
+slice boundaries — likely new composition/grouping friction), assumption
+validation, session handover, decommission. Each new process either hardens a
+recurrence count or surfaces a genuinely new gap; both outcomes are useful.
+Recommend continuing until the friction register stops growing (a "friction-dry"
+signal), which is the true completion criterion for the v3 input-gathering phase.
 
 **Hand-off (T-020 M5):** this document is the intended pickup for the framework
 agent when v3 schema work begins — the friction register + roadmap are the
