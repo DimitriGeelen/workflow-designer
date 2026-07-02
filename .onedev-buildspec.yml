@@ -1,0 +1,32 @@
+# OneDev to GitHub mirror buildspec for workflow-designer
+# Pattern: local push to origin (OneDev project 45) which mirrors to
+#   github.com/DimitriGeelen/workflow-designer
+# Mirrors the termlink / agentic-engineering-framework shape (T-016; ring20 T-1348).
+# The mirror job fires on every branch update and tag creation, once the
+# job-secret below is set on OneDev project 45.
+#
+# IMPORTANT: version MUST be 37 (OneDev internal migration level).
+# IMPORTANT: ASCII-only comments (no UTF-8 arrows or dashes).
+# PREREQUISITE: OneDev job-secret 'github-push-token' must hold a GitHub PAT
+#   with Contents Read+Write scoped to DimitriGeelen/workflow-designer.
+version: 37
+jobs:
+  - name: Push to GitHub Mirror
+    jobExecutor: server-docker
+    steps:
+      - !PushRepository
+        name: Push to GitHub
+        remoteUrl: https://github.com/DimitriGeelen/workflow-designer.git
+        userName: DimitriGeelen
+        passwordSecret: github-push-token
+        force: false
+        condition: ALL_PREVIOUS_STEPS_WERE_SUCCESSFUL
+    triggers:
+      - !BranchUpdateTrigger
+        branches: '**'
+      - !TagCreateTrigger
+        tags: '**'
+    retryCondition: never
+    maxRetries: 3
+    retryDelay: 30
+    timeout: 3600
