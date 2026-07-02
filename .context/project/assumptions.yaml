@@ -1,4 +1,28 @@
-# Project Assumptions - Tracked via inception workflow
-# Added via: fw assumption add "description" --task T-XXX
-# Validated via: fw assumption validate A-XXX --evidence "..."
-assumptions: []
+assumptions:
+- id: A-001
+  statement: A clean authoring/validation to execution/resolution boundary exists;
+    AEF seams are stub-able without an AEF runtime
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-020
+  created: '2026-07-02'
+  resolved_date: null
+- id: A-002
+  statement: Anchoring seams to the r3 Process-layer spec keeps eventual integration
+    low-rework, despite SD-1..15 being OPEN
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-020
+  created: '2026-07-02'
+  resolved_date: null
+- id: A-003
+  statement: Independent means implementation/packaging independence plus AEF-aware
+    seams (Reading A), not domain-neutrality (Reading B)
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-020
+  created: '2026-07-02'
+  resolved_date: null
