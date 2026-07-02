@@ -1,0 +1,14 @@
+# parallelGateway n_g has in-degree 1 and out-degree 1 -> it neither forks nor
+# joins (no-op) -> W-PGW-NOOP (WARN). No fork/join anywhere, so W-PGW-UNBALANCED
+# does not fire.
+workflowMeta: {id: t, version: 1, schemaVersion: 2}
+pool: {id: Pool_t, name: t}
+lanes:
+  - {id: agent, name: Agent, abbr: agt, authority: initiative, height: 320}
+nodes:
+  - {uid: n_s, type: startEvent, name: Start, lane: agent, x: 100, y: 100}
+  - {uid: n_g, type: parallelGateway, name: Gate, lane: agent, x: 200, y: 100}
+  - {uid: n_e, type: endEvent, name: End, lane: agent, x: 300, y: 100}
+edges:
+  - {uid: e_0, source: n_s, target: n_g}
+  - {uid: e_1, source: n_g, target: n_e}

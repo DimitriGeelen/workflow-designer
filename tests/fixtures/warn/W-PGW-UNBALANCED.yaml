@@ -1,0 +1,17 @@
+# parallelGateway fork n_f (out-degree 2) has no matching parallel join anywhere
+# in the workflow -> forked branches never reconverge -> W-PGW-UNBALANCED (WARN).
+# Fork edges carry no condition (so W-PGW-CONDITION does not fire); the fork has
+# out-degree 2 (so W-PGW-NOOP does not fire).
+workflowMeta: {id: t, version: 1, schemaVersion: 2}
+pool: {id: Pool_t, name: t}
+lanes:
+  - {id: agent, name: Agent, abbr: agt, authority: initiative, height: 320}
+nodes:
+  - {uid: n_s, type: startEvent, name: Start, lane: agent, x: 100, y: 100}
+  - {uid: n_f, type: parallelGateway, name: Fork, lane: agent, x: 200, y: 100}
+  - {uid: n_a, type: endEvent, name: A, lane: agent, x: 300, y: 60}
+  - {uid: n_b, type: endEvent, name: B, lane: agent, x: 300, y: 160}
+edges:
+  - {uid: e_0, source: n_s, target: n_f}
+  - {uid: e_1, source: n_f, target: n_a}
+  - {uid: e_2, source: n_f, target: n_b}

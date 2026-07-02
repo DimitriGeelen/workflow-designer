@@ -549,6 +549,17 @@ For a workflow to be valid:
 - Every required input must have a corresponding upstream output of compatible type
 - Every `exclusiveGateway` must have at least two outgoing edges; conditions must be mutually exclusive (or default-marked)
 
+Additional advisory checks (WARN, non-fatal — the file is still structurally valid):
+
+- A `parallelGateway` outgoing edge should not carry a `condition` — a parallel
+  fork takes all branches unconditionally, so the condition is ignored
+  (`W-PGW-CONDITION`)
+- A `parallelGateway` with in-degree ≤ 1 and out-degree ≤ 1 neither forks nor
+  joins (no-op) (`W-PGW-NOOP`)
+- A parallel fork (out-degree ≥ 2) should have a matching parallel join
+  (some `parallelGateway` with in-degree ≥ 2), and vice versa, so forked
+  branches reconverge (`W-PGW-UNBALANCED`)
+
 Validation is not currently enforced by the designer — it will produce
 invalid files if you create one. A future `fw workflow validate` command
 is the planned enforcement point.

@@ -147,6 +147,7 @@ class Validator:
         self._check_uid_uniqueness(nodes, edges)
         self._check_edges(edges, node_uids)
         self._check_gateways(nodes, edges)
+        self._check_parallel_gateways(nodes, edges)
         self._check_required_inputs(nodes, edges)
 
     # -- lanes (section 5, section 2) --------------------------------------
@@ -298,6 +299,104 @@ class Validator:
                     "exclusiveGateway has %d outgoing edges without a condition; "
                     "at most one may be the default" % len(unconditioned),
                 )
+
+    # -- parallel gateways (fork/join structure) ---------------------------
+
+    def _check_parallel_gateways(self, nodes, edges):
+        """Structural checks for parallelGateway fork/join usage.
+
+        Additive to `_check_gateways` (which handles exclusiveGateway only).
+        All findings are WARN — a parallelGateway is structurally legal in any
+        shape; these flag *modeling* smells that a strict runtime would mishandle:
+
+          W-PGW-CONDITION  an outgoing edge carries a condition. A parallel fork
+                           activates ALL branches unconditionally, so the
+                           condition is silently ignored (author likely meant an
+                           exclusiveGateway).
+          W-PGW-NOOP       in-degree <= 1 AND out-degree <= 1: the gateway
+                           neither forks nor joins — it does nothing.
+          W-PGW-UNBALANCED a parallel fork (out-degree >= 2) exists but no
+                           parallel join (in-degree >= 2), or vice versa —
+                           forked branches never reconverge (or a join has
+                           nothing forking into it).
+        """
+        pgws = [
+            n
+            for n in nodes
+            if isinstance(n, dict) and n.get("type") == "parallelGateway"
+        ]
+        if not pgws:
+            return
+
+        in_deg = {}
+        out_deg = {}
+        for e in edges:
+            if not isinstance(e, dict):
+                continue
+            src, tgt = e.get("source"), e.get("target")
+            if src is not None:
+                out_deg[src] = out_deg.get(src, 0) + 1
+            if tgt is not None:
+                in_deg[tgt] = in_deg.get(tgt, 0) + 1
+
+        has_fork = False
+        has_join = False
+        for node in pgws:
+            uid = node.get("uid")
+            o = out_deg.get(uid, 0)
+            i = in_deg.get(uid, 0)
+            if o >= 2:
+                has_fork = True
+            if i >= 2:
+                has_join = True
+
+            loc = "node '%s'" % uid
+            # W-PGW-CONDITION: conditions on a fork's outgoing edges are ignored
+            if o >= 2:
+                for e in edges:
+                    if (
+                        isinstance(e, dict)
+                        and e.get("source") == uid
+                        and e.get("condition")
+                    ):
+                        self.warn(
+                            "W-PGW-CONDITION",
+                            loc,
+                            "parallelGateway outgoing edge '%s' has a condition; "
+                            "a parallel fork takes all branches, so the condition "
+                            "is ignored (did you mean an exclusiveGateway?)"
+                            % e.get("uid", "?"),
+                        )
+            # W-PGW-NOOP: neither forks nor joins
+            if i <= 1 and o <= 1:
+                self.warn(
+                    "W-PGW-NOOP",
+                    loc,
+                    "parallelGateway has in-degree %d and out-degree %d; it "
+                    "neither forks nor joins (no-op)" % (i, o),
+                )
+
+        # W-PGW-UNBALANCED: fork without join, or join without fork
+        if has_fork and not has_join:
+            for node in pgws:
+                uid = node.get("uid")
+                if out_deg.get(uid, 0) >= 2:
+                    self.warn(
+                        "W-PGW-UNBALANCED",
+                        "node '%s'" % uid,
+                        "parallel fork has no matching parallel join in the "
+                        "workflow (forked branches never reconverge)",
+                    )
+        elif has_join and not has_fork:
+            for node in pgws:
+                uid = node.get("uid")
+                if in_deg.get(uid, 0) >= 2:
+                    self.warn(
+                        "W-PGW-UNBALANCED",
+                        "node '%s'" % uid,
+                        "parallel join has no matching parallel fork in the "
+                        "workflow (nothing forks into it)",
+                    )
 
     # -- required I/O inputs (section 4.3, section 7.3) --------------------
 
