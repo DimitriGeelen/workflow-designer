@@ -1,0 +1,15 @@
+# exclusiveGateway n_g has two unconditioned outgoing edges -> ambiguous routing
+# (section 6.5). This is a WARN, not fatal: structure is valid, routing is unclear.
+workflowMeta: {id: t, version: 1, schemaVersion: 2}
+pool: {id: Pool_t, name: t}
+lanes:
+  - {id: agent, name: Agent, abbr: agt, authority: initiative, height: 320}
+nodes:
+  - {uid: n_a, type: startEvent, name: Start, lane: agent, x: 100, y: 100}
+  - {uid: n_g, type: exclusiveGateway, name: Gate, lane: agent, x: 200, y: 100}
+  - {uid: n_b, type: endEvent, name: Yes, lane: agent, x: 300, y: 60}
+  - {uid: n_c, type: endEvent, name: No, lane: agent, x: 300, y: 160}
+edges:
+  - {uid: e_a, source: n_a, target: n_g}
+  - {uid: e_b, source: n_g, target: n_b}
+  - {uid: e_c, source: n_g, target: n_c}

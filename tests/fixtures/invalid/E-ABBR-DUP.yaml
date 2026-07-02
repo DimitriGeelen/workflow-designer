@@ -1,0 +1,9 @@
+# Two lanes share abbr 'frw' (section 2: abbr uniqueness enforced across lanes).
+workflowMeta: {id: t, version: 1, schemaVersion: 2}
+pool: {id: Pool_t, name: t}
+lanes:
+  - {id: framework, name: Framework, abbr: frw, authority: authority, height: 130}
+  - {id: agent, name: Agent, abbr: frw, authority: initiative, height: 320}
+nodes:
+  - {uid: n_a, type: startEvent, name: Start, lane: framework, x: 100, y: 100}
+edges: []

@@ -1,0 +1,126 @@
+# Golden valid workflow -- derived from docs/designer/schema.md section 3.
+# Exercises: 3 lanes, start/service/gateway/script/end nodes, typed I/O whose
+# required inputs are all satisfied upstream, and an exclusiveGateway with two
+# conditioned outgoing edges (one being a loop-back). Must validate clean (0).
+workflowMeta:
+  id: investigate
+  version: 1
+  schemaVersion: 2
+  source: agents/dispatch/investigate.md
+  tier_default: 2
+
+pool:
+  id: Pool_investigate
+  name: investigate
+
+lanes:
+  - id: human
+    name: "Human - Sovereignty"
+    abbr: hum
+    authority: sovereignty
+    height: 130
+  - id: framework
+    name: "Framework - Authority"
+    abbr: frw
+    authority: authority
+    height: 130
+  - id: agent
+    name: "Agent - Initiative"
+    abbr: agt
+    authority: initiative
+    height: 320
+
+nodes:
+  - uid: n_start01
+    type: startEvent
+    name: Investigation requested
+    slug: investigation
+    lane: framework
+    x: 280
+    y: 96
+    aef:
+      triggeredBy: fw dispatch investigate ${task_id}
+    io:
+      outputs:
+        - { name: task_id, type: task_id }
+        - { name: bundle, type: ref }
+
+  - uid: n_decomp01
+    type: serviceTask
+    name: Decompose problem
+    slug: decompose
+    lane: agent
+    x: 440
+    y: 200
+    aef:
+      tier: 2
+      agentType: primary
+      endpoint: agents/dispatch/skills/decompose.md
+    io:
+      inputs:
+        - { name: bundle, type: ref, required: true }
+      outputs:
+        - { name: sub_questions, type: list }
+
+  - uid: n_gate01
+    type: exclusiveGateway
+    name: Confidence sufficient?
+    slug: sufficient
+    lane: agent
+    x: 620
+    y: 200
+    aef:
+      decisionInput: ${findings.confidence}
+    io:
+      inputs:
+        - { name: sub_questions, type: list, required: true }
+
+  - uid: n_report01
+    type: scriptTask
+    name: Write report
+    slug: report
+    lane: framework
+    x: 800
+    y: 96
+    aef:
+      tier: 1
+      endpoint: fw report write investigate --run ${run_id}
+    io:
+      inputs:
+        - { name: sub_questions, type: list, required: true }
+      outputs:
+        - { name: report_path, type: path }
+
+  - uid: n_end01
+    type: endEvent
+    name: Investigation ready
+    slug: ready
+    lane: framework
+    x: 980
+    y: 96
+    aef:
+      emits: event:investigate.ready
+    io:
+      inputs:
+        - { name: report_path, type: path, required: true }
+
+edges:
+  - uid: e_0001
+    source: n_start01
+    target: n_decomp01
+  - uid: e_0002
+    source: n_decomp01
+    target: n_gate01
+  - uid: e_0003
+    source: n_gate01
+    target: n_report01
+    name: sufficient
+    condition: ${findings.confidence >= 0.7}
+  - uid: e_0004
+    source: n_gate01
+    target: n_decomp01
+    name: "insufficient - loop"
+    condition: ${findings.confidence < 0.7}
+  - uid: e_0005
+    source: n_report01
+    target: n_end01

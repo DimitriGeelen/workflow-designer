@@ -1,0 +1,10 @@
+# Node n_b has an unknown type 'superTask' (section 4).
+workflowMeta: {id: t, version: 1, schemaVersion: 2}
+pool: {id: Pool_t, name: t}
+lanes:
+  - {id: framework, name: Framework, abbr: frw, authority: authority, height: 130}
+nodes:
+  - {uid: n_a, type: startEvent, name: Start, lane: framework, x: 100, y: 100}
+  - {uid: n_b, type: superTask, name: Mystery, lane: framework, x: 300, y: 100}
+edges:
+  - {uid: e_a, source: n_a, target: n_b}

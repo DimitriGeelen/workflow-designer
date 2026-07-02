@@ -1,0 +1,7 @@
+# Missing required top-level key 'pool'.
+workflowMeta: {id: t, version: 1, schemaVersion: 2}
+lanes:
+  - {id: framework, name: Framework, abbr: frw, authority: authority, height: 130}
+nodes:
+  - {uid: n_a, type: startEvent, name: Start, lane: framework, x: 100, y: 100}
+edges: []

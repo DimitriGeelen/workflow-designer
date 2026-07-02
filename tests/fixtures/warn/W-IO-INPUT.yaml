@@ -1,0 +1,21 @@
+# serviceTask n_b declares a required input 'bundle' but no upstream node emits a
+# matching output (section 4.3 / 7.3). WARN, not fatal (name-based heuristic; the
+# type vocabulary is extensible).
+workflowMeta: {id: t, version: 1, schemaVersion: 2}
+pool: {id: Pool_t, name: t}
+lanes:
+  - {id: framework, name: Framework, abbr: frw, authority: authority, height: 130}
+  - {id: agent, name: Agent, abbr: agt, authority: initiative, height: 320}
+nodes:
+  - {uid: n_a, type: startEvent, name: Start, lane: framework, x: 100, y: 100}
+  - uid: n_b
+    type: serviceTask
+    name: Consume
+    lane: agent
+    x: 300
+    y: 100
+    io:
+      inputs:
+        - {name: bundle, type: ref, required: true}
+edges:
+  - {uid: e_a, source: n_a, target: n_b}

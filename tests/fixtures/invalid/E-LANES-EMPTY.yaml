@@ -1,0 +1,6 @@
+# lanes present but empty; at least one lane is required (section 3).
+workflowMeta: {id: t, version: 1, schemaVersion: 2}
+pool: {id: Pool_t, name: t}
+lanes: []
+nodes: []
+edges: []
