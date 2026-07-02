@@ -62,8 +62,14 @@ T-022 task, T-023 healing, T-025 tier0) in which the friction appears.
 | **F2** | No workflow-level `execution.mode` (advisory\|guided\|strict) | 1/4 | SD-8 | S3 |
 | **F10** | No first-class datastore / knowledge-base resource (RAG read, pattern/learning write) | 1/4 | §2.5 / Fabric | S5 |
 | **F6** | No workflow governance status / `ratified_by` | 1/4 | SD-4 | S4 |
-| **F11** | No ambient / boundary-interrupting guard construct (Tier-0 fires on *every* command) | 1/4 (new) | §3.2 (new SD) | S4 |
-| **F12** | No single-use / expiring capability (approval-token) construct | 1/4 (new) | SD-4 / §3.2 | S4 |
+| **F11** | No ambient / boundary-interrupting guard construct (Tier-0 fires on *every* command) | 2/7 | §3.2 (new SD) | S4 |
+| **F12** | No single-use / expiring capability (approval-token) construct | 1/7 | SD-4 / §3.2 | S4 |
+| **F13** | No grouping / container construct (unordered, by-reference, computed membership) | 1/7 (new) | §2.6 / SD-9 | S8 (splits) |
+
+> **Seam S8 splits (from F13, T-027):** composition is *two* constructs, not one —
+> **sequenced sub-workflow** (`callActivity` with control-flow edges, per F5) and
+> **unordered grouping container** (a by-reference label-set over members, no
+> edges, per F13). v3 should model them separately.
 
 ### Per-friction detail (with slice provenance)
 
@@ -146,13 +152,32 @@ T-017/T-018 engine — no execution runtime required, so they stay cleanly on th
 product side of the injection line. Items 5–8 are schema-shape / enforcement
 changes that should land as a coordinated v3 bump.
 
+## Friction-dry reached (campaign complete)
+
+**The v3 input-gathering phase is complete.** Seven processes mapped (inception,
+task, healing, tier0, arc, assumption, session-handover), **7/7 clean
+validations**, **13 frictions** catalogued (F1–F13). New-friction rate per slice:
+**6 → 2 → 2 → 2 → 1 → 0 → 0** — two consecutive **friction-dry** slices (T-028
+evidence-gated state machine, T-029 linear pipeline) on differently-shaped
+processes satisfy the convergence criterion. Further slices are expected to only
+re-confirm recurrences.
+
+Two refinements from the dry slices (not new IDs):
+- **F1 sharpening (T-028):** F1 fires only for *human-authority* decisions;
+  agent/framework **data-condition** branches are already first-class in v2. F1 is
+  specifically "human decision-outputs → edges," not branching in general.
+- **F8 severity (T-029):** gates come in **blocking** (work-completed battery,
+  tier0) and **soft/advisory** (episodic-completeness) flavours — the v3 gate
+  construct needs a `blocking`/severity attribute.
+
 ## Coverage and next campaign
 
-Processes mapped: **4 of ~8** high-regression candidates (inception, task,
-healing, tier0). Clean-validation rate: **4/4**. Frictions catalogued: **12**
-(F3 and F1 are universal at 4/4; F5 3/4; F4/F8 2/4; the rest process-specific but
-all mapping to open r3 SDs). The enforcement pair F11/F12 was the tier0 slice's
-new yield.
+Processes mapped: **7 of ~8** meaningful lifecycles (the remainder — decommission,
+specification, design — are thin workflow-type labels, not distinct lifecycles).
+Clean-validation rate: **7/7**. The standalone judge independently caught real
+YAML errors on **3/7** slices — evidence it earns its place beyond the
+schema-expressivity question. Frictions catalogued: **13** (F3 6/7 and F1 7/7
+universal; F5/F8 5/7; the rest mapping to open r3 SDs).
 
 **Un-mapped dogfood candidates (next campaign):** arc-lifecycle (arc membership +
 slice boundaries — likely new composition/grouping friction), assumption
