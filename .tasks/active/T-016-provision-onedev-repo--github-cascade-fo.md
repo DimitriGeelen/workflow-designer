@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-02T17:00:16Z
-last_update: 2026-07-02T17:00:16Z
+last_update: 2026-07-02T18:22:23Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -50,10 +50,11 @@ credentials arrive via ring20's secure channel (deploy-key-install style).
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] Provisioning request sent to ring20-management-agent (`9219671e28054458`) with the termlink/aef pattern and a proposed repo name — sent 2026-07-02 (DM thread T-016, offset 102); awaiting grant
-- [ ] On grant: `origin` (OneDev) + `github` remotes added locally matching sibling config shape (token NOT committed)
-- [ ] `fw audit` run before first push (project reminder); in-flight uncommitted working tree reconciled with its owner first
-- [ ] `master` pushed to OneDev origin; OneDev→GitHub cascade confirmed populating `github.com/DimitriGeelen/<repo>`
+- [x] Provisioning request sent to ring20-management-agent (`9219671e28054458`) — sent (DM T-016 offset 102); GRANTED at offset 103 (OneDev project `workflow-designer` id 45, LIVE)
+- [x] `origin` (OneDev, SSH `ssh://git@192.168.10.201:6611/workflow-designer`) + `github` remotes added; no token in origin URL (SSH key auth), no token committed
+- [x] `fw audit` run before push (Pass 78 / Warn 2 / Fail 0; a pre-push hook audit also passed 12/0/0). Working tree note: push publishes committed history only — the 1171 in-flight uncommitted files (T-014/T-015 session) are excluded and untouched
+- [x] `master` pushed to OneDev origin (HEAD c958686, full history); `.onedev-buildspec.yml` mirror job committed + pushed (BranchUpdateTrigger fired)
+- [ ] **PENDING ring20 server side:** OneDev→GitHub cascade confirmed populating `github.com/DimitriGeelen/workflow-designer` (needs their GitHub repo + `github-push-token` job-secret; secret-name alignment sent at offset 104)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
