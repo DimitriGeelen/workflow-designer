@@ -66,6 +66,7 @@ T-022 task, T-023 healing, T-025 tier0) in which the friction appears.
 | **F12** | No single-use / expiring capability (approval-token) construct | 1/7 | SD-4 / §3.2 | S4 |
 | **F13** | No grouping / container construct (unordered, by-reference, computed membership) | 1/7 (new) | §2.6 / SD-9 | S8 (splits) |
 | **F14** | No fan-in aggregation / reduction on a parallel join (fold N branch outputs → one verdict) | 1/8 (new) | §2.6 / SD-9 | S8 |
+| **F15** | No compensation / rollback construct (a step failure restores a pre-step snapshot; boundary/error/cancel events) | 1/9 (new) | §3.2 / SD-8 | S4 |
 
 > **Seam S8 splits (from F13, T-027):** composition is *two* constructs, not one —
 > **sequenced sub-workflow** (`callActivity` with control-flow edges, per F5) and
@@ -188,6 +189,30 @@ unvalidated** — the gateway rules (`≥2` outgoing, at-most-one-default) apply
 to `exclusiveGateway` (`validate-workflow.py:277`). M1 should add fork/join
 structural rules (every fork has a matching join; fork out-degree vs join
 in-degree symmetry) — cheap, additive, product-side.
+
+### Emerging v3 theme — "events & boundaries" (T-032, upgrade-process)
+
+The saga/compensation family (upgrade: snapshot → apply → verify → **rollback on
+failure**) surfaced **F15: compensation / rollback**. In BPMN this is a
+compensation activity bound to the mutating steps via a **boundary event**; v2 has
+no boundary event, no error/cancel event — control can only leave a node via an
+outgoing sequence edge, never via an event raised *during* or *around* it. The
+upgrade `trap … EXIT INT TERM HUP` (rollback also fires on interrupt) is exactly
+that missing event-boundary.
+
+The load-bearing observation: **F11 (ambient guard — entry side), F14 (fan-in
+aggregation — join side), and F15 (compensation — exit side) are three facets of
+one missing layer: events & boundaries.** v2 is a pure sequence-flow +
+exclusive/parallel-gateway language with no vocabulary for "something happens
+during/around an activity." Introducing a boundary/event construct in v3 is a
+high-leverage move — it subsumes F11 and F15 and gives F14's join a handler to
+attach an aggregation to. This clusters with the F8 gate-set / enforcement work.
+
+**Dry-signal status (per family):** dry within sequential/exclusive (7 slices);
+each new family adds ≤1 gap — fan-out→F14, saga→F15. Untouched families:
+**event/timer-driven** (cron, `revisit-due-scan.sh` G-053, `checkpoint.sh` budget
+interrupt) and **multi-instance** (for-each over a collection). One event/timer
+slice would close the family sweep.
 
 ## Coverage and next campaign
 
