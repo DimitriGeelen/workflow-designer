@@ -65,6 +65,7 @@ T-022 task, T-023 healing, T-025 tier0) in which the friction appears.
 | **F11** | No ambient / boundary-interrupting guard construct (Tier-0 fires on *every* command) | 2/7 | §3.2 (new SD) | S4 |
 | **F12** | No single-use / expiring capability (approval-token) construct | 1/7 | SD-4 / §3.2 | S4 |
 | **F13** | No grouping / container construct (unordered, by-reference, computed membership) | 1/7 (new) | §2.6 / SD-9 | S8 (splits) |
+| **F14** | No fan-in aggregation / reduction on a parallel join (fold N branch outputs → one verdict) | 1/8 (new) | §2.6 / SD-9 | S8 |
 
 > **Seam S8 splits (from F13, T-027):** composition is *two* constructs, not one —
 > **sequenced sub-workflow** (`callActivity` with control-flow edges, per F5) and
@@ -169,6 +170,24 @@ Two refinements from the dry slices (not new IDs):
 - **F8 severity (T-029):** gates come in **blocking** (work-completed battery,
   tier0) and **soft/advisory** (episodic-completeness) flavours — the v3 gate
   construct needs a `blocking`/severity attribute.
+
+### Dry-signal scope correction (T-031, audit-process)
+
+Friction-dry held for the **sequential/exclusive control-flow family** but not
+across all of BPMN. The audit process — the corpus's first **fan-out /
+scatter-gather** (`parallelGateway` fork → N independent checks → AND-join →
+verdict) — surfaced **F14: fan-in aggregation / reduction**. v2's parallel join
+only reconverges *control* flow; it cannot *combine* the branch data (the audit
+folds `FINDINGS[]` to a severity-max verdict + running counters). **F14 is the
+fan-in dual of F1** (F1 fans a decision OUT to edges; F14 fans branch data IN to
+one value). Lesson: "dry" must be qualified by control-flow family — each new
+*family* (parallel, event/timer, compensation) can still add one gap.
+
+Also surfaced (validator, not schema): **`parallelGateway` is entirely
+unvalidated** — the gateway rules (`≥2` outgoing, at-most-one-default) apply only
+to `exclusiveGateway` (`validate-workflow.py:277`). M1 should add fork/join
+structural rules (every fork has a matching join; fork out-degree vs join
+in-degree symmetry) — cheap, additive, product-side.
 
 ## Coverage and next campaign
 
