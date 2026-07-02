@@ -1,0 +1,274 @@
+# DRAFT stash (T-021) — budget gate blocked writing to examples/ at ~98% context.
+# NEXT SESSION: move this to examples/aef-processes/inception-lifecycle.workflow.yaml,
+# run `python3 tools/validate-workflow.py <that path>` (expect exit 0), fix any
+# findings, then write docs/reports/T-021-inception-lifecycle-friction.md from the
+# [F#] markers below. Ground truth: .agentic-framework/lib/inception.sh.
+#
+# Friction items surfaced (v2 schema cannot express — these are the v3 design inputs):
+#   [F1] userTask has no first-class humanTouchpoint / decision->edge mapping;
+#        the 3-way human outcome had to be modelled as a separate exclusiveGateway.  (r3 SD-11)
+#   [F2] no workflow-level execution.mode (advisory|guided|strict) — cannot declare
+#        this is a governance-ENFORCED process.                                       (r3 SD-8)
+#   [F3] no per-node determinism marker (agent-improvised vs fw-verb) — the
+#        stochastic/deterministic frontier is invisible.                              (r3 P4)
+#   [F4] Tier-0 human-gate semantics (--i-am-human / Watchtower-only) are not a
+#        first-class gate property; only carried as lane + tier hint.                 (r3 §3.2)
+#   [F5] DEFER (inject stubs + revisit_at) is really a sub-process; v2 has no
+#        callActivity node type, so it flattened to one scriptTask.                   (r3 SD-9)
+#   [F6] no workflow status / ratified_by governance fields.                          (r3 SD-4)
+# ---------------------------------------------------------------------------
+workflowMeta:
+  id: inception-lifecycle
+  version: 1
+  schemaVersion: 2
+  source: .agentic-framework/lib/inception.sh
+  tier_default: 2
+
+pool:
+  id: Pool_inception_lifecycle
+  name: inception-lifecycle
+
+lanes:
+  - id: human
+    name: "Human · Sovereignty"
+    abbr: hum
+    authority: sovereignty
+    height: 160
+  - id: framework
+    name: "Framework · Authority"
+    abbr: frw
+    authority: authority
+    height: 220
+  - id: agent
+    name: "Agent · Initiative"
+    abbr: agt
+    authority: initiative
+    height: 200
+
+nodes:
+  - uid: n_req01
+    type: startEvent
+    name: Inception requested
+    slug: requested
+    lane: framework
+    x: 120
+    y: 300
+    aef:
+      triggeredBy: fw inception start "<name>" --recommendation GO|NO-GO|DEFER
+    io:
+      outputs:
+        - { name: name, type: string }
+        - { name: recommendation, type: string }
+
+  - uid: n_reco01
+    type: serviceTask
+    name: File recommendation + rationale
+    slug: recommend
+    lane: agent
+    x: 300
+    y: 470
+    aef:
+      tier: 1
+      agentType: primary
+      endpoint: .agentic-framework/lib/inception.sh:_inject_recommendation_block
+    io:
+      inputs:
+        - { name: recommendation, type: string, required: true }
+      outputs:
+        - { name: rationale, type: string }
+
+  - uid: n_crea01
+    type: scriptTask
+    name: Create inception task (status captured)
+    slug: create
+    lane: framework
+    x: 500
+    y: 300
+    aef:
+      tier: 1
+      endpoint: agents/task-create/create-task.sh --type inception
+      artifactsWrites: .tasks/active/T-XXX.md
+    io:
+      outputs:
+        - { name: task_id, type: task_id }
+
+  - uid: n_strt01
+    type: scriptTask
+    name: Start work (captured to started-work)
+    slug: startwork
+    lane: framework
+    x: 700
+    y: 300
+    aef:
+      tier: 1
+      endpoint: fw work-on ${task_id}
+    io:
+      inputs:
+        - { name: task_id, type: task_id, required: true }
+
+  - uid: n_expl01
+    type: serviceTask
+    name: Conduct exploration
+    slug: explore
+    lane: agent
+    x: 900
+    y: 470
+    aef:
+      tier: 2
+      agentType: primary
+      endpoint: fw assumption add / research artifact docs/reports/T-XXX-*.md
+      contextReads: .tasks/active/${task_id}.md
+    io:
+      outputs:
+        - { name: research_artifact, type: path }
+
+  - uid: n_revw01
+    type: scriptTask
+    name: Generate review surface + marker
+    slug: review
+    lane: framework
+    x: 1100
+    y: 300
+    aef:
+      tier: 1
+      endpoint: fw task review ${task_id}
+      artifactsWrites: .context/working/.reviewed-${task_id}
+    io:
+      inputs:
+        - { name: research_artifact, type: path, required: true }
+
+  - uid: n_dcsn01
+    type: userTask
+    name: Record go/no-go/defer decision
+    slug: decision
+    lane: human
+    x: 1320
+    y: 110
+    aef:
+      tier: 0
+      decisionOutputs: go, no-go, defer
+      endpoint: watchtower:/inception/${task_id}
+    io:
+      inputs:
+        - { name: research_artifact, type: path, required: true }
+
+  - uid: n_rout01
+    type: exclusiveGateway
+    name: Decision?
+    slug: route
+    lane: human
+    x: 1540
+    y: 130
+    aef:
+      decisionInput: ${decision}
+      decisionOwner: human
+
+  - uid: n_go01
+    type: scriptTask
+    name: Complete GO — auto-tick ACs, move to completed, authorize build tasks
+    slug: complete-go
+    lane: framework
+    x: 1760
+    y: 210
+    aef:
+      tier: 1
+      endpoint: fw inception decide ${task_id} go --i-am-human
+
+  - uid: n_ng01
+    type: scriptTask
+    name: Complete NO-GO — record + park
+    slug: complete-nogo
+    lane: framework
+    x: 1760
+    y: 330
+    aef:
+      tier: 1
+      endpoint: fw inception decide ${task_id} no-go --i-am-human
+
+  - uid: n_df01
+    type: scriptTask
+    name: Complete DEFER — inject stubs + revisit_at
+    slug: complete-defer
+    lane: framework
+    x: 1760
+    y: 450
+    aef:
+      tier: 1
+      endpoint: fw inception decide ${task_id} defer --i-am-human
+
+  - uid: n_end_go
+    type: endEvent
+    name: GO — build tasks authorized
+    slug: end-go
+    lane: framework
+    x: 1980
+    y: 210
+    aef:
+      emits: event:inception.go
+
+  - uid: n_end_ng
+    type: endEvent
+    name: NO-GO — parked
+    slug: end-nogo
+    lane: framework
+    x: 1980
+    y: 330
+    aef:
+      emits: event:inception.no-go
+
+  - uid: n_end_df
+    type: endEvent
+    name: DEFER — revisit scheduled
+    slug: end-defer
+    lane: framework
+    x: 1980
+    y: 450
+    aef:
+      emits: event:inception.defer
+
+edges:
+  - uid: e_01
+    source: n_req01
+    target: n_reco01
+  - uid: e_02
+    source: n_reco01
+    target: n_crea01
+  - uid: e_03
+    source: n_crea01
+    target: n_strt01
+  - uid: e_04
+    source: n_strt01
+    target: n_expl01
+  - uid: e_05
+    source: n_expl01
+    target: n_revw01
+  - uid: e_06
+    source: n_revw01
+    target: n_dcsn01
+  - uid: e_07
+    source: n_dcsn01
+    target: n_rout01
+  - uid: e_08
+    source: n_rout01
+    target: n_go01
+    name: go
+    condition: ${decision == 'go'}
+  - uid: e_09
+    source: n_rout01
+    target: n_ng01
+    name: no-go
+    condition: ${decision == 'no-go'}
+  - uid: e_10
+    source: n_rout01
+    target: n_df01
+    name: defer
+    condition: ${decision == 'defer'}
+  - uid: e_11
+    source: n_go01
+    target: n_end_go
+  - uid: e_12
+    source: n_ng01
+    target: n_end_ng
+  - uid: e_13
+    source: n_df01
+    target: n_end_df
