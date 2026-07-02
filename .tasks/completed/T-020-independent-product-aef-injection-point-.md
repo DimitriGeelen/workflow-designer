@@ -4,16 +4,16 @@ name: "Independent-product AEF injection-point boundary"
 description: >
   Inception: Independent-product AEF injection-point boundary
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-02T20:44:48Z
-last_update: 2026-07-02T20:45:50Z
-date_finished: null
+last_update: 2026-07-02T21:25:02Z
+date_finished: 2026-07-02T21:25:02Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -96,15 +96,15 @@ Full framing, evidence, seam catalog (S1–S8), and maturation slices (M1–M5):
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -161,7 +161,11 @@ GO: the independent-with-injection-points architecture is viable and the seam is
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: GO: the independent-with-injection-points architecture is viable and the seam is already partly proven. Evidence: (1) T-017/T-018 shipped the validator deliberately standalone ("not wired into fw; the framework can later adopt it") — a working AEF injection point that already exists; (2) T-002 GO established the designer is hand-usable before any AEF runtime; (3) the just-evaluated r3 Process-layer spec is a detailed map of AEFs future integration surface, so seams can be anchored to a known contract rather than guessed. Risk to manage, not a blocker: keep "independent" meaning implementation/packaging independence + AEF-aware seams, NOT domain-neutrality (the swimlane authority model is the products differentiation). The falsifiable question the inception closes: is the boundary clean enough to build against, and where exactly are the seams. Foundational product-strategy decision — go/no-go reserved for the Sovereign.
+
+**Date**: 2026-07-02T21:25:02Z
 
 ## Updates
 
@@ -170,3 +174,12 @@ GO: the independent-with-injection-points architecture is viable and the seam is
 
 ### 2026-07-02T20:45:50Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-02T21:25:02Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** GO: the independent-with-injection-points architecture is viable and the seam is already partly proven. Evidence: (1) T-017/T-018 shipped the validator deliberately standalone ("not wired into fw; the framework can later adopt it") — a working AEF injection point that already exists; (2) T-002 GO established the designer is hand-usable before any AEF runtime; (3) the just-evaluated r3 Process-layer spec is a detailed map of AEFs future integration surface, so seams can be anchored to a known contract rather than guessed. Risk to manage, not a blocker: keep "independent" meaning implementation/packaging independence + AEF-aware seams, NOT domain-neutrality (the swimlane authority model is the products differentiation). The falsifiable question the inception closes: is the boundary clean enough to build against, and where exactly are the seams. Foundational product-strategy decision — go/no-go reserved for the Sovereign.
+
+### 2026-07-02T21:25:02Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
