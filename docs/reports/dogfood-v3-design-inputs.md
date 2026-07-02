@@ -67,6 +67,8 @@ T-022 task, T-023 healing, T-025 tier0) in which the friction appears.
 | **F13** | No grouping / container construct (unordered, by-reference, computed membership) | 1/7 (new) | §2.6 / SD-9 | S8 (splits) |
 | **F14** | No fan-in aggregation / reduction on a parallel join (fold N branch outputs → one verdict) | 1/8 (new) | §2.6 / SD-9 | S8 |
 | **F15** | No compensation / rollback construct (a step failure restores a pre-step snapshot; boundary/error/cancel events) | 1/9 (new) | §3.2 / SD-8 | S4 |
+| **F16** | No timer / scheduled / message start-event definition (process runs on a cron, not on demand) | 1/10 (new) | §3.2 | S4 |
+| **F17** | No multi-instance / for-each-over-collection marker (one predicate per item of a dynamic collection) | 1/10 (new) | §2.6 / SD-9 | S8 |
 
 > **Seam S8 splits (from F13, T-027):** composition is *two* constructs, not one —
 > **sequenced sub-workflow** (`callActivity` with control-flow edges, per F5) and
@@ -213,6 +215,46 @@ each new family adds ≤1 gap — fan-out→F14, saga→F15. Untouched families:
 **event/timer-driven** (cron, `revisit-due-scan.sh` G-053, `checkpoint.sh` budget
 interrupt) and **multi-instance** (for-each over a collection). One event/timer
 slice would close the family sweep.
+
+### Control-flow family sweep COMPLETE (T-033, revisit-due-scan)
+
+The final slice mapped both remaining families in one process (a daily cron scan
+that iterates every active task), adding **F16 (timer/scheduled start)** and
+**F17 (multi-instance / for-each)**. Ten processes now span all six major
+control-flow families:
+
+| Family | Slice(s) | Friction added |
+|---|---|---|
+| linear flow | T-021 inception, T-029 handover | F1–F6 (founding) |
+| cyclic state machine | T-022 task, T-028 assumption | F7, F8 |
+| advisory loop | T-023 healing | F9, F10 |
+| ambient guard | T-025 tier0 | F11, F12 |
+| grouped container | T-027 arc | F13 |
+| fan-out / scatter-gather | T-031 audit | F14 |
+| saga / compensation | T-032 upgrade | F15 |
+| timer + multi-instance | T-033 revisit-scan | F16, F17 |
+
+Read **by family** (not by slice), the new-friction rate is the honest signal:
+every genuinely new family adds 1–2 gaps; every revisited family adds 0. The
+register **F1–F17** now covers all standard BPMN control-flow families the AEF
+corpus uses — this is **friction-dry across families**, the qualified/correct
+version of the T-030 claim (which was dry only within the sequential/exclusive
+family).
+
+**Two consolidated v3 themes emerge from the family sweep:**
+1. **Events & boundaries** — F11 (interrupt entry), F16 (scheduled entry),
+   F15 (compensation/error exit), F14 (join aggregation handler) all want the
+   same missing layer: event *definitions* on start events + boundary events on
+   activities. This is the single highest-leverage v3 addition.
+2. **Structure & concurrency** — F5 (callActivity/onTransition), F13 (grouping
+   container), F17 (multi-instance), F14 (fan-in reduction) are the composition/
+   iteration bundle (F17→work→F14 is the map-reduce shape v2 cannot express
+   end-to-end).
+
+These sit alongside the already-prioritised additive M1 wins (F3 determinism,
+F1 human-decision→edge). The input-gathering phase is **complete across all
+control-flow families**; v3 schema design can proceed against the full F1–F17
+register.
 
 ## Coverage and next campaign
 
