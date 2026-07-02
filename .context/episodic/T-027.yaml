@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-027: Dogfood: map + validate arc-lifecycle workflow from vendored AEF
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-02T22:53:46Z
+# ============================================================================
+
+task_id: T-027
+task_name: "Dogfood: map + validate arc-lifecycle workflow from vendored AEF"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-02T22:47:21Z
+completed: 2026-07-02T22:53:44Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-03T00:53:44+02:00
+last_commit: 2026-07-03T00:53:44+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Map + validate arc-lifecycle dogfood workflow; friction report
+
+# Key outcomes
+outcomes:
+  - '`examples/aef-processes/arc-lifecycle.workflow.yaml` generated, faithfully representing the vendored arc lifecycle: arc creation, task membership, working slices with slice-boundary evolution capture, and completion; lanes = authority model (human/sovereignty, framework/authority, agent/initiative)'
+  - 'The generated workflow validates clean with `python3 tools/validate-workflow.py examples/aef-processes/arc-lifecycle.workflow.yaml` (exit 0)'
+  - 'Friction note `docs/reports/T-027-arc-lifecycle-friction.md` captures v2-schema expressivity gaps, each cross-referenced to the r3 SD/section and T-020 seam; marks recurring vs new IDs, with explicit attention to the composition/grouping (container/sub-workflow) question'
+  - 'No execution/resolution performed against the vendored framework (authoring + validation only); vendored `.agentic-framework/` read-only, unmodified'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-027-arc-lifecycle-friction.md'
+  - 'examples/aef-processes/arc-lifecycle.workflow.yaml'
+  - '.tasks/active/T-027-dogfood-map--validate-arc-lifecycle-work.md'
+  - '.tasks/completed/T-026-refresh-v3-design-inputs-synthesis-with-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T00:53:44"
+    action: "T-027: Map + validate arc-lifecycle dogfood workflow; friction report"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 4
+  lines_added: 600
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-027-dogfood-map--validate-arc-lifecycle-work.md
+generated_by: context-agent-hybrid

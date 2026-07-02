@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-034: Validator: add parallelGateway fork/join structural checks (closes T-031 gap)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-02T23:29:24Z
+# ============================================================================
+
+task_id: T-034
+task_name: "Validator: add parallelGateway fork/join structural checks (closes T-031 gap)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-02T23:26:06Z
+completed: 2026-07-02T23:29:18Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-03T01:29:13+02:00
+last_commit: 2026-07-03T01:29:13+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Validator — add parallelGateway fork/join checks (W-PGW-CONDITION/NOOP/UNBALANCED); closes T-031 gap
+
+# Key outcomes
+outcomes:
+  - '`tools/validate-workflow.py` gains a `_check_parallel_gateways` pass'
+  - 'Three warn fixtures exist under `tests/fixtures/warn/` named exactly'
+  - '`bash tests/run-validator-tests.sh` passes (all fixtures green, existing'
+  - 'All existing corpus files still validate clean:'
+  - 'Vendored framework untouched: `git status --porcelain -- .agentic-framework`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/designer/schema.md'
+  - '.tasks/active/T-034-validator-add-parallelgateway-forkjoin-s.md'
+  - '.tasks/completed/T-033-map--validate-revisit-due-scan-dogfood-w.md'
+  - 'tests/fixtures/warn/W-PGW-CONDITION.yaml'
+  - 'tests/fixtures/warn/W-PGW-NOOP.yaml'
+  - 'tests/fixtures/warn/W-PGW-UNBALANCED.yaml'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T01:29:13"
+    action: "T-034: Validator — add parallelGateway fork/join checks (W-PGW-CONDITION/NOOP/UNBALANCED); closes T-031 gap"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 7
+  lines_added: 367
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-034-validator-add-parallelgateway-forkjoin-s.md
+generated_by: context-agent-hybrid

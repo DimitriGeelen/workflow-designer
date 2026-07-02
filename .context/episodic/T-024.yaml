@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-024: Synthesize cross-slice v3 design inputs from dogfood friction (T-021..T-023)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-02T22:30:38Z
+# ============================================================================
+
+task_id: T-024
+task_name: "Synthesize cross-slice v3 design inputs from dogfood friction (T-021..T-023)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-02T22:28:36Z
+completed: 2026-07-02T22:30:36Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-03T00:30:36+02:00
+last_commit: 2026-07-03T00:30:36+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Synthesize cross-slice v3 design inputs from dogfood friction
+
+# Key outcomes
+outcomes:
+  - '`docs/reports/dogfood-v3-design-inputs.md` written, consolidating the unified friction register F1–F10 with, per friction: which slices it appears in (recurrence count), the r3 SD/section anchor, and the T-020 seam it maps to'
+  - 'The synthesis includes a prioritized v3/M1 roadmap ordering the frictions by evidence strength (universal 3/3 first), and names the remaining un-mapped dogfood candidates for the next campaign'
+  - 'Every friction ID F1–F10 defined across the three slice reports appears in the synthesis (no friction dropped) — verifiable by grep'
+  - 'References all three slice reports (T-021/T-022/T-023) and the T-020 seam catalogue by path'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/dogfood-v3-design-inputs.md'
+  - '.tasks/active/T-024-synthesize-cross-slice-v3-design-inputs-.md'
+  - '.tasks/completed/T-023-dogfood-map--validate-healing-loop-workf.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T00:30:36"
+    action: "T-024: Synthesize cross-slice v3 design inputs from dogfood friction"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 3
+  lines_added: 352
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-024-synthesize-cross-slice-v3-design-inputs-.md
+generated_by: context-agent-hybrid

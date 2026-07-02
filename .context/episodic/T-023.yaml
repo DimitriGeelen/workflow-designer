@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-023: Dogfood: map + validate healing-loop workflow from vendored AEF
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-02T22:27:15Z
+# ============================================================================
+
+task_id: T-023
+task_name: "Dogfood: map + validate healing-loop workflow from vendored AEF"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-02T22:22:24Z
+completed: 2026-07-02T22:27:12Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-03T00:27:07+02:00
+last_commit: 2026-07-03T00:27:07+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Map + validate healing-loop dogfood workflow; friction report
+
+# Key outcomes
+outcomes:
+  - '`examples/aef-processes/healing-loop.workflow.yaml` generated, faithfully representing the vendored healing loop: classify → lookup → suggest (Error Escalation Ladder A/B/C/D) → log/resolve stages; entry from the issues auto-trigger; exit back to started-work; lanes = authority model (human/sovereignty, framework/authority, agent/initiative)'
+  - 'The generated workflow validates clean with `python3 tools/validate-workflow.py examples/aef-processes/healing-loop.workflow.yaml` (exit 0)'
+  - 'Friction note `docs/reports/T-023-healing-loop-friction.md` captures every v2-schema expressivity gap, each cross-referenced to the r3 SD/section and T-020 seam; explicitly marks which friction IDs recur from T-021/T-022 (systemic signal) vs are new to this process'
+  - 'No execution/resolution performed against the vendored framework (authoring + validation only); vendored `.agentic-framework/` read-only, unmodified'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-023-healing-loop-friction.md'
+  - 'examples/aef-processes/healing-loop.workflow.yaml'
+  - '.tasks/active/T-023-dogfood-map--validate-healing-loop-workf.md'
+  - '.tasks/completed/T-022-dogfood-map--validate-task-lifecycle-wor.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T00:27:07"
+    action: "T-023: Map + validate healing-loop dogfood workflow; friction report"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 4
+  lines_added: 599
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-023-dogfood-map--validate-healing-loop-workf.md
+generated_by: context-agent-hybrid

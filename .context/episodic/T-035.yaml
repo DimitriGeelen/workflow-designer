@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-035: Validator: add reachability + dead-end structural checks (W-UNREACHABLE / W-DEADEND)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-02T23:33:26Z
+# ============================================================================
+
+task_id: T-035
+task_name: "Validator: add reachability + dead-end structural checks (W-UNREACHABLE / W-DEADEND)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-02T23:31:26Z
+completed: 2026-07-02T23:33:19Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-03T01:33:15+02:00
+last_commit: 2026-07-03T01:33:15+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Validator — add reachability + dead-end checks (W-UNREACHABLE / W-DEADEND)
+
+# Key outcomes
+outcomes:
+  - '`tools/validate-workflow.py` gains a `_check_reachability` pass emitting'
+  - 'Two warn fixtures exist under `tests/fixtures/warn/` named exactly'
+  - '`bash tests/run-validator-tests.sh` passes (all fixtures green, existing'
+  - 'All existing corpus files still validate clean:'
+  - 'Vendored framework untouched: `git status --porcelain -- .agentic-framework`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/designer/schema.md'
+  - '.tasks/active/T-035-validator-add-reachability--dead-end-str.md'
+  - '.tasks/completed/T-034-validator-add-parallelgateway-forkjoin-s.md'
+  - 'tests/fixtures/warn/W-DEADEND.yaml'
+  - 'tests/fixtures/warn/W-UNREACHABLE.yaml'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T01:33:15"
+    action: "T-035: Validator — add reachability + dead-end checks (W-UNREACHABLE / W-DEADEND)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1
+  commits: 1
+  files_changed: 6
+  lines_added: 327
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-035-validator-add-reachability--dead-end-str.md
+generated_by: context-agent-hybrid

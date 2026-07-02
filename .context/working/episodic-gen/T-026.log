@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-07-02T22:46:36Z ===
+task_id: T-026
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-026.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Refresh v3 design-inputs synthesis with T-025 frictions (F11/F12)
+  Duration: 0 days (2 min)
+  Updates: 3
+  Commits: 1
+  Lines: +233 -31 across 2 files
+  Outcomes: 3 AC checked
+  Artifacts: 2 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-026-refresh-v3-design-inputs-synthesis-with-.md
+--- exit code: 0 ---

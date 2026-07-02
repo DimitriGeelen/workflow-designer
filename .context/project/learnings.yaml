@@ -1,3 +1,10 @@
 # Project Learnings - Knowledge gained during development
 # Added via: fw context add-learning "description" --task T-XXX
 learnings:
+- id: PL-001
+  learning: "Friction-dry (schema-expressivity convergence) must be qualified PER control-flow family, not declared globally. The T-030 global friction-dry claim held only within the sequential/exclusive family; probing new families each added 1-2 gaps — fan-out→F14, saga→F15, timer+multi-instance→F16/F17. Sweep all six BPMN families (linear, state-machine, advisory-loop, ambient-guard, container, fan-out, saga, timer/multi-instance) before declaring input-gathering complete."
+  source: P-001
+  task: T-033
+  date: 2026-07-02
+  context: Added via context agent
+  application: TBD

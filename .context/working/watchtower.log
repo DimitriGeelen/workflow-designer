@@ -1,6 +1,6 @@
 FW_SECRET_KEY not set — using file key at PROJECT_ROOT/.context/working/.fw-secret-key. Set FW_SECRET_KEY for production deployment.
 Werkzeug appears to be used in a production deployment. Consider switching to a production web server instead.
-Watchtower running at http://0.0.0.0:3002
+Watchtower running at http://0.0.0.0:3005
   Project root: /opt/832-Workflow-designer
   Framework:    /opt/832-Workflow-designer/.agentic-framework
 
@@ -8,57 +8,40 @@ Watchtower running at http://0.0.0.0:3002
  * Debug mode: off
 WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
  * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:3002
- * Running on http://192.168.10.107:3002
+ * Running on http://127.0.0.1:3005
+ * Running on http://192.168.10.107:3005
 Press CTRL+C to quit
-127.0.0.1 - - [09/Jun/2026 00:56:29] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:29] "GET /api/_identity HTTP/1.1" 200 -
-192.168.10.107 - - [09/Jun/2026 00:56:38] "GET /api/_identity HTTP/1.1" 200 -
-192.168.10.107 - - [09/Jun/2026 00:56:38] "GET /api/_identity HTTP/1.1" 200 -
-192.168.10.107 - - [09/Jun/2026 00:56:38] "GET /health HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:39] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:39] "GET /approvals HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:39] "GET /approvals/content HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:39] "GET /arcs HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:39] "GET /assumptions HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:39] "GET /bvp HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:39] "GET /cockpit/activity HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:39] "GET /config HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:39] "GET /costs HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:40] "GET /cron HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:40] "GET /decisions HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:40] "GET /directives HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:40] "GET /discoveries HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:40] "GET /docs/generated HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:40] "GET /enforcement HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:40] "GET /escalation-drift HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:40] "GET /fabric HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:40] "GET /fabric/graph HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:41] "GET /fleet HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:41] "GET /gaps HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:41] "GET /graduation HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:41] "GET /health HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:41] "GET /hooks HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:41] "GET /inception HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:41] "GET /learnings HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:41] "GET /metrics HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:41] "GET /orchestrator HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:41] "GET /patterns HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:41] "GET /pending HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:41] "GET /project HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:41] "GET /prompts HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:41] "GET /quality HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:41] "GET /reviewer/audit HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:41] "GET /reviewer/overrides HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:41] "GET /risks HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:42] "GET /search HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:42] "GET /search/conversations HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:42] "GET /search/feedback/analytics HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:42] "GET /search/load-conversation HTTP/1.1" 400 -
-127.0.0.1 - - [09/Jun/2026 00:56:42] "GET /sessions HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:42] "GET /settings/ HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:42] "GET /settings/appearance HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:42] "GET /settings/models HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:42] "GET /tasks HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:42] "GET /terminal HTTP/1.1" 200 -
-127.0.0.1 - - [09/Jun/2026 00:56:42] "GET /timeline HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 23:23:02] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 23:23:02] "GET /api/_identity HTTP/1.1" 200 -
+127.0.0.1 - - [02/Jul/2026 23:23:06] "GET / HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /inception/T-020 HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/css/foundations.css HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/fonts/inter-600.woff2 HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/fonts/geist-400.woff2 HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/fonts/inter-400.woff2 HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/pico.min.css HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/fonts/geist-600.woff2 HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/highlight-github-dark.min.css HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/fonts/manrope-400.woff2 HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/fonts/plex-400.woff2 HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/fonts/plex-600.woff2 HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/fonts/manrope-600.woff2 HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/fonts/newsreader-600.woff2 HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/fonts/newsreader-400.woff2 HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/htmx-ext-sse.js HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/fonts/jetbrainsmono-400.woff2 HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/csrf-htmx.js HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/htmx.min.js HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/htmx-toast.js HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/highlight.min.js HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/marked.min.js HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/purify.min.js HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/logo.png HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/command-palette.js HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/task-panel.js HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/shortcuts-overlay.js HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/kanban-drag.js HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /static/bulk-actions.js HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:24:56] "GET /favicon.ico HTTP/1.1" 404 -
+192.168.10.107 - - [02/Jul/2026 23:25:04] "GET /api/_identity HTTP/1.1" 200 -
+192.168.10.107 - - [02/Jul/2026 23:25:06] "POST /inception/T-020/decide HTTP/1.1" 200 -

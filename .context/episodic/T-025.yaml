@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-025: Dogfood: map + validate tier0-escalation workflow from vendored AEF
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-02T22:34:53Z
+# ============================================================================
+
+task_id: T-025
+task_name: "Dogfood: map + validate tier0-escalation workflow from vendored AEF"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-02T22:32:32Z
+completed: 2026-07-02T22:34:51Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-03T00:34:51+02:00
+last_commit: 2026-07-03T00:34:51+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Map + validate tier0-escalation dogfood workflow; friction report
+
+# Key outcomes
+outcomes:
+  - '`examples/aef-processes/tier0-escalation.workflow.yaml` generated, faithfully representing the vendored Tier-0 flow: interception, destructive-pattern match gateway, block, single-use human approval + consume, execute; lanes = authority model (human/sovereignty, framework/authority, agent/initiative)'
+  - 'The generated workflow validates clean with `python3 tools/validate-workflow.py examples/aef-processes/tier0-escalation.workflow.yaml` (exit 0)'
+  - 'Friction note `docs/reports/T-025-tier0-escalation-friction.md` captures v2-schema expressivity gaps, each cross-referenced to the r3 SD/section and T-020 seam; marks which friction IDs recur from prior slices vs are new'
+  - 'No execution/resolution performed against the vendored framework (authoring + validation only); vendored `.agentic-framework/` read-only, unmodified'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-025-tier0-escalation-friction.md'
+  - 'examples/aef-processes/tier0-escalation.workflow.yaml'
+  - '.tasks/active/T-025-dogfood-map--validate-tier0-escalation-w.md'
+  - '.tasks/completed/T-024-synthesize-cross-slice-v3-design-inputs-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T00:34:51"
+    action: "T-025: Map + validate tier0-escalation dogfood workflow; friction report"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 4
+  lines_added: 541
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-025-dogfood-map--validate-tier0-escalation-w.md
+generated_by: context-agent-hybrid

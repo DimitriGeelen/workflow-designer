@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-022: Dogfood: map + validate task-lifecycle workflow from vendored AEF
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-02T22:21:40Z
+# ============================================================================
+
+task_id: T-022
+task_name: "Dogfood: map + validate task-lifecycle workflow from vendored AEF"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-02T22:16:11Z
+completed: 2026-07-02T22:21:38Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-03T00:21:34+02:00
+last_commit: 2026-07-03T00:21:34+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Map + validate task-lifecycle dogfood workflow; friction report
+
+# Key outcomes
+outcomes:
+  - '`examples/aef-processes/task-lifecycle.workflow.yaml` generated, faithfully representing the vendored task lifecycle: states captured/started-work/issues/work-completed as nodes; the issues↔started-work loop; the work-completed gate cluster (P-010/P-011/G-019/T-1718); the owner=human partial-complete branch; lanes = authority model (human/sovereignty, framework/authority, agent/initiative)'
+  - 'The generated workflow validates clean with `python3 tools/validate-workflow.py examples/aef-processes/task-lifecycle.workflow.yaml` (exit 0)'
+  - 'Friction note `docs/reports/T-022-task-lifecycle-friction.md` captures every point where the v2 schema cannot express the real process cleanly, each cross-referenced to the r3 SD/section and the T-020 seam it maps to; reuses shared friction IDs from T-021 where the same gap recurs (evidence of systemic vs one-off gaps)'
+  - 'No execution/resolution performed against the vendored framework (authoring + validation only); vendored `.agentic-framework/` read-only, unmodified'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-022-task-lifecycle-friction.md'
+  - 'examples/aef-processes/task-lifecycle.workflow.yaml'
+  - '.tasks/active/T-022-dogfood-map--validate-task-lifecycle-wor.md'
+  - '.tasks/completed/T-021-dogfood-generate--validate-workflow-for-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T00:21:34"
+    action: "T-022: Map + validate task-lifecycle dogfood workflow; friction report"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 4
+  lines_added: 669
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-022-dogfood-map--validate-task-lifecycle-wor.md
+generated_by: context-agent-hybrid

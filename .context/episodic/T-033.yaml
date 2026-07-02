@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-033: Map + validate revisit-due-scan dogfood workflow (timer-start + multi-instance families)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-02T23:24:59Z
+# ============================================================================
+
+task_id: T-033
+task_name: "Map + validate revisit-due-scan dogfood workflow (timer-start + multi-instance families)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-02T23:22:52Z
+completed: 2026-07-02T23:24:57Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-03T01:24:54+02:00
+last_commit: 2026-07-03T01:24:54+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Map + validate revisit-due-scan dogfood workflow (timer+multi-instance; F16/F17; family sweep complete)
+
+# Key outcomes
+outcomes:
+  - '`examples/aef-processes/revisit-due-scan.workflow.yaml` exists, models the'
+  - 'The workflow validates clean: `tools/validate-workflow.py` exits 0'
+  - 'The timer-start and multi-instance semantics are captured via the `aef:`'
+  - '`docs/reports/T-033-revisit-due-scan-friction.md` exists and records the'
+  - 'Vendored framework untouched: `git status --porcelain -- .agentic-framework`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/dogfood-v3-design-inputs.md'
+  - 'docs/reports/T-033-revisit-due-scan-friction.md'
+  - 'examples/aef-processes/revisit-due-scan.workflow.yaml'
+  - '.tasks/active/T-033-map--validate-revisit-due-scan-dogfood-w.md'
+  - '.tasks/completed/T-032-map--validate-upgrade-process-dogfood-wo.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T01:24:54"
+    action: "T-033: Map + validate revisit-due-scan dogfood workflow (timer+multi-instance; F16/F17; family sweep complete)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 5
+  lines_added: 500
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-033-map--validate-revisit-due-scan-dogfood-w.md
+generated_by: context-agent-hybrid

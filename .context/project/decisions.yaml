@@ -157,3 +157,10 @@ decisions:
     date: 2026-06-05
     task: T-012
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-002
+    decision: "Extend the standalone validator only with pure-structural, additive, WARN-level rules (parallelGateway fork/join, reachability, dead-ends); defer any rule that must read the aef: bag to the framework's v3 schema work"
+    scope: project
+    date: 2026-07-02
+    task: T-034
+    rationale: "Validating existing v2 node types better stays cleanly product-side of the T-020 injection line; reading aef conventions edges into v3 schema design which is the framework agent's responsibility per the T-020 M5 hand-off"
