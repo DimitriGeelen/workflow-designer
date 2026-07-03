@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Test suite for tools/yaml-to-bpmn.py (the YAML→BPMN render bridge, T-040).
+#
+# Asserts, for every examples/aef-processes/*.workflow.yaml:
+#   - the bridge converts it to BPMN-XML (exit 0)
+#   - the emitted BPMN-XML validates CLEAN under tools/validate-workflow.py
+#     (exit 0) — the bridge is self-checking: its output must satisfy the same
+#     XmlValidator that guards the BPMN export form.
+#
+# This is the round-trip contract: canonical YAML → BPMN → validator-clean.
+# Exit 0 iff all corpus files round-trip clean.
+set -u
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+BRIDGE="$ROOT/tools/yaml-to-bpmn.py"
+VALIDATOR="$ROOT/tools/validate-workflow.py"
+CORPUS="$ROOT/examples/aef-processes"
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+
+pass=0
+fail=0
+
+report() { printf '  [%s] %s\n' "$1" "$2"; }
+
+shopt -s nullglob
+files=("$CORPUS"/*.workflow.yaml)
+if [ "${#files[@]}" -eq 0 ]; then
+  echo "ERROR: no corpus files found in $CORPUS"
+  exit 1
+fi
+
+for f in "${files[@]}"; do
+  base="$(basename "$f" .workflow.yaml)"
+  bpmn="$TMP/$base.bpmn"
+  if ! python3 "$BRIDGE" "$f" --out "$bpmn" >/dev/null 2>&1; then
+    report FAIL "$base — bridge conversion failed"
+    fail=$((fail + 1))
+    continue
+  fi
+  if python3 "$VALIDATOR" "$bpmn" >/dev/null 2>&1; then
+    report PASS "$base — converts + validates clean"
+    pass=$((pass + 1))
+  else
+    report FAIL "$base — emitted BPMN did not validate clean"
+    python3 "$VALIDATOR" "$bpmn" 2>&1 | head -3
+    fail=$((fail + 1))
+  fi
+done
+
+echo
+echo "bridge round-trip: $pass passed, $fail failed"
+[ "$fail" -eq 0 ]
