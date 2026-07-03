@@ -4,16 +4,16 @@ name: "Minimal operator surface to review and correct the mapped-process corpus"
 description: >
   Inception: Minimal operator surface to review and correct the mapped-process corpus
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-03T07:36:58Z
-last_update: 2026-07-03T07:37:16Z
-date_finished: null
+last_update: 2026-07-03T07:45:31Z
+date_finished: 2026-07-03T07:45:31Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -118,15 +118,15 @@ round-trip BPMN→YAML write-back; multi-user/auth; anything touching the vendor
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -185,7 +185,11 @@ Evidence: the 10 dogfood mappings have only ever been validated MECHANICALLY (va
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Evidence: the 10 dogfood mappings have only ever been validated MECHANICALLY (validator exit 0 = structurally well-formed), never for SEMANTIC FIDELITY to the real AEF processes; no human has closed that loop. No operator-facing register exists (only a directory + a prose table in dogfood-v3-design-inputs.md), and the existing BPMN editor (src/aef-workflow-designer.html) reads only .bpmn/.xml, so none of the .workflow.yaml corpus is currently viewable. A minimal register + review surface is the first mechanism to get operator feedback on model validity and would correctly precede further validator hardening (F3/F1). Recommend GO to explore the minimal surface; enabling piece (YAML->BPMN bridge) is well-specified by schema.md and the existing XmlValidator.
+
+**Date**: 2026-07-03T07:45:31Z
 
 ## Updates
 
@@ -194,3 +198,12 @@ Evidence: the 10 dogfood mappings have only ever been validated MECHANICALLY (va
 
 ### 2026-07-03T07:37:16Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-03T07:45:31Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Evidence: the 10 dogfood mappings have only ever been validated MECHANICALLY (validator exit 0 = structurally well-formed), never for SEMANTIC FIDELITY to the real AEF processes; no human has closed that loop. No operator-facing register exists (only a directory + a prose table in dogfood-v3-design-inputs.md), and the existing BPMN editor (src/aef-workflow-designer.html) reads only .bpmn/.xml, so none of the .workflow.yaml corpus is currently viewable. A minimal register + review surface is the first mechanism to get operator feedback on model validity and would correctly precede further validator hardening (F3/F1). Recommend GO to explore the minimal surface; enabling piece (YAML->BPMN bridge) is well-specified by schema.md and the existing XmlValidator.
+
+### 2026-07-03T07:45:31Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
