@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-054: Dogfooding coverage audit: vendored AEF processes vs examples/aef-processes corpus
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-03T14:26:56Z
+# ============================================================================
+
+task_id: T-054
+task_name: "Dogfooding coverage audit: vendored AEF processes vs examples/aef-processes corpus"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-03T14:19:33Z
+completed: 2026-07-03T14:26:54Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-03T16:26:36+02:00
+last_commit: 2026-07-03T16:26:54+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Dogfooding coverage audit — 16/16 lifecycles mapped; gap is enforcement machinery. Check ACs — coverage audit complete
+
+# Key outcomes
+outcomes:
+  - '`docs/reports/T-054-coverage-audit.md` exists with a **coverage matrix**: each canonical framework process → its corpus map file, OR `GAP`, OR `excluded` (with a one-line reason).'
+  - 'The canonical process inventory is **sourced from the vendored framework** (`.agentic-framework/FRAMEWORK.md`, `CLAUDE.md` lifecycles, `.agentic-framework/agents/*/AGENT.md`) and cited — not invented.'
+  - 'Every one of the 16 existing corpus maps is accounted for in the matrix (no orphan map left unlisted).'
+  - 'Gaps are ranked by governance-centrality; each worth-mapping gap has a **filed follow-up task ID** in the report (or an explicit stated reason it is excluded rather than mapped).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-03 — How many gap tasks to file'
+    chose: 'File only the 4 Tier-1 "constitutional" gaps (T-055–T-058); catalogue the 11 Tier-2 operational gaps as DEFERRED (promote on demand); exclude Tier-3 utilities with reasons.'
+    rationale: '"One map = one task" plus proportionality. Filing 15+ backlog tasks would be task sprawl that nobody actions; the report itself is the durable catalogue, and the 4 filed tasks are the genuinely highest-value, directive-central additions.'
+    alternatives_rejected: ['(a) filing a task per diagrammable gap → sprawl; (b) filing zero and leaving all in the report → violates the AC''s "filed follow-up task ID" for worth-mapping gaps and loses momentum on the constitutional four.']
+  - decision: '2026-07-03 — What counts as a "gap"'
+    chose: 'Report that lifecycle coverage is complete (16/16) and the real gap is a *category* — enforcement/memory/antifragility machinery — not a missing lifecycle.'
+    rationale: 'Every named framework lifecycle already has a map; framing the gap as "N missing processes" would misrepresent the corpus. The honest finding is that the corpus shows happy-path lifecycles but not the governance gates underneath them.'
+    alternatives_rejected: ['Counting each agent script as a "missing process" → inflates the gap with non-diagrammable utilities (metrics, docgen, monitor).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-054-coverage-audit.md'
+  - '.tasks/active/T-054-dogfooding-coverage-audit-vendored-aef-p.md'
+  - '.tasks/active/T-055-map-task-gate-enforcement-flow-tier-1--p.md'
+  - '.tasks/active/T-056-map-verification-gate-p-011-completion-f.md'
+  - '.tasks/active/T-057-map-context-memory-three-tier-fabric-flo.md'
+  - '.tasks/active/T-058-map-error-escalation-ladder-abcd--proact.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T16:26:36"
+    action: "T-054: Dogfooding coverage audit — 16/16 lifecycles mapped; gap is enforcement machinery"
+  - time: "2026-07-03T16:26:54"
+    action: "T-054: Check ACs — coverage audit complete"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 7
+  commits: 2
+  files_changed: 6
+  lines_added: 1032
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-054-dogfooding-coverage-audit-vendored-aef-p.md
+generated_by: context-agent-hybrid

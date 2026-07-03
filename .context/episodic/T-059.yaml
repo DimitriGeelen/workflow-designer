@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-059: Bridge drops contextReads/artifactsWrites/io/link — emit at parity with editor read shapes
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-03T16:02:54Z
+# ============================================================================
+
+task_id: T-059
+task_name: "Bridge drops contextReads/artifactsWrites/io/link — emit at parity with editor read shapes"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-03T14:30:33Z
+completed: 2026-07-03T16:02:37Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-03T18:02:32+02:00
+last_commit: 2026-07-03T18:02:32+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Bridge emits contextReads/artifactsWrites/io/link at parity with editor
+
+# Key outcomes
+outcomes:
+  - 'Bridge emits `contextReads`/`artifactsWrites` as `<aef:contextReads paths="…"/>` / `<aef:artifactsWrites paths="…"/>` (matches editor `getAttribute(''paths'')`), only when present.'
+  - 'Bridge emits node `io` as `<aef:io><aef:input name type [required="true"]/>…<aef:output name type/></aef:io>` (matches the editor io reader: required only when true, output has no required), only when inputs/outputs present.'
+  - 'Bridge emits `<aef:link targetWorkflow="…" linkId="…"/>` when either is present (matches editor link reader).'
+  - 'New coverage test `tests/test_editor_bridge_field_coverage.py`: every node-level aef field the editor reads via `byAef(el, …)` is either bridge-emitted as a dedicated `<aef:FIELD>` OR a `META_KEYS` attribute; has a self-test proving it FLAGS an editor-read field the bridge never emits (would have caught this bug). Wired into `run-bridge-tests.sh`.'
+  - 'Full bridge suite passes (20/20); all 16 emitted BPMNs still validate clean; namespace + shape + coverage tests all green.'
+  - 'The 6 committed `examples/aef-processes/rendered/*.bpmn` goldens are regenerated (unchanged — none use at-risk fields) and remain namespace/validate-clean; a golden-sync check is in `## Verification`.'
+  - 'Round-trip proof (Playwright): bridge BPMN of task-lifecycle (`contextReads` + `io`) and audit-process (`artifactsWrites`), opened via the editor''s `parseBpmnXml`, recovers those fields on the correct nodes (were empty pre-fix). See `## Visual Verification`.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-03 — Scope: element fields here, meta-key divergence as a separate task'
+    chose: 'Fix the four dedicated-element drops (contextReads, artifactsWrites, io, link) under T-059; file the `<aef:meta>` key-list divergence (bridge `META_KEYS` excludes `agentType`/`triggeredBy`/`emits`, which the editor writes to meta and shows in the inspector — dropped in 4/9/10 corpus maps) as a **separate task**.'
+    rationale: '"One bug = one task." Distinct mechanism and distinct fix: T-059 adds missing *element emitters*; the meta divergence is a *scalar allow-list mismatch* (editor metaKeys ⊄ bridge META_KEYS). The T-059 coverage test cleanly covers the byAef element-field class; the meta class needs its own parity test.'
+    alternatives_rejected: ['Folding both into T-059 → conflates two mechanisms, bloats the fix, and couples two independent regression tests into one task.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tests-test_editor_bridge_field_coverage.yaml'
+  - '.tasks/active/T-059-bridge-drops-contextreadsartifactswrites.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_editor_bridge_field_coverage.py'
+  - 'tools/yaml-to-bpmn.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T18:02:32"
+    action: "T-059: Bridge emits contextReads/artifactsWrites/io/link at parity with editor"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 92 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 92
+  commits: 1
+  files_changed: 5
+  lines_added: 437
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-059-bridge-drops-contextreadsartifactswrites.md
+generated_by: context-agent-hybrid
