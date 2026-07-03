@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T13:15:05Z
-last_update: 2026-07-03T13:30:29Z
+last_update: 2026-07-03T13:42:37Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -146,6 +146,26 @@ bash tests/run-bridge-tests.sh
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** 8 corpus maps rendered with nodes straddling their lane bands (nodes
+tagged one lane but positioned in an adjacent band); `tools/check-lane-bands.py`
+reported straddles/overlaps on all 8.
+
+**Root cause:** the maps were authored (T-031-era) before the lane-band geometry
+convention (T-042/T-043) was established. Their eyeballed node placements never
+matched the later-tightened band model, and nothing re-validated already-authored
+maps against the new gate.
+
+**Why structurally allowed:** the geometry gate existed but was never run over the
+corpus — a gate that passes by never executing (the T-050/T-052 G-019 blindness). New
+maps authored to convention passed; legacy maps silently drifted out of compliance
+with no CI check pointing at them.
+
+**Prevention:** T-052 wired `tests/check-corpus-geometry.sh` into the bridge suite,
+running the gate over EVERY corpus map with stale-allowlist detection. With T-051's
+re-layout the allowlist is now empty, so any future straddle in any map — legacy or
+new — fails the suite. Captured as [[PL-004]] (a gate never run against its subject is
+latent blindness).
 
 ## Evolution
 
