@@ -1,9 +1,9 @@
-# Audit Results - 2026-06-25-0415
-timestamp: 2026-06-25T02:15:01Z
+# Audit Results - 2026-07-03-0245
+timestamp: 2026-07-03T00:45:01Z
 sections: "oe-fast,oe-research"
 summary:
-  pass: 9
-  warn: 0
+  pass: 8
+  warn: 1
   fail: 0
 findings:
   - level: PASS
@@ -17,10 +17,11 @@ findings:
   - level: PASS
     check: "C-006: All active inceptions have a real Recommendation block"
   - level: PASS
-    check: "CTL-001: Focus file has active task (T-015)"
+    check: "CTL-001: Focus file has active task (T-019)"
+  - level: WARN
+    check: "CTL-003: Budget status file stale (70min old)"
+    mitigation: "Check PreToolUse hook wiring for budget-gate.sh"
   - level: PASS
-    check: "CTL-003: Budget status file stale (23222min — no active session)"
-  - level: PASS
-    check: "CTL-004: Tool counter at 5 (last commit: 2 weeks ago)"
+    check: "CTL-004: Tool counter at 3 (last commit: 70 minutes ago)"
   - level: PASS
     check: "CTL-018: Budget status valid JSON (level: ok)"

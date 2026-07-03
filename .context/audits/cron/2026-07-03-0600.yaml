@@ -1,9 +1,9 @@
-# Audit Results - 2026-06-25-0130
-timestamp: 2026-06-24T23:30:02Z
+# Audit Results - 2026-07-03-0600
+timestamp: 2026-07-03T04:00:01Z
 sections: "structure,compliance,quality,discovery"
 summary:
-  pass: 25
-  warn: 0
+  pass: 24
+  warn: 3
   fail: 0
 findings:
   - level: PASS
@@ -31,7 +31,7 @@ findings:
   - level: PASS
     check: "Hook threshold: no hooks failing over threshold"
   - level: PASS
-    check: "All 1 active tasks are valid"
+    check: "All 5 active tasks are valid"
   - level: PASS
     check: "All active tasks meet quality thresholds"
   - level: PASS
@@ -40,18 +40,25 @@ findings:
     check: "CTL-028: All completed/ tasks have frontmatter status: work-completed"
   - level: PASS
     check: "CTL-030: All completed/ tasks have null/absent stored horizon (arc-009)"
+  - level: WARN
+    check: "CTL-029: T-017 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-017 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-018 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-018 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-019 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-019 --status work-completed"
   - level: PASS
-    check: "CTL-029: No completable-but-not-completed active tasks"
+    check: "CTL-012: All 30 completed tasks have checked ACs"
   - level: PASS
-    check: "CTL-012: All 14 completed tasks have checked ACs"
-  - level: PASS
-    check: "D1: Episodic quality — 0% [TODO] (0/14)"
+    check: "D1: Episodic quality — 0% [TODO] (0/30)"
   - level: PASS
     check: "D2: Human review queue — no pending items"
   - level: PASS
     check: "D8: Handover quality — no [TODO] in LATEST.md"
   - level: PASS
-    check: "D8b: Handover archive — 0/3 recent handovers have [TODO]s"
+    check: "D8b: Handover archive — 0/10 recent handovers have [TODO]s"
   - level: PASS
     check: "D10: Decision-without-dialogue — none detected"
   - level: PASS
