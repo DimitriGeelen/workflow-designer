@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from harvest-pipeline by tools/yaml-to-bpmn.py. Do not edit by hand. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_harvest_pipeline" name="harvest-pipeline">
+
+    <bpmn:laneSet id="LaneSet_harvest-pipeline">
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="120"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_start</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="520"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_parse</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_resolve</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_exists_gate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_no_dir</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_self_gate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_self</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_ctx_gate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_no_ctx</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_fork</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_h_patterns</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_h_learnings</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_h_decisions</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_h_episodics</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_h_practices</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_h_claude</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_join</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_summary</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_mode_gate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_dry</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_nothing</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_log</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_done</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="external" name="Source project · External">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="ext" authority="external" height="140"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_source</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_start" name="Trigger — `fw harvest [project]`">
+      <bpmn:extensionElements>
+        <aef:uid value="n_start"/>
+        <aef:position x="100" y="110"/>
+        <aef:meta determinism="deterministic" endpoint="fw harvest"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>e_01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="n_parse" name="Parse args (--dry-run/--verbose/dir)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_parse"/>
+        <aef:position x="240" y="300"/>
+        <aef:meta determinism="deterministic"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_01</bpmn:incoming>
+      <bpmn:outgoing>e_02</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_resolve" name="Resolve project dir → absolute">
+      <bpmn:extensionElements>
+        <aef:uid value="n_resolve"/>
+        <aef:position x="380" y="300"/>
+        <aef:meta determinism="deterministic"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_02</bpmn:incoming>
+      <bpmn:outgoing>e_03</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="n_exists_gate" name="Dir exists?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_exists_gate"/>
+        <aef:position x="520" y="308"/>
+        <aef:meta decisionOwner="framework"/>
+        <aef:decisionInput>${cd project_dir}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_03</bpmn:incoming>
+      <bpmn:outgoing>e_04</bpmn:outgoing>
+      <bpmn:outgoing>e_05</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="n_no_dir" name="No such dir">
+      <bpmn:extensionElements>
+        <aef:uid value="n_no_dir"/>
+        <aef:position x="520" y="430"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_04</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="n_self_gate" name="Is framework itself?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_self_gate"/>
+        <aef:position x="650" y="308"/>
+        <aef:meta decisionOwner="framework"/>
+        <aef:decisionInput>${project_dir == FRAMEWORK_ROOT}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_05</bpmn:incoming>
+      <bpmn:outgoing>e_06</bpmn:outgoing>
+      <bpmn:outgoing>e_07</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="n_self" name="Refused (framework)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_self"/>
+        <aef:position x="650" y="430"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_06</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="n_ctx_gate" name=".context/project/ present?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_ctx_gate"/>
+        <aef:position x="790" y="308"/>
+        <aef:meta decisionOwner="framework"/>
+        <aef:decisionInput>${-d project/.context/project}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_07</bpmn:incoming>
+      <bpmn:outgoing>e_08</bpmn:outgoing>
+      <bpmn:outgoing>e_09</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="n_no_ctx" name="No .context — init first">
+      <bpmn:extensionElements>
+        <aef:uid value="n_no_ctx"/>
+        <aef:position x="790" y="430"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_08</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="n_source" name="Read source project memory (read-only)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_source"/>
+        <aef:position x="900" y="760"/>
+        <aef:meta determinism="deterministic" sideEffect="none (read-only source)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_09</bpmn:incoming>
+      <bpmn:outgoing>e_10</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:parallelGateway id="n_fork" name="Fan out — 6 memory categories">
+      <bpmn:extensionElements>
+        <aef:uid value="n_fork"/>
+        <aef:position x="1010" y="408"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_10</bpmn:incoming>
+      <bpmn:outgoing>e_11</bpmn:outgoing>
+      <bpmn:outgoing>e_12</bpmn:outgoing>
+      <bpmn:outgoing>e_13</bpmn:outgoing>
+      <bpmn:outgoing>e_14</bpmn:outgoing>
+      <bpmn:outgoing>e_15</bpmn:outgoing>
+      <bpmn:outgoing>e_16</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:scriptTask id="n_h_patterns" name="Harvest patterns (dedup + append)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_h_patterns"/>
+        <aef:position x="1160" y="200"/>
+        <aef:meta determinism="deterministic" sideEffect="appends new patterns to framework patterns.yaml"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_11</bpmn:incoming>
+      <bpmn:outgoing>e_17</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_h_learnings" name="Harvest learnings (dedup + append)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_h_learnings"/>
+        <aef:position x="1160" y="280"/>
+        <aef:meta determinism="deterministic" sideEffect="appends new learnings to framework learnings.yaml"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_12</bpmn:incoming>
+      <bpmn:outgoing>e_18</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_h_decisions" name="Harvest decisions (dedup + append)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_h_decisions"/>
+        <aef:position x="1160" y="360"/>
+        <aef:meta determinism="deterministic" sideEffect="appends new decisions to framework decisions.yaml"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_13</bpmn:incoming>
+      <bpmn:outgoing>e_19</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_h_episodics" name="Harvest episodics">
+      <bpmn:extensionElements>
+        <aef:uid value="n_h_episodics"/>
+        <aef:position x="1160" y="440"/>
+        <aef:meta determinism="deterministic" sideEffect="appends new episodics to framework store"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_14</bpmn:incoming>
+      <bpmn:outgoing>e_20</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_h_practices" name="Harvest practices (dedup + append)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_h_practices"/>
+        <aef:position x="1160" y="520"/>
+        <aef:meta determinism="deterministic" sideEffect="appends new practices to framework practices.yaml"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_15</bpmn:incoming>
+      <bpmn:outgoing>e_21</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_h_claude" name="Harvest CLAUDE.md additions">
+      <bpmn:extensionElements>
+        <aef:uid value="n_h_claude"/>
+        <aef:position x="1160" y="600"/>
+        <aef:meta determinism="deterministic" sideEffect="proposes CLAUDE.md additions"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_16</bpmn:incoming>
+      <bpmn:outgoing>e_22</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:parallelGateway id="n_join" name="Join — all categories scanned">
+      <bpmn:extensionElements>
+        <aef:uid value="n_join"/>
+        <aef:position x="1330" y="408"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_17</bpmn:incoming>
+      <bpmn:incoming>e_18</bpmn:incoming>
+      <bpmn:incoming>e_19</bpmn:incoming>
+      <bpmn:incoming>e_20</bpmn:incoming>
+      <bpmn:incoming>e_21</bpmn:incoming>
+      <bpmn:incoming>e_22</bpmn:incoming>
+      <bpmn:outgoing>e_23</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:scriptTask id="n_summary" name="Tally counts (new vs duplicates)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_summary"/>
+        <aef:position x="1470" y="300"/>
+        <aef:meta determinism="deterministic"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_23</bpmn:incoming>
+      <bpmn:outgoing>e_24</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="n_mode_gate" name="dry-run? new items?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_mode_gate"/>
+        <aef:position x="1620" y="308"/>
+        <aef:meta decisionOwner="framework"/>
+        <aef:decisionInput>${dry_run -&gt; dry; new_total&gt;0 -&gt; write; else nothing}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_24</bpmn:incoming>
+      <bpmn:outgoing>e_25</bpmn:outgoing>
+      <bpmn:outgoing>e_26</bpmn:outgoing>
+      <bpmn:outgoing>e_27</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="n_dry" name="Dry-run — no changes">
+      <bpmn:extensionElements>
+        <aef:uid value="n_dry"/>
+        <aef:position x="1620" y="430"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_25</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="n_nothing" name="Nothing new to harvest">
+      <bpmn:extensionElements>
+        <aef:uid value="n_nothing"/>
+        <aef:position x="1620" y="530"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_26</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:scriptTask id="n_log" name="Log harvest + write framework files">
+      <bpmn:extensionElements>
+        <aef:uid value="n_log"/>
+        <aef:position x="1760" y="300"/>
+        <aef:meta determinism="deterministic" sideEffect="appends harvest.log"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_27</bpmn:incoming>
+      <bpmn:outgoing>e_28</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="n_done" name="Harvested ✓">
+      <bpmn:extensionElements>
+        <aef:uid value="n_done"/>
+        <aef:position x="1910" y="314"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_28</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="e_01" sourceRef="n_start" targetRef="n_parse">
+      <bpmn:extensionElements><aef:uid value="e_01"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_02" sourceRef="n_parse" targetRef="n_resolve">
+      <bpmn:extensionElements><aef:uid value="e_02"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_03" sourceRef="n_resolve" targetRef="n_exists_gate">
+      <bpmn:extensionElements><aef:uid value="e_03"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_04" name="missing" sourceRef="n_exists_gate" targetRef="n_no_dir">
+      <bpmn:extensionElements><aef:uid value="e_04"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!exists}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_05" name="exists" sourceRef="n_exists_gate" targetRef="n_self_gate">
+      <bpmn:extensionElements><aef:uid value="e_05"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${exists}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_06" name="is framework" sourceRef="n_self_gate" targetRef="n_self">
+      <bpmn:extensionElements><aef:uid value="e_06"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${project_dir == FRAMEWORK_ROOT}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_07" name="other project" sourceRef="n_self_gate" targetRef="n_ctx_gate">
+      <bpmn:extensionElements><aef:uid value="e_07"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${project_dir != FRAMEWORK_ROOT}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_08" name="no context" sourceRef="n_ctx_gate" targetRef="n_no_ctx">
+      <bpmn:extensionElements><aef:uid value="e_08"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!has_context}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_09" name="has context" sourceRef="n_ctx_gate" targetRef="n_source">
+      <bpmn:extensionElements><aef:uid value="e_09"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${has_context}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_10" sourceRef="n_source" targetRef="n_fork">
+      <bpmn:extensionElements><aef:uid value="e_10"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_11" sourceRef="n_fork" targetRef="n_h_patterns">
+      <bpmn:extensionElements><aef:uid value="e_11"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_12" sourceRef="n_fork" targetRef="n_h_learnings">
+      <bpmn:extensionElements><aef:uid value="e_12"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_13" sourceRef="n_fork" targetRef="n_h_decisions">
+      <bpmn:extensionElements><aef:uid value="e_13"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_14" sourceRef="n_fork" targetRef="n_h_episodics">
+      <bpmn:extensionElements><aef:uid value="e_14"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_15" sourceRef="n_fork" targetRef="n_h_practices">
+      <bpmn:extensionElements><aef:uid value="e_15"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_16" sourceRef="n_fork" targetRef="n_h_claude">
+      <bpmn:extensionElements><aef:uid value="e_16"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_17" sourceRef="n_h_patterns" targetRef="n_join">
+      <bpmn:extensionElements><aef:uid value="e_17"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_18" sourceRef="n_h_learnings" targetRef="n_join">
+      <bpmn:extensionElements><aef:uid value="e_18"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_19" sourceRef="n_h_decisions" targetRef="n_join">
+      <bpmn:extensionElements><aef:uid value="e_19"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_20" sourceRef="n_h_episodics" targetRef="n_join">
+      <bpmn:extensionElements><aef:uid value="e_20"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_21" sourceRef="n_h_practices" targetRef="n_join">
+      <bpmn:extensionElements><aef:uid value="e_21"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_22" sourceRef="n_h_claude" targetRef="n_join">
+      <bpmn:extensionElements><aef:uid value="e_22"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_23" sourceRef="n_join" targetRef="n_summary">
+      <bpmn:extensionElements><aef:uid value="e_23"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_24" sourceRef="n_summary" targetRef="n_mode_gate">
+      <bpmn:extensionElements><aef:uid value="e_24"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_25" name="dry-run" sourceRef="n_mode_gate" targetRef="n_dry">
+      <bpmn:extensionElements><aef:uid value="e_25"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${dry_run}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_26" name="no new items" sourceRef="n_mode_gate" targetRef="n_nothing">
+      <bpmn:extensionElements><aef:uid value="e_26"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!dry_run &amp;&amp; new_total == 0}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_27" name="new items" sourceRef="n_mode_gate" targetRef="n_log">
+      <bpmn:extensionElements><aef:uid value="e_27"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!dry_run &amp;&amp; new_total &gt; 0}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_28" sourceRef="n_log" targetRef="n_done">
+      <bpmn:extensionElements><aef:uid value="e_28"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>
