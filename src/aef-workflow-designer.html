@@ -1437,6 +1437,19 @@ function laneCenterY(laneId) {
 function poolHeight() {
   return POOL_HEADER + getLanes().reduce((s, l) => s + l.height, 0);
 }
+// Absolute x of the pool's right edge. Grows past POOL_WIDTH to enclose the
+// right-most node so wide diagrams (e.g. long decision fans) are never clipped:
+// the viewBox scales to fit (preserveAspectRatio meet), giving fit-to-view
+// instead of a hard crop. Falls back to the POOL_WIDTH floor for small diagrams
+// so the default layout is unchanged. (T-043)
+function contentRightEdge() {
+  let right = POOL_X + LANE_HEADER + POOL_WIDTH; // authored minimum
+  for (const n of (state?.nodes || [])) {
+    const d = NODE_DEFAULTS[n.type] || NODE_DEFAULTS.serviceTask;
+    right = Math.max(right, n.x + d.w + 60 /* right margin */);
+  }
+  return right;
+}
 // Locate which lane a given y-coordinate falls into; returns lane id or first lane id as fallback.
 function laneAtY(y) {
   let top = POOL_Y + POOL_HEADER;
@@ -1625,7 +1638,7 @@ function updateStatus() {
   }
 }
 function syncCanvasSize() {
-  const w = POOL_X + LANE_HEADER + POOL_WIDTH + 30;
+  const w = contentRightEdge() + 30;
   const h = POOL_Y + poolHeight() + 50 /* room for the + add another lane strip */;
   svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
   svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
@@ -1634,7 +1647,7 @@ function renderPool() {
   gPool.innerHTML = '';
   // pool outline
   const px = POOL_X, py = POOL_Y;
-  const pw = LANE_HEADER + POOL_WIDTH;
+  const pw = contentRightEdge() - POOL_X; // content-aware: encloses right-most node (T-043)
   const ph = poolHeight();
 
   // pool header strip
