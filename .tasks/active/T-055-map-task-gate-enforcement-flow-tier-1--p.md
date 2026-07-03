@@ -4,10 +4,10 @@ name: "Map task-gate enforcement flow (Tier-1 / P-002 nothing-without-a-task)"
 description: >
   Diagram Write/Edit attempt -> active-task check -> allow / block -> create-task or Tier-2 bypass. CLAUDE.md Enforcement Tiers + Core Principle. Dogfood gap (T-054).
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T14:25:14Z
-last_update: 2026-07-03T14:25:14Z
+last_update: 2026-07-03T19:08:30Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,23 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Dogfood map (from the T-054 coverage audit): diagram the Tier-1 task gate — the
+structural enforcement of the Core Principle "Nothing gets done without a task."
+Ground truth is the `check-active-task.sh` PreToolUse hook. Product-side artifact:
+authored + validated only, NOT executed against the live framework. Highest-value
+gap map — it visualises the gate every other process presupposes and exercises
+the exclusive-gateway + sovereignty-lane parts of the editor the lifecycle maps
+use lightly. Follows the corpus convention (cite ground-truth source, 3 authority
+lanes, companion friction report per C-001).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `examples/aef-processes/task-gate.workflow.yaml` exists: `schemaVersion: 2`, 3 authority lanes (human/sovereignty, framework/authority, agent/initiative), faithfully representing the flow in `check-active-task.sh` — Write/Edit attempt → is there an active focused task? → allow, OR block → (create task / escalate to Tier-2 bypass).
+- [x] Header cites the ground-truth source (`…/check-active-task.sh`) and the product-side note (authoring/validation only, not executed), matching the corpus convention.
+- [x] Passes the geometry gate: `tools/check-lane-bands.py` clean (every node inside its lane band, no same-lane overlap).
+- [x] Bridge round-trips clean: `yaml-to-bpmn.py` converts + `validate-workflow.py` passes; full `run-bridge-tests.sh` green (round-trip + namespace + shape + coverage + geometry sweep) — 21/21.
+- [x] Companion friction report `docs/reports/T-055-task-gate-friction.md` capturing schema-expressivity findings (FC-8 re-entry loop, FC-9 edge-label collision, 3 recurrences).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -75,6 +84,11 @@ date_finished: null
 -->
 
 ## Verification
+
+python3 tools/check-lane-bands.py examples/aef-processes/task-gate.workflow.yaml
+python3 tools/yaml-to-bpmn.py examples/aef-processes/task-gate.workflow.yaml --out /tmp/.tg.bpmn && python3 tools/validate-workflow.py /tmp/.tg.bpmn
+bash tests/run-bridge-tests.sh
+test -f docs/reports/T-055-task-gate-friction.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -174,3 +188,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-055-map-task-gate-enforcement-flow-tier-1--p.md
 - **Context:** Initial task creation
+
+### 2026-07-03T19:08:30Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
