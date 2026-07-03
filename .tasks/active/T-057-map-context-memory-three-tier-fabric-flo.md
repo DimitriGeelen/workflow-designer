@@ -4,10 +4,10 @@ name: "Map context-memory three-tier fabric flow"
 description: >
   Diagram working (reset on init) / project (patterns+decisions+learnings) / episodic (gen on completion); init->focus->add-*->generate-episodic. agents/context/AGENT.md. Dogfood gap (T-054).
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T14:25:14Z
-last_update: 2026-07-03T14:25:14Z
+last_update: 2026-07-03T22:40:04Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,26 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Dogfood map #19, third of the four "constitutional gate" maps from the T-054 audit (after
+T-055 task-gate, T-056 verification-gate). Maps the Context Fabric three-tier memory flow:
+Working (focus/session, reset on `init`), Project (patterns/learnings/decisions/concerns,
+appended by `add-*`), Episodic (condensed task histories, auto-generated on completion) — and
+the inter-tier flows (task work-completed → episodic; agent add-* → project). Ground truth:
+`.agentic-framework/agents/context/context.sh` + its libs. NOTE: this is the first corpus map
+whose natural partition (memory tier) competes with the standing lane convention (authority
+axis) — the lane-axis choice is a recorded modelling decision, catalogued in the friction report.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `examples/aef-processes/context-memory.workflow.yaml` created — maps the three tiers
+      (working / project / episodic), the `init`→`focus`→`add-*`→`generate-episodic` operations,
+      and the inter-tier flows (completion→episodic, add-*→project); ground-truth source cited
+- [x] Geometry clean: corpus geometry sweep reports the new map among "clean", 0 new-fail
+- [x] Bridge round-trip clean: converts + validates clean (proven via the suite)
+- [x] Full bridge suite passes (24 checks — the new map included, 0 fail)
+- [x] Friction report `docs/reports/T-057-context-memory-friction.md` written — schema verdict
+      + the lane-axis decision (authority vs memory-tier partition) + new/recurring frictions
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -106,6 +118,11 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+test -f examples/aef-processes/context-memory.workflow.yaml
+python3 -c "import yaml; yaml.safe_load(open('examples/aef-processes/context-memory.workflow.yaml'))"
+test -f docs/reports/T-057-context-memory-friction.md
+bash tests/run-bridge-tests.sh
 
 ## RCA
 
@@ -174,3 +191,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-057-map-context-memory-three-tier-fabric-flo.md
 - **Context:** Initial task creation
+
+### 2026-07-03T22:40:04Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
