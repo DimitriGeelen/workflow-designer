@@ -49,5 +49,14 @@ for f in "${files[@]}"; do
 done
 
 echo
+echo "== editor namespace consistency (T-044) =="
+if python3 "$ROOT/tests/test_editor_namespace_consistency.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "editor aef: namespace drifted from canonical"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

@@ -6091,7 +6091,7 @@ function buildBpmnXml(s) {
   lines.push(`                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"`);
   lines.push(`                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"`);
   lines.push(`                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"`);
-  lines.push(`                  xmlns:aef="https://aef.anchorpoint.dev/extensions"`);
+  lines.push(`                  xmlns:aef="http://anchorpoint.framework/aef/extensions"`);
   lines.push(`                  id="Definitions_${escAttr(s.workflowMeta.id)}"`);
   lines.push(`                  targetNamespace="https://aef.anchorpoint.dev/workflows">`);
   lines.push(``);
@@ -6218,7 +6218,7 @@ function parseBpmnXml(text) {
 
   // Helper: getElementsByTagNameNS with the bpmn namespace
   const BPMN_NS = 'http://www.omg.org/spec/BPMN/20100524/MODEL';
-  const AEF_NS  = 'https://aef.anchorpoint.dev/extensions';
+  const AEF_NS  = 'http://anchorpoint.framework/aef/extensions';
   const byBpmn = (parent, local) => Array.from(parent.getElementsByTagNameNS(BPMN_NS, local));
   const byAef  = (parent, local) => Array.from(parent.getElementsByTagNameNS(AEF_NS, local));
 
