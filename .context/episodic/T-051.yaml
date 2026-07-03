@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-051: Re-validate + fix geometry of pre-convention corpus maps against lane-band gate
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-03T13:43:30Z
+# ============================================================================
+
+task_id: T-051
+task_name: "Re-validate + fix geometry of pre-convention corpus maps against lane-band gate"
+workflow_type: refactor
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-03T13:15:05Z
+completed: 2026-07-03T13:43:19Z
+duration_days: 0
+updates_count: 5
+first_commit: 2026-07-03T15:42:37+02:00
+last_commit: 2026-07-03T15:43:19+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Re-lay-out 8 pre-convention maps into lane bands; empty allowlist. Add RCA (gate never run against corpus = latent blindness)
+
+# Key outcomes
+outcomes:
+  - 'All 8 listed maps pass `tools/check-lane-bands.py` (exit 0 — no straddle, no'
+  - 'Each fixed map still validates clean and round-trips (YAML→BPMN→validator) via'
+  - 'Every fixed map is removed from the LEGACY allowlist in'
+  - 'Full bridge suite (`tests/run-bridge-tests.sh`) exits 0 with all corpus maps'
+  - 'Re-laid-out maps render legibly: the 3 highest-risk (assumption-validation'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-03 — how to fix straddling nodes'
+    chose: 'reposition drifted nodes into their assigned lane band (preserving the'
+    rationale: 'the lane assignment encodes *authority* (the whole point of these maps);'
+    alternatives_rejected: ['retagging spine nodes to match their drifted position (would falsify']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'examples/aef-processes/arc-lifecycle.workflow.yaml'
+  - 'examples/aef-processes/assumption-validation.workflow.yaml'
+  - 'examples/aef-processes/audit-process.workflow.yaml'
+  - 'examples/aef-processes/inception-lifecycle.workflow.yaml'
+  - 'examples/aef-processes/session-handover.workflow.yaml'
+  - 'examples/aef-processes/task-lifecycle.workflow.yaml'
+  - 'examples/aef-processes/tier0-escalation.workflow.yaml'
+  - 'examples/aef-processes/upgrade-process.workflow.yaml'
+  - '.tasks/active/T-051-re-validate--fix-geometry-of-pre-convent.md'
+  - 'tests/check-corpus-geometry.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T15:42:37"
+    action: "T-051: Re-lay-out 8 pre-convention maps into lane bands; empty allowlist"
+  - time: "2026-07-03T15:43:19"
+    action: "T-051: Add RCA (gate never run against corpus = latent blindness)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 28 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 28
+  commits: 2
+  files_changed: 10
+  lines_added: 131
+  lines_removed: 57
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-051-re-validate--fix-geometry-of-pre-convent.md
+generated_by: context-agent-hybrid
