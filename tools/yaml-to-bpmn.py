@@ -46,6 +46,18 @@ META_KEYS = ("determinism", "tier", "authority", "endpoint", "sideEffect",
              # tests/test_editor_bridge_meta_parity.py.
              "agentType", "triggeredBy", "emits")
 
+# T-061 (FC-13): the full set of aef.* keys the bridge handles with dedicated
+# emit logic. Any aef key NOT in here and NOT under the aef.x-* extension prefix
+# is an unknown key: it is dropped, but LOUDLY (a stderr WARN), never silently.
+# This closes the "free-form passthrough is a closed whitelist" gap — the
+# namespace is a known vocabulary PLUS an explicit x- passthrough channel.
+EXT_PREFIX = "x-"
+KNOWN_AEF_KEYS = frozenset(META_KEYS) | frozenset((
+    "decisionInput", "decisionOutputs",
+    "contextReads", "artifactsWrites",
+    "targetWorkflow", "linkId",
+))
+
 
 def _attr(value):
     """Escaped, quoted XML attribute value."""
@@ -129,10 +141,16 @@ def emit(workflow):
         out.append('        <aef:position x=%s y=%s/>'
                    % (_attr(n.get("x", 0)), _attr(n.get("y", 0))))
         aef = n.get("aef", {}) or {}
-        meta_attrs = " ".join('%s=%s' % (k, _attr(aef[k]))
-                              for k in META_KEYS if k in aef and not isinstance(aef[k], (dict, list)))
-        if meta_attrs:
-            out.append('        <aef:meta %s/>' % meta_attrs)
+        meta_pairs = ['%s=%s' % (k, _attr(aef[k]))
+                      for k in META_KEYS if k in aef and not isinstance(aef[k], (dict, list))]
+        # T-061 (FC-13): explicit aef.x-* extension keys pass through as
+        # <aef:meta> attributes (scalars only) — opt-in, so a passthrough is
+        # always intentional, never a typo silently promoted to a real field.
+        for k in aef:
+            if k.startswith(EXT_PREFIX) and not isinstance(aef[k], (dict, list)):
+                meta_pairs.append('%s=%s' % (k, _attr(aef[k])))
+        if meta_pairs:
+            out.append('        <aef:meta %s/>' % " ".join(meta_pairs))
         if "decisionInput" in aef:
             out.append('        <aef:decisionInput>%s</aef:decisionInput>'
                        % escape(str(aef["decisionInput"])))
@@ -167,6 +185,18 @@ def emit(workflow):
                 out.append('          <aef:output name=%s type=%s/>'
                            % (_attr(o.get("name", "")), _attr(o.get("type", "string"))))
             out.append('        </aef:io>')
+        # T-061 (FC-13): no silent drops. Any aef key that is neither handled
+        # above nor an explicit aef.x-* extension is reported to stderr (still
+        # dropped, but visible). Non-fatal: exit code is unchanged so the
+        # pipeline is not broken by a stray key — "no silent failures", not
+        # "no failures".
+        for k in aef:
+            if k in KNOWN_AEF_KEYS or k.startswith(EXT_PREFIX):
+                continue
+            sys.stderr.write(
+                "WARN yaml-to-bpmn: node %r: unknown aef key %r dropped "
+                "(use aef.%s%s for intentional passthrough)\n"
+                % (uid, k, EXT_PREFIX, k))
         out.append('      </bpmn:extensionElements>')
         for fid in incoming.get(uid, []):
             out.append('      <bpmn:incoming>%s</bpmn:incoming>' % escape(str(fid)))
