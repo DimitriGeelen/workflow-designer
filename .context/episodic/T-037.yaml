@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-037: Design M1 spec F3 determinism and F1 decision-edge fields
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-03T06:41:27Z
+# ============================================================================
+
+task_id: T-037
+task_name: "Design M1 spec F3 determinism and F1 decision-edge fields"
+workflow_type: design
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-03T06:36:11Z
+completed: 2026-07-03T06:41:25Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-03T08:40:46+02:00
+last_commit: 2026-07-03T08:40:46+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  M1 spec — F3 determinism + F1 decision-edge (Path A vs B, recommend A)
+
+# Key outcomes
+outcomes:
+  - '`docs/designer/m1-f3-f1-spec.md` exists and parses as a well-formed Markdown doc with a YAML front-block that `python3 -c "import yaml"` can load'
+  - 'Spec covers **F3** (determinism marker): proposed field name/values, placement, and the exact validator rule (rule-id, trigger, severity) for both Path A and Path B — §4 (W-DET-MISSING / E-DET-VALUE / W-DET-LANE)'
+  - 'Spec covers **F1** (human-decision → edge): the coverage rule (every declared outcome has an edge; every conditional fork edge a declared outcome) for both paths — §5 (W-DEC-UNROUTED / W-DEC-UNDECLARED / W-DEC-NOGATEWAY)'
+  - 'Spec enumerates the concrete **test fixtures** each rule needs (valid / warn / invalid), consistent with the `tests/run-validator-tests.sh` naming contract — §4.3, §5.4'
+  - 'Spec states a **recommendation** (Path A staged) with rationale explicitly weighed against PD-002 and the four constitutional directives (esp. Portability) — §7'
+  - 'Spec commits **no** validator/schema/corpus change — `git diff --name-only HEAD -- tools/ examples/ tests/` is empty'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-03 — Spec recommends Path A (first-class fields); build deferred to human posture call'
+    chose: 'Author the M1 F3/F1 spec recommending **Path A** (promote `determinism` +'
+    rationale: 'The posture (does the standalone validator read the `aef:` bag?) is a'
+    alternatives_rejected: ['(a) Building Path B opt-in `--aef-lint` now — overturns PD-002 without human']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/designer/m1-f3-f1-spec.md'
+  - '.tasks/active/T-037-design-m1-spec-f3-determinism-and-f1-dec.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T08:40:46"
+    action: "T-037: M1 spec — F3 determinism + F1 decision-edge (Path A vs B, recommend A)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 2
+  lines_added: 491
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-037-design-m1-spec-f3-determinism-and-f1-dec.md
+generated_by: context-agent-hybrid
