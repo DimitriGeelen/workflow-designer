@@ -20,6 +20,15 @@
 # is human) and F1 (the human go/no-go/defer decision → outgoing edges). A
 # readiness LOOP (placeholder recommendation → agent fixes → re-request) makes it
 # a small cyclic state machine, not a straight line.
+#
+# Layout note (T-042): node y-coords are placed inside each lane's rendered band.
+# The editor stacks bands by cumulative `height` from POOL_Y+POOL_HEADER=62 and
+# honours aef:position verbatim, so coords must respect band boundaries:
+#   agent      [62, 262]   center 162
+#   framework  [262, 522]  center 392
+#   human      [522, 722]  center 622
+# The go/no-go/defer and end-event fans are centred in the framework band with a
+# 92px pitch (28px gaps between 64px boxes). tools/check-lane-bands.py gates this.
 workflowMeta:
   id: inception-review
   version: 1
@@ -55,7 +64,7 @@ nodes:
     slug: request
     lane: agent
     x: 120
-    y: 120
+    y: 144
     aef:
       determinism: deterministic   # fw verb
       endpoint: fw task review T-XXX
@@ -66,7 +75,7 @@ nodes:
     slug: readiness
     lane: framework
     x: 340
-    y: 340
+    y: 360
     aef:
       determinism: deterministic
       # emit_review → audit_inception_recommendation: blocks on placeholder
@@ -78,7 +87,7 @@ nodes:
     slug: ready-gate
     lane: framework
     x: 560
-    y: 340
+    y: 368
     aef:
       decisionInput: ${ready}
       decisionOwner: framework       # data-condition, not human → no F1
@@ -89,7 +98,7 @@ nodes:
     slug: fix
     lane: agent
     x: 340
-    y: 120
+    y: 130
     aef:
       determinism: stochastic        # agent authors rationale/criteria
 
@@ -99,7 +108,7 @@ nodes:
     slug: linkcheck
     lane: framework
     x: 760
-    y: 340
+    y: 360
     aef:
       determinism: deterministic
 
@@ -109,7 +118,7 @@ nodes:
     slug: emit
     lane: framework
     x: 980
-    y: 340
+    y: 360
     aef:
       determinism: deterministic
       # T-973: the marker is what unblocks `fw inception decide`
@@ -121,7 +130,7 @@ nodes:
     slug: review
     lane: human
     x: 1200
-    y: 560
+    y: 590
     aef:
       determinism: human
       authority: sovereignty
@@ -135,7 +144,7 @@ nodes:
     slug: decide
     lane: human
     x: 1420
-    y: 560
+    y: 598
     aef:
       decisionInput: ${decision}
       decisionOwner: human
@@ -146,7 +155,7 @@ nodes:
     slug: go
     lane: framework
     x: 1640
-    y: 260
+    y: 268
     aef:
       determinism: deterministic
       endpoint: fw inception decide T-XXX go
@@ -157,7 +166,7 @@ nodes:
     slug: nogo
     lane: framework
     x: 1640
-    y: 340
+    y: 360
     aef:
       determinism: deterministic
       endpoint: fw inception decide T-XXX no-go
@@ -168,7 +177,7 @@ nodes:
     slug: defer
     lane: framework
     x: 1640
-    y: 420
+    y: 452
     aef:
       determinism: deterministic
       endpoint: fw inception decide T-XXX defer
@@ -179,7 +188,7 @@ nodes:
     slug: end-go
     lane: framework
     x: 1860
-    y: 260
+    y: 282
 
   - uid: n_end_nogo
     type: endEvent
@@ -187,7 +196,7 @@ nodes:
     slug: end-nogo
     lane: framework
     x: 1860
-    y: 340
+    y: 374
 
   - uid: n_end_defer
     type: endEvent
@@ -195,7 +204,7 @@ nodes:
     slug: end-defer
     lane: framework
     x: 1860
-    y: 420
+    y: 466
 
 edges:
   - uid: e_01

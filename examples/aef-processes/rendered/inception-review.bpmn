@@ -41,7 +41,7 @@
     <bpmn:startEvent id="n_request" name="Agent runs `fw task review`">
       <bpmn:extensionElements>
         <aef:uid value="n_request"/>
-        <aef:position x="120" y="120"/>
+        <aef:position x="120" y="144"/>
         <aef:meta determinism="deterministic" endpoint="fw task review T-XXX"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_05</bpmn:incoming>
@@ -50,7 +50,7 @@
     <bpmn:scriptTask id="n_readiness" name="Audit recommendation + go/no-go criteria (placeholder detector)">
       <bpmn:extensionElements>
         <aef:uid value="n_readiness"/>
-        <aef:position x="340" y="340"/>
+        <aef:position x="340" y="360"/>
         <aef:meta determinism="deterministic" sideEffect="none (read-only gate)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_01</bpmn:incoming>
@@ -59,7 +59,7 @@
     <bpmn:exclusiveGateway id="n_ready_gate" name="Recommendation ready?">
       <bpmn:extensionElements>
         <aef:uid value="n_ready_gate"/>
-        <aef:position x="560" y="340"/>
+        <aef:position x="560" y="368"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${ready}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -70,7 +70,7 @@
     <bpmn:scriptTask id="n_fix" name="Agent fills recommendation + go/no-go criteria">
       <bpmn:extensionElements>
         <aef:uid value="n_fix"/>
-        <aef:position x="340" y="120"/>
+        <aef:position x="340" y="130"/>
         <aef:meta determinism="stochastic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_03</bpmn:incoming>
@@ -79,7 +79,7 @@
     <bpmn:scriptTask id="n_linkcheck" name="Validate review link resolves (review_link_validator --enforce)">
       <bpmn:extensionElements>
         <aef:uid value="n_linkcheck"/>
-        <aef:position x="760" y="340"/>
+        <aef:position x="760" y="360"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_04</bpmn:incoming>
@@ -88,7 +88,7 @@
     <bpmn:scriptTask id="n_emit" name="Emit Watchtower URL + QR + artifacts; write `.reviewed-` marker">
       <bpmn:extensionElements>
         <aef:uid value="n_emit"/>
-        <aef:position x="980" y="340"/>
+        <aef:position x="980" y="360"/>
         <aef:meta determinism="deterministic" sideEffect="write .context/working/.reviewed-T-XXX"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_06</bpmn:incoming>
@@ -97,7 +97,7 @@
     <bpmn:userTask id="n_review" name="Human opens link — reviews recommendation, artifacts, criteria">
       <bpmn:extensionElements>
         <aef:uid value="n_review"/>
-        <aef:position x="1200" y="560"/>
+        <aef:position x="1200" y="590"/>
         <aef:meta determinism="human" authority="sovereignty" endpoint="Watchtower /inception/T-XXX  |  fw inception decide"/>
         <aef:decisionOutputs>go, no-go, defer</aef:decisionOutputs>
       </bpmn:extensionElements>
@@ -107,7 +107,7 @@
     <bpmn:exclusiveGateway id="n_decide" name="Decision?">
       <bpmn:extensionElements>
         <aef:uid value="n_decide"/>
-        <aef:position x="1420" y="560"/>
+        <aef:position x="1420" y="598"/>
         <aef:meta decisionOwner="human"/>
         <aef:decisionInput>${decision}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -119,7 +119,7 @@
     <bpmn:scriptTask id="n_go" name="Record GO — complete inception, unlock build tasks">
       <bpmn:extensionElements>
         <aef:uid value="n_go"/>
-        <aef:position x="1640" y="260"/>
+        <aef:position x="1640" y="268"/>
         <aef:meta determinism="deterministic" endpoint="fw inception decide T-XXX go"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_09</bpmn:incoming>
@@ -128,7 +128,7 @@
     <bpmn:scriptTask id="n_nogo" name="Record NO-GO — close inception, no build">
       <bpmn:extensionElements>
         <aef:uid value="n_nogo"/>
-        <aef:position x="1640" y="340"/>
+        <aef:position x="1640" y="360"/>
         <aef:meta determinism="deterministic" endpoint="fw inception decide T-XXX no-go"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_10</bpmn:incoming>
@@ -137,7 +137,7 @@
     <bpmn:scriptTask id="n_defer" name="Record DEFER — set revisit_at (G-053 daily scan)">
       <bpmn:extensionElements>
         <aef:uid value="n_defer"/>
-        <aef:position x="1640" y="420"/>
+        <aef:position x="1640" y="452"/>
         <aef:meta determinism="deterministic" endpoint="fw inception decide T-XXX defer"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_11</bpmn:incoming>
@@ -146,21 +146,21 @@
     <bpmn:endEvent id="n_end_go" name="Inception decided — build authorised">
       <bpmn:extensionElements>
         <aef:uid value="n_end_go"/>
-        <aef:position x="1860" y="260"/>
+        <aef:position x="1860" y="282"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_12</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:endEvent id="n_end_nogo" name="Inception closed — no build">
       <bpmn:extensionElements>
         <aef:uid value="n_end_nogo"/>
-        <aef:position x="1860" y="340"/>
+        <aef:position x="1860" y="374"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_13</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:endEvent id="n_end_defer" name="Inception parked — revisit scheduled">
       <bpmn:extensionElements>
         <aef:uid value="n_end_defer"/>
-        <aef:position x="1860" y="420"/>
+        <aef:position x="1860" y="466"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_14</bpmn:incoming>
     </bpmn:endEvent>
