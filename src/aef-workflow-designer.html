@@ -4277,7 +4277,7 @@ function aefExtensionXml(node) {
   if (aef.contextReads) out += `        <aef:contextReads paths="${escAttr(aef.contextReads)}"/>\n`;
   if (aef.artifactsWrites) out += `        <aef:artifactsWrites paths="${escAttr(aef.artifactsWrites)}"/>\n`;
   if (aef.decisionInput) out += `        <aef:decisionInput>${escText(aef.decisionInput)}</aef:decisionInput>\n`;
-  if (aef.decisionOutputs) out += `        <aef:decisionOutputs values="${escAttr(aef.decisionOutputs)}"/>\n`;
+  if (aef.decisionOutputs) out += `        <aef:decisionOutputs>${escText(aef.decisionOutputs)}</aef:decisionOutputs>\n`;
   // Link event: targetWorkflow + linkId (for linkEventThrow / linkEventCatch)
   if (aef.targetWorkflow || aef.linkId) {
     out += `        <aef:link targetWorkflow="${escAttr(aef.targetWorkflow || '')}" linkId="${escAttr(aef.linkId || '')}"/>\n`;
@@ -4524,7 +4524,10 @@ function parseBpmnXml(text) {
       const decInEl = byAef(el, 'decisionInput')[0];
       if (decInEl) aef.decisionInput = (decInEl.textContent || '').trim();
       const decOutEl = byAef(el, 'decisionOutputs')[0];
-      if (decOutEl) aef.decisionOutputs = decOutEl.getAttribute('values') || '';
+      // Canonical shape is element text (matches decisionInput + the bridge). Stay
+      // tolerant of the legacy `values="…"` attribute form so previously-exported
+      // files don't silently lose their outputs (T-053).
+      if (decOutEl) aef.decisionOutputs = (decOutEl.textContent || '').trim() || (decOutEl.getAttribute('values') || '');
       // Link event extension: targetWorkflow + linkId
       const linkEl = byAef(el, 'link')[0];
       if (linkEl) {

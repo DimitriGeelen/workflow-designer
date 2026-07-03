@@ -58,6 +58,15 @@ else
 fi
 
 echo
+echo "== editor extension shape consistency (T-053) =="
+if python3 "$ROOT/tests/test_editor_extension_shape_consistency.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "editor aef: field shape drifted from bridge (element text vs attribute)"
+  fail=$((fail + 1))
+fi
+
+echo
 # Corpus geometry sweep (T-052): every authored map's nodes must sit inside their
 # lane bands, modulo the exact legacy allowlist. Guards against new maps silently
 # straddling bands — the G-019 blindness found in T-050.
