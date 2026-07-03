@@ -4,10 +4,10 @@ name: "Map verification-gate (P-011) completion flow"
 description: >
   Diagram work-completed -> extract Verification cmds -> run each -> pass / block-on-nonzero / --force. CLAUDE.md Verification Gate. Dogfood gap (T-054).
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T14:25:14Z
-last_update: 2026-07-03T14:25:14Z
+last_update: 2026-07-03T22:32:48Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,28 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Dogfood map #18, second of the four "constitutional gate" maps from the T-054 coverage
+audit (after T-055 task-gate). Maps the `work-completed` completion gate — the ordered
+sequence of gates (P-010 acceptance criteria → P-011 verification → G-019 RCA / T-1718
+evolution → sovereignty) that `fw task update --status work-completed` runs, the
+block-vs-pass conditions, the `--force`/`--skip-*` bypasses (logged Tier-2), and the
+success path (date_finished → move active/→completed/ → generate episodic). Ground truth:
+`.agentic-framework/agents/task-create/update-task.sh`. Same faithful-mapping method as
+T-055; friction catalogue in `docs/reports/T-056-verification-gate-friction.md`.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `examples/aef-processes/verification-gate.workflow.yaml` created — 3 authority lanes
+      (agent/initiative, framework/authority, human/sovereignty), the P-010→P-011→gates→
+      complete spine with block paths, ground-truth source cited in header comment
+- [x] Geometry clean: corpus geometry sweep (`tests/check-corpus-geometry.sh`) reports the
+      new map among "clean", 0 new-fail
+- [x] Bridge round-trip clean: `yaml-to-bpmn.py` converts it and the emitted BPMN validates
+      clean under `validate-workflow.py` (proven via the suite)
+- [x] Full bridge suite passes (23 checks — the new map included, 0 fail)
+- [x] Friction report `docs/reports/T-056-verification-gate-friction.md` written (schema
+      verdict + any new candidate frictions / recurrences vs T-055)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -106,6 +120,11 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+test -f examples/aef-processes/verification-gate.workflow.yaml
+python3 -c "import yaml; yaml.safe_load(open('examples/aef-processes/verification-gate.workflow.yaml'))"
+test -f docs/reports/T-056-verification-gate-friction.md
+bash tests/run-bridge-tests.sh
 
 ## RCA
 
@@ -174,3 +193,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-056-map-verification-gate-p-011-completion-f.md
 - **Context:** Initial task creation
+
+### 2026-07-03T22:32:48Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
