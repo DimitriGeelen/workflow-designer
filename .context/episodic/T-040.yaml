@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-040: Build YAML to BPMN bridge for rendering workflow corpus
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-03T07:57:48Z
+# ============================================================================
+
+task_id: T-040
+task_name: "Build YAML to BPMN bridge for rendering workflow corpus"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-03T07:52:36Z
+completed: 2026-07-03T07:57:45Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-03T09:57:42+02:00
+last_commit: 2026-07-03T09:57:42+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  YAML->BPMN render bridge (self-checking; 11/11 corpus round-trip clean)
+
+# Key outcomes
+outcomes:
+  - '`python3 tools/yaml-to-bpmn.py <file.workflow.yaml>` emits BPMN-XML to stdout (or `--out PATH`), exit 0'
+  - 'Emitted XML is **self-checking**: passes the existing `XmlValidator` clean (`python3 tools/validate-workflow.py <converted.bpmn>` exit 0)'
+  - 'Round-trips the **whole corpus**: 11/11 `examples/aef-processes/*.workflow.yaml` convert AND validate clean (`tests/run-bridge-tests.sh` → 11 passed, 0 failed)'
+  - 'Emitted BPMN follows schema §7.2: `definitions/process/laneSet/flowNodeRef`, task/event/gateway element types, `sequenceFlow` with `conditionExpression`, link-event mapping (linkEventCatch→intermediateCatchEvent, linkEventThrow→intermediateThrowEvent)'
+  - '`tests/run-bridge-tests.sh` covers the round-trip so regressions are caught'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-040-build-yaml-to-bpmn-bridge-for-rendering-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/yaml-to-bpmn.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T09:57:42"
+    action: "T-040: YAML->BPMN render bridge (self-checking; 11/11 corpus round-trip clean)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 3
+  lines_added: 439
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-040-build-yaml-to-bpmn-bridge-for-rendering-.md
+generated_by: context-agent-hybrid
