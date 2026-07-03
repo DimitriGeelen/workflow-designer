@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T14:19:33Z
-last_update: 2026-07-03T14:19:33Z
+last_update: 2026-07-03T14:26:36Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -44,10 +44,10 @@ small build task, per Task Sizing Rules).
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `docs/reports/T-054-coverage-audit.md` exists with a **coverage matrix**: each canonical framework process → its corpus map file, OR `GAP`, OR `excluded` (with a one-line reason).
-- [ ] The canonical process inventory is **sourced from the vendored framework** (`.agentic-framework/FRAMEWORK.md`, `CLAUDE.md` lifecycles, `.agentic-framework/agents/*/AGENT.md`) and cited — not invented.
-- [ ] Every one of the 16 existing corpus maps is accounted for in the matrix (no orphan map left unlisted).
-- [ ] Gaps are ranked by governance-centrality; each worth-mapping gap has a **filed follow-up task ID** in the report (or an explicit stated reason it is excluded rather than mapped).
+- [x] `docs/reports/T-054-coverage-audit.md` exists with a **coverage matrix**: each canonical framework process → its corpus map file, OR `GAP`, OR `excluded` (with a one-line reason).
+- [x] The canonical process inventory is **sourced from the vendored framework** (`.agentic-framework/FRAMEWORK.md`, `CLAUDE.md` lifecycles, `.agentic-framework/agents/*/AGENT.md`) and cited — not invented.
+- [x] Every one of the 16 existing corpus maps is accounted for in the matrix (no orphan map left unlisted).
+- [x] Gaps are ranked by governance-centrality; each worth-mapping gap has a **filed follow-up task ID** in the report (or an explicit stated reason it is excluded rather than mapped).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
