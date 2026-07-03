@@ -135,6 +135,34 @@ def emit(workflow):
         if "decisionOutputs" in aef:
             out.append('        <aef:decisionOutputs>%s</aef:decisionOutputs>'
                        % escape(str(aef["decisionOutputs"])))
+        # Context/artifact flow annotations (editor reads getAttribute('paths')).
+        if aef.get("contextReads"):
+            out.append('        <aef:contextReads paths=%s/>' % _attr(aef["contextReads"]))
+        if aef.get("artifactsWrites"):
+            out.append('        <aef:artifactsWrites paths=%s/>' % _attr(aef["artifactsWrites"]))
+        # Link event pairing (editor reads targetWorkflow/linkId attributes).
+        if aef.get("targetWorkflow") or aef.get("linkId"):
+            out.append('        <aef:link targetWorkflow=%s linkId=%s/>'
+                       % (_attr(aef.get("targetWorkflow", "")), _attr(aef.get("linkId", ""))))
+        # I/O data contract — a top-level node key (sibling of aef), not under aef.
+        # Editor io reader: required only when true; outputs carry no required.
+        io = n.get("io", {}) or {}
+        io_inputs = io.get("inputs", []) or []
+        io_outputs = io.get("outputs", []) or []
+        if io_inputs or io_outputs:
+            out.append('        <aef:io>')
+            for i in io_inputs:
+                if not isinstance(i, dict):
+                    continue
+                req = ' required="true"' if i.get("required") else ''
+                out.append('          <aef:input name=%s type=%s%s/>'
+                           % (_attr(i.get("name", "")), _attr(i.get("type", "string")), req))
+            for o in io_outputs:
+                if not isinstance(o, dict):
+                    continue
+                out.append('          <aef:output name=%s type=%s/>'
+                           % (_attr(o.get("name", "")), _attr(o.get("type", "string"))))
+            out.append('        </aef:io>')
         out.append('      </bpmn:extensionElements>')
         for fid in incoming.get(uid, []):
             out.append('      <bpmn:incoming>%s</bpmn:incoming>' % escape(str(fid)))
