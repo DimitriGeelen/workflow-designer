@@ -8,3 +8,10 @@ learnings:
   date: 2026-07-02
   context: Added via context agent
   application: TBD
+- id: PL-002
+  learning: "A standalone HTML editor's XML-import namespace can silently drift from the toolchain's canonical namespace; getElementsByTagNameNS then matches zero extension elements and the importer falls through to auto-layout, discarding authored positions/uids with NO error. Symptom mimics a coordinate/layout bug but root cause is a namespace-constant mismatch. Prevention: round-trip a corpus file through the editor's OWN parser and assert extension data survives — Python-side validators miss it entirely."
+  source: P-001
+  task: T-042
+  date: 2026-07-03
+  context: Added via context agent
+  application: TBD

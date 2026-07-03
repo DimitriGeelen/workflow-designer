@@ -8,3 +8,31 @@
   flag: '--skip-sovereignty'
   caller: 'check_human_sovereignty'
   reason: 'Inception decision: GO'
+- timestamp: '2026-07-03T06:42:05Z'
+  task: 'T-019'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-037'
+  command: 'cd /opt/832-Workflow-designer
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-037: Complete — M1 F3/F1 spec (work-completed, episodic)" 2>&1 | tail -8'
+- timestamp: '2026-07-03T07:45:31Z'
+  task: 'T-038'
+  flag: '--skip-sovereignty'
+  caller: 'check_human_sovereignty'
+  reason: 'Inception decision: GO'
+- timestamp: '2026-07-03T07:52:41Z'
+  task: 'T-040'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-039'
+  command: 'cd /opt/832-Workflow-designer
+git add .tasks/completed/T-039-map-inception-review-ready-flow-to-a-wor.md .context/episodic/T-039.yaml
+git add -u .tasks/active/T-039-map-inception-review-ready-flow-to-'
+- timestamp: '2026-07-03T07:53:23Z'
+  task: 'T-040'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-039'
+  command: 'cd /opt/832-Workflow-designer
+git add .tasks/completed/T-039-map-inception-review-ready-flow-to-a-wor.md .context/episodic/T-039.yaml
+git add -u .tasks/active/T-039-map-inception-review-ready-flow-to-'

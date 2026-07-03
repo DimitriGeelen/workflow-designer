@@ -164,3 +164,10 @@ decisions:
     date: 2026-07-02
     task: T-034
     rationale: "Validating existing v2 node types better stays cleanly product-side of the T-020 injection line; reading aef conventions edges into v3 schema design which is the framework agent's responsibility per the T-020 M5 hand-off"
+
+  - id: PD-003
+    decision: "Author the M1 F3/F1 spec recommending **Path A** (promote `determinism` +"
+    scope: project
+    date: 2026-07-03
+    task: T-037
+    rationale: "Auto-captured from task file on completion"

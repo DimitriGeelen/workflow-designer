@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-07-03T07:57:48Z ===
+task_id: T-040
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-040.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Build YAML to BPMN bridge for rendering workflow corpus
+  Duration: 0 days (5 min)
+  Updates: 2
+  Commits: 1
+  Lines: +439 -0 across 3 files
+  Outcomes: 5 AC checked
+  Artifacts: 3 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-040-build-yaml-to-bpmn-bridge-for-rendering-.md
+--- exit code: 0 ---

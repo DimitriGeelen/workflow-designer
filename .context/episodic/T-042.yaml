@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-042: Fix inception-review diagram layout congestion
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-03T08:56:58Z
+# ============================================================================
+
+task_id: T-042
+task_name: "Fix inception-review diagram layout congestion"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-03T08:34:50Z
+completed: 2026-07-03T08:56:52Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-03T10:55:15+02:00
+last_commit: 2026-07-03T10:55:15+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Fix editor aef-namespace drift stripping positions on import
+
+# Key outcomes
+outcomes:
+  - 'Editor `aef:` namespace aligned to canonical `http://anchorpoint.framework/aef/extensions`'
+  - 'After the fix, `parseBpmnXml` on the corpus BPMN preserves authored `aef:uid` and'
+  - 'Every node''s `y` in `examples/aef-processes/inception-review.workflow.yaml` falls'
+  - 'Bridge re-renders clean + validates + corpus round-trip green'
+  - 'Re-rendered diagram Playwright-screenshotted and READ — nodes honour authored'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Fix editor aef-namespace drift stripping positions on import'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'examples/aef-processes/inception-review.workflow.yaml'
+  - 'examples/aef-processes/rendered/inception-review.bpmn'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-042-fix-inception-review-diagram-layout-cong.md'
+  - 'tools/check-lane-bands.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T10:55:15"
+    action: "T-042: Fix editor aef-namespace drift stripping positions on import"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 22 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 22
+  commits: 1
+  files_changed: 5
+  lines_added: 425
+  lines_removed: 30
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-042-fix-inception-review-diagram-layout-cong.md
+generated_by: context-agent-hybrid
