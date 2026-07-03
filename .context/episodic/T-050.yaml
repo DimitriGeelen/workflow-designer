@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-050: Editor fit-to-view measures label text extent via getBBox
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-03T13:16:18Z
+# ============================================================================
+
+task_id: T-050
+task_name: "Editor fit-to-view measures label text extent via getBBox"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-03T13:10:28Z
+completed: 2026-07-03T13:16:12Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-03T15:16:06+02:00
+last_commit: 2026-07-03T15:16:06+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Fit-to-view sizes viewBox from rendered label extent (getBBox)
+
+# Key outcomes
+outcomes:
+  - '`syncCanvasSize()` derives the viewBox from `svg.getBBox()` (actual rendered'
+  - 'The viewBox origin may become negative so a left-overflowing label (leftmost'
+  - '`getBBox()` failure (detached/headless) is caught and falls back to the prior'
+  - 'A long label that previously clipped renders fully inside the viewBox with NO'
+  - 'No regression from this change: bridge suite green (17/17); every map authored'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-03 — how to measure label extent'
+    chose: 'size the viewBox from `svg.getBBox()` (actual rendered glyph extent),'
+    rationale: '`renderNodes()` runs before `syncCanvasSize()` in `renderAll()`, so the'
+    alternatives_rejected: ['per-character width estimation (`label.length * fontSize*0.55`) —']
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-050-editor-fit-to-view-measures-label-text-e.md'
+  - '.tasks/active/T-051-re-validate--fix-geometry-of-pre-convent.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T15:16:06"
+    action: "T-050: Fit-to-view sizes viewBox from rendered label extent (getBBox)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 3
+  lines_added: 444
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-050-editor-fit-to-view-measures-label-text-e.md
+generated_by: context-agent-hybrid
