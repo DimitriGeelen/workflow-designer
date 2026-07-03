@@ -26,3 +26,39 @@ assumptions:
   linked_task: T-020
   created: '2026-07-02'
   resolved_date: null
+- id: A-004
+  statement: Operator wants a single register showing mapping + validation + review
+    status
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-038
+  created: '2026-07-03'
+  resolved_date: null
+- id: A-005
+  statement: Seeing a mapping rendered as a diagram (not raw YAML) is what lets a
+    human judge semantic fidelity
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-038
+  created: '2026-07-03'
+  resolved_date: null
+- id: A-006
+  statement: A YAML->BPMN bridge is tractable given schema.md defines both forms and
+    XmlValidator understands BPMN-XML
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-038
+  created: '2026-07-03'
+  resolved_date: null
+- id: A-007
+  statement: Human review of the corpus will surface at least one model-validity finding
+    mechanical validation missed
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-038
+  created: '2026-07-03'
+  resolved_date: null
