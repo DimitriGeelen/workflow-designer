@@ -58,5 +58,16 @@ else
 fi
 
 echo
+# Corpus geometry sweep (T-052): every authored map's nodes must sit inside their
+# lane bands, modulo the exact legacy allowlist. Guards against new maps silently
+# straddling bands — the G-019 blindness found in T-050.
+if bash "$ROOT/tests/check-corpus-geometry.sh"; then
+  pass=$((pass + 1))
+else
+  report FAIL "corpus geometry sweep — a non-legacy map straddles bands or the allowlist is stale"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
