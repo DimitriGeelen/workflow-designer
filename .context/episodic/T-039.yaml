@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-039: Map inception review-ready flow to a workflow definition
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-03T07:52:21Z
+# ============================================================================
+
+task_id: T-039
+task_name: "Map inception review-ready flow to a workflow definition"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-03T07:47:51Z
+completed: 2026-07-03T07:52:20Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-03T09:52:15+02:00
+last_commit: 2026-07-03T09:52:15+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Map inception-review flow to workflow definition (validates clean; friction-dry)
+
+# Key outcomes
+outcomes:
+  - '`examples/aef-processes/inception-review.workflow.yaml` exists and validates clean (`python3 tools/validate-workflow.py <file>` exits 0 — "no findings")'
+  - 'Mapping is a faithful three-authority model: **agent requests review** (initiative lane) → **framework generates review URL + QR + marker and enforces the readiness/placeholder gate** (authority lane) → **human decides** (sovereignty lane)'
+  - 'All three authority lanes present (initiative / authority / sovereignty)'
+  - 'Human decision node declares `decisionOutputs: go, no-go, defer` and each outcome is routed by an outgoing edge condition on the routing exclusiveGateway (F1 idiom)'
+  - 'A one-paragraph friction note recorded (`docs/reports/T-039-inception-review-friction.md`): friction-dry (recurrences F1/F3/F7 + F12/F10 sharpening), per PL-001'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-039-inception-review-friction.md'
+  - 'examples/aef-processes/inception-review.workflow.yaml'
+  - '.tasks/active/T-039-map-inception-review-ready-flow-to-a-wor.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T09:52:15"
+    action: "T-039: Map inception-review flow to workflow definition (validates clean; friction-dry)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 3
+  lines_added: 502
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-039-map-inception-review-ready-flow-to-a-wor.md
+generated_by: context-agent-hybrid
