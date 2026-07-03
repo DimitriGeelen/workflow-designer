@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- n_x (a scriptTask) has no outgoing flow and is not an end/throw event, so no
+     endEvent is reachable from it -> control never terminates -> W-XML-DEADEND
+     (WARN). It is reachable from the start, so W-XML-UNREACHABLE does not fire. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t">
+    <bpmn:laneSet id="LS">
+      <bpmn:lane id="agent" name="Agent">
+        <bpmn:flowNodeRef>n_s</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_e</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_x</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="n_s"/>
+    <bpmn:endEvent id="n_e"/>
+    <bpmn:scriptTask id="n_x"/>
+    <bpmn:sequenceFlow id="f0" sourceRef="n_s" targetRef="n_e"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="n_s" targetRef="n_x"/>
+  </bpmn:process>
+</bpmn:definitions>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- parallelGateway n_g has in-degree 1 and out-degree 1 -> neither forks nor
+     joins (no-op) -> W-XML-PGW-NOOP (WARN). No fork/join anywhere. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t">
+    <bpmn:laneSet id="LS">
+      <bpmn:lane id="agent" name="Agent">
+        <bpmn:flowNodeRef>n_s</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_g</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_e</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="n_s"/>
+    <bpmn:parallelGateway id="n_g"/>
+    <bpmn:endEvent id="n_e"/>
+    <bpmn:sequenceFlow id="f0" sourceRef="n_s" targetRef="n_g"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="n_g" targetRef="n_e"/>
+  </bpmn:process>
+</bpmn:definitions>

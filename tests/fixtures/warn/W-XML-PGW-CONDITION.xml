@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- parallel fork n_f has a conditionExpression on one outgoing flow; a parallel
+     fork takes all branches, so the condition is ignored -> W-XML-PGW-CONDITION
+     (WARN). Balanced fork+join so W-XML-PGW-UNBALANCED does not fire. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t">
+    <bpmn:laneSet id="LS">
+      <bpmn:lane id="agent" name="Agent">
+        <bpmn:flowNodeRef>n_s</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_f</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_a</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_b</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_j</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_e</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="n_s"/>
+    <bpmn:parallelGateway id="n_f"/>
+    <bpmn:scriptTask id="n_a"/>
+    <bpmn:scriptTask id="n_b"/>
+    <bpmn:parallelGateway id="n_j"/>
+    <bpmn:endEvent id="n_e"/>
+    <bpmn:sequenceFlow id="f0" sourceRef="n_s" targetRef="n_f"/>
+    <bpmn:sequenceFlow id="f1" sourceRef="n_f" targetRef="n_a">
+      <bpmn:conditionExpression>${x == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f2" sourceRef="n_f" targetRef="n_b"/>
+    <bpmn:sequenceFlow id="f3" sourceRef="n_a" targetRef="n_j"/>
+    <bpmn:sequenceFlow id="f4" sourceRef="n_b" targetRef="n_j"/>
+    <bpmn:sequenceFlow id="f5" sourceRef="n_j" targetRef="n_e"/>
+  </bpmn:process>
+</bpmn:definitions>

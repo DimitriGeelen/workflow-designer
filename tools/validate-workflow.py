@@ -605,8 +605,10 @@ class XmlValidator:
 
         # -- collect flow nodes vs sequence flows ---------------------------
         flow_node_ids = set()
+        node_type = {}
         seq_flows = []
         gateways = []
+        parallel_gateways = []
         for child in list(process):
             local = self._local(child.tag)
             if local == "sequenceFlow":
@@ -617,8 +619,11 @@ class XmlValidator:
             node_id = child.get("id")
             if node_id is not None:
                 flow_node_ids.add(node_id)
+                node_type[node_id] = local
                 if local == "exclusiveGateway":
                     gateways.append(node_id)
+                elif local == "parallelGateway":
+                    parallel_gateways.append(node_id)
 
         # -- sequenceFlow endpoint resolution (section 7.3) -----------------
         outgoing_count = {}
@@ -673,6 +678,110 @@ class XmlValidator:
                     "node '%s'" % node_id,
                     "flow node '%s' is not assigned to any lane" % node_id,
                 )
+
+        # -- degrees + adjacency (shared by the checks below) ---------------
+        in_deg = {}
+        out_deg = {}
+        succ = {}
+        pred = {}
+        for flow in seq_flows:
+            src = flow.get("sourceRef")
+            tgt = flow.get("targetRef")
+            if src in flow_node_ids:
+                out_deg[src] = out_deg.get(src, 0) + 1
+            if tgt in flow_node_ids:
+                in_deg[tgt] = in_deg.get(tgt, 0) + 1
+            if src in flow_node_ids and tgt in flow_node_ids:
+                succ.setdefault(src, set()).add(tgt)
+                pred.setdefault(tgt, set()).add(src)
+
+        # -- parallelGateway structure (mirrors the YAML validator, WARN) ---
+        has_fork = False
+        has_join = False
+        for gid in parallel_gateways:
+            o = out_deg.get(gid, 0)
+            i = in_deg.get(gid, 0)
+            if o >= 2:
+                has_fork = True
+            if i >= 2:
+                has_join = True
+            loc = "parallelGateway '%s'" % gid
+            if o >= 2:
+                for flow in seq_flows:
+                    if flow.get("sourceRef") == gid and (
+                        flow.find("{%s}conditionExpression" % BPMN_NS) is not None
+                    ):
+                        self.warn(
+                            "W-XML-PGW-CONDITION",
+                            loc,
+                            "parallelGateway outgoing flow '%s' has a "
+                            "conditionExpression; a parallel fork takes all "
+                            "branches, so the condition is ignored"
+                            % flow.get("id", "?"),
+                        )
+            if i <= 1 and o <= 1:
+                self.warn(
+                    "W-XML-PGW-NOOP",
+                    loc,
+                    "parallelGateway has in-degree %d and out-degree %d; it "
+                    "neither forks nor joins (no-op)" % (i, o),
+                )
+        if has_fork and not has_join:
+            for gid in parallel_gateways:
+                if out_deg.get(gid, 0) >= 2:
+                    self.warn(
+                        "W-XML-PGW-UNBALANCED",
+                        "parallelGateway '%s'" % gid,
+                        "parallel fork has no matching parallel join in the "
+                        "workflow (forked branches never reconverge)",
+                    )
+        elif has_join and not has_fork:
+            for gid in parallel_gateways:
+                if in_deg.get(gid, 0) >= 2:
+                    self.warn(
+                        "W-XML-PGW-UNBALANCED",
+                        "parallelGateway '%s'" % gid,
+                        "parallel join has no matching parallel fork in the "
+                        "workflow (nothing forks into it)",
+                    )
+
+        # -- reachability / dead-ends (mirrors the YAML validator, WARN) -----
+        # BPMN link events map to intermediate throw/catch events (schema 7.2):
+        # catch is a cross-workflow entry, throw a cross-workflow terminus.
+        def _reach(seeds, adj):
+            seen = set(seeds)
+            stack = list(seeds)
+            while stack:
+                cur = stack.pop()
+                for nxt in adj.get(cur, ()):
+                    if nxt not in seen:
+                        seen.add(nxt)
+                        stack.append(nxt)
+            return seen
+
+        fwd_starts = ("startEvent", "intermediateCatchEvent")
+        bwd_ends = ("endEvent", "intermediateThrowEvent")
+        fwd_seeds = [n for n in flow_node_ids if node_type.get(n) in fwd_starts]
+        if fwd_seeds:
+            reachable = _reach(fwd_seeds, succ)
+            for n in sorted(flow_node_ids):
+                if n not in reachable and node_type.get(n) not in fwd_starts:
+                    self.warn(
+                        "W-XML-UNREACHABLE",
+                        "node '%s'" % n,
+                        "node is not reachable from any startEvent",
+                    )
+        bwd_seeds = [n for n in flow_node_ids if node_type.get(n) in bwd_ends]
+        if bwd_seeds:
+            terminating = _reach(bwd_seeds, pred)
+            for n in sorted(flow_node_ids):
+                if n not in terminating and node_type.get(n) not in bwd_ends:
+                    self.warn(
+                        "W-XML-DEADEND",
+                        "node '%s'" % n,
+                        "no endEvent is reachable from this node (control never "
+                        "terminates)",
+                    )
 
 
 def exit_code(findings):
