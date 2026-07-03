@@ -1638,9 +1638,31 @@ function updateStatus() {
   }
 }
 function syncCanvasSize() {
-  const w = contentRightEdge() + 30;
-  const h = POOL_Y + poolHeight() + 50 /* room for the + add another lane strip */;
-  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  // Node-box floor (T-043): guarantees a sensible viewBox even when getBBox is
+  // unavailable, and keeps small diagrams identical to the pre-T-050 layout.
+  const floorW = contentRightEdge() + 30;
+  const floorH = POOL_Y + poolHeight() + 50 /* room for the + add another lane strip */;
+  let minX = 0, minY = 0, w = floorW, h = floorH;
+  // Prefer the ACTUAL rendered extent so labels that overflow their node box are
+  // enclosed instead of clipped by fit-to-view (T-050 / PL-003). Event & gateway
+  // labels are single-line, centered on a 36–48px shape, so a long name spills
+  // ~textWidth/2 past both sides — invisible to the node-box math above.
+  // renderNodes()/renderEdges() run before this in renderAll(), so the <text>
+  // glyphs are already in the DOM; getBBox measures their true extent. The pool
+  // rect stays node-box-driven (renderPool) — labels may sit outside the pool.
+  try {
+    const bb = svg.getBBox();
+    if (bb && bb.width > 0 && bb.height > 0) {
+      const PAD = 16;
+      // Allow a negative origin so left-overflowing labels (leftmost node) show;
+      // never crop tighter than the node-box floor on any side.
+      minX = Math.min(0, bb.x - PAD);
+      minY = Math.min(0, bb.y - PAD);
+      w = Math.max(floorW, bb.x + bb.width + PAD) - minX;
+      h = Math.max(floorH, bb.y + bb.height + PAD) - minY;
+    }
+  } catch (_) { /* detached / headless — fall back to node-box floor */ }
+  svg.setAttribute('viewBox', `${minX} ${minY} ${w} ${h}`);
   svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
 }
 function renderPool() {
