@@ -78,7 +78,7 @@ nodes:
     slug: enrich
     lane: framework
     x: 520
-    y: 130
+    y: 190
     aef:
       tier: 1
       determinism: deterministic

@@ -78,7 +78,7 @@ nodes:
     slug: preview
     lane: framework
     x: 520
-    y: 130
+    y: 182
     aef:
       determinism: deterministic
       sideEffects: none          # dry-run: preview only
@@ -149,7 +149,7 @@ nodes:
     slug: rollback
     lane: framework
     x: 1520
-    y: 620
+    y: 558
     aef:
       determinism: deterministic
       # F15 — COMPENSATION handler. Restores the pre-mutation snapshot taken at
@@ -188,7 +188,7 @@ nodes:
     slug: end-rolledback
     lane: framework
     x: 1720
-    y: 620
+    y: 586
     aef:
       emits: event:framework.upgrade-rolledback
 
@@ -198,7 +198,7 @@ nodes:
     slug: end-preview
     lane: framework
     x: 720
-    y: 130
+    y: 182
     aef:
       emits: event:framework.upgrade-previewed
 

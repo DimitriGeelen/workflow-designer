@@ -163,7 +163,7 @@ nodes:
     slug: complete-go
     lane: framework
     x: 1760
-    y: 210
+    y: 222
     aef:
       tier: 1
       endpoint: fw inception decide ${task_id} go --i-am-human
@@ -174,7 +174,7 @@ nodes:
     slug: complete-nogo
     lane: framework
     x: 1760
-    y: 330
+    y: 306
     aef:
       tier: 1
       endpoint: fw inception decide ${task_id} no-go --i-am-human
@@ -185,7 +185,7 @@ nodes:
     slug: complete-defer
     lane: framework
     x: 1760
-    y: 450
+    y: 378
     aef:
       tier: 1
       endpoint: fw inception decide ${task_id} defer --i-am-human
@@ -196,7 +196,7 @@ nodes:
     slug: end-go
     lane: framework
     x: 1980
-    y: 210
+    y: 222
     aef:
       emits: event:inception.go
 
@@ -206,7 +206,7 @@ nodes:
     slug: end-nogo
     lane: framework
     x: 1980
-    y: 330
+    y: 306
     aef:
       emits: event:inception.no-go
 
@@ -216,7 +216,7 @@ nodes:
     slug: end-defer
     lane: framework
     x: 1980
-    y: 450
+    y: 378
     aef:
       emits: event:inception.defer
 

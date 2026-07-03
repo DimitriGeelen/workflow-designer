@@ -23,17 +23,11 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 GATE="$ROOT/tools/check-lane-bands.py"
 CORPUS="$ROOT/examples/aef-processes"
 
-# Legacy maps that predate the tightened lane-band convention (T-051 re-layout).
+# Legacy maps that predate the tightened lane-band convention.
 # Keep this list EXACT — a fixed map must be removed, or the sweep flags it stale.
+# T-051 re-laid-out all 8 original entries into their lane bands; the allowlist is
+# now empty. The whole corpus is geometry-clean and this list guards it staying so.
 LEGACY="
-arc-lifecycle
-assumption-validation
-audit-process
-inception-lifecycle
-session-handover
-task-lifecycle
-tier0-escalation
-upgrade-process
 "
 
 is_legacy() { echo "$LEGACY" | grep -qx "$1"; }

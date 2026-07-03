@@ -106,7 +106,7 @@ nodes:
     slug: block
     lane: framework
     x: 720
-    y: 130
+    y: 222
     aef:
       tier: 0
       determinism: deterministic
@@ -145,7 +145,7 @@ nodes:
     slug: consume
     lane: framework
     x: 720
-    y: 520
+    y: 398
     aef:
       tier: 0
       determinism: deterministic
@@ -168,7 +168,7 @@ nodes:
     slug: end-run
     lane: framework
     x: 1200
-    y: 520
+    y: 426
     aef:
       emits: event:tier0.executed
 

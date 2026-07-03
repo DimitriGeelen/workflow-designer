@@ -133,7 +133,7 @@ nodes:
     slug: issues
     lane: framework
     x: 920
-    y: 150
+    y: 230
     aef:
       state: issues
       tier: 1
@@ -206,7 +206,7 @@ nodes:
     slug: partial-complete
     lane: framework
     x: 1720
-    y: 150
+    y: 230
     aef:
       state: work-completed
       tier: 1

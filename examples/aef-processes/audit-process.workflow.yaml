@@ -79,7 +79,7 @@ nodes:
     slug: compliance
     lane: framework
     x: 560
-    y: 120
+    y: 182
     aef:
       section: compliance
       determinism: deterministic
@@ -127,7 +127,7 @@ nodes:
     slug: discovery
     lane: framework
     x: 560
-    y: 640
+    y: 314
     aef:
       section: discovery
       determinism: deterministic
@@ -181,7 +181,7 @@ nodes:
     slug: notify
     lane: framework
     x: 1420
-    y: 130
+    y: 182
     aef:
       determinism: deterministic
       endpoint: lib/notify.sh:fw_notify
@@ -194,7 +194,7 @@ nodes:
     slug: end-fail
     lane: framework
     x: 1620
-    y: 130
+    y: 182
     aef:
       exitCode: 2
       emits: event:audit.failed
@@ -216,7 +216,7 @@ nodes:
     slug: end-pass
     lane: framework
     x: 1420
-    y: 590
+    y: 566
     aef:
       exitCode: 0
       emits: event:audit.passed

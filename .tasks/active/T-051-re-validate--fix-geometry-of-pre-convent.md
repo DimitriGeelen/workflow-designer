@@ -4,10 +4,10 @@ name: "Re-validate + fix geometry of pre-convention corpus maps against lane-ban
 description: >
   Eight older maps (arc-lifecycle, assumption-validation, audit-process, inception-lifecycle, session-handover, task-lifecycle, tier0-escalation, upgrade-process) predate the tightened T-042/T-043 lane-band convention and fail tools/check-lane-bands.py (nodes straddle lane bands). Independent of T-050. Re-lay-out each to satisfy the geometry gate; add all corpus maps to a CI geometry sweep so the gate can never silently drift past authored maps again.
 
-status: captured
+status: started-work
 workflow_type: refactor
 owner: agent
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T13:15:05Z
-last_update: 2026-07-03T13:15:05Z
+last_update: 2026-07-03T13:30:29Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,33 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Eight pre-convention maps (arc-lifecycle, assumption-validation, audit-process,
+inception-lifecycle, session-handover, task-lifecycle, tier0-escalation,
+upgrade-process) were authored before the lane-band convention was tightened; their
+nodes are tagged with one lane but positioned in an adjacent band, so
+`tools/check-lane-bands.py` reports straddles. Registered from T-050; gated (but not
+blocked) by the T-052 sweep allowlist. Fix each map so every node's y-box sits inside
+its assigned lane band, preserving the authored flow/semantics (reposition drifted
+nodes into their band; reassign a lane only where the node semantically belongs
+there). As each map passes, remove it from the T-052 sweep's LEGACY allowlist so the
+sweep's stale-detection stays satisfied.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] All 8 listed maps pass `tools/check-lane-bands.py` (exit 0 — no straddle, no
+      same-lane overlap)
+- [x] Each fixed map still validates clean and round-trips (YAML→BPMN→validator) via
+      the bridge suite — no semantic/schema regression from the layout edits
+- [x] Every fixed map is removed from the LEGACY allowlist in
+      `tests/check-corpus-geometry.sh`; the sweep reports 0 known-legacy, 0 stale
+- [x] Full bridge suite (`tests/run-bridge-tests.sh`) exits 0 with all corpus maps
+      geometry-clean (no allowlist remaining)
+- [x] Re-laid-out maps render legibly: the 3 highest-risk (assumption-validation
+      lane-crossing spine, audit-process squeezed fan, inception-lifecycle branch
+      stack) Playwright-rendered and screenshots READ; the other 5 (simple single-band
+      clamps) load error-free with content fully inside the viewBox — see
+      ## Visual Verification. (Geometry gate guarantees in-band + non-overlap for all 8.)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -107,6 +126,11 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# Every corpus map is geometry-clean with NO legacy allowlist remaining
+out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "0 known-legacy, 0 new-fail, 0 stale"
+# Full bridge suite green
+bash tests/run-bridge-tests.sh
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -147,16 +171,42 @@ date_finished: null
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Visual Verification
+
+Served the editor over HTTP; for each map, converted YAML→BPMN (yaml-to-bpmn.py) and
+loaded it via `parseBpmnXml` + `renderAll` in Playwright.
+
+**3 highest-risk re-layouts — screenshot READ:**
+- **assumption-validation** (biggest change — spine tagged across two lanes): agent
+  steps (identify → gather → assess) now sit in the Agent·Initiative band, framework
+  recording + supported/refuted branches in the Framework·Authority band. Renders
+  legibly; the lane-crossing edges correctly show initiative→authority handoffs, no
+  overlap, no clipping.
+- **audit-process** (squeezed fan): n_discovery placed as the 3rd branch in the
+  fork→join fan (y=314, the clean gap between traceability@250 and enforcement@380);
+  all 5 branches distinct, 3-way FAIL/WARN/PASS outcome clear.
+- **inception-lifecycle** (branch stack): go/no-go/defer decision correctly in the
+  Human·Sovereignty lane; the 3 outcome branch-pairs top-aligned, no overlap.
+
+**Other 5 (simple single-band clamps) — load-verified:** session-handover,
+task-lifecycle, arc-lifecycle, tier0-escalation, upgrade-process all load error-free
+with `svg.getBBox()` content fully inside the viewBox (no clip). Geometry gate
+guarantees in-band + non-overlap for these.
+
+**Console:** 0 JS errors across all 8 loads (only harmless favicon 404s).
+
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-07-03 — how to fix straddling nodes
+- **Chose:** reposition drifted nodes into their assigned lane band (preserving the
+  authored flow), and for assumption-validation honor the lane tags — move the
+  agent-tagged spine into the Agent band rather than retag it framework.
+- **Why:** the lane assignment encodes *authority* (the whole point of these maps);
+  honoring it produces the faithful authority-handoff view. Repositioning keeps the
+  above/below-spine branch idiom the authors intended, just pulled inside the band.
+- **Rejected:** retagging spine nodes to match their drifted position (would falsify
+  who-does-what); growing lane heights to enclose out-of-band nodes (cascades band
+  shifts onto adjacent lanes' nodes — more disruptive, not less).
 
 ## Decision
 
@@ -174,3 +224,13 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-051-re-validate--fix-geometry-of-pre-convent.md
 - **Context:** Initial task creation
+
+### 2026-07-03T13:18:44Z — status-update [task-update-agent]
+- **Change:** horizon: later → now
+
+### 2026-07-03T13:19:46Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+
+### 2026-07-03T13:30:29Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
