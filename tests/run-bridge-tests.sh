@@ -76,6 +76,15 @@ else
 fi
 
 echo
+echo "== editor↔bridge aef:meta parity (T-060) =="
+if python3 "$ROOT/tests/test_editor_bridge_meta_parity.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "bridge META_KEYS drops a scalar key the editor writes to <aef:meta>"
+  fail=$((fail + 1))
+fi
+
+echo
 # Corpus geometry sweep (T-052): every authored map's nodes must sit inside their
 # lane bands, modulo the exact legacy allowlist. Guards against new maps silently
 # straddling bands — the G-019 blindness found in T-050.

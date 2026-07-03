@@ -4,7 +4,7 @@ name: "Bridge META_KEYS excludes agentType/triggeredBy/emits — dropped from BP
 description: >
   Bridge META_KEYS (yaml-to-bpmn.py) omits agentType (4 maps), triggeredBy (9), emits (10) which the editor writes to <aef:meta> (buildBpmnXml line ~4273) and shows in the node inspector. So YAML->bridge->editor drops them. Same coverage class as T-059 but meta-attribute mechanism. Fix: align bridge META_KEYS with editor meta-writer keys; extend coverage test to assert meta-field parity. Discovered during T-059.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T16:03:36Z
-last_update: 2026-07-03T16:03:36Z
+last_update: 2026-07-03T22:28:15Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,25 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The bridge's `META_KEYS` whitelist (`tools/yaml-to-bpmn.py:40`) — the scalar `aef:`
+keys emitted as `<aef:meta>` attributes — omits `agentType`, `triggeredBy`, `emits`,
+which the editor's own meta-writer (`src/aef-workflow-designer.html:4273`,
+`metaKeys = ['tier','agentType','decisionOwner','triggeredBy','emits']`) writes and its
+node inspector shows. So a YAML node carrying those keys loses them on YAML→bridge→BPMN.
+Discovered during T-059; same coverage class, different mechanism (meta-attribute channel,
+not dedicated child element). Ground truth = the two lists above; the fix is to reconcile
+them and guard the reconciliation with a static parity test.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Bridge `META_KEYS` (yaml-to-bpmn.py) includes `agentType`, `triggeredBy`, `emits`
+- [x] A corpus YAML carrying those keys round-trips: `task-gate.workflow.yaml`'s `emits:`
+      (on n_allow/n_block) survives the bridge as an `<aef:meta ... emits="...">` attribute
+- [x] New parity test (`tests/test_editor_bridge_meta_parity.py`) asserts the editor's
+      `metaKeys` array ⊆ bridge `META_KEYS` tuple — fails on the pre-fix bridge, passes after —
+      and is wired into `tests/run-bridge-tests.sh`
+- [x] Full bridge suite passes (22 checks, 0 fail)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -107,6 +118,10 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+python3 tests/test_editor_bridge_meta_parity.py
+out=$(python3 tools/yaml-to-bpmn.py examples/aef-processes/task-gate.workflow.yaml --out /tmp/t060-tg.bpmn 2>&1); echo "$out"; grep -q 'emits=' /tmp/t060-tg.bpmn
+bash tests/run-bridge-tests.sh
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -122,6 +137,25 @@ date_finished: null
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** YAML nodes carrying `aef.agentType` (4 corpus maps), `aef.triggeredBy` (9),
+`aef.emits` (10) lose those keys when converted YAML→BPMN by the bridge; they never reach
+the `<aef:meta>` element, so an editor re-import cannot recover them.
+
+**Root cause:** the bridge's `META_KEYS` tuple — the whitelist of scalar `aef:` keys emitted
+as `<aef:meta>` attributes — omits the three keys, even though the editor's own
+`metaKeys` writer emits them.
+
+**Why structurally allowed:** T-059's field-coverage test asserts survival only for fields
+the editor reads via `byAef(el,'X')` (dedicated child elements). `agentType`/`triggeredBy`/
+`emits` ride in `<aef:meta>` *attributes*, which the editor absorbs generically
+(`for (const a of metaEl.attributes) aef[a.name]=a.value`), so they never surface as a
+`byAef(el,'X')` read — the coverage test's discovery mechanism was blind to the
+meta-attribute channel. The two whitelists were never compared directly.
+
+**Prevention:** a static parity test comparing the two whitelists themselves (editor
+`metaKeys` array ⊆ bridge `META_KEYS` tuple), independent of corpus content — so any future
+divergence on the meta channel fails a test, not a downstream dogfood.
 
 ## Evolution
 
@@ -174,3 +208,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-060-bridge-metakeys-excludes-agenttypetrigge.md
 - **Context:** Initial task creation
+
+### 2026-07-03T22:28:15Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

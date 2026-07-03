@@ -40,7 +40,11 @@ TYPE_MAP = {
 META_KEYS = ("determinism", "tier", "authority", "endpoint", "sideEffect",
              "timer", "multiInstance", "aggregation", "autoTriggerKind",
              "compensates", "restoresFrom", "compensationSnapshot",
-             "compensatedBy", "advisory", "decisionOwner")
+             "compensatedBy", "advisory", "decisionOwner",
+             # T-060: keys the editor's own aef:meta writer emits
+             # (src/aef-workflow-designer.html metaKeys) — kept in parity by
+             # tests/test_editor_bridge_meta_parity.py.
+             "agentType", "triggeredBy", "emits")
 
 
 def _attr(value):
