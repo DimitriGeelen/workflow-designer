@@ -38,3 +38,50 @@ concerns:
       - T-006
       - T-007
       - docs/reports/framework-agent-pickup-2026-06-05.md
+
+  - id: G-002
+    type: risk
+    status: watching
+    severity: medium
+    title: "Editor↔bridge aef: serialization seam guarded aspect-by-aspect, not by a round-trip harness"
+    detected: 2026-07-03
+    origin_task: T-053
+    decision_trigger: >
+      A THIRD seam-drift incident (any aef: field where editor JS and bridge
+      Python disagree on serialization), OR a human GO to adopt a JS-DOM
+      round-trip harness (which introduces a node toolchain — a portability
+      decision, Directive 4). Either resolves this by replacing the growing set
+      of per-aspect textual tests with one structural round-trip check.
+    description: |
+      The Workflow Designer editor (pure browser JS, src/aef-workflow-designer.html)
+      and the bridge (Python, tools/yaml-to-bpmn.py) independently serialize the
+      aef: extension namespace. They can drift on ANY aspect of that encoding, and
+      because each side is internally consistent, each side's own test suite passes
+      — the mismatch lives only in the cross-artifact (JS↔Python) seam, exercised
+      only on the YAML→bridge→editor dogfooding path.
+
+      Confirmed instances of this class (2):
+        - T-042: editor import used a different aef: namespace URI than the bridge
+          → byAef matched nothing, every aef:uid/position silently dropped.
+          Guarded by tests/test_editor_namespace_consistency.py (T-044).
+        - T-053: editor read/wrote aef:decisionOutputs as a values="…" attribute
+          while the bridge emits element text → bridge BPMN opened in the editor
+          silently lost the decision enum. Guarded by
+          tests/test_editor_extension_shape_consistency.py (T-053).
+
+      Current mitigation is aspect-by-aspect: each discovered drift dimension gets
+      its own textual (stdlib, no-browser) consistency test. This scales linearly
+      with dimensions and can only catch dimensions we've already been burned by.
+
+      Durable structural fix candidate: a single JS-DOM round-trip harness
+      (bridge YAML → BPMN → editor parseBpmnXml → editor buildBpmnXml → re-validate)
+      that would catch ALL serialization drift at once. It requires a node/jsdom
+      toolchain in a project that is currently pure Python + browser-Playwright —
+      a dependency/portability decision that must NOT be taken autonomously.
+    evidence:
+      - "T-042/T-044 and T-053 RCA sections; both fixes shipped with per-aspect cross-seam tests."
+      - "Behavioral proof for T-053 captured live via browser Playwright (parseBpmnXml/buildBpmnXml round-trip), not the missing automated harness."
+    related:
+      - T-042
+      - T-044
+      - T-053
