@@ -94,7 +94,7 @@ nodes:
       advisory: true
       endpoint: lib/diagnose.sh:find_similar_patterns (python3 lib/ask.py)
       # READS a persistent knowledge store — no first-class datastore resource (F10)
-      reads: [ patterns.yaml, episodic/ ]
+      contextReads: "patterns.yaml, episodic/"
     io:
       inputs:
         - { name: failure_type, type: enum, required: true }
@@ -114,11 +114,10 @@ nodes:
       determinism: deterministic     # renders the ladder; type-specific B tips
       advisory: true                 # prints all 4 rungs; selects none (F9)
       endpoint: lib/diagnose.sh:157-204
-      ladder:
-        - { rung: A, name: "Don't repeat", act: "check patterns + episodic" }
-        - { rung: B, name: "Improve technique", act: "type-specific fix" }
-        - { rung: C, name: "Improve tooling", act: "add automated check / audit rule" }
-        - { rung: D, name: "Change ways of working", act: "new practice / CLAUDE.md", authority: sovereignty }
+      # T-062: flattened from a structured list to a scalar x-* note (FC-11 —
+      # a collapsed node cannot declare structured constituents; the bridge has
+      # no constituent channel, so the rung set survives as readable text).
+      x-ladder: "A Don't repeat: check patterns + episodic; B Improve technique: type-specific fix; C Improve tooling: add automated check / audit rule; D Change ways of working: new practice / CLAUDE.md (sovereignty)"
     io:
       inputs:
         - { name: matching_patterns, type: list }
@@ -197,7 +196,7 @@ nodes:
       endpoint: fw healing resolve ${task_id} --mitigation "..."
       # WRITES the knowledge base — the antifragile "strengthen from failure"
       # step; no first-class datastore/knowledge resource in v2 (F10)
-      writes: ["patterns.yaml (FP-NNN)", "learnings.yaml (L-NNN)", "task Updates note"]
+      artifactsWrites: "patterns.yaml (FP-NNN), learnings.yaml (L-NNN), task Updates note"
     io:
       inputs:
         - { name: mitigation, type: string, required: true }

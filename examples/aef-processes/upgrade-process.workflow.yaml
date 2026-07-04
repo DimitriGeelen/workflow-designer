@@ -81,7 +81,7 @@ nodes:
     y: 182
     aef:
       determinism: deterministic
-      sideEffects: none          # dry-run: preview only
+      sideEffect: none          # dry-run: preview only
 
   - uid: n_backup
     type: scriptTask

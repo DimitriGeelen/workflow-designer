@@ -58,7 +58,7 @@ nodes:
     aef:
       tier: 1
       determinism: deterministic
-      reads: [git status, .tasks/, focus.yaml]   # datastore reads (F10)
+      contextReads: "git status, .tasks/, focus.yaml"   # datastore reads (F10)
 
   - uid: n_episodic_gate
     type: exclusiveGateway

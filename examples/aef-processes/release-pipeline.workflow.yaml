@@ -200,7 +200,7 @@ nodes:
       determinism: deterministic
       # L.116-127 — for each remote: git push; WARN + failed=1 on failure, continue
       multiInstance: true            # FC-5: loop over the `remotes` collection
-      collection: git remotes (runtime set)
+      x-collection: git remotes (runtime set)
       softFail: accumulating         # per-remote WARN does not abort; sets failed=1
       sideEffect: pushes the tag across the host boundary to each remote
 

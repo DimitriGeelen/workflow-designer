@@ -210,7 +210,7 @@ nodes:
     y: 314
     aef:
       terminalKind: success
-      handoffTo: human sovereignty (Watchtower, out-of-band — see FC-7)
+      x-handoffTo: human sovereignty (Watchtower, out-of-band — see FC-7)
 
 edges:
   - uid: e_01

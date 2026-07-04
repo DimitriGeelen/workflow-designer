@@ -71,7 +71,7 @@ nodes:
       # between them). should_run_section() may prune branches by the --sections
       # filter — a per-branch activation guard (F8, section-filter variant).
       gatewayKind: fork
-      branchesModeledOf: "5 of ~20 real sections"
+      x-branchesModeledOf: "5 of ~20 real sections"
 
   - uid: n_compliance
     type: scriptTask

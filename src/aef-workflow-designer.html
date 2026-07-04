@@ -4269,8 +4269,13 @@ function aefExtensionXml(node) {
   if (typeof node.x === 'number' && typeof node.y === 'number') {
     out += `        <aef:position x="${node.x.toFixed(1)}" y="${node.y.toFixed(1)}"/>\n`;
   }
-  // meta (tier, agentType, decisionOwner, triggeredBy, emits)
-  const metaKeys = ['tier', 'agentType', 'decisionOwner', 'triggeredBy', 'emits'];
+  // meta — scalar aef keys serialized as <aef:meta> attributes. Kept in parity
+  // with the bridge's META_KEYS (tests/test_editor_bridge_meta_parity.py); the
+  // T-062 block are keys the authored corpus already used (promoted from silent
+  // drops) so import→export round-trips them instead of dropping on re-export.
+  const metaKeys = ['tier', 'agentType', 'decisionOwner', 'triggeredBy', 'emits',
+    'terminalKind', 'state', 'note', 'softFail', 'section', 'guard',
+    'external', 'exitCode', 'autoTrigger', 'trigger', 'gatewayKind', 'gate'];
   const metaAttrs = metaKeys.filter(k => aefKeys.includes(k)).map(k => `${k}="${escAttr(aef[k])}"`).join(' ');
   if (metaAttrs) out += `        <aef:meta ${metaAttrs}/>\n`;
   if (aef.endpoint) out += `        <aef:endpoint>${escText(aef.endpoint)}</aef:endpoint>\n`;

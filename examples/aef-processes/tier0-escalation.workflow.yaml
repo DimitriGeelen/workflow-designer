@@ -96,9 +96,7 @@ nodes:
       decisionInput: ${approved}
       decisionOwner: framework
       # single-use, hash-bound, expiring capability token (F12)
-      sources:
-        - .context/working/.tier0-approval (hash-matched, T-1500)
-        - .context/approvals/ (Watchtower, T-612)
+      x-sources: ".context/working/.tier0-approval (hash-matched, T-1500); .context/approvals/ (Watchtower, T-612)"
 
   - uid: n_block
     type: scriptTask

@@ -102,7 +102,7 @@ nodes:
       endpoint: fw arc tag ${arc_id} T-XXXX
       # GROUPING: by-reference, unordered, computed-on-demand membership (F13).
       # v2 has no group/container construct — the member set is a query, not a list.
-      grouping: { kind: tag-set, membership: computed, ordered: false }
+      x-grouping: "kind=tag-set; membership=computed; ordered=false"
       # ambient membership guard on task writes, group-scoped (F11)
       gate: check-arc-id.py (arc_id must resolve; else block exit 2)
     io:
@@ -148,8 +148,8 @@ nodes:
       # members are each a full task-lifecycle sub-process (F5), unordered (F13);
       # every arc-member build task must carry a substantive Evolution log —
       # a group-scoped ambient requirement audited by the framework (F11)
-      subProcessPerMember: task-lifecycle
-      groupConstraint: evolution-log required on every member (evolution_log.sh:86)
+      x-subProcessPerMember: task-lifecycle
+      x-groupConstraint: evolution-log required on every member (evolution_log.sh:86)
 
   - uid: n_review
     type: scriptTask
@@ -177,7 +177,7 @@ nodes:
       # human decision → branch (F1); close requires wire-level demo evidence (F8)
       decisionOutputs: close, abandon
       endpoint: watchtower:/arcs/${arc_id}/close  |  fw arc close --i-am-human
-      requiresForClose: demo_evidence (path|url)
+      x-requiresForClose: demo_evidence (path|url)
 
   - uid: n_route
     type: exclusiveGateway

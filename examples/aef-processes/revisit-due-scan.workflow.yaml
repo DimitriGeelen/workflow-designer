@@ -73,7 +73,7 @@ nodes:
     y: 300
     aef:
       determinism: deterministic
-      reads: [.framework.yaml, FRAMEWORK.md marker]     # datastore read (F10)
+      contextReads: ".framework.yaml, FRAMEWORK.md marker"     # datastore read (F10)
 
   - uid: n_scan
     type: scriptTask
@@ -92,7 +92,7 @@ nodes:
         mode: sequential          # (could be parallel; items are independent)
         predicate: "revisit_at =~ /^\\d{4}-\\d{2}-\\d{2}$/ && revisit_at <= today"
         collects: ripe[]          # id fires revisit_at: name
-      reads: [.tasks/active/*.md frontmatter]
+      contextReads: ".tasks/active/*.md frontmatter"
 
   - uid: n_any
     type: exclusiveGateway

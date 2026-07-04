@@ -71,7 +71,7 @@ nodes:
       # G-020 is an ENTRY guard on captured->started-work, enforced in
       # agents/context/check-active-task.sh (pickup time), NOT a completion gate.
       gate: G-020
-      rule: real ACs required to start build; placeholder ACs block
+      x-rule: real ACs required to start build; placeholder ACs block
 
   - uid: n_authoring
     type: serviceTask
@@ -168,13 +168,11 @@ nodes:
       determinism: deterministic
       # AND-composed gate SET, each independently bypassable (Tier-2, logged).
       # v2 has no first-class transition guard / gate-set (F8).
-      gates:
-        - { id: R-033, rule: "owner=human blocks completion", bypass: "--skip-sovereignty" }
-        - { id: P-010, rule: "agent ACs all [x], no placeholders", bypass: "--skip-acceptance-criteria" }
-        - { id: P-011, rule: "## Verification commands all exit 0", bypass: "--skip-verification" }
-        - { id: G-019, rule: "bug-class tasks need substantive RCA", bypass: "--skip-rca" }
-        - { id: T-1718, rule: "arc build tasks fill ## Evolution", bypass: "--skip-evolution" }
-      umbrellaBypass: "--force (deprecated)"
+      # T-062: flattened from a structured gate-set list to a scalar x-* note
+      # (FC-11 — the collapsed gate node has no constituent channel in the
+      # bridge; the AND-composed gate set survives as readable text).
+      x-gates: "R-033 owner=human blocks completion [--skip-sovereignty]; P-010 agent ACs all [x] no placeholders [--skip-acceptance-criteria]; P-011 ## Verification commands all exit 0 [--skip-verification]; G-019 bug-class tasks need substantive RCA [--skip-rca]; T-1718 arc build tasks fill ## Evolution [--skip-evolution]"
+      x-umbrellaBypass: "--force (deprecated)"
 
   - uid: n_gate_result
     type: exclusiveGateway

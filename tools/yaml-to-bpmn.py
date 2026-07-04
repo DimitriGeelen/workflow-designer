@@ -44,7 +44,15 @@ META_KEYS = ("determinism", "tier", "authority", "endpoint", "sideEffect",
              # T-060: keys the editor's own aef:meta writer emits
              # (src/aef-workflow-designer.html metaKeys) — kept in parity by
              # tests/test_editor_bridge_meta_parity.py.
-             "agentType", "triggeredBy", "emits")
+             "agentType", "triggeredBy", "emits",
+             # T-062: recurring scalar keys the authored corpus already used
+             # (surfaced by the T-061 loud-drop WARN). Promoted from silent
+             # drops to first-class vocabulary; mirrored in the editor's
+             # metaKeys for round-trip. See docs/reports/T-062-*.md for the
+             # promote-vs-x-* rationale.
+             "terminalKind", "state", "note", "softFail", "section", "guard",
+             "external", "exitCode", "autoTrigger", "trigger", "gatewayKind",
+             "gate")
 
 # T-061 (FC-13): the full set of aef.* keys the bridge handles with dedicated
 # emit logic. Any aef key NOT in here and NOT under the aef.x-* extension prefix
@@ -149,6 +157,16 @@ def emit(workflow):
         for k in aef:
             if k.startswith(EXT_PREFIX) and not isinstance(aef[k], (dict, list)):
                 meta_pairs.append('%s=%s' % (k, _attr(aef[k])))
+        # T-062: a META_KEYS or aef.x-* key is a scalar attribute channel. If it
+        # carries a dict/list it cannot be emitted — warn instead of dropping it
+        # silently (the same "no silent failures" contract as the unknown-key
+        # WARN below). Flatten such a value to a scalar in the source YAML.
+        for k in aef:
+            if (k in META_KEYS or k.startswith(EXT_PREFIX)) and isinstance(aef[k], (dict, list)):
+                sys.stderr.write(
+                    "WARN yaml-to-bpmn: node %r: aef key %r has a %s value that "
+                    "cannot ride the scalar <aef:meta> channel — flatten it to a "
+                    "scalar (dropped)\n" % (uid, k, type(aef[k]).__name__))
         if meta_pairs:
             out.append('        <aef:meta %s/>' % " ".join(meta_pairs))
         if "decisionInput" in aef:

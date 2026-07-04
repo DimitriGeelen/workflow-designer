@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T23:46:01Z
-last_update: 2026-07-03T23:47:16Z
+last_update: 2026-07-03T23:48:12Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -47,12 +47,12 @@ occurrences: run the bridge over `examples/aef-processes/*.workflow.yaml` and re
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Every `aef.*` key across the corpus is reconciled — meaningful/repeated keys promoted to
+- [x] Every `aef.*` key across the corpus is reconciled — meaningful/repeated keys promoted to
       known vocab (bridge + editor, parity-tested); one-off keys renamed to `aef.x-*`
-- [ ] The bridge runs WARN-clean over the whole corpus (0 `unknown aef key` lines on stderr)
-- [ ] Any promoted key keeps editor↔bridge parity (`test_editor_bridge_meta_parity.py` passes)
-- [ ] Full bridge suite passes (26 checks, 0 fail); geometry sweep unaffected
-- [ ] `## Decisions` records the promote-vs-x-prefix split with rationale (which keys, why)
+- [x] The bridge runs WARN-clean over the whole corpus (0 `unknown aef key` lines on stderr)
+- [x] Any promoted key keeps editor↔bridge parity (`test_editor_bridge_meta_parity.py` passes)
+- [x] Full bridge suite passes (26 checks, 0 fail); geometry sweep unaffected
+- [x] `## Decisions` records the promote-vs-x-prefix split with rationale (which keys, why)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -164,14 +164,39 @@ bash tests/run-bridge-tests.sh
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-07-04 — promote-vs-x-* routing rule (full split in docs/reports/T-062-aef-key-reconciliation.md)
+- **Chose:** a single routing rule — *frequency + real-shared-concept*. 12 recurring
+  scalars naming genuine modelling concepts PROMOTED to first-class vocab (bridge
+  `META_KEYS` + editor `metaKeys`, parity-tested): terminalKind, state, note, softFail,
+  section, guard, external, exitCode, autoTrigger, trigger, gatewayKind, gate. 3 synonyms
+  ALIGNED to existing canonical keys (reads→contextReads, writes→artifactsWrites,
+  sideEffects→sideEffect). 12 one-offs RENAMED to the explicit `aef.x-*` channel (8 scalar;
+  4 structured — gates/ladder/sources/grouping — flattened to scalar x-* notes).
+- **Why:** the existing vocabulary already encoded intent (a scalar attribute channel + an
+  x-* opt-in); matching authored keys to that intent adds the fewest new first-class fields
+  while making every author's data survive. Promotion is cheap and reversible here — the
+  corpus is the only consumer and is edited in the same pass.
+- **Rejected:** (a) x-* EVERYTHING — safe but refuses to name real recurring concepts
+  (terminalKind/state/exitCode are clearly first-class); (b) promote everything — bloats the
+  canonical schema with map-specific one-offs (branchesModeledOf, umbrellaBypass); (c) give
+  structured one-offs dedicated emit — real feature work (FC-11), out of scope for a
+  reconciliation.
+
+### 2026-07-04 — structured one-offs flattened, not given a constituent channel
+- **Chose:** flatten gates/ladder/sources/grouping to readable scalar `x-*` notes.
+- **Why:** the scalar `<aef:meta>` channel can't carry structure; a real constituent channel
+  is FC-11 feature work. Flattening preserves the information (it was fully dropped before)
+  as visible text — proportionate for a reconciliation.
+- **Rejected:** dropping them (lossy); building `<aef:constituents>` now (scope creep).
+
+### 2026-07-04 — structured META_KEYS drops deferred to a follow-up task
+- **Chose:** the T-062 hardening (WARN when a META_KEYS/x-* key holds a dict/list) surfaced
+  5 KNOWN keys silently dropped as structured values — emits (×5), aggregation, compensates,
+  multiInstance, timer. Filed as a follow-up rather than fixed here.
+- **Why:** distinct class (known keys wanting *structured representation*, a feature) vs
+  T-062's unknown-key reconciliation. One-finding-one-task — mirrors T-061→T-062.
+- **Rejected:** flattening them into T-062 (they deserve structure, not a lossy string);
+  ignoring the WARN (that is the silent-drop failure mode T-061/T-062 exist to kill).
 
 ## Decision
 
