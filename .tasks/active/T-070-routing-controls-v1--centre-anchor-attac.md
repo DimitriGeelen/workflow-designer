@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T09:17:24Z
-last_update: 2026-07-04T09:17:24Z
+last_update: 2026-07-04T09:25:48Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -45,11 +45,11 @@ document format, so no bridge/seam-guard surface is touched.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `routingPrefs.attach` global preference (`center` default | `port`), persisted in localStorage, exposed as a "Routing" control in the left sidebar
-- [ ] In centre mode, unpinned (`auto`) edge ends anchor at the exact boundary intersection toward the other end for all shape classes (rect tasks, circle events, diamond gateways); port mode keeps today's nearest-tip behaviour
-- [ ] Explicitly pinned ports still honoured in both modes; dragging an endpoint onto a node body (not a port dot) in centre mode leaves the end unpinned (auto) instead of pinning nearest port
-- [ ] Visual verification: before/after element screenshots of a dense map (task-lifecycle or audit-process) read; arrowheads land mid-boundary aimed at centres, no new overlap regression
-- [ ] Inline script passes `node --check`; bridge suite stays 31 passed / 0 failed (no serialization change)
+- [x] `routingPrefs.attach` global preference (`middle` default | `spread`), persisted in localStorage, exposed as a "Routing" control in the left sidebar (toggled live via setRoutingAttach in Playwright)
+- [x] In middle mode, unpinned (`auto`) edge ends snap to the mid-point of the facing side for all shape classes (rect mid-edge, circle cardinal point, diamond tip) and sibling edges converge (spread suppressed); spread mode keeps the previous fan-out behaviour
+- [x] Explicitly pinned ports still honoured in both modes (anchorPoint named-port branch unchanged); dragging an endpoint onto a node body (not a port dot) in middle mode leaves the end unpinned — trusted-drag verified under T-071 (e_01 re-anchored with `targetPort: "auto"`)
+- [x] Visual verification: middle/spread element screenshots of task-lifecycle AND audit-process read — fork/join corridor collapses to converging mid-side entries, no overlap regression, lane bands intact
+- [x] Inline script passes `node --check`; bridge suite stays 31 passed / 0 failed (no serialization change)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -115,6 +115,14 @@ document format, so no bridge/seam-guard surface is touched.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# T-070 (2026-07-04)
+grep -q "let routingPrefs" src/aef-workflow-designer.html
+grep -q "function midSideAnchor" src/aef-workflow-designer.html
+grep -q "routing-middle" src/aef-workflow-designer.html
+grep -qc "routingPrefs.attach === 'middle'" src/aef-workflow-designer.html
+awk '/<script>/{f=1;next}/<\/script>/{f=0}f' src/aef-workflow-designer.html > /tmp/.t070-editor.js && node --check /tmp/.t070-editor.js
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -157,14 +165,15 @@ document format, so no bridge/seam-guard surface is touched.
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-07-04 — Middle-attach semantics: mid-side snap, not centre-aim
+- **Chose:** "middle" mode snaps unpinned edge ends to the mid-point of the facing side (rect mid-edge / circle cardinal / diamond tip), with sibling-edge spread suppressed so arrows converge.
+- **Why:** Inspection showed `auto` anchoring was ALREADY centre-aim (portPointTowards computes the exact boundary intersection toward the other end) — yet the operator still saw restless corner-ish entries. The actual noise source was the per-edge spread fanning entries along the side plus free-angle boundary points. Mid-side snap is the semantics that delivers the requested calm ("snap arrow end to middle of object"): predictable entry points, converging arrows, classic-BPMN look. Verified visually: audit-process's fork/join wireframe corridor collapses.
+- **Rejected:** (a) centre-aim dynamic — already the status quo, demonstrably not calm enough; (b) pinning nearest mid-side port into the document — routing preference is presentation, not document data; keeping it editor-local (localStorage) leaves the bridge seam untouched.
+
+### 2026-07-04 — Preference scope: editor-local, not document vocabulary
+- **Chose:** `routingPrefs` lives in localStorage only; the .bpmn/.yaml formats are unchanged.
+- **Why:** Zero seam-guard surface (G-002); different operators can prefer different rendering without dirtying shared corpus files.
+- **Rejected:** an `aef.routing` document key — would force bridge parity work (6th→7th guard) for a purely visual preference.
 
 ## Decision
 
