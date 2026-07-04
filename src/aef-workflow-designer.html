@@ -5373,9 +5373,16 @@ function parseBpmnXml(text) {
     edges.push(edge);
   }
 
+  // ---- pool ----
+  // Pool identity lives on bpmn:participant in the editor's own exports;
+  // bridge files carry it on the process element and have no participant —
+  // fall back there so both import paths keep their identity (T-080).
+  const partEl = byBpmn(doc, 'participant')[0];
+
   // Snap y-coords to lane centers for nodes that lacked explicit positions
   const result = {
-    pool: { id: proc.getAttribute('id') || 'Pool_imported', name: procName },
+    pool: { id: partEl?.getAttribute('id') || proc.getAttribute('id') || 'Pool_imported',
+            name: partEl?.getAttribute('name') || procName },
     workflowMeta,
     lanes,
     nodes,

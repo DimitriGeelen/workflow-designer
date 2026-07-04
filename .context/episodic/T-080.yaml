@@ -1,0 +1,73 @@
+# ============================================================================
+# EPISODIC MEMORY - T-080: Editor import drops pool participant id/name — round-trip rewrites Pool_* to Process_*
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-04T12:59:54Z
+# ============================================================================
+
+task_id: T-080
+task_name: "Editor import drops pool participant id/name — round-trip rewrites Pool_* to Process_*"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T12:54:40Z
+completed: 2026-07-04T12:59:38Z
+duration_days: 0
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'parseBpmnXml reads pool id/name from the first `bpmn:participant` when present; when absent (bridge files), current process-element derivation is unchanged. — EVIDENCE: `partEl = byBpmn(doc, ''participant'')[0]` with `partEl?.getAttribute(...) ||` fallbacks; bridge-loaded pools keep identity (Pool_arc_lifecycle/arc-lifecycle etc.).'
+  - 'In-browser round-trip byte-identical — EVIDENCE: all 24 gallery maps buildBpmnXml → parseBpmnXml → buildBpmnXml with 0 diff lines (was 1 participant-line drift per map).'
+  - 'No regression — EVIDENCE: bridge suite 31 passed 0 failed; corpus geometry sweep (nodes + polylines + node-layer label bboxes + pool label text) 24/24 identical vs HEAD baseline.'
+  - 'JS syntax check passes (node --check: OK) and gallery copy refreshed (diff -q: IN-SYNC).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-080-editor-import-drops-pool-participant-idn.md
+generated_by: context-agent-hybrid
