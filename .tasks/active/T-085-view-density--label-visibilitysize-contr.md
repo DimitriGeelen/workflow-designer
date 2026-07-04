@@ -1,8 +1,8 @@
 ---
-id: T-084
-name: "Lane-header ellipsis: truncate vertical lane names to lane height"
+id: T-085
+name: "View density + label visibility/size controls in editor settings"
 description: >
-  Vertical lane-header text longer than the lane height overlaps neighbouring lane headers (context-memory: 'COMPLETED HISTORIES · EPISODIC MEMORY' in a 160px lane). RESHAPED 2026-07-04 per operator request (forwarded scoping message + screenshot): full label-fit ladder instead of bare ellipsis — (1) wrap on word/'·' boundaries up to 2 parallel vertical lines within the ~28px header strip; (2) if still too long, shrink font toward an 8px floor; (3) finally ellipsize with full name via <title> tooltip. On by default, config toggle to disable (extend T-075 settings page, localStorage first slice). Auto-grow-lane rejected: a render concern must not mutate document geometry. From context-memory evaluation 2026-07-04.
+  Operator request 2026-07-04 (forwarded scoping message): extend the T-075 settings page with view controls. (1) Density tight/normal/wide scaling node-to-node spacing inside lanes (scales ROW_PITCH/tidy-rows from T-079; default lane heights possibly later slice). (2) Show/hide checkboxes per label class: lane labels, node id sub-labels, edge labels, pool header. (3) Global label size S/M/L affecting lane + node labels. Config in localStorage first slice (per-workflow YAML override = later slice). Companion to T-084 label-fit ladder.
 
 status: captured
 workflow_type: build
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-04T13:52:07Z
-last_update: 2026-07-04T14:04:24Z
+created: 2026-07-04T14:04:33Z
+last_update: 2026-07-04T14:04:33Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,7 +30,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-084: Lane-header ellipsis: truncate vertical lane names to lane height
+# T-085: View density + label visibility/size controls in editor settings
 
 ## Context
 
@@ -170,10 +170,7 @@ date_finished: null
 
 ## Updates
 
-### 2026-07-04T13:52:07Z — task-created [task-create-agent]
+### 2026-07-04T14:04:33Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-084-lane-header-ellipsis-truncate-vertical-l.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-085-view-density--label-visibilitysize-contr.md
 - **Context:** Initial task creation
-
-### 2026-07-04T14:04:24Z — status-update [task-update-agent]
-- **Change:** horizon: later → next

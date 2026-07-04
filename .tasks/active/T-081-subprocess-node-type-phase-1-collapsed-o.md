@@ -4,7 +4,7 @@ name: "subProcess node type phase 1: collapsed-only node + aef:constituents + sc
 description: >
   Build authorized by T-068 GO (2026-07-04). Scope per docs/reports/T-068-constituents-inception.md §Spike B staged path, phase 1 ONLY: (1) schema: subProcess node type + constituents: list + optional scopeOf: back-reference; (2) bridge: bpmn:subProcess element (TYPE_MAP passthrough) + aef:constituents emission mirroring the multiInstance pattern; (3) editor: NODE_DEFAULTS entry, collapsed box glyph with plus marker + constituent-count badge, parse/build of aef:constituents (G-002: add cross-seam consistency test); (4) validator: new node type + constituents rules; (5) migrate the 4 x-* corpus maps (verification-gate g_gates, git-commit-flow x-checks, resume-status x-sources, session-capture x-captures). OUT: any child flow-node nesting (phase 2 — own inception; parser-scoping hazard fenced there).
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T13:34:26Z
-last_update: 2026-07-04T13:34:26Z
+last_update: 2026-07-04T14:01:55Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,26 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Build authorized by T-068 GO (recorded 2026-07-04 via Watchtower). Design: docs/reports/T-068-constituents-inception.md §Spike B staged path — phase 1 ONLY (collapsed-only node; child flow-node nesting is phase 2 behind its own inception; the recursive-parser flattening hazard is fenced there). The `<aef:constituents>` element mirrors the T-063 `multiInstance` structured-dict pattern at the bridge seam.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Schema doc (`docs/designer/schema.md`) documents the `subProcess` node type, the `constituents:` list (`{id, name, ref?}` entries), and the optional `scopeOf:` back-reference, including the phase-1 fence (no child nesting)
+- [ ] Validator (`tools/validate-workflow.py`) accepts `subProcess` in NODE_TYPES and enforces constituents shape rules (list of dicts, required id+name, unique ids, `scopeOf` must reference an existing node id); full corpus validates with 0 errors
+- [ ] Bridge (`tools/yaml-to-bpmn.py`) emits `<bpmn:subProcess>` for the node element and `<aef:constituents>` extension content mirroring the multiInstance structured-dict pattern; regenerated BPMN for migrated maps contains both
+- [ ] Editor (`src/aef-workflow-designer.html`): `subProcess` in NODE_DEFAULTS + palette, collapsed-box glyph with [+] marker and constituent-count badge, `parseBpmnXml`/`buildBpmnXml` carry `aef:constituents` + `scopeOf` losslessly — in-browser round-trip (build→parse→build) is byte-identical on a subProcess-bearing map (G-002 cross-seam check)
+- [ ] The 4 x-* sites migrated to first-class constituents: verification-gate `g_gates` (comment-only), git-commit-flow `x-checks`, resume-status `x-sources`, session-capture `x-captures`; the freed `x-*` keys removed from those maps
+- [ ] Corpus regression: all 24+ maps re-render in the gallery; geometry-signature sweep shows changes ONLY in the 4 migrated maps; gallery copy `build/gallery/designer.html` in sync with src
+
+### Human
+- [ ] [REVIEW] Collapsed subProcess glyph reads clearly
+  **Steps:**
+  1. Open http://192.168.10.107:8834/ and view verification-gate and session-capture maps
+  2. Look at the migrated nodes (g_gates, n_capture): box with [+] marker and constituent-count badge
+  3. In the editor, click a subProcess node and check the properties panel lists its constituents
+  **Expected:** The composite nature is visible at a glance; constituent list readable in props panel
+  **If not:** Note which map/node reads poorly and what is confusing
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -174,3 +186,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-081-subprocess-node-type-phase-1-collapsed-o.md
 - **Context:** Initial task creation
+
+### 2026-07-04T14:01:55Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
