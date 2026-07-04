@@ -4,10 +4,10 @@ name: "Label halo: theme-background rect behind edge labels and id badges"
 description: >
   Paint a theme-surface halo rect (getBBox-sized, small padding) behind edge labels and node id badges so text stays legible when a line must pass under it. Cheap, catches the residue the placement pass (edge-label task) cannot move. From context-memory evaluation 2026-07-04.
 
-status: captured
+status: work-completed
 workflow_type: build
-owner: agent
-horizon: next
+owner: human
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T13:52:07Z
-last_update: 2026-07-04T13:52:07Z
-date_finished: null
+last_update: 2026-07-04T15:22:40Z
+date_finished: 2026-07-04T15:22:40Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,45 +34,29 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+T-082 gave edge labels a measured, bbox-hugging theme-background halo. Node id badges (`.node-id-badge`, e.g. "prj_2_add") still have none — when an edge segment or a strict-best edge label lands on one, both texts turn to mush (context-memory residual: "3+ applications -> graduate" x prj_2_add). This task paints a getBBox-sized halo rect behind every node id badge, inserted after all placement passes so it hugs the FINAL badge position.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Every rendered node id badge has a theme-background halo rect sized from its measured getBBox (+2px pad), inserted beneath the text in the same group, added AFTER the node-label and edge-label placement passes (so moved badges keep a correct halo)
+      Evidence: `addIdBadgeHalos()` called last in renderNodes (after adjustLabelPlacements + adjustEdgeLabelPlacements); browser structural check: context-memory 12/12, verification-gate 15/15, task-lifecycle 15/15 badges have a preceding rect fully containing the text bbox.
+- [x] Edge labels keep their T-082 measured halo (`data-elr` rect repositioned from final bbox, fill var(--bg)) — no regression
+      Evidence: T-082 code path untouched; verification-gate screenshot shows edge labels on halo pads masking crossing lines.
+- [x] Rendering-only change: editor XML build stays STABLE (buildBpmnXml(parse(X)) === X) on context-memory + 2 control maps; zero serialization lines in the diff
+      Evidence: STABLE on context-memory, verification-gate, task-lifecycle with renderAll interleaved.
+- [x] All suites green (bridge, validator, parity x6, geometry sweep); gallery copy synced (diff -q clean)
+      Evidence: bridge 31/31, validator 34/34, parity 6/6 PASS, geometry sweep 24 clean, gallery-synced.
+- [x] Visual verification: element screenshots at spots where lines/labels pass under badges (context-memory prj_2_add residual, verification-gate mid-chain), read and inspected — badge text legible over the halo, no oversized rect artifacts
+      Evidence: .playwright-mcp/t083-badge-halo-zoom.png (prj_2_add wins the contested pixels over the "graduate" label tail; all prj_*/epi_* badges crisp), t083-verification-gate-midchain.png (frw_* badges legible, edge labels on pads; residual mush is node-label-vs-node-label, out of scope).
 
 ### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+- [ ] [REVIEW] Badges and edge labels stay legible where lines must pass under them
+  **Steps:**
+  1. Open http://192.168.10.107:8834/ and view context-memory
+  2. Look at "3+ applications -> graduate" / prj_2_add and the verification-gate mid gateway chain
+  **Expected:** Text sits on a small background pad that masks the line beneath; no large blank boxes
+  **If not:** Note map + badge; screenshot the spot
 
 ## Verification
 
@@ -106,6 +90,16 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+grep -q "function addIdBadgeHalos" src/aef-workflow-designer.html
+grep -q "addIdBadgeHalos();" src/aef-workflow-designer.html
+diff -q src/aef-workflow-designer.html build/gallery/designer.html
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "34 passed, 0 failed"
+python3 tests/test_editor_bridge_structured_parity.py
+out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "24 clean, 0 known-legacy, 0 new-fail"
+test -f .playwright-mcp/t083-badge-halo-zoom.png
+test -f .playwright-mcp/t083-verification-gate-midchain.png
 
 ## RCA
 
@@ -149,14 +143,25 @@ date_finished: null
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-07-04 — Badges win contested pixels (z-order by construction)
+- **Chose:** Badge halos live in gNodes (above gEdges), so where a residual edge label still touches a badge, the badge's pad masks the label tail — one text fully legible instead of two texts mashed.
+- **Why:** Id badges are the anchor for referencing nodes in reviews/YAML; they must always be readable. The clipped edge-label tail is the strict-best residue T-082 documented; density work (T-084/T-085) is the real fix for those corridors.
+- **Rejected:** SVG paint-order/stroke halos on the text itself — heavier visual noise in the mono theme and inconsistent rendering across font stacks; a second placement pass for badges — badges must stay glued to their node, they cannot move.
+
+## Visual Verification
+
+Screenshots in .playwright-mcp/ (element capture, read and inspected):
+- t083-badge-halo-zoom.png — context-memory: all prj_*/epi_* badges on crisp pads; the T-082 residual now renders badge-first
+- t083-verification-gate-midchain.png — densest corridor: frw_* badges legible, edge labels on pads masking crossing lines, no rect artifacts
+
+## Recommendation
+
+**Recommendation:** GO
+**Rationale:** Every id badge corpus-wide now sits on a measured theme-background pad, closing the "text turns to mush where a line must pass under it" class the placement pass cannot fix; render-only, zero serialization impact, all suites green.
+**Evidence:**
+- Structural browser check: 42/42 badges (3 maps) haloed with containing rects; round-trip STABLE x3
+- Suites: bridge 31/31, validator 34/34, parity 6/6, geometry sweep 24 clean
+- Screenshots above, read and inspected
 
 ## Decision
 
@@ -174,3 +179,10 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-083-label-halo-theme-background-rect-behind-.md
 - **Context:** Initial task creation
+
+### 2026-07-04T15:19:40Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+### 2026-07-04T15:22:40Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

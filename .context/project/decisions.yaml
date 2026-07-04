@@ -430,3 +430,10 @@ decisions:
     date: 2026-07-04
     task: T-082
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-041
+    decision: "Badge halos live in gNodes (above gEdges), so where a residual edge label still touches a badge, the badge's pad masks the label tail — one text fully legible instead of two texts mashed."
+    scope: project
+    date: 2026-07-04
+    task: T-083
+    rationale: "Auto-captured from task file on completion"

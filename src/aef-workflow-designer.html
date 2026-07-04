@@ -2017,6 +2017,7 @@ function renderNodes() {
   }
   adjustLabelPlacements();
   adjustEdgeLabelPlacements();
+  addIdBadgeHalos();
 }
 
 // Post-pass over the freshly rendered node labels (survey R-5 slice 1):
@@ -2190,6 +2191,20 @@ function adjustEdgeLabelPlacements() {
       halo.setAttribute('width', bestBB.x2 - bestBB.x1 + 6); halo.setAttribute('height', bestBB.y2 - bestBB.y1);
     }
     placed.push(bestBB);
+  }
+}
+
+// Halo pass (T-083): paint a theme-background pad behind every node id badge
+// AFTER all placement passes, sized from the measured bbox (PL-008: estimates
+// drift; measure the rendered text). Badges live in gNodes, above gEdges in
+// z-order, so the pad masks any edge segment or residual edge label the
+// placement passes could not move away — the badge stays legible.
+function addIdBadgeHalos() {
+  for (const t of gNodes.querySelectorAll('text.node-id-badge')) {
+    const bb = t.getBBox();
+    if (!bb.width) continue;
+    const halo = el('rect', { x: bb.x - 2, y: bb.y - 1, width: bb.width + 4, height: bb.height + 2, rx: 2, fill: 'var(--bg)' });
+    t.parentNode.insertBefore(halo, t);
   }
 }
 
