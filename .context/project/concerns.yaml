@@ -32,10 +32,12 @@ concerns:
     evidence:
       - "watchtower.log: ModuleNotFoundError: No module named 'dispatch_pause' at review.py:25 on every /review GET."
       - "T-090 RCA: buggy expression sys.path.insert(0, str(PROJECT_ROOT / 'lib')) at review.py:18; docs/cockpit/enforcement/quality blueprints all use FRAMEWORK_ROOT."
+      - "T-091 (2026-07-05): upstream patch STAGED at docs/patches/T-091-0001-review-py-lib-path-framework-root.patch (git apply --check verified against vendored copy) + maintainer report docs/reports/T-091-upstream-shared-mode-fixes.md incl. shared-mode smoke test proposal; awaiting ring20 cascade (T-016) for delivery."
     related:
       - T-090
       - T-015
       - T-016
+      - T-091
   - id: G-001
     type: gap
     status: watching
