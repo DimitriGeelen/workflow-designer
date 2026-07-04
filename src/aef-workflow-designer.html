@@ -2128,7 +2128,8 @@ function renderNodes() {
       const lineH = { s: 12, m: 13, l: 15 }[labelPrefs.size];
       const lines = wrapText(n.name, wrapCh);
       lines.forEach((line, i) => {
-        g.appendChild(el('text', { x: lx, y: n.y + def.h / 2 + (i - (lines.length - 1) / 2) * lineH + 4, class: 'node-label', 'text-anchor': 'middle' }, [text(line)]));
+        // data-fitn lets fitNodeLabels() (T-087) re-measure and re-fit this block
+        g.appendChild(el('text', { x: lx, y: n.y + def.h / 2 + (i - (lines.length - 1) / 2) * lineH + 4, class: 'node-label', 'text-anchor': 'middle', 'data-fitn': n.uid }, [text(line)]));
       });
       // I/O badge in top-right of task rect
       const io = n.io || {};
@@ -2160,9 +2161,69 @@ function renderNodes() {
     }
     gNodes.appendChild(g);
   }
+  fitNodeLabels();
   adjustLabelPlacements();
   adjustEdgeLabelPlacements();
   addIdBadgeHalos();
+}
+
+// Node-label fit ladder (T-087): a task rect's name must fit INSIDE the rect.
+// The base render wraps by char estimate with unlimited lines; this post-pass
+// MEASURES the rendered lines (PL-008) and, when the block overflows the rect
+// (too many lines for the height, or a line wider than the rect), walks:
+// (1) re-wrap one font step smaller (inline style — PL-009: presentation
+// attributes lose to class CSS); (2) clamp to the line budget at that step,
+// trim the last line to measured width with an ellipsis, and attach the full
+// name as a <title> tooltip. Render-only: rect geometry is never mutated.
+// Ladder parameters follow the label-size pref (T-085).
+function fitNodeLabels() {
+  const LADDER = {
+    s: [{ fs: null, lh: 12, ch: 16 }, { fs: 9, lh: 11, ch: 18 }],
+    m: [{ fs: null, lh: 13, ch: 14 }, { fs: 10, lh: 12, ch: 16 }],
+    l: [{ fs: null, lh: 15, ch: 12 }, { fs: 11, lh: 13, ch: 14 }],
+  }[labelPrefs.size];
+  for (const n of state.nodes) {
+    let texts = Array.from(gNodes.querySelectorAll(`text[data-fitn="${n.uid}"]`));
+    if (!texts.length) continue;
+    const def = NODE_DEFAULTS[n.type];
+    const maxW = def.w - 8;
+    const lx = n.x + def.w / 2;
+    const g = texts[0].parentNode;
+    const budget = lh => Math.max(1, Math.floor((def.h - 8) / lh));
+    const fits = (els, step) => els.length <= budget(step.lh) &&
+      els.every(t => t.getComputedTextLength() <= maxW);
+    const make = (lines, step) => {
+      for (const t of texts) t.remove();
+      texts = lines.map((line, i) => {
+        const attrs = { x: lx, y: n.y + def.h / 2 + (i - (lines.length - 1) / 2) * step.lh + 4,
+                        class: 'node-label', 'text-anchor': 'middle', 'data-fitn': n.uid };
+        if (step.fs) attrs.style = 'font-size:' + step.fs + 'px';
+        const t = el('text', attrs, [text(line)]);
+        g.appendChild(t);
+        return t;
+      });
+      return texts;
+    };
+    if (fits(texts, LADDER[0])) continue;
+    const shrink = LADDER[1];
+    if (fits(make(wrapText(n.name, shrink.ch), shrink), shrink)) continue;
+    // Floor: clamp to the shrink-step budget; the last line absorbs the
+    // remainder and every over-wide line is trimmed to measured width.
+    // rest === '' means the shrink tier failed on width alone (long
+    // unbreakable token) — keep the lines and let the trim handle it.
+    const lines = wrapText(n.name, shrink.ch);
+    const maxL = budget(shrink.lh);
+    const rest = lines.slice(maxL - 1).join(' ');
+    make(rest ? lines.slice(0, maxL - 1).concat(rest) : lines, shrink);
+    for (const t of texts) {
+      let s = t.textContent;
+      while (s.length > 1 && t.getComputedTextLength() > maxW) {
+        s = s.slice(0, -1);
+        t.textContent = s + '…';
+      }
+    }
+    g.appendChild(el('title', {}, [text(n.name)]));
+  }
 }
 
 // Post-pass over the freshly rendered node labels (survey R-5 slice 1):
