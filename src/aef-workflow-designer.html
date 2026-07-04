@@ -1141,6 +1141,15 @@
             </select>
             <span class="settings-hint">row pitch for tidy &amp; drag row-snap (tight ≈72px, normal 96px, wide ≈125px)</span>
           </label>
+          <label class="settings-row">
+            <span>Branch pitch</span>
+            <select id="set-branch-pitch" class="settings-num">
+              <option value="compact">compact</option>
+              <option value="auto">auto</option>
+              <option value="roomy">roomy</option>
+            </select>
+            <span class="settings-hint">tidy spacing for fan-out branch stacks (gap above tallest node: compact 6px, auto 12px, roomy 28px)</span>
+          </label>
         </div>
         <div class="settings-section">
           <div class="settings-section-label">Labels</div>
@@ -1709,10 +1718,11 @@ function setLabelPref(key, value) {
 // View density (T-085): scales the T-079 row-pitch heuristic consumed by
 // tidy, drag row-snap and the lane inspector. Editor-local; never moves
 // stored geometry by itself — only changes what tidy/snap target next.
-let viewPrefs = { density: 'normal' };
+let viewPrefs = { density: 'normal', branchPitch: 'auto' };
 try {
   const _storedView = JSON.parse(localStorage.getItem('aefViewPrefs') || '{}');
   if (['tight', 'normal', 'wide'].includes(_storedView.density)) viewPrefs.density = _storedView.density;
+  if (['compact', 'auto', 'roomy'].includes(_storedView.branchPitch)) viewPrefs.branchPitch = _storedView.branchPitch;
 } catch (_) {}
 function setViewPref(key, value) {
   viewPrefs[key] = value;
@@ -4304,6 +4314,7 @@ function syncSettingsUI() {
   $('set-grid-size').value = snapPrefs.gridSize;
   $('set-lane-fit').checked = labelPrefs.laneFit;
   $('set-density').value = viewPrefs.density;
+  $('set-branch-pitch').value = viewPrefs.branchPitch;
   $('set-label-size').value = labelPrefs.size;
   $('set-show-lane').checked = labelPrefs.showLane;
   $('set-show-ids').checked = labelPrefs.showIds;
@@ -4325,6 +4336,7 @@ $('set-snap-magnet').addEventListener('change', e => setSnapPref('magnet', e.tar
 $('set-snap-grid').addEventListener('change', e => setSnapPref('grid', e.target.checked));
 $('set-lane-fit').addEventListener('change', e => setLabelPref('laneFit', e.target.checked));
 $('set-density').addEventListener('change', e => setViewPref('density', e.target.value));
+$('set-branch-pitch').addEventListener('change', e => setViewPref('branchPitch', e.target.value));
 $('set-label-size').addEventListener('change', e => setLabelPref('size', e.target.value));
 $('set-show-lane').addEventListener('change', e => setLabelPref('showLane', e.target.checked));
 $('set-show-ids').addEventListener('change', e => setLabelPref('showIds', e.target.checked));
@@ -4343,6 +4355,7 @@ $('btn-settings-reset').onclick = () => {
   setSnapPref('gridSize', 20);
   setLabelPref('laneFit', true);
   setViewPref('density', 'normal');
+  setViewPref('branchPitch', 'auto');
   setLabelPref('size', 'm');
   setLabelPref('showLane', true);
   setLabelPref('showIds', true);
@@ -4806,13 +4819,57 @@ function magneticSnap(node, cx, cy) {
 // it keeps a single-step revert: Ctrl+Z immediately after restores all moved
 // nodes. The revert is invalidated by the next drag/tidy — the editor has no
 // general undo stack, and this deliberately does not introduce one.
-let lastTidy = null; // { laneId, positions: [{ id, y }] }
+let lastTidy = null; // { laneId, positions: [{ id, y }], laneHeight: { id, height } | null }
+
+// Fan-out branch stacks in a lane (T-093): >=2 targets of one multi-out
+// predecessor, sitting in the same column (centre-x cluster). These are laid
+// out by pitch, not by lane row lines — the generator stacks 5-6 branches at
+// a pitch below the 64px task height, and row-snapping them would pile
+// stack-mates onto the same row instead of separating them.
+const BRANCH_GAP = { compact: 6, auto: 12, roomy: 28 };
+function branchStacksInLane(laneId) {
+  const byPred = new Map();
+  for (const ed of state.edges) {
+    const tgt = findNode(ed.target);
+    if (!tgt || tgt.lane !== laneId) continue;
+    if (!byPred.has(ed.source)) byPred.set(ed.source, []);
+    byPred.get(ed.source).push(tgt);
+  }
+  const stacks = [];
+  const claimed = new Set(); // a node joins at most one stack (first predecessor wins)
+  for (const tgts of byPred.values()) {
+    const free = tgts.filter(n => !claimed.has(n.id));
+    if (free.length < 2) continue;
+    // Cluster by centre-x: sorted, split where neighbours sit >40px apart —
+    // only vertically stacked siblings count, not branches fanning sideways.
+    free.sort((a, b) => (a.x + NODE_DEFAULTS[a.type].w / 2) - (b.x + NODE_DEFAULTS[b.type].w / 2));
+    let cluster = [free[0]];
+    const flush = () => {
+      if (cluster.length >= 2) {
+        stacks.push(cluster);
+        for (const n of cluster) claimed.add(n.id);
+      }
+      cluster = [];
+    };
+    for (let i = 1; i < free.length; i++) {
+      const prevCx = free[i - 1].x + NODE_DEFAULTS[free[i - 1].type].w / 2;
+      const cx = free[i].x + NODE_DEFAULTS[free[i].type].w / 2;
+      if (cx - prevCx > 40) flush();
+      cluster.push(free[i]);
+    }
+    flush();
+  }
+  return stacks;
+}
+
 function tidyLane(laneId) {
   const rows = laneRowYs(laneId);
   if (!rows.length) return 0;
   const moved = [];
+  const stacks = branchStacksInLane(laneId);
+  const inStack = new Set(stacks.flat().map(n => n.id));
   for (const n of state.nodes) {
-    if (n.lane !== laneId) continue;
+    if (n.lane !== laneId || inStack.has(n.id)) continue;
     const d = NODE_DEFAULTS[n.type];
     const cy = n.y + d.h / 2;
     let best = rows[0];
@@ -4820,8 +4877,61 @@ function tidyLane(laneId) {
     const newY = best - d.h / 2;
     if (Math.abs(newY - n.y) > 0.01) { moved.push({ id: n.id, y: n.y }); n.y = newY; }
   }
-  if (moved.length) {
-    lastTidy = { laneId, positions: moved };
+  // Branch-stack pass (T-093): respace each CRAMPED stack at tallest-member +
+  // gap, centred on where the stack already was, order preserved. Two guards:
+  // a stack whose members already sit at/beyond the target pitch is left
+  // alone (spread stacks often deliberately straddle a chain node — pulling
+  // them together plants them on it, seen on tier0-escalation), and after the
+  // move each member is collision-checked against non-members in the lane;
+  // any new intersection reverts that stack (PD-030 measure-after-move).
+  const lane = findLane(laneId);
+  const lTop = laneTop(laneId);
+  const gap = BRANCH_GAP[viewPrefs.branchPitch] ?? BRANCH_GAP.auto;
+  let laneHeightSaved = null;
+  const nodeRect = n => { const d = NODE_DEFAULTS[n.type]; return { x: n.x, y: n.y, w: d.w, h: d.h }; };
+  const intersects = (a, b) =>
+    a.x < b.x + b.w - 1 && b.x < a.x + a.w - 1 && a.y < b.y + b.h - 1 && b.y < a.y + a.h - 1;
+  for (const stack of stacks) {
+    const pitch = Math.max(...stack.map(n => NODE_DEFAULTS[n.type].h)) + gap;
+    const order = stack.slice().sort((a, b) => a.y - b.y);
+    let minPitch = Infinity;
+    for (let i = 1; i < order.length; i++) {
+      const p = (order[i].y + NODE_DEFAULTS[order[i].type].h / 2) - (order[i - 1].y + NODE_DEFAULTS[order[i - 1].type].h / 2);
+      if (p < minPitch) minPitch = p;
+    }
+    if (minPitch >= pitch - 0.5) continue; // already at/beyond target — not our defect
+    const others = state.nodes.filter(o => o.lane === laneId && !order.includes(o));
+    const collisionsWith = () => {
+      let c = 0;
+      for (const n of order) for (const o of others) if (intersects(nodeRect(n), nodeRect(o))) c++;
+      return c;
+    };
+    const before = order.map(n => ({ n, y: n.y }));
+    const collBefore = collisionsWith();
+    const centroid = stack.reduce((s, n) => s + n.y + NODE_DEFAULTS[n.type].h / 2, 0) / stack.length;
+    let cy = centroid - (order.length - 1) * pitch / 2;
+    // Keep the stack inside the lane top; grow the lane bottom if it no longer fits.
+    const topOverflow = (lTop + 8) - (cy - NODE_DEFAULTS[order[0].type].h / 2);
+    if (topOverflow > 0) cy += topOverflow;
+    for (const n of order) {
+      n.y = cy - NODE_DEFAULTS[n.type].h / 2;
+      cy += pitch;
+    }
+    if (collisionsWith() > collBefore) {
+      for (const b of before) b.n.y = b.y; // respace made things worse — revert this stack
+      continue;
+    }
+    for (const b of before) {
+      if (Math.abs(b.n.y - b.y) > 0.01) moved.push({ id: b.n.id, y: b.y });
+    }
+    const bottom = order[order.length - 1].y + NODE_DEFAULTS[order[order.length - 1].type].h;
+    if (lane && bottom > lTop + lane.height - 8) {
+      if (!laneHeightSaved) laneHeightSaved = { id: laneId, height: lane.height };
+      lane.height = bottom - lTop + 8;
+    }
+  }
+  if (moved.length || laneHeightSaved) {
+    lastTidy = { laneId, positions: moved, laneHeight: laneHeightSaved };
     renderAll();
   }
   return moved.length;
@@ -4831,6 +4941,10 @@ function undoTidy() {
   for (const p of lastTidy.positions) {
     const n = findNode(p.id);
     if (n) n.y = p.y;
+  }
+  if (lastTidy.laneHeight) {
+    const lane = findLane(lastTidy.laneHeight.id);
+    if (lane) lane.height = lastTidy.laneHeight.height;
   }
   lastTidy = null;
   renderAll();

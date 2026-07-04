@@ -486,3 +486,17 @@ decisions:
     date: 2026-07-04
     task: T-089
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-049
+    decision: "The branch pass acts only on stacks whose current min centre-pitch is below the target, and reverts any stack whose respace increases member/non-member collisions (PD-030 discipline)."
+    scope: project
+    date: 2026-07-04
+    task: T-093
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-050
+    decision: "Nodes claimed by a branch stack skip the T-079 row-snap pass entirely; the stack's own pitch logic owns their y."
+    scope: project
+    date: 2026-07-04
+    task: T-093
+    rationale: "Auto-captured from task file on completion"
