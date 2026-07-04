@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T07:58:13Z
-last_update: 2026-07-03T08:00:23Z
+last_update: 2026-07-04T08:57:24Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -54,9 +54,10 @@ missed? Agent-side is producing the viewable artifact + steps; the verdict is th
 ### Human
 - [ ] [REVIEW] The rendered `inception-review` diagram faithfully matches the real flow you just experienced (A-4 fidelity pilot)
   **Steps:**
-  1. In a browser, open `src/aef-workflow-designer.html` (double-click, or `file://` path)
-  2. Load `examples/aef-processes/rendered/inception-review.bpmn` via the editor's file-load / drop zone
+  1. Start the gallery (if not already running): `cd /opt/832-Workflow-designer && tools/serve-gallery.sh 8834`
+  2. In a browser open http://192.168.10.107:8834/ and click **inception-review** (opens the designer with the map loaded — no file picker needed)
   3. Compare the three lanes + flow to what happened when you ran `fw task review T-038` → decided GO
+  (Fallback: open `src/aef-workflow-designer.html` via `file://` and Load `examples/aef-processes/rendered/inception-review.bpmn` manually)
   **Expected:** lanes (agent→initiative, framework→authority, human→sovereignty), the readiness→fix loop, and the go/no-go/defer decision all match reality
   **If not:** note each discrepancy — those become correction findings and the first real evidence for/against A-4
 
@@ -120,6 +121,12 @@ missed? Agent-side is producing the viewable artifact + steps; the verdict is th
 # (added/removed/reorganised hooks), add `bin/fw enforcement baseline` to your
 # Verification block. Otherwise the canonical hash diverges and `fw doctor`
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
+
+# T-041 gallery deliverable (2026-07-04)
+test "$(ls examples/aef-processes/rendered/*.bpmn | wc -l)" -eq 24
+grep -q "URLSearchParams(location.search).get('load')" src/aef-workflow-designer.html
+test -x tools/serve-gallery.sh
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
