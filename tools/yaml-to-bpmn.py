@@ -38,13 +38,13 @@ TYPE_MAP = {
 # aef: bag keys emitted as <aef:meta> attributes (scalars only). Others
 # (decisionInput/decisionOutputs) get their own child elements below.
 META_KEYS = ("determinism", "tier", "authority", "endpoint", "sideEffect",
-             "timer", "multiInstance", "aggregation", "autoTriggerKind",
-             "compensates", "restoresFrom", "compensationSnapshot",
+             "autoTriggerKind",
+             "restoresFrom", "compensationSnapshot",
              "compensatedBy", "advisory", "decisionOwner",
              # T-060: keys the editor's own aef:meta writer emits
              # (src/aef-workflow-designer.html metaKeys) — kept in parity by
              # tests/test_editor_bridge_meta_parity.py.
-             "agentType", "triggeredBy", "emits",
+             "agentType", "triggeredBy",
              # T-062: recurring scalar keys the authored corpus already used
              # (surfaced by the T-061 loud-drop WARN). Promoted from silent
              # drops to first-class vocabulary; mirrored in the editor's
@@ -60,16 +60,38 @@ META_KEYS = ("determinism", "tier", "authority", "endpoint", "sideEffect",
 # This closes the "free-form passthrough is a closed whitelist" gap — the
 # namespace is a known vocabulary PLUS an explicit x- passthrough channel.
 EXT_PREFIX = "x-"
+
+# T-063: aef keys with a structured (dict/list) value get their own dedicated
+# child element (like io/decisionInput) instead of the scalar <aef:meta>
+# attribute channel. Moved off META_KEYS so the T-062 structured-value WARN does
+# not fire for them; the editor reads AND re-writes these (round-trip), kept in
+# parity by tests/test_editor_bridge_structured_parity.py.
+#   - list-valued  → a wrapper element with one child per item
+#   - dict-valued  → a single element carrying one attribute per field
+STRUCTURED_LIST_KEYS = {
+    "emits": ("emits", "emit", "value"),        # <aef:emits><aef:emit value=".."/>
+    "compensates": ("compensates", "compensate", "ref"),
+}
+STRUCTURED_DICT_KEYS = ("aggregation", "multiInstance", "timer")
+
 KNOWN_AEF_KEYS = frozenset(META_KEYS) | frozenset((
     "decisionInput", "decisionOutputs",
     "contextReads", "artifactsWrites",
     "targetWorkflow", "linkId",
-))
+)) | frozenset(STRUCTURED_LIST_KEYS) | frozenset(STRUCTURED_DICT_KEYS)
 
 
 def _attr(value):
     """Escaped, quoted XML attribute value."""
     return quoteattr(str(value))
+
+
+def _scalarize(value):
+    """A dict-field value may itself be a list (e.g. aggregation.outputs). Join
+    lists to a comma string so they ride a single attribute; scalars pass through."""
+    if isinstance(value, list):
+        return ", ".join(str(v) for v in value)
+    return str(value)
 
 
 def bpmn_element_name(node_type):
@@ -203,6 +225,22 @@ def emit(workflow):
                 out.append('          <aef:output name=%s type=%s/>'
                            % (_attr(o.get("name", "")), _attr(o.get("type", "string"))))
             out.append('        </aef:io>')
+        # T-063: structured aef values get dedicated child elements (not the
+        # scalar <aef:meta> channel). list-valued → wrapper + one child per item;
+        # dict-valued → one element with an attribute per field.
+        for key, (wrap, item, attr) in STRUCTURED_LIST_KEYS.items():
+            val = aef.get(key)
+            if isinstance(val, list) and val:
+                out.append('        <aef:%s>' % wrap)
+                for v in val:
+                    out.append('          <aef:%s %s=%s/>' % (item, attr, _attr(v)))
+                out.append('        </aef:%s>' % wrap)
+        for key in STRUCTURED_DICT_KEYS:
+            val = aef.get(key)
+            if isinstance(val, dict) and val:
+                attrs = " ".join('%s=%s' % (fk, _attr(_scalarize(fv)))
+                                 for fk, fv in val.items())
+                out.append('        <aef:%s %s/>' % (key, attrs))
         # T-061 (FC-13): no silent drops. Any aef key that is neither handled
         # above nor an explicit aef.x-* extension is reported to stderr (still
         # dropped, but visible). Non-fatal: exit code is unchanged so the

@@ -94,6 +94,15 @@ else
 fi
 
 echo
+echo "== editor↔bridge structured-key parity (T-063) =="
+if python3 "$ROOT/tests/test_editor_bridge_structured_parity.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "editor and bridge disagree on structured aef keys (import/export drift)"
+  fail=$((fail + 1))
+fi
+
+echo
 # Corpus geometry sweep (T-052): every authored map's nodes must sit inside their
 # lane bands, modulo the exact legacy allowlist. Guards against new maps silently
 # straddling bands — the G-019 blindness found in T-050.

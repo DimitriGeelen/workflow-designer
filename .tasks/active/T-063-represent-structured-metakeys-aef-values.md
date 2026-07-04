@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T00:15:00Z
-last_update: 2026-07-04T00:16:23Z
+last_update: 2026-07-04T00:17:19Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -47,14 +47,14 @@ seam guard. See docs/reports/T-062-aef-key-reconciliation.md §"Bridge hardening
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Each of the 5 structured `META_KEYS` keys (`emits`, `aggregation`, `compensates`,
+- [x] Each of the 5 structured `META_KEYS` keys (`emits`, `aggregation`, `compensates`,
       `multiInstance`, `timer`) has a decided representation — structured `<aef:*>` emit in
       the bridge, or a documented flatten — with the choice recorded in `## Decisions`
-- [ ] Bridge emits the chosen form; editor imports AND re-exports it (round-trip), kept in
+- [x] Bridge emits the chosen form; editor imports AND re-exports it (round-trip), kept in
       parity by a seam guard test (extend the existing `tests/test_editor_bridge_*` family)
-- [ ] Bridge runs FULLY warn-clean over the corpus: 0 `unknown aef key` AND 0 `cannot ride
+- [x] Bridge runs FULLY warn-clean over the corpus: 0 `unknown aef key` AND 0 `cannot ride
       the scalar` lines on stderr
-- [ ] Full bridge suite passes (0 fail); geometry sweep unaffected
+- [x] Full bridge suite passes (0 fail); geometry sweep unaffected
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -120,6 +120,11 @@ seam guard. See docs/reports/T-062-aef-key-reconciliation.md §"Bridge hardening
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# fully warn-clean: 0 unknown-key AND 0 cannot-ride lines across the corpus
+out=$(for f in examples/aef-processes/*.workflow.yaml; do python3 tools/yaml-to-bpmn.py "$f" --out /dev/null 2>&1 1>/dev/null; done); echo "$out" | grep -qE 'unknown aef key|cannot ride' && exit 1 || true
+python3 tests/test_editor_bridge_structured_parity.py
+bash tests/run-bridge-tests.sh
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -162,14 +167,43 @@ seam guard. See docs/reports/T-062-aef-key-reconciliation.md §"Bridge hardening
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-07-04 — representation: aef structured child elements (list→wrapper, dict→attrs)
+- **Chose:** all 5 keys get dedicated `<aef:*>` child elements in the aef namespace.
+  List-valued (`emits`, `compensates`) → a wrapper with one child per item
+  (`<aef:emits><aef:emit value=".."/></aef:emits>`); dict-valued (`aggregation`,
+  `multiInstance`, `timer`) → one element carrying an attribute per field (nested lists
+  like `aggregation.outputs` joined to a comma string). Bridge (`STRUCTURED_LIST_KEYS` /
+  `STRUCTURED_DICT_KEYS`) and editor (`buildBpmnXml` + `parseBpmnXml`) mirror each other,
+  guarded by `tests/test_editor_bridge_structured_parity.py`.
+- **Why:** uniform with the existing structured emits (`io`, `decisionInput`, `laneMeta`);
+  the editor already reads aef generically, so this is the smallest, lowest-risk change.
+  Reversible — the corpus is the only consumer.
+- **Rejected:** (a) flatten to scalar x-* notes — lossy for values that are genuinely
+  structured (a list of events, a timer config); (b) map `multiInstance`/`timer` to the
+  STANDARD BPMN `<bpmn:multiInstanceLoopCharacteristics>` / `<bpmn:timerEventDefinition>` —
+  see next.
+
+### 2026-07-04 — BPMN-standard mapping for multiInstance/timer deferred (Portability)
+- **Chose:** keep `multiInstance` and `timer` as aef extensions for now, NOT standard BPMN.
+  Asked the human for a steer (aef-consistent vs standards-first); they were away, so I took
+  the pragmatic default and recorded the trade explicitly.
+- **Why:** the standard constructs cover only part of each concept — the aef-specific fields
+  (`predicate`, `collects`, `anchor`) still need extensions, so a standards-first mapping is a
+  hybrid that materially enlarges the editor parse/build AND the validator. Consistency +
+  smaller surface won here.
+- **Consciously deferred (Constitutional Directive #4, Portability):** the standard-BPMN
+  mapping is the portability-correct end state. Left as tracked future work rather than
+  ignored — revisit if these workflows are ever exported to a third-party BPMN engine.
+- **Rejected:** silently choosing aef-only without recording the portability cost.
+
+### 2026-07-04 — editor round-trip guarded statically (no JS-DOM harness)
+- **Chose:** guard editor↔bridge parity with a STATIC seam test (key-set equality across
+  bridge + editor import/export), consistent with the existing `test_editor_bridge_*` family;
+  verified the editor JS with `node --check` (syntax OK).
+- **Why:** executing the editor's `parseBpmnXml`→`buildBpmnXml` needs a JS-DOM harness
+  (jsdom) — the deferred G-002 harness. The whole seam-guard family is static for the same
+  reason; adding a runtime harness is its own (inception) decision, out of scope here.
+- **Rejected:** blocking T-063 on standing up a JS-DOM round-trip harness.
 
 ## Decision
 

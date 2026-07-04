@@ -4273,7 +4273,7 @@ function aefExtensionXml(node) {
   // with the bridge's META_KEYS (tests/test_editor_bridge_meta_parity.py); the
   // T-062 block are keys the authored corpus already used (promoted from silent
   // drops) so import→export round-trips them instead of dropping on re-export.
-  const metaKeys = ['tier', 'agentType', 'decisionOwner', 'triggeredBy', 'emits',
+  const metaKeys = ['tier', 'agentType', 'decisionOwner', 'triggeredBy',
     'terminalKind', 'state', 'note', 'softFail', 'section', 'guard',
     'external', 'exitCode', 'autoTrigger', 'trigger', 'gatewayKind', 'gate'];
   const metaAttrs = metaKeys.filter(k => aefKeys.includes(k)).map(k => `${k}="${escAttr(aef[k])}"`).join(' ');
@@ -4299,6 +4299,28 @@ function aefExtensionXml(node) {
       out += `          <aef:output name="${escAttr(o.name)}" type="${escAttr(o.type)}"/>\n`;
     }
     out += `        </aef:io>\n`;
+  }
+
+  // T-063: structured aef values — dedicated child elements, in parity with the
+  // bridge (STRUCTURED_LIST_KEYS / STRUCTURED_DICT_KEYS in tools/yaml-to-bpmn.py;
+  // guarded by tests/test_editor_bridge_structured_parity.py). list-valued →
+  // wrapper + one child per item; dict-valued → one element, attribute per field.
+  const structList = { emits: ['emits', 'emit', 'value'], compensates: ['compensates', 'compensate', 'ref'] };
+  for (const key in structList) {
+    const [wrap, item, attr] = structList[key];
+    if (Array.isArray(aef[key]) && aef[key].length) {
+      out += `        <aef:${wrap}>\n`;
+      for (const v of aef[key]) out += `          <aef:${item} ${attr}="${escAttr(v)}"/>\n`;
+      out += `        </aef:${wrap}>\n`;
+    }
+  }
+  for (const key of ['aggregation', 'multiInstance', 'timer']) {
+    const d = aef[key];
+    if (d && typeof d === 'object' && !Array.isArray(d)) {
+      const at = Object.keys(d)
+        .map(fk => `${fk}="${escAttr(Array.isArray(d[fk]) ? d[fk].join(', ') : d[fk])}"`).join(' ');
+      if (at) out += `        <aef:${key} ${at}/>\n`;
+    }
   }
 
   out += '      </bpmn:extensionElements>\n';
@@ -4556,6 +4578,21 @@ function parseBpmnXml(text) {
             name: out.getAttribute('name') || '',
             type: out.getAttribute('type') || 'string',
           });
+        }
+      }
+
+      // T-063: structured aef values — read back the dedicated child elements the
+      // bridge/buildBpmnXml emit (parity: test_editor_bridge_structured_parity.py).
+      for (const [key, item, attr] of [['emits', 'emit', 'value'], ['compensates', 'compensate', 'ref']]) {
+        const wrapEl = byAef(el, key)[0];
+        if (wrapEl) aef[key] = byAef(wrapEl, item).map(c => c.getAttribute(attr) || '');
+      }
+      for (const key of ['aggregation', 'multiInstance', 'timer']) {
+        const dEl = byAef(el, key)[0];
+        if (dEl) {
+          const d = {};
+          for (const a of dEl.attributes) d[a.name] = a.value;
+          aef[key] = d;
         }
       }
 
