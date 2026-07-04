@@ -451,3 +451,24 @@ decisions:
     date: 2026-07-04
     task: T-084
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-044
+    decision: "`viewPrefs.density` scales `rowPitch()` consumed by laneRowYs (and thus tidy, drag row-snap, lane inspector). Changing the pref moves nothing; tidy remains the explicit, human-triggered mutation that adopts the new pitch."
+    scope: project
+    date: 2026-07-04
+    task: T-085
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-045
+    decision: "Toggles remove only text/halo elements (lane label text, id badge text, edge label + data-elr halo, pool title). Lane header band and pool band always render."
+    scope: project
+    date: 2026-07-04
+    task: T-085
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-046
+    decision: "S/M/L as CSS rules on a root data attribute; the lane-fit ladder's explicit shrink steps switched from font-size ATTRIBUTE to inline STYLE so measured shrink always beats both `.lane-label` and the size rules."
+    scope: project
+    date: 2026-07-04
+    task: T-085
+    rationale: "Auto-captured from task file on completion"

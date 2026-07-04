@@ -354,6 +354,13 @@
   .node-shape { transition: stroke-width 0.1s ease; }
   .node-label { fill: var(--text); font-family: var(--sans); font-size: 11px; font-weight: 500; pointer-events: none; }
   .node-label-sub { fill: var(--text-faint); font-family: var(--mono); font-size: 9px; pointer-events: none; }
+  /* Global label size (T-085): keyed off data-lsize on the svg root. The
+     lane-fit ladder's explicit shrink steps use inline style, which wins
+     over these rules by cascade priority. */
+  svg[data-lsize="s"] .node-label { font-size: 10px; }
+  svg[data-lsize="l"] .node-label { font-size: 12.5px; }
+  svg[data-lsize="s"] .lane-label { font-size: 9px; }
+  svg[data-lsize="l"] .lane-label { font-size: 11.5px; }
   .node-io-badge { fill: var(--text-dim); font-family: var(--mono); font-size: 8px; pointer-events: none; }
   .node-id-badge { fill: var(--text-faint); font-family: var(--mono); font-size: 9px; pointer-events: none; letter-spacing: 0.02em; }
   .node.selected .node-shape { stroke-width: 3px; filter: drop-shadow(0 0 6px var(--accent)); }
@@ -830,6 +837,7 @@
     font-family: var(--mono);
     font-size: 12px;
   }
+  select.settings-num { width: auto; min-width: 76px; } /* room for option text + arrow (T-085) */
   .settings-hint { color: var(--text-dim); font-size: 11px; }
   .settings-footer {
     display: flex;
@@ -1123,10 +1131,47 @@
           </label>
         </div>
         <div class="settings-section">
+          <div class="settings-section-label">View</div>
+          <label class="settings-row">
+            <span>Density</span>
+            <select id="set-density" class="settings-num">
+              <option value="tight">tight</option>
+              <option value="normal">normal</option>
+              <option value="wide">wide</option>
+            </select>
+            <span class="settings-hint">row pitch for tidy &amp; drag row-snap (tight ≈72px, normal 96px, wide ≈125px)</span>
+          </label>
+        </div>
+        <div class="settings-section">
           <div class="settings-section-label">Labels</div>
           <label class="settings-row">
             <input type="checkbox" id="set-lane-fit">
             <span>Fit lane names — wrap on '·'/word, then shrink to 8px, then ellipsize (full name on hover)</span>
+          </label>
+          <label class="settings-row">
+            <span>Label size</span>
+            <select id="set-label-size" class="settings-num">
+              <option value="s">S</option>
+              <option value="m">M</option>
+              <option value="l">L</option>
+            </select>
+            <span class="settings-hint">node + lane label text size</span>
+          </label>
+          <label class="settings-row">
+            <input type="checkbox" id="set-show-lane">
+            <span>Show lane names</span>
+          </label>
+          <label class="settings-row">
+            <input type="checkbox" id="set-show-ids">
+            <span>Show node id badges</span>
+          </label>
+          <label class="settings-row">
+            <input type="checkbox" id="set-show-edge">
+            <span>Show edge labels</span>
+          </label>
+          <label class="settings-row">
+            <input type="checkbox" id="set-show-pool">
+            <span>Show pool header title</span>
           </label>
         </div>
         <div class="settings-footer">
@@ -1647,15 +1692,32 @@ function setSnapPref(key, value) {
 
 // Lane-label fit ladder (T-084) — editor-local (localStorage), same seam
 // discipline as routingPrefs/snapPrefs: render-only, never in the document.
-let labelPrefs = { laneFit: true };
+let labelPrefs = { laneFit: true, showLane: true, showIds: true, showEdge: true, showPool: true, size: 'm' };
 try {
   const _storedLabel = JSON.parse(localStorage.getItem('aefLabelPrefs') || '{}');
   if (typeof _storedLabel.laneFit === 'boolean') labelPrefs.laneFit = _storedLabel.laneFit;
+  for (const k of ['showLane', 'showIds', 'showEdge', 'showPool'])
+    if (typeof _storedLabel[k] === 'boolean') labelPrefs[k] = _storedLabel[k];
+  if (['s', 'm', 'l'].includes(_storedLabel.size)) labelPrefs.size = _storedLabel.size;
 } catch (_) {}
 function setLabelPref(key, value) {
   labelPrefs[key] = value;
   try { localStorage.setItem('aefLabelPrefs', JSON.stringify(labelPrefs)); } catch (_) {}
-  renderPool();
+  renderAll();
+}
+
+// View density (T-085): scales the T-079 row-pitch heuristic consumed by
+// tidy, drag row-snap and the lane inspector. Editor-local; never moves
+// stored geometry by itself — only changes what tidy/snap target next.
+let viewPrefs = { density: 'normal' };
+try {
+  const _storedView = JSON.parse(localStorage.getItem('aefViewPrefs') || '{}');
+  if (['tight', 'normal', 'wide'].includes(_storedView.density)) viewPrefs.density = _storedView.density;
+} catch (_) {}
+function setViewPref(key, value) {
+  viewPrefs[key] = value;
+  try { localStorage.setItem('aefViewPrefs', JSON.stringify(viewPrefs)); } catch (_) {}
+  renderAll();
 }
 let multiSelect = new Set(); // node ids in the active multi-selection (always includes primary if it's a node)
 let rubberBand = null; // { startX, startY, x, y } while drawing
@@ -1725,6 +1787,7 @@ function findEdge(id) { return state.edges.find(e => e.uid === id); }
 //  Rendering
 // ============================================================================
 function renderAll() {
+  svg.setAttribute('data-lsize', labelPrefs.size);
   renderPool();
   renderEdges();
   renderNodes();
@@ -1873,7 +1936,7 @@ function fitLaneLabel(headerG, lane, cx, cy, laneH, isSelected) {
       x, y: cy, class: 'lane-label', 'text-anchor': 'middle',
       transform: `rotate(-90 ${x} ${cy})`, fill,
     };
-    if (fs) attrs['font-size'] = fs + 'px';
+    if (fs) attrs.style = 'font-size:' + fs + 'px'; // inline style: must beat .lane-label and data-lsize CSS rules
     const t = el('text', attrs, [text(s)]);
     headerG.appendChild(t);
     return t;
@@ -1928,7 +1991,7 @@ function renderPool() {
 
   // pool header strip
   gPool.appendChild(el('rect', { x: px, y: py, width: pw, height: POOL_HEADER, fill: 'var(--surface-2)' }));
-  gPool.appendChild(el('text', { x: px + 14, y: py + 21, class: 'pool-label' }, [text(state.pool.name + '  ·  workflow:' + state.workflowMeta.id)]));
+  if (labelPrefs.showPool) gPool.appendChild(el('text', { x: px + 14, y: py + 21, class: 'pool-label' }, [text(state.pool.name + '  ·  workflow:' + state.workflowMeta.id)]));
 
   // lanes
   let yCursor = py + POOL_HEADER;
@@ -1956,7 +2019,7 @@ function renderPool() {
     // Append BEFORE fitting the label — the fit ladder measures rendered text
     // (getComputedTextLength needs the element in the live DOM).
     gPool.appendChild(headerG);
-    fitLaneLabel(headerG, lane, cx, cy, lh, isSelected);
+    if (labelPrefs.showLane) fitLaneLabel(headerG, lane, cx, cy, lh, isSelected);
 
     // Divider at top edge (skip for first lane — that's the pool header line)
     if (li > 0) {
@@ -2060,10 +2123,12 @@ function renderNodes() {
       ? n.y + def.h + 14
       : n.y + def.h / 2 + 4;
     if (n.type === 'serviceTask' || n.type === 'userTask' || n.type === 'scriptTask' || n.type === 'subProcess') {
-      // multi-line label
-      const lines = wrapText(n.name, 14);
+      // multi-line label — wrap width and line pitch follow the label size (T-085)
+      const wrapCh = { s: 16, m: 14, l: 12 }[labelPrefs.size];
+      const lineH = { s: 12, m: 13, l: 15 }[labelPrefs.size];
+      const lines = wrapText(n.name, wrapCh);
       lines.forEach((line, i) => {
-        g.appendChild(el('text', { x: lx, y: n.y + def.h / 2 + (i - (lines.length - 1) / 2) * 13 + 4, class: 'node-label', 'text-anchor': 'middle' }, [text(line)]));
+        g.appendChild(el('text', { x: lx, y: n.y + def.h / 2 + (i - (lines.length - 1) / 2) * lineH + 4, class: 'node-label', 'text-anchor': 'middle' }, [text(line)]));
       });
       // I/O badge in top-right of task rect
       const io = n.io || {};
@@ -2076,11 +2141,11 @@ function renderNodes() {
         g.appendChild(el('text', { x: n.x + def.w - bw / 2 - 4, y: n.y + 12, class: 'node-io-badge', 'text-anchor': 'middle' }, [text(badge)]));
       }
       // ID below the rectangle, centered
-      g.appendChild(el('text', { x: lx, y: n.y + def.h + 12, class: 'node-id-badge', 'text-anchor': 'middle' }, [text(displayIdOf(n))]));
+      if (labelPrefs.showIds) g.appendChild(el('text', { x: lx, y: n.y + def.h + 12, class: 'node-id-badge', 'text-anchor': 'middle' }, [text(displayIdOf(n))]));
     } else {
       g.appendChild(el('text', { x: lx, y: ly, class: 'node-label', 'text-anchor': 'middle', 'data-nl': n.uid }, [text(n.name)]));
       // ID below the name, in mono and lower contrast
-      g.appendChild(el('text', { x: lx, y: ly + 12, class: 'node-id-badge', 'text-anchor': 'middle', 'data-nl': n.uid }, [text(displayIdOf(n))]));
+      if (labelPrefs.showIds) g.appendChild(el('text', { x: lx, y: ly + 12, class: 'node-id-badge', 'text-anchor': 'middle', 'data-nl': n.uid }, [text(displayIdOf(n))]));
     }
     // T-081: constituent-count badge — any node carrying aef.constituents
     // (FC-11 composites live on gateways too, not only subProcess). Bottom-left
@@ -2389,7 +2454,7 @@ function renderEdges() {
     g.appendChild(el('path', { d: path, class: 'edge-hit' }));
     g.appendChild(el('path', { d: path, class: 'edge-path', 'marker-end': isSelected ? 'url(#arrow-selected)' : 'url(#arrow)' }));
 
-    if (e.name && !isBeingDragged) {
+    if (e.name && labelPrefs.showEdge && !isBeingDragged) {
       // Place on the ACTUAL routed polyline (not the pre-route points) and lift
       // the label off the line — above horizontal runs, beside vertical runs (T-072).
       const labelPoly = (e._renderedPolyline && e._renderedPolyline.length >= 2) ? e._renderedPolyline : points;
@@ -4136,6 +4201,12 @@ function syncSettingsUI() {
   $('set-snap-grid').checked = snapPrefs.grid;
   $('set-grid-size').value = snapPrefs.gridSize;
   $('set-lane-fit').checked = labelPrefs.laneFit;
+  $('set-density').value = viewPrefs.density;
+  $('set-label-size').value = labelPrefs.size;
+  $('set-show-lane').checked = labelPrefs.showLane;
+  $('set-show-ids').checked = labelPrefs.showIds;
+  $('set-show-edge').checked = labelPrefs.showEdge;
+  $('set-show-pool').checked = labelPrefs.showPool;
 }
 function openSettings() { syncSettingsUI(); $('settings-modal').classList.add('visible'); }
 function closeSettings() { $('settings-modal').classList.remove('visible'); }
@@ -4151,6 +4222,12 @@ $('set-straighten-tol').addEventListener('change', e => { setStraightenTol(parse
 $('set-snap-magnet').addEventListener('change', e => setSnapPref('magnet', e.target.checked));
 $('set-snap-grid').addEventListener('change', e => setSnapPref('grid', e.target.checked));
 $('set-lane-fit').addEventListener('change', e => setLabelPref('laneFit', e.target.checked));
+$('set-density').addEventListener('change', e => setViewPref('density', e.target.value));
+$('set-label-size').addEventListener('change', e => setLabelPref('size', e.target.value));
+$('set-show-lane').addEventListener('change', e => setLabelPref('showLane', e.target.checked));
+$('set-show-ids').addEventListener('change', e => setLabelPref('showIds', e.target.checked));
+$('set-show-edge').addEventListener('change', e => setLabelPref('showEdge', e.target.checked));
+$('set-show-pool').addEventListener('change', e => setLabelPref('showPool', e.target.checked));
 $('set-grid-size').addEventListener('change', e => {
   const v = Math.max(4, Math.min(100, Math.round(parseFloat(e.target.value)) || 20));
   setSnapPref('gridSize', v);
@@ -4163,6 +4240,12 @@ $('btn-settings-reset').onclick = () => {
   setSnapPref('grid', false);
   setSnapPref('gridSize', 20);
   setLabelPref('laneFit', true);
+  setViewPref('density', 'normal');
+  setLabelPref('size', 'm');
+  setLabelPref('showLane', true);
+  setLabelPref('showIds', true);
+  setLabelPref('showEdge', true);
+  setLabelPref('showPool', true);
   syncSettingsUI();
 };
 
@@ -4529,6 +4612,11 @@ function onLaneResizeMouseDown(ev, laneId) {
 const SNAP_TOL = 7;      // model px — engage/release radius of the magnet
 const NEAR_RANGE = 400;  // model px — how far an unconnected node still attracts
 const ROW_PITCH = 96;    // model px — target row spacing: 1.5 × default task height (T-079)
+// Effective pitch scales with the view-density pref (T-085): tight packs more
+// rows into a lane, wide spreads them out. All ROW_PITCH consumers go through
+// laneRowYs, so scaling here reaches tidy, drag row-snap and the inspector.
+const DENSITY_PITCH = { tight: 0.75, normal: 1, wide: 1.3 };
+function rowPitch() { return ROW_PITCH * DENSITY_PITCH[viewPrefs.density]; }
 
 // Row centre-lines of a lane (T-079): a lane tall enough for 2+ rows offers
 // N evenly-spaced lines (N from the ROW_PITCH heuristic); a short lane keeps
@@ -4537,7 +4625,7 @@ function laneRowYs(laneId) {
   const lane = findLane(laneId);
   if (!lane) return [];
   const top = laneTop(laneId);
-  const n = Math.max(1, Math.round(lane.height / ROW_PITCH));
+  const n = Math.max(1, Math.round(lane.height / rowPitch()));
   const ys = [];
   for (let i = 0; i < n; i++) ys.push(top + (i + 0.5) * lane.height / n);
   return ys;
