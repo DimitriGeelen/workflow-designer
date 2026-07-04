@@ -4,7 +4,7 @@ name: "Router straightening tolerance — near-aligned ends render as one straig
 description: >
   Survey R-jog fix, operator-approved: if two connected ends are within ~8px of a shared axis, slide anchor along the node side and draw straight. Render-only — no position mutation, corpus YAML untouched.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T09:43:50Z
-last_update: 2026-07-04T09:43:50Z
+last_update: 2026-07-04T09:54:37Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,16 +34,35 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Operator-approved fix for the R-jog class from the routing readability survey
+(docs/reports/T-041-routing-readability-survey.md): when two connected element
+centres are ALMOST aligned (within a small tolerance of a shared axis), the
+orthogonal router draws a 3-segment jog with two corners instead of one straight
+line. Two operator screenshots showed this on healing-loop (gateway→advisory
+vertical near-miss) and resume→resolved (horizontal near-miss). Fix is
+RENDER-ONLY: slide the two anchor points along their node sides onto the shared
+axis and draw a single straight segment. No node position mutation, corpus YAML
+untouched, works with both attach modes (middle/spread).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A straightening pass exists in the edge render path: when source and target anchors for an auto-anchored edge are within STRAIGHTEN_TOL (default 16px — see Decisions) of a shared axis, both anchors are slid along their node sides to the common axis and the edge renders as one straight segment (verified: healing-loop e_05 dy=12 and e_10 dy=14 both render with uniqueY=1).
+- [x] The slide is clamped to the node side extents (sideBoundaryPointAt returns null → bail, never distort) and applies only when both anchor sides are parallel and facing (E↔W or N↔S) — perpendicular-side edges are untouched.
+- [x] Render-only: no `state.nodes[*].x/y` mutation from the straightening pass; buildBpmnXml output byte-identical before/after a render pass (exportIdentical=true on task-lifecycle) and positions array unchanged on healing-loop.
+- [x] Explicitly pinned ports (non-auto) are never overridden by straightening (e_02 with targetPort=N kept its corner; restored to auto → straight again).
+- [x] Trusted-input regression (PL-006): real page.mouse drag of n_resume by ~14 model px — connected e_09 still renders straight through the straightener; e_10 (now 27.8px off-axis, beyond tol) correctly jogs. Both sides of the tolerance behave.
+- [x] Visual verification: element/clipped screenshots of healing-loop (resume→resolved, gateway→choose regions) and task-lifecycle full canvas READ with the Read tool — jogs collapsed to straight lines, no new overlap regression.
+- [x] Editor JS passes `node --check` after the change; gallery copy refreshed (build/gallery/designer.html).
 
 ### Human
+- [ ] [REVIEW] Straightened routing reads calmer on the live gallery
+  **Steps:**
+  1. Open http://192.168.10.107:8834/ and click healing-loop, then task-lifecycle
+  2. Look at edges between near-aligned elements (previously 2-corner jogs)
+  **Expected:** Near-aligned connections render as single straight lines; diagrams read calmer, no edges overlapping node bodies that didn't before
+  **If not:** Note which map + which edge, screenshot it, and report back
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -107,6 +126,11 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+awk '/<script>/{f=1;next}/<\/script>/{f=0}f' src/aef-workflow-designer.html > /tmp/claude-0/-opt-832-Workflow-designer/500d44d9-1e04-4f5a-b40e-f29988622253/scratchpad/t073-check.js && node --check /tmp/claude-0/-opt-832-Workflow-designer/500d44d9-1e04-4f5a-b40e-f29988622253/scratchpad/t073-check.js
+grep -q "STRAIGHTEN_TOL" src/aef-workflow-designer.html
+diff -q src/aef-workflow-designer.html build/gallery/designer.html
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -149,14 +173,20 @@ date_finished: null
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-07-04 — Straightening tolerance value
+- **Chose:** STRAIGHTEN_TOL = 16px (task description said ~8px).
+- **Why:** Measured the actual corpus misalignment class on healing-loop: nodes in the same lane row with different type heights have centre deltas of half the height difference — task↔gateway 12px (e_05), task↔event 14px (e_10). 8px would have missed BOTH operator-screenshot cases the task exists to fix. 16 covers the class; max slide per node side is 8px, well within all shape clamps.
+- **Rejected:** 8px (misses the real cases); 24px+ (risks straightening intentionally offset connections).
+
+### 2026-07-04 — Common-axis choice
+- **Chose:** Midpoint of the two anchor coordinates — each anchor slides half the delta.
+- **Why:** Symmetric, minimal per-node displacement, no bias toward either shape; a clamp failure on either side bails to the normal jog rather than distorting.
+- **Rejected:** Snapping to the source's axis (asymmetric, source-biased); snapping to lane centre (that is T-074's authoring-time job, not a render decision).
+
+### 2026-07-04 — Eligibility guards
+- **Chose:** Straighten only when both ports are auto, spread offsets are 0, no manual waypoints, no routingHints, no detourY.
+- **Why:** Each of those signals an explicit user/router intent that a silent visual override would fight — pinned ports are user choices, spread separates siblings, hints/detours are user-dragged geometry.
+- **Rejected:** Straightening spread siblings toward a shared axis (would re-collide the edges that spread exists to separate).
 
 ## Decision
 
@@ -174,3 +204,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-073-router-straightening-tolerance--near-ali.md
 - **Context:** Initial task creation
+
+### 2026-07-04T09:54:37Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

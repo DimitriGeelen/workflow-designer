@@ -1917,6 +1917,18 @@ function renderEdges() {
       const tOff = spreadOffset(e, 'target', tDir, tgt);
       sp = applySpread(sp, sDir, sOff);
       tp = applySpread(tp, tDir, tOff);
+      // Straightening pass (T-073): near-aligned auto anchors slide onto a
+      // shared axis so the edge renders straight instead of as a 2-corner jog.
+      // Render-only — node positions are untouched. Skipped for pinned ports,
+      // spread-offset siblings, manual waypoints, hints, and loop detours.
+      if (sOff === 0 && tOff === 0 && wps.length === 0 &&
+          (!e.sourcePort || e.sourcePort === 'auto') &&
+          (!e.targetPort || e.targetPort === 'auto') &&
+          !(e.routingHints && Object.keys(e.routingHints).length > 0) &&
+          typeof e.detourY !== 'number') {
+        const st = straightenAnchors(src, tgt, sp, tp, sDir, tDir);
+        if (st) { sp = st.sp; tp = st.tp; }
+      }
     } else if (edgeDrag.role === 'source') {
       // Only the non-dragged end gets spread
       const tDir = exitDirection(tgt, tp, e.targetPort || 'auto');
@@ -2197,6 +2209,90 @@ function portPointTowards(from, towardPt) {
 
 // kept for backward callers in case anything still calls it
 function portPoint(from, to) { return portPointTowards(from, centerOf(to)); }
+
+// ============================================================================
+//  Straightening tolerance (T-073)
+// ============================================================================
+//
+// Survey R-jog fix: when two connected auto anchors are ALMOST on a shared
+// axis (within STRAIGHTEN_TOL), the T2 route draws a 3-segment jog with two
+// corners for what reads as a straight connection. Instead, slide both
+// anchors along their node sides onto the common axis (each moves half the
+// delta) and let the router produce a T0 straight line. Purely visual:
+// node x/y and the document are never mutated.
+
+// 16px covers the dominant corpus misalignment class: nodes in the same lane
+// row whose centres differ by half the height difference of their types
+// (task↔gateway 12px, task↔event 14px). Measured on healing-loop (e_05, e_10).
+const STRAIGHTEN_TOL = 16; // px — max off-axis delta that still straightens
+
+// Boundary point on `node`'s `dir` side at a given cross-axis coordinate
+// (y for E/W sides, x for N/S). Returns null when the shape cannot reach
+// that coordinate without leaving the side (clamp = bail, never distort).
+function sideBoundaryPointAt(node, dir, coord) {
+  const d = NODE_DEFAULTS[node.type];
+  const cx = node.x + d.w / 2, cy = node.y + d.h / 2;
+  const isCircle = node.type === 'startEvent' || node.type === 'endEvent';
+  const isDiamond = node.type === 'exclusiveGateway' || node.type === 'parallelGateway';
+  if (dir === 'E' || dir === 'W') {
+    const dyc = coord - cy;
+    if (isCircle) {
+      const r = d.w / 2;
+      if (Math.abs(dyc) > r - 2) return null;
+      const dx = Math.sqrt(r * r - dyc * dyc);
+      return { x: dir === 'E' ? cx + dx : cx - dx, y: coord };
+    }
+    if (isDiamond) {
+      const halfW = d.w / 2, halfH = d.h / 2;
+      if (Math.abs(dyc) > halfH - 2) return null;
+      const dx = halfW * (1 - Math.abs(dyc) / halfH);
+      return { x: dir === 'E' ? cx + dx : cx - dx, y: coord };
+    }
+    if (coord < node.y + 4 || coord > node.y + d.h - 4) return null;
+    return { x: dir === 'E' ? node.x + d.w : node.x, y: coord };
+  }
+  const dxc = coord - cx;
+  if (isCircle) {
+    const r = d.w / 2;
+    if (Math.abs(dxc) > r - 2) return null;
+    const dy = Math.sqrt(r * r - dxc * dxc);
+    return { x: coord, y: dir === 'S' ? cy + dy : cy - dy };
+  }
+  if (isDiamond) {
+    const halfW = d.w / 2, halfH = d.h / 2;
+    if (Math.abs(dxc) > halfW - 2) return null;
+    const dy = halfH * (1 - Math.abs(dxc) / halfW);
+    return { x: coord, y: dir === 'S' ? cy + dy : cy - dy };
+  }
+  if (coord < node.x + 4 || coord > node.x + d.w - 4) return null;
+  return { x: coord, y: dir === 'S' ? node.y + d.h : node.y };
+}
+
+// If (sp, tp) are facing parallel anchors within STRAIGHTEN_TOL of a shared
+// axis, return the slid anchor pair; otherwise null. Only forward-facing
+// pairs qualify (E→W left-to-right, W→E right-to-left, S→N top-down, N→S
+// bottom-up) — perpendicular-side edges keep their natural corner.
+function straightenAnchors(src, tgt, sp, tp, sDir, tDir) {
+  if ((sDir === 'E' && tDir === 'W' && sp.x < tp.x) ||
+      (sDir === 'W' && tDir === 'E' && sp.x > tp.x)) {
+    const dy = Math.abs(sp.y - tp.y);
+    if (dy === 0 || dy > STRAIGHTEN_TOL) return null;
+    const y = (sp.y + tp.y) / 2;
+    const nsp = sideBoundaryPointAt(src, sDir, y);
+    const ntp = sideBoundaryPointAt(tgt, tDir, y);
+    return nsp && ntp ? { sp: nsp, tp: ntp } : null;
+  }
+  if ((sDir === 'S' && tDir === 'N' && sp.y < tp.y) ||
+      (sDir === 'N' && tDir === 'S' && sp.y > tp.y)) {
+    const dx = Math.abs(sp.x - tp.x);
+    if (dx === 0 || dx > STRAIGHTEN_TOL) return null;
+    const x = (sp.x + tp.x) / 2;
+    const nsp = sideBoundaryPointAt(src, sDir, x);
+    const ntp = sideBoundaryPointAt(tgt, tDir, x);
+    return nsp && ntp ? { sp: nsp, tp: ntp } : null;
+  }
+  return null;
+}
 
 // ============================================================================
 //  Multi-edge spread (A1 + B3)
