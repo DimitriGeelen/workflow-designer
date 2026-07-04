@@ -437,3 +437,17 @@ decisions:
     date: 2026-07-04
     task: T-083
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-042
+    decision: "Try the balanced two-column wrap at full size first; only shrink (9 -> 8px) when wrapping alone cannot fit; ellipsize only at the floor, with the full name as <title> tooltip."
+    scope: project
+    date: 2026-07-04
+    task: T-084
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-043
+    decision: "First wrapped line in the LEFT column (cx-6), second in the RIGHT (cx+6)."
+    scope: project
+    date: 2026-07-04
+    task: T-084
+    rationale: "Auto-captured from task file on completion"

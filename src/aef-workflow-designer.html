@@ -1122,6 +1122,13 @@
             <span class="settings-hint">px</span>
           </label>
         </div>
+        <div class="settings-section">
+          <div class="settings-section-label">Labels</div>
+          <label class="settings-row">
+            <input type="checkbox" id="set-lane-fit">
+            <span>Fit lane names — wrap on '·'/word, then shrink to 8px, then ellipsize (full name on hover)</span>
+          </label>
+        </div>
         <div class="settings-footer">
           <span class="settings-hint">Stored in this browser only — never in the workflow file.</span>
           <button class="btn" id="btn-settings-reset">Reset to defaults</button>
@@ -1637,6 +1644,19 @@ function setSnapPref(key, value) {
   snapPrefs[key] = value;
   try { localStorage.setItem('aefSnapPrefs', JSON.stringify(snapPrefs)); } catch (_) {}
 }
+
+// Lane-label fit ladder (T-084) — editor-local (localStorage), same seam
+// discipline as routingPrefs/snapPrefs: render-only, never in the document.
+let labelPrefs = { laneFit: true };
+try {
+  const _storedLabel = JSON.parse(localStorage.getItem('aefLabelPrefs') || '{}');
+  if (typeof _storedLabel.laneFit === 'boolean') labelPrefs.laneFit = _storedLabel.laneFit;
+} catch (_) {}
+function setLabelPref(key, value) {
+  labelPrefs[key] = value;
+  try { localStorage.setItem('aefLabelPrefs', JSON.stringify(labelPrefs)); } catch (_) {}
+  renderPool();
+}
 let multiSelect = new Set(); // node ids in the active multi-selection (always includes primary if it's a node)
 let rubberBand = null; // { startX, startY, x, y } while drawing
 let groupDrag = null;  // { startX, startY, originalPositions: Map<nodeId, {x, y}> }
@@ -1837,6 +1857,68 @@ function syncCanvasSize() {
   svg.setAttribute('viewBox', `${minX} ${minY} ${w} ${h}`);
   svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
 }
+// Lane-label fit ladder (T-084): the rotated header text must fit inside the
+// lane height. Ladder, in order: (1) wrap on '·' / word boundaries into two
+// parallel vertical columns; (2) shrink the font toward an 8px floor;
+// (3) ellipsize at the floor with the full name as a <title> tooltip.
+// Lengths are MEASURED with getComputedTextLength (transform-independent) —
+// never estimated (PL-008). Render-only: lane geometry is never mutated
+// (auto-grow was rejected — a render concern must not change the document).
+// Toggle: labelPrefs.laneFit (editor settings); off = original single line.
+function fitLaneLabel(headerG, lane, cx, cy, laneH, isSelected) {
+  const fill = isSelected ? AUTHORITY_LABEL_COLOR[lane.authority] || 'var(--text)' : 'var(--text-faint)';
+  const avail = laneH - 12;
+  const mk = (x, s, fs) => {
+    const attrs = {
+      x, y: cy, class: 'lane-label', 'text-anchor': 'middle',
+      transform: `rotate(-90 ${x} ${cy})`, fill,
+    };
+    if (fs) attrs['font-size'] = fs + 'px';
+    const t = el('text', attrs, [text(s)]);
+    headerG.appendChild(t);
+    return t;
+  };
+  let els = [mk(cx, lane.name)];
+  if (!labelPrefs.laneFit || els[0].getComputedTextLength() <= avail) return;
+  // Wrap: prefer '·' separators, fall back to word boundaries; pick the split
+  // with the most balanced halves (shortest longest-line).
+  const hasDot = lane.name.includes('·');
+  const parts = hasDot ? lane.name.split('·').map(s => s.trim()) : lane.name.split(/\s+/);
+  const joiner = hasDot ? ' · ' : ' ';
+  let two = null;
+  if (parts.length >= 2) {
+    let best = null;
+    for (let k = 1; k < parts.length; k++) {
+      const a = parts.slice(0, k).join(joiner), b = parts.slice(k).join(joiner);
+      const len = Math.max(a.length, b.length);
+      if (!best || len < best.len) best = { lines: [a, b], len };
+    }
+    two = best.lines;
+  }
+  const tryLayout = (lines, fs) => {
+    els.forEach(t => t.remove());
+    // Rotated -90°, subsequent text lines advance toward +x: first column left.
+    const xs = lines.length === 2 ? [cx - 6, cx + 6] : [cx];
+    els = lines.map((s, i) => mk(xs[i], s, fs));
+    return els.every(t => t.getComputedTextLength() <= avail);
+  };
+  if (two && tryLayout(two)) return;
+  for (const fs of [9, 8]) {
+    if (tryLayout([lane.name], fs)) return;
+    if (two && tryLayout(two, fs)) return;
+  }
+  // Floor reached — ellipsize each over-long column, full name as tooltip.
+  tryLayout(two || [lane.name], 8);
+  for (const t of els) {
+    let s = t.textContent;
+    while (s.length > 1 && t.getComputedTextLength() > avail) {
+      s = s.slice(0, -1);
+      t.textContent = s + '…';
+    }
+  }
+  headerG.appendChild(el('title', {}, [text(lane.name)]));
+}
+
 function renderPool() {
   gPool.innerHTML = '';
   // pool outline
@@ -1870,13 +1952,11 @@ function renderPool() {
     headerG.appendChild(el('rect', { x: px, y: yCursor, width: LANE_HEADER, height: lh, fill: 'var(--surface)' }));
     const cx = px + LANE_HEADER / 2 + 2;
     const cy = yCursor + lh / 2;
-    headerG.appendChild(el('text', {
-      x: cx, y: cy, class: 'lane-label', 'text-anchor': 'middle',
-      transform: `rotate(-90 ${cx} ${cy})`,
-      fill: isSelected ? AUTHORITY_LABEL_COLOR[lane.authority] || 'var(--text)' : 'var(--text-faint)',
-    }, [text(lane.name)]));
     headerG.addEventListener('click', ev => { ev.stopPropagation(); onLaneClick(lane); });
+    // Append BEFORE fitting the label — the fit ladder measures rendered text
+    // (getComputedTextLength needs the element in the live DOM).
     gPool.appendChild(headerG);
+    fitLaneLabel(headerG, lane, cx, cy, lh, isSelected);
 
     // Divider at top edge (skip for first lane — that's the pool header line)
     if (li > 0) {
@@ -4055,6 +4135,7 @@ function syncSettingsUI() {
   $('set-snap-magnet').checked = snapPrefs.magnet;
   $('set-snap-grid').checked = snapPrefs.grid;
   $('set-grid-size').value = snapPrefs.gridSize;
+  $('set-lane-fit').checked = labelPrefs.laneFit;
 }
 function openSettings() { syncSettingsUI(); $('settings-modal').classList.add('visible'); }
 function closeSettings() { $('settings-modal').classList.remove('visible'); }
@@ -4069,6 +4150,7 @@ $('set-attach-spread').addEventListener('change', () => setRoutingAttach('spread
 $('set-straighten-tol').addEventListener('change', e => { setStraightenTol(parseFloat(e.target.value)); e.target.value = routingPrefs.straightenTol; });
 $('set-snap-magnet').addEventListener('change', e => setSnapPref('magnet', e.target.checked));
 $('set-snap-grid').addEventListener('change', e => setSnapPref('grid', e.target.checked));
+$('set-lane-fit').addEventListener('change', e => setLabelPref('laneFit', e.target.checked));
 $('set-grid-size').addEventListener('change', e => {
   const v = Math.max(4, Math.min(100, Math.round(parseFloat(e.target.value)) || 20));
   setSnapPref('gridSize', v);
@@ -4080,6 +4162,7 @@ $('btn-settings-reset').onclick = () => {
   setSnapPref('magnet', true);
   setSnapPref('grid', false);
   setSnapPref('gridSize', 20);
+  setLabelPref('laneFit', true);
   syncSettingsUI();
 };
 

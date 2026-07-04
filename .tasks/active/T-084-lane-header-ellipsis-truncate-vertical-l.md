@@ -4,10 +4,10 @@ name: "Lane-header ellipsis: truncate vertical lane names to lane height"
 description: >
   Vertical lane-header text longer than the lane height overlaps neighbouring lane headers (context-memory: 'COMPLETED HISTORIES · EPISODIC MEMORY' in a 160px lane). RESHAPED 2026-07-04 per operator request (forwarded scoping message + screenshot): full label-fit ladder instead of bare ellipsis — (1) wrap on word/'·' boundaries up to 2 parallel vertical lines within the ~28px header strip; (2) if still too long, shrink font toward an 8px floor; (3) finally ellipsize with full name via <title> tooltip. On by default, config toggle to disable (extend T-075 settings page, localStorage first slice). Auto-grow-lane rejected: a render concern must not mutate document geometry. From context-memory evaluation 2026-07-04.
 
-status: captured
+status: work-completed
 workflow_type: build
-owner: agent
-horizon: next
+owner: human
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T13:52:07Z
-last_update: 2026-07-04T14:04:24Z
-date_finished: null
+last_update: 2026-07-04T15:29:26Z
+date_finished: 2026-07-04T15:29:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,18 +34,34 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Vertical lane-header names longer than the lane height bled across neighbouring lanes (25 of 67 corpus lane labels overflowed; operator case: "COMPLETED HISTORIES · EPISODIC MEMORY" in context-memory). Per the operator's scoping (forwarded message, 2026-07-04): full label-fit ladder — wrap on '·'/word into two vertical columns, then shrink toward an 8px floor, then ellipsize with a full-name tooltip; on by default with a settings toggle; auto-grow-lane rejected (render must not mutate geometry).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A `fitLaneLabel()` ladder replaces the single rotated lane label: (1) wrap on '·' (fallback word) boundaries into two parallel vertical columns, balanced split; (2) shrink font 10 -> 9 -> 8px; (3) ellipsize at the 8px floor with the full name as an SVG <title> tooltip; lengths MEASURED via getComputedTextLength, never estimated
+      Evidence: `fitLaneLabel()` in src/aef-workflow-designer.html, called from renderPool with headerG already in the DOM (measurement requirement documented inline).
+- [x] Corpus sweep: 0 lane labels overflow their lane (baseline 25 of 67); ladder tier usage recorded
+      Evidence: browser sweep over all 24 maps — before (laneFit off): 25/67 overflow; after: 0/67 overflow; tiers used: 25 wrapped, 1 shrunk, 1 ellipsized+tooltip.
+- [x] Settings toggle: "Fit lane names" checkbox in the T-075 settings dialog (Labels section), persisted in localStorage (`aefLabelPrefs`), on by default, included in Reset-to-defaults; off restores the original single-line behaviour
+      Evidence: labelPrefs store + set-lane-fit checkbox + syncSettingsUI + change listener + reset handler; toggling off in the sweep reproduced the original 25 overflows, toggling back on returned to 0.
+- [x] Render-only: editor XML build STABLE (buildBpmnXml(parse(X)) === X) on context-memory + 2 controls with renderAll interleaved; lane geometry untouched
+      Evidence: STABLE x3; geometry sweep 24 clean.
+- [x] Suites green + gallery synced
+      Evidence: bridge 31/31, validator 34/34, structured/meta parity PASS, geometry sweep 24 clean, diff -q clean.
+- [x] Visual verification: lane-header screenshots read and inspected — two-column wraps sit inside their lanes, correct reading order (first column left), no bleed into neighbours
+      Evidence: .playwright-mcp/t084-lane-headers.png — all three context-memory lanes ("WORKING MEMORY / SESSION-LOCAL", "PROJECT MEMORY / DURABLE CROSS-TASK", "EPISODIC MEMORY / COMPLETED HISTORIES") wrap cleanly inside their bands.
 
 ### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
+- [ ] [REVIEW] Lane names read naturally in the header strip across the corpus
+  **Steps:**
+  1. Open http://192.168.10.107:8834/ and view context-memory — check all three lane headers wrap into two columns inside their lanes
+  2. Open the editor settings (gear button) → Labels → toggle "Fit lane names" off and on; confirm the headers revert/refit live
+  **Expected:** Two-column names fit their lanes, read top-to-bottom left-column-first; toggle works
+  **If not:** Note map + lane; screenshot the header strip
+
+<!-- template guidance removed; original notes:
+     Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
 
      ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
@@ -107,6 +123,16 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+grep -q "function fitLaneLabel" src/aef-workflow-designer.html
+grep -q "aefLabelPrefs" src/aef-workflow-designer.html
+grep -q 'set-lane-fit' src/aef-workflow-designer.html
+diff -q src/aef-workflow-designer.html build/gallery/designer.html
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "34 passed, 0 failed"
+python3 tests/test_editor_bridge_structured_parity.py
+out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "24 clean, 0 known-legacy, 0 new-fail"
+test -f .playwright-mcp/t084-lane-headers.png
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -149,6 +175,16 @@ date_finished: null
 
 ## Decisions
 
+### 2026-07-04 — Ladder order: wrap before shrink before ellipsize
+- **Chose:** Try the balanced two-column wrap at full size first; only shrink (9 -> 8px) when wrapping alone cannot fit; ellipsize only at the floor, with the full name as <title> tooltip.
+- **Why:** Operator-specified priority (forwarded scoping message): keep text at readable size as long as possible; the corpus confirms it — 25 of 27 triggered lanes resolved by wrapping alone.
+- **Rejected:** Auto-grow lane height (render pass mutating document geometry — breaks the render/document seam); bare ellipsis-first (destroys information the strip has room to show).
+
+### 2026-07-04 — Column order for rotated text
+- **Chose:** First wrapped line in the LEFT column (cx-6), second in the RIGHT (cx+6).
+- **Why:** For rotate(-90) text the inter-line advance direction maps to +x, so left-column-first preserves natural reading order (verified by reading the rendered screenshot, not assumed).
+
+
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
@@ -168,6 +204,20 @@ date_finished: null
      without auto-creating; T-1832 added auto-create as fallback for
      legacy tasks lacking this section. -->
 
+## Recommendation
+
+**Recommendation:** GO
+**Rationale:** All 25 overflowing lane labels (of 67 corpus-wide) now fit their lanes via the operator-specified ladder — 25 resolved by wrapping alone, 1 needed shrink, 1 needed ellipsis+tooltip; render-only with a working default-on settings toggle; all suites green.
+**Evidence:**
+- Sweep: 25/67 overflow -> 0/67; tier usage wrapped 25 / shrunk 1 / ellipsized 1
+- Toggle proof: laneFit off reproduces the original 25 overflows, on returns to 0
+- Round-trip STABLE x3, geometry sweep 24 clean, bridge 31/31, validator 34/34
+- .playwright-mcp/t084-lane-headers.png read and inspected
+
+## Visual Verification
+
+- .playwright-mcp/t084-lane-headers.png — context-memory header strip: all three lane names wrap into two columns inside their bands, left-column-first reading order, no bleed.
+
 ## Updates
 
 ### 2026-07-04T13:52:07Z — task-created [task-create-agent]
@@ -177,3 +227,10 @@ date_finished: null
 
 ### 2026-07-04T14:04:24Z — status-update [task-update-agent]
 - **Change:** horizon: later → next
+
+### 2026-07-04T15:29:20Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+### 2026-07-04T15:29:26Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
