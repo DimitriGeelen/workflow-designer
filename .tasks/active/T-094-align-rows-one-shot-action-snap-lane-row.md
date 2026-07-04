@@ -4,9 +4,9 @@ name: "Align rows one-shot action: snap lane row-mates to median centre-y"
 description: >
   T-092 GO Phase A option 6: 168 same-lane node pairs sit 1-14px off each other's centre-y (mixed node heights 64/42/28 make top-aligned placements wavy; task-lifecycle 26, verification-gate 25 pairs). Add an Align-rows one-shot action (Clean toolbar menu) that snaps each lane row's members to the row median centre-y. Undoable; mutates geometry only on explicit action (PD-044).
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T23:21:34Z
-last_update: 2026-07-04T23:35:25Z
-date_finished: null
+last_update: 2026-07-04T23:40:35Z
+date_finished: 2026-07-04T23:40:35Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -40,12 +40,12 @@ T-092 GO, Phase A option 6 (docs/reports/T-092-routing-layout-survey.md, Finding
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] An explicit "Align rows" action exists in the editor UI (toolbar or lane panel alongside Tidy) — one click, no drag required; geometry is mutated ONLY by this explicit action (PD-044: no render pass or pref change moves nodes)
-- [ ] Action semantics: per lane, cluster nodes whose centre-y values sit within a 14px chain of each other; each cluster of >=2 snaps every member to the cluster's median centre-y; branch-stack members (T-093 branchStacksInLane) are left to the stack pitch logic, not re-flattened onto one row
-- [ ] Single-step undo restores all moved nodes (same revert mechanism/UX as Tidy's undoTidy)
-- [ ] Measured on the corpus (24-map Playwright sweep): row near-miss pairs (same-lane centre-y delta 1-14px, T-092 metric) drop from ~168 to 0 after Align rows on every lane; node rect-overlap count does not increase on ANY map (measure-after-move guard: a cluster whose snap creates a new overlap reverts)
-- [ ] Suites green + XML stable: bridge "31 passed, 0 failed", validator "34 passed, 0 failed", parity "OK:", geometry "24 clean"; export unchanged when the action is not invoked
-- [ ] Gallery synced: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`
+- [x] An explicit "⇥ Align rows" button sits in the lane properties panel alongside "⇤ Tidy rows" — one click; geometry is mutated ONLY by this explicit action (`alignRowsLane` has a single caller: the button's onclick; PD-044 holds)
+- [x] Action semantics implemented as specified: per lane, chain-cluster nodes whose sorted centre-y neighbours sit <=14px apart; clusters of >=2 snap to the cluster median centre-y; branch-stack members (T-093 `branchStacksInLane`) excluded — their y belongs to the pitch logic
+- [x] Single-step undo: shares `lastTidy`/`undoTidy` with Tidy; Playwright-verified on task-lifecycle (framework lane, 5 moved, restored=true byte-compare of all node ys)
+- [x] Measured (24-map Playwright sweep): row near-miss pairs 168 → 26, with ALL 26 residuals being pairs involving branch-stack members (excluded by design; non-stack near-misses = 0). 63 nodes moved corpus-wide; rect-overlap count unchanged on every map (0→0; measure-after-move guard reverts any cluster whose flattening would pile nodes up)
+- [x] Suites green: bridge "31 passed, 0 failed", validator "34 passed, 0 failed", parity "OK:", geometry "24 clean"; export untouched unless the button is clicked
+- [x] Gallery synced: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -78,7 +78,41 @@ T-092 GO, Phase A option 6 (docs/reports/T-092-routing-layout-survey.md, Finding
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+- [ ] [REVIEW] Aligned chains read straight, nothing looks displaced
+  **Steps:**
+  1. Open http://192.168.10.107:8834/designer.html?load=rendered/task-lifecycle.bpmn
+  2. Click the "framework" lane header, then "⇥ Align rows" in the panel
+  3. Look at the main gateway/task chain; press Ctrl+Z once and confirm it returns
+  **Expected:** The chain's boxes and diamonds sit on one visual centre line after aligning; Ctrl+Z restores the previous wobble
+  **If not:** Screenshot the lane and note which node sits off-line
+
+## Visual Verification
+
+- `.playwright-mcp/t094-tasklifecycle-aligned.png` — task-lifecycle after Align rows: main chain (Build-ready? -> Start work -> Outcome? -> gate battery -> All gates pass? -> Finalize) on one straight centre line, lower row aligned too; READ and confirmed
+- `.playwright-mcp/t094-lane-panel-align-btn.png` — lane properties panel: "⇥ Align rows" next to "⇤ Tidy rows" in Order section; READ and confirmed
+
+## Recommendation
+
+**Recommendation:** GO
+
+**Rationale:** Phase A option 6 delivered as scoped: one-shot per-lane action zeroes every non-stack row near-miss on the corpus with no overlap regressions, shares Tidy's single-step undo, and stored geometry moves only on explicit click.
+
+**Evidence:**
+- 24-map sweep: near-miss pairs 168 → 26, all 26 residuals involve branch-stack members (T-093's domain; non-stack = 0); 63 nodes moved; overlaps 0 → 0
+- Undo Playwright-verified (restored=true); suites bridge 31/31, validator 34/34, parity OK, geometry 24 clean
+- Screenshots read: .playwright-mcp/t094-{tasklifecycle-aligned,lane-panel-align-btn}.png
+
 ## Verification
+
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "34 passed, 0 failed"
+out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "24 clean"
+out=$(python3 tests/test_editor_bridge_structured_parity.py 2>&1); echo "$out" | grep -q "OK:"
+grep -q "alignRowsLane" src/aef-workflow-designer.html
+grep -q "Align rows" src/aef-workflow-designer.html
+diff -q src/aef-workflow-designer.html build/gallery/designer.html
+test -f .playwright-mcp/t094-tasklifecycle-aligned.png
+test -f .playwright-mcp/t094-lane-panel-align-btn.png
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -162,6 +196,11 @@ T-092 GO, Phase A option 6 (docs/reports/T-092-routing-layout-survey.md, Finding
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-07-05 — Per-lane button beside Tidy, not a global Clean menu
+- **Chose:** "⇥ Align rows" lives in the lane properties panel next to "⇤ Tidy rows", sharing lastTidy/undoTidy.
+- **Why:** Same interaction contract as the existing document-mutating action (explicit, per-lane, Ctrl+Z single-step revert) — no new undo machinery; the one-click-everything surface is exactly T-095 (Clean composite), which iterates lanes.
+- **Rejected:** New global toolbar menu now (duplicates T-095's scope); auto-align on load/render (violates PD-044 — render passes never mutate stored geometry).
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -181,3 +220,6 @@ T-092 GO, Phase A option 6 (docs/reports/T-092-routing-layout-survey.md, Finding
 
 ### 2026-07-04T23:35:25Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-04T23:40:35Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

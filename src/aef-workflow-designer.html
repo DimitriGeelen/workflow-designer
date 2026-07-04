@@ -3856,6 +3856,19 @@ function renderProperties() {
       setTimeout(() => { tidyBtn.textContent = '⇤ Tidy rows'; }, 2500);
     };
     tidyRow.appendChild(tidyBtn);
+    // Align rows (T-094) — explicit document-mutating action: flatten wavy
+    // near-aligned row-mate centres onto the cluster median. Ctrl+Z reverts.
+    const alignBtn = document.createElement('button');
+    alignBtn.className = 'btn btn-routing';
+    alignBtn.textContent = '⇥ Align rows';
+    alignBtn.title = 'Snap near-aligned row-mates in this lane to their shared centre line (Ctrl+Z reverts)';
+    alignBtn.disabled = nodeCount === 0;
+    alignBtn.onclick = () => {
+      const moved = alignRowsLane(lane.id);
+      alignBtn.textContent = moved ? `⇥ Aligned ${moved} node${moved === 1 ? '' : 's'} — Ctrl+Z reverts` : '⇥ Already aligned';
+      setTimeout(() => { alignBtn.textContent = '⇥ Align rows'; }, 2500);
+    };
+    tidyRow.appendChild(alignBtn);
     secO.appendChild(tidyRow);
     const orderRow = document.createElement('div');
     orderRow.className = 'routing-actions';
@@ -4827,6 +4840,9 @@ let lastTidy = null; // { laneId, positions: [{ id, y }], laneHeight: { id, heig
 // a pitch below the 64px task height, and row-snapping them would pile
 // stack-mates onto the same row instead of separating them.
 const BRANCH_GAP = { compact: 6, auto: 12, roomy: 28 };
+const nodeRect = n => { const d = NODE_DEFAULTS[n.type]; return { x: n.x, y: n.y, w: d.w, h: d.h }; };
+const rectsIntersect = (a, b) =>
+  a.x < b.x + b.w - 1 && b.x < a.x + a.w - 1 && a.y < b.y + b.h - 1 && b.y < a.y + a.h - 1;
 function branchStacksInLane(laneId) {
   const byPred = new Map();
   for (const ed of state.edges) {
@@ -4888,9 +4904,6 @@ function tidyLane(laneId) {
   const lTop = laneTop(laneId);
   const gap = BRANCH_GAP[viewPrefs.branchPitch] ?? BRANCH_GAP.auto;
   let laneHeightSaved = null;
-  const nodeRect = n => { const d = NODE_DEFAULTS[n.type]; return { x: n.x, y: n.y, w: d.w, h: d.h }; };
-  const intersects = (a, b) =>
-    a.x < b.x + b.w - 1 && b.x < a.x + a.w - 1 && a.y < b.y + b.h - 1 && b.y < a.y + a.h - 1;
   for (const stack of stacks) {
     const pitch = Math.max(...stack.map(n => NODE_DEFAULTS[n.type].h)) + gap;
     const order = stack.slice().sort((a, b) => a.y - b.y);
@@ -4903,7 +4916,7 @@ function tidyLane(laneId) {
     const others = state.nodes.filter(o => o.lane === laneId && !order.includes(o));
     const collisionsWith = () => {
       let c = 0;
-      for (const n of order) for (const o of others) if (intersects(nodeRect(n), nodeRect(o))) c++;
+      for (const n of order) for (const o of others) if (rectsIntersect(nodeRect(n), nodeRect(o))) c++;
       return c;
     };
     const before = order.map(n => ({ n, y: n.y }));
@@ -4949,6 +4962,55 @@ function undoTidy() {
   lastTidy = null;
   renderAll();
   return true;
+}
+
+// ── Align rows (T-094) ──────────────────────────────────────────────────────
+// Explicit one-shot action: snap each cluster of near-aligned row-mates (chains
+// of centre-y neighbours <=14px apart — the T-092 near-miss metric) to the
+// cluster's median centre-y. Mixed node heights (task 64 / gateway 48 / event
+// 36) leave top-aligned placements with wavy centres; this flattens them.
+// Branch-stack members stay with their pitch logic (T-093). A cluster whose
+// snap would create a node overlap reverts (measure-after-move). Shares the
+// lastTidy single-step revert with Tidy.
+function alignRowsLane(laneId) {
+  const inStack = new Set(branchStacksInLane(laneId).flat().map(n => n.id));
+  const items = state.nodes
+    .filter(n => n.lane === laneId && !inStack.has(n.id))
+    .map(n => ({ n, cy: n.y + NODE_DEFAULTS[n.type].h / 2 }))
+    .sort((a, b) => a.cy - b.cy);
+  const moved = [];
+  let i = 0;
+  while (i < items.length) {
+    let j = i;
+    while (j + 1 < items.length && items[j + 1].cy - items[j].cy <= 14) j++;
+    const cluster = items.slice(i, j + 1);
+    i = j + 1;
+    if (cluster.length < 2) continue;
+    const cys = cluster.map(c => c.cy).sort((a, b) => a - b);
+    const median = cys.length % 2 ? cys[(cys.length - 1) / 2] : (cys[cys.length / 2 - 1] + cys[cys.length / 2]) / 2;
+    if (cluster.every(c => Math.abs(c.cy - median) < 0.5)) continue;
+    const others = state.nodes.filter(o => !cluster.some(c => c.n === o));
+    const collisions = () => {
+      let c = 0;
+      for (const m of cluster) for (const o of others) if (rectsIntersect(nodeRect(m.n), nodeRect(o))) c++;
+      for (let a = 0; a < cluster.length; a++) for (let b = a + 1; b < cluster.length; b++)
+        if (rectsIntersect(nodeRect(cluster[a].n), nodeRect(cluster[b].n))) c++;
+      return c;
+    };
+    const before = cluster.map(c => ({ n: c.n, y: c.n.y }));
+    const collBefore = collisions();
+    for (const c of cluster) c.n.y = median - NODE_DEFAULTS[c.n.type].h / 2;
+    if (collisions() > collBefore) {
+      for (const b of before) b.n.y = b.y; // flattening would pile nodes up — leave this cluster
+      continue;
+    }
+    for (const b of before) if (Math.abs(b.n.y - b.y) > 0.01) moved.push({ id: b.n.id, y: b.y });
+  }
+  if (moved.length) {
+    lastTidy = { laneId, positions: moved, laneHeight: null };
+    renderAll();
+  }
+  return moved.length;
 }
 
 // Draw the guide lines for the currently engaged snaps into the preview layer.

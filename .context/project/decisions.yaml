@@ -500,3 +500,10 @@ decisions:
     date: 2026-07-04
     task: T-093
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-051
+    decision: "\"⇥ Align rows\" lives in the lane properties panel next to \"⇤ Tidy rows\", sharing lastTidy/undoTidy."
+    scope: project
+    date: 2026-07-04
+    task: T-094
+    rationale: "Auto-captured from task file on completion"
