@@ -39,12 +39,12 @@ Build authorized by T-068 GO (recorded 2026-07-04 via Watchtower). Design: docs/
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Schema doc (`docs/designer/schema.md`) documents the `subProcess` node type, the `constituents:` list (`{id, name, ref?}` entries), and the optional `scopeOf:` back-reference, including the phase-1 fence (no child nesting)
-- [ ] Validator (`tools/validate-workflow.py`) accepts `subProcess` in NODE_TYPES and enforces constituents shape rules (list of dicts, required id+name, unique ids, `scopeOf` must reference an existing node id); full corpus validates with 0 errors
-- [ ] Bridge (`tools/yaml-to-bpmn.py`) emits `<bpmn:subProcess>` for the node element and `<aef:constituents>` extension content mirroring the multiInstance structured-dict pattern; regenerated BPMN for migrated maps contains both
-- [ ] Editor (`src/aef-workflow-designer.html`): `subProcess` in NODE_DEFAULTS + palette, collapsed-box glyph with [+] marker and constituent-count badge, `parseBpmnXml`/`buildBpmnXml` carry `aef:constituents` + `scopeOf` losslessly — in-browser round-trip (build→parse→build) is byte-identical on a subProcess-bearing map (G-002 cross-seam check)
-- [ ] The 4 x-* sites migrated to first-class constituents: verification-gate `g_gates` (comment-only), git-commit-flow `x-checks`, resume-status `x-sources`, session-capture `x-captures`; the freed `x-*` keys removed from those maps
-- [ ] Corpus regression: all 24+ maps re-render in the gallery; geometry-signature sweep shows changes ONLY in the 4 migrated maps; gallery copy `build/gallery/designer.html` in sync with src
+- [x] Schema doc (`docs/designer/schema.md`) documents the `subProcess` node type, the `constituents:` list (`{id, name, ref?}` entries), and the optional `scopeOf:` back-reference, including the phase-1 fence (no child nesting) — new §4.4, type-table row, §7.2 elements, §8.1 history entry
+- [x] Validator (`tools/validate-workflow.py`) accepts `subProcess` in NODE_TYPES and enforces constituents shape rules — `_check_constituents`: E-CONST-SHAPE, E-CONST-DUP, W-CONST-FIELD, E-SCOPEOF-SELF, E-SCOPEOF-DANGLING, W-SCOPEOF-TYPE; validator suite 34/34, full corpus exit 0
+- [x] Bridge (`tools/yaml-to-bpmn.py`) emits `<bpmn:subProcess>` (TYPE_MAP passthrough) and `<aef:constituents>` via new STRUCTURED_ITEMLIST_KEYS channel; regenerated rendered/*.bpmn — 4 migrated maps carry both (grep-verified), bridge suite 31/31
+- [x] Editor: `subProcess` in NODE_DEFAULTS/palette/glyph ([+] bottom-right, ▣N count badge on any constituents-bearing node), props Constituents editor, parse/build itemlist channel; in-browser round-trip byte-identical on all 4 migrated maps + 2 controls; parity test extended to guard the itemlist channel incl. field tuples (G-002)
+- [x] The 4 x-* sites migrated: verification-gate `g_gates` (8 gates), git-commit-flow `g_hooks` (4 checks), resume-status `n_intel` (3 sources, → subProcess), session-capture `n_capture` (4 actions, → subProcess); x-checks/x-sources/x-captures removed, header comments updated
+- [x] Corpus regression: geometry-signature sweep HEAD vs working tree — only n_capture/n_intel type strings differ, positions and all other 20+ maps byte-identical; lane-band sweep 24 clean; gallery designer.html + rendered copies in sync
 
 ### Human
 - [ ] [REVIEW] Collapsed subProcess glyph reads clearly
@@ -87,6 +87,22 @@ Build authorized by T-068 GO (recorded 2026-07-04 via Watchtower). Design: docs/
 -->
 
 ## Verification
+
+grep -q '"subProcess"' tools/validate-workflow.py
+grep -q "STRUCTURED_ITEMLIST_KEYS" tools/yaml-to-bpmn.py
+grep -q "structItemList" src/aef-workflow-designer.html
+grep -q "subProcess:        { w: 120" src/aef-workflow-designer.html
+out=$(python3 tests/test_editor_bridge_structured_parity.py 2>&1); echo "$out" | grep -q "itemlist: constituents"
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "34 passed, 0 failed"
+out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "24 clean, 0 known-legacy, 0 new-fail"
+python3 tools/validate-workflow.py examples/aef-processes/session-capture.workflow.yaml --quiet
+python3 tools/validate-workflow.py examples/aef-processes/verification-gate.workflow.yaml --quiet
+grep -q "aef:constituent " examples/aef-processes/rendered/verification-gate.bpmn
+grep -q "bpmn:subProcess" examples/aef-processes/rendered/session-capture.bpmn
+! grep -rn "x-checks\|x-sources\|x-captures" examples/aef-processes/*.workflow.yaml | grep -v "^[^:]*:[0-9]*:#" | grep -q .
+diff -q src/aef-workflow-designer.html build/gallery/designer.html
+awk '/<script>/{f=1;next}/<\/script>/{f=0}f' src/aef-workflow-designer.html > /tmp/t081-check.js && node --check /tmp/t081-check.js
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -161,14 +177,20 @@ Build authorized by T-068 GO (recorded 2026-07-04 via Watchtower). Design: docs/
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-07-04 — constituents legal on any node type, not only subProcess
+- **Chose:** `aef.constituents` validates on ANY flow node; `subProcess` is the task-like composite host, not a prerequisite.
+- **Why:** 2 of the 4 real FC-11 sites are exclusiveGateways (verification-gate g_gates, git-commit-flow g_hooks). Forcing them to subProcess would change flow semantics (gateway routing rules, ≥2 outgoing) to satisfy a metadata need.
+- **Rejected:** constituents-only-on-subProcess (breaks the gateway sites); converting gateways to subProcess (semantic distortion).
+
+### 2026-07-04 — wire format: new list-of-dicts channel + scopeOf on the meta channel
+- **Chose:** `<aef:constituents><aef:constituent id name ref?/></aef:constituents>` via a third structured channel (STRUCTURED_ITEMLIST_KEYS), parity-guarded incl. per-field tuples; `scopeOf` rides the existing `<aef:meta>` scalar channel (META_KEYS/metaKeys both sides).
+- **Why:** entries have 3 fields — neither the scalar-list nor the dict channel fits; the meta channel is the cheapest lossless path for a scalar and the meta-parity test guards it for free.
+- **Rejected:** flattening entries to scalars (loses ref); a dedicated `<aef:scopeOf>` element (more seam surface for zero gain).
+
+### 2026-07-04 — [+] marker bottom-right, not BPMN's bottom-centre
+- **Chose:** collapsed-marker in the bottom-right corner of the rect; count badge (▣N) bottom-left.
+- **Why:** node names wrap centre-aligned; 5-line names (session-capture n_capture) collide with a bottom-centre marker — verified via rendered screenshot, the first placement was visibly broken.
+- **Rejected:** bottom-centre (text collision); taller subProcess box (breaks shared 64px alignment rows from T-079).
 
 ## Decision
 
@@ -179,6 +201,19 @@ Build authorized by T-068 GO (recorded 2026-07-04 via Watchtower). Design: docs/
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
      without auto-creating; T-1832 added auto-create as fallback for
      legacy tasks lacking this section. -->
+
+## Recommendation
+
+**Recommendation:** GO
+**Rationale:** Phase 1 lands the full FC-11 fix authorized by the T-068 GO — subProcess node type, first-class constituents on all four evidence sites, scopeOf marker — with every seam guarded: new itemlist channel covered by the extended structured-parity test, corpus round-trip byte-identical in-browser on all migrated maps, bridge/validator suites green, geometry regression zero outside the two intended type conversions. Child nesting stays fenced behind the phase-2 inception exactly as scoped.
+**Evidence:** bridge 31/31, validator 34/34, parity+seam tests 6/6, lane-bands 24 clean; byte-identical round-trip on session-capture/resume-status/git-commit-flow/verification-gate + 2 control maps; screenshots in ## Visual Verification.
+
+## Visual Verification
+
+- `.playwright-mcp/t081-glyph-fixed.png` — subProcess glyph (n_capture): purple rect, [+] bottom-right, ▣4 badge bottom-left, 5-line label inside the box (read + confirmed)
+- `.playwright-mcp/t081-props-constituents.png` — props panel: subProcess header, Extensions incl. Scope of, "CONSTITUENTS · 4" textarea editor (read + confirmed)
+- `.playwright-mcp/t081-gateway-badge.png` — g_gates exclusiveGateway with ▣8 badge (read + confirmed; surrounding label collisions are pre-existing T-082/T-083 scope)
+- `.playwright-mcp/t081-subprocess-glyph-zoom2.png` — first glyph iteration showing the bottom-centre marker colliding with the label (the defect that drove the bottom-right decision)
 
 ## Updates
 

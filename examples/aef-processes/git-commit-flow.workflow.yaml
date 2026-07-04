@@ -25,7 +25,8 @@
 #     (commit.sh extract_task_id, g_taskref here) and again by the commit-msg git
 #     hook (hooks.sh VERSION=1.9). g_hooks collapses that hook plus the three
 #     pre-commit scanners (secret/dup-task/large-file) into ONE gate node — a
-#     recorded FC-11 collapse, not a silent omission (constituents in x-checks).
+#     recorded FC-11 collapse declared first-class via aef.constituents (T-081;
+#     the x-checks workaround is retired).
 #  2. The coded --bypass path calls `git commit` WITHOUT --no-verify, so it still
 #     fires the hook gates; the map draws the bypass spine as coded and flags the
 #     discrepancy in the friction report rather than inventing a hook-skip edge.
@@ -193,7 +194,11 @@ nodes:
       decisionInput: ${all_hook_gates_pass}
       decisionOwner: framework
       decisionOutputs: pass, blocked
-      x-checks: "secret-scan (T-1844); dup-task-scan (G-052); large-file (T-1845); commit-msg task-ref v1.9"
+      constituents:
+        - { id: c_secret,    name: "secret-scan",                 ref: "T-1844" }
+        - { id: c_duptask,   name: "dup-task-scan",               ref: "G-052" }
+        - { id: c_largefile, name: "large-file scan",             ref: "T-1845" }
+        - { id: c_taskref,   name: "commit-msg task-ref check",   ref: "hooks.sh v1.9" }
 
   - uid: n_done
     type: endEvent

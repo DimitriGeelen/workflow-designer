@@ -22,8 +22,8 @@
 #     has no parallelGateway — audit-process stashed fork/join in
 #     aef.gatewayKind for the same reason (FC recurrence).
 #  2. n_intel collapses THREE optional intelligence sources (discoveries, scan,
-#     recent research) into one node — FC-11 collapse, constituents declared
-#     via aef.x-sources (the T-062 channel, per git-commit-flow precedent).
+#     recent research) into one node — FC-11 composite, migrated to a first-class
+#     subProcess with aef.constituents (T-081); the x-sources workaround is retired.
 #  3. The BVP focus-scoring side quest (resume.sh 104-116, advisory, timeout-
 #     guarded) is omitted as out-of-frame — noted, not drawn.
 workflowMeta:
@@ -144,7 +144,7 @@ nodes:
       note: "synthesis proceeds from the remaining sources — every source is optional"
 
   - uid: n_intel
-    type: scriptTask
+    type: subProcess
     name: "gather optional intelligence: discoveries, scan, recent research"
     slug: intel
     lane: framework
@@ -154,8 +154,11 @@ nodes:
       tier: 1
       determinism: deterministic
       endpoint: "resume.sh:192-257 (three independent if-exists blocks)"
-      x-sources: ".context/audits/discoveries/LATEST.yaml (WARN/FAIL only); .context/scans/LATEST.yaml (work queue, needs-decision); docs/reports/*.md mtime<7d"
-      note: "FC-11 collapse — three optional sources, one node; each skipped silently if absent"
+      constituents:
+        - { id: c_discoveries, name: "audit discoveries (WARN/FAIL only)", ref: ".context/audits/discoveries/LATEST.yaml" }
+        - { id: c_scan,        name: "work-queue scan (needs-decision)",   ref: ".context/scans/LATEST.yaml" }
+        - { id: c_research,    name: "recent research reports (mtime<7d)", ref: "docs/reports/*.md" }
+      note: "FC-11 composite — three optional sources, one collapsed subProcess; each skipped silently if absent"
 
   - uid: n_synth
     type: scriptTask

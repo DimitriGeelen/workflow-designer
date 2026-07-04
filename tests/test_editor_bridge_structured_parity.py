@@ -16,6 +16,13 @@ Invariant (static, code-coupled by design — breaks loudly on a one-sided edit)
   bridge STRUCTURED_LIST_KEYS  == editor export list-keys == editor import list-keys
   bridge STRUCTURED_DICT_KEYS  == editor dict-keys (each `for (const key of [...])`)
 
+T-081 added a third structured shape — the list-of-dicts (itemlist) channel
+(constituents: wrapper element, one child per entry, one attribute per field).
+Same invariant, extended: bridge STRUCTURED_ITEMLIST_KEYS == editor
+structItemList (export) == editor `for (const [key, item, fields] of ...)`
+(import), INCLUDING the per-key (wrapper, item, field-tuple) spec — a field
+added on one side only would silently drop that field at the seam.
+
 Pure stdlib. Exit 0 = parity holds. Exit 1 = drift. Exit 2 = self-test failed.
 """
 import os
@@ -52,6 +59,37 @@ def editor_structured():
     return export_list, import_list, dict_sets
 
 
+def bridge_itemlist():
+    """{key: (wrap, item, fields)} from bridge STRUCTURED_ITEMLIST_KEYS (T-081)."""
+    text = open(BRIDGE, encoding="utf-8").read()
+    m = re.search(r"STRUCTURED_ITEMLIST_KEYS\s*=\s*\{(.*?)\n\}", text, re.S)
+    if not m:
+        return {}
+    out = {}
+    for key, wrap, item, fields in re.findall(
+            r'"(\w+)":\s*\("(\w+)",\s*"(\w+)",\s*\(([^)]*)\)\)', m.group(1)):
+        out[key] = (wrap, item, tuple(re.findall(r'"(\w+)"', fields)))
+    return out
+
+
+def editor_itemlist():
+    """(export_spec, import_spec) — both {key: (wrap, item, fields)} (T-081)."""
+    text = open(EDITOR, encoding="utf-8").read()
+    export = {}
+    m = re.search(r"structItemList\s*=\s*\{(.*?)\};", text, re.S)
+    if m:
+        for key, wrap, item, fields in re.findall(
+                r"(\w+):\s*\['(\w+)',\s*'(\w+)',\s*\[([^\]]*)\]\]", m.group(1)):
+            export[key] = (wrap, item, tuple(re.findall(r"'(\w+)'", fields)))
+    imp = {}
+    m = re.search(r"for \(const \[key, item, fields\] of \[(.*?)\]\)\s*\{", text, re.S)
+    if m:
+        for key, item, fields in re.findall(
+                r"\['(\w+)',\s*'(\w+)',\s*\[([^\]]*)\]\]", m.group(1)):
+            imp[key] = (key, item, tuple(re.findall(r"'(\w+)'", fields)))
+    return export, imp
+
+
 def check():
     fails = []
     b_list, b_dict = bridge_structured()
@@ -67,6 +105,17 @@ def check():
     for i, ds in enumerate(e_dicts):
         if ds != b_dict:
             fails.append("editor dict-loop #%d %s != bridge STRUCTURED_DICT_KEYS %s" % (i + 1, sorted(ds), sorted(b_dict)))
+    # T-081: itemlist (list-of-dicts) channel — keys AND per-key field specs
+    b_item = bridge_itemlist()
+    e_item_export, e_item_import = editor_itemlist()
+    if not b_item:
+        fails.append("could not extract bridge STRUCTURED_ITEMLIST_KEYS — scan pattern wrong?")
+    if e_item_export != b_item:
+        fails.append("editor EXPORT itemlist spec %s != bridge STRUCTURED_ITEMLIST_KEYS %s"
+                     % (e_item_export, b_item))
+    if e_item_import != b_item:
+        fails.append("editor IMPORT itemlist spec %s != bridge STRUCTURED_ITEMLIST_KEYS %s"
+                     % (e_item_import, b_item))
     return fails
 
 
@@ -76,6 +125,11 @@ def _selftest():
     assert b_dict == {"aggregation", "multiInstance", "timer"}, "bridge dict-keys drifted: %s" % sorted(b_dict)
     e_export, e_import, e_dicts = editor_structured()
     assert e_export and e_import and e_dicts, "editor extraction returned empty — patterns wrong?"
+    b_item = bridge_itemlist()
+    assert b_item == {"constituents": ("constituents", "constituent", ("id", "name", "ref"))}, \
+        "bridge itemlist-keys drifted: %s" % b_item
+    e_item_export, e_item_import = editor_itemlist()
+    assert e_item_export and e_item_import, "editor itemlist extraction returned empty — patterns wrong?"
 
 
 def main():
@@ -91,7 +145,8 @@ def main():
             sys.stderr.write("  - %s\n" % f)
         return 1
     print("OK: editor and bridge agree on structured aef keys "
-          "(list: emits/compensates; dict: aggregation/multiInstance/timer)")
+          "(list: emits/compensates; dict: aggregation/multiInstance/timer; "
+          "itemlist: constituents)")
     return 0
 
 

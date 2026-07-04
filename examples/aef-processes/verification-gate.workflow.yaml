@@ -25,9 +25,10 @@
 # RCA G-019, disposition, render-review P-013, inception-decision, inception-
 # scope-trace, evolution T-1718, task-pair P-012) plus a non-blocking reviewer.
 # This map renders the SPINE at readable granularity: it keeps sovereignty, P-010
-# and P-011 (the focus) as distinct nodes and COLLAPSES the six bug/arc/inception-
+# and P-011 (the focus) as distinct nodes and COLLAPSES the bug/arc/inception-
 # conditional gates into one `g_gates` node. The collapse is a recorded modelling
-# decision, not a silent omission.
+# decision, not a silent omission — since T-081 the collapsed gates are declared
+# first-class on the node via aef.constituents.
 workflowMeta:
   id: verification-gate
   version: 1
@@ -141,6 +142,15 @@ nodes:
       decisionInput: ${rca_ok && evolution_ok && inception_ok}
       decisionOwner: framework
       decisionOutputs: gates-ok, gates-block
+      constituents:
+        - { id: c_recommendation,   name: "recommendation block present",  ref: "T-1529" }
+        - { id: c_rca,              name: "RCA substantive for bug-class", ref: "G-019" }
+        - { id: c_disposition,      name: "disposition recorded" }
+        - { id: c_render_review,    name: "render-review",                 ref: "P-013" }
+        - { id: c_incep_decision,   name: "inception decision recorded" }
+        - { id: c_incep_scope,      name: "inception scope-trace" }
+        - { id: c_evolution,        name: "evolution section filled",      ref: "T-1718" }
+        - { id: c_taskpair,         name: "task-pair",                     ref: "P-012" }
 
   - uid: n_write
     type: scriptTask

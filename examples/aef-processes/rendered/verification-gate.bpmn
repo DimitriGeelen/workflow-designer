@@ -107,6 +107,16 @@
         <aef:meta determinism="deterministic" endpoint="update-task.sh: RCA 1430-1431/319-398, evolution 1465-1466/681-734, inception 1450-1458 (collapsed)" decisionOwner="framework"/>
         <aef:decisionInput>${rca_ok &amp;&amp; evolution_ok &amp;&amp; inception_ok}</aef:decisionInput>
         <aef:decisionOutputs>gates-ok, gates-block</aef:decisionOutputs>
+        <aef:constituents>
+          <aef:constituent id="c_recommendation" name="recommendation block present" ref="T-1529"/>
+          <aef:constituent id="c_rca" name="RCA substantive for bug-class" ref="G-019"/>
+          <aef:constituent id="c_disposition" name="disposition recorded"/>
+          <aef:constituent id="c_render_review" name="render-review" ref="P-013"/>
+          <aef:constituent id="c_incep_decision" name="inception decision recorded"/>
+          <aef:constituent id="c_incep_scope" name="inception scope-trace"/>
+          <aef:constituent id="c_evolution" name="evolution section filled" ref="T-1718"/>
+          <aef:constituent id="c_taskpair" name="task-pair" ref="P-012"/>
+        </aef:constituents>
       </bpmn:extensionElements>
       <bpmn:incoming>e_10</bpmn:incoming>
       <bpmn:outgoing>e_12</bpmn:outgoing>

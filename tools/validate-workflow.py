@@ -53,6 +53,9 @@ NODE_TYPES = {
     "parallelGateway",
     "linkEventThrow",
     "linkEventCatch",
+    # T-081 phase 1: collapsed-only composite node (FC-11). Child flow-node
+    # nesting is phase 2 (own inception) — nothing here permits children yet.
+    "subProcess",
 }
 
 # section 5: lane authority vocabulary
@@ -148,6 +151,7 @@ class Validator:
         self._check_edges(edges, node_uids)
         self._check_gateways(nodes, edges)
         self._check_parallel_gateways(nodes, edges)
+        self._check_constituents(nodes, node_uids)
         self._check_reachability(nodes, edges)
         self._check_required_inputs(nodes, edges)
 
@@ -397,6 +401,98 @@ class Validator:
                         "node '%s'" % uid,
                         "parallel join has no matching parallel fork in the "
                         "workflow (nothing forks into it)",
+                    )
+
+    # -- constituents / scopeOf (T-081 phase 1, FC-11/FC-15) ----------------
+
+    def _check_constituents(self, nodes, node_uids):
+        """Composite-node metadata: aef.constituents (what a collapsed node is
+        composed of) and aef.scopeOf (a subProcess marking itself as the
+        collapsed body of another node).
+
+        constituents is legal on ANY flow node — FC-11 collapses happen on
+        gateways as well as tasks (verification-gate g_gates, git-commit-flow
+        g_hooks). Shape rules only:
+
+          E-CONST-SHAPE      not a non-empty list of {id, name, ref?} mappings
+          E-CONST-DUP        constituent id duplicated within one node
+          W-CONST-FIELD      unknown entry field (would be silently dropped at
+                             the bridge seam — no silent drops)
+          E-SCOPEOF-SELF     scopeOf references the node itself
+          E-SCOPEOF-DANGLING scopeOf does not resolve to a node uid
+          W-SCOPEOF-TYPE     scopeOf on a non-subProcess node
+        """
+        for node in nodes:
+            if not isinstance(node, dict):
+                continue
+            uid = node.get("uid", "?")
+            loc = "node '%s'" % uid
+            aef = node.get("aef")
+            if not isinstance(aef, dict):
+                continue
+            if "constituents" in aef:
+                val = aef["constituents"]
+                if not isinstance(val, list) or not val:
+                    self.err(
+                        "E-CONST-SHAPE",
+                        loc,
+                        "aef.constituents must be a non-empty list of "
+                        "{id, name, ref?} mappings",
+                    )
+                else:
+                    seen_ids = set()
+                    for j, entry in enumerate(val):
+                        if (
+                            not isinstance(entry, dict)
+                            or not entry.get("id")
+                            or not entry.get("name")
+                        ):
+                            self.err(
+                                "E-CONST-SHAPE",
+                                loc,
+                                "aef.constituents[%d] must be a mapping with "
+                                "non-empty 'id' and 'name'" % j,
+                            )
+                            continue
+                        cid = entry["id"]
+                        if cid in seen_ids:
+                            self.err(
+                                "E-CONST-DUP",
+                                loc,
+                                "aef.constituents id '%s' duplicated within "
+                                "the node" % cid,
+                            )
+                        seen_ids.add(cid)
+                        unknown = set(entry) - {"id", "name", "ref"}
+                        if unknown:
+                            self.warn(
+                                "W-CONST-FIELD",
+                                loc,
+                                "aef.constituents[%d] has unknown field(s) %s "
+                                "(only id, name, ref ride the bridge seam)"
+                                % (j, sorted(unknown)),
+                            )
+            scope = aef.get("scopeOf")
+            if scope is not None:
+                if scope == uid:
+                    self.err(
+                        "E-SCOPEOF-SELF",
+                        loc,
+                        "aef.scopeOf must not reference the node itself",
+                    )
+                elif node_uids and scope not in node_uids:
+                    self.err(
+                        "E-SCOPEOF-DANGLING",
+                        loc,
+                        "aef.scopeOf '%s' does not resolve to a node uid"
+                        % scope,
+                    )
+                if node.get("type") != "subProcess":
+                    self.warn(
+                        "W-SCOPEOF-TYPE",
+                        loc,
+                        "aef.scopeOf is a subProcess boundary marker; node "
+                        "type is '%s'" % node.get("type"),
                     )
 
     # -- reachability / dead-ends ------------------------------------------

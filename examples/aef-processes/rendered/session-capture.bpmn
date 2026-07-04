@@ -56,16 +56,22 @@
       <bpmn:outgoing>e3</bpmn:outgoing>
       <bpmn:outgoing>e4</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="n_capture" name="capture: tasks, updates, practices, questions">
+    <bpmn:subProcess id="n_capture" name="capture: tasks, updates, practices, questions">
       <bpmn:extensionElements>
         <aef:uid value="n_capture"/>
         <aef:position x="440" y="330"/>
-        <aef:meta determinism="deterministic" tier="1" endpoint="AGENT.md:38-40 (checklist capture lines)" note="FC-11 collapse — four capture actions, one node; constituents in x-captures" x-captures="create task per work item; update tasks with new context; capture learnings as practices; log open questions"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="AGENT.md:38-40 (checklist capture lines)" note="FC-11 composite — four capture actions, one collapsed subProcess (first-class since T-081)"/>
         <aef:artifactsWrites paths=".tasks/active/*.md (new + updated), practices, learnings, vision doc"/>
+        <aef:constituents>
+          <aef:constituent id="c_tasks" name="create task per work item"/>
+          <aef:constituent id="c_updates" name="update tasks with new context"/>
+          <aef:constituent id="c_practices" name="capture learnings as practices"/>
+          <aef:constituent id="c_questions" name="log open questions"/>
+        </aef:constituents>
       </bpmn:extensionElements>
       <bpmn:incoming>e3</bpmn:incoming>
       <bpmn:outgoing>e5</bpmn:outgoing>
-    </bpmn:serviceTask>
+    </bpmn:subProcess>
     <bpmn:serviceTask id="n_inbox" name="triage observation inbox (fw note list)">
       <bpmn:extensionElements>
         <aef:uid value="n_inbox"/>

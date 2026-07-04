@@ -169,7 +169,7 @@ and `nodes` and `edges` (both can be empty).
 
 ## 4. Node types
 
-The designer supports an eight-element BPMN subset, each mapping to a specific
+The designer supports a ten-element BPMN subset, each mapping to a specific
 AEF concept.
 
 | Type | Shape | Default lane | AEF meaning |
@@ -183,6 +183,7 @@ AEF concept.
 | `parallelGateway` | Diamond (`+`) | agent | Fan-out or join — all paths taken |
 | `linkEventThrow` | Hollow circle (chevron →) | framework | Off-page connector: hands off to another workflow |
 | `linkEventCatch` | Hollow circle (chevron ←) | framework | Off-page connector: receives a handoff from another workflow |
+| `subProcess` | Rectangle with `[+]` marker | agent | Collapsed composite — one node standing for several real steps/gates (FC-11); phase 1 renders collapsed only, no child nesting (see §4.4) |
 | `sequenceFlow` | Arrow | — | Edge connecting two nodes |
 
 The mapping between task type and lane is a *convention*, not a constraint. A
@@ -195,7 +196,7 @@ prefix in the slug (when auto-derived) reflects type.
 All nodes require:
 
 - `uid` (auto-generated)
-- `type` (one of the seven node types above)
+- `type` (one of the node types above)
 - `name` (display label)
 - `lane` (a valid lane id)
 - `x`, `y` (canvas coordinates in pixels)
@@ -226,6 +227,10 @@ apply depends on node type.
 | `decisionOutputs` | — | — | — | ✓ | — | — | — | — | — |
 | `targetWorkflow` | — | — | — | — | — | — | — | ✓ | ✓ |
 | `linkId` | — | — | — | — | — | — | — | ✓ | ✓ |
+
+`subProcess` (not in the matrix above) carries the same fields as `scriptTask`
+(`tier`, `endpoint`, `contextReads`, `artifactsWrites`) plus the composite
+fields `constituents` and `scopeOf` — see §4.4.
 
 Fields used by multiple node types:
 
@@ -297,6 +302,53 @@ The framework will refuse to dispatch a step missing required inputs.
 | `parallelGateway` | — | — |
 | `linkEventThrow` | ✓ | — (data leaves into the target workflow) |
 | `linkEventCatch` | — | ✓ (data arrives from the throwing workflow) |
+| `subProcess` | ✓ | ✓ |
+
+### 4.4 Composite nodes: `subProcess`, `constituents`, `scopeOf` (T-081, phase 1)
+
+Workflow maps routinely collapse several real steps or gates into one node for
+legibility. These fields make that modelling decision *visible in the artifact*
+instead of living in header comments or ad-hoc `aef.x-*` keys (FC-11; see
+docs/reports/T-068-constituents-inception.md).
+
+**`subProcess`** — a task-like collapsed composite. Carries `tier`, `endpoint`,
+`contextReads`, `artifactsWrites` like other task types. **Phase 1 is
+collapsed-only:** a subProcess has NO child flow nodes; true nesting (child
+emission, expand/collapse, scoped parsing) is phase 2 behind its own inception.
+
+**`aef.constituents`** — the list of things a collapsed composite is composed
+of. Legal on **any** flow node, because FC-11 collapses happen on gateways too
+(e.g. verification-gate `g_gates` folds eight conditional gates into one
+exclusiveGateway):
+
+```yaml
+aef:
+  constituents:
+    - { id: c_secret,  name: "secret-scan",   ref: "T-1844" }
+    - { id: c_taskref, name: "commit-msg task-ref check" }
+```
+
+- `id` (required) — unique within the node
+- `name` (required) — human-readable description of the constituent
+- `ref` (optional) — pointer: task ID, policy ID, path, or ground-truth citation
+- Any other entry field is rejected at the seam (`W-CONST-FIELD`) — only
+  these three ride `<aef:constituents>` to BPMN and back
+
+**`aef.scopeOf`** — optional scalar back-reference (a node `uid`): this
+subProcess is the collapsed *body* of the referenced node — the FC-15 boundary
+marker for iteration bodies (`multiInstance`) and similar scopes. Rides the
+`<aef:meta>` scalar channel. Validator: must resolve (`E-SCOPEOF-DANGLING`),
+must not self-reference (`E-SCOPEOF-SELF`), warns on non-subProcess nodes
+(`W-SCOPEOF-TYPE`).
+
+At the BPMN seam, `subProcess` emits the native `<bpmn:subProcess>` element
+(Portability D4), and constituents ride a dedicated child element:
+
+```xml
+<aef:constituents>
+  <aef:constituent id="c_secret" name="secret-scan" ref="T-1844"/>
+</aef:constituents>
+```
 
 ---
 
@@ -537,6 +589,8 @@ across edits made in external BPMN tools.
 | `aef:workflowMeta` | inside process extensionElements | `id=`, `version=`, `schemaVersion=`, `title=`, `description=`, `source=`, `tier_default=` |
 | `aef:position` | inside node extensionElements | `x=`, `y=` — node canvas coordinates (preserved for round-trip) |
 | `aef:link` | inside intermediateThrowEvent / intermediateCatchEvent | `targetWorkflow=`, `linkId=` — off-page connector to another workflow |
+| `aef:constituents` | inside node extensionElements | Wraps `aef:constituent` elements (T-081, §4.4) |
+| `aef:constituent` | inside `aef:constituents` | `id=`, `name=`, optional `ref=` — one constituent of a collapsed composite |
 
 ### 7.3 Validation
 
@@ -589,6 +643,9 @@ The workflow file carries two version markers:
 - Added `aef:link` element on `<bpmn:intermediateThrowEvent>` and
   `<bpmn:intermediateCatchEvent>` for off-page connectors
 - Added `linkEventThrow` and `linkEventCatch` node types
+- Added `subProcess` node type (collapsed-only, phase 1), `aef.constituents`
+  (list-of-dicts channel, `<aef:constituents>`) and `aef.scopeOf` (scalar meta
+  channel) — additive, no version bump (T-081)
 
 **v1**
 - Initial release. Eight-element BPMN subset, two-identifier model, routing

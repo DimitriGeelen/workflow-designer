@@ -98,16 +98,21 @@
       <bpmn:incoming>e6</bpmn:incoming>
       <bpmn:outgoing>e8</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_intel" name="gather optional intelligence: discoveries, scan, recent research">
+    <bpmn:subProcess id="n_intel" name="gather optional intelligence: discoveries, scan, recent research">
       <bpmn:extensionElements>
         <aef:uid value="n_intel"/>
         <aef:position x="810" y="280"/>
-        <aef:meta determinism="deterministic" tier="1" endpoint="resume.sh:192-257 (three independent if-exists blocks)" note="FC-11 collapse — three optional sources, one node; each skipped silently if absent" x-sources=".context/audits/discoveries/LATEST.yaml (WARN/FAIL only); .context/scans/LATEST.yaml (work queue, needs-decision); docs/reports/*.md mtime&lt;7d"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="resume.sh:192-257 (three independent if-exists blocks)" note="FC-11 composite — three optional sources, one collapsed subProcess; each skipped silently if absent"/>
+        <aef:constituents>
+          <aef:constituent id="c_discoveries" name="audit discoveries (WARN/FAIL only)" ref=".context/audits/discoveries/LATEST.yaml"/>
+          <aef:constituent id="c_scan" name="work-queue scan (needs-decision)" ref=".context/scans/LATEST.yaml"/>
+          <aef:constituent id="c_research" name="recent research reports (mtime&lt;7d)" ref="docs/reports/*.md"/>
+        </aef:constituents>
       </bpmn:extensionElements>
       <bpmn:incoming>e7</bpmn:incoming>
       <bpmn:incoming>e8</bpmn:incoming>
       <bpmn:outgoing>e9</bpmn:outgoing>
-    </bpmn:scriptTask>
+    </bpmn:subProcess>
     <bpmn:scriptTask id="n_synth" name="rule cascade → Recommendations">
       <bpmn:extensionElements>
         <aef:uid value="n_synth"/>

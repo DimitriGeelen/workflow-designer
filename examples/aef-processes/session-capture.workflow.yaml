@@ -23,8 +23,9 @@
 #     not script lines — the key stretches but holds (error-ladder precedent
 #     mixed [CODE]/[DOCTRINE]; this map is all doctrine).
 #  2. n_capture collapses four capture actions (create tasks / update tasks /
-#     record practices / log questions) — FC-11 4th recurrence, constituents in
-#     aef.x-captures. Rule-of-three now exceeded: see friction report.
+#     record practices / log questions) — FC-11 4th recurrence; the recurrence
+#     drove T-068 GO. Migrated to a first-class subProcess node with
+#     aef.constituents (T-081); the x-captures workaround is retired.
 workflowMeta:
   id: session-capture
   version: 1
@@ -93,7 +94,7 @@ nodes:
       decisionOutputs: items-found, nothing-uncaptured
 
   - uid: n_capture
-    type: serviceTask
+    type: subProcess
     name: "capture: tasks, updates, practices, questions"
     slug: capture
     lane: framework
@@ -104,8 +105,12 @@ nodes:
       determinism: deterministic
       endpoint: "AGENT.md:38-40 (checklist capture lines)"
       artifactsWrites: ".tasks/active/*.md (new + updated), practices, learnings, vision doc"
-      x-captures: "create task per work item; update tasks with new context; capture learnings as practices; log open questions"
-      note: "FC-11 collapse — four capture actions, one node; constituents in x-captures"
+      constituents:
+        - { id: c_tasks,     name: "create task per work item" }
+        - { id: c_updates,   name: "update tasks with new context" }
+        - { id: c_practices, name: "capture learnings as practices" }
+        - { id: c_questions, name: "log open questions" }
+      note: "FC-11 composite — four capture actions, one collapsed subProcess (first-class since T-081)"
 
   - uid: n_inbox
     type: serviceTask

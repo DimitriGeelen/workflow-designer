@@ -52,7 +52,11 @@ META_KEYS = ("determinism", "tier", "authority", "endpoint", "sideEffect",
              # promote-vs-x-* rationale.
              "terminalKind", "state", "note", "softFail", "section", "guard",
              "external", "exitCode", "autoTrigger", "trigger", "gatewayKind",
-             "gate")
+             "gate",
+             # T-081: scopeOf — a subProcess node marking itself as the
+             # collapsed scope/body of another node (FC-15 boundary marker).
+             # Scalar node-uid back-reference; validator checks it resolves.
+             "scopeOf")
 
 # T-061 (FC-13): the full set of aef.* keys the bridge handles with dedicated
 # emit logic. Any aef key NOT in here and NOT under the aef.x-* extension prefix
@@ -74,11 +78,23 @@ STRUCTURED_LIST_KEYS = {
 }
 STRUCTURED_DICT_KEYS = ("aggregation", "multiInstance", "timer")
 
+# T-081: aef keys whose value is a LIST OF DICTS — wrapper element with one
+# child per item, one attribute per (present) field. Third structured shape
+# next to the scalar-list and dict channels above; same editor-parity contract
+# (tests/test_editor_bridge_structured_parity.py).
+#   constituents — FC-11: what a collapsed composite node is composed of.
+#     Entries: {id, name, ref?}. Legal on ANY flow node (collapses happen on
+#     gateways too); the subProcess node type is the task-like composite host.
+STRUCTURED_ITEMLIST_KEYS = {
+    "constituents": ("constituents", "constituent", ("id", "name", "ref")),
+}
+
 KNOWN_AEF_KEYS = frozenset(META_KEYS) | frozenset((
     "decisionInput", "decisionOutputs",
     "contextReads", "artifactsWrites",
     "targetWorkflow", "linkId",
-)) | frozenset(STRUCTURED_LIST_KEYS) | frozenset(STRUCTURED_DICT_KEYS)
+)) | frozenset(STRUCTURED_LIST_KEYS) | frozenset(STRUCTURED_DICT_KEYS) \
+  | frozenset(STRUCTURED_ITEMLIST_KEYS)
 
 
 def _attr(value):
@@ -241,6 +257,24 @@ def emit(workflow):
                 attrs = " ".join('%s=%s' % (fk, _attr(_scalarize(fv)))
                                  for fk, fv in val.items())
                 out.append('        <aef:%s %s/>' % (key, attrs))
+        # T-081: list-of-dicts channel — one child element per entry, one
+        # attribute per present field (field order fixed by the key spec so
+        # emission is deterministic regardless of YAML dict order).
+        for key, (wrap, item, fields) in STRUCTURED_ITEMLIST_KEYS.items():
+            val = aef.get(key)
+            if isinstance(val, list) and val:
+                out.append('        <aef:%s>' % wrap)
+                for entry in val:
+                    if not isinstance(entry, dict):
+                        sys.stderr.write(
+                            "WARN yaml-to-bpmn: node %r: aef.%s entry %r is not "
+                            "a mapping (dropped)\n" % (uid, key, entry))
+                        continue
+                    pairs = " ".join('%s=%s' % (f, _attr(entry[f]))
+                                     for f in fields
+                                     if f in entry and entry[f] is not None)
+                    out.append('          <aef:%s %s/>' % (item, pairs))
+                out.append('        </aef:%s>' % wrap)
         # T-061 (FC-13): no silent drops. Any aef key that is neither handled
         # above nor an explicit aef.x-* extension is reported to stderr (still
         # dropped, but visible). Non-fatal: exit code is unchanged so the

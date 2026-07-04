@@ -131,9 +131,15 @@
       <bpmn:extensionElements>
         <aef:uid value="g_hooks"/>
         <aef:position x="680" y="442"/>
-        <aef:meta determinism="deterministic" endpoint="hooks.sh:271-358 (pre-commit) + hooks.sh:55-88 (commit-msg)" decisionOwner="framework" x-checks="secret-scan (T-1844); dup-task-scan (G-052); large-file (T-1845); commit-msg task-ref v1.9"/>
+        <aef:meta determinism="deterministic" endpoint="hooks.sh:271-358 (pre-commit) + hooks.sh:55-88 (commit-msg)" decisionOwner="framework"/>
         <aef:decisionInput>${all_hook_gates_pass}</aef:decisionInput>
         <aef:decisionOutputs>pass, blocked</aef:decisionOutputs>
+        <aef:constituents>
+          <aef:constituent id="c_secret" name="secret-scan" ref="T-1844"/>
+          <aef:constituent id="c_duptask" name="dup-task-scan" ref="G-052"/>
+          <aef:constituent id="c_largefile" name="large-file scan" ref="T-1845"/>
+          <aef:constituent id="c_taskref" name="commit-msg task-ref check" ref="hooks.sh v1.9"/>
+        </aef:constituents>
       </bpmn:extensionElements>
       <bpmn:incoming>e11</bpmn:incoming>
       <bpmn:outgoing>e12</bpmn:outgoing>
