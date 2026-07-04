@@ -1,0 +1,96 @@
+# ============================================================================
+# EPISODIC MEMORY - T-017: Schema validator for produced workflow files
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-04T22:31:07Z
+# ============================================================================
+
+task_id: T-017
+task_name: "Schema validator for produced workflow files"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-02T19:23:04Z
+completed: 2026-07-04T22:31:00Z
+duration_days: 2
+updates_count: 2
+first_commit: 2026-07-02T21:29:30+02:00
+last_commit: 2026-07-02T21:29:30+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Add schema validator for produced workflow files
+
+# Key outcomes
+outcomes:
+  - '`tools/validate-workflow.py` exists and validates a YAML workflow file, exiting 0 (valid), 1 (warnings only), 2 (errors), matching the AEF audit convention'
+  - 'Hard rules (ERROR, exit 2) enforced: missing top-level `workflowMeta`/`pool`/`lanes`/`nodes`/`edges`; missing required node fields (`uid`,`type`,`name`,`lane`,`x`,`y`); missing required lane fields (`id`,`name`,`authority`,`height`); missing required edge fields (`uid`,`source`,`target`); unknown node `type`; `authority` outside the §5 enum; duplicate `uid` across nodes+edges; edge `source`/`target` not resolving to a node `uid`; node `lane` not matching a lane `id`; non-unique lane `abbr` (§2); `exclusiveGateway` with fewer than 2 outgoing edges (§7.3)'
+  - 'Convention rules (WARN, exit 1) emitted, not fatal: `exclusiveGateway` where more than one outgoing edge lacks a `condition` and none is default-marked (ambiguous routing, §6.5); a required `io.input` on a node with no upstream-reachable node emitting a matching-name output (§4.3/§7.3, name-based heuristic since the type vocabulary is extensible)'
+  - 'Each finding reports severity + rule id + location (`uid`/`id`) + message; `--json` emits machine-readable findings for the executor contract'
+  - 'Golden fixture `tests/fixtures/valid/investigate.workflow.yaml` (derived from schema.md §3) validates clean (exit 0); one invalid fixture per hard rule under `tests/fixtures/invalid/` each triggers its specific rule'
+  - '`tests/run-validator-tests.sh` asserts the exit code + expected rule id for every fixture and exits 0 when all pass'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-017-schema-validator-for-produced-workflow-f.md'
+  - 'tests/fixtures/invalid/E-ABBR-DUP.yaml'
+  - 'tests/fixtures/invalid/E-AUTHORITY.yaml'
+  - 'tests/fixtures/invalid/E-EDGE-DANGLING.yaml'
+  - 'tests/fixtures/invalid/E-EDGE-FIELD.yaml'
+  - 'tests/fixtures/invalid/E-GW-OUTGOING.yaml'
+  - 'tests/fixtures/invalid/E-LANE-FIELD.yaml'
+  - 'tests/fixtures/invalid/E-LANES-EMPTY.yaml'
+  - 'tests/fixtures/invalid/E-NODE-FIELD.yaml'
+  - 'tests/fixtures/invalid/E-NODE-LANE.yaml'
+  - 'tests/fixtures/invalid/E-NODE-TYPE.yaml'
+  - 'tests/fixtures/invalid/E-TOPLEVEL-MISSING.yaml'
+  - 'tests/fixtures/invalid/E-UID-DUP.yaml'
+  - 'tests/fixtures/valid/investigate.workflow.yaml'
+  - 'tests/fixtures/warn/W-GW-AMBIGUOUS.yaml'
+  - 'tests/fixtures/warn/W-IO-INPUT.yaml'
+  - 'tests/run-validator-tests.sh'
+  - 'tools/README.md'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-02T21:29:30"
+    action: "T-017: Add schema validator for produced workflow files"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3067 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3067
+  commits: 1
+  files_changed: 19
+  lines_added: 1021
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-017-schema-validator-for-produced-workflow-f.md
+generated_by: context-agent-hybrid

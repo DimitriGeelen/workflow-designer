@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-018: BPMN-XML validation for produced workflow files
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-04T22:31:18Z
+# ============================================================================
+
+task_id: T-018
+task_name: "BPMN-XML validation for produced workflow files"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-02T19:41:30Z
+completed: 2026-07-04T22:31:12Z
+duration_days: 2
+updates_count: 2
+first_commit: 2026-07-02T21:47:39+02:00
+last_commit: 2026-07-02T21:47:39+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Add BPMN-XML validation to the workflow validator
+
+# Key outcomes
+outcomes:
+  - '`tools/validate-workflow.py` auto-detects BPMN-XML input (`.bpmn`/`.xml` or `<`-leading content) and validates it, keeping the same exit codes (0/1/2) and `--json`/text output as the YAML path; `--format {auto,yaml,xml}` overrides detection'
+  - 'XML hard rules (ERROR, exit 2): malformed XML (`E-XML-PARSE`); missing `bpmn:process` root structure (`E-XML-STRUCTURE`); duplicate `bpmn:id` (`E-XML-ID-DUP`); duplicate `aef:uid` (`E-XML-UID-DUP`); `sequenceFlow` `sourceRef`/`targetRef` not resolving to a flow-node id (`E-XML-FLOW-DANGLING`); `flowNodeRef` not resolving to a flow-node id (`E-XML-LANEREF-DANGLING`); `exclusiveGateway` with fewer than 2 outgoing flows (`E-XML-GW-OUTGOING`)'
+  - 'XML convention rule (WARN, exit 1): a flow node assigned to no lane (`W-XML-NODE-UNASSIGNED`)'
+  - 'Golden fixture `tests/fixtures/valid/investigate.bpmn` (derived from schema.md §7) validates clean (exit 0); one invalid fixture per XML hard rule under `tests/fixtures/invalid/` and the warn fixture under `tests/fixtures/warn/`, each named `<RULE-ID>.<ext>`'
+  - '`tests/run-validator-tests.sh` extended to cover `.bpmn`/`.xml` fixtures and still exits 0 with all YAML + XML fixtures passing'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-018-bpmn-xml-validation-for-produced-workflo.md'
+  - 'tests/fixtures/invalid/E-XML-FLOW-DANGLING.xml'
+  - 'tests/fixtures/invalid/E-XML-GW-OUTGOING.xml'
+  - 'tests/fixtures/invalid/E-XML-ID-DUP.xml'
+  - 'tests/fixtures/invalid/E-XML-LANEREF-DANGLING.xml'
+  - 'tests/fixtures/invalid/E-XML-PARSE.xml'
+  - 'tests/fixtures/invalid/E-XML-STRUCTURE.xml'
+  - 'tests/fixtures/invalid/E-XML-UID-DUP.xml'
+  - 'tests/fixtures/valid/investigate.bpmn'
+  - 'tests/fixtures/warn/W-XML-NODE-UNASSIGNED.xml'
+  - 'tests/run-validator-tests.sh'
+  - 'tools/README.md'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-02T21:47:39"
+    action: "T-018: Add BPMN-XML validation to the workflow validator"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3049 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3049
+  commits: 1
+  files_changed: 13
+  lines_added: 711
+  lines_removed: 43
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-018-bpmn-xml-validation-for-produced-workflo.md
+generated_by: context-agent-hybrid
