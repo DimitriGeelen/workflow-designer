@@ -4,16 +4,16 @@ name: "Framework: TASKS_DIR/CONTEXT_DIR env export causes cross-project contamin
 description: >
   Inception: Framework: TASKS_DIR/CONTEXT_DIR env export causes cross-project contamination in fw subprocesses
 
-status: captured
+status: work-completed
 workflow_type: inception
 owner: human
-horizon: now
+horizon: null
 tags: [upstream-framework]
 components: []
 related_tasks: []
 created: 2026-06-08T23:10:32Z
-last_update: 2026-06-08T23:10:32Z
-date_finished: null
+last_update: 2026-07-04T22:49:09Z
+date_finished: 2026-07-04T22:49:09Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -72,15 +72,15 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -137,9 +137,38 @@ When a Claude Code session exports TASKS_DIR and CONTEXT_DIR (via fw context ini
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Recommendation: GO
+
+Rationale:
+
+When a Claude Code session exports TASKS_DIR and CONTEXT_DIR (via fw context init), any subsequent subprocess that uses fw but sets only PROJECT_ROOT via env will inherit the caller's TASKS_DIR/CONTEXT_DIR and write to the wrong project. Confirmed: fw test-onboarding consistently creates tasks and writes focus into the calling project instead of the temp project. The local workaround (env -u TASKS_DIR -u CONTEXT_DIR) is applied in the vendored test, but the root fix should be in paths.sh: re-derive TASKS_DIR/CONTEXT_DIR from PROJECT_ROOT when PROJECT_ROOT is explicitly provided and differs from the directory implied by TASKS_DIR. This prevents consumer project contamination without breaking the export convention.
+
+Evidence:
+
+**Date**: 2026-07-04T22:49:09Z
 
 ## Updates
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-07-04T22:49:09Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Recommendation: GO
+
+Rationale:
+
+When a Claude Code session exports TASKS_DIR and CONTEXT_DIR (via fw context init), any subsequent subprocess that uses fw but sets only PROJECT_ROOT via env will inherit the caller's TASKS_DIR/CONTEXT_DIR and write to the wrong project. Confirmed: fw test-onboarding consistently creates tasks and writes focus into the calling project instead of the temp project. The local workaround (env -u TASKS_DIR -u CONTEXT_DIR) is applied in the vendored test, but the root fix should be in paths.sh: re-derive TASKS_DIR/CONTEXT_DIR from PROJECT_ROOT when PROJECT_ROOT is explicitly provided and differs from the directory implied by TASKS_DIR. This prevents consumer project contamination without breaking the export convention.
+
+Evidence:
+
+### 2026-07-04T22:49:09Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Reason:** Inception decision in progress
+
+### 2026-07-04T22:49:09Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
