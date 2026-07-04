@@ -4,7 +4,7 @@ name: "Inception: constituents/subProcess construct for collapsed nodes (FC-11 x
 description: >
   One question: should the schema grow a first-class way to declare a node's constituents (sub-gates, sub-steps, iteration bodies) — and if so, as (a) a constituents: list vocabulary, (b) a real subProcess node type, or (c) neither (keep the aef.x-* workaround)? Evidence: FC-11 hit 4 times (verification-gate g_gates, git-commit-flow x-checks, resume-status x-sources, session-capture x-captures — rule-of-three exceeded); FC-15 (blast-radius: no scope construct, iteration bodies unboundable, nesting/recursion inexpressible) likely shares the same fix; FC-16 (missing parallelism) is adjacent but separable. Go/no-go is human (Tier-0 style sovereignty). Produces docs/reports/T-068-*.md research artifact per C-001 BEFORE exploration.
 
-status: captured
+status: started-work
 workflow_type: inception
 owner: human
 horizon: now
@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-04T08:38:51Z
-last_update: 2026-07-04T13:01:44Z
+last_update: 2026-07-04T13:04:49Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,11 +28,13 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+Collapsed nodes cannot declare what they collapsed: the modelling decision is faithful but invisible in the artifact, so readers/validators/tooling see one opaque node where ground truth has 4–8. The `aef.x-*` workaround has now been used 4× with per-map vocabulary drift (FC-11 rule-of-three exceeded); FC-15 (no scope construct — iteration bodies unboundable, nesting inexpressible) likely shares the fix. Research artifact: `docs/reports/T-068-constituents-inception.md` (C-001 — created before exploration; exploration NOT yet started).
 
 ## Assumptions
 
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-XXX -->
+- A `constituents:` list (option a) is a strict subset of a subProcess construct (option b) — shippable first without blocking a later (b). TO TEST in Spike A/Assess.
+- FC-15's scope/boundary need cannot be met by option (a) at all. TO TEST in Spike B.
 
 ## Open Questions
 
@@ -59,19 +61,22 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Exploration Plan
 
-<!-- How will we validate assumptions? Spikes, prototypes, research? Time-box each. -->
+See `docs/reports/T-068-constituents-inception.md` §Exploration plan. Summary (time-boxed, one question, ≤2 spikes per inception discipline):
+1. Spike A (30 min): draft `constituents:` YAML for the 4 FC-11 hit sites; check expressiveness vs each friction report's ground truth.
+2. Spike B (45 min): paper-design collapsed subProcess in the editor (rendering/DI implications only — NO code).
+3. Assess (30 min): score (a)/(b)/(c) against the 4 seam-cost dimensions; test the subset assumption.
+4. Write Recommendation → human go/no-go.
 
 ## Technical Constraints
 
-<!-- What platform, browser, network, or hardware constraints apply?
-     For web apps: HTTPS requirements, browser API restrictions, CORS, device support.
-     For hardware APIs (mic, camera, GPS, Bluetooth): access requirements, permissions model.
-     For infrastructure: network topology, firewall rules, latency bounds.
-     Fill this BEFORE building. Discovering constraints after implementation wastes sessions. -->
+- Editor↔bridge seam discipline (G-002): any new aef: field/element needs a cross-seam consistency test; T-080 showed the editor-internal parse/build asymmetry failure mode.
+- Bridge DI model is flat — subProcess child layout may not survive round-trip without DI changes (Spike B question).
+- Validator (T-017, 34 rules) must learn any new vocabulary; 4 corpus maps carry x-* today and would migrate.
 
 ## Scope Fence
 
-<!-- What's IN scope for this exploration? What's explicitly OUT? -->
+- IN: FC-11 (constituents declaration), FC-15 (scope/boundary) — one shared-fix question.
+- OUT: FC-16 (parallelism — adjacent but separable); any implementation (GO produces separate build tasks); schema changes beyond the one construct.
 
 ## Acceptance Criteria
 
@@ -152,3 +157,6 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ### 2026-07-04T13:01:44Z — status-update [task-update-agent]
 - **Change:** status: started-work → captured
+
+### 2026-07-04T13:04:49Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
