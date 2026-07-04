@@ -290,3 +290,24 @@ decisions:
     date: 2026-07-04
     task: T-073
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-021
+    decision: "Magnet candidates (lane/node centres) engage within SNAP_TOL=7px and release beyond; the grid, while its toggle is on, rounds every unclaimed axis to the nearest multiple with no tolerance."
+    scope: project
+    date: 2026-07-04
+    task: T-074
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-022
+    decision: "magneticSnap operates on the dragged node's centre and is wired only into the single-node drag branch; group drags stay rigid, endpoint drags keep T-070's port snapping."
+    scope: project
+    date: 2026-07-04
+    task: T-074
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-023
+    decision: "Connected nodes attract at any distance; unconnected nodes only within 400px; guides drawn between the aligned centres (lane guides span the pool)."
+    scope: project
+    date: 2026-07-04
+    task: T-074
+    rationale: "Auto-captured from task file on completion"
