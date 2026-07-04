@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-04T08:38:51Z
-last_update: 2026-07-04T13:04:49Z
+last_update: 2026-07-04T13:06:26Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -55,9 +55,9 @@ Collapsed nodes cannot declare what they collapsed: the modelling decision is fa
 -->
 
 - **IW-1: Should collapsed multi-step nodes (FC-11 ×4, FC-15) be modelled as real BPMN subProcess elements with child constituents, or as an aef:constituents extension on a single node — and what does each cost at the editor↔bridge seam?**
-  confidence: 0
-  disposition:
-  rationale:
+  confidence: 2
+  disposition: answered
+  rationale: Operator chose subProcess (dialogue log, "2"); Spike B showed staged delivery makes phase-1 seam cost ≈ the extension option's (bridge TYPE_MAP passthrough + no DI in this stack), with the constituents list riding the BPMN-native element — see docs/reports/T-068-constituents-inception.md §Spike B.
 
 ## Exploration Plan
 
@@ -122,15 +122,13 @@ See `docs/reports/T-068-constituents-inception.md` §Exploration plan. Summary (
 
 ## Recommendation
 
-<!-- REQUIRED before fw inception decide. Write your recommendation here (T-974).
-     Watchtower reads this section — if it's empty, the human sees nothing.
-     Format:
-     **Recommendation:** GO / NO-GO / DEFER
-     **Rationale:** Why (cite evidence from exploration)
-     **Evidence:**
-     - Finding 1
-     - Finding 2
--->
+**Recommendation:** GO
+**Rationale:** Operator directed option (b) (subProcess node type); Spike B confirmed a bounded, staged fix path. Phase 1 (collapsed-only subProcess node + aef:constituents metadata + optional scopeOf marker) is small — bridge element emission is passthrough-free, this stack has no BPMN DI so nested layout costs nothing yet — and fully resolves FC-11 (4 occurrences) while giving FC-15 a boundary marker. Phase 2 (true child nesting) is real cost but cleanly deferrable behind its own decision; the one hazard (editor's recursive node discovery would flatten nested children) is identified and fenced to phase 2. Meets GO criteria: root cause identified, fix scoped/testable/reversible.
+**Evidence:**
+- FC-11 ×4 with per-map x-* vocabulary drift (T-056/T-064/T-066/T-067 friction reports); FC-15 boundary gap (T-065)
+- Spike B structural findings: bpmn_element_name passthrough (tools/yaml-to-bpmn.py:97), no DI anywhere in the stack (T-079/T-080), parser-flattening hazard (parseBpmnXml getElementsByTagNameNS)
+- Dialogue log 2026-07-04: operator chose "2"; staged design dissolves the a-vs-b tension (option (a)'s content = phase 1 of (b))
+- On GO: file separate build task for phase 1 (S, target_blast_radius 3: schema+bridge, editor, validator); phase 2 gets its own inception when phase 1 evidence lands
 
 ## Decisions
 

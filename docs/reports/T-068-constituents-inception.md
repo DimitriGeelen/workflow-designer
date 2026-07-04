@@ -43,10 +43,28 @@ Workflow maps routinely collapse several real steps/gates into one node for legi
 3. **Assess (30 min):** score both against the seam-cost dimensions; test whether (a) is a strict subset of (b) that could ship first without blocking a later (b).
 4. Write Recommendation; human decides.
 
+## Spike B — subProcess paper design (executed 2026-07-04, after operator direction)
+
+Structural facts examined (bridge `tools/yaml-to-bpmn.py` 317 lines; editor parse/build; T-079/T-080 findings):
+
+1. **Element emission is nearly free.** `bpmn_element_name()` passes unknown node types through (TYPE_MAP only remaps link events) — a `subProcess` node type emits `<bpmn:subProcess>` with zero bridge changes at the element level. Editor needs: NODE_DEFAULTS entry, glyph (task-like box + [+] marker + constituent-count badge), palette item.
+2. **There is no DI problem.** Neither bridge nor editor emits BPMN DI; all geometry rides per-node `aef:position` (confirmed T-079/T-080). Nested-layout cost — the scariest part of classic BPMN subProcess — does not exist in this stack for a collapsed-only v1.
+3. **The real phase-2 cost is containment.** True child flow nodes must nest INSIDE `<bpmn:subProcess>`: bridge emission becomes recursive, laneSet flowNodeRefs must exclude children, and edge routing into/out of scope needs rules.
+4. **HAZARD (G-002 class):** editor `parseBpmnXml` discovers nodes via `getElementsByTagNameNS`, which is RECURSIVE — nested children would be silently flattened into top-level nodes on import. Any phase-2 work must scope the parser FIRST (same silent-seam failure mode as T-080).
+
+**Staged path (dissolves the a-vs-b tension):**
+- **Phase 1 (small, S):** `subProcess` node type, collapsed-only rendering; constituents declared as structured metadata on the node (`constituents:` list riding an `<aef:constituents>` element, same pattern as T-063's `multiInstance`); optional `scopeOf:` back-reference gives FC-15 a boundary *marker*. Solves FC-11 fully. Option (a)'s content becomes (b)'s first phase, hosted on the BPMN-native element (Portability D4).
+- **Phase 2 (larger, M, separate inception/build):** real nested children, bridge recursion, editor expand/collapse, parser scoping fix. Solves FC-15 fully (iteration bodies, nesting).
+
+**Assumptions:** #1 (a ⊂ b, shippable first) — VALIDATED in the staged form above. #2 (option (a) alone cannot meet FC-15) — VALIDATED: a bare list has no boundary semantics; only the subProcess element gives FC-15 an anchor.
+
 ## Open questions
 
-- IW-1 (task file): subProcess vs aef:constituents — and seam cost of each. *(confidence 0)*
+- IW-1 (task file): subProcess vs aef:constituents — ANSWERED (confidence 2): subProcess node type, staged; phase-1 seam cost ≈ option (a)'s (one aef: element + editor node type), phase-2 cost is real but deferred behind its own decision.
 
 ## Dialogue log
 
-*(empty — no human dialogue on this question yet)*
+- **2026-07-04 — Q (agent):** presented the three options (a) `constituents:` list, (b) real subProcess node type, (c) keep `aef.x-*`, with evidence and spike plan, before executing spikes (inception discipline step 2).
+- **A (operator):** "2" — real subProcess node type.
+- **Course correction:** exploration refocused from three-way comparison to option-(b) feasibility; Spike A (constituents-list expressiveness drafting) DISSOLVED as a standalone spike — its content survives as phase 1 of the staged design.
+- **Outcome:** Spike B executed same session; staged recommendation written (below in task file); formal go/no-go remains with the operator via `fw inception decide`.
