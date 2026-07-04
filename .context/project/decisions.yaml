@@ -479,3 +479,10 @@ decisions:
     date: 2026-07-04
     task: T-087
     rationale: "Live-DOM measurement required; downstream passes must see final label geometry; one shrink step keeps type readable — the tooltip carries the full truth"
+
+  - id: PD-048
+    decision: "Wrap an edge label to 2 lines only inside the placement pass, only when the single-line candidate search still has collisions, and keep the wrap only when it scores strictly better. Ties and losses undo the wrap."
+    scope: project
+    date: 2026-07-04
+    task: T-089
+    rationale: "Auto-captured from task file on completion"

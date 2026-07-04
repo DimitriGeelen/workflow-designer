@@ -4,9 +4,9 @@ name: "Edge-label wrap: multi-line edge labels shrink collision footprint"
 description: >
   Long edge labels (31 of 136 corpus labels exceed 18 chars, max 48) render single-line at full width and dominate T-082's 28 residual collisions in dense corridors. Wrap long names to 2 lines via tspans; placement pass syncs tspan x and measures the multi-line bbox.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T22:19:37Z
-last_update: 2026-07-04T22:19:37Z
-date_finished: null
+last_update: 2026-07-04T22:28:59Z
+date_finished: 2026-07-04T22:28:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -53,15 +53,15 @@ Edge labels are the last label class rendered single-line at full width (lane la
       Evidence: bridge 31/31, validator 34/34, structured parity OK, geometry sweep 24 clean, diff -q clean.
 
 ### Human
-- [ ] [REVIEW] Wrapped edge labels read cleanly on the live gallery — 2-line labels sit in clear space, halo hugs both lines, no new collisions at the T-082 hotspots
+- [ ] [REVIEW] The 3 wrapped edge labels read cleanly on the live gallery and nothing else regressed
   **Steps:**
-  1. Open http://192.168.10.107:8834/ and view the context-memory map
-  2. Find the long labels: "agent captures knowledge during work", "pattern (failure/success/workflow)", "3+ applications -> graduate" — each should now be 2 lines
-  3. Skim verification-gate and error-escalation-ladder (the T-082 residue corridors) for improvement
-  **Expected:** Long edge labels are 2 compact lines with a halo covering both; dense corridors visibly cleaner than before
+  1. Open http://192.168.10.107:8834/ and view the task-gate map — "started-work + / real ACs" should be 2 centered lines with a halo covering both, clear of its line
+  2. View error-escalation-ladder — "worth codifying / -> Level D" likewise
+  3. View verification-gate — "all verify / cmds exit 0" sits in the known over-dense mid-chain; judge whether the 2-line form reads better than the old single line did (both collide there; the corridor itself is documented T-082 residue)
+  4. Skim context-memory for regressions — its labels are intentionally NOT wrapped (wrap only fires where it measures strictly better)
+  **Expected:** Wrapped labels are 2 compact lines, halo hugs both; no previously-clean label moved or now collides
   **If not:** Note which map + which label; screenshot the spot
 
-### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -126,8 +126,8 @@ Edge labels are the last label class rendered single-line at full width (lane la
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 out=$(grep -c 'data-el' src/aef-workflow-designer.html); test "$out" -ge 3
-out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31/31"
-out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "34/34"
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "34 passed, 0 failed"
 out=$(python3 tests/test_editor_bridge_structured_parity.py 2>&1); echo "$out" | grep -q "OK:"
 out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "24"
 diff -q src/aef-workflow-designer.html build/gallery/designer.html
@@ -172,6 +172,17 @@ diff -q src/aef-workflow-designer.html build/gallery/designer.html
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Recommendation
+
+**Recommendation:** GO
+**Rationale:** Corpus edge-label collisions strictly decreased 28 -> 25 with only 3 labels wrapped and zero movement of previously-clean labels — the wrap fires only where it measures strictly better. The rejected global-wrap variant was caught by the same sweep before shipping (28 -> 32), so the shipped design is the evidence-backed one.
+**Evidence:**
+- Collision sweep (T-082 measure, all 24 maps): baseline 28 -> 25; verification-gate 9->8, error-escalation-ladder 8->7, task-gate 5->4
+- Wrap integrity: 0 empty tspans, 0 x-shear, 0 halo misses corpus-wide
+- XML round-trip STABLE x2 cycles on 6 maps; git diff src/ touches no serialization paths
+- Suites: bridge 31/31, validator 34/34, parity OK, geometry 24 clean, gallery synced
+- Screenshots read: .playwright-mcp/t089-taskgate-wrap.png, t089-verifgate-wrap.png
+
 ## Decisions
 
 ### 2026-07-05 — Wrap-on-contest, not global wrap-at-threshold
@@ -201,3 +212,6 @@ Screenshots in .playwright-mcp/ (element capture via viewBox framing, read and i
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-089-edge-label-wrap-multi-line-edge-labels-s.md
 - **Context:** Initial task creation
+
+### 2026-07-04T22:28:59Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
