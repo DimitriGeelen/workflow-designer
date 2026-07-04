@@ -4,10 +4,10 @@ name: "Upstream fix bundle: env-export contamination (T-015 GO) + review.py lib 
 description: >
   T-015 decided GO: the TASKS_DIR/CONTEXT_DIR env export contamination is an upstream framework flaw. Deliverable: patch files + a maintainer-facing report covering BOTH known shared-mode bugs (T-015 env export; G-004 review.py PROJECT_ROOT/lib one-liner) plus the recommended shared-mode smoke test, staged for delivery via the ring20 cascade (T-016 channel). No vendored files modified here.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T22:50:45Z
-last_update: 2026-07-04T22:50:45Z
-date_finished: null
+last_update: 2026-07-04T23:16:42Z
+date_finished: 2026-07-04T23:16:42Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -40,10 +40,10 @@ T-015's GO (2026-07-04, operator-recorded) authorizes pursuing the upstream fix 
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `docs/reports/T-091-upstream-shared-mode-fixes.md` exists: symptom/root-cause/repro for BOTH bugs, patch inline or referenced, prevention recommendation (shared-mode smoke test), delivery instructions for the cascade
-- [ ] Patch for G-004: one-line diff of web/blueprints/review.py (PROJECT_ROOT -> FRAMEWORK_ROOT) expressed against the framework repo layout, applies cleanly to the vendored copy with `git apply --check --directory=.agentic-framework` (check only — vendored tree stays untouched)
-- [ ] Patch/diagnosis for T-015 env export: the exact fw code path that exports TASKS_DIR/CONTEXT_DIR to subprocesses identified with file:line, and a scoped fix proposed (unset/scope the vars) — patch preferred, precise prose acceptable if the fix needs maintainer context
-- [ ] No vendored file modified: git status .agentic-framework stays empty
+- [x] `docs/reports/T-091-upstream-shared-mode-fixes.md` exists: symptom/root-cause/repro for BOTH bugs, patch inline or referenced, prevention recommendation (shared-mode smoke test), delivery instructions for the cascade
+- [x] Patch for G-004: diff of web/blueprints/review.py (PROJECT_ROOT -> FRAMEWORK_ROOT, 2 lines: import + sys.path.insert) at `docs/patches/T-091-0001-review-py-lib-path-framework-root.patch`, verified with `git apply --check --directory=.agentic-framework` (vendored tree untouched)
+- [x] Patch/diagnosis for T-015 env export: code path is `lib/paths.sh:49-50` (`${TASKS_DIR:-...}` trusts inherited env) + `lib/paths.sh:74` (`export ... TASKS_DIR CONTEXT_DIR` propagates to all children); scoped fix = FW_PATHS_FOR stamp patch at `docs/patches/T-091-0002-paths-sh-cross-project-env-guard.patch`, also `git apply --check` verified; guard logic simulation-tested (cross-project re-derives, same-project custom location preserved, cold start unchanged)
+- [x] No vendored file modified: git status .agentic-framework stays empty
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -109,6 +109,14 @@ T-015's GO (2026-07-04, operator-recorded) authorizes pursuing the upstream fix 
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+test -f docs/reports/T-091-upstream-shared-mode-fixes.md
+grep -q "shared-mode smoke test" docs/reports/T-091-upstream-shared-mode-fixes.md
+grep -q "FRAMEWORK_ROOT" docs/patches/T-091-0001-review-py-lib-path-framework-root.patch
+grep -q "FW_PATHS_FOR" docs/patches/T-091-0002-paths-sh-cross-project-env-guard.patch
+git apply --check --directory=.agentic-framework docs/patches/T-091-0001-review-py-lib-path-framework-root.patch
+git apply --check --directory=.agentic-framework docs/patches/T-091-0002-paths-sh-cross-project-env-guard.patch
+test -z "$(git status --porcelain .agentic-framework)"
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -124,6 +132,14 @@ T-015's GO (2026-07-04, operator-recorded) authorizes pursuing the upstream fix 
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** Two shared-tooling-mode failures: (1) every Watchtower /review/T-XXX page 500s (ModuleNotFoundError: dispatch_pause) — found T-090; (2) nested fw invocations with PROJECT_ROOT set for another project write tasks/focus into the CALLING project (fw test-onboarding repro) — found T-015.
+
+**Root cause:** One class, two instances: framework code resolving framework-owned assets / trusting project-scoped env across project boundaries. (1) review.py:18 inserts `PROJECT_ROOT / "lib"` on sys.path but dispatch_pause.py lives under FRAMEWORK_ROOT/lib. (2) paths.sh:49-50 honour any inherited TASKS_DIR/CONTEXT_DIR (`${VAR:-default}`) while paths.sh:74 exports them to every child — cross-project inheritance is always contamination.
+
+**Why structurally allowed:** All upstream development and CI runs with PROJECT_ROOT == FRAMEWORK_ROOT, where both bugs are invisible. No test exercises the split-root configuration; no lint flags PROJECT_ROOT-based resolution of framework assets. PL-010 records the class.
+
+**Prevention:** Report §Prevention proposes an upstream shared-mode smoke test (temp consumer with split roots: CLI surface writes land consumer-side, every blueprint route curls 200, nested-invocation probe) + a grep lint for `PROJECT_ROOT / "lib"`-style asset resolution. Consumer-side, gap G-004 stays open until upstream prevention exists (mitigation ≠ prevention per G-019); the test-onboarding `env -u` workarounds double as the regression test for Bug 2.
 
 ## Evolution
 
@@ -176,3 +192,9 @@ T-015's GO (2026-07-04, operator-recorded) authorizes pursuing the upstream fix 
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-091-upstream-fix-bundle-env-export-contamina.md
 - **Context:** Initial task creation
+
+### 2026-07-04T23:12:35Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-07-04T23:16:42Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

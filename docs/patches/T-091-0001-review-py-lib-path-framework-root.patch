@@ -1,0 +1,15 @@
+--- a/web/blueprints/review.py
++++ b/web/blueprints/review.py
+@@ -12,10 +12,10 @@
+ 
+ from flask import Blueprint, abort, redirect, render_template, request, url_for
+ 
+-from web.shared import PROJECT_ROOT, parse_frontmatter
++from web.shared import FRAMEWORK_ROOT, PROJECT_ROOT, parse_frontmatter
+ 
+ # T-1810: paused-dispatch helpers live in lib/ (CLI parity with `fw pause list`).
+-sys.path.insert(0, str(PROJECT_ROOT / "lib"))
++sys.path.insert(0, str(FRAMEWORK_ROOT / "lib"))
+ 
+ bp = Blueprint("review", __name__)
+ 

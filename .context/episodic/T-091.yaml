@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-091: Upstream fix bundle: env-export contamination (T-015 GO) + review.py lib path (G-004)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-04T23:16:44Z
+# ============================================================================
+
+task_id: T-091
+task_name: "Upstream fix bundle: env-export contamination (T-015 GO) + review.py lib path (G-004)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T22:50:45Z
+completed: 2026-07-04T23:16:42Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-05T00:51:07+02:00
+last_commit: 2026-07-05T00:51:07+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  File upstream fix-bundle task (T-015 GO follow-up + G-004) with real ACs
+
+# Key outcomes
+outcomes:
+  - '`docs/reports/T-091-upstream-shared-mode-fixes.md` exists: symptom/root-cause/repro for BOTH bugs, patch inline or referenced, prevention recommendation (shared-mode smoke test), delivery instructions for the cascade'
+  - 'Patch for G-004: diff of web/blueprints/review.py (PROJECT_ROOT -> FRAMEWORK_ROOT, 2 lines: import + sys.path.insert) at `docs/patches/T-091-0001-review-py-lib-path-framework-root.patch`, verified with `git apply --check --directory=.agentic-framework` (vendored tree untouched)'
+  - 'Patch/diagnosis for T-015 env export: code path is `lib/paths.sh:49-50` (`${TASKS_DIR:-...}` trusts inherited env) + `lib/paths.sh:74` (`export ... TASKS_DIR CONTEXT_DIR` propagates to all children); scoped fix = FW_PATHS_FOR stamp patch at `docs/patches/T-091-0002-paths-sh-cross-project-env-guard.patch`, also `git apply --check` verified; guard logic simulation-tested (cross-project re-derives, same-project custom location preserved, cold start unchanged)'
+  - 'No vendored file modified: git status .agentic-framework stays empty'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'File upstream fix-bundle task (T-015 GO follow-up + G-004) with real ACs'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-091-upstream-fix-bundle-env-export-contamina.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T00:51:07"
+    action: "T-091: File upstream fix-bundle task (T-015 GO follow-up + G-004) with real ACs"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 25 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 25
+  commits: 1
+  files_changed: 1
+  lines_added: 178
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-091-upstream-fix-bundle-env-export-contamina.md
+generated_by: context-agent-hybrid

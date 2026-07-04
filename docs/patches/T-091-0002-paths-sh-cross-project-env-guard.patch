@@ -1,0 +1,33 @@
+--- a/lib/paths.sh
++++ b/lib/paths.sh
+@@ -45,7 +45,16 @@
+     fi
+ fi
+ 
+-# Common directories
++# Common directories.
++# Inherited TASKS_DIR/CONTEXT_DIR exports are trusted only when they were
++# exported for this same PROJECT_ROOT (FW_PATHS_FOR stamp below). Otherwise a
++# parent fw invocation in a DIFFERENT project silently redirects all task and
++# context writes there (repro: fw test-onboarding created tasks and focus in
++# the calling project instead of the temp project).
++if [[ "${FW_PATHS_FOR:-}" != "$PROJECT_ROOT" ]]; then
++    TASKS_DIR="$PROJECT_ROOT/.tasks"
++    CONTEXT_DIR="$PROJECT_ROOT/.context"
++fi
+ TASKS_DIR="${TASKS_DIR:-$PROJECT_ROOT/.tasks}"
+ CONTEXT_DIR="${CONTEXT_DIR:-$PROJECT_ROOT/.context}"
+ 
+@@ -70,8 +79,11 @@
+     echo "cd $PROJECT_ROOT && $(_fw_cmd) $1"
+ }
+ 
+-# Export for subprocesses
++# Export for subprocesses. FW_PATHS_FOR stamps which project the exported
++# dirs belong to, so a child fw in another project re-derives instead of
++# inheriting them (see Common directories above).
+ export FRAMEWORK_ROOT PROJECT_ROOT TASKS_DIR CONTEXT_DIR
++export FW_PATHS_FOR="$PROJECT_ROOT"
+ 
+ # Source cross-platform compat helpers (_sed_i)
+ source "$FRAMEWORK_ROOT/lib/compat.sh" 2>/dev/null || {
