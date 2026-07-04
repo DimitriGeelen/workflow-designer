@@ -57,3 +57,10 @@ learnings:
   date: 2026-07-04
   context: Added via context agent
   application: TBD
+- id: PL-009
+  learning: "SVG presentation attributes (font-size etc.) are silently overridden by any CSS class rule — when code must control styling on a class-styled SVG element, set inline style and verify the outcome with getComputedStyle, never trust the attribute you set (twin-probe: attr vs style element, compare computed values)"
+  source: PL-008
+  task: T-088
+  date: 2026-07-04
+  context: Added via context agent
+  application: TBD
