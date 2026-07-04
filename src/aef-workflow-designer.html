@@ -3429,31 +3429,41 @@ svg.addEventListener('mousemove', e => {
   }
   if (drag) {
     const pt = clientToSvg(e.clientX, e.clientY);
-    const n = findNode(drag.id);
-    n.x = pt.x - drag.offX;
-    n.y = pt.y - drag.offY;
-    // lane reassignment based on y (centre of node)
-    const centerY = n.y + NODE_DEFAULTS[n.type].h / 2;
-    const newLane = laneAtY(centerY);
-    if (newLane) n.lane = newLane;
-    renderNodes(); renderEdges();
+    // Dead-zone: a stationary press is a click, not a drag. Without this, the
+    // mouseup re-render detaches the pressed element before its click event
+    // fires, so selection never happens (T-069).
+    if (drag.moved || Math.hypot(pt.x - drag.startX, pt.y - drag.startY) > 3) {
+      drag.moved = true;
+      const n = findNode(drag.id);
+      n.x = pt.x - drag.offX;
+      n.y = pt.y - drag.offY;
+      // lane reassignment based on y (centre of node)
+      const centerY = n.y + NODE_DEFAULTS[n.type].h / 2;
+      const newLane = laneAtY(centerY);
+      if (newLane) n.lane = newLane;
+      renderNodes(); renderEdges();
+    }
   }
   if (groupDrag) {
     const pt = clientToSvg(e.clientX, e.clientY);
     const dx = pt.x - groupDrag.startX;
     const dy = pt.y - groupDrag.startY;
-    for (const [id, orig] of groupDrag.originalPositions) {
-      const node = findNode(id);
-      if (node) {
-        node.x = orig.x + dx;
-        node.y = orig.y + dy;
-        // lane reassign per node
-        const centerY = node.y + NODE_DEFAULTS[node.type].h / 2;
-        const newLane = laneAtY(centerY);
-        if (newLane) node.lane = newLane;
+    // Same dead-zone as single-node drag (T-069)
+    if (groupDrag.moved || Math.hypot(dx, dy) > 3) {
+      groupDrag.moved = true;
+      for (const [id, orig] of groupDrag.originalPositions) {
+        const node = findNode(id);
+        if (node) {
+          node.x = orig.x + dx;
+          node.y = orig.y + dy;
+          // lane reassign per node
+          const centerY = node.y + NODE_DEFAULTS[node.type].h / 2;
+          const newLane = laneAtY(centerY);
+          if (newLane) node.lane = newLane;
+        }
       }
+      renderNodes(); renderEdges();
     }
-    renderNodes(); renderEdges();
   }
   if (rubberBand) {
     const pt = clientToSvg(e.clientX, e.clientY);
@@ -3690,8 +3700,9 @@ window.addEventListener('mouseup', e => {
   }
   // On drop after a single-node drag or group drag, the spatial ordering may
   // have changed — recompute displayIds. (We deliberately don't do this during
-  // the drag itself to avoid live-renumber visual noise.)
-  if (drag || groupDrag) {
+  // the drag itself to avoid live-renumber visual noise.) Only after a real
+  // move — re-rendering on a stationary press swallows the click (T-069).
+  if ((drag && drag.moved) || (groupDrag && groupDrag.moved)) {
     refreshDisplayIds();
     renderNodes();
   }
@@ -3724,9 +3735,9 @@ function onNodeMouseDown(e, n) {
       const node = findNode(id);
       if (node) originalPositions.set(id, { x: node.x, y: node.y });
     }
-    groupDrag = { startX: pt.x, startY: pt.y, originalPositions };
+    groupDrag = { startX: pt.x, startY: pt.y, originalPositions, moved: false };
   } else {
-    drag = { id: n.id, offX: pt.x - n.x, offY: pt.y - n.y };
+    drag = { id: n.id, offX: pt.x - n.x, offY: pt.y - n.y, startX: pt.x, startY: pt.y, moved: false };
   }
 }
 function onNodeClick(n, e) {

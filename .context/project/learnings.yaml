@@ -15,3 +15,31 @@ learnings:
   date: 2026-07-03
   context: Added via context agent
   application: TBD
+- id: PL-003
+  learning: "Editor fit-to-view sizes the viewBox from node boxes, not label text — long node labels clip past the viewBox; short labels are the reliable workaround (flagged in T-046 + T-048 friction reports; candidate T-043 follow-up: measure text extent)"
+  source: P-001
+  task: T-049
+  date: 2026-07-03
+  context: Added via context agent
+  application: TBD
+- id: PL-004
+  learning: "A quality gate that exists but is never run against its subject corpus is latent G-019 blindness — the check passes by never executing. tools/check-lane-bands.py guarded geometry but nothing ran it over examples/, so 8 maps straddled bands undetected until a manual sweep in T-050. Prevention: wire every gate into CI over its full subject set, with a legacy allowlist (with stale-entry detection) to tighten past pre-existing violations without blocking."
+  source: P-001
+  task: T-052
+  date: 2026-07-03
+  context: Added via context agent
+  application: TBD
+- id: PL-005
+  learning: "Editor (JS) and bridge (Python) can drift on ANY aspect of aef: serialization — namespace URI (T-042), field shape attr-vs-element (T-053) — and each side's own tests pass because the mismatch lives only in the cross-artifact seam. Each aspect needs an explicit cross-seam consistency test (namespace T-044; shape T-053). Durable fix = one JS-DOM round-trip harness covering all aspects, but that adds a node toolchain (portability decision — needs human/inception, do not add autonomously)."
+  source: P-002
+  task: T-053
+  date: 2026-07-03
+  context: Added via context agent
+  application: TBD
+- id: PL-006
+  learning: "Synthetic dispatchEvent click tests pass while real trusted clicks fail when a mousedown-triggered re-render detaches the element before the browser dispatches click — always verify pointer-interaction claims with trusted (Playwright) input, not synthetic events"
+  source: P-001
+  task: T-069
+  date: 2026-07-04
+  context: Added via context agent
+  application: TBD
