@@ -269,3 +269,24 @@ decisions:
     date: 2026-07-04
     task: T-070
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-018
+    decision: "STRAIGHTEN_TOL = 16px (task description said ~8px)."
+    scope: project
+    date: 2026-07-04
+    task: T-073
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-019
+    decision: "Midpoint of the two anchor coordinates — each anchor slides half the delta."
+    scope: project
+    date: 2026-07-04
+    task: T-073
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-020
+    decision: "Straighten only when both ports are auto, spread offsets are 0, no manual waypoints, no routingHints, no detourY."
+    scope: project
+    date: 2026-07-04
+    task: T-073
+    rationale: "Auto-captured from task file on completion"

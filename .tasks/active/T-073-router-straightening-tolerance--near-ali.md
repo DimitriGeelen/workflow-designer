@@ -4,9 +4,9 @@ name: "Router straightening tolerance — near-aligned ends render as one straig
 description: >
   Survey R-jog fix, operator-approved: if two connected ends are within ~8px of a shared axis, slide anchor along the node side and draw straight. Render-only — no position mutation, corpus YAML untouched.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T09:43:50Z
-last_update: 2026-07-04T09:54:37Z
-date_finished: null
+last_update: 2026-07-04T10:06:02Z
+date_finished: 2026-07-04T10:06:02Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -92,6 +92,17 @@ untouched, works with both attach modes (middle/spread).
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+
+## Recommendation
+
+**Recommendation:** GO
+**Rationale:** All seven Agent ACs verified with evidence spanning static checks, live-browser probes, trusted input, and read screenshots. The change is render-only and heavily guarded (pinned ports, spread siblings, waypoints, hints, detours all excluded), so downstream risk to documents and the bridge seam is nil — bridge suite still 31/31. The one open item is the Human [REVIEW] AC (subjective calmness on the live gallery), which is exactly what partial-complete exists for.
+**Evidence:**
+- Operator cases fixed: healing-loop e_05 (dy=12) and e_10 (dy=14) now render uniqueY=1 (straight); clipped screenshots read and confirmed
+- Render-only proven: buildBpmnXml byte-identical before/after render on task-lifecycle; node positions array unchanged on healing-loop
+- Trusted input (PL-006): real page.mouse drag — within-tol edge stays straight, beyond-tol edge correctly jogs
+- Pinned-port guard: e_02 targetPort=N kept its corner, restored to auto → straight again
+- Gates: node --check clean, gallery copy diff-identical, bridge round-trip 31 passed 0 failed
 
 ## Verification
 
@@ -207,3 +218,6 @@ out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 
 
 ### 2026-07-04T09:54:37Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-04T10:06:02Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
