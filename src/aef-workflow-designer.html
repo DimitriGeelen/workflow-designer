@@ -2738,6 +2738,17 @@ function applyRoutingHints(orthoResult, hints, stubA, stubB) {
   return orthoResult;
 }
 
+// Visual bottom of a node: box bottom plus the text zone rendered beneath it.
+// Tasks carry only the id badge (baseline at +12); events/gateways/link events
+// render name + id below the shape (baselines +14 and +26). Routing that
+// clears the box but cuts this text band reads as a collision (survey R-2).
+function nodeVisualBottom(n) {
+  const d = NODE_DEFAULTS[n.type];
+  const labelBelow = n.type === 'startEvent' || n.type === 'endEvent' ||
+    n.type.endsWith('Gateway') || n.type.startsWith('linkEvent');
+  return n.y + d.h + (labelBelow ? 30 : 16);
+}
+
 // Loop-back specialization: when the natural orthogonal route would U-turn
 // awkwardly (e.g. flowing backward across the same lane), route around using
 // a tall vertical detour below (or above) all involved nodes.
@@ -2755,19 +2766,47 @@ function isBackwardFlow(sp, tp, dirA, dirB) {
 // Scan a horizontal corridor for nodes that would intersect it.
 // Returns the count of nodes (excluding source/target) whose vertical extent
 // crosses the band [y - margin, y + margin] within the X range [x1, x2].
-function nodesIntersectingCorridor(y, x1, x2, src, tgt, margin = 20) {
-  const xMin = Math.min(x1, x2) - margin;
-  const xMax = Math.max(x1, x2) + margin;
+// Count nodes crossed by a full loop path: leg A (vertical at spA.x from
+// spA.y to the bar), the horizontal bar at y, and leg B (vertical at spB.x
+// from the bar to spB.y). Scoring only the bar let candidates win whose LEGS
+// plowed through boxes (found while fixing survey R-2). Uses the label-aware
+// visual bottom so text bands count as occupied space.
+function loopPathCrossings(spA, spB, y, src, tgt, margin = 8) {
+  const segs = [
+    { x1: spA.x, x2: spA.x, y1: Math.min(spA.y, y), y2: Math.max(spA.y, y) },
+    { x1: Math.min(spA.x, spB.x), x2: Math.max(spA.x, spB.x), y1: y, y2: y },
+    { x1: spB.x, x2: spB.x, y1: Math.min(spB.y, y), y2: Math.max(spB.y, y) },
+  ];
   let count = 0;
   for (const n of state.nodes) {
     if (n.id === src.id || n.id === tgt.id) continue;
     const d = NODE_DEFAULTS[n.type];
-    const nx1 = n.x, nx2 = n.x + d.w;
-    const ny1 = n.y - margin, ny2 = n.y + d.h + margin;
-    if (nx2 < xMin || nx1 > xMax) continue;
-    if (y >= ny1 && y <= ny2) count++;
+    const nx1 = n.x - margin, nx2 = n.x + d.w + margin;
+    const ny1 = n.y - margin, ny2 = nodeVisualBottom(n) + margin;
+    for (const s of segs) {
+      if (s.x2 < nx1 || s.x1 > nx2 || s.y2 < ny1 || s.y1 > ny2) continue;
+      count++;
+      break; // count each node once per path
+    }
   }
   return count;
+}
+
+// Count corridor nodes strictly above vs below a horizontal bar at y.
+// A bar is "interior" when content sits on both sides — the R-2 smell:
+// the eye reads it as cutting through the diagram body rather than
+// skirting the content periphery.
+function corridorSplit(y, x1, x2, src, tgt) {
+  const xMin = Math.min(x1, x2), xMax = Math.max(x1, x2);
+  let above = 0, below = 0;
+  for (const n of state.nodes) {
+    if (n.id === src.id || n.id === tgt.id) continue;
+    const d = NODE_DEFAULTS[n.type];
+    if (n.x + d.w < xMin || n.x > xMax) continue;
+    if (nodeVisualBottom(n) < y) above++;
+    else if (n.y > y) below++;
+  }
+  return { above, below };
 }
 
 // Check whether a polyline (array of {x,y}) crosses through any node other than
@@ -2799,33 +2838,31 @@ function polylineCrossesNodes(points, src, tgt, margin = 4) {
 // detour Y, then horizontally across, then vertically to the other stub.
 // Picks the band (above vs below) with the fewest node crossings.
 function orthoLoopBack(spA, spB, dirA, dirB, src, tgt, edge) {
-  const srcH = NODE_DEFAULTS[src.type].h;
-  const tgtH = NODE_DEFAULTS[tgt.type].h;
-  const srcBottom = src.y + srcH, srcTop = src.y;
-  const tgtBottom = tgt.y + tgtH, tgtTop = tgt.y;
-  const lowestBottom = Math.max(srcBottom, tgtBottom);
+  const srcTop = src.y, tgtTop = tgt.y;
+  // Band floors clear the label/badge text below the boxes, not just the boxes
+  // (survey R-2: bars at boxBottom+18 ran through gateway/event label text).
+  const lowestBottom = Math.max(nodeVisualBottom(src), nodeVisualBottom(tgt));
   const highestTop = Math.min(srcTop, tgtTop);
 
-  // Available bands: when source and target share a lane, constrain detours
-  // to remain *inside* that lane (just below the lower artefact, or just above
-  // the upper artefact). When they differ, use the broader bounds.
-  const STUB_CLEARANCE = 18; // distance from node edge to the detour line
-  const LANE_MARGIN = 12;    // distance from the lane border to the detour line
+  // Available bands: clamp the detour to the vertical union of the lanes the
+  // edge connects — a loop may swing into its partner's lane but never into
+  // uninvolved lanes. Same-lane edges keep the original inside-the-lane clamp
+  // (the union of one lane is that lane).
+  const STUB_CLEARANCE = 18;  // distance from node edge to the detour line
+  const TEXT_CLEARANCE = 6;   // extra gap below a node's label/badge text
+  const LANE_MARGIN = 12;     // distance from the lane border to the detour line
   let belowMin, belowMax, aboveMin, aboveMax;
-  if (src.lane === tgt.lane) {
-    const lane = findLane(src.lane);
-    if (lane) {
-      const laneTopY = laneTop(src.lane);
-      const laneBotY = laneTopY + lane.height;
-      belowMin = lowestBottom + STUB_CLEARANCE;
-      belowMax = laneBotY - LANE_MARGIN;
-      aboveMin = laneTopY + LANE_MARGIN;
-      aboveMax = highestTop - STUB_CLEARANCE;
-    }
-  }
-  // Fallback (cross-lane or no lane info): wider bounds, no clamp
-  if (belowMax === undefined) {
-    belowMin = lowestBottom + STUB_CLEARANCE;
+  const laneA = findLane(src.lane), laneB = findLane(tgt.lane);
+  if (laneA && laneB) {
+    const topY = Math.min(laneTop(src.lane), laneTop(tgt.lane));
+    const botY = Math.max(laneTop(src.lane) + laneA.height, laneTop(tgt.lane) + laneB.height);
+    belowMin = lowestBottom + TEXT_CLEARANCE;
+    belowMax = botY - LANE_MARGIN;
+    aboveMin = topY + LANE_MARGIN;
+    aboveMax = highestTop - STUB_CLEARANCE;
+  } else {
+    // Fallback (no lane info): wider bounds, no clamp
+    belowMin = lowestBottom + TEXT_CLEARANCE;
     belowMax = lowestBottom + 200;
     aboveMin = highestTop - 200;
     aboveMax = highestTop - STUB_CLEARANCE;
@@ -2848,7 +2885,7 @@ function orthoLoopBack(spA, spB, dirA, dirB, src, tgt, edge) {
   }
 
   // Auto-pick: try a few candidate Ys in the available bands and score each.
-  // Score = node crossings * 100 + tiny distance penalty (prefer closer detours).
+  // Score = node crossings * 100 + interior-band penalty + distance penalty.
   const candidates = [];
   for (const t of [0.25, 0.5, 0.4, 0.6, 0.75]) {
     if (belowMax > belowMin) candidates.push({ y: belowMin + (belowMax - belowMin) * t, kind: 'below' });
@@ -2858,16 +2895,38 @@ function orthoLoopBack(spA, spB, dirA, dirB, src, tgt, edge) {
   // matches the visual you asked for: "a bit under the lower artefact".
   candidates.unshift({ y: belowMin, kind: 'below' });
   candidates.unshift({ y: aboveMax, kind: 'above' });
+  // Periphery candidates (survey R-2): a bar clear of ALL nodes overlapping
+  // the corridor x-range, so the loop skirts the content instead of cutting
+  // between rows. Skipped when the lane band can't fit them.
+  const perXMin = Math.min(spA.x, spB.x), perXMax = Math.max(spA.x, spB.x);
+  let corTop = Infinity, corBottom = -Infinity;
+  for (const n of state.nodes) {
+    if (n.id === src.id || n.id === tgt.id) continue;
+    const d = NODE_DEFAULTS[n.type];
+    if (n.x + d.w < perXMin || n.x > perXMax) continue;
+    corTop = Math.min(corTop, n.y);
+    corBottom = Math.max(corBottom, nodeVisualBottom(n));
+  }
+  if (corBottom > -Infinity) {
+    const pBelow = Math.max(belowMin, corBottom + TEXT_CLEARANCE);
+    if (pBelow <= belowMax) candidates.unshift({ y: pBelow, kind: 'below' });
+    const pAbove = Math.min(aboveMax, corTop - STUB_CLEARANCE);
+    if (pAbove >= aboveMin) candidates.unshift({ y: pAbove, kind: 'above' });
+  }
 
   let best = candidates[0];
   let bestScore = Infinity;
   for (const c of candidates) {
-    const crossings = nodesIntersectingCorridor(c.y, spA.x, spB.x, src, tgt);
+    const crossings = loopPathCrossings(spA, spB, c.y, src, tgt);
+    // Interior bars (corridor content on both sides) read as body cuts even
+    // when they touch nothing — steer toward true periphery when one exists.
+    const split = corridorSplit(c.y, spA.x, spB.x, src, tgt);
+    const interiorPenalty = (split.above > 0 && split.below > 0) ? 10 : 0;
     // Prefer closer-to-artefact (the value of c.y close to lowestBottom or highestTop)
     const closenessPenalty = c.kind === 'below'
       ? (c.y - lowestBottom) / 50
       : (highestTop - c.y) / 50;
-    const score = crossings * 100 + closenessPenalty + (c.kind === 'above' ? 0.05 : 0);
+    const score = crossings * 100 + interiorPenalty + closenessPenalty + (c.kind === 'above' ? 0.05 : 0);
     if (score < bestScore) { bestScore = score; best = c; }
   }
 
@@ -2897,14 +2956,27 @@ function routeOrthogonalSegment(anchorA, anchorB, dirA, dirB, src, tgt, edge) {
 
   // Loop-back is needed if (a) the natural path would cross a node, or (b) the
   // edge has an explicit user-set detourY, or (c) the legacy backward-flow
-  // heuristic matched.
+  // heuristic matched, or (d) a long backhaul's natural mid-bar would land
+  // between content rows (survey R-2: reads as a cut through the diagram body
+  // even though it touches no node box — send it around the periphery).
   // Don't trigger loop-back if the user has set per-segment hints — those are
   // an explicit override that should always win.
   const hasUserHints = edge && edge.routingHints && Object.keys(edge.routingHints).length > 0;
+  const BACKHAUL_SPAN = 300;
+  let interiorBackhaul = false;
+  if (src && tgt && !hasUserHints && spB.x < spA.x - BACKHAUL_SPAN) {
+    for (let i = 1; i < simplePolyline.length - 2; i++) {
+      const a = simplePolyline[i], b = simplePolyline[i + 1];
+      if (Math.abs(a.y - b.y) > 0.5 || Math.abs(a.x - b.x) < 150) continue;
+      const split = corridorSplit(a.y, a.x, b.x, src, tgt);
+      if (split.above > 0 && split.below > 0) { interiorBackhaul = true; break; }
+    }
+  }
   const needsLoop = src && tgt && !hasUserHints && (
     polylineCrossesNodes(simplePolyline, src, tgt) ||
     (edge && typeof edge.detourY === 'number') ||
-    isBackwardFlow(anchorA, anchorB, dirA, dirB)
+    isBackwardFlow(anchorA, anchorB, dirA, dirB) ||
+    interiorBackhaul
   );
 
   if (needsLoop) {

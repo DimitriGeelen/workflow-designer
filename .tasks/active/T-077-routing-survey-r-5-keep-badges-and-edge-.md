@@ -36,6 +36,8 @@ date_finished: null
 
 <!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
+**Rescoped in from T-076 (2026-07-04):** the survey's healing-loop example ("advisory drop passes through the gateway's own label" — `Human acts on the advice?`, edges e_04/e_06 on rendered/healing-loop.bpmn) is structurally a label-placement problem, not routing: an S-anchor and the below-label are both centred on the node's centre-x, so every vertical S-exit/S-entry crosses its own label text. Candidate fixes live on the label side (offset the label sideways when an S-anchor edge exists, and/or a backing halo per survey R-1). T-076's Decisions section has the full rationale.
+
 ## Acceptance Criteria
 
 ### Agent

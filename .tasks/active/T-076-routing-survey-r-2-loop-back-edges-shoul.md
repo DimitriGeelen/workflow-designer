@@ -4,10 +4,10 @@ name: "Routing survey R-2: loop-back edges should route around the periphery, no
 description: >
   Survey finding R-2 (docs/reports/T-041-routing-readability-survey.md): loop/detour edges cut through the diagram body. Route loop-backs around the content periphery (above/below all nodes in their x-range) with lane-clamp respected. Render-only, orthoLoopBack area.
 
-status: captured
+status: work-completed
 workflow_type: build
-owner: agent
-horizon: later
+owner: human
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T10:20:19Z
-last_update: 2026-07-04T10:20:19Z
-date_finished: null
+last_update: 2026-07-04T11:00:40Z
+date_finished: 2026-07-04T11:00:40Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,45 +34,26 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Survey R-2 (docs/reports/T-041-routing-readability-survey.md): loop-back cross-bars cut through the diagram body and label band. Root cause located in `orthoLoopBack()` (src/aef-workflow-designer.html ~2801): (a) detour bands are anchored to source/target *boxes* only — `belowMin = lowestBottom + 18` — but id badges/labels extend the visual footprint below the box (tasks ~+14px, events/gateways ~+28px), so the bar runs through text; (b) candidate Ys never extend beyond the src/tgt band, so when the corridor is crowded the scorer picks the least-bad body route instead of the content periphery; (c) `nodesIntersectingCorridor()` scores box crossings with a flat 20px margin, blind to the type-dependent label zone. Render-only fix: type-aware visual-bottom accounting plus periphery candidates (below/above ALL nodes overlapping the corridor x-range), lane-clamp respected, existing scoring keeps the choice.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `orthoLoopBack` computes detour bands from a type-aware visual bottom (`nodeVisualBottom`) that includes the label/badge zone (label-below types get a larger allowance than tasks), for source, target, AND path scoring — evidence: nodeVisualBottom() (tasks +16, events/gateways/links +30) feeds belowMin, loopPathCrossings, corridorSplit
+- [x] Periphery candidates exist: a below-candidate clear of ALL nodes overlapping the corridor x-range and an above-candidate above them, clamped to the vertical union of the lanes the edge connects (lane-clamp respected; skipped when the band can't fit) — evidence: pBelow/pAbove candidates + laneA/laneB union clamp in orthoLoopBack
+- [x] The task-lifecycle R-2 symptom is gone: "gate failed — rework" (e_12) rerouted from a mid-body bar at y=488 to the content periphery at y=652, rising into the target's E side — verified by element screenshots t076-before-tl-zoom.png / t076-after-tl-zoom.png, both READ per visual protocol. (healing-loop's "advisory drop through the gateway's own label" rescoped to T-077 — see Decisions: the drop and the label share the same centre-x by construction; no routing change can separate them, only label placement can)
+- [x] Corpus regression sweep (all 20 rendered gallery maps, before/after vs HEAD baseline): git-commit-flow leg regression found and fixed via whole-path scoring; final state ≤ baseline everywhere (audit-process −1 label clash, others identical or equal-count reshuffles in the dense R-3 maps, confirmed visually neutral via t076-eel-*.png / t076-hp-*.png); zero page errors on all 20
+- [x] Render-only proven: `buildBpmnXml(state)` byte-identical before/after on task-lifecycle (15126 = 15126 bytes), auto detourY never persisted
+- [x] User-set `detourY` drag still honored and now clamps clear of source/target label text — trusted-input (real page.mouse) drag test: down-drag clamps at 670 (laneBot−12), up-drag clamps at 646 (label-aware belowMin; old code would have allowed 642, through the badge text); bridge suite 31/31
 
 ### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+- [ ] [REVIEW] Loop-backs read as calm periphery detours on the live gallery
+  **Steps:**
+  1. Open http://192.168.10.107:8834/ and open the task-lifecycle map
+  2. Follow the "gate failed — rework" return edge from "All gates pass?" back to "Perform the work" — it should swing below the content and re-enter from the right
+  3. Spot-check a couple of dense maps (audit-process, git-commit-flow) for loops that cut through boxes or label text
+  **Expected:** Loop cross-bars run around the content (above/below the nodes in their span), not through node labels or the mid-diagram band. (healing-loop's drop through its own gateway label is known and deferred to T-077 — label placement, not routing)
+  **If not:** Note which map/edge still cuts through and screenshot it
 
 ## Verification
 
@@ -106,6 +87,11 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+grep -q "nodeVisualBottom" src/aef-workflow-designer.html
+awk '/<script>/{f=1;next}/<\/script>/{f=0}f' src/aef-workflow-designer.html > /tmp/.t076-check.js && node --check /tmp/.t076-check.js
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "bridge round-trip: 31 passed, 0 failed"
+diff -q src/aef-workflow-designer.html build/gallery/designer.html
 
 ## RCA
 
@@ -149,14 +135,20 @@ date_finished: null
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-07-04 — healing-loop "advisory drop" symptom rescoped to T-077
+- **Chose:** Treat the survey's second R-2 example (edge drop through "Human acts on the advice?" gateway's own label) as a label-placement problem, not a routing problem; moved to T-077's scope.
+- **Why:** The S-anchor and the below-label are both centred on the node's centre-x by construction — every S-exit/S-entry on a label-below node crosses its own label. No detour choice can separate them; only moving the label (or a text halo) can.
+- **Rejected:** Jogging the stub sideways around the label (ugly double-corner at every gateway exit); suppressing S anchors on label-below nodes (breaks topologically correct vertical flow).
+
+### 2026-07-04 — whole-path scoring instead of bar-only corridor scoring
+- **Chose:** Score loop candidates by `loopPathCrossings` (both vertical legs + horizontal bar, label-aware) instead of the old bar-only `nodesIntersectingCorridor`.
+- **Why:** Bar-only scoring let candidates win whose legs plowed through boxes: first sweep showed git-commit-flow e13 flipping to an "empty" above-band whose legs crossed two tasks (0→2 box crossings). Whole-path scoring restored the tight below detour and also removed a pre-existing label clash on audit-process.
+- **Rejected:** Post-hoc validation with polylineCrossesNodes + fallback (adds a second code path; scoring all three segments up front is one mechanism).
+
+### 2026-07-04 — interior-band penalty + periphery candidates, long-backhaul trigger at 300px
+- **Chose:** Add periphery candidates (clear of ALL corridor nodes) and a +10 interior penalty when corridor content sits on both sides of a candidate bar; reroute backward edges (span > 300px) via loop-back only when their natural mid-bar is interior.
+- **Why:** R-2's core: bars that touch nothing still read as body cuts when content flanks both sides. The 300px threshold plus interior check keeps short backhauls and already-peripheral bars on their natural direct routes (19 of 20 corpus maps unchanged).
+- **Rejected:** Rerouting all backward edges unconditionally (would churn many fine renders); scoring edge-to-edge crossings (R-3 channel-separation territory, separate survey finding).
 
 ## Decision
 
@@ -168,9 +160,33 @@ date_finished: null
      without auto-creating; T-1832 added auto-create as fallback for
      legacy tasks lacking this section. -->
 
+## Recommendation
+
+**Recommendation:** GO
+
+**Rationale:** The named R-2 body-cut is gone and a 20-map before/after corpus sweep shows the change is equal or better everywhere — the one regression the new scoring initially introduced (git-commit-flow loop legs through two task boxes) was caught by the sweep and fixed via whole-path scoring before commit. Render-only is proven byte-identical, so zero bridge-seam exposure.
+
+**Evidence:**
+- task-lifecycle e_12 rerouted from mid-body bar y=488 to content periphery y=652 (.playwright-mcp/t076-before-tl-zoom.png vs t076-after-tl-zoom.png, both READ per visual protocol)
+- 20-map sweep vs HEAD baseline: audit-process −1 label clash, git-commit-flow clean after fix, all others identical or visually-neutral equal-count reshuffles (t076-eel-*.png, t076-hp-*.png); zero page errors
+- buildBpmnXml(state) byte-identical before/after on task-lifecycle (15126 = 15126)
+- tests/run-bridge-tests.sh: bridge round-trip 31 passed, 0 failed; geometry sweep 24 clean
+- Trusted-input (real page.mouse) detourY drag: down-clamp 670 (laneBot−12), up-clamp 646 (label-aware floor — old code allowed 642, through badge text)
+- Residual explicitly scoped out: healing-loop own-label drop → T-077 (label placement); dense-map bundle clutter → survey R-3
+
 ## Updates
 
 ### 2026-07-04T10:20:19Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-076-routing-survey-r-2-loop-back-edges-shoul.md
 - **Context:** Initial task creation
+
+### 2026-07-04T10:43:05Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
+
+### 2026-07-04T10:43:06Z — status-update [task-update-agent]
+- **Change:** horizon: now → now
+
+### 2026-07-04T11:00:40Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
