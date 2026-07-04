@@ -2348,6 +2348,12 @@ function adjustEdgeLabelPlacements() {
   for (const e of state.edges) {
     const t = gEdges.querySelector(`text[data-el="${e.id}"]`);
     if (!t) continue;
+    // Multi-line labels (T-089) move as a unit: tspans carry their own x, so
+    // every placement must sync them with the text x or the lines shear apart.
+    const apply = (x, y, anchor) => {
+      t.setAttribute('x', x); t.setAttribute('y', y); t.setAttribute('text-anchor', anchor);
+      for (const ts of t.querySelectorAll('tspan')) ts.setAttribute('x', x);
+    };
     let bestBB = box(t);
     let bestScore = score(bestBB);
     if (bestScore > 0) {
@@ -2361,33 +2367,65 @@ function adjustEdgeLabelPlacements() {
         segList.push({ a: pl[i], b: pl[i + 1], horiz: dx >= dy, len: Math.max(dx, dy) });
       }
       segList.sort((s1, s2) => s2.len - s1.len);
-      const cands = [];
-      for (const s of segList) {
-        // Two distance tiers: hugging the line first, one label-height further
-        // out as fallback — the halo keeps drifted labels visually attached.
-        for (const [above, below] of [[-6, 13], [-17, 24]]) {
-          for (const f of [0.5, 0.3, 0.7, 0.15, 0.85]) {
-            const mx = s.a.x + (s.b.x - s.a.x) * f, my = s.a.y + (s.b.y - s.a.y) * f;
-            if (s.horiz) {
-              cands.push({ x: mx, y: my + above, anchor: 'middle' });  // above the run
-              cands.push({ x: mx, y: my + below, anchor: 'middle' });  // below the run
-            } else {
-              cands.push({ x: mx + 8, y: my + 3, anchor: 'start' });   // right of the drop
-              cands.push({ x: mx - 8, y: my + 3, anchor: 'end' });     // left of the drop
+      // Two distance tiers: hugging the line first, one label-height further
+      // out as fallback — the halo keeps drifted labels visually attached.
+      // Above-the-run candidates grow upward by `lift` (the extra line height
+      // when the label is wrapped) so line 2 doesn't sit on the segment.
+      const genCands = lift => {
+        const cands = [];
+        for (const s of segList) {
+          for (const [above, below] of [[-6 - lift, 13], [-17 - lift, 24]]) {
+            for (const f of [0.5, 0.3, 0.7, 0.15, 0.85]) {
+              const mx = s.a.x + (s.b.x - s.a.x) * f, my = s.a.y + (s.b.y - s.a.y) * f;
+              if (s.horiz) {
+                cands.push({ x: mx, y: my + above, anchor: 'middle' });  // above the run
+                cands.push({ x: mx, y: my + below, anchor: 'middle' });  // below the run
+              } else {
+                cands.push({ x: mx + 8, y: my + 3, anchor: 'start' });   // right of the drop
+                cands.push({ x: mx - 8, y: my + 3, anchor: 'end' });     // left of the drop
+              }
             }
+            if (!s.horiz) break; // vertical drops have one lateral tier only
           }
-          if (!s.horiz) break; // vertical drops have one lateral tier only
         }
-      }
+        return cands;
+      };
       const orig = { x: t.getAttribute('x'), y: t.getAttribute('y'), anchor: t.getAttribute('text-anchor') };
       let bestAttrs = orig;
-      for (const c of cands) {
-        t.setAttribute('x', c.x); t.setAttribute('y', c.y); t.setAttribute('text-anchor', c.anchor);
+      for (const c of genCands(0)) {
+        apply(c.x, c.y, c.anchor);
         const bb = box(t);
         const sc = score(bb);
         if (sc < bestScore) { bestScore = sc; bestAttrs = c; if (sc === 0) break; }
       }
-      t.setAttribute('x', bestAttrs.x); t.setAttribute('y', bestAttrs.y); t.setAttribute('text-anchor', bestAttrs.anchor);
+      // Wrap-on-contest (T-089): still no clean spot and the name is long and
+      // breakable — re-run the search with the label wrapped to 2 balanced
+      // lines (halved width, one extra line height). Keep the wrap only when
+      // it scores STRICTLY better than the best single-line placement; a
+      // global always-wrap measured worse corpus-wide (28 -> 32 collisions).
+      if (bestScore > 0 && e.name.length > 20 && e.name.includes(' ')) {
+        let max = Math.ceil(e.name.length / 2) + 2;
+        let lines = wrapText(e.name, max);
+        while (lines.length > 2) { max += 2; lines = wrapText(e.name, max); }
+        if (lines.length === 2) {
+          t.textContent = '';
+          lines.forEach((ln, i) => t.appendChild(el('tspan', { x: orig.x, dy: i ? 11 : 0 }, [text(ln)])));
+          apply(orig.x, +orig.y - 11, orig.anchor);
+          let wBest = { x: orig.x, y: +orig.y - 11, anchor: orig.anchor };
+          let wScore = score(box(t));
+          for (const c of genCands(11)) {
+            apply(c.x, c.y, c.anchor);
+            const sc = score(box(t));
+            if (sc < wScore) { wScore = sc; wBest = c; if (sc === 0) break; }
+          }
+          if (wScore < bestScore) {
+            bestScore = wScore; bestAttrs = wBest;
+          } else {
+            t.textContent = e.name; // single line won — undo the wrap
+          }
+        }
+      }
+      apply(bestAttrs.x, bestAttrs.y, bestAttrs.anchor);
       bestBB = box(t);
     }
     // Halo hugs the measured text wherever it ended up.
@@ -2521,7 +2559,10 @@ function renderEdges() {
       const labelPoly = (e._renderedPolyline && e._renderedPolyline.length >= 2) ? e._renderedPolyline : points;
       const lp = edgeLabelPos(labelPoly, e.name);
       // data-el/data-elr let adjustEdgeLabelPlacements() (T-082) find and move
-      // this label + halo after all nodes are rendered.
+      // this label + halo after all nodes are rendered. Long CONTESTED labels
+      // may be wrapped to 2 lines there (T-089) — never here: a global wrap
+      // measured WORSE corpus-wide (28 -> 32) because the taller block crosses
+      // more segments in tight corridors than its narrower width saves.
       g.appendChild(el('rect', { x: lp.rx, y: lp.ry, width: lp.rw, height: 14, fill: 'var(--bg)', rx: 2, 'data-elr': e.id }));
       g.appendChild(el('text', { x: lp.tx, y: lp.ty, class: 'edge-label', 'text-anchor': lp.anchor, 'data-el': e.id }, [text(e.name)]));
     }
