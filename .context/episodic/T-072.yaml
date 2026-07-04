@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-072: Routing readability v2 — edge label lift + halo (survey R-1)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-04T09:34:15Z
+# ============================================================================
+
+task_id: T-072
+task_name: "Routing readability v2 — edge label lift + halo (survey R-1)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T09:31:29Z
+completed: 2026-07-04T09:33:58Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-04T11:33:52+02:00
+last_commit: 2026-07-04T11:33:52+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Edge label lift + halo — place on routed polyline, above-horizontal/beside-vertical
+
+# Key outcomes
+outcomes:
+  - 'Edge labels render with a canvas-colour halo (paint-order stroke, 3px, round joins) so lines crossing under text are visually broken'
+  - 'Labels are lifted off the line: placed above the midpoint of the longest horizontal segment of the ACTUAL routed polyline (`_renderedPolyline`, not the pre-route points) when one exists, else beside the longest vertical segment — never centred ON the path'
+  - 'Visual verification: task-lifecycle (Outcome? knot) and healing-loop element screenshots read — "resume after healing"/"work done"/"gate failed — rework" sit above their runs, "advisory only"/"blocked / failing" sit beside their drops, no label straddles a line, no new overlap regression'
+  - 'Inline script passes `node --check`; bridge suite stays 31 passed / 0 failed'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - '.context/project/learnings.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-072-routing-readability-v2--edge-label-lift-.md'
+  - '.tasks/completed/T-069-fix-stationary-click-swallowed-by-zero-m.md'
+  - '.tasks/completed/T-070-routing-controls-v1--centre-anchor-attac.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T11:33:52"
+    action: "T-072: Edge label lift + halo — place on routed polyline, above-horizontal/beside-vertical"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 6
+  lines_added: 338
+  lines_removed: 12
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-072-routing-readability-v2--edge-label-lift-.md
+generated_by: context-agent-hybrid

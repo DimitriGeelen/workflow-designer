@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-071: Fix: clientToSvg ignores viewBox origin and meet letterbox — cursor-to-model conversion skewed
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-04T09:29:36Z
+# ============================================================================
+
+task_id: T-071
+task_name: "Fix: clientToSvg ignores viewBox origin and meet letterbox — cursor-to-model conversion skewed"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T09:25:53Z
+completed: 2026-07-04T09:29:18Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-04T11:29:13+02:00
+last_commit: 2026-07-04T11:29:13+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Fix clientToSvg — convert via getScreenCTM inverse; register G-003 (no trusted-input interaction coverage)
+
+# Key outcomes
+outcomes:
+  - '`clientToSvg` converts via `getScreenCTM().inverse()` (with the corrected old formula as fallback only if CTM is unavailable)'
+  - 'Round-trip check in the live editor: converting a node shape''s on-screen centre yields its model centre within 1px on BOTH axes (measured dx=0, dy=0), and `nodeAt` resolves the node'
+  - 'Trusted drag of an edge endpoint onto a node body re-anchors the edge (e_01 target n_ready→n_authoring); in middle attach mode the end stays unpinned (`targetPort: "auto"`) — the blocked T-070 AC now verified'
+  - 'Trusted node drag moves the node by the cursor delta (measured 77.1/48.2 model px = exactly 40/25 CSS px ÷ CTM scale, both axes uniform)'
+  - 'Inline script passes `node --check`; bridge suite stays 31 passed / 0 failed'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Fix clientToSvg — convert via getScreenCTM inverse; register G-003 (no trusted-input interaction coverage)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-071-fix-clienttosvg-ignores-viewbox-origin-a.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T11:29:13"
+    action: "T-071: Fix clientToSvg — convert via getScreenCTM inverse; register G-003 (no trusted-input interaction coverage)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 3
+  lines_added: 245
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-071-fix-clienttosvg-ignores-viewbox-origin-a.md
+generated_by: context-agent-hybrid

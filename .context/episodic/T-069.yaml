@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-069: Fix: stationary click swallowed by zero-move drag re-render — node selection broken
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-04T09:14:15Z
+# ============================================================================
+
+task_id: T-069
+task_name: "Fix: stationary click swallowed by zero-move drag re-render — node selection broken"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T09:08:41Z
+completed: 2026-07-04T09:13:56Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-04T11:13:50+02:00
+last_commit: 2026-07-04T11:13:50+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Fix stationary click swallowed by zero-move drag re-render (3px dead-zone + moved flag)
+
+# Key outcomes
+outcomes:
+  - 'Drag state carries a `moved` flag set only on actual pointer movement (3px dead-zone); mouseup re-renders/renumbers only when a real move happened (single-node and group drag)'
+  - 'A trusted (Playwright) click on a node sets `selection` to that node and the properties panel shows it — verified in the served designer (n_parse selected, scriptTask panel populated, screenshot read)'
+  - 'Drag-to-move still works (trusted mouse drag moved node by expected viewBox-scaled delta) and displayIds still refresh on drop'
+  - 'Inline editor script passes `node --check`; bridge suite stays 31 passed / 0 failed'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Fix stationary click swallowed by zero-move drag re-render (3px dead-zone + moved flag)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-069-fix-stationary-click-swallowed-by-zero-m.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T11:13:50"
+    action: "T-069: Fix stationary click swallowed by zero-move drag re-render (3px dead-zone + moved flag)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 3
+  lines_added: 254
+  lines_removed: 22
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-069-fix-stationary-click-swallowed-by-zero-m.md
+generated_by: context-agent-hybrid
