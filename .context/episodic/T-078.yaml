@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-078: Dispatch pending REVIEW tasks to termlink reviewer agent
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-04T12:40:36Z
+# ============================================================================
+
+task_id: T-078
+task_name: "Dispatch pending REVIEW tasks to termlink reviewer agent"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T11:13:20Z
+completed: 2026-07-04T12:40:35Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-04T13:22:50+02:00
+last_commit: 2026-07-04T13:22:50+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Dispatch review request to termlink reviewer — DM degenerate (shared identity), PTY inject delivered; file T-079 alignment follow-up
+
+# Key outcomes
+outcomes:
+  - 'A structured review request covering all five tasks (per-task steps + expected outcome + verdict format, gallery/Watchtower URLs, PL-006 trusted-input constraint, no-modification constraint) is delivered to the reviewer agent — evidence: brief at scratchpad t078-review-request.md; posted to dm topic (offset 15, thread T-078) AND injected into the reviewer session''s PTY (tl-wh7fgzem) with the file path'
+  - 'Delivery is confirmed or the failure mode documented — DOCUMENTED: (1) require_online probe failed (reviewer last chat-arc post 3533s ago despite live session heartbeat); (2) the DM channel is DEGENERATE on this host — my_fp == peer_fp == d1993c2c3ec44c94 (shared identity), topic dm:X:X, so the "ack received" was my own envelope, worthless; (3) agent_ask (typed protocol, action=review) timed out after 30s — no agent.listen handler; (4) fallback: PTY inject "Injected successfully" — the only channel with plausible delivery'
+  - 'The reviewer''s verdicts (or its explicit CANNOT-VERIFY / non-response after a bounded wait) are recorded verbatim in this task''s Updates section and summarized per-task as advisory evidence notes on T-073..T-077''s review trail, WITHOUT checking any Human AC boxes — OUTCOME: NON-RESPONSE after bounded wait (~75 min), recorded verbatim in Updates 2026-07-04T12:10Z. The reviewer never processed the request: session tl-wh7fgzem''s worker had ALREADY EXITED (exit 0, its own T-2325 result posted) before the PTY inject — the injected text landed on a bare /bin/sh prompt which tried to EXECUTE it (`/bin/sh: 2: Syntax error: "(" unexpected`). No reply on dm topic after offset 15. No other reviewer available (only other reviewer-role session tl-mkyvvqig belongs to project 100-video-app''s active T-139 — not dispatched to). No verdicts exist, so no advisory evidence notes are attached to T-073..T-077; their [REVIEW] ACs remain purely with the operator. No Human boxes touched.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-04 — Close with non-response instead of re-dispatching'
+    chose: 'Record the reviewer non-response and close T-078; leave the five [REVIEW] ACs purely with the operator.'
+    rationale: 'The dispatched reviewer (tl-wh7fgzem) was a finished worker whose lifecycle ended before injection — the request was never processed by an agent. AC3 explicitly allowed for "non-response after a bounded wait"; the wait (~75 min plus a session boundary) is bounded and the failure is fully diagnosed.'
+    alternatives_rejected: ['(a) Injecting into tl-mkyvvqig — it is another project''s active coder session (100-video-app T-139); hijacking it would disturb their work and its verdicts would not be an idle-reviewer pass. (b) Substituting my own subagent as "the reviewer" — the operator directive was specifically the termlink reviewer agent; a self-spawned reviewer is a scope change the operator can request separately. (c) Waiting longer — the target session is a dead shell; no amount of waiting produces a verdict.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-078-dispatch-pending-review-tasks-to-termlin.md'
+  - '.tasks/active/T-079-adaptive-alignment-rows-sub-row-snap-lin.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T13:22:50"
+    action: "T-078: Dispatch review request to termlink reviewer — DM degenerate (shared identity), PTY inject delivered; file T-079 alignment follow-up"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 87 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 87
+  commits: 1
+  files_changed: 2
+  lines_added: 352
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-078-dispatch-pending-review-tasks-to-termlin.md
+generated_by: context-agent-hybrid
