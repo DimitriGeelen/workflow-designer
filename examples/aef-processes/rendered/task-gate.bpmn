@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from task-gate by tools/yaml-to-bpmn.py. Do not edit by hand. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_task_gate" name="task-gate">
+
+    <bpmn:laneSet id="LaneSet_task-gate">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_override</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="260"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_intercept</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>g_exempt</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>g_active</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>g_ready</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_allow</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_block</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_log</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="200"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_attempt</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_create</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_scope</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_attempt" name="Agent attempts Write/Edit/Bash">
+      <bpmn:extensionElements>
+        <aef:uid value="n_attempt"/>
+        <aef:position x="120" y="552"/>
+        <aef:meta determinism="stochastic"/>
+        <aef:io>
+          <aef:output name="tool" type="string"/>
+          <aef:output name="file_path" type="string"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_14</bpmn:incoming>
+      <bpmn:outgoing>e_01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="n_intercept" name="PreToolUse hook intercepts (check-active-task.sh)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_intercept"/>
+        <aef:position x="250" y="300"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="agents/context/check-active-task.sh" trigger="PreToolUse (Write/Edit/Bash)"/>
+        <aef:contextReads paths=".context/working/focus.yaml, .context/working/session.yaml"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_01</bpmn:incoming>
+      <bpmn:outgoing>e_02</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="g_exempt" name="Exempt path or safe command?">
+      <bpmn:extensionElements>
+        <aef:uid value="g_exempt"/>
+        <aef:position x="430" y="308"/>
+        <aef:meta determinism="deterministic" decisionOwner="framework"/>
+        <aef:decisionInput>${path in [.context,.tasks,.claude,.git] || safe_bash_cmd}</aef:decisionInput>
+        <aef:decisionOutputs>exempt, modifies-source</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_02</bpmn:incoming>
+      <bpmn:outgoing>e_03</bpmn:outgoing>
+      <bpmn:outgoing>e_04</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="g_active" name="Active task in focus?">
+      <bpmn:extensionElements>
+        <aef:uid value="g_active"/>
+        <aef:position x="560" y="308"/>
+        <aef:meta determinism="deterministic" decisionOwner="framework"/>
+        <aef:decisionInput>${focus.current_task != null &amp;&amp; focus_session == session}</aef:decisionInput>
+        <aef:decisionOutputs>none, drift, active</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_04</bpmn:incoming>
+      <bpmn:outgoing>e_05</bpmn:outgoing>
+      <bpmn:outgoing>e_06</bpmn:outgoing>
+      <bpmn:outgoing>e_07</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="g_ready" name="Started-work + real ACs?">
+      <bpmn:extensionElements>
+        <aef:uid value="g_ready"/>
+        <aef:position x="760" y="308"/>
+        <aef:meta determinism="deterministic" decisionOwner="framework"/>
+        <aef:decisionInput>${status in [started-work,issues] &amp;&amp; acs_are_real}</aef:decisionInput>
+        <aef:decisionOutputs>ready, not-ready</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_07</bpmn:incoming>
+      <bpmn:outgoing>e_08</bpmn:outgoing>
+      <bpmn:outgoing>e_09</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="n_allow" name="Allow — exit 0">
+      <bpmn:extensionElements>
+        <aef:uid value="n_allow"/>
+        <aef:position x="980" y="310"/>
+        <aef:meta determinism="deterministic"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_03</bpmn:incoming>
+      <bpmn:incoming>e_09</bpmn:incoming>
+      <bpmn:incoming>e_11</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="n_block" name="Block — exit 2">
+      <bpmn:extensionElements>
+        <aef:uid value="n_block"/>
+        <aef:position x="660" y="410"/>
+        <aef:meta determinism="deterministic"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_05</bpmn:incoming>
+      <bpmn:incoming>e_08</bpmn:incoming>
+      <bpmn:outgoing>e_12</bpmn:outgoing>
+    </bpmn:endEvent>
+    <bpmn:scriptTask id="n_log" name="Log Tier-2 bypass">
+      <bpmn:extensionElements>
+        <aef:uid value="n_log"/>
+        <aef:position x="800" y="400"/>
+        <aef:meta determinism="deterministic" tier="2" endpoint=".context/working/.gate-bypass-log.yaml" sideEffect="appends bypass entry (T-1890)"/>
+        <aef:artifactsWrites paths=".context/working/.gate-bypass-log.yaml"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_10</bpmn:incoming>
+      <bpmn:outgoing>e_11</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:userTask id="n_override" name="Authorise Tier-2 bypass">
+      <bpmn:extensionElements>
+        <aef:uid value="n_override"/>
+        <aef:position x="560" y="120"/>
+        <aef:meta determinism="stochastic" endpoint="FW_SWITCH_FOCUS=1 / FW_SAFE_MODE=1" decisionOwner="human"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_06</bpmn:incoming>
+      <bpmn:outgoing>e_10</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="n_create" name="Create task + set focus">
+      <bpmn:extensionElements>
+        <aef:uid value="n_create"/>
+        <aef:position x="470" y="540"/>
+        <aef:meta determinism="stochastic" endpoint='fw work-on "name" --type build' sideEffect="sets focus.yaml current_task"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_12</bpmn:incoming>
+      <bpmn:outgoing>e_13</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="n_scope" name="Write real acceptance criteria">
+      <bpmn:extensionElements>
+        <aef:uid value="n_scope"/>
+        <aef:position x="680" y="540"/>
+        <aef:meta determinism="stochastic" endpoint="edit .tasks/active/T-XXX (replace placeholder ACs)"/>
+        <aef:artifactsWrites paths=".tasks/active/${task_id}.md"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_13</bpmn:incoming>
+      <bpmn:outgoing>e_14</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:sequenceFlow id="e_01" sourceRef="n_attempt" targetRef="n_intercept">
+      <bpmn:extensionElements><aef:uid value="e_01"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_02" sourceRef="n_intercept" targetRef="g_exempt">
+      <bpmn:extensionElements><aef:uid value="e_02"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_03" name="exempt path / safe cmd" sourceRef="g_exempt" targetRef="n_allow">
+      <bpmn:extensionElements><aef:uid value="e_03"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${exempt == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_04" name="modifies source" sourceRef="g_exempt" targetRef="g_active">
+      <bpmn:extensionElements><aef:uid value="e_04"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${exempt == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_05" name="no active task (P-002)" sourceRef="g_active" targetRef="n_block">
+      <bpmn:extensionElements><aef:uid value="e_05"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${task == 'none'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_06" name="stale / focus-drift (T-560/T-1730)" sourceRef="g_active" targetRef="n_override">
+      <bpmn:extensionElements><aef:uid value="e_06"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${task == 'drift'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_07" name="active task in focus" sourceRef="g_active" targetRef="g_ready">
+      <bpmn:extensionElements><aef:uid value="e_07"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${task == 'active'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_08" name="captured / completed / placeholder ACs (G-020)" sourceRef="g_ready" targetRef="n_block">
+      <bpmn:extensionElements><aef:uid value="e_08"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ready == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_09" name="started-work + real ACs" sourceRef="g_ready" targetRef="n_allow">
+      <bpmn:extensionElements><aef:uid value="e_09"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ready == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_10" name="human authorises" sourceRef="n_override" targetRef="n_log">
+      <bpmn:extensionElements><aef:uid value="e_10"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_11" sourceRef="n_log" targetRef="n_allow">
+      <bpmn:extensionElements><aef:uid value="e_11"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_12" name="agent remediates" sourceRef="n_block" targetRef="n_create">
+      <bpmn:extensionElements><aef:uid value="e_12"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_13" sourceRef="n_create" targetRef="n_scope">
+      <bpmn:extensionElements><aef:uid value="e_13"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_14" name="re-issue" sourceRef="n_scope" targetRef="n_attempt">
+      <bpmn:extensionElements><aef:uid value="e_14"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>

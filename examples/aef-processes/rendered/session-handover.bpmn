@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from session-handover by tools/yaml-to-bpmn.py. Do not edit by hand. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_session_handover" name="session-handover">
+
+    <bpmn:laneSet id="LaneSet_session-handover">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="120"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="260"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_gather</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_episodic_gate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_enrich</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_metrics</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_write</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_commit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_audit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_push</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_end</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="140"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_trigger</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_trigger" name="Session end / checkpoint requested">
+      <bpmn:extensionElements>
+        <aef:uid value="n_trigger"/>
+        <aef:position x="120" y="500"/>
+        <aef:meta triggeredBy="fw handover [--commit] | PreCompact hook"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>e_01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="n_gather" name="Gather state (git, tasks, focus, session)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_gather"/>
+        <aef:position x="320" y="320"/>
+        <aef:meta determinism="deterministic" tier="1"/>
+        <aef:contextReads paths="git status, .tasks/, focus.yaml"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_01</bpmn:incoming>
+      <bpmn:outgoing>e_02</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="n_episodic_gate" name="All completed tasks have enriched episodics?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_episodic_gate"/>
+        <aef:position x="520" y="320"/>
+        <aef:meta decisionOwner="framework"/>
+        <aef:decisionInput>${episodics_complete}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_02</bpmn:incoming>
+      <bpmn:outgoing>e_03</bpmn:outgoing>
+      <bpmn:outgoing>e_04</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:scriptTask id="n_enrich" name="Backfill missing episodics (warn)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_enrich"/>
+        <aef:position x="520" y="190"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="context.sh generate-episodic" autoTriggerKind="sub-process"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_03</bpmn:incoming>
+      <bpmn:outgoing>e_05</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_metrics" name="Extract session metrics">
+      <bpmn:extensionElements>
+        <aef:uid value="n_metrics"/>
+        <aef:position x="720" y="320"/>
+        <aef:meta determinism="deterministic" tier="1"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_04</bpmn:incoming>
+      <bpmn:incoming>e_05</bpmn:incoming>
+      <bpmn:outgoing>e_06</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_write" name="Write handover doc + LATEST.md (Where We Are, Suggested Action)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_write"/>
+        <aef:position x="920" y="320"/>
+        <aef:meta determinism="deterministic" tier="1"/>
+        <aef:artifactsWrites paths="['.context/handovers/${session}.md', 'LATEST.md']"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_06</bpmn:incoming>
+      <bpmn:outgoing>e_07</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_commit" name="Auto-commit via git agent">
+      <bpmn:extensionElements>
+        <aef:uid value="n_commit"/>
+        <aef:position x="1120" y="320"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint='git agent commit -m "&lt;task&gt;: Checkpoint handover"'/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_07</bpmn:incoming>
+      <bpmn:outgoing>e_08</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_audit" name="Pre-push audit check">
+      <bpmn:extensionElements>
+        <aef:uid value="n_audit"/>
+        <aef:position x="1320" y="320"/>
+        <aef:meta determinism="deterministic" tier="1"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_08</bpmn:incoming>
+      <bpmn:outgoing>e_09</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_push" name="Push to remotes">
+      <bpmn:extensionElements>
+        <aef:uid value="n_push"/>
+        <aef:position x="1520" y="320"/>
+        <aef:meta determinism="deterministic" tier="1"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_09</bpmn:incoming>
+      <bpmn:outgoing>e_10</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="n_end" name="Handover published (next session can resume)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end"/>
+        <aef:position x="1720" y="320"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_10</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="e_01" sourceRef="n_trigger" targetRef="n_gather">
+      <bpmn:extensionElements><aef:uid value="e_01"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_02" sourceRef="n_gather" targetRef="n_episodic_gate">
+      <bpmn:extensionElements><aef:uid value="e_02"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_03" name="missing episodics" sourceRef="n_episodic_gate" targetRef="n_enrich">
+      <bpmn:extensionElements><aef:uid value="e_03"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${episodics_complete == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_04" name="complete" sourceRef="n_episodic_gate" targetRef="n_metrics">
+      <bpmn:extensionElements><aef:uid value="e_04"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${episodics_complete == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_05" sourceRef="n_enrich" targetRef="n_metrics">
+      <bpmn:extensionElements><aef:uid value="e_05"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_06" sourceRef="n_metrics" targetRef="n_write">
+      <bpmn:extensionElements><aef:uid value="e_06"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_07" sourceRef="n_write" targetRef="n_commit">
+      <bpmn:extensionElements><aef:uid value="e_07"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_08" sourceRef="n_commit" targetRef="n_audit">
+      <bpmn:extensionElements><aef:uid value="e_08"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_09" sourceRef="n_audit" targetRef="n_push">
+      <bpmn:extensionElements><aef:uid value="e_09"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_10" sourceRef="n_push" targetRef="n_end">
+      <bpmn:extensionElements><aef:uid value="e_10"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>

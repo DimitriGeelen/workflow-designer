@@ -89,6 +89,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_no_dir"/>
         <aef:position x="520" y="430"/>
+        <aef:meta terminalKind="error"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_04</bpmn:incoming>
     </bpmn:endEvent>
@@ -107,6 +108,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_self"/>
         <aef:position x="650" y="430"/>
+        <aef:meta terminalKind="error"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_06</bpmn:incoming>
     </bpmn:endEvent>
@@ -125,6 +127,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_no_ctx"/>
         <aef:position x="790" y="430"/>
+        <aef:meta terminalKind="error"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_08</bpmn:incoming>
     </bpmn:endEvent>
@@ -132,7 +135,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_source"/>
         <aef:position x="900" y="760"/>
-        <aef:meta determinism="deterministic" sideEffect="none (read-only source)"/>
+        <aef:meta determinism="deterministic" sideEffect="none (read-only source)" external="True"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_09</bpmn:incoming>
       <bpmn:outgoing>e_10</bpmn:outgoing>
@@ -242,6 +245,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_dry"/>
         <aef:position x="1620" y="430"/>
+        <aef:meta terminalKind="success"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_25</bpmn:incoming>
     </bpmn:endEvent>
@@ -249,6 +253,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_nothing"/>
         <aef:position x="1620" y="530"/>
+        <aef:meta terminalKind="success"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_26</bpmn:incoming>
     </bpmn:endEvent>
@@ -265,6 +270,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
         <aef:position x="1910" y="314"/>
+        <aef:meta terminalKind="success"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_28</bpmn:incoming>
     </bpmn:endEvent>

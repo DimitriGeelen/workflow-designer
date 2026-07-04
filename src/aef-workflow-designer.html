@@ -4180,6 +4180,27 @@ $('btn-save').onclick = () => {
   a.click();
   URL.revokeObjectURL(url);
 };
+function adoptImportedXml(text) {
+  const loaded = parseBpmnXml(text);
+  if (!loaded) {
+    alert('Could not parse this file. Expected BPMN XML with AEF extensions.');
+    return;
+  }
+  saveActiveToLibrary();
+  // Collision: append _v<n> until unique
+  let key = loaded.workflowMeta.id;
+  let n = 2;
+  while (library.has(key)) { key = `${loaded.workflowMeta.id}_v${n++}`; }
+  if (key !== loaded.workflowMeta.id) loaded.workflowMeta.id = key;
+  library.set(key, loaded);
+  state = loaded;
+  activeKey = key;
+  selection = null;
+  multiSelect.clear();
+  refreshDisplayIds();
+  renderAll();
+  refreshLibraryUI();
+}
 $('btn-load').onclick = () => {
   // File picker — accepts .bpmn / .xml
   const input = document.createElement('input');
@@ -4190,25 +4211,7 @@ $('btn-load').onclick = () => {
     if (!file) return;
     const text = await file.text();
     try {
-      const loaded = parseBpmnXml(text);
-      if (!loaded) {
-        alert('Could not parse this file. Expected BPMN XML with AEF extensions.');
-        return;
-      }
-      saveActiveToLibrary();
-      // Collision: append _v<n> until unique
-      let key = loaded.workflowMeta.id;
-      let n = 2;
-      while (library.has(key)) { key = `${loaded.workflowMeta.id}_v${n++}`; }
-      if (key !== loaded.workflowMeta.id) loaded.workflowMeta.id = key;
-      library.set(key, loaded);
-      state = loaded;
-      activeKey = key;
-      selection = null;
-      multiSelect.clear();
-      refreshDisplayIds();
-      renderAll();
-      refreshLibraryUI();
+      adoptImportedXml(text);
     } catch (e) {
       console.error('Load failed:', e);
       alert('Failed to parse workflow file:\n' + e.message);
@@ -4216,6 +4219,20 @@ $('btn-load').onclick = () => {
   };
   input.click();
 };
+// ?load=<same-origin path> — gallery deep-link: fetch a rendered .bpmn and open it.
+// Only useful when served over HTTP (fetch of file:// paths is blocked by browsers).
+(async () => {
+  const src = new URLSearchParams(location.search).get('load');
+  if (!src) return;
+  try {
+    const res = await fetch(src);
+    if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${src}`);
+    adoptImportedXml(await res.text());
+  } catch (e) {
+    console.error('Deep-link load failed:', e);
+    alert('Could not load workflow from URL:\n' + e.message);
+  }
+})();
 $('btn-new-workflow').onclick = () => { createNewWorkflow(); };
 $('workflow-picker').onchange = ev => {
   const key = ev.target.value;

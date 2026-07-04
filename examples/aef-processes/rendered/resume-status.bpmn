@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from resume-status by tools/yaml-to-bpmn.py. Do not edit by hand. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_resume_status" name="resume-status">
+
+    <bpmn:laneSet id="LaneSet_resume-status">
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="140"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_start</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="400"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_wm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_git</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_tasks</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>g_ho</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_ho</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_noho</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_intel</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_synth</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_report</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_start" name="fw resume status">
+      <bpmn:extensionElements>
+        <aef:uid value="n_start"/>
+        <aef:position x="90" y="140"/>
+        <aef:meta determinism="deterministic" triggeredBy="agent — after compaction, returning from break, or feeling lost (agents/resume/AGENT.md)"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>e1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="n_wm" name="read working memory: session + focus">
+      <bpmn:extensionElements>
+        <aef:uid value="n_wm"/>
+        <aef:position x="170" y="280"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="resume.sh:95-99 (get_session:81, get_focus:72)" note="may be STALE after compaction — that is why resume exists; cmd_sync repairs it"/>
+        <aef:contextReads paths=".context/working/session.yaml, .context/working/focus.yaml"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e1</bpmn:incoming>
+      <bpmn:outgoing>e2</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_git" name="read git state: uncommitted, last commit, branch">
+      <bpmn:extensionElements>
+        <aef:uid value="n_git"/>
+        <aef:position x="310" y="280"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="resume.sh:119-127 (get_git_state:61-70)"/>
+        <aef:contextReads paths="git status --short, git log -1 --oneline, current branch"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e2</bpmn:incoming>
+      <bpmn:outgoing>e3</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_tasks" name="census active tasks: actionable vs awaiting-human">
+      <bpmn:extensionElements>
+        <aef:uid value="n_tasks"/>
+        <aef:position x="450" y="280"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="resume.sh:130-144 (get_active_tasks:30-59)"/>
+        <aef:contextReads paths=".tasks/active/*.md frontmatter (status, owner)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e3</bpmn:incoming>
+      <bpmn:outgoing>e4</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="g_ho" name="handover LATEST.md exists?">
+      <bpmn:extensionElements>
+        <aef:uid value="g_ho"/>
+        <aef:position x="590" y="288"/>
+        <aef:meta determinism="deterministic" endpoint="resume.sh:147" decisionOwner="framework"/>
+        <aef:decisionInput>${-f .context/handovers/LATEST.md}</aef:decisionInput>
+        <aef:decisionOutputs>found, missing</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e4</bpmn:incoming>
+      <bpmn:outgoing>e5</bpmn:outgoing>
+      <bpmn:outgoing>e6</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:scriptTask id="n_ho" name="parse handover: staleness, Where-We-Are, Suggested Action, Open Qs">
+      <bpmn:extensionElements>
+        <aef:uid value="n_ho"/>
+        <aef:position x="670" y="250"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="resume.sh:148-186 ([TODO] count -&gt; stale WARN; sed section extracts)" softFail="advisory" guard="[TODO] count &gt; 0 -&gt; 'handover has unfilled sections' WARN (does not abort)"/>
+        <aef:contextReads paths=".context/handovers/LATEST.md"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e5</bpmn:incoming>
+      <bpmn:outgoing>e7</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_noho" name="degrade: 'No handover found'">
+      <bpmn:extensionElements>
+        <aef:uid value="n_noho"/>
+        <aef:position x="670" y="370"/>
+        <aef:meta determinism="deterministic" endpoint="resume.sh:187-188" note="synthesis proceeds from the remaining sources — every source is optional" softFail="advisory"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e6</bpmn:incoming>
+      <bpmn:outgoing>e8</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_intel" name="gather optional intelligence: discoveries, scan, recent research">
+      <bpmn:extensionElements>
+        <aef:uid value="n_intel"/>
+        <aef:position x="810" y="280"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="resume.sh:192-257 (three independent if-exists blocks)" note="FC-11 collapse — three optional sources, one node; each skipped silently if absent" x-sources=".context/audits/discoveries/LATEST.yaml (WARN/FAIL only); .context/scans/LATEST.yaml (work queue, needs-decision); docs/reports/*.md mtime&lt;7d"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e7</bpmn:incoming>
+      <bpmn:incoming>e8</bpmn:incoming>
+      <bpmn:outgoing>e9</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_synth" name="rule cascade → Recommendations">
+      <bpmn:extensionElements>
+        <aef:uid value="n_synth"/>
+        <aef:position x="950" y="280"/>
+        <aef:meta determinism="deterministic" endpoint="resume.sh:259-272" decisionOwner="framework" guard="no tasks -&gt; create/review; focus set -&gt; continue focus; else -&gt; set focus; plus: uncommitted&gt;0 -&gt; commit with task ref"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e9</bpmn:incoming>
+      <bpmn:outgoing>e10</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="n_report" name="state synthesized (advisory)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_report"/>
+        <aef:position x="1090" y="294"/>
+        <aef:meta advisory="True" terminalKind="success" state="reported" note="informs the agent's next action; resume sync exists to repair stale memory" exitCode="0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e10</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="e1" sourceRef="n_start" targetRef="n_wm">
+      <bpmn:extensionElements><aef:uid value="e1"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e2" sourceRef="n_wm" targetRef="n_git">
+      <bpmn:extensionElements><aef:uid value="e2"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e3" sourceRef="n_git" targetRef="n_tasks">
+      <bpmn:extensionElements><aef:uid value="e3"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e4" sourceRef="n_tasks" targetRef="g_ho">
+      <bpmn:extensionElements><aef:uid value="e4"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e5" name="found" sourceRef="g_ho" targetRef="n_ho">
+      <bpmn:extensionElements><aef:uid value="e5"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">latest_exists</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e6" name="missing" sourceRef="g_ho" targetRef="n_noho">
+      <bpmn:extensionElements><aef:uid value="e6"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">!latest_exists</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e7" sourceRef="n_ho" targetRef="n_intel">
+      <bpmn:extensionElements><aef:uid value="e7"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e8" sourceRef="n_noho" targetRef="n_intel">
+      <bpmn:extensionElements><aef:uid value="e8"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e9" sourceRef="n_intel" targetRef="n_synth">
+      <bpmn:extensionElements><aef:uid value="e9"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e10" sourceRef="n_synth" targetRef="n_report">
+      <bpmn:extensionElements><aef:uid value="e10"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>

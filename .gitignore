@@ -1,2 +1,3 @@
 # Project-level git ignore
 .termlink-task
+build/

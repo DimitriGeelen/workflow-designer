@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from git-commit-flow by tools/yaml-to-bpmn.py. Do not edit by hand. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_git_commit_flow" name="git-commit-flow">
+
+    <bpmn:laneSet id="LaneSet_git-commit-flow">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="140"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_reason</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_reminder</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="340"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_commit_bypass</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_logbypass</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_commit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>g_hooks</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_done</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_block</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="150"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_parse</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>g_bypass</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>g_taskref</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_start" name='git.sh commit -m "T-XXX: …"'>
+      <bpmn:extensionElements>
+        <aef:uid value="n_start"/>
+        <aef:position x="90" y="610"/>
+        <aef:meta determinism="deterministic" triggeredBy="agent (or fw git commit) — commit.sh:do_commit"/>
+        <aef:io>
+          <aef:output name="message" type="string"/>
+          <aef:output name="task_id" type="string"/>
+          <aef:output name="bypass" type="boolean"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>e1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="n_parse" name="parse args; check_git_repo; require -m">
+      <bpmn:extensionElements>
+        <aef:uid value="n_parse"/>
+        <aef:position x="150" y="600"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="commit.sh:8-64 (arg loop + check_git_repo + message-required)" guard="empty message → ERROR exit 1 (blocks before any branch)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e1</bpmn:incoming>
+      <bpmn:outgoing>e2</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="g_bypass" name="--bypass?">
+      <bpmn:extensionElements>
+        <aef:uid value="g_bypass"/>
+        <aef:position x="300" y="602"/>
+        <aef:meta determinism="deterministic" endpoint="commit.sh:66 ($bypass == true)" decisionOwner="agent"/>
+        <aef:decisionInput>${bypass}</aef:decisionInput>
+        <aef:decisionOutputs>bypass, enforce</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e2</bpmn:incoming>
+      <bpmn:outgoing>e3</bpmn:outgoing>
+      <bpmn:outgoing>e4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="g_taskref" name="T-XXX in message? (P-002, agent-level)">
+      <bpmn:extensionElements>
+        <aef:uid value="g_taskref"/>
+        <aef:position x="410" y="602"/>
+        <aef:meta determinism="deterministic" endpoint='commit.sh:96-110 (found_task=extract_task_id "$message")' decisionOwner="framework"/>
+        <aef:decisionInput>${extract_task_id(message) != ""}</aef:decisionInput>
+        <aef:decisionOutputs>has-ref, no-ref</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e4</bpmn:incoming>
+      <bpmn:outgoing>e9</bpmn:outgoing>
+      <bpmn:outgoing>e10</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="n_reason" name="authorise bypass — reason required (Tier-2)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_reason"/>
+        <aef:position x="300" y="108"/>
+        <aef:meta determinism="stochastic" tier="2" endpoint="commit.sh:67-76 (prompt if empty; empty → ERROR exit 1)" note="single-use situational authorisation; the human owns the reason" guard="no reason → ERROR exit 1 (bypass needs a reason)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e3</bpmn:incoming>
+      <bpmn:outgoing>e5</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="n_reminder" name="reminder: create retroactive task">
+      <bpmn:extensionElements>
+        <aef:uid value="n_reminder"/>
+        <aef:position x="760" y="108"/>
+        <aef:meta determinism="deterministic" endpoint="commit.sh:83-85 (REMINDER: create-task.sh)" note="advisory nudge — not structurally enforced (bypass leaves a task-debt)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e7</bpmn:incoming>
+      <bpmn:outgoing>e8</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="n_commit_bypass" name="git commit (bypass) — still fires hooks">
+      <bpmn:extensionElements>
+        <aef:uid value="n_commit_bypass"/>
+        <aef:position x="440" y="340"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="commit.sh:78-79 (git commit -m … ; NO --no-verify)" sideEffect="creates a commit object; the installed hooks still run (see friction)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e5</bpmn:incoming>
+      <bpmn:outgoing>e6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="n_logbypass" name="log_bypass_entry → .context/bypass-log.yaml">
+      <bpmn:extensionElements>
+        <aef:uid value="n_logbypass"/>
+        <aef:position x="600" y="340"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="bypass.sh:76-113 (log_bypass_entry)" sideEffect="appends a YAML bypass record; reviewed by fw audit"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e6</bpmn:incoming>
+      <bpmn:outgoing>e7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="n_commit" name="git commit (triggers hooks)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_commit"/>
+        <aef:position x="520" y="440"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint='commit.sh:113 (git commit -m … "${git_args[@]}")' sideEffect="creates a commit object; on success stamps the active task (update_task_timestamp, commit.sh:118-125)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e9</bpmn:incoming>
+      <bpmn:outgoing>e11</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="g_hooks" name="pre-commit + commit-msg hooks pass?">
+      <bpmn:extensionElements>
+        <aef:uid value="g_hooks"/>
+        <aef:position x="680" y="442"/>
+        <aef:meta determinism="deterministic" endpoint="hooks.sh:271-358 (pre-commit) + hooks.sh:55-88 (commit-msg)" decisionOwner="framework" x-checks="secret-scan (T-1844); dup-task-scan (G-052); large-file (T-1845); commit-msg task-ref v1.9"/>
+        <aef:decisionInput>${all_hook_gates_pass}</aef:decisionInput>
+        <aef:decisionOutputs>pass, blocked</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e11</bpmn:incoming>
+      <bpmn:outgoing>e12</bpmn:outgoing>
+      <bpmn:outgoing>e13</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="n_done" name="commit recorded (task stamped)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_done"/>
+        <aef:position x="830" y="456"/>
+        <aef:meta terminalKind="success" state="committed"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e8</bpmn:incoming>
+      <bpmn:incoming>e12</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="n_block" name="BLOCKED — no ref / hook hit / no reason">
+      <bpmn:extensionElements>
+        <aef:uid value="n_block"/>
+        <aef:position x="400" y="456"/>
+        <aef:meta terminalKind="error" state="blocked" note="sources — g_taskref no-ref (P-002), g_hooks blocked (secret/dup/large/msg), n_reason no-reason" exitCode="1"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e10</bpmn:incoming>
+      <bpmn:incoming>e13</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="e1" sourceRef="n_start" targetRef="n_parse">
+      <bpmn:extensionElements><aef:uid value="e1"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e2" sourceRef="n_parse" targetRef="g_bypass">
+      <bpmn:extensionElements><aef:uid value="e2"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e3" name="--bypass" sourceRef="g_bypass" targetRef="n_reason">
+      <bpmn:extensionElements><aef:uid value="e3"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">bypass == true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e4" name="enforce" sourceRef="g_bypass" targetRef="g_taskref">
+      <bpmn:extensionElements><aef:uid value="e4"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">bypass == false</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e5" name="reason given" sourceRef="n_reason" targetRef="n_commit_bypass">
+      <bpmn:extensionElements><aef:uid value="e5"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e6" sourceRef="n_commit_bypass" targetRef="n_logbypass">
+      <bpmn:extensionElements><aef:uid value="e6"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e7" sourceRef="n_logbypass" targetRef="n_reminder">
+      <bpmn:extensionElements><aef:uid value="e7"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e8" sourceRef="n_reminder" targetRef="n_done">
+      <bpmn:extensionElements><aef:uid value="e8"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e9" name="has ref" sourceRef="g_taskref" targetRef="n_commit">
+      <bpmn:extensionElements><aef:uid value="e9"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">found_task != ''</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e10" name="no ref (P-002 block)" sourceRef="g_taskref" targetRef="n_block">
+      <bpmn:extensionElements><aef:uid value="e10"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">found_task == ''</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e11" sourceRef="n_commit" targetRef="g_hooks">
+      <bpmn:extensionElements><aef:uid value="e11"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e12" name="pass" sourceRef="g_hooks" targetRef="n_done">
+      <bpmn:extensionElements><aef:uid value="e12"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">all_hook_gates_pass</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e13" name="blocked" sourceRef="g_hooks" targetRef="n_block">
+      <bpmn:extensionElements><aef:uid value="e13"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">!all_hook_gates_pass</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>

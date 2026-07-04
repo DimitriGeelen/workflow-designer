@@ -82,6 +82,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_no_tag"/>
         <aef:position x="550" y="430"/>
+        <aef:meta terminalKind="error"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_04</bpmn:incoming>
     </bpmn:endEvent>
@@ -109,6 +110,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_noop"/>
         <aef:position x="820" y="430"/>
+        <aef:meta terminalKind="success"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_07</bpmn:incoming>
     </bpmn:endEvent>
@@ -136,6 +138,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_dryrun"/>
         <aef:position x="1110" y="430"/>
+        <aef:meta terminalKind="success"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_10</bpmn:incoming>
     </bpmn:endEvent>
@@ -152,7 +155,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_push"/>
         <aef:position x="1400" y="300"/>
-        <aef:meta determinism="deterministic" sideEffect="pushes the tag across the host boundary to each remote" multiInstance="True"/>
+        <aef:meta determinism="deterministic" sideEffect="pushes the tag across the host boundary to each remote" softFail="accumulating" x-collection="git remotes (runtime set)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_12</bpmn:incoming>
       <bpmn:outgoing>e_13</bpmn:outgoing>
@@ -161,7 +164,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_remote"/>
         <aef:position x="1400" y="590"/>
-        <aef:meta determinism="deterministic" sideEffect="remote ref updated on each push target"/>
+        <aef:meta determinism="deterministic" sideEffect="remote ref updated on each push target" external="True"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_13</bpmn:incoming>
       <bpmn:outgoing>e_14</bpmn:outgoing>
@@ -181,7 +184,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_gh"/>
         <aef:position x="1560" y="590"/>
-        <aef:meta determinism="deterministic" sideEffect="creates a GitHub Release (--generate-notes --latest)"/>
+        <aef:meta determinism="deterministic" sideEffect="creates a GitHub Release (--generate-notes --latest)" softFail="advisory" external="True"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_15</bpmn:incoming>
       <bpmn:outgoing>e_17</bpmn:outgoing>
@@ -190,6 +193,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
         <aef:position x="1720" y="314"/>
+        <aef:meta terminalKind="success"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_16</bpmn:incoming>
       <bpmn:incoming>e_17</bpmn:incoming>

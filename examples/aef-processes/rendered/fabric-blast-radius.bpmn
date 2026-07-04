@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from fabric-blast-radius by tools/yaml-to-bpmn.py. Do not edit by hand. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_fabric_blast_radius" name="fabric-blast-radius">
+
+    <bpmn:laneSet id="LaneSet_fabric-blast-radius">
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="140"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_start</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="400"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_diff</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>g_changed</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_none</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_scan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>g_card</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_writes</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_nocard</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_total</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_done</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_start" name="fw fabric blast-radius [ref]">
+      <bpmn:extensionElements>
+        <aef:uid value="n_start"/>
+        <aef:position x="90" y="140"/>
+        <aef:meta determinism="deterministic" triggeredBy="agent, before committing (CLAUDE.md Component Fabric practice) or post-commit review"/>
+        <aef:io>
+          <aef:output name="ref" type="string"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>e1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="n_diff" name="git diff-tree → changed files; commit msg header">
+      <bpmn:extensionElements>
+        <aef:uid value="n_diff"/>
+        <aef:position x="180" y="280"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="traverse.sh:159-173 (diff-tree --name-only -r ref; log -1 %s)"/>
+        <aef:contextReads paths="git object store (diff-tree, log)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e1</bpmn:incoming>
+      <bpmn:outgoing>e2</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="g_changed" name="any files changed?">
+      <bpmn:extensionElements>
+        <aef:uid value="g_changed"/>
+        <aef:position x="330" y="288"/>
+        <aef:meta determinism="deterministic" endpoint="traverse.sh:162-165" decisionOwner="framework"/>
+        <aef:decisionInput>${changed_files != ""}</aef:decisionInput>
+        <aef:decisionOutputs>changed, empty</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e2</bpmn:incoming>
+      <bpmn:outgoing>e3</bpmn:outgoing>
+      <bpmn:outgoing>e4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="n_none" name="no files changed (exit 0)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_none"/>
+        <aef:position x="340" y="420"/>
+        <aef:meta terminalKind="success" state="no-op" exitCode="0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:scriptTask id="n_scan" name="for each changed file: skip non-source, find fabric card">
+      <bpmn:extensionElements>
+        <aef:uid value="n_scan"/>
+        <aef:position x="420" y="280"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="traverse.sh:175-210 (while read file; case skip; card grep)" note="body below drawn for ONE iteration — no scope construct bounds it (FC-15)"/>
+        <aef:multiInstance over="${changed_files} (git diff-tree output)" mode="sequential" predicate="file not under .context/ .fabric/ .tasks/ (case skip, traverse.sh:178-180)" collects="impacted[]"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e4</bpmn:incoming>
+      <bpmn:outgoing>e5</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="g_card" name="fabric card exists for file?">
+      <bpmn:extensionElements>
+        <aef:uid value="g_card"/>
+        <aef:position x="570" y="288"/>
+        <aef:meta determinism="deterministic" endpoint="traverse.sh:183-187 (inner scan of components/*.yaml, grep ^location)" decisionOwner="framework" note="the inner card scan is a NESTED loop, collapsed into this decision (FC-15)"/>
+        <aef:decisionInput>${any card with location == file}</aef:decisionInput>
+        <aef:decisionOutputs>has-card, no-card</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e5</bpmn:incoming>
+      <bpmn:outgoing>e6</bpmn:outgoing>
+      <bpmn:outgoing>e7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:scriptTask id="n_writes" name="quick impact: card writes → targets; count component">
+      <bpmn:extensionElements>
+        <aef:uid value="n_writes"/>
+        <aef:position x="660" y="250"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="traverse.sh:191-201 (depends_on type==writes → print targets)" x-seeAlso="deep transitive walk = fw fabric impact (traverse.sh:5-151 do_impact, recursive, visited set) — separate command, not drawn here"/>
+        <aef:contextReads paths=".fabric/components/*.yaml (matched card)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e6</bpmn:incoming>
+      <bpmn:outgoing>e8</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_nocard" name="report '(no fabric card)' — advisory gap">
+      <bpmn:extensionElements>
+        <aef:uid value="n_nocard"/>
+        <aef:position x="660" y="370"/>
+        <aef:meta determinism="deterministic" endpoint="traverse.sh:206-208" note="unregistered file — drift signal (fw fabric drift finds these); never blocks" softFail="advisory"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e7</bpmn:incoming>
+      <bpmn:outgoing>e9</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_total" name="report: N registered component(s) changed">
+      <bpmn:extensionElements>
+        <aef:uid value="n_total"/>
+        <aef:position x="810" y="280"/>
+        <aef:meta determinism="deterministic" endpoint="traverse.sh:212-213"/>
+        <aef:aggregation over="impacted[]" reduce="count" outputs="total_impact"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e8</bpmn:incoming>
+      <bpmn:incoming>e9</bpmn:incoming>
+      <bpmn:outgoing>e10</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="n_done" name="impact reported (advisory — exit 0 always)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_done"/>
+        <aef:position x="960" y="294"/>
+        <aef:meta advisory="True" terminalKind="success" state="reported" note="blast-radius never blocks — it informs the agent's commit decision" exitCode="0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e10</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="e1" sourceRef="n_start" targetRef="n_diff">
+      <bpmn:extensionElements><aef:uid value="e1"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e2" sourceRef="n_diff" targetRef="g_changed">
+      <bpmn:extensionElements><aef:uid value="e2"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e3" name="empty" sourceRef="g_changed" targetRef="n_none">
+      <bpmn:extensionElements><aef:uid value="e3"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">changed_files == ''</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e4" name="changed" sourceRef="g_changed" targetRef="n_scan">
+      <bpmn:extensionElements><aef:uid value="e4"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">changed_files != ''</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e5" sourceRef="n_scan" targetRef="g_card">
+      <bpmn:extensionElements><aef:uid value="e5"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e6" name="has card" sourceRef="g_card" targetRef="n_writes">
+      <bpmn:extensionElements><aef:uid value="e6"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">card_found</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e7" name="no card" sourceRef="g_card" targetRef="n_nocard">
+      <bpmn:extensionElements><aef:uid value="e7"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">!card_found</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e8" sourceRef="n_writes" targetRef="n_total">
+      <bpmn:extensionElements><aef:uid value="e8"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e9" sourceRef="n_nocard" targetRef="n_total">
+      <bpmn:extensionElements><aef:uid value="e9"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e10" sourceRef="n_total" targetRef="n_done">
+      <bpmn:extensionElements><aef:uid value="e10"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>

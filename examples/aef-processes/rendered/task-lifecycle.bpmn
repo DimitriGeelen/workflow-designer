@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from task-lifecycle by tools/yaml-to-bpmn.py. Do not edit by hand. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_task_lifecycle" name="task-lifecycle">
+
+    <bpmn:laneSet id="LaneSet_task-lifecycle">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_human_finalize</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="260"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_file</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_ready</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_progress</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_issues</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_gates</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_gate_result</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_partial_check</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_partial</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_finalize</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_end</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="200"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_authoring</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_work</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_complete_req</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_file" name="Task captured (filed)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_file"/>
+        <aef:position x="120" y="360"/>
+        <aef:meta endpoint="agents/task-create/create-task.sh" triggeredBy="fw task create --type &lt;type&gt; --owner &lt;agent|human&gt;" state="captured"/>
+        <aef:io>
+          <aef:output name="task_id" type="task_id"/>
+          <aef:output name="owner" type="string"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>e_01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="n_ready" name="Build-ready? (G-020 entry guard)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_ready"/>
+        <aef:position x="320" y="360"/>
+        <aef:meta gate="G-020" x-rule="real ACs required to start build; placeholder ACs block"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_01</bpmn:incoming>
+      <bpmn:incoming>e_04</bpmn:incoming>
+      <bpmn:outgoing>e_02</bpmn:outgoing>
+      <bpmn:outgoing>e_03</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="n_authoring" name="Write real acceptance criteria">
+      <bpmn:extensionElements>
+        <aef:uid value="n_authoring"/>
+        <aef:position x="320" y="560"/>
+        <aef:meta determinism="stochastic" tier="1" agentType="primary"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_02</bpmn:incoming>
+      <bpmn:outgoing>e_04</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:scriptTask id="n_start" name="Start work (captured -&gt; started-work)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_start"/>
+        <aef:position x="520" y="360"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="fw work-on ${task_id}" sideEffect="sets focus.yaml" state="started-work"/>
+        <aef:io>
+          <aef:input name="task_id" type="task_id" required="true"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_03</bpmn:incoming>
+      <bpmn:outgoing>e_05</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:serviceTask id="n_work" name="Perform the work">
+      <bpmn:extensionElements>
+        <aef:uid value="n_work"/>
+        <aef:position x="720" y="560"/>
+        <aef:meta determinism="stochastic" tier="2" agentType="primary" state="started-work"/>
+        <aef:contextReads paths=".tasks/active/${task_id}.md"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_05</bpmn:incoming>
+      <bpmn:incoming>e_09</bpmn:incoming>
+      <bpmn:incoming>e_12</bpmn:incoming>
+      <bpmn:outgoing>e_06</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="n_progress" name="Outcome?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_progress"/>
+        <aef:position x="920" y="360"/>
+        <aef:meta decisionOwner="agent"/>
+        <aef:decisionInput>${outcome}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_06</bpmn:incoming>
+      <bpmn:outgoing>e_07</bpmn:outgoing>
+      <bpmn:outgoing>e_08</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:scriptTask id="n_issues" name="Enter issues (auto → healing diagnose)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_issues"/>
+        <aef:position x="920" y="230"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="fw task update ${task_id} --status issues" autoTriggerKind="sub-process" state="issues" autoTrigger="agents/healing/healing.sh diagnose ${task_id}"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_07</bpmn:incoming>
+      <bpmn:outgoing>e_09</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_complete_req" name="Request completion (fw done)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_complete_req"/>
+        <aef:position x="1120" y="560"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="fw task update ${task_id} --status work-completed"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_08</bpmn:incoming>
+      <bpmn:outgoing>e_10</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_gates" name="Run completion gate battery">
+      <bpmn:extensionElements>
+        <aef:uid value="n_gates"/>
+        <aef:position x="1320" y="360"/>
+        <aef:meta determinism="deterministic" tier="1" x-gates="R-033 owner=human blocks completion [--skip-sovereignty]; P-010 agent ACs all [x] no placeholders [--skip-acceptance-criteria]; P-011 ## Verification commands all exit 0 [--skip-verification]; G-019 bug-class tasks need substantive RCA [--skip-rca]; T-1718 arc build tasks fill ## Evolution [--skip-evolution]" x-umbrellaBypass="--force (deprecated)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_10</bpmn:incoming>
+      <bpmn:outgoing>e_11</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="n_gate_result" name="All gates pass?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_gate_result"/>
+        <aef:position x="1520" y="360"/>
+        <aef:meta decisionOwner="framework"/>
+        <aef:decisionInput>${gates}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_11</bpmn:incoming>
+      <bpmn:outgoing>e_12</bpmn:outgoing>
+      <bpmn:outgoing>e_13</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="n_partial_check" name="Human-owned with unchecked Human ACs?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_partial_check"/>
+        <aef:position x="1720" y="360"/>
+        <aef:meta decisionOwner="framework"/>
+        <aef:decisionInput>${owner == 'human' &amp;&amp; human_acs_unchecked}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_13</bpmn:incoming>
+      <bpmn:outgoing>e_14</bpmn:outgoing>
+      <bpmn:outgoing>e_15</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:scriptTask id="n_partial" name="Partial-complete (stays active, owner→human, emit review)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_partial"/>
+        <aef:position x="1720" y="230"/>
+        <aef:meta determinism="deterministic" tier="1" state="work-completed" note="file stays in active/; episodic deliberately deferred (T-634/T-679)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_14</bpmn:incoming>
+      <bpmn:outgoing>e_16</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:userTask id="n_human_finalize" name="Human checks">
+      <bpmn:extensionElements>
+        <aef:uid value="n_human_finalize"/>
+        <aef:position x="1920" y="110"/>
+        <aef:meta determinism="human" tier="0" authority="sovereignty" note="human-only by R-033 + convention (agent must never check Human ACs)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_16</bpmn:incoming>
+      <bpmn:outgoing>e_17</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:scriptTask id="n_finalize" name="Finalize (date_finished, move to completed/, episodic, clear focus)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_finalize"/>
+        <aef:position x="1920" y="360"/>
+        <aef:meta determinism="deterministic" tier="1" sideEffect="moves .tasks/active/${task_id}.md -&gt; .tasks/completed/" autoTriggerKind="sub-process" state="work-completed" autoTrigger="episodic generation (context.sh generate-episodic)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_15</bpmn:incoming>
+      <bpmn:incoming>e_17</bpmn:incoming>
+      <bpmn:outgoing>e_18</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="n_end" name="Task completed (in completed/)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end"/>
+        <aef:position x="2120" y="360"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_18</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="e_01" sourceRef="n_file" targetRef="n_ready">
+      <bpmn:extensionElements><aef:uid value="e_01"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_02" name="placeholder ACs" sourceRef="n_ready" targetRef="n_authoring">
+      <bpmn:extensionElements><aef:uid value="e_02"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${acs_real == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_03" name="build-ready" sourceRef="n_ready" targetRef="n_start">
+      <bpmn:extensionElements><aef:uid value="e_03"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${acs_real == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_04" name="re-check" sourceRef="n_authoring" targetRef="n_ready">
+      <bpmn:extensionElements><aef:uid value="e_04"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_05" sourceRef="n_start" targetRef="n_work">
+      <bpmn:extensionElements><aef:uid value="e_05"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_06" sourceRef="n_work" targetRef="n_progress">
+      <bpmn:extensionElements><aef:uid value="e_06"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_07" name="blocked / failing" sourceRef="n_progress" targetRef="n_issues">
+      <bpmn:extensionElements><aef:uid value="e_07"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${outcome == 'issues'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_08" name="work done" sourceRef="n_progress" targetRef="n_complete_req">
+      <bpmn:extensionElements><aef:uid value="e_08"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${outcome == 'done'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_09" name="resume after healing (issues -&gt; started-work)" sourceRef="n_issues" targetRef="n_work">
+      <bpmn:extensionElements><aef:uid value="e_09"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_10" sourceRef="n_complete_req" targetRef="n_gates">
+      <bpmn:extensionElements><aef:uid value="e_10"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_11" sourceRef="n_gates" targetRef="n_gate_result">
+      <bpmn:extensionElements><aef:uid value="e_11"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_12" name="gate failed — rework" sourceRef="n_gate_result" targetRef="n_work">
+      <bpmn:extensionElements><aef:uid value="e_12"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${gates == 'fail'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_13" name="gates pass" sourceRef="n_gate_result" targetRef="n_partial_check">
+      <bpmn:extensionElements><aef:uid value="e_13"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${gates == 'pass'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_14" name="human-owned, Human ACs open" sourceRef="n_partial_check" targetRef="n_partial">
+      <bpmn:extensionElements><aef:uid value="e_14"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${partial == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_15" name="fully complete" sourceRef="n_partial_check" targetRef="n_finalize">
+      <bpmn:extensionElements><aef:uid value="e_15"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${partial == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_16" sourceRef="n_partial" targetRef="n_human_finalize">
+      <bpmn:extensionElements><aef:uid value="e_16"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_17" name="Human ACs checked" sourceRef="n_human_finalize" targetRef="n_finalize">
+      <bpmn:extensionElements><aef:uid value="e_17"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_18" sourceRef="n_finalize" targetRef="n_end">
+      <bpmn:extensionElements><aef:uid value="e_18"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>

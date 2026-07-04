@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from healing-loop by tools/yaml-to-bpmn.py. Do not edit by hand. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_healing_loop" name="healing-loop">
+
+    <bpmn:laneSet id="LaneSet_healing-loop">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_acted</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_choose</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="220"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_trigger</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_end_advisory</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_resolve</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_resume</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_end_resolved</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="200"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_classify</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_lookup</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_suggest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_apply</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_trigger" name="Auto-trigger — task entered issues/blocked">
+      <bpmn:extensionElements>
+        <aef:uid value="n_trigger"/>
+        <aef:position x="120" y="340"/>
+        <aef:meta advisory="True" triggeredBy="task status -&gt; issues|blocked (update-task.sh:1687)"/>
+        <aef:io>
+          <aef:output name="task_id" type="task_id"/>
+          <aef:output name="issue_text" type="string"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>e_01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="n_classify" name="Classify failure (keyword scoring)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_classify"/>
+        <aef:position x="300" y="540"/>
+        <aef:meta determinism="stochastic" tier="2" endpoint="lib/diagnose.sh:classify_failure" advisory="True" agentType="primary"/>
+        <aef:io>
+          <aef:input name="issue_text" type="string" required="true"/>
+          <aef:output name="failure_type" type="enum"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_01</bpmn:incoming>
+      <bpmn:outgoing>e_02</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="n_lookup" name="Lookup similar patterns (RAG)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_lookup"/>
+        <aef:position x="480" y="540"/>
+        <aef:meta determinism="stochastic" tier="2" endpoint="lib/diagnose.sh:find_similar_patterns (python3 lib/ask.py)" advisory="True" agentType="primary"/>
+        <aef:contextReads paths="patterns.yaml, episodic/"/>
+        <aef:io>
+          <aef:input name="failure_type" type="enum" required="true"/>
+          <aef:output name="matching_patterns" type="list"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_02</bpmn:incoming>
+      <bpmn:outgoing>e_03</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="n_suggest" name="Suggest recovery — Error Escalation Ladder A/B/C/D">
+      <bpmn:extensionElements>
+        <aef:uid value="n_suggest"/>
+        <aef:position x="680" y="540"/>
+        <aef:meta determinism="deterministic" tier="2" endpoint="lib/diagnose.sh:157-204" advisory="True" agentType="primary" x-ladder="A Don't repeat: check patterns + episodic; B Improve technique: type-specific fix; C Improve tooling: add automated check / audit rule; D Change ways of working: new practice / CLAUDE.md (sovereignty)"/>
+        <aef:io>
+          <aef:input name="matching_patterns" type="list"/>
+          <aef:output name="recommendation" type="string"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_03</bpmn:incoming>
+      <bpmn:outgoing>e_04</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="n_acted" name="Human acts on the advice?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_acted"/>
+        <aef:position x="880" y="130"/>
+        <aef:meta decisionOwner="human"/>
+        <aef:decisionInput>${act}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_04</bpmn:incoming>
+      <bpmn:outgoing>e_05</bpmn:outgoing>
+      <bpmn:outgoing>e_06</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="n_end_advisory" name="Advisory only — no pattern recorded">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_advisory"/>
+        <aef:position x="880" y="340"/>
+        <aef:meta note="diagnose fired but no resolve; memory NOT strengthened"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_06</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="n_choose" name="Choose ladder rung + direct the recovery">
+      <bpmn:extensionElements>
+        <aef:uid value="n_choose"/>
+        <aef:position x="1080" y="110"/>
+        <aef:meta determinism="human" tier="0" authority="sovereignty"/>
+        <aef:decisionOutputs>A, B, C, D</aef:decisionOutputs>
+        <aef:io>
+          <aef:input name="recommendation" type="string" required="true"/>
+          <aef:output name="chosen_rung" type="enum"/>
+          <aef:output name="mitigation" type="string"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_05</bpmn:incoming>
+      <bpmn:outgoing>e_07</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="n_apply" name="Apply the chosen recovery">
+      <bpmn:extensionElements>
+        <aef:uid value="n_apply"/>
+        <aef:position x="1280" y="540"/>
+        <aef:meta determinism="stochastic" tier="2" agentType="primary" note="fix code (B) / add check (C) / draft practice (D), under human direction"/>
+        <aef:io>
+          <aef:input name="chosen_rung" type="enum" required="true"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_07</bpmn:incoming>
+      <bpmn:outgoing>e_08</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:scriptTask id="n_resolve" name="Log resolution — append pattern + learning + task note">
+      <bpmn:extensionElements>
+        <aef:uid value="n_resolve"/>
+        <aef:position x="1480" y="340"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint='fw healing resolve ${task_id} --mitigation "..."'/>
+        <aef:artifactsWrites paths="patterns.yaml (FP-NNN), learnings.yaml (L-NNN), task Updates note"/>
+        <aef:io>
+          <aef:input name="mitigation" type="string" required="true"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_08</bpmn:incoming>
+      <bpmn:outgoing>e_09</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_resume" name="Resume task (→ started-work)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_resume"/>
+        <aef:position x="1680" y="340"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="fw task update ${task_id} --status started-work"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_09</bpmn:incoming>
+      <bpmn:outgoing>e_10</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="n_end_resolved" name="Resolved &amp; recorded (antifragile)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_resolved"/>
+        <aef:position x="1880" y="340"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_10</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="e_01" sourceRef="n_trigger" targetRef="n_classify">
+      <bpmn:extensionElements><aef:uid value="e_01"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_02" sourceRef="n_classify" targetRef="n_lookup">
+      <bpmn:extensionElements><aef:uid value="e_02"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_03" sourceRef="n_lookup" targetRef="n_suggest">
+      <bpmn:extensionElements><aef:uid value="e_03"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_04" sourceRef="n_suggest" targetRef="n_acted">
+      <bpmn:extensionElements><aef:uid value="e_04"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_05" name="acts on advice" sourceRef="n_acted" targetRef="n_choose">
+      <bpmn:extensionElements><aef:uid value="e_05"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${act == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_06" name="advisory only" sourceRef="n_acted" targetRef="n_end_advisory">
+      <bpmn:extensionElements><aef:uid value="e_06"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${act == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_07" sourceRef="n_choose" targetRef="n_apply">
+      <bpmn:extensionElements><aef:uid value="e_07"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_08" sourceRef="n_apply" targetRef="n_resolve">
+      <bpmn:extensionElements><aef:uid value="e_08"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_09" sourceRef="n_resolve" targetRef="n_resume">
+      <bpmn:extensionElements><aef:uid value="e_09"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_10" sourceRef="n_resume" targetRef="n_end_resolved">
+      <bpmn:extensionElements><aef:uid value="e_10"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>

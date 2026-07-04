@@ -65,6 +65,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_not_found"/>
         <aef:position x="400" y="430"/>
+        <aef:meta terminalKind="error"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_03</bpmn:incoming>
     </bpmn:endEvent>
@@ -72,7 +73,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_arc"/>
         <aef:position x="540" y="300"/>
-        <aef:meta determinism="deterministic"/>
+        <aef:meta determinism="deterministic" softFail="advisory"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_04</bpmn:incoming>
       <bpmn:outgoing>e_05</bpmn:outgoing>
@@ -92,7 +93,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_rec"/>
         <aef:position x="700" y="190"/>
-        <aef:meta determinism="deterministic"/>
+        <aef:meta determinism="deterministic" softFail="advisory"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_06</bpmn:incoming>
       <bpmn:outgoing>e_08</bpmn:outgoing>
@@ -122,6 +123,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_homework"/>
         <aef:position x="1010" y="430"/>
+        <aef:meta terminalKind="error"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_10</bpmn:incoming>
     </bpmn:endEvent>
@@ -138,7 +140,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_qr"/>
         <aef:position x="1300" y="300"/>
-        <aef:meta determinism="deterministic"/>
+        <aef:meta determinism="deterministic" softFail="advisory"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_12</bpmn:incoming>
       <bpmn:outgoing>e_13</bpmn:outgoing>
@@ -156,6 +158,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
         <aef:position x="1600" y="314"/>
+        <aef:meta terminalKind="success" x-handoffTo="human sovereignty (Watchtower, out-of-band — see FC-7)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_14</bpmn:incoming>
     </bpmn:endEvent>

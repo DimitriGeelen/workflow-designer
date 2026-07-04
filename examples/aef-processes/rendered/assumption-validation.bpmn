@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from assumption-validation by tools/yaml-to-bpmn.py. Do not edit by hand. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_assumption_validation" name="assumption-validation">
+
+    <bpmn:laneSet id="LaneSet_assumption-validation">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="140"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="220"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_add</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_validate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_invalidate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_gap</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_end_validated</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_end_gap</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="200"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_req</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_gather</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_assess</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_req" name="Assumption identified (linked to a task)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_req"/>
+        <aef:position x="120" y="500"/>
+        <aef:meta triggeredBy="fw assumption add '&lt;statement&gt;' --task T-XXX"/>
+        <aef:io>
+          <aef:output name="statement" type="string"/>
+          <aef:output name="task_id" type="task_id"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>e_01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="n_add" name="Register assumption (A-NNN, status untested)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_add"/>
+        <aef:position x="320" y="280"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="lib/assumption.sh:do_assumption_add" state="untested"/>
+        <aef:artifactsWrites paths="assumptions.yaml"/>
+        <aef:io>
+          <aef:output name="assumption_id" type="string"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_01</bpmn:incoming>
+      <bpmn:outgoing>e_02</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:serviceTask id="n_gather" name="Gather evidence (research / test)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_gather"/>
+        <aef:position x="520" y="490"/>
+        <aef:meta determinism="stochastic" tier="2" agentType="primary"/>
+        <aef:io>
+          <aef:output name="evidence" type="string"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_02</bpmn:incoming>
+      <bpmn:outgoing>e_03</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="n_assess" name="Evidence supports the assumption?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_assess"/>
+        <aef:position x="720" y="498"/>
+        <aef:meta decisionOwner="agent"/>
+        <aef:decisionInput>${evidence_supports}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_03</bpmn:incoming>
+      <bpmn:outgoing>e_04</bpmn:outgoing>
+      <bpmn:outgoing>e_05</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:scriptTask id="n_validate" name="Mark validated (evidence required)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_validate"/>
+        <aef:position x="920" y="220"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="fw assumption validate ${assumption_id} --evidence '...'" state="validated" guard="evidence required (F8)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_04</bpmn:incoming>
+      <bpmn:outgoing>e_06</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_invalidate" name="Mark invalidated (evidence required)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_invalidate"/>
+        <aef:position x="920" y="340"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="fw assumption invalidate ${assumption_id} --evidence '...'" state="invalidated" guard="evidence required (F8)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_05</bpmn:incoming>
+      <bpmn:outgoing>e_07</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_gap" name="Invalidated → register as gap / risk">
+      <bpmn:extensionElements>
+        <aef:uid value="n_gap"/>
+        <aef:position x="1120" y="340"/>
+        <aef:meta determinism="deterministic" tier="1" autoTriggerKind="sub-process" autoTrigger="gaps register entry"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_07</bpmn:incoming>
+      <bpmn:outgoing>e_08</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="n_end_validated" name="Assumption validated">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_validated"/>
+        <aef:position x="1120" y="228"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_06</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="n_end_gap" name="Invalidated → gap/risk registered">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_gap"/>
+        <aef:position x="1320" y="348"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_08</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="e_01" sourceRef="n_req" targetRef="n_add">
+      <bpmn:extensionElements><aef:uid value="e_01"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_02" sourceRef="n_add" targetRef="n_gather">
+      <bpmn:extensionElements><aef:uid value="e_02"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_03" sourceRef="n_gather" targetRef="n_assess">
+      <bpmn:extensionElements><aef:uid value="e_03"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_04" name="supported" sourceRef="n_assess" targetRef="n_validate">
+      <bpmn:extensionElements><aef:uid value="e_04"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${evidence_supports == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_05" name="refuted" sourceRef="n_assess" targetRef="n_invalidate">
+      <bpmn:extensionElements><aef:uid value="e_05"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${evidence_supports == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_06" sourceRef="n_validate" targetRef="n_end_validated">
+      <bpmn:extensionElements><aef:uid value="e_06"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_07" sourceRef="n_invalidate" targetRef="n_gap">
+      <bpmn:extensionElements><aef:uid value="e_07"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_08" sourceRef="n_gap" targetRef="n_end_gap">
+      <bpmn:extensionElements><aef:uid value="e_08"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>

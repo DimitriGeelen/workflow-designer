@@ -111,7 +111,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_receive"/>
         <aef:position x="1140" y="590"/>
-        <aef:meta determinism="deterministic" sideEffect="writes remote .context/bus/ on the target host"/>
+        <aef:meta determinism="deterministic" sideEffect="writes remote .context/bus/ on the target host" external="True"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_08</bpmn:incoming>
       <bpmn:outgoing>e_09</bpmn:outgoing>

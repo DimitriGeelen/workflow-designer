@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from tier0-escalation by tools/yaml-to-bpmn.py. Do not edit by hand. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_tier0_escalation" name="tier0-escalation">
+
+    <bpmn:laneSet id="LaneSet_tier0-escalation">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_human_decide</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_route</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_end_abandoned</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="240"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_intercept</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_match</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_check_approval</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_block</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_consume</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_end_run</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="200"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_propose</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_run</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_propose" name="Agent issues a Bash command">
+      <bpmn:extensionElements>
+        <aef:uid value="n_propose"/>
+        <aef:position x="120" y="520"/>
+        <aef:meta determinism="stochastic"/>
+        <aef:io>
+          <aef:output name="command" type="string"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>e_01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="n_intercept" name="PreToolUse hook intercepts (check-tier0.sh)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_intercept"/>
+        <aef:position x="320" y="320"/>
+        <aef:meta determinism="deterministic" tier="0" endpoint="agents/context/check-tier0.sh" trigger="PreToolUse:Bash (every command)"/>
+        <aef:io>
+          <aef:input name="command" type="string" required="true"/>
+          <aef:output name="command_hash" type="string"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_01</bpmn:incoming>
+      <bpmn:incoming>e_09</bpmn:incoming>
+      <bpmn:outgoing>e_02</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="n_match" name="Matches a destructive pattern?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_match"/>
+        <aef:position x="520" y="320"/>
+        <aef:meta decisionOwner="framework" note="high-confidence PATTERNS (force push, rm -rf /, DROP TABLE, hard reset)"/>
+        <aef:decisionInput>${match}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_02</bpmn:incoming>
+      <bpmn:outgoing>e_03</bpmn:outgoing>
+      <bpmn:outgoing>e_04</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="n_check_approval" name="Valid single-use approval token?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_check_approval"/>
+        <aef:position x="720" y="320"/>
+        <aef:meta decisionOwner="framework" x-sources=".context/working/.tier0-approval (hash-matched, T-1500); .context/approvals/ (Watchtower, T-612)"/>
+        <aef:decisionInput>${approved}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_04</bpmn:incoming>
+      <bpmn:outgoing>e_05</bpmn:outgoing>
+      <bpmn:outgoing>e_06</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:scriptTask id="n_block" name="BLOCK (exit 2) with explanation">
+      <bpmn:extensionElements>
+        <aef:uid value="n_block"/>
+        <aef:position x="720" y="222"/>
+        <aef:meta determinism="deterministic" tier="0" advisory="False"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_06</bpmn:incoming>
+      <bpmn:outgoing>e_07</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:userTask id="n_human_decide" name="Human reviews — approve or abandon">
+      <bpmn:extensionElements>
+        <aef:uid value="n_human_decide"/>
+        <aef:position x="920" y="110"/>
+        <aef:meta determinism="human" tier="0" authority="sovereignty" endpoint="fw tier0 approve  |  Watchtower approval surface"/>
+        <aef:decisionOutputs>approve, abandon</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_07</bpmn:incoming>
+      <bpmn:outgoing>e_08</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="n_route" name="Approve or abandon?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_route"/>
+        <aef:position x="1120" y="130"/>
+        <aef:meta decisionOwner="human"/>
+        <aef:decisionInput>${decision}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_08</bpmn:incoming>
+      <bpmn:outgoing>e_09</bpmn:outgoing>
+      <bpmn:outgoing>e_10</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:scriptTask id="n_consume" name="Consume token (single-use) + log approval">
+      <bpmn:extensionElements>
+        <aef:uid value="n_consume"/>
+        <aef:position x="720" y="398"/>
+        <aef:meta determinism="deterministic" tier="0" sideEffect="consume .tier0-approval; append tier0 approval log"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_05</bpmn:incoming>
+      <bpmn:outgoing>e_11</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:serviceTask id="n_run" name="Command executes">
+      <bpmn:extensionElements>
+        <aef:uid value="n_run"/>
+        <aef:position x="960" y="520"/>
+        <aef:meta determinism="stochastic"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_03</bpmn:incoming>
+      <bpmn:incoming>e_11</bpmn:incoming>
+      <bpmn:outgoing>e_12</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="n_end_run" name="Executed (logged)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_run"/>
+        <aef:position x="1200" y="426"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_12</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="n_end_abandoned" name="Abandoned (not executed)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_abandoned"/>
+        <aef:position x="1320" y="130"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_10</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="e_01" sourceRef="n_propose" targetRef="n_intercept">
+      <bpmn:extensionElements><aef:uid value="e_01"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_02" sourceRef="n_intercept" targetRef="n_match">
+      <bpmn:extensionElements><aef:uid value="e_02"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_03" name="no match (not consequential)" sourceRef="n_match" targetRef="n_run">
+      <bpmn:extensionElements><aef:uid value="e_03"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${match == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_04" name="destructive match" sourceRef="n_match" targetRef="n_check_approval">
+      <bpmn:extensionElements><aef:uid value="e_04"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${match == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_05" name="valid token" sourceRef="n_check_approval" targetRef="n_consume">
+      <bpmn:extensionElements><aef:uid value="e_05"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approved == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_06" name="no approval" sourceRef="n_check_approval" targetRef="n_block">
+      <bpmn:extensionElements><aef:uid value="e_06"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${approved == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_07" sourceRef="n_block" targetRef="n_human_decide">
+      <bpmn:extensionElements><aef:uid value="e_07"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_08" sourceRef="n_human_decide" targetRef="n_route">
+      <bpmn:extensionElements><aef:uid value="e_08"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_09" name="approve (fw tier0 approve) + re-issue" sourceRef="n_route" targetRef="n_intercept">
+      <bpmn:extensionElements><aef:uid value="e_09"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${decision == 'approve'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_10" name="abandon" sourceRef="n_route" targetRef="n_end_abandoned">
+      <bpmn:extensionElements><aef:uid value="e_10"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${decision == 'abandon'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_11" sourceRef="n_consume" targetRef="n_run">
+      <bpmn:extensionElements><aef:uid value="e_11"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_12" sourceRef="n_run" targetRef="n_end_run">
+      <bpmn:extensionElements><aef:uid value="e_12"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from session-capture by tools/yaml-to-bpmn.py. Do not edit by hand. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_session_capture" name="session-capture">
+
+    <bpmn:laneSet id="LaneSet_session-capture">
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="200"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_scan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>g_found</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_report</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_done</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="200"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_capture</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_inbox</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_start" name="session end / context transition">
+      <bpmn:extensionElements>
+        <aef:uid value="n_start"/>
+        <aef:position x="90" y="140"/>
+        <aef:meta determinism="deterministic" triggeredBy="MANDATORY before: ending session, switching task/topic, significant milestone (AGENT.md:11-15)"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>e1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="n_scan" name="scan conversation per category for uncaptured items">
+      <bpmn:extensionElements>
+        <aef:uid value="n_scan"/>
+        <aef:position x="170" y="130"/>
+        <aef:meta determinism="stochastic" tier="1" endpoint="AGENT.md:17-37 (category table + checklist scan lines)" note="semantic self-scan of the agent's own conversation — inherently stochastic"/>
+        <aef:multiInstance over="categories: work-items, decisions, learnings, questions, gaps" mode="sequential" predicate="signal phrases — should/need-to/TODO/will; choices made; pivots/surprises; open questions; referenced-but-missing" collects="uncaptured[]"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e1</bpmn:incoming>
+      <bpmn:outgoing>e2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="g_found" name="uncaptured items found?">
+      <bpmn:extensionElements>
+        <aef:uid value="g_found"/>
+        <aef:position x="340" y="138"/>
+        <aef:meta determinism="stochastic" endpoint="AGENT.md:33-37" decisionOwner="agent"/>
+        <aef:decisionInput>${uncaptured[] not empty}</aef:decisionInput>
+        <aef:decisionOutputs>items-found, nothing-uncaptured</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e2</bpmn:incoming>
+      <bpmn:outgoing>e3</bpmn:outgoing>
+      <bpmn:outgoing>e4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="n_capture" name="capture: tasks, updates, practices, questions">
+      <bpmn:extensionElements>
+        <aef:uid value="n_capture"/>
+        <aef:position x="440" y="330"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="AGENT.md:38-40 (checklist capture lines)" note="FC-11 collapse — four capture actions, one node; constituents in x-captures" x-captures="create task per work item; update tasks with new context; capture learnings as practices; log open questions"/>
+        <aef:artifactsWrites paths=".tasks/active/*.md (new + updated), practices, learnings, vision doc"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e3</bpmn:incoming>
+      <bpmn:outgoing>e5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="n_inbox" name="triage observation inbox (fw note list)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_inbox"/>
+        <aef:position x="610" y="330"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="AGENT.md:41-42 (fw note list — promote or dismiss; fw note for new observations)" note="runs regardless of scan outcome — the inbox may hold pre-existing pending notes"/>
+        <aef:contextReads paths="observation inbox (fw note list)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e4</bpmn:incoming>
+      <bpmn:incoming>e5</bpmn:incoming>
+      <bpmn:outgoing>e6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="n_report" name="emit capture report (created/updated/practices/questions/gaps)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_report"/>
+        <aef:position x="760" y="130"/>
+        <aef:meta determinism="deterministic" endpoint="AGENT.md:54-61 (Output section)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e6</bpmn:incoming>
+      <bpmn:outgoing>e7</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="n_done" name="capture complete — session may close">
+      <bpmn:extensionElements>
+        <aef:uid value="n_done"/>
+        <aef:position x="930" y="144"/>
+        <aef:meta terminalKind="success" state="capture-complete" note="precondition for session end — 'Do not close without confirming' (AGENT.md:49)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e7</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="e1" sourceRef="n_start" targetRef="n_scan">
+      <bpmn:extensionElements><aef:uid value="e1"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e2" sourceRef="n_scan" targetRef="g_found">
+      <bpmn:extensionElements><aef:uid value="e2"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e3" name="items found" sourceRef="g_found" targetRef="n_capture">
+      <bpmn:extensionElements><aef:uid value="e3"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">uncaptured not empty</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e4" name="nothing uncaptured" sourceRef="g_found" targetRef="n_inbox">
+      <bpmn:extensionElements><aef:uid value="e4"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">uncaptured empty</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e5" sourceRef="n_capture" targetRef="n_inbox">
+      <bpmn:extensionElements><aef:uid value="e5"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e6" sourceRef="n_inbox" targetRef="n_report">
+      <bpmn:extensionElements><aef:uid value="e6"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e7" sourceRef="n_report" targetRef="n_done">
+      <bpmn:extensionElements><aef:uid value="e7"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>

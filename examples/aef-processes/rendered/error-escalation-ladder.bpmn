@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from error-escalation-ladder by tools/yaml-to-bpmn.py. Do not edit by hand. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_error_escalation_ladder" name="error-escalation-ladder">
+
+    <bpmn:laneSet id="LaneSet_error-escalation-ladder">
+      <bpmn:lane id="agent" name="Agent · Initiative (judgement + action)">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="380"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_failure</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_issues</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>g_ladder</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_a</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_b</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_c</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_d</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_resolve</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_done</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_reflect</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>g_assess</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_defer</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority (healing agent, code)">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="180"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_diagnose</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_capture</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_failure" name="Error / unexpected behavior">
+      <bpmn:extensionElements>
+        <aef:uid value="n_failure"/>
+        <aef:position x="90" y="100"/>
+        <aef:meta determinism="stochastic" triggeredBy="agent hits error or human reports it"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>e_01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="n_issues" name="[DOCTRINE] set status=issues (auto-triggers diagnose)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_issues"/>
+        <aef:position x="180" y="85"/>
+        <aef:meta determinism="stochastic" endpoint="fw task update T-XXX --status issues" sideEffect="update-task.sh auto-fires healing diagnose on issues"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_01</bpmn:incoming>
+      <bpmn:outgoing>e_02</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="g_ladder" name="[DOCTRINE] which rung? escalate on recurrence">
+      <bpmn:extensionElements>
+        <aef:uid value="g_ladder"/>
+        <aef:position x="340" y="95"/>
+        <aef:meta determinism="stochastic" decisionOwner="agent"/>
+        <aef:decisionInput>${same_class_hits}</aef:decisionInput>
+        <aef:decisionOutputs>A-dont-repeat, B-technique, C-tooling, D-ways-of-working</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_03</bpmn:incoming>
+      <bpmn:outgoing>e_04</bpmn:outgoing>
+      <bpmn:outgoing>e_05</bpmn:outgoing>
+      <bpmn:outgoing>e_06</bpmn:outgoing>
+      <bpmn:outgoing>e_07</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="n_a" name="[DOCTRINE] A: don't repeat — apply known mitigation">
+      <bpmn:extensionElements>
+        <aef:uid value="n_a"/>
+        <aef:position x="440" y="70"/>
+        <aef:meta determinism="stochastic"/>
+        <aef:contextReads paths=".context/project/patterns.yaml"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_04</bpmn:incoming>
+      <bpmn:outgoing>e_08</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="n_b" name="[DOCTRINE] B: improve technique">
+      <bpmn:extensionElements>
+        <aef:uid value="n_b"/>
+        <aef:position x="440" y="150"/>
+        <aef:meta determinism="stochastic" endpoint="type-specific suggestions (diagnose.sh:164-195)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_05</bpmn:incoming>
+      <bpmn:outgoing>e_09</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="n_c" name="[DOCTRINE] C: improve tooling (add check / audit rule)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_c"/>
+        <aef:position x="440" y="230"/>
+        <aef:meta determinism="stochastic" endpoint="add automated check; update audit agent (diagnose.sh:197-199)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_06</bpmn:incoming>
+      <bpmn:outgoing>e_10</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="n_d" name="[DOCTRINE] D: change ways of working / codify">
+      <bpmn:extensionElements>
+        <aef:uid value="n_d"/>
+        <aef:position x="440" y="310"/>
+        <aef:meta determinism="stochastic" endpoint="new practice / protocol in CLAUDE.md (diagnose.sh:201-203)"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_07</bpmn:incoming>
+      <bpmn:incoming>e_15</bpmn:incoming>
+      <bpmn:outgoing>e_11</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="n_resolve" name="healing resolve --mitigation">
+      <bpmn:extensionElements>
+        <aef:uid value="n_resolve"/>
+        <aef:position x="610" y="190"/>
+        <aef:meta determinism="stochastic" endpoint='fw healing resolve T-XXX --mitigation "what fixed it"'/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_08</bpmn:incoming>
+      <bpmn:incoming>e_09</bpmn:incoming>
+      <bpmn:incoming>e_10</bpmn:incoming>
+      <bpmn:incoming>e_11</bpmn:incoming>
+      <bpmn:outgoing>e_12</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="n_done" name="resolved + pattern learned">
+      <bpmn:extensionElements>
+        <aef:uid value="n_done"/>
+        <aef:position x="770" y="205"/>
+        <aef:meta determinism="deterministic"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_13</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:startEvent id="n_reflect" name="Proactive: practice repeats 3+ tasks (no failure)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_reflect"/>
+        <aef:position x="90" y="310"/>
+        <aef:meta determinism="stochastic" triggeredBy='organic "how do we do X?" + 3+ episodic instances (CLAUDE.md)'/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>e_14</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="g_assess" name="[DOCTRINE] mine episodic -&gt; codification value?">
+      <bpmn:extensionElements>
+        <aef:uid value="g_assess"/>
+        <aef:position x="200" y="305"/>
+        <aef:meta determinism="stochastic" decisionOwner="agent"/>
+        <aef:decisionInput>${inception_go_no_go_criteria}</aef:decisionInput>
+        <aef:decisionOutputs>worth-codifying, defer</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_14</bpmn:incoming>
+      <bpmn:outgoing>e_15</bpmn:outgoing>
+      <bpmn:outgoing>e_16</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="n_defer" name="[DOCTRINE] defer — not yet worth codifying">
+      <bpmn:extensionElements>
+        <aef:uid value="n_defer"/>
+        <aef:position x="200" y="390"/>
+        <aef:meta determinism="stochastic"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_16</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:scriptTask id="n_diagnose" name="[CODE] diagnose: classify + lookup + A/B/C/D menu">
+      <bpmn:extensionElements>
+        <aef:uid value="n_diagnose"/>
+        <aef:position x="180" y="490"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="agents/healing/lib/diagnose.sh:113-204" agentType="framework"/>
+        <aef:contextReads paths=".context/project/patterns.yaml"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_02</bpmn:incoming>
+      <bpmn:outgoing>e_03</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_capture" name="[CODE] resolve + promote: log pattern/learning, graduate">
+      <bpmn:extensionElements>
+        <aef:uid value="n_capture"/>
+        <aef:position x="610" y="490"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="lib/resolve.sh (log) + lib/promote.sh / harvest.sh (graduate 3+ apps)" agentType="framework"/>
+        <aef:artifactsWrites paths=".context/project/patterns.yaml, .context/project/learnings.yaml"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_12</bpmn:incoming>
+      <bpmn:outgoing>e_13</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:sequenceFlow id="e_01" sourceRef="n_failure" targetRef="n_issues">
+      <bpmn:extensionElements><aef:uid value="e_01"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_02" name="auto-trigger diagnose" sourceRef="n_issues" targetRef="n_diagnose">
+      <bpmn:extensionElements><aef:uid value="e_02"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_03" name="suggestion menu -&gt; agent decides" sourceRef="n_diagnose" targetRef="g_ladder">
+      <bpmn:extensionElements><aef:uid value="e_03"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_04" name="1st occurrence" sourceRef="g_ladder" targetRef="n_a">
+      <bpmn:extensionElements><aef:uid value="e_04"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${same_class_hits &lt;= 1}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_05" name="technique gap" sourceRef="g_ladder" targetRef="n_b">
+      <bpmn:extensionElements><aef:uid value="e_05"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${technique_fixable}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_06" name="same class 2+ times" sourceRef="g_ladder" targetRef="n_c">
+      <bpmn:extensionElements><aef:uid value="e_06"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${same_class_hits &gt;= 2}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_07" name="systemic" sourceRef="g_ladder" targetRef="n_d">
+      <bpmn:extensionElements><aef:uid value="e_07"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${systemic}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_08" sourceRef="n_a" targetRef="n_resolve">
+      <bpmn:extensionElements><aef:uid value="e_08"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_09" sourceRef="n_b" targetRef="n_resolve">
+      <bpmn:extensionElements><aef:uid value="e_09"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_10" sourceRef="n_c" targetRef="n_resolve">
+      <bpmn:extensionElements><aef:uid value="e_10"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_11" sourceRef="n_d" targetRef="n_resolve">
+      <bpmn:extensionElements><aef:uid value="e_11"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_12" name="log resolution" sourceRef="n_resolve" targetRef="n_capture">
+      <bpmn:extensionElements><aef:uid value="e_12"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_13" sourceRef="n_capture" targetRef="n_done">
+      <bpmn:extensionElements><aef:uid value="e_13"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_14" sourceRef="n_reflect" targetRef="g_assess">
+      <bpmn:extensionElements><aef:uid value="e_14"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_15" name="worth codifying -&gt; Level D" sourceRef="g_assess" targetRef="n_d">
+      <bpmn:extensionElements><aef:uid value="e_15"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${worth_codifying}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_16" name="defer" sourceRef="g_assess" targetRef="n_defer">
+      <bpmn:extensionElements><aef:uid value="e_16"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!worth_codifying}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>

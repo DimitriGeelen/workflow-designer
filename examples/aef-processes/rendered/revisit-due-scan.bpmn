@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from revisit-due-scan by tools/yaml-to-bpmn.py. Do not edit by hand. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_revisit_due_scan" name="revisit-due-scan">
+
+    <bpmn:laneSet id="LaneSet_revisit-due-scan">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="120"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="320"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_timer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_resolve</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_scan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_any</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_surface</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_end_surfaced</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_end_quiet</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="120"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_timer" name="Daily revisit scan due (cron)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_timer"/>
+        <aef:position x="120" y="300"/>
+        <aef:meta triggeredBy="cron (daily) — NOT an agent command"/>
+        <aef:timer kind="cron" cycle="daily" anchor="G-053 / T-1452"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>e_timer_resolve</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="n_resolve" name="Resolve PROJECT_ROOT + TASKS_DIR">
+      <bpmn:extensionElements>
+        <aef:uid value="n_resolve"/>
+        <aef:position x="320" y="300"/>
+        <aef:meta determinism="deterministic"/>
+        <aef:contextReads paths=".framework.yaml, FRAMEWORK.md marker"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_timer_resolve</bpmn:incoming>
+      <bpmn:outgoing>e_resolve_scan</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:scriptTask id="n_scan" name="For each active task — ripe if revisit_at ≤ today">
+      <bpmn:extensionElements>
+        <aef:uid value="n_scan"/>
+        <aef:position x="540" y="300"/>
+        <aef:meta determinism="deterministic"/>
+        <aef:contextReads paths=".tasks/active/*.md frontmatter"/>
+        <aef:multiInstance over=".tasks/active/*.md" mode="sequential" predicate="revisit_at =~ /^\d{4}-\d{2}-\d{2}$/ &amp;&amp; revisit_at &lt;= today" collects="ripe[]"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_resolve_scan</bpmn:incoming>
+      <bpmn:outgoing>e_scan_any</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:exclusiveGateway id="n_any" name="Any ripe revisits?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_any"/>
+        <aef:position x="760" y="300"/>
+        <aef:meta decisionOwner="framework"/>
+        <aef:decisionInput>${ripe_count}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_scan_any</bpmn:incoming>
+      <bpmn:outgoing>e_any_surface</bpmn:outgoing>
+      <bpmn:outgoing>e_any_quiet</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:scriptTask id="n_surface" name="Write .revisits-due.txt (surface ripe tasks)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_surface"/>
+        <aef:position x="980" y="180"/>
+        <aef:meta determinism="deterministic"/>
+        <aef:artifactsWrites paths="['.context/working/.revisits-due.txt']"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_any_surface</bpmn:incoming>
+      <bpmn:outgoing>e_surface_end</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="n_end_surfaced" name="Ripe revisits surfaced (agent picks up next session)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_surfaced"/>
+        <aef:position x="1200" y="180"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_surface_end</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="n_end_quiet" name="Nothing due (no file / empty = same signal)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_quiet"/>
+        <aef:position x="980" y="420"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_any_quiet</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="e_timer_resolve" sourceRef="n_timer" targetRef="n_resolve">
+      <bpmn:extensionElements><aef:uid value="e_timer_resolve"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_resolve_scan" sourceRef="n_resolve" targetRef="n_scan">
+      <bpmn:extensionElements><aef:uid value="e_resolve_scan"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_scan_any" sourceRef="n_scan" targetRef="n_any">
+      <bpmn:extensionElements><aef:uid value="e_scan_any"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_any_surface" name="ripe found" sourceRef="n_any" targetRef="n_surface">
+      <bpmn:extensionElements><aef:uid value="e_any_surface"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ripe_count &gt; 0}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_any_quiet" name="none" sourceRef="n_any" targetRef="n_end_quiet">
+      <bpmn:extensionElements><aef:uid value="e_any_quiet"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ripe_count == 0}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_surface_end" sourceRef="n_surface" targetRef="n_end_surfaced">
+      <bpmn:extensionElements><aef:uid value="e_surface_end"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>
