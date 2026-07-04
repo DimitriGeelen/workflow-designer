@@ -4,10 +4,10 @@ name: "Map resume-status flow (post-compaction state synthesis from 4 sources)"
 description: >
   Dogfood map of the vendored resume agent status path: handover LATEST.md + working memory (focus/session) + git state + active tasks -> synthesis -> recommendations. Ground truth: .agentic-framework/agents/resume/resume.sh cmd_status (90-276) + helpers (get_active_tasks:30, get_git_state:61, get_focus:72, get_session:81). Produces examples/aef-processes/resume-status.workflow.yaml + friction report. Exercises multi-source fan-in (parallel gateway) + staleness cross-check; read-side counterpart of the mapped session-handover flow.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T07:58:15Z
-last_update: 2026-07-04T07:58:15Z
-date_finished: null
+last_update: 2026-07-04T08:01:44Z
+date_finished: 2026-07-04T08:01:44Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -193,3 +193,6 @@ bash tests/run-bridge-tests.sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-066-map-resume-status-flow-post-compaction-s.md
 - **Context:** Initial task creation
+
+### 2026-07-04T08:01:44Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
