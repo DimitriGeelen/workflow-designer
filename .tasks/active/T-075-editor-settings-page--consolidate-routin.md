@@ -4,9 +4,9 @@ name: "Editor settings page — consolidate routing/snapping/grid preferences"
 description: >
   Operator-approved: a settings surface (panel or page) consolidating editor-local prefs: attach mode (middle/spread, absorbs T-070 sidebar toggle), straightening tolerance px (T-073), snap toggles + grid size (T-074). All localStorage, never document data — bridge seam untouched.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T09:44:04Z
-last_update: 2026-07-04T10:13:59Z
-date_finished: null
+last_update: 2026-07-04T10:18:57Z
+date_finished: 2026-07-04T10:18:57Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -220,3 +220,6 @@ out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 
 
 ### 2026-07-04T10:13:59Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-04T10:18:57Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

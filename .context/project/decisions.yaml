@@ -311,3 +311,24 @@ decisions:
     date: 2026-07-04
     task: T-074
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-024
+    decision: "In-editor modal overlay (settings-modal/settings-dialog) opened from a header ⚙ button; controls apply live with no save step."
+    scope: project
+    date: 2026-07-04
+    task: T-075
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-025
+    decision: "The attach toggle now lives ONLY in the settings dialog; the palette section from T-070 is deleted."
+    scope: project
+    date: 2026-07-04
+    task: T-075
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-026
+    decision: "Tolerance persists inside the existing aefRoutingPrefs blob; STRAIGHTEN_TOL const remains as the fallback default."
+    scope: project
+    date: 2026-07-04
+    task: T-075
+    rationale: "Auto-captured from task file on completion"
