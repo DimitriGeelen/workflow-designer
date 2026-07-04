@@ -85,3 +85,38 @@ concerns:
       - T-042
       - T-044
       - T-053
+
+  - id: G-003
+    type: gap
+    status: watching
+    severity: medium
+    title: "Editor pointer-interaction paths have zero trusted-input test coverage — 2 field-found bugs in one day"
+    detected: 2026-07-04
+    origin_task: T-071
+    decision_trigger: >
+      A THIRD field-found pointer-interaction bug (click/drag/snap path broken
+      while all gates stay green), OR a human GO for a small trusted-input
+      interaction smoke suite (Playwright script driving real mouse events
+      against the served designer: click-selects, drag-moves, endpoint-reanchor,
+      port-pin). Shares the toolchain question with G-002's harness decision.
+    description: |
+      The designer's pointer pathways (click-to-select, node drag, endpoint
+      drag/snap, port pinning) are exercised by no automated test. The bridge
+      suite (31 checks) covers serialization statics; the visual-verification
+      protocol covers rendered output. Both stayed green while:
+        - T-069: stationary clicks selected nothing (zero-move drag re-render
+          detached the element before its click event) — operator-found.
+        - T-071: clientToSvg stretched axes independently and dropped the
+          viewBox origin/letterbox, so endpoint body/port snapping never matched
+          (nodeAt missed by ~404px on Y) and vertical drags ran off-speed —
+          agent-found only because T-070's AC demanded a trusted-input check.
+      Both bugs are of the class PL-006 warns about — synthetic dispatchEvent
+      tests pass while real input fails. Interaction coverage must be trusted
+      input (Playwright mouse) or it is not coverage.
+    evidence:
+      - "T-069 RCA (click swallow) and T-071 RCA (coordinate skew), both 2026-07-04."
+      - "PL-006 learning: synthetic vs trusted click divergence, recorded at T-069."
+    related:
+      - T-069
+      - T-071
+      - T-070

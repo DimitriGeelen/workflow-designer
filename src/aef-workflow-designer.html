@@ -4042,11 +4042,21 @@ function finalizeRubberBandSelection() {
 }
 
 function clientToSvg(cx, cy) {
+  // Convert through the real screen CTM — it accounts for the viewBox origin
+  // AND the preserveAspectRatio="meet" letterbox. The old manual formula
+  // stretched each axis independently and dropped vb.x/vb.y, skewing Y by the
+  // letterbox offset whenever content and element aspect ratios differed (T-071).
+  const ctm = svg.getScreenCTM();
+  if (ctm) {
+    const pt = new DOMPoint(cx, cy).matrixTransform(ctm.inverse());
+    return { x: pt.x, y: pt.y };
+  }
+  // Fallback (detached svg — should not happen in practice)
   const rect = svg.getBoundingClientRect();
   const vb = svg.viewBox.baseVal;
   return {
-    x: ((cx - rect.left) / rect.width) * vb.width,
-    y: ((cy - rect.top) / rect.height) * vb.height,
+    x: vb.x + ((cx - rect.left) / rect.width) * vb.width,
+    y: vb.y + ((cy - rect.top) / rect.height) * vb.height,
   };
 }
 
