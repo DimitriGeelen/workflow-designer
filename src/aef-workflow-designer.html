@@ -372,7 +372,8 @@
     stroke-dasharray: 4 3;
     opacity: 0.7;
   }
-  .edge-label { fill: var(--text-dim); font-family: var(--mono); font-size: 10px; pointer-events: none; }
+  .edge-label { fill: var(--text-dim); font-family: var(--mono); font-size: 10px; pointer-events: none;
+    paint-order: stroke; stroke: var(--bg); stroke-width: 3px; stroke-linejoin: round; }
   .edge-hit { fill: none; stroke: transparent; stroke-width: 16; cursor: pointer; }
 
   /* Edge handles — only rendered for the currently selected edge */
@@ -1939,9 +1940,12 @@ function renderEdges() {
     g.appendChild(el('path', { d: path, class: 'edge-path', 'marker-end': isSelected ? 'url(#arrow-selected)' : 'url(#arrow)' }));
 
     if (e.name && !isBeingDragged) {
-      const mid = midOfPolyline(points);
-      g.appendChild(el('rect', { x: mid.x - estLabelWidth(e.name) / 2 - 4, y: mid.y - 8, width: estLabelWidth(e.name) + 8, height: 14, fill: 'var(--bg)', rx: 2 }));
-      g.appendChild(el('text', { x: mid.x, y: mid.y + 3, class: 'edge-label', 'text-anchor': 'middle' }, [text(e.name)]));
+      // Place on the ACTUAL routed polyline (not the pre-route points) and lift
+      // the label off the line — above horizontal runs, beside vertical runs (T-072).
+      const labelPoly = (e._renderedPolyline && e._renderedPolyline.length >= 2) ? e._renderedPolyline : points;
+      const lp = edgeLabelPos(labelPoly, e.name);
+      g.appendChild(el('rect', { x: lp.rx, y: lp.ry, width: lp.rw, height: 14, fill: 'var(--bg)', rx: 2 }));
+      g.appendChild(el('text', { x: lp.tx, y: lp.ty, class: 'edge-label', 'text-anchor': lp.anchor }, [text(e.name)]));
     }
 
     // Handles only when this edge is selected
@@ -2755,6 +2759,28 @@ function inferIntermediateExit(from, to) {
 function inferIntermediateArrival(at, from) {
   // arrival direction is the direction we were going at `at`, i.e. inverse of where we came from
   return inferIntermediateExit(from, at);
+}
+
+// Label placement on the routed polyline (T-072): prefer the longest horizontal
+// segment (label sits ABOVE it); fall back to the longest vertical segment
+// (label sits BESIDE it, left-aligned). Never straddle the line.
+function edgeLabelPos(poly, name) {
+  let bestH = null, bestV = null, lenH = 0, lenV = 0;
+  for (let i = 0; i < poly.length - 1; i++) {
+    const dx = Math.abs(poly[i + 1].x - poly[i].x), dy = Math.abs(poly[i + 1].y - poly[i].y);
+    if (dx >= dy) {
+      if (dx > lenH) { lenH = dx; bestH = i; }
+    } else if (dy > lenV) { lenV = dy; bestV = i; }
+  }
+  const w = estLabelWidth(name);
+  if (bestH != null && (lenH >= Math.min(w, 40) || bestV == null)) {
+    const i = bestH;
+    const mx = (poly[i].x + poly[i + 1].x) / 2, my = (poly[i].y + poly[i + 1].y) / 2;
+    return { tx: mx, ty: my - 6, anchor: 'middle', rx: mx - w / 2 - 4, ry: my - 17, rw: w + 8 };
+  }
+  const i = bestV != null ? bestV : 0;
+  const mx = (poly[i].x + poly[i + 1].x) / 2, my = (poly[i].y + poly[i + 1].y) / 2;
+  return { tx: mx + 8, ty: my + 3, anchor: 'start', rx: mx + 4, ry: my - 8, rw: w + 8 };
 }
 
 function midOfPolyline(points) {

@@ -1,13 +1,13 @@
 ---
-id: T-069
-name: "Fix: stationary click swallowed by zero-move drag re-render — node selection broken"
+id: T-072
+name: "Routing readability v2 — edge label lift + halo (survey R-1)"
 description: >
-  Fix: stationary click swallowed by zero-move drag re-render — node selection broken
+  Routing readability v2 — edge label lift + halo (survey R-1)
 
-status: work-completed
+status: started-work
 workflow_type: build
 owner: agent
-horizon: null
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-04T09:08:41Z
-last_update: 2026-07-04T09:13:56Z
-date_finished: 2026-07-04T09:13:56Z
+created: 2026-07-04T09:31:29Z
+last_update: 2026-07-04T09:31:29Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,23 +30,24 @@ date_finished: 2026-07-04T09:13:56Z
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-069: Fix: stationary click swallowed by zero-move drag re-render — node selection broken
+# T-072: Routing readability v2 — edge label lift + halo (survey R-1)
 
 ## Context
 
-Operator-reported (dogfooding via T-041 gallery): clicking a node in the designer selects
-nothing. Root cause (reproduced with a trusted Playwright click): `onNodeMouseDown` sets
-`drag` on every mousedown; the window `mouseup` handler sees `drag` truthy and calls
-`renderNodes()`, detaching the pressed element before the browser dispatches `click` —
-so `onNodeClick` never fires and the background click clears selection instead.
+Survey finding R-1 (docs/reports/T-041-routing-readability-survey.md): edge labels render
+at the raw geometric midpoint directly ON the line, colliding with the edge, node id
+badges, and each other (worst: task-lifecycle around the Outcome? gateway). Fix: (a) halo —
+canvas-coloured stroke behind the glyphs (paint-order) so any crossing line breaks cleanly
+behind text; (b) lift — offset the label perpendicular to the segment it sits on
+(above horizontal runs, beside vertical runs) instead of straddling the line.
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] Drag state carries a `moved` flag set only on actual pointer movement (3px dead-zone); mouseup re-renders/renumbers only when a real move happened (single-node and group drag)
-- [x] A trusted (Playwright) click on a node sets `selection` to that node and the properties panel shows it — verified in the served designer (n_parse selected, scriptTask panel populated, screenshot read)
-- [x] Drag-to-move still works (trusted mouse drag moved node by expected viewBox-scaled delta) and displayIds still refresh on drop
-- [x] Inline editor script passes `node --check`; bridge suite stays 31 passed / 0 failed
+- [x] Edge labels render with a canvas-colour halo (paint-order stroke, 3px, round joins) so lines crossing under text are visually broken
+- [x] Labels are lifted off the line: placed above the midpoint of the longest horizontal segment of the ACTUAL routed polyline (`_renderedPolyline`, not the pre-route points) when one exists, else beside the longest vertical segment — never centred ON the path
+- [x] Visual verification: task-lifecycle (Outcome? knot) and healing-loop element screenshots read — "resume after healing"/"work done"/"gate failed — rework" sit above their runs, "advisory only"/"blocked / failing" sit beside their drops, no label straddles a line, no new overlap regression
+- [x] Inline script passes `node --check`; bridge suite stays 31 passed / 0 failed
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -112,10 +113,11 @@ so `onNodeClick` never fires and the background click clears selection instead.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-# T-069 (2026-07-04)
-grep -q "drag.moved || Math.hypot" src/aef-workflow-designer.html
-grep -q "(drag && drag.moved) || (groupDrag && groupDrag.moved)" src/aef-workflow-designer.html
-awk '/<script>/{f=1;next}/<\/script>/{f=0}f' src/aef-workflow-designer.html > /tmp/.t069-editor.js && node --check /tmp/.t069-editor.js
+# T-072 (2026-07-04)
+grep -q "function edgeLabelPos" src/aef-workflow-designer.html
+grep -q "paint-order: stroke" src/aef-workflow-designer.html
+grep -q "_renderedPolyline && e._renderedPolyline.length" src/aef-workflow-designer.html
+awk '/<script>/{f=1;next}/<\/script>/{f=0}f' src/aef-workflow-designer.html > /tmp/.t072-editor.js && node --check /tmp/.t072-editor.js
 out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
 
 ## RCA
@@ -134,13 +136,7 @@ out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
-**Symptom:** Clicking any node in the designer canvas did nothing — no selection outline, properties panel never switched. Reported by the operator during first gallery dogfooding (T-041).
-
-**Root cause:** `onNodeMouseDown` created `drag` state on every press, movement or not. The window `mouseup` handler treated any truthy `drag` as a completed drag and called `renderNodes()`, rebuilding the SVG and detaching the pressed element before the browser dispatched its `click` event. The click therefore landed on the canvas background — whose handler *clears* selection — and `onNodeClick` never ran. Every stationary click was silently reinterpreted as a zero-pixel drag.
-
-**Why structurally allowed:** The editor has no interaction-level tests. The bridge suite (31 checks) covers serialization statics only, and the visual-verification protocol covers rendered output, not input handling. A whole input pathway could break with every gate staying green — selection worked via keyboard/programmatic paths, so nothing mechanical noticed.
-
-**Prevention:** (1) Trusted-event testing is now the standard for pointer-path claims — synthetic `dispatchEvent` passed while the real click failed; only a Playwright trusted click exposed the bug (learning recorded). (2) The dead-zone + `moved`-flag pattern is pinned by verification greps. Structural gap (no automated interaction smoke test for the editor) noted for the G-002 round-trip-harness concern's scope.
+## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
@@ -187,10 +183,7 @@ out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 
 
 ## Updates
 
-### 2026-07-04T09:08:41Z — task-created [task-create-agent]
+### 2026-07-04T09:31:29Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-069-fix-stationary-click-swallowed-by-zero-m.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-072-routing-readability-v2--edge-label-lift-.md
 - **Context:** Initial task creation
-
-### 2026-07-04T09:13:56Z — status-update [task-update-agent]
-- **Change:** status: started-work → work-completed

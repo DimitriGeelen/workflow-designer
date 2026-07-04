@@ -43,3 +43,10 @@ learnings:
   date: 2026-07-04
   context: Added via context agent
   application: TBD
+- id: PL-007
+  learning: "Manual viewBox math for SVG cursor conversion silently skews when preserveAspectRatio letterboxes — the binding axis stays exact (masking the bug) while the other axis drifts; always convert through getScreenCTM().inverse(), and test hit-paths with absolute round-trips, not relative drags"
+  source: P-001
+  task: T-071
+  date: 2026-07-04
+  context: Added via context agent
+  application: TBD

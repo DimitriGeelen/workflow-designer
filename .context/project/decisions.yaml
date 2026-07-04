@@ -171,3 +171,101 @@ decisions:
     date: 2026-07-03
     task: T-037
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-004
+    decision: "Dogfood corpus achieves full schema node-type + authority coverage"
+    scope: project
+    date: 2026-07-03
+    task: T-048
+    rationale: "Maps #13-15 (dispatch/release/harvest) exercised the external lane, multiInstance annotation, and parallelGateway; every NODE_TYPES value except off-page link events and every AUTHORITIES value now appears in examples/aef-processes/. No schema changes were needed across 15 maps (PD-002 holds)."
+
+  - id: PD-005
+    decision: "size the viewBox from `svg.getBBox()` (actual rendered glyph extent),"
+    scope: project
+    date: 2026-07-03
+    task: T-050
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-006
+    decision: "reposition drifted nodes into their assigned lane band (preserving the"
+    scope: project
+    date: 2026-07-03
+    task: T-051
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-007
+    decision: "File only the 4 Tier-1 \"constitutional\" gaps (T-055–T-058); catalogue the 11 Tier-2 operational gaps as DEFERRED (promote on demand); exclude Tier-3 utilities with reasons."
+    scope: project
+    date: 2026-07-03
+    task: T-054
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-008
+    decision: "Report that lifecycle coverage is complete (16/16) and the real gap is a *category* — enforcement/memory/antifragility machinery — not a missing lifecycle."
+    scope: project
+    date: 2026-07-03
+    task: T-054
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-009
+    decision: "Fix the four dedicated-element drops (contextReads, artifactsWrites, io, link) under T-059; file the `<aef:meta>` key-list divergence (bridge `META_KEYS` excludes `agentType`/`triggeredBy`/`emits`, which the editor writes to meta and shows in the inspector — dropped in 4/9/10 corpus maps) as a **separate task**."
+    scope: project
+    date: 2026-07-03
+    task: T-059
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-010
+    decision: "a single routing rule — *frequency + real-shared-concept*. 12 recurring"
+    scope: project
+    date: 2026-07-04
+    task: T-062
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-011
+    decision: "flatten gates/ladder/sources/grouping to readable scalar `x-*` notes."
+    scope: project
+    date: 2026-07-04
+    task: T-062
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-012
+    decision: "the T-062 hardening (WARN when a META_KEYS/x-* key holds a dict/list) surfaced"
+    scope: project
+    date: 2026-07-04
+    task: T-062
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-013
+    decision: "all 5 keys get dedicated `<aef:*>` child elements in the aef namespace."
+    scope: project
+    date: 2026-07-04
+    task: T-063
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-014
+    decision: "keep `multiInstance` and `timer` as aef extensions for now, NOT standard BPMN."
+    scope: project
+    date: 2026-07-04
+    task: T-063
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-015
+    decision: "guard editor↔bridge parity with a STATIC seam test (key-set equality across"
+    scope: project
+    date: 2026-07-04
+    task: T-063
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-016
+    decision: "\"middle\" mode snaps unpinned edge ends to the mid-point of the facing side (rect mid-edge / circle cardinal / diamond tip), with sibling-edge spread suppressed so arrows converge."
+    scope: project
+    date: 2026-07-04
+    task: T-070
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-017
+    decision: "`routingPrefs` lives in localStorage only; the .bpmn/.yaml formats are unchanged."
+    scope: project
+    date: 2026-07-04
+    task: T-070
+    rationale: "Auto-captured from task file on completion"
