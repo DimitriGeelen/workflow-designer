@@ -64,3 +64,10 @@ learnings:
   date: 2026-07-04
   context: Added via context agent
   application: TBD
+- id: PL-010
+  learning: "Vendored-framework code paths that resolve assets via PROJECT_ROOT break silently in shared-tooling mode (PROJECT_ROOT != FRAMEWORK_ROOT) — upstream never sees it because its own repo has the roots coincide. When a vendored web route or CLI 500s/fails here, check for PROJECT_ROOT-vs-FRAMEWORK_ROOT path resolution FIRST (2nd instance: T-015 env contamination, T-090 review.py sys.path). Workaround pattern: product-side shim at the exact path the buggy code expects, re-exporting the framework module, with a documented removal condition + concerns.yaml gap."
+  source: G-004
+  task: T-090
+  date: 2026-07-04
+  context: Added via context agent
+  application: TBD
