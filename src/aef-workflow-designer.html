@@ -423,6 +423,9 @@
   .node.hover-target .node-shape { stroke: var(--accent); stroke-width: 3px; filter: drop-shadow(0 0 6px var(--accent)); }
 
   .connect-preview { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 4 3; fill: none; pointer-events: none; }
+  /* Snap guide lines (T-074) — visible only while a drag snap is engaged */
+  .snap-guide { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 5 4; opacity: 0.65; pointer-events: none; }
+  .snap-guide-lane { stroke-dasharray: 2 6; opacity: 0.4; }
   .rubber-band {
     fill: rgba(196, 238, 84, 0.08);
     stroke: var(--accent);
@@ -1489,6 +1492,23 @@ function setRoutingAttach(mode) {
   document.getElementById('routing-middle')?.classList.toggle('active', mode === 'middle');
   document.getElementById('routing-spread')?.classList.toggle('active', mode === 'spread');
   renderEdges();
+}
+
+// Magnetic drag snapping (T-074) — editor-local (localStorage), same seam
+// discipline as routingPrefs: never part of the document format.
+// magnet: pull the dragged node's centre onto lane centre-lines and
+// connected/nearby node centres. grid: additionally snap to gridSize
+// multiples (weaker — only when no magnet candidate claimed the axis).
+let snapPrefs = { magnet: true, grid: false, gridSize: 20 };
+try {
+  const _storedSnap = JSON.parse(localStorage.getItem('aefSnapPrefs') || '{}');
+  if (typeof _storedSnap.magnet === 'boolean') snapPrefs.magnet = _storedSnap.magnet;
+  if (typeof _storedSnap.grid === 'boolean') snapPrefs.grid = _storedSnap.grid;
+  if (Number.isFinite(_storedSnap.gridSize) && _storedSnap.gridSize >= 4) snapPrefs.gridSize = _storedSnap.gridSize;
+} catch (_) {}
+function setSnapPref(key, value) {
+  snapPrefs[key] = value;
+  try { localStorage.setItem('aefSnapPrefs', JSON.stringify(snapPrefs)); } catch (_) {}
 }
 let multiSelect = new Set(); // node ids in the active multi-selection (always includes primary if it's a node)
 let rubberBand = null; // { startX, startY, x, y } while drawing
@@ -3608,8 +3628,12 @@ svg.addEventListener('mousemove', e => {
     if (drag.moved || Math.hypot(pt.x - drag.startX, pt.y - drag.startY) > 3) {
       drag.moved = true;
       const n = findNode(drag.id);
-      n.x = pt.x - drag.offX;
-      n.y = pt.y - drag.offY;
+      const nd = NODE_DEFAULTS[n.type];
+      // Magnetic snapping (T-074) works in centre coordinates
+      const snapped = magneticSnap(n, pt.x - drag.offX + nd.w / 2, pt.y - drag.offY + nd.h / 2);
+      n.x = snapped.cx - nd.w / 2;
+      n.y = snapped.cy - nd.h / 2;
+      renderSnapGuides(snapped.guides);
       // lane reassignment based on y (centre of node)
       const centerY = n.y + NODE_DEFAULTS[n.type].h / 2;
       const newLane = laneAtY(centerY);
@@ -3888,6 +3912,7 @@ window.addEventListener('mouseup', e => {
     refreshDisplayIds();
     renderNodes();
   }
+  if (drag && drag.moved) gPreview.innerHTML = ''; // snap guides end with the drag (T-074)
   drag = null;
   edgeDrag = null;
   laneResizeDrag = null;
@@ -3903,6 +3928,92 @@ function onLaneResizeMouseDown(ev, laneId) {
   laneResizeDrag = { laneId, startY: pt.y, startHeight: lane.height };
   // visual feedback while dragging
   ev.currentTarget.classList.add('dragging');
+}
+
+// ============================================================================
+//  Magnetic drag snapping (T-074)
+// ============================================================================
+//
+// While a single node is dragged, its centre is pulled onto: the centre-line
+// of the lane band under it (y), the centre-x/centre-y of connected nodes
+// (any distance) and of unconnected nodes within NEAR_RANGE, and — weakest,
+// only when no magnet candidate claimed the axis — grid multiples. The pull
+// engages within SNAP_TOL and releases beyond it, so deliberate off-axis
+// placement (multi-row lanes) just means dragging a few px further.
+
+const SNAP_TOL = 7;      // model px — engage/release radius of the magnet
+const NEAR_RANGE = 400;  // model px — how far an unconnected node still attracts
+
+// Given the dragged node and its proposed centre, return the snapped centre
+// plus guide-line descriptors for whatever the magnet latched onto.
+function magneticSnap(node, cx, cy) {
+  const guides = [];
+  if (!snapPrefs.magnet && !snapPrefs.grid) return { cx, cy, guides };
+  let bestX = null, bestY = null; // { delta, value, guide }
+
+  if (snapPrefs.magnet) {
+    // Lane centre-line (y) of the band under the proposed centre
+    const laneId = laneAtY(cy);
+    const lane = laneId && findLane(laneId);
+    if (lane) {
+      const ly = laneCenterY(laneId);
+      const d = Math.abs(ly - cy);
+      if (d <= SNAP_TOL) bestY = { delta: d, value: ly, guide: { axis: 'y', at: ly, from: POOL_X + LANE_HEADER, to: contentRightEdge(), kind: 'lane' } };
+    }
+
+    // Node-centre candidates: connected always, unconnected within NEAR_RANGE
+    const connected = new Set();
+    for (const ed of state.edges) {
+      const s = findNode(ed.source), t = findNode(ed.target);
+      if (s === node && t) connected.add(t);
+      else if (t === node && s) connected.add(s);
+    }
+    for (const o of state.nodes) {
+      if (o === node) continue;
+      const od = NODE_DEFAULTS[o.type];
+      const ocx = o.x + od.w / 2, ocy = o.y + od.h / 2;
+      const isConn = connected.has(o);
+      if (!isConn && (Math.abs(ocx - cx) > NEAR_RANGE || Math.abs(ocy - cy) > NEAR_RANGE)) continue;
+      const dX = Math.abs(ocx - cx);
+      if (dX <= SNAP_TOL && (!bestX || dX < bestX.delta)) {
+        bestX = { delta: dX, value: ocx, guide: { axis: 'x', at: ocx, from: Math.min(ocy, cy) - 20, to: Math.max(ocy, cy) + 20, kind: 'node' } };
+      }
+      const dY = Math.abs(ocy - cy);
+      if (dY <= SNAP_TOL && (!bestY || dY < bestY.delta)) {
+        bestY = { delta: dY, value: ocy, guide: { axis: 'y', at: ocy, from: Math.min(ocx, cx) - 20, to: Math.max(ocx, cx) + 20, kind: 'node' } };
+      }
+    }
+  }
+
+  // Grid — weakest: only fills an axis no magnet candidate claimed. Unlike
+  // the magnet, the grid quantizes UNCONDITIONALLY while enabled (no
+  // tolerance): a toleranced grid leaves dead zones between snap radius and
+  // half the cell size, which reads as "sometimes broken". The user opted in
+  // via the toggle; escaping = toggling it off. No guide line (a line per
+  // grid cell is noise, and the landing is visible anyway).
+  if (snapPrefs.grid) {
+    const g = Math.max(4, Math.round(snapPrefs.gridSize));
+    if (!bestX) bestX = { delta: 0, value: Math.round(cx / g) * g, guide: null };
+    if (!bestY) bestY = { delta: 0, value: Math.round(cy / g) * g, guide: null };
+  }
+
+  if (bestX) { cx = bestX.value; if (bestX.guide) guides.push(bestX.guide); }
+  if (bestY) { cy = bestY.value; if (bestY.guide) guides.push(bestY.guide); }
+  return { cx, cy, guides };
+}
+
+// Draw the guide lines for the currently engaged snaps into the preview layer.
+// Cleared on every drag frame and on mouseup — guides never outlive the drag.
+function renderSnapGuides(guides) {
+  gPreview.innerHTML = '';
+  for (const g of guides) {
+    const cls = 'snap-guide' + (g.kind === 'lane' ? ' snap-guide-lane' : '');
+    if (g.axis === 'y') {
+      gPreview.appendChild(el('line', { x1: g.from, y1: g.at, x2: g.to, y2: g.at, class: cls }));
+    } else {
+      gPreview.appendChild(el('line', { x1: g.at, y1: g.from, x2: g.at, y2: g.to, class: cls }));
+    }
+  }
 }
 
 function onNodeMouseDown(e, n) {
