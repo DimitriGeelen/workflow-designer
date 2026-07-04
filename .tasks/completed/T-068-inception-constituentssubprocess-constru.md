@@ -4,16 +4,16 @@ name: "Inception: constituents/subProcess construct for collapsed nodes (FC-11 x
 description: >
   One question: should the schema grow a first-class way to declare a node's constituents (sub-gates, sub-steps, iteration bodies) — and if so, as (a) a constituents: list vocabulary, (b) a real subProcess node type, or (c) neither (keep the aef.x-* workaround)? Evidence: FC-11 hit 4 times (verification-gate g_gates, git-commit-flow x-checks, resume-status x-sources, session-capture x-captures — rule-of-three exceeded); FC-15 (blast-radius: no scope construct, iteration bodies unboundable, nesting/recursion inexpressible) likely shares the same fix; FC-16 (missing parallelism) is adjacent but separable. Go/no-go is human (Tier-0 style sovereignty). Produces docs/reports/T-068-*.md research artifact per C-001 BEFORE exploration.
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-04T08:38:51Z
-last_update: 2026-07-04T13:06:26Z
-date_finished: null
+last_update: 2026-07-04T13:33:31Z
+date_finished: 2026-07-04T13:33:31Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -82,15 +82,15 @@ See `docs/reports/T-068-constituents-inception.md` §Exploration plan. Summary (
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -143,7 +143,11 @@ See `docs/reports/T-068-constituents-inception.md` §Exploration plan. Summary (
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Operator directed option (b) (subProcess node type); Spike B confirmed a bounded, staged fix path. Phase 1 (collapsed-only subProcess node + aef:constituents metadata + optional scopeOf marker) is small — bridge element emission is passthrough-free, this stack has no BPMN DI so nested layout costs nothing yet — and fully resolves FC-11 (4 occurrences) while giving FC-15 a boundary marker. Phase 2 (true child nesting) is real cost but cleanly deferrable behind its own decision; the one hazard (editor's recursive node discovery would flatten nested children) is identified and fenced to phase 2. Meets GO criteria: root cause identified, fix scoped/testable/reversible.
+
+**Date**: 2026-07-04T13:33:30Z
 
 ## Updates
 
@@ -158,3 +162,12 @@ See `docs/reports/T-068-constituents-inception.md` §Exploration plan. Summary (
 
 ### 2026-07-04T13:04:49Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-04T13:33:30Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Operator directed option (b) (subProcess node type); Spike B confirmed a bounded, staged fix path. Phase 1 (collapsed-only subProcess node + aef:constituents metadata + optional scopeOf marker) is small — bridge element emission is passthrough-free, this stack has no BPMN DI so nested layout costs nothing yet — and fully resolves FC-11 (4 occurrences) while giving FC-15 a boundary marker. Phase 2 (true child nesting) is real cost but cleanly deferrable behind its own decision; the one hazard (editor's recursive node discovery would flatten nested children) is identified and fenced to phase 2. Meets GO criteria: root cause identified, fix scoped/testable/reversible.
+
+### 2026-07-04T13:33:31Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
