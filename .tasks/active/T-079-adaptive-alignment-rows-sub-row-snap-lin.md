@@ -4,9 +4,9 @@ name: "Adaptive alignment rows: sub-row snap lines in tall lanes + row-mate midd
 description: >
   Operator feedback on T-074 snapping (2026-07-04, revisit-due-scan screenshot): single lane-centre snap line is too coarse in tall lanes — add sub-row alignment lines (~every 1.5x default box height) in lanes tall enough to hold multiple rows, and strengthen align-to-row-mates (snap dragged element's middle to the shared midline of nodes already forming a row). Operator asked for design playback before build — see T-078-era conversation.
 
-status: captured
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T11:22:30Z
-last_update: 2026-07-04T11:22:30Z
-date_finished: null
+last_update: 2026-07-04T12:55:01Z
+date_finished: 2026-07-04T12:55:01Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -43,14 +43,11 @@ Operator feedback on T-074 snapping (2026-07-04, revisit-due-scan screenshot): a
 ## Acceptance Criteria
 
 ### Agent
-<!-- To be finalized at build start (G-020) — the confirmed design above is the scope contract. Draft:
-- Sub-row guides render + snap per (1a); short lanes unchanged; trusted-input drag test per PL-006
-- Same-lane row-mate Y-snap works across full lane width; row beats sub-row line when both in tolerance
-- Tidy-lane action moves only nodes in the invoked lane, each to nearest row line; undoable; XML diff shows only expected y changes; bridge suite passes
-- Corpus sweep: no new edge/node/label collisions introduced by tidied positions
--->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] (1a) Sub-row snap lines: a lane tall enough for 2+ rows (N = max(1, round(laneHeight/96)), effective when N≥2) offers N evenly-spaced Y-snap candidates at laneTop + (i+0.5)*laneHeight/N; a short lane (N==1) keeps exactly the single centre line as today. — EVIDENCE: task-lifecycle framework lane (h=260) → 3 rows [265.3, 352, 438.7]; trusted page.mouse drag from cy=392 to proposed 434 snapped to 438.667 with dashed `snap-guide snap-guide-lane` line at that y mid-drag, 0 guides after drop. Corpus-wide invariant: all 21 short lanes (N==1) across 24 maps return exactly [laneCenterY], 0 violations; 46 tall lanes get sub-rows.
+- [x] Row-mate Y-snap across the whole lane: the 400px horizontal limit is removed for same-lane node-centre Y-candidates — EVIDENCE: trusted drag with mate 2000px away horizontally, mate midline 356 vs theoretical row 352, proposed cy=353 (row delta 1 < mate delta 3): node snapped to 356 with node-kind guide — row-mate wins even when the row line is nearer (bestNodeY || bestLaneY priority).
+- [x] (2b) Tidy-lane action: explicit "⇤ Tidy rows" button in lane properties (never automatic) — EVIDENCE: real click on lane header + button; 11/11 scattered framework nodes moved onto rows (0 x-moves, 0 other-lane moves, offRow=[]); XML diff exactly 11 lines, all `aef:position` y-values (editor format carries geometry in aef:position; no DI section exists); real Ctrl+Z restored all positions, XML byte-identical to before; bridge suite on tidied doc: 31 passed 0 failed, geometry sweep 24 clean. In-browser parse→rebuild round-trip of tidied XML: y-values stable (single diff line is the PRE-EXISTING pool-participant drift, confirmed on fresh untidied doc — filed separately as T-080).
+- [x] Corpus sweep: before/after render sweep over the gallery corpus — EVIDENCE: 24/24 maps geometry-identical (node positions + rendered polylines + label bboxes) between HEAD baseline and new build (static render path untouched by design); tidying ALL 3 lanes of pristine task-lifecycle (15 nodes moved) left collisions at 0 → 0.
+- [x] JS syntax check passes (node --check on extracted script: SYNTAX-OK) and gallery copy refreshed (diff -q: GALLERY-IN-SYNC).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -82,6 +79,14 @@ Operator feedback on T-074 snapping (2026-07-04, revisit-due-scan screenshot): a
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+- [ ] [REVIEW] Sub-row snapping and tidy-lane feel right in tall lanes
+  **Steps:**
+  1. Open http://192.168.10.107:8834/designer.html?load=rendered/task-lifecycle.bpmn (or any map with a tall lane)
+  2. Drag a task slowly up/down inside a tall lane — dashed row guides should appear at ~1.5-box-height intervals and the node should settle onto them gently
+  3. Drag a node far horizontally from a row-mate, then vertically near its height — it should snap to the row-mate's midline even at long horizontal distance
+  4. Invoke the tidy-lane action on a messy lane, then press Ctrl+Z
+  **Expected:** Rows feel natural (not sticky, not too many lines); tidy nudges nodes onto rows without reordering or horizontal movement; one undo restores everything
+  **If not:** Note which lane/map and what felt wrong (too sticky / wrong row count / tidy moved something it shouldn't); the row pitch (96px) and tolerance are tunable
 
 ## Verification
 
@@ -115,6 +120,20 @@ Operator feedback on T-074 snapping (2026-07-04, revisit-due-scan screenshot): a
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+grep -q "function laneRowYs" src/aef-workflow-designer.html
+grep -q "function tidyLane" src/aef-workflow-designer.html
+grep -q "function undoTidy" src/aef-workflow-designer.html
+awk '/<script>/{f=1;next}/<\/script>/{f=0}f' src/aef-workflow-designer.html > /tmp/.t079-check.js && node --check /tmp/.t079-check.js
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
+diff -q src/aef-workflow-designer.html build/gallery/designer.html
+
+## Visual Verification
+
+Element-level screenshots taken and READ (protocol §Visual Verification):
+- `.playwright-mcp/t079-middrag-guide-zoom.png` — mid-drag zoomed viewBox: dashed accent guide rendering at the snapped sub-row (model y≈438.7, framework lane row 3 of 3), node under real mouse drag
+- `.playwright-mcp/t079-props-tidy.png` — lane properties panel: "alignment rows · 3" info line and "⇤ Tidy rows" button rendered cleanly between Order info and Move up/down
+No CSS was changed — guides reuse the T-074 `.snap-guide`/`.snap-guide-lane` styles; the button reuses `.btn btn-routing`.
 
 ## RCA
 
@@ -158,14 +177,26 @@ Operator feedback on T-074 snapping (2026-07-04, revisit-due-scan screenshot): a
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-07-04 — Tidy-lane revert: scoped single-step Ctrl+Z, not a general undo stack
+- **Chose:** `lastTidy` snapshot + Ctrl+Z single-step revert, invalidated by the next manual drag/tidy. Ctrl+Z is only claimed while a tidy is pending, so the shortcut stays free for a future general undo.
+- **Why:** Build discovery: the editor has NO undo system at all — no drag, delete, or edit is undoable. "Participates in undo like a drag" therefore has no existing mechanism to participate in. A bulk mutation still needs an escape hatch; a scoped revert delivers that without a new subsystem.
+- **Rejected:** (a) General undo stack — a new editor subsystem, clear scope creep for this task; belongs in its own scoped task if wanted. (b) No revert at all — a one-click 11-node mutation without escape violates Usability.
+
+### 2026-07-04 — Row-mate precedence via candidate-source split
+- **Chose:** Track `bestLaneY` (theoretical row lines) and `bestNodeY` (real node midlines) separately; final `bestY = bestNodeY || bestLaneY`.
+- **Why:** Operator design ("real rows outrank the theoretical lines"): with a single best-delta comparison, a nearer theoretical line would beat a real row-mate — exactly the wrong bias. Verified: mate at delta 3 beats row line at delta 1.
+- **Rejected:** Weighting deltas (e.g. node delta × 0.5) — implicit, tunable-forever; the hard precedence matches the stated design and is explainable.
+
+### 2026-07-04 — Lane-reassign drop point follows rows
+- **Chose:** The properties-panel lane selector now drops the node on the new lane's row line nearest its current centre (was: always lane centre).
+- **Why:** With N≥2, the lane centre can sit BETWEEN rows — the old behaviour would park reassigned nodes exactly where nothing else aligns.
+- **Rejected:** Keeping centre-drop — creates off-row nodes that the same feature's tidy action would immediately want to move.
+
+## Recommendation
+
+**Recommendation:** GO
+**Rationale:** All five Agent ACs verified with trusted-input evidence (PL-006); static render path untouched and proven unchanged across the 24-map corpus; the tidy action mutates exactly the documented surface (aef:position y of moved nodes) and is revertible; the one anomaly found (pool-participant round-trip drift) is pre-existing and filed separately as T-080.
+**Evidence:** Trusted-drag snap to non-centre row 438.667 with guide lifecycle; 2000px row-mate precedence test; tidy XML diff = 11 y-only lines with byte-identical Ctrl+Z restore; bridge suite 31/31 + geometry sweep 24 clean on tidied doc; 24/24 corpus geometry-identity vs HEAD baseline; screenshots t079-middrag-guide-zoom.png / t079-props-tidy.png (read and inspected).
 
 ## Decision
 
@@ -183,3 +214,9 @@ Operator feedback on T-074 snapping (2026-07-04, revisit-due-scan screenshot): a
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-079-adaptive-alignment-rows-sub-row-snap-lin.md
 - **Context:** Initial task creation
+
+### 2026-07-04T12:40:43Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-07-04T12:55:01Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -3427,8 +3427,26 @@ function renderProperties() {
     const orderInfo = document.createElement('div');
     orderInfo.className = 'routing-info';
     orderInfo.innerHTML = `<div><strong>position</strong> · ${idx + 1} of ${lanes.length}</div>` +
-                          `<div><strong>nodes in lane</strong> · ${nodeCount}</div>`;
+                          `<div><strong>nodes in lane</strong> · ${nodeCount}</div>` +
+                          `<div><strong>alignment rows</strong> · ${laneRowYs(lane.id).length}</div>`;
     secO.appendChild(orderInfo);
+
+    // Tidy rows (T-079) — explicit document-mutating action: nudge this lane's
+    // nodes onto their nearest row line. Ctrl+Z right after reverts.
+    const tidyRow = document.createElement('div');
+    tidyRow.className = 'routing-actions';
+    const tidyBtn = document.createElement('button');
+    tidyBtn.className = 'btn btn-routing';
+    tidyBtn.textContent = '⇤ Tidy rows';
+    tidyBtn.title = 'Nudge nodes in this lane onto their nearest alignment row (Ctrl+Z reverts)';
+    tidyBtn.disabled = nodeCount === 0;
+    tidyBtn.onclick = () => {
+      const moved = tidyLane(lane.id);
+      tidyBtn.textContent = moved ? `⇤ Tidied ${moved} node${moved === 1 ? '' : 's'} — Ctrl+Z reverts` : '⇤ Already tidy';
+      setTimeout(() => { tidyBtn.textContent = '⇤ Tidy rows'; }, 2500);
+    };
+    tidyRow.appendChild(tidyBtn);
+    secO.appendChild(tidyRow);
     const orderRow = document.createElement('div');
     orderRow.className = 'routing-actions';
     const upBtn = document.createElement('button');
@@ -3505,8 +3523,13 @@ function renderProperties() {
 
   sBpmn.appendChild(selectField('Lane', n.lane, getLanes().map(l => l.id), v => {
     n.lane = v;
-    // snap to that lane's center vertically
-    n.y = laneCenterY(v) - NODE_DEFAULTS[n.type].h / 2;
+    // snap to the new lane's row line nearest the node's current centre —
+    // in a tall lane the centre can sit BETWEEN rows (T-079)
+    const cy = n.y + NODE_DEFAULTS[n.type].h / 2;
+    const rows = laneRowYs(v);
+    let rowY = rows.length ? rows[0] : laneCenterY(v);
+    for (const r of rows) if (Math.abs(r - cy) < Math.abs(rowY - cy)) rowY = r;
+    n.y = rowY - NODE_DEFAULTS[n.type].h / 2;
     refreshDisplayIds();
     renderNodes(); renderEdges();
     renderProperties();
@@ -3829,6 +3852,10 @@ document.addEventListener('keydown', e => {
     gPreview.innerHTML = '';
     setMode('select');
     renderAll();
+  } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+    // Single-step tidy-lane revert (T-079) — only claims Ctrl+Z when a tidy
+    // is pending, so the shortcut stays free for a future general undo.
+    if (undoTidy()) e.preventDefault();
   }
 });
 
@@ -3924,6 +3951,7 @@ svg.addEventListener('mousemove', e => {
     // fires, so selection never happens (T-069).
     if (drag.moved || Math.hypot(pt.x - drag.startX, pt.y - drag.startY) > 3) {
       drag.moved = true;
+      lastTidy = null; // manual move supersedes the pending tidy revert (T-079)
       const n = findNode(drag.id);
       const nd = NODE_DEFAULTS[n.type];
       // Magnetic snapping (T-074) works in centre coordinates
@@ -3945,6 +3973,7 @@ svg.addEventListener('mousemove', e => {
     // Same dead-zone as single-node drag (T-069)
     if (groupDrag.moved || Math.hypot(dx, dy) > 3) {
       groupDrag.moved = true;
+      lastTidy = null; // manual move supersedes the pending tidy revert (T-079)
       for (const [id, orig] of groupDrag.originalPositions) {
         const node = findNode(id);
         if (node) {
@@ -4240,25 +4269,45 @@ function onLaneResizeMouseDown(ev, laneId) {
 
 const SNAP_TOL = 7;      // model px — engage/release radius of the magnet
 const NEAR_RANGE = 400;  // model px — how far an unconnected node still attracts
+const ROW_PITCH = 96;    // model px — target row spacing: 1.5 × default task height (T-079)
+
+// Row centre-lines of a lane (T-079): a lane tall enough for 2+ rows offers
+// N evenly-spaced lines (N from the ROW_PITCH heuristic); a short lane keeps
+// the single centre line, so N==1 reproduces laneCenterY exactly.
+function laneRowYs(laneId) {
+  const lane = findLane(laneId);
+  if (!lane) return [];
+  const top = laneTop(laneId);
+  const n = Math.max(1, Math.round(lane.height / ROW_PITCH));
+  const ys = [];
+  for (let i = 0; i < n; i++) ys.push(top + (i + 0.5) * lane.height / n);
+  return ys;
+}
 
 // Given the dragged node and its proposed centre, return the snapped centre
 // plus guide-line descriptors for whatever the magnet latched onto.
 function magneticSnap(node, cx, cy) {
   const guides = [];
   if (!snapPrefs.magnet && !snapPrefs.grid) return { cx, cy, guides };
-  let bestX = null, bestY = null; // { delta, value, guide }
+  let bestX = null, bestY = null;         // { delta, value, guide }
+  let bestLaneY = null, bestNodeY = null; // y split by source: a real row-mate
+                                          // outranks a theoretical row line
+                                          // whenever both are in tolerance (T-079)
 
   if (snapPrefs.magnet) {
-    // Lane centre-line (y) of the band under the proposed centre
+    // Row lines (y) of the lane band under the proposed centre (T-079):
+    // nearest of the lane's evenly-divided row lines, not just the centre.
     const laneId = laneAtY(cy);
-    const lane = laneId && findLane(laneId);
-    if (lane) {
-      const ly = laneCenterY(laneId);
+    for (const ly of laneRowYs(laneId)) {
       const d = Math.abs(ly - cy);
-      if (d <= SNAP_TOL) bestY = { delta: d, value: ly, guide: { axis: 'y', at: ly, from: POOL_X + LANE_HEADER, to: contentRightEdge(), kind: 'lane' } };
+      if (d <= SNAP_TOL && (!bestLaneY || d < bestLaneY.delta)) {
+        bestLaneY = { delta: d, value: ly, guide: { axis: 'y', at: ly, from: POOL_X + LANE_HEADER, to: contentRightEdge(), kind: 'lane' } };
+      }
     }
 
-    // Node-centre candidates: connected always, unconnected within NEAR_RANGE
+    // Node-centre candidates: connected always, unconnected within NEAR_RANGE.
+    // Same-lane row-mates additionally attract on y at ANY horizontal distance
+    // (T-079): a row is a lane-wide concept, not a 400px-neighbourhood one.
     const connected = new Set();
     for (const ed of state.edges) {
       const s = findNode(ed.source), t = findNode(ed.target);
@@ -4270,17 +4319,19 @@ function magneticSnap(node, cx, cy) {
       const od = NODE_DEFAULTS[o.type];
       const ocx = o.x + od.w / 2, ocy = o.y + od.h / 2;
       const isConn = connected.has(o);
-      if (!isConn && (Math.abs(ocx - cx) > NEAR_RANGE || Math.abs(ocy - cy) > NEAR_RANGE)) continue;
+      const near = Math.abs(ocx - cx) <= NEAR_RANGE && Math.abs(ocy - cy) <= NEAR_RANGE;
+      const rowMate = o.lane === laneId;
       const dX = Math.abs(ocx - cx);
-      if (dX <= SNAP_TOL && (!bestX || dX < bestX.delta)) {
+      if ((isConn || near) && dX <= SNAP_TOL && (!bestX || dX < bestX.delta)) {
         bestX = { delta: dX, value: ocx, guide: { axis: 'x', at: ocx, from: Math.min(ocy, cy) - 20, to: Math.max(ocy, cy) + 20, kind: 'node' } };
       }
       const dY = Math.abs(ocy - cy);
-      if (dY <= SNAP_TOL && (!bestY || dY < bestY.delta)) {
-        bestY = { delta: dY, value: ocy, guide: { axis: 'y', at: ocy, from: Math.min(ocx, cx) - 20, to: Math.max(ocx, cx) + 20, kind: 'node' } };
+      if ((isConn || near || rowMate) && dY <= SNAP_TOL && (!bestNodeY || dY < bestNodeY.delta)) {
+        bestNodeY = { delta: dY, value: ocy, guide: { axis: 'y', at: ocy, from: Math.min(ocx, cx) - 20, to: Math.max(ocx, cx) + 20, kind: 'node' } };
       }
     }
   }
+  bestY = bestNodeY || bestLaneY;
 
   // Grid — weakest: only fills an axis no magnet candidate claimed. Unlike
   // the magnet, the grid quantizes UNCONDITIONALLY while enabled (no
@@ -4297,6 +4348,44 @@ function magneticSnap(node, cx, cy) {
   if (bestX) { cx = bestX.value; if (bestX.guide) guides.push(bestX.guide); }
   if (bestY) { cy = bestY.value; if (bestY.guide) guides.push(bestY.guide); }
   return { cx, cy, guides };
+}
+
+// ── Tidy lane (T-079) ───────────────────────────────────────────────────────
+// Explicit, user-triggered action (lane properties panel — never automatic):
+// nudge every flow node in the lane onto its nearest row line. This MUTATES
+// the document (y-coordinates), unlike snap prefs which are editor-local, so
+// it keeps a single-step revert: Ctrl+Z immediately after restores all moved
+// nodes. The revert is invalidated by the next drag/tidy — the editor has no
+// general undo stack, and this deliberately does not introduce one.
+let lastTidy = null; // { laneId, positions: [{ id, y }] }
+function tidyLane(laneId) {
+  const rows = laneRowYs(laneId);
+  if (!rows.length) return 0;
+  const moved = [];
+  for (const n of state.nodes) {
+    if (n.lane !== laneId) continue;
+    const d = NODE_DEFAULTS[n.type];
+    const cy = n.y + d.h / 2;
+    let best = rows[0];
+    for (const r of rows) if (Math.abs(r - cy) < Math.abs(best - cy)) best = r;
+    const newY = best - d.h / 2;
+    if (Math.abs(newY - n.y) > 0.01) { moved.push({ id: n.id, y: n.y }); n.y = newY; }
+  }
+  if (moved.length) {
+    lastTidy = { laneId, positions: moved };
+    renderAll();
+  }
+  return moved.length;
+}
+function undoTidy() {
+  if (!lastTidy) return false;
+  for (const p of lastTidy.positions) {
+    const n = findNode(p.id);
+    if (n) n.y = p.y;
+  }
+  lastTidy = null;
+  renderAll();
+  return true;
 }
 
 // Draw the guide lines for the currently engaged snaps into the preview layer.

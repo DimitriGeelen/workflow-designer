@@ -332,3 +332,66 @@ decisions:
     date: 2026-07-04
     task: T-075
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-027
+    decision: "Treat the survey's second R-2 example (edge drop through \"Human acts on the advice?\" gateway's own label) as a label-placement problem, not a routing problem; moved to T-077's scope."
+    scope: project
+    date: 2026-07-04
+    task: T-076
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-028
+    decision: "Score loop candidates by `loopPathCrossings` (both vertical legs + horizontal bar, label-aware) instead of the old bar-only `nodesIntersectingCorridor`."
+    scope: project
+    date: 2026-07-04
+    task: T-076
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-029
+    decision: "Add periphery candidates (clear of ALL corridor nodes) and a +10 interior penalty when corridor content sits on both sides of a candidate bar; reroute backward edges (span > 300px) via loop-back only when their natural mid-bar is interior."
+    scope: project
+    date: 2026-07-04
+    task: T-076
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-030
+    decision: "The label pass applies a candidate placement, measures the REAL rendered getBBox against polylines/node boxes, and keeps the side only when perfectly clean; otherwise restores the default below placement."
+    scope: project
+    date: 2026-07-04
+    task: T-077
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-031
+    decision: "If neither side of the shape is fully clear, keep the default below placement even though it is crossed."
+    scope: project
+    date: 2026-07-04
+    task: T-077
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-032
+    decision: "Record the reviewer non-response and close T-078; leave the five [REVIEW] ACs purely with the operator."
+    scope: project
+    date: 2026-07-04
+    task: T-078
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-033
+    decision: "`lastTidy` snapshot + Ctrl+Z single-step revert, invalidated by the next manual drag/tidy. Ctrl+Z is only claimed while a tidy is pending, so the shortcut stays free for a future general undo."
+    scope: project
+    date: 2026-07-04
+    task: T-079
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-034
+    decision: "Track `bestLaneY` (theoretical row lines) and `bestNodeY` (real node midlines) separately; final `bestY = bestNodeY || bestLaneY`."
+    scope: project
+    date: 2026-07-04
+    task: T-079
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-035
+    decision: "The properties-panel lane selector now drops the node on the new lane's row line nearest its current centre (was: always lane centre)."
+    scope: project
+    date: 2026-07-04
+    task: T-079
+    rationale: "Auto-captured from task file on completion"

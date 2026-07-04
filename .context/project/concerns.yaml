@@ -81,6 +81,7 @@ concerns:
     evidence:
       - "T-042/T-044 and T-053 RCA sections; both fixes shipped with per-aspect cross-seam tests."
       - "Behavioral proof for T-053 captured live via browser Playwright (parseBpmnXml/buildBpmnXml round-trip), not the missing automated harness."
+      - "Third instance of the class (2026-07-04, found during T-079 verification): editor-INTERNAL parse/build asymmetry — parseBpmnXml drops the bpmn:participant pool id/name, so every import→export cycle rewrites Pool_* to Process_*-derived values. Not an aef: field and not a bridge disagreement, so it does not mechanically fire the THIRD-incident trigger — but it was caught only by an ad-hoc in-browser round-trip check, which is precisely the harness this concern proposes. Filed as T-080."
     related:
       - T-042
       - T-044
