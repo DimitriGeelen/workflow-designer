@@ -1,0 +1,96 @@
+# ============================================================================
+# EPISODIC MEMORY - T-062: Reconcile ~70 silently-dropped aef keys across 14 corpus maps (surfaced by T-061 warn)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-04T00:15:48Z
+# ============================================================================
+
+task_id: T-062
+task_name: "Reconcile ~70 silently-dropped aef keys across 14 corpus maps (surfaced by T-061 warn)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-03T23:46:01Z
+completed: 2026-07-04T00:15:28Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-07-04T01:48:12+02:00
+last_commit: 2026-07-04T02:15:21+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Scope corpus aef-key reconciliation (real ACs) — next thread after T-061. Reconcile ~87 silently-dropped aef.* keys across 14 corpus maps
+
+# Key outcomes
+outcomes:
+  - 'Every `aef.*` key across the corpus is reconciled — meaningful/repeated keys promoted to'
+  - 'The bridge runs WARN-clean over the whole corpus (0 `unknown aef key` lines on stderr)'
+  - 'Any promoted key keeps editor↔bridge parity (`test_editor_bridge_meta_parity.py` passes)'
+  - 'Full bridge suite passes (26 checks, 0 fail); geometry sweep unaffected'
+  - '`## Decisions` records the promote-vs-x-prefix split with rationale (which keys, why)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-04 — promote-vs-x-* routing rule (full split in docs/reports/T-062-aef-key-reconciliation.md)'
+    chose: 'a single routing rule — *frequency + real-shared-concept*. 12 recurring'
+    rationale: 'the existing vocabulary already encoded intent (a scalar attribute channel + an'
+    alternatives_rejected: ['(a) x-* EVERYTHING — safe but refuses to name real recurring concepts']
+  - decision: '2026-07-04 — structured one-offs flattened, not given a constituent channel'
+    chose: 'flatten gates/ladder/sources/grouping to readable scalar `x-*` notes.'
+    rationale: 'the scalar `<aef:meta>` channel can''t carry structure; a real constituent channel'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-062-aef-key-reconciliation.md'
+  - 'examples/aef-processes/arc-lifecycle.workflow.yaml'
+  - 'examples/aef-processes/audit-process.workflow.yaml'
+  - 'examples/aef-processes/healing-loop.workflow.yaml'
+  - 'examples/aef-processes/release-pipeline.workflow.yaml'
+  - 'examples/aef-processes/review-emission.workflow.yaml'
+  - 'examples/aef-processes/revisit-due-scan.workflow.yaml'
+  - 'examples/aef-processes/session-handover.workflow.yaml'
+  - 'examples/aef-processes/task-lifecycle.workflow.yaml'
+  - 'examples/aef-processes/tier0-escalation.workflow.yaml'
+  - 'examples/aef-processes/upgrade-process.workflow.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-062-reconcile-70-silently-dropped-aef-keys-a.md'
+  - '.tasks/completed/T-061-bridge-drops-unknown-aef-keys--free-form.md'
+  - 'tools/yaml-to-bpmn.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T01:48:12"
+    action: "T-062: Scope corpus aef-key reconciliation (real ACs) — next thread after T-061"
+  - time: "2026-07-04T02:15:21"
+    action: "T-062: Reconcile ~87 silently-dropped aef.* keys across 14 corpus maps"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 29 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 29
+  commits: 2
+  files_changed: 15
+  lines_added: 359
+  lines_removed: 46
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-062-reconcile-70-silently-dropped-aef-keys-a.md
+generated_by: context-agent-hybrid
