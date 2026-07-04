@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-04T08:38:51Z
-last_update: 2026-07-04T08:38:51Z
+last_update: 2026-07-04T13:01:44Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -51,6 +51,11 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
      §Disposition Gate. Bypass: --skip-disposition-gate "rationale" (direct) or
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
+
+- **IW-1: Should collapsed multi-step nodes (FC-11 ×4, FC-15) be modelled as real BPMN subProcess elements with child constituents, or as an aef:constituents extension on a single node — and what does each cost at the editor↔bridge seam?**
+  confidence: 0
+  disposition:
+  rationale:
 
 ## Exploration Plan
 
@@ -141,3 +146,9 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-07-04T13:00:38Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-07-04T13:01:44Z — status-update [task-update-agent]
+- **Change:** status: started-work → captured
