@@ -1973,11 +1973,87 @@ function renderNodes() {
       // ID below the rectangle, centered
       g.appendChild(el('text', { x: lx, y: n.y + def.h + 12, class: 'node-id-badge', 'text-anchor': 'middle' }, [text(displayIdOf(n))]));
     } else {
-      g.appendChild(el('text', { x: lx, y: ly, class: 'node-label', 'text-anchor': 'middle' }, [text(n.name)]));
+      g.appendChild(el('text', { x: lx, y: ly, class: 'node-label', 'text-anchor': 'middle', 'data-nl': n.uid }, [text(n.name)]));
       // ID below the name, in mono and lower contrast
-      g.appendChild(el('text', { x: lx, y: ly + 12, class: 'node-id-badge', 'text-anchor': 'middle' }, [text(displayIdOf(n))]));
+      g.appendChild(el('text', { x: lx, y: ly + 12, class: 'node-id-badge', 'text-anchor': 'middle', 'data-nl': n.uid }, [text(displayIdOf(n))]));
     }
     gNodes.appendChild(g);
+  }
+  adjustLabelPlacements();
+}
+
+// Post-pass over the freshly rendered node labels (survey R-5 slice 1):
+// when a rendered edge segment crosses the text band below a label-below
+// node, relocate that node's name+id block to the side of the shape.
+// An S-anchored edge and the below-label share the node's centre-x by
+// construction, so the vertical drop ALWAYS cuts the text — no routing
+// choice can fix it (see T-076 Decisions for the scope split).
+// Reads the polylines stashed by renderEdges(); in mixed-order render
+// paths placement may lag one frame and self-corrects on the next render.
+function adjustLabelPlacements() {
+  const isLabelBelow = n => n.type === 'startEvent' || n.type === 'endEvent' ||
+    n.type.endsWith('Gateway') || n.type.startsWith('linkEvent');
+  // Count rendered edge segments crossing an axis-aligned rect.
+  const segCrossings = (r) => {
+    let count = 0;
+    for (const e of state.edges) {
+      const pl = e._renderedPolyline;
+      if (!pl) continue;
+      for (let i = 0; i < pl.length - 1; i++) {
+        const a = pl[i], b = pl[i + 1];
+        const x1 = Math.min(a.x, b.x), x2 = Math.max(a.x, b.x);
+        const y1 = Math.min(a.y, b.y), y2 = Math.max(a.y, b.y);
+        if (x2 < r.x1 || x1 > r.x2 || y2 < r.y1 || y1 > r.y2) continue;
+        count++;
+      }
+    }
+    return count;
+  };
+  const nodeOverlaps = (r, self) => {
+    let count = 0;
+    for (const n of state.nodes) {
+      if (n === self) continue;
+      const d = NODE_DEFAULTS[n.type];
+      if (n.x + d.w + 4 < r.x1 || n.x - 4 > r.x2) continue;
+      if (nodeVisualBottom(n) < r.y1 || n.y - 4 > r.y2) continue;
+      count++;
+    }
+    return count;
+  };
+  // Score a placement by MEASURING the rendered text (getBBox) against the
+  // stashed polylines and neighbouring node boxes. Estimated char widths
+  // diverged enough from real metrics to move labels onto other edges —
+  // measuring the actual result is the only honest check.
+  const bboxScore = (els, self) => {
+    let sc = 0;
+    for (const t of els) {
+      const bb = t.getBBox();
+      if (bb.width === 0) continue;
+      const r = { x1: bb.x - 1, x2: bb.x + bb.width + 1, y1: bb.y - 1, y2: bb.y + bb.height + 1 };
+      sc += segCrossings(r) + nodeOverlaps(r, self);
+    }
+    return sc;
+  };
+  for (const n of state.nodes) {
+    if (!isLabelBelow(n)) continue;
+    const els = Array.from(gNodes.querySelectorAll(`text[data-nl="${n.uid}"]`));
+    if (els.length < 2) continue;
+    if (bboxScore(els, n) === 0) continue; // uncontested — keep the default placement
+    const d = NODE_DEFAULTS[n.type];
+    const cy = n.y + d.h / 2;
+    const orig = els.map(t => ({ x: t.getAttribute('x'), y: t.getAttribute('y'), a: t.getAttribute('text-anchor') }));
+    const place = (x, anchor) => {
+      els[0].setAttribute('x', x); els[0].setAttribute('y', cy - 2);
+      els[1].setAttribute('x', x); els[1].setAttribute('y', cy + 10);
+      for (const t of els) t.setAttribute('text-anchor', anchor);
+    };
+    place(n.x + d.w + 8, 'start');            // try right of the shape
+    if (bboxScore(els, n) === 0) continue;
+    place(n.x - 8, 'end');                    // try left of the shape
+    if (bboxScore(els, n) === 0) continue;
+    // No perfectly clean side — restore the default below placement rather
+    // than trade one collision for another.
+    els.forEach((t, i) => { t.setAttribute('x', orig[i].x); t.setAttribute('y', orig[i].y); t.setAttribute('text-anchor', orig[i].a); });
   }
 }
 
