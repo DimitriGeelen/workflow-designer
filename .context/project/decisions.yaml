@@ -472,3 +472,10 @@ decisions:
     date: 2026-07-04
     task: T-085
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-047
+    decision: "T-087 node-label fit: single post-pass (fitNodeLabels) after nodes enter the DOM, before the other label passes; ladder = base wrap -> ONE shrink step (inline style) -> clamp+ellipsis+tooltip. Rejected: inline-during-render fitting (not measurable pre-DOM), auto-growing rect height (document mutation from a render concern), unlimited shrink (unreadable)"
+    scope: project
+    date: 2026-07-04
+    task: T-087
+    rationale: "Live-DOM measurement required; downstream passes must see final label geometry; one shrink step keeps type readable — the tooltip carries the full truth"
