@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-063: Represent structured META_KEYS aef values (emits/aggregation/compensates/multiInstance/timer)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-04T00:27:55Z
+# ============================================================================
+
+task_id: T-063
+task_name: "Represent structured META_KEYS aef values (emits/aggregation/compensates/multiInstance/timer)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T00:15:00Z
+completed: 2026-07-04T00:27:36Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-04T02:17:19+02:00
+last_commit: 2026-07-04T02:27:32+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  File structured-META_KEYS follow-up; archive T-062 completion. Structured aef emit for emits/aggregation/compensates/multiInstance/timer
+
+# Key outcomes
+outcomes:
+  - 'Each of the 5 structured `META_KEYS` keys (`emits`, `aggregation`, `compensates`,'
+  - 'Bridge emits the chosen form; editor imports AND re-exports it (round-trip), kept in'
+  - 'Bridge runs FULLY warn-clean over the corpus: 0 `unknown aef key` AND 0 `cannot ride'
+  - 'Full bridge suite passes (0 fail); geometry sweep unaffected'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-04 — representation: aef structured child elements (list→wrapper, dict→attrs)'
+    chose: 'all 5 keys get dedicated `<aef:*>` child elements in the aef namespace.'
+    rationale: 'uniform with the existing structured emits (`io`, `decisionInput`, `laneMeta`);'
+    alternatives_rejected: ['(a) flatten to scalar x-* notes — lossy for values that are genuinely']
+  - decision: '2026-07-04 — BPMN-standard mapping for multiInstance/timer deferred (Portability)'
+    chose: 'keep `multiInstance` and `timer` as aef extensions for now, NOT standard BPMN.'
+    rationale: 'the standard constructs cover only part of each concept — the aef-specific fields'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-062.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-063-represent-structured-metakeys-aef-values.md'
+  - '.tasks/completed/T-062-reconcile-70-silently-dropped-aef-keys-a.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_editor_bridge_structured_parity.py'
+  - 'tools/yaml-to-bpmn.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T02:17:19"
+    action: "T-063: File structured-META_KEYS follow-up; archive T-062 completion"
+  - time: "2026-07-04T02:27:32"
+    action: "T-063: Structured aef emit for emits/aggregation/compensates/multiInstance/timer"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 12 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 12
+  commits: 2
+  files_changed: 7
+  lines_added: 523
+  lines_removed: 18
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-063-represent-structured-metakeys-aef-values.md
+generated_by: context-agent-hybrid
