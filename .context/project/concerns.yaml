@@ -117,6 +117,7 @@ concerns:
       - "T-069 RCA (click swallow) and T-071 RCA (coordinate skew), both 2026-07-04."
       - "PL-006 learning: synthetic vs trusted click divergence, recorded at T-069."
       - "Counter-evidence for the fix's value: T-074's trusted-input verification caught a grid-snap dead-zone bug (toleranced grid missed proposals 7-10px from a multiple) BEFORE commit — the first time an interaction bug was found pre-field instead of by the operator. Ad-hoc trusted-input checks work; they are just not yet a standing suite."
+      - "Further pre-field catches (2026-07-04, T-076/T-077): the 20-map before/after render sweep caught (1) a loop-leg regression on git-commit-flow (bar-only scoring let legs cross two task boxes) and (2) T-077's estimated-width label placement landing labels on other edges — both fixed before commit. The ad-hoc sweep harness (bbox-vs-polyline measurement in Playwright) is now the third distinct incarnation of the missing standing suite."
     related:
       - T-069
       - T-071

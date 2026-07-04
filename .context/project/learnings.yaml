@@ -50,3 +50,10 @@ learnings:
   date: 2026-07-04
   context: Added via context agent
   application: TBD
+- id: PL-008
+  learning: "Estimated text metrics (px-per-char) diverge enough from rendered getBBox to invalidate placement decisions — apply the candidate, measure the real bbox, keep only verified-clean results (measure-after-move). Decision metric must equal verification metric."
+  source: PL-006
+  task: T-077
+  date: 2026-07-04
+  context: Added via context agent
+  application: TBD
