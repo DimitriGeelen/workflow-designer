@@ -34,12 +34,21 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Operator feedback on T-074 snapping (2026-07-04, revisit-due-scan screenshot): a tall lane offers only ONE Y-snap line (lane centre) plus neighbour centres within 400px horizontal range — useless for lanes holding 2-3 natural rows. Design played back to operator 2026-07-04; **operator confirmed "1a 2b"**:
+
+- **(1a) Sub-row snap lines, even division:** when a lane can hold 2+ rows, replace its single centre line with N evenly-spaced row lines; N from the operator's 1.5×-default-box-height rule (task h=64 → ~96px pitch → N = max(1, round(laneHeight/96))); lines at laneTop + (i+0.5)*laneHeight/N. Short lanes keep the single centre line. Dashed guide rendering as in T-074.
+- **Row-mate middle alignment, whole lane:** drop the 400px horizontal limit for same-lane Y-candidates — dragged node's middle snaps to the shared midline of an existing row anywhere in the lane. Real rows outrank the theoretical sub-row lines when both are within tolerance.
+- **(2b) ACTIVE "tidy lane" action** (operator explicitly chose the document-mutating variant): a command that nudges EXISTING nodes in a lane onto their nearest row line. NOT render-only — it rewrites node y-coordinates in the document, so it needs: explicit user trigger (button/menu, never automatic), participation in undo/dirty-state like a drag, and bridge round-trip + XML diff verification (only DI y-coordinates of moved nodes may change). Snap prefs (PD-017 pattern) stay in localStorage; tidy-lane RESULTS are document data by design.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+<!-- To be finalized at build start (G-020) — the confirmed design above is the scope contract. Draft:
+- Sub-row guides render + snap per (1a); short lanes unchanged; trusted-input drag test per PL-006
+- Same-lane row-mate Y-snap works across full lane width; row beats sub-row line when both in tolerance
+- Tidy-lane action moves only nodes in the invoked lane, each to nearest row line; undoable; XML diff shows only expected y changes; bridge suite passes
+- Corpus sweep: no new edge/node/label collisions introduced by tidied positions
+-->
 - [ ] [First criterion]
 - [ ] [Second criterion]
 
