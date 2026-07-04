@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-092: Routing + layout/alignment optimisation survey -> settings-menu proposal
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-04T23:20:26Z
+# ============================================================================
+
+task_id: T-092
+task_name: "Routing + layout/alignment optimisation survey -> settings-menu proposal"
+workflow_type: inception
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T22:57:03Z
+completed: 2026-07-04T23:20:25Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-05T01:04:52+02:00
+last_commit: 2026-07-05T01:04:52+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Routing/layout/alignment survey — 24-map measured sweep (245 crossings, 42 node-cuts, 168 row near-misses), findings + 10-option settings/Clean-menu proposal with phasing
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-092-routing-layout-survey.md'
+  - '.tasks/active/T-092-routing--layoutalignment-optimisation-su.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T01:04:52"
+    action: "T-092: Routing/layout/alignment survey — 24-map measured sweep (245 crossings, 42 node-cuts, 168 row near-misses), findings + 10-option settings/Clean-menu proposal with phasing"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 23 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 23
+  commits: 1
+  files_changed: 2
+  lines_added: 236
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-092-routing--layoutalignment-optimisation-su.md
+generated_by: context-agent-hybrid
