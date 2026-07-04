@@ -34,14 +34,18 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+T-092 GO, Phase A option 9. Building blocks already shipped: `tidyLane` (row snap + T-093 branch-pitch pass, per lane) and `alignRowsLane` (T-094, per lane) — both mutate on explicit action only and share the `lastTidy` single-step revert. The composite is one toolbar-level "Clean layout" click: all lanes, tidy + align, one undo step. Reroute is automatic (renderAll reroutes every edge), so no extra routing work is needed.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] A "Clean layout" action exists at workflow level (toolbar button near Reset/Settings — not per-lane): for every lane run `tidyLane` then `alignRowsLane`, merged into ONE undo step (extend `lastTidy` to hold multi-lane positions + multiple grown lane heights, or an equivalent composite record; a single Ctrl+Z restores everything)
+- [ ] PD-044 holds: geometry mutates only on the explicit click; no render pass or pref change calls the composite
+- [ ] Measured (24-map Playwright sweep) after one Clean click per map: non-stack row near-misses 0, cramped stack gaps >= configured pitch gap, rect-overlap count not above the map's pre-Clean count (the T-093/T-094 measure-after-move guards must still hold when composed)
+- [ ] Single Ctrl+Z after Clean restores ALL node ys and lane heights byte-identically (Playwright snapshot compare on audit-process and task-lifecycle)
+- [ ] Suites green: bridge "31 passed, 0 failed", validator "34 passed, 0 failed", parity "OK:", geometry "24 clean"
+- [ ] Gallery synced: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
