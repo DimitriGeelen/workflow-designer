@@ -416,3 +416,17 @@ decisions:
     date: 2026-07-04
     task: T-081
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-039
+    decision: "Edge-label scorer blocks node SHAPE boxes (+2px) only; the text band below label-below nodes is covered by measured nodeTexts bboxes instead."
+    scope: project
+    date: 2026-07-04
+    task: T-082
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-040
+    decision: "When no zero-score candidate exists, keep the best-scoring one; keep the default when nothing beats it. Two distance tiers (hug the line / one label-height out) rather than unlimited drift."
+    scope: project
+    date: 2026-07-04
+    task: T-082
+    rationale: "Auto-captured from task file on completion"

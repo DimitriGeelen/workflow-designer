@@ -2016,6 +2016,7 @@ function renderNodes() {
     gNodes.appendChild(g);
   }
   adjustLabelPlacements();
+  adjustEdgeLabelPlacements();
 }
 
 // Post-pass over the freshly rendered node labels (survey R-5 slice 1):
@@ -2090,6 +2091,105 @@ function adjustLabelPlacements() {
     // No perfectly clean side — restore the default below placement rather
     // than trade one collision for another.
     els.forEach((t, i) => { t.setAttribute('x', orig[i].x); t.setAttribute('y', orig[i].y); t.setAttribute('text-anchor', orig[i].a); });
+  }
+}
+
+// Post-pass over freshly rendered EDGE labels (T-082, survey R-5 slice 2).
+// edgeLabelPos() places by estimated width on the longest segment with no
+// collision awareness — the readability evaluation of 2026-07-04 found ~15
+// of 17 label collisions involve edge labels. Same discipline as the node
+// pass above (PD-030): apply a candidate, measure the REAL getBBox, count
+// collisions against edge segments, node boxes, node label/badge texts and
+// edge labels already placed this pass; keep the first clean placement,
+// otherwise the strictly best one. Runs after the node-label pass so node
+// labels are final obstacles. The halo rect is repositioned from the
+// MEASURED final bbox — estimated widths drifted off the text (PL-008).
+function adjustEdgeLabelPlacements() {
+  const pad = 1;
+  const inter = (a, b) => !(a.x2 < b.x1 || a.x1 > b.x2 || a.y2 < b.y1 || a.y1 > b.y2);
+  const box = t => {
+    const b = t.getBBox();
+    return { x1: b.x - pad, x2: b.x + b.width + pad, y1: b.y - pad, y2: b.y + b.height + pad, w: b.width };
+  };
+  const segs = [];
+  for (const e of state.edges) {
+    const pl = e._renderedPolyline;
+    if (!pl) continue;
+    for (let i = 0; i < pl.length - 1; i++) {
+      segs.push({ x1: Math.min(pl[i].x, pl[i + 1].x), x2: Math.max(pl[i].x, pl[i + 1].x),
+                  y1: Math.min(pl[i].y, pl[i + 1].y), y2: Math.max(pl[i].y, pl[i + 1].y) });
+    }
+  }
+  // Shape boxes only — the text lines below label-below nodes are covered
+  // precisely by nodeTexts (measured), so blocking the full nodeVisualBottom
+  // band would waste usable space beside narrow id badges.
+  const nodeRects = state.nodes.map(n => {
+    const d = NODE_DEFAULTS[n.type];
+    return { x1: n.x - 2, x2: n.x + d.w + 2, y1: n.y - 2, y2: n.y + d.h + 2 };
+  });
+  const nodeTexts = Array.from(gNodes.querySelectorAll('text.node-label, text.node-id-badge, text.node-io-badge'))
+    .map(box).filter(r => r.w > 0);
+  const placed = [];
+  const score = r => {
+    let sc = 0;
+    for (const s of segs) if (inter(r, s)) sc++;
+    for (const nr of nodeRects) if (inter(r, nr)) sc++;
+    for (const t of nodeTexts) if (inter(r, t)) sc++;
+    for (const p of placed) if (inter(r, p)) sc++;
+    return sc;
+  };
+  for (const e of state.edges) {
+    const t = gEdges.querySelector(`text[data-el="${e.id}"]`);
+    if (!t) continue;
+    let bestBB = box(t);
+    let bestScore = score(bestBB);
+    if (bestScore > 0) {
+      const pl = e._renderedPolyline || [];
+      // Candidates: above/below the 50/30/70% points of horizontal segments,
+      // beside vertical ones — longest segments first so calm stretches win.
+      const segList = [];
+      for (let i = 0; i < pl.length - 1; i++) {
+        const dx = Math.abs(pl[i + 1].x - pl[i].x), dy = Math.abs(pl[i + 1].y - pl[i].y);
+        if (Math.max(dx, dy) < 16) continue;
+        segList.push({ a: pl[i], b: pl[i + 1], horiz: dx >= dy, len: Math.max(dx, dy) });
+      }
+      segList.sort((s1, s2) => s2.len - s1.len);
+      const cands = [];
+      for (const s of segList) {
+        // Two distance tiers: hugging the line first, one label-height further
+        // out as fallback — the halo keeps drifted labels visually attached.
+        for (const [above, below] of [[-6, 13], [-17, 24]]) {
+          for (const f of [0.5, 0.3, 0.7, 0.15, 0.85]) {
+            const mx = s.a.x + (s.b.x - s.a.x) * f, my = s.a.y + (s.b.y - s.a.y) * f;
+            if (s.horiz) {
+              cands.push({ x: mx, y: my + above, anchor: 'middle' });  // above the run
+              cands.push({ x: mx, y: my + below, anchor: 'middle' });  // below the run
+            } else {
+              cands.push({ x: mx + 8, y: my + 3, anchor: 'start' });   // right of the drop
+              cands.push({ x: mx - 8, y: my + 3, anchor: 'end' });     // left of the drop
+            }
+          }
+          if (!s.horiz) break; // vertical drops have one lateral tier only
+        }
+      }
+      const orig = { x: t.getAttribute('x'), y: t.getAttribute('y'), anchor: t.getAttribute('text-anchor') };
+      let bestAttrs = orig;
+      for (const c of cands) {
+        t.setAttribute('x', c.x); t.setAttribute('y', c.y); t.setAttribute('text-anchor', c.anchor);
+        const bb = box(t);
+        const sc = score(bb);
+        if (sc < bestScore) { bestScore = sc; bestAttrs = c; if (sc === 0) break; }
+      }
+      t.setAttribute('x', bestAttrs.x); t.setAttribute('y', bestAttrs.y); t.setAttribute('text-anchor', bestAttrs.anchor);
+      bestBB = box(t);
+    }
+    // Halo hugs the measured text wherever it ended up.
+    const halo = gEdges.querySelector(`rect[data-elr="${e.id}"]`);
+    if (halo) {
+      halo.setAttribute('x', bestBB.x1 - 3); halo.setAttribute('y', bestBB.y1);
+      halo.setAttribute('width', bestBB.x2 - bestBB.x1 + 6); halo.setAttribute('height', bestBB.y2 - bestBB.y1);
+    }
+    placed.push(bestBB);
   }
 }
 
@@ -2199,8 +2299,10 @@ function renderEdges() {
       // the label off the line — above horizontal runs, beside vertical runs (T-072).
       const labelPoly = (e._renderedPolyline && e._renderedPolyline.length >= 2) ? e._renderedPolyline : points;
       const lp = edgeLabelPos(labelPoly, e.name);
-      g.appendChild(el('rect', { x: lp.rx, y: lp.ry, width: lp.rw, height: 14, fill: 'var(--bg)', rx: 2 }));
-      g.appendChild(el('text', { x: lp.tx, y: lp.ty, class: 'edge-label', 'text-anchor': lp.anchor }, [text(e.name)]));
+      // data-el/data-elr let adjustEdgeLabelPlacements() (T-082) find and move
+      // this label + halo after all nodes are rendered.
+      g.appendChild(el('rect', { x: lp.rx, y: lp.ry, width: lp.rw, height: 14, fill: 'var(--bg)', rx: 2, 'data-elr': e.id }));
+      g.appendChild(el('text', { x: lp.tx, y: lp.ty, class: 'edge-label', 'text-anchor': lp.anchor, 'data-el': e.id }, [text(e.name)]));
     }
 
     // Handles only when this edge is selected

@@ -4,9 +4,9 @@ name: "Edge-label placement pass: measure-after-move for edge labels"
 description: >
   Extend T-077 adjustLabelPlacements (node labels) to EDGE labels: candidate positions along the emptiest stretch of the polyline, real getBBox measurement, never overlap node id badges or other labels (PD-030 measure-after-move). Evidence: context-memory evaluation 2026-07-04 — 11 label-over-edge + 6 label-over-label hits, ~15/17 involve edge labels ('agent captures knowledge during work' x e_03 + 2 badges; 'learning' clipped behind gateway; '3+ applications -> graduate' x 2 badges). Corpus sweep before/after required.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T13:52:06Z
-last_update: 2026-07-04T14:33:05Z
-date_finished: null
+last_update: 2026-07-04T15:16:23Z
+date_finished: 2026-07-04T15:16:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,45 +34,30 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Edge labels are placed by `edgeLabelPos()` (src/aef-workflow-designer.html:3181) at the midpoint of the longest horizontal/vertical segment using ESTIMATED char widths and zero collision awareness. T-077's `adjustLabelPlacements()` post-pass (line 2029) fixed node labels with real getBBox measurement (PD-030 measure-after-move) but never touched edge labels. Operator's context-memory evaluation (2026-07-04) found ~15 of 17 label collisions involve edge labels. This task extends the measured post-pass to edge labels: candidates along the rendered polyline, scored by real getBBox against edge segments, node boxes, node label/badge texts, and already-placed edge labels; the halo rect follows the final text position.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A measured edge-label post-pass exists (`adjustEdgeLabelPlacements()` or equivalent) that runs AFTER the node-label pass, generates candidate positions along each edge's rendered polyline, scores each candidate by real getBBox against (a) all rendered edge segments, (b) node boxes, (c) node-label / id-badge / io-badge texts, (d) edge labels already placed this pass — first zero-score candidate wins, otherwise strictly-better-than-default minimum; ties keep the default placement
+      Evidence: `adjustEdgeLabelPlacements()` in src/aef-workflow-designer.html (called at end of renderNodes after `adjustLabelPlacements()`); candidates = 2 distance tiers x 5 fractions per horizontal segment, lateral pair per vertical segment, longest segments first; obstacles exactly (a)-(d).
+- [x] The label halo rect is repositioned from the MEASURED final text bbox (not the estimate), so rect and text never separate
+      Evidence: halo rect (`data-elr`) repositioned from `box(t)` of the final placement for EVERY labeled edge, including uncontested ones — fixes PL-008 estimate drift too.
+- [x] Corpus sweep with one shared browser-side measurement function, run before and after the change: total measured edge-label collisions across all corpus maps strictly decreases, and context-memory's edge-label-involved hits drop to <= 2 (from ~15); before/after counts recorded in this task's Updates
+      Evidence: 141 -> 28 corpus-wide (-80%); context-memory 14 -> 2; label-over-label 7 -> 0; per-category and per-map numbers in Updates 2026-07-04.
+- [x] Serialization untouched: editor XML round-trip stays byte-identical on context-memory plus 2 control maps (placement is render-only)
+      Evidence: buildBpmnXml(parse(X)) === X across parse->render->build cycles (STABLE on context-memory, task-lifecycle, tier0-escalation); `git diff src/` contains 0 lines touching buildBpmnXml/parseBpmnXml/aefExtensionXml/yaml paths. (Note: bridge-emitted .bpmn was never byte-par with editor-emitted XML — the invariant is editor-XML stability, verified.)
+- [x] All existing suites green: bridge tests, validator selftest + corpus validate, editor-bridge structured parity, lane-band checks; gallery copy re-synced (diff -q clean)
+      Evidence: bridge 31/31, validator 34/34, all 6 editor/bridge parity tests PASS, geometry sweep 24 clean, gallery designer.html synced.
 
 ### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+- [ ] [REVIEW] Edge labels read cleanly on the live gallery — no label sitting on top of a line, badge, or another label at the hotspots from your 2026-07-04 evaluation
+  **Steps:**
+  1. Open http://192.168.10.107:8834/ and view the context-memory map
+  2. Check the previous hotspots: "agent captures knowledge during work" near e_03, "learning" near the gateway, "3+ applications -> graduate"
+  3. Skim 2-3 other maps (task-lifecycle, git-commit-flow) for new label collisions
+  **Expected:** Edge labels sit in clear space beside/above their edge; halo rect hugs the text
+  **If not:** Note which map + which label; screenshot the spot
 
 ## Verification
 
@@ -106,6 +91,18 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+grep -q "function adjustEdgeLabelPlacements" src/aef-workflow-designer.html
+grep -q 'data-el' src/aef-workflow-designer.html
+diff -q src/aef-workflow-designer.html build/gallery/designer.html
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "34 passed, 0 failed"
+python3 tests/test_editor_bridge_structured_parity.py
+python3 tests/test_editor_bridge_meta_parity.py
+python3 tests/test_editor_bridge_field_coverage.py
+out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "24 clean, 0 known-legacy, 0 new-fail"
+test -f .playwright-mcp/t082-context-memory-zoom.png
+test -f .playwright-mcp/t082-verification-gate.png
 
 ## RCA
 
@@ -149,14 +146,22 @@ date_finished: null
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-07-04 — Node obstacle boxes: shape-only, not nodeVisualBottom
+- **Chose:** Edge-label scorer blocks node SHAPE boxes (+2px) only; the text band below label-below nodes is covered by measured nodeTexts bboxes instead.
+- **Why:** nodeVisualBottom blocks a full-node-width band 16-30px deep under every node, but the id badge inside it is narrow and centred — measured text bboxes free the usable space beside it. Switching cut residual collisions 65 -> 28.
+- **Rejected:** Reusing nodeVisualBottom (as the node-label pass does) — too conservative for this pass; left labels stuck on dense maps.
+
+### 2026-07-04 — Strict-best fallback instead of forced relocation
+- **Chose:** When no zero-score candidate exists, keep the best-scoring one; keep the default when nothing beats it. Two distance tiers (hug the line / one label-height out) rather than unlimited drift.
+- **Why:** A label pushed far from its edge is worse than a label with one residual overlap — attribution beats purity. The remaining 28 corpus hits are all in intrinsically over-dense corridors (verification-gate mid-chain, error-escalation ladder) where the fix is density/halo work (T-083/T-085), not more drift.
+- **Rejected:** Larger candidate radii and label wrapping — wrapping is out of T-082 scope and drift breaks edge attribution.
+
+## Visual Verification
+
+Screenshots in .playwright-mcp/ (taken via Playwright element capture, read and inspected):
+- t082-context-memory-full.png — full map after pass
+- t082-context-memory-zoom.png — hotspot cluster: "agent captures knowledge during work" + "pattern (failure/success/workflow)" in clear corridor, "learning"/"decision" clean; 2 residuals visible ("3+ applications -> graduate" kisses prj_2_add badge; "framework auto-fires" clips start-event circle)
+- t082-verification-gate.png — densest map (32 -> 9): periphery labels all clean, residuals confined to the over-tight mid gateway chain; no label-over-label anywhere
 
 ## Decision
 
@@ -178,3 +183,24 @@ date_finished: null
 ### 2026-07-04T14:33:05Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-07-04 — build complete: measured edge-label post-pass [agent]
+- **Action:** Implemented `adjustEdgeLabelPlacements()`; tagged edge label text/halo with data-el/data-elr; synced gallery copy.
+- **Sweep numbers (same measurement function, all 24 corpus maps):**
+  - BEFORE: total 141 (seg 53, node 23, node-text 58, label-label 7); 17 maps with hits; worst: verification-gate 32, error-escalation-ladder 27, task-gate 16, context-memory 14
+  - AFTER: total 28 (seg 9, node 13, node-text 6, label-label 0); 7 maps with hits; verification-gate 9, error-escalation-ladder 8, task-gate 5, context-memory 2
+  - context-memory residuals: "3+ applications -> graduate" x prj_2_add badge, "framework auto-fires" x start-event box — both strict-best fallbacks on boxed-in short edges
+- **Round-trip:** editor-XML build STABLE across parse->render->build on context-memory/task-lifecycle/tier0-escalation; 0 serialization lines in diff.
+- **Gotcha:** gallery page served a CACHED designer.html after cp — first post-change sweep silently measured OLD code (identical numbers were the tell); cache-buster query string required before re-measuring.
+
+## Recommendation
+
+**Recommendation:** GO
+**Rationale:** Corpus-wide measured edge-label collisions down 80% (141 -> 28), label-over-label eliminated, the operator's top evaluation hotspots (context-memory) reduced to 2 least-bad residuals; zero serialization or geometry impact; all suites green.
+**Evidence:**
+- Sweep: 141 -> 28 total; context-memory 14 -> 2; label-over-label 7 -> 0 (numbers in Updates)
+- Screenshots: .playwright-mcp/t082-context-memory-{full,zoom}.png, t082-verification-gate.png (read and inspected)
+- Suites: bridge 31/31, validator 34/34, editor/bridge parity 6/6, geometry sweep 24 clean
+
+### 2026-07-04T15:16:23Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
