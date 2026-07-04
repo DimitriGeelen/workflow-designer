@@ -4,9 +4,9 @@ name: "subProcess node type phase 1: collapsed-only node + aef:constituents + sc
 description: >
   Build authorized by T-068 GO (2026-07-04). Scope per docs/reports/T-068-constituents-inception.md §Spike B staged path, phase 1 ONLY: (1) schema: subProcess node type + constituents: list + optional scopeOf: back-reference; (2) bridge: bpmn:subProcess element (TYPE_MAP passthrough) + aef:constituents emission mirroring the multiInstance pattern; (3) editor: NODE_DEFAULTS entry, collapsed box glyph with plus marker + constituent-count badge, parse/build of aef:constituents (G-002: add cross-seam consistency test); (4) validator: new node type + constituents rules; (5) migrate the 4 x-* corpus maps (verification-gate g_gates, git-commit-flow x-checks, resume-status x-sources, session-capture x-captures). OUT: any child flow-node nesting (phase 2 — own inception; parser-scoping hazard fenced there).
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T13:34:26Z
-last_update: 2026-07-04T14:01:55Z
-date_finished: null
+last_update: 2026-07-04T14:32:01Z
+date_finished: 2026-07-04T14:32:01Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -55,37 +55,6 @@ Build authorized by T-068 GO (recorded 2026-07-04 via Watchtower). Design: docs/
   **Expected:** The composite nature is visible at a glance; constituent list readable in props panel
   **If not:** Note which map/node reads poorly and what is confusing
 
-### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
-
 ## Verification
 
 grep -q '"subProcess"' tools/validate-workflow.py
@@ -100,7 +69,8 @@ python3 tools/validate-workflow.py examples/aef-processes/session-capture.workfl
 python3 tools/validate-workflow.py examples/aef-processes/verification-gate.workflow.yaml --quiet
 grep -q "aef:constituent " examples/aef-processes/rendered/verification-gate.bpmn
 grep -q "bpmn:subProcess" examples/aef-processes/rendered/session-capture.bpmn
-! grep -rn "x-checks\|x-sources\|x-captures" examples/aef-processes/*.workflow.yaml | grep -v "^[^:]*:[0-9]*:#" | grep -q .
+# the 4 in-scope sites carry no x-* workaround keys anymore (tier0-escalation/task-lifecycle sites are T-086 scope)
+! grep -n "x-checks:\|x-sources:\|x-captures:" examples/aef-processes/session-capture.workflow.yaml examples/aef-processes/resume-status.workflow.yaml examples/aef-processes/git-commit-flow.workflow.yaml examples/aef-processes/verification-gate.workflow.yaml | grep -q .
 diff -q src/aef-workflow-designer.html build/gallery/designer.html
 awk '/<script>/{f=1;next}/<\/script>/{f=0}f' src/aef-workflow-designer.html > /tmp/t081-check.js && node --check /tmp/t081-check.js
 
@@ -224,3 +194,6 @@ awk '/<script>/{f=1;next}/<\/script>/{f=0}f' src/aef-workflow-designer.html > /t
 
 ### 2026-07-04T14:01:55Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-04T14:32:01Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

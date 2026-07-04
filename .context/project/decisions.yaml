@@ -395,3 +395,24 @@ decisions:
     date: 2026-07-04
     task: T-079
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-036
+    decision: "`aef.constituents` validates on ANY flow node; `subProcess` is the task-like composite host, not a prerequisite."
+    scope: project
+    date: 2026-07-04
+    task: T-081
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-037
+    decision: "`<aef:constituents><aef:constituent id name ref?/></aef:constituents>` via a third structured channel (STRUCTURED_ITEMLIST_KEYS), parity-guarded incl. per-field tuples; `scopeOf` rides the existing `<aef:meta>` scalar channel (META_KEYS/metaKeys both sides)."
+    scope: project
+    date: 2026-07-04
+    task: T-081
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-038
+    decision: "collapsed-marker in the bottom-right corner of the rect; count badge (▣N) bottom-left."
+    scope: project
+    date: 2026-07-04
+    task: T-081
+    rationale: "Auto-captured from task file on completion"
