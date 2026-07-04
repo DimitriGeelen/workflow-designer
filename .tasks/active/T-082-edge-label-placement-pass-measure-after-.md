@@ -4,10 +4,10 @@ name: "Edge-label placement pass: measure-after-move for edge labels"
 description: >
   Extend T-077 adjustLabelPlacements (node labels) to EDGE labels: candidate positions along the emptiest stretch of the polyline, real getBBox measurement, never overlap node id badges or other labels (PD-030 measure-after-move). Evidence: context-memory evaluation 2026-07-04 — 11 label-over-edge + 6 label-over-label hits, ~15/17 involve edge labels ('agent captures knowledge during work' x e_03 + 2 badges; 'learning' clipped behind gateway; '3+ applications -> graduate' x 2 badges). Corpus sweep before/after required.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T13:52:06Z
-last_update: 2026-07-04T13:52:06Z
+last_update: 2026-07-04T14:33:05Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -174,3 +174,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-082-edge-label-placement-pass-measure-after-.md
 - **Context:** Initial task creation
+
+### 2026-07-04T14:33:05Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

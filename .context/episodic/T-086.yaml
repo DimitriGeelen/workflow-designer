@@ -1,0 +1,73 @@
+# ============================================================================
+# EPISODIC MEMORY - T-086: Migrate remaining constituents-like x-* sites: tier0-escalation x-sources, task-lifecycle x-gates
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-04T14:35:38Z
+# ============================================================================
+
+task_id: T-086
+task_name: "Migrate remaining constituents-like x-* sites: tier0-escalation x-sources, task-lifecycle x-gates"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T14:31:48Z
+completed: 2026-07-04T14:35:18Z
+duration_days: 0
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'task-lifecycle completion-gate node: `x-gates` (5 gates, each with its skip-flag) → `aef.constituents` entries with `ref` carrying policy id + skip-flag; `x-gates` key removed; surrounding T-062 comment updated'
+  - 'tier0-escalation approval-check node: `x-sources` (2 approval sources) → `aef.constituents` entries with `ref` carrying the path; `x-sources` key removed'
+  - 'Both rendered .bpmn regenerated and carrying `<aef:constituents>`; no other rendered file changes'
+  - 'Suites stay green: bridge 31/31, validator corpus exit 0, lane-bands 24 clean; no x-checks/x-sources/x-captures/x-gates keys remain anywhere in the corpus'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-086-migrate-remaining-constituents-like-x--s.md
+generated_by: context-agent-hybrid

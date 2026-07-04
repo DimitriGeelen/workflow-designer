@@ -128,7 +128,14 @@
       <bpmn:extensionElements>
         <aef:uid value="n_gates"/>
         <aef:position x="1320" y="360"/>
-        <aef:meta determinism="deterministic" tier="1" x-gates="R-033 owner=human blocks completion [--skip-sovereignty]; P-010 agent ACs all [x] no placeholders [--skip-acceptance-criteria]; P-011 ## Verification commands all exit 0 [--skip-verification]; G-019 bug-class tasks need substantive RCA [--skip-rca]; T-1718 arc build tasks fill ## Evolution [--skip-evolution]" x-umbrellaBypass="--force (deprecated)"/>
+        <aef:meta determinism="deterministic" tier="1" x-umbrellaBypass="--force (deprecated)"/>
+        <aef:constituents>
+          <aef:constituent id="c_sovereignty" name="owner=human blocks completion" ref="R-033 [--skip-sovereignty]"/>
+          <aef:constituent id="c_acceptance" name="agent ACs all checked, no placeholders" ref="P-010 [--skip-acceptance-criteria]"/>
+          <aef:constituent id="c_verify" name="## Verification commands all exit 0" ref="P-011 [--skip-verification]"/>
+          <aef:constituent id="c_rca" name="bug-class tasks need substantive RCA" ref="G-019 [--skip-rca]"/>
+          <aef:constituent id="c_evolution" name="arc build tasks fill ## Evolution" ref="T-1718 [--skip-evolution]"/>
+        </aef:constituents>
       </bpmn:extensionElements>
       <bpmn:incoming>e_10</bpmn:incoming>
       <bpmn:outgoing>e_11</bpmn:outgoing>

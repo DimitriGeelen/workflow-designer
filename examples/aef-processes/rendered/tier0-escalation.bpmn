@@ -75,8 +75,12 @@
       <bpmn:extensionElements>
         <aef:uid value="n_check_approval"/>
         <aef:position x="720" y="320"/>
-        <aef:meta decisionOwner="framework" x-sources=".context/working/.tier0-approval (hash-matched, T-1500); .context/approvals/ (Watchtower, T-612)"/>
+        <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${approved}</aef:decisionInput>
+        <aef:constituents>
+          <aef:constituent id="c_cli_approval" name="CLI approval token (hash-matched)" ref=".context/working/.tier0-approval (T-1500)"/>
+          <aef:constituent id="c_watchtower" name="Watchtower approval record" ref=".context/approvals/ (T-612)"/>
+        </aef:constituents>
       </bpmn:extensionElements>
       <bpmn:incoming>e_04</bpmn:incoming>
       <bpmn:outgoing>e_05</bpmn:outgoing>

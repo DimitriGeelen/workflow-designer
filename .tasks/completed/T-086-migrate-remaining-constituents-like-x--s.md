@@ -4,10 +4,10 @@ name: "Migrate remaining constituents-like x-* sites: tier0-escalation x-sources
 description: >
   Follow-up to T-081 (found by its completion gate sweeping the whole corpus): two more FC-11-style collapsed nodes still declare constituents via the x-* scalar workaround — tier0-escalation n(?) aef.x-sources (2 approval sources) and task-lifecycle completion node aef.x-gates (5 gates with skip-flags). Migrate both to first-class aef.constituents entries per the T-081 pattern (keep node types; constituents legal on any node — PD decision in T-081). fabric-blast-radius x-seeAlso is NOT constituents (a see-also pointer) — leave it. Regenerate the 2 rendered .bpmn, corpus suites must stay green.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: next
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T14:31:48Z
-last_update: 2026-07-04T14:31:48Z
-date_finished: null
+last_update: 2026-07-04T14:35:18Z
+date_finished: 2026-07-04T14:35:18Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,47 +34,28 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Follow-up to T-081 (its completion-gate corpus sweep surfaced two more FC-11 sites still on the x-* scalar workaround). Same migration pattern as T-081: first-class `aef.constituents`, node types unchanged (PD-036: constituents legal on any node). `fabric-blast-radius` x-seeAlso stays — it is a see-also pointer, not constituents.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
-
-### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+- [x] task-lifecycle completion-gate node: `x-gates` (5 gates, each with its skip-flag) → `aef.constituents` entries with `ref` carrying policy id + skip-flag; `x-gates` key removed; surrounding T-062 comment updated
+- [x] tier0-escalation approval-check node: `x-sources` (2 approval sources) → `aef.constituents` entries with `ref` carrying the path; `x-sources` key removed
+- [x] Both rendered .bpmn regenerated and carrying `<aef:constituents>`; no other rendered file changes
+- [x] Suites stay green: bridge 31/31, validator corpus exit 0, lane-bands 24 clean; no x-checks/x-sources/x-captures/x-gates keys remain anywhere in the corpus
 
 ## Verification
+
+grep -q "c_sovereignty" examples/aef-processes/task-lifecycle.workflow.yaml
+grep -q "c_cli_approval" examples/aef-processes/tier0-escalation.workflow.yaml
+grep -q "aef:constituent " examples/aef-processes/rendered/task-lifecycle.bpmn
+grep -q "aef:constituent " examples/aef-processes/rendered/tier0-escalation.bpmn
+! grep -n "x-checks:\|x-sources:\|x-captures:\|x-gates:" examples/aef-processes/*.workflow.yaml | grep -v ":\s*#" | grep -v "#.*x-" | grep -q .
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
+out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "24 clean"
+python3 tools/validate-workflow.py examples/aef-processes/task-lifecycle.workflow.yaml --quiet
+python3 tools/validate-workflow.py examples/aef-processes/tier0-escalation.workflow.yaml --quiet
+
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -174,3 +155,10 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-086-migrate-remaining-constituents-like-x--s.md
 - **Context:** Initial task creation
+
+### 2026-07-04T14:33:21Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+### 2026-07-04T14:35:18Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

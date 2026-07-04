@@ -95,8 +95,11 @@ nodes:
     aef:
       decisionInput: ${approved}
       decisionOwner: framework
-      # single-use, hash-bound, expiring capability token (F12)
-      x-sources: ".context/working/.tier0-approval (hash-matched, T-1500); .context/approvals/ (Watchtower, T-612)"
+      # single-use, hash-bound, expiring capability token (F12); the two
+      # approval sources are first-class constituents since T-086
+      constituents:
+        - { id: c_cli_approval, name: "CLI approval token (hash-matched)", ref: ".context/working/.tier0-approval (T-1500)" }
+        - { id: c_watchtower,   name: "Watchtower approval record",        ref: ".context/approvals/ (T-612)" }
 
   - uid: n_block
     type: scriptTask
