@@ -969,6 +969,12 @@
       </div>
 
       <div class="palette-section">
+        <div class="palette-label">Routing</div>
+        <div class="palette-tool" id="routing-middle">Attach: middle</div>
+        <div class="palette-tool" id="routing-spread">Attach: spread</div>
+      </div>
+
+      <div class="palette-section">
         <div class="palette-hint">Click a palette item, then click on the canvas to place. <br><br>To connect, switch to <b>Connect</b>, click source, then click target. <br><br><b>+ Add Lane</b> appends a new swimlane to the pool.</div>
       </div>
     </aside>
@@ -1465,6 +1471,24 @@ function laneAtY(y) {
 // ============================================================================
 let state = null;
 let selection = null; // { kind: 'node'|'edge'|'lane', id } — primary; drives properties panel
+
+// Routing preferences (T-070) — editor-local (localStorage), deliberately NOT part
+// of the document format so the bridge/serialization seam is untouched.
+// attach: 'middle' = unpinned edge ends snap to the middle of the facing side
+// (arrows converge on one point — calm default); 'spread' = fan sibling edges
+// out along the side (previous behaviour). Explicit port pins override both.
+let routingPrefs = { attach: 'middle' };
+try {
+  const _storedRouting = JSON.parse(localStorage.getItem('aefRoutingPrefs') || '{}');
+  if (_storedRouting.attach === 'middle' || _storedRouting.attach === 'spread') routingPrefs.attach = _storedRouting.attach;
+} catch (_) {}
+function setRoutingAttach(mode) {
+  routingPrefs.attach = mode;
+  try { localStorage.setItem('aefRoutingPrefs', JSON.stringify(routingPrefs)); } catch (_) {}
+  document.getElementById('routing-middle')?.classList.toggle('active', mode === 'middle');
+  document.getElementById('routing-spread')?.classList.toggle('active', mode === 'spread');
+  renderEdges();
+}
 let multiSelect = new Set(); // node ids in the active multi-selection (always includes primary if it's a node)
 let rubberBand = null; // { startX, startY, x, y } while drawing
 let groupDrag = null;  // { startX, startY, originalPositions: Map<nodeId, {x, y}> }
@@ -2126,11 +2150,29 @@ function nearestPortName(node, worldPt) {
 }
 
 // Compute the anchor point used by the renderer. If port is 'auto' or missing,
-// fall back to the old "nearest border point toward the other end" behavior so
-// existing diagrams keep their look. Otherwise pin to the named port.
+// the attach preference decides: 'middle' snaps to the mid-point of the facing
+// side (T-070 operator default); 'spread' keeps the free border point toward
+// the other end. Explicit named ports always win.
 function anchorPoint(node, port, towardPt) {
-  if (!port || port === 'auto') return portPointTowards(node, towardPt);
+  if (!port || port === 'auto') {
+    if (routingPrefs.attach === 'middle') return midSideAnchor(node, towardPt);
+    return portPointTowards(node, towardPt);
+  }
   return portPointAt(node, port);
+}
+
+// Middle-of-facing-side anchor (T-070). The dominant axis of the centre→toward
+// vector, weighted by the node's aspect ratio, picks the side the centre-line
+// actually crosses; portPointAt then resolves the mid-side point per shape
+// class (rect mid-edge, circle cardinal point, diamond tip).
+function midSideAnchor(node, towardPt) {
+  const d = NODE_DEFAULTS[node.type];
+  const cx = node.x + d.w / 2, cy = node.y + d.h / 2;
+  const dx = towardPt.x - cx, dy = towardPt.y - cy;
+  const side = Math.abs(dx) * d.h >= Math.abs(dy) * d.w
+    ? (dx >= 0 ? 'E' : 'W')
+    : (dy >= 0 ? 'S' : 'N');
+  return portPointAt(node, side);
 }
 
 function portPointTowards(from, towardPt) {
@@ -2228,6 +2270,9 @@ function buildEdgeGroups() {
 // distinguishes it from siblings on the same node-side. Single-edge groups
 // return 0 (no spread).
 function spreadOffset(edge, role, dir, node) {
+  // 'middle' attach mode (T-070): siblings converge on the mid-side point —
+  // no fan-out. Explicit port pins already bypassed spread upstream via anchors.
+  if (routingPrefs.attach === 'middle') return 0;
   const nodeId = role === 'source' ? edge.source : edge.target;
   const groupKey = `${nodeId}:${dir}`;
   const groups = buildEdgeGroups();
@@ -3384,11 +3429,17 @@ document.addEventListener('keydown', e => {
 });
 
 document.querySelectorAll('.palette-tool').forEach(el => {
+  if (!el.dataset.mode) return; // routing toggles reuse the style, not the tool behaviour
   el.addEventListener('click', () => setMode(el.dataset.mode));
 });
 document.querySelectorAll('.palette-item').forEach(el => {
   el.addEventListener('click', () => setMode('create:' + el.dataset.create));
 });
+// Routing attach preference (T-070)
+$('routing-middle').addEventListener('click', () => setRoutingAttach('middle'));
+$('routing-spread').addEventListener('click', () => setRoutingAttach('spread'));
+$('routing-middle').classList.toggle('active', routingPrefs.attach === 'middle');
+$('routing-spread').classList.toggle('active', routingPrefs.attach === 'spread');
 
 svg.addEventListener('mousedown', e => {
   // Only start a rubber-band when the user mousedowns on actual background.
@@ -3503,9 +3554,16 @@ svg.addEventListener('mousemove', e => {
       let snapDistance = Infinity;
 
       if (hoverId) {
-        // direct hit — snap to this node's nearest port regardless of distance
+        // direct hit — snap to this node
         snapNode = findNode(hoverId);
-        snapPortName = nearestPortName(snapNode, pt);
+        const nearest = nearestPortName(snapNode, pt);
+        const nearestPt = portPointAt(snapNode, nearest);
+        const dNearest = Math.hypot(nearestPt.x - pt.x, nearestPt.y - pt.y);
+        // 'middle' attach mode (T-070): a body drop means "re-anchor, stay auto" —
+        // only an explicit grab near a port dot pins. 'spread' keeps nearest-port pinning.
+        snapPortName = (routingPrefs.attach === 'middle' && dNearest > SNAP_RADIUS)
+          ? 'auto'
+          : nearest;
       } else {
         // scan ports of nearby nodes — pick the globally closest port within SNAP_RADIUS
         const NEARBY_RADIUS = 160; // only consider nodes whose center is within this range
@@ -3528,7 +3586,9 @@ svg.addEventListener('mousemove', e => {
       edgeDrag.cursorPt = pt;
       edgeDrag.hoverNodeId = hoverId;
       if (snapNode && snapPortName) {
-        const portPt = portPointAt(snapNode, snapPortName);
+        const portPt = snapPortName === 'auto'
+          ? midSideAnchor(snapNode, pt)
+          : portPointAt(snapNode, snapPortName);
         edgeDrag.previewPt = portPt;
         edgeDrag.snapNodeId = snapNode.id;
         edgeDrag.snapPort = snapPortName;
