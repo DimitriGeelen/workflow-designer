@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T18:36:00Z
-last_update: 2026-07-05T18:50:46Z
+last_update: 2026-07-05T18:51:59Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -62,6 +62,32 @@ that only affects future actions reads as inert — my own T-104 lesson).
   2. Open Settings → Routing → Routing margin; switch none → normal → roomy and watch the loop-back cross-bar
   **Expected:** The loop-back bar moves outward toward the lane edge as the margin increases and, at roomy, clears the row-2 nodes it previously ran alongside; straight/forward edges are unchanged
   **If not:** Note which map/edge still overlaps and at which margin setting
+
+## Recommendation
+
+**Recommendation:** GO
+
+**Rationale:** Small, additive, render-only routing preference that behaves exactly as
+the T-092 survey (option 3) proposed. At `none` it is provably identical to the
+pre-T-106 baseline, so the risk of regressing existing maps is nil; at `normal`/`roomy`
+it gives loop-back detours a wider reserved channel. Verified headless end-to-end
+(monotonic bar movement, live re-render, reload persistence) and read in screenshots
+(clearance + label de-collision, no forward-edge regression). The only caveat — it
+delivers breathing room rather than guaranteed de-overlap on the tightest lanes — is
+documented and is a separate lane-growth concern, not a defect in this change.
+
+**Evidence:**
+- Code: `src/aef-workflow-designer.html` (+30/−4) — pref + setter + settings control +
+  `orthoLoopBack()` clearance bump. Commits `a5411c2`, `45e7021`.
+- Headless (task-lifecycle loop `e_12`): detour bar 686 (none = baseline) → 694 → 702;
+  bar-to-content gap 22 → 30 → 38 px; `routingMargin` persists 16 across reload.
+- Screenshots read: `.playwright-mcp/t106-loop-none.png` vs `t106-loop-roomy.png` — bar
+  moves outward, `agt_3_request` badge de-collides from the loop label, forward edges
+  unchanged.
+- Gates: Verification 2/2 PASS (byte-identical gallery mirror; zero corpus geometry
+  touched); Agent ACs 7/7.
+- Human check needed: open the gallery, toggle Settings → Routing → Routing margin, and
+  confirm the reserved-band behaviour reads well (the `[REVIEW]` AC below).
 
 ## Verification
 
