@@ -11,7 +11,7 @@ tags: [ui, editor, bug, corpus]
 components: []
 related_tasks: [T-101, T-082, T-089, T-083]
 created: 2026-07-05T17:30:00Z
-last_update: 2026-07-05T17:30:00Z
+last_update: 2026-07-05T21:38:34Z
 date_finished: null
 ---
 
@@ -85,6 +85,41 @@ screenshotted, and no automated check asserts edge-labels don't overlap after Cl
 **Prevention:** (candidate) an edge-label overlap check in the corpus sweep, and/or
 make align-rows label-aware; capture as part of the fix. Ties to the G-003 editor
 test-coverage gap and the T-103 harness inception.
+
+## Investigation findings (2026-07-06, T-115/T-116 session)
+
+**Leading hypothesis DISPROVEN.** The task assumed align-rows snapped previously-
+staggered gateways to a common Y, colliding their labels. Headless measurement
+(tools/_label-overlap-probe.mjs) shows the framework gateways were ALREADY co-linear
+pre-bake (all y=300) and post-bake (all y=338) — the bake only shifted the whole row
+down 38px uniformly; their relative geometry is identical. Co-linearity is not the cause.
+
+**Actual root cause:** horizontal overcrowding of gateway NAME labels. Measured on
+verification-gate after render (adjustEdgeLabelPlacements runs):
+- edge-label ∩ edge-label overlaps: **0** (the placement pass already separates them)
+- the real defect is node-label ∩ node-label: the two gateway NAMES
+  "every verify cmd exit 0?" (117px wide) and "RCA / evolution / inception gates
+  pass?" (189px wide) overlap because the diamonds sit only ~100px apart. Centred
+  under 48px diamonds, 117+189px names cannot fit a 100px pitch.
+
+**What the T-115/T-116/T-117 changes do for this:**
+- T-115 Horizontal spacing control spreads the gateway columns (100→147px at gap 150)
+  — helps but does NOT fully separate 189px-wide names; and gap ≥220 made OTHER
+  overlaps worse. So spacing alone is insufficient.
+- T-116 align-columns / T-117 de-jog do not touch horizontally-adjacent gateway
+  spacing, so they neither fix nor worsen this collision.
+
+**Remaining fix options for T-105 (pick one):**
+1. Node-label wrapping/collision-avoidance for gateway NAMES (they currently render
+   full-width centred with no wrap — unlike edge labels which have a placement pass).
+2. Shorten the gateway names in the source YAML (they partly duplicate the edge
+   labels, e.g. name "every verify cmd exit 0?" + outgoing edge "all verify cmds
+   exit 0").
+3. Operator uses the new Horizontal spacing lever + accepts partial relief.
+
+**Re-bake note:** re-baking (T-101) now bakes align-columns (straight drops) into all
+maps; it leaves this gateway-NAME collision unchanged (does not worsen it). Do not
+treat "re-bake" as fixing T-105.
 
 ## Decisions
 
