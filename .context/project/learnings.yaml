@@ -71,3 +71,10 @@ learnings:
   date: 2026-07-04
   context: Added via context agent
   application: TBD
+- id: PL-011
+  learning: "Settings that only affect FUTURE actions (density, branch pitch -> next Tidy/Clean) read as broken to users unless the UI surfaces the apply path at the moment of change; pair every deferred-effect pref with an explicit apply affordance (PD-044-safe: the apply is a user click)"
+  source: P-001
+  task: T-096
+  date: 2026-07-05
+  context: Added via context agent
+  application: TBD

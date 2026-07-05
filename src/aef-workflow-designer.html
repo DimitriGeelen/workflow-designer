@@ -1151,6 +1151,12 @@
             </select>
             <span class="settings-hint">tidy spacing for fan-out branch stacks (gap above tallest node: compact 6px, auto 12px, roomy 28px)</span>
           </label>
+          <!-- T-096: layout prefs guide Tidy/Clean/drag-snap only — surface the
+               follow-up action instead of silently doing nothing until then. -->
+          <label class="settings-row" id="view-apply-row" style="display:none">
+            <button class="btn" id="btn-apply-clean" type="button">✨ Apply now — Clean layout</button>
+            <span class="settings-hint">density &amp; branch pitch guide Tidy / Clean / drag-snap — they never move nodes by themselves</span>
+          </label>
         </div>
         <div class="settings-section">
           <div class="settings-section-label">Labels</div>
@@ -4335,7 +4341,7 @@ function syncSettingsUI() {
   $('set-show-edge').checked = labelPrefs.showEdge;
   $('set-show-pool').checked = labelPrefs.showPool;
 }
-function openSettings() { syncSettingsUI(); $('settings-modal').classList.add('visible'); }
+function openSettings() { syncSettingsUI(); $('view-apply-row').style.display = 'none'; $('settings-modal').classList.add('visible'); }
 function closeSettings() { $('settings-modal').classList.remove('visible'); }
 $('btn-settings').onclick = openSettings;
 $('btn-close-settings').onclick = closeSettings;
@@ -4349,8 +4355,13 @@ $('set-straighten-tol').addEventListener('change', e => { setStraightenTol(parse
 $('set-snap-magnet').addEventListener('change', e => setSnapPref('magnet', e.target.checked));
 $('set-snap-grid').addEventListener('change', e => setSnapPref('grid', e.target.checked));
 $('set-lane-fit').addEventListener('change', e => setLabelPref('laneFit', e.target.checked));
-$('set-density').addEventListener('change', e => setViewPref('density', e.target.value));
-$('set-branch-pitch').addEventListener('change', e => setViewPref('branchPitch', e.target.value));
+$('set-density').addEventListener('change', e => { setViewPref('density', e.target.value); $('view-apply-row').style.display = ''; });
+$('set-branch-pitch').addEventListener('change', e => { setViewPref('branchPitch', e.target.value); $('view-apply-row').style.display = ''; });
+$('btn-apply-clean').onclick = () => {
+  const moved = cleanLayout();
+  $('btn-apply-clean').textContent = moved ? `✨ Applied — ${moved} node${moved === 1 ? '' : 's'} moved (Ctrl+Z reverts)` : '✨ Applied — already clean';
+  setTimeout(() => { $('btn-apply-clean').textContent = '✨ Apply now — Clean layout'; }, 2500);
+};
 $('set-label-size').addEventListener('change', e => setLabelPref('size', e.target.value));
 $('set-show-lane').addEventListener('change', e => setLabelPref('showLane', e.target.checked));
 $('set-show-ids').addEventListener('change', e => setLabelPref('showIds', e.target.checked));
