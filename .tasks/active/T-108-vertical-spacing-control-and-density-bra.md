@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T19:13:16Z
-last_update: 2026-07-05T19:25:21Z
+last_update: 2026-07-05T19:36:20Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -205,11 +205,18 @@ Monotonicity is exact (72<160<240 → lane 504<1032<1512; gaps 72<160<240), fixi
 
 ## Recommendation
 
-**GO — ship.** The operator's request ("a setting where I can adjust the vertical spacing" that *visibly* works) is met by the new **Vertical spacing** control: it sets an absolute inter-row gap, re-spaces every lane's rows to it, and grows lane height to fit — applied live, reverted by one Ctrl+Z. Verified strictly monotonic on audit-process (504/1032/1512px lane heights at 72/160/240px) with READ screenshots, unlike the old Density preset whose effect was near-invisible and inverted.
+**Recommendation:** GO — ship.
 
-The misleading **Density** preset is fully removed (control, `viewPrefs.density`, `DENSITY_PITCH`, all plumbing — grep-clean; `rowPitch()` now returns the fixed `ROW_PITCH`). **Branch-pitch is kept** — it demonstrably widens fan-out stacks (harvest-pipeline auto 80px → roomy 92px, screenshotted) and is orthogonal to the new global control.
+**Rationale:** The operator's request ("a setting where I can adjust the vertical spacing" that *visibly* works) is met by the new **Vertical spacing** control — it sets an absolute inter-row gap, re-spaces every lane's rows to it, and grows lane height to fit, applied live and reverted by one Ctrl+Z. Verified strictly monotonic (unlike the old Density preset, whose effect was near-invisible and inverted). The misleading Density preset is fully removed; Branch-pitch is kept because it demonstrably widens fan-out stacks and is orthogonal to the new global control. Render-only / explicit-action; `examples/**` untouched; not wired into any corpus re-bake (PD-044).
 
-Render-only / explicit-action; `examples/**` untouched; not wired into any corpus re-bake (PD-044). `src` byte-identical to `build/gallery`. Suggested operator check: open audit-process in the served gallery, dial Vertical spacing min→max, confirm the rows fan apart and lanes grow.
+**Evidence:**
+- Monotonic re-spacing on audit-process framework lane: 72px→lane 504px, 160px→1032px, 240px→1512px; gaps uniform `[72×6]`/`[160×6]`/`[240×6]` vs ragged baseline `[75,42,37,74,76,58]`. Screenshots `t108-baseline/min72/max240.png` READ.
+- One Ctrl+Z undo reverted framework lane 1512→504px, pool 1752→744px, `lastTidy` cleared.
+- Density gone: grep finds zero `viewPrefs.density`/`set-density`/`DENSITY_PITCH`; stored prefs carry no `density` key; `t108-settings.png` READ (Density absent, Vertical spacing present).
+- Branch-pitch kept: harvest-pipeline 6-node stack auto 80px → roomy 92px; `t108-bp-auto.png` vs `t108-bp-roomy.png` READ.
+- `cmp` src == build/gallery; extracted JS passes `node --check`; verification gate 4/4 PASS.
+
+**Suggested operator check:** open audit-process in the served gallery, dial Vertical spacing min→max, confirm rows fan apart and lanes grow; confirm Density is gone and Branch-pitch still spreads stacks.
 
 ## Updates
 
