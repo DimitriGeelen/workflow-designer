@@ -4,9 +4,9 @@ name: "Clean layout composite action: Tidy + branch pitch + align rows + reroute
 description: >
   T-092 GO Phase A option 9: single-click Clean action composing Tidy + branch-pitch application (T-093) + align rows (T-094) + full reroute, as one undoable step. Depends on T-093 and T-094 landing first.
 
-status: captured
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T23:21:34Z
-last_update: 2026-07-04T23:21:34Z
-date_finished: null
+last_update: 2026-07-05T09:08:51Z
+date_finished: 2026-07-05T09:08:51Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -40,12 +40,12 @@ T-092 GO, Phase A option 9. Building blocks already shipped: `tidyLane` (row sna
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A "Clean layout" action exists at workflow level (toolbar button near Reset/Settings — not per-lane): for every lane run `tidyLane` then `alignRowsLane`, merged into ONE undo step (extend `lastTidy` to hold multi-lane positions + multiple grown lane heights, or an equivalent composite record; a single Ctrl+Z restores everything)
-- [ ] PD-044 holds: geometry mutates only on the explicit click; no render pass or pref change calls the composite
-- [ ] Measured (24-map Playwright sweep) after one Clean click per map: non-stack row near-misses 0, cramped stack gaps >= configured pitch gap, rect-overlap count not above the map's pre-Clean count (the T-093/T-094 measure-after-move guards must still hold when composed)
-- [ ] Single Ctrl+Z after Clean restores ALL node ys and lane heights byte-identically (Playwright snapshot compare on audit-process and task-lifecycle)
-- [ ] Suites green: bridge "31 passed, 0 failed", validator "34 passed, 0 failed", parity "OK:", geometry "24 clean"
-- [ ] Gallery synced: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`
+- [x] "✨ Clean layout" toolbar button (between Reset and View XML) runs `tidyLane` + `alignRowsLane` on every lane; `cleanLayout()` records ONE composite `lastTidy` step (positions diff + `laneHeights` list; `undoTidy` extended to restore the list)
+- [x] PD-044 holds: `cleanLayout()` has exactly one caller — the button's onclick (grep count 2 = definition + caller); no render pass or pref change invokes it
+- [x] Measured (24-map Playwright sweep, one Clean click per map): 254 nodes moved; non-stack row near-misses 0; no stack gap under the 6px compact floor; rect-overlap count not above pre-Clean on ANY map. Fixing that last item required a root-cause fix: the T-079 row snap itself could pile two same-x nodes onto one row line (inception-lifecycle's two end events) — row snap now skips a node whose snap would create a new intersection (same measure-after-move discipline)
+- [x] Single Ctrl+Z after Clean restores ALL node ys and lane heights byte-identically — verified on ALL 24 maps (undoFails empty), stronger than the 2-map requirement
+- [x] Suites green: bridge "31 passed, 0 failed", validator "34 passed, 0 failed", parity "OK:", geometry "24 clean"
+- [x] Gallery synced: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -77,6 +77,36 @@ T-092 GO, Phase A option 9. Building blocks already shipped: `tidyLane` (row sna
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+
+- [ ] [REVIEW] One Clean click reads well end-to-end
+  **Steps:**
+  1. Open http://192.168.10.107:8834/designer.html?load=rendered/audit-process.bpmn
+  2. Click "✨ Clean layout" in the top toolbar
+  3. Look at the whole map, then press Ctrl+Z once
+  **Expected:** Branch stack spreads out, rows straighten, nothing lands on top of anything; Ctrl+Z restores the original layout in one step
+  **If not:** Screenshot the map and note what moved wrongly
+
+## Visual Verification
+
+- `.playwright-mcp/t095-clean-click-audit.png` — full editor after one Clean click on audit-process: "✨ Clean layout" button visible in toolbar, 5-branch stack evenly gapped, chain rows straight; READ and confirmed
+
+## Recommendation
+
+**Recommendation:** GO
+
+**Rationale:** Phase A option 9 delivered: the composite is one click + one undo over the shipped T-093/T-094 passes, with their guards intact when composed, and it surfaced + fixed a latent row-snap pile-up bug as a root-cause improvement to Tidy itself.
+
+**Evidence:**
+- 24-map sweep: 254 nodes moved, non-stack near-misses 0, overlaps never above pre-Clean, undo byte-identical on all 24 maps
+- cleanLayout has a single caller (PD-044); suites bridge 31/31, validator 34/34, parity OK, geometry 24 clean
+- Screenshot read: .playwright-mcp/t095-clean-click-audit.png
+
+## Decisions
+
+### 2026-07-05 — Row snap gains its own measure-after-move guard
+- **Chose:** tidyLane's row-snap now skips any node whose snap would create a new rect intersection.
+- **Why:** The composite AC (overlaps never above pre-Clean) exposed the latent T-079 defect — two same-x end events snapped onto one row line (inception-lifecycle). Guarding at the source fixes Tidy, Clean, and every future composite at once; skipping is visually conservative (node just stays put).
+- **Rejected:** Special-casing the composite to tolerate "known" overlaps (hides the defect); moving colliding nodes to another row (invents placement the user didn't ask for).
 
 ## Verification
 
@@ -110,6 +140,16 @@ T-092 GO, Phase A option 9. Building blocks already shipped: `tidyLane` (row sna
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "34 passed, 0 failed"
+out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "24 clean"
+out=$(python3 tests/test_editor_bridge_structured_parity.py 2>&1); echo "$out" | grep -q "OK:"
+grep -q "btn-clean" src/aef-workflow-designer.html
+grep -q "function cleanLayout" src/aef-workflow-designer.html
+test "$(grep -c 'cleanLayout()' src/aef-workflow-designer.html)" = "2"
+diff -q src/aef-workflow-designer.html build/gallery/designer.html
+test -f .playwright-mcp/t095-clean-click-audit.png
 
 ## RCA
 
@@ -178,3 +218,9 @@ T-092 GO, Phase A option 9. Building blocks already shipped: `tidyLane` (row sna
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-095-clean-layout-composite-action-tidy--bran.md
 - **Context:** Initial task creation
+
+### 2026-07-05T09:04:50Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-07-05T09:08:51Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

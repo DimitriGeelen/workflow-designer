@@ -909,6 +909,7 @@
     <div class="actions">
       <button class="btn" id="btn-add-lane">+ Add Lane</button>
       <button class="btn" id="btn-reset">Reset</button>
+      <button class="btn" id="btn-clean" title="Tidy + branch pitch + align rows on every lane — one click, Ctrl+Z reverts">✨ Clean layout</button>
       <button class="btn" id="btn-xml">View XML</button>
       <button class="btn" id="btn-settings" title="Editor settings — routing, snapping, grid">⚙ Settings</button>
       <button class="btn" id="btn-load">Load…</button>
@@ -4891,7 +4892,20 @@ function tidyLane(laneId) {
     let best = rows[0];
     for (const r of rows) if (Math.abs(r - cy) < Math.abs(best - cy)) best = r;
     const newY = best - d.h / 2;
-    if (Math.abs(newY - n.y) > 0.01) { moved.push({ id: n.id, y: n.y }); n.y = newY; }
+    if (Math.abs(newY - n.y) > 0.01) {
+      // Measure-after-move (T-095): snapping onto a row another node already
+      // occupies at the same x must not pile them up — skip the snap instead
+      // (seen: inception-lifecycle's two end events sharing one row line).
+      const collAt = y => {
+        let c = 0;
+        const r = { x: n.x, y, w: d.w, h: d.h };
+        for (const o of state.nodes) if (o !== n && rectsIntersect(r, nodeRect(o))) c++;
+        return c;
+      };
+      if (collAt(newY) > collAt(n.y)) continue;
+      moved.push({ id: n.id, y: n.y });
+      n.y = newY;
+    }
   }
   // Branch-stack pass (T-093): respace each CRAMPED stack at tallest-member +
   // gap, centred on where the stack already was, order preserved. Two guards:
@@ -4959,9 +4973,46 @@ function undoTidy() {
     const lane = findLane(lastTidy.laneHeight.id);
     if (lane) lane.height = lastTidy.laneHeight.height;
   }
+  // Composite record (T-095 Clean layout): several lanes may have grown.
+  if (lastTidy.laneHeights) {
+    for (const lh of lastTidy.laneHeights) {
+      const lane = findLane(lh.id);
+      if (lane) lane.height = lh.height;
+    }
+  }
   lastTidy = null;
   renderAll();
   return true;
+}
+
+// ── Clean layout (T-095) ────────────────────────────────────────────────────
+// One explicit toolbar click: tidy (row snap + T-093 branch pitch) then align
+// rows (T-094) on EVERY lane, recorded as a single lastTidy step so one
+// Ctrl+Z restores all node ys and lane heights. Edges reroute on render.
+// Only the button calls this — no render pass or pref change does (PD-044).
+function cleanLayout() {
+  const beforeY = new Map(state.nodes.map(n => [n.id, n.y]));
+  const beforeH = new Map(state.lanes.map(l => [l.id, l.height]));
+  for (const l of state.lanes) {
+    tidyLane(l.id);
+    alignRowsLane(l.id);
+  }
+  const positions = [];
+  for (const n of state.nodes) {
+    const y = beforeY.get(n.id);
+    if (Math.abs(n.y - y) > 0.01) positions.push({ id: n.id, y });
+  }
+  const laneHeights = [];
+  for (const l of state.lanes) {
+    if (l.height !== beforeH.get(l.id)) laneHeights.push({ id: l.id, height: beforeH.get(l.id) });
+  }
+  if (positions.length || laneHeights.length) {
+    lastTidy = { laneId: null, positions, laneHeights };
+  } else {
+    lastTidy = null; // nothing changed — don't leave a stale per-lane record from the inner calls
+  }
+  renderAll();
+  return positions.length;
 }
 
 // ── Align rows (T-094) ──────────────────────────────────────────────────────
@@ -5471,6 +5522,12 @@ function moveLane(id, newIdx) {
 // ============================================================================
 $('btn-add-lane').onclick = () => { addLane(); };
 $('palette-add-lane').onclick = () => { addLane(); };
+$('btn-clean').onclick = () => {
+  const btn = $('btn-clean');
+  const moved = cleanLayout();
+  btn.textContent = moved ? `✨ Cleaned ${moved} node${moved === 1 ? '' : 's'} — Ctrl+Z reverts` : '✨ Already clean';
+  setTimeout(() => { btn.textContent = '✨ Clean layout'; }, 2500);
+};
 $('btn-reset').onclick = () => {
   // Reset: blow away library and start over with seed
   library.clear();

@@ -507,3 +507,10 @@ decisions:
     date: 2026-07-04
     task: T-094
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-052
+    decision: "tidyLane's row-snap now skips any node whose snap would create a new rect intersection."
+    scope: project
+    date: 2026-07-05
+    task: T-095
+    rationale: "Auto-captured from task file on completion"
