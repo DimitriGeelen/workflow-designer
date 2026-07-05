@@ -542,3 +542,45 @@ decisions:
     date: 2026-07-05
     task: T-100
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-057
+    decision: "implement the routing margin as an additive bump to the three existing"
+    scope: project
+    date: 2026-07-05
+    task: T-106
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-058
+    decision: "Remove the Density preset entirely; keep Branch-pitch."
+    scope: project
+    date: 2026-07-05
+    task: T-108
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-059
+    decision: "Translate each detected row as a rigid group (`n.y += delta`) rather than snapping every node onto the row's exact centre-y."
+    scope: project
+    date: 2026-07-05
+    task: T-108
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-060
+    decision: "Implement option 8 (distribute evenly) as a standalone **horizontal** one-shot action; leave options 4 (row-alignment-mode) and 5 (structural-straightening) for later."
+    scope: project
+    date: 2026-07-05
+    task: T-109
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-061
+    decision: "Keep the leftmost and rightmost node fixed; equalise only the interior gaps within the unchanged span."
+    scope: project
+    date: 2026-07-05
+    task: T-109
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-062
+    decision: "a general obstacle-avoiding grid router free to pick the arrival/departure face."
+    scope: project
+    date: 2026-07-05
+    task: T-114
+    rationale: "Auto-captured from task file on completion"
