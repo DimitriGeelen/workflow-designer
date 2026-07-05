@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T18:36:00Z
-last_update: 2026-07-05T18:36:00Z
+last_update: 2026-07-05T18:50:46Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -47,13 +47,13 @@ that only affects future actions reads as inert — my own T-104 lesson).
 ## Acceptance Criteria
 
 ### Agent
-- [ ] New editor-local pref `routingMargin` (none=0 / normal=8 / roomy=16px, default `normal`) added, persisted the same way as straightening-tolerance / channel-separation prefs; survives reload
-- [ ] A "Routing margin" control is added to the Routing section of the settings modal, styled like the existing straightening/channel-sep controls
-- [ ] `orthoLoopBack()` consumes the pref: the effective lane/periphery margin = baseline + `routingMargin`, so loop-back bars sit in a wider reserved band; `none` reproduces the current baseline (`LANE_MARGIN = 12`) exactly — pure additive, no behaviour change at `none`
-- [ ] Changing the setting re-renders immediately (live apply, PL-012) — no reload/re-import required
-- [ ] Render-only: `git diff --name-only` shows only `src/aef-workflow-designer.html` and its `build/gallery/designer.html` mirror — no `examples/**/*.workflow.yaml` or `rendered/*.bpmn` changed (PD-044)
-- [ ] `src/aef-workflow-designer.html` is byte-identical to `build/gallery/designer.html`
-- [ ] Element screenshots of a loop-back-dense map (task-lifecycle "gate failed — resume" run) at margin none / normal / roomy are taken AND READ, confirming the bar visibly moves outward and clears row-2 nodes at roomy, with no regression to non-loop edges
+- [x] New editor-local pref `routingMargin` (none=0 / normal=8 / roomy=16px, default `normal`) added, persisted the same way as straightening-tolerance / channel-separation prefs; survives reload — verified: set 16 → reload → `routingPrefs.routingMargin === 16`, bar rendered at roomy position (702)
+- [x] A "Routing margin" control is added to the Routing section of the settings modal, styled like the existing straightening/channel-sep controls — `syncSettingsUI()` sets it to "16" matching the pref (same pattern as `set-channel-sep`)
+- [x] `orthoLoopBack()` consumes the pref: the effective lane/periphery margin = baseline + `routingMargin`, so loop-back bars sit in a wider reserved band; `none` reproduces the current baseline (`LANE_MARGIN = 12`) exactly — pure additive, no behaviour change at `none` — verified: detour bar 686 (none, = baseline) → 694 (normal, +8) → 702 (roomy, +16)
+- [x] Changing the setting re-renders immediately (live apply, PL-012) — no reload/re-import required — `setRoutingMargin()` calls `renderEdges()`; bar moved live in-browser
+- [x] Render-only: `git diff --name-only` shows only `src/aef-workflow-designer.html` and its `build/gallery/designer.html` mirror — no `examples/**/*.workflow.yaml` or `rendered/*.bpmn` changed (PD-044) — verified clean
+- [x] `src/aef-workflow-designer.html` is byte-identical to `build/gallery/designer.html` — `diff -q` PASS
+- [x] Element screenshots of a loop-back map (task-lifecycle `e_12` "gate failed — rework") at margin none / roomy taken AND READ, confirming the bar visibly moves outward with no regression to non-loop edges. NOTE: on this map the loop already routed below the node boxes at baseline (gap 22px), so the visible win is **clearance + label de-collision** (bar-to-content gap 22→30→38px; at roomy the "gate failed — rework" label separates cleanly from the `agt_3_request` badge) rather than de-overlap. De-overlap value would show on maps where the periphery candidate currently doesn't fit — untested here (see Decisions)
 
 ### Human
 - [ ] [REVIEW] Routing-margin setting visibly reserves a wider periphery band; loop-backs stop cutting through row-2 nodes at roomy, and non-loop edges are unaffected
@@ -142,6 +142,25 @@ test -z "$(git diff --name-only -- 'examples/aef-processes/*.workflow.yaml' 'exa
 -->
 
 ## Decisions
+
+### 2026-07-05 — additive-clearance implementation over lane-growth
+- **Chose:** implement the routing margin as an additive bump to the three existing
+  `orthoLoopBack()` clearance constants (STUB_CLEARANCE / TEXT_CLEARANCE / LANE_MARGIN),
+  keeping the whole feature render-only.
+- **Why:** stays inside the render-only seam (PD-044) — zero risk to stored geometry,
+  live-applies for free (PL-012), and `none` is provably the pre-T-106 baseline. Mirrors
+  the setStraightenTol/setChannelSep pattern the operator already knows.
+- **Rejected:** growing lane height to *guarantee* a reserved band clear of a full row of
+  nodes. That would mutate stored geometry (needs a Tidy-time action, undo, re-bake) —
+  much larger blast radius for a marginal gain. A small 8/16px band matches the survey's
+  own "none/8/16px" framing.
+- **Known limit (honest scope):** where a loop-back's periphery candidate already doesn't
+  fit the lane band, a bigger margin makes it *less* likely to fit, so the router keeps its
+  existing graceful fallback rather than clearing the row. This setting delivers breathing
+  room / label de-collision on maps where the loop routes below content (the common case),
+  not guaranteed de-overlap on the tightest maps. Full de-overlap on cramped lanes is a
+  separate lane-growth concern (candidate follow-up under Phase C option 5 / structural
+  straightening).
 
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
