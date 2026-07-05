@@ -3796,6 +3796,62 @@ function routeAvoidingWithPorts(src, tgt) {
 // Returns { polyline, segmentMeta } where segmentMeta describes each interior
 // segment (between stubA and stubB) — its role name, direction, perpendicular axis.
 // The caller (renderer) uses this metadata to place segment-drag handles.
+// De-jog (T-117): clean tiny interior staircase kinks out of a routed polyline so
+// a branch edge reads as one straight 90° corner rather than a step with a 6–8px
+// offset. (a) drop collinear midpoints; (b) collapse an interior H-V-H / V-H-V
+// pattern whose middle step is ≤ DEJOG_MAX and whose OUTER flanks are perpendicular
+// (so those outer stubs merely flex, staying orthogonal) into a single straight run
+// at the midpoint coordinate. Accept a collapse ONLY if it does not add a node
+// crossing — a jog placed to clear an obstacle is preserved (no phantom regression,
+// cf. T-110). Pure cleanup of the transient render polyline; stored geometry is
+// never touched (PD-044). Endpoint-adjacent micro-steps (stub meets a face
+// off-centre) are intentionally out of scope — a deeper attachment-point change.
+const DEJOG_MAX = 10; // px — a perpendicular step at/below this is a kink to straighten
+function collapseCollinearPoints(pl) {
+  if (pl.length < 3) return pl.slice();
+  const o = [pl[0]];
+  for (let i = 1; i < pl.length - 1; i++) {
+    const a = o[o.length - 1], b = pl[i], c = pl[i + 1];
+    const coll = (Math.abs(a.x - b.x) < 0.5 && Math.abs(b.x - c.x) < 0.5) ||
+                 (Math.abs(a.y - b.y) < 0.5 && Math.abs(b.y - c.y) < 0.5);
+    if (!coll) o.push(b);
+  }
+  o.push(pl[pl.length - 1]);
+  return o;
+}
+function simplifyRoutedPolyline(pl, src, tgt) {
+  if (!pl || pl.length < 5) return pl;
+  const dirOf = (a, b) => Math.abs(a.x - b.x) < 0.5 ? 'V' : (Math.abs(a.y - b.y) < 0.5 ? 'H' : 'D');
+  let pts = collapseCollinearPoints(pl.map(p => ({ x: p.x, y: p.y })));
+  const baseCuts = polylineCrossesNodes(pts, src, tgt);
+  let changed = true, guard = 0;
+  while (changed && guard++ < 20) {
+    changed = false;
+    // A,B,C,D are 4 consecutive points; the middle B-C is the candidate step. A and
+    // D must be interior (there's a segment before A and after D) so the outer stubs
+    // can flex. Only collapse when those outer segments are perpendicular to the run.
+    for (let k = 2; k + 2 < pts.length - 1; k++) {
+      const A = pts[k - 1], B = pts[k], C = pts[k + 1], D = pts[k + 2];
+      const step = Math.hypot(C.x - B.x, C.y - B.y);
+      if (step > DEJOG_MAX || step < 0.5) continue;
+      const dPre = dirOf(pts[k - 2], A), dAB = dirOf(A, B), dBC = dirOf(B, C), dCD = dirOf(C, D), dPost = dirOf(D, pts[k + 3]);
+      let cand = null;
+      if (dAB === 'H' && dBC === 'V' && dCD === 'H' && dPre === 'V' && dPost === 'V') {
+        const ym = (B.y + C.y) / 2; // merge the two horizontal runs to one Y; outer V stubs flex
+        cand = pts.slice(0, k - 1).concat([{ x: A.x, y: ym }, { x: D.x, y: ym }], pts.slice(k + 3));
+      } else if (dAB === 'V' && dBC === 'H' && dCD === 'V' && dPre === 'H' && dPost === 'H') {
+        const xm = (B.x + C.x) / 2; // merge the two vertical runs to one X; outer H stubs flex
+        cand = pts.slice(0, k - 1).concat([{ x: xm, y: A.y }, { x: xm, y: D.y }], pts.slice(k + 3));
+      }
+      if (cand) {
+        const cc = collapseCollinearPoints(cand);
+        if (polylineCrossesNodes(cc, src, tgt) <= baseCuts) { pts = cc; changed = true; break; }
+      }
+    }
+  }
+  return pts;
+}
+
 function routeOrthogonalSegment(anchorA, anchorB, dirA, dirB, src, tgt, edge) {
   // Corridor channel stubs (T-097): a sibling's stub may be extended by its
   // channel rank. Clamp so an extended stub never runs past the far anchor's
@@ -3930,14 +3986,15 @@ function routePathFromPoints(points, src, tgt, hasManualWaypoints, edge) {
 
   // No manual waypoints — single orthogonal segment from anchor to anchor.
   const result = routeOrthogonalSegment(points[0], points[points.length - 1], dirA, dirB, src, tgt, edge);
+  const poly = simplifyRoutedPolyline(result.polyline, src, tgt); // T-117: straighten tiny interior kinks
   // Stash routing info on the edge (transient — used by the renderer to place handles).
   if (edge) {
     edge._loopDetourY = result.loopDetourY;
     edge._loopXRange = result.loopXRange;
     edge._segmentMeta = result.segmentMeta;
-    edge._renderedPolyline = result.polyline;
+    edge._renderedPolyline = poly;
   }
-  return 'M' + result.polyline.map(p => `${p.x} ${p.y}`).join(' L');
+  return 'M' + poly.map(p => `${p.x} ${p.y}`).join(' L');
 }
 
 // For intermediate joins in manually-routed paths, infer a reasonable exit/arrival
