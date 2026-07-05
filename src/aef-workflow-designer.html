@@ -1193,6 +1193,11 @@
             <span class="settings-hint">px — absolute inter-row gap; re-spaces every lane's rows to this and grows lanes to fit (Ctrl+Z reverts)</span>
           </label>
           <label class="settings-row">
+            <span>Horizontal spacing</span>
+            <input type="number" id="set-col-spacing" min="130" max="360" step="10" class="settings-num">
+            <span class="settings-hint">px — absolute inter-column gap; re-spaces pool-wide stage columns to this, pool grows to fit (Ctrl+Z reverts)</span>
+          </label>
+          <label class="settings-row">
             <span>Branch pitch</span>
             <select id="set-branch-pitch" class="settings-num">
               <option value="compact">compact</option>
@@ -1801,12 +1806,13 @@ function setLabelPref(key, value) {
 // rowSpacing does NOT move geometry on load — only an explicit control change
 // re-spaces (PD-044). (Density, a snap-threshold multiplier that never grew
 // lanes, was retired here — see rowPitch.)
-let viewPrefs = { branchPitch: 'auto', cleanOnImport: false, rowSpacing: 96 };
+let viewPrefs = { branchPitch: 'auto', cleanOnImport: false, rowSpacing: 96, colSpacing: 150 };
 try {
   const _storedView = JSON.parse(localStorage.getItem('aefViewPrefs') || '{}');
   if (['compact', 'auto', 'roomy'].includes(_storedView.branchPitch)) viewPrefs.branchPitch = _storedView.branchPitch;
   if (typeof _storedView.cleanOnImport === 'boolean') viewPrefs.cleanOnImport = _storedView.cleanOnImport;
   if (typeof _storedView.rowSpacing === 'number' && _storedView.rowSpacing >= 72 && _storedView.rowSpacing <= 240) viewPrefs.rowSpacing = _storedView.rowSpacing;
+  if (typeof _storedView.colSpacing === 'number' && _storedView.colSpacing >= 130 && _storedView.colSpacing <= 360) viewPrefs.colSpacing = _storedView.colSpacing;
 } catch (_) {}
 function setViewPref(key, value) {
   viewPrefs[key] = value;
@@ -4726,6 +4732,7 @@ function syncSettingsUI() {
   $('set-grid-size').value = snapPrefs.gridSize;
   $('set-lane-fit').checked = labelPrefs.laneFit;
   $('set-row-spacing').value = viewPrefs.rowSpacing;
+  $('set-col-spacing').value = viewPrefs.colSpacing;
   $('set-branch-pitch').value = viewPrefs.branchPitch;
   $('set-clean-on-import').checked = viewPrefs.cleanOnImport;
   $('set-label-size').value = labelPrefs.size;
@@ -4772,6 +4779,12 @@ $('set-row-spacing').addEventListener('change', e => {
   e.target.value = v;
   respaceRows(v); // explicit control change re-spaces geometry live (PL-012), one Ctrl+Z reverts
 });
+$('set-col-spacing').addEventListener('change', e => {
+  const v = Math.max(130, Math.min(360, Math.round((parseFloat(e.target.value) || 150) / 10) * 10));
+  setViewPref('colSpacing', v);
+  e.target.value = v;
+  respaceColumns(v); // explicit control change re-spaces geometry live (PL-012), one Ctrl+Z reverts
+});
 $('set-branch-pitch').addEventListener('change', e => { setViewPref('branchPitch', e.target.value); applyViewClean(); });
 $('set-clean-on-import').addEventListener('change', e => setViewPref('cleanOnImport', e.target.checked));
 $('btn-apply-clean').onclick = applyViewClean;
@@ -4795,6 +4808,7 @@ $('btn-settings-reset').onclick = () => {
   setSnapPref('gridSize', 20);
   setLabelPref('laneFit', true);
   setViewPref('rowSpacing', 96);
+  setViewPref('colSpacing', 150);
   setViewPref('branchPitch', 'auto');
   setViewPref('cleanOnImport', false);
   setLabelPref('size', 'm');
@@ -5727,6 +5741,57 @@ function respaceRows(gap) {
     if (l.height !== beforeH.get(l.id)) laneHeights.push({ id: l.id, height: beforeH.get(l.id) });
   }
   lastTidy = (positions.length || laneHeights.length) ? { laneId: null, positions, laneHeights } : null;
+  renderAll();
+  return positions.length;
+}
+
+// ── Horizontal spacing (T-105) ──────────────────────────────────────────────
+// Absolute inter-column re-spacing — the x-axis mirror of Vertical spacing
+// (respaceRows). Where rows cluster per-lane, COLUMNS are pool-wide "stages": at
+// a handoff, nodes sharing a centre-x advance together across lanes, so
+// clustering is GLOBAL (all nodes at once), not per-lane — a column must shift
+// its members in every lane in lockstep or the lanes shear apart at the handoff.
+// Cluster nodes into vertical columns by centre-x proximity (a fan-out stack at
+// one x is one column; horizontally separated stages form successive columns),
+// then translate each column so consecutive column centres sit exactly `gap` px
+// apart, anchored on the leftmost column. Columns move as rigid groups (only x
+// shifts, delta per-column) so intra-column layout is preserved and no new
+// same-column overlap is introduced; the >=130px clamp exceeds the widest node
+// (subProcess 120px), so inter-column separation can never fold two columns
+// together either — the effect is monotonic by construction, exactly as
+// respaceRows is on the y-axis. The pool right edge auto-fits (contentRightEdge),
+// so nothing needs growing. Explicit user action / pref only, never a render pass
+// (PD-044); undoable via the shared axis-aware lastTidy (T-107) — records moved
+// node-xs, one Ctrl+Z reverts the whole re-spacing.
+const COL_SPACING_MIN = 130, COL_SPACING_MAX = 360;
+const COL_SPACING_BAND = 48; // centre-x gap (px) above which two nodes are different columns
+function respaceColumns(gap) {
+  gap = Math.max(COL_SPACING_MIN, Math.min(COL_SPACING_MAX, Math.round(gap)));
+  const cxOf = n => n.x + NODE_DEFAULTS[n.type].w / 2;
+  const beforeX = new Map(state.nodes.map(n => [n.id, n.x]));
+  if (state.nodes.length < 2) return 0;
+  const sorted = state.nodes.map(n => ({ n, cx: cxOf(n) })).sort((a, b) => a.cx - b.cx);
+  // Cluster into columns: split where the centre-x jump to the next node exceeds the band.
+  const cols = [];
+  let cur = [sorted[0]];
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i].cx - sorted[i - 1].cx > COL_SPACING_BAND) { cols.push(cur); cur = []; }
+    cur.push(sorted[i]);
+  }
+  cols.push(cur);
+  if (cols.length < 2) return 0; // one column — nothing to re-space
+  const colCx = cols.map(c => c.reduce((s, it) => s + it.cx, 0) / c.length);
+  const anchor = colCx[0]; // leftmost column stays put; columns to the right fan out to the chosen gap
+  for (let c = 1; c < cols.length; c++) {
+    const delta = (anchor + c * gap) - colCx[c];
+    for (const it of cols[c]) it.n.x += delta; // rigid column shift — intra-column layout preserved
+  }
+  const positions = [];
+  for (const n of state.nodes) {
+    const x0 = beforeX.get(n.id);
+    if (Math.abs(n.x - x0) > 0.01) positions.push({ id: n.id, x: x0 });
+  }
+  lastTidy = positions.length ? { laneId: null, positions, laneHeight: null } : null;
   renderAll();
   return positions.length;
 }
