@@ -1166,6 +1166,11 @@
             <button class="btn" id="btn-apply-clean" type="button">✨ Apply now — Clean layout</button>
             <span class="settings-hint">density &amp; branch pitch guide Tidy / Clean / drag-snap — they never move nodes by themselves</span>
           </label>
+          <label class="settings-row">
+            <input type="checkbox" id="set-clean-on-import">
+            <span>Clean layout when opening a file</span>
+            <span class="settings-hint">runs Clean once on import/deep-link (Ctrl+Z reverts to the raw file); off = files open exactly as saved</span>
+          </label>
         </div>
         <div class="settings-section">
           <div class="settings-section-label">Labels</div>
@@ -1742,11 +1747,12 @@ function setLabelPref(key, value) {
 // View density (T-085): scales the T-079 row-pitch heuristic consumed by
 // tidy, drag row-snap and the lane inspector. Editor-local; never moves
 // stored geometry by itself — only changes what tidy/snap target next.
-let viewPrefs = { density: 'normal', branchPitch: 'auto' };
+let viewPrefs = { density: 'normal', branchPitch: 'auto', cleanOnImport: false };
 try {
   const _storedView = JSON.parse(localStorage.getItem('aefViewPrefs') || '{}');
   if (['tight', 'normal', 'wide'].includes(_storedView.density)) viewPrefs.density = _storedView.density;
   if (['compact', 'auto', 'roomy'].includes(_storedView.branchPitch)) viewPrefs.branchPitch = _storedView.branchPitch;
+  if (typeof _storedView.cleanOnImport === 'boolean') viewPrefs.cleanOnImport = _storedView.cleanOnImport;
 } catch (_) {}
 function setViewPref(key, value) {
   viewPrefs[key] = value;
@@ -4433,6 +4439,7 @@ function syncSettingsUI() {
   $('set-lane-fit').checked = labelPrefs.laneFit;
   $('set-density').value = viewPrefs.density;
   $('set-branch-pitch').value = viewPrefs.branchPitch;
+  $('set-clean-on-import').checked = viewPrefs.cleanOnImport;
   $('set-label-size').value = labelPrefs.size;
   $('set-show-lane').checked = labelPrefs.showLane;
   $('set-show-ids').checked = labelPrefs.showIds;
@@ -4456,6 +4463,7 @@ $('set-snap-grid').addEventListener('change', e => setSnapPref('grid', e.target.
 $('set-lane-fit').addEventListener('change', e => setLabelPref('laneFit', e.target.checked));
 $('set-density').addEventListener('change', e => { setViewPref('density', e.target.value); $('view-apply-row').style.display = ''; });
 $('set-branch-pitch').addEventListener('change', e => { setViewPref('branchPitch', e.target.value); $('view-apply-row').style.display = ''; });
+$('set-clean-on-import').addEventListener('change', e => setViewPref('cleanOnImport', e.target.checked));
 $('btn-apply-clean').onclick = () => {
   const moved = cleanLayout();
   $('btn-apply-clean').textContent = moved ? `✨ Applied — ${moved} node${moved === 1 ? '' : 's'} moved (Ctrl+Z reverts)` : '✨ Applied — already clean';
@@ -4481,6 +4489,7 @@ $('btn-settings-reset').onclick = () => {
   setLabelPref('laneFit', true);
   setViewPref('density', 'normal');
   setViewPref('branchPitch', 'auto');
+  setViewPref('cleanOnImport', false);
   setLabelPref('size', 'm');
   setLabelPref('showLane', true);
   setLabelPref('showIds', true);
@@ -5636,8 +5645,8 @@ $('palette-add-lane').onclick = () => { addLane(); };
 $('btn-clean').onclick = () => {
   const btn = $('btn-clean');
   const moved = cleanLayout();
-  btn.textContent = moved ? `✨ Cleaned ${moved} node${moved === 1 ? '' : 's'} — Ctrl+Z reverts` : '✨ Already clean';
-  setTimeout(() => { btn.textContent = '✨ Clean layout'; }, 2500);
+  if (moved) { flashCleanFeedback(moved); }
+  else { btn.textContent = '✨ Already clean'; setTimeout(() => { btn.textContent = '✨ Clean layout'; }, 2500); }
 };
 $('btn-reset').onclick = () => {
   // Reset: blow away library and start over with seed
@@ -5676,7 +5685,7 @@ $('btn-save').onclick = () => {
   a.click();
   URL.revokeObjectURL(url);
 };
-function adoptImportedXml(text) {
+function adoptImportedXml(text, opts) {
   const loaded = parseBpmnXml(text);
   if (!loaded) {
     alert('Could not parse this file. Expected BPMN XML with AEF extensions.');
@@ -5696,6 +5705,22 @@ function adoptImportedXml(text) {
   refreshDisplayIds();
   renderAll();
   refreshLibraryUI();
+  // Clean-on-import (T-099): only for user-facing imports AND only when the
+  // operator has opted in. cleanLayout() mutates geometry, so it must never
+  // fire on programmatic/internal adoption (test sweeps, re-adoption) — PD-044.
+  // It records its own lastTidy, so Ctrl+Z reverts to the raw file layout.
+  if (opts && opts.userImport && viewPrefs.cleanOnImport) {
+    const moved = cleanLayout();
+    if (moved && typeof flashCleanFeedback === 'function') flashCleanFeedback(moved);
+  }
+}
+// Briefly show the Clean toolbar button's moved-count feedback (shared by the
+// Clean button and clean-on-import) so the operator sees geometry changed.
+function flashCleanFeedback(moved) {
+  const btn = $('btn-clean');
+  if (!btn) return;
+  btn.textContent = `✨ Cleaned ${moved} node${moved === 1 ? '' : 's'} — Ctrl+Z reverts`;
+  setTimeout(() => { btn.textContent = '✨ Clean layout'; }, 2500);
 }
 $('btn-load').onclick = () => {
   // File picker — accepts .bpmn / .xml
@@ -5707,7 +5732,7 @@ $('btn-load').onclick = () => {
     if (!file) return;
     const text = await file.text();
     try {
-      adoptImportedXml(text);
+      adoptImportedXml(text, { userImport: true });
     } catch (e) {
       console.error('Load failed:', e);
       alert('Failed to parse workflow file:\n' + e.message);
@@ -5723,7 +5748,7 @@ $('btn-load').onclick = () => {
   try {
     const res = await fetch(src);
     if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${src}`);
-    adoptImportedXml(await res.text());
+    adoptImportedXml(await res.text(), { userImport: true });
   } catch (e) {
     console.error('Deep-link load failed:', e);
     alert('Could not load workflow from URL:\n' + e.message);
