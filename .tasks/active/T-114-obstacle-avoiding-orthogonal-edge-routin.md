@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T21:07:06Z
-last_update: 2026-07-05T21:11:18Z
+last_update: 2026-07-05T21:24:54Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -175,16 +175,42 @@ diff -q src/aef-workflow-designer.html build/gallery/designer.html
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Recommendation
+
+**Recommendation:** GO (ship — one human visual sign-off remaining)
+
+**Rationale:**
+
+The router meets every Agent AC and exceeds the numeric target — corpus node-cuts went
+**27 → 0**, not merely the ≥50%/≤14 asked for — with **zero regression** (`mapMessiness()`
+stays 0 on all 24 maps, previously-clean maps are untouched because the router only fires on
+a loop-back that still cuts, and it is adopted only when it *strictly* reduces crossings, else
+falls back to today's route). It mutates no stored geometry (PD-044) and adds no perceptible
+latency (62 ms worst-case renderAll). The only thing an agent cannot self-certify is subjective
+visual quality — hence the single Human [REVIEW] AC. Screenshots were taken and read and look
+clean, but taste is the human's call.
+
+**Evidence:**
+
+- 27 → 0 corpus node-cuts (harvest 13→0, error-esc 7→0); T-113 harness PASS at baseline 0.
+  → `tests/check-corpus-node-cuts.sh`, `tests/fixtures/node-cuts-baseline.json`.
+- `mapMessiness()==0` on all 24 maps; previously-clean maps unchanged (probe, in-page).
+- Router: `routeAroundObstacles` (Hanan grid A*) + `routeAvoidingWithPorts` (face choice) +
+  acceptance guard at the `needsLoop` branch. → `src/aef-workflow-designer.html`.
+- Screenshots read: `.playwright-mcp/t114-harvest-after.png`, `t114-harvest-fan-zoom.png`,
+  `t114-error-esc-after.png` — clean side-entry fans, no speared boxes.
+- Verification gate: 2/2 PASS. Worst-case renderAll 62 ms (28-edge map).
+
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-07-05 — Face-choosing router over targeted orthoLoopBack patch
+- **Chose:** a general obstacle-avoiding grid router free to pick the arrival/departure face.
+- **Why:** the diagnostic showed residual cuts were edges whose *pre-set* stub landed inside a
+  sibling (fan/join mid-stack); no band tweak can fix a stub buried in a node — the approach
+  face itself must change. The general router also handles future cases, gated by the harness.
+- **Rejected:** patching `orthoLoopBack`'s band selection (structurally can't move the stub);
+  a uniform-pitch grid (endpoint jogs re-introduced crossings — Hanan grid puts stubs exactly
+  on vertices); full port re-assignment upstream (larger blast radius, PL-005 risk).
 
 ## Decision
 
