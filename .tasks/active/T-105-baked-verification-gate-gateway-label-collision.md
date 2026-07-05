@@ -11,7 +11,7 @@ tags: [ui, editor, bug, corpus]
 components: []
 related_tasks: [T-101, T-082, T-089, T-083]
 created: 2026-07-05T17:30:00Z
-last_update: 2026-07-05T21:38:34Z
+last_update: 2026-07-05T23:06:54Z
 date_finished: null
 ---
 
@@ -40,28 +40,43 @@ real fix may belong there rather than in the bake.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Cause confirmed empirically (headless): compare verification-gate edge-label
-      bounding boxes pre-bake (git HEAD~ of the .bpmn) vs post-bake; show whether
-      align-rows co-linearity is what pushed the labels into overlap
-- [ ] Decision recorded: fix in the editor's edge-label placement (collision-avoid /
-      stagger / wrap — extend T-082/T-089), OR make Clean/align-rows label-aware, OR
-      exempt this gateway cluster — with rationale
-- [ ] Fix implemented so verification-gate (and any other affected baked map) opens
-      with no overlapping edge-labels, WITHOUT regressing node-row tidiness
-- [ ] If the corpus geometry changes: re-bake affected maps via
-      `tools/bake-clean-layout.py`, keep `--check` at 24/24 fixpoints, suites green
-      (bridge 31/31, validator 34/34, parity OK, geometry 24 clean), gallery synced
-- [ ] Change synced byte-identical to `build/gallery/designer.html` if editor JS changed
-- [ ] Before/after screenshots of verification-gate READ, confirming labels readable
+- [x] Cause confirmed empirically (headless): the align-rows/edge-label hypothesis was
+      DISPROVEN (see "Investigation findings" — gateways were always co-linear). Real
+      cause: two long gateway NAME labels ("every verify cmd exit 0?" 117px,
+      "RCA / evolution / inception gates pass?" 189px) render single-line under 48px
+      diamonds only ~100px apart → node-name ∩ node-name overlap (edge-label ∩
+      edge-label was already 0)
+- [x] Decision recorded: fix in the editor's node-label rendering via CONDITIONAL
+      wrapping — wrap only below-labels (gateway/event names) that actually collide with
+      a neighbouring below-label, progressively tighter until clear; uncontested labels
+      stay single-line. Rejected unconditional wrapping (grew all labels taller → 4 new
+      collisions in dense maps) and edge-label placement (edge labels weren't the cause).
+      See ## Decisions.
+- [x] Fix implemented — `deCollideBelowLabels()` post-pass. Corpus metric (headless,
+      measure-after-render): gateway/event NAME ∩ NAME overlaps **2 → 0** (fixed
+      verification-gate g_verify∩g_gates AND git-commit-flow n_done∩g_hooks). No node-row
+      geometry changed (render-only, PD-044). Zero regressions: name∩node-box overlaps
+      12 → 9 (improved — narrower wrapped names cleared 3), verified against a no-op
+      baseline
+- [x] Corpus geometry did NOT change (render-only fix — no re-bake needed); suites green
+      anyway: node-cut 0/24, bridge 31/31, geometry 24 clean
+- [x] Change synced byte-identical to `build/gallery/designer.html`
+- [x] Before/after screenshots of verification-gate AND git-commit-flow READ, confirming
+      each gateway/event name is legible in its own column with no overlap —
+      `t105-verifgate-after.png`, `t105-gitcommit-after.png`
 
 ### Human
 - [ ] [REVIEW] verification-gate (and neighbours) open with readable, non-overlapping
-      edge-labels and still-tidy rows
+      gateway/event NAME labels and still-tidy rows
   **Steps:**
-  1. Serve the gallery; open verification-gate, review-emission, and any other
-     gateway-dense map
-  2. Confirm no edge-label overlaps the gateway glyphs or other labels
-  **Expected:** All branch labels legible; rows still tidy
+  1. Serve the gallery (`tools/serve-gallery.sh`, :8834); open verification-gate and
+     git-commit-flow (the two fixed maps), plus any other gateway-dense map
+  2. Confirm each gateway/event name (below its diamond/circle) is legible in its own
+     column and does not overlap the neighbouring node's name — e.g. verification-gate's
+     "every verify cmd exit 0?" and "RCA / evolution / inception gates pass?" now wrap
+     to their own columns
+  **Expected:** All gateway/event names legible and separated; rows still tidy; no name
+  runs into a neighbour
   **If not:** Note which map/label still collides
 
 ## Verification
@@ -123,7 +138,36 @@ treat "re-bake" as fixing T-105.
 
 ## Decisions
 
+### 2026-07-06 — Fix locus: conditional node-label wrapping
+- **Chose:** Wrap gateway/event NAME labels, but ONLY the ones that actually collide
+  with a neighbouring below-label (`deCollideBelowLabels()` post-pass, measure → wrap
+  colliders tighter → re-measure, bounded iterations).
+- **Why:** The collision is node-name ∩ node-name (edge-labels were already 0, so the
+  T-082/T-089 edge-label machinery was the wrong locus). Wrapping shrinks the horizontal
+  footprint so adjacent names clear. Conditional (not global) wrapping is the key: it
+  leaves every uncontested label single-line, so densely packed maps gain no new
+  vertical collisions.
+- **Rejected:** (a) Unconditional wrapping of all gateway/event names — measured to fix
+  the 2 target overlaps but introduce 4 NEW collisions (taller blocks in tight maps,
+  relocated into each other by adjustLabelPlacements). (b) Making Clean/align-rows
+  label-aware — the geometry was never the cause. (c) Shortening names in the YAML —
+  loses information; a rendering fix generalises to any long name.
+
+### 2026-07-06 — Out of scope: name ∩ node-box overlaps
+- **Observed:** 9 gateway/event names overlap a *nearby node's box* (not each other) —
+  e.g. promotion n_ready_gate∩n_count, resume g_ho∩n_tasks. This is PRE-EXISTING (12 at
+  baseline; this fix incidentally cleared 3) and a different problem class (below-label
+  vs adjacent-node-box, not below-label vs below-label). Left for a separate task — the
+  relocation lever (adjustLabelPlacements) already handles name-vs-edge/node but only
+  fires when a clean side exists; extending it is its own slice.
+
 ## Updates
+
+### 2026-07-06 — fix implemented (T-105, still owner:human — not closed)
+- Implemented `deCollideBelowLabels()`; NAME∩NAME overlaps 2→0, zero regressions
+  (name∩box 12→9), render-only (PD-044), suites green, 2 maps screenshotted + read.
+- Agent ACs checked. Human [REVIEW] AC left for the operator to confirm on the served
+  gallery. Task remains owner:human — agent does not self-close.
 
 ### 2026-07-05 — captured
 - Filed at session budget ceiling (~300k) after operator screenshot; could not

@@ -2244,6 +2244,10 @@ function renderNodes() {
       // ID below the rectangle, centered
       if (labelPrefs.showIds) g.appendChild(el('text', { x: lx, y: n.y + def.h + 12, class: 'node-id-badge', 'text-anchor': 'middle' }, [text(displayIdOf(n))]));
     } else {
+      // Gateways/events carry their name on a single line below the shape. Long names
+      // that would collide with a neighbouring below-label are wrapped later, and ONLY
+      // when they actually collide, by deCollideBelowLabels() (T-105) — so uncontested
+      // labels stay single-line and tightly packed maps gain no new vertical collisions.
       g.appendChild(el('text', { x: lx, y: ly, class: 'node-label', 'text-anchor': 'middle', 'data-nl': n.uid }, [text(n.name)]));
       // ID below the name, in mono and lower contrast
       if (labelPrefs.showIds) g.appendChild(el('text', { x: lx, y: ly + 12, class: 'node-id-badge', 'text-anchor': 'middle', 'data-nl': n.uid }, [text(displayIdOf(n))]));
@@ -2262,9 +2266,54 @@ function renderNodes() {
     gNodes.appendChild(g);
   }
   fitNodeLabels();
+  deCollideBelowLabels();
   adjustLabelPlacements();
   adjustEdgeLabelPlacements();
   addIdBadgeHalos();
+}
+
+// Below-label de-collision (T-105): gateway/event names render single-line below the
+// shape; two long names under diamonds only ~100px apart overlap horizontally (e.g.
+// verification-gate g_verify∩g_gates, git-commit-flow n_done∩g_hooks). Wrap ONLY the
+// names that actually collide with another below-label, progressively tighter until
+// they clear — every uncontested label stays single-line, so densely packed maps gain
+// no new vertical collisions from taller blocks. Render-only; geometry untouched (PD-044).
+function deCollideBelowLabels() {
+  const isBelow = n => n.type === 'startEvent' || n.type === 'endEvent' ||
+    n.type.endsWith('Gateway') || n.type.startsWith('linkEvent');
+  const nodes = state.nodes.filter(isBelow);
+  if (nodes.length < 2) return;
+  const nameEls = n => Array.from(gNodes.querySelectorAll(`text[data-nl="${n.uid}"]`))
+    .filter(t => t.getAttribute('class') === 'node-label');
+  const boxOf = n => {
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    for (const t of nameEls(n)) { const b = t.getBBox(); if (!b.width) continue; x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y); x1 = Math.max(x1, b.x + b.width); y1 = Math.max(y1, b.y + b.height); }
+    return x1 < 0 ? null : { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+  };
+  const hit = (a, b) => a && b && !(a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y);
+  const lineH = { s: 11, m: 12, l: 14 }[labelPrefs.size];
+  const rewrap = (n, ch) => {
+    const els = nameEls(n); if (!els.length) return;
+    const g = els[0].parentNode;
+    const lx = els[0].getAttribute('x');
+    const ly = +els[0].getAttribute('y'); // first line keeps its original baseline
+    for (const t of els) t.remove();
+    const lines = wrapText(n.name, ch);
+    for (let i = 0; i < lines.length; i++)
+      g.appendChild(el('text', { x: lx, y: ly + i * lineH, class: 'node-label', 'text-anchor': 'middle', 'data-nl': n.uid }, [text(lines[i])]));
+    const idEl = Array.from(gNodes.querySelectorAll(`text[data-nl="${n.uid}"]`)).find(t => t.getAttribute('class') === 'node-id-badge');
+    if (idEl) idEl.setAttribute('y', ly + lines.length * lineH);
+  };
+  const budgets = { s: [17, 14, 12], m: [15, 13, 11], l: [13, 11, 10] }[labelPrefs.size];
+  for (let iter = 0; iter < budgets.length; iter++) {
+    const boxes = nodes.map(n => ({ n, box: boxOf(n) }));
+    const colliding = new Set();
+    for (let i = 0; i < boxes.length; i++)
+      for (let j = i + 1; j < boxes.length; j++)
+        if (hit(boxes[i].box, boxes[j].box)) { colliding.add(boxes[i].n); colliding.add(boxes[j].n); }
+    if (!colliding.size) break;
+    for (const n of colliding) rewrap(n, budgets[iter]);
+  }
 }
 
 // Node-label fit ladder (T-087): a task rect's name must fit INSIDE the rect.
@@ -2386,10 +2435,16 @@ function adjustLabelPlacements() {
     const d = NODE_DEFAULTS[n.type];
     const cy = n.y + d.h / 2;
     const orig = els.map(t => ({ x: t.getAttribute('x'), y: t.getAttribute('y'), a: t.getAttribute('text-anchor') }));
+    // Stack all label lines (wrapped name lines + id, T-105) vertically centred on
+    // the shape's cy at the side. For the legacy 2-element (name+id) case this
+    // reproduces the original cy-2 / cy+10 placement exactly.
     const place = (x, anchor) => {
-      els[0].setAttribute('x', x); els[0].setAttribute('y', cy - 2);
-      els[1].setAttribute('x', x); els[1].setAttribute('y', cy + 10);
-      for (const t of els) t.setAttribute('text-anchor', anchor);
+      const total = els.length, LH = 12;
+      els.forEach((t, i) => {
+        t.setAttribute('x', x);
+        t.setAttribute('y', cy + (i - (total - 1) / 2) * LH + 4);
+        t.setAttribute('text-anchor', anchor);
+      });
     };
     place(n.x + d.w + 8, 'start');            // try right of the shape
     if (bboxScore(els, n) === 0) continue;
