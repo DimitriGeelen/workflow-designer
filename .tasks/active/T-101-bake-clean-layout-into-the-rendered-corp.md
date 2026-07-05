@@ -4,7 +4,7 @@ name: "Bake Clean layout into the rendered corpus (24 maps)"
 description: >
   Operator option 1 (auto-tidy discussion): run the editor's cleanLayout() once over each examples/aef-processes/rendered/*.bpmn so the shipped corpus is already tidy (rows aligned, stacks respaced), then mirror to build/gallery/rendered/. Reuse the editor's exact Clean logic via a repeatable headless pass — do NOT reimplement Tidy in Python (drift risk, PL-005). Makes the T-100 nudge correctly quiet on the shipped corpus.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: human
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T10:39:42Z
-last_update: 2026-07-05T10:39:42Z
+last_update: 2026-07-05T16:59:40Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -44,12 +44,21 @@ Operator decision (2026-07-05 dialogue on auto-tidy): option 1 of three (2 = T-0
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A committed, re-runnable pass (script/tool, not manual edits) applies `cleanLayout()` to each of the 24 `examples/aef-processes/rendered/*.bpmn` and writes the cleaned geometry back; documented how to re-run after Clean logic changes
-- [ ] `build/gallery/rendered/*.bpmn` re-synced byte-identical to `examples/aef-processes/rendered/*.bpmn` after the bake
-- [ ] Post-bake, `tools/yaml-to-bpmn.py` re-run does NOT clobber the tidied geometry (either the generator is taught to emit tidy output, or the bake is a documented post-step in the render pipeline — state which and wire it so a naive regen doesn't silently un-tidy the corpus)
-- [ ] Idempotent: running the bake twice moves 0 nodes on the second pass (cleaned corpus is a Clean fixpoint); T-100 `mapMessiness()` scores < 3 on all 24 maps afterward
-- [ ] No semantic change: for every map, the cleaned `.bpmn` parses to the same nodes/edges/lanes/aef-fields as before — only x/y/lane-height geometry differs (bridge round-trip + structured-parity suites still pass 31/31, 34/34, parity OK; corpus-geometry sweep still 24 clean)
-- [ ] Before/after screenshots of 2–3 representative maps (e.g. task-lifecycle, audit-process) taken and READ, confirming the shipped map now opens tidy
+- [x] A committed, re-runnable pass (script/tool, not manual edits) applies `cleanLayout()` to each of the 24 `examples/aef-processes/rendered/*.bpmn` and writes the cleaned geometry back; documented how to re-run after Clean logic changes — `tools/bake-clean-layout.py` (+ `tools/_clean-layout-cdp.mjs` headless editor driver); re-run: `python3 tools/bake-clean-layout.py`, check: `--check`
+- [x] `build/gallery/rendered/*.bpmn` re-synced byte-identical to `examples/aef-processes/rendered/*.bpmn` after the bake — 0/24 drift (bake mirrors it; `serve-gallery.sh` also regenerates it — gallery is a gitignored build artifact)
+- [x] Post-bake, `tools/yaml-to-bpmn.py` re-run does NOT clobber the tidied geometry — chose **generator emits tidy output**: geometry lives in the yaml source, tidied y/lane-height baked there, so a naive regen reproduces the tidied bpmn byte-identically (verified 0/24 regen drift)
+- [x] Idempotent: running the bake twice moves 0 nodes on the second pass — `--check` reports 24/24 Clean fixpoints; `mapMessiness()` < 3 on all 24 (all 0) after the coupled T-102 metric fix
+- [x] No semantic change: only x/y/lane-height geometry differs (510 ins/510 del, all geometry-only lines) — bridge 31/31, validator 34/34, structured parity OK; corpus-geometry sweep 24 clean
+- [x] Before/after screenshots of 2–3 representative maps taken and READ — task-lifecycle + harvest-pipeline (`.playwright-mcp/t101-*-{before,after}.png`): main flow rows now snap to a common centre-line, branch stacks preserved, no visual regression
+
+### Human
+- [ ] [REVIEW] Shipped corpus maps open tidy in the served gallery, and the Clean nudge no longer fires on them
+  **Steps:**
+  1. `cd /opt/832-Workflow-designer && bin/fw run tools/serve-gallery.sh 8834` — note the URL
+  2. Open 3–4 maps (e.g. task-lifecycle, audit-process, harvest-pipeline, verification-gate)
+  3. Confirm rows read tidy (aligned lane rows, no wavy same-lane stacks) and NO "✨ could use Clean layout" nudge appears on load
+  **Expected:** Maps open already-tidy; nudge stays quiet on the shipped corpus
+  **If not:** Note which map still looks untidy or still nudges, and whether clicking Clean changes anything (it should move ~0 nodes)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -114,6 +123,12 @@ Operator decision (2026-07-05 dialogue on auto-tidy): option 1 of three (2 = T-0
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+bash tests/check-corpus-geometry.sh 2>&1 | tail -1 | grep -q "24 clean, 0 known-legacy, 0 new-fail"
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "34 passed, 0 failed"
+python3 tests/test_editor_bridge_structured_parity.py 2>&1 | grep -q "OK:"
+# Naive regen reproduces the tidied bpmn byte-identically (generator emits tidy output).
+for y in examples/aef-processes/*.workflow.yaml; do b=$(basename "$y" .workflow.yaml); python3 tools/yaml-to-bpmn.py "$y" --out /tmp/_rv.bpmn 2>/dev/null; diff -q /tmp/_rv.bpmn "examples/aef-processes/rendered/$b.bpmn" >/dev/null || exit 1; done
 
 ## RCA
 
@@ -155,7 +170,39 @@ Operator decision (2026-07-05 dialogue on auto-tidy): option 1 of three (2 = T-0
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Recommendation
+
+**Recommendation:** GO (agent work complete; ready for operator review)
+
+**Rationale:** All 6 Agent ACs pass with evidence. The bake is a committed,
+re-runnable, idempotent pass that reuses the editor's exact `cleanLayout()` (no
+Python reimplementation), writes tidied geometry into the yaml source (so a naive
+regen can never un-tidy), and changes geometry only (bridge/validator/parity/
+geometry suites all unchanged). The premise "quiet the nudge on the shipped
+corpus" required the coupled T-102 metric fix (branch-stack false-positive),
+which the operator approved first; with both landed, all 24 maps score
+`mapMessiness == 0` after Clean.
+
+**Evidence:** Commits 61edf97 (tool), 832bc9b (baked corpus, 510/510 geometry-only
+lines); `bake-clean-layout.py --check` → 24/24 fixpoints; suites 31/31, 34/34,
+parity OK, 24 clean; regen 0/24 drift; screenshots `.playwright-mcp/t101-*`.
+
 ## Decisions
+
+### 2026-07-05 — Where to store baked geometry
+- **Chose:** Bake tidied y/lane-height into the `*.workflow.yaml` SOURCE, then re-render.
+- **Why:** Geometry lives in the yaml and `yaml-to-bpmn.py` is a pure projection of it, so baking into the source makes the generator naturally emit tidy output — a naive regen can never silently un-tidy the corpus (strongest form of AC #3). Also keeps `check-lane-bands` (reads yaml) validating the real shipped geometry.
+- **Rejected:** Post-processing only the rendered `.bpmn` — a naive `yaml-to-bpmn.py` regen would clobber it; would need a fragile "remember to re-bake" post-step.
+
+### 2026-07-05 — Iterate Clean to a fixpoint
+- **Chose:** Run `cleanLayout()` repeatedly (to a fixpoint, cap 12) per map during the bake.
+- **Why:** One Clean pass isn't idempotent — align-rows snapping merges clusters, so a 2nd pass settles nodes a few px further. Baking the fixpoint makes a re-bake move 0 nodes (AC #4).
+- **Rejected:** Single pass — left arc-lifecycle/inception-lifecycle non-idempotent (moved 2/6 on re-check).
+
+### 2026-07-05 — Reuse editor Clean via headless CDP, no dependencies
+- **Chose:** Drive the real editor in headless Chromium over the DevTools Protocol using Node's native WebSocket/fetch (no npm install).
+- **Why:** Reuses `cleanLayout()` verbatim (PL-005: no editor/bridge drift) with zero added dependencies; chromium is the cached Playwright build.
+- **Rejected:** Reimplementing Tidy in Python (PL-005 drift risk); `npm install playwright` (adds node_modules to a dependency-free repo).
 
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
@@ -182,3 +229,6 @@ Operator decision (2026-07-05 dialogue on auto-tidy): option 1 of three (2 = T-0
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-101-bake-clean-layout-into-the-rendered-corp.md
 - **Context:** Initial task creation
+
+### 2026-07-05T16:26:28Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T16:49:08Z
-last_update: 2026-07-05T16:49:20Z
+last_update: 2026-07-05T16:53:14Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -164,6 +164,19 @@ Clean's fixpoint to the nudge's zero, so the two drifted. The raw corpus masked 
 **Prevention:** T-101's `bake-clean-layout.py --check` now asserts, headless, that
 a Clean fixpoint scores `mapMessiness < 3` on every map — a standing regression
 gate on exactly this Clean-vs-metric invariant.
+
+## Recommendation
+
+**Recommendation:** GO (agent work complete; ready for operator review)
+
+**Rationale:** One-line exclusion mirroring align-rows' own `inStack` set, so the
+nudge metric and Clean agree on what "tidy" means. All 4 Agent ACs verified
+headless: the 6 formerly-residual maps now score 0 after Clean; genuinely-messy
+raw maps still fire (task-lifecycle 9, verification-gate 11, session-handover 8),
+so no under-firing regression. Pure JS-metric change — no visual/layout risk.
+
+**Evidence:** Commit e099ce8; headless driver confirms 6/6 residual maps → 0 and
+3/3 messy maps still ≥3; `diff -q` gallery designer.html clean.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
