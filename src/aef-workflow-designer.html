@@ -940,6 +940,7 @@
       <button class="btn" id="btn-reset">Reset</button>
       <button class="btn" id="btn-clean" title="Tidy + branch pitch + align rows on every lane — one click, Ctrl+Z reverts">✨ Clean layout</button>
       <button class="btn" id="btn-align-cols" title="Snap connected, near-aligned nodes to a shared column — straightens vertical doglegs (Ctrl+Z reverts)">⁙ Align columns</button>
+      <button class="btn" id="btn-distribute" title="Equalise horizontal gaps between row-mates — evens out uneven chain spacing, extremes stay put (Ctrl+Z reverts)">↔ Distribute evenly</button>
       <button class="btn" id="btn-xml">View XML</button>
       <button class="btn" id="btn-settings" title="Editor settings — routing, snapping, grid">⚙ Settings</button>
       <button class="btn" id="btn-load">Load…</button>
@@ -5373,6 +5374,73 @@ function alignColumns() {
   return moved.length;
 }
 
+// ── Distribute evenly / horizontal (T-109) ──────────────────────────────────
+// Explicit one-shot action, Phase C option 8 (T-092 survey). For each lane row
+// of >=3 side-by-side nodes, equalises the horizontal edge-to-edge gaps between
+// consecutive nodes while keeping the leftmost and rightmost anchored — the
+// classic "distribute horizontal spacing". Zeroes uneven chain rhythm without
+// changing a row's overall span. Rows are the same centre-y clusters align-rows
+// uses (band ROW_SPACING_BAND); a row is redistributed only when its gaps are
+// currently UNEVEN (spread > EVEN_TOL) and the even gap is >= 0 (nodes fit the
+// span). Because nodes keep their left-to-right order inside the unchanged span
+// and the even gap is non-negative, no NEW overlap can arise; a measure-after-
+// move guard reverts anyway if one somehow does (mirrors align-rows/-columns).
+// Records moved node-xs into the shared axis-aware lastTidy (T-107) — one Ctrl+Z
+// reverts. Explicit-action only: no render pass or pref calls it (PD-044). The
+// vertical case (equalise a fan-out stack) is intentionally left to Branch pitch
+// (T-093) and Vertical spacing (T-108) — this is horizontal only.
+function distributeEvenly() {
+  const EVEN_TOL = 2; // px — gap spread at/below which a row already counts as even
+  const cyOf = n => n.y + NODE_DEFAULTS[n.type].h / 2;
+  const moved = [];
+  for (const lane of state.lanes) {
+    const laneNodes = state.nodes.filter(n => n.lane === lane.id);
+    if (laneNodes.length < 3) continue;
+    // Cluster into rows by centre-y (same band as align-rows / respaceRows).
+    const sorted = laneNodes.map(n => ({ n, cy: cyOf(n) })).sort((a, b) => a.cy - b.cy);
+    const rows = [];
+    let cur = [sorted[0]];
+    for (let i = 1; i < sorted.length; i++) {
+      if (sorted[i].cy - sorted[i - 1].cy > ROW_SPACING_BAND) { rows.push(cur); cur = []; }
+      cur.push(sorted[i]);
+    }
+    rows.push(cur);
+    for (const row of rows) {
+      if (row.length < 3) continue;
+      const ns = row.map(r => r.n).sort((a, b) => a.x - b.x);
+      const wOf = n => NODE_DEFAULTS[n.type].w;
+      const left = ns[0].x;                              // leftmost edge — anchored
+      const right = ns[ns.length - 1].x + wOf(ns[ns.length - 1]); // rightmost edge — anchored
+      const span = right - left;
+      const totalW = ns.reduce((s, n) => s + wOf(n), 0);
+      const evenGap = (span - totalW) / (ns.length - 1);
+      if (evenGap < 0) continue;                         // nodes don't fit the span — leave it
+      // Current gaps (edge-to-edge) between consecutive nodes.
+      const gaps = [];
+      for (let i = 1; i < ns.length; i++) gaps.push(ns[i].x - (ns[i - 1].x + wOf(ns[i - 1])));
+      const spread = Math.max(...gaps) - Math.min(...gaps);
+      if (spread <= EVEN_TOL) continue;                  // already evenly spaced
+      const before = ns.map(n => ({ n, x: n.x }));
+      const others = state.nodes.filter(o => !ns.includes(o));
+      const collisions = () => {
+        let c = 0;
+        for (const m of ns) for (const o of others) if (rectsIntersect(nodeRect(m), nodeRect(o))) c++;
+        return c;
+      };
+      const collBefore = collisions();
+      let cx = left;                                     // walk left→right laying out even gaps
+      for (const n of ns) { n.x = cx; cx += wOf(n) + evenGap; }
+      if (collisions() > collBefore) { for (const b of before) b.n.x = b.x; continue; } // revert row
+      for (const b of before) if (Math.abs(b.n.x - b.x) > 0.01) moved.push({ id: b.n.id, x: b.x });
+    }
+  }
+  if (moved.length) {
+    lastTidy = { laneId: null, positions: moved, laneHeight: null };
+    renderAll();
+  }
+  return moved.length;
+}
+
 // ── Vertical spacing (T-108) ────────────────────────────────────────────────
 // Absolute inter-row re-spacing — the operator's lever, distinct from the retired
 // Density preset (which only tuned a snap THRESHOLD and never grew lanes, so
@@ -5905,6 +5973,14 @@ $('btn-align-cols').onclick = () => {
     ? `⁙ Aligned ${moved} node${moved === 1 ? '' : 's'} — Ctrl+Z reverts`
     : '⁙ Columns already aligned';
   setTimeout(() => { btn.textContent = '⁙ Align columns'; }, 2500);
+};
+$('btn-distribute').onclick = () => {
+  const btn = $('btn-distribute');
+  const moved = distributeEvenly();
+  btn.textContent = moved
+    ? `↔ Distributed ${moved} node${moved === 1 ? '' : 's'} — Ctrl+Z reverts`
+    : '↔ Gaps already even';
+  setTimeout(() => { btn.textContent = '↔ Distribute evenly'; }, 2500);
 };
 $('clean-nudge-apply').onclick = () => {
   const moved = cleanLayout();
