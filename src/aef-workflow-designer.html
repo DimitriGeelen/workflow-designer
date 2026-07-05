@@ -1198,7 +1198,7 @@
                follow-up action instead of silently doing nothing until then. -->
           <label class="settings-row" id="view-apply-row" style="display:none">
             <button class="btn" id="btn-apply-clean" type="button">✨ Apply now — Clean layout</button>
-            <span class="settings-hint">density &amp; branch pitch guide Tidy / Clean / drag-snap — they never move nodes by themselves</span>
+            <span class="settings-hint">density &amp; branch pitch apply live (re-run Clean on change) and also guide drag-snap — Ctrl+Z reverts</span>
           </label>
           <label class="settings-row">
             <input type="checkbox" id="set-clean-on-import">
@@ -4495,14 +4495,26 @@ $('set-channel-sep').addEventListener('change', e => setChannelSep(parseInt(e.ta
 $('set-snap-magnet').addEventListener('change', e => setSnapPref('magnet', e.target.checked));
 $('set-snap-grid').addEventListener('change', e => setSnapPref('grid', e.target.checked));
 $('set-lane-fit').addEventListener('change', e => setLabelPref('laneFit', e.target.checked));
-$('set-density').addEventListener('change', e => { setViewPref('density', e.target.value); $('view-apply-row').style.display = ''; });
-$('set-branch-pitch').addEventListener('change', e => { setViewPref('branchPitch', e.target.value); $('view-apply-row').style.display = ''; });
-$('set-clean-on-import').addEventListener('change', e => setViewPref('cleanOnImport', e.target.checked));
-$('btn-apply-clean').onclick = () => {
+// Density / branch pitch are VIEW controls — apply them LIVE so the change is
+// visibly reflected on the canvas immediately (T-104: field report that changing
+// them "did nothing" — the old design only stored the pref and waited for a
+// separate Apply click, which read as inert). cleanLayout() records lastTidy, so
+// Ctrl+Z reverts to the pre-change layout; the button remains as an explicit
+// re-apply. On a fixpoint the setting still changed the pitch used by drag-snap.
+function applyViewClean() {
   const moved = cleanLayout();
-  $('btn-apply-clean').textContent = moved ? `✨ Applied — ${moved} node${moved === 1 ? '' : 's'} moved (Ctrl+Z reverts)` : '✨ Applied — already clean';
-  setTimeout(() => { $('btn-apply-clean').textContent = '✨ Apply now — Clean layout'; }, 2500);
-};
+  $('view-apply-row').style.display = '';
+  const b = $('btn-apply-clean');
+  b.textContent = moved
+    ? `✨ Applied — ${moved} node${moved === 1 ? '' : 's'} moved (Ctrl+Z reverts)`
+    : '✨ Applied — already tidy at this setting';
+  clearTimeout(applyViewClean._t);
+  applyViewClean._t = setTimeout(() => { b.textContent = '✨ Apply now — Clean layout'; }, 3000);
+}
+$('set-density').addEventListener('change', e => { setViewPref('density', e.target.value); applyViewClean(); });
+$('set-branch-pitch').addEventListener('change', e => { setViewPref('branchPitch', e.target.value); applyViewClean(); });
+$('set-clean-on-import').addEventListener('change', e => setViewPref('cleanOnImport', e.target.checked));
+$('btn-apply-clean').onclick = applyViewClean;
 $('set-label-size').addEventListener('change', e => setLabelPref('size', e.target.value));
 $('set-show-lane').addEventListener('change', e => setLabelPref('showLane', e.target.checked));
 $('set-show-ids').addEventListener('change', e => setLabelPref('showIds', e.target.checked));
