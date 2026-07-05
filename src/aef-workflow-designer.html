@@ -5180,6 +5180,14 @@ function cleanLayout() {
 function mapMessiness() {
   const involved = new Set();
   const ns = state.nodes;
+  // Branch-stack members are held at their T-093 pitch positions; align-rows
+  // (T-094 / Clean) EXCLUDES them from row-snapping by design. So a small centre
+  // offset between a pitch-held stack node and an aligned neighbour is intentional
+  // geometry Clean can never remove — counting it as a wave fires the nudge on a
+  // map Clean has already fully tidied (T-102). Mirror align-rows' own exclusion:
+  // only count a wave when NEITHER endpoint is a stack member. Overlaps still count.
+  const inStack = new Set();
+  for (const l of state.lanes) for (const n of branchStacksInLane(l.id).flat()) inStack.add(n.id);
   for (let i = 0; i < ns.length; i++) for (let j = i + 1; j < ns.length; j++) {
     const a = ns[i], b = ns[j];
     if (a.lane !== b.lane) continue;
@@ -5188,6 +5196,7 @@ function mapMessiness() {
     // wavy row: side-by-side (x-ranges disjoint) but centres 1–14px off vertically
     const xDisjoint = ra.x + ra.w <= rb.x || rb.x + rb.w <= ra.x;
     if (!xDisjoint) continue;
+    if (inStack.has(a.id) || inStack.has(b.id)) continue; // by-design pitch offset, not fixable mess
     const cyA = a.y + NODE_DEFAULTS[a.type].h / 2, cyB = b.y + NODE_DEFAULTS[b.type].h / 2;
     const dcy = Math.abs(cyA - cyB);
     if (dcy >= 1 && dcy <= 14) { involved.add(a.id); involved.add(b.id); }
