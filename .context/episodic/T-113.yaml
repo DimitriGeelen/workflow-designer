@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-113: Node-cut census regression harness for the rendered corpus
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-05T20:52:48Z
+# ============================================================================
+
+task_id: T-113
+task_name: "Node-cut census regression harness for the rendered corpus"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T20:48:05Z
+completed: 2026-07-05T20:52:44Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-05T22:51:59+02:00
+last_commit: 2026-07-05T22:52:38+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Node-cut census regression harness for the rendered corpus. Add RCA documenting the latent-gate blindness closed by the harness
+
+# Key outcomes
+outcomes:
+  - '`tools/_node-cuts-cdp.mjs` loads each `rendered/*.bpmn` in the headless editor and'
+  - 'A committed baseline (`tests/fixtures/node-cuts-baseline.json`) records current'
+  - '`tests/check-corpus-node-cuts.sh` runs the driver and exits non-zero if any map''s'
+  - 'The gate passes cleanly against the current corpus (baseline == current census)'
+  - 'Driver is dependency-free (native WebSocket+fetch, cached Playwright Chromium) —'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-113-node-cut-census-regression-harness-for-t.md'
+  - 'tests/check-corpus-node-cuts.sh'
+  - 'tests/fixtures/node-cuts-baseline.json'
+  - 'tools/_node-cuts-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T22:51:59"
+    action: "T-113: Node-cut census regression harness for the rendered corpus"
+  - time: "2026-07-05T22:52:38"
+    action: "T-113: Add RCA documenting the latent-gate blindness closed by the harness"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 2
+  files_changed: 4
+  lines_added: 537
+  lines_removed: 12
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-113-node-cut-census-regression-harness-for-t.md
+generated_by: context-agent-hybrid
