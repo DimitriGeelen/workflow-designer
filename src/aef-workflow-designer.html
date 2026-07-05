@@ -939,8 +939,8 @@
       <button class="btn" id="btn-add-lane">+ Add Lane</button>
       <button class="btn" id="btn-reset">Reset</button>
       <button class="btn" id="btn-clean" title="Tidy + branch pitch + align rows on every lane — one click, Ctrl+Z reverts">✨ Clean layout</button>
-      <button class="btn" id="btn-align-cols" title="Snap connected, near-aligned nodes to a shared column — straightens vertical doglegs (Ctrl+Z reverts)">⁙ Align columns</button>
-      <button class="btn" id="btn-distribute" title="Equalise horizontal gaps between row-mates — evens out uneven chain spacing, extremes stay put (Ctrl+Z reverts)">↔ Distribute evenly</button>
+      <button class="btn" id="btn-align-cols" title="Snap connected, near-aligned nodes to a shared column — straightens vertical doglegs. Trade-off: may pull a node off its row, partly undoing an earlier Distribute evenly on shared row-mates (Ctrl+Z reverts)">⁙ Align columns</button>
+      <button class="btn" id="btn-distribute" title="Equalise horizontal gaps between row-mates — evens out uneven chain spacing, extremes stay put. Trade-off: if a row-mate is also a column-mate, evening the row pulls it off its column, partly undoing Align columns (Ctrl+Z reverts)">↔ Distribute evenly</button>
       <button class="btn" id="btn-xml">View XML</button>
       <button class="btn" id="btn-settings" title="Editor settings — routing, snapping, grid">⚙ Settings</button>
       <button class="btn" id="btn-load">Load…</button>
