@@ -939,6 +939,7 @@
       <button class="btn" id="btn-add-lane">+ Add Lane</button>
       <button class="btn" id="btn-reset">Reset</button>
       <button class="btn" id="btn-clean" title="Tidy + branch pitch + align rows on every lane — one click, Ctrl+Z reverts">✨ Clean layout</button>
+      <button class="btn" id="btn-align-cols" title="Snap connected, near-aligned nodes to a shared column — straightens vertical doglegs (Ctrl+Z reverts)">⁙ Align columns</button>
       <button class="btn" id="btn-xml">View XML</button>
       <button class="btn" id="btn-settings" title="Editor settings — routing, snapping, grid">⚙ Settings</button>
       <button class="btn" id="btn-load">Load…</button>
@@ -5159,7 +5160,13 @@ function undoTidy() {
   if (!lastTidy) return false;
   for (const p of lastTidy.positions) {
     const n = findNode(p.id);
-    if (n) n.y = p.y;
+    // Axis-aware revert (T-107): Tidy/Align-rows records carry `y`, Align-columns
+    // records carry `x`. Restore whichever axis the record captured (a record may
+    // carry both). Backward-compatible: y-only records behave exactly as before.
+    if (n) {
+      if (typeof p.x === 'number') n.x = p.x;
+      if (typeof p.y === 'number') n.y = p.y;
+    }
   }
   if (lastTidy.laneHeight) {
     const lane = findLane(lastTidy.laneHeight.id);
@@ -5296,6 +5303,66 @@ function alignRowsLane(laneId) {
   }
   if (moved.length) {
     lastTidy = { laneId, positions: moved, laneHeight: null };
+    renderAll();
+  }
+  return moved.length;
+}
+
+// ── Align columns (T-107) ───────────────────────────────────────────────────
+// Explicit one-shot action: the x-axis mirror of Align rows (T-094). Snaps each
+// cluster of CONNECTED, near-x-aligned nodes to the cluster's median centre-x,
+// removing the hidden doglegs T-073 only masks at render time (survey finding 4).
+// Connectivity matters (unlike rows, which group by lane + y-proximity): only
+// nodes joined by a near-vertical edge — endpoints' centre-x <=14px apart, the
+// T-092 near-miss metric — are grouped, so horizontal-flow chains (large
+// centre-x deltas) are never collapsed. A cluster whose snap would create a node
+// overlap reverts (measure-after-move). Shares the lastTidy single-step revert
+// with Tidy / Align rows (undoTidy is axis-aware). Explicit-action only —
+// NOT part of any render pass and NOT wired into cleanLayout (PD-044).
+function alignColumns() {
+  const COL_TOL = 14;
+  const cx = n => n.x + NODE_DEFAULTS[n.type].w / 2;
+  // Union-find over nodes joined by near-x edges → vertical column components.
+  const parent = new Map();
+  state.nodes.forEach(n => parent.set(n.id, n.id));
+  const find = a => { while (parent.get(a) !== a) { parent.set(a, parent.get(parent.get(a))); a = parent.get(a); } return a; };
+  const union = (a, b) => { parent.set(find(a), find(b)); };
+  for (const e of state.edges) {
+    const s = findNode(e.source), t = findNode(e.target);
+    if (!s || !t) continue;
+    if (Math.abs(cx(s) - cx(t)) <= COL_TOL) union(s.id, t.id);
+  }
+  const comps = new Map();
+  for (const n of state.nodes) {
+    const r = find(n.id);
+    if (!comps.has(r)) comps.set(r, []);
+    comps.get(r).push(n);
+  }
+  const moved = [];
+  for (const group of comps.values()) {
+    if (group.length < 2) continue;
+    const cxs = group.map(cx).sort((a, b) => a - b);
+    const median = cxs.length % 2 ? cxs[(cxs.length - 1) / 2] : (cxs[cxs.length / 2 - 1] + cxs[cxs.length / 2]) / 2;
+    if (group.every(n => Math.abs(cx(n) - median) < 0.5)) continue;
+    const others = state.nodes.filter(o => !group.includes(o));
+    const collisions = () => {
+      let c = 0;
+      for (const m of group) for (const o of others) if (rectsIntersect(nodeRect(m), nodeRect(o))) c++;
+      for (let a = 0; a < group.length; a++) for (let b = a + 1; b < group.length; b++)
+        if (rectsIntersect(nodeRect(group[a]), nodeRect(group[b]))) c++;
+      return c;
+    };
+    const before = group.map(n => ({ n, x: n.x }));
+    const collBefore = collisions();
+    for (const n of group) n.x = median - NODE_DEFAULTS[n.type].w / 2;
+    if (collisions() > collBefore) {
+      for (const b of before) b.n.x = b.x; // snapping would overlap — leave this column
+      continue;
+    }
+    for (const b of before) if (Math.abs(b.n.x - b.x) > 0.01) moved.push({ id: b.n.id, x: b.x });
+  }
+  if (moved.length) {
+    lastTidy = { laneId: null, positions: moved, laneHeight: null };
     renderAll();
   }
   return moved.length;
@@ -5764,6 +5831,14 @@ $('btn-clean').onclick = () => {
   const moved = cleanLayout();
   if (moved) { flashCleanFeedback(moved); }
   else { btn.textContent = '✨ Already clean'; setTimeout(() => { btn.textContent = '✨ Clean layout'; }, 2500); }
+};
+$('btn-align-cols').onclick = () => {
+  const btn = $('btn-align-cols');
+  const moved = alignColumns();
+  btn.textContent = moved
+    ? `⁙ Aligned ${moved} node${moved === 1 ? '' : 's'} — Ctrl+Z reverts`
+    : '⁙ Columns already aligned';
+  setTimeout(() => { btn.textContent = '⁙ Align columns'; }, 2500);
 };
 $('clean-nudge-apply').onclick = () => {
   const moved = cleanLayout();
