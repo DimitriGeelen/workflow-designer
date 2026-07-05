@@ -3579,6 +3579,213 @@ function orthoLoopBack(spA, spB, dirA, dirB, src, tgt, edge) {
   };
 }
 
+// Count DISTINCT non-endpoint nodes a polyline crosses (companion to the boolean
+// polylineCrossesNodes). Same axis-aligned segment-vs-rect test, same margin default.
+// Used by the obstacle router (T-114) to accept a reroute only if it strictly reduces
+// the number of nodes cut.
+function countNodeCrossings(points, src, tgt, margin = 4) {
+  const hit = new Set();
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i], b = points[i + 1];
+    const x1 = Math.min(a.x, b.x), x2 = Math.max(a.x, b.x);
+    const y1 = Math.min(a.y, b.y), y2 = Math.max(a.y, b.y);
+    for (const n of state.nodes) {
+      if ((src && n.id === src.id) || (tgt && n.id === tgt.id)) continue;
+      const d = NODE_DEFAULTS[n.type];
+      if (x2 < n.x - margin || x1 > n.x + d.w + margin) continue;
+      if (y2 < n.y - margin || y1 > n.y + d.h + margin) continue;
+      hit.add(n.id);
+    }
+  }
+  return hit.size;
+}
+
+// Grid-based orthogonal obstacle-avoiding router (T-114). Given two stub points spA/spB
+// (already lifted STUB px off their node anchors), find an orthogonal polyline from spA to
+// spB that avoids the boxes of all nodes except src/tgt. Returns the intermediate polyline
+// INCLUDING spA and spB (so the caller wraps it as [anchorA, ...ret, anchorB]), or null if
+// no obstacle-free path is found. Pure — reads state.nodes geometry, mutates nothing (PD-044).
+//
+// Approach: a HANAN-style coordinate grid. Grid lines pass exactly through the stub points
+// AND each node box edge ± clearance, so (a) spA/spB land on real vertices — no jog — and
+// (b) candidate paths run in the clear channels between boxes. A* with a turn penalty picks
+// a few-bend path; each candidate segment is tested against node boxes (Hanan cells are
+// large, so a segment between two free vertices can still span a box). The caller only
+// ADOPTS the result if countNodeCrossings confirms it beats the loop-back, so the router can
+// never make routing worse — at worst the reroute is rejected and the loop-back stands.
+const ROUTER_CLEAR = 9;         // channel clearance placed around each box (> count-margin 4)
+const ROUTER_SEG_MARGIN = 5;    // box margin used to reject a segment (< CLEAR, > count-margin)
+const ROUTER_TURN = 14;         // turn penalty (px-equivalent) — bias toward straight runs
+const ROUTER_MAX_VERTS = 40000; // safety cap on grid size (bail → null)
+
+function routeAroundObstacles(spA, spB, src, tgt) {
+  const obstacles = [];
+  for (const n of state.nodes) {
+    if ((src && n.id === src.id) || (tgt && n.id === tgt.id)) continue;
+    const d = NODE_DEFAULTS[n.type];
+    obstacles.push({ x1: n.x, y1: n.y, x2: n.x + d.w, y2: n.y + d.h });
+  }
+
+  // Candidate coordinate lines: the two stub coords, plus each box edge ± clearance.
+  const xsSet = new Set([spA.x, spB.x]);
+  const ysSet = new Set([spA.y, spB.y]);
+  for (const o of obstacles) {
+    xsSet.add(o.x1 - ROUTER_CLEAR); xsSet.add(o.x2 + ROUTER_CLEAR);
+    ysSet.add(o.y1 - ROUTER_CLEAR); ysSet.add(o.y2 + ROUTER_CLEAR);
+  }
+  const xs = [...xsSet].sort((a, b) => a - b);
+  const ys = [...ysSet].sort((a, b) => a - b);
+  const NX = xs.length, NY = ys.length;
+  if (NX < 2 || NY < 2 || NX * NY > ROUTER_MAX_VERTS) return null;
+  const xi = new Map(xs.map((v, i) => [v, i]));
+  const yi = new Map(ys.map((v, i) => [v, i]));
+
+  // A point is inside an obstacle if within its box (no margin — vertices sit on the
+  // clearance ring, which is outside the box, so they're valid).
+  const ptBlocked = (x, y) => {
+    for (const o of obstacles) {
+      if (x > o.x1 - 0.01 && x < o.x2 + 0.01 && y > o.y1 - 0.01 && y < o.y2 + 0.01) return true;
+    }
+    return false;
+  };
+  // An axis-aligned segment is clear if it intersects no box grown by SEG_MARGIN.
+  const segClear = (ax, ay, bx, by) => {
+    const x1 = Math.min(ax, bx), x2 = Math.max(ax, bx);
+    const y1 = Math.min(ay, by), y2 = Math.max(ay, by);
+    for (const o of obstacles) {
+      if (x2 <= o.x1 - ROUTER_SEG_MARGIN || x1 >= o.x2 + ROUTER_SEG_MARGIN) continue;
+      if (y2 <= o.y1 - ROUTER_SEG_MARGIN || y1 >= o.y2 + ROUTER_SEG_MARGIN) continue;
+      return false;
+    }
+    return true;
+  };
+
+  const si = xi.get(spA.x), sj = yi.get(spA.y), gi = xi.get(spB.x), gj = yi.get(spB.y);
+  if (si === undefined || sj === undefined || gi === undefined || gj === undefined) return null;
+  if (si === gi && sj === gj) return null;
+
+  // A* over (vertex i,j, incoming-dir). dir: 0=none,1=E,2=W,3=S,4=N.
+  const vid = (i, j) => j * NX + i;
+  const key = (i, j, d) => (j * NX + i) * 5 + d;
+  const NV = NX * NY * 5;
+  const g = new Float64Array(NV).fill(Infinity);
+  const prev = new Int32Array(NV).fill(-1);
+  const hCost = (i, j) => Math.abs(xs[i] - spB.x) + Math.abs(ys[j] - spB.y);
+  const heapF = [], heapK = [];
+  const push = (f, k) => {
+    heapF.push(f); heapK.push(k); let i = heapF.length - 1;
+    while (i > 0) { const p = (i - 1) >> 1; if (heapF[p] <= heapF[i]) break; [heapF[p], heapF[i]] = [heapF[i], heapF[p]]; [heapK[p], heapK[i]] = [heapK[i], heapK[p]]; i = p; }
+  };
+  const pop = () => {
+    const k = heapK[0], last = heapF.length - 1;
+    heapF[0] = heapF[last]; heapK[0] = heapK[last]; heapF.pop(); heapK.pop();
+    let i = 0; const n = heapF.length;
+    while (true) { let s = i; const l = 2 * i + 1, r = 2 * i + 2;
+      if (l < n && heapF[l] < heapF[s]) s = l;
+      if (r < n && heapF[r] < heapF[s]) s = r;
+      if (s === i) break; [heapF[s], heapF[i]] = [heapF[i], heapF[s]]; [heapK[s], heapK[i]] = [heapK[i], heapK[s]]; i = s; }
+    return k;
+  };
+  const DI = [0, 1, -1, 0, 0], DJ = [0, 0, 0, 1, -1];
+  const s0 = key(si, sj, 0);
+  g[s0] = 0; push(hCost(si, sj), s0);
+  let goalKey = -1;
+  while (heapF.length) {
+    const k = pop();
+    const d = k % 5, rest = (k - d) / 5, j = Math.floor(rest / NX), i = rest % NX;
+    if (i === gi && j === gj) { goalKey = k; break; }
+    const gc = g[k];
+    if (gc === Infinity) continue;
+    for (let nd = 1; nd <= 4; nd++) {
+      const ni = i + DI[nd], nj = j + DJ[nd];
+      if (ni < 0 || nj < 0 || ni >= NX || nj >= NY) continue;
+      if (ptBlocked(xs[ni], ys[nj])) continue;
+      if (!segClear(xs[i], ys[j], xs[ni], ys[nj])) continue;
+      const step = Math.abs(xs[ni] - xs[i]) + Math.abs(ys[nj] - ys[j]);
+      const turn = (d !== 0 && d !== nd) ? ROUTER_TURN : 0;
+      const ng = gc + step + turn;
+      const nk = key(ni, nj, nd);
+      if (ng < g[nk]) { g[nk] = ng; prev[nk] = k; push(ng + hCost(ni, nj), nk); }
+    }
+  }
+  if (goalKey < 0) return null;
+
+  // Reconstruct, convert to world points, drop collinear interior points.
+  const raw = [];
+  for (let k = goalKey; k !== -1; k = prev[k]) {
+    const d = k % 5, rest = (k - d) / 5, j = Math.floor(rest / NX), i = rest % NX;
+    raw.push({ x: xs[i], y: ys[j] });
+  }
+  raw.reverse();
+  const simp = [raw[0]];
+  for (let i = 1; i < raw.length - 1; i++) {
+    const a = simp[simp.length - 1], b = raw[i], c = raw[i + 1];
+    const collinear = (Math.abs(a.x - b.x) < 0.5 && Math.abs(b.x - c.x) < 0.5) ||
+                      (Math.abs(a.y - b.y) < 0.5 && Math.abs(b.y - c.y) < 0.5);
+    if (!collinear) simp.push(b);
+  }
+  simp.push(raw[raw.length - 1]);
+  return simp;
+}
+
+// A candidate connection on one face of a node: the anchor point on that edge (centre)
+// and the stub point STUB px out. Used by the obstacle router to CHOOSE a clean arrival/
+// departure side instead of accepting a pre-set stub that lands inside a sibling (T-114).
+function nodeSideStub(n, side) {
+  const d = NODE_DEFAULTS[n.type];
+  const cx = n.x + d.w / 2, cy = n.y + d.h / 2;
+  switch (side) {
+    case 'N': return { anchor: { x: cx, y: n.y },        stub: { x: cx, y: n.y - STUB } };
+    case 'S': return { anchor: { x: cx, y: n.y + d.h },  stub: { x: cx, y: n.y + d.h + STUB } };
+    case 'E': return { anchor: { x: n.x + d.w, y: cy },  stub: { x: n.x + d.w + STUB, y: cy } };
+    case 'W': return { anchor: { x: n.x, y: cy },        stub: { x: n.x - STUB, y: cy } };
+  }
+}
+
+// Is a point clear of every node box except src/tgt (with a small margin)?
+function pointClearOfNodes(p, src, tgt, margin = 4) {
+  for (const n of state.nodes) {
+    if ((src && n.id === src.id) || (tgt && n.id === tgt.id)) continue;
+    const d = NODE_DEFAULTS[n.type];
+    if (p.x > n.x - margin && p.x < n.x + d.w + margin && p.y > n.y - margin && p.y < n.y + d.h + margin) return false;
+  }
+  return true;
+}
+
+// Obstacle-avoiding route that is also free to CHOOSE which face of src and tgt to use
+// (T-114). For every pair of faces whose stub is clear of other nodes, route stub→stub via
+// routeAroundObstacles and keep the full [anchorA, stubA, ...path, stubB, anchorB] with the
+// fewest node crossings (ties broken by fewer bends, then length). Returns {polyline, crossings}
+// or null. Pure — computes points only, mutates nothing (PD-044).
+const ROUTER_SIDES = ['N', 'S', 'E', 'W'];
+function routeAvoidingWithPorts(src, tgt) {
+  let best = null;
+  for (const sa of ROUTER_SIDES) {
+    const A = nodeSideStub(src, sa);
+    if (!pointClearOfNodes(A.stub, src, tgt)) continue;
+    for (const sb of ROUTER_SIDES) {
+      const B = nodeSideStub(tgt, sb);
+      if (!pointClearOfNodes(B.stub, src, tgt)) continue;
+      const mid = routeAroundObstacles(A.stub, B.stub, src, tgt);
+      if (!mid || mid.length < 2) continue;
+      const poly = [A.anchor, ...mid, B.anchor];
+      const crossings = countNodeCrossings(poly, src, tgt);
+      let bends = 0;
+      for (let i = 1; i < poly.length - 1; i++) {
+        const p = poly[i - 1], q = poly[i], r = poly[i + 1];
+        const d1x = Math.sign(q.x - p.x), d1y = Math.sign(q.y - p.y);
+        const d2x = Math.sign(r.x - q.x), d2y = Math.sign(r.y - q.y);
+        if (d1x !== d2x || d1y !== d2y) bends++;
+      }
+      let len = 0;
+      for (let i = 0; i < poly.length - 1; i++) len += Math.abs(poly[i + 1].x - poly[i].x) + Math.abs(poly[i + 1].y - poly[i].y);
+      const score = crossings * 1e7 + bends * 1e4 + len;
+      if (!best || score < best.score) best = { polyline: poly, crossings, score };
+    }
+  }
+  return best;
+}
+
 // Main routing entry: route a single segment from anchor A → anchor B.
 // Returns { polyline, segmentMeta } where segmentMeta describes each interior
 // segment (between stubA and stubB) — its role name, direction, perpendicular axis.
@@ -3635,8 +3842,30 @@ function routeOrthogonalSegment(anchorA, anchorB, dirA, dirB, src, tgt, edge) {
 
   if (needsLoop) {
     const loop = orthoLoopBack(spA, spB, dirA, dirB, src, tgt, edge);
+    const loopPolyline = [anchorA, spA, ...loop.points, spB, anchorB];
+
+    // T-114: the loop-back picks the least-bad detour band, but in dense fan/join
+    // stacks its vertical legs (fixed at spA.x / spB.x) still run down the node column
+    // and clip mid-stack siblings — often because the pre-set arrival stub itself lands
+    // inside a sibling. When the loop-back still cuts, run the obstacle router that is
+    // free to CHOOSE a clean arrival/departure face, and adopt it ONLY if it strictly
+    // reduces the nodes cut. Conservative: clean loops are never touched, and the
+    // acceptance test guarantees the reroute can only ever help (else fallback).
+    if (src && tgt) {
+      const loopCross = countNodeCrossings(loopPolyline, src, tgt);
+      if (loopCross > 0) {
+        const avoid = routeAvoidingWithPorts(src, tgt);
+        if (avoid && avoid.crossings < loopCross) {
+          // A general polyline with chosen faces — no fixed 3-segment loop shape, so it
+          // carries no interior segment-drag handles (users can still add manual waypoints).
+          // Better a clean route than a draggable one that cuts a node.
+          return { polyline: avoid.polyline, segmentMeta: [] };
+        }
+      }
+    }
+
     return {
-      polyline: [anchorA, spA, ...loop.points, spB, anchorB],
+      polyline: loopPolyline,
       loopDetourY: loop.detourY,
       loopXRange: [spA.x, spB.x],
       // For loop-back, the segments are: leg_a (V), cross (H), leg_b (V).

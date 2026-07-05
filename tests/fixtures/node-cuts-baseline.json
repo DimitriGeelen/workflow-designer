@@ -1,15 +1,15 @@
 {
   "arc-lifecycle": {
-    "cutEdges": 1,
-    "incidences": 1
+    "cutEdges": 0,
+    "incidences": 0
   },
   "assumption-validation": {
     "cutEdges": 0,
     "incidences": 0
   },
   "audit-process": {
-    "cutEdges": 2,
-    "incidences": 2
+    "cutEdges": 0,
+    "incidences": 0
   },
   "context-memory": {
     "cutEdges": 0,
@@ -20,8 +20,8 @@
     "incidences": 0
   },
   "error-escalation-ladder": {
-    "cutEdges": 5,
-    "incidences": 7
+    "cutEdges": 0,
+    "incidences": 0
   },
   "fabric-blast-radius": {
     "cutEdges": 0,
@@ -32,20 +32,20 @@
     "incidences": 0
   },
   "harvest-pipeline": {
-    "cutEdges": 9,
-    "incidences": 13
+    "cutEdges": 0,
+    "incidences": 0
   },
   "healing-loop": {
     "cutEdges": 0,
     "incidences": 0
   },
   "inception-lifecycle": {
-    "cutEdges": 2,
-    "incidences": 2
+    "cutEdges": 0,
+    "incidences": 0
   },
   "inception-review": {
-    "cutEdges": 1,
-    "incidences": 1
+    "cutEdges": 0,
+    "incidences": 0
   },
   "promotion-pipeline": {
     "cutEdges": 0,
@@ -84,8 +84,8 @@
     "incidences": 0
   },
   "tier0-escalation": {
-    "cutEdges": 1,
-    "incidences": 1
+    "cutEdges": 0,
+    "incidences": 0
   },
   "upgrade-process": {
     "cutEdges": 0,

@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T21:07:06Z
-last_update: 2026-07-05T21:07:06Z
+last_update: 2026-07-05T21:11:18Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -60,17 +60,19 @@ regression** on any map, and `mapMessiness()` must not rise.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] A grid-based orthogonal A* obstacle router exists in the editor (pure function:
-      stubs + node rects → orthogonal polyline avoiding non-endpoint node boxes)
-- [ ] It is invoked at the `needsLoop` branch **only when** `orthoLoopBack`'s result still
+- [x] A grid-based orthogonal A* obstacle router exists in the editor (pure function:
+      stubs + node rects → orthogonal polyline avoiding non-endpoint node boxes) —
+      `routeAroundObstacles` (Hanan grid) + `routeAvoidingWithPorts` (chooses faces)
+- [x] It is invoked at the `needsLoop` branch **only when** `orthoLoopBack`'s result still
       crosses a node, and is used **only if** it strictly reduces crossings (else fallback)
-- [ ] Corpus node-cuts drop materially: harvest-pipeline and error-escalation-ladder each
-      reduced by ≥50% incidences; corpus total ≤ 14 (from 27)
-- [ ] **Zero regression:** no map's cut count increases (T-113 harness), and `mapMessiness()`
-      does not rise on any map
-- [ ] No stored geometry mutated — router computes `_renderedPolyline` only, runs in render
+- [x] Corpus node-cuts drop materially: harvest-pipeline and error-escalation-ladder each
+      reduced by ≥50% incidences; corpus total ≤ 14 (from 27) — **exceeded: 27 → 0 corpus-wide**
+      (harvest 13→0, error-esc 7→0)
+- [x] **Zero regression:** no map's cut count increases (T-113 harness), and `mapMessiness()`
+      does not rise on any map — verified 0 cuts + mess 0 on all 24 maps
+- [x] No stored geometry mutated — router computes `_renderedPolyline` only, runs in render
       pass (PD-044); `src/aef-workflow-designer.html` == `build/gallery/designer.html`
-- [ ] T-113 baseline refreshed to the improved counts (the gate stays rot-proof)
+- [x] T-113 baseline refreshed to the improved counts (the gate stays rot-proof) — all 0s
 
 ### Human
 - [ ] [REVIEW] Rerouted fan/join edges look clean, not contorted
@@ -81,6 +83,22 @@ regression** on any map, and `mapMessiness()` must not rise.
   **Expected:** No edge passes through an unrelated node box; rerouted edges take sensible
   side channels (not wild zig-zags or excessive detours)
   **If not:** Note which edge looks wrong; the router's turn-penalty / grid pitch can be tuned
+
+## Visual Verification
+
+Element-level screenshots taken with Playwright and READ (not just DOM-measured), per the
+CLAUDE.md visual-verification rule. The change is edge-routing geometry, so the affected
+modes are the two heavily-rerouted maps plus a clean-map regression check:
+
+- `.playwright-mcp/t114-harvest-after.png` — harvest-pipeline full map: fan-out (fork→6
+  harvest nodes) and fan-in (→join) now enter/exit node **side** faces; no box is speared.
+- `.playwright-mcp/t114-harvest-fan-zoom.png` — tight zoom on the fan/join region confirming
+  clean orthogonal side-entry, no sibling clipping, sane bend counts.
+- `.playwright-mcp/t114-error-esc-after.png` — error-escalation-ladder: gateway→DOCTRINE
+  A/B/C/D→healing fan routes cleanly into box sides.
+- Numeric cross-check (T-113 harness + in-page probe): 0 cuts and `mapMessiness()==0` on all
+  24 maps; previously-clean maps are untouched (router only fires on cutting loop-backs);
+  worst-case renderAll 62 ms (28-edge map) — no perceptible latency.
 
 ## Verification
 
