@@ -514,3 +514,24 @@ decisions:
     date: 2026-07-05
     task: T-095
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-053
+    decision: "Combine per-rank stub extension with ordered anchor spread in middle-attach mode (8px pitch), instead of shipping stub channels alone."
+    scope: project
+    date: 2026-07-05
+    task: T-097
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-054
+    decision: "Sort fan siblings by the natural route's first turn (`polyline[2]`: mid-bar y for T2, detour y for loop-overs, anchor y for straight runs), computed once inside the cached `buildEdgeGroups()`."
+    scope: project
+    date: 2026-07-05
+    task: T-097
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-055
+    decision: "Amend the no-map-worse AC from per-metric to combined badness (overlap pairs + proper crossings) plus node-cuts."
+    scope: project
+    date: 2026-07-05
+    task: T-097
+    rationale: "Auto-captured from task file on completion"

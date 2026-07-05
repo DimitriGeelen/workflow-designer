@@ -2536,6 +2536,13 @@ function renderEdges() {
       const tOff = spreadOffset(e, 'target', tDir, tgt);
       sp = applySpread(sp, sDir, sOff);
       tp = applySpread(tp, tDir, tOff);
+      // Corridor channels (T-097): per-rank stub extension so fan/join siblings
+      // turn in separate lanes. User routing overrides win — no channel then.
+      const hasRouteOverride = wps.length > 0 ||
+        (e.routingHints && Object.keys(e.routingHints).length > 0) ||
+        typeof e.detourY === 'number';
+      e._chanS = hasRouteOverride ? 0 : channelExtra(e, 'source', sDir, src);
+      e._chanT = hasRouteOverride ? 0 : channelExtra(e, 'target', tDir, tgt);
       // Straightening pass (T-073): near-aligned auto anchors slide onto a
       // shared axis so the edge renders straight instead of as a 2-corner jog.
       // Render-only — node positions are untouched. Skipped for pinned ports,
@@ -2549,11 +2556,13 @@ function renderEdges() {
         if (st) { sp = st.sp; tp = st.tp; }
       }
     } else if (edgeDrag.role === 'source') {
-      // Only the non-dragged end gets spread
+      // Only the non-dragged end gets spread; no channels while dragging
+      e._chanS = 0; e._chanT = 0;
       const tDir = exitDirection(tgt, tp, e.targetPort || 'auto');
       const tOff = spreadOffset(e, 'target', tDir, tgt);
       tp = applySpread(tp, tDir, tOff);
     } else if (edgeDrag.role === 'target') {
+      e._chanS = 0; e._chanT = 0;
       const sDir = exitDirection(src, sp, e.sourcePort || 'auto');
       const sOff = spreadOffset(e, 'source', sDir, src);
       sp = applySpread(sp, sDir, sOff);
@@ -2974,8 +2983,25 @@ function buildEdgeGroups() {
 
     // For sort key: when spreading along an E/W side we order by Y (target's Y for source-side, source's Y for target-side).
     // When spreading along N/S side, we order by X.
-    const sKey = (sDir === 'E' || sDir === 'W') ? tAnchor.y : tAnchor.x;
-    const tKey = (tDir === 'E' || tDir === 'W') ? sAnchor.y : sAnchor.x;
+    let sKey = (sDir === 'E' || sDir === 'W') ? tAnchor.y : tAnchor.x;
+    let tKey = (tDir === 'E' || tDir === 'W') ? sAnchor.y : sAnchor.x;
+    // T-097: an edge whose straight corridor is blocked loops over/under its
+    // obstacle, so its EFFECTIVE departure differs from where its target sits
+    // (context-memory g_capture: two same-row targets loop up, one goes
+    // straight — far-anchor order would fan them wrong and force crossings).
+    // Order by the natural route's first/last turn instead: polyline[2] is
+    // the mid-bar y for T2, the detour y for loop-overs, the anchor y for
+    // straight runs. Computed without spread/channels; cached with the group.
+    try {
+      const nat = routeOrthogonalSegment(sAnchor, tAnchor, sDir, tDir, src, tgt,
+        { routingHints: e.routingHints, detourY: e.detourY });
+      const poly = nat.polyline;
+      if (poly && poly.length >= 4) {
+        const first = poly[2], last = poly[poly.length - 3];
+        sKey = (sDir === 'E' || sDir === 'W') ? first.y : first.x;
+        tKey = (tDir === 'E' || tDir === 'W') ? last.y : last.x;
+      }
+    } catch (err) { /* fall back to far-anchor keys */ }
 
     const sGroupKey = `${e.source}:${sDir}`;
     const tGroupKey = `${e.target}:${tDir}`;
@@ -2997,9 +3023,18 @@ function buildEdgeGroups() {
 // distinguishes it from siblings on the same node-side. Single-edge groups
 // return 0 (no spread).
 function spreadOffset(edge, role, dir, node) {
-  // 'middle' attach mode (T-070): siblings converge on the mid-side point —
-  // no fan-out. Explicit port pins already bypassed spread upstream via anchors.
-  if (routingPrefs.attach === 'middle') return 0;
+  // 'middle' attach mode (T-070): siblings used to converge on the mid-side
+  // point with NO fan-out — which made every fan/join corridor an ambiguous
+  // collinear bundle (T-092 finding 2). T-097: middle mode now spreads
+  // siblings too, at a tighter pitch, ordered by far-end coordinate so the
+  // fan order matches the branch order and same-block edges cannot cross.
+  // Explicit port pins already bypassed spread upstream via anchors.
+  // User-routed edges (waypoints/hints/detour) keep their pre-T-097 middle
+  // anchors — their geometry was placed against the converging attach point.
+  if (routingPrefs.attach === 'middle' &&
+      ((edge.waypoints && edge.waypoints.length > 0) ||
+       (edge.routingHints && Object.keys(edge.routingHints).length > 0) ||
+       typeof edge.detourY === 'number')) return 0;
   const nodeId = role === 'source' ? edge.source : edge.target;
   const groupKey = `${nodeId}:${dir}`;
   const groups = buildEdgeGroups();
@@ -3008,7 +3043,7 @@ function spreadOffset(edge, role, dir, node) {
   const idx = list.findIndex(x => x.edgeId === edge.id && x.role === role);
   if (idx < 0) return 0;
   const n = list.length;
-  const spacing = 16; // pixels between adjacent edges
+  const spacing = routingPrefs.attach === 'middle' ? CHANNEL_PITCH : 16; // px between adjacent edges
   // Total spread width, capped to 70% of the node's side length
   const sideLen = nodeSideLength(node, dir);
   const cap = sideLen * 0.7;
@@ -3016,6 +3051,36 @@ function spreadOffset(edge, role, dir, node) {
   const actualSpacing = (n > 1) ? totalSpread / (n - 1) : 0;
   // Distribute symmetrically around the port center.
   return (idx - (n - 1) / 2) * actualSpacing;
+}
+
+// ============================================================================
+//  Crossing-aware branch ordering (T-097, survey option 10)
+// ============================================================================
+//
+// Fan/join siblings share one mid-side anchor (T-070 middle attach), so their
+// T2 corridor legs all sit at the same stub x/y and run collinear — the
+// ambiguous bundles of survey finding 2. Give each sibling its own channel by
+// extending its stub per rank. Rank orders siblings by |far-end delta|
+// DESCENDING: the edge travelling farthest turns first (base stub), nearer
+// ones travel further out before turning. That order is what makes sibling
+// legs and mid-bars non-crossing on both the exit and arrival side.
+const CHANNEL_PITCH = 8; // px between adjacent corridor channels
+
+// Extra stub length for this edge endpoint, 0 when it has no same-side
+// siblings. Render-only — reads the same group cache as spreadOffset.
+function channelExtra(edge, role, dir, node) {
+  const nodeId = role === 'source' ? edge.source : edge.target;
+  const list = buildEdgeGroups().get(`${nodeId}:${dir}`);
+  if (!list || list.length <= 1) return 0;
+  const mine = list.find(x => x.edgeId === edge.id && x.role === role);
+  if (!mine) return 0;
+  // Rank by distance of the far end from this side's centreline, farthest first.
+  const c = centerOf(node);
+  const centre = (dir === 'E' || dir === 'W') ? c.y : c.x;
+  const byDist = [...list].sort((a, b) =>
+    Math.abs(b.sortKey - centre) - Math.abs(a.sortKey - centre) || a.edgeId.localeCompare(b.edgeId));
+  const idx = byDist.findIndex(x => x.edgeId === edge.id && x.role === role);
+  return idx > 0 ? idx * CHANNEL_PITCH : 0;
 }
 
 // Apply the spread offset to an anchor point. The offset is perpendicular to
@@ -3435,8 +3500,20 @@ function orthoLoopBack(spA, spB, dirA, dirB, src, tgt, edge) {
 // segment (between stubA and stubB) — its role name, direction, perpendicular axis.
 // The caller (renderer) uses this metadata to place segment-drag handles.
 function routeOrthogonalSegment(anchorA, anchorB, dirA, dirB, src, tgt, edge) {
-  const spA = stubPoint(anchorA, dirA);
-  const spB = stubPoint(anchorB, dirB);
+  // Corridor channel stubs (T-097): a sibling's stub may be extended by its
+  // channel rank. Clamp so an extended stub never runs past the far anchor's
+  // own stub zone — cramped spans fall back to the base stub.
+  const clampExt = (ext, dir, from, to) => {
+    if (ext <= 0) return 0;
+    const run = dir === 'E' ? to.x - from.x : dir === 'W' ? from.x - to.x
+              : dir === 'S' ? to.y - from.y : from.y - to.y;
+    const room = run - 2 * STUB - 8;
+    return room <= 0 ? 0 : Math.min(ext, room);
+  };
+  const extA = clampExt((src && edge && edge._chanS) || 0, dirA, anchorA, anchorB);
+  const extB = clampExt((tgt && edge && edge._chanT) || 0, dirB, anchorB, anchorA);
+  const spA = stubPoint(anchorA, dirA, STUB + extA);
+  const spB = stubPoint(anchorB, dirB, STUB + extB);
 
   // Compute the simple orthogonal route as a structured object, then apply
   // user-supplied per-segment hints if present.
