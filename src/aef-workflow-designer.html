@@ -1117,6 +1117,15 @@
             <input type="number" id="set-straighten-tol" min="0" max="40" step="1" class="settings-num">
             <span class="settings-hint">px — near-aligned connections render as one straight line; 0 = off</span>
           </label>
+          <label class="settings-row">
+            <span>Channel separation</span>
+            <select id="set-channel-sep">
+              <option value="0">off</option>
+              <option value="4">tight (4px)</option>
+              <option value="8">roomy (8px)</option>
+            </select>
+            <span class="settings-hint">fan/join sibling arrows keep this distance in shared corridors; off = converge on one line</span>
+          </label>
         </div>
         <div class="settings-section">
           <div class="settings-section-label">Snapping (while dragging)</div>
@@ -1672,11 +1681,12 @@ let selection = null; // { kind: 'node'|'edge'|'lane', id } — primary; drives 
 // attach: 'middle' = unpinned edge ends snap to the middle of the facing side
 // (arrows converge on one point — calm default); 'spread' = fan sibling edges
 // out along the side (previous behaviour). Explicit port pins override both.
-let routingPrefs = { attach: 'middle', straightenTol: 16 };
+let routingPrefs = { attach: 'middle', straightenTol: 16, channelSep: 8 };
 try {
   const _storedRouting = JSON.parse(localStorage.getItem('aefRoutingPrefs') || '{}');
   if (_storedRouting.attach === 'middle' || _storedRouting.attach === 'spread') routingPrefs.attach = _storedRouting.attach;
   if (Number.isFinite(_storedRouting.straightenTol) && _storedRouting.straightenTol >= 0) routingPrefs.straightenTol = _storedRouting.straightenTol;
+  if ([0, 4, 8].includes(_storedRouting.channelSep)) routingPrefs.channelSep = _storedRouting.channelSep;
 } catch (_) {}
 function setRoutingAttach(mode) {
   routingPrefs.attach = mode;
@@ -1685,6 +1695,13 @@ function setRoutingAttach(mode) {
 }
 function setStraightenTol(px) {
   routingPrefs.straightenTol = Math.max(0, Math.min(40, Math.round(px) || 0));
+  try { localStorage.setItem('aefRoutingPrefs', JSON.stringify(routingPrefs)); } catch (_) {}
+  renderEdges();
+}
+// Channel separation (T-098, survey option 2): pitch of the T-097 fan/join
+// corridor channels — 0 restores the pre-T-097 converging look.
+function setChannelSep(px) {
+  routingPrefs.channelSep = [0, 4, 8].includes(px) ? px : 8;
   try { localStorage.setItem('aefRoutingPrefs', JSON.stringify(routingPrefs)); } catch (_) {}
   renderEdges();
 }
@@ -3043,7 +3060,7 @@ function spreadOffset(edge, role, dir, node) {
   const idx = list.findIndex(x => x.edgeId === edge.id && x.role === role);
   if (idx < 0) return 0;
   const n = list.length;
-  const spacing = routingPrefs.attach === 'middle' ? CHANNEL_PITCH : 16; // px between adjacent edges
+  const spacing = routingPrefs.attach === 'middle' ? channelPitch() : 16; // px between adjacent edges
   // Total spread width, capped to 70% of the node's side length
   const sideLen = nodeSideLength(node, dir);
   const cap = sideLen * 0.7;
@@ -3064,7 +3081,10 @@ function spreadOffset(edge, role, dir, node) {
 // DESCENDING: the edge travelling farthest turns first (base stub), nearer
 // ones travel further out before turning. That order is what makes sibling
 // legs and mid-bars non-crossing on both the exit and arrival side.
-const CHANNEL_PITCH = 8; // px between adjacent corridor channels
+const CHANNEL_PITCH = 8; // px between adjacent corridor channels (default)
+// Live pitch — the T-098 "Channel separation" routing setting (0 = off).
+const channelPitch = () =>
+  [0, 4, 8].includes(routingPrefs.channelSep) ? routingPrefs.channelSep : CHANNEL_PITCH;
 
 // Extra stub length for this edge endpoint, 0 when it has no same-side
 // siblings. Render-only — reads the same group cache as spreadOffset.
@@ -3080,7 +3100,7 @@ function channelExtra(edge, role, dir, node) {
   const byDist = [...list].sort((a, b) =>
     Math.abs(b.sortKey - centre) - Math.abs(a.sortKey - centre) || a.edgeId.localeCompare(b.edgeId));
   const idx = byDist.findIndex(x => x.edgeId === edge.id && x.role === role);
-  return idx > 0 ? idx * CHANNEL_PITCH : 0;
+  return idx > 0 ? idx * channelPitch() : 0;
 }
 
 // Apply the spread offset to an anchor point. The offset is perpendicular to
@@ -4406,6 +4426,7 @@ function syncSettingsUI() {
   $('set-attach-middle').checked = routingPrefs.attach === 'middle';
   $('set-attach-spread').checked = routingPrefs.attach === 'spread';
   $('set-straighten-tol').value = routingPrefs.straightenTol;
+  $('set-channel-sep').value = String(routingPrefs.channelSep);
   $('set-snap-magnet').checked = snapPrefs.magnet;
   $('set-snap-grid').checked = snapPrefs.grid;
   $('set-grid-size').value = snapPrefs.gridSize;
@@ -4429,6 +4450,7 @@ document.addEventListener('keydown', e => {
 $('set-attach-middle').addEventListener('change', () => setRoutingAttach('middle'));
 $('set-attach-spread').addEventListener('change', () => setRoutingAttach('spread'));
 $('set-straighten-tol').addEventListener('change', e => { setStraightenTol(parseFloat(e.target.value)); e.target.value = routingPrefs.straightenTol; });
+$('set-channel-sep').addEventListener('change', e => setChannelSep(parseInt(e.target.value, 10)));
 $('set-snap-magnet').addEventListener('change', e => setSnapPref('magnet', e.target.checked));
 $('set-snap-grid').addEventListener('change', e => setSnapPref('grid', e.target.checked));
 $('set-lane-fit').addEventListener('change', e => setLabelPref('laneFit', e.target.checked));
@@ -4452,6 +4474,7 @@ $('set-grid-size').addEventListener('change', e => {
 $('btn-settings-reset').onclick = () => {
   setRoutingAttach('middle');
   setStraightenTol(16);
+  setChannelSep(8);
   setSnapPref('magnet', true);
   setSnapPref('grid', false);
   setSnapPref('gridSize', 20);
