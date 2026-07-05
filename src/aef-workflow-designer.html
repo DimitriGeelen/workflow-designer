@@ -3807,6 +3807,7 @@ function routeAvoidingWithPorts(src, tgt) {
 // never touched (PD-044). Endpoint-adjacent micro-steps (stub meets a face
 // off-centre) are intentionally out of scope — a deeper attachment-point change.
 const DEJOG_MAX = 10; // px — a perpendicular step at/below this is a kink to straighten
+const EDGE_SNAP_TOL = 8; // px — endpoint minor-axis delta at/below this is cosmetic, snap straight
 function collapseCollinearPoints(pl) {
   if (pl.length < 3) return pl.slice();
   const o = [pl[0]];
@@ -3819,8 +3820,44 @@ function collapseCollinearPoints(pl) {
   o.push(pl[pl.length - 1]);
   return o;
 }
+// Endpoint straight-snap (T-118): the T-117 de-jog cleans INTERIOR kinks, but a run can
+// still meet a node face with a tiny 2–4px step — either an off-centre gateway source-port
+// (a diamond drop leaves a few px off the bottom vertex while the target is centred) or a
+// sub-threshold corridor offset that separates the edge from no sibling. When the two
+// face-attach ENDPOINTS are axis-aligned within EDGE_SNAP_TOL on the minor axis, and every
+// vertex hugs that band, collapse the whole run to one straight segment at a minor
+// coordinate that lies within BOTH node face spans (re-anchoring each endpoint along its
+// own face — it never merges two distinct edges, since each snaps to its own port).
+// Guard: no new node crossings (reuse the T-117 self-validating test). Genuine migrations
+// (endpoint minor-axis delta > EDGE_SNAP_TOL, e.g. release e_15's 31px) are left untouched.
+// Pure render cleanup; stored geometry never changes (PD-044).
+function endpointStraightSnap(pts, src, tgt, baseCuts) {
+  if (!src || !tgt || pts.length < 3) return pts;
+  const A = pts[0], B = pts[pts.length - 1];
+  const dx = Math.abs(A.x - B.x), dy = Math.abs(A.y - B.y);
+  const sr = nodeRect(src), tr = nodeRect(tgt);
+  const vertical = dy >= dx; // vertical-dominant → minor axis is x; else minor axis is y
+  const minorA = vertical ? 'x' : 'y';
+  if ((vertical ? dx : dy) > EDGE_SNAP_TOL) return pts; // real migration — keep its steps
+  const lo = Math.min(A[minorA], B[minorA]) - EDGE_SNAP_TOL, hi = Math.max(A[minorA], B[minorA]) + EDGE_SNAP_TOL;
+  for (const p of pts) { if (p[minorA] < lo || p[minorA] > hi) return pts; } // a vertex juts out → keep
+  const inSpanX = (x, r) => x >= r.x - 0.5 && x <= r.x + r.w + 0.5;
+  const inSpanY = (y, r) => y >= r.y - 0.5 && y <= r.y + r.h + 0.5;
+  const inSpan = vertical ? inSpanX : inSpanY;
+  // pick a shared minor coordinate on BOTH faces, preferring the target port then source
+  let snap = null;
+  if (inSpan(B[minorA], sr)) snap = B[minorA];
+  else if (inSpan(A[minorA], tr)) snap = A[minorA];
+  else { const m = (A[minorA] + B[minorA]) / 2; if (inSpan(m, sr) && inSpan(m, tr)) snap = m; }
+  if (snap == null) return pts;
+  const cand = vertical
+    ? [{ x: snap, y: A.y }, { x: snap, y: B.y }]
+    : [{ x: A.x, y: snap }, { x: B.x, y: snap }];
+  if (polylineCrossesNodes(cand, src, tgt) <= baseCuts) return cand;
+  return pts;
+}
 function simplifyRoutedPolyline(pl, src, tgt) {
-  if (!pl || pl.length < 5) return pl;
+  if (!pl || pl.length < 3) return pl;
   const dirOf = (a, b) => Math.abs(a.x - b.x) < 0.5 ? 'V' : (Math.abs(a.y - b.y) < 0.5 ? 'H' : 'D');
   let pts = collapseCollinearPoints(pl.map(p => ({ x: p.x, y: p.y })));
   const baseCuts = polylineCrossesNodes(pts, src, tgt);
@@ -3849,6 +3886,7 @@ function simplifyRoutedPolyline(pl, src, tgt) {
       }
     }
   }
+  pts = endpointStraightSnap(pts, src, tgt, baseCuts); // T-118: collapse endpoint-adjacent micro-steps
   return pts;
 }
 
