@@ -4,9 +4,9 @@ name: "Routing margin setting: reserved periphery band for loop-back edges"
 description: >
   T-092 Phase C option 3: expose a routing-margin preference (none/8/16px) that widens the reserved periphery band orthoLoopBack() uses for loop-back/long-run edges, so they skirt the content instead of sharing a corridor with row-2 nodes (survey finding 5). Editor-local pref like straightening/channel-sep; render-only, no stored geometry mutation (PD-044 trivially safe).
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T18:36:00Z
-last_update: 2026-07-05T18:51:59Z
-date_finished: null
+last_update: 2026-07-05T18:52:23Z
+date_finished: 2026-07-05T18:52:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -213,3 +213,6 @@ test -z "$(git diff --name-only -- 'examples/aef-processes/*.workflow.yaml' 'exa
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-106-routing-margin-setting-reserved-peripher.md
 - **Context:** Initial task creation
+
+### 2026-07-05T18:52:23Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
