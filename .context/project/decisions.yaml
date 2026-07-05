@@ -535,3 +535,10 @@ decisions:
     date: 2026-07-05
     task: T-097
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-056
+    decision: "`mapMessiness()` = count of nodes in a same-lane overlap or wavy row-pair, threshold 3."
+    scope: project
+    date: 2026-07-05
+    task: T-100
+    rationale: "Auto-captured from task file on completion"

@@ -277,6 +277,35 @@
   }
   .canvas-overlay .status-mode { color: var(--accent); }
 
+  .clean-nudge {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 6px 8px 6px 12px;
+    font-size: 12px;
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    z-index: 5;
+  }
+  .clean-nudge .clean-nudge-msg { white-space: nowrap; }
+  .clean-nudge-x {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 2px 4px;
+    line-height: 1;
+  }
+  .clean-nudge-x:hover { color: var(--text); }
+
   /* SVG element styles */
   .lane-bg { transition: fill 0.15s ease, stroke 0.15s ease; }
   .lane-bg.selected { stroke: var(--accent); stroke-width: 1.5; }
@@ -1079,6 +1108,11 @@
       </svg>
       <div class="canvas-overlay" id="status">
         Mode: <span class="status-mode" id="status-mode">select</span><span id="status-selection"></span>
+      </div>
+      <div class="clean-nudge" id="clean-nudge" style="display:none">
+        <span class="clean-nudge-msg">✨ This map could use Clean layout</span>
+        <button class="btn" id="clean-nudge-apply" type="button">Clean layout</button>
+        <button class="clean-nudge-x" id="clean-nudge-dismiss" type="button" title="Dismiss">✕</button>
       </div>
     </div>
 
@@ -5135,6 +5169,42 @@ function cleanLayout() {
   return positions.length;
 }
 
+// ── Clean nudge messiness signal (T-100) ────────────────────────────────────
+// A read-only measure of genuine visual mess: the number of nodes involved in
+// either a same-lane node overlap or a wavy row (side-by-side row-mates whose
+// centres are 1–14px off — the T-092/T-094 wavy metric). Deliberately NOT
+// "how many nodes Tidy would grid-snap" — Tidy snaps something on nearly every
+// raw file, which would nag on every load. This fires only on maps with real
+// overlaps/waves; the 6 clean corpus maps (incl. release-pipeline) score 0.
+// Purely reads positions — no mutation, no render (PD-044 trivially safe).
+function mapMessiness() {
+  const involved = new Set();
+  const ns = state.nodes;
+  for (let i = 0; i < ns.length; i++) for (let j = i + 1; j < ns.length; j++) {
+    const a = ns[i], b = ns[j];
+    if (a.lane !== b.lane) continue;
+    const ra = nodeRect(a), rb = nodeRect(b);
+    if (rectsIntersect(ra, rb)) { involved.add(a.id); involved.add(b.id); continue; }
+    // wavy row: side-by-side (x-ranges disjoint) but centres 1–14px off vertically
+    const xDisjoint = ra.x + ra.w <= rb.x || rb.x + rb.w <= ra.x;
+    if (!xDisjoint) continue;
+    const cyA = a.y + NODE_DEFAULTS[a.type].h / 2, cyB = b.y + NODE_DEFAULTS[b.type].h / 2;
+    const dcy = Math.abs(cyA - cyB);
+    if (dcy >= 1 && dcy <= 14) { involved.add(a.id); involved.add(b.id); }
+  }
+  return involved.size;
+}
+
+// Show/hide the Clean nudge after a user import. Suppressed when clean-on-import
+// already handled it, or the map is essentially tidy. Threshold 3 avoids
+// nagging over one or two stray nodes.
+const CLEAN_NUDGE_MIN = 3;
+function maybeShowCleanNudge() {
+  const el = $('clean-nudge');
+  if (!el) return;
+  el.style.display = (viewPrefs.cleanOnImport || mapMessiness() < CLEAN_NUDGE_MIN) ? 'none' : '';
+}
+
 // ── Align rows (T-094) ──────────────────────────────────────────────────────
 // Explicit one-shot action: snap each cluster of near-aligned row-mates (chains
 // of centre-y neighbours <=14px apart — the T-092 near-miss metric) to the
@@ -5648,6 +5718,12 @@ $('btn-clean').onclick = () => {
   if (moved) { flashCleanFeedback(moved); }
   else { btn.textContent = '✨ Already clean'; setTimeout(() => { btn.textContent = '✨ Clean layout'; }, 2500); }
 };
+$('clean-nudge-apply').onclick = () => {
+  const moved = cleanLayout();
+  if (moved) flashCleanFeedback(moved);
+  $('clean-nudge').style.display = 'none';
+};
+$('clean-nudge-dismiss').onclick = () => { $('clean-nudge').style.display = 'none'; };
 $('btn-reset').onclick = () => {
   // Reset: blow away library and start over with seed
   library.clear();
@@ -5713,6 +5789,10 @@ function adoptImportedXml(text, opts) {
     const moved = cleanLayout();
     if (moved && typeof flashCleanFeedback === 'function') flashCleanFeedback(moved);
   }
+  // Clean nudge (T-100): offer one-click Clean when a user opens a messy map
+  // and clean-on-import is off. Programmatic adoption never nudges.
+  if (opts && opts.userImport) { maybeShowCleanNudge(); }
+  else { const nudge = $('clean-nudge'); if (nudge) nudge.style.display = 'none'; }
 }
 // Briefly show the Clean toolbar button's moved-count feedback (shared by the
 // Clean button and clean-on-import) so the operator sees geometry changed.
