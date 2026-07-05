@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-111: Surface distribute-align-columns trade-off in editor tooltips
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-05T20:37:38Z
+# ============================================================================
+
+task_id: T-111
+task_name: "Surface distribute-align-columns trade-off in editor tooltips"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T20:35:03Z
+completed: 2026-07-05T20:37:37Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-05T22:37:30+02:00
+last_commit: 2026-07-05T22:37:30+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Surface distribute-align-columns trade-off in editor tooltips
+
+# Key outcomes
+outcomes:
+  - 'The `#btn-align-cols` tooltip names the trade-off (mentions Distribute / row-mates)'
+  - 'The `#btn-distribute` tooltip names the trade-off (mentions column / Align columns)'
+  - 'Both tooltips still state that Ctrl+Z reverts'
+  - '`src/aef-workflow-designer.html` and `build/gallery/designer.html` are byte-identical (cp discipline)'
+  - 'No editor JS logic changed — only `title=` attribute text (git diff shows only the two button lines)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-111-surface-distribute-align-columns-trade-o.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T22:37:30"
+    action: "T-111: Surface distribute-align-columns trade-off in editor tooltips"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 2
+  lines_added: 163
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-111-surface-distribute-align-columns-trade-o.md
+generated_by: context-agent-hybrid
