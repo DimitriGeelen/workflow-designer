@@ -3808,6 +3808,7 @@ function routeAvoidingWithPorts(src, tgt) {
 // off-centre) are intentionally out of scope — a deeper attachment-point change.
 const DEJOG_MAX = 10; // px — a perpendicular step at/below this is a kink to straighten
 const EDGE_SNAP_TOL = 8; // px — endpoint minor-axis delta at/below this is cosmetic, snap straight
+const MERGE_MAX = 16; // px — a same-direction migration split into two steps each ≤ this consolidates to one Z
 function collapseCollinearPoints(pl) {
   if (pl.length < 3) return pl.slice();
   const o = [pl[0]];
@@ -3819,6 +3820,41 @@ function collapseCollinearPoints(pl) {
   }
   o.push(pl[pl.length - 1]);
   return o;
+}
+// Consolidate split migrations (T-119): when two connected nodes' centres differ by a
+// small amount, the router splits that offset across the departure AND arrival stubs,
+// drawing a two-step staircase (V-H-V-H-V or H-V-H-V-H: two SAME-direction steps each
+// ≤ MERGE_MAX separated by one long perpendicular run) instead of a single clean Z
+// (sidestep once, then run straight). Collapse it: try shifting the whole migration
+// early (at the first step's position) then late (at the second's), and take the first
+// candidate that adds no node crossing. Same-sign + ≤MERGE_MAX keeps real S-bends and
+// large intentional detours untouched. Pure render cleanup; stored geometry never
+// changes (PD-044).
+function consolidateStaircase(pts, src, tgt, baseCuts) {
+  if (!src || !tgt || pts.length !== 6) return pts; // exactly two interior steps
+  const dir = (a, b) => Math.abs(a.x - b.x) < 0.5 ? 'V' : (Math.abs(a.y - b.y) < 0.5 ? 'H' : 'D');
+  let ds = ''; for (let i = 0; i < 5; i++) ds += dir(pts[i], pts[i + 1]);
+  let cands = [];
+  if (ds === 'VHVHV') {
+    const s1 = pts[2].x - pts[1].x, s2 = pts[4].x - pts[3].x;
+    if (Math.sign(s1) === Math.sign(s2) && Math.abs(s1) <= MERGE_MAX && Math.abs(s2) <= MERGE_MAX) {
+      const xE = pts[4].x;
+      cands.push([pts[0], { x: pts[0].x, y: pts[1].y }, { x: xE, y: pts[1].y }, { x: xE, y: pts[5].y }, pts[5]]); // shift-early
+      cands.push([pts[0], { x: pts[0].x, y: pts[3].y }, { x: xE, y: pts[3].y }, { x: xE, y: pts[5].y }, pts[5]]); // shift-late
+    }
+  } else if (ds === 'HVHVH') {
+    const s1 = pts[2].y - pts[1].y, s2 = pts[4].y - pts[3].y;
+    if (Math.sign(s1) === Math.sign(s2) && Math.abs(s1) <= MERGE_MAX && Math.abs(s2) <= MERGE_MAX) {
+      const yE = pts[4].y;
+      cands.push([pts[0], { x: pts[1].x, y: pts[0].y }, { x: pts[1].x, y: yE }, { x: pts[5].x, y: yE }, pts[5]]); // shift-early
+      cands.push([pts[0], { x: pts[3].x, y: pts[0].y }, { x: pts[3].x, y: yE }, { x: pts[5].x, y: yE }, pts[5]]); // shift-late
+    }
+  }
+  for (const c of cands) {
+    const cc = collapseCollinearPoints(c);
+    if (polylineCrossesNodes(cc, src, tgt) <= baseCuts) return cc;
+  }
+  return pts;
 }
 // Endpoint straight-snap (T-118): the T-117 de-jog cleans INTERIOR kinks, but a run can
 // still meet a node face with a tiny 2–4px step — either an off-centre gateway source-port
@@ -3886,6 +3922,7 @@ function simplifyRoutedPolyline(pl, src, tgt) {
       }
     }
   }
+  pts = consolidateStaircase(pts, src, tgt, baseCuts); // T-119: two-step migration → single Z
   pts = endpointStraightSnap(pts, src, tgt, baseCuts); // T-118: collapse endpoint-adjacent micro-steps
   return pts;
 }
