@@ -4,16 +4,16 @@ name: "Obstacle-avoiding orthogonal edge router for corpus node-cuts"
 description: >
   Inception: Obstacle-avoiding orthogonal edge router for corpus node-cuts
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-05T20:38:14Z
-last_update: 2026-07-05T20:38:54Z
-date_finished: null
+last_update: 2026-07-05T21:05:54Z
+date_finished: 2026-07-05T21:05:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -117,15 +117,15 @@ discipline); changing the corpus; any editor source change under this inception 
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -210,7 +210,18 @@ Clean-rebake task, with the census probe as the non-regression gate. Decision is
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: The exploration answered all four open questions with verified measurement (confidence 3).
+Node-cuts remain a **material, concentrated** legibility defect that **no cheap action
+dissolves**, and the router has a **bounded insertion point with a ready regression harness** —
+this clears the GO bar. Two caveats shape it into a *sequenced* GO rather than a blank one:
+(1) the corpus is Clean-stale, so a cheap re-bake harvests ~40% of cuts first, for free; and
+(2) the editor already routes crossing-aware, so the build is a targeted heuristic replacement,
+not a greenfield router. I therefore recommend GO on the router **after** a separate cheap
+Clean-rebake task, with the census probe as the non-regression gate. Decision is human-owned.
+
+**Date**: 2026-07-05T21:05:54Z
 
 ## Updates
 
@@ -219,3 +230,19 @@ Clean-rebake task, with the census probe as the non-regression gate. Decision is
 
 ### 2026-07-05T20:38:54Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-05T21:05:54Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** The exploration answered all four open questions with verified measurement (confidence 3).
+Node-cuts remain a **material, concentrated** legibility defect that **no cheap action
+dissolves**, and the router has a **bounded insertion point with a ready regression harness** —
+this clears the GO bar. Two caveats shape it into a *sequenced* GO rather than a blank one:
+(1) the corpus is Clean-stale, so a cheap re-bake harvests ~40% of cuts first, for free; and
+(2) the editor already routes crossing-aware, so the build is a targeted heuristic replacement,
+not a greenfield router. I therefore recommend GO on the router **after** a separate cheap
+Clean-rebake task, with the census probe as the non-regression gate. Decision is human-owned.
+
+### 2026-07-05T21:05:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO

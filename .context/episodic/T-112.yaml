@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-112: Obstacle-avoiding orthogonal edge router for corpus node-cuts
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-05T21:05:56Z
+# ============================================================================
+
+task_id: T-112
+task_name: "Obstacle-avoiding orthogonal edge router for corpus node-cuts"
+workflow_type: inception
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T20:38:14Z
+completed: 2026-07-05T21:05:54Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-05T22:45:38+02:00
+last_commit: 2026-07-05T22:47:47+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Node-cut router inception — exploration complete, revised DEFER→GO (sequenced). Sharpen Clean-stale finding — fixpoint insight + T-105 re-bake caveat
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Sharpen Clean-stale finding — fixpoint insight + T-105 re-bake caveat'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-112-node-cut-router-inception.md'
+  - '.tasks/active/T-112-obstacle-avoiding-orthogonal-edge-router.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T22:45:38"
+    action: "T-112: Node-cut router inception — exploration complete, revised DEFER→GO (sequenced)"
+  - time: "2026-07-05T22:47:47"
+    action: "T-112: Sharpen Clean-stale finding — fixpoint insight + T-105 re-bake caveat"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 27 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 27
+  commits: 2
+  files_changed: 2
+  lines_added: 349
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-112-obstacle-avoiding-orthogonal-edge-router.md
+generated_by: context-agent-hybrid
