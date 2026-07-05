@@ -78,3 +78,24 @@ learnings:
   date: 2026-07-05
   context: Added via context agent
   application: TBD
+- id: PL-012
+  learning: "A view/preference control that only affects FUTURE actions (density, branch pitch) reads as broken — users expect a view control to change what they see immediately. Prefer live-apply with revertible feedback (run the action + 'N moved, Ctrl+Z reverts') over opt-in Apply. PD-044 (no unattributed geometry mutation) is preserved: a user changing the control IS the explicit action, and Ctrl+Z restores. Same class hit T-096 (opt-in) then T-104 (opt-in felt inert)."
+  source: P-001
+  task: T-104
+  date: 2026-07-05
+  context: Added via context agent
+  application: TBD
+- id: PL-013
+  learning: "T-092 Phase C is effectively complete: opt 3=T-106, opt 7=T-107, opt 8=T-109 shipped. Opt 5 (structural-straightening) is SUBSUMED by align-rows (T-094)+align-columns (T-107) in a swimlane model — same-lane near-aligned edges are already snapped; cross-lane handoff edges cannot be straightened without moving a node out of its lane band. Opt 4 (row-alignment-mode top) worsens routing (mixed-height rows connect edges at unequal heights). The real remaining routing frontier is obstacle-avoiding orthogonal routing for the 42 corpus node-cuts (edges slicing unrelated node boxes) — a DESIGN-sized task deserving an inception, not an autonomous build."
+  source: D2
+  task: T-109
+  date: 2026-07-05
+  context: Added via context agent
+  application: TBD
+- id: PL-014
+  learning: "Corpus node-cuts are 27 incidences / 21 cut-edges (not the stale ~42), 74% concentrated in harvest-pipeline + error-escalation-ladder; 17/24 maps cut-free. The editor ALREADY routes crossing-aware (needsLoop→orthoLoopBack picks the min-crossing detour band, src:3629-3637) — residual cuts are where that band heuristic minimises but cannot zero crossings in dense fan/join maps. A router = replace the band-pick at ONE bounded insertion point (src:3636) with pathfinding + clean fallback. Also: the T-101 baked corpus is not at the current Clean fixpoint (re-running Clean drops harvest 13→8), so a Clean re-bake is a ~40% free win — but gated on T-105 (aligned-gateway edge-label collision) clearing first."
+  source: P-001
+  task: T-112
+  date: 2026-07-05
+  context: Added via context agent
+  application: TBD
