@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T20:48:05Z
-last_update: 2026-07-05T20:48:05Z
+last_update: 2026-07-05T20:52:00Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -99,19 +99,26 @@ python3 -c "import json; json.load(open('tests/fixtures/node-cuts-baseline.json'
 
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
+_(This is a preventive-tooling task, not a defect fix — the RCA gate fired on the
+"regression" keyword in the title. Filled honestly to document the structural blindness
+this harness closes, rather than bypassing with --skip-rca.)_
 
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
+**Symptom:** Node-cut counts across the rendered corpus were measurable only via an
+ephemeral in-browser probe (T-112 exploration). Nothing standing caught a layout change
+that increased edges routing through unrelated node boxes.
 
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
+**Root cause:** No committed gate exercised the editor's cut geometry against the corpus —
+a latent-gate class (PL-004: "a quality gate that exists but is never run against its
+corpus is latent"). The T-112 probe proved the metric but left no durable artifact.
+
+**Why structurally allowed:** The corpus had a geometry sweep (lane-band straddle,
+check-corpus-geometry.sh) but no routing-legibility sweep. Node-cuts are a render-time
+property, so a static YAML gate can't see them; only a live-editor harness can.
+
+**Prevention:** This task IS the prevention — `check-corpus-node-cuts.sh` + baseline is a
+rot-proof gate (FAILs on regression AND on un-refreshed improvement), drivable from CI or
+`fw` and ready to wire into the audit. Any future layout change that worsens node-cuts now
+fails a committed check instead of shipping silently.
 
 ## Evolution
 
