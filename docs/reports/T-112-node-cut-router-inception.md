@@ -74,11 +74,16 @@ Two conclusions:
 - **No cheap action dissolves cuts.** Align-columns, distribute, and routing-margin leave
   cut counts unchanged (they optimise other properties). Only Clean helps, and it removes
   just **38–43%** — a majority of cuts **survive** (8/13, 4/7 > 50%).
-- **Discovered free win: the baked corpus is Clean-stale.** Re-running today's `cleanLayout`
-  on the *baked* corpus reduces cuts, which means Clean has **improved since the T-101 bake**
-  (align-rows T-094 and later composite changes landed after). A **corpus Clean re-bake**
-  (T-101 redux) would harvest ~40% of cuts corpus-wide for near-zero cost/risk — independent
-  of any router, and worth doing regardless.
+- **Discovered free win: the baked corpus is not at the current Clean fixpoint.** Re-running
+  today's `cleanLayout` on the *baked* corpus reduces cuts (harvest 13→8). The bake driver
+  (`tools/_clean-layout-cdp.mjs:129-137`) iterates Clean to a fixpoint precisely because "one
+  pass isn't idempotent" — so the baked geometry drifting from a current single-pass result
+  means the bake is stale relative to today's Clean (composite changed post-T-101, and/or the
+  bake under-iterated for these maps). Either way a **corpus Clean re-bake** (T-101 redux)
+  harvests ~40% of cuts corpus-wide for near-zero cost/risk — independent of any router.
+  *Caveat:* T-105 captured a baked-corpus regression (aligned gateways collide edge-labels on
+  verification-gate), so the re-bake is not a blind re-run — it must clear T-105 first. That is
+  why this is flagged as a **separate task**, not folded into this inception.
 
 ### 3. Regression surface of a router — IW-4
 
