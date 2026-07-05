@@ -90,7 +90,7 @@
     <bpmn:serviceTask id="n_pattern" name="add-pattern &lt;failure|success|workflow&gt; -&gt; patterns.yaml">
       <bpmn:extensionElements>
         <aef:uid value="n_pattern"/>
-        <aef:position x="510" y="305"/>
+        <aef:position x="516.5" y="305"/>
         <aef:meta determinism="stochastic" endpoint="lib/pattern.sh:124-157" agentType="any"/>
         <aef:artifactsWrites paths=".context/project/patterns.yaml"/>
       </bpmn:extensionElements>
@@ -119,7 +119,7 @@
     <bpmn:endEvent id="n_persisted" name="project memory durable (survives session)">
       <bpmn:extensionElements>
         <aef:uid value="n_persisted"/>
-        <aef:position x="560" y="402.333"/>
+        <aef:position x="553.5" y="402.333"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_08</bpmn:incoming>

@@ -53,7 +53,7 @@
     <bpmn:exclusiveGateway id="g_changed" name="any files changed?">
       <bpmn:extensionElements>
         <aef:uid value="g_changed"/>
-        <aef:position x="330" y="328"/>
+        <aef:position x="332" y="328"/>
         <aef:meta determinism="deterministic" endpoint="traverse.sh:162-165" decisionOwner="framework"/>
         <aef:decisionInput>${changed_files != ""}</aef:decisionInput>
         <aef:decisionOutputs>changed, empty</aef:decisionOutputs>
@@ -65,7 +65,7 @@
     <bpmn:endEvent id="n_none" name="no files changed (exit 0)">
       <bpmn:extensionElements>
         <aef:uid value="n_none"/>
-        <aef:position x="340" y="434"/>
+        <aef:position x="338" y="434"/>
         <aef:meta terminalKind="success" state="no-op" exitCode="0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e3</bpmn:incoming>

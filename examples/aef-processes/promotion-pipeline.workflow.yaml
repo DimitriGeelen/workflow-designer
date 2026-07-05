@@ -89,7 +89,7 @@ nodes:
     name: "≥3 apps & not already promoted?"
     slug: ready-gate
     lane: framework
-    x: 600
+    x: 597
     y: 358
     aef:
       decisionInput: ${apps >= 3 && !promoted}
@@ -100,7 +100,7 @@ nodes:
     name: Not ready — keep accruing evidence
     slug: not-ready
     lane: framework
-    x: 600
+    x: 603
     y: 470.667
 
   - uid: n_present
@@ -145,7 +145,7 @@ nodes:
     name: Already promoted?
     slug: dup-gate
     lane: framework
-    x: 1240
+    x: 1237
     y: 358
     aef:
       decisionInput: ${learning_id in promoted_ids}
@@ -156,7 +156,7 @@ nodes:
     name: Rejected — duplicate practice avoided
     slug: dup
     lane: framework
-    x: 1240
+    x: 1243
     y: 470.667
 
   - uid: n_apps_gate

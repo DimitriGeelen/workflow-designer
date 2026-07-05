@@ -77,7 +77,7 @@
     <bpmn:exclusiveGateway id="n_exists_gate" name="Dir exists?">
       <bpmn:extensionElements>
         <aef:uid value="n_exists_gate"/>
-        <aef:position x="520" y="314"/>
+        <aef:position x="517" y="314"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${cd project_dir}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -88,7 +88,7 @@
     <bpmn:endEvent id="n_no_dir" name="No such dir">
       <bpmn:extensionElements>
         <aef:uid value="n_no_dir"/>
-        <aef:position x="520" y="424"/>
+        <aef:position x="523" y="424"/>
         <aef:meta terminalKind="error"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_04</bpmn:incoming>
@@ -96,7 +96,7 @@
     <bpmn:exclusiveGateway id="n_self_gate" name="Is framework itself?">
       <bpmn:extensionElements>
         <aef:uid value="n_self_gate"/>
-        <aef:position x="650" y="314"/>
+        <aef:position x="647" y="314"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${project_dir == FRAMEWORK_ROOT}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -107,7 +107,7 @@
     <bpmn:endEvent id="n_self" name="Refused (framework)">
       <bpmn:extensionElements>
         <aef:uid value="n_self"/>
-        <aef:position x="650" y="424"/>
+        <aef:position x="653" y="424"/>
         <aef:meta terminalKind="error"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_06</bpmn:incoming>
@@ -115,7 +115,7 @@
     <bpmn:exclusiveGateway id="n_ctx_gate" name=".context/project/ present?">
       <bpmn:extensionElements>
         <aef:uid value="n_ctx_gate"/>
-        <aef:position x="790" y="314"/>
+        <aef:position x="787" y="314"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${-d project/.context/project}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -126,7 +126,7 @@
     <bpmn:endEvent id="n_no_ctx" name="No .context — init first">
       <bpmn:extensionElements>
         <aef:uid value="n_no_ctx"/>
-        <aef:position x="790" y="424"/>
+        <aef:position x="793" y="424"/>
         <aef:meta terminalKind="error"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_08</bpmn:incoming>
@@ -232,7 +232,7 @@
     <bpmn:exclusiveGateway id="n_mode_gate" name="dry-run? new items?">
       <bpmn:extensionElements>
         <aef:uid value="n_mode_gate"/>
-        <aef:position x="1620" y="314"/>
+        <aef:position x="1614" y="314"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${dry_run -&gt; dry; new_total&gt;0 -&gt; write; else nothing}</aef:decisionInput>
       </bpmn:extensionElements>

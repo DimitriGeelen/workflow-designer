@@ -90,7 +90,7 @@
     <bpmn:exclusiveGateway id="n_acted" name="Human acts on the advice?">
       <bpmn:extensionElements>
         <aef:uid value="n_acted"/>
-        <aef:position x="880" y="158"/>
+        <aef:position x="877" y="158"/>
         <aef:meta decisionOwner="human"/>
         <aef:decisionInput>${act}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -101,7 +101,7 @@
     <bpmn:endEvent id="n_end_advisory" name="Advisory only — no pattern recorded">
       <bpmn:extensionElements>
         <aef:uid value="n_end_advisory"/>
-        <aef:position x="880" y="369"/>
+        <aef:position x="883" y="369"/>
         <aef:meta note="diagnose fired but no resolve; memory NOT strengthened"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_06</bpmn:incoming>

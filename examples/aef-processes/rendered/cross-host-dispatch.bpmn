@@ -56,7 +56,7 @@
     <bpmn:exclusiveGateway id="n_valid_gate" name="All required flags present? (host, task, agent, summary)">
       <bpmn:extensionElements>
         <aef:uid value="n_valid_gate"/>
-        <aef:position x="460" y="305.5"/>
+        <aef:position x="457" y="305.5"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${host &amp;&amp; task &amp;&amp; agent &amp;&amp; summary}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -67,7 +67,7 @@
     <bpmn:endEvent id="n_missing" name="ERROR — missing required flag (exit 1)">
       <bpmn:extensionElements>
         <aef:uid value="n_missing"/>
-        <aef:position x="460" y="396.5"/>
+        <aef:position x="463" y="396.5"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_03</bpmn:incoming>
     </bpmn:endEvent>
@@ -83,7 +83,7 @@
     <bpmn:exclusiveGateway id="n_conn_gate" name="SSH reachable? (BatchMode, ConnectTimeout=5)">
       <bpmn:extensionElements>
         <aef:uid value="n_conn_gate"/>
-        <aef:position x="800" y="305.5"/>
+        <aef:position x="797" y="305.5"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${ssh -o BatchMode=yes -o ConnectTimeout=5 host 'echo ok'}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -94,7 +94,7 @@
     <bpmn:endEvent id="n_unreach" name="ERROR — cannot connect to host (exit 1)">
       <bpmn:extensionElements>
         <aef:uid value="n_unreach"/>
-        <aef:position x="800" y="396.5"/>
+        <aef:position x="803" y="396.5"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_06</bpmn:incoming>
     </bpmn:endEvent>
@@ -119,7 +119,7 @@
     <bpmn:exclusiveGateway id="n_exit_gate" name="Remote exit 0?">
       <bpmn:extensionElements>
         <aef:uid value="n_exit_gate"/>
-        <aef:position x="1320" y="305.5"/>
+        <aef:position x="1317" y="305.5"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${remote_exit_code == 0}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -130,7 +130,7 @@
     <bpmn:endEvent id="n_fail" name="ERROR — dispatch failed (propagate remote exit code)">
       <bpmn:extensionElements>
         <aef:uid value="n_fail"/>
-        <aef:position x="1320" y="396.5"/>
+        <aef:position x="1323" y="396.5"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_10</bpmn:incoming>
     </bpmn:endEvent>

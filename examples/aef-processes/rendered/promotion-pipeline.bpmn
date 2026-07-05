@@ -68,7 +68,7 @@
     <bpmn:exclusiveGateway id="n_ready_gate" name="≥3 apps &amp; not already promoted?">
       <bpmn:extensionElements>
         <aef:uid value="n_ready_gate"/>
-        <aef:position x="600" y="358"/>
+        <aef:position x="597" y="358"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${apps &gt;= 3 &amp;&amp; !promoted}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -79,7 +79,7 @@
     <bpmn:endEvent id="n_not_ready" name="Not ready — keep accruing evidence">
       <bpmn:extensionElements>
         <aef:uid value="n_not_ready"/>
-        <aef:position x="600" y="470.667"/>
+        <aef:position x="603" y="470.667"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_04</bpmn:incoming>
     </bpmn:endEvent>
@@ -114,7 +114,7 @@
     <bpmn:exclusiveGateway id="n_dup_gate" name="Already promoted?">
       <bpmn:extensionElements>
         <aef:uid value="n_dup_gate"/>
-        <aef:position x="1240" y="358"/>
+        <aef:position x="1237" y="358"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${learning_id in promoted_ids}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -125,7 +125,7 @@
     <bpmn:endEvent id="n_dup" name="Rejected — duplicate practice avoided">
       <bpmn:extensionElements>
         <aef:uid value="n_dup"/>
-        <aef:position x="1240" y="470.667"/>
+        <aef:position x="1243" y="470.667"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_09</bpmn:incoming>
     </bpmn:endEvent>

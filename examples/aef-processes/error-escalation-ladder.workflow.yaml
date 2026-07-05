@@ -162,7 +162,7 @@ nodes:
     name: "[DOCTRINE] mine episodic -> codification value?"
     slug: assess
     lane: agent
-    x: 200
+    x: 197
     y: 275.5
     aef:
       determinism: stochastic
@@ -175,7 +175,7 @@ nodes:
     name: "[DOCTRINE] defer — not yet worth codifying"
     slug: defer
     lane: agent
-    x: 200
+    x: 203
     y: 376.5
     aef:
       determinism: stochastic

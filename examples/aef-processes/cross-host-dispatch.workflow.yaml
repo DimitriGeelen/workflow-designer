@@ -82,7 +82,7 @@ nodes:
     name: "All required flags present? (host, task, agent, summary)"
     slug: valid-gate
     lane: framework
-    x: 460
+    x: 457
     y: 305.5
     aef:
       decisionInput: ${host && task && agent && summary}
@@ -93,7 +93,7 @@ nodes:
     name: ERROR — missing required flag (exit 1)
     slug: missing
     lane: framework
-    x: 460
+    x: 463
     y: 396.5
 
   - uid: n_envelope
@@ -113,7 +113,7 @@ nodes:
     name: "SSH reachable? (BatchMode, ConnectTimeout=5)"
     slug: conn-gate
     lane: framework
-    x: 800
+    x: 797
     y: 305.5
     aef:
       decisionInput: ${ssh -o BatchMode=yes -o ConnectTimeout=5 host 'echo ok'}
@@ -124,7 +124,7 @@ nodes:
     name: ERROR — cannot connect to host (exit 1)
     slug: unreach
     lane: framework
-    x: 800
+    x: 803
     y: 396.5
 
   - uid: n_pipe
@@ -157,7 +157,7 @@ nodes:
     name: "Remote exit 0?"
     slug: exit-gate
     lane: framework
-    x: 1320
+    x: 1317
     y: 305.5
     aef:
       decisionInput: ${remote_exit_code == 0}
@@ -168,7 +168,7 @@ nodes:
     name: ERROR — dispatch failed (propagate remote exit code)
     slug: fail
     lane: framework
-    x: 1320
+    x: 1323
     y: 396.5
 
   - uid: n_done

@@ -53,7 +53,7 @@
     <bpmn:exclusiveGateway id="n_found_gate" name="Task file found?">
       <bpmn:extensionElements>
         <aef:uid value="n_found_gate"/>
-        <aef:position x="400" y="293"/>
+        <aef:position x="397" y="293"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${task_file != ""}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -64,7 +64,7 @@
     <bpmn:endEvent id="n_not_found" name="return 1 — no task file">
       <bpmn:extensionElements>
         <aef:uid value="n_not_found"/>
-        <aef:position x="400" y="389"/>
+        <aef:position x="403" y="389"/>
         <aef:meta terminalKind="error"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_03</bpmn:incoming>
@@ -111,7 +111,7 @@
     <bpmn:exclusiveGateway id="n_link_gate" name="Links resolve? (no homework)">
       <bpmn:extensionElements>
         <aef:uid value="n_link_gate"/>
-        <aef:position x="1010" y="293"/>
+        <aef:position x="1007" y="293"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${links_ok || FW_ALLOW_REVIEW_LINK_HOMEWORK}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -122,7 +122,7 @@
     <bpmn:endEvent id="n_homework" name="BLOCKED — link homework (return 2)">
       <bpmn:extensionElements>
         <aef:uid value="n_homework"/>
-        <aef:position x="1010" y="389"/>
+        <aef:position x="1013" y="389"/>
         <aef:meta terminalKind="error"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_10</bpmn:incoming>

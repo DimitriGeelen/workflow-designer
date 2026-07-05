@@ -85,7 +85,7 @@ nodes:
     name: "Task file found?"
     slug: found-gate
     lane: framework
-    x: 400
+    x: 397
     y: 293
     aef:
       decisionInput: ${task_file != ""}
@@ -96,7 +96,7 @@ nodes:
     name: return 1 — no task file
     slug: not-found
     lane: framework
-    x: 400
+    x: 403
     y: 389
     aef:
       terminalKind: error
@@ -151,7 +151,7 @@ nodes:
     name: "Links resolve? (no homework)"
     slug: link-gate
     lane: framework
-    x: 1010
+    x: 1007
     y: 293
     aef:
       decisionInput: ${links_ok || FW_ALLOW_REVIEW_LINK_HOMEWORK}
@@ -162,7 +162,7 @@ nodes:
     name: BLOCKED — link homework (return 2)
     slug: homework
     lane: framework
-    x: 1010
+    x: 1013
     y: 389
     aef:
       terminalKind: error            # L.171-177; bypass FW_ALLOW_REVIEW_LINK_HOMEWORK=1 (Tier-2, logged)

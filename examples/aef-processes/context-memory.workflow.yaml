@@ -120,7 +120,7 @@ nodes:
     name: "add-pattern <failure|success|workflow> -> patterns.yaml"
     slug: pattern
     lane: project
-    x: 510
+    x: 516.5
     y: 305
     aef:
       determinism: stochastic
@@ -158,7 +158,7 @@ nodes:
     name: "project memory durable (survives session)"
     slug: persisted
     lane: project
-    x: 560
+    x: 553.5
     y: 402.333
     aef:
       determinism: deterministic

@@ -92,7 +92,7 @@ nodes:
     name: "Agent ACs all checked? (P-010)"
     slug: ac
     lane: framework
-    x: 380
+    x: 377
     y: 338
     aef:
       determinism: deterministic
@@ -120,7 +120,7 @@ nodes:
     name: "every verify cmd exit 0?"
     slug: verifygate
     lane: framework
-    x: 620
+    x: 617
     y: 338
     aef:
       determinism: deterministic
@@ -205,7 +205,7 @@ nodes:
     name: "Block — exit 1 (completion refused)"
     slug: block
     lane: framework
-    x: 620
+    x: 623
     y: 450.667
     aef:
       determinism: deterministic
@@ -216,7 +216,7 @@ nodes:
     name: "Partial-complete: stays active/, owner -> human"
     slug: partial
     lane: framework
-    x: 380
+    x: 383
     y: 450.667
     aef:
       determinism: deterministic

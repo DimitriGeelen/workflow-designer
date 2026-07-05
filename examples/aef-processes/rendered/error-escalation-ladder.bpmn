@@ -133,7 +133,7 @@
     <bpmn:exclusiveGateway id="g_assess" name="[DOCTRINE] mine episodic -&gt; codification value?">
       <bpmn:extensionElements>
         <aef:uid value="g_assess"/>
-        <aef:position x="200" y="275.5"/>
+        <aef:position x="197" y="275.5"/>
         <aef:meta determinism="stochastic" decisionOwner="agent"/>
         <aef:decisionInput>${inception_go_no_go_criteria}</aef:decisionInput>
         <aef:decisionOutputs>worth-codifying, defer</aef:decisionOutputs>
@@ -145,7 +145,7 @@
     <bpmn:endEvent id="n_defer" name="[DOCTRINE] defer — not yet worth codifying">
       <bpmn:extensionElements>
         <aef:uid value="n_defer"/>
-        <aef:position x="200" y="376.5"/>
+        <aef:position x="203" y="376.5"/>
         <aef:meta determinism="stochastic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_16</bpmn:incoming>

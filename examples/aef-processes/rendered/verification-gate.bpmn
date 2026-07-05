@@ -67,7 +67,7 @@
     <bpmn:exclusiveGateway id="g_ac" name="Agent ACs all checked? (P-010)">
       <bpmn:extensionElements>
         <aef:uid value="g_ac"/>
-        <aef:position x="380" y="338"/>
+        <aef:position x="377" y="338"/>
         <aef:meta determinism="deterministic" endpoint="update-task.sh:1412-1413 (fn 80-190)" decisionOwner="framework"/>
         <aef:decisionInput>${agent_ac_unchecked == 0 &amp;&amp; !placeholder_acs}</aef:decisionInput>
         <aef:decisionOutputs>agent-acs-ok, agent-acs-unchecked, human-acs-remain</aef:decisionOutputs>
@@ -91,7 +91,7 @@
     <bpmn:exclusiveGateway id="g_verify" name="every verify cmd exit 0?">
       <bpmn:extensionElements>
         <aef:uid value="g_verify"/>
-        <aef:position x="620" y="338"/>
+        <aef:position x="617" y="338"/>
         <aef:meta determinism="deterministic" endpoint="update-task.sh:1010-1026" decisionOwner="framework"/>
         <aef:decisionInput>${verify_fail == 0}</aef:decisionInput>
         <aef:decisionOutputs>all-pass, some-nonzero</aef:decisionOutputs>
@@ -162,7 +162,7 @@
     <bpmn:endEvent id="n_block" name="Block — exit 1 (completion refused)">
       <bpmn:extensionElements>
         <aef:uid value="n_block"/>
-        <aef:position x="620" y="450.667"/>
+        <aef:position x="623" y="450.667"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_07</bpmn:incoming>
@@ -173,7 +173,7 @@
     <bpmn:endEvent id="n_partial" name="Partial-complete: stays active/, owner -&gt; human">
       <bpmn:extensionElements>
         <aef:uid value="n_partial"/>
-        <aef:position x="380" y="450.667"/>
+        <aef:position x="383" y="450.667"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_08</bpmn:incoming>

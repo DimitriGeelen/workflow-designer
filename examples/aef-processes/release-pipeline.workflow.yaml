@@ -97,7 +97,7 @@ nodes:
     name: "Any v* tag?"
     slug: tag-gate
     lane: framework
-    x: 550
+    x: 547
     y: 293
     aef:
       decisionInput: ${latest != ""}
@@ -108,7 +108,7 @@ nodes:
     name: ERROR — no tags, bootstrap first
     slug: no-tag
     lane: framework
-    x: 550
+    x: 553
     y: 389
     aef:
       terminalKind: error            # L.88-89, return 1
@@ -129,7 +129,7 @@ nodes:
     name: "Commits since tag > 0?"
     slug: commits-gate
     lane: framework
-    x: 820
+    x: 817
     y: 293
     aef:
       decisionInput: ${commits > 0}
@@ -140,7 +140,7 @@ nodes:
     name: No-op — nothing to release (idempotent)
     slug: noop
     lane: framework
-    x: 820
+    x: 823
     y: 389
     aef:
       terminalKind: success          # L.95-97, return 0 — success, not error
@@ -161,7 +161,7 @@ nodes:
     name: "--dry-run?"
     slug: dry-gate
     lane: framework
-    x: 1110
+    x: 1107
     y: 293
     aef:
       decisionInput: ${dry_run}
@@ -172,7 +172,7 @@ nodes:
     name: Dry-run — would tag, no side effects
     slug: dryrun
     lane: framework
-    x: 1110
+    x: 1113
     y: 389
     aef:
       terminalKind: success          # L.104-105, return 0

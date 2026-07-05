@@ -70,7 +70,7 @@
     <bpmn:exclusiveGateway id="n_tag_gate" name="Any v* tag?">
       <bpmn:extensionElements>
         <aef:uid value="n_tag_gate"/>
-        <aef:position x="550" y="293"/>
+        <aef:position x="547" y="293"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${latest != ""}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -81,7 +81,7 @@
     <bpmn:endEvent id="n_no_tag" name="ERROR — no tags, bootstrap first">
       <bpmn:extensionElements>
         <aef:uid value="n_no_tag"/>
-        <aef:position x="550" y="389"/>
+        <aef:position x="553" y="389"/>
         <aef:meta terminalKind="error"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_04</bpmn:incoming>
@@ -98,7 +98,7 @@
     <bpmn:exclusiveGateway id="n_commits_gate" name="Commits since tag &gt; 0?">
       <bpmn:extensionElements>
         <aef:uid value="n_commits_gate"/>
-        <aef:position x="820" y="293"/>
+        <aef:position x="817" y="293"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${commits &gt; 0}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -109,7 +109,7 @@
     <bpmn:endEvent id="n_noop" name="No-op — nothing to release (idempotent)">
       <bpmn:extensionElements>
         <aef:uid value="n_noop"/>
-        <aef:position x="820" y="389"/>
+        <aef:position x="823" y="389"/>
         <aef:meta terminalKind="success"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_07</bpmn:incoming>
@@ -126,7 +126,7 @@
     <bpmn:exclusiveGateway id="n_dry_gate" name="--dry-run?">
       <bpmn:extensionElements>
         <aef:uid value="n_dry_gate"/>
-        <aef:position x="1110" y="293"/>
+        <aef:position x="1107" y="293"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${dry_run}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -137,7 +137,7 @@
     <bpmn:endEvent id="n_dryrun" name="Dry-run — would tag, no side effects">
       <bpmn:extensionElements>
         <aef:uid value="n_dryrun"/>
-        <aef:position x="1110" y="389"/>
+        <aef:position x="1113" y="389"/>
         <aef:meta terminalKind="success"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_10</bpmn:incoming>

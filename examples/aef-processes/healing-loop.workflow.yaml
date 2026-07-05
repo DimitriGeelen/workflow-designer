@@ -129,7 +129,7 @@ nodes:
     name: Human acts on the advice?
     slug: acted
     lane: human
-    x: 880
+    x: 877
     y: 158
     aef:
       # advisory output => acting is optional; the loop may exit unrecorded (F9)
@@ -141,7 +141,7 @@ nodes:
     name: Advisory only — no pattern recorded
     slug: end-advisory
     lane: framework
-    x: 880
+    x: 883
     y: 369
     aef:
       emits: event:healing.advisory-only

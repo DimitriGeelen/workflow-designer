@@ -95,7 +95,7 @@ nodes:
     name: "Dir exists?"
     slug: exists-gate
     lane: framework
-    x: 520
+    x: 517
     y: 314
     aef:
       decisionInput: ${cd project_dir}
@@ -106,7 +106,7 @@ nodes:
     name: No such dir
     slug: no-dir
     lane: framework
-    x: 520
+    x: 523
     y: 424
     aef:
       terminalKind: error            # L.62-63
@@ -116,7 +116,7 @@ nodes:
     name: "Is framework itself?"
     slug: self-gate
     lane: framework
-    x: 650
+    x: 647
     y: 314
     aef:
       decisionInput: ${project_dir == FRAMEWORK_ROOT}
@@ -127,7 +127,7 @@ nodes:
     name: Refused (framework)
     slug: self
     lane: framework
-    x: 650
+    x: 653
     y: 424
     aef:
       terminalKind: error            # L.68-70, return 1
@@ -137,7 +137,7 @@ nodes:
     name: ".context/project/ present?"
     slug: ctx-gate
     lane: framework
-    x: 790
+    x: 787
     y: 314
     aef:
       decisionInput: ${-d project/.context/project}
@@ -148,7 +148,7 @@ nodes:
     name: No .context — init first
     slug: no-ctx
     lane: framework
-    x: 790
+    x: 793
     y: 424
     aef:
       terminalKind: error            # L.81-83
@@ -269,7 +269,7 @@ nodes:
     name: "dry-run? new items?"
     slug: mode-gate
     lane: framework
-    x: 1620
+    x: 1614
     y: 314
     aef:
       decisionInput: "${dry_run -> dry; new_total>0 -> write; else nothing}"
