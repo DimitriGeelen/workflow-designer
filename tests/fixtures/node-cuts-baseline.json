@@ -1,0 +1,98 @@
+{
+  "arc-lifecycle": {
+    "cutEdges": 1,
+    "incidences": 1
+  },
+  "assumption-validation": {
+    "cutEdges": 0,
+    "incidences": 0
+  },
+  "audit-process": {
+    "cutEdges": 2,
+    "incidences": 2
+  },
+  "context-memory": {
+    "cutEdges": 0,
+    "incidences": 0
+  },
+  "cross-host-dispatch": {
+    "cutEdges": 0,
+    "incidences": 0
+  },
+  "error-escalation-ladder": {
+    "cutEdges": 5,
+    "incidences": 7
+  },
+  "fabric-blast-radius": {
+    "cutEdges": 0,
+    "incidences": 0
+  },
+  "git-commit-flow": {
+    "cutEdges": 0,
+    "incidences": 0
+  },
+  "harvest-pipeline": {
+    "cutEdges": 9,
+    "incidences": 13
+  },
+  "healing-loop": {
+    "cutEdges": 0,
+    "incidences": 0
+  },
+  "inception-lifecycle": {
+    "cutEdges": 2,
+    "incidences": 2
+  },
+  "inception-review": {
+    "cutEdges": 1,
+    "incidences": 1
+  },
+  "promotion-pipeline": {
+    "cutEdges": 0,
+    "incidences": 0
+  },
+  "release-pipeline": {
+    "cutEdges": 0,
+    "incidences": 0
+  },
+  "resume-status": {
+    "cutEdges": 0,
+    "incidences": 0
+  },
+  "review-emission": {
+    "cutEdges": 0,
+    "incidences": 0
+  },
+  "revisit-due-scan": {
+    "cutEdges": 0,
+    "incidences": 0
+  },
+  "session-capture": {
+    "cutEdges": 0,
+    "incidences": 0
+  },
+  "session-handover": {
+    "cutEdges": 0,
+    "incidences": 0
+  },
+  "task-gate": {
+    "cutEdges": 0,
+    "incidences": 0
+  },
+  "task-lifecycle": {
+    "cutEdges": 0,
+    "incidences": 0
+  },
+  "tier0-escalation": {
+    "cutEdges": 1,
+    "incidences": 1
+  },
+  "upgrade-process": {
+    "cutEdges": 0,
+    "incidences": 0
+  },
+  "verification-gate": {
+    "cutEdges": 0,
+    "incidences": 0
+  }
+}
