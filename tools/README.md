@@ -82,6 +82,38 @@ Note: in the YAML canonical form, edges reference node **`uid`**s; in the XML
 export, flow references use **`bpmn:id`** (displayId) while `aef:uid` carries
 stable identity. The two forms carry the same information (schema.md §3).
 
+## bake-clean-layout.py
+
+Bakes the editor's **Clean layout** into the shipped corpus so every
+`examples/aef-processes/rendered/*.bpmn` opens already-tidy (rows aligned, stacks
+respaced) and the T-100 Clean nudge stays quiet on the shipped maps (T-101).
+
+Clean (`cleanLayout()` = tidy row-snap + T-093 branch pitch + T-094 align-rows)
+lives **only** in the editor JS. Rather than reimplement it in Python (PL-005:
+editor/bridge drift), the bake runs the *real editor* headless and reuses its own
+`cleanLayout()` verbatim:
+
+- `tools/_clean-layout-cdp.mjs` — drives `src/aef-workflow-designer.html` in
+  headless Chromium over the DevTools Protocol, iterating `cleanLayout()` to a
+  fixpoint per map. **Dependency-free**: native Node (≥22) `WebSocket`/`fetch`
+  and the cached Playwright Chromium — no `npm install`.
+- `bake-clean-layout.py` — line-surgically writes the tidied `y`/lane-`height`
+  back into the **yaml source** (preserving comments/order — diff is only the
+  changed numbers), re-renders via `yaml-to-bpmn.py`, and mirrors `build/gallery`.
+
+Geometry lives in the yaml and the `.bpmn` is a pure projection of it, so baking
+into the source means a naive `yaml-to-bpmn.py` regen can never silently un-tidy
+the corpus.
+
+```bash
+python3 tools/bake-clean-layout.py            # re-bake all 24 maps (run after Clean logic changes)
+python3 tools/bake-clean-layout.py --check    # assert the corpus is a Clean fixpoint (mapMessiness < 3, moves 0)
+python3 tools/bake-clean-layout.py <map ...>  # limit to named maps
+```
+
+Re-run the bake whenever `cleanLayout()` (or its sub-passes) changes, so the
+shipped corpus tracks the editor's current tidy standard.
+
 ## Tests
 
 ```bash
