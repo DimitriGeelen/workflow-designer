@@ -5450,6 +5450,12 @@ function cleanLayout() {
     const y = beforeY.get(n.id);
     if (Math.abs(n.y - y) > 0.01) positions.push({ id: n.id, y });
   }
+  // Align-in-middle (T-116): snap vertical-edge-connected columns to a shared
+  // centre-x so different-width stacks (gateway 48w over end-event 36w) drop as a
+  // single straight 90° segment instead of a staircase jog. Runs AFTER align-rows;
+  // orthogonal axis (only x), so it can't undo the row (y) alignment. The returned
+  // before-x records join Clean's single lastTidy — one Ctrl+Z reverts rows+columns.
+  positions.push(...alignColumnsMoves());
   const laneHeights = [];
   for (const l of state.lanes) {
     if (l.height !== beforeH.get(l.id)) laneHeights.push({ id: l.id, height: beforeH.get(l.id) });
@@ -5569,6 +5575,22 @@ function alignRowsLane(laneId) {
 // with Tidy / Align rows (undoTidy is axis-aware). Explicit-action only —
 // NOT part of any render pass and NOT wired into cleanLayout (PD-044).
 function alignColumns() {
+  const moved = alignColumnsMoves();
+  if (moved.length) {
+    lastTidy = { laneId: null, positions: moved, laneHeight: null };
+    renderAll();
+  }
+  return moved.length;
+}
+
+// Core of Align columns, split out (T-116) so cleanLayout() can compose it: apply
+// the centre-x snaps and RETURN the before-x records ([{id, x:<originalX>}, ...])
+// WITHOUT touching lastTidy or rendering — the caller owns undo/render. Keeps the
+// standalone button (alignColumns) and the Clean composite on one code path
+// (PL-005: no re-implemented geometry). Only moves x; safe to run after align-rows
+// (which only moves y) because the axes are orthogonal and cannot fight, and the
+// measure-after-move guard reverts any snap that would create a node overlap.
+function alignColumnsMoves() {
   const COL_TOL = 14;
   const cx = n => n.x + NODE_DEFAULTS[n.type].w / 2;
   // Union-find over nodes joined by near-x edges → vertical column components.
@@ -5610,11 +5632,7 @@ function alignColumns() {
     }
     for (const b of before) if (Math.abs(b.n.x - b.x) > 0.01) moved.push({ id: b.n.id, x: b.x });
   }
-  if (moved.length) {
-    lastTidy = { laneId: null, positions: moved, laneHeight: null };
-    renderAll();
-  }
-  return moved.length;
+  return moved;
 }
 
 // ── Distribute evenly / horizontal (T-109) ──────────────────────────────────
