@@ -53,7 +53,7 @@ nodes:
     slug: timer
     lane: framework
     x: 120
-    y: 300
+    y: 324
     aef:
       # F16 — TIMER / SCHEDULED start. In BPMN this is a timerStartEvent with a
       # cron/cycle expression; v2 has only a bare startEvent, so the schedule
@@ -70,7 +70,7 @@ nodes:
     slug: resolve
     lane: framework
     x: 320
-    y: 300
+    y: 310
     aef:
       determinism: deterministic
       contextReads: ".framework.yaml, FRAMEWORK.md marker"     # datastore read (F10)
@@ -81,7 +81,7 @@ nodes:
     slug: scan
     lane: framework
     x: 540
-    y: 300
+    y: 310
     aef:
       determinism: deterministic
       # F17 — MULTI-INSTANCE / for-each. One predicate applied per item over a
@@ -100,7 +100,7 @@ nodes:
     slug: any
     lane: framework
     x: 760
-    y: 300
+    y: 318
     aef:
       decisionInput: ${ripe_count}      # data-condition (not human) → no F1
       decisionOwner: framework
@@ -122,7 +122,7 @@ nodes:
     slug: end-surfaced
     lane: framework
     x: 1200
-    y: 180
+    y: 217.333
     aef:
       emits: event:revisits.due
 

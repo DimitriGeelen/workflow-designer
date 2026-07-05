@@ -40,7 +40,7 @@
     <bpmn:startEvent id="n_trigger" name="Upgrade requested">
       <bpmn:extensionElements>
         <aef:uid value="n_trigger"/>
-        <aef:position x="120" y="640"/>
+        <aef:position x="120" y="664"/>
         <aef:meta triggeredBy="fw upgrade [--dry-run]"/>
       </bpmn:extensionElements>
       <bpmn:outgoing>e_trigger_mode</bpmn:outgoing>
@@ -48,7 +48,7 @@
     <bpmn:exclusiveGateway id="n_mode" name="Dry-run mode?">
       <bpmn:extensionElements>
         <aef:uid value="n_mode"/>
-        <aef:position x="320" y="380"/>
+        <aef:position x="320" y="378"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${dry_run}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -78,7 +78,7 @@
     <bpmn:scriptTask id="n_apply_settings" name="Apply — merge settings.json (drift-gated)">
       <bpmn:extensionElements>
         <aef:uid value="n_apply_settings"/>
-        <aef:position x="720" y="400"/>
+        <aef:position x="720" y="370"/>
         <aef:meta determinism="deterministic" compensatedBy="n_rollback" guard="apply only on drift (per-file compare)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_backup_settings</bpmn:incoming>
@@ -87,7 +87,7 @@
     <bpmn:scriptTask id="n_apply_hooks" name="Apply — install git hooks + commands/scripts (drift-gated)">
       <bpmn:extensionElements>
         <aef:uid value="n_apply_hooks"/>
-        <aef:position x="920" y="400"/>
+        <aef:position x="920" y="370"/>
         <aef:meta determinism="deterministic" compensatedBy="n_rollback" guard="apply only on drift (per-file compare)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_settings_hooks</bpmn:incoming>
@@ -96,7 +96,7 @@
     <bpmn:scriptTask id="n_verify" name="Verify — version + drift check">
       <bpmn:extensionElements>
         <aef:uid value="n_verify"/>
-        <aef:position x="1120" y="400"/>
+        <aef:position x="1120" y="370"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_hooks_verify</bpmn:incoming>
@@ -105,7 +105,7 @@
     <bpmn:exclusiveGateway id="n_ok" name="Upgrade verified OK?">
       <bpmn:extensionElements>
         <aef:uid value="n_ok"/>
-        <aef:position x="1320" y="400"/>
+        <aef:position x="1320" y="378"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${verify_ok}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -138,21 +138,21 @@
     <bpmn:endEvent id="n_end_done" name="Upgrade applied">
       <bpmn:extensionElements>
         <aef:uid value="n_end_done"/>
-        <aef:position x="1720" y="300"/>
+        <aef:position x="1720" y="296"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_cleanup_end</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:endEvent id="n_end_rolledback" name="Upgrade rolled back (restored)">
       <bpmn:extensionElements>
         <aef:uid value="n_end_rolledback"/>
-        <aef:position x="1720" y="586"/>
+        <aef:position x="1720" y="560"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_rollback_end</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:endEvent id="n_end_preview" name="Preview reported (no changes)">
       <bpmn:extensionElements>
         <aef:uid value="n_end_preview"/>
-        <aef:position x="720" y="182"/>
+        <aef:position x="720" y="208"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_preview_end</bpmn:incoming>
     </bpmn:endEvent>

@@ -41,7 +41,7 @@
     <bpmn:startEvent id="n_request" name="Agent runs `fw task review`">
       <bpmn:extensionElements>
         <aef:uid value="n_request"/>
-        <aef:position x="120" y="144"/>
+        <aef:position x="120" y="94"/>
         <aef:meta determinism="deterministic" endpoint="fw task review T-XXX"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_05</bpmn:incoming>
@@ -70,7 +70,7 @@
     <bpmn:scriptTask id="n_fix" name="Agent fills recommendation + go/no-go criteria">
       <bpmn:extensionElements>
         <aef:uid value="n_fix"/>
-        <aef:position x="340" y="130"/>
+        <aef:position x="340" y="80"/>
         <aef:meta determinism="stochastic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_03</bpmn:incoming>
@@ -97,7 +97,7 @@
     <bpmn:userTask id="n_review" name="Human opens link — reviews recommendation, artifacts, criteria">
       <bpmn:extensionElements>
         <aef:uid value="n_review"/>
-        <aef:position x="1200" y="590"/>
+        <aef:position x="1200" y="540"/>
         <aef:meta determinism="human" authority="sovereignty" endpoint="Watchtower /inception/T-XXX  |  fw inception decide"/>
         <aef:decisionOutputs>go, no-go, defer</aef:decisionOutputs>
       </bpmn:extensionElements>
@@ -107,7 +107,7 @@
     <bpmn:exclusiveGateway id="n_decide" name="Decision?">
       <bpmn:extensionElements>
         <aef:uid value="n_decide"/>
-        <aef:position x="1420" y="598"/>
+        <aef:position x="1420" y="548"/>
         <aef:meta decisionOwner="human"/>
         <aef:decisionInput>${decision}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -146,7 +146,7 @@
     <bpmn:endEvent id="n_end_go" name="Inception decided — build authorised">
       <bpmn:extensionElements>
         <aef:uid value="n_end_go"/>
-        <aef:position x="1860" y="282"/>
+        <aef:position x="1860" y="287.333"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_12</bpmn:incoming>
     </bpmn:endEvent>
@@ -160,7 +160,7 @@
     <bpmn:endEvent id="n_end_defer" name="Inception parked — revisit scheduled">
       <bpmn:extensionElements>
         <aef:uid value="n_end_defer"/>
-        <aef:position x="1860" y="466"/>
+        <aef:position x="1860" y="460.667"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_14</bpmn:incoming>
     </bpmn:endEvent>

@@ -55,7 +55,7 @@ nodes:
     slug: trigger
     lane: agent
     x: 120
-    y: 620
+    y: 644
     aef:
       triggeredBy: fw audit [--sections ...] | cron
 
@@ -65,7 +65,7 @@ nodes:
     slug: fork
     lane: framework
     x: 320
-    y: 360
+    y: 315.5
     aef:
       # AND-fork: all enabled sections run (order-independent, no data dependency
       # between them). should_run_section() may prune branches by the --sections
@@ -79,7 +79,7 @@ nodes:
     slug: compliance
     lane: framework
     x: 560
-    y: 182
+    y: 190
     aef:
       section: compliance
       determinism: deterministic
@@ -91,7 +91,7 @@ nodes:
     slug: traceability
     lane: framework
     x: 560
-    y: 250
+    y: 266
     aef:
       section: traceability
       determinism: deterministic
@@ -103,7 +103,7 @@ nodes:
     slug: enforcement
     lane: framework
     x: 560
-    y: 380
+    y: 418
     aef:
       section: enforcement
       determinism: deterministic
@@ -115,7 +115,7 @@ nodes:
     slug: learning
     lane: framework
     x: 560
-    y: 510
+    y: 494
     aef:
       section: learning
       determinism: deterministic
@@ -127,7 +127,7 @@ nodes:
     slug: discovery
     lane: framework
     x: 560
-    y: 314
+    y: 342
     aef:
       section: discovery
       determinism: deterministic
@@ -139,7 +139,7 @@ nodes:
     slug: join
     lane: framework
     x: 820
-    y: 360
+    y: 315.5
     aef:
       # AND-join: waits for every forked branch before the verdict is computable.
       gatewayKind: join
@@ -150,7 +150,7 @@ nodes:
     slug: aggregate
     lane: framework
     x: 1020
-    y: 360
+    y: 307.5
     aef:
       determinism: deterministic
       # F14 — FAN-IN AGGREGATION / reduction. The verdict is a fold over the
@@ -170,7 +170,7 @@ nodes:
     slug: verdict
     lane: framework
     x: 1220
-    y: 360
+    y: 315.5
     aef:
       decisionInput: ${max_severity}     # data-condition (not a human decision → no F1)
       decisionOwner: framework
@@ -194,7 +194,7 @@ nodes:
     slug: end-fail
     lane: framework
     x: 1620
-    y: 182
+    y: 216.5
     aef:
       exitCode: 2
       emits: event:audit.failed

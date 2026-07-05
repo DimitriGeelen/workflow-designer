@@ -42,7 +42,7 @@
     <bpmn:startEvent id="n_file" name="Task captured (filed)">
       <bpmn:extensionElements>
         <aef:uid value="n_file"/>
-        <aef:position x="120" y="360"/>
+        <aef:position x="120" y="334"/>
         <aef:meta endpoint="agents/task-create/create-task.sh" triggeredBy="fw task create --type &lt;type&gt; --owner &lt;agent|human&gt;" state="captured"/>
         <aef:io>
           <aef:output name="task_id" type="task_id"/>
@@ -54,7 +54,7 @@
     <bpmn:exclusiveGateway id="n_ready" name="Build-ready? (G-020 entry guard)">
       <bpmn:extensionElements>
         <aef:uid value="n_ready"/>
-        <aef:position x="320" y="360"/>
+        <aef:position x="320" y="328"/>
         <aef:meta gate="G-020" x-rule="real ACs required to start build; placeholder ACs block"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_01</bpmn:incoming>
@@ -65,7 +65,7 @@
     <bpmn:serviceTask id="n_authoring" name="Write real acceptance criteria">
       <bpmn:extensionElements>
         <aef:uid value="n_authoring"/>
-        <aef:position x="320" y="560"/>
+        <aef:position x="320" y="600"/>
         <aef:meta determinism="stochastic" tier="1" agentType="primary"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_02</bpmn:incoming>
@@ -74,7 +74,7 @@
     <bpmn:scriptTask id="n_start" name="Start work (captured -&gt; started-work)">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
-        <aef:position x="520" y="360"/>
+        <aef:position x="520" y="320"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="fw work-on ${task_id}" sideEffect="sets focus.yaml" state="started-work"/>
         <aef:io>
           <aef:input name="task_id" type="task_id" required="true"/>
@@ -86,7 +86,7 @@
     <bpmn:serviceTask id="n_work" name="Perform the work">
       <bpmn:extensionElements>
         <aef:uid value="n_work"/>
-        <aef:position x="720" y="560"/>
+        <aef:position x="720" y="600"/>
         <aef:meta determinism="stochastic" tier="2" agentType="primary" state="started-work"/>
         <aef:contextReads paths=".tasks/active/${task_id}.md"/>
       </bpmn:extensionElements>
@@ -98,7 +98,7 @@
     <bpmn:exclusiveGateway id="n_progress" name="Outcome?">
       <bpmn:extensionElements>
         <aef:uid value="n_progress"/>
-        <aef:position x="920" y="360"/>
+        <aef:position x="920" y="328"/>
         <aef:meta decisionOwner="agent"/>
         <aef:decisionInput>${outcome}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -109,7 +109,7 @@
     <bpmn:scriptTask id="n_issues" name="Enter issues (auto → healing diagnose)">
       <bpmn:extensionElements>
         <aef:uid value="n_issues"/>
-        <aef:position x="920" y="230"/>
+        <aef:position x="920" y="233.333"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="fw task update ${task_id} --status issues" autoTriggerKind="sub-process" state="issues" autoTrigger="agents/healing/healing.sh diagnose ${task_id}"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_07</bpmn:incoming>
@@ -118,7 +118,7 @@
     <bpmn:scriptTask id="n_complete_req" name="Request completion (fw done)">
       <bpmn:extensionElements>
         <aef:uid value="n_complete_req"/>
-        <aef:position x="1120" y="560"/>
+        <aef:position x="1120" y="600"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="fw task update ${task_id} --status work-completed"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_08</bpmn:incoming>
@@ -127,7 +127,7 @@
     <bpmn:scriptTask id="n_gates" name="Run completion gate battery">
       <bpmn:extensionElements>
         <aef:uid value="n_gates"/>
-        <aef:position x="1320" y="360"/>
+        <aef:position x="1320" y="320"/>
         <aef:meta determinism="deterministic" tier="1" x-umbrellaBypass="--force (deprecated)"/>
         <aef:constituents>
           <aef:constituent id="c_sovereignty" name="owner=human blocks completion" ref="R-033 [--skip-sovereignty]"/>
@@ -143,7 +143,7 @@
     <bpmn:exclusiveGateway id="n_gate_result" name="All gates pass?">
       <bpmn:extensionElements>
         <aef:uid value="n_gate_result"/>
-        <aef:position x="1520" y="360"/>
+        <aef:position x="1520" y="328"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${gates}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -154,7 +154,7 @@
     <bpmn:exclusiveGateway id="n_partial_check" name="Human-owned with unchecked Human ACs?">
       <bpmn:extensionElements>
         <aef:uid value="n_partial_check"/>
-        <aef:position x="1720" y="360"/>
+        <aef:position x="1720" y="328"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${owner == 'human' &amp;&amp; human_acs_unchecked}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -165,7 +165,7 @@
     <bpmn:scriptTask id="n_partial" name="Partial-complete (stays active, owner→human, emit review)">
       <bpmn:extensionElements>
         <aef:uid value="n_partial"/>
-        <aef:position x="1720" y="230"/>
+        <aef:position x="1720" y="233.333"/>
         <aef:meta determinism="deterministic" tier="1" state="work-completed" note="file stays in active/; episodic deliberately deferred (T-634/T-679)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_14</bpmn:incoming>
@@ -174,7 +174,7 @@
     <bpmn:userTask id="n_human_finalize" name="Human checks">
       <bpmn:extensionElements>
         <aef:uid value="n_human_finalize"/>
-        <aef:position x="1920" y="110"/>
+        <aef:position x="1920" y="70"/>
         <aef:meta determinism="human" tier="0" authority="sovereignty" note="human-only by R-033 + convention (agent must never check Human ACs)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_16</bpmn:incoming>
@@ -183,7 +183,7 @@
     <bpmn:scriptTask id="n_finalize" name="Finalize (date_finished, move to completed/, episodic, clear focus)">
       <bpmn:extensionElements>
         <aef:uid value="n_finalize"/>
-        <aef:position x="1920" y="360"/>
+        <aef:position x="1920" y="320"/>
         <aef:meta determinism="deterministic" tier="1" sideEffect="moves .tasks/active/${task_id}.md -&gt; .tasks/completed/" autoTriggerKind="sub-process" state="work-completed" autoTrigger="episodic generation (context.sh generate-episodic)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_15</bpmn:incoming>
@@ -193,7 +193,7 @@
     <bpmn:endEvent id="n_end" name="Task completed (in completed/)">
       <bpmn:extensionElements>
         <aef:uid value="n_end"/>
-        <aef:position x="2120" y="360"/>
+        <aef:position x="2120" y="334"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_18</bpmn:incoming>
     </bpmn:endEvent>

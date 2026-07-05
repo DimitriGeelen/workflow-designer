@@ -56,7 +56,7 @@ nodes:
     slug: start
     lane: agent
     x: 90
-    y: 140
+    y: 114
     aef:
       determinism: deterministic
       triggeredBy: "agent, before committing (CLAUDE.md Component Fabric practice) or post-commit review"
@@ -70,7 +70,7 @@ nodes:
     slug: diff
     lane: framework
     x: 180
-    y: 280
+    y: 320
     aef:
       tier: 1
       determinism: deterministic
@@ -83,7 +83,7 @@ nodes:
     slug: changed
     lane: framework
     x: 330
-    y: 288
+    y: 328
     aef:
       determinism: deterministic
       endpoint: traverse.sh:162-165
@@ -97,7 +97,7 @@ nodes:
     slug: none
     lane: framework
     x: 340
-    y: 420
+    y: 434
     aef:
       terminalKind: success
       state: no-op
@@ -109,7 +109,7 @@ nodes:
     slug: scan
     lane: framework
     x: 420
-    y: 280
+    y: 320
     aef:
       tier: 1
       determinism: deterministic
@@ -127,7 +127,7 @@ nodes:
     slug: card
     lane: framework
     x: 570
-    y: 288
+    y: 328
     aef:
       determinism: deterministic
       endpoint: "traverse.sh:183-187 (inner scan of components/*.yaml, grep ^location)"
@@ -169,7 +169,7 @@ nodes:
     slug: total
     lane: framework
     x: 810
-    y: 280
+    y: 320
     aef:
       determinism: deterministic
       endpoint: traverse.sh:212-213
@@ -184,7 +184,7 @@ nodes:
     slug: done
     lane: framework
     x: 960
-    y: 294
+    y: 334
     aef:
       terminalKind: success
       state: reported

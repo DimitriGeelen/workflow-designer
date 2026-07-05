@@ -34,7 +34,7 @@
     <bpmn:startEvent id="n_timer" name="Daily revisit scan due (cron)">
       <bpmn:extensionElements>
         <aef:uid value="n_timer"/>
-        <aef:position x="120" y="300"/>
+        <aef:position x="120" y="324"/>
         <aef:meta triggeredBy="cron (daily) — NOT an agent command"/>
         <aef:timer kind="cron" cycle="daily" anchor="G-053 / T-1452"/>
       </bpmn:extensionElements>
@@ -43,7 +43,7 @@
     <bpmn:scriptTask id="n_resolve" name="Resolve PROJECT_ROOT + TASKS_DIR">
       <bpmn:extensionElements>
         <aef:uid value="n_resolve"/>
-        <aef:position x="320" y="300"/>
+        <aef:position x="320" y="310"/>
         <aef:meta determinism="deterministic"/>
         <aef:contextReads paths=".framework.yaml, FRAMEWORK.md marker"/>
       </bpmn:extensionElements>
@@ -53,7 +53,7 @@
     <bpmn:scriptTask id="n_scan" name="For each active task — ripe if revisit_at ≤ today">
       <bpmn:extensionElements>
         <aef:uid value="n_scan"/>
-        <aef:position x="540" y="300"/>
+        <aef:position x="540" y="310"/>
         <aef:meta determinism="deterministic"/>
         <aef:contextReads paths=".tasks/active/*.md frontmatter"/>
         <aef:multiInstance over=".tasks/active/*.md" mode="sequential" predicate="revisit_at =~ /^\d{4}-\d{2}-\d{2}$/ &amp;&amp; revisit_at &lt;= today" collects="ripe[]"/>
@@ -64,7 +64,7 @@
     <bpmn:exclusiveGateway id="n_any" name="Any ripe revisits?">
       <bpmn:extensionElements>
         <aef:uid value="n_any"/>
-        <aef:position x="760" y="300"/>
+        <aef:position x="760" y="318"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${ripe_count}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -85,7 +85,7 @@
     <bpmn:endEvent id="n_end_surfaced" name="Ripe revisits surfaced (agent picks up next session)">
       <bpmn:extensionElements>
         <aef:uid value="n_end_surfaced"/>
-        <aef:position x="1200" y="180"/>
+        <aef:position x="1200" y="217.333"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_surface_end</bpmn:incoming>
     </bpmn:endEvent>

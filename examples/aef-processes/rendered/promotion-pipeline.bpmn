@@ -42,7 +42,7 @@
     <bpmn:startEvent id="n_suggest" name="Agent runs `fw promote suggest`">
       <bpmn:extensionElements>
         <aef:uid value="n_suggest"/>
-        <aef:position x="120" y="124"/>
+        <aef:position x="120" y="84"/>
         <aef:meta determinism="deterministic" endpoint="fw promote suggest"/>
       </bpmn:extensionElements>
       <bpmn:outgoing>e_01</bpmn:outgoing>
@@ -79,7 +79,7 @@
     <bpmn:endEvent id="n_not_ready" name="Not ready — keep accruing evidence">
       <bpmn:extensionElements>
         <aef:uid value="n_not_ready"/>
-        <aef:position x="600" y="470"/>
+        <aef:position x="600" y="470.667"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_04</bpmn:incoming>
     </bpmn:endEvent>
@@ -125,7 +125,7 @@
     <bpmn:endEvent id="n_dup" name="Rejected — duplicate practice avoided">
       <bpmn:extensionElements>
         <aef:uid value="n_dup"/>
-        <aef:position x="1240" y="470"/>
+        <aef:position x="1240" y="470.667"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_09</bpmn:incoming>
     </bpmn:endEvent>
@@ -143,7 +143,7 @@
     <bpmn:scriptTask id="n_warn" name='Warn "early promotion" — proceed anyway'>
       <bpmn:extensionElements>
         <aef:uid value="n_warn"/>
-        <aef:position x="1400" y="460"/>
+        <aef:position x="1400" y="456.667"/>
         <aef:meta determinism="deterministic" advisory="True"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_11</bpmn:incoming>

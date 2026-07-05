@@ -63,7 +63,7 @@ nodes:
     slug: start
     lane: agent
     x: 100
-    y: 110
+    y: 104
     aef:
       determinism: deterministic
       endpoint: fw harvest
@@ -74,7 +74,7 @@ nodes:
     slug: parse
     lane: framework
     x: 240
-    y: 300
+    y: 306
     aef:
       determinism: deterministic
       # L.17-53
@@ -85,7 +85,7 @@ nodes:
     slug: resolve
     lane: framework
     x: 380
-    y: 300
+    y: 306
     aef:
       determinism: deterministic
       # L.55-64; default to PROJECT_ROOT
@@ -96,7 +96,7 @@ nodes:
     slug: exists-gate
     lane: framework
     x: 520
-    y: 308
+    y: 314
     aef:
       decisionInput: ${cd project_dir}
       decisionOwner: framework       # L.61
@@ -107,7 +107,7 @@ nodes:
     slug: no-dir
     lane: framework
     x: 520
-    y: 430
+    y: 424
     aef:
       terminalKind: error            # L.62-63
 
@@ -117,7 +117,7 @@ nodes:
     slug: self-gate
     lane: framework
     x: 650
-    y: 308
+    y: 314
     aef:
       decisionInput: ${project_dir == FRAMEWORK_ROOT}
       decisionOwner: framework       # L.67
@@ -128,7 +128,7 @@ nodes:
     slug: self
     lane: framework
     x: 650
-    y: 430
+    y: 424
     aef:
       terminalKind: error            # L.68-70, return 1
 
@@ -138,7 +138,7 @@ nodes:
     slug: ctx-gate
     lane: framework
     x: 790
-    y: 308
+    y: 314
     aef:
       decisionInput: ${-d project/.context/project}
       decisionOwner: framework       # L.80
@@ -149,7 +149,7 @@ nodes:
     slug: no-ctx
     lane: framework
     x: 790
-    y: 430
+    y: 424
     aef:
       terminalKind: error            # L.81-83
 
@@ -159,7 +159,7 @@ nodes:
     slug: source
     lane: external
     x: 900
-    y: 760
+    y: 740
     aef:
       determinism: deterministic
       external: true                 # the harvested project — outside framework authority
@@ -171,7 +171,7 @@ nodes:
     slug: fork
     lane: framework
     x: 1010
-    y: 408
+    y: 418
 
   - uid: n_h_patterns
     type: scriptTask
@@ -251,7 +251,7 @@ nodes:
     slug: join
     lane: framework
     x: 1330
-    y: 408
+    y: 418
 
   - uid: n_summary
     type: scriptTask
@@ -259,7 +259,7 @@ nodes:
     slug: summary
     lane: framework
     x: 1470
-    y: 300
+    y: 306
     aef:
       determinism: deterministic
       # L.126-134
@@ -270,7 +270,7 @@ nodes:
     slug: mode-gate
     lane: framework
     x: 1620
-    y: 308
+    y: 314
     aef:
       decisionInput: "${dry_run -> dry; new_total>0 -> write; else nothing}"
       decisionOwner: framework       # L.136-148 — 3-way outcome
@@ -301,7 +301,7 @@ nodes:
     slug: log
     lane: framework
     x: 1760
-    y: 300
+    y: 306
     aef:
       determinism: deterministic
       # L.139-144 — append harvest.log; framework .context/project already appended by harvesters
@@ -313,7 +313,7 @@ nodes:
     slug: done
     lane: framework
     x: 1910
-    y: 314
+    y: 320
     aef:
       terminalKind: success
 

@@ -44,7 +44,7 @@ nodes:
     slug: trigger
     lane: agent
     x: 120
-    y: 500
+    y: 494
     aef:
       triggeredBy: fw handover [--commit] | PreCompact hook
 
@@ -54,7 +54,7 @@ nodes:
     slug: gather
     lane: framework
     x: 320
-    y: 320
+    y: 280
     aef:
       tier: 1
       determinism: deterministic
@@ -66,7 +66,7 @@ nodes:
     slug: episodic-gate
     lane: framework
     x: 520
-    y: 320
+    y: 288
     aef:
       # SOFT gate — warns + backfills, does not block (F8, advisory variant)
       decisionInput: ${episodics_complete}
@@ -78,7 +78,7 @@ nodes:
     slug: enrich
     lane: framework
     x: 520
-    y: 190
+    y: 193.333
     aef:
       tier: 1
       determinism: deterministic
@@ -92,7 +92,7 @@ nodes:
     slug: metrics
     lane: framework
     x: 720
-    y: 320
+    y: 280
     aef:
       tier: 1
       determinism: deterministic
@@ -103,7 +103,7 @@ nodes:
     slug: write
     lane: framework
     x: 920
-    y: 320
+    y: 280
     aef:
       tier: 1
       determinism: deterministic
@@ -115,7 +115,7 @@ nodes:
     slug: commit
     lane: framework
     x: 1120
-    y: 320
+    y: 280
     aef:
       tier: 1
       determinism: deterministic
@@ -127,7 +127,7 @@ nodes:
     slug: audit
     lane: framework
     x: 1320
-    y: 320
+    y: 280
     aef:
       tier: 1
       determinism: deterministic
@@ -138,7 +138,7 @@ nodes:
     slug: push
     lane: framework
     x: 1520
-    y: 320
+    y: 280
     aef:
       tier: 1
       determinism: deterministic
@@ -149,7 +149,7 @@ nodes:
     slug: end
     lane: framework
     x: 1720
-    y: 320
+    y: 294
     aef:
       emits: event:session.handover-published
 

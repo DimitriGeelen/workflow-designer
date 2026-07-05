@@ -38,7 +38,7 @@
     <bpmn:startEvent id="n_attempt" name="Agent attempts Write/Edit/Bash">
       <bpmn:extensionElements>
         <aef:uid value="n_attempt"/>
-        <aef:position x="120" y="552"/>
+        <aef:position x="120" y="514"/>
         <aef:meta determinism="stochastic"/>
         <aef:io>
           <aef:output name="tool" type="string"/>
@@ -51,7 +51,7 @@
     <bpmn:scriptTask id="n_intercept" name="PreToolUse hook intercepts (check-active-task.sh)">
       <bpmn:extensionElements>
         <aef:uid value="n_intercept"/>
-        <aef:position x="250" y="300"/>
+        <aef:position x="250" y="320"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="agents/context/check-active-task.sh" trigger="PreToolUse (Write/Edit/Bash)"/>
         <aef:contextReads paths=".context/working/focus.yaml, .context/working/session.yaml"/>
       </bpmn:extensionElements>
@@ -61,7 +61,7 @@
     <bpmn:exclusiveGateway id="g_exempt" name="Exempt path or safe command?">
       <bpmn:extensionElements>
         <aef:uid value="g_exempt"/>
-        <aef:position x="430" y="308"/>
+        <aef:position x="430" y="328"/>
         <aef:meta determinism="deterministic" decisionOwner="framework"/>
         <aef:decisionInput>${path in [.context,.tasks,.claude,.git] || safe_bash_cmd}</aef:decisionInput>
         <aef:decisionOutputs>exempt, modifies-source</aef:decisionOutputs>
@@ -73,7 +73,7 @@
     <bpmn:exclusiveGateway id="g_active" name="Active task in focus?">
       <bpmn:extensionElements>
         <aef:uid value="g_active"/>
-        <aef:position x="560" y="308"/>
+        <aef:position x="560" y="328"/>
         <aef:meta determinism="deterministic" decisionOwner="framework"/>
         <aef:decisionInput>${focus.current_task != null &amp;&amp; focus_session == session}</aef:decisionInput>
         <aef:decisionOutputs>none, drift, active</aef:decisionOutputs>
@@ -86,7 +86,7 @@
     <bpmn:exclusiveGateway id="g_ready" name="Started-work + real ACs?">
       <bpmn:extensionElements>
         <aef:uid value="g_ready"/>
-        <aef:position x="760" y="308"/>
+        <aef:position x="760" y="328"/>
         <aef:meta determinism="deterministic" decisionOwner="framework"/>
         <aef:decisionInput>${status in [started-work,issues] &amp;&amp; acs_are_real}</aef:decisionInput>
         <aef:decisionOutputs>ready, not-ready</aef:decisionOutputs>
@@ -98,7 +98,7 @@
     <bpmn:endEvent id="n_allow" name="Allow — exit 0">
       <bpmn:extensionElements>
         <aef:uid value="n_allow"/>
-        <aef:position x="980" y="310"/>
+        <aef:position x="980" y="334"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_03</bpmn:incoming>
@@ -108,7 +108,7 @@
     <bpmn:endEvent id="n_block" name="Block — exit 2">
       <bpmn:extensionElements>
         <aef:uid value="n_block"/>
-        <aef:position x="660" y="410"/>
+        <aef:position x="660" y="420.667"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_05</bpmn:incoming>
@@ -118,7 +118,7 @@
     <bpmn:scriptTask id="n_log" name="Log Tier-2 bypass">
       <bpmn:extensionElements>
         <aef:uid value="n_log"/>
-        <aef:position x="800" y="400"/>
+        <aef:position x="800" y="406.667"/>
         <aef:meta determinism="deterministic" tier="2" endpoint=".context/working/.gate-bypass-log.yaml" sideEffect="appends bypass entry (T-1890)"/>
         <aef:artifactsWrites paths=".context/working/.gate-bypass-log.yaml"/>
       </bpmn:extensionElements>
@@ -128,7 +128,7 @@
     <bpmn:userTask id="n_override" name="Authorise Tier-2 bypass">
       <bpmn:extensionElements>
         <aef:uid value="n_override"/>
-        <aef:position x="560" y="120"/>
+        <aef:position x="560" y="150"/>
         <aef:meta determinism="stochastic" endpoint="FW_SWITCH_FOCUS=1 / FW_SAFE_MODE=1" decisionOwner="human"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_06</bpmn:incoming>
@@ -137,7 +137,7 @@
     <bpmn:serviceTask id="n_create" name="Create task + set focus">
       <bpmn:extensionElements>
         <aef:uid value="n_create"/>
-        <aef:position x="470" y="540"/>
+        <aef:position x="470" y="500"/>
         <aef:meta determinism="stochastic" endpoint='fw work-on "name" --type build' sideEffect="sets focus.yaml current_task"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_12</bpmn:incoming>
@@ -146,7 +146,7 @@
     <bpmn:serviceTask id="n_scope" name="Write real acceptance criteria">
       <bpmn:extensionElements>
         <aef:uid value="n_scope"/>
-        <aef:position x="680" y="540"/>
+        <aef:position x="680" y="500"/>
         <aef:meta determinism="stochastic" endpoint="edit .tasks/active/T-XXX (replace placeholder ACs)"/>
         <aef:artifactsWrites paths=".tasks/active/${task_id}.md"/>
       </bpmn:extensionElements>

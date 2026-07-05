@@ -41,7 +41,7 @@
     <bpmn:startEvent id="n_trigger" name="Audit requested">
       <bpmn:extensionElements>
         <aef:uid value="n_trigger"/>
-        <aef:position x="120" y="620"/>
+        <aef:position x="120" y="644"/>
         <aef:meta triggeredBy="fw audit [--sections ...] | cron"/>
       </bpmn:extensionElements>
       <bpmn:outgoing>e_trigger_fork</bpmn:outgoing>
@@ -49,7 +49,7 @@
     <bpmn:parallelGateway id="n_fork" name="Fan out to check sections">
       <bpmn:extensionElements>
         <aef:uid value="n_fork"/>
-        <aef:position x="320" y="360"/>
+        <aef:position x="320" y="315.5"/>
         <aef:meta gatewayKind="fork" x-branchesModeledOf="5 of ~20 real sections"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_trigger_fork</bpmn:incoming>
@@ -62,7 +62,7 @@
     <bpmn:scriptTask id="n_compliance" name="Compliance checks (task refs, gates, structure)">
       <bpmn:extensionElements>
         <aef:uid value="n_compliance"/>
-        <aef:position x="560" y="182"/>
+        <aef:position x="560" y="190"/>
         <aef:meta determinism="deterministic" section="compliance"/>
         <aef:emits>
           <aef:emit value="pass"/>
@@ -76,7 +76,7 @@
     <bpmn:scriptTask id="n_traceability" name="Traceability checks (commit ↔ task P-002)">
       <bpmn:extensionElements>
         <aef:uid value="n_traceability"/>
-        <aef:position x="560" y="250"/>
+        <aef:position x="560" y="266"/>
         <aef:meta determinism="deterministic" section="traceability"/>
         <aef:emits>
           <aef:emit value="pass"/>
@@ -90,7 +90,7 @@
     <bpmn:scriptTask id="n_enforcement" name="Enforcement checks (hooks, baseline, bypass log)">
       <bpmn:extensionElements>
         <aef:uid value="n_enforcement"/>
-        <aef:position x="560" y="380"/>
+        <aef:position x="560" y="418"/>
         <aef:meta determinism="deterministic" section="enforcement"/>
         <aef:emits>
           <aef:emit value="pass"/>
@@ -104,7 +104,7 @@
     <bpmn:scriptTask id="n_learning" name="Learning / episodic completeness checks">
       <bpmn:extensionElements>
         <aef:uid value="n_learning"/>
-        <aef:position x="560" y="510"/>
+        <aef:position x="560" y="494"/>
         <aef:meta determinism="deterministic" section="learning"/>
         <aef:emits>
           <aef:emit value="pass"/>
@@ -118,7 +118,7 @@
     <bpmn:scriptTask id="n_discovery" name="Discovery checks (D1–D9 trend scans)">
       <bpmn:extensionElements>
         <aef:uid value="n_discovery"/>
-        <aef:position x="560" y="314"/>
+        <aef:position x="560" y="342"/>
         <aef:meta determinism="deterministic" section="discovery"/>
         <aef:emits>
           <aef:emit value="pass"/>
@@ -132,7 +132,7 @@
     <bpmn:parallelGateway id="n_join" name="Join — all sections complete">
       <bpmn:extensionElements>
         <aef:uid value="n_join"/>
-        <aef:position x="820" y="360"/>
+        <aef:position x="820" y="315.5"/>
         <aef:meta gatewayKind="join"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_compliance_join</bpmn:incoming>
@@ -145,7 +145,7 @@
     <bpmn:scriptTask id="n_aggregate" name="Aggregate findings → tally + audit record">
       <bpmn:extensionElements>
         <aef:uid value="n_aggregate"/>
-        <aef:position x="1020" y="360"/>
+        <aef:position x="1020" y="307.5"/>
         <aef:meta determinism="deterministic"/>
         <aef:artifactsWrites paths="['.context/audits/${date}.yaml', 'LATEST-CRON.yaml']"/>
         <aef:aggregation over="FINDINGS[]" reduce="severity-max" outputs="PASS_COUNT, WARN_COUNT, FAIL_COUNT"/>
@@ -156,7 +156,7 @@
     <bpmn:exclusiveGateway id="n_verdict" name="Worst finding level?">
       <bpmn:extensionElements>
         <aef:uid value="n_verdict"/>
-        <aef:position x="1220" y="360"/>
+        <aef:position x="1220" y="315.5"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${max_severity}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -177,7 +177,7 @@
     <bpmn:endEvent id="n_end_fail" name="Audit FAIL (exit 2)">
       <bpmn:extensionElements>
         <aef:uid value="n_end_fail"/>
-        <aef:position x="1620" y="182"/>
+        <aef:position x="1620" y="216.5"/>
         <aef:meta exitCode="2"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_notify_end</bpmn:incoming>

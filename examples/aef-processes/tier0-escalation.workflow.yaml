@@ -47,7 +47,7 @@ nodes:
     slug: propose
     lane: agent
     x: 120
-    y: 520
+    y: 494
     aef:
       determinism: stochastic
     io:
@@ -60,7 +60,7 @@ nodes:
     slug: intercept
     lane: framework
     x: 320
-    y: 320
+    y: 310
     aef:
       tier: 0
       determinism: deterministic
@@ -79,7 +79,7 @@ nodes:
     slug: match
     lane: framework
     x: 520
-    y: 320
+    y: 318
     aef:
       decisionInput: ${match}
       decisionOwner: framework
@@ -91,7 +91,7 @@ nodes:
     slug: check-approval
     lane: framework
     x: 720
-    y: 320
+    y: 318
     aef:
       decisionInput: ${approved}
       decisionOwner: framework
@@ -120,7 +120,7 @@ nodes:
     slug: human-decide
     lane: human
     x: 920
-    y: 110
+    y: 70
     aef:
       tier: 0
       determinism: human
@@ -135,7 +135,7 @@ nodes:
     slug: route
     lane: human
     x: 1120
-    y: 130
+    y: 158
     aef:
       decisionInput: ${decision}
       decisionOwner: human
@@ -159,7 +159,7 @@ nodes:
     slug: run
     lane: agent
     x: 960
-    y: 520
+    y: 480
     aef:
       determinism: stochastic
 
@@ -169,7 +169,7 @@ nodes:
     slug: end-run
     lane: framework
     x: 1200
-    y: 426
+    y: 404
     aef:
       emits: event:tier0.executed
 
@@ -179,7 +179,7 @@ nodes:
     slug: end-abandoned
     lane: human
     x: 1320
-    y: 130
+    y: 164
     aef:
       emits: event:tier0.abandoned
 

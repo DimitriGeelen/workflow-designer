@@ -42,7 +42,7 @@
     <bpmn:startEvent id="n_request" name="fw task update --status work-completed">
       <bpmn:extensionElements>
         <aef:uid value="n_request"/>
-        <aef:position x="120" y="560"/>
+        <aef:position x="120" y="541.5"/>
         <aef:meta determinism="stochastic" triggeredBy="agent completes work, checks ACs + Verification section"/>
         <aef:io>
           <aef:output name="task_id" type="string"/>
@@ -55,7 +55,7 @@
     <bpmn:exclusiveGateway id="g_sovereign" name="owner == human? (R-033)">
       <bpmn:extensionElements>
         <aef:uid value="g_sovereign"/>
-        <aef:position x="250" y="300"/>
+        <aef:position x="250" y="338"/>
         <aef:meta determinism="deterministic" endpoint="update-task.sh:1406-1408 (fn 58-75)" decisionOwner="framework"/>
         <aef:decisionInput>${task.owner}</aef:decisionInput>
         <aef:decisionOutputs>agent-owned, human-owned</aef:decisionOutputs>
@@ -67,7 +67,7 @@
     <bpmn:exclusiveGateway id="g_ac" name="Agent ACs all checked? (P-010)">
       <bpmn:extensionElements>
         <aef:uid value="g_ac"/>
-        <aef:position x="380" y="300"/>
+        <aef:position x="380" y="338"/>
         <aef:meta determinism="deterministic" endpoint="update-task.sh:1412-1413 (fn 80-190)" decisionOwner="framework"/>
         <aef:decisionInput>${agent_ac_unchecked == 0 &amp;&amp; !placeholder_acs}</aef:decisionInput>
         <aef:decisionOutputs>agent-acs-ok, agent-acs-unchecked, human-acs-remain</aef:decisionOutputs>
@@ -81,7 +81,7 @@
     <bpmn:scriptTask id="n_verify" name="P-011: extract ## Verification, eval each cmd">
       <bpmn:extensionElements>
         <aef:uid value="n_verify"/>
-        <aef:position x="470" y="290"/>
+        <aef:position x="470" y="330"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="update-task.sh:949-1027" sideEffect="runs each cmd via eval in subshell (cd PROJECT_ROOT, set -euo pipefail inherited from L14), stdout+stderr to temp, head -5 on fail"/>
         <aef:contextReads paths=".tasks/active/${task_id}.md (## Verification section, sed 953-954)"/>
       </bpmn:extensionElements>
@@ -91,7 +91,7 @@
     <bpmn:exclusiveGateway id="g_verify" name="every verify cmd exit 0?">
       <bpmn:extensionElements>
         <aef:uid value="g_verify"/>
-        <aef:position x="620" y="300"/>
+        <aef:position x="620" y="338"/>
         <aef:meta determinism="deterministic" endpoint="update-task.sh:1010-1026" decisionOwner="framework"/>
         <aef:decisionInput>${verify_fail == 0}</aef:decisionInput>
         <aef:decisionOutputs>all-pass, some-nonzero</aef:decisionOutputs>
@@ -103,7 +103,7 @@
     <bpmn:exclusiveGateway id="g_gates" name="RCA / evolution / inception gates pass?">
       <bpmn:extensionElements>
         <aef:uid value="g_gates"/>
-        <aef:position x="720" y="300"/>
+        <aef:position x="720" y="338"/>
         <aef:meta determinism="deterministic" endpoint="update-task.sh: RCA 1430-1431/319-398, evolution 1465-1466/681-734, inception 1450-1458 (collapsed)" decisionOwner="framework"/>
         <aef:decisionInput>${rca_ok &amp;&amp; evolution_ok &amp;&amp; inception_ok}</aef:decisionInput>
         <aef:decisionOutputs>gates-ok, gates-block</aef:decisionOutputs>
@@ -125,7 +125,7 @@
     <bpmn:scriptTask id="n_write" name="Write status: work-completed + date_finished">
       <bpmn:extensionElements>
         <aef:uid value="n_write"/>
-        <aef:position x="810" y="290"/>
+        <aef:position x="810" y="330"/>
         <aef:meta determinism="deterministic" endpoint="update-task.sh:1494,1706" sideEffect="sets status + date_finished on task file"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_12</bpmn:incoming>
@@ -134,7 +134,7 @@
     <bpmn:scriptTask id="n_finalize" name="git mv active -&gt; completed/, horizon -&gt; null">
       <bpmn:extensionElements>
         <aef:uid value="n_finalize"/>
-        <aef:position x="960" y="290"/>
+        <aef:position x="960" y="330"/>
         <aef:meta determinism="deterministic" endpoint="update-task.sh:1742-1782" sideEffect="git mv (fallback mv); post-move orphan check exit 1 (T-1863)"/>
         <aef:artifactsWrites paths=".tasks/completed/${task_id}.md"/>
       </bpmn:extensionElements>
@@ -144,7 +144,7 @@
     <bpmn:serviceTask id="n_episodic" name="Generate episodic + capture decisions">
       <bpmn:extensionElements>
         <aef:uid value="n_episodic"/>
-        <aef:position x="1110" y="290"/>
+        <aef:position x="1110" y="330"/>
         <aef:meta determinism="deterministic" endpoint="update-task.sh:1907-1996 (context.sh generate-episodic)"/>
         <aef:artifactsWrites paths=".context/episodic/${task_id}.yaml"/>
       </bpmn:extensionElements>
@@ -154,7 +154,7 @@
     <bpmn:endEvent id="n_done" name="Completed">
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
-        <aef:position x="1260" y="302"/>
+        <aef:position x="1260" y="344"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_16</bpmn:incoming>
@@ -162,7 +162,7 @@
     <bpmn:endEvent id="n_block" name="Block — exit 1 (completion refused)">
       <bpmn:extensionElements>
         <aef:uid value="n_block"/>
-        <aef:position x="620" y="430"/>
+        <aef:position x="620" y="450.667"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_07</bpmn:incoming>
@@ -173,7 +173,7 @@
     <bpmn:endEvent id="n_partial" name="Partial-complete: stays active/, owner -&gt; human">
       <bpmn:extensionElements>
         <aef:uid value="n_partial"/>
-        <aef:position x="380" y="430"/>
+        <aef:position x="380" y="450.667"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_08</bpmn:incoming>
@@ -181,7 +181,7 @@
     <bpmn:scriptTask id="n_logbypass" name="log_gate_bypass -&gt; .gate-bypass-log.yaml">
       <bpmn:extensionElements>
         <aef:uid value="n_logbypass"/>
-        <aef:position x="250" y="388"/>
+        <aef:position x="250" y="436.667"/>
         <aef:meta determinism="deterministic" tier="2" endpoint="update-task.sh:35-54" sideEffect="appends {timestamp, task, flag, caller, reason} (Tier-2 audit sink)"/>
         <aef:artifactsWrites paths=".context/working/.gate-bypass-log.yaml"/>
       </bpmn:extensionElements>
@@ -200,7 +200,7 @@
     <bpmn:serviceTask id="n_remediate" name="Fix unchecked ACs / failing verify cmds, re-run">
       <bpmn:extensionElements>
         <aef:uid value="n_remediate"/>
-        <aef:position x="470" y="545"/>
+        <aef:position x="470" y="527.5"/>
         <aef:meta determinism="stochastic" endpoint="check AC boxes / repair" agentType="coder"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_17</bpmn:incoming>

@@ -65,7 +65,7 @@ nodes:
     slug: start
     lane: agent
     x: 100
-    y: 110
+    y: 104
     aef:
       determinism: deterministic
       endpoint: fw release
@@ -76,7 +76,7 @@ nodes:
     slug: parse
     lane: framework
     x: 250
-    y: 300
+    y: 285
     aef:
       determinism: deterministic
       # L.75-83
@@ -87,7 +87,7 @@ nodes:
     slug: latest
     lane: framework
     x: 400
-    y: 300
+    y: 285
     aef:
       determinism: deterministic
       # L.86 release_latest_tag
@@ -98,7 +98,7 @@ nodes:
     slug: tag-gate
     lane: framework
     x: 550
-    y: 308
+    y: 293
     aef:
       decisionInput: ${latest != ""}
       decisionOwner: framework       # L.87
@@ -109,7 +109,7 @@ nodes:
     slug: no-tag
     lane: framework
     x: 550
-    y: 430
+    y: 389
     aef:
       terminalKind: error            # L.88-89, return 1
 
@@ -119,7 +119,7 @@ nodes:
     slug: count
     lane: framework
     x: 680
-    y: 300
+    y: 285
     aef:
       determinism: deterministic
       # L.93 release_commits_since
@@ -130,7 +130,7 @@ nodes:
     slug: commits-gate
     lane: framework
     x: 820
-    y: 308
+    y: 293
     aef:
       decisionInput: ${commits > 0}
       decisionOwner: framework       # L.94
@@ -141,7 +141,7 @@ nodes:
     slug: noop
     lane: framework
     x: 820
-    y: 430
+    y: 389
     aef:
       terminalKind: success          # L.95-97, return 0 — success, not error
 
@@ -151,7 +151,7 @@ nodes:
     slug: bump
     lane: framework
     x: 960
-    y: 300
+    y: 285
     aef:
       determinism: deterministic
       # L.101 release_bump_version — patch/minor/major
@@ -162,7 +162,7 @@ nodes:
     slug: dry-gate
     lane: framework
     x: 1110
-    y: 308
+    y: 293
     aef:
       decisionInput: ${dry_run}
       decisionOwner: framework       # L.103
@@ -173,7 +173,7 @@ nodes:
     slug: dryrun
     lane: framework
     x: 1110
-    y: 430
+    y: 389
     aef:
       terminalKind: success          # L.104-105, return 0
 
@@ -183,7 +183,7 @@ nodes:
     slug: tag
     lane: framework
     x: 1250
-    y: 300
+    y: 285
     aef:
       determinism: deterministic
       # L.109-113 — git tag -a; failure → error return (inline)
@@ -195,7 +195,7 @@ nodes:
     slug: push
     lane: framework
     x: 1400
-    y: 300
+    y: 285
     aef:
       determinism: deterministic
       # L.116-127 — for each remote: git push; WARN + failed=1 on failure, continue
@@ -210,7 +210,7 @@ nodes:
     slug: remote
     lane: external
     x: 1400
-    y: 590
+    y: 580
     aef:
       determinism: deterministic
       external: true                 # each remote is a separate participant (see FC-3, T-046)
@@ -222,7 +222,7 @@ nodes:
     slug: gh-gate
     lane: framework
     x: 1560
-    y: 308
+    y: 293
     aef:
       decisionInput: ${command -v gh}
       decisionOwner: framework       # L.130
@@ -233,7 +233,7 @@ nodes:
     slug: gh
     lane: external
     x: 1560
-    y: 590
+    y: 580
     aef:
       determinism: deterministic
       external: true                 # GitHub — external participant
@@ -246,7 +246,7 @@ nodes:
     slug: done
     lane: framework
     x: 1720
-    y: 314
+    y: 299
     aef:
       terminalKind: success          # L.145 return $failed — FC-6: exit 0 all-ok / 1 if any push warned
 

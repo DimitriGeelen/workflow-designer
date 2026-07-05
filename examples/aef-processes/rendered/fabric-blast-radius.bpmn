@@ -32,7 +32,7 @@
     <bpmn:startEvent id="n_start" name="fw fabric blast-radius [ref]">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
-        <aef:position x="90" y="140"/>
+        <aef:position x="90" y="114"/>
         <aef:meta determinism="deterministic" triggeredBy="agent, before committing (CLAUDE.md Component Fabric practice) or post-commit review"/>
         <aef:io>
           <aef:output name="ref" type="string"/>
@@ -43,7 +43,7 @@
     <bpmn:scriptTask id="n_diff" name="git diff-tree → changed files; commit msg header">
       <bpmn:extensionElements>
         <aef:uid value="n_diff"/>
-        <aef:position x="180" y="280"/>
+        <aef:position x="180" y="320"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="traverse.sh:159-173 (diff-tree --name-only -r ref; log -1 %s)"/>
         <aef:contextReads paths="git object store (diff-tree, log)"/>
       </bpmn:extensionElements>
@@ -53,7 +53,7 @@
     <bpmn:exclusiveGateway id="g_changed" name="any files changed?">
       <bpmn:extensionElements>
         <aef:uid value="g_changed"/>
-        <aef:position x="330" y="288"/>
+        <aef:position x="330" y="328"/>
         <aef:meta determinism="deterministic" endpoint="traverse.sh:162-165" decisionOwner="framework"/>
         <aef:decisionInput>${changed_files != ""}</aef:decisionInput>
         <aef:decisionOutputs>changed, empty</aef:decisionOutputs>
@@ -65,7 +65,7 @@
     <bpmn:endEvent id="n_none" name="no files changed (exit 0)">
       <bpmn:extensionElements>
         <aef:uid value="n_none"/>
-        <aef:position x="340" y="420"/>
+        <aef:position x="340" y="434"/>
         <aef:meta terminalKind="success" state="no-op" exitCode="0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e3</bpmn:incoming>
@@ -73,7 +73,7 @@
     <bpmn:scriptTask id="n_scan" name="for each changed file: skip non-source, find fabric card">
       <bpmn:extensionElements>
         <aef:uid value="n_scan"/>
-        <aef:position x="420" y="280"/>
+        <aef:position x="420" y="320"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="traverse.sh:175-210 (while read file; case skip; card grep)" note="body below drawn for ONE iteration — no scope construct bounds it (FC-15)"/>
         <aef:multiInstance over="${changed_files} (git diff-tree output)" mode="sequential" predicate="file not under .context/ .fabric/ .tasks/ (case skip, traverse.sh:178-180)" collects="impacted[]"/>
       </bpmn:extensionElements>
@@ -83,7 +83,7 @@
     <bpmn:exclusiveGateway id="g_card" name="fabric card exists for file?">
       <bpmn:extensionElements>
         <aef:uid value="g_card"/>
-        <aef:position x="570" y="288"/>
+        <aef:position x="570" y="328"/>
         <aef:meta determinism="deterministic" endpoint="traverse.sh:183-187 (inner scan of components/*.yaml, grep ^location)" decisionOwner="framework" note="the inner card scan is a NESTED loop, collapsed into this decision (FC-15)"/>
         <aef:decisionInput>${any card with location == file}</aef:decisionInput>
         <aef:decisionOutputs>has-card, no-card</aef:decisionOutputs>
@@ -114,7 +114,7 @@
     <bpmn:scriptTask id="n_total" name="report: N registered component(s) changed">
       <bpmn:extensionElements>
         <aef:uid value="n_total"/>
-        <aef:position x="810" y="280"/>
+        <aef:position x="810" y="320"/>
         <aef:meta determinism="deterministic" endpoint="traverse.sh:212-213"/>
         <aef:aggregation over="impacted[]" reduce="count" outputs="total_impact"/>
       </bpmn:extensionElements>
@@ -125,7 +125,7 @@
     <bpmn:endEvent id="n_done" name="impact reported (advisory — exit 0 always)">
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
-        <aef:position x="960" y="294"/>
+        <aef:position x="960" y="334"/>
         <aef:meta advisory="True" terminalKind="success" state="reported" note="blast-radius never blocks — it informs the agent's commit decision" exitCode="0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e10</bpmn:incoming>

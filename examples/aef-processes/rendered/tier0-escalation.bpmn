@@ -38,7 +38,7 @@
     <bpmn:startEvent id="n_propose" name="Agent issues a Bash command">
       <bpmn:extensionElements>
         <aef:uid value="n_propose"/>
-        <aef:position x="120" y="520"/>
+        <aef:position x="120" y="494"/>
         <aef:meta determinism="stochastic"/>
         <aef:io>
           <aef:output name="command" type="string"/>
@@ -49,7 +49,7 @@
     <bpmn:scriptTask id="n_intercept" name="PreToolUse hook intercepts (check-tier0.sh)">
       <bpmn:extensionElements>
         <aef:uid value="n_intercept"/>
-        <aef:position x="320" y="320"/>
+        <aef:position x="320" y="310"/>
         <aef:meta determinism="deterministic" tier="0" endpoint="agents/context/check-tier0.sh" trigger="PreToolUse:Bash (every command)"/>
         <aef:io>
           <aef:input name="command" type="string" required="true"/>
@@ -63,7 +63,7 @@
     <bpmn:exclusiveGateway id="n_match" name="Matches a destructive pattern?">
       <bpmn:extensionElements>
         <aef:uid value="n_match"/>
-        <aef:position x="520" y="320"/>
+        <aef:position x="520" y="318"/>
         <aef:meta decisionOwner="framework" note="high-confidence PATTERNS (force push, rm -rf /, DROP TABLE, hard reset)"/>
         <aef:decisionInput>${match}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -74,7 +74,7 @@
     <bpmn:exclusiveGateway id="n_check_approval" name="Valid single-use approval token?">
       <bpmn:extensionElements>
         <aef:uid value="n_check_approval"/>
-        <aef:position x="720" y="320"/>
+        <aef:position x="720" y="318"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${approved}</aef:decisionInput>
         <aef:constituents>
@@ -98,7 +98,7 @@
     <bpmn:userTask id="n_human_decide" name="Human reviews — approve or abandon">
       <bpmn:extensionElements>
         <aef:uid value="n_human_decide"/>
-        <aef:position x="920" y="110"/>
+        <aef:position x="920" y="70"/>
         <aef:meta determinism="human" tier="0" authority="sovereignty" endpoint="fw tier0 approve  |  Watchtower approval surface"/>
         <aef:decisionOutputs>approve, abandon</aef:decisionOutputs>
       </bpmn:extensionElements>
@@ -108,7 +108,7 @@
     <bpmn:exclusiveGateway id="n_route" name="Approve or abandon?">
       <bpmn:extensionElements>
         <aef:uid value="n_route"/>
-        <aef:position x="1120" y="130"/>
+        <aef:position x="1120" y="158"/>
         <aef:meta decisionOwner="human"/>
         <aef:decisionInput>${decision}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -128,7 +128,7 @@
     <bpmn:serviceTask id="n_run" name="Command executes">
       <bpmn:extensionElements>
         <aef:uid value="n_run"/>
-        <aef:position x="960" y="520"/>
+        <aef:position x="960" y="480"/>
         <aef:meta determinism="stochastic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_03</bpmn:incoming>
@@ -138,14 +138,14 @@
     <bpmn:endEvent id="n_end_run" name="Executed (logged)">
       <bpmn:extensionElements>
         <aef:uid value="n_end_run"/>
-        <aef:position x="1200" y="426"/>
+        <aef:position x="1200" y="404"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_12</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:endEvent id="n_end_abandoned" name="Abandoned (not executed)">
       <bpmn:extensionElements>
         <aef:uid value="n_end_abandoned"/>
-        <aef:position x="1320" y="130"/>
+        <aef:position x="1320" y="164"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_10</bpmn:incoming>
     </bpmn:endEvent>

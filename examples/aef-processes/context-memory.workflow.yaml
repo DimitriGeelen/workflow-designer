@@ -57,7 +57,7 @@ nodes:
     slug: start
     lane: working
     x: 100
-    y: 110
+    y: 81.5
     aef:
       determinism: stochastic
       triggeredBy: fw context init (session start)
@@ -68,7 +68,7 @@ nodes:
     slug: init
     lane: working
     x: 200
-    y: 95
+    y: 67.5
     aef:
       determinism: deterministic
       agentType: framework
@@ -82,7 +82,7 @@ nodes:
     slug: focus
     lane: working
     x: 380
-    y: 95
+    y: 67.5
     aef:
       determinism: deterministic
       endpoint: lib/focus.sh:49-127
@@ -95,7 +95,7 @@ nodes:
     slug: capture
     lane: project
     x: 250
-    y: 290
+    y: 313
     aef:
       determinism: stochastic
       decisionInput: ${knowledge_kind}
@@ -108,7 +108,7 @@ nodes:
     slug: learning
     lane: project
     x: 360
-    y: 285
+    y: 305
     aef:
       determinism: stochastic
       agentType: any
@@ -121,7 +121,7 @@ nodes:
     slug: pattern
     lane: project
     x: 510
-    y: 285
+    y: 305
     aef:
       determinism: stochastic
       agentType: any
@@ -134,7 +134,7 @@ nodes:
     slug: decision
     lane: project
     x: 660
-    y: 285
+    y: 305
     aef:
       determinism: stochastic
       agentType: any
@@ -147,7 +147,7 @@ nodes:
     slug: promote
     lane: project
     x: 360
-    y: 380
+    y: 388.333
     aef:
       determinism: deterministic
       endpoint: lib/promote.sh:4-5 (fw promote); cross-project lib/harvest.sh
@@ -159,7 +159,7 @@ nodes:
     slug: persisted
     lane: project
     x: 560
-    y: 390
+    y: 402.333
     aef:
       determinism: deterministic
       emits: learnings/patterns/decisions committed to .context/project/
@@ -170,7 +170,7 @@ nodes:
     slug: complete
     lane: episodic
     x: 380
-    y: 520
+    y: 484
     aef:
       determinism: deterministic
       triggeredBy: update-task.sh:1254 / 1980 (auto on --status work-completed)
@@ -181,7 +181,7 @@ nodes:
     slug: episodic
     lane: episodic
     x: 500
-    y: 505
+    y: 470
     aef:
       determinism: deterministic
       agentType: framework
@@ -195,7 +195,7 @@ nodes:
     slug: stored
     lane: episodic
     x: 680
-    y: 520
+    y: 484
     aef:
       determinism: deterministic
       emits: episodic/${task_id}.yaml written (D-023 hybrid)

@@ -56,7 +56,7 @@ nodes:
     slug: start
     lane: agent
     x: 90
-    y: 140
+    y: 94
     aef:
       determinism: deterministic
       triggeredBy: "MANDATORY before: ending session, switching task/topic, significant milestone (AGENT.md:11-15)"
@@ -67,7 +67,7 @@ nodes:
     slug: scan
     lane: agent
     x: 170
-    y: 130
+    y: 80
     aef:
       tier: 1
       determinism: stochastic
@@ -85,7 +85,7 @@ nodes:
     slug: found
     lane: agent
     x: 340
-    y: 138
+    y: 88
     aef:
       determinism: stochastic
       endpoint: AGENT.md:33-37
@@ -99,7 +99,7 @@ nodes:
     slug: capture
     lane: framework
     x: 440
-    y: 330
+    y: 280
     aef:
       tier: 1
       determinism: deterministic
@@ -118,7 +118,7 @@ nodes:
     slug: inbox
     lane: framework
     x: 610
-    y: 330
+    y: 280
     aef:
       tier: 1
       determinism: deterministic
@@ -132,7 +132,7 @@ nodes:
     slug: report
     lane: agent
     x: 760
-    y: 130
+    y: 80
     aef:
       determinism: deterministic
       endpoint: "AGENT.md:54-61 (Output section)"
@@ -143,7 +143,7 @@ nodes:
     slug: done
     lane: agent
     x: 930
-    y: 144
+    y: 94
     aef:
       terminalKind: success
       state: capture-complete

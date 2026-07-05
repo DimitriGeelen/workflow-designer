@@ -29,7 +29,7 @@
     <bpmn:startEvent id="n_start" name="session end / context transition">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
-        <aef:position x="90" y="140"/>
+        <aef:position x="90" y="94"/>
         <aef:meta determinism="deterministic" triggeredBy="MANDATORY before: ending session, switching task/topic, significant milestone (AGENT.md:11-15)"/>
       </bpmn:extensionElements>
       <bpmn:outgoing>e1</bpmn:outgoing>
@@ -37,7 +37,7 @@
     <bpmn:serviceTask id="n_scan" name="scan conversation per category for uncaptured items">
       <bpmn:extensionElements>
         <aef:uid value="n_scan"/>
-        <aef:position x="170" y="130"/>
+        <aef:position x="170" y="80"/>
         <aef:meta determinism="stochastic" tier="1" endpoint="AGENT.md:17-37 (category table + checklist scan lines)" note="semantic self-scan of the agent's own conversation — inherently stochastic"/>
         <aef:multiInstance over="categories: work-items, decisions, learnings, questions, gaps" mode="sequential" predicate="signal phrases — should/need-to/TODO/will; choices made; pivots/surprises; open questions; referenced-but-missing" collects="uncaptured[]"/>
       </bpmn:extensionElements>
@@ -47,7 +47,7 @@
     <bpmn:exclusiveGateway id="g_found" name="uncaptured items found?">
       <bpmn:extensionElements>
         <aef:uid value="g_found"/>
-        <aef:position x="340" y="138"/>
+        <aef:position x="340" y="88"/>
         <aef:meta determinism="stochastic" endpoint="AGENT.md:33-37" decisionOwner="agent"/>
         <aef:decisionInput>${uncaptured[] not empty}</aef:decisionInput>
         <aef:decisionOutputs>items-found, nothing-uncaptured</aef:decisionOutputs>
@@ -59,7 +59,7 @@
     <bpmn:subProcess id="n_capture" name="capture: tasks, updates, practices, questions">
       <bpmn:extensionElements>
         <aef:uid value="n_capture"/>
-        <aef:position x="440" y="330"/>
+        <aef:position x="440" y="280"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="AGENT.md:38-40 (checklist capture lines)" note="FC-11 composite — four capture actions, one collapsed subProcess (first-class since T-081)"/>
         <aef:artifactsWrites paths=".tasks/active/*.md (new + updated), practices, learnings, vision doc"/>
         <aef:constituents>
@@ -75,7 +75,7 @@
     <bpmn:serviceTask id="n_inbox" name="triage observation inbox (fw note list)">
       <bpmn:extensionElements>
         <aef:uid value="n_inbox"/>
-        <aef:position x="610" y="330"/>
+        <aef:position x="610" y="280"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="AGENT.md:41-42 (fw note list — promote or dismiss; fw note for new observations)" note="runs regardless of scan outcome — the inbox may hold pre-existing pending notes"/>
         <aef:contextReads paths="observation inbox (fw note list)"/>
       </bpmn:extensionElements>
@@ -86,7 +86,7 @@
     <bpmn:serviceTask id="n_report" name="emit capture report (created/updated/practices/questions/gaps)">
       <bpmn:extensionElements>
         <aef:uid value="n_report"/>
-        <aef:position x="760" y="130"/>
+        <aef:position x="760" y="80"/>
         <aef:meta determinism="deterministic" endpoint="AGENT.md:54-61 (Output section)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e6</bpmn:incoming>
@@ -95,7 +95,7 @@
     <bpmn:endEvent id="n_done" name="capture complete — session may close">
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
-        <aef:position x="930" y="144"/>
+        <aef:position x="930" y="94"/>
         <aef:meta terminalKind="success" state="capture-complete" note="precondition for session end — 'Do not close without confirming' (AGENT.md:49)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e7</bpmn:incoming>

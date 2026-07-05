@@ -36,7 +36,7 @@
     <bpmn:startEvent id="n_req" name="Assumption identified (linked to a task)">
       <bpmn:extensionElements>
         <aef:uid value="n_req"/>
-        <aef:position x="120" y="500"/>
+        <aef:position x="120" y="454"/>
         <aef:meta triggeredBy="fw assumption add '&lt;statement&gt;' --task T-XXX"/>
         <aef:io>
           <aef:output name="statement" type="string"/>
@@ -48,7 +48,7 @@
     <bpmn:scriptTask id="n_add" name="Register assumption (A-NNN, status untested)">
       <bpmn:extensionElements>
         <aef:uid value="n_add"/>
-        <aef:position x="320" y="280"/>
+        <aef:position x="320" y="225"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="lib/assumption.sh:do_assumption_add" state="untested"/>
         <aef:artifactsWrites paths="assumptions.yaml"/>
         <aef:io>
@@ -61,7 +61,7 @@
     <bpmn:serviceTask id="n_gather" name="Gather evidence (research / test)">
       <bpmn:extensionElements>
         <aef:uid value="n_gather"/>
-        <aef:position x="520" y="490"/>
+        <aef:position x="520" y="440"/>
         <aef:meta determinism="stochastic" tier="2" agentType="primary"/>
         <aef:io>
           <aef:output name="evidence" type="string"/>
@@ -73,7 +73,7 @@
     <bpmn:exclusiveGateway id="n_assess" name="Evidence supports the assumption?">
       <bpmn:extensionElements>
         <aef:uid value="n_assess"/>
-        <aef:position x="720" y="498"/>
+        <aef:position x="720" y="448"/>
         <aef:meta decisionOwner="agent"/>
         <aef:decisionInput>${evidence_supports}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -102,7 +102,7 @@
     <bpmn:scriptTask id="n_gap" name="Invalidated → register as gap / risk">
       <bpmn:extensionElements>
         <aef:uid value="n_gap"/>
-        <aef:position x="1120" y="340"/>
+        <aef:position x="1120" y="335"/>
         <aef:meta determinism="deterministic" tier="1" autoTriggerKind="sub-process" autoTrigger="gaps register entry"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_07</bpmn:incoming>
@@ -111,14 +111,14 @@
     <bpmn:endEvent id="n_end_validated" name="Assumption validated">
       <bpmn:extensionElements>
         <aef:uid value="n_end_validated"/>
-        <aef:position x="1120" y="228"/>
+        <aef:position x="1120" y="239"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_06</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:endEvent id="n_end_gap" name="Invalidated → gap/risk registered">
       <bpmn:extensionElements>
         <aef:uid value="n_end_gap"/>
-        <aef:position x="1320" y="348"/>
+        <aef:position x="1320" y="349"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_08</bpmn:incoming>
     </bpmn:endEvent>

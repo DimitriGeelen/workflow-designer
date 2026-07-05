@@ -64,7 +64,7 @@ nodes:
     slug: request
     lane: agent
     x: 120
-    y: 144
+    y: 94
     aef:
       determinism: deterministic   # fw verb
       endpoint: fw task review T-XXX
@@ -98,7 +98,7 @@ nodes:
     slug: fix
     lane: agent
     x: 340
-    y: 130
+    y: 80
     aef:
       determinism: stochastic        # agent authors rationale/criteria
 
@@ -130,7 +130,7 @@ nodes:
     slug: review
     lane: human
     x: 1200
-    y: 590
+    y: 540
     aef:
       determinism: human
       authority: sovereignty
@@ -144,7 +144,7 @@ nodes:
     slug: decide
     lane: human
     x: 1420
-    y: 598
+    y: 548
     aef:
       decisionInput: ${decision}
       decisionOwner: human
@@ -188,7 +188,7 @@ nodes:
     slug: end-go
     lane: framework
     x: 1860
-    y: 282
+    y: 287.333
 
   - uid: n_end_nogo
     type: endEvent
@@ -204,7 +204,7 @@ nodes:
     slug: end-defer
     lane: framework
     x: 1860
-    y: 466
+    y: 460.667
 
 edges:
   - uid: e_01

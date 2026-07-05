@@ -44,7 +44,7 @@
     <bpmn:startEvent id="n_start" name="Trigger — `fw release` or weekly cron">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
-        <aef:position x="100" y="110"/>
+        <aef:position x="100" y="104"/>
         <aef:meta determinism="deterministic" endpoint="fw release"/>
       </bpmn:extensionElements>
       <bpmn:outgoing>e_01</bpmn:outgoing>
@@ -52,7 +52,7 @@
     <bpmn:scriptTask id="n_parse" name="Parse flags (--dry-run/--bump/--repo)">
       <bpmn:extensionElements>
         <aef:uid value="n_parse"/>
-        <aef:position x="250" y="300"/>
+        <aef:position x="250" y="285"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_01</bpmn:incoming>
@@ -61,7 +61,7 @@
     <bpmn:scriptTask id="n_latest" name="Latest v* tag (git describe)">
       <bpmn:extensionElements>
         <aef:uid value="n_latest"/>
-        <aef:position x="400" y="300"/>
+        <aef:position x="400" y="285"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_02</bpmn:incoming>
@@ -70,7 +70,7 @@
     <bpmn:exclusiveGateway id="n_tag_gate" name="Any v* tag?">
       <bpmn:extensionElements>
         <aef:uid value="n_tag_gate"/>
-        <aef:position x="550" y="308"/>
+        <aef:position x="550" y="293"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${latest != ""}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -81,7 +81,7 @@
     <bpmn:endEvent id="n_no_tag" name="ERROR — no tags, bootstrap first">
       <bpmn:extensionElements>
         <aef:uid value="n_no_tag"/>
-        <aef:position x="550" y="430"/>
+        <aef:position x="550" y="389"/>
         <aef:meta terminalKind="error"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_04</bpmn:incoming>
@@ -89,7 +89,7 @@
     <bpmn:scriptTask id="n_count" name="Count commits since tag">
       <bpmn:extensionElements>
         <aef:uid value="n_count"/>
-        <aef:position x="680" y="300"/>
+        <aef:position x="680" y="285"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_05</bpmn:incoming>
@@ -98,7 +98,7 @@
     <bpmn:exclusiveGateway id="n_commits_gate" name="Commits since tag &gt; 0?">
       <bpmn:extensionElements>
         <aef:uid value="n_commits_gate"/>
-        <aef:position x="820" y="308"/>
+        <aef:position x="820" y="293"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${commits &gt; 0}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -109,7 +109,7 @@
     <bpmn:endEvent id="n_noop" name="No-op — nothing to release (idempotent)">
       <bpmn:extensionElements>
         <aef:uid value="n_noop"/>
-        <aef:position x="820" y="430"/>
+        <aef:position x="820" y="389"/>
         <aef:meta terminalKind="success"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_07</bpmn:incoming>
@@ -117,7 +117,7 @@
     <bpmn:scriptTask id="n_bump" name="Compute next version (bump)">
       <bpmn:extensionElements>
         <aef:uid value="n_bump"/>
-        <aef:position x="960" y="300"/>
+        <aef:position x="960" y="285"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_08</bpmn:incoming>
@@ -126,7 +126,7 @@
     <bpmn:exclusiveGateway id="n_dry_gate" name="--dry-run?">
       <bpmn:extensionElements>
         <aef:uid value="n_dry_gate"/>
-        <aef:position x="1110" y="308"/>
+        <aef:position x="1110" y="293"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${dry_run}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -137,7 +137,7 @@
     <bpmn:endEvent id="n_dryrun" name="Dry-run — would tag, no side effects">
       <bpmn:extensionElements>
         <aef:uid value="n_dryrun"/>
-        <aef:position x="1110" y="430"/>
+        <aef:position x="1110" y="389"/>
         <aef:meta terminalKind="success"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_10</bpmn:incoming>
@@ -145,7 +145,7 @@
     <bpmn:scriptTask id="n_tag" name="Create annotated tag">
       <bpmn:extensionElements>
         <aef:uid value="n_tag"/>
-        <aef:position x="1250" y="300"/>
+        <aef:position x="1250" y="285"/>
         <aef:meta determinism="deterministic" sideEffect="creates a local annotated git tag"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_11</bpmn:incoming>
@@ -154,7 +154,7 @@
     <bpmn:scriptTask id="n_push" name="Push tag → every remote (loop)">
       <bpmn:extensionElements>
         <aef:uid value="n_push"/>
-        <aef:position x="1400" y="300"/>
+        <aef:position x="1400" y="285"/>
         <aef:meta determinism="deterministic" sideEffect="pushes the tag across the host boundary to each remote" softFail="accumulating" x-collection="git remotes (runtime set)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_12</bpmn:incoming>
@@ -163,7 +163,7 @@
     <bpmn:serviceTask id="n_remote" name="Remotes receive the pushed tag">
       <bpmn:extensionElements>
         <aef:uid value="n_remote"/>
-        <aef:position x="1400" y="590"/>
+        <aef:position x="1400" y="580"/>
         <aef:meta determinism="deterministic" sideEffect="remote ref updated on each push target" external="True"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_13</bpmn:incoming>
@@ -172,7 +172,7 @@
     <bpmn:exclusiveGateway id="n_gh_gate" name="gh CLI available?">
       <bpmn:extensionElements>
         <aef:uid value="n_gh_gate"/>
-        <aef:position x="1560" y="308"/>
+        <aef:position x="1560" y="293"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${command -v gh}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -183,7 +183,7 @@
     <bpmn:serviceTask id="n_gh" name="Create GitHub Release (best-effort)">
       <bpmn:extensionElements>
         <aef:uid value="n_gh"/>
-        <aef:position x="1560" y="590"/>
+        <aef:position x="1560" y="580"/>
         <aef:meta determinism="deterministic" sideEffect="creates a GitHub Release (--generate-notes --latest)" softFail="advisory" external="True"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_15</bpmn:incoming>
@@ -192,7 +192,7 @@
     <bpmn:endEvent id="n_done" name="Released ✓ (exit = failed)">
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
-        <aef:position x="1720" y="314"/>
+        <aef:position x="1720" y="299"/>
         <aef:meta terminalKind="success"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_16</bpmn:incoming>

@@ -55,7 +55,7 @@ nodes:
     slug: trigger
     lane: agent
     x: 120
-    y: 640
+    y: 664
     aef:
       triggeredBy: fw upgrade [--dry-run]
 
@@ -65,7 +65,7 @@ nodes:
     slug: mode
     lane: framework
     x: 320
-    y: 380
+    y: 378
     aef:
       # --dry-run makes the whole workflow a no-op PREVIEW (F2 execution.mode
       # recurrence: advisory|guided|strict — dry-run is the advisory mode).
@@ -103,7 +103,7 @@ nodes:
     slug: apply-settings
     lane: framework
     x: 720
-    y: 400
+    y: 370
     aef:
       determinism: deterministic
       guard: apply only on drift (per-file compare)   # F8 recurrence
@@ -115,7 +115,7 @@ nodes:
     slug: apply-hooks
     lane: framework
     x: 920
-    y: 400
+    y: 370
     aef:
       determinism: deterministic
       guard: apply only on drift (per-file compare)   # F8 recurrence
@@ -127,7 +127,7 @@ nodes:
     slug: verify
     lane: framework
     x: 1120
-    y: 400
+    y: 370
     aef:
       determinism: deterministic
       # guards against silent downgrade (T-1828 VERSION rollback family)
@@ -138,7 +138,7 @@ nodes:
     slug: ok
     lane: framework
     x: 1320
-    y: 400
+    y: 378
     aef:
       decisionInput: ${verify_ok}        # data-condition (not human) → no F1
       decisionOwner: framework
@@ -178,7 +178,7 @@ nodes:
     slug: end-done
     lane: framework
     x: 1720
-    y: 300
+    y: 296
     aef:
       emits: event:framework.upgraded
 
@@ -188,7 +188,7 @@ nodes:
     slug: end-rolledback
     lane: framework
     x: 1720
-    y: 586
+    y: 560
     aef:
       emits: event:framework.upgrade-rolledback
 
@@ -198,7 +198,7 @@ nodes:
     slug: end-preview
     lane: framework
     x: 720
-    y: 182
+    y: 208
     aef:
       emits: event:framework.upgrade-previewed
 

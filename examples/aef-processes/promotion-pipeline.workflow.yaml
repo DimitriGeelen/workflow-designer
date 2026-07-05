@@ -56,7 +56,7 @@ nodes:
     slug: suggest
     lane: agent
     x: 120
-    y: 124
+    y: 84
     aef:
       determinism: deterministic
       endpoint: fw promote suggest
@@ -101,7 +101,7 @@ nodes:
     slug: not-ready
     lane: framework
     x: 600
-    y: 470
+    y: 470.667
 
   - uid: n_present
     type: scriptTask
@@ -157,7 +157,7 @@ nodes:
     slug: dup
     lane: framework
     x: 1240
-    y: 470
+    y: 470.667
 
   - uid: n_apps_gate
     type: exclusiveGateway
@@ -176,7 +176,7 @@ nodes:
     slug: warn
     lane: framework
     x: 1400
-    y: 460
+    y: 456.667
     aef:
       determinism: deterministic
       advisory: true                 # L.261-263: non-blocking warning, both branches rejoin

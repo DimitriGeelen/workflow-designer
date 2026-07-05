@@ -36,7 +36,7 @@
     <bpmn:startEvent id="n_failure" name="Error / unexpected behavior">
       <bpmn:extensionElements>
         <aef:uid value="n_failure"/>
-        <aef:position x="90" y="100"/>
+        <aef:position x="90" y="91.5"/>
         <aef:meta determinism="stochastic" triggeredBy="agent hits error or human reports it"/>
       </bpmn:extensionElements>
       <bpmn:outgoing>e_01</bpmn:outgoing>
@@ -44,7 +44,7 @@
     <bpmn:serviceTask id="n_issues" name="[DOCTRINE] set status=issues (auto-triggers diagnose)">
       <bpmn:extensionElements>
         <aef:uid value="n_issues"/>
-        <aef:position x="180" y="85"/>
+        <aef:position x="180" y="77.5"/>
         <aef:meta determinism="stochastic" endpoint="fw task update T-XXX --status issues" sideEffect="update-task.sh auto-fires healing diagnose on issues"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_01</bpmn:incoming>
@@ -53,7 +53,7 @@
     <bpmn:exclusiveGateway id="g_ladder" name="[DOCTRINE] which rung? escalate on recurrence">
       <bpmn:extensionElements>
         <aef:uid value="g_ladder"/>
-        <aef:position x="340" y="95"/>
+        <aef:position x="340" y="85.5"/>
         <aef:meta determinism="stochastic" decisionOwner="agent"/>
         <aef:decisionInput>${same_class_hits}</aef:decisionInput>
         <aef:decisionOutputs>A-dont-repeat, B-technique, C-tooling, D-ways-of-working</aef:decisionOutputs>
@@ -105,7 +105,7 @@
     <bpmn:serviceTask id="n_resolve" name="healing resolve --mitigation">
       <bpmn:extensionElements>
         <aef:uid value="n_resolve"/>
-        <aef:position x="610" y="190"/>
+        <aef:position x="610" y="172.5"/>
         <aef:meta determinism="stochastic" endpoint='fw healing resolve T-XXX --mitigation "what fixed it"'/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_08</bpmn:incoming>
@@ -117,7 +117,7 @@
     <bpmn:endEvent id="n_done" name="resolved + pattern learned">
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
-        <aef:position x="770" y="205"/>
+        <aef:position x="770" y="186.5"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_13</bpmn:incoming>
@@ -125,7 +125,7 @@
     <bpmn:startEvent id="n_reflect" name="Proactive: practice repeats 3+ tasks (no failure)">
       <bpmn:extensionElements>
         <aef:uid value="n_reflect"/>
-        <aef:position x="90" y="310"/>
+        <aef:position x="90" y="281.5"/>
         <aef:meta determinism="stochastic" triggeredBy='organic "how do we do X?" + 3+ episodic instances (CLAUDE.md)'/>
       </bpmn:extensionElements>
       <bpmn:outgoing>e_14</bpmn:outgoing>
@@ -133,7 +133,7 @@
     <bpmn:exclusiveGateway id="g_assess" name="[DOCTRINE] mine episodic -&gt; codification value?">
       <bpmn:extensionElements>
         <aef:uid value="g_assess"/>
-        <aef:position x="200" y="305"/>
+        <aef:position x="200" y="275.5"/>
         <aef:meta determinism="stochastic" decisionOwner="agent"/>
         <aef:decisionInput>${inception_go_no_go_criteria}</aef:decisionInput>
         <aef:decisionOutputs>worth-codifying, defer</aef:decisionOutputs>
@@ -145,7 +145,7 @@
     <bpmn:endEvent id="n_defer" name="[DOCTRINE] defer — not yet worth codifying">
       <bpmn:extensionElements>
         <aef:uid value="n_defer"/>
-        <aef:position x="200" y="390"/>
+        <aef:position x="200" y="376.5"/>
         <aef:meta determinism="stochastic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_16</bpmn:incoming>
@@ -153,7 +153,7 @@
     <bpmn:scriptTask id="n_diagnose" name="[CODE] diagnose: classify + lookup + A/B/C/D menu">
       <bpmn:extensionElements>
         <aef:uid value="n_diagnose"/>
-        <aef:position x="180" y="490"/>
+        <aef:position x="180" y="455"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="agents/healing/lib/diagnose.sh:113-204" agentType="framework"/>
         <aef:contextReads paths=".context/project/patterns.yaml"/>
       </bpmn:extensionElements>
@@ -163,7 +163,7 @@
     <bpmn:scriptTask id="n_capture" name="[CODE] resolve + promote: log pattern/learning, graduate">
       <bpmn:extensionElements>
         <aef:uid value="n_capture"/>
-        <aef:position x="610" y="490"/>
+        <aef:position x="610" y="455"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="lib/resolve.sh (log) + lib/promote.sh / harvest.sh (graduate 3+ apps)" agentType="framework"/>
         <aef:artifactsWrites paths=".context/project/patterns.yaml, .context/project/learnings.yaml"/>
       </bpmn:extensionElements>

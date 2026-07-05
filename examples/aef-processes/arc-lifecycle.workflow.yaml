@@ -37,7 +37,7 @@ lanes:
     name: "Framework · Authority"
     abbr: frw
     authority: authority
-    height: 220
+    height: 223
   - id: agent
     name: "Agent · Initiative"
     abbr: agt
@@ -51,7 +51,7 @@ nodes:
     slug: proposed
     lane: agent
     x: 120
-    y: 560
+    y: 592
     aef:
       triggeredBy: fw arc create <id> --name --headline-mechanic
     io:
@@ -64,7 +64,7 @@ nodes:
     slug: create
     lane: agent
     x: 300
-    y: 560
+    y: 578
     aef:
       state: draft
       tier: 1
@@ -82,7 +82,7 @@ nodes:
     slug: start
     lane: agent
     x: 480
-    y: 560
+    y: 578
     aef:
       state: in-progress
       tier: 1
@@ -95,7 +95,7 @@ nodes:
     slug: tag
     lane: agent
     x: 660
-    y: 560
+    y: 578
     aef:
       tier: 1
       determinism: deterministic
@@ -115,7 +115,7 @@ nodes:
     slug: bvp
     lane: agent
     x: 840
-    y: 560
+    y: 578
     aef:
       tier: 1
       determinism: stochastic       # estimator over member tasks
@@ -128,7 +128,7 @@ nodes:
     slug: approve-driver
     lane: human
     x: 1040
-    y: 110
+    y: 70
     aef:
       tier: 0
       determinism: human
@@ -141,7 +141,7 @@ nodes:
     slug: work-members
     lane: agent
     x: 1240
-    y: 560
+    y: 578
     aef:
       tier: 2
       determinism: stochastic
@@ -157,7 +157,7 @@ nodes:
     slug: review
     lane: agent
     x: 1420
-    y: 560
+    y: 578
     aef:
       tier: 1
       determinism: deterministic
@@ -169,7 +169,7 @@ nodes:
     slug: close-decide
     lane: human
     x: 1600
-    y: 110
+    y: 70
     aef:
       tier: 0
       determinism: human
@@ -185,7 +185,7 @@ nodes:
     slug: route
     lane: human
     x: 1780
-    y: 110
+    y: 78
     aef:
       decisionInput: ${decision}
       decisionOwner: human
@@ -196,7 +196,7 @@ nodes:
     slug: close
     lane: framework
     x: 1960
-    y: 300
+    y: 297
     aef:
       state: closed
       tier: 1
@@ -210,7 +210,7 @@ nodes:
     slug: abandon
     lane: framework
     x: 1960
-    y: 370
+    y: 373
     aef:
       state: abandoned
       tier: 1
@@ -224,7 +224,7 @@ nodes:
     slug: end-closed
     lane: framework
     x: 2160
-    y: 300
+    y: 259.75
     aef:
       emits: event:arc.closed
 
@@ -234,7 +234,7 @@ nodes:
     slug: end-abandoned
     lane: framework
     x: 2160
-    y: 398
+    y: 371.25
     aef:
       emits: event:arc.abandoned
 

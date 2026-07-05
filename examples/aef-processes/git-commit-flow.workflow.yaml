@@ -65,7 +65,7 @@ nodes:
     slug: start
     lane: agent
     x: 90
-    y: 610
+    y: 636.5
     aef:
       determinism: deterministic
       triggeredBy: "agent (or fw git commit) — commit.sh:do_commit"
@@ -81,7 +81,7 @@ nodes:
     slug: parse
     lane: agent
     x: 150
-    y: 600
+    y: 622.5
     aef:
       tier: 1
       determinism: deterministic
@@ -94,7 +94,7 @@ nodes:
     slug: bypass
     lane: agent
     x: 300
-    y: 602
+    y: 630.5
     aef:
       determinism: deterministic
       endpoint: commit.sh:66 ($bypass == true)
@@ -108,7 +108,7 @@ nodes:
     slug: taskref
     lane: agent
     x: 410
-    y: 602
+    y: 630.5
     aef:
       determinism: deterministic
       endpoint: commit.sh:96-110 (found_task=extract_task_id "$message")
@@ -122,7 +122,7 @@ nodes:
     slug: reason
     lane: human
     x: 300
-    y: 108
+    y: 100
     aef:
       tier: 2
       determinism: stochastic
@@ -136,7 +136,7 @@ nodes:
     slug: reminder
     lane: human
     x: 760
-    y: 108
+    y: 100
     aef:
       determinism: deterministic
       endpoint: "commit.sh:83-85 (REMINDER: create-task.sh)"
@@ -148,7 +148,7 @@ nodes:
     slug: commit-bypass
     lane: framework
     x: 440
-    y: 340
+    y: 297.5
     aef:
       tier: 1
       determinism: deterministic
@@ -161,7 +161,7 @@ nodes:
     slug: logbypass
     lane: framework
     x: 600
-    y: 340
+    y: 297.5
     aef:
       tier: 1
       determinism: deterministic
@@ -174,7 +174,7 @@ nodes:
     slug: commit
     lane: framework
     x: 520
-    y: 440
+    y: 467.5
     aef:
       tier: 1
       determinism: deterministic
@@ -187,7 +187,7 @@ nodes:
     slug: hooks
     lane: framework
     x: 680
-    y: 442
+    y: 475.5
     aef:
       determinism: deterministic
       endpoint: hooks.sh:271-358 (pre-commit) + hooks.sh:55-88 (commit-msg)
@@ -206,7 +206,7 @@ nodes:
     slug: done
     lane: framework
     x: 830
-    y: 456
+    y: 481.5
     aef:
       terminalKind: success
       state: committed
@@ -217,7 +217,7 @@ nodes:
     slug: block
     lane: framework
     x: 400
-    y: 456
+    y: 481.5
     aef:
       terminalKind: error
       state: blocked

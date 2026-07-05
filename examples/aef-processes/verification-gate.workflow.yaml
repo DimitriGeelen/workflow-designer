@@ -64,7 +64,7 @@ nodes:
     slug: request
     lane: agent
     x: 120
-    y: 560
+    y: 541.5
     aef:
       determinism: stochastic
       triggeredBy: agent completes work, checks ACs + Verification section
@@ -79,7 +79,7 @@ nodes:
     slug: sovereign
     lane: framework
     x: 250
-    y: 300
+    y: 338
     aef:
       determinism: deterministic
       endpoint: update-task.sh:1406-1408 (fn 58-75)
@@ -93,7 +93,7 @@ nodes:
     slug: ac
     lane: framework
     x: 380
-    y: 300
+    y: 338
     aef:
       determinism: deterministic
       endpoint: update-task.sh:1412-1413 (fn 80-190)
@@ -107,7 +107,7 @@ nodes:
     slug: verify
     lane: framework
     x: 470
-    y: 290
+    y: 330
     aef:
       tier: 1
       determinism: deterministic
@@ -121,7 +121,7 @@ nodes:
     slug: verifygate
     lane: framework
     x: 620
-    y: 300
+    y: 338
     aef:
       determinism: deterministic
       endpoint: update-task.sh:1010-1026
@@ -135,7 +135,7 @@ nodes:
     slug: gates
     lane: framework
     x: 720
-    y: 300
+    y: 338
     aef:
       determinism: deterministic
       endpoint: "update-task.sh: RCA 1430-1431/319-398, evolution 1465-1466/681-734, inception 1450-1458 (collapsed)"
@@ -158,7 +158,7 @@ nodes:
     slug: write
     lane: framework
     x: 810
-    y: 290
+    y: 330
     aef:
       determinism: deterministic
       endpoint: update-task.sh:1494,1706
@@ -170,7 +170,7 @@ nodes:
     slug: finalize
     lane: framework
     x: 960
-    y: 290
+    y: 330
     aef:
       determinism: deterministic
       endpoint: update-task.sh:1742-1782
@@ -183,7 +183,7 @@ nodes:
     slug: episodic
     lane: framework
     x: 1110
-    y: 290
+    y: 330
     aef:
       determinism: deterministic
       endpoint: update-task.sh:1907-1996 (context.sh generate-episodic)
@@ -195,7 +195,7 @@ nodes:
     slug: done
     lane: framework
     x: 1260
-    y: 302
+    y: 344
     aef:
       determinism: deterministic
       emits: task work-completed (moved to completed/)
@@ -206,7 +206,7 @@ nodes:
     slug: block
     lane: framework
     x: 620
-    y: 430
+    y: 450.667
     aef:
       determinism: deterministic
       emits: completion refused (exit 1)
@@ -217,7 +217,7 @@ nodes:
     slug: partial
     lane: framework
     x: 380
-    y: 430
+    y: 450.667
     aef:
       determinism: deterministic
       emits: partial-complete (human ACs remain, T-193)
@@ -228,7 +228,7 @@ nodes:
     slug: logbypass
     lane: framework
     x: 250
-    y: 388
+    y: 436.667
     aef:
       tier: 2
       determinism: deterministic
@@ -254,7 +254,7 @@ nodes:
     slug: remediate
     lane: agent
     x: 470
-    y: 545
+    y: 527.5
     aef:
       determinism: stochastic
       agentType: coder

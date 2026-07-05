@@ -16,7 +16,7 @@
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="frw" authority="authority" height="220"/>
+          <aef:laneMeta abbr="frw" authority="authority" height="232"/>
         </bpmn:extensionElements>
         <bpmn:flowNodeRef>n_req01</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>n_crea01</bpmn:flowNodeRef>
@@ -41,7 +41,7 @@
     <bpmn:startEvent id="n_req01" name="Inception requested">
       <bpmn:extensionElements>
         <aef:uid value="n_req01"/>
-        <aef:position x="120" y="300"/>
+        <aef:position x="120" y="262"/>
         <aef:meta triggeredBy='fw inception start "&lt;name&gt;" --recommendation GO|NO-GO|DEFER'/>
         <aef:io>
           <aef:output name="name" type="string"/>
@@ -53,7 +53,7 @@
     <bpmn:serviceTask id="n_reco01" name="File recommendation + rationale">
       <bpmn:extensionElements>
         <aef:uid value="n_reco01"/>
-        <aef:position x="300" y="470"/>
+        <aef:position x="300" y="472"/>
         <aef:meta tier="1" endpoint=".agentic-framework/lib/inception.sh:_inject_recommendation_block" agentType="primary"/>
         <aef:io>
           <aef:input name="recommendation" type="string" required="true"/>
@@ -66,7 +66,7 @@
     <bpmn:scriptTask id="n_crea01" name="Create inception task (status captured)">
       <bpmn:extensionElements>
         <aef:uid value="n_crea01"/>
-        <aef:position x="500" y="300"/>
+        <aef:position x="500" y="248"/>
         <aef:meta tier="1" endpoint="agents/task-create/create-task.sh --type inception"/>
         <aef:artifactsWrites paths=".tasks/active/T-XXX.md"/>
         <aef:io>
@@ -79,7 +79,7 @@
     <bpmn:scriptTask id="n_strt01" name="Start work (captured to started-work)">
       <bpmn:extensionElements>
         <aef:uid value="n_strt01"/>
-        <aef:position x="700" y="300"/>
+        <aef:position x="700" y="248"/>
         <aef:meta tier="1" endpoint="fw work-on ${task_id}"/>
         <aef:io>
           <aef:input name="task_id" type="task_id" required="true"/>
@@ -91,7 +91,7 @@
     <bpmn:serviceTask id="n_expl01" name="Conduct exploration">
       <bpmn:extensionElements>
         <aef:uid value="n_expl01"/>
-        <aef:position x="900" y="470"/>
+        <aef:position x="900" y="472"/>
         <aef:meta tier="2" endpoint="fw assumption add / research artifact docs/reports/T-XXX-*.md" agentType="primary"/>
         <aef:contextReads paths=".tasks/active/${task_id}.md"/>
         <aef:io>
@@ -104,7 +104,7 @@
     <bpmn:scriptTask id="n_revw01" name="Generate review surface + marker">
       <bpmn:extensionElements>
         <aef:uid value="n_revw01"/>
-        <aef:position x="1100" y="300"/>
+        <aef:position x="1100" y="248"/>
         <aef:meta tier="1" endpoint="fw task review ${task_id}"/>
         <aef:artifactsWrites paths=".context/working/.reviewed-${task_id}"/>
         <aef:io>
@@ -117,7 +117,7 @@
     <bpmn:userTask id="n_dcsn01" name="Record go/no-go/defer decision">
       <bpmn:extensionElements>
         <aef:uid value="n_dcsn01"/>
-        <aef:position x="1320" y="110"/>
+        <aef:position x="1320" y="70"/>
         <aef:meta tier="0" endpoint="watchtower:/inception/${task_id}"/>
         <aef:decisionOutputs>go, no-go, defer</aef:decisionOutputs>
         <aef:io>
@@ -130,7 +130,7 @@
     <bpmn:exclusiveGateway id="n_rout01" name="Decision?">
       <bpmn:extensionElements>
         <aef:uid value="n_rout01"/>
-        <aef:position x="1540" y="130"/>
+        <aef:position x="1540" y="158"/>
         <aef:meta decisionOwner="human"/>
         <aef:decisionInput>${decision}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -142,7 +142,7 @@
     <bpmn:scriptTask id="n_go01" name="Complete GO — auto-tick ACs, move to completed, authorize build tasks">
       <bpmn:extensionElements>
         <aef:uid value="n_go01"/>
-        <aef:position x="1760" y="222"/>
+        <aef:position x="1760" y="230"/>
         <aef:meta tier="1" endpoint="fw inception decide ${task_id} go --i-am-human"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_08</bpmn:incoming>
@@ -160,7 +160,7 @@
     <bpmn:scriptTask id="n_df01" name="Complete DEFER — inject stubs + revisit_at">
       <bpmn:extensionElements>
         <aef:uid value="n_df01"/>
-        <aef:position x="1760" y="378"/>
+        <aef:position x="1760" y="382"/>
         <aef:meta tier="1" endpoint="fw inception decide ${task_id} defer --i-am-human"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_10</bpmn:incoming>
@@ -169,7 +169,7 @@
     <bpmn:endEvent id="n_end_go" name="GO — build tasks authorized">
       <bpmn:extensionElements>
         <aef:uid value="n_end_go"/>
-        <aef:position x="1980" y="222"/>
+        <aef:position x="1980" y="262"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_11</bpmn:incoming>
     </bpmn:endEvent>

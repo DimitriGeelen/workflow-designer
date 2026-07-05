@@ -17,7 +17,7 @@
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="frw" authority="authority" height="220"/>
+          <aef:laneMeta abbr="frw" authority="authority" height="223"/>
         </bpmn:extensionElements>
         <bpmn:flowNodeRef>n_close</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>n_abandon</bpmn:flowNodeRef>
@@ -41,7 +41,7 @@
     <bpmn:startEvent id="n_req" name="Arc proposed (headline mechanic identified)">
       <bpmn:extensionElements>
         <aef:uid value="n_req"/>
-        <aef:position x="120" y="560"/>
+        <aef:position x="120" y="592"/>
         <aef:meta triggeredBy="fw arc create &lt;id&gt; --name --headline-mechanic"/>
         <aef:io>
           <aef:output name="headline_mechanic" type="string"/>
@@ -52,7 +52,7 @@
     <bpmn:scriptTask id="n_create" name="Create arc (status draft, immutable arc-NNN)">
       <bpmn:extensionElements>
         <aef:uid value="n_create"/>
-        <aef:position x="300" y="560"/>
+        <aef:position x="300" y="578"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="lib/arc.sh:344" state="draft"/>
         <aef:artifactsWrites paths=".context/arcs/&lt;slug&gt;.yaml"/>
         <aef:io>
@@ -65,7 +65,7 @@
     <bpmn:scriptTask id="n_start" name="Start arc (draft → in-progress)">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
-        <aef:position x="480" y="560"/>
+        <aef:position x="480" y="578"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="fw arc start ${arc_id}" state="in-progress"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_02</bpmn:incoming>
@@ -74,7 +74,7 @@
     <bpmn:serviceTask id="n_tag" name="Tag member tasks (arc_id / arc: tag)">
       <bpmn:extensionElements>
         <aef:uid value="n_tag"/>
-        <aef:position x="660" y="560"/>
+        <aef:position x="660" y="578"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="fw arc tag ${arc_id} T-XXXX" gate="check-arc-id.py (arc_id must resolve; else block exit 2)" x-grouping="kind=tag-set; membership=computed; ordered=false"/>
         <aef:io>
           <aef:output name="members" type="computed-set"/>
@@ -86,7 +86,7 @@
     <bpmn:serviceTask id="n_bvp" name="BVP rescore (writes PROPOSED scores only)">
       <bpmn:extensionElements>
         <aef:uid value="n_bvp"/>
-        <aef:position x="840" y="560"/>
+        <aef:position x="840" y="578"/>
         <aef:meta determinism="stochastic" tier="1" endpoint="fw arc rescore ${arc_id}" advisory="True"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_04</bpmn:incoming>
@@ -95,7 +95,7 @@
     <bpmn:userTask id="n_approve_driver" name="Approve value drivers (human-only)">
       <bpmn:extensionElements>
         <aef:uid value="n_approve_driver"/>
-        <aef:position x="1040" y="110"/>
+        <aef:position x="1040" y="70"/>
         <aef:meta determinism="human" tier="0" authority="sovereignty" endpoint="fw arc approve-driver ${arc_id} --i-am-human"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_05</bpmn:incoming>
@@ -104,7 +104,7 @@
     <bpmn:serviceTask id="n_work" name="Work member tasks (each = own task-lifecycle + Evolution log)">
       <bpmn:extensionElements>
         <aef:uid value="n_work"/>
-        <aef:position x="1240" y="560"/>
+        <aef:position x="1240" y="578"/>
         <aef:meta determinism="stochastic" tier="2" x-subProcessPerMember="task-lifecycle" x-groupConstraint="evolution-log required on every member (evolution_log.sh:86)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_06</bpmn:incoming>
@@ -113,7 +113,7 @@
     <bpmn:scriptTask id="n_review" name="Emit close review surface (Watchtower URL + QR)">
       <bpmn:extensionElements>
         <aef:uid value="n_review"/>
-        <aef:position x="1420" y="560"/>
+        <aef:position x="1420" y="578"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="fw arc review ${arc_id}"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_07</bpmn:incoming>
@@ -122,7 +122,7 @@
     <bpmn:userTask id="n_close_decide" name="Close or abandon? (human-only)">
       <bpmn:extensionElements>
         <aef:uid value="n_close_decide"/>
-        <aef:position x="1600" y="110"/>
+        <aef:position x="1600" y="70"/>
         <aef:meta determinism="human" tier="0" authority="sovereignty" endpoint="watchtower:/arcs/${arc_id}/close  |  fw arc close --i-am-human" x-requiresForClose="demo_evidence (path|url)"/>
         <aef:decisionOutputs>close, abandon</aef:decisionOutputs>
       </bpmn:extensionElements>
@@ -132,7 +132,7 @@
     <bpmn:exclusiveGateway id="n_route" name="Close or abandon?">
       <bpmn:extensionElements>
         <aef:uid value="n_route"/>
-        <aef:position x="1780" y="110"/>
+        <aef:position x="1780" y="78"/>
         <aef:meta decisionOwner="human"/>
         <aef:decisionInput>${decision}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -143,7 +143,7 @@
     <bpmn:scriptTask id="n_close" name="Close arc (in-progress → closed) + record demo_evidence">
       <bpmn:extensionElements>
         <aef:uid value="n_close"/>
-        <aef:position x="1960" y="300"/>
+        <aef:position x="1960" y="297"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="lib/arc.sh:643" state="closed" note="immutable — arc YAML never moved/deleted (F6)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_10</bpmn:incoming>
@@ -152,7 +152,7 @@
     <bpmn:scriptTask id="n_abandon" name="Abandon arc (reason ≥30 chars)">
       <bpmn:extensionElements>
         <aef:uid value="n_abandon"/>
-        <aef:position x="1960" y="370"/>
+        <aef:position x="1960" y="373"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="lib/arc.sh:770" state="abandoned" note="side exit reachable from draft or in-progress too"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_11</bpmn:incoming>
@@ -161,14 +161,14 @@
     <bpmn:endEvent id="n_end_closed" name="Arc closed (immutable)">
       <bpmn:extensionElements>
         <aef:uid value="n_end_closed"/>
-        <aef:position x="2160" y="300"/>
+        <aef:position x="2160" y="259.75"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_12</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:endEvent id="n_end_abandoned" name="Arc abandoned (immutable)">
       <bpmn:extensionElements>
         <aef:uid value="n_end_abandoned"/>
-        <aef:position x="2160" y="398"/>
+        <aef:position x="2160" y="371.25"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_13</bpmn:incoming>
     </bpmn:endEvent>

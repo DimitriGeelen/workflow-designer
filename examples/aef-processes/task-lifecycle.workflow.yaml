@@ -50,7 +50,7 @@ nodes:
     slug: captured
     lane: framework
     x: 120
-    y: 360
+    y: 334
     aef:
       state: captured
       triggeredBy: fw task create --type <type> --owner <agent|human>
@@ -66,7 +66,7 @@ nodes:
     slug: ready-guard
     lane: framework
     x: 320
-    y: 360
+    y: 328
     aef:
       # G-020 is an ENTRY guard on captured->started-work, enforced in
       # agents/context/check-active-task.sh (pickup time), NOT a completion gate.
@@ -79,7 +79,7 @@ nodes:
     slug: author-acs
     lane: agent
     x: 320
-    y: 560
+    y: 600
     aef:
       tier: 1
       agentType: primary
@@ -91,7 +91,7 @@ nodes:
     slug: start-work
     lane: framework
     x: 520
-    y: 360
+    y: 320
     aef:
       state: started-work
       tier: 1
@@ -108,7 +108,7 @@ nodes:
     slug: work
     lane: agent
     x: 720
-    y: 560
+    y: 600
     aef:
       state: started-work
       tier: 2
@@ -122,7 +122,7 @@ nodes:
     slug: outcome
     lane: framework
     x: 920
-    y: 360
+    y: 328
     aef:
       decisionInput: ${outcome}
       decisionOwner: agent
@@ -133,7 +133,7 @@ nodes:
     slug: issues
     lane: framework
     x: 920
-    y: 230
+    y: 233.333
     aef:
       state: issues
       tier: 1
@@ -150,7 +150,7 @@ nodes:
     slug: request-complete
     lane: agent
     x: 1120
-    y: 560
+    y: 600
     aef:
       tier: 1
       determinism: deterministic
@@ -162,7 +162,7 @@ nodes:
     slug: completion-gates
     lane: framework
     x: 1320
-    y: 360
+    y: 320
     aef:
       tier: 1
       determinism: deterministic
@@ -184,7 +184,7 @@ nodes:
     slug: gate-result
     lane: framework
     x: 1520
-    y: 360
+    y: 328
     aef:
       decisionInput: ${gates}
       decisionOwner: framework
@@ -195,7 +195,7 @@ nodes:
     slug: partial-check
     lane: framework
     x: 1720
-    y: 360
+    y: 328
     aef:
       # The partial-complete branch is selected by a HUMAN-ownership condition
       # whose outcome routes edges — same human-decision->edge gap as T-021 (F1).
@@ -208,7 +208,7 @@ nodes:
     slug: partial-complete
     lane: framework
     x: 1720
-    y: 230
+    y: 233.333
     aef:
       state: work-completed
       tier: 1
@@ -222,7 +222,7 @@ nodes:
     slug: human-finalize
     lane: human
     x: 1920
-    y: 110
+    y: 70
     aef:
       tier: 0
       determinism: human
@@ -235,7 +235,7 @@ nodes:
     slug: finalize
     lane: framework
     x: 1920
-    y: 360
+    y: 320
     aef:
       state: work-completed
       tier: 1
@@ -250,7 +250,7 @@ nodes:
     slug: end-completed
     lane: framework
     x: 2120
-    y: 360
+    y: 334
     aef:
       emits: event:task.work-completed
 

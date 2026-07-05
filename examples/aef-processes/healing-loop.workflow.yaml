@@ -51,7 +51,7 @@ nodes:
     slug: trigger
     lane: framework
     x: 120
-    y: 340
+    y: 369
     aef:
       triggeredBy: task status -> issues|blocked (update-task.sh:1687)
       advisory: true          # best-effort, wrapped in `|| true`; non-blocking (F9)
@@ -66,7 +66,7 @@ nodes:
     slug: classify
     lane: agent
     x: 300
-    y: 540
+    y: 560
     aef:
       tier: 2
       agentType: primary
@@ -86,7 +86,7 @@ nodes:
     slug: lookup
     lane: agent
     x: 480
-    y: 540
+    y: 560
     aef:
       tier: 2
       agentType: primary
@@ -107,7 +107,7 @@ nodes:
     slug: suggest
     lane: agent
     x: 680
-    y: 540
+    y: 560
     aef:
       tier: 2
       agentType: primary
@@ -130,7 +130,7 @@ nodes:
     slug: acted
     lane: human
     x: 880
-    y: 130
+    y: 158
     aef:
       # advisory output => acting is optional; the loop may exit unrecorded (F9)
       decisionInput: ${act}
@@ -142,7 +142,7 @@ nodes:
     slug: end-advisory
     lane: framework
     x: 880
-    y: 340
+    y: 369
     aef:
       emits: event:healing.advisory-only
       note: diagnose fired but no resolve; memory NOT strengthened
@@ -153,7 +153,7 @@ nodes:
     slug: choose
     lane: human
     x: 1080
-    y: 110
+    y: 70
     aef:
       tier: 0
       determinism: human
@@ -173,7 +173,7 @@ nodes:
     slug: apply
     lane: agent
     x: 1280
-    y: 540
+    y: 560
     aef:
       tier: 2
       agentType: primary
@@ -189,7 +189,7 @@ nodes:
     slug: resolve
     lane: framework
     x: 1480
-    y: 340
+    y: 355
     aef:
       tier: 1
       determinism: deterministic
@@ -207,7 +207,7 @@ nodes:
     slug: resume
     lane: framework
     x: 1680
-    y: 340
+    y: 355
     aef:
       tier: 1
       determinism: deterministic
@@ -221,7 +221,7 @@ nodes:
     slug: end-resolved
     lane: framework
     x: 1880
-    y: 340
+    y: 369
     aef:
       emits: event:healing.resolved
 

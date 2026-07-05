@@ -39,7 +39,7 @@
     <bpmn:startEvent id="n_start" name='git.sh commit -m "T-XXX: …"'>
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
-        <aef:position x="90" y="610"/>
+        <aef:position x="90" y="636.5"/>
         <aef:meta determinism="deterministic" triggeredBy="agent (or fw git commit) — commit.sh:do_commit"/>
         <aef:io>
           <aef:output name="message" type="string"/>
@@ -52,7 +52,7 @@
     <bpmn:scriptTask id="n_parse" name="parse args; check_git_repo; require -m">
       <bpmn:extensionElements>
         <aef:uid value="n_parse"/>
-        <aef:position x="150" y="600"/>
+        <aef:position x="150" y="622.5"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="commit.sh:8-64 (arg loop + check_git_repo + message-required)" guard="empty message → ERROR exit 1 (blocks before any branch)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e1</bpmn:incoming>
@@ -61,7 +61,7 @@
     <bpmn:exclusiveGateway id="g_bypass" name="--bypass?">
       <bpmn:extensionElements>
         <aef:uid value="g_bypass"/>
-        <aef:position x="300" y="602"/>
+        <aef:position x="300" y="630.5"/>
         <aef:meta determinism="deterministic" endpoint="commit.sh:66 ($bypass == true)" decisionOwner="agent"/>
         <aef:decisionInput>${bypass}</aef:decisionInput>
         <aef:decisionOutputs>bypass, enforce</aef:decisionOutputs>
@@ -73,7 +73,7 @@
     <bpmn:exclusiveGateway id="g_taskref" name="T-XXX in message? (P-002, agent-level)">
       <bpmn:extensionElements>
         <aef:uid value="g_taskref"/>
-        <aef:position x="410" y="602"/>
+        <aef:position x="410" y="630.5"/>
         <aef:meta determinism="deterministic" endpoint='commit.sh:96-110 (found_task=extract_task_id "$message")' decisionOwner="framework"/>
         <aef:decisionInput>${extract_task_id(message) != ""}</aef:decisionInput>
         <aef:decisionOutputs>has-ref, no-ref</aef:decisionOutputs>
@@ -85,7 +85,7 @@
     <bpmn:userTask id="n_reason" name="authorise bypass — reason required (Tier-2)">
       <bpmn:extensionElements>
         <aef:uid value="n_reason"/>
-        <aef:position x="300" y="108"/>
+        <aef:position x="300" y="100"/>
         <aef:meta determinism="stochastic" tier="2" endpoint="commit.sh:67-76 (prompt if empty; empty → ERROR exit 1)" note="single-use situational authorisation; the human owns the reason" guard="no reason → ERROR exit 1 (bypass needs a reason)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e3</bpmn:incoming>
@@ -94,7 +94,7 @@
     <bpmn:userTask id="n_reminder" name="reminder: create retroactive task">
       <bpmn:extensionElements>
         <aef:uid value="n_reminder"/>
-        <aef:position x="760" y="108"/>
+        <aef:position x="760" y="100"/>
         <aef:meta determinism="deterministic" endpoint="commit.sh:83-85 (REMINDER: create-task.sh)" note="advisory nudge — not structurally enforced (bypass leaves a task-debt)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e7</bpmn:incoming>
@@ -103,7 +103,7 @@
     <bpmn:serviceTask id="n_commit_bypass" name="git commit (bypass) — still fires hooks">
       <bpmn:extensionElements>
         <aef:uid value="n_commit_bypass"/>
-        <aef:position x="440" y="340"/>
+        <aef:position x="440" y="297.5"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="commit.sh:78-79 (git commit -m … ; NO --no-verify)" sideEffect="creates a commit object; the installed hooks still run (see friction)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e5</bpmn:incoming>
@@ -112,7 +112,7 @@
     <bpmn:serviceTask id="n_logbypass" name="log_bypass_entry → .context/bypass-log.yaml">
       <bpmn:extensionElements>
         <aef:uid value="n_logbypass"/>
-        <aef:position x="600" y="340"/>
+        <aef:position x="600" y="297.5"/>
         <aef:meta determinism="deterministic" tier="1" endpoint="bypass.sh:76-113 (log_bypass_entry)" sideEffect="appends a YAML bypass record; reviewed by fw audit"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e6</bpmn:incoming>
@@ -121,7 +121,7 @@
     <bpmn:serviceTask id="n_commit" name="git commit (triggers hooks)">
       <bpmn:extensionElements>
         <aef:uid value="n_commit"/>
-        <aef:position x="520" y="440"/>
+        <aef:position x="520" y="467.5"/>
         <aef:meta determinism="deterministic" tier="1" endpoint='commit.sh:113 (git commit -m … "${git_args[@]}")' sideEffect="creates a commit object; on success stamps the active task (update_task_timestamp, commit.sh:118-125)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e9</bpmn:incoming>
@@ -130,7 +130,7 @@
     <bpmn:exclusiveGateway id="g_hooks" name="pre-commit + commit-msg hooks pass?">
       <bpmn:extensionElements>
         <aef:uid value="g_hooks"/>
-        <aef:position x="680" y="442"/>
+        <aef:position x="680" y="475.5"/>
         <aef:meta determinism="deterministic" endpoint="hooks.sh:271-358 (pre-commit) + hooks.sh:55-88 (commit-msg)" decisionOwner="framework"/>
         <aef:decisionInput>${all_hook_gates_pass}</aef:decisionInput>
         <aef:decisionOutputs>pass, blocked</aef:decisionOutputs>
@@ -148,7 +148,7 @@
     <bpmn:endEvent id="n_done" name="commit recorded (task stamped)">
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
-        <aef:position x="830" y="456"/>
+        <aef:position x="830" y="481.5"/>
         <aef:meta terminalKind="success" state="committed"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e8</bpmn:incoming>
@@ -157,7 +157,7 @@
     <bpmn:endEvent id="n_block" name="BLOCKED — no ref / hook hit / no reason">
       <bpmn:extensionElements>
         <aef:uid value="n_block"/>
-        <aef:position x="400" y="456"/>
+        <aef:position x="400" y="481.5"/>
         <aef:meta terminalKind="error" state="blocked" note="sources — g_taskref no-ref (P-002), g_hooks blocked (secret/dup/large/msg), n_reason no-reason" exitCode="1"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e10</bpmn:incoming>

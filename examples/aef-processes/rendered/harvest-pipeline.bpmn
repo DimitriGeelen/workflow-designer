@@ -51,7 +51,7 @@
     <bpmn:startEvent id="n_start" name="Trigger — `fw harvest [project]`">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
-        <aef:position x="100" y="110"/>
+        <aef:position x="100" y="104"/>
         <aef:meta determinism="deterministic" endpoint="fw harvest"/>
       </bpmn:extensionElements>
       <bpmn:outgoing>e_01</bpmn:outgoing>
@@ -59,7 +59,7 @@
     <bpmn:scriptTask id="n_parse" name="Parse args (--dry-run/--verbose/dir)">
       <bpmn:extensionElements>
         <aef:uid value="n_parse"/>
-        <aef:position x="240" y="300"/>
+        <aef:position x="240" y="306"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_01</bpmn:incoming>
@@ -68,7 +68,7 @@
     <bpmn:scriptTask id="n_resolve" name="Resolve project dir → absolute">
       <bpmn:extensionElements>
         <aef:uid value="n_resolve"/>
-        <aef:position x="380" y="300"/>
+        <aef:position x="380" y="306"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_02</bpmn:incoming>
@@ -77,7 +77,7 @@
     <bpmn:exclusiveGateway id="n_exists_gate" name="Dir exists?">
       <bpmn:extensionElements>
         <aef:uid value="n_exists_gate"/>
-        <aef:position x="520" y="308"/>
+        <aef:position x="520" y="314"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${cd project_dir}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -88,7 +88,7 @@
     <bpmn:endEvent id="n_no_dir" name="No such dir">
       <bpmn:extensionElements>
         <aef:uid value="n_no_dir"/>
-        <aef:position x="520" y="430"/>
+        <aef:position x="520" y="424"/>
         <aef:meta terminalKind="error"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_04</bpmn:incoming>
@@ -96,7 +96,7 @@
     <bpmn:exclusiveGateway id="n_self_gate" name="Is framework itself?">
       <bpmn:extensionElements>
         <aef:uid value="n_self_gate"/>
-        <aef:position x="650" y="308"/>
+        <aef:position x="650" y="314"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${project_dir == FRAMEWORK_ROOT}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -107,7 +107,7 @@
     <bpmn:endEvent id="n_self" name="Refused (framework)">
       <bpmn:extensionElements>
         <aef:uid value="n_self"/>
-        <aef:position x="650" y="430"/>
+        <aef:position x="650" y="424"/>
         <aef:meta terminalKind="error"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_06</bpmn:incoming>
@@ -115,7 +115,7 @@
     <bpmn:exclusiveGateway id="n_ctx_gate" name=".context/project/ present?">
       <bpmn:extensionElements>
         <aef:uid value="n_ctx_gate"/>
-        <aef:position x="790" y="308"/>
+        <aef:position x="790" y="314"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${-d project/.context/project}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -126,7 +126,7 @@
     <bpmn:endEvent id="n_no_ctx" name="No .context — init first">
       <bpmn:extensionElements>
         <aef:uid value="n_no_ctx"/>
-        <aef:position x="790" y="430"/>
+        <aef:position x="790" y="424"/>
         <aef:meta terminalKind="error"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_08</bpmn:incoming>
@@ -134,7 +134,7 @@
     <bpmn:serviceTask id="n_source" name="Read source project memory (read-only)">
       <bpmn:extensionElements>
         <aef:uid value="n_source"/>
-        <aef:position x="900" y="760"/>
+        <aef:position x="900" y="740"/>
         <aef:meta determinism="deterministic" sideEffect="none (read-only source)" external="True"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_09</bpmn:incoming>
@@ -143,7 +143,7 @@
     <bpmn:parallelGateway id="n_fork" name="Fan out — 6 memory categories">
       <bpmn:extensionElements>
         <aef:uid value="n_fork"/>
-        <aef:position x="1010" y="408"/>
+        <aef:position x="1010" y="418"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_10</bpmn:incoming>
       <bpmn:outgoing>e_11</bpmn:outgoing>
@@ -210,7 +210,7 @@
     <bpmn:parallelGateway id="n_join" name="Join — all categories scanned">
       <bpmn:extensionElements>
         <aef:uid value="n_join"/>
-        <aef:position x="1330" y="408"/>
+        <aef:position x="1330" y="418"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_17</bpmn:incoming>
       <bpmn:incoming>e_18</bpmn:incoming>
@@ -223,7 +223,7 @@
     <bpmn:scriptTask id="n_summary" name="Tally counts (new vs duplicates)">
       <bpmn:extensionElements>
         <aef:uid value="n_summary"/>
-        <aef:position x="1470" y="300"/>
+        <aef:position x="1470" y="306"/>
         <aef:meta determinism="deterministic"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_23</bpmn:incoming>
@@ -232,7 +232,7 @@
     <bpmn:exclusiveGateway id="n_mode_gate" name="dry-run? new items?">
       <bpmn:extensionElements>
         <aef:uid value="n_mode_gate"/>
-        <aef:position x="1620" y="308"/>
+        <aef:position x="1620" y="314"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${dry_run -&gt; dry; new_total&gt;0 -&gt; write; else nothing}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -260,7 +260,7 @@
     <bpmn:scriptTask id="n_log" name="Log harvest + write framework files">
       <bpmn:extensionElements>
         <aef:uid value="n_log"/>
-        <aef:position x="1760" y="300"/>
+        <aef:position x="1760" y="306"/>
         <aef:meta determinism="deterministic" sideEffect="appends harvest.log"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_27</bpmn:incoming>
@@ -269,7 +269,7 @@
     <bpmn:endEvent id="n_done" name="Harvested ✓">
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
-        <aef:position x="1910" y="314"/>
+        <aef:position x="1910" y="320"/>
         <aef:meta terminalKind="success"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_28</bpmn:incoming>

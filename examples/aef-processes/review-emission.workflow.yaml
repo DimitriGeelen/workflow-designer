@@ -64,7 +64,7 @@ nodes:
     slug: start
     lane: agent
     x: 100
-    y: 110
+    y: 104
     aef:
       determinism: deterministic
       endpoint: fw review
@@ -75,7 +75,7 @@ nodes:
     slug: resolve
     lane: framework
     x: 250
-    y: 300
+    y: 285
     aef:
       determinism: deterministic
       # L.85-100 — hint arg, else scan active/ then completed/
@@ -86,7 +86,7 @@ nodes:
     slug: found-gate
     lane: framework
     x: 400
-    y: 308
+    y: 293
     aef:
       decisionInput: ${task_file != ""}
       decisionOwner: framework       # L.98-100
@@ -97,7 +97,7 @@ nodes:
     slug: not-found
     lane: framework
     x: 400
-    y: 430
+    y: 389
     aef:
       terminalKind: error
 
@@ -107,7 +107,7 @@ nodes:
     slug: arc
     lane: framework
     x: 540
-    y: 300
+    y: 285
     aef:
       determinism: deterministic
       softFail: advisory             # L.102-103 — `|| true`, never blocks
@@ -119,7 +119,7 @@ nodes:
     slug: type-gate
     lane: framework
     x: 700
-    y: 308
+    y: 293
     aef:
       decisionInput: ${workflow_type == inception}
       decisionOwner: framework       # L.108-119 — routes URL /inception vs /review
@@ -130,7 +130,7 @@ nodes:
     slug: rec
     lane: framework
     x: 700
-    y: 190
+    y: 195
     aef:
       determinism: deterministic
       softFail: advisory             # L.149-162 — inception-only; WARN if missing, continue
@@ -141,7 +141,7 @@ nodes:
     slug: link-validate
     lane: framework
     x: 860
-    y: 300
+    y: 285
     aef:
       determinism: deterministic
       # L.164-179 — review_link_validator.py --enforce (T-2139)
@@ -152,7 +152,7 @@ nodes:
     slug: link-gate
     lane: framework
     x: 1010
-    y: 308
+    y: 293
     aef:
       decisionInput: ${links_ok || FW_ALLOW_REVIEW_LINK_HOMEWORK}
       decisionOwner: framework       # hard gate; human may bypass via env var → Tier-2
@@ -163,7 +163,7 @@ nodes:
     slug: homework
     lane: framework
     x: 1010
-    y: 430
+    y: 389
     aef:
       terminalKind: error            # L.171-177; bypass FW_ALLOW_REVIEW_LINK_HOMEWORK=1 (Tier-2, logged)
 
@@ -173,7 +173,7 @@ nodes:
     slug: card
     lane: framework
     x: 1150
-    y: 300
+    y: 285
     aef:
       determinism: deterministic
       # L.181-187 — label, Human-AC count, Watchtower URL
@@ -184,7 +184,7 @@ nodes:
     slug: qr
     lane: framework
     x: 1300
-    y: 300
+    y: 285
     aef:
       determinism: deterministic
       softFail: advisory             # L.189-225 — QR if qrcode present; list docs/reports artifacts
@@ -195,7 +195,7 @@ nodes:
     slug: mark
     lane: framework
     x: 1450
-    y: 300
+    y: 285
     aef:
       determinism: deterministic
       # L.258-267 — inter-process signal
@@ -207,7 +207,7 @@ nodes:
     slug: done
     lane: framework
     x: 1600
-    y: 314
+    y: 299
     aef:
       terminalKind: success
       x-handoffTo: human sovereignty (Watchtower, out-of-band — see FC-7)

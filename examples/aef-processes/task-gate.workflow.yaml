@@ -51,7 +51,7 @@ nodes:
     slug: attempt
     lane: agent
     x: 120
-    y: 552
+    y: 514
     aef:
       determinism: stochastic
     io:
@@ -65,7 +65,7 @@ nodes:
     slug: intercept
     lane: framework
     x: 250
-    y: 300
+    y: 320
     aef:
       tier: 1
       determinism: deterministic
@@ -79,7 +79,7 @@ nodes:
     slug: exempt
     lane: framework
     x: 430
-    y: 308
+    y: 328
     aef:
       determinism: deterministic
       decisionInput: ${path in [.context,.tasks,.claude,.git] || safe_bash_cmd}
@@ -92,7 +92,7 @@ nodes:
     slug: active
     lane: framework
     x: 560
-    y: 308
+    y: 328
     aef:
       determinism: deterministic
       decisionInput: ${focus.current_task != null && focus_session == session}
@@ -105,7 +105,7 @@ nodes:
     slug: ready
     lane: framework
     x: 760
-    y: 308
+    y: 328
     aef:
       determinism: deterministic
       decisionInput: ${status in [started-work,issues] && acs_are_real}
@@ -118,7 +118,7 @@ nodes:
     slug: allow
     lane: framework
     x: 980
-    y: 310
+    y: 334
     aef:
       determinism: deterministic
       emits: PreToolUse allow (exit 0)
@@ -129,7 +129,7 @@ nodes:
     slug: block
     lane: framework
     x: 660
-    y: 410
+    y: 420.667
     aef:
       determinism: deterministic
       emits: PreToolUse block (exit 2)
@@ -140,7 +140,7 @@ nodes:
     slug: log
     lane: framework
     x: 800
-    y: 400
+    y: 406.667
     aef:
       tier: 2
       determinism: deterministic
@@ -154,7 +154,7 @@ nodes:
     slug: override
     lane: human
     x: 560
-    y: 120
+    y: 150
     aef:
       determinism: stochastic
       endpoint: FW_SWITCH_FOCUS=1 / FW_SAFE_MODE=1
@@ -166,7 +166,7 @@ nodes:
     slug: create
     lane: agent
     x: 470
-    y: 540
+    y: 500
     aef:
       determinism: stochastic
       endpoint: fw work-on "name" --type build
@@ -178,7 +178,7 @@ nodes:
     slug: scope
     lane: agent
     x: 680
-    y: 540
+    y: 500
     aef:
       determinism: stochastic
       endpoint: edit .tasks/active/T-XXX (replace placeholder ACs)

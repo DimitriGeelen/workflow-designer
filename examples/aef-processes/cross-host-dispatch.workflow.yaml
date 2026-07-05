@@ -61,7 +61,7 @@ nodes:
     slug: send
     lane: agent
     x: 120
-    y: 110
+    y: 114
     aef:
       determinism: deterministic
       endpoint: fw dispatch send
@@ -72,7 +72,7 @@ nodes:
     slug: parse
     lane: framework
     x: 280
-    y: 300
+    y: 297.5
     aef:
       determinism: deterministic
       # L.57-70 — while-loop over $@; unknown flag → error exit
@@ -83,7 +83,7 @@ nodes:
     slug: valid-gate
     lane: framework
     x: 460
-    y: 308
+    y: 305.5
     aef:
       decisionInput: ${host && task && agent && summary}
       decisionOwner: framework       # L.72-88 — data condition, not human → no F1
@@ -94,7 +94,7 @@ nodes:
     slug: missing
     lane: framework
     x: 460
-    y: 430
+    y: 396.5
 
   - uid: n_envelope
     type: scriptTask
@@ -102,7 +102,7 @@ nodes:
     slug: envelope
     lane: framework
     x: 620
-    y: 300
+    y: 297.5
     aef:
       determinism: deterministic
       # L.90-107 — python3 json.dumps escapes summary/payload; JSON chosen over YAML for SSH-pipe safety
@@ -114,7 +114,7 @@ nodes:
     slug: conn-gate
     lane: framework
     x: 800
-    y: 308
+    y: 305.5
     aef:
       decisionInput: ${ssh -o BatchMode=yes -o ConnectTimeout=5 host 'echo ok'}
       decisionOwner: framework       # L.110-114 — fail-fast connectivity probe before sending
@@ -125,7 +125,7 @@ nodes:
     slug: unreach
     lane: framework
     x: 800
-    y: 430
+    y: 396.5
 
   - uid: n_pipe
     type: serviceTask
@@ -133,7 +133,7 @@ nodes:
     slug: pipe
     lane: framework
     x: 960
-    y: 300
+    y: 297.5
     aef:
       determinism: deterministic
       # L.117 — echo "$envelope" | ssh "$remote_host" "fw bus receive"
@@ -145,7 +145,7 @@ nodes:
     slug: receive
     lane: external
     x: 1140
-    y: 590
+    y: 580
     aef:
       determinism: deterministic
       # Runs on the REMOTE host under its own framework install (L.117 target).
@@ -158,7 +158,7 @@ nodes:
     slug: exit-gate
     lane: framework
     x: 1320
-    y: 308
+    y: 305.5
     aef:
       decisionInput: ${remote_exit_code == 0}
       decisionOwner: framework       # L.120 — interpret the SSH command's exit status locally
@@ -169,7 +169,7 @@ nodes:
     slug: fail
     lane: framework
     x: 1320
-    y: 430
+    y: 396.5
 
   - uid: n_done
     type: endEvent
@@ -177,7 +177,7 @@ nodes:
     slug: done
     lane: framework
     x: 1480
-    y: 314
+    y: 311.5
 
 edges:
   - uid: e_01
