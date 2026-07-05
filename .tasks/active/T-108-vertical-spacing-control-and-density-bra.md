@@ -1,12 +1,12 @@
 ---
-id: T-107
-name: "Align columns one-shot action: snap near-aligned connected nodes to shared centre-x"
+id: T-108
+name: "Vertical spacing control and density-branch-pitch effectiveness"
 description: >
-  T-092 Phase C option 7: a one-shot 'Align columns' action (mirror of the shipped align-rows T-094) that snaps near-aligned connected nodes to a shared centre-x, zeroing the ~21 column near-miss pairs (survey finding 4) and removing the hidden doglegs T-073 only masks at render time. Geometry-mutating action (undoable, PD-044: explicit-action only), wired into the Clean composite. No stored geometry mutated by any render pass.
+  Operator report: Density and Branch-pitch settings appear ineffective; add a working vertical-spacing control and decide their fate. See task body.
 
-status: work-completed
+status: started-work
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: []
 components: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-05T18:54:24Z
-last_update: 2026-07-05T19:09:36Z
-date_finished: 2026-07-05T19:09:36Z
+created: 2026-07-05T19:13:16Z
+last_update: 2026-07-05T19:13:16Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,70 +30,55 @@ date_finished: 2026-07-05T19:09:36Z
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-107: Align columns one-shot action: snap near-aligned connected nodes to shared centre-x
+# T-108: Vertical spacing control and density-branch-pitch effectiveness
 
 ## Context
 
-T-092 Phase C option 7 (survey `docs/reports/T-092-routing-layout-survey.md`, finding 4:
-~21 column near-miss pairs — sequential/connected nodes whose x-centres are 1–14px apart,
-producing hidden doglegs that T-073's straightening only *masks* at render time). This adds
-a one-shot **Align columns** action, the x-axis mirror of the shipped align-rows (T-094,
-`alignRowsLane`). Key difference from rows: columns are **connectivity-based** — only nodes
-linked by a near-vertical edge (endpoints' centre-x within tolerance) may be snapped to a
-shared centre-x; unconnected nodes that merely share an x must NOT be forced (a horizontal
-flow chain has large centre-x deltas, so its edges never qualify — the tolerance filter
-selects vertical relationships automatically).
+Operator field report (2026-07-05): Density (tight/normal/wide) and Branch-pitch
+(auto/compact/roomy) settings "seem not to be working" and were floated for deletion; the
+operator wants a vertical-spacing setting that *visibly* works. Operator approved the plan
+below ("yes proceed as suggested").
 
-Geometry-mutating **explicit action only** (PD-044: never a render pass), undoable via the
-shared `lastTidy` single-step revert, with the same measure-after-move collision revert as
-align-rows. **Scope boundary:** this ships the standalone action only. It is deliberately
-NOT wired into the Clean composite (`cleanLayout`) this task, because that would make the
-baked corpus (T-101) no longer a Clean fixpoint and force a 24-map re-bake — exactly the
-path that introduced the T-105 label-collision regression. Clean-integration + re-bake is a
-separate, explicitly-deferred follow-up.
+**Investigation this session (evidence):**
+- Density IS wired (T-104 live-apply re-runs Clean on change) and moves some node-y's, so it
+  is not dead — but switching tight↔wide on task-lifecycle is **visually near-identical**
+  (screenshots `.playwright-mcp/density-tight.png` vs `density-wide.png`, READ).
+- Measured total vertical spread is **non-monotonic / inverted**: tight 547 > normal 530 >
+  wide 490 — "wide" produces *less* spacing than "tight".
+- **Root cause:** density only tunes Clean's *row-snap threshold*; it never re-spaces rows to
+  an absolute inter-row pitch and never grows lane heights. On an already-tidy (baked, T-101)
+  map, re-running Clean at a new density barely relocates nodes → reads as "not working".
+  Consistent with existing learning **PL-011** (settings that only affect FUTURE actions).
+
+**Approved plan:**
+1. Build a **"Vertical spacing"** control that re-spaces each lane's rows to a chosen
+   absolute inter-row gap AND grows lane height to fit — applied live (PL-012), undoable
+   (shared `lastTidy`, now axis-aware after T-107). This is the thing the operator asked for.
+2. Once it works, **remove the misleading Density preset** (redundant with the new control).
+3. **Keep Branch-pitch only if it visibly works** on a fan-out map (untested; likely fine —
+   T-093 spaces stacks directly, unlike density). Verify with a screenshot before deciding;
+   if it too is inert, remove it.
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] New `alignColumns()` function: union-find builds connected components from edges whose endpoints are near-x-aligned (`|cx(src) − cx(tgt)| ≤ 14`), then snaps each ≥2-node component to its members' median centre-x
-- [x] Measure-after-move collision revert (mirror `alignRowsLane`): a component whose snap increases node-rect intersections reverts — verified: harvest-pipeline overlaps 0 before → 0 after
-- [x] Undoable via the shared `lastTidy` — verified: harvest pair aligned (541,541) → Ctrl+Z → exact originals (544,538); `undoTidy` made axis-aware so x-records revert (y stays intact)
-- [x] A one-shot "⁙ Align columns" toolbar button added beside "✨ Clean layout", reporting nodes moved
-- [x] Horizontal-flow chains provably NOT collapsed: on session-handover (0 col near-misses, 0 near-x edges) `alignColumns()` moves **0** nodes. (Note: release-pipeline is NOT a pure-horizontal control — the T-092 table lists it with 3 col near-misses; it correctly moves 6 nodes fixing those, its horizontal flow having large-Δx edges that never union.)
-- [x] Column near-misses measurably reduced: harvest-pipeline **5 → 0** pairs (`0 < |Δcx| ≤ 14`), moved 7 nodes
-- [x] Render-only w.r.t. the shipped corpus: NOT wired into `cleanLayout`; `git diff` shows only `src/aef-workflow-designer.html` (+ gallery mirror); no `examples/**` changed
-- [x] `src/aef-workflow-designer.html` byte-identical to `build/gallery/designer.html` — `diff -q` PASS
-- [x] Before/after screenshots READ (`.playwright-mcp/t107-pair-before.png` vs `t107-pair-after2.png`): the "Dir exists?"→"No such dir" edge goes from a 6px dogleg to dead-straight into the node centre; horizontal flow (Resolve→gate→exists) undisturbed; no new overlap
+- [ ] New "Vertical spacing" control (numeric/slider or presets) that sets an **absolute inter-row gap** and re-spaces every lane's rows to it, growing each lane's `height` so rows don't clip — distinct from density's row-snap-threshold behaviour
+- [ ] Applied live on change (re-render immediately, PL-012) and undoable in one Ctrl+Z (record moved node-y's + changed lane heights into `lastTidy`; `undoTidy` already restores y and lane heights)
+- [ ] Explicit-action/pref only — NOT a render pass; never mutates `examples/**` (PD-044). Not wired into a corpus re-bake this task
+- [ ] Effect is **visibly and monotonically** correct: on a multi-row map (e.g. audit-process or error-escalation-ladder), larger spacing → provably larger row-to-row gaps and taller lanes; screenshots at min vs max spacing READ and clearly different (fixes the tight≈wide / inverted-spread defect)
+- [ ] Density decision executed: remove the Density preset control + its `viewPrefs.density` plumbing (or repoint density to the new logic) — no dead/ineffective control left in the settings modal
+- [ ] Branch-pitch verified on a fan-out map (audit-process/harvest-pipeline) with a screenshot: keep if it visibly changes stack spacing, else remove; record the decision
+- [ ] `src/aef-workflow-designer.html` byte-identical to `build/gallery/designer.html`
+- [ ] Before/after screenshots READ for every claim (per operator's standing "take more screenshots" guidance)
 
 ### Human
-- [ ] [REVIEW] Align columns straightens vertical connected runs without disturbing horizontal flow
+- [ ] [REVIEW] The vertical-spacing control visibly adjusts row spacing, and no ineffective control remains
   **Steps:**
-  1. Serve the gallery (`tools/serve-gallery.sh`) and open a map with visible column wobble (e.g. harvest-pipeline)
-  2. Click "Align columns"; observe the vertically-connected nodes snap to a shared column and their connecting edges straighten
-  3. Ctrl+Z and confirm it fully reverts; open release-pipeline and confirm clicking it changes nothing (already a clean horizontal flow)
-  **Expected:** Vertical doglegs disappear (edges become straight); no nodes overlap; horizontal chains and lane bands unchanged; one Ctrl+Z reverts
-  **If not:** Note which nodes moved wrongly or which overlap appeared
-
-## Recommendation
-
-**Recommendation:** GO
-
-**Rationale:** Clean, bounded x-axis mirror of the shipped align-rows (T-094), reusing its
-proven median-snap + measure-after-move + lastTidy-undo machinery. Connectivity-gated so it
-only straightens genuine vertical relationships and never collapses horizontal flow.
-Explicit-action only and not wired into Clean, so the baked corpus is untouched (sidesteps
-the T-105 re-bake/label-collision risk). Verified end-to-end with numbers and read
-screenshots.
-
-**Evidence:**
-- Code: `src/aef-workflow-designer.html` — `alignColumns()` + axis-aware `undoTidy` + "⁙ Align
-  columns" toolbar button.
-- harvest-pipeline: col near-misses 5 → 0 (moved 7, overlaps 0→0); session-handover: moves 0;
-  release-pipeline: moves 6 (its 3 legit near-miss pairs); undo restores exact originals.
-- Screenshots read: `.playwright-mcp/t107-pair-before.png` (6px dogleg) vs `t107-pair-after2.png`
-  (dead-straight edge into node centre).
-- Deferred (documented): wiring into the Clean composite + 24-map re-bake is a separate
-  follow-up (avoids the T-105 regression path).
+  1. Serve the gallery; open a multi-row map (e.g. audit-process)
+  2. Drag/change the new Vertical spacing control from min to max
+  3. Confirm Density (if kept) and Branch-pitch each visibly do something, or are gone
+  **Expected:** Rows spread apart / compress noticeably and monotonically; lanes grow to fit; every remaining spacing control has a visible effect
+  **If not:** Note which control still appears inert
 
 ## Verification
 
@@ -127,11 +112,6 @@ screenshots.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
-
-# Editor JS mirrored byte-identical into the gallery build artifact.
-diff -q src/aef-workflow-designer.html build/gallery/designer.html
-# Corpus untouched: this action does not re-bake or wire into Clean.
-test -z "$(git diff --name-only -- 'examples/aef-processes/*.workflow.yaml' 'examples/aef-processes/rendered/*.bpmn')"
 
 ## RCA
 
@@ -196,10 +176,7 @@ test -z "$(git diff --name-only -- 'examples/aef-processes/*.workflow.yaml' 'exa
 
 ## Updates
 
-### 2026-07-05T18:54:24Z — task-created [task-create-agent]
+### 2026-07-05T19:13:16Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-107-align-columns-one-shot-action-snap-near-.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-108-vertical-spacing-control-and-density-bra.md
 - **Context:** Initial task creation
-
-### 2026-07-05T19:09:36Z — status-update [task-update-agent]
-- **Change:** status: started-work → work-completed
