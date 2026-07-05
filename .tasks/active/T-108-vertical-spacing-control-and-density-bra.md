@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T19:13:16Z
-last_update: 2026-07-05T19:13:16Z
+last_update: 2026-07-05T19:25:21Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -62,14 +62,22 @@ below ("yes proceed as suggested").
 ## Acceptance Criteria
 
 ### Agent
-- [ ] New "Vertical spacing" control (numeric/slider or presets) that sets an **absolute inter-row gap** and re-spaces every lane's rows to it, growing each lane's `height` so rows don't clip — distinct from density's row-snap-threshold behaviour
-- [ ] Applied live on change (re-render immediately, PL-012) and undoable in one Ctrl+Z (record moved node-y's + changed lane heights into `lastTidy`; `undoTidy` already restores y and lane heights)
-- [ ] Explicit-action/pref only — NOT a render pass; never mutates `examples/**` (PD-044). Not wired into a corpus re-bake this task
-- [ ] Effect is **visibly and monotonically** correct: on a multi-row map (e.g. audit-process or error-escalation-ladder), larger spacing → provably larger row-to-row gaps and taller lanes; screenshots at min vs max spacing READ and clearly different (fixes the tight≈wide / inverted-spread defect)
-- [ ] Density decision executed: remove the Density preset control + its `viewPrefs.density` plumbing (or repoint density to the new logic) — no dead/ineffective control left in the settings modal
-- [ ] Branch-pitch verified on a fan-out map (audit-process/harvest-pipeline) with a screenshot: keep if it visibly changes stack spacing, else remove; record the decision
-- [ ] `src/aef-workflow-designer.html` byte-identical to `build/gallery/designer.html`
-- [ ] Before/after screenshots READ for every claim (per operator's standing "take more screenshots" guidance)
+- [x] New "Vertical spacing" control (numeric/slider or presets) that sets an **absolute inter-row gap** and re-spaces every lane's rows to it, growing each lane's `height` so rows don't clip — distinct from density's row-snap-threshold behaviour
+  → `respaceRows(gap)` + number input `#set-row-spacing` (72–240px, step 8). Clusters lane nodes into rows by centre-y band (28px), translates each row rigidly so consecutive row centres sit `gap` apart, grows lane height to fit.
+- [x] Applied live on change (re-render immediately, PL-012) and undoable in one Ctrl+Z (record moved node-y's + changed lane heights into `lastTidy`; `undoTidy` already restores y and lane heights)
+  → change listener calls `respaceRows(v)` which renders immediately and records `{laneId:null, positions, laneHeights}`. Verified: one undo reverted audit-process framework lane 1512→504px, pool 1752→744px, `lastTidy` cleared.
+- [x] Explicit-action/pref only — NOT a render pass; never mutates `examples/**` (PD-044). Not wired into a corpus re-bake this task
+  → only the change-listener (explicit user action) and Reset call it; no render pass invokes `respaceRows`. `examples/**` untouched.
+- [x] Effect is **visibly and monotonically** correct: on a multi-row map (e.g. audit-process or error-escalation-ladder), larger spacing → provably larger row-to-row gaps and taller lanes; screenshots at min vs max spacing READ and clearly different (fixes the tight≈wide / inverted-spread defect)
+  → audit-process framework lane, baseline gaps `[75,42,37,74,76,58]` (ragged). 72px→`[72×6]`, lane 504px. 160px→`[160×6]`, lane 1032px. 240px→`[240×6]`, lane 1512px. Strictly monotonic. Screenshots `t108-baseline/min72/max240.png` READ — clearly different.
+- [x] Density decision executed: remove the Density preset control + its `viewPrefs.density` plumbing (or repoint density to the new logic) — no dead/ineffective control left in the settings modal
+  → `#set-density`, `DENSITY_PITCH`, `viewPrefs.density`, load-validation, syncSettingsUI line, change-listener, reset-default all removed. `rowPitch()` returns fixed `ROW_PITCH`. grep confirms zero `density` refs; stored prefs carry no `density` key. `t108-settings.png` READ — Density gone, Vertical spacing present.
+- [x] Branch-pitch verified on a fan-out map (audit-process/harvest-pipeline) with a screenshot: keep if it visibly changes stack spacing, else remove; record the decision
+  → harvest-pipeline 6-node stack: auto 80px pitch → roomy 92px (+15%/gap, ×5 = +60px). `t108-bp-auto.png` vs `t108-bp-roomy.png` READ — stack visibly taller in roomy. **KEEP** (see Decisions).
+- [x] `src/aef-workflow-designer.html` byte-identical to `build/gallery/designer.html`
+  → `cmp` reports identical; extracted JS passes `node --check`.
+- [x] Before/after screenshots READ for every claim (per operator's standing "take more screenshots" guidance)
+  → baseline, min72, max240, settings, bp-auto, bp-roomy all READ with the Read tool.
 
 ### Human
 - [ ] [REVIEW] The vertical-spacing control visibly adjusts row spacing, and no ineffective control remains
@@ -81,6 +89,11 @@ below ("yes proceed as suggested").
   **If not:** Note which control still appears inert
 
 ## Verification
+
+cmp -s src/aef-workflow-designer.html build/gallery/designer.html
+grep -q "function respaceRows" src/aef-workflow-designer.html
+grep -q "id=\"set-row-spacing\"" src/aef-workflow-designer.html
+! grep -q "viewPrefs.density\|set-density\|DENSITY_PITCH" src/aef-workflow-designer.html
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -155,14 +168,15 @@ below ("yes proceed as suggested").
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-07-05 — Retire Density, keep Branch-pitch
+- **Chose:** Remove the Density preset entirely; keep Branch-pitch.
+- **Why:** Density only scaled a snap *threshold* (`DENSITY_PITCH` × `ROW_PITCH`) that Tidy/drag consult — it never re-spaced existing rows nor grew lanes, so on an already-tidy baked map tight↔wide read as inert (the operator's report; measured inverted spread tight 547 > wide 490). The new Vertical spacing control fully subsumes and surpasses its intent (absolute pitch + lane growth), so Density became redundant *and* misleading. Branch-pitch, by contrast, demonstrably works: harvest-pipeline's 6-node fan-out stack widened auto 80px → roomy 92px, visible in screenshots. It is orthogonal to Vertical spacing (tunes the gap *within* fan-out stacks during Clean, not the global inter-row pitch), so both earn their place.
+- **Rejected:** (a) Repointing Density to the new logic — would keep a second, weaker vertical-spacing control competing with the explicit one. (b) Removing Branch-pitch too — it is not inert; removing a working, distinct control on suspicion would lose real capability.
+
+### 2026-07-05 — Rigid row-shift over snap-to-row-centre
+- **Chose:** Translate each detected row as a rigid group (`n.y += delta`) rather than snapping every node onto the row's exact centre-y.
+- **Why:** Rigid translation preserves intra-row layout, so no *new* same-row overlap can be introduced; combined with the ≥72px clamp exceeding the tallest node (task 64px), inter-row folding is impossible either — the effect is monotonic by construction with no measure-after-move revert needed (unlike alignRows/alignColumns, which snap to a shared axis and must guard collisions).
+- **Rejected:** Snap-to-centre (as alignRowsLane does) — would force intra-row nodes at differing y onto one line, risking overlaps and needing a revert path for no gain here.
 
 ## Decision
 
@@ -173,6 +187,29 @@ below ("yes proceed as suggested").
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
      without auto-creating; T-1832 added auto-create as fallback for
      legacy tasks lacking this section. -->
+
+## Visual Verification
+
+All screenshots taken headless (Playwright MCP, gallery :8834) and READ with the Read tool:
+
+| Screenshot | Map | Shows |
+|---|---|---|
+| `t108-baseline.png` | audit-process | framework lane, ragged stack gaps `[75,42,37,74,76,58]` |
+| `t108-min72.png` | audit-process | Vertical spacing 72px → uniform gaps, lane 504px |
+| `t108-max240.png` | audit-process | Vertical spacing 240px → stack fanned to 240px pitch, lane grew to 1512px, no clip/overlap |
+| `t108-settings.png` | (modal) | View section: **Vertical spacing** present, **Density gone**, Branch pitch retained |
+| `t108-bp-auto.png` | harvest-pipeline | 6-node fan-out stack at auto (80px pitch) |
+| `t108-bp-roomy.png` | harvest-pipeline | same stack at roomy (92px) — visibly taller |
+
+Monotonicity is exact (72<160<240 → lane 504<1032<1512; gaps 72<160<240), fixing the tight≈wide / inverted-spread defect the operator reported.
+
+## Recommendation
+
+**GO — ship.** The operator's request ("a setting where I can adjust the vertical spacing" that *visibly* works) is met by the new **Vertical spacing** control: it sets an absolute inter-row gap, re-spaces every lane's rows to it, and grows lane height to fit — applied live, reverted by one Ctrl+Z. Verified strictly monotonic on audit-process (504/1032/1512px lane heights at 72/160/240px) with READ screenshots, unlike the old Density preset whose effect was near-invisible and inverted.
+
+The misleading **Density** preset is fully removed (control, `viewPrefs.density`, `DENSITY_PITCH`, all plumbing — grep-clean; `rowPitch()` now returns the fixed `ROW_PITCH`). **Branch-pitch is kept** — it demonstrably widens fan-out stacks (harvest-pipeline auto 80px → roomy 92px, screenshotted) and is orthogonal to the new global control.
+
+Render-only / explicit-action; `examples/**` untouched; not wired into any corpus re-bake (PD-044). `src` byte-identical to `build/gallery`. Suggested operator check: open audit-process in the served gallery, dial Vertical spacing min→max, confirm the rows fan apart and lanes grow.
 
 ## Updates
 
