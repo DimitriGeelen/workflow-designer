@@ -944,6 +944,7 @@
       <button class="btn" id="btn-xml">View XML</button>
       <button class="btn" id="btn-settings" title="Editor settings — routing, snapping, grid">⚙ Settings</button>
       <button class="btn" id="btn-load">Load…</button>
+      <button class="btn" id="btn-versions" title="Browse and revert to a saved version of this map (requires the write-capable gallery server)" style="display:none">🕘 Versions</button>
       <button class="btn" id="btn-save-project" title="Save this map into the repo as a new version (requires the write-capable gallery server)" style="display:none">⤓ Save to project</button>
       <button class="btn btn-primary" id="btn-save">Save</button>
     </div>
@@ -6540,6 +6541,8 @@ async function detectSaveApi() {
       _apiAvailable = true;
       const b = $('btn-save-project');
       if (b) b.style.display = '';
+      const bv = $('btn-versions');
+      if (bv) bv.style.display = '';
     }
   } catch (_) { /* static gallery — leave the button hidden */ }
 }
@@ -6630,6 +6633,83 @@ async function saveToProject() {
   }
 }
 
+// ── Version history + revert (B4 / T-131) ──
+function closeVersionsModal() {
+  const m = document.getElementById('versions-modal');
+  if (m) m.remove();
+  document.removeEventListener('keydown', _versionsEsc);
+}
+function _versionsEsc(e) { if (e.key === 'Escape') closeVersionsModal(); }
+async function revertToVersion(id, v) {
+  try {
+    const res = await fetch(`/api/version?id=${encodeURIComponent(id)}&v=${encodeURIComponent(v)}`);
+    if (!res.ok) { alert('Could not load version ' + v); return; }
+    const bpmn = await res.text();
+    closeVersionsModal();
+    adoptImportedXml(bpmn, { userImport: false, replace: true });
+    if (typeof showRestoredToast === 'function') showRestoredToast({ ts: Date.now(), title: `${id} v${v}` });
+  } catch (e) { alert('Revert failed: ' + (e && e.message || e)); }
+}
+async function openVersionsModal() {
+  if (!_apiAvailable) return;
+  const id = state.workflowMeta.id;
+  let list = [];
+  try {
+    const res = await fetch(`/api/versions?id=${encodeURIComponent(id)}`);
+    if (res.ok) list = await res.json();
+  } catch (_) { /* fall through to empty state */ }
+  list = Array.isArray(list) ? list.slice().sort((a, b) => b.v - a.v) : [];
+
+  const backdrop = document.createElement('div');
+  backdrop.id = 'versions-modal';
+  backdrop.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.55);'
+    + 'display:flex;align-items:center;justify-content:center;font:13px system-ui,sans-serif';
+  backdrop.onclick = e => { if (e.target === backdrop) closeVersionsModal(); };
+
+  const panel = document.createElement('div');
+  panel.style.cssText = 'background:var(--panel,#1e2530);color:var(--fg,#e6edf3);border:1px solid var(--border,#334);'
+    + 'border-radius:10px;max-width:560px;width:92%;max-height:80vh;overflow:auto;box-shadow:0 8px 40px rgba(0,0,0,.5)';
+
+  const head = document.createElement('div');
+  head.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border,#334);position:sticky;top:0;background:var(--panel,#1e2530)';
+  const h = document.createElement('strong'); h.textContent = `Versions — ${id}`;
+  const x = document.createElement('button'); x.className = 'btn'; x.textContent = '✕'; x.onclick = closeVersionsModal;
+  head.append(h, x);
+  panel.appendChild(head);
+
+  if (!list.length) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'padding:28px 16px;text-align:center;color:var(--muted,#8b95a5)';
+    empty.textContent = 'No saved versions yet. Use “Save to project” to create the first one.';
+    panel.appendChild(empty);
+  } else {
+    for (const e of list) {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:12px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border,#2a3140)';
+      const img = document.createElement('img');
+      img.src = `/api/thumb?id=${encodeURIComponent(id)}&v=${e.v}`;
+      img.alt = `v${e.v} preview`;
+      img.style.cssText = 'width:120px;height:74px;object-fit:contain;background:#0f1115;border:1px solid var(--border,#334);border-radius:4px;flex:0 0 auto';
+      img.onerror = () => { img.style.visibility = 'hidden'; };
+      const meta = document.createElement('div');
+      meta.style.cssText = 'flex:1 1 auto;min-width:0';
+      let when = ''; try { when = new Date(e.ts).toLocaleString(); } catch (_) {}
+      meta.innerHTML = `<div style="font-weight:600">v${e.v}</div>`
+        + `<div style="color:var(--muted,#8b95a5)">${when}</div>`
+        + (e.note ? `<div style="color:var(--muted,#8b95a5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.note.replace(/</g, '&lt;')}</div>` : '');
+      const rev = document.createElement('button');
+      rev.className = 'btn'; rev.textContent = '↩ Revert'; rev.style.flex = '0 0 auto';
+      rev.setAttribute('data-v', e.v);
+      rev.onclick = () => revertToVersion(id, e.v);
+      row.append(img, meta, rev);
+      panel.appendChild(row);
+    }
+  }
+  backdrop.appendChild(panel);
+  document.body.appendChild(backdrop);
+  document.addEventListener('keydown', _versionsEsc);
+}
+
 function adoptImportedXml(text, opts) {
   const loaded = parseBpmnXml(text);
   if (!loaded) {
@@ -6715,6 +6795,7 @@ $('btn-load').onclick = () => {
 })();
 $('btn-new-workflow').onclick = () => { createNewWorkflow(); };
 $('btn-save-project').onclick = saveToProject;
+$('btn-versions').onclick = openVersionsModal;
 $('workflow-picker').onchange = ev => {
   const key = ev.target.value;
   if (key !== activeKey) loadFromLibrary(key);
