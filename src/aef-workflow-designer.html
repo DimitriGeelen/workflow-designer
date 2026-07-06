@@ -4190,9 +4190,77 @@ function midOfPath(sp, tp) {
 // ============================================================================
 //  Properties panel
 // ============================================================================
+// ── Selection-scoped Align / Distribute (T-134) ─────────────────────────────
+// Standard diagram-tool alignment: operate on the CURRENT multi-selection regardless of
+// distance (unlike the global near-snap Align columns/rows/Distribute, which only touch
+// already-close nodes). Each op snapshots for undo (B5 history stack, T-132), mutates the
+// selected nodes' x/y, then re-renders and autosaves. Additive — the global toolbar is
+// unchanged; this bar only appears when 2+ nodes are multi-selected.
+const _nW = n => NODE_DEFAULTS[n.type].w;
+const _nH = n => NODE_DEFAULTS[n.type].h;
+const _mean = a => a.reduce((s, v) => s + v, 0) / a.length;
+function _selectedNodes() { return [...multiSelect].map(findNode).filter(Boolean); }
+function _applyAlignDistribute(fn) {
+  const sel = _selectedNodes();
+  if (sel.length < 2) return;
+  pushHistory();                 // one undo step per op (T-132)
+  fn(sel);
+  renderAll();
+  scheduleAutosave();
+  renderProperties();            // keep the multi-select bar visible + feedback fresh
+}
+// Distribute selected nodes' CENTRES evenly along an axis, extremes anchored.
+function _distributeAxis(ns, axis) {
+  if (ns.length < 3) return;
+  const dim = axis === 'x' ? _nW : _nH;
+  const cen = n => (axis === 'x' ? n.x : n.y) + dim(n) / 2;
+  const sorted = [...ns].sort((a, b) => cen(a) - cen(b));
+  const first = cen(sorted[0]), last = cen(sorted[sorted.length - 1]);
+  const step = (last - first) / (sorted.length - 1);
+  sorted.forEach((n, i) => { const c = first + step * i; if (axis === 'x') n.x = c - dim(n) / 2; else n.y = c - dim(n) / 2; });
+}
+function renderMultiSelectProps(props) {
+  const sel = _selectedNodes();
+  props.appendChild(propsHeader('selection', `${sel.length} nodes`, null));
+  const mkBtn = (label, title, handler, disabled) => {
+    const b = document.createElement('button');
+    b.className = 'btn btn-routing';
+    b.textContent = label; b.title = title;
+    if (disabled) b.disabled = true;
+    b.onclick = handler;
+    return b;
+  };
+  // Align on the vertical axis of separation (move x): left / centre-x / right
+  const sAlign = section('Align');
+  const rowX = document.createElement('div'); rowX.className = 'routing-actions';
+  rowX.appendChild(mkBtn('⤎ Left', 'Align left edges to the leftmost', () => _applyAlignDistribute(ns => { const m = Math.min(...ns.map(n => n.x)); ns.forEach(n => n.x = m); })));
+  rowX.appendChild(mkBtn('⤄ Centre', 'Align vertical centres (shared centre-x)', () => _applyAlignDistribute(ns => { const m = _mean(ns.map(n => n.x + _nW(n) / 2)); ns.forEach(n => n.x = m - _nW(n) / 2); })));
+  rowX.appendChild(mkBtn('⤏ Right', 'Align right edges to the rightmost', () => _applyAlignDistribute(ns => { const m = Math.max(...ns.map(n => n.x + _nW(n))); ns.forEach(n => n.x = m - _nW(n)); })));
+  sAlign.appendChild(rowX);
+  // Align on the horizontal axis of separation (move y): top / middle-y / bottom
+  const rowY = document.createElement('div'); rowY.className = 'routing-actions';
+  rowY.appendChild(mkBtn('⤒ Top', 'Align top edges to the topmost', () => _applyAlignDistribute(ns => { const m = Math.min(...ns.map(n => n.y)); ns.forEach(n => n.y = m); })));
+  rowY.appendChild(mkBtn('⤗ Middle', 'Align horizontal centres (shared centre-y)', () => _applyAlignDistribute(ns => { const m = _mean(ns.map(n => n.y + _nH(n) / 2)); ns.forEach(n => n.y = m - _nH(n) / 2); })));
+  rowY.appendChild(mkBtn('⤓ Bottom', 'Align bottom edges to the lowest', () => _applyAlignDistribute(ns => { const m = Math.max(...ns.map(n => n.y + _nH(n))); ns.forEach(n => n.y = m - _nH(n)); })));
+  sAlign.appendChild(rowY);
+  props.appendChild(sAlign);
+  // Distribute — needs 3+
+  const sDist = section('Distribute');
+  const rowD = document.createElement('div'); rowD.className = 'routing-actions';
+  const few = sel.length < 3;
+  rowD.appendChild(mkBtn('↔ Horizontal', 'Equalise horizontal spacing (needs 3+)', () => _applyAlignDistribute(ns => _distributeAxis(ns, 'x')), few));
+  rowD.appendChild(mkBtn('↕ Vertical', 'Equalise vertical spacing (needs 3+)', () => _applyAlignDistribute(ns => _distributeAxis(ns, 'y')), few));
+  sDist.appendChild(rowD);
+  if (few) { const hint = document.createElement('div'); hint.className = 'field-hint'; hint.textContent = 'Select 3+ nodes to distribute.'; sDist.appendChild(hint); }
+  props.appendChild(sDist);
+}
+
 function renderProperties() {
   const props = $('properties');
   props.innerHTML = '';
+  // Multi-selection → selection-scoped Align / Distribute bar (T-134). Takes precedence
+  // over the single-node panel; global toolbar actions are unchanged for 0/1 selection.
+  if (multiSelect && multiSelect.size > 1) { renderMultiSelectProps(props); return; }
   if (!selection) {
     // No selection → show the workflow metadata editor.
     // This is the panel for editing things that belong to the workflow itself
