@@ -4,9 +4,9 @@ name: "B5 General undo-redo history stack"
 description: >
   T-128 GO decomposition B5: generalize the editor Tidy-only undo into a full undo/redo history stack
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T12:53:48Z
-last_update: 2026-07-06T13:00:45Z
-date_finished: null
+last_update: 2026-07-06T13:27:47Z
+date_finished: 2026-07-06T13:27:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -118,6 +118,23 @@ in renderAll, being idempotent). Full-state snapshots (maps are ~14 nodes — ch
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+
+## Recommendation
+
+**Recommendation:** GO
+**Rationale:** All 6 Agent ACs are met and independently verified in isolated headless chromium.
+The one Human AC is a subjective "feels right in normal editing" check that only a human can
+sign off — the mechanical behaviour it depends on (one Ctrl+Z per gesture, redo re-applies,
+no dead undos) is already proven, so this is a taste confirmation, not a risk gate.
+**Evidence:**
+- `tools/_undo-verify-cdp.mjs` → 10/10 steps pass across two runs (real CDP mouse drag +
+  function-path delete/add/button-op/multistep). Screenshot READ shows a real populated diagram.
+- Drag = exactly one undo entry (`drag-one-undo-restores`); multi-step undo×2/redo×2 lands
+  exactly on origin/forward (`multistep-undo-redo`).
+- Button ops are no-op-safe (`commitHistory` only records when nodes actually moved).
+- Mirror clean: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`.
+- To try it: open the gallery editor, move/add/delete a few nodes, then Ctrl+Z several times
+  and Ctrl+Shift+Z to redo.
 
 ## Verification
 
@@ -225,3 +242,6 @@ node tools/_undo-verify-cdp.mjs
 
 ### 2026-07-06T12:57:15Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-06T13:27:47Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
