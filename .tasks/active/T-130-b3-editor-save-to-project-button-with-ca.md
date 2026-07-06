@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T12:42:46Z
-last_update: 2026-07-06T12:42:46Z
+last_update: 2026-07-06T12:48:02Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -58,7 +58,7 @@ static gallery it stays hidden; autosave + download Save remain). Consumes T-129
 - [x] **Verified** in ISOLATED headless against a sidecar on a temp repo (`tools/_saveproject-verify-cdp.mjs`):
       load editor → button visible (API up) → click Save → assert `/api/save` got a valid POST, a
       version was written with a PNG thumbnail, and the "✓ Saved v1" feedback shows. Screenshot + READ.
-- [ ] `diff -q src/aef-workflow-designer.html build/gallery/designer.html` clean (mirror).
+- [x] `diff -q src/aef-workflow-designer.html build/gallery/designer.html` clean (mirror).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
