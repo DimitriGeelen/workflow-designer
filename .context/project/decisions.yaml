@@ -619,3 +619,38 @@ decisions:
     date: 2026-07-06
     task: T-124
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-068
+    decision: "Explicit snapshot store `.editor-versions/<id>/` with `vN.workflow.yaml`, `vN.png`"
+    scope: project
+    date: 2026-07-06
+    task: T-128
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-069
+    decision: "Auto-adopt localStorage autosave (keyed by map id) → repo-latest → seed. Replace the"
+    scope: project
+    date: 2026-07-06
+    task: T-128
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-070
+    decision: "`pushHistory(label)` snapshot-before at explicit mutation sites, per-gesture"
+    scope: project
+    date: 2026-07-06
+    task: T-128
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-071
+    decision: "localStorage autosave = automatic, NEVER writes repo. Repo write ONLY on manual"
+    scope: project
+    date: 2026-07-06
+    task: T-128
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-072
+    decision: "auto-adopt localStorage autosave keyed by `?load` src; no `?load` → restore last"
+    scope: project
+    date: 2026-07-06
+    task: T-127
+    rationale: "Auto-captured from task file on completion"

@@ -4,16 +4,16 @@ name: "Overlapping arrow-ends: selected line unresponsive at convergence points"
 description: >
   When 2+ edge endpoints share a connection point (fork/join), the selected line often
   can't be clicked/selected — likely the T-133 r11 endpoint halo shadowing sibling edges.
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: [bug, editor, regression-suspect]
 components: []
 related_tasks: [T-133]
 created: 2026-07-06T16:00:00Z
-last_update: 2026-07-06T16:18:45Z
-date_finished: null
+last_update: 2026-07-06T16:19:11Z
+date_finished: 2026-07-06T16:19:11Z
 ---
 
 # T-136: Overlapping arrow-ends — selected line unresponsive at convergence points
@@ -130,3 +130,6 @@ Why the native click didn't already do this: the halo's `mousedown` calls `stopP
 `preventDefault()` and mouseup's `renderAll()` rebuilds the edge DOM, so the browser click never
 reaches the sibling's `.edge-hit`; and even if it did, it would re-select the SAME (halo-owning)
 edge, not the sibling.
+
+### 2026-07-06T16:19:11Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1,0 +1,23 @@
+=== episodic-gen invocation: 2026-07-06T15:55:24Z ===
+task_id: T-135
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-135.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Gallery server sends no-cache headers so designer.html is never stale
+  Duration: 0 days (6 min)
+  Updates: 2
+  Commits: 1
+  Lines: +209 -0 across 2 files
+  Outcomes: 3 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 2 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-135-gallery-server-sends-no-cache-headers-so.md
+--- exit code: 0 ---
