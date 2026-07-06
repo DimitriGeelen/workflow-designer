@@ -127,3 +127,10 @@ learnings:
   date: 2026-07-06
   context: Added via context agent
   application: TBD
+- id: PL-019
+  learning: "Serializing an SVG to PNG (Image+canvas+toDataURL) loses class-based CSS from the document <style> — the export renders BLANK. Inline computed styles onto the clone. A file-existence/size check passes on a blank image; only READing the rendered image catches it (Visual Verification rule)."
+  source: P-001
+  task: T-130
+  date: 2026-07-06
+  context: Added via context agent
+  application: TBD

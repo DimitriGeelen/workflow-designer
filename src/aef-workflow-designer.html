@@ -944,6 +944,7 @@
       <button class="btn" id="btn-xml">View XML</button>
       <button class="btn" id="btn-settings" title="Editor settings — routing, snapping, grid">⚙ Settings</button>
       <button class="btn" id="btn-load">Load…</button>
+      <button class="btn" id="btn-save-project" title="Save this map into the repo as a new version (requires the write-capable gallery server)" style="display:none">⤓ Save to project</button>
       <button class="btn btn-primary" id="btn-save">Save</button>
     </div>
   </header>
@@ -6525,6 +6526,110 @@ $('btn-save').onclick = () => {
   a.click();
   URL.revokeObjectURL(url);
 };
+
+// ── Save to project (B3 / T-130) — durable versioned save via the B2 sidecar ──
+// Progressive enhancement: the button is revealed only when the write-capable
+// gallery server answers /api/health. On the static gallery it stays hidden.
+let _apiAvailable = false;
+async function detectSaveApi() {
+  try {
+    const r = await fetch('/api/health', { cache: 'no-store' });
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d && d.ok) {
+      _apiAvailable = true;
+      const b = $('btn-save-project');
+      if (b) b.style.display = '';
+    }
+  } catch (_) { /* static gallery — leave the button hidden */ }
+}
+// Copy the computed SVG-relevant styles from a live element tree onto a detached
+// clone (walked in lockstep), so a serialized standalone SVG carries its own paint —
+// class-based CSS from the document <style> does NOT travel with a serialized <svg>,
+// which otherwise renders a blank thumbnail (caught by visual verification, T-130).
+const _THUMB_STYLE_PROPS = ['fill', 'fill-opacity', 'stroke', 'stroke-width', 'stroke-dasharray',
+  'stroke-linecap', 'stroke-linejoin', 'opacity', 'color', 'font-family', 'font-size',
+  'font-weight', 'font-style', 'text-anchor', 'dominant-baseline', 'visibility', 'display'];
+function _inlineComputedStyles(srcEl, dstEl) {
+  try {
+    const cs = getComputedStyle(srcEl);
+    let s = '';
+    for (const p of _THUMB_STYLE_PROPS) { const v = cs.getPropertyValue(p); if (v) s += p + ':' + v + ';'; }
+    dstEl.setAttribute('style', s + (dstEl.getAttribute('style') || ''));
+  } catch (_) { /* skip non-styleable nodes */ }
+  const sc = srcEl.children, dc = dstEl.children;
+  const n = Math.min(sc.length, dc.length);
+  for (let i = 0; i < n; i++) _inlineComputedStyles(sc[i], dc[i]);
+}
+// Client-side thumbnail: frame the whole diagram via getBBox(), inline computed styles
+// so the SVG is self-contained, render to PNG (no foreignObject → no canvas taint). Best-effort.
+function captureThumbnail() {
+  return new Promise(resolve => {
+    try {
+      const svg = document.getElementById('canvas');
+      if (!svg) return resolve(null);
+      let bb;
+      try { bb = svg.getBBox(); } catch (_) { bb = null; }
+      if (!bb || !bb.width || !bb.height) { const r = svg.getBoundingClientRect(); bb = { x: 0, y: 0, width: r.width, height: r.height }; }
+      const pad = 20;
+      const vbX = bb.x - pad, vbY = bb.y - pad, vbW = bb.width + 2 * pad, vbH = bb.height + 2 * pad;
+      const clone = svg.cloneNode(true);
+      _inlineComputedStyles(svg, clone);
+      clone.setAttribute('viewBox', `${vbX} ${vbY} ${vbW} ${vbH}`);
+      clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      const scale = Math.min(1, 320 / Math.max(vbW, vbH));
+      const cw = Math.max(1, Math.round(vbW * scale)), ch = Math.max(1, Math.round(vbH * scale));
+      clone.setAttribute('width', cw); clone.setAttribute('height', ch);
+      const xml = new XMLSerializer().serializeToString(clone);
+      const src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const c = document.createElement('canvas'); c.width = cw; c.height = ch;
+          const ctx = c.getContext('2d');
+          ctx.fillStyle = getComputedStyle(document.body).backgroundColor || '#0f1115';
+          ctx.fillRect(0, 0, cw, ch);
+          ctx.drawImage(img, 0, 0, cw, ch);
+          resolve(c.toDataURL('image/png'));
+        } catch (_) { resolve(null); }
+      };
+      img.onerror = () => resolve(null);
+      img.src = src;
+      setTimeout(() => resolve(null), 4000);
+    } catch (_) { resolve(null); }
+  });
+}
+async function saveToProject() {
+  if (!_apiAvailable) return;
+  const btn = $('btn-save-project');
+  const label = btn ? btn.textContent : '';
+  try {
+    saveActiveToLibrary();
+    const id = state.workflowMeta.id;
+    if (!/^[a-z0-9][a-z0-9_-]*$/.test(id)) {
+      alert('To save to the project, the map ID must be lowercase letters, numbers, "-" or "_" (no spaces). Edit the ID field first.');
+      return;
+    }
+    const bpmn = buildBpmnXml(state);
+    if (btn) btn.textContent = '⤓ Saving…';
+    const png = await captureThumbnail();
+    const res = await fetch('/api/save', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, bpmn, png, note: '' }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && data.ok) {
+      if (btn) { btn.textContent = `✓ Saved v${data.v}`; setTimeout(() => { btn.textContent = '⤓ Save to project'; }, 2500); }
+    } else {
+      alert('Save to project failed: ' + (data.error || ('HTTP ' + res.status)));
+      if (btn) btn.textContent = label || '⤓ Save to project';
+    }
+  } catch (e) {
+    alert('Save to project failed: ' + (e && e.message || e));
+    if (btn) btn.textContent = label || '⤓ Save to project';
+  }
+}
+
 function adoptImportedXml(text, opts) {
   const loaded = parseBpmnXml(text);
   if (!loaded) {
@@ -6609,6 +6714,7 @@ $('btn-load').onclick = () => {
   }
 })();
 $('btn-new-workflow').onclick = () => { createNewWorkflow(); };
+$('btn-save-project').onclick = saveToProject;
 $('workflow-picker').onchange = ev => {
   const key = ev.target.value;
   if (key !== activeKey) loadFromLibrary(key);
@@ -7211,6 +7317,7 @@ refreshLibraryUI();
 setMode('select');
 _appReady = true;            // from here on, edits autosave to localStorage
 autoLoadStored();            // B1: if a prior session left unsaved work, bring it back automatically
+detectSaveApi();             // B3: reveal "Save to project" when the write-capable server is present
 </script>
 </body>
 </html>
