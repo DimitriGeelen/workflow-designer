@@ -6532,12 +6532,18 @@ function adoptImportedXml(text, opts) {
     return;
   }
   saveActiveToLibrary();
-  // Collision: append _v<n> until unique
   let key = loaded.workflowMeta.id;
-  let n = 2;
-  while (library.has(key)) { key = `${loaded.workflowMeta.id}_v${n++}`; }
-  if (key !== loaded.workflowMeta.id) loaded.workflowMeta.id = key;
-  library.set(key, loaded);
+  if (opts && opts.replace) {
+    // Restore/replace (B1): overwrite any existing entry with this id — no _v2 suffix.
+    // Used when auto-loading the autosave over the initial seed at Init.
+    library.set(key, loaded);
+  } else {
+    // Collision: append _v<n> until unique
+    let n = 2;
+    while (library.has(key)) { key = `${loaded.workflowMeta.id}_v${n++}`; }
+    if (key !== loaded.workflowMeta.id) loaded.workflowMeta.id = key;
+    library.set(key, loaded);
+  }
   state = loaded;
   activeKey = key;
   selection = null;
@@ -6592,6 +6598,10 @@ $('btn-load').onclick = () => {
   try {
     const res = await fetch(src);
     if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${src}`);
+    // B1: if autoLoadStored() already restored newer autosaved edits for THIS same
+    // deep-link, don't let the fetched file overwrite them. The synchronous Init tail
+    // (which runs autoLoadStored) always completes before this await resolves.
+    if (typeof _suppressDeepLink !== 'undefined' && _suppressDeepLink) return;
     adoptImportedXml(await res.text(), { userImport: true });
   } catch (e) {
     console.error('Deep-link load failed:', e);
@@ -7120,7 +7130,15 @@ const AUTOSAVE_KEY = 'aefAutosaveDoc';
 let _autosaveTimer = null;
 let _appReady = false;                 // suppress autosave during the initial seed render
 let _autosaveRestore = null;
+let _suppressDeepLink = false;         // B1: set when a same-map restore should win over ?load
 try { _autosaveRestore = JSON.parse(localStorage.getItem(AUTOSAVE_KEY) || 'null'); } catch (_) {}
+
+// The ?load deep-link src this session was opened with (stable — we never rewrite
+// the URL). Recorded in the autosave so a reload of the SAME deep-link restores the
+// in-progress edits, while a deep-link to a DIFFERENT map is respected instead.
+function currentLoadSrc() {
+  try { return new URLSearchParams(location.search).get('load') || null; } catch (_) { return null; }
+}
 
 function autosaveNow() {
   if (!_appReady) return;
@@ -7129,6 +7147,7 @@ function autosaveNow() {
     localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({
       id: state.workflowMeta.id,
       title: state.workflowMeta.title || state.workflowMeta.id,
+      src: currentLoadSrc(),
       ts: Date.now(),
       xml: buildBpmnXml(state),
     }));
@@ -7139,29 +7158,48 @@ function scheduleAutosave() {
   if (_autosaveTimer) clearTimeout(_autosaveTimer);
   _autosaveTimer = setTimeout(autosaveNow, 700);
 }
-function offerAutosaveRestore() {
+// B1 (operator's #1 ask): on load, AUTOMATICALLY bring back the autosaved document —
+// no banner to click. Keyed by the ?load deep-link src so a reload never crosses maps:
+//   - no ?load                         → restore last session's work
+//   - ?load matches the stored src     → restore (the in-progress edits to that map)
+//   - ?load differs from the stored src→ respect the deep-link, leave the autosave alone
+// A non-modal toast confirms the restore and offers "Start fresh".
+function autoLoadStored() {
   const s = _autosaveRestore;
   if (!s || !s.xml) return;
+  const load = currentLoadSrc();
+  if (load && (s.src || null) !== load) return;   // explicit deep-link to another map wins
+  // Same context: adopt the autosave silently, replacing the seed (no _v2). If a ?load
+  // fetch for this same src is in flight, suppress it so it can't overwrite the restore.
+  if (load && (s.src || null) === load) _suppressDeepLink = true;
+  try { adoptImportedXml(s.xml, { userImport: false, replace: true }); } catch (_) { return; }
+  showRestoredToast(s);
+}
+function showRestoredToast(s) {
   try {
-    const bar = document.createElement('div');
-    bar.id = 'restore-nudge';
-    bar.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:18px;'
+    const t = document.createElement('div');
+    t.id = 'restore-toast';
+    t.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:18px;'
       + 'z-index:9999;background:var(--panel,#1e2530);color:var(--fg,#e6edf3);'
-      + 'border:1px solid var(--accent,#3b82f6);border-radius:8px;padding:10px 14px;'
+      + 'border:1px solid var(--border,#334);border-radius:8px;padding:8px 12px;'
       + 'display:flex;gap:10px;align-items:center;font:13px system-ui,sans-serif;'
-      + 'box-shadow:0 4px 16px rgba(0,0,0,.4)';
+      + 'box-shadow:0 4px 16px rgba(0,0,0,.4);opacity:0;transition:opacity .2s';
     let when = ''; try { when = new Date(s.ts).toLocaleString(); } catch (_) {}
     const msg = document.createElement('span');
-    msg.textContent = `Unsaved work found: “${s.title}”${when ? ' (' + when + ')' : ''}.`;
-    const restore = document.createElement('button');
-    restore.textContent = 'Restore'; restore.className = 'btn btn-primary';
-    restore.onclick = () => { try { adoptImportedXml(s.xml, { userImport: false }); } catch (_) {} bar.remove(); };
-    const dismiss = document.createElement('button');
-    dismiss.textContent = 'Dismiss'; dismiss.className = 'btn';
-    dismiss.onclick = () => bar.remove();
-    bar.append(msg, restore, dismiss);
-    document.body.appendChild(bar);
-  } catch (_) { /* banner is best-effort */ }
+    msg.textContent = `↩ Restored your unsaved work${when ? ' (' + when + ')' : ''}.`;
+    const fresh = document.createElement('button');
+    fresh.textContent = 'Start fresh'; fresh.className = 'btn';
+    fresh.onclick = () => {
+      try { localStorage.removeItem(AUTOSAVE_KEY); } catch (_) {}
+      _autosaveRestore = null;
+      try { createNewWorkflow(); } catch (_) {}
+      t.remove();
+    };
+    t.append(msg, fresh);
+    document.body.appendChild(t);
+    requestAnimationFrame(() => { t.style.opacity = '1'; });
+    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 6000);
+  } catch (_) { /* toast is best-effort */ }
 }
 
 // ============================================================================
@@ -7172,7 +7210,7 @@ renderAll();
 refreshLibraryUI();
 setMode('select');
 _appReady = true;            // from here on, edits autosave to localStorage
-offerAutosaveRestore();      // if a prior session left unsaved work, offer to bring it back
+autoLoadStored();            // B1: if a prior session left unsaved work, bring it back automatically
 </script>
 </body>
 </html>
