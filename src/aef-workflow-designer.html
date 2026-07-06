@@ -4891,10 +4891,16 @@ document.addEventListener('keydown', e => {
     gPreview.innerHTML = '';
     setMode('select');
     renderAll();
+  } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && e.shiftKey) {
+    // Ctrl/Cmd+Shift+Z → redo (B5 / T-132)
+    if (redo()) e.preventDefault();
   } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-    // Single-step tidy-lane revert (T-079) — only claims Ctrl+Z when a tidy
-    // is pending, so the shortcut stays free for a future general undo.
-    if (undoTidy()) e.preventDefault();
+    // Ctrl/Cmd+Z → undo (B5 / T-132) — general history stack, falling back to the
+    // legacy single-step tidy revert (T-079) when the stack is empty.
+    if (undo()) e.preventDefault();
+  } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+    // Ctrl/Cmd+Y → redo (Windows convention)
+    if (redo()) e.preventDefault();
   }
 });
 
@@ -5052,6 +5058,7 @@ svg.addEventListener('mousemove', e => {
     // mouseup re-render detaches the pressed element before its click event
     // fires, so selection never happens (T-069).
     if (drag.moved || Math.hypot(pt.x - drag.startX, pt.y - drag.startY) > 3) {
+      if (!drag.moved) pushHistory();   // B5: one undo entry per drag, captured pre-move
       drag.moved = true;
       lastTidy = null; // manual move supersedes the pending tidy revert (T-079)
       const n = findNode(drag.id);
@@ -5621,6 +5628,55 @@ function undoTidy() {
   lastTidy = null;
   renderAll();
   return true;
+}
+
+// ── General undo/redo history stack (B5 / T-132) ─────────────────────────────
+// Full-state snapshots (BPMN XML) captured BEFORE each mutating gesture via
+// pushHistory(). Per-gesture granularity — a drag pushes once (on the moved
+// transition), not per mousemove. undo()/redo() swap between the two stacks and
+// restore in place. undo() falls back to the legacy position-only undoTidy() when
+// the history stack is empty (older Tidy steps). Snapshots are cheap (~14 nodes);
+// stacks capped at 50. Not hooked into renderAll() — that fires on non-mutating
+// re-renders and would record spurious steps.
+let _history = [];
+let _redo = [];
+const _HISTORY_CAP = 50;
+function pushHistory() {
+  try {
+    _redo.length = 0;
+    _history.push(buildBpmnXml(state));
+    if (_history.length > _HISTORY_CAP) _history.shift();
+  } catch (_) { /* best-effort — never throw into a mutation handler */ }
+}
+function _restoreSnapshot(xml) {
+  const loaded = parseBpmnXml(xml);
+  if (!loaded) return false;
+  loaded.workflowMeta.id = state.workflowMeta.id;   // keep the id stable across undo
+  state = loaded;
+  if (typeof activeKey !== 'undefined' && activeKey) library.set(activeKey, state);
+  selection = null;
+  multiSelect = new Set();
+  refreshDisplayIds();
+  renderAll();
+  refreshLibraryUI();
+  scheduleAutosave();
+  return true;
+}
+function undo() {
+  if (_history.length) {
+    const cur = buildBpmnXml(state);
+    const prev = _history.pop();
+    if (_restoreSnapshot(prev)) { _redo.push(cur); if (_redo.length > _HISTORY_CAP) _redo.shift(); return true; }
+    return false;
+  }
+  return undoTidy();   // legacy single-step position revert (Tidy/Align/Distribute)
+}
+function redo() {
+  if (!_redo.length) return false;
+  const cur = buildBpmnXml(state);
+  const next = _redo.pop();
+  if (_restoreSnapshot(next)) { _history.push(cur); if (_history.length > _HISTORY_CAP) _history.shift(); return true; }
+  return false;
 }
 
 // ── Clean layout (T-095) ────────────────────────────────────────────────────
