@@ -12,7 +12,7 @@ tags: [bug, editor, regression-suspect]
 components: []
 related_tasks: [T-133]
 created: 2026-07-06T16:00:00Z
-last_update: 2026-07-06T16:18:12Z
+last_update: 2026-07-06T16:18:45Z
 date_finished: null
 ---
 
@@ -88,14 +88,26 @@ non-drag click on a handle selects the underlying edge.
 
 ## Recommendation
 
-**Ready for human review.** All Agent ACs pass and the fix is committed (d5eb10c) + mirrored.
-The headless verifier (`tools/_endpoint-overlap-verify-cdp.mjs`) is green 6/6 and reproduces the
-operator's exact condition (two arrow ends on one connection point) with the halo forced topmost —
-so it is a genuine regression guard, not a trivial pass. One Human REVIEW AC remains: confirm that
-in a live map, clicking between two converging lines at a gateway now selects the line under the
-cursor. **Requires one hard refresh (Ctrl+Shift+R)** to pick up the new build. If it still misses,
-note which line and where you clicked — the fallback would be approach (b) (moderate the halo to
-~r8), but (a) should fully resolve it.
+**Recommendation:** GO (accept the fix; one Human REVIEW AC remains for live confirmation)
+
+**Rationale:** The fix resolves the reported bug at its root — a non-drag click on an endpoint
+halo now falls through to select the underlying/sibling line — while keeping the T-133 r11 grab
+target the operator explicitly asked for (T-133 not reverted). The headless verifier reproduces
+the operator's exact condition (two arrow ends on one connection point) with the halo forced
+topmost, so it is a genuine regression guard, not a trivial pass. Real endpoint drags are proven
+unaffected.
+
+**Evidence:**
+- `tools/_endpoint-overlap-verify-cdp.mjs` — 6/6 green: `halo-is-topmost-at-Q: halo` (bug
+  condition present), `hittest-prefers-sibling: e_11`, `click-selects-sibling: e_10→e_11` (fix
+  fires), `drag-not-hijacked-to-sibling: stays e_10` (regression guard).
+- Commit d5eb10c (3 edits in `src/aef-workflow-designer.html`); mirror `diff -q` clean (P-011 pass).
+- Screenshot `/tmp/endpoint-overlap-full.png` READ — gateway fork renders cleanly, no regression.
+
+**Human review note:** confirm in a live map that clicking between two converging lines at a
+gateway selects the line under the cursor. **Requires one hard refresh (Ctrl+Shift+R)** to pick up
+the new build. If it still misses, note which line and where you clicked — fallback is approach (b)
+(moderate the halo to ~r8), but (a) should fully resolve it.
 
 ## Decisions
 
