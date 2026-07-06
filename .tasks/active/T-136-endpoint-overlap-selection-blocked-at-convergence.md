@@ -12,7 +12,7 @@ tags: [bug, editor, regression-suspect]
 components: []
 related_tasks: [T-133]
 created: 2026-07-06T16:00:00Z
-last_update: 2026-07-06T16:19:11Z
+last_update: 2026-07-06T16:19:53Z
 date_finished: 2026-07-06T16:19:11Z
 ---
 

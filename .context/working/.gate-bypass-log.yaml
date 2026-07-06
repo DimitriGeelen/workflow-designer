@@ -360,3 +360,12 @@ FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-105: Correct root c
   caller: 'check-active-task focus-drift'
   target: 'T-134'
   command: 'cd /opt/832-Workflow-designer; rm -f .context/locks/T-134.lock; git add .tasks/ .context/working/.reviewed-T-134 .context/episodic/T-134.yaml 2>/dev/null; FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw g'
+- timestamp: '2026-07-06T18:42:43Z'
+  task: 'T-041'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-115'
+  command: 'cd /opt/832-Workflow-designer
+git add tools/_horizontal-spacing-verify-cdp.mjs 2>/dev/null
+git add -A .tasks .context 2>/dev/null
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-115: Hori'

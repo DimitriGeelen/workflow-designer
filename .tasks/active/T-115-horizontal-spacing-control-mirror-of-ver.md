@@ -4,9 +4,9 @@ name: "Horizontal spacing control (mirror of Vertical spacing)"
 description: >
   Add a Horizontal spacing settings control that re-spaces pool-wide stage columns to an absolute inter-column gap, mirroring the Vertical spacing control (respaceRows/T-108) on the x-axis. Motivated by T-105: gateway/label crowding is fundamentally a horizontal-room problem; the operator needs a lever to spread columns. respaceColumns clusters all nodes into columns by centre-x, shifts each column rigidly so consecutive column centres sit gap px apart (anchored left), clamped 130-360 (>widest node 120 so columns never fold), undoable via axis-aware lastTidy.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: [ui, editor, routing, layout]
 components: []
@@ -16,8 +16,8 @@ related_tasks: [T-105, T-108]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T21:53:54Z
-last_update: 2026-07-05T21:55:04Z
-date_finished: null
+last_update: 2026-07-06T18:42:02Z
+date_finished: 2026-07-06T18:42:02Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -55,8 +55,11 @@ horizontal-room problem) — this gives the operator the lever to spread columns
 - [x] Settings UI row "Horizontal spacing" (number input 130–360 step 10) wired:
       value persisted in viewPrefs.colSpacing, change fires respaceColumns live,
       reset restores 150
-- [x] Verified headless: on verification-gate, respaceColumns(150) moves 14 nodes
-      and widens the g_verify↔g_gates gap 100→147px; undo restores original xs
+- [x] Verified headless (`tools/_horizontal-spacing-verify-cdp.mjs`, 6/6): on
+      verification-gate, respaceColumns(150) moves nodes and makes every consecutive
+      column-centre gap exactly 150px (200px via the Settings input), preserving column
+      count (no fold); one undo() restores every node-x exactly (maxDelta 0); the wired
+      `#set-col-spacing` change event drives the same re-spacing live.
 - [x] Editor JS synced byte-identical to build/gallery/designer.html
 
 ### Human
@@ -146,6 +149,29 @@ grep -q "set-col-spacing" src/aef-workflow-designer.html
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Recommendation
+
+**Recommendation:** GO (accept the fix; one Human REVIEW AC remains for live confirmation)
+
+**Rationale:** `respaceColumns` is a faithful x-axis mirror of the shipped `respaceRows`
+(same clustering-by-centre, rigid-group shift, clamp, and shared axis-aware `lastTidy`
+undo). Global (pool-wide) clustering keeps lanes from shearing at handoffs. The behaviour
+is verified empirically, not just by a checked box — the headless verifier proves the core
+contract (uniform column gaps at the requested value) and exact undo restoration.
+
+**Evidence:**
+- `tools/_horizontal-spacing-verify-cdp.mjs` — 6/6 green on verification-gate:
+  `column-gaps-equal-target` (all gaps = 150), `undo-restores-all-xs` (maxDelta 0),
+  `settings-input-drives-respace` (200px via `#set-col-spacing` change event),
+  `column-count-preserved` (no fold), `clean-load-empty-undo-stack`.
+- P-011 grep gates pass (`respaceColumns`, `set-col-spacing` present); mirror `diff -q` clean.
+- Screenshot `/tmp/horizontal-spacing-full.png` READ — columns evenly spread, lanes intact,
+  no visual regression.
+
+**Human review note:** confirm in a live map that the Horizontal spacing control spreads/
+tightens columns uniformly with no lane shear, and one Ctrl+Z reverts. Requires one hard
+refresh (Ctrl+Shift+R) to pick up the build.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -173,3 +199,6 @@ grep -q "set-col-spacing" src/aef-workflow-designer.html
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-115-horizontal-spacing-control-mirror-of-ver.md
 - **Context:** Initial task creation
+
+### 2026-07-06T18:42:02Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
