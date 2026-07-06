@@ -6,9 +6,9 @@ description: >
   target) sibling edge groups into a nested shared riser, ordered by far-end y,
   so same-block branch edges nest instead of crossing. Guarded per-group: apply
   only if it strictly reduces proper crossings AND does not increase node-cuts
-  for the map. Extends T-097 (which killed the collinear-overlap bundle class);
-  this removes 6 residual proper crossings corpus-wide (20->14) with zero
-  regressions, measured render-only. Render-only, stored geometry untouched (PD-044).
+  for the map. INVESTIGATED — measured NO-GO: faithful guarded prototype yields only
+  corpus 20->18 (one map) and is not a visual improvement, so the pass was NOT built.
+  See ## Decisions. Render-only investigation, stored geometry untouched (PD-044).
 
 status: started-work
 workflow_type: build
@@ -22,7 +22,7 @@ related_tasks: [T-097, T-117, T-118, T-119]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T05:47:15Z
-last_update: 2026-07-06T05:47:15Z
+last_update: 2026-07-06T05:58:02Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -61,12 +61,13 @@ that group is reverted. Edges with manual waypoints / routing hints / detourY ar
 excluded. Render-only — operates on the transient `_renderedPolyline`, stored
 geometry (`buildBpmnXml`) untouched (PD-044). Same family as T-117/118/119.
 
-Prototype (render-only, in-browser, guarded per-group): corpus proper crossings
-**20 → 14**, node-cuts unchanged (0 introduced), **no map worse**. Wins:
-harvest-pipeline join n_join 2→0, inception-review fan n_decide 1→0,
-task-lifecycle fans n_ready+n_progress 3→1, error-escalation-ladder join
-n_resolve 5→4. Risky groups (git-commit-flow, promotion, release,
-verification-gate, context-memory, task-gate) auto-rejected by the guard.
+First prototype (render-only, guarded on crossings+cuts only, attach points moved
+to node-face centres) appeared to give corpus **20 → 14**. **This figure was
+retracted** — see ## Acceptance Criteria and ## Decisions. Relocating attach points
+discards T-097's anchor spread (not a faithful render-only reroute) and worsens
+overlap-pairs once that metric is added to the guard. The faithful, endpoint-
+preserving, three-metric-guarded result is **20 → 18** (task-lifecycle only), and
+visual verification shows even that is not a visual improvement. Outcome: NO-GO.
 
 ## Acceptance Criteria
 
