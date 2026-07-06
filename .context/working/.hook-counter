@@ -1,17 +1,13 @@
-audit-task-tools=21
+audit-task-tools=38
 k-fabric-new-file=4
 audit-task-tools=317
 
-check-project-boundary=50
-loop-detect=79
-checkpoint=79
-commit-cadence=21
-check-tier0=30
-pre-compact=1
-check-agent-dispatch=1
-check-dispatch=1
-post-compact-resume=1
-check-human-ac-tick=9
-budget-gate=20
-check-active-task=20
+check-project-boundary=60
+loop-detect=96
+checkpoint=96
+check-tier0=6
+budget-gate=9
+check-active-task=9
 error-watchdog=3
+check-human-ac-tick=4
+commit-cadence=4

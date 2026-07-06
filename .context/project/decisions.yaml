@@ -591,3 +591,17 @@ decisions:
     date: 2026-07-06
     task: T-120
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-064
+    decision: "Align by moving `n_review` left to cx=1035 (under `n_emit`)."
+    scope: project
+    date: 2026-07-06
+    task: T-121
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-065
+    decision: "Set `n_end_go`/`n_end_defer` centre-y to match `n_go`/`n_defer`."
+    scope: project
+    date: 2026-07-06
+    task: T-121
+    rationale: "Auto-captured from task file on completion"

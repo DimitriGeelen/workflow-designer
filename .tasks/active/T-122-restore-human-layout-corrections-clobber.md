@@ -1,0 +1,250 @@
+---
+id: T-122
+name: "Restore human layout corrections clobbered by corpus re-bake (task-lifecycle + audit other re-baked maps)"
+description: >
+  Operator report (2026-07-06): this session's corpus re-bake (7d4fa0a) overwrote
+  the human's manual layout corrections with a worse auto-generated layout — in
+  task-lifecycle the AGENT-lane row dropped to y=600, opening a large vertical gap
+  and sprawling every cross-lane edge. This is a sovereignty violation (agent
+  auto-layout must not clobber human layout). Restore the human layout for every
+  map the re-bake changed, and register the bake-tool gap that allowed it.
+
+status: started-work
+workflow_type: build
+owner: agent
+horizon: now
+tags: [ui, editor, corpus, bug, layout, sovereignty]
+components: []
+related_tasks: [T-101, T-121]
+# arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
+#                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
+#                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
+#                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
+created: 2026-07-06T06:39:43Z
+last_update: 2026-07-06T06:39:43Z
+date_finished: null
+# revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
+# revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
+# ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
+# bvp_scores:                     # confirmed per-driver scores 0-5, set by `fw bvp confirm` (T-1924).
+#                                 # Sovereignty boundary — only set after human or agent confirmation.
+#                                 # Shape: {D1: <int 0-5>, D2: <int 0-5>, D3: <int 0-5>, D4: <int 0-5>, [<free-driver-id>: <int>]...}
+# bvp_scores_proposed:            # estimator-proposed scores (T-1922 worker). Persists when ≥2 delta
+#                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
+# cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
+#                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+---
+
+# T-122: Restore human layout corrections clobbered by corpus re-bake (task-lifecycle + audit other re-baked maps)
+
+## Context
+
+The operator hand-corrected corpus layouts (compact, calm cross-lane edges). This
+session's re-bake `7d4fa0a` ("re-bake corpus with align-columns") ran the editor's
+cleanLayout headless and wrote the auto-layout back into the *.workflow.yaml
+sources — silently replacing the human's positions. In task-lifecycle the AGENT
+row (n_authoring/n_work/n_request) moved to y=600, over-deepening the lane.
+
+The stored geometry is the human's sovereign artifact; the re-bake was an agent
+action that overwrote it (PD-044 / sovereignty). Fix = restore the pre-re-bake
+(human) geometry for every map 7d4fa0a touched, then register the bake-tool gap.
+
+## Acceptance Criteria
+
+### Agent
+- [ ] Identify every corpus map whose `*.workflow.yaml` geometry was changed by
+      re-bake `7d4fa0a` (git diff 7d4fa0a^..7d4fa0a) — the clobbered set
+- [ ] Restore the human (pre-7d4fa0a) geometry for each clobbered map — revert the
+      re-bake's coordinate changes so the served maps match the operator's layout
+      (task-lifecycle AGENT row back to the compact position seen in image #9)
+- [ ] Re-render each restored map's bpmn (`tools/yaml-to-bpmn.py`) and mirror to
+      gallery; validator passes for each
+- [ ] Post-restore measurement (headless): task-lifecycle AGENT-lane nodes back to
+      the compact y; per restored map — no new node-cuts and no new crossings vs the
+      restored (human) baseline
+- [ ] Screenshots of task-lifecycle (and 1–2 other worst-clobbered maps) taken and
+      READ: layout matches the human's compact version, no sprawl
+- [ ] Root-cause registered: the bake tool overwrites human layout with no guard —
+      add to concerns/gaps (G-019). Prevention candidate: bake must not write geometry
+      unless explicitly re-authorised, or must diff-warn before clobbering manual edits
+- [ ] No editor JS change; only restored corpus `*.workflow.yaml` + `rendered/*.bpmn`
+
+### Human
+<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
+     Remove this section if all criteria are agent-verifiable.
+     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
+
+     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
+     If your Expected clause is grep-able / file-exists / structural (a deterministic
+     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
+     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
+     verification genuinely needs human taste (tone, feel, layout rhythm).
+     See CLAUDE.md §AC Classification Guidance for the conversion rule.
+
+     [REVIEW] example (genuine human judgment):
+       - [ ] [REVIEW] Dashboard renders correctly
+         **Steps:**
+         1. Open https://example.com/dashboard in browser
+         2. Verify all panels load within 2 seconds
+         3. Check browser console for errors
+         **Expected:** All panels visible, no console errors
+         **If not:** Screenshot the broken panel and note the console error
+
+     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
+       - [ ] [REVIEWER] Block message names both bypass mechanisms
+         **Steps:**
+         1. Run `bin/fw reviewer T-XXX`
+         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
+         **If not:** Inspect hook block-message string and add missing mechanism
+       Conversion: this AC should be moved to ### Agent and
+       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+-->
+
+## Verification
+
+# Shell commands that MUST pass before work-completed. One per line.
+# Lines starting with # are comments (skipped). Empty lines ignored.
+# The completion gate runs each command — if any exits non-zero, completion is blocked.
+#
+# Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
+# *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
+# pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
+# past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
+#
+# Pipefail/SIGPIPE hint (L-387): P-011 runs each command under `set -eo pipefail`.
+# `cmd | grep -q PATTERN` exits 141 (SIGPIPE) when grep matches and closes stdin
+# while the upstream is still writing — verification then "fails" even though
+# the pattern was present. Safe pattern: capture first, grep the capture:
+#     out=$(cmd 2>&1); echo "$out" | grep -q "PATTERN"
+# Or:
+#     cmd > /tmp/.out 2>&1 && grep -q "PATTERN" /tmp/.out
+# Origin: L-387, captured 4× (T-1716, T-1838, T-1862, T-1863) before this hint.
+#
+# Single pipe only — no intermediate tail/awk/sed stages between capture and grep
+# (T-2090): `echo "$out" | tail -3 | grep -q PAT` re-introduces the SIGPIPE risk
+# the capture step closed off — the middle stage is what `grep -q` slams its
+# stdin on. `echo "$out"` is small and immediate; grep scans the whole captured
+# string anyway, so the tail-3 was cosmetic. Drop it: `echo "$out" | grep -q PAT`.
+#
+# Enforcement-baseline hint (L-398, T-1886): if you edited `.claude/settings.json`
+# (added/removed/reorganised hooks), add `bin/fw enforcement baseline` to your
+# Verification block. Otherwise the canonical hash diverges and `fw doctor`
+# reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
+# Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
+# the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+## RCA
+
+<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
+     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
+     Non-bug-class tasks may leave this section empty or remove it.
+
+     For bug-class, fill in:
+       **Symptom:** what was observed (the user-facing manifestation).
+       **Root cause:** the specific structural/logical gap — not "the code was wrong".
+       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
+       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
+
+     The completion gate (T-1550, G-019) blocks --status work-completed when
+     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
+-->
+
+**Symptom:** task-lifecycle (and likely other maps) opens with a sprawled auto
+layout — AGENT-lane row at y=600, long cross-lane edges — instead of the operator's
+compact hand-corrected layout (their image #9 vs my auto image #10).
+
+**Root cause:** This session's re-bake `7d4fa0a` ran cleanLayout headless and wrote
+the auto-positions back into the `*.workflow.yaml` sources, overwriting the human's
+manual layout corrections. The bake treats stored geometry as regenerable; but once
+a human has hand-corrected a layout, that geometry is a sovereign artifact.
+
+**Why structurally allowed:** `tools/bake-clean-layout.py` has no guard against
+clobbering human edits — it re-derives and writes geometry unconditionally. Nothing
+marks a map as "human-corrected, do not auto-bake," and no diff-warn surfaces before
+overwriting. PD-044 covers render passes but not the bake tool.
+
+**Prevention:** (a) bake must not overwrite a human-corrected map without explicit
+re-authorisation (a per-map `layout: manual` lock, or a diff-warn+confirm gate);
+(b) register in concerns.yaml. AND (the operator's ask, 2026-07-06) — mine the
+before/after correction pairs to extract the *rules* the human applied, then encode
+them into cleanLayout so the auto-layout produces the human-preferred result and
+stops diverging. See ## Decisions "Forward plan".
+
+## Evolution
+
+<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
+     understanding evolved during build — what was learned that wasn't known at
+     filing, what in the original plan no longer fits, what triggered pivots
+     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
+     before --status work-completed.
+
+     Origin: T-1717 grill Q4 — "the understanding of what we need and want
+     evolves with the process of materialisation." Structural counter to §ACD:
+     spec-vs-build divergence is logged as soon as it happens, not lost as
+     folklore.
+
+     Format (one entry per slice boundary or significant insight):
+       ### YYYY-MM-DD — [topic]
+       - **What changed:** [what we learned that we didn't know at filing]
+       - **Plan impact:** [what in the plan no longer fits]
+       - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
+
+     The completion gate (T-1718) blocks --status work-completed when this
+     section exists but is empty/template-only. Use --skip-evolution to bypass
+     (logged Tier-2). Non-arc tasks may leave this empty.
+-->
+
+## Decisions
+
+### 2026-07-06 — Forward plan (two tracks; execute next session, fresh budget)
+
+**Track A — restore the human layout (this task, T-122):**
+1. `git show --stat 7d4fa0a` → list the `*.workflow.yaml` it changed = clobbered maps.
+2. For each clobbered map, restore the pre-bake (human) geometry:
+   `git checkout 7d4fa0a^ -- examples/aef-processes/<map>.workflow.yaml`
+   — BUT do NOT blanket-checkout: inception-review was legitimately changed AFTER by
+   T-121 (`c1c47eb`), so EXCLUDE inception-review (keep its T-121 state).
+3. Re-render each restored map (`python3 tools/yaml-to-bpmn.py <yaml> --out rendered/<map>.bpmn`),
+   mirror to `build/gallery/rendered/`, validate.
+4. Verify task-lifecycle AGENT row is back to the compact y (image #9); screenshot + READ.
+5. Register the bake-clobbers-human gap in concerns.yaml (G-019).
+   NOTE: `7d4fa0a` was MY commit this session; reverting its geometry is correct —
+   the human layout is sovereign. Confirm nothing else desirable is lost.
+
+**Track B — learn the human's rules and encode them (the operator's 2026-07-06 ask):**
+The operator will feed more before/after pairs (their correction vs my auto-layout).
+Approach:
+1. For each pair, diff the geometry (which nodes moved, by how much, in what direction)
+   and the resulting edge routes — extract the *invariant* the human enforced
+   (e.g. "cross-lane sequential nodes share a column", "keep the agent row within
+   ~100px of the framework row — don't over-deepen lanes", "align connected nodes by
+   centre not top").
+2. Generalise each invariant into a cleanLayout / router rule, guarded (no new
+   node-cuts / crossings / overlaps), measured corpus-wide before shipping — the
+   established T-117/118/119/097 pattern.
+3. Ship as separate, scoped tasks (one rule = one deliverable). This makes the
+   auto-layout converge to the human's taste so Track A's clobber can't recur in spirit.
+- **Why:** Restoring one map (Track A) is necessary but treats the symptom; encoding
+  the human's rules (Track B) is the antifragile fix — the corrections become
+  training signal for the layout engine. Both are in scope of the operator's ask.
+- **Feasibility:** YES, possible. The corrections are concrete geometry deltas; the
+  layout engine (cleanLayout) is where align-rows/columns/pitch already live, so new
+  rules slot in. The guard harness (crossings/cuts/overlap, render-only measurement)
+  already exists from this session's routing work.
+
+## Decision
+
+<!-- Filled at completion of inception tasks via:
+     fw inception decide T-XXX go|no-go|defer --rationale "..."
+
+     For non-inception tasks this section is ignored. Kept in template
+     so `fw inception decide` (lib/inception.sh) finds the anchor heading
+     without auto-creating; T-1832 added auto-create as fallback for
+     legacy tasks lacking this section. -->
+
+## Updates
+
+### 2026-07-06T06:39:43Z — task-created [task-create-agent]
+- **Action:** Created task via task-create agent
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-122-restore-human-layout-corrections-clobber.md
+- **Context:** Initial task creation

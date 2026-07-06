@@ -1,0 +1,102 @@
+# ============================================================================
+# EPISODIC MEMORY - T-121: inception-review layout: align emit-human column and record-end centres for clean midpoint attach
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-06T06:22:26Z
+# ============================================================================
+
+task_id: T-121
+task_name: "inception-review layout: align emit-human column and record-end centres for clean midpoint attach"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-06T06:18:22Z
+completed: 2026-07-06T06:22:23Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-06T08:22:23+02:00
+last_commit: 2026-07-06T08:22:23+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Fix inception-review layout — align emit/human column + record/end centres
+
+# Key outcomes
+outcomes:
+  - '`n_review.x` set to 980 (cx 1035 = `n_emit` cx) in inception-review.workflow.yaml'
+  - '`n_end_go.y` set to 282 (cy 300 = `n_go` cy) and `n_end_defer.y` set to 466'
+  - 'bpmn re-rendered via `tools/yaml-to-bpmn.py` and mirrored to gallery; served'
+  - 'Post-change measurement (headless, live editor): e_07 S-mid→N-mid straight;'
+  - 'Before/after screenshots READ: `.playwright-mcp/t121-emit-human-after.png`'
+  - 'No editor JS change (`src/aef-workflow-designer.html` untouched); other 23'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Fix inception-review layout — align emit/human column + record/end centres'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-06 — Move n_review (not n_emit) to close the column'
+    chose: 'Align by moving `n_review` left to cx=1035 (under `n_emit`).'
+    rationale: '`n_emit` is part of the framework-lane horizontal spine'
+    alternatives_rejected: ['Moving `n_emit` (breaks the framework row); shrinking the 220px gap']
+  - decision: '2026-07-06 — Align end events to their record nodes, not vice-versa'
+    chose: 'Set `n_end_go`/`n_end_defer` centre-y to match `n_go`/`n_defer`.'
+    rationale: 'The records are evenly pitched (92px, cy 300/392/484); the ends had'
+    alternatives_rejected: ['Re-pitching the records (would ripple to the decide→record fan).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-06-28-0800.yaml'
+  - '.context/audits/cron/2026-07-06-0800.yaml'
+  - '.context/audits/cron/2026-07-06-0815.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/episodic/T-120.yaml'
+  - '.context/locks/T-120.lock'
+  - '.context/project/decisions.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-120.log'
+  - '.context/working/.hook-counter'
+  - 'examples/aef-processes/inception-review.workflow.yaml'
+  - 'examples/aef-processes/rendered/inception-review.bpmn'
+  - '.playwright-mcp/t121-emit-human-after.png'
+  - '.playwright-mcp/t121-record-end-after.png'
+  - '.tasks/active/T-121-inception-review-layout-align-emit-human.md'
+  - '.tasks/completed/T-120-sibling-shared-riser-uncross-fan-out-joi.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-06T08:22:23"
+    action: "T-121: Fix inception-review layout — align emit/human column + record/end centres"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [ui, editor, corpus, bug, layout, routing]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 20
+  lines_added: 1192
+  lines_removed: 221
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-121-inception-review-layout-align-emit-human.md
+generated_by: context-agent-hybrid
