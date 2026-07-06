@@ -89,6 +89,16 @@ class Handler(SimpleHTTPRequestHandler):
     def log_message(self, fmt, *args):
         sys.stderr.write("[gallery-serve] " + (fmt % args) + "\n")
 
+    def end_headers(self):
+        # Dev gallery — never let a browser serve a stale designer.html (T-135). The editor
+        # is a single self-contained file that changes on every redeploy; heuristic caching
+        # (SimpleHTTPRequestHandler sends no Cache-Control) made operators see old behaviour
+        # until they used incognito. no-store on every response (static + API) fixes it.
+        self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        self.send_header('Pragma', 'no-cache')
+        self.send_header('Expires', '0')
+        super().end_headers()
+
     # ---- helpers ----
     def _json(self, code, obj):
         body = json.dumps(obj).encode('utf-8')
