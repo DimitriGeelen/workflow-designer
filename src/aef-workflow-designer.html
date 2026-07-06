@@ -4030,6 +4030,14 @@ function routeOrthogonalSegment(anchorA, anchorB, dirA, dirB, src, tgt, edge) {
   // Don't trigger loop-back if the user has set per-segment hints — those are
   // an explicit override that should always win.
   const hasUserHints = edge && edge.routingHints && Object.keys(edge.routingHints).length > 0;
+  // T-137: an explicit "Straighten" request (edge.forceStraight) pins the direct route,
+  // overriding the loop-back heuristics (backward-flow, interior-backhaul) AND a stale
+  // persisted detourY. It is honoured ONLY when the simple route is actually clean, so
+  // straighten can never introduce a node-cut — a backward edge whose direct line WOULD
+  // cross a node falls back to the normal loop (the flag stays set but inert until the
+  // geometry is clean, e.g. after the user moves a node out of the way).
+  const forceStraight = !!(edge && edge.forceStraight) && !!src && !!tgt &&
+    !polylineCrossesNodes(simplePolyline, src, tgt);
   const BACKHAUL_SPAN = 300;
   let interiorBackhaul = false;
   if (src && tgt && !hasUserHints && spB.x < spA.x - BACKHAUL_SPAN) {
@@ -4040,7 +4048,7 @@ function routeOrthogonalSegment(anchorA, anchorB, dirA, dirB, src, tgt, edge) {
       if (split.above > 0 && split.below > 0) { interiorBackhaul = true; break; }
     }
   }
-  const needsLoop = src && tgt && !hasUserHints && (
+  const needsLoop = src && tgt && !hasUserHints && !forceStraight && (
     polylineCrossesNodes(simplePolyline, src, tgt) ||
     (edge && typeof edge.detourY === 'number') ||
     isBackwardFlow(anchorA, anchorB, dirA, dirB) ||
@@ -4379,7 +4387,30 @@ function renderProperties() {
     const btnRow = document.createElement('div');
     btnRow.className = 'routing-actions';
     const hintCount = e.routingHints ? Object.keys(e.routingHints).length : 0;
-    const hasOverrides = wpCount > 0 || typeof e.detourY === 'number' || hintCount > 0;
+    const hasOverrides = wpCount > 0 || typeof e.detourY === 'number' || hintCount > 0 || !!e.forceStraight;
+    // T-137: offer "Straighten" whenever this edge currently renders as a loop-back detour
+    // (a persisted detourY, or the router chose a loop at render time — mirrored on
+    // e._loopDetourY). Straighten pins the direct route (guarded so it can't cut a node);
+    // it is the only affordance that overrides the backward-flow auto-loop, which "Reset
+    // routing" cannot (Reset reverts to auto, and auto re-loops a backward edge).
+    const rendersAsLoop = typeof e.detourY === 'number' || typeof e._loopDetourY === 'number';
+    if (rendersAsLoop && !e.forceStraight) {
+      const straightenBtn = document.createElement('button');
+      straightenBtn.className = 'btn btn-routing';
+      straightenBtn.textContent = 'Straighten';
+      straightenBtn.title = 'Pin a direct route (ignored if it would cross a node)';
+      straightenBtn.onclick = () => {
+        pushHistory();               // one Ctrl+Z restores the prior routing
+        e.waypoints = [];
+        delete e.detourY;
+        delete e.routingHints;
+        e.forceStraight = true;
+        renderAll();
+        renderProperties();
+        if (typeof scheduleAutosave === 'function') scheduleAutosave();
+      };
+      btnRow.appendChild(straightenBtn);
+    }
     if (hasOverrides) {
       const resetBtn = document.createElement('button');
       resetBtn.className = 'btn btn-routing';
@@ -4388,6 +4419,7 @@ function renderProperties() {
         e.waypoints = [];
         delete e.detourY;
         delete e.routingHints;
+        delete e.forceStraight;
         renderEdges();
         renderProperties();
       };
@@ -4402,6 +4434,7 @@ function renderProperties() {
         e.waypoints = [];
         delete e.detourY;
         delete e.routingHints; // hints become stale on port change
+        delete e.forceStraight;
         renderAll();
       };
       btnRow.appendChild(clearPortsBtn);
@@ -7212,6 +7245,10 @@ function buildBpmnXml(s) {
     if (typeof e.detourY === 'number') {
       lines.push(`        <aef:loopDetour y="${e.detourY.toFixed(1)}"/>`);
     }
+    if (e.forceStraight) {
+      // T-137: explicit operator "Straighten" — pin the direct route across reloads.
+      lines.push(`        <aef:forceStraight value="true"/>`);
+    }
     if (e.routingHints && Object.keys(e.routingHints).length > 0) {
       for (const [role, offset] of Object.entries(e.routingHints)) {
         if (typeof offset === 'number' && offset !== 0) {
@@ -7447,6 +7484,8 @@ function parseBpmnXml(text) {
     }
     const loopEl = byAef(el, 'loopDetour')[0];
     if (loopEl) edge.detourY = parseFloat(loopEl.getAttribute('y'));
+    const straightEl = byAef(el, 'forceStraight')[0];
+    if (straightEl && straightEl.getAttribute('value') === 'true') edge.forceStraight = true;
     const hints = {};
     for (const h of byAef(el, 'routingHint')) {
       const role = h.getAttribute('role');

@@ -654,3 +654,10 @@ decisions:
     date: 2026-07-06
     task: T-127
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-073
+    decision: "(B) an explicit, opt-in per-edge \"Straighten\" action backed by a persisted"
+    scope: project
+    date: 2026-07-06
+    task: T-137
+    rationale: "Auto-captured from task file on completion"
