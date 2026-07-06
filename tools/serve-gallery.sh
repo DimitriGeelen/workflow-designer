@@ -50,4 +50,11 @@ IP=$(hostname -I 2>/dev/null | awk '{print $1}')
 echo "Gallery root: $OUT ($COUNT maps)"
 echo "Local:  http://localhost:$PORT/"
 echo "LAN:    http://${IP:-localhost}:$PORT/"
-exec python3 -m http.server "$PORT" --directory "$OUT" --bind 0.0.0.0
+# Write-capable sidecar (T-129/B2): serves the same gallery + /api/* so the editor
+# can Save into the repo with versioning. Falls back to the static server if the
+# sidecar script is missing (keeps the gallery working in a minimal checkout).
+if [ -f "$ROOT/tools/gallery-serve.py" ]; then
+  exec python3 "$ROOT/tools/gallery-serve.py" "$PORT" --docroot "$OUT" --repo "$ROOT" --bind 0.0.0.0
+else
+  exec python3 -m http.server "$PORT" --directory "$OUT" --bind 0.0.0.0
+fi
