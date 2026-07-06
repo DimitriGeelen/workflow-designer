@@ -21,7 +21,7 @@ related_tasks: [T-101, T-121]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T06:39:43Z
-last_update: 2026-07-06T07:17:37Z
+last_update: 2026-07-06T07:32:01Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -301,6 +301,24 @@ Approach:
 - **Diminishing marginal signal:** pairs 4/5/6 are all routing/spacing variations —
   the DOMINANT rule (compaction via lane-height) is already locked from pairs 1/2/3.
   These three refine the routing family; measure their polylines together next session.
+
+### Pair 7 — error-escalation-ladder (INVERSE case: auto was too CRAMPED)
+- **Delta (important — refines the whole model):** here my auto-layout was too DENSE,
+  not too sparse. The before is a mess — the `which rung?` gateway sits right on top of
+  node A, the `1st occurrence`/`technique gap` labels overlap the gateway and nodes, the
+  A/B/C/D branches and their edges collide. The human SPREAD it out: big horizontal run
+  from the gateway to the A–D branch column (~400px) so the four fan edges get distinct,
+  labelled channels; A/B/C/D evenly separated; and the [CODE] diagnose/resolve nodes
+  pulled UP near the partners they connect to (short `auto-trigger diagnose` / `log
+  resolution` edges instead of huge verticals down to the far lane).
+- **Refined meta-rule:** the auto-layout mis-sizes spacing in BOTH directions — it
+  leaves empty bands where content is sparse (pairs 1–3 → shrink) AND crams nodes where
+  content is dense (pair 7 → spread). The correct rule is **fit spacing to content:
+  enough that edges/labels never overlap, no more.** Not "always compact."
+- **Concrete levers:** (a) fan-out gateway needs enough horizontal run to its branch
+  column for N distinct labelled edge channels; (b) branch pitch ≥ label height + pad;
+  (c) place connected cross-lane nodes near each other (short edges), which is the same
+  lane-height/compaction lever viewed per-edge.
 
 ### Synthesized rules so far (candidate cleanLayout/router improvements)
 1. **Height-fit lanes** — a lane is only as tall as its content + padding; never leave
