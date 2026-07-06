@@ -1894,6 +1894,7 @@ function renderAll() {
   renderProperties();
   syncCanvasSize();
   updateStatus();
+  scheduleAutosave();   // T-126/G-005: persist the live document so a reload/navigation can't lose work
 }
 function refreshLibraryUI() {
   const picker = $('workflow-picker');
@@ -7108,12 +7109,70 @@ function colorizeXml(xml) {
 }
 
 // ============================================================================
+//  Document autosave (T-126 / G-005)
+// ============================================================================
+// The document previously lived ONLY in volatile memory; a reload or navigation
+// (e.g. agent Playwright automation on 2026-07-06) discarded all unsaved work,
+// because only preferences were persisted. Now every mutation debounce-snapshots
+// the active document to localStorage, and on load we offer to restore it.
+// Additive only — Save/Load semantics are unchanged. Verify: isolated headless.
+const AUTOSAVE_KEY = 'aefAutosaveDoc';
+let _autosaveTimer = null;
+let _appReady = false;                 // suppress autosave during the initial seed render
+let _autosaveRestore = null;
+try { _autosaveRestore = JSON.parse(localStorage.getItem(AUTOSAVE_KEY) || 'null'); } catch (_) {}
+
+function autosaveNow() {
+  if (!_appReady) return;
+  try {
+    saveActiveToLibrary();
+    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({
+      id: state.workflowMeta.id,
+      title: state.workflowMeta.title || state.workflowMeta.id,
+      ts: Date.now(),
+      xml: buildBpmnXml(state),
+    }));
+  } catch (_) { /* quota / serialization — best-effort, never throw into render */ }
+}
+function scheduleAutosave() {
+  if (!_appReady) return;              // don't clobber a prior autosave while seeding
+  if (_autosaveTimer) clearTimeout(_autosaveTimer);
+  _autosaveTimer = setTimeout(autosaveNow, 700);
+}
+function offerAutosaveRestore() {
+  const s = _autosaveRestore;
+  if (!s || !s.xml) return;
+  try {
+    const bar = document.createElement('div');
+    bar.id = 'restore-nudge';
+    bar.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:18px;'
+      + 'z-index:9999;background:var(--panel,#1e2530);color:var(--fg,#e6edf3);'
+      + 'border:1px solid var(--accent,#3b82f6);border-radius:8px;padding:10px 14px;'
+      + 'display:flex;gap:10px;align-items:center;font:13px system-ui,sans-serif;'
+      + 'box-shadow:0 4px 16px rgba(0,0,0,.4)';
+    let when = ''; try { when = new Date(s.ts).toLocaleString(); } catch (_) {}
+    const msg = document.createElement('span');
+    msg.textContent = `Unsaved work found: “${s.title}”${when ? ' (' + when + ')' : ''}.`;
+    const restore = document.createElement('button');
+    restore.textContent = 'Restore'; restore.className = 'btn btn-primary';
+    restore.onclick = () => { try { adoptImportedXml(s.xml, { userImport: false }); } catch (_) {} bar.remove(); };
+    const dismiss = document.createElement('button');
+    dismiss.textContent = 'Dismiss'; dismiss.className = 'btn';
+    dismiss.onclick = () => bar.remove();
+    bar.append(msg, restore, dismiss);
+    document.body.appendChild(bar);
+  } catch (_) { /* banner is best-effort */ }
+}
+
+// ============================================================================
 //  Init
 // ============================================================================
 refreshDisplayIds();
 renderAll();
 refreshLibraryUI();
 setMode('select');
+_appReady = true;            // from here on, edits autosave to localStorage
+offerAutosaveRestore();      // if a prior session left unsaved work, offer to bring it back
 </script>
 </body>
 </html>

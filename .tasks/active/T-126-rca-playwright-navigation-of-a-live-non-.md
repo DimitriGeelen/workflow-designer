@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T09:10:11Z
-last_update: 2026-07-06T09:10:11Z
+last_update: 2026-07-06T09:11:59Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -47,13 +47,25 @@ date_finished: null
       autosave → an authoring tool loses unsaved work on any reload/navigation
 - [ ] Second gap/guard noted: agent visual-verification must use an ISOLATED headless
       browser context, never a shared/live one (this incident's proximate cause)
-- [ ] FIX FORWARD implemented: editor document autosave to localStorage (debounced on
-      mutation) + recover-on-load prompt, so an accidental reload/navigation cannot lose
-      work. Guarded: no change to Save/Load semantics; mirror byte-identical
-- [ ] Verified: after autosave, reloading the editor mid-edit restores the in-progress
-      document (manual + a headless check); screenshots READ
-- [ ] Recovery attempt for THIS incident documented (browser state, Downloads guidance to
-      operator) — with honest outcome (recovered / not recoverable)
+- [~] FIX FORWARD implemented (CODE WRITTEN, mirror byte-identical) but **NOT VERIFIED**:
+      autosave in `src/aef-workflow-designer.html` — `AUTOSAVE_KEY='aefAutosaveDoc'`,
+      debounced `scheduleAutosave()` hooked into `renderAll()` (guarded by `_appReady` so
+      the initial seed render can't clobber a prior autosave; TDZ-checked — all early
+      `renderAll()` calls are inside functions, only the Init one runs at load), plus
+      `offerAutosaveRestore()` dismissible banner (#restore-nudge) shown after Init.
+      Additive; Save/Load semantics unchanged. Mirrored to build/gallery/designer.html.
+- [ ] **BLOCKED — verification not run (budget gate at 308k).** Verifier written:
+      `tools/_autosave-verify-cdp.mjs` (ISOLATED headless chromium, never the shared
+      browser). It has a **one-line import bug** (`existsSync` wrongly imported from
+      `node:path` — remove it) that must be fixed first. NEXT SESSION: fix that import,
+      run `node tools/_autosave-verify-cdp.mjs`, confirm all 4 steps pass, screenshot the
+      restore banner + READ, THEN check this AC. Until then autosave is UNVERIFIED.
+- [x] Recovery for THIS incident documented: not recoverable from tooling (browser doc was
+      overwritten, no autosave/session/IDB/undo survived). Operator to check other
+      tabs/Downloads. See docs/reports/T-126-editor-workloss-rca.md.
+- [ ] Save-to-project endpoint (write .workflow.yaml into repo via gallery server) — DEFER:
+      operator was asked to choose save-design scope (Both / autosave-only / project-only)
+      but was away; autosave shipped as the safety-net first. Confirm scope next session.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
