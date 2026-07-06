@@ -5405,6 +5405,22 @@ window.addEventListener('mouseup', e => {
       }
     }
     // If no snap target — drop in open space — the edge stays as it was; no commit.
+    // T-136: a press on the endpoint halo that never became a drag is really a click.
+    // The halo belongs to the SELECTED edge and can shadow a sibling edge's line at a
+    // shared connection point, so the native click never reaches that sibling. Re-run
+    // edge hit-testing here (before renderAll tears down the DOM) and select whatever
+    // line is under the pointer — preferring a sibling — so converging lines stay
+    // selectable without shrinking the T-133 grab target.
+    if (edge && !edgeDrag.snapNodeId) {
+      const moved = Math.hypot(e.clientX - (edgeDrag.downX ?? e.clientX), e.clientY - (edgeDrag.downY ?? e.clientY));
+      if (moved < 4) {
+        const hitId = edgeHitTestAt(e.clientX, e.clientY, edge.id);
+        if (hitId && hitId !== edge.id) {
+          selection = { kind: 'edge', id: hitId };
+          multiSelect = new Set();
+        }
+      }
+    }
     gPreview.innerHTML = '';
     gNodes.querySelectorAll('.node.hover-target').forEach(g => g.classList.remove('hover-target'));
     svg.classList.remove('drag-endpoint-snap', 'drag-endpoint-float');
@@ -6223,6 +6239,26 @@ function onEdgeClick(e) {
   renderEdges(); renderProperties();
 }
 
+// T-136: hit-test which edge line sits under a client point, ignoring the endpoint
+// grab halos (which belong to the currently-selected edge and can shadow a sibling's
+// line at a shared connection point). Returns the topmost edge id whose invisible
+// `.edge-hit` stroke is under the pointer, preferring one that is NOT `preferNotId`
+// so a click on the selected edge's halo can reach a converging sibling. Returns null
+// if no edge line is there.
+function edgeHitTestAt(clientX, clientY, preferNotId) {
+  const els = document.elementsFromPoint(clientX, clientY);
+  let firstEdge = null;
+  for (const node of els) {
+    if (!node.classList || !node.classList.contains('edge-hit')) continue;
+    const g = node.closest && node.closest('.edge');
+    const id = g && g.getAttribute('data-id');
+    if (!id) continue;
+    if (firstEdge === null) firstEdge = id;
+    if (preferNotId && id !== preferNotId) return id; // a sibling under the pointer wins
+  }
+  return firstEdge;
+}
+
 // ----- Edge editing handlers -----
 function onEndpointMouseDown(ev, edge, role) {
   ev.stopPropagation();
@@ -6245,7 +6281,10 @@ function onEndpointMouseDown(ev, edge, role) {
   }
   const offX = clickPt.x - handlePt.x;
   const offY = clickPt.y - handlePt.y;
-  edgeDrag = { kind: 'endpoint', edgeId: edge.id, role, offX, offY };
+  // Record the mousedown client position so mouseup can tell a pure click from a drag
+  // (T-136). A click on the halo that never becomes a drag must fall through to normal
+  // edge selection so a sibling line sharing this endpoint stays reachable.
+  edgeDrag = { kind: 'endpoint', edgeId: edge.id, role, offX, offY, downX: ev.clientX, downY: ev.clientY };
 }
 function onWaypointMouseDown(ev, edge, idx) {
   ev.stopPropagation();

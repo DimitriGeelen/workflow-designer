@@ -12,7 +12,7 @@ tags: [bug, editor, regression-suspect]
 components: []
 related_tasks: [T-133]
 created: 2026-07-06T16:00:00Z
-last_update: 2026-07-06T16:02:32Z
+last_update: 2026-07-06T16:02:33Z
 date_finished: null
 ---
 
@@ -50,21 +50,20 @@ least aggravated a pre-existing overlap.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Repro written & confirms cause: `tools/_endpoint-overlap-diag.mjs` shows the selected
-      edge's endpoint halo is topmost over a sibling edge near a shared connection point, and a
-      click on the sibling near the junction fails to select it (stays on the first edge).
-- [ ] Fix so a click that lands on an endpoint halo but does NOT become a drag falls through to
-      normal edge hit-testing (selects the edge under the pointer, incl. a sibling). Candidate
-      approaches to weigh: (a) on endpoint mouseup with no drag, re-run edge hit-test at the point
-      and select whatever edge is there; (b) moderate the halo radius (r11 → ~r8, still bigger
-      than the pre-T-133 r6 the operator called "too tight"); (c) shrink the halo to visible-dot
-      size except when hovering the endpoint. Prefer (a) — keeps the T-133 grab size AND fixes
-      selection; (b) is the cheap fallback. DO NOT simply revert T-133 (operator wanted the
-      bigger grab target).
-- [ ] Verified headless: at the fork, with edge A selected, a click on edge B near the shared
-      junction selects B; endpoint drag-to-reanchor still works when you actually drag. Screenshot
-      READ.
-- [ ] `diff -q src/aef-workflow-designer.html build/gallery/designer.html` clean (mirror).
+- [x] Repro written & confirms cause: `tools/_endpoint-overlap-verify-cdp.mjs` reproduces the
+      operator's condition (two arrow ends on one connection point — a fork pinned to a shared
+      source port), confirms the selected edge's r11 endpoint halo is TOPMOST over the sibling's
+      line at the shared point (`halo-is-topmost-at-Q: halo`), and asserts the fix falls through.
+- [x] Fix so a click that lands on an endpoint halo but does NOT become a drag falls through to
+      normal edge hit-testing. **Chose (a)** — on endpoint mouseup with no snap and < 4px of
+      movement, `edgeHitTestAt(clientX, clientY, selectedEdgeId)` re-runs edge hit-testing at the
+      pointer (via `document.elementsFromPoint`, skipping the halos) and selects the underlying
+      edge, preferring a sibling. Keeps the T-133 r11 grab target; T-133 NOT reverted.
+- [x] Verified headless (6/6): at the fork, with edge A (e_10) selected and its halo topmost, a
+      click on sibling B's line (e_11) near the shared junction selects B; a real endpoint drag
+      (>threshold, released in open space) is NOT hijacked into sibling-select. Screenshot READ
+      (`/tmp/endpoint-overlap-full.png`) — gateway fork renders cleanly, no visual regression.
+- [x] `diff -q src/aef-workflow-designer.html build/gallery/designer.html` clean (mirror).
 
 ### Human
 - [ ] [REVIEW] At a fork/join, clicking between the converging lines now reliably selects the one
@@ -89,4 +88,22 @@ non-drag click on a handle selects the underlying edge.
 
 ## Decisions
 
-<!-- record if an approach among (a)/(b)/(c) is chosen and why -->
+**Chose approach (a) — click-fallthrough on non-drag endpoint mouseup.** Rationale: it keeps the
+T-133 r11 grab target the operator asked for (no radius shrink, no revert) AND fixes selection at
+convergence points. The other candidates traded away grab size: (b) shrinking r11→r8 would reduce
+but not eliminate the shadowing (any halo over a sibling line still eats the click), and (c)
+hover-conditional sizing is fiddly and still leaves a dead-zone while hovering.
+
+Implementation (3 edits in `src/aef-workflow-designer.html`):
+1. `onEndpointMouseDown` records `downX/downY` (client px) so mouseup can tell a click from a drag.
+2. New `edgeHitTestAt(clientX, clientY, preferNotId)` — walks `document.elementsFromPoint`, ignores
+   `.edge-handle-endpoint-hit` halos, returns the topmost `.edge-hit` edge id, preferring one that
+   is not `preferNotId` (so a sibling under the pointer wins over the already-selected edge).
+3. `mouseup` (endpoint branch): when there was no snap and movement < 4px, run `edgeHitTestAt` at the
+   release point and, if a different edge is under the pointer, select it — before `renderAll()`
+   tears down the DOM.
+
+Why the native click didn't already do this: the halo's `mousedown` calls `stopPropagation()` +
+`preventDefault()` and mouseup's `renderAll()` rebuilds the edge DOM, so the browser click never
+reaches the sibling's `.edge-hit`; and even if it did, it would re-select the SAME (halo-owning)
+edge, not the sibling.
