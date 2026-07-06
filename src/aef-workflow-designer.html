@@ -415,12 +415,19 @@
   /* Edge handles — only rendered for the currently selected edge */
   .edge-handle { cursor: grab; }
   .edge-handle:active { cursor: grabbing; }
+  /* Transparent, generously-sized grab/hover target (T-133) — the visible dot below
+     stays small but the whole halo is grabbable and drives the dot's hover feedback. */
+  .edge-handle-endpoint-hit { fill: transparent; cursor: grab; }
+  .edge-handle-endpoint-hit:active { cursor: grabbing; }
   .edge-handle-endpoint {
     fill: var(--accent);
     stroke: var(--bg);
     stroke-width: 2;
+    pointer-events: none;               /* the halo above catches all pointer events */
+    transition: r 0.08s ease, fill 0.08s ease;
   }
-  .edge-handle-endpoint:hover { fill: #d8ff7d; r: 7; }
+  /* hover anywhere in the halo highlights + grows the adjacent visible dot */
+  .edge-handle-endpoint-hit:hover + .edge-handle-endpoint { fill: #d8ff7d; r: 8; }
   .edge-handle-waypoint {
     fill: var(--accent);
     stroke: var(--bg);
@@ -2736,15 +2743,20 @@ function renderEdges() {
 
     // Handles only when this edge is selected
     if (isSelected) {
-      // Source endpoint handle — drag to re-anchor source onto a port or a different node
-      const srcHandle = el('circle', { cx: sp.x, cy: sp.y, r: 6, class: 'edge-handle edge-handle-endpoint', 'data-role': 'src' });
-      srcHandle.addEventListener('mousedown', ev => onEndpointMouseDown(ev, e, 'source'));
-      g.appendChild(srcHandle);
+      // Source endpoint handle — drag to re-anchor source onto a port or a different node.
+      // A transparent hit halo (r11) carries the drag so the grab/hover target isn't limited
+      // to the tiny visible dot (T-133); the dot itself is pointer-events:none and the halo's
+      // :hover highlights the adjacent dot. Order matters: halo THEN dot (adjacent-sibling CSS).
+      const srcHit = el('circle', { cx: sp.x, cy: sp.y, r: 11, class: 'edge-handle edge-handle-endpoint-hit', 'data-role': 'src' });
+      srcHit.addEventListener('mousedown', ev => onEndpointMouseDown(ev, e, 'source'));
+      g.appendChild(srcHit);
+      g.appendChild(el('circle', { cx: sp.x, cy: sp.y, r: 6, class: 'edge-handle-endpoint' }));
 
       // Target endpoint handle
-      const tgtHandle = el('circle', { cx: tp.x, cy: tp.y, r: 6, class: 'edge-handle edge-handle-endpoint', 'data-role': 'tgt' });
-      tgtHandle.addEventListener('mousedown', ev => onEndpointMouseDown(ev, e, 'target'));
-      g.appendChild(tgtHandle);
+      const tgtHit = el('circle', { cx: tp.x, cy: tp.y, r: 11, class: 'edge-handle edge-handle-endpoint-hit', 'data-role': 'tgt' });
+      tgtHit.addEventListener('mousedown', ev => onEndpointMouseDown(ev, e, 'target'));
+      g.appendChild(tgtHit);
+      g.appendChild(el('circle', { cx: tp.x, cy: tp.y, r: 6, class: 'edge-handle-endpoint' }));
 
       // Waypoint handles
       wps.forEach((wp, idx) => {
