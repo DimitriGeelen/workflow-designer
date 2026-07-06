@@ -21,7 +21,7 @@ related_tasks: [T-101, T-121]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T06:39:43Z
-last_update: 2026-07-06T06:48:59Z
+last_update: 2026-07-06T06:51:06Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -260,6 +260,22 @@ Approach:
   auto-layout gives lanes a large/uniform height independent of content, and parks the
   row at the lane edge. Fix: `laneHeight = contentExtent + padding`, and place the row
   within the fitted lane. This is the concrete lever behind rules 1 & 2.
+
+### Pair 4 — assumption-validation (ROUTING-class, not layout)
+- **Key distinction:** node positions are ~IDENTICAL between before/after — so this pair
+  teaches an EDGE-ROUTING rule, not a node-placement one (unlike pairs 1–3).
+- **Delta observed:** the human version routes the branch edges into cleaner, more
+  separated channels. Most visible: the `supported` branch (gateway → Mark validated)
+  takes a clean high corridor through the empty HUMAN lane band rather than a lower run
+  through the congested FRAMEWORK band; the start-edge and the Register→Gather feedback
+  are staged so their vertical risers don't stack on one x.
+- **Candidate rule (VERIFY before encoding):** route long cross-cutting branch edges
+  through empty lane/vertical space as dedicated corridors, and give near-parallel
+  risers distinct x-channels — don't stack runs in the busy band.
+- **⚠ Needs precise in-browser geometry diff next session** — the before/after
+  difference is subtle and routing-rule mistakes can regress other maps, so measure the
+  exact polylines (not eyeball) before turning this into a router change. Do NOT encode
+  from the screenshot alone.
 
 ### Synthesized rules so far (candidate cleanLayout/router improvements)
 1. **Height-fit lanes** — a lane is only as tall as its content + padding; never leave
