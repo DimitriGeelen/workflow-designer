@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T23:21:25Z
-last_update: 2026-07-04T23:34:37Z
+last_update: 2026-07-04T23:36:08Z
 date_finished: 2026-07-04T23:34:37Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -78,7 +78,7 @@ T-092 GO, Phase A option 1 (docs/reports/T-092-routing-layout-survey.md, Finding
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
-- [ ] [REVIEW] Branch stacks read cleanly after Tidy at the default pitch
+- [x] [REVIEW] Branch stacks read cleanly after Tidy at the default pitch
   **Steps:**
   1. Open http://192.168.10.107:8834/designer.html?load=rendered/audit-process.bpmn
   2. Click the "agent" lane header, then Tidy in the lane properties panel

@@ -4,10 +4,10 @@ name: "Bridge META_KEYS excludes agentType/triggeredBy/emits — dropped from BP
 description: >
   Bridge META_KEYS (yaml-to-bpmn.py) omits agentType (4 maps), triggeredBy (9), emits (10) which the editor writes to <aef:meta> (buildBpmnXml line ~4273) and shows in the node inspector. So YAML->bridge->editor drops them. Same coverage class as T-059 but meta-attribute mechanism. Fix: align bridge META_KEYS with editor meta-writer keys; extend coverage test to assert meta-field parity. Discovered during T-059.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T16:03:36Z
-last_update: 2026-07-03T22:28:15Z
-date_finished: null
+last_update: 2026-07-03T22:32:10Z
+date_finished: 2026-07-03T22:32:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -211,3 +211,6 @@ divergence on the meta channel fails a test, not a downstream dogfood.
 
 ### 2026-07-03T22:28:15Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-03T22:32:10Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

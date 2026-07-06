@@ -1,8 +1,8 @@
 ---
-id: T-133
-name: "Enlarge edge endpoint handle hover/grab target"
+id: T-125
+name: "Vertical lane-compaction in cleanLayout: fit each lane to its content height and remove empty inter-lane bands (the dominant rule from operator correction pairs 1-3)"
 description: >
-  Enlarge edge endpoint handle hover/grab target
+  Vertical lane-compaction in cleanLayout: fit each lane to its content height and remove empty inter-lane bands (the dominant rule from operator correction pairs 1-3)
 
 status: started-work
 workflow_type: build
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-06T13:47:08Z
-last_update: 2026-07-06T13:47:08Z
+created: 2026-07-06T09:06:43Z
+last_update: 2026-07-06T09:06:43Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,34 +30,18 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-133: Enlarge edge endpoint handle hover/grab target
+# T-125: Vertical lane-compaction in cleanLayout: fit each lane to its content height and remove empty inter-lane bands (the dominant rule from operator correction pairs 1-3)
 
 ## Context
 
-Operator feedback: the edge endpoint handles (the source/target circles shown on a
-selected edge, `.edge-handle-endpoint`, `<circle r=6>` at src/aef-workflow-designer.html
-~2740/2745) are "very tight" to hover/grab. A filled circle's hit area equals its visible
-radius, so the resting grab target is only ~6px. Fix: add a larger transparent hit halo
-that carries the drag, keep the visible dot small, and give hover feedback across the whole
-enlarged zone. Small, contained CSS+render change.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] Each selected-edge endpoint has a transparent hit halo (~r11) carrying the
-      `onEndpointMouseDown` listener; the visible dot stays small (`pointer-events:none`) so
-      the whole halo is grabbable. Grab target radius roughly doubles (6 → ~11px).
-      → verified: 2 halos r11, 2 dots r6 with computed pointer-events:none.
-- [x] Hover anywhere within the halo highlights the dot (fill + slight grow) — feedback is
-      not limited to the tiny visible circle. Verified: adjacent-sibling `:hover` rule.
-      → hover at a ring point 8.5u from centre (outside r6 dot, inside r11 halo) turns the dot
-      lime rgb(216,255,125) and grows r6→8; at rest it is accent rgb(196,238,84).
-- [x] Endpoint drag-to-reanchor still works (mousedown on the halo reaches
-      `onEndpointMouseDown`); no JS reads the old handle's `data-role` (confirmed by grep).
-- [x] `diff -q src/aef-workflow-designer.html build/gallery/designer.html` clean (mirror).
-- [x] Element-level Playwright/CDP screenshot of a selected edge's endpoints READ — dots
-      render crisp, hover state visibly enlarges the target, no visual regression.
-      → `tools/_endpoint-hover-verify-cdp.mjs` 6/6; element + full screenshots READ.
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -90,17 +74,7 @@ enlarged zone. Small, contained CSS+render change.
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
-## Visual Verification
-
-Element-level + full-canvas CDP screenshots of a selected edge's endpoint captured mid-hover
-and READ (T-133): `/tmp/endpoint-hover-shot.png` (endpoint clip) and `/tmp/endpoint-hover-full.png`.
-Dots render crisp; hover on the enlarged halo highlights + grows the dot; selected edge lime;
-no visual regression across the canvas. Produced by `tools/_endpoint-hover-verify-cdp.mjs`.
-
 ## Verification
-
-diff -q src/aef-workflow-designer.html build/gallery/designer.html
-node tools/_endpoint-hover-verify-cdp.mjs
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -196,7 +170,7 @@ node tools/_endpoint-hover-verify-cdp.mjs
 
 ## Updates
 
-### 2026-07-06T13:47:08Z — task-created [task-create-agent]
+### 2026-07-06T09:06:43Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-133-enlarge-edge-endpoint-handle-hovergrab-t.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-125-vertical-lane-compaction-in-cleanlayout-.md
 - **Context:** Initial task creation

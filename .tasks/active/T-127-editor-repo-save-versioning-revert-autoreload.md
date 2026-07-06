@@ -7,16 +7,16 @@ description: >
   (operator's #1 ask). Keyed by map id / deep-link so a reload never crosses maps;
   a non-modal "Start fresh" affordance remains. Editor-only, lowest risk. Save-to-repo,
   versioning, revert, undo/redo, thumbnails are B2–B5 (separate tasks).
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: [ui, editor, persistence, autoload]
 components: []
 related_tasks: [T-126, T-128]
 created: 2026-07-06T09:40:00Z
-last_update: 2026-07-06T12:34:18Z
-date_finished: null
+last_update: 2026-07-06T12:34:59Z
+date_finished: 2026-07-06T12:34:59Z
 ---
 
 # T-127: Editor reload-restores + Save-to-repo + versioning + revert
@@ -98,3 +98,6 @@ remains (Human AC).
 - Spec captured from operator ("reload should load stored version; save in repo + versioning
   + revert"). Could not build in-window (budget gate at 308k blocks source edits). Turnkey
   for next session. Do T-126 verification FIRST, then build this.
+
+### 2026-07-06T12:34:59Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -4,10 +4,10 @@ name: "Bridge drops unknown aef: keys — free-form passthrough namespace is a c
 description: >
   VERIFIED in T-058 (FC-13): yaml-to-bpmn.py emits only its known aef set (meta META_KEYS, decisionInput/Outputs, contextReads, artifactsWrites, io, link); any OTHER aef.* key is silently dropped (test: aef.enforcement=X absent from BPMN). Editor advertises aef: as free-form passthrough, but the bridge path is a closed whitelist. Generalized ROOT of T-059 + T-060. Fix (a) pass through unknown scalar aef.* as aef:meta attrs, or (b) drop 'free-form' language + document fixed vocab. Guard: round-trip test of arbitrary aef.* key. Under G-002.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T22:54:23Z
-last_update: 2026-07-03T23:41:05Z
-date_finished: null
+last_update: 2026-07-03T23:46:12Z
+date_finished: 2026-07-03T23:46:12Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -215,3 +215,6 @@ contract can't silently regress.
 
 ### 2026-07-03T23:41:05Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-03T23:46:12Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

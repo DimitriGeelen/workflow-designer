@@ -4,10 +4,10 @@ name: "Refresh v3 design-inputs synthesis with T-025 frictions (F11/F12)"
 description: >
   Close T-025 carry-forward: update docs/reports/dogfood-v3-design-inputs.md to add F11 (ambient guard) + F12 (capability token) to the register and mark F3/F1 as 4/4. Keeps the framework hand-off artifact current.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-02T22:44:17Z
-last_update: 2026-07-02T22:44:17Z
-date_finished: null
+last_update: 2026-07-02T22:46:34Z
+date_finished: 2026-07-02T22:46:34Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -187,3 +187,6 @@ grep -q "4/4" docs/reports/dogfood-v3-design-inputs.md
 
 ### 2026-07-02T22:44:17Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-02T22:46:34Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

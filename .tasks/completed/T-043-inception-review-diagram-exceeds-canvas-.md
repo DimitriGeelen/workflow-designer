@@ -4,10 +4,10 @@ name: "inception-review diagram exceeds canvas viewport clipping decision fan"
 description: >
   inception-review diagram exceeds canvas viewport clipping decision fan
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T08:58:02Z
-last_update: 2026-07-03T08:58:02Z
-date_finished: null
+last_update: 2026-07-03T09:09:17Z
+date_finished: 2026-07-03T09:09:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -52,13 +52,16 @@ Prefer the editor fix (portable, benefits all workflows); confirm approach befor
 ## Acceptance Criteria
 
 ### Agent
-- [ ] The full `inception-review` diagram — all 14 nodes incl. the go/no-go/defer fan and
+- [x] The full `inception-review` diagram — all 14 nodes incl. the go/no-go/defer fan and
       the three end-events (uids `n_go`/`n_nogo`/`n_defer`/`n_end_go`/`n_end_nogo`/`n_end_defer`)
-      — is reachable in the editor without editing the file (via fit-to-view and/or scroll/pan)
-- [ ] Verified by Playwright: screenshot shows the decision fan + end-events fully rendered
+      — is reachable in the editor without editing the file (fit-to-view: canvas viewBox now
+      sizes to `contentRightEdge()`, not the fixed `POOL_WIDTH`)
+- [x] Verified by Playwright: screenshot shows the decision fan + end-events fully rendered
       (not clipped), READ to confirm — no regression to the now-correct lane layout
-- [ ] If an editor change: the default `investigate` workflow still renders correctly
-      (load via library + via file Load…) — no layout regression
+      (`t043-inception-review-fittoview.png`)
+- [x] The default `investigate` workflow still renders correctly both via library
+      (`t043-investigate-regression-check.png`) and via file Load… (golden preserves authored
+      uids/positions `n_start01 x=280 y=96` — verified in-browser) — no layout regression
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -123,21 +126,42 @@ Prefer the editor fix (portable, benefits all workflows); confirm approach befor
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+# Structural proxies for the fit-to-view fix (visual proof is in ## Visual Verification):
+grep -q "function contentRightEdge" src/aef-workflow-designer.html
+! grep -q "POOL_X + LANE_HEADER + POOL_WIDTH + 30" src/aef-workflow-designer.html
 
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
+**Symptom:** After T-042 made the editor honour authored positions, the `inception-review`
+diagram rendered at its true width (nodes to x=1860) but the go/no-go/defer fan and the three
+end-events were clipped off the right edge, unreachable (canvas neither scrolls nor fits).
 
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
+**Root cause:** `syncCanvasSize` set the SVG `viewBox` width from the fixed constant
+`POOL_WIDTH` (1480) rather than the actual content extent, and `renderPool` sized the pool
+the same way. With `preserveAspectRatio` on the SVG, anything past that fixed width fell
+outside the viewBox and was cropped. The canvas width was never content-aware.
 
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
+**Why structurally allowed:** Until T-042 no imported file's positions were honoured (the
+namespace bug auto-laid-out everything into the POOL_WIDTH box), so a diagram wider than
+1480px never occurred — the fixed width was never exercised. Fixing the namespace exposed
+the latent width assumption. No test rendered a wide corpus file and checked full visibility.
+
+**Prevention:** `contentRightEdge()` now sizes both the viewBox and the pool to enclose the
+right-most node (falling back to the POOL_WIDTH floor), so the viewBox scales to fit
+(fit-to-view) instead of cropping — for any workflow width, not just this one. Verification
+pins the helper in place and asserts the old fixed-width viewBox line is gone.
+
+## Visual Verification
+
+Playwright, editor at `http://127.0.0.1:8010/src/aef-workflow-designer.html`:
+- `t043-inception-review-fittoview.png` — READ: the full `inception-review`, incl. the
+  Record GO/NO-GO/DEFER fan and all three end-events, now renders unclipped; lanes still
+  correctly contain their nodes; no overlap.
+- `t043-investigate-regression-check.png` — READ: default `investigate` (library load)
+  unchanged. File-load of the golden `investigate.bpmn` verified in-browser to preserve
+  authored uids/positions (`n_start01 x=280 y=96`).
+
+<!--
 -->
 
 ## Evolution
@@ -191,3 +215,6 @@ Prefer the editor fix (portable, benefits all workflows); confirm approach befor
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-043-inception-review-diagram-exceeds-canvas-.md
 - **Context:** Initial task creation
+
+### 2026-07-03T09:09:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -4,10 +4,10 @@ name: "Map context-memory three-tier fabric flow"
 description: >
   Diagram working (reset on init) / project (patterns+decisions+learnings) / episodic (gen on completion); init->focus->add-*->generate-episodic. agents/context/AGENT.md. Dogfood gap (T-054).
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T14:25:14Z
-last_update: 2026-07-03T22:40:04Z
-date_finished: null
+last_update: 2026-07-03T22:47:05Z
+date_finished: 2026-07-03T22:47:05Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -195,3 +195,6 @@ bash tests/run-bridge-tests.sh
 ### 2026-07-03T22:40:04Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+### 2026-07-03T22:47:05Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

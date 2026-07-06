@@ -4,10 +4,10 @@ name: "Synthesize cross-slice v3 design inputs from dogfood friction (T-021..T-0
 description: >
   Consolidate the friction reports from the three dogfood slices (inception, task, healing lifecycles) into one decision-grade v3 design-inputs synthesis: the consolidated friction register F1-F10 with per-friction recurrence evidence, r3 SD anchors, T-020 seam mapping, and a prioritized M1/Lock-1 roadmap. Turns the dogfooding yield into an actionable product roadmap.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-02T22:28:36Z
-last_update: 2026-07-02T22:28:40Z
-date_finished: null
+last_update: 2026-07-02T22:30:36Z
+date_finished: 2026-07-02T22:30:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -197,3 +197,6 @@ out=$(cat docs/reports/dogfood-v3-design-inputs.md); for r in T-021 T-022 T-023 
 
 ### 2026-07-02T22:28:40Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-02T22:30:36Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

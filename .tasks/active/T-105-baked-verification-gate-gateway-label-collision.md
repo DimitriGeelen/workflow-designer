@@ -11,7 +11,7 @@ tags: [ui, editor, bug, corpus]
 components: []
 related_tasks: [T-101, T-082, T-089, T-083]
 created: 2026-07-05T17:30:00Z
-last_update: 2026-07-05T23:06:54Z
+last_update: 2026-07-05T23:20:06Z
 date_finished: null
 ---
 

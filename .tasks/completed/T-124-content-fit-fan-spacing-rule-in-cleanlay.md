@@ -4,10 +4,10 @@ name: "Content-fit fan-spacing rule in cleanLayout: spread cramped gateway fans 
 description: >
   Content-fit fan-spacing rule in cleanLayout: spread cramped gateway fans so branch labels get distinct channels
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T08:11:02Z
-last_update: 2026-07-06T08:11:02Z
-date_finished: null
+last_update: 2026-07-06T08:17:28Z
+date_finished: 2026-07-06T08:17:28Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -219,3 +219,6 @@ diff -q src/aef-workflow-designer.html build/gallery/designer.html
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-124-content-fit-fan-spacing-rule-in-cleanlay.md
 - **Context:** Initial task creation
+
+### 2026-07-06T08:17:28Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

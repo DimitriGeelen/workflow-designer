@@ -4,10 +4,10 @@ name: "Map git-commit traceability flow (P-002 gate + pre-commit checks + Tier-2
 description: >
   Dogfood map of the vendored git agent commit path: commit -> pre-commit checks (secret-scan, large-file, dup-task) -> P-002 task-ref traceability gate -> commit-msg hook -> optional Tier-2 bypass (--no-verify + logged) -> done. Ground truth: .agentic-framework/agents/git/lib/{commit,bypass,hooks,secret-scan}.sh. Produces examples/aef-processes/git-commit-flow.workflow.yaml + friction report. Exercises authority-lane + gateway + Tier-2 bypass modeling; complements the T-054 constitutional-gate series.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T07:40:50Z
-last_update: 2026-07-04T07:40:50Z
-date_finished: null
+last_update: 2026-07-04T07:47:49Z
+date_finished: 2026-07-04T07:47:49Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -188,3 +188,6 @@ bash tests/run-bridge-tests.sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-064-map-git-commit-traceability-flow-p-002-g.md
 - **Context:** Initial task creation
+
+### 2026-07-04T07:47:49Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

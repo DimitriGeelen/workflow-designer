@@ -4,10 +4,10 @@ name: "Re-validate + fix geometry of pre-convention corpus maps against lane-ban
 description: >
   Eight older maps (arc-lifecycle, assumption-validation, audit-process, inception-lifecycle, session-handover, task-lifecycle, tier0-escalation, upgrade-process) predate the tightened T-042/T-043 lane-band convention and fail tools/check-lane-bands.py (nodes straddle lane bands). Independent of T-050. Re-lay-out each to satisfy the geometry gate; add all corpus maps to a CI geometry sweep so the gate can never silently drift past authored maps again.
 
-status: started-work
+status: work-completed
 workflow_type: refactor
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T13:15:05Z
-last_update: 2026-07-03T13:42:37Z
-date_finished: null
+last_update: 2026-07-03T13:43:19Z
+date_finished: 2026-07-03T13:43:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -254,3 +254,6 @@ guarantees in-band + non-overlap for these.
 ### 2026-07-03T13:30:29Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+### 2026-07-03T13:43:19Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

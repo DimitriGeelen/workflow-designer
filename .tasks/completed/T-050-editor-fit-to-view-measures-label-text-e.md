@@ -4,10 +4,10 @@ name: "Editor fit-to-view measures label text extent via getBBox"
 description: >
   Editor fit-to-view measures label text extent via getBBox
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T13:10:28Z
-last_update: 2026-07-03T13:10:28Z
-date_finished: null
+last_update: 2026-07-03T13:16:12Z
+date_finished: 2026-07-03T13:16:12Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -241,3 +241,6 @@ no-op for well-behaved diagrams; it engages only when a label actually overflows
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-050-editor-fit-to-view-measures-label-text-e.md
 - **Context:** Initial task creation
+
+### 2026-07-03T13:16:12Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

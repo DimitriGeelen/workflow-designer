@@ -1,8 +1,8 @@
 ---
-id: T-131
-name: "B4: Editor version history + revert UI with thumbnails"
+id: T-133
+name: "Enlarge edge endpoint handle hover/grab target"
 description: >
-  B4: Editor version history + revert UI with thumbnails
+  Enlarge edge endpoint handle hover/grab target
 
 status: work-completed
 workflow_type: build
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-06T12:48:58Z
-last_update: 2026-07-06T12:52:54Z
-date_finished: 2026-07-06T12:52:54Z
+created: 2026-07-06T13:47:08Z
+last_update: 2026-07-06T13:51:23Z
+date_finished: 2026-07-06T13:51:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,36 +30,34 @@ date_finished: 2026-07-06T12:52:54Z
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-131: B4: Editor version history + revert UI with thumbnails
+# T-133: Enlarge edge endpoint handle hover/grab target
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
-
-## Context
-
-T-128 GO decomposition, task B4 — the operator-facing payoff. A "Versions" button opens a modal
-listing the saved versions of the active map, each with its **thumbnail** (the operator's ask:
-"see screenshot from the versions in restore"), version number, timestamp and note, plus a Revert
-button that loads that version into the editor. Consumes B2/B3. Editor-only.
+Operator feedback: the edge endpoint handles (the source/target circles shown on a
+selected edge, `.edge-handle-endpoint`, `<circle r=6>` at src/aef-workflow-designer.html
+~2740/2745) are "very tight" to hover/grab. A filled circle's hit area equals its visible
+radius, so the resting grab target is only ~6px. Fix: add a larger transparent hit halo
+that carries the drag, keep the visible dot small, and give hover feedback across the whole
+enlarged zone. Small, contained CSS+render change.
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] **Versions button** (`#btn-versions`) in the toolbar, hidden by default, revealed by
-      `detectSaveApi()` alongside Save-to-project (progressive enhancement).
-- [x] **Version modal** `openVersionsModal()` — `GET /api/versions?id=` and render a list, newest
-      first; each row shows the **thumbnail** (`/api/thumb?id=&v=`), `vN`, localized timestamp, and
-      note. Empty state ("No saved versions yet") when the list is empty. Closable (button + Esc + backdrop).
-- [x] **Revert** — each row has a Revert button: `GET /api/version?id=&v=` → `adoptImportedXml(bpmn,
-      {replace:true, userImport:false})` loads that version into the editor, closes the modal, and
-      shows brief feedback. A subsequent Save-to-project writes it forward as a new version (history
-      is never rewritten).
-- [x] **Verified** in ISOLATED headless against a sidecar on a temp repo
-      (`tools/_versions-verify-cdp.mjs`): save two versions → open modal → assert 2 rows with
-      thumbnail `<img>`s that load (naturalWidth>0) → click Revert on v1 → assert the editor now
-      holds v1's geometry. Screenshot the modal + READ.
+- [x] Each selected-edge endpoint has a transparent hit halo (~r11) carrying the
+      `onEndpointMouseDown` listener; the visible dot stays small (`pointer-events:none`) so
+      the whole halo is grabbable. Grab target radius roughly doubles (6 → ~11px).
+      → verified: 2 halos r11, 2 dots r6 with computed pointer-events:none.
+- [x] Hover anywhere within the halo highlights the dot (fill + slight grow) — feedback is
+      not limited to the tiny visible circle. Verified: adjacent-sibling `:hover` rule.
+      → hover at a ring point 8.5u from centre (outside r6 dot, inside r11 halo) turns the dot
+      lime rgb(216,255,125) and grows r6→8; at rest it is accent rgb(196,238,84).
+- [x] Endpoint drag-to-reanchor still works (mousedown on the halo reaches
+      `onEndpointMouseDown`); no JS reads the old handle's `data-role` (confirmed by grep).
 - [x] `diff -q src/aef-workflow-designer.html build/gallery/designer.html` clean (mirror).
+- [x] Element-level Playwright/CDP screenshot of a selected edge's endpoints READ — dots
+      render crisp, hover state visibly enlarges the target, no visual regression.
+      → `tools/_endpoint-hover-verify-cdp.mjs` 6/6; element + full screenshots READ.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -92,10 +90,17 @@ button that loads that version into the editor. Consumes B2/B3. Editor-only.
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Visual Verification
+
+Element-level + full-canvas CDP screenshots of a selected edge's endpoint captured mid-hover
+and READ (T-133): `/tmp/endpoint-hover-shot.png` (endpoint clip) and `/tmp/endpoint-hover-full.png`.
+Dots render crisp; hover on the enlarged halo highlights + grows the dot; selected edge lime;
+no visual regression across the canvas. Produced by `tools/_endpoint-hover-verify-cdp.mjs`.
+
 ## Verification
 
 diff -q src/aef-workflow-designer.html build/gallery/designer.html
-node tools/_versions-verify-cdp.mjs
+node tools/_endpoint-hover-verify-cdp.mjs
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -191,10 +196,10 @@ node tools/_versions-verify-cdp.mjs
 
 ## Updates
 
-### 2026-07-06T12:48:58Z — task-created [task-create-agent]
+### 2026-07-06T13:47:08Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-131-b4-editor-version-history--revert-ui-wit.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-133-enlarge-edge-endpoint-handle-hovergrab-t.md
 - **Context:** Initial task creation
 
-### 2026-07-06T12:52:54Z — status-update [task-update-agent]
+### 2026-07-06T13:51:23Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed

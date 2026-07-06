@@ -10,10 +10,10 @@ description: >
   corpus 20->18 (one map) and is not a visual improvement, so the pass was NOT built.
   See ## Decisions. Render-only investigation, stored geometry untouched (PD-044).
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [ui, editor, routing, layout]
 components: []
 related_tasks: [T-097, T-117, T-118, T-119]
@@ -22,8 +22,8 @@ related_tasks: [T-097, T-117, T-118, T-119]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T05:47:15Z
-last_update: 2026-07-06T05:58:02Z
-date_finished: null
+last_update: 2026-07-06T05:58:42Z
+date_finished: 2026-07-06T05:58:42Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -270,3 +270,6 @@ test -f .playwright-mcp/t120-tasklife-ready-after.png
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-120-sibling-shared-riser-uncross-fan-out-joi.md
 - **Context:** Initial task creation
+
+### 2026-07-06T05:58:42Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

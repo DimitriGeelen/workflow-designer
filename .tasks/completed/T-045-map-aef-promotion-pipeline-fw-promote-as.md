@@ -4,10 +4,10 @@ name: "Map AEF promotion pipeline (fw promote) as dogfood workflow"
 description: >
   Map AEF promotion pipeline (fw promote) as dogfood workflow
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T09:21:44Z
-last_update: 2026-07-03T09:21:44Z
-date_finished: null
+last_update: 2026-07-03T09:26:08Z
+date_finished: 2026-07-03T09:26:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -208,3 +208,6 @@ Playwright, editor at `http://127.0.0.1:8010/src/aef-workflow-designer.html`, lo
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-045-map-aef-promotion-pipeline-fw-promote-as.md
 - **Context:** Initial task creation
+
+### 2026-07-03T09:26:08Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

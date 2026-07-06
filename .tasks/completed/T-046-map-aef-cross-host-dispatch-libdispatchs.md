@@ -4,10 +4,10 @@ name: "Map AEF cross-host dispatch (lib/dispatch.sh) as dogfood workflow #13"
 description: >
   Map AEF cross-host dispatch (lib/dispatch.sh) as dogfood workflow #13
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T09:35:32Z
-last_update: 2026-07-03T09:35:32Z
-date_finished: null
+last_update: 2026-07-03T09:47:10Z
+date_finished: 2026-07-03T09:47:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -44,12 +44,12 @@ docs/reports/T-046-dispatch-friction.md).
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `examples/aef-processes/cross-host-dispatch.workflow.yaml` exists, `schemaVersion: 2`, `source: lib/dispatch.sh`, and faithfully maps `do_dispatch_send` (arg-parse → validate gate → build envelope → connectivity gate → SSH pipe → remote receive → exit-code gate → done, plus 3 error exits)
-- [ ] Validates clean under `tools/validate-workflow.py` (exit 0)
-- [ ] Geometry clean under `tools/check-lane-bands.py` (exit 0 — no band overflow, no same-lane overlap)
-- [ ] Uses an `external` authority lane for the remote host (first corpus member to do so)
-- [ ] Whole bridge suite passes (`tests/run-bridge-tests.sh` — auto-discovers the new file, round-trips it YAML→BPMN→validator-clean)
-- [ ] Friction report `docs/reports/T-046-dispatch-friction.md` written (recurrences, sharpenings, new candidates)
+- [x] `examples/aef-processes/cross-host-dispatch.workflow.yaml` exists, `schemaVersion: 2`, `source: lib/dispatch.sh`, and faithfully maps `do_dispatch_send` (arg-parse → validate gate → build envelope → connectivity gate → SSH pipe → remote receive → exit-code gate → done, plus 3 error exits)
+- [x] Validates clean under `tools/validate-workflow.py` (exit 0)
+- [x] Geometry clean under `tools/check-lane-bands.py` (exit 0 — no band overflow, no same-lane overlap)
+- [x] Uses an `external` authority lane for the remote host (first corpus member to do so)
+- [x] Whole bridge suite passes (`tests/run-bridge-tests.sh` — auto-discovers the new file, round-trips it YAML→BPMN→validator-clean)
+- [x] Friction report `docs/reports/T-046-dispatch-friction.md` written (recurrences, sharpenings, new candidates)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -205,3 +205,6 @@ Rendered `examples/aef-processes/rendered/cross-host-dispatch.bpmn` in the edito
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-046-map-aef-cross-host-dispatch-libdispatchs.md
 - **Context:** Initial task creation
+
+### 2026-07-03T09:47:10Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

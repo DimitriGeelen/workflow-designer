@@ -4,10 +4,10 @@ name: "Represent structured META_KEYS aef values (emits/aggregation/compensates/
 description: >
   T-062 hardening (WARN on structured value in the scalar aef:meta channel) surfaced 5 KNOWN META_KEYS keys carrying dict/list values silently dropped since authoring: emits (list, x5 in audit-process), aggregation (dict), compensates (list), multiInstance (dict), timer (dict). Unlike T-062 one-offs these want a STRUCTURED representation (dedicated aef child element like io/decisionInput), not flattening. Decide per key: structured emit vs flatten. Then corpus runs fully warn-clean (0 'cannot ride' lines too). Depends on T-062.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T00:15:00Z
-last_update: 2026-07-04T00:17:19Z
-date_finished: null
+last_update: 2026-07-04T00:27:36Z
+date_finished: 2026-07-04T00:27:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -224,3 +224,6 @@ bash tests/run-bridge-tests.sh
 
 ### 2026-07-04T00:16:23Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-04T00:27:36Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

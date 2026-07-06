@@ -4,10 +4,10 @@ name: "Reconcile ~70 silently-dropped aef keys across 14 corpus maps (surfaced b
 description: >
   T-061 added a loud WARN for unknown aef.* keys; it surfaced that 14 existing corpus maps carry ~70 aef.* keys that have been silently dropped since authoring (state, note, guard, reads, writes, terminalKind, trigger, gate, exitCode, gatewayKind, autoTrigger, gates, umbrellaBypass, rule, sources, sideEffects, handoffTo, collection, softFail, external, section, ladder, etc). Prior sessions authored these believing aef: was free-form passthrough. Per-key decision: PROMOTE common/meaningful ones to known vocab (bridge META_KEYS + editor metaKeys, kept in parity by test_editor_bridge_meta_parity.py) vs RENAME one-off ones to aef.x-* explicit passthrough. Then corpus runs warn-clean. Bounded per-map mechanical work; NOT a bug fix (data was never in BPMN) — a reconciliation. Depends on T-061.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T23:46:01Z
-last_update: 2026-07-03T23:48:12Z
-date_finished: null
+last_update: 2026-07-04T00:15:28Z
+date_finished: 2026-07-04T00:15:28Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -217,3 +217,6 @@ bash tests/run-bridge-tests.sh
 
 ### 2026-07-03T23:47:16Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-04T00:15:28Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
