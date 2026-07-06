@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T12:36:01Z
-last_update: 2026-07-06T12:36:01Z
+last_update: 2026-07-06T12:41:46Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -49,24 +49,24 @@ sovereignty-respecting than D1, not less. Recorded in ## Decisions.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] **Sidecar server** `tools/gallery-serve.py` (or extend serve-gallery): serves the designer +
+- [x] **Sidecar server** `tools/gallery-serve.py` (or extend serve-gallery): serves the designer +
       `rendered/*.bpmn` from repo context AND handles `/api/*`. Runnable via
       `tools/serve-gallery.sh` (or a documented command); binds localhost. Static gallery
       (`python -m http.server`) remains usable — this is additive.
-- [ ] **`POST /api/save`** `{id, bpmn, png?, note?}` → validates `id` against `^[a-z0-9][a-z0-9_-]*$`
+- [x] **`POST /api/save`** `{id, bpmn, png?, note?}` → validates `id` against `^[a-z0-9][a-z0-9_-]*$`
       (rejects path traversal with 400), writes `rendered/<id>.bpmn`, appends a version to
       `.editor-versions/<id>/` (`vN.bpmn`, `vN.png` if a thumbnail was posted, and an updated
       `index.json` = `[{v, ts, note, thumb, bytes}]`), returns `{ok:true, v, ts}`. Node-cut census
       stays 0/24 (save writes verbatim geometry; no re-layout).
-- [ ] **Read endpoints:** `GET /api/health`→`{ok:true}` (editor feature-detects this),
+- [x] **Read endpoints:** `GET /api/health`→`{ok:true}` (editor feature-detects this),
       `GET /api/versions?id=`→`index.json`, `GET /api/version?id=&v=`→that version's BPMN,
       `GET /api/thumb?id=&v=`→that version's PNG (404 if absent). All reject bad `id`.
-- [ ] **Version store `.editor-versions/`** is committed to the repo (durable, shareable), with a
+- [x] **Version store `.editor-versions/`** is committed to the repo (durable, shareable), with a
       `.gitignore`-free path; first save creates `v1`, subsequent saves increment.
-- [ ] **Verified** by an isolated integration check (`tools/_save-api-verify.mjs` or a Python/curl
+- [x] **Verified** by an isolated integration check (`tools/_save-api-verify.mjs` or a Python/curl
       script): POST a save → assert files written + version incremented + geometry round-trips
       (GET /api/version returns the same BPMN bytes); path-traversal id returns 400. No shared browser.
-- [ ] **Scope fence:** this task is the SERVER only. The editor "Save to project" button + thumbnail
+- [x] **Scope fence:** this task is the SERVER only. The editor "Save to project" button + thumbnail
       capture is B3; the revert UI is B4. Editor HTML is NOT modified here (mirror stays untouched).
 
 ### Human
