@@ -21,7 +21,7 @@ related_tasks: [T-101, T-121]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T06:39:43Z
-last_update: 2026-07-06T06:39:43Z
+last_update: 2026-07-06T06:42:20Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -231,6 +231,36 @@ Approach:
   layout engine (cleanLayout) is where align-rows/columns/pitch already live, so new
   rules slot in. The guard harness (crossings/cuts/overlap, render-only measurement)
   already exists from this session's routing work.
+
+## Correction pairs (Track B training data — operator-supplied before/after)
+
+### Pair 1 — task-lifecycle (my auto = before, human = after)
+- **Delta:** AGENT-lane row (n_authoring/n_work/n_request) pulled UP; large empty
+  vertical band between FRAMEWORK and AGENT lanes removed. Cross-lane edges shortened.
+- **Rule signal:** don't over-deepen lanes; keep the agent row snug to the framework row.
+
+### Pair 2 — promotion-pipeline (my auto = before, human = after)
+- **Delta (dominant):** aggressive VERTICAL COMPACTION — the after is ~half the
+  height. Each lane shrinks to fit its content; the tall empty AGENT band (only the
+  start node) and the deep HUMAN band collapse. Start→Load drop shortened.
+- **Delta (secondary):** "Warn early promotion" satellite moved UP from below the
+  main row (~y480) to roughly inline with it (~y330), so the `<3 (early)` branch
+  reads as a horizontal detour around the node rather than a deep drop; `≥3` routes
+  over the top, `<3 (early)` under.
+- **Node x positions ~unchanged** — the correction is almost entirely vertical.
+
+### Synthesized rules so far (candidate cleanLayout/router improvements)
+1. **Height-fit lanes** — a lane is only as tall as its content + padding; never leave
+   large empty vertical bands. (Pairs 1 & 2 — the dominant, repeated signal.)
+2. **Minimise inter-lane gap** — sequential cross-lane hops are short; don't stretch
+   the vertical distance between a lane's row and the next lane's row.
+3. **Branch/satellite nodes align to their source row** where space allows, so a
+   branch is a horizontal detour, not a deep vertical drop. (Pair 2 — Warn node.)
+4. **Cross-lane sequential nodes share a column** (T-121 — emit/human).
+5. **Align connected nodes by centre, not top** (the ±4px straighten hooks).
+Unifying theme: the human wants a COMPACT vertical layout (min lane heights, min gaps,
+aligned rows); the auto-layout over-inflates vertical space. Each rule ships as its
+own scoped task, guarded + measured corpus-wide before merge.
 
 ## Decision
 
