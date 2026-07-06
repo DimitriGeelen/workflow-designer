@@ -4,9 +4,9 @@ name: "De-jog routed edges: collapse tiny interior staircase steps to clean 90 c
 description: >
   Operator improvement B (connect on 90, fuller slice). After align-in-middle (T-116), branch edges still render as a staircase with a small (6-8px) perpendicular kink where the connector between two stub-ends steps between parallel runs (e.g. promotion e_11: down, right, down7, right, down instead of a clean Z). Add a render-time de-jog post-pass on the transient _renderedPolyline: drop collinear points, then collapse an interior H-V-H / V-H-V pattern (short perpendicular step flanked by perpendicular outer segments so the outer stubs just flex) to a single straight run at the midpoint coordinate. Accept a collapse ONLY if it does not increase node crossings (polylineCrossesNodes) — a jog that clears an obstacle is left alone. Pure render cleanup, stored geometry untouched (PD-044). Endpoint-adjacent micro-steps (77% of jogs, stub meets face off-centre) are a deeper attachment-point change, deferred as a separate follow-up.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: [ui, editor, routing, layout]
 components: []
@@ -16,8 +16,8 @@ related_tasks: [T-116, T-114, T-105]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T22:14:10Z
-last_update: 2026-07-05T22:17:45Z
-date_finished: null
+last_update: 2026-07-06T19:02:56Z
+date_finished: 2026-07-06T19:02:56Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -153,6 +153,28 @@ tests/check-corpus-node-cuts.sh
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+## Recommendation
+
+**Recommendation:** GO (accept the change; one Human REVIEW AC remains for live confirmation)
+
+**Rationale:** The interior de-jog (`simplifyRoutedPolyline` + `collapseCollinearPoints`,
+wired into `buildOrthogonalPath`'s finalize) collapses tiny interior staircase kinks to clean
+90° corners, and does so safely: a collapse is accepted ONLY when `polylineCrossesNodes` does
+not increase, so it can never turn a clean edge into a node-cut. The scope is deliberately the
+safe interior kinks only — endpoint-adjacent stub micro-steps (62 of 81) are explicitly
+deferred. The corpus node-cut gate is the live regression guard.
+
+**Evidence:**
+- `bash tests/check-corpus-node-cuts.sh` — 24 unchanged, 0 regressed, total cuts 0 (the
+  de-jog never introduces a crossing; the whole corpus stays clean).
+- P-011 greps pass: `simplifyRoutedPolyline` present and wired at
+  `simplifyRoutedPolyline(result.polyline …)`; mirror `diff -q` clean.
+- Prior build measurement recorded in the ACs: interior jog count 81→55 (−26 removed) with 0
+  node-cuts added.
+
+**Human review note:** confirm in a live map (hard refresh first) that branch edges read as
+clean 90° corners rather than short staircases, with no edge visibly cutting a node.
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -204,3 +226,6 @@ tests/check-corpus-node-cuts.sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-117-de-jog-routed-edges-collapse-tiny-interi.md
 - **Context:** Initial task creation
+
+### 2026-07-06T19:02:56Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

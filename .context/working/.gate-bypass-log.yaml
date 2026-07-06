@@ -369,3 +369,21 @@ FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-105: Correct root c
 git add tools/_horizontal-spacing-verify-cdp.mjs 2>/dev/null
 git add -A .tasks .context 2>/dev/null
 FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-115: Hori'
+- timestamp: '2026-07-06T19:00:17Z'
+  task: 'T-041'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-137'
+  command: 'cd /opt/832-Workflow-designer
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-137: Add Straighten edge action for un-straightenable loop-back paths
+
+Operator field report: gateway->node'
+- timestamp: '2026-07-06T19:03:14Z'
+  task: 'T-041'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-117'
+  command: 'cd /opt/832-Workflow-designer
+grep current_task .context/working/focus.yaml
+git add -A .tasks .context 2>/dev/null
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-117: Finalize interior d'
