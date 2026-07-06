@@ -21,7 +21,7 @@ related_tasks: [T-101, T-121]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T06:39:43Z
-last_update: 2026-07-06T06:54:03Z
+last_update: 2026-07-06T07:17:37Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -289,6 +289,18 @@ Approach:
   "who decides" node (human lane) from the "route to outcomes" gateway (target lane).
 - **Also reinforces:** compaction + distinct riser channels (near-parallel cross-lane
   edges step to their own x). Measure exact polylines next session before encoding.
+
+### Pair 6 — audit-process (decision-fan outcome spacing; ROUTING/spacing-class)
+- **Delta:** structure/nodes ~same; the human gave the three decision outcomes of
+  "Worst finding level?" (FAIL up / WARN mid / PASS clean) MORE, more-even vertical
+  separation — Audit PASS pushed well down and the `clean` branch given its own clear
+  drop-channel instead of crowding the WARN branch. The left fan-out/join comb is ~same.
+- **Candidate rule:** a decision gateway's branch endpoints get generous, even vertical
+  spacing so the fan reads as N distinct branches; the "straight-through" outcome
+  shouldn't sit tight against a neighbouring branch. (Complements pair-5 gateway rule.)
+- **Diminishing marginal signal:** pairs 4/5/6 are all routing/spacing variations —
+  the DOMINANT rule (compaction via lane-height) is already locked from pairs 1/2/3.
+  These three refine the routing family; measure their polylines together next session.
 
 ### Synthesized rules so far (candidate cleanLayout/router improvements)
 1. **Height-fit lanes** — a lane is only as tall as its content + padding; never leave
