@@ -21,7 +21,7 @@ related_tasks: [T-101, T-121]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T06:39:43Z
-last_update: 2026-07-06T07:32:01Z
+last_update: 2026-07-06T07:48:34Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -193,6 +193,24 @@ stops diverging. See ## Decisions "Forward plan".
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-07-06 — Track A premise OVERTURNED by git verification (fresh session)
+- **What changed:** Verified the actual commits instead of trusting the budget-ceiling
+  narrative. `7d4fa0a` ("re-bake with align-columns") made only **±3px x-nudges** to 10
+  maps (e.g. `x:200→197`, `x:200→203`) and **does NOT touch task-lifecycle**. Full
+  history: pre-any-bake (`832bc9b^`) agent row = y=560, first bake (`832bc9b`) = y=600 —
+  a **40px** shift, and current == 832bc9b. `7d4fa0a` is irrelevant to task-lifecycle.
+- **Decisive finding:** the compact hand-corrected layouts the operator showed in the
+  before/after images were **never committed to git** — they were live editor
+  demonstrations. There is no committed "human layout" to restore; reverting the bakes
+  recovers ~40px, not the demonstrated compaction.
+- **Plan impact:** Track A ("restore clobbered human layout from git") is **moot**. The
+  real ask is fully Track B. Corpus census (headless, this session): **0 node-cuts /
+  24 maps**, 1 edge-label∩label, 8 label-on-gateway; lane-waste ~250px/map avg (modest,
+  largely structural — lane order, not inflated heights).
+- **Triggered:** pivot to Track B scoped tasks — (1) label-on-gateway render-only fix,
+  (2) a compaction "fit-spacing-to-content" rule in cleanLayout, tool-only / no re-bake
+  so the clobber cannot recur. Track A ACs below are resolved-by-investigation.
 
 ## Decisions
 
