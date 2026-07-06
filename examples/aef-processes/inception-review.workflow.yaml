@@ -129,7 +129,7 @@ nodes:
     name: Human opens link — reviews recommendation, artifacts, criteria
     slug: review
     lane: human
-    x: 1200
+    x: 980
     y: 540
     aef:
       determinism: human
@@ -188,7 +188,7 @@ nodes:
     slug: end-go
     lane: framework
     x: 1860
-    y: 287.333
+    y: 282
 
   - uid: n_end_nogo
     type: endEvent
@@ -204,7 +204,7 @@ nodes:
     slug: end-defer
     lane: framework
     x: 1860
-    y: 460.667
+    y: 466
 
 edges:
   - uid: e_01

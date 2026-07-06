@@ -584,3 +584,10 @@ decisions:
     date: 2026-07-05
     task: T-114
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-063
+    decision: "Do not add the pass. Close T-120 as investigated-not-built. Keep the"
+    scope: project
+    date: 2026-07-06
+    task: T-120
+    rationale: "Auto-captured from task file on completion"

@@ -97,7 +97,7 @@
     <bpmn:userTask id="n_review" name="Human opens link — reviews recommendation, artifacts, criteria">
       <bpmn:extensionElements>
         <aef:uid value="n_review"/>
-        <aef:position x="1200" y="540"/>
+        <aef:position x="980" y="540"/>
         <aef:meta determinism="human" authority="sovereignty" endpoint="Watchtower /inception/T-XXX  |  fw inception decide"/>
         <aef:decisionOutputs>go, no-go, defer</aef:decisionOutputs>
       </bpmn:extensionElements>
@@ -146,7 +146,7 @@
     <bpmn:endEvent id="n_end_go" name="Inception decided — build authorised">
       <bpmn:extensionElements>
         <aef:uid value="n_end_go"/>
-        <aef:position x="1860" y="287.333"/>
+        <aef:position x="1860" y="282"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_12</bpmn:incoming>
     </bpmn:endEvent>
@@ -160,7 +160,7 @@
     <bpmn:endEvent id="n_end_defer" name="Inception parked — revisit scheduled">
       <bpmn:extensionElements>
         <aef:uid value="n_end_defer"/>
-        <aef:position x="1860" y="460.667"/>
+        <aef:position x="1860" y="466"/>
       </bpmn:extensionElements>
       <bpmn:incoming>e_14</bpmn:incoming>
     </bpmn:endEvent>
