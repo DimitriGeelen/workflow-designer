@@ -21,7 +21,7 @@ related_tasks: [T-101, T-121]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T06:39:43Z
-last_update: 2026-07-06T06:51:06Z
+last_update: 2026-07-06T06:54:03Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -276,6 +276,19 @@ Approach:
   difference is subtle and routing-rule mistakes can regress other maps, so measure the
   exact polylines (not eyeball) before turning this into a router change. Do NOT encode
   from the screenshot alone.
+
+### Pair 5 — inception-lifecycle (mixed: mild compaction + gateway placement)
+- **Delta:** node x-positions ~unchanged; the after is a bit tighter vertically AND
+  the `Decision?` gateway MOVED — in my auto-layout it sat up in the HUMAN lane at the
+  same height as the "Record decision" node (y~135), forcing long drops down to the
+  go/no-go/defer completion nodes in the FRAMEWORK lane; the human moved it DOWN into
+  the framework band (y~165), in line with its branch-target column, so the fan is
+  short/clean. The human "Record" node stayed high in its lane.
+- **Candidate rule:** a routing/decision gateway belongs in the same row-band as its
+  branch TARGETS (short fan), not stranded in the lane of its human owner. Separate the
+  "who decides" node (human lane) from the "route to outcomes" gateway (target lane).
+- **Also reinforces:** compaction + distinct riser channels (near-parallel cross-lane
+  edges step to their own x). Measure exact polylines next session before encoding.
 
 ### Synthesized rules so far (candidate cleanLayout/router improvements)
 1. **Height-fit lanes** — a lane is only as tall as its content + padding; never leave
