@@ -5081,6 +5081,7 @@ svg.addEventListener('mousemove', e => {
     const dy = pt.y - groupDrag.startY;
     // Same dead-zone as single-node drag (T-069)
     if (groupDrag.moved || Math.hypot(dx, dy) > 3) {
+      if (!groupDrag.moved) pushHistory();   // B5: one undo entry per group drag, captured pre-move
       groupDrag.moved = true;
       lastTidy = null; // manual move supersedes the pending tidy revert (T-079)
       for (const [id, orig] of groupDrag.originalPositions) {
@@ -5641,19 +5642,30 @@ function undoTidy() {
 let _history = [];
 let _redo = [];
 const _HISTORY_CAP = 50;
-function pushHistory() {
-  try {
-    _redo.length = 0;
-    _history.push(buildBpmnXml(state));
-    if (_history.length > _HISTORY_CAP) _history.shift();
-  } catch (_) { /* best-effort — never throw into a mutation handler */ }
+// Commit a pre-captured snapshot as an undo step (push-AFTER-if-changed). Used by
+// button ops that may be no-ops (Clean/Align/Distribute return a moved count) so an
+// "already clean" click leaves no dead Ctrl+Z and does not clear the redo stack.
+function commitHistory(beforeXml) {
+  if (!beforeXml) return;
+  _redo.length = 0;
+  _history.push(beforeXml);
+  if (_history.length > _HISTORY_CAP) _history.shift();
 }
+// Push-BEFORE a definite mutation (drag-commit, add, delete). Snapshots current
+// state and clears redo. Cheap (~14 nodes); never throws into a handler.
+function pushHistory() {
+  try { commitHistory(buildBpmnXml(state)); } catch (_) { /* best-effort */ }
+}
+// Snapshot without committing — for button ops that decide post-hoc whether to record.
+function snapshotState() { try { return buildBpmnXml(state); } catch (_) { return null; } }
 function _restoreSnapshot(xml) {
   const loaded = parseBpmnXml(xml);
   if (!loaded) return false;
   loaded.workflowMeta.id = state.workflowMeta.id;   // keep the id stable across undo
   state = loaded;
   if (typeof activeKey !== 'undefined' && activeKey) library.set(activeKey, state);
+  lastTidy = null;   // history snapshot supersedes the legacy position-only revert —
+                     // clear it so undoTidy() can't fire stale after a history undo
   selection = null;
   multiSelect = new Set();
   refreshDisplayIds();
@@ -6390,6 +6402,7 @@ function generateNodeId(type) {
 }
 
 function createNodeAt(type, x, y) {
+  pushHistory();   // B5: undo entry before adding a node (drop gesture only)
   const def = NODE_DEFAULTS[type];
   // figure out lane based on y; fall back to default lane for the type if it exists,
   // else to the first lane in the workflow (handles workflows with non-standard lane sets)
@@ -6432,12 +6445,14 @@ function defaultName(type) {
   })[type] || type;
 }
 function addEdge(source, target) {
+  pushHistory();   // B5: undo entry before adding an edge (connect gesture only)
   const uid = generateUid('e');
   state.edges.push({ uid, id: uid, source, target });
   refreshDisplayIds();
   renderEdges();
 }
 function deleteNode(id) {
+  pushHistory();   // B5: undo entry before deleting a node (+ its incident edges)
   state.nodes = state.nodes.filter(n => n.id !== id);
   state.edges = state.edges.filter(e => e.source !== id && e.target !== id);
   selection = null;
@@ -6446,6 +6461,7 @@ function deleteNode(id) {
   renderAll();
 }
 function deleteEdge(id) {
+  pushHistory();   // B5: undo entry before deleting an edge
   state.edges = state.edges.filter(e => e.id !== id);
   selection = null;
   refreshDisplayIds();
@@ -6520,13 +6536,16 @@ $('btn-add-lane').onclick = () => { addLane(); };
 $('palette-add-lane').onclick = () => { addLane(); };
 $('btn-clean').onclick = () => {
   const btn = $('btn-clean');
+  const before = snapshotState();   // B5: record only if the op actually moves nodes
   const moved = cleanLayout();
-  if (moved) { flashCleanFeedback(moved); }
+  if (moved) { commitHistory(before); flashCleanFeedback(moved); }
   else { btn.textContent = '✨ Already clean'; setTimeout(() => { btn.textContent = '✨ Clean layout'; }, 2500); }
 };
 $('btn-align-cols').onclick = () => {
   const btn = $('btn-align-cols');
+  const before = snapshotState();   // B5
   const moved = alignColumns();
+  if (moved) commitHistory(before);
   btn.textContent = moved
     ? `⁙ Aligned ${moved} node${moved === 1 ? '' : 's'} — Ctrl+Z reverts`
     : '⁙ Columns already aligned';
@@ -6534,15 +6553,18 @@ $('btn-align-cols').onclick = () => {
 };
 $('btn-distribute').onclick = () => {
   const btn = $('btn-distribute');
+  const before = snapshotState();   // B5
   const moved = distributeEvenly();
+  if (moved) commitHistory(before);
   btn.textContent = moved
     ? `↔ Distributed ${moved} node${moved === 1 ? '' : 's'} — Ctrl+Z reverts`
     : '↔ Gaps already even';
   setTimeout(() => { btn.textContent = '↔ Distribute evenly'; }, 2500);
 };
 $('clean-nudge-apply').onclick = () => {
+  const before = snapshotState();   // B5: user-clicked Clean from the load nudge — undoable
   const moved = cleanLayout();
-  if (moved) flashCleanFeedback(moved);
+  if (moved) { commitHistory(before); flashCleanFeedback(moved); }
   $('clean-nudge').style.display = 'none';
 };
 $('clean-nudge-dismiss').onclick = () => { $('clean-nudge').style.display = 'none'; };

@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T12:53:48Z
-last_update: 2026-07-06T12:57:15Z
+last_update: 2026-07-06T13:00:45Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,20 +34,20 @@ date_finished: null
 
 ## Context
 
-> **WIP — PARTIAL & UNVERIFIED (2026-07-06, budget gate hit at 291k mid-edit).**
-> Committed source has the backbone but is NOT verified and the mirror is NOT synced.
-> **Done in `src/aef-workflow-designer.html`:** `pushHistory()`/`undo()`/`redo()`/`_restoreSnapshot()`
-> history stack (full-state BPMN snapshots, cap 50, redo-clear-on-mutation) after `undoTidy()`
-> (~line 5624); Ctrl+Z→`undo()`, Ctrl+Shift+Z & Ctrl+Y→`redo()` (~line 4894); single-node drag
-> `pushHistory()` on the moved-transition (~line 5055). `undo()` falls back to `undoTidy()` when the
-> stack is empty.
-> **NOT done (next session, resume here):** (1) group-drag `pushHistory()` — same edit as single
-> drag, at `if (!groupDrag.moved) pushHistory();` before `groupDrag.moved = true;` (~line 5078);
-> (2) `pushHistory()` in the delete handler (~4862) / `deleteNode()` (~6384); (3) add-node site;
-> (4) button ops btn-clean/btn-align-cols/btn-distribute handlers; (5) verifier
-> `tools/_undo-verify-cdp.mjs` + screenshot READ; (6) re-sync mirror `cp src build/gallery/designer.html`
-> and confirm `diff -q`. **Verify the committed partial is not syntactically broken FIRST** (load in
-> isolated headless, check `typeof undo==='function'`) before extending.
+> **COMPLETE & VERIFIED (2026-07-06, fresh session after budget gate).** All wiring landed,
+> mirror synced, headless verifier 10/10 + screenshot READ (real diagram renders).
+> **Wired in `src/aef-workflow-designer.html`:** history stack `pushHistory()` (push-before) /
+> `commitHistory()` (push-after-if-changed, for no-op-capable button ops) / `snapshotState()` /
+> `undo()` / `redo()` / `_restoreSnapshot()` (which now also clears `lastTidy` so the legacy
+> position-only fallback can't fire stale after a history undo). Mutation sites: single-node drag
+> (pushHistory on first move), group drag (same), `createNodeAt`, `addEdge`, `deleteNode`,
+> `deleteEdge` (pushHistory at fn top — all called only from user gestures, no spurious load-time
+> entries), and the three button ops btn-clean/btn-align-cols/btn-distribute + clean-nudge-apply
+> (commitHistory only when the op actually moved nodes → no dead Ctrl+Z on an "already clean" click).
+> Bindings: Ctrl+Z→undo, Ctrl+Shift+Z & Ctrl+Y→redo. Verifier: `tools/_undo-verify-cdp.mjs`
+> (real CDP mouse drag + function-path delete/add/button/multistep).
+> **Note:** paste is not a feature in this editor (only clipboard *copy* of BPMN), so the AC's
+> "paste" bullet is N/A.
 
 T-128 GO decomposition, task B5 (final piece). The editor currently has Tidy-only undo
 (`lastTidy`/`undoTidy`, Ctrl+Z at ~line 5595). Generalize it into a full undo/redo history stack.
@@ -59,21 +59,28 @@ in renderAll, being idempotent). Full-state snapshots (maps are ~14 nodes — ch
 ## Acceptance Criteria
 
 ### Agent
-- [ ] **History stack** `pushHistory(label)` captures a full state snapshot (reuse `buildBpmnXml`
+- [x] **History stack** `pushHistory(label)` captures a full state snapshot (reuse `buildBpmnXml`
       or a structured clone of `{nodes, edges, lanes, workflowMeta}`) BEFORE a mutating gesture;
       `undo()`/`redo()` swap between undo/redo stacks and re-adopt state; redo stack cleared on a new
       mutation; both capped at ~50. Supersedes/absorbs the existing `lastTidy`/`undoTidy`.
-- [ ] **Mutation sites call `pushHistory`** — per-gesture, not per-frame: node drag-commit (one entry
+      → full-state BPMN snapshots, cap 50, `_redo` cleared on every push; `undoTidy` kept as
+      legacy fallback and neutralised on restore (`lastTidy = null` in `_restoreSnapshot`).
+- [x] **Mutation sites call `pushHistory`** — per-gesture, not per-frame: node drag-commit (one entry
       per drag, snapshot on dragstart), add node, delete, edge add/delete, paste, Tidy/Clean, Align
       columns/rows, Distribute. (Audit the mutation handlers; drag must NOT push per-mousemove.)
-- [ ] **Bindings:** Ctrl+Z = undo, Ctrl+Shift+Z (and Ctrl+Y) = redo; both no-op cleanly on empty
+      → single+group drag push once on first move (verified drag = one undo entry); add/delete via
+      `createNodeAt`/`addEdge`/`deleteNode`/`deleteEdge`; button ops via `commitHistory` (no-op safe).
+      Paste is N/A — this editor has no node-paste (clipboard is BPMN copy only).
+- [x] **Bindings:** Ctrl+Z = undo, Ctrl+Shift+Z (and Ctrl+Y) = redo; both no-op cleanly on empty
       stacks. Existing Ctrl+Z Tidy-revert behavior subsumed (Ctrl+Z after a Tidy undoes the Tidy).
-- [ ] **Interplay with autosave (B1):** undo/redo trigger `scheduleAutosave()` so the restored state
+- [x] **Interplay with autosave (B1):** undo/redo trigger `scheduleAutosave()` so the restored state
       persists; no spurious history entries from load/auto-restore.
-- [ ] **Verified** in ISOLATED headless (`tools/_undo-verify-cdp.mjs`): move a node → undo → assert
+      → `_restoreSnapshot` calls `scheduleAutosave()`; mutation choke-points are gesture-only, never
+      called from the load/parse path.
+- [x] **Verified** in ISOLATED headless (`tools/_undo-verify-cdp.mjs`): move a node → undo → assert
       geometry restored; redo → assert re-applied; multi-step undo/redo sequence; drag = one entry.
-      Screenshot + READ.
-- [ ] `diff -q src/aef-workflow-designer.html build/gallery/designer.html` clean (mirror).
+      Screenshot + READ. → 10/10 steps pass across two runs; screenshot READ shows a real populated diagram.
+- [x] `diff -q src/aef-workflow-designer.html build/gallery/designer.html` clean (mirror).
 
 ### Human
 - [ ] [REVIEW] Undo/redo feels right in normal editing.
@@ -113,6 +120,9 @@ in renderAll, being idempotent). Full-state snapshots (maps are ~14 nodes — ch
 -->
 
 ## Verification
+
+diff -q src/aef-workflow-designer.html build/gallery/designer.html
+node tools/_undo-verify-cdp.mjs
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
