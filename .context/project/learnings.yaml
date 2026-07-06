@@ -106,3 +106,24 @@ learnings:
   date: 2026-07-06
   context: Added via context agent
   application: TBD
+- id: PL-016
+  learning: "Corpus routing is objectively clean: 0 node-cuts/24, crossings topologically forced (T-097 done/T-120 NO-GO), 9 minor label-on-gateway overlaps immune to the vertical branch-pitch lever (T-124 NO-GO), edge de-jog done (T-117/118/119). No high-value AUTOMATED routing optimisation remains without risking the tuned layout engine. Run the corpus census (cuts/labels/crossings/bends) BEFORE proposing routing work — most 'defects' are already handled or topologically forced."
+  source: P-001
+  task: T-124
+  date: 2026-07-06
+  context: Added via context agent
+  application: TBD
+- id: PL-017
+  learning: "A narrative built at the budget ceiling can be factually wrong. The T-122 're-bake 7d4fa0a clobbered human layout' story failed git verification: 7d4fa0a was +-3px align nudges that never touched task-lifecycle; the agent row moved 40px in the ORIGINAL bake 832bc9b; the human's compact layouts were never committed (live demos). ALWAYS git-verify a clobber/regression claim before reverting."
+  source: P-001
+  task: T-122
+  date: 2026-07-06
+  context: Added via context agent
+  application: TBD
+- id: PL-018
+  learning: "An authoring tool without document autosave is a latent work-loss bug: persistence is an invariant, not a feature. Verify browser-based editors in an ISOLATED headless context (own --user-data-dir), never a shared/live browser."
+  source: P-001
+  task: T-126
+  date: 2026-07-06
+  context: Added via context agent
+  application: TBD

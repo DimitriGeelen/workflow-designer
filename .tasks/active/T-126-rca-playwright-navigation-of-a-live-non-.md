@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T09:10:11Z
-last_update: 2026-07-06T09:11:59Z
+last_update: 2026-07-06T09:31:02Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,32 +40,35 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Research artifact written FIRST (C-001): `docs/reports/T-126-editor-workloss-rca.md`
+- [x] Research artifact written FIRST (C-001): `docs/reports/T-126-editor-workloss-rca.md`
       capturing the incident timeline, evidence (headless=false, empty session/IDB/undo,
       editor persistence audit), root cause, and prevention
-- [ ] Gap registered in `.context/project/concerns.yaml` (G-019): editor has no document
-      autosave → an authoring tool loses unsaved work on any reload/navigation
-- [ ] Second gap/guard noted: agent visual-verification must use an ISOLATED headless
+- [x] Gap registered in `.context/project/concerns.yaml` (G-019): G-005 — editor has no
+      document autosave → an authoring tool loses unsaved work on any reload/navigation
+- [x] Second gap/guard noted: G-006 — agent visual-verification must use an ISOLATED headless
       browser context, never a shared/live one (this incident's proximate cause)
-- [~] FIX FORWARD implemented (CODE WRITTEN, mirror byte-identical) but **NOT VERIFIED**:
+- [x] FIX FORWARD implemented, mirror byte-identical, **VERIFIED 2026-07-06** (isolated
+      headless CDP, 4/4 steps pass; banner screenshot READ):
       autosave in `src/aef-workflow-designer.html` — `AUTOSAVE_KEY='aefAutosaveDoc'`,
       debounced `scheduleAutosave()` hooked into `renderAll()` (guarded by `_appReady` so
       the initial seed render can't clobber a prior autosave; TDZ-checked — all early
       `renderAll()` calls are inside functions, only the Init one runs at load), plus
       `offerAutosaveRestore()` dismissible banner (#restore-nudge) shown after Init.
       Additive; Save/Load semantics unchanged. Mirrored to build/gallery/designer.html.
-- [ ] **BLOCKED — verification not run (budget gate at 308k).** Verifier written:
-      `tools/_autosave-verify-cdp.mjs` (ISOLATED headless chromium, never the shared
-      browser). It has a **one-line import bug** (`existsSync` wrongly imported from
-      `node:path` — remove it) that must be fixed first. NEXT SESSION: fix that import,
-      run `node tools/_autosave-verify-cdp.mjs`, confirm all 4 steps pass, screenshot the
-      restore banner + READ, THEN check this AC. Until then autosave is UNVERIFIED.
+- [x] **VERIFIED 2026-07-06.** Fixed the `node:path` import bug in
+      `tools/_autosave-verify-cdp.mjs` (dropped the bogus `existsSync as _e`), ran it against
+      :8834 — 4/4 steps pass: clean-load-no-banner ✓, edit-triggers-autosave (15.7KB XML) ✓,
+      reload-shows-banner ✓, restore-brings-back-doc (14 nodes, id `investigate_v2`) ✓.
+      Element-level banner screenshot captured (ISOLATED headless, `--force-device-scale-factor=2`)
+      and READ: renders "Unsaved work found: … Restore / Dismiss" correctly.
 - [x] Recovery for THIS incident documented: not recoverable from tooling (browser doc was
       overwritten, no autosave/session/IDB/undo survived). Operator to check other
       tabs/Downloads. See docs/reports/T-126-editor-workloss-rca.md.
-- [ ] Save-to-project endpoint (write .workflow.yaml into repo via gallery server) — DEFER:
-      operator was asked to choose save-design scope (Both / autosave-only / project-only)
-      but was away; autosave shipped as the safety-net first. Confirm scope next session.
+- [x] Save-to-project endpoint (write .workflow.yaml into repo via gallery server) —
+      SCOPED OUT of T-126, moved to the editor-persistence inception (2026-07-06). Operator
+      confirmed: reload should AUTO-LOAD (not banner) + Save-to-repo + versioning + revert +
+      undo/redo + version thumbnails. That is a subsystem → incepted, not built ad-hoc here.
+      T-126's scope is the RCA + the autosave safety-net, both now complete.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -133,19 +136,30 @@ date_finished: null
 
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
+**Symptom:** Operator lost in-progress editor work. Initially attributed to agent Playwright
+navigation of a live browser; operator corrected — the real loss was the before/after teaching
+screenshots (the routing-correction pairs) and the failure to capture/persist them. Either way,
+the editor had no durable document persistence.
 
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
+**Root cause:** The editor persisted only *preferences* (`aefViewPrefs` etc.) to localStorage.
+The document itself lived solely in an in-memory `library` Map; "Save" merely downloaded a
+`.bpmn` file. Any reload/navigation/crash discarded unsaved authoring work with no recovery path.
 
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
+**Why structurally allowed:** No gate or audit asserted that an authoring tool must persist its
+document. Persistence was treated as a feature, not an invariant — so its absence was invisible
+until it cost work. Compounding it: agent visual-verification ran against a shared/live browser
+(G-006), so agent actions could perturb operator state.
+
+**Prevention:**
+- Document autosave shipped (`aefAutosaveDoc`, debounced, `_appReady`-guarded) + verified in
+  ISOLATED headless CDP — a reload now recovers the document. (This task.)
+- G-005 registered: editor document persistence is now a tracked invariant (closes only when
+  reload auto-restores — the T-127/inception scope).
+- G-006 registered: agent visual-verification MUST use an isolated headless context (own
+  `--user-data-dir`), never the shared browser. Verifier harness `_autosave-verify-cdp.mjs`
+  encodes this pattern.
+- Learning: an authoring tool without document autosave is a latent work-loss bug regardless of
+  the proximate trigger.
 
 ## Evolution
 

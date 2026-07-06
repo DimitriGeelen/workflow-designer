@@ -13,7 +13,7 @@
 import { spawn } from 'node:child_process';
 import { readdirSync, mkdtempSync, existsSync, readFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
-import { join, existsSync as _e } from 'node:path';
+import { join } from 'node:path';
 
 const URL_ = process.argv[2] || 'http://localhost:8834/designer.html';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
