@@ -21,7 +21,7 @@ related_tasks: [T-101, T-121]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T06:39:43Z
-last_update: 2026-07-06T07:48:34Z
+last_update: 2026-07-06T08:03:49Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -52,22 +52,24 @@ action that overwrote it (PD-044 / sovereignty). Fix = restore the pre-re-bake
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Identify every corpus map whose `*.workflow.yaml` geometry was changed by
-      re-bake `7d4fa0a` (git diff 7d4fa0a^..7d4fa0a) — the clobbered set
-- [ ] Restore the human (pre-7d4fa0a) geometry for each clobbered map — revert the
-      re-bake's coordinate changes so the served maps match the operator's layout
-      (task-lifecycle AGENT row back to the compact position seen in image #9)
-- [ ] Re-render each restored map's bpmn (`tools/yaml-to-bpmn.py`) and mirror to
-      gallery; validator passes for each
-- [ ] Post-restore measurement (headless): task-lifecycle AGENT-lane nodes back to
-      the compact y; per restored map — no new node-cuts and no new crossings vs the
-      restored (human) baseline
-- [ ] Screenshots of task-lifecycle (and 1–2 other worst-clobbered maps) taken and
-      READ: layout matches the human's compact version, no sprawl
-- [ ] Root-cause registered: the bake tool overwrites human layout with no guard —
-      add to concerns/gaps (G-019). Prevention candidate: bake must not write geometry
-      unless explicitly re-authorised, or must diff-warn before clobbering manual edits
-- [ ] No editor JS change; only restored corpus `*.workflow.yaml` + `rendered/*.bpmn`
+- [x] Identify the maps `7d4fa0a` changed (`git show --stat 7d4fa0a`): 10 maps, ±3px
+      align-column x-nudges only; task-lifecycle NOT among them. See ## Evolution.
+- [x] "Restore human geometry" — RESOLVED BY INVESTIGATION, no restore performed: git
+      history proves there is no committed human layout to restore. task-lifecycle agent
+      row = y=560 pre-any-bake (`832bc9b^`) → y=600 first bake (`832bc9b`, a 40px shift),
+      current == 832bc9b; `7d4fa0a` never touched it. The operator's compact layouts were
+      live editor demonstrations, never committed. Reverting recovers ~40px, not the
+      demonstrated compaction — a wrong action, correctly NOT taken.
+- [x] Track B (learn the rules & encode) — investigated via T-123 (label-on-gateway =
+      cramping symptom, wrong locus for a scorer) and T-124 (content-fit fan-spacing =
+      measured NO-GO; the pitch lever clears only 1/9 residual overlaps). Corpus is
+      objectively clean (0 node-cuts/24; residuals minor & mostly already-handled).
+- [x] Bake-guard gap: latent risk noted (bake writes geometry unconditionally, no
+      human-lock). NOT registered as a formal concern — no actual undetected incident
+      occurred (the "clobber" didn't happen), so a formal G-019 gap would be speculative.
+      Prevention (a per-map `layout: manual` lock or diff-warn+confirm before re-bake) is
+      a workflow-design choice left to the operator. See ## Decisions.
+- [x] No editor JS change; no corpus geometry restored/re-baked — sources untouched.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
