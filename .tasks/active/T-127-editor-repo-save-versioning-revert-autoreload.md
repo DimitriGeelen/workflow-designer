@@ -15,7 +15,7 @@ tags: [ui, editor, persistence, autoload]
 components: []
 related_tasks: [T-126, T-128]
 created: 2026-07-06T09:40:00Z
-last_update: 2026-07-06T11:59:40Z
+last_update: 2026-07-06T12:34:18Z
 date_finished: null
 ---
 
@@ -70,6 +70,27 @@ diff -q src/aef-workflow-designer.html build/gallery/designer.html
 - **Why:** operator wants reload to just load their work; keying prevents cross-map clobber.
 - **Rejected:** dismissible banner (operator rejected); unconditional auto-adopt (would clobber
   an explicit deep-link to another map).
+
+## Recommendation
+
+**Recommendation:** GO (accept B1 — ready for your browser check)
+
+**Rationale:** Reload now auto-loads the autosaved document with no banner (operator's #1 ask),
+keyed by deep-link so reloads never cross maps, replacing the seed cleanly (no `_v2`), with a
+non-modal toast + "Start fresh" affordance. All agent ACs pass; verified end-to-end in isolated
+headless (5/5) and confirmed by a screenshot that was READ. Only the in-your-own-browser check
+remains (Human AC).
+
+**Evidence:**
+- `tools/_autoload-verify-cdp.mjs` — 5/5 steps pass: clean-load (no banner/toast), edit→autosave,
+  reload auto-loads (banner=false, nodeY restored=276, id=`investigate` no `_v2`, toast shown),
+  same-deeplink restores (arc-lifecycle nodeY=633), different-deeplink not clobbered (audit-process loads).
+- Screenshot READ: arc-lifecycle auto-loaded (14 nodes), library shows single `arc-lifecycle v1`,
+  toast "↩ Restored your unsaved work (7/6/2026, 2:33:36 PM)" + Start fresh, no banner.
+- `diff -q src build/gallery` clean (mirror invariant held).
+- Impl: `src/aef-workflow-designer.html` — `autoLoadStored()`/`showRestoredToast()` replace
+  `offerAutosaveRestore()`; `adoptImportedXml(...,{replace:true})`; `_suppressDeepLink` guards the
+  async `?load` fetch.
 
 ## Updates
 
