@@ -21,7 +21,7 @@ related_tasks: [T-101, T-121]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T06:39:43Z
-last_update: 2026-07-06T06:42:20Z
+last_update: 2026-07-06T06:48:59Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -248,6 +248,18 @@ Approach:
   reads as a horizontal detour around the node rather than a deep drop; `≥3` routes
   over the top, `<3 (early)` under.
 - **Node x positions ~unchanged** — the correction is almost entirely vertical.
+
+### Pair 3 — arc-lifecycle (my auto = before, human = after)
+- **Delta:** VERTICAL COMPACTION again — after is ~half the height. In my auto-layout
+  each lane is inflated to a large ~uniform height, so the AGENT main-flow row sits at
+  the BOTTOM of a tall lane (y~530) while HUMAN approvals sit at the TOP of the top
+  lane (y~80) → the BVP-rescore→Approve and Approve→Work edges are giant ~450px
+  verticals across empty bands. Human shrank every lane to fit its content; the giant
+  connectors collapse to short hops. Node x-positions unchanged.
+- **Mechanism identified:** the culprit is **lane-height calculation** — my
+  auto-layout gives lanes a large/uniform height independent of content, and parks the
+  row at the lane edge. Fix: `laneHeight = contentExtent + padding`, and place the row
+  within the fitted lane. This is the concrete lever behind rules 1 & 2.
 
 ### Synthesized rules so far (candidate cleanLayout/router improvements)
 1. **Height-fit lanes** — a lane is only as tall as its content + padding; never leave
