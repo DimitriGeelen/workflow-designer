@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-123: Edge-label on-gateway declutter: push branch labels clear of their source gateway glyph
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-06T08:10:11Z
+# ============================================================================
+
+task_id: T-123
+task_name: "Edge-label on-gateway declutter: push branch labels clear of their source gateway glyph"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-06T08:04:06Z
+completed: 2026-07-06T08:10:09Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-06T10:10:05+02:00
+last_commit: 2026-07-06T10:10:05+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Investigation — label-on-gateway residuals are cramping symptoms, not placement bugs; fix locus is fan-spacing (→T-124), no scorer change shipped
+
+# Key outcomes
+outcomes:
+  - 'Baseline confirmed (headless `_label-overlap-probe.mjs`): 8 label-on-gateway'
+  - 'Root-cause investigated visually (Playwright element screenshot of'
+  - 'DECISION (see ## Decisions): do NOT ship a label-scorer tweak — it is low-value'
+  - 'No editor JS changed; no corpus geometry re-baked (render-only investigation) —'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Investigation — label-on-gateway residuals are cramping symptoms, not placement bugs; fix locus is fan-spacing (→T-124), no scorer change shipped'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+  - decision: '2026-07-06 — Fix locus: spacing rule, not the label scorer'
+    chose: 'Ship NO change to `adjustEdgeLabelPlacements()`. Close this task as an'
+    rationale: 'Visual verification (READ screenshot) proved the labels have no clear channel'
+    alternatives_rejected: ['(a) weight gateway overlap higher in `score()` — displaces labels into']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.playwright-mcp/t123-eel-cramped-evidence.png'
+  - '.tasks/active/T-123-edge-label-on-gateway-declutter-push-bra.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-06T10:10:05"
+    action: "T-123: Investigation — label-on-gateway residuals are cramping symptoms, not placement bugs; fix locus is fan-spacing (→T-124), no scorer change shipped"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 2
+  lines_added: 212
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-123-edge-label-on-gateway-declutter-push-bra.md
+generated_by: context-agent-hybrid

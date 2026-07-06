@@ -1,0 +1,110 @@
+# ============================================================================
+# EPISODIC MEMORY - T-122: Restore human layout corrections clobbered by corpus re-bake (task-lifecycle + audit other re-baked maps)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-06T08:19:42Z
+# ============================================================================
+
+task_id: T-122
+task_name: "Restore human layout corrections clobbered by corpus re-bake (task-lifecycle + audit other re-baked maps)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-06T06:39:43Z
+completed: 2026-07-06T08:19:39Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-06T08:42:20+02:00
+last_commit: 2026-07-06T10:19:39+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Capture human-layout-clobber bug + two-track plan (restore + learn rules). Add correction-pair 2 (promotion-pipeline) + synthesized layout rules. Add correction-pair 3 (arc-lifecycle) — mechanism = lane-height calc. Add correction-pair 4 (assumption-validation) — ROUTING-class. Add correction-pair 5 (inception-lifecycle) — gateway placement rule. Add correction-pair 6 (audit-process) — decision-fan outcome spacing. Add correction-pair 7 (error-escalation-ladder) — INVERSE spacing case. Record verified finding — Track A premise overturned (no git clobber; human layouts were uncommitted demos), pivot to Track B. Reconcile to verified reality — no git clobber to restore; Track B concluded via T-123/T-124; close investigation
+
+# Key outcomes
+outcomes:
+  - 'Identify the maps `7d4fa0a` changed (`git show --stat 7d4fa0a`): 10 maps, ±3px'
+  - '"Restore human geometry" — RESOLVED BY INVESTIGATION, no restore performed: git'
+  - 'Track B (learn the rules & encode) — investigated via T-123 (label-on-gateway ='
+  - 'Bake-guard gap: latent risk noted (bake writes geometry unconditionally, no'
+  - 'No editor JS change; no corpus geometry restored/re-baked — sources untouched.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Add correction-pair 7 (error-escalation-ladder) — INVERSE spacing case'
+    source: git-mined
+  - description: 'Capture human-layout-clobber bug + two-track plan (restore + learn rules)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-06 — Forward plan (two tracks; execute next session, fresh budget)'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-06.yaml'
+  - '.context/audits/cron/2026-07-06-0830.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/episodic/T-121.yaml'
+  - '.context/locks/T-121.lock'
+  - '.context/project/decisions.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-121.log'
+  - '.context/working/.handover-cooldown'
+  - '.context/working/.hook-counter'
+  - '.context/working/.restart-requested'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.tasks/active/T-122-restore-human-layout-corrections-clobber.md'
+  - '.tasks/completed/T-124-content-fit-fan-spacing-rule-in-cleanlay.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-06T08:42:20"
+    action: "T-122: Capture human-layout-clobber bug + two-track plan (restore + learn rules)"
+  - time: "2026-07-06T08:48:59"
+    action: "T-122: Add correction-pair 2 (promotion-pipeline) + synthesized layout rules"
+  - time: "2026-07-06T08:51:05"
+    action: "T-122: Add correction-pair 3 (arc-lifecycle) — mechanism = lane-height calc"
+  - time: "2026-07-06T08:54:03"
+    action: "T-122: Add correction-pair 4 (assumption-validation) — ROUTING-class"
+  - time: "2026-07-06T09:17:37"
+    action: "T-122: Add correction-pair 5 (inception-lifecycle) — gateway placement rule"
+  - time: "2026-07-06T09:32:00"
+    action: "T-122: Add correction-pair 6 (audit-process) — decision-fan outcome spacing"
+  - time: "2026-07-06T09:48:34"
+    action: "T-122: Add correction-pair 7 (error-escalation-ladder) — INVERSE spacing case"
+  - time: "2026-07-06T10:03:49"
+    action: "T-122: Record verified finding — Track A premise overturned (no git clobber; human layouts were uncommitted demos), pivot to Track B"
+  - time: "2026-07-06T10:19:39"
+    action: "T-122: Reconcile to verified reality — no git clobber to restore; Track B concluded via T-123/T-124; close investigation"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 9 commit(s), 99 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [ui, editor, corpus, bug, layout, sovereignty]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 99
+  commits: 9
+  files_changed: 18
+  lines_added: 597
+  lines_removed: 80
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-122-restore-human-layout-corrections-clobber.md
+generated_by: context-agent-hybrid

@@ -605,3 +605,17 @@ decisions:
     date: 2026-07-06
     task: T-121
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-066
+    decision: "Ship NO change to `adjustEdgeLabelPlacements()`. Close this task as an"
+    scope: project
+    date: 2026-07-06
+    task: T-123
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-067
+    decision: "Ship NO editor change. The \"fan-spacing lever\" already exists (T-093"
+    scope: project
+    date: 2026-07-06
+    task: T-124
+    rationale: "Auto-captured from task file on completion"

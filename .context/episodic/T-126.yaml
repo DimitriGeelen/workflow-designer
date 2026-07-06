@@ -1,0 +1,92 @@
+# ============================================================================
+# EPISODIC MEMORY - T-126: RCA: Playwright navigation of a live non-headless browser destroyed operator's unsaved editor work; editor has no document autosave
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-06T11:37:23Z
+# ============================================================================
+
+task_id: T-126
+task_name: "RCA: Playwright navigation of a live non-headless browser destroyed operator's unsaved editor work; editor has no document autosave"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-06T09:10:11Z
+completed: 2026-07-06T11:37:21Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-06T11:11:59+02:00
+last_commit: 2026-07-06T13:37:17+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  RCA + gaps for operator editor work-loss — Playwright drove live browser; editor has no autosave (G-005/G-006). Add editor document autosave (localStorage + restore banner) — UNVERIFIED (verifier import typo, budget gate stopped verification); next session fix+run tools/_autosave-verify-cdp.mjs. Verify editor autosave — fix verifier import, 4/4 CDP steps pass, banner READ
+
+# Key outcomes
+outcomes:
+  - 'Research artifact written FIRST (C-001): `docs/reports/T-126-editor-workloss-rca.md`'
+  - 'Gap registered in `.context/project/concerns.yaml` (G-019): G-005 — editor has no'
+  - 'Second gap/guard noted: G-006 — agent visual-verification must use an ISOLATED headless'
+  - 'FIX FORWARD implemented, mirror byte-identical, **VERIFIED 2026-07-06** (isolated'
+  - '**VERIFIED 2026-07-06.** Fixed the `node:path` import bug in'
+  - 'Recovery for THIS incident documented: not recoverable from tooling (browser doc was'
+  - 'Save-to-project endpoint (write .workflow.yaml into repo via gallery server) —'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Verify editor autosave — fix verifier import, 4/4 CDP steps pass, banner READ'
+    source: git-mined
+  - description: 'Add editor document autosave (localStorage + restore banner) — UNVERIFIED (verifier import typo, budget gate stopped verification); next session fix+run tools/_autosave-verify-cdp.mjs'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.context/project/learnings.yaml'
+  - 'docs/reports/T-126-editor-workloss-rca.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-126-rca-playwright-navigation-of-a-live-non-.md'
+  - '.tasks/completed/T-122-restore-human-layout-corrections-clobber.md'
+  - 'tools/_autosave-verify-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-06T11:11:59"
+    action: "T-126: RCA + gaps for operator editor work-loss — Playwright drove live browser; editor has no autosave (G-005/G-006)"
+  - time: "2026-07-06T11:31:01"
+    action: "T-126: Add editor document autosave (localStorage + restore banner) — UNVERIFIED (verifier import typo, budget gate stopped verification); next session fix+run tools/_autosave-verify-cdp.mjs"
+  - time: "2026-07-06T13:37:17"
+    action: "T-126: Verify editor autosave — fix verifier import, 4/4 CDP steps pass, banner READ"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 147 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 147
+  commits: 3
+  files_changed: 7
+  lines_added: 566
+  lines_removed: 37
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-126-rca-playwright-navigation-of-a-live-non-.md
+generated_by: context-agent-hybrid
