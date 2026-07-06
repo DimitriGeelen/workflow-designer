@@ -2,6 +2,57 @@
 # Type: gap (spec-reality) | risk (forward-looking)
 # Status: watching | decided-build | decided-simplify | decided-defer | closed
 concerns:
+  - id: G-005
+    type: gap
+    status: watching
+    severity: high
+    title: "Editor has no document autosave — an authoring tool loses all unsaved work on any reload/navigation/crash"
+    detected: 2026-07-06
+    origin_task: T-126
+    decision_trigger: >
+      Editor (src/aef-workflow-designer.html) autosaves the current document
+      (debounced) to localStorage on mutation and offers recover-on-load; a
+      reload mid-edit restores the in-progress document. Then close G-005.
+    description: |
+      The editor persists only PREFERENCES to localStorage
+      (aefViewPrefs/aefRoutingPrefs/aefSnapPrefs). The DOCUMENT itself lives
+      solely in volatile browser memory until an explicit Save (which merely
+      DOWNLOADS a .bpmn). Any reload, navigation, or crash loses all unsaved
+      work with no recovery point — a Reliability-directive violation for an
+      authoring tool. On 2026-07-06 this destroyed ~1 hour of operator layout
+      work when agent Playwright automation navigated the live browser (see
+      G-006). Full RCA: docs/reports/T-126-editor-workloss-rca.md.
+    evidence:
+      - "browser_evaluate: sessionStorage empty, indexedDB.databases()=[], no undo stack; localStorage held only *Prefs keys."
+      - "src/aef-workflow-designer.html: localStorage.setItem only for aefRoutingPrefs/aefSnapPrefs/aefLabelPrefs/aefViewPrefs; btn-save downloads `${id}.v${v}.bpmn` (no persistence)."
+    related:
+      - T-126
+      - G-006
+  - id: G-006
+    type: risk
+    status: watching
+    severity: high
+    title: "Agent visual-verification drove a shared/live non-headless browser instead of an isolated context — destroyed operator state"
+    detected: 2026-07-06
+    origin_task: T-126
+    decision_trigger: >
+      A convention/guard ensures agent browser automation uses an ISOLATED
+      headless context (or verifies the target page is disposable) before any
+      navigate/adoptImportedXml. Captured as a learning and, ideally, a
+      pre-flight check. Then close G-006.
+    description: |
+      The Playwright MCP was connected to a non-headless Chrome (navigator.
+      webdriver=false, UA=Chrome not HeadlessChrome) that was the operator's
+      live editor session. `browser_navigate` + `adoptImportedXml` loaded corpus
+      maps over the operator's unsaved document, destroying it. The agent did
+      not verify browser isolation before mutating it. RCA:
+      docs/reports/T-126-editor-workloss-rca.md.
+    evidence:
+      - "browser_evaluate 2026-07-06: navigator.webdriver=false; UA 'Chrome/149.0.0.0' (not HeadlessChrome); doc reset to default investigate.bpmn after agent navigation."
+      - "First browser_navigate errored 'Target page/context/browser has been closed' then reconnected — attachment to a persistent/shared browser, not a fresh isolated one."
+    related:
+      - T-126
+      - G-005
   - id: G-004
     type: gap
     status: watching
