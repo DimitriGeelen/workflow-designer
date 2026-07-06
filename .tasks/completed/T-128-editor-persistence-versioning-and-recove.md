@@ -4,16 +4,16 @@ name: "Editor persistence, versioning and recovery subsystem"
 description: >
   Inception: Editor persistence, versioning and recovery subsystem
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-06T11:37:59Z
-last_update: 2026-07-06T11:39:13Z
-date_finished: null
+last_update: 2026-07-06T11:58:30Z
+date_finished: 2026-07-06T11:58:30Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -138,15 +138,15 @@ diff→rule-learning engine (that is a *separate* downstream arc this subsystem 
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -232,7 +232,11 @@ Operator repeatedly and emphatically requested durable editor persistence after 
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Operator repeatedly and emphatically requested durable editor persistence after a real work-loss incident (T-126). The autosave safety-net is now verified, but the operator's core asks — reload AUTO-LOADS the stored version, manual Save-to-repo, per-map versioning, revert-to-previous, undo/redo, and version thumbnails in the restore UI — form a coherent subsystem with genuine open design questions (version-store model, Save↔sovereignty interaction, undo granularity). This warrants scoping and decomposition via inception rather than ad-hoc build. Deeper strategic value: once corrections are versioned in the repo, each becomes a concrete before/after diff to mechanically learn the operator's routing/layout rules — the operator's stated long-term goal.
+
+**Date**: 2026-07-06T11:58:30Z
 
 ## Updates
 
@@ -241,3 +245,12 @@ Operator repeatedly and emphatically requested durable editor persistence after 
 
 ### 2026-07-06T11:39:13Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-06T11:58:30Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Operator repeatedly and emphatically requested durable editor persistence after a real work-loss incident (T-126). The autosave safety-net is now verified, but the operator's core asks — reload AUTO-LOADS the stored version, manual Save-to-repo, per-map versioning, revert-to-previous, undo/redo, and version thumbnails in the restore UI — form a coherent subsystem with genuine open design questions (version-store model, Save↔sovereignty interaction, undo granularity). This warrants scoping and decomposition via inception rather than ad-hoc build. Deeper strategic value: once corrections are versioned in the repo, each becomes a concrete before/after diff to mechanically learn the operator's routing/layout rules — the operator's stated long-term goal.
+
+### 2026-07-06T11:58:30Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO

@@ -1,0 +1,194 @@
+# ============================================================================
+# EPISODIC MEMORY - T-128: Editor persistence, versioning and recovery subsystem
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-06T11:58:32Z
+# ============================================================================
+
+task_id: T-128
+task_name: "Editor persistence, versioning and recovery subsystem"
+workflow_type: inception
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-06T11:37:59Z
+completed: 2026-07-06T11:58:30Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-06T13:47:20+02:00
+last_commit: 2026-07-06T13:47:20+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Inception exploration — persistence subsystem design, 6/6 IW answered, 2 spikes run
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-06 — Version store model (IW-1)'
+    chose: 'Explicit snapshot store `.editor-versions/<id>/` with `vN.workflow.yaml`, `vN.png`'
+    rationale: 'Self-contained (survives shallow clones), holds thumbnails natively, no browser-side'
+    alternatives_rejected: ['git-log-of-file only (can''t store thumbnails, forces server git-shelling); pure']
+  - decision: '2026-07-06 — Reload precedence (IW-3)'
+    chose: 'Auto-adopt localStorage autosave (keyed by map id) → repo-latest → seed. Replace the'
+    rationale: 'Autosave is always ≥ last manual Save; the operator explicitly wants reload to just'
+    alternatives_rejected: ['dismissible banner (operator rejected it); auto-load repo-latest over newer']
+  - decision: '2026-07-06 — Undo/redo (IW-4)'
+    chose: '`pushHistory(label)` snapshot-before at explicit mutation sites, per-gesture'
+    rationale: 'renderAll() fires on non-mutating re-renders — hooking undo there creates spurious'
+    alternatives_rejected: ['undo-in-renderAll (spurious entries); per-mousemove granularity (unusable stack).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-06.yaml'
+  - '.context/audits/cron/2026-06-28-0900.yaml'
+  - '.context/audits/cron/2026-06-28-0930.yaml'
+  - '.context/audits/cron/2026-06-28-1000.yaml'
+  - '.context/audits/cron/2026-06-28-1030.yaml'
+  - '.context/audits/cron/2026-06-28-1045.yaml'
+  - '.context/audits/cron/2026-06-28-1100.yaml'
+  - '.context/audits/cron/2026-06-28-1115.yaml'
+  - '.context/audits/cron/2026-06-28-1145.yaml'
+  - '.context/audits/cron/2026-06-28-1200.yaml'
+  - '.context/audits/cron/2026-06-28-1215.yaml'
+  - '.context/audits/cron/2026-06-28-1245.yaml'
+  - '.context/audits/cron/2026-06-28-1300.yaml'
+  - '.context/audits/cron/2026-06-28-1315.yaml'
+  - '.context/audits/cron/2026-06-28-1330.yaml'
+  - '.context/audits/cron/2026-06-28-1345.yaml'
+  - '.context/audits/cron/2026-06-28-1400.yaml'
+  - '.context/audits/cron/2026-06-28-1415.yaml'
+  - '.context/audits/cron/2026-06-28-1430.yaml'
+  - '.context/audits/cron/2026-06-28-1445.yaml'
+  - '.context/audits/cron/2026-06-28-1500.yaml'
+  - '.context/audits/cron/2026-06-28-1515.yaml'
+  - '.context/audits/cron/2026-06-28-1530.yaml'
+  - '.context/audits/cron/2026-06-28-1545.yaml'
+  - '.context/audits/cron/2026-06-28-1600.yaml'
+  - '.context/audits/cron/2026-06-28-1615.yaml'
+  - '.context/audits/cron/2026-06-28-1630.yaml'
+  - '.context/audits/cron/2026-06-28-1645.yaml'
+  - '.context/audits/cron/2026-06-28-1700.yaml'
+  - '.context/audits/cron/2026-06-28-1715.yaml'
+  - '.context/audits/cron/2026-06-28-1730.yaml'
+  - '.context/audits/cron/2026-06-28-1745.yaml'
+  - '.context/audits/cron/2026-06-28-1800.yaml'
+  - '.context/audits/cron/2026-06-28-1815.yaml'
+  - '.context/audits/cron/2026-06-28-1845.yaml'
+  - '.context/audits/cron/2026-06-28-1900.yaml'
+  - '.context/audits/cron/2026-06-28-1915.yaml'
+  - '.context/audits/cron/2026-06-28-1930.yaml'
+  - '.context/audits/cron/2026-06-28-1945.yaml'
+  - '.context/audits/cron/2026-06-28-2000.yaml'
+  - '.context/audits/cron/2026-06-28-2015.yaml'
+  - '.context/audits/cron/2026-06-28-2030.yaml'
+  - '.context/audits/cron/2026-06-28-2045.yaml'
+  - '.context/audits/cron/2026-06-28-2100.yaml'
+  - '.context/audits/cron/2026-06-28-2115.yaml'
+  - '.context/audits/cron/2026-06-28-2130.yaml'
+  - '.context/audits/cron/2026-06-28-2145.yaml'
+  - '.context/audits/cron/2026-06-28-2200.yaml'
+  - '.context/audits/cron/2026-06-28-2215.yaml'
+  - '.context/audits/cron/2026-06-28-2230.yaml'
+  - '.context/audits/cron/2026-06-28-2245.yaml'
+  - '.context/audits/cron/2026-06-28-2300.yaml'
+  - '.context/audits/cron/2026-06-28-2315.yaml'
+  - '.context/audits/cron/2026-06-28-2330.yaml'
+  - '.context/audits/cron/2026-06-28-2345.yaml'
+  - '.context/audits/cron/2026-07-06-0845.yaml'
+  - '.context/audits/cron/2026-07-06-0900.yaml'
+  - '.context/audits/cron/2026-07-06-0915.yaml'
+  - '.context/audits/cron/2026-07-06-0930.yaml'
+  - '.context/audits/cron/2026-07-06-0945.yaml'
+  - '.context/audits/cron/2026-07-06-1000.yaml'
+  - '.context/audits/cron/2026-07-06-1015.yaml'
+  - '.context/audits/cron/2026-07-06-1030.yaml'
+  - '.context/audits/cron/2026-07-06-1045.yaml'
+  - '.context/audits/cron/2026-07-06-1100.yaml'
+  - '.context/audits/cron/2026-07-06-1115.yaml'
+  - '.context/audits/cron/2026-07-06-1130.yaml'
+  - '.context/audits/cron/2026-07-06-1145.yaml'
+  - '.context/audits/cron/2026-07-06-1200.yaml'
+  - '.context/audits/cron/2026-07-06-1215.yaml'
+  - '.context/audits/cron/2026-07-06-1230.yaml'
+  - '.context/audits/cron/2026-07-06-1245.yaml'
+  - '.context/audits/cron/2026-07-06-1300.yaml'
+  - '.context/audits/cron/2026-07-06-1315.yaml'
+  - '.context/audits/cron/2026-07-06-1330.yaml'
+  - '.context/audits/cron/2026-07-06-1345.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/episodic/T-122.yaml'
+  - '.context/episodic/T-123.yaml'
+  - '.context/episodic/T-124.yaml'
+  - '.context/episodic/T-126.yaml'
+  - '.context/handovers/S-2026-0706-0951.md'
+  - '.context/locks/T-122.lock'
+  - '.context/locks/T-123.lock'
+  - '.context/locks/T-124.lock'
+  - '.context/locks/T-126.lock'
+  - '.context/locks/T-128.lock'
+  - '.context/project/decisions.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-122.log'
+  - '.context/working/episodic-gen/T-123.log'
+  - '.context/working/episodic-gen/T-124.log'
+  - '.context/working/episodic-gen/T-126.log'
+  - '.context/working/.handover-cooldown'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.restart-requested'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - 'docs/reports/T-128-editor-persistence-inception.md'
+  - '.tasks/active/T-128-editor-persistence-versioning-and-recove.md'
+  - '.tasks/completed/T-126-rca-playwright-navigation-of-a-live-non-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-06T13:47:20"
+    action: "T-128: Inception exploration — persistence subsystem design, 6/6 IW answered, 2 spikes run"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 20 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 20
+  commits: 1
+  files_changed: 111
+  lines_added: 2277
+  lines_removed: 2231
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-128-editor-persistence-versioning-and-recove.md
+generated_by: context-agent-hybrid
