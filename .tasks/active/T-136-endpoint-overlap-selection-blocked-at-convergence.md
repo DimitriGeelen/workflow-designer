@@ -12,7 +12,7 @@ tags: [bug, editor, regression-suspect]
 components: []
 related_tasks: [T-133]
 created: 2026-07-06T16:00:00Z
-last_update: 2026-07-06T16:02:33Z
+last_update: 2026-07-06T16:18:12Z
 date_finished: null
 ---
 
@@ -85,6 +85,17 @@ edges near shared connection points and captures clicks as endpoint-drags.
 interaction with overlapping edges at fork/join points (no convergence case in the verifier).
 **Prevention:** add a convergence case to endpoint verification; fix click-fallthrough so a
 non-drag click on a handle selects the underlying edge.
+
+## Recommendation
+
+**Ready for human review.** All Agent ACs pass and the fix is committed (d5eb10c) + mirrored.
+The headless verifier (`tools/_endpoint-overlap-verify-cdp.mjs`) is green 6/6 and reproduces the
+operator's exact condition (two arrow ends on one connection point) with the halo forced topmost —
+so it is a genuine regression guard, not a trivial pass. One Human REVIEW AC remains: confirm that
+in a live map, clicking between two converging lines at a gateway now selects the line under the
+cursor. **Requires one hard refresh (Ctrl+Shift+R)** to pick up the new build. If it still misses,
+note which line and where you clicked — the fallback would be approach (b) (moderate the halo to
+~r8), but (a) should fully resolve it.
 
 ## Decisions
 
