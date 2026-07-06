@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-07-04T22:31:18Z ===
+task_id: T-018
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-018.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: BPMN-XML validation for produced workflow files
+  Duration: 2 days (3049 min)
+  Updates: 2
+  Commits: 1
+  Lines: +711 -43 across 13 files
+  Outcomes: 5 AC checked
+  Artifacts: 13 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-018-bpmn-xml-validation-for-produced-workflo.md
+--- exit code: 0 ---

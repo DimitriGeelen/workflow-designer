@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-07-04T22:31:34Z ===
+task_id: T-019
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-019.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Ingest, store and evaluate the AEF Process-layer proposal package
+  Duration: 2 days (2995 min)
+  Updates: 2
+  Commits: 3
+  Lines: +36940 -17317 across 1259 files
+  Outcomes: 4 AC checked
+  Artifacts: 1259 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-019-ingest-store-and-evaluate-the-aef-proces.md
+--- exit code: 0 ---

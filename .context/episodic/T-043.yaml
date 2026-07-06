@@ -1,0 +1,176 @@
+# ============================================================================
+# EPISODIC MEMORY - T-043: inception-review diagram exceeds canvas viewport clipping decision fan
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-03T09:09:19Z
+# ============================================================================
+
+task_id: T-043
+task_name: "inception-review diagram exceeds canvas viewport clipping decision fan"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-03T08:58:02Z
+completed: 2026-07-03T09:09:17Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-03T10:59:08+02:00
+last_commit: 2026-07-03T11:09:07+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  File follow-up — inception-review exceeds canvas viewport (fan clipped); capture T-042 namespace-drift learning. Canvas fit-to-view — size viewBox to content, not fixed POOL_WIDTH
+
+# Key outcomes
+outcomes:
+  - 'The full `inception-review` diagram — all 14 nodes incl. the go/no-go/defer fan and'
+  - 'Verified by Playwright: screenshot shows the decision fan + end-events fully rendered'
+  - 'The default `investigate` workflow still renders correctly both via library'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Canvas fit-to-view — size viewBox to content, not fixed POOL_WIDTH'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-03.yaml'
+  - '.context/audits/cron/2026-06-25-0900.yaml'
+  - '.context/audits/cron/2026-06-25-1015.yaml'
+  - '.context/audits/cron/2026-06-25-1045.yaml'
+  - '.context/audits/cron/2026-06-25-1100.yaml'
+  - '.context/audits/cron/2026-06-25-1115.yaml'
+  - '.context/audits/cron/2026-06-25-1145.yaml'
+  - '.context/audits/cron/2026-06-25-1200.yaml'
+  - '.context/audits/cron/2026-06-25-1215.yaml'
+  - '.context/audits/cron/2026-06-25-1230.yaml'
+  - '.context/audits/cron/2026-06-25-1245.yaml'
+  - '.context/audits/cron/2026-06-25-1300.yaml'
+  - '.context/audits/cron/2026-06-25-1315.yaml'
+  - '.context/audits/cron/2026-06-25-1330.yaml'
+  - '.context/audits/cron/2026-06-25-1345.yaml'
+  - '.context/audits/cron/2026-06-25-1400.yaml'
+  - '.context/audits/cron/2026-06-25-1415.yaml'
+  - '.context/audits/cron/2026-06-25-1430.yaml'
+  - '.context/audits/cron/2026-06-25-1445.yaml'
+  - '.context/audits/cron/2026-06-25-1500.yaml'
+  - '.context/audits/cron/2026-06-25-1515.yaml'
+  - '.context/audits/cron/2026-06-25-1530.yaml'
+  - '.context/audits/cron/2026-06-25-1545.yaml'
+  - '.context/audits/cron/2026-06-25-1600.yaml'
+  - '.context/audits/cron/2026-06-25-1615.yaml'
+  - '.context/audits/cron/2026-06-25-1630.yaml'
+  - '.context/audits/cron/2026-06-25-1645.yaml'
+  - '.context/audits/cron/2026-06-25-1700.yaml'
+  - '.context/audits/cron/2026-06-25-1715.yaml'
+  - '.context/audits/cron/2026-06-25-1730.yaml'
+  - '.context/audits/cron/2026-06-25-1745.yaml'
+  - '.context/audits/cron/2026-06-25-1800.yaml'
+  - '.context/audits/cron/2026-06-25-1815.yaml'
+  - '.context/audits/cron/2026-06-25-1830.yaml'
+  - '.context/audits/cron/2026-06-25-1845.yaml'
+  - '.context/audits/cron/2026-06-25-1900.yaml'
+  - '.context/audits/cron/2026-06-25-1915.yaml'
+  - '.context/audits/cron/2026-06-25-1930.yaml'
+  - '.context/audits/cron/2026-06-25-1945.yaml'
+  - '.context/audits/cron/2026-06-25-2000.yaml'
+  - '.context/audits/cron/2026-06-25-2015.yaml'
+  - '.context/audits/cron/2026-06-25-2030.yaml'
+  - '.context/audits/cron/2026-06-25-2045.yaml'
+  - '.context/audits/cron/2026-06-25-2100.yaml'
+  - '.context/audits/cron/2026-06-25-2115.yaml'
+  - '.context/audits/cron/2026-06-25-2130.yaml'
+  - '.context/audits/cron/2026-06-25-2145.yaml'
+  - '.context/audits/cron/2026-06-25-2200.yaml'
+  - '.context/audits/cron/2026-06-25-2215.yaml'
+  - '.context/audits/cron/2026-06-25-2230.yaml'
+  - '.context/audits/cron/2026-06-25-2245.yaml'
+  - '.context/audits/cron/2026-06-25-2300.yaml'
+  - '.context/audits/cron/2026-06-25-2315.yaml'
+  - '.context/audits/cron/2026-06-25-2330.yaml'
+  - '.context/audits/cron/2026-06-25-2345.yaml'
+  - '.context/audits/cron/2026-07-03-0815.yaml'
+  - '.context/audits/cron/2026-07-03-0830.yaml'
+  - '.context/audits/cron/2026-07-03-0845.yaml'
+  - '.context/audits/cron/2026-07-03-0900.yaml'
+  - '.context/audits/cron/2026-07-03-0915.yaml'
+  - '.context/audits/cron/2026-07-03-0930.yaml'
+  - '.context/audits/cron/2026-07-03-0945.yaml'
+  - '.context/audits/cron/2026-07-03-1000.yaml'
+  - '.context/audits/cron/2026-07-03-1015.yaml'
+  - '.context/audits/cron/2026-07-03-1030.yaml'
+  - '.context/audits/cron/2026-07-03-1045.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/episodic/T-042.yaml'
+  - '.context/locks/T-037.lock'
+  - '.context/locks/T-038.lock'
+  - '.context/locks/T-039.lock'
+  - '.context/locks/T-040.lock'
+  - '.context/locks/T-041.lock'
+  - '.context/locks/T-042.lock'
+  - '.context/project/decisions.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/episodic-gen/T-037.log'
+  - '.context/working/episodic-gen/T-038.log'
+  - '.context/working/episodic-gen/T-039.log'
+  - '.context/working/episodic-gen/T-040.log'
+  - '.context/working/episodic-gen/T-042.log'
+  - '.context/working/.gate-bypass-log.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.reviewed-T-038'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-043-inception-review-diagram-exceeds-canvas-.md'
+  - '.tasks/completed/T-042-fix-inception-review-diagram-layout-cong.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T10:59:08"
+    action: "T-043: File follow-up — inception-review exceeds canvas viewport (fan clipped); capture T-042 namespace-drift learning"
+  - time: "2026-07-03T11:09:07"
+    action: "T-043: Canvas fit-to-view — size viewBox to content, not fixed POOL_WIDTH"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 11 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 11
+  commits: 2
+  files_changed: 99
+  lines_added: 885
+  lines_removed: 2309
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-043-inception-review-diagram-exceeds-canvas-.md
+generated_by: context-agent-hybrid

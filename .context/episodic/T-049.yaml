@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-049: Map AEF review emission (lib/review.sh) as dogfood workflow #16
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-03T10:08:21Z
+# ============================================================================
+
+task_id: T-049
+task_name: "Map AEF review emission (lib/review.sh) as dogfood workflow #16"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-03T10:02:31Z
+completed: 2026-07-03T10:08:15Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-03T12:08:10+02:00
+last_commit: 2026-07-03T12:08:10+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Map AEF review emission (fw review) as dogfood #16
+
+# Key outcomes
+outcomes:
+  - '`examples/aef-processes/review-emission.workflow.yaml` exists, `schemaVersion: 2`, `source: lib/review.sh`, faithfully maps `emit_review` (resolve task file → found gate → arc-parent check → inception? type switch → link-homework gate → print card/QR → mark-reviewed → handoff emitted, with not-found + homework-blocked terminals)'
+  - 'Validates clean under `tools/validate-workflow.py` (exit 0)'
+  - 'Geometry clean under `tools/check-lane-bands.py` (exit 0)'
+  - 'Annotates the `.reviewed-<id>` marker as a side effect that unblocks `fw inception decide`, and the T-2139 link gate as a Tier-2-bypassable hard gate'
+  - 'Whole bridge suite passes (`tests/run-bridge-tests.sh`, round-trips the new file)'
+  - 'Friction report `docs/reports/T-049-review-friction.md` written (incl. FC-7 handoff-emitter, marker-as-inter-process-signal)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-049-review-friction.md'
+  - 'examples/aef-processes/rendered/review-emission.bpmn'
+  - 'examples/aef-processes/review-emission.workflow.yaml'
+  - '.tasks/active/T-049-map-aef-review-emission-libreviewsh-as-d.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T12:08:10"
+    action: "T-049: Map AEF review emission (fw review) as dogfood #16"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 4
+  lines_added: 764
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-049-map-aef-review-emission-libreviewsh-as-d.md
+generated_by: context-agent-hybrid

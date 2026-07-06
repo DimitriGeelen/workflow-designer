@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-057: Map context-memory three-tier fabric flow
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-03T22:47:22Z
+# ============================================================================
+
+task_id: T-057
+task_name: "Map context-memory three-tier fabric flow"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-03T14:25:14Z
+completed: 2026-07-03T22:47:05Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-04T00:47:05+02:00
+last_commit: 2026-07-04T00:47:05+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Map context-memory three-tier fabric — 3rd constitutional-gate dogfood
+
+# Key outcomes
+outcomes:
+  - '`examples/aef-processes/context-memory.workflow.yaml` created — maps the three tiers'
+  - 'Geometry clean: corpus geometry sweep reports the new map among "clean", 0 new-fail'
+  - 'Bridge round-trip clean: converts + validates clean (proven via the suite)'
+  - 'Full bridge suite passes (24 checks — the new map included, 0 fail)'
+  - 'Friction report `docs/reports/T-057-context-memory-friction.md` written — schema verdict'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-057-context-memory-friction.md'
+  - 'examples/aef-processes/context-memory.workflow.yaml'
+  - '.tasks/active/T-057-map-context-memory-three-tier-fabric-flo.md'
+  - '.tasks/completed/T-056-map-verification-gate-p-011-completion-f.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T00:47:05"
+    action: "T-057: Map context-memory three-tier fabric — 3rd constitutional-gate dogfood"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 501 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 501
+  commits: 1
+  files_changed: 4
+  lines_added: 361
+  lines_removed: 7
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-057-map-context-memory-three-tier-fabric-flo.md
+generated_by: context-agent-hybrid

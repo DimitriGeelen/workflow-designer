@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-060: Bridge META_KEYS excludes agentType/triggeredBy/emits — dropped from BPMN
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-03T22:32:24Z
+# ============================================================================
+
+task_id: T-060
+task_name: "Bridge META_KEYS excludes agentType/triggeredBy/emits — dropped from BPMN"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-03T16:03:36Z
+completed: 2026-07-03T22:32:10Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-03T18:03:36+02:00
+last_commit: 2026-07-04T00:32:06+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  File bug — bridge META_KEYS drops agentType/triggeredBy/emits (found in T-059). Fix bridge META_KEYS dropping agentType/triggeredBy/emits + add parity guard
+
+# Key outcomes
+outcomes:
+  - 'Bridge `META_KEYS` (yaml-to-bpmn.py) includes `agentType`, `triggeredBy`, `emits`'
+  - 'A corpus YAML carrying those keys round-trips: `task-gate.workflow.yaml`''s `emits:`'
+  - 'New parity test (`tests/test_editor_bridge_meta_parity.py`) asserts the editor''s'
+  - 'Full bridge suite passes (22 checks, 0 fail)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Fix bridge META_KEYS dropping agentType/triggeredBy/emits + add parity guard'
+    source: git-mined
+  - description: 'File bug — bridge META_KEYS drops agentType/triggeredBy/emits (found in T-059)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-060-bridge-metakeys-excludes-agenttypetrigge.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_editor_bridge_meta_parity.py'
+  - 'tools/yaml-to-bpmn.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T18:03:36"
+    action: "T-060: File bug — bridge META_KEYS drops agentType/triggeredBy/emits (found in T-059)"
+  - time: "2026-07-04T00:32:06"
+    action: "T-060: Fix bridge META_KEYS dropping agentType/triggeredBy/emits + add parity guard"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 388 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 388
+  commits: 2
+  files_changed: 4
+  lines_added: 367
+  lines_removed: 7
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-060-bridge-metakeys-excludes-agenttypetrigge.md
+generated_by: context-agent-hybrid

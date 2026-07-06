@@ -99,3 +99,10 @@ learnings:
   date: 2026-07-05
   context: Added via context agent
   application: TBD
+- id: PL-015
+  learning: "Routing-metric prototypes must preserve exact edge attach points and guard on ALL quality metrics (crossings AND overlap-pairs AND node-cuts), not just the target metric. A shared-riser uncross prototype showed corpus crossings 20->14 only because it relocated attach points to node-face centres — discarding T-097 anchor spread and worsening overlap. The faithful, fully-guarded number was 20->18 (one map), and even that was not a visual improvement. Measure faithfully + screenshot before committing to a permanent render pass."
+  source: P-001
+  task: T-120
+  date: 2026-07-06
+  context: Added via context agent
+  application: TBD

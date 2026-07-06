@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-07-05T21:06:09Z ===
+task_id: T-103
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer/.agentic-framework
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-103.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Adopt the T-101 zero-dependency CDP harness as the substrate for editor test coverage (G-002/G-003)
+  Duration: 0 days (230 min)
+  Updates: 3
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 4 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-103-adopt-the-t-101-zero-dependency-cdp-harn.md
+--- exit code: 0 ---

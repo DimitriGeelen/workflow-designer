@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-048: Map AEF harvest (lib/harvest.sh) as dogfood workflow #15
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-03T10:01:35Z
+# ============================================================================
+
+task_id: T-048
+task_name: "Map AEF harvest (lib/harvest.sh) as dogfood workflow #15"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-03T09:53:25Z
+completed: 2026-07-03T10:01:28Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-03T12:01:20+02:00
+last_commit: 2026-07-03T12:01:20+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Map AEF harvest (fw harvest) as dogfood #15 — capstone
+
+# Key outcomes
+outcomes:
+  - '`examples/aef-processes/harvest-pipeline.workflow.yaml` exists, `schemaVersion: 2`, `source: lib/harvest.sh`, faithfully maps `do_harvest` (parse → resolve → 3 guard gates → read source → parallel fan-out of 6 category harvesters → join → tally → 3-way outcome dry-run/nothing-new/log+done)'
+  - 'Validates clean under `tools/validate-workflow.py` (exit 0)'
+  - 'Geometry clean under `tools/check-lane-bands.py` (exit 0 — 6-way parallel fan, no overlap)'
+  - 'Uses `parallelGateway` split+join (first corpus use) and an `external` lane for the source project'
+  - 'Whole bridge suite passes (`tests/run-bridge-tests.sh`, round-trips the new file)'
+  - 'Friction report `docs/reports/T-048-harvest-friction.md` written (incl. parallelGateway first-use, sequential-code-vs-concurrent-model note)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-048-harvest-friction.md'
+  - 'examples/aef-processes/harvest-pipeline.workflow.yaml'
+  - 'examples/aef-processes/rendered/harvest-pipeline.bpmn'
+  - '.tasks/active/T-048-map-aef-harvest-libharvestsh-as-dogfood-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T12:01:20"
+    action: "T-048: Map AEF harvest (fw harvest) as dogfood #15 — capstone"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 8
+  commits: 1
+  files_changed: 4
+  lines_added: 1066
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-048-map-aef-harvest-libharvestsh-as-dogfood-.md
+generated_by: context-agent-hybrid

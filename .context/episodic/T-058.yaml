@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-058: Map error-escalation-ladder (A/B/C/D + proactive Level-D)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-03T22:53:51Z
+# ============================================================================
+
+task_id: T-058
+task_name: "Map error-escalation-ladder (A/B/C/D + proactive Level-D)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-03T14:25:15Z
+completed: 2026-07-03T22:53:37Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-04T00:52:56+02:00
+last_commit: 2026-07-04T00:52:56+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Map error-escalation-ladder — 4th/final constitutional-gate dogfood
+
+# Key outcomes
+outcomes:
+  - '`examples/aef-processes/error-escalation-ladder.workflow.yaml` created — the A→B→C→D climb'
+  - 'Geometry clean: corpus geometry sweep reports the new map among "clean", 0 new-fail'
+  - 'Bridge round-trip clean: converts + validates clean (proven via the suite)'
+  - 'Full bridge suite passes (25 checks — the new map included, 0 fail)'
+  - 'Friction report `docs/reports/T-058-error-ladder-friction.md` written — schema verdict +'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Map error-escalation-ladder — 4th/final constitutional-gate dogfood'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-058-error-ladder-friction.md'
+  - 'examples/aef-processes/error-escalation-ladder.workflow.yaml'
+  - '.tasks/active/T-058-map-error-escalation-ladder-abcd--proact.md'
+  - '.tasks/completed/T-057-map-context-memory-three-tier-fabric-flo.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T00:52:56"
+    action: "T-058: Map error-escalation-ladder — 4th/final constitutional-gate dogfood"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 508 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 508
+  commits: 1
+  files_changed: 4
+  lines_added: 381
+  lines_removed: 7
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-058-map-error-escalation-ladder-abcd--proact.md
+generated_by: context-agent-hybrid

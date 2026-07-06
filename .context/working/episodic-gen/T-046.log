@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-07-03T09:47:17Z ===
+task_id: T-046
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-046.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Map AEF cross-host dispatch (lib/dispatch.sh) as dogfood workflow #13
+  Duration: 0 days (11 min)
+  Updates: 2
+  Commits: 1
+  Lines: +717 -0 across 4 files
+  Outcomes: 6 AC checked
+  Artifacts: 4 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-046-map-aef-cross-host-dispatch-libdispatchs.md
+--- exit code: 0 ---

@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-047: Map AEF release pipeline (lib/release.sh) as dogfood workflow #14
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-03T09:53:07Z
+# ============================================================================
+
+task_id: T-047
+task_name: "Map AEF release pipeline (lib/release.sh) as dogfood workflow #14"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-03T09:48:02Z
+completed: 2026-07-03T09:53:01Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-03T11:52:56+02:00
+last_commit: 2026-07-03T11:52:56+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Map AEF release pipeline (fw release) as dogfood #14
+
+# Key outcomes
+outcomes:
+  - '`examples/aef-processes/release-pipeline.workflow.yaml` exists, `schemaVersion: 2`, `source: lib/release.sh`, faithfully maps `release_tag_and_release` (parse → latest-tag gate → commits gate → bump → dry-run gate → create tag → push-to-every-remote loop → gh-release gate → done, with bootstrap-error/no-op/dry-run terminals)'
+  - 'Validates clean under `tools/validate-workflow.py` (exit 0)'
+  - 'Geometry clean under `tools/check-lane-bands.py` (exit 0)'
+  - 'Models the remote-push loop with an `aef.multiInstance`/`aef.collection` annotation and uses the `external` lane for remotes + GitHub'
+  - 'Whole bridge suite passes (`tests/run-bridge-tests.sh`, round-trips the new file)'
+  - 'Friction report `docs/reports/T-047-release-friction.md` written (incl. FC-5 multi-instance loop, advisory-vs-accumulating soft-fail, data-dependent terminal)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-047-release-friction.md'
+  - 'examples/aef-processes/release-pipeline.workflow.yaml'
+  - 'examples/aef-processes/rendered/release-pipeline.bpmn'
+  - '.tasks/active/T-047-map-aef-release-pipeline-libreleasesh-as.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T11:52:56"
+    action: "T-047: Map AEF release pipeline (fw release) as dogfood #14"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 4
+  lines_added: 874
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-047-map-aef-release-pipeline-libreleasesh-as.md
+generated_by: context-agent-hybrid

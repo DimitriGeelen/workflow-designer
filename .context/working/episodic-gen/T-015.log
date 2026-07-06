@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-07-04T22:49:11Z ===
+task_id: T-015
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer/.agentic-framework
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-015.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Framework: TASKS_DIR/CONTEXT_DIR env export causes cross-project contamination in fw subprocesses
+  Duration: 26 days (37418 min)
+  Updates: 3
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 4 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-015-framework-tasksdircontextdir-env-export-.md
+--- exit code: 0 ---

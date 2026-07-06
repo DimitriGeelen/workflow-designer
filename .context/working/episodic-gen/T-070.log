@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-07-04T09:31:21Z ===
+task_id: T-070
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-070.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Routing controls v1 — centre-anchor attachment default (operator R-4)
+  Duration: 0 days (13 min)
+  Updates: 2
+  Commits: 2
+  Lines: +273 -20 across 3 files
+  Outcomes: 5 AC checked
+  Artifacts: 3 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-070-routing-controls-v1--centre-anchor-attac.md
+--- exit code: 0 ---

@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-046: Map AEF cross-host dispatch (lib/dispatch.sh) as dogfood workflow #13
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-03T09:47:17Z
+# ============================================================================
+
+task_id: T-046
+task_name: "Map AEF cross-host dispatch (lib/dispatch.sh) as dogfood workflow #13"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-03T09:35:32Z
+completed: 2026-07-03T09:47:10Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-03T11:46:39+02:00
+last_commit: 2026-07-03T11:46:39+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Map AEF cross-host dispatch (fw dispatch send) as dogfood #13
+
+# Key outcomes
+outcomes:
+  - '`examples/aef-processes/cross-host-dispatch.workflow.yaml` exists, `schemaVersion: 2`, `source: lib/dispatch.sh`, and faithfully maps `do_dispatch_send` (arg-parse → validate gate → build envelope → connectivity gate → SSH pipe → remote receive → exit-code gate → done, plus 3 error exits)'
+  - 'Validates clean under `tools/validate-workflow.py` (exit 0)'
+  - 'Geometry clean under `tools/check-lane-bands.py` (exit 0 — no band overflow, no same-lane overlap)'
+  - 'Uses an `external` authority lane for the remote host (first corpus member to do so)'
+  - 'Whole bridge suite passes (`tests/run-bridge-tests.sh` — auto-discovers the new file, round-trips it YAML→BPMN→validator-clean)'
+  - 'Friction report `docs/reports/T-046-dispatch-friction.md` written (recurrences, sharpenings, new candidates)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-046-dispatch-friction.md'
+  - 'examples/aef-processes/cross-host-dispatch.workflow.yaml'
+  - 'examples/aef-processes/rendered/cross-host-dispatch.bpmn'
+  - '.tasks/active/T-046-map-aef-cross-host-dispatch-libdispatchs.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-03T11:46:39"
+    action: "T-046: Map AEF cross-host dispatch (fw dispatch send) as dogfood #13"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 11 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 11
+  commits: 1
+  files_changed: 4
+  lines_added: 717
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-046-map-aef-cross-host-dispatch-libdispatchs.md
+generated_by: context-agent-hybrid

@@ -1,8 +1,8 @@
-# Audit Results - 2026-07-03-1028
-timestamp: 2026-07-03T08:28:08Z
+# Audit Results - 2026-07-03-2116
+timestamp: 2026-07-03T19:16:20Z
 sections: "structure"
 summary:
-  pass: 12
+  pass: 14
   warn: 0
   fail: 0
 findings:
@@ -26,6 +26,10 @@ findings:
     check: "No stale-slice-references (L-417)"
   - level: PASS
     check: "No GO-scope-not-propagated inception(s) (sibling to L-417)"
+  - level: PASS
+    check: "Fabric: 2 registered, 0 unregistered"
+  - level: PASS
+    check: "Fabric edges: 0/2 cards enriched (2 without edges)"
   - level: PASS
     check: "Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer"
   - level: PASS
