@@ -4,9 +4,9 @@ name: "Consolidate split migrations: two-step staircase edges to a single clean 
 description: >
   Routing optimisation (improvement B, migrating-edge case). Headless census (2026-07-06): 22 edges across 13 corpus maps render a small node-centre migration as a TWO-step staircase (V-H-V-H-V or H-V-H-V-H with two same-direction small steps <=16px separated by a long perpendicular run) instead of a single clean Z. Extend simplifyRoutedPolyline (T-117/T-118) with consolidateStaircase: detect the 6-point same-sign small-step pattern, build shift-early and shift-late single-Z candidates, accept the first whose polylineCrossesNodes does not increase. Prototype (render-only, no source change): all 22 consolidate, node-cuts stay 0, total edge-edge crossings unchanged 9->9, 0 maps worsened; the one node-crossing-unsafe case (verification-gate e_04) is salvaged by the shift-late candidate. Render-only, stored geometry untouched (PD-044).
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: [ui, editor, routing, layout]
 components: []
@@ -16,8 +16,8 @@ related_tasks: [T-118, T-117, T-116]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T22:59:33Z
-last_update: 2026-07-05T23:03:52Z
-date_finished: null
+last_update: 2026-07-07T14:08:39Z
+date_finished: 2026-07-07T14:08:39Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -200,6 +200,26 @@ tests/check-corpus-node-cuts.sh
      - **Rejected:** [alternatives and why not]
 -->
 
+## Recommendation
+
+**Recommendation:** GO (finalize — agent ACs complete, ship to human REVIEW)
+
+**Rationale:** All 6 Agent ACs are implemented and verified. `consolidateStaircase`
+is in source (L3903) and wired into `simplifyRoutedPolyline` (L3995) as a render-only
+post-pass with the same self-validating crossing guard as T-117/T-118 — stored geometry
+is untouched (PD-044). The change carries no baseline risk: the corpus node-cut gate is
+0/24 (0 regressed), edge-edge crossings are unchanged (9→9, 0 maps worsened), and the
+one node-crossing-unsafe case (verification-gate e_04) is correctly salvaged by the
+shift-late candidate. Only a Human REVIEW AC (does the connector *read* as one clean Z)
+remains — subjective taste that needs the operator's eye.
+
+**Evidence:**
+- Mirror invariant clean: `diff -q src/aef-workflow-designer.html build/gallery/designer.html` → identical
+- `grep -q "function consolidateStaircase"` and `grep -q "consolidateStaircase(pts"` → both present (L3903, L3995)
+- Corpus node-cut gate: `tests/check-corpus-node-cuts.sh` → 24 unchanged, 0 regressed, total cuts 0 (baseline 0)
+- Headless census in Context: 22 staircase edges across 13 maps all consolidate to a single Z, 0 residual, 0 maps worsened
+- Before/after element screenshots READ for release e_15 and audit-process e_discovery_join (cited in AC)
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -216,3 +236,6 @@ tests/check-corpus-node-cuts.sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-119-consolidate-split-migrations-two-step-st.md
 - **Context:** Initial task creation
+
+### 2026-07-07T14:08:39Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
