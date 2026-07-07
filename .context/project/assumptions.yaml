@@ -62,3 +62,30 @@ assumptions:
   linked_task: T-038
   created: '2026-07-03'
   resolved_date: null
+- id: A-008
+  statement: Operators want to open another project map without leaving the editor
+    (vs the current gallery round-trip + full reload)
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-142
+  created: '2026-07-07'
+  resolved_date: null
+- id: A-009
+  statement: Open can swap maps in-place with no full reload by reusing the ?load
+    fetch -> adoptImportedXml path
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-142
+  created: '2026-07-07'
+  resolved_date: null
+- id: A-010
+  statement: A read-only /api/list endpoint is cheap to build synchronously (stdlib-only)
+    for 24-50 maps
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-142
+  created: '2026-07-07'
+  resolved_date: null
