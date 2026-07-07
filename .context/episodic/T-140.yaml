@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-140: Built-in seed map autosaves a spurious 'investigate' version entry at Init
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-07T17:22:46Z
+# ============================================================================
+
+task_id: T-140
+task_name: "Built-in seed map autosaves a spurious 'investigate' version entry at Init"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-07T17:01:43Z
+completed: 2026-07-07T17:22:44Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-07T19:01:53+02:00
+last_commit: 2026-07-07T19:01:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  File backlog bug — built-in seed autosaves spurious 'investigate' version entry at Init (diagnosis captured)
+
+# Key outcomes
+outcomes:
+  - 'Version store write path is server-side POST /api/save only'
+  - 'Client has exactly ONE call site to /api/save, inside saveToProject()'
+  - 'saveToProject() is reachable ONLY via the manual Save button, not Init/load'
+  - 'Autosave (T-127) writes localStorage only, never the server'
+  - 'No source change made — mirror invariant holds byte-identical'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'File backlog bug — built-in seed autosaves spurious ''investigate'' version entry at Init (diagnosis captured)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-07 — Close as not-a-bug rather than change code'
+    chose: 'Reclassify T-140 as an investigation with a NOT-A-BUG outcome; make no code'
+    rationale: 'The version store is written only by an explicit "Save to project" click; there'
+    alternatives_rejected: ['(a) Implement fix candidate "skip Init-time autosave of the seed" — there']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-140-built-in-seed-map-autosaves-a-spurious-i.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-07T19:01:53"
+    action: "T-140: File backlog bug — built-in seed autosaves spurious 'investigate' version entry at Init (diagnosis captured)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 21 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 21
+  commits: 1
+  files_changed: 1
+  lines_added: 176
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-140-built-in-seed-map-autosaves-a-spurious-i.md
+generated_by: context-agent-hybrid

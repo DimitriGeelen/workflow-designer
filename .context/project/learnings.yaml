@@ -141,3 +141,10 @@ learnings:
   date: 2026-07-07
   context: Added via context agent
   application: TBD
+- id: PL-021
+  learning: "A symptom observed under test automation (e.g. a stray artifact after a Playwright run) must have its WRITE PATH traced to a concrete call site before a root cause is asserted. T-140 filed 'seed autosaves to version store at Init' as a bug; a code trace showed the version store is written only by a manual Save-button click (POST /api/save from saveToProject), and the residue was self-inflicted by the automation's own click. Trace the writer, then diagnose."
+  source: P-001
+  task: T-140
+  date: 2026-07-07
+  context: Added via context agent
+  application: TBD

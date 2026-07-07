@@ -408,3 +408,50 @@ FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-138: Add episodic +
   target: 'T-138'
   command: 'git add -A .context/project/ .context/ 2>/dev/null; git status --short | grep -iE "learnings|PL-020|project" | head
 FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-138: Capture PL-020 (fo'
+- timestamp: '2026-07-07T14:09:25Z'
+  task: 'T-041'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-119'
+  command: 'git add .tasks/active/T-119-consolidate-split-migrations-two-step-st.md
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-119: Finalize staircase-to-Z consolidation — verified 4/4, partia'
+- timestamp: '2026-07-07T14:18:27Z'
+  task: 'T-041'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-118'
+  command: 'cd /opt/832-Workflow-designer
+git add .tasks/active/T-118-endpoint-straight-snap-collapse-endpoint.md
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-118: Finalize endpoint straight-snap '
+- timestamp: '2026-07-07T14:19:32Z'
+  task: 'T-041'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-116'
+  command: 'cd /opt/832-Workflow-designer
+git add .tasks/active/T-116-align-in-middle-wire-align-columns-centr.md
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-116: Finalize align-columns into Clea'
+- timestamp: '2026-07-07T14:21:22Z'
+  task: 'T-041'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-102'
+  command: 'cd /opt/832-Workflow-designer
+git add .tasks/active/T-102-mapmessiness-false-positive-branch-stack.md .context/working/.reviewed-T-102 2>/dev/null
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commi'
+- timestamp: '2026-07-07T14:43:19Z'
+  task: 'T-041'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-139'
+  command: 'cd /opt/832-Workflow-designer
+git add .tasks/active/T-139-retire-align-columns-and-distribute-even.md
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-139: Finalize toolbar-button retireme'
+- timestamp: '2026-07-07T17:01:53Z'
+  task: 'T-041'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-140'
+  command: 'cd /opt/832-Workflow-designer
+git add .tasks/active/T-140-built-in-seed-map-autosaves-a-spurious-i.md
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-140: File backlog bug — built-in se'

@@ -1,29 +1,29 @@
 # Session quality metrics (T-831, T-850)
 # Extracted from: 500d44d9-1e04-4f5a-b40e-f29988622253.jsonl
-# Turn offset: 10189 (session starts at turn 10189)
+# Turn offset: 10405 (session starts at turn 10405)
 
 # Cumulative (entire transcript)
-turns: 10405
-tool_calls: 5019
-commits: 282
-commits_per_turn: 0.0271
+turns: 10678
+tool_calls: 5146
+commits: 296
+commits_per_turn: 0.0277
 first_commit_turn: 51
-failed_tool_calls: 323
-failed_tool_call_rate: 0.0644
-edit_bursts: 291
-productive_turns: 3086
-research_turns: 738
-productive_turns_ratio: 0.2966
-edit_retry_files: 153
+failed_tool_calls: 329
+failed_tool_call_rate: 0.0639
+edit_bursts: 294
+productive_turns: 3175
+research_turns: 754
+productive_turns_ratio: 0.2973
+edit_retry_files: 156
 
-# Per-session (since turn 10189)
-session_turns: 216
-session_commits: 4
-session_commits_per_turn: 0.0185
-session_first_commit_turn: 60
+# Per-session (since turn 10405)
+session_turns: 273
+session_commits: 14
+session_commits_per_turn: 0.0513
+session_first_commit_turn: 42
 session_failed_tool_calls: 6
-session_failed_tool_call_rate: 0.0682
-session_edit_bursts: 6
-session_productive_turns: 68
+session_failed_tool_call_rate: 0.0472
+session_edit_bursts: 3
+session_productive_turns: 89
 session_research_turns: 16
-session_productive_turns_ratio: 0.3148
+session_productive_turns_ratio: 0.326

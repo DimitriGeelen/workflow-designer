@@ -2,12 +2,27 @@
 id: T-140
 name: "Built-in seed map autosaves a spurious 'investigate' version entry at Init"
 description: >
-  The editor's built-in seed document (src line ~1538, id 'investigate', Pool_investigate) is adopted synchronously at Init and the T-127 autosave persists it to the version store (.editor-versions/investigate/) before any real map loads. The ?load deep-link (src line 6994) is async (awaits fetch), so opening designer.html?load=<map> still autosaves the seed under id 'investigate' first (proven this session: v1/v2 created during Playwright nav). Result: a recurring stray 'investigate' entry in the version library. Low severity/contained: T-138 keeps it out of the committed corpus and it lands untracked; harm is a cosmetic library-panel entry. Fix candidates: (a) skip Init-time autosave of the pristine seed until the operator edits or loads a map, or (b) autosave under the loaded map's id, not the seed id. NOTE: autosave-reload is T-127's seam (partial-complete, owner human, in review) — schedule alongside T-127 rather than editing that seam in isolation.
+  INVESTIGATION OUTCOME: NOT-A-BUG (diagnosis invalidated 2026-07-07). The original
+  premise — that the built-in seed (id 'investigate') is *autosaved* to the version
+  store at Init — is false. Code trace proves the version store (.editor-versions/<id>/)
+  is written ONLY by POST /api/save (gallery-serve.py do_POST), which on the client is
+  called ONLY from saveToProject() (fetch('/api/save'), 1 call site), bound ONLY to
+  btn-save-project.onclick (manual click) behind an _apiAvailable gate. The T-127
+  autosave (autosaveNow) writes localStorage ONLY — it never touches the server. Opening
+  designer.html, including with ?load=<map> (which calls adoptImportedXml → in-memory +
+  localStorage, not saveToProject), creates ZERO version-store entries. The 'investigate'
+  residue seen in the prior session was self-inflicted: my own Playwright automation
+  clicked "Save to project" while the seed was the active document. Saving the active
+  document on an explicit click is correct behaviour, not a defect. No code change is
+  warranted; making one would modify working code on a false premise. T-138 already keeps
+  such scratch saves out of the committed corpus. Optional UX hardening (warn/no-op when
+  Save is clicked on the pristine, unedited seed) is a SEPARATE feature, not this bug —
+  filed only if the operator asks.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: later
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +31,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-07T17:01:43Z
-last_update: 2026-07-07T17:01:43Z
-date_finished: null
+last_update: 2026-07-07T17:22:44Z
+date_finished: 2026-07-07T17:22:44Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,14 +49,22 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Investigation task (reclassified from bug). Verifies whether the built-in seed can
+reach the server version store without an explicit operator save. Conclusion: it cannot.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Version store write path is server-side POST /api/save only
+      (`grep "if parsed.path != '/api/save'" tools/gallery-serve.py` → 1)
+- [x] Client has exactly ONE call site to /api/save, inside saveToProject()
+      (`grep -c "fetch('/api/save'"` → 1)
+- [x] saveToProject() is reachable ONLY via the manual Save button, not Init/load
+      (`grep "btn-save-project').onclick = saveToProject"` → 1; no other caller)
+- [x] Autosave (T-127) writes localStorage only, never the server
+      (`grep "localStorage.setItem(AUTOSAVE_KEY"` → 1)
+- [x] No source change made — mirror invariant holds byte-identical
+      (`diff -q src/aef-workflow-designer.html build/gallery/designer.html`)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -106,22 +129,36 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+test "$(grep -c "if parsed.path != '/api/save'" tools/gallery-serve.py)" = "1"
+test "$(grep -c "fetch('/api/save'" src/aef-workflow-designer.html)" = "1"
+grep -q "btn-save-project').onclick = saveToProject" src/aef-workflow-designer.html
+grep -q "localStorage.setItem(AUTOSAVE_KEY" src/aef-workflow-designer.html
+diff -q src/aef-workflow-designer.html build/gallery/designer.html
 
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
+**Symptom:** A stray `investigate` entry appeared in the editor's version library
+(`.editor-versions/investigate/` with v1/v2) during the prior session; I attributed it
+to the built-in seed being autosaved to the version store at Init.
 
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
+**Root cause:** Mis-diagnosis, not a code defect. The version store is written ONLY by
+`POST /api/save` (`tools/gallery-serve.py` `do_POST`). On the client that endpoint is hit
+from a single call site — `saveToProject()` — which is bound ONLY to `btn-save-project`'s
+click handler behind an `_apiAvailable` gate. The T-127 autosave (`autosaveNow`) persists
+to `localStorage` exclusively and never contacts the server. `?load` and file-import both
+route through `adoptImportedXml` (in-memory + localStorage), not `saveToProject`. Opening
+the editor therefore produces zero version-store writes. The residue was self-inflicted:
+Playwright automation in the prior session clicked "Save to project" with the seed active.
 
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
+**Why structurally allowed:** The prior task was filed from an observed symptom without
+tracing the write path — the STOP-and-investigate step (trace the actual writer before
+asserting a cause) was skipped. The residue landed untracked, so no gate flagged the
+false claim; only a fresh code trace this session surfaced it.
+
+**Prevention:** Captured as a learning — a symptom seen under test automation must have
+its write path traced to a call site before a root cause is asserted (see `## Decisions`).
+No functional gate needed: T-138 already prevents such scratch saves from reaching the
+committed corpus, and saving the active document on an explicit click is correct by design.
 
 ## Evolution
 
@@ -149,14 +186,34 @@ date_finished: null
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-07-07 — Close as not-a-bug rather than change code
+- **Chose:** Reclassify T-140 as an investigation with a NOT-A-BUG outcome; make no code
+  change; complete the task with the corrected RCA as the deliverable.
+- **Why:** The version store is written only by an explicit "Save to project" click; there
+  is no Init/load autosave-to-server path. Editing working code to "fix" a non-existent
+  autosave would risk a regression on a false premise. The observed residue was test-
+  automation self-inflicted and is already contained by T-138.
+- **Rejected:** (a) Implement fix candidate "skip Init-time autosave of the seed" — there
+  is no such autosave to skip. (b) Touch T-127's autosave seam — irrelevant; that seam is
+  localStorage-only and not the writer. (c) Build the optional "warn on saving pristine
+  seed" UX guard now — that is new, unrequested scope; offer it, don't build it unasked.
+
+## Recommendation
+
+**Recommendation:** NO-GO on a code change; GO on closing T-140 as NOT-A-BUG (agent-owned,
+no human AC — completes cleanly).
+
+**Rationale:** All 5 Agent ACs are verified against the actual code, proving the version
+store is only reachable through a manual Save click. The filed bug describes a mechanism
+(Init-time autosave to the server) that does not exist. The correct, integrity-preserving
+outcome is to record the corrected RCA and close, not to modify working code.
+
+**Evidence:**
+- `grep -c "if parsed.path != '/api/save'" tools/gallery-serve.py` → 1 (server writes store only on POST /api/save)
+- `grep -c "fetch('/api/save'" src/aef-workflow-designer.html` → 1 (single client call site, in saveToProject)
+- `grep -q "btn-save-project').onclick = saveToProject"` → present (only manual-click reachable)
+- `grep -q "localStorage.setItem(AUTOSAVE_KEY"` → present (autosave is localStorage-only)
+- `diff -q src/aef-workflow-designer.html build/gallery/designer.html` → identical (no source change)
 
 ## Decision
 
@@ -174,3 +231,10 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-140-built-in-seed-map-autosaves-a-spurious-i.md
 - **Context:** Initial task creation
+
+### 2026-07-07T17:20:42Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
+
+### 2026-07-07T17:22:44Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
