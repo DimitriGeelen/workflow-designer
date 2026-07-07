@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-07T18:28:17Z
-last_update: 2026-07-07T18:29:06Z
+last_update: 2026-07-07T18:31:19Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -65,13 +65,28 @@ Registered via `fw assumption add` (see `## Updates`). Summary:
   confidence: 1
   disposition: deferred
   rationale: Provisional split — endpoint / modal / saved-work surfacing; confirmed at decide.
+- **IW-5: When a map has saved versions in `.editor-versions/<id>/`, should "Open" default
+  to loading the LATEST saved version (not the stale `rendered/` baseline), surface the
+  latest version label in the list, and offer older versions via the existing Versions
+  modal?**
+  confidence: 2
+  disposition: deferred
+  rationale: Today `?load` always fetches `rendered/<id>.bpmn` (baseline), so saved edits are
+  silently ignored on open — the friction this inception exists to fix. `/api/versions` +
+  `/api/version?v=` already exist (gallery-serve.py:28-29); Spike 1 resolves latest-per-map,
+  Spike 2 wires "open latest" as the default with an older-version affordance.
 
 ## Exploration Plan
 
 Three time-boxed spikes (detail in the research artifact §4):
-1. **Endpoint shape** (`/api/list`) — read-only prototype; JSON schema + sample payload. ~45m
-2. **Modal UX** — "Open…" modal on the Versions-modal pattern; confirm in-place open reusing
-   `?load`/`adoptImportedXml`; interaction sketch. ~60m
+1. **Endpoint shape + latest-version resolution** (`/api/list`) — read-only prototype; per
+   map return `id`, title/description, source (`rendered`/`saved`), and **latest version +
+   timestamp** (from `.editor-versions/<id>/index.json`), so the list knows what "open
+   latest" means. JSON schema + sample payload. ~45m
+2. **Modal UX + open-latest** — "Open…" modal on the Versions-modal pattern; confirm in-place
+   open reusing `?load`/`adoptImportedXml`; **default to the latest saved version** (fall back
+   to `rendered/` baseline when none), with an older-version affordance handing off to the
+   existing Versions modal. Interaction sketch. ~60m
 3. **Saved-work visibility + static fallback** — enumerate `.editor-versions/*`; confirm the
    feature hides on `python -m http.server`. ~30m
 Each spike updates the research artifact incrementally (C-001); commit after each.
@@ -87,7 +102,9 @@ Each spike updates the research artifact incrementally (C-001); commit after eac
 ## Scope Fence
 
 **IN:** exploring a read-only `/api/list` endpoint shape; an in-editor "Open from project"
-modal; surfacing `.editor-versions/*` saved maps; static-gallery fallback.
+modal; surfacing `.editor-versions/*` saved maps; **defaulting "Open" to each map's latest
+saved version** (with older versions reachable via the existing Versions modal);
+static-gallery fallback.
 **OUT:** any write/delete/rename of project maps from the browser; auth/multi-user;
 renaming or removing the existing "Switch workflow" picker or "Load…" button; changing the
 gallery index page's role (that is the Option-B fallback, considered only on NO-GO).
@@ -116,8 +133,10 @@ gallery index page's role (that is the Option-B fallback, considered only on NO-
 
 <!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
 **GO if:**
-- `/api/list` has a clean, stdlib-only read-only shape (IW-1 answered)
+- `/api/list` has a clean, stdlib-only read-only shape that includes latest-version-per-map (IW-1, IW-5)
 - The modal opens a map in-place with no full reload, reusing `?load`/`adoptImportedXml` (IW-2)
+- "Open" defaults to the latest saved version (baseline fallback when none), older versions
+  reachable via the existing Versions modal (IW-5)
 - The feature hides cleanly on the static gallery (IW-3)
 - The build decomposes into ≤2–3 bounded build tasks (IW-4)
 

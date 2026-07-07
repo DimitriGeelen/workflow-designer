@@ -89,3 +89,13 @@ assumptions:
   linked_task: T-142
   created: '2026-07-07'
   resolved_date: null
+- id: A-011
+  statement: Operators expect Open to load a map's LATEST saved version, not the stale
+    rendered baseline; opening the baseline over saved work would be a surprise/data-loss
+    risk
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-142
+  created: '2026-07-07'
+  resolved_date: null

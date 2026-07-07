@@ -55,17 +55,27 @@ Key structural facts:
 
 ## 4. Exploration plan (spikes) — TO BE REVIEWED BEFORE EXECUTION
 
-**Spike 1 — endpoint shape (`/api/list`).** Prototype a read-only endpoint in
-`gallery-serve.py` returning, for each map: `id`, `title`/description (parsed from the
-BPMN `aef:` metadata or filename fallback), source (`rendered` vs `saved`), latest version
-+ thumb availability. Decide: one merged list or two sections (corpus vs your saved maps)?
+**Spike 1 — endpoint shape + latest-version resolution (`/api/list`).** Prototype a
+read-only endpoint in `gallery-serve.py` returning, for each map: `id`, `title`/description
+(parsed from the BPMN `aef:` metadata or filename fallback), source (`rendered` vs `saved`),
+and **latest version + timestamp** (read from `.editor-versions/<id>/index.json`) + thumb
+availability. This is what makes "open latest" possible — the list must know each map's
+newest version. Decide: one merged list or two sections (corpus vs your saved maps)?
 Measure response shape/size for 24 maps. *Deliverable: JSON schema + sample payload.*
 
-**Spike 2 — modal UX.** Prototype an in-editor "Open…" modal mirroring the existing
-Versions modal pattern (`openVersionsModal`, `src:6867`) — grid of thumbnail + title +
-source badge, with a client-side filter box. Decide: does opening a map reuse the existing
-`?load` fetch path (in-memory, no reload) via `adoptImportedXml`, avoiding the full-page
-reload? *Deliverable: interaction sketch + which code path it reuses.*
+**Spike 2 — modal UX + open-latest.** Prototype an in-editor "Open…" modal mirroring the
+existing Versions modal pattern (`openVersionsModal`, `src:6867`) — grid of thumbnail +
+title + source badge + **latest-version label**, with a client-side filter box. Decide:
+does opening a map reuse the existing `?load` fetch path (in-memory, no reload) via
+`adoptImportedXml`, avoiding the full-page reload? **Default the open target to the latest
+saved version** (`/api/version?id=&v=<latest>`), falling back to the `rendered/` baseline
+when a map has no saved versions; older versions remain reachable via the existing Versions
+modal. *Deliverable: interaction sketch + which code path it reuses.*
+
+> **Why latest-version matters (added 2026-07-07 on human steer):** today `?load` always
+> fetches `rendered/<id>.bpmn` — the stale baseline — so opening a map you have saved edits
+> on silently discards them from view. The browser must resolve and default to the latest
+> saved version, or it reintroduces the very confusion it aims to remove.
 
 **Spike 3 — saved-work visibility & static fallback.** Confirm `.editor-versions/*` can be
 enumerated cheaply and that the whole feature hides cleanly on the static gallery.
@@ -73,10 +83,12 @@ enumerated cheaply and that the whole feature hides cleanly on the static galler
 
 ## 5. Open questions (mirror of task `## Open Questions`)
 
-- **IW-1** — `/api/list` shape (fields; merged vs corpus/saved split). *deferred → Spike 1.*
+- **IW-1** — `/api/list` shape (fields incl. latest-version; merged vs corpus/saved split). *deferred → Spike 1.*
 - **IW-2** — in-place open reusing `?load`/`adoptImportedXml` (no reload). *deferred → Spike 2.*
 - **IW-3** — clean hide on the static gallery (detectSaveApi precedent). *deferred → Spike 3.*
 - **IW-4** — build decomposes into ≤2–3 bounded tasks. *deferred → confirmed at decide.*
+- **IW-5** — Open defaults to a map's latest saved version (baseline fallback), older
+  versions via the Versions modal. *deferred → Spike 1 (resolve) + Spike 2 (wire).*
 
 ## 6. Go/No-Go criteria (decision at end of exploration)
 
@@ -95,3 +107,11 @@ enumerated cheaply and that the whole feature hides cleanly on the static galler
   fix but flagged it as inception-sized (new API route + modal) per G-020. Plan below
   presented for review before any spike executes.
 - **Pending:** await human approval of the exploration plan (§4) before executing Spike 1.
+
+### 2026-07-07 — human steer: version-awareness
+- **Human:** "looks good; need to consider version — suggests to load latest version."
+- **Agent:** Added IW-5 and a fourth assumption. Threaded latest-version resolution into
+  Spike 1 (endpoint returns latest-per-map from `.editor-versions/<id>/index.json`) and
+  Spike 2 (Open defaults to latest saved version, baseline fallback, older versions via the
+  existing Versions modal). Updated Scope Fence and GO criteria. Root friction named: today
+  `?load` opens the stale `rendered/` baseline, ignoring saved edits.
