@@ -4,9 +4,9 @@ name: "Align-in-middle: wire Align-columns (centre-x) into Clean layout"
 description: >
   Operator improvement A (align in middle) + B (connect on 90). cleanLayout() does per-lane tidy + align-rows (centre-y) but never align-columns (centre-x), so stacked nodes of different widths (e.g. gateway 48w over end-event 36w) keep a small centre-x offset -> vertical drops render as a tiny staircase jog instead of a dead-straight 90 deg line. Fix: run alignColumns() (T-107, already snaps vertical-edge-connected nodes to shared centre-x, with measure-after-move overlap revert) as a final global step in cleanLayout, merged into the same lastTidy so one Ctrl+Z reverts. Align-rows (Y) and align-columns (X) are orthogonal axes and cannot fight. B (clean 90) falls out for free once centres align; residual horizontal-edge jogs are a separate follow-up.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: [ui, editor, routing, layout]
 components: []
@@ -16,8 +16,8 @@ related_tasks: [T-105, T-107, T-094, T-101]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T22:01:16Z
-last_update: 2026-07-05T22:05:53Z
-date_finished: null
+last_update: 2026-07-07T14:19:17Z
+date_finished: 2026-07-07T14:19:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -163,6 +163,21 @@ tests/check-corpus-node-cuts.sh
      - **Rejected:** [alternatives and why not]
 -->
 
+## Recommendation
+
+**Recommendation:** GO (finalize — agent ACs complete, ship to human REVIEW)
+
+**Rationale:** All 6 Agent ACs are implemented and verified. `alignColumnsMoves()` is in
+source and wired into the Clean layout move-set (`positions.push(...alignColumnsMoves())`).
+No baseline risk: the corpus node-cut gate is 0/24 (0 regressed) and the mirror invariant
+holds byte-identical. The one remaining AC is a Human REVIEW of whether Clean's centre-x
+alignment *reads* right — subjective taste that needs the operator's eye.
+
+**Evidence:**
+- Mirror invariant: `diff -q src/aef-workflow-designer.html build/gallery/designer.html` → identical
+- `grep -c "function alignColumnsMoves"` → 1 (present); `grep -c "positions.push(...alignColumnsMoves())"` → 1 (wired)
+- Corpus node-cut gate: `tests/check-corpus-node-cuts.sh` → 24 unchanged, 0 regressed, total cuts 0 (baseline 0)
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -179,3 +194,6 @@ tests/check-corpus-node-cuts.sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-116-align-in-middle-wire-align-columns-centr.md
 - **Context:** Initial task creation
+
+### 2026-07-07T14:19:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
