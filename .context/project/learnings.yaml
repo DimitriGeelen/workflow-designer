@@ -148,3 +148,10 @@ learnings:
   date: 2026-07-07
   context: Added via context agent
   application: TBD
+- id: PL-022
+  learning: "Two traps when snapshotting a baseline for a 'document unchanged?' guard in the single-file editor: (1) A hoisted function (buildBpmnXml) is CALLABLE early but THROWS if its body references block-scoped consts (TYPE_TAG) still in the temporal dead zone — hoisting != dependencies-initialized. Capturing at seed-creation (line ~1877) crashed Init. (2) Comparing the live document to a freshly-built template (getInvestigateWorkflow()) never matches, because Init post-processes the seed (refreshDisplayIds populates flowNodeRefs the raw template lacks). Fix: capture the baseline AFTER the same Init processing (right after renderAll(), before autoLoadStored()). Verify a UI guard predicate in the real browser, not by static reasoning."
+  source: P-001
+  task: T-141
+  date: 2026-07-07
+  context: Added via context agent
+  application: TBD

@@ -661,3 +661,24 @@ decisions:
     date: 2026-07-06
     task: T-137
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-074
+    decision: "Reclassify T-140 as an investigation with a NOT-A-BUG outcome; make no code"
+    scope: project
+    date: 2026-07-07
+    task: T-140
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-075
+    decision: "When the save bytes equal the pristine seed, ask via `confirm()` and honour"
+    scope: project
+    date: 2026-07-07
+    task: T-141
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-076
+    decision: "`const _seedBpmn = buildBpmnXml(state)` immediately after Init's"
+    scope: project
+    date: 2026-07-07
+    task: T-141
+    rationale: "Auto-captured from task file on completion"

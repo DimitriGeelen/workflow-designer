@@ -6828,6 +6828,16 @@ async function saveToProject() {
       return;
     }
     const bpmn = buildBpmnXml(state);
+    // T-141: guard an accidental save of the pristine, unedited starter seed. `_seedBpmn`
+    // is the processed seed captured at the end of Init. If the bytes we are about to POST
+    // match it, the operator has neither loaded nor edited anything — confirm before creating
+    // an `investigate` version (the residue source from T-140). Any real edit or a loaded map
+    // diverges the bytes, so the guard steps aside silently for genuine saves.
+    if (bpmn === _seedBpmn &&
+        !confirm('This is the unedited starter example ("investigate"). Save it to the project as a new version anyway?')) {
+      if (btn) btn.textContent = label || '⤓ Save to project';
+      return;
+    }
     if (btn) btn.textContent = '⤓ Saving…';
     const png = await captureThumbnail();
     const res = await fetch('/api/save', {
@@ -7616,6 +7626,12 @@ refreshDisplayIds();
 renderAll();
 refreshLibraryUI();
 setMode('select');
+// T-141: capture the pristine seed's PROCESSED BPMN now — refreshDisplayIds()+renderAll()
+// above have populated node refs, `state` is still the untouched seed (autoLoadStored below
+// may replace it), and every buildBpmnXml dependency (e.g. TYPE_TAG) is initialized at this
+// point in Init. saveToProject() compares against this to guard an accidental save of the
+// unedited starter example (the residue source diagnosed in T-140).
+const _seedBpmn = buildBpmnXml(state);
 _appReady = true;            // from here on, edits autosave to localStorage
 autoLoadStored();            // B1: if a prior session left unsaved work, bring it back automatically
 detectSaveApi();             // B3: reveal "Save to project" when the write-capable server is present

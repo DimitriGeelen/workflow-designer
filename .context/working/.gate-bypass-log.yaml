@@ -455,3 +455,12 @@ FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-139: Finalize toolb
   command: 'cd /opt/832-Workflow-designer
 git add .tasks/active/T-140-built-in-seed-map-autosaves-a-spurious-i.md
 FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-140: File backlog bug — built-in se'
+- timestamp: '2026-07-07T18:17:38Z'
+  task: 'T-041'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-141'
+  command: 'cd /opt/832-Workflow-designer
+git add src/aef-workflow-designer.html .tasks/ .context/ 2>/dev/null
+git reset -q t141-toolbar.png 2>/dev/null || true
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git com'
