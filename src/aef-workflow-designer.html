@@ -946,8 +946,9 @@
       <button class="btn" id="btn-add-lane">+ Add Lane</button>
       <button class="btn" id="btn-reset">Reset</button>
       <button class="btn" id="btn-clean" title="Tidy + branch pitch + align rows on every lane — one click, Ctrl+Z reverts">✨ Clean layout</button>
-      <button class="btn" id="btn-align-cols" title="Snap connected, near-aligned nodes to a shared column — straightens vertical doglegs. Trade-off: may pull a node off its row, partly undoing an earlier Distribute evenly on shared row-mates (Ctrl+Z reverts)">⁙ Align columns</button>
-      <button class="btn" id="btn-distribute" title="Equalise horizontal gaps between row-mates — evens out uneven chain spacing, extremes stay put. Trade-off: if a row-mate is also a column-mate, evening the row pulls it off its column, partly undoing Align columns (Ctrl+Z reverts)">↔ Distribute evenly</button>
+      <!-- T-139: standalone ⁙ Align columns (T-107) and ↔ Distribute evenly (T-109) buttons
+           retired — they fought each other and Clean already aligns columns via
+           alignColumnsMoves(). Functions kept for Clean/nudge/import/bake/verifiers. -->
       <button class="btn" id="btn-xml">View XML</button>
       <button class="btn" id="btn-settings" title="Editor settings — routing, snapping, grid">⚙ Settings</button>
       <button class="btn" id="btn-load">Load…</button>
@@ -6693,26 +6694,9 @@ $('btn-clean').onclick = () => {
   if (moved) { commitHistory(before); flashCleanFeedback(moved); }
   else { btn.textContent = '✨ Already clean'; setTimeout(() => { btn.textContent = '✨ Clean layout'; }, 2500); }
 };
-$('btn-align-cols').onclick = () => {
-  const btn = $('btn-align-cols');
-  const before = snapshotState();   // B5
-  const moved = alignColumns();
-  if (moved) commitHistory(before);
-  btn.textContent = moved
-    ? `⁙ Aligned ${moved} node${moved === 1 ? '' : 's'} — Ctrl+Z reverts`
-    : '⁙ Columns already aligned';
-  setTimeout(() => { btn.textContent = '⁙ Align columns'; }, 2500);
-};
-$('btn-distribute').onclick = () => {
-  const btn = $('btn-distribute');
-  const before = snapshotState();   // B5
-  const moved = distributeEvenly();
-  if (moved) commitHistory(before);
-  btn.textContent = moved
-    ? `↔ Distributed ${moved} node${moved === 1 ? '' : 's'} — Ctrl+Z reverts`
-    : '↔ Gaps already even';
-  setTimeout(() => { btn.textContent = '↔ Distribute evenly'; }, 2500);
-};
+// T-139: btn-align-cols / btn-distribute onclick bindings removed with their buttons.
+// alignColumns()/alignColumnsMoves()/distributeEvenly() are intentionally retained —
+// Clean composes alignColumnsMoves(), and the diag/verifier tooling still calls them.
 $('clean-nudge-apply').onclick = () => {
   const before = snapshotState();   // B5: user-clicked Clean from the load nudge — undoable
   const moved = cleanLayout();
