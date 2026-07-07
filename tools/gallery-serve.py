@@ -11,11 +11,16 @@ Design (T-128 GO, refined at B2 build):
     no re-layout — the operator's geometry is written verbatim. `workflow.yaml`
     (the human-authored semantic source) is NOT touched.
   - A Save writes:
-      examples/aef-processes/rendered/<id>.bpmn   (canonical, committed)
-      build/gallery/rendered/<id>.bpmn            (served copy, immediately loadable)
-      .editor-versions/<id>/vN.bpmn               (immutable version snapshot)
+      .editor-versions/<id>/vN.bpmn               (immutable version snapshot — always)
       .editor-versions/<id>/vN.png                (thumbnail, if posted)
-      .editor-versions/<id>/index.json            (version list)
+      .editor-versions/<id>/index.json            (version list — always)
+      build/gallery/rendered/<id>.bpmn            (served copy, immediately loadable — always)
+      examples/aef-processes/rendered/<id>.bpmn   (canonical, committed — GATED, see below)
+  - Corpus gating (T-138): the canonical committed file is written only when the
+    id already exists in the corpus (an edit) OR the save is explicitly promoted
+    (`promote:true` in payload, or server started with --allow-new-corpus). A new
+    id is treated as scratch: it is versioned and served but NOT published to the
+    committed corpus, so ad-hoc/test saves cannot pollute it.
   - localhost-bound; `id` is validated against ^[a-z0-9][a-z0-9_-]*$ (no traversal).
 
 API:
@@ -23,9 +28,9 @@ API:
   GET  /api/versions?id=<id>       -> index.json  ([] if none)
   GET  /api/version?id=<id>&v=<n>  -> that version's BPMN (text/xml)
   GET  /api/thumb?id=<id>&v=<n>    -> that version's PNG
-  POST /api/save  {id, bpmn, png?, note?} -> {ok:true, v, ts}
+  POST /api/save  {id, bpmn, png?, note?, promote?} -> {ok:true, v, ts, corpus:bool}
 
-Usage: gallery-serve.py [PORT] [--docroot DIR] [--repo DIR] [--bind ADDR]
+Usage: gallery-serve.py [PORT] [--docroot DIR] [--repo DIR] [--bind ADDR] [--allow-new-corpus]
 Defaults: PORT=8834, docroot=<repo>/build/gallery, repo=<script>/.., bind=0.0.0.0
 """
 import base64
@@ -44,10 +49,14 @@ REPO = os.path.abspath(os.path.join(SCRIPT_DIR, '..'))
 DOCROOT = os.path.join(REPO, 'build', 'gallery')
 BIND = '0.0.0.0'
 PORT = 8834
+# T-138: canonical committed-corpus writes are existence-or-promotion gated so
+# scratch/test saves cannot pollute examples/aef-processes/rendered/. This flag
+# restores the legacy always-write behaviour (any valid id publishes to corpus).
+ALLOW_NEW_CORPUS = False
 
 
 def _args(argv):
-    global DOCROOT, REPO, BIND, PORT
+    global DOCROOT, REPO, BIND, PORT, ALLOW_NEW_CORPUS
     it = iter(argv)
     for a in it:
         if a == '--docroot':
@@ -56,6 +65,8 @@ def _args(argv):
             REPO = os.path.abspath(next(it))
         elif a == '--bind':
             BIND = next(it)
+        elif a == '--allow-new-corpus':
+            ALLOW_NEW_CORPUS = True
         elif a.isdigit():
             PORT = int(a)
 
@@ -191,11 +202,20 @@ class Handler(SimpleHTTPRequestHandler):
                 thumb = 'v%d.png' % v
             except Exception:
                 thumb = None
-        # 3. canonical rendered map (committed) + served copy
+        # 3. canonical rendered map (committed) — existence-or-promotion gated (T-138).
+        #    Version snapshot (step 1) already persisted the operator's work durably;
+        #    publishing into the *committed* corpus is a separate, deliberate act.
+        #    A new id (no canonical file yet) is treated as scratch and NOT published
+        #    unless explicitly promoted, so ad-hoc/test saves can't pollute the corpus.
         rendered_repo = os.path.join(REPO, 'examples', 'aef-processes', 'rendered', '%s.bpmn' % id_)
-        os.makedirs(os.path.dirname(rendered_repo), exist_ok=True)
-        with open(rendered_repo, 'wb') as f:
-            f.write(bpmn_bytes)
+        is_existing_corpus = os.path.exists(rendered_repo)
+        promote = bool(payload.get('promote')) or ALLOW_NEW_CORPUS
+        to_corpus = is_existing_corpus or promote
+        if to_corpus:
+            os.makedirs(os.path.dirname(rendered_repo), exist_ok=True)
+            with open(rendered_repo, 'wb') as f:
+                f.write(bpmn_bytes)
+        # served copy — always written so the map is immediately loadable in the gallery
         served = os.path.join(DOCROOT, 'rendered', '%s.bpmn' % id_)
         try:
             os.makedirs(os.path.dirname(served), exist_ok=True)
@@ -207,7 +227,7 @@ class Handler(SimpleHTTPRequestHandler):
         index.append({'v': v, 'ts': ts, 'note': note, 'thumb': thumb, 'bytes': len(bpmn_bytes)})
         write_index(id_, index)
 
-        return self._json(200, {'ok': True, 'v': v, 'ts': ts})
+        return self._json(200, {'ok': True, 'v': v, 'ts': ts, 'corpus': to_corpus})
 
 
 def main():
