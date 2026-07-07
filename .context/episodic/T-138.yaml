@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-138: Gallery save API allow-list: scratch maps must not pollute committed corpus
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-07T14:05:05Z
+# ============================================================================
+
+task_id: T-138
+task_name: "Gallery save API allow-list: scratch maps must not pollute committed corpus"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-07T14:01:48Z
+completed: 2026-07-07T14:05:03Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-07T16:04:58+02:00
+last_commit: 2026-07-07T16:04:58+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Gate /api/save canonical-corpus write (existence-or-promote) so scratch saves can't pollute corpus
+
+# Key outcomes
+outcomes:
+  - 'Saving a **new** id (no existing `examples/aef-processes/rendered/<id>.bpmn`) does NOT create that canonical corpus file; response reports `corpus:false`'
+  - 'Saving a new id still writes the version snapshot (`.editor-versions/<id>/vN.bpmn`) and served copy (`build/gallery/rendered/<id>.bpmn`) — no operator work is lost'
+  - 'Saving an **existing** corpus id overwrites its canonical file exactly as before; response reports `corpus:true`'
+  - 'Explicit promotion (`promote:true` in payload) writes the canonical corpus file for a new id; response reports `corpus:true`'
+  - '`--allow-new-corpus` server flag restores the old always-write behaviour for a new id'
+  - 'Headless verifier `tools/_gallery-save-allowlist-verify.py` exercises all five cases against a live server on an ephemeral port with a temp repo, and passes (6/6)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-138-gallery-save-api-allow-list-scratch-maps.md'
+  - 'tools/_gallery-save-allowlist-verify.py'
+  - 'tools/gallery-serve.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-07T16:04:58"
+    action: "T-138: Gate /api/save canonical-corpus write (existence-or-promote) so scratch saves can't pollute corpus"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 3
+  lines_added: 364
+  lines_removed: 12
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-138-gallery-save-api-allow-list-scratch-maps.md
+generated_by: context-agent-hybrid
