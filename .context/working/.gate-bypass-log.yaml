@@ -387,3 +387,24 @@ Operator field report: gateway->node'
 grep current_task .context/working/focus.yaml
 git add -A .tasks .context 2>/dev/null
 FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-117: Finalize interior d'
+- timestamp: '2026-07-07T14:05:29Z'
+  task: 'T-041'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-138'
+  command: 'git add -A .tasks/active/T-138-gallery-save-api-allow-list-scratch-maps.md .tasks/completed/T-138-gallery-save-api-allow-list-scratch-maps.md .context/episodic/T-138.yaml
+FW_SWITCH_FOCUS=1 .agentic-fr'
+- timestamp: '2026-07-07T14:05:44Z'
+  task: 'T-041'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-138'
+  command: 'git add .context/episodic/T-138.yaml .tasks/completed/T-138-gallery-save-api-allow-list-scratch-maps.md
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-138: Add episodic + finalize task U'
+- timestamp: '2026-07-07T14:06:19Z'
+  task: 'T-041'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-138'
+  command: 'git add -A .context/project/ .context/ 2>/dev/null; git status --short | grep -iE "learnings|PL-020|project" | head
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-138: Capture PL-020 (fo'

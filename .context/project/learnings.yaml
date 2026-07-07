@@ -134,3 +134,10 @@ learnings:
   date: 2026-07-06
   context: Added via context agent
   application: TBD
+- id: PL-020
+  learning: "A write endpoint that validates input FORMAT (e.g. id regex) is not the same as authorizing the WRITE TARGET: /api/save accepted any well-formed id and published it straight into the committed corpus. Separate 'persist durably' (always safe: version store) from 'publish to shared/committed state' (must be deliberate: existence-or-explicit-promotion gate)."
+  source: P-002
+  task: T-138
+  date: 2026-07-07
+  context: Added via context agent
+  application: TBD
