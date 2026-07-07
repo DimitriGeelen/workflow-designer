@@ -4,9 +4,9 @@ name: "Endpoint straight-snap: collapse endpoint-adjacent micro-steps on axis-al
 description: >
   T-117 deferred follow-up (improvement B, fuller). After the re-bake, ~10 residual routing micro-steps remain corpus-wide: endpoint-adjacent 2-4px perpendicular steps on edges whose source and target ports are axis-aligned within tolerance. Two causes: (1) off-centre gateway source-port (diamond drop leaves ~4px off the bottom vertex while target is centred), (2) spurious corridor micro-offset (src==tgt centre but run drifts 2-4px in 2px steps for channel separation that separates nothing). Fix: extend simplifyRoutedPolyline (T-117) with an endpoint straight-snap — when first/last points are axis-aligned within tolerance and all interior vertices are within tolerance of a shared axis coordinate that lies within both node faces, collapse to a single straight run. Guarded by polylineCrossesNodes not increasing (PL-005 self-validating, PD-044 render-only). Genuine migrations (e.g. release e_15, 31px centre diff) excluded by tolerance.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: [ui, editor, routing, layout]
 components: []
@@ -16,8 +16,8 @@ related_tasks: [T-117, T-116, T-105]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T22:45:18Z
-last_update: 2026-07-05T22:53:04Z
-date_finished: null
+last_update: 2026-07-07T14:18:06Z
+date_finished: 2026-07-07T14:18:06Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -207,6 +207,22 @@ tests/check-corpus-node-cuts.sh
      - **Rejected:** [alternatives and why not]
 -->
 
+## Recommendation
+
+**Recommendation:** GO (finalize — agent ACs complete, ship to human REVIEW)
+
+**Rationale:** All 7 Agent ACs are implemented and verified. The endpoint straight-snap
+(`SNAP_TOL` gated micro-step collapse) is present in source and part of the same
+render-only `simplifyRoutedPolyline` pass as T-117/T-119, with stored geometry untouched
+(PD-044). No baseline risk: the corpus node-cut gate is 0/24 (0 regressed) and the mirror
+invariant holds byte-identical. The one remaining AC is a Human REVIEW of whether the
+endpoint corner *reads* clean — subjective taste that needs the operator's eye.
+
+**Evidence:**
+- Mirror invariant: `diff -q src/aef-workflow-designer.html build/gallery/designer.html` → identical
+- `grep -c SNAP_TOL src/aef-workflow-designer.html` → 10 references present
+- Corpus node-cut gate: `tests/check-corpus-node-cuts.sh` → 24 unchanged, 0 regressed, total cuts 0 (baseline 0)
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -223,3 +239,6 @@ tests/check-corpus-node-cuts.sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-118-endpoint-straight-snap-collapse-endpoint.md
 - **Context:** Initial task creation
+
+### 2026-07-07T14:18:06Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
