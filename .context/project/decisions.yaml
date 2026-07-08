@@ -682,3 +682,10 @@ decisions:
     date: 2026-07-07
     task: T-141
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-077
+    decision: "One list where each map carries `sources:[rendered|saved]`, plus `latest` and a"
+    scope: project
+    date: 2026-07-08
+    task: T-143
+    rationale: "Auto-captured from task file on completion"

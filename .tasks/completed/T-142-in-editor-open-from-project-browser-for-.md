@@ -4,16 +4,16 @@ name: "In-editor Open-from-project browser for workflow files"
 description: >
   Inception: In-editor Open-from-project browser for workflow files
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-07T18:28:17Z
-last_update: 2026-07-07T18:31:19Z
-date_finished: null
+last_update: 2026-07-08T06:07:02Z
+date_finished: 2026-07-08T06:07:02Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -47,34 +47,37 @@ Registered via `fw assumption add` (see `## Updates`). Summary:
 
 - **IW-1: What is the right shape of a read-only `/api/list` endpoint (fields, and one
   merged list vs corpus/saved split)?**
-  confidence: 1
-  disposition: deferred
-  rationale: Spike 1 will prototype it in gallery-serve.py and produce a sample payload.
+  confidence: 3
+  disposition: answered
+  rationale: Spike 1 (scratchpad/spike1_api_list.py) — merged list, per-map {id,title,
+  sources[],latest,openTarget}; 24 maps in 6065 bytes / 4.2 ms, stdlib only.
 - **IW-2: Can "Open" swap a map in-place (no full-page reload) by reusing the existing
   `?load` → `adoptImportedXml` path (src:7002, src:6927)?**
-  confidence: 2
-  disposition: deferred
-  rationale: Path exists and is in-memory; Spike 2 confirms it works from a modal click.
+  confidence: 3
+  disposition: answered
+  rationale: Spike 2 (live browser) — adoptImportedXml swapped investigate→audit-process,
+  URL unchanged, 14 nodes; no reload.
 - **IW-3: Does the whole feature hide cleanly on the static gallery (no `/api/*`), like
   Save/Versions already do via detectSaveApi (src:6747)?**
-  confidence: 2
-  disposition: deferred
-  rationale: Precedent exists; Spike 3 confirms the list button hides without /api/health.
+  confidence: 3
+  disposition: answered
+  rationale: Spike 3 — detectSaveApi already gates Save/Versions (ship display:none, revealed
+  on /api/health); a new Open button reuses it verbatim.
 - **IW-4: Does the build decompose into ≤2–3 bounded build tasks, keeping this an
   inception (not a creeping subsystem)?**
-  confidence: 1
-  disposition: deferred
-  rationale: Provisional split — endpoint / modal / saved-work surfacing; confirmed at decide.
+  confidence: 3
+  disposition: answered
+  rationale: Split confirmed — (1) /api/list endpoint, (2) in-editor Open modal reusing
+  openVersionsModal + adoptImportedXml, (3) optional older-version affordance. 2–3 tasks.
 - **IW-5: When a map has saved versions in `.editor-versions/<id>/`, should "Open" default
   to loading the LATEST saved version (not the stale `rendered/` baseline), surface the
   latest version label in the list, and offer older versions via the existing Versions
   modal?**
-  confidence: 2
-  disposition: deferred
-  rationale: Today `?load` always fetches `rendered/<id>.bpmn` (baseline), so saved edits are
-  silently ignored on open — the friction this inception exists to fix. `/api/versions` +
-  `/api/version?v=` already exist (gallery-serve.py:28-29); Spike 1 resolves latest-per-map,
-  Spike 2 wires "open latest" as the default with an older-version affordance.
+  confidence: 3
+  disposition: answered
+  rationale: YES. Spike 1 found 11/24 maps carry saved versions (v1–v4) that today's ?load
+  ignores; Spike 2 confirmed /api/version?id=&v= loads the latest in-place (HTTP 200). Default
+  to openTarget (latest saved, else rendered), older versions via the existing Versions modal.
 
 ## Exploration Plan
 
@@ -113,15 +116,15 @@ gallery index page's role (that is the Option-B fallback, considered only on NO-
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -159,17 +162,27 @@ gallery index page's role (that is the Option-B fallback, considered only on NO-
 
 ## Recommendation
 
-**Recommendation:** DEFER
+**Recommendation:** GO (filed DEFER; revised to GO after all three spikes resolved every open question)
 
 **Rationale:**
 
-Evidence shows browsing is genuinely weak: opening a project map requires leaving the editor for the gallery page and a full reload; the in-editor 'Switch workflow' picker only holds session scratch (populated from the in-memory library, seed-only at Init, refreshLibraryUI:1909); saved maps in .editor-versions/ never appear in the gallery (index lists only rendered/*.bpmn snapshotted at server start); and there is no /api/list endpoint, so the editor cannot even enumerate the corpus. Option A (new /api/list + in-editor picker modal) is the real fix but introduces a new API route and a new modal — inception-sized per G-020. DEFER to a spike that validates the endpoint shape and modal UX against the running gallery before any build commitment; the go/no-go follows that evidence.
+All five open questions are answered with evidence and every GO criterion is met. A read-only
+`/api/list` has a clean stdlib-only shape (24 maps → 6 KB in 4.2 ms); "Open" swaps maps
+in-place with no page reload by reusing `adoptImportedXml`; the version-aware default is
+proven against real data (`/api/version?id=&v=` loads a map's latest saved version in-place,
+HTTP 200); the feature hides cleanly on the static gallery via the existing `detectSaveApi`
+gate; and the build decomposes into 2–3 bounded tasks with no new subsystem and the mirror +
+T-138 invariants untouched (read path only). The concrete driver: 11 of 24 corpus maps already
+carry saved versions (v1–v4) that today's `?load` silently ignores in favour of the stale
+baseline — the browser both removes the gallery round-trip AND stops opening the wrong bytes.
+Decision remains the human's (owner: human) via `fw task review T-142`.
 
 **Evidence:**
-
-<!-- Add evidence bullets as exploration progresses (file paths,
-     commit hashes, test results). The filing-time recommendation
-     can be revised before fw inception decide. -->
+- Spike 1: `scratchpad/spike1_api_list.py` → 24 maps, 6065-byte payload, 4.2 ms, stdlib only; shape `{id,title,sources[],latest,openTarget}`
+- Spike 1: 11/24 maps carry saved versions (arc-lifecycle v4 … tier0-escalation v2) invisible to today's open path
+- Spike 2 (live browser): `adoptImportedXml` swapped map in-place, URL unchanged, no reload; `/api/version?id=arc-lifecycle&v=4` → HTTP 200, loaded latest in-place
+- Spike 3: `detectSaveApi` (src:6747) already gates Save/Versions on `/api/health` → new Open button reuses it; static gallery keeps the index-page fallback
+- Proposed build split: (1) `/api/list` endpoint, (2) in-editor Open modal, (3) optional older-version affordance
 
 ## Decisions
 
@@ -184,7 +197,20 @@ Evidence shows browsing is genuinely weak: opening a project map requires leavin
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: All five open questions are answered with evidence and every GO criterion is met. A read-only
+`/api/list` has a clean stdlib-only shape (24 maps → 6 KB in 4.2 ms); "Open" swaps maps
+in-place with no page reload by reusing `adoptImportedXml`; the version-aware default is
+proven against real data (`/api/version?id=&v=` loads a map's latest saved version in-place,
+HTTP 200); the feature hides cleanly on the static gallery via the existing `detectSaveApi`
+gate; and the build decomposes into 2–3 bounded tasks with no new subsystem and the mirror +
+T-138 invariants untouched (read path only). The concrete driver: 11 of 24 corpus maps already
+carry saved versions (v1–v4) that today's `?load` silently ignores in favour of the stale
+baseline — the browser both removes the gallery round-trip AND stops opening the wrong bytes.
+Decision remains the human's (owner: human) via `fw task review T-142`.
+
+**Date**: 2026-07-08T06:07:02Z
 
 ## Updates
 
@@ -193,3 +219,21 @@ Evidence shows browsing is genuinely weak: opening a project map requires leavin
 
 ### 2026-07-07T18:29:06Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-08T06:07:02Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** All five open questions are answered with evidence and every GO criterion is met. A read-only
+`/api/list` has a clean stdlib-only shape (24 maps → 6 KB in 4.2 ms); "Open" swaps maps
+in-place with no page reload by reusing `adoptImportedXml`; the version-aware default is
+proven against real data (`/api/version?id=&v=` loads a map's latest saved version in-place,
+HTTP 200); the feature hides cleanly on the static gallery via the existing `detectSaveApi`
+gate; and the build decomposes into 2–3 bounded tasks with no new subsystem and the mirror +
+T-138 invariants untouched (read path only). The concrete driver: 11 of 24 corpus maps already
+carry saved versions (v1–v4) that today's `?load` silently ignores in favour of the stale
+baseline — the browser both removes the gallery round-trip AND stops opening the wrong bytes.
+Decision remains the human's (owner: human) via `fw task review T-142`.
+
+### 2026-07-08T06:07:02Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO

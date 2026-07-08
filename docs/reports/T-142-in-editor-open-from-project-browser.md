@@ -1,6 +1,6 @@
 # T-142 — In-editor "Open from project" browser for workflow files
 
-**Type:** Inception (exploration) · **Status:** exploring · **Recommendation at filing:** DEFER
+**Type:** Inception (exploration) · **Status:** spikes complete · **Recommendation at filing:** DEFER → **post-spike: GO** (human decides)
 **Question (one):** Should the editor gain an in-editor "Open from project" browser
 (backed by a new read-only `/api/list` endpoint + a picker modal), and what is the
 minimal endpoint shape + modal UX that makes it worth building?
@@ -99,6 +99,53 @@ enumerated cheaply and that the whole feature hides cleanly on the static galler
   open can't reuse existing paths safely — fall back to enhancing the gallery index page
   (thumbnails + search) + surfacing saved work, which needs no new editor modal.
 
+## 8. Spike findings (2026-07-07) — all IW resolved
+
+Prototypes run in scratch (`scratchpad/spike1_api_list.py`) and against the live gallery
+(:8834) via headless browser; production `gallery-serve.py` and `src/` were NOT modified.
+
+**Spike 1 — `/api/list` shape + latest-version (IW-1, IW-5).** A read-only prototype over the
+real repo produced a merged list of **24 maps in a 6,065-byte payload in 4.2 ms** — stdlib
+only, trivially synchronous. Shape per map: `{id, title, sources:[rendered|saved], latest:
+{v,ts,count}|null, openTarget:{kind:'version',v}|{kind:'rendered'}}`. Title comes from the
+BPMN `<bpmn:process name>`; `latest` is resolved from `.editor-versions/<id>/index.json`.
+**Key evidence: 11 of 24 maps already carry saved versions (v1–v4)** — arc-lifecycle(v4),
+assumption-validation(v3), context-memory(v2), error-escalation-ladder(v3),
+fabric-blast-radius(v2), git-commit-flow(v3), harvest-pipeline(v3), healing-loop(v2),
+resume-status(v1), task-gate(v2), tier0-escalation(v2). Today's `?load` opens the stale
+`rendered/` baseline for all of them, silently ignoring that saved work. IW-5 is real for
+~46% of the corpus.
+> Note (not part of this inception): whether those 11 saved sets are intentional corpus work
+> or test residue is a separate question — flag to the human, do not act on it here.
+
+**Spike 2 — in-place open + open-latest (IW-2).** In the live editor, `adoptImportedXml(text)`
+swapped the active map `investigate → audit-process` with **no page reload** (URL unchanged,
+14 nodes loaded). Fetching the latest saved version via `/api/version?id=arc-lifecycle&v=4`
+returned **HTTP 200** and loaded in-place the same way. Both the rendered-baseline path and
+the saved-version path open in-place through existing code — no new load machinery needed.
+*Build detail noted:* the "Open" action should use replace semantics (not the
+collision-append `_v2` branch of `adoptImportedXml`) so re-opening a map doesn't spawn
+`<id>_v2` library entries.
+
+**Spike 3 — static fallback (IW-3).** `detectSaveApi()` (`src:6747`) already reveals
+Save/Versions only when `/api/health` answers; both buttons ship `display:none`. A new
+"Open from project" button reuses this verbatim — hidden on the static gallery, where the
+existing index page (plain `?load` links) remains the fallback.
+
+**Decomposition (IW-4).** GO would authorise a bounded build split:
+1. **`/api/list` endpoint** in `gallery-serve.py` (read-only, the Spike-1 shape) + verifier.
+2. **In-editor "Open…" modal** on the `openVersionsModal` pattern — thumbnail + title +
+   source badge + latest-version label + filter box; opens in-place via `adoptImportedXml`
+   (replace semantics), defaulting to `openTarget`; gated by `detectSaveApi`.
+3. *(optional, foldable into 2)* older-version affordance handing off to the existing
+   Versions modal.
+Two-to-three bounded tasks, no new subsystem. Mirror invariant + T-138 gate untouched (read
+path only).
+
+**Recommendation: GO.** All GO criteria met — clean stdlib endpoint, in-place open proven,
+version-aware default proven against real saved data, graceful static fallback, bounded
+decomposition. Decision is the human's (owner: human) via `fw task review T-142`.
+
 ## 7. Dialogue log (C-001 extension)
 
 ### 2026-07-07 — inception opened
@@ -115,3 +162,11 @@ enumerated cheaply and that the whole feature hides cleanly on the static galler
   Spike 2 (Open defaults to latest saved version, baseline fallback, older versions via the
   existing Versions modal). Updated Scope Fence and GO criteria. Root friction named: today
   `?load` opens the stale `rendered/` baseline, ignoring saved edits.
+
+### 2026-07-07 — spikes executed (human: "1", "2")
+- **Human:** approved executing the spikes and bringing a GO/NO-GO.
+- **Agent:** Ran all three spikes without touching production (`gallery-serve.py`/`src`).
+  Findings in §8; every IW answered (confidence 3). Recommendation revised DEFER → **GO**.
+  Decision remains the human's via `fw task review T-142`. On GO, will file 2–3 build tasks.
+- **Surfaced (separate concern):** 11/24 maps already carry saved versions — may be
+  intentional corpus work or test residue; flagged for the human, not acted on here.

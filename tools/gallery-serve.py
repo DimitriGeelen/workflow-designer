@@ -25,6 +25,7 @@ Design (T-128 GO, refined at B2 build):
 
 API:
   GET  /api/health                 -> {ok:true, versions:".editor-versions"}
+  GET  /api/list                   -> {maps:[{id,title,sources[],latest,openTarget}...]}
   GET  /api/versions?id=<id>       -> index.json  ([] if none)
   GET  /api/version?id=<id>&v=<n>  -> that version's BPMN (text/xml)
   GET  /api/thumb?id=<id>&v=<n>    -> that version's PNG
@@ -93,6 +94,72 @@ def write_index(id_, index):
         json.dump(index, f, indent=2)
 
 
+# ---- /api/list (T-143, T-142 GO) — read-only corpus + saved-map enumeration ----
+_PROCESS_NAME_RE = re.compile(r'<bpmn:process\b[^>]*\bname="([^"]*)"')
+
+
+def _title_from_bpmn(path):
+    """Best-effort title from the BPMN <bpmn:process name>; None on any failure."""
+    try:
+        with open(path, encoding='utf-8') as f:
+            head = f.read(4000)
+    except Exception:
+        return None
+    m = _PROCESS_NAME_RE.search(head)
+    return m.group(1) if m else None
+
+
+def _latest_version(id_):
+    """Latest saved version for a map, or None if it has no saved versions."""
+    idx = read_index(id_)
+    if not idx:
+        return None
+    top = max(idx, key=lambda e: e.get('v', 0))
+    return {'v': top.get('v'), 'ts': top.get('ts'), 'count': len(idx)}
+
+
+def build_map_list():
+    """Merge the rendered corpus with saved maps into one read-only listing.
+
+    Per map: {id, title, sources:[rendered|saved], latest:{v,ts,count}|null,
+    openTarget:{kind:'version',v}|{kind:'rendered'}}. openTarget is the latest saved
+    version when one exists, else the rendered baseline. Read-only; every id is
+    validated with ID_RE so nothing outside the corpus/version store is enumerated."""
+    rendered_dir = os.path.join(REPO, 'examples', 'aef-processes', 'rendered')
+    maps = {}
+    if os.path.isdir(rendered_dir):
+        for name in sorted(os.listdir(rendered_dir)):
+            if not name.endswith('.bpmn'):
+                continue
+            id_ = name[:-5]
+            if not ID_RE.match(id_):
+                continue
+            maps[id_] = {
+                'id': id_,
+                'title': _title_from_bpmn(os.path.join(rendered_dir, name)) or id_,
+                'sources': ['rendered'],
+                'latest': _latest_version(id_),
+            }
+    store = os.path.join(REPO, '.editor-versions')
+    if os.path.isdir(store):
+        for id_ in sorted(os.listdir(store)):
+            if not ID_RE.match(id_) or not os.path.isdir(versions_dir(id_)):
+                continue
+            lv = _latest_version(id_)
+            if not lv:
+                continue
+            if id_ in maps:
+                maps[id_]['sources'].append('saved')
+            else:
+                maps[id_] = {'id': id_, 'title': id_, 'sources': ['saved'], 'latest': lv}
+    out = []
+    for m in maps.values():
+        m['openTarget'] = ({'kind': 'version', 'v': m['latest']['v']}
+                           if m['latest'] else {'kind': 'rendered'})
+        out.append(m)
+    return sorted(out, key=lambda m: m['id'])
+
+
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *a, **k):
         super().__init__(*a, directory=DOCROOT, **k)
@@ -141,6 +208,9 @@ class Handler(SimpleHTTPRequestHandler):
         route = parsed.path
         if route == '/api/health':
             return self._json(200, {'ok': True, 'store': '.editor-versions'})
+        if route == '/api/list':
+            # T-143: read-only corpus + saved-map enumeration (no id required).
+            return self._json(200, {'maps': build_map_list()})
         id_ = (q.get('id') or [''])[0]
         if route in ('/api/versions', '/api/version', '/api/thumb') and not self._valid_id(id_):
             return self._json(400, {'ok': False, 'error': 'invalid id'})
@@ -242,7 +312,7 @@ def main():
     sys.stderr.write("gallery-serve (write-capable) docroot=%s repo=%s\n" % (DOCROOT, REPO))
     sys.stderr.write("Local:  http://localhost:%d/\n" % PORT)
     sys.stderr.write("LAN:    http://%s:%d/\n" % (ip, PORT))
-    sys.stderr.write("API:    /api/health /api/save /api/versions /api/version /api/thumb\n")
+    sys.stderr.write("API:    /api/health /api/list /api/save /api/versions /api/version /api/thumb\n")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

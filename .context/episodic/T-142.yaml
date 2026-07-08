@@ -1,0 +1,91 @@
+# ============================================================================
+# EPISODIC MEMORY - T-142: In-editor Open-from-project browser for workflow files
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-08T06:07:05Z
+# ============================================================================
+
+task_id: T-142
+task_name: "In-editor Open-from-project browser for workflow files"
+workflow_type: inception
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-07T18:28:17Z
+completed: 2026-07-08T06:07:02Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-07-07T20:31:19+02:00
+last_commit: 2026-07-07T20:49:00+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Open inception — in-editor 'Open from project' browser (DEFER, plan for review). Add IW-5 version-awareness — Open defaults to latest saved version (human steer)
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-07.yaml'
+  - '.context/audits/cron/2026-07-07-2030.yaml'
+  - '.context/audits/cron/2026-07-07-2045.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/locks/T-142.lock'
+  - '.context/project/assumptions.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - 'docs/reports/T-142-in-editor-open-from-project-browser.md'
+  - '.tasks/active/T-141-guard-save-to-project-against-the-pristi.md'
+  - '.tasks/active/T-142-in-editor-open-from-project-browser-for-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-07T20:31:19"
+    action: "T-142: Open inception — in-editor 'Open from project' browser (DEFER, plan for review)"
+  - time: "2026-07-07T20:49:00"
+    action: "T-142: Add IW-5 version-awareness — Open defaults to latest saved version (human steer)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 698 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 698
+  commits: 2
+  files_changed: 14
+  lines_added: 466
+  lines_removed: 67
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-142-in-editor-open-from-project-browser-for-.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-143: Add read-only /api/list endpoint to gallery-serve.py
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-08T07:22:35Z
+# ============================================================================
+
+task_id: T-143
+task_name: "Add read-only /api/list endpoint to gallery-serve.py"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-08T06:09:39Z
+completed: 2026-07-08T07:22:33Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '`GET /api/list` added to `tools/gallery-serve.py` `do_GET`, returning JSON'
+  - 'Merges the rendered corpus (`examples/aef-processes/rendered/*.bpmn`) with saved maps'
+  - 'Read-only and safe: no writes; every id validated via the existing `_valid_id`/`ID_RE`'
+  - 'Does NOT alter existing routes or the POST /api/save corpus gate (T-138) —'
+  - 'New stdlib-only verifier `tools/_gallery-list-verify.py` spins the server on an'
+  - '`gallery-serve.py` parses (py_compile) and the served gallery still boots (live health OK)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-08 — merged list with a `sources[]` array (not two separate lists)'
+    chose: 'One list where each map carries `sources:[rendered|saved]`, plus `latest` and a'
+    rationale: 'The client renders one browse view; a map that is both a corpus baseline and has'
+    alternatives_rejected: ['Separate `corpus`/`saved` arrays — pushes merge + latest-resolution logic']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 72 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 72
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-143-add-read-only-apilist-endpoint-to-galler.md
+generated_by: context-agent-hybrid
