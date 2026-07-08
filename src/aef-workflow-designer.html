@@ -952,6 +952,7 @@
       <button class="btn" id="btn-xml">View XML</button>
       <button class="btn" id="btn-settings" title="Editor settings — routing, snapping, grid">⚙ Settings</button>
       <button class="btn" id="btn-load">Load…</button>
+      <button class="btn" id="btn-open-project" title="Browse the project's workflow maps and open one (opens each map's latest saved version; requires the write-capable gallery server)" style="display:none">📂 Open project…</button>
       <button class="btn" id="btn-versions" title="Browse and revert to a saved version of this map (requires the write-capable gallery server)" style="display:none">🕘 Versions</button>
       <button class="btn" id="btn-save-project" title="Save this map into the repo as a new version (requires the write-capable gallery server)" style="display:none">⤓ Save to project</button>
       <button class="btn btn-primary" id="btn-save">Save</button>
@@ -6757,6 +6758,8 @@ async function detectSaveApi() {
       if (b) b.style.display = '';
       const bv = $('btn-versions');
       if (bv) bv.style.display = '';
+      const bo = $('btn-open-project');   // T-144: in-editor project browser
+      if (bo) bo.style.display = '';
     }
   } catch (_) { /* static gallery — leave the button hidden */ }
 }
@@ -6934,6 +6937,122 @@ async function openVersionsModal() {
   document.addEventListener('keydown', _versionsEsc);
 }
 
+// ── Open from project (B6 / T-144, T-142 GO) — in-editor project-map browser ──
+// Lists maps from /api/list (T-143) and opens one IN-PLACE at its latest saved version
+// (openTarget), reusing adoptImportedXml. Mirrors the Versions-modal open/close pattern.
+function closeProjectModal() {
+  const m = document.getElementById('project-modal');
+  if (m) m.remove();
+  document.removeEventListener('keydown', _projectEsc);
+}
+function _projectEsc(e) { if (e.key === 'Escape') closeProjectModal(); }
+
+async function openProjectMap(m) {
+  // Resolve openTarget: latest saved version, else the rendered baseline.
+  try {
+    const ot = m.openTarget || { kind: 'rendered' };
+    let text;
+    if (ot.kind === 'version') {
+      const res = await fetch(`/api/version?id=${encodeURIComponent(m.id)}&v=${encodeURIComponent(ot.v)}`);
+      if (!res.ok) throw new Error(`version ${ot.v}: HTTP ${res.status}`);
+      text = await res.text();
+    } else {
+      const res = await fetch(`rendered/${encodeURIComponent(m.id)}.bpmn`);
+      if (!res.ok) throw new Error(`baseline: HTTP ${res.status}`);
+      text = await res.text();
+    }
+    closeProjectModal();
+    // replace: overwrite the in-memory entry for this id (no _v2). userImport: apply the
+    // same clean-on-import/nudge behaviour a gallery ?load open has.
+    adoptImportedXml(text, { replace: true, userImport: true });
+  } catch (e) {
+    alert('Could not open “' + m.id + '”: ' + (e && e.message || e));
+  }
+}
+
+async function openProjectModal() {
+  if (!_apiAvailable) return;
+  let maps = [];
+  try {
+    const res = await fetch('/api/list');
+    if (res.ok) { const d = await res.json(); maps = Array.isArray(d.maps) ? d.maps : []; }
+  } catch (_) { /* fall through to empty state */ }
+
+  const backdrop = document.createElement('div');
+  backdrop.id = 'project-modal';
+  backdrop.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.55);'
+    + 'display:flex;align-items:center;justify-content:center;font:13px system-ui,sans-serif';
+  backdrop.onclick = e => { if (e.target === backdrop) closeProjectModal(); };
+
+  const panel = document.createElement('div');
+  panel.style.cssText = 'background:var(--panel,#1e2530);color:var(--fg,#e6edf3);border:1px solid var(--border,#334);'
+    + 'border-radius:10px;max-width:720px;width:94%;max-height:82vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.5)';
+
+  const head = document.createElement('div');
+  head.style.cssText = 'display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border,#334)';
+  const h = document.createElement('strong'); h.textContent = 'Open project map';
+  h.style.flex = '0 0 auto';
+  const filter = document.createElement('input');
+  filter.type = 'search'; filter.placeholder = 'Filter…';
+  filter.style.cssText = 'flex:1 1 auto;min-width:0;background:var(--bg,#0f1115);color:var(--fg,#e6edf3);'
+    + 'border:1px solid var(--border,#334);border-radius:6px;padding:6px 10px;font:inherit';
+  const x = document.createElement('button'); x.className = 'btn'; x.textContent = '✕';
+  x.style.flex = '0 0 auto'; x.onclick = closeProjectModal;
+  head.append(h, filter, x);
+  panel.appendChild(head);
+
+  const body = document.createElement('div');
+  body.style.cssText = 'overflow:auto;padding:12px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px';
+  panel.appendChild(body);
+
+  if (!maps.length) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'grid-column:1/-1;padding:28px 16px;text-align:center;color:var(--muted,#8b95a5)';
+    empty.textContent = 'No project maps found.';
+    body.appendChild(empty);
+  }
+
+  const cards = [];
+  for (const m of maps.slice().sort((a, b) => a.id.localeCompare(b.id))) {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.style.cssText = 'text-align:left;background:var(--bg,#0f1115);color:var(--fg,#e6edf3);'
+      + 'border:1px solid var(--border,#334);border-radius:8px;padding:0;cursor:pointer;'
+      + 'display:flex;flex-direction:column;overflow:hidden';
+    card.title = 'Open ' + m.id;
+    const saved = m.latest && m.openTarget && m.openTarget.kind === 'version';
+    const img = document.createElement('img');
+    img.alt = m.id + ' preview';
+    img.style.cssText = 'width:100%;height:104px;object-fit:contain;background:#0f1115;border-bottom:1px solid var(--border,#2a3140)';
+    if (saved) { img.src = `/api/thumb?id=${encodeURIComponent(m.id)}&v=${m.latest.v}`; }
+    img.onerror = () => { img.style.visibility = 'hidden'; };
+    const meta = document.createElement('div');
+    meta.style.cssText = 'padding:8px 10px;min-width:0';
+    const badge = saved
+      ? `<span style="color:#7ab8ff">saved · v${m.latest.v}</span>`
+      : `<span style="color:var(--muted,#8b95a5)">rendered</span>`;
+    meta.innerHTML = `<div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">`
+      + `${(m.title || m.id).replace(/</g, '&lt;')}</div>`
+      + `<div style="color:var(--muted,#8b95a5);font-size:.85em">${m.id.replace(/</g, '&lt;')}</div>`
+      + `<div style="font-size:.85em;margin-top:2px">${badge}</div>`;
+    card.append(img, meta);
+    card.onclick = () => openProjectMap(m);
+    card._hay = (m.id + ' ' + (m.title || '')).toLowerCase();
+    body.appendChild(card);
+    cards.push(card);
+  }
+
+  filter.oninput = () => {
+    const q = filter.value.trim().toLowerCase();
+    for (const c of cards) c.style.display = (!q || c._hay.includes(q)) ? '' : 'none';
+  };
+
+  backdrop.appendChild(panel);
+  document.body.appendChild(backdrop);
+  document.addEventListener('keydown', _projectEsc);
+  filter.focus();
+}
+
 function adoptImportedXml(text, opts) {
   const loaded = parseBpmnXml(text);
   if (!loaded) {
@@ -7020,6 +7139,7 @@ $('btn-load').onclick = () => {
 $('btn-new-workflow').onclick = () => { createNewWorkflow(); };
 $('btn-save-project').onclick = saveToProject;
 $('btn-versions').onclick = openVersionsModal;
+$('btn-open-project').onclick = openProjectModal;   // T-144
 $('workflow-picker').onchange = ev => {
   const key = ev.target.value;
   if (key !== activeKey) loadFromLibrary(key);
