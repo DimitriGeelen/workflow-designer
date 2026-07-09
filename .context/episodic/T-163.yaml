@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-163: Target-workflow field uses the Open-project card browser to pick a map
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-09T22:54:08Z
+# ============================================================================
+
+task_id: T-163
+task_name: "Target-workflow field uses the Open-project card browser to pick a map"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-07-10T00:00:00Z
+completed: 2026-07-09T22:54:06Z
+duration_days: -1
+updates_count: 3
+first_commit: 2026-07-10T00:41:59+02:00
+last_commit: 2026-07-10T00:54:02+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Capture — target-workflow field should use the Open-project card browser (design notes for next session). Target-workflow field uses the Open-project card browser (pick mode)
+
+# Key outcomes
+outcomes:
+  - '`openProjectModal` accepts a pick mode (options arg) that, on card click, returns the map id to a callback and closes — without navigating; default no-arg behaviour is unchanged (still opens the map). *(verified: pick-mode title "Choose target workflow"; default title "Open project map")*'
+  - 'The handoff-node Target-workflow field offers a "Choose from project…" button that opens the card browser in pick mode; choosing a card sets `aef.targetWorkflow` to that id and the field reflects it. The T-160 "↗ Open target workflow" jump button is retained. *(verified: picked `arc-lifecycle`, aef.targetWorkflow set, readout + jump-enabled reflect it)*'
+  - 'The picker lists the full corpus + saved maps (via `/api/list`), not only in-session library entries; the old dropdown/free-text desync (T-160 note) is gone. *(verified: 25 cards — the full corpus)*'
+  - 'src↔build mirror invariant holds: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`. *(MIRROR-OK)*'
+  - 'Playwright: select a handoff node → Choose from project… → the card browser opens; clicking a card sets the target (verified via `aef.targetWorkflow`) and closes the modal; the jump button then navigates there; 0 console errors; element screenshot READ. *(.playwright-mcp/t163-pick-modal.png — read; 0 console errors)*'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-163-target-workflow-field-uses-open-project-browser.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-10T00:41:59"
+    action: "T-163: Capture — target-workflow field should use the Open-project card browser (design notes for next session)"
+  - time: "2026-07-10T00:54:02"
+    action: "T-163: Target-workflow field uses the Open-project card browser (pick mode)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 0 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 0
+  commits: 2
+  files_changed: 2
+  lines_added: 136
+  lines_removed: 37
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-163-target-workflow-field-uses-open-project-browser.md
+generated_by: context-agent-hybrid
