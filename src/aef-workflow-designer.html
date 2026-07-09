@@ -6879,6 +6879,73 @@ function captureThumbnail() {
     } catch (_) { resolve(null); }
   });
 }
+// T-161: themed in-app modal for the optional save-to-project note — replaces the
+// browser-native window.prompt() ("localhost:8834 says…"). Resolves to the trimmed note
+// (≤200 chars) on Save, or null on Cancel / Esc / backdrop click (which aborts the save).
+function promptSaveNote(mapId) {
+  return new Promise(resolve => {
+    let done = false;
+    const finish = val => {
+      if (done) return; done = true;
+      document.removeEventListener('keydown', onKey, true);
+      backdrop.remove();
+      resolve(val);
+    };
+    const backdrop = document.createElement('div');
+    backdrop.id = 'save-note-modal';
+    backdrop.style.cssText = 'position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,.55);'
+      + 'display:flex;align-items:center;justify-content:center;font:13px system-ui,sans-serif';
+    backdrop.onclick = e => { if (e.target === backdrop) finish(null); };
+
+    const panel = document.createElement('div');
+    panel.style.cssText = 'background:var(--panel,#1e2530);color:var(--fg,#e6edf3);border:1px solid var(--border,#334);'
+      + 'border-radius:10px;width:min(460px,92%);display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.5)';
+
+    const head = document.createElement('div');
+    head.style.cssText = 'padding:15px 16px 8px';
+    const h = document.createElement('strong');
+    h.textContent = '⤓ Save new version';
+    h.style.cssText = 'display:block;font-size:15px';
+    const sub = document.createElement('div');
+    sub.style.cssText = 'margin-top:5px;color:var(--muted,#8b95a5);font-size:12px;line-height:1.4';
+    sub.textContent = `Add an optional note describing what changed${mapId ? ' in "' + mapId + '"' : ''}. Leave it blank to skip.`;
+    head.append(h, sub);
+
+    const body = document.createElement('div');
+    body.style.cssText = 'padding:6px 16px 0';
+    const ta = document.createElement('textarea');
+    ta.rows = 3; ta.maxLength = 200;
+    ta.placeholder = 'e.g. Straightened loop-back edges, tidied lanes';
+    ta.style.cssText = 'width:100%;box-sizing:border-box;resize:vertical;background:var(--bg,#0f1115);'
+      + 'color:var(--fg,#e6edf3);border:1px solid var(--border,#334);border-radius:6px;padding:8px 10px;font:inherit';
+    body.appendChild(ta);
+    const hint = document.createElement('div');
+    hint.style.cssText = 'margin-top:6px;color:var(--muted,#8b95a5);font-size:11px';
+    hint.textContent = 'Enter to save · Shift+Enter for a new line · Esc to cancel';
+    body.appendChild(hint);
+
+    const foot = document.createElement('div');
+    foot.style.cssText = 'display:flex;justify-content:flex-end;gap:8px;padding:12px 16px 14px';
+    const cancel = document.createElement('button');
+    cancel.className = 'btn'; cancel.type = 'button'; cancel.textContent = 'Cancel';
+    cancel.onclick = () => finish(null);
+    const save = document.createElement('button');
+    save.className = 'btn btn-primary'; save.type = 'button'; save.textContent = 'Save version';
+    save.onclick = () => finish((ta.value || '').trim().slice(0, 200));
+    foot.append(cancel, save);
+
+    panel.append(head, body, foot);
+    backdrop.appendChild(panel);
+    document.body.appendChild(backdrop);
+
+    const onKey = e => {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); finish(null); }
+      else if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); finish((ta.value || '').trim().slice(0, 200)); }
+    };
+    document.addEventListener('keydown', onKey, true);
+    setTimeout(() => ta.focus(), 30);
+  });
+}
 async function saveToProject() {
   if (!_apiAvailable) return;
   const btn = $('btn-save-project');
@@ -6901,10 +6968,10 @@ async function saveToProject() {
       if (btn) btn.textContent = label || '⤓ Save to project';
       return;
     }
-    // Optional per-version note (T-150 / F4). Blank or cancelled → no note (the
-    // Versions modal simply omits the note line). Server trims to 200 chars.
-    let note = '';
-    try { note = (window.prompt('Optional note for this version (leave blank to skip):', '') || '').trim().slice(0, 200); } catch (_) { note = ''; }
+    // Optional per-version note (T-150 / F4; T-161 styled modal). Save with a blank note →
+    // no note (the Versions modal omits the line). Cancel/Esc → abort the whole save.
+    const note = await promptSaveNote(id);
+    if (note === null) { if (btn) btn.textContent = label || '⤓ Save to project'; return; }
     if (btn) btn.textContent = '⤓ Saving…';
     const png = await captureThumbnail();
     const res = await fetch('/api/save', {
