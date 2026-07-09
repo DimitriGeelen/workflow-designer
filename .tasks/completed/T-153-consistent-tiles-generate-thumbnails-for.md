@@ -4,10 +4,10 @@ name: "Consistent tiles: generate thumbnails for rendered-corpus maps (Open-proj
 description: >
   Open-project modal shows the ▦ placeholder for all rendered-only corpus maps (no saved PNG). Corpus BPMNs carry no DI coords, so tiles need a headless-render thumbnail pipeline: render each corpus map in the designer, capture a PNG, cache it server-side, and have /api/thumb serve it for rendered maps (▦ fallback). Flagship of the F-series browsing polish.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T15:01:58Z
-last_update: 2026-07-09T15:51:51Z
-date_finished: null
+last_update: 2026-07-09T15:52:35Z
+date_finished: 2026-07-09T15:52:35Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -212,3 +212,6 @@ Console errors during modal open + hover: **0**.
 ### 2026-07-09T15:45:15Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+### 2026-07-09T15:52:35Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

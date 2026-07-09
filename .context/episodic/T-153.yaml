@@ -1,0 +1,108 @@
+# ============================================================================
+# EPISODIC MEMORY - T-153: Consistent tiles: generate thumbnails for rendered-corpus maps (Open-project)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-09T15:52:37Z
+# ============================================================================
+
+task_id: T-153
+task_name: "Consistent tiles: generate thumbnails for rendered-corpus maps (Open-project)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-09T15:01:58Z
+completed: 2026-07-09T15:52:35Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-09T17:51:51+02:00
+last_commit: 2026-07-09T17:52:30+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Consistent tiles — headless-render thumbnail pipeline for rendered corpus. Fix Verification grep commands — pipe-free to avoid L-387 SIGPIPE (exit 141)
+
+# Key outcomes
+outcomes:
+  - '`tools/gen-rendered-thumbs.mjs` exists — a headless CDP batch generator (same harness family as `tools/_*-verify-cdp.mjs`) that loads each rendered-corpus map, calls `captureThumbnail()`, and writes `.editor-versions/_rendered/<id>.png`. Exits 0 and reports 24/24 generated. **Verified:** ran clean, `24/24 thumbnails generated`, each with real bbox + node count.'
+  - 'After running the generator, `.editor-versions/_rendered/` contains one non-empty PNG per corpus map (24 files), and the cache dir is skipped by the map scanner (starts with `_`, fails `ID_RE`) so it never appears as a fake map in `/api/list`. **Verified:** 24 PNGs on disk; `/api/list` returns 25 real maps, `_rendered` absent, no underscore-leading ids.'
+  - '`gallery-serve.py` `/api/thumb?id=<id>` (no `v`) serves the cached rendered PNG (`image/png`, 200) when it exists, and returns 404 JSON when it does not. The existing saved-version path (`&v=<n>`) is unchanged. **Verified:** `audit-process` no-v → 200 image/png 14821B; `arc-lifecycle&v=1` → 200 (unchanged); `nonexistent` → 404.'
+  - '`openProjectModal` renders a real `<img src="/api/thumb?id=<id>">` for rendered-only cards (▦ `makeThumbPlaceholder` fallback on `onerror`), and sets `card._previewSrc` so T-156 hover-zoom shows the tile for rendered maps too. **Verified:** 25/25 tiles loaded, 0 broken, 0 ▦ placeholders; hover-zoom on rendered `cross-host-dispatch` loads 320×141, no overlap.'
+  - 'src↔build mirror invariant holds: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`. **Verified:** MIRROR-OK.'
+  - 'Playwright visual verification: Open-project modal shows real tiles (not ▦) for rendered maps; 0 console errors; element screenshot READ. **Verified:** see `## Visual Verification` — every card shows a genuine diagram; console errors = 0.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Fix Verification grep commands — pipe-free to avoid L-387 SIGPIPE (exit 141)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.editor-versions/_rendered/arc-lifecycle.png'
+  - '.editor-versions/_rendered/assumption-validation.png'
+  - '.editor-versions/_rendered/audit-process.png'
+  - '.editor-versions/_rendered/context-memory.png'
+  - '.editor-versions/_rendered/cross-host-dispatch.png'
+  - '.editor-versions/_rendered/error-escalation-ladder.png'
+  - '.editor-versions/_rendered/fabric-blast-radius.png'
+  - '.editor-versions/_rendered/git-commit-flow.png'
+  - '.editor-versions/_rendered/harvest-pipeline.png'
+  - '.editor-versions/_rendered/healing-loop.png'
+  - '.editor-versions/_rendered/inception-lifecycle.png'
+  - '.editor-versions/_rendered/inception-review.png'
+  - '.editor-versions/_rendered/promotion-pipeline.png'
+  - '.editor-versions/_rendered/release-pipeline.png'
+  - '.editor-versions/_rendered/resume-status.png'
+  - '.editor-versions/_rendered/review-emission.png'
+  - '.editor-versions/_rendered/revisit-due-scan.png'
+  - '.editor-versions/_rendered/session-capture.png'
+  - '.editor-versions/_rendered/session-handover.png'
+  - '.editor-versions/_rendered/task-gate.png'
+  - '.editor-versions/_rendered/task-lifecycle.png'
+  - '.editor-versions/_rendered/tier0-escalation.png'
+  - '.editor-versions/_rendered/upgrade-process.png'
+  - '.editor-versions/_rendered/verification-gate.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-153-consistent-tiles-generate-thumbnails-for.md'
+  - 'tools/gallery-serve.py'
+  - 'tools/gen-rendered-thumbs.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-09T17:51:51"
+    action: "T-153: Consistent tiles — headless-render thumbnail pipeline for rendered corpus"
+  - time: "2026-07-09T17:52:30"
+    action: "T-153: Fix Verification grep commands — pipe-free to avoid L-387 SIGPIPE (exit 141)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 50 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 50
+  commits: 2
+  files_changed: 28
+  lines_added: 180
+  lines_removed: 22
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-153-consistent-tiles-generate-thumbnails-for.md
+generated_by: context-agent-hybrid
