@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T15:01:58Z
-last_update: 2026-07-09T15:45:15Z
+last_update: 2026-07-09T15:51:51Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -124,8 +124,8 @@ This is the suggested first task for the next session.
 test -f tools/gen-rendered-thumbs.mjs
 test "$(ls .editor-versions/_rendered/*.png 2>/dev/null | wc -l)" -eq 24
 diff -q src/aef-workflow-designer.html build/gallery/designer.html
-out=$(cat tools/gallery-serve.py); echo "$out" | grep -q "_rendered"
-out=$(cat src/aef-workflow-designer.html); echo "$out" | grep -q "api/thumb?id="
+grep -q "_rendered" tools/gallery-serve.py
+grep -q "api/thumb?id=" src/aef-workflow-designer.html
 
 ## Visual Verification
 
