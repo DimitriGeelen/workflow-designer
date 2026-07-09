@@ -6975,9 +6975,72 @@ async function openVersionsModal() {
 function closeProjectModal() {
   const m = document.getElementById('project-modal');
   if (m) m.remove();
+  hideProjectPreview();
+  const pv = document.getElementById('project-hover-preview');
+  if (pv) pv.remove();
   document.removeEventListener('keydown', _projectEsc);
 }
 function _projectEsc(e) { if (e.key === 'Escape') closeProjectModal(); }
+
+// ── Hover-zoom preview (T-156) — enlarged, non-overlapping map preview on card hover ──
+// A single fixed floating panel; on card enter/focus it shows the map's thumbnail (or a
+// ▦ placeholder for rendered-only maps) at large size, pinned to whichever side of the
+// modal has room so it never overlaps the card grid.
+function _projectPreviewEl() {
+  let el = document.getElementById('project-hover-preview');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'project-hover-preview';
+    el.style.cssText = 'position:fixed;z-index:10001;display:none;pointer-events:none;width:360px;'
+      + 'background:var(--panel,#1e2530);color:var(--fg,#e6edf3);border:1px solid var(--border,#334);'
+      + 'border-radius:10px;box-shadow:0 12px 48px rgba(0,0,0,.6);overflow:hidden;font:12px system-ui,sans-serif';
+    document.body.appendChild(el);
+  }
+  return el;
+}
+function hideProjectPreview() {
+  const el = document.getElementById('project-hover-preview');
+  if (el) el.style.display = 'none';
+}
+function showProjectPreview(card) {
+  const modal = document.getElementById('project-modal');
+  if (!modal || !card) return;
+  const el = _projectPreviewEl();
+  const meta = card._previewMeta || {};
+  const margin = 14;
+  // Size the preview to whichever side gutter has more room; never overlap the panel.
+  const panelEl = modal.querySelector('div');
+  const modalRect = (panelEl || modal).getBoundingClientRect();
+  const cardRect = card.getBoundingClientRect();
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const rightGutter = vw - modalRect.right, leftGutter = modalRect.left;
+  const gutter = Math.max(rightGutter, leftGutter);
+  const W = Math.min(360, Math.floor(gutter - margin));
+  if (W < 200) { el.style.display = 'none'; return; }   // too tight → hide (never overlap)
+  const imgH = Math.round(W * 0.6);
+  el.textContent = '';
+  if (card._previewSrc) {
+    const img = document.createElement('img');
+    img.src = card._previewSrc; img.alt = '';
+    img.style.cssText = `width:100%;height:${imgH}px;object-fit:contain;background:#0f1115;display:block`;
+    img.onerror = () => img.replaceWith(makeThumbPlaceholder({ w: '100%', h: imgH, borderBottom: true, fontSize: 48 }));
+    el.appendChild(img);
+  } else {
+    el.appendChild(makeThumbPlaceholder({ w: '100%', h: imgH, borderBottom: true, fontSize: 48 }));
+  }
+  const cap = document.createElement('div');
+  cap.style.cssText = 'padding:8px 10px';
+  cap.innerHTML = `<div style="font-weight:600;line-height:1.35">${(meta.title || '').replace(/</g, '&lt;')}</div>`
+    + `<div style="color:var(--muted,#8b95a5)">${(meta.id || '').replace(/</g, '&lt;')} · ${meta.badge || ''}</div>`;
+  el.appendChild(cap);
+  el.style.width = W + 'px';
+  el.style.display = 'block';
+  const left = (rightGutter >= leftGutter) ? (modalRect.right + margin) : (modalRect.left - W - margin);
+  const ph = el.offsetHeight || (imgH + 60);
+  const top = Math.min(Math.max(margin, cardRect.top), Math.max(margin, vh - ph - margin));
+  el.style.left = left + 'px';
+  el.style.top = top + 'px';
+}
 
 async function openProjectMap(m) {
   // Resolve openTarget: latest saved version, else the rendered baseline.
@@ -7080,6 +7143,13 @@ async function openProjectModal() {
     card.append(thumb, meta);
     card.onclick = () => openProjectMap(m);
     card._hay = (m.id + ' ' + (m.title || '')).toLowerCase();
+    // Hover-zoom preview (T-156): remember what to enlarge, then show on enter/focus.
+    card._previewSrc = saved ? `/api/thumb?id=${encodeURIComponent(m.id)}&v=${m.latest.v}` : null;
+    card._previewMeta = { title: m.title || m.id, id: m.id, badge: saved ? `saved · v${m.latest.v}` : 'rendered' };
+    card.onmouseenter = () => showProjectPreview(card);
+    card.onmouseleave = () => hideProjectPreview();
+    card.addEventListener('focus', () => showProjectPreview(card));
+    card.addEventListener('blur', () => hideProjectPreview());
     body.appendChild(card);
     cards.push(card);
   }
