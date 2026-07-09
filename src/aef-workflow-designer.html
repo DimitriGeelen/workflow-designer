@@ -7278,7 +7278,7 @@ $('workflow-picker').onchange = ev => {
   const key = ev.target.value;
   if (key !== activeKey) loadFromLibrary(key);
 };
-// T-158: removed $('brand-version').onclick — the bare 'v1' toolbar badge is gone;
+// T-158: the bare 'v1' toolbar badge (and its click-to-bump handler) is gone;
 // the contract version is bumped via the properties "Workflow version" field (T-152).
 
 // ============================================================================
