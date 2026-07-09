@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-162: Open-project cards collapse and clip map-name labels (tile flex-shrink)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-09T22:40:05Z
+# ============================================================================
+
+task_id: T-162
+task_name: "Open-project cards collapse and clip map-name labels (tile flex-shrink)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-09T22:35:44Z
+completed: 2026-07-09T22:40:03Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-10T00:39:58+02:00
+last_commit: 2026-07-10T00:39:58+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Fix Open-project cards clipping map-name labels
+
+# Key outcomes
+outcomes:
+  - 'The Open-project card tile (`<img>` and the ▦ `makeThumbPlaceholder` card variant) is pinned `flex:0 0 auto` so it cannot shrink in the grid row. **Verified:** tile stays 104px; both the img cssText and the placeholder call carry `flex:0 0 auto`.'
+  - 'Cards render at full height (tile ~104px + meta), and the map-name label + id + badge are fully visible within the card bounds (not clipped). The real cause was grid row-packing (cards'' `overflow:hidden` → 0 auto-minimum), fixed with `grid-auto-rows:max-content`. **Verified:** card height 62px → 166px; `allLabelsVisible:true` across sampled cards.'
+  - 'src↔build mirror invariant holds: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`. **Verified:** MIRROR-OK.'
+  - 'Playwright: Open-project modal shows every card''s label; sampled cards have visible meta; 0 console errors; element screenshot READ. **Verified:** screenshot `t162-labels-fixed.png` READ — every card shows title/id/badge; 0 console errors.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Fix Open-project cards clipping map-name labels'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-162-open-project-cards-collapse-and-clip-map.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-10T00:39:58"
+    action: "T-162: Fix Open-project cards clipping map-name labels"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 2
+  lines_added: 209
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-162-open-project-cards-collapse-and-clip-map.md
+generated_by: context-agent-hybrid
