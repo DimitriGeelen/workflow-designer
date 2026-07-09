@@ -4,9 +4,9 @@ name: "Consistent-tile hover-zoom in the Versions modal"
 description: >
   Consistent-tile hover-zoom in the Versions modal
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T22:57:45Z
-last_update: 2026-07-09T22:57:45Z
-date_finished: null
+last_update: 2026-07-09T23:01:11Z
+date_finished: 2026-07-09T23:01:11Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -96,6 +96,22 @@ diff -q src/aef-workflow-designer.html build/gallery/designer.html
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+## Recommendation
+
+**Recommendation:** GO
+**Rationale:** All five agent ACs verified in a live headless browser. Hovering a version
+thumbnail now shows the same enlarged floating preview as the Open-project card browser,
+positioned beside the modal, and it tears down cleanly on close. The change reuses the
+existing hover-zoom infrastructure and did not regress Open-project (regression-checked).
+The remaining Human AC is a quick visual taste-check.
+**Evidence:**
+- `.playwright-mcp/t164-versions-hover-zoom.png` (read): Versions modal for `arc-lifecycle`
+  showing v4–v1 rows plus the floating v4 preview with caption.
+- Hover on v4 → preview present + visible with image and caption; leave → hidden.
+- Close → `#versions-modal` gone AND `#project-hover-preview` removed (no orphan).
+- Open-project hover regression: still works + cleans up. 0 console errors.
+- Verification gate: `diff -q src build/gallery/designer.html` → PASS (MIRROR-OK).
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -163,3 +179,6 @@ diff -q src/aef-workflow-designer.html build/gallery/designer.html
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-164-consistent-tile-hover-zoom-in-the-versio.md
 - **Context:** Initial task creation
+
+### 2026-07-09T23:01:11Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
