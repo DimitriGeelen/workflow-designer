@@ -7225,7 +7225,9 @@ async function openProjectModal() {
   panel.appendChild(head);
 
   const body = document.createElement('div');
-  body.style.cssText = 'overflow:auto;padding:12px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px';
+  // T-162: grid-auto-rows:max-content pins each row to its content height. Without it, the
+  // cards (overflow:hidden → 0 auto-minimum) let the grid pack rows short and clip the label.
+  body.style.cssText = 'overflow:auto;padding:12px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));grid-auto-rows:max-content;gap:12px';
   panel.appendChild(body);
 
   if (!maps.length) {
@@ -7238,7 +7240,7 @@ async function openProjectModal() {
   // Neutral thumbnail placeholder for maps without a saved-version PNG (rendered-only,
   // or a saved thumb that 404s). Avoids the browser broken-image icon (T-144 visual fix).
   // Shared helper makeThumbPlaceholder (T-149 F2); card variant = full-width, border-bottom.
-  const thumbPlaceholder = () => makeThumbPlaceholder({ w: '100%', h: 104, borderBottom: true, fontSize: 28 });
+  const thumbPlaceholder = () => makeThumbPlaceholder({ w: '100%', h: 104, borderBottom: true, fontSize: 28, flex: '0 0 auto' });
 
   const cards = [];
   for (const m of maps.slice().sort((a, b) => a.id.localeCompare(b.id))) {
@@ -7257,7 +7259,9 @@ async function openProjectModal() {
       : `/api/thumb?id=${encodeURIComponent(m.id)}`;
     const thumb = document.createElement('img');
     thumb.alt = m.id + ' preview';
-    thumb.style.cssText = 'width:100%;height:104px;object-fit:contain;background:#0f1115;border-bottom:1px solid var(--border,#2a3140)';
+    // T-162: flex:0 0 auto pins the tile height — without it the img flex-shrinks inside the
+    // flex-column card in an auto grid row, collapsing the card and clipping the label below.
+    thumb.style.cssText = 'width:100%;height:104px;flex:0 0 auto;object-fit:contain;background:#0f1115;border-bottom:1px solid var(--border,#2a3140)';
     thumb.src = thumbSrc;
     thumb.onerror = () => { thumb.replaceWith(thumbPlaceholder()); };  // no cached tile → placeholder, not blank gap
     const meta = document.createElement('div');
