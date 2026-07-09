@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-160: Handoff nodes: double-click / panel button jumps to target workflow
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-09T20:22:27Z
+# ============================================================================
+
+task_id: T-160
+task_name: "Handoff nodes: double-click / panel button jumps to target workflow"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-09T20:16:30Z
+completed: 2026-07-09T20:22:26Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-09T22:22:20+02:00
+last_commit: 2026-07-09T22:22:20+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Handoff nodes jump to their target workflow (double-click + panel button)
+
+# Key outcomes
+outcomes:
+  - '`jumpToWorkflow(id)` exists and resolves a target three ways: in-session library (instant switch, current saved first), project corpus/saved via `/api/list`+`openProjectMap`, else a clear not-found message. Empty/self target → no-op hint. **Verified:** library path → active became `investigate`; API path `jumpToWorkflow(''healing-loop'')` → active `healing-loop` (added to library); empty/self/not-found handled by alerts in code.'
+  - 'Double-clicking a handoff node (`linkEventThrow`/`linkEventCatch`) with a target set jumps to it; single-click still selects (unchanged). Non-handoff nodes ignore double-click. Wired via a `dblclick` listener on the node group. **Verified:** `onNodeDblClick` on a `linkEventThrow{target:''investigate''}` → active switched to `investigate`; on a `serviceTask` → no change (`nonHandoffIgnored:true`).'
+  - 'The properties panel for a handoff node shows an "↗ Open target workflow" button in the Target-workflow field block; it calls `jumpToWorkflow` and is disabled when no target is set. **Verified:** real `createNodeAt(''linkEventThrow'')` node → button renders, `disabledWhenEmpty:true`, `enabledWhenSet:true`, click → jumped `healing-loop → audit-process`.'
+  - 'src↔build mirror invariant holds: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`. **Verified:** MIRROR-OK.'
+  - 'Playwright verification: with two loaded maps, set a handoff''s target to the other map, double-click it → active map switches to the target; the panel button does the same; 0 console errors; element screenshot READ. **Verified:** both triggers switch the active map; 0 console errors; screenshot READ (see `## Visual Verification`).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-160-handoff-nodes-double-click--panel-button.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-09T22:22:20"
+    action: "T-160: Handoff nodes jump to their target workflow (double-click + panel button)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 2
+  lines_added: 260
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-160-handoff-nodes-double-click--panel-button.md
+generated_by: context-agent-hybrid
