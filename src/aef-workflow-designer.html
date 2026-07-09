@@ -938,7 +938,11 @@
       <span class="brand-mark">AEF · BPMN</span>
       <span class="brand-title">Workflow Designer</span>
       <span class="brand-separator">·</span>
-      <select class="brand-picker" id="workflow-picker" title="Switch workflow"></select>
+      <!-- T-154: the workflow-picker <select> is replaced by this brand-area "Open project"
+           button (operator decision — one unified full-corpus entry point, no half-populated
+           dropdown). Moved here from .actions; keeps id/handler/API-gating (detectSaveApi
+           reveals it by id). Hidden until /api/health succeeds. -->
+      <button class="btn" id="btn-open-project" title="Browse the project's workflow maps and open one (opens each map's latest saved version; requires the write-capable gallery server)" style="display:none">📂 Open project…</button>
       <button class="btn-icon" id="btn-new-workflow" title="New workflow">+</button>
       <!-- T-158: bare 'v1' contract-version badge removed (confusing beside the snapshot
            badge; contract version stays editable in the properties "Workflow version" field). -->
@@ -955,7 +959,8 @@
       <button class="btn" id="btn-xml">View XML</button>
       <button class="btn" id="btn-settings" title="Editor settings — routing, snapping, grid">⚙ Settings</button>
       <button class="btn" id="btn-load">Load…</button>
-      <button class="btn" id="btn-open-project" title="Browse the project's workflow maps and open one (opens each map's latest saved version; requires the write-capable gallery server)" style="display:none">📂 Open project…</button>
+      <!-- T-154: "📂 Open project…" moved to the brand area (replacing the workflow-picker
+           <select>); a single, duplicate-free entry point. -->
       <button class="btn" id="btn-versions" title="Browse and revert to a saved version of this map (requires the write-capable gallery server)" style="display:none">🕘 Versions</button>
       <button class="btn" id="btn-save-project" title="Save this map into the repo as a new version (requires the write-capable gallery server)" style="display:none">⤓ Save to project</button>
       <button class="btn btn-primary" id="btn-save">Save</button>
@@ -7275,11 +7280,10 @@ $('btn-load').onclick = () => {
 $('btn-new-workflow').onclick = () => { createNewWorkflow(); };
 $('btn-save-project').onclick = saveToProject;
 $('btn-versions').onclick = openVersionsModal;
-$('btn-open-project').onclick = openProjectModal;   // T-144
-$('workflow-picker').onchange = ev => {
-  const key = ev.target.value;
-  if (key !== activeKey) loadFromLibrary(key);
-};
+$('btn-open-project').onclick = openProjectModal;   // T-144 (moved to brand area in T-154)
+// T-154: the workflow-picker <select> and its onchange handler are gone — the brand-area
+// "📂 Open project…" button is the single entry point. loadFromLibrary() is retained; it is
+// still invoked by the palette map-list rows (createNewWorkflow / library switching).
 // T-158: the bare 'v1' toolbar badge (and its click-to-bump handler) is gone;
 // the contract version is bumped via the properties "Workflow version" field (T-152).
 
