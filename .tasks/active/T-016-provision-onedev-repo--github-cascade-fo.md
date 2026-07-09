@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-02T17:00:16Z
-last_update: 2026-07-02T18:23:37Z
+last_update: 2026-07-09T08:18:24Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -54,7 +54,7 @@ credentials arrive via ring20's secure channel (deploy-key-install style).
 - [x] `origin` (OneDev, SSH `ssh://git@192.168.10.201:6611/workflow-designer`) + `github` remotes added; no token in origin URL (SSH key auth), no token committed
 - [x] `fw audit` run before push (Pass 78 / Warn 2 / Fail 0; a pre-push hook audit also passed 12/0/0). Working tree note: push publishes committed history only — the 1171 in-flight uncommitted files (T-014/T-015 session) are excluded and untouched
 - [x] `master` pushed to OneDev origin (HEAD c958686, full history); `.onedev-buildspec.yml` mirror job committed + pushed (BranchUpdateTrigger fired)
-- [ ] **PENDING ring20 server side:** OneDev→GitHub cascade confirmed populating `github.com/DimitriGeelen/workflow-designer` (needs their GitHub repo + `github-push-token` job-secret; secret-name alignment sent at offset 104)
+- [ ] **PENDING ring20/operator — cascade requested LIVE (2026-07-09):** OneDev→GitHub cascade confirmed populating `github.com/DimitriGeelen/workflow-designer`. Prior status (2026-07-02) was operator-DEFERRED; operator reversed on 2026-07-09 ("OneDev primary, cascading to GitHub"). GitHub repo already exists (verified empty via `git ls-remote`). Only remaining server-side step: ring20/operator sets the `github-push-token` job-secret (GitHub PAT, Contents R+W on the repo) on OneDev project 45 — the buildspec already references it (`passwordSecret: github-push-token`, `jobExecutor: server-docker`). Requested via DM to ring20 (thread T-016). Verify green + GitHub HEAD == OneDev HEAD once the secret is set, then check this box.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -170,6 +170,11 @@ credentials arrive via ring20's secure channel (deploy-key-install style).
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-07-09 — GitHub cascade: light it up (reverse the 2026-07-02 deferral)
+- **Chose:** OneDev is the primary remote; wire the OneDev→GitHub PushRepository mirror so pushes cascade to `github.com/DimitriGeelen/workflow-designer`. Keep the committed `.onedev-buildspec.yml` mirror job as-is; request ring20/operator set the `github-push-token` secret on OneDev project 45.
+- **Why:** Operator directive 2026-07-09 ("I want OneDev to be the primary remote that cascades to GitHub"). Matches the termlink / agentic-engineering-framework sibling posture.
+- **Rejected:** (a) Leave deferred / OneDev-only (card-redirect posture) — was ring20's 2026-07-02 recommendation, now overridden by operator. (b) Disable the mirror job to keep OneDev builds green — no longer wanted; the job SHOULD run and go green once the secret is set.
 
 ## Decision
 
