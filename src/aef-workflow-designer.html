@@ -6874,7 +6874,8 @@ async function revertToVersion(id, v) {
     const bpmn = await res.text();
     closeVersionsModal();
     adoptImportedXml(bpmn, { userImport: false, replace: true });
-    if (typeof showRestoredToast === 'function') showRestoredToast({ ts: Date.now(), title: `${id} v${v}` });
+    // Accurate, action-free confirmation (T-148) — NOT the autosave-restore banner.
+    if (typeof showToast === 'function') showToast(`↩ Reverted to ${id} v${v}.`);
   } catch (e) { alert('Revert failed: ' + (e && e.message || e)); }
 }
 async function openVersionsModal() {
@@ -7727,31 +7728,48 @@ function autoLoadStored() {
   try { adoptImportedXml(s.xml, { userImport: false, replace: true }); } catch (_) { return; }
   showRestoredToast(s);
 }
-function showRestoredToast(s) {
+// Generic bottom-center toast. opts: { actionLabel, onAction, timeout=6000 }.
+// A shared confirmation surface (T-148): autosave-restore uses it with a
+// "Start fresh" action; version-revert uses it as a plain confirmation. Before
+// T-148, revert reused showRestoredToast and therefore mislabelled itself as
+// "Restored your unsaved work" and offered a doc-wiping "Start fresh" button.
+function showToast(message, opts) {
+  opts = opts || {};
   try {
+    const prev = document.getElementById('app-toast');
+    if (prev) prev.remove();
     const t = document.createElement('div');
-    t.id = 'restore-toast';
+    t.id = 'app-toast';
     t.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:18px;'
       + 'z-index:9999;background:var(--panel,#1e2530);color:var(--fg,#e6edf3);'
       + 'border:1px solid var(--border,#334);border-radius:8px;padding:8px 12px;'
       + 'display:flex;gap:10px;align-items:center;font:13px system-ui,sans-serif;'
       + 'box-shadow:0 4px 16px rgba(0,0,0,.4);opacity:0;transition:opacity .2s';
-    let when = ''; try { when = new Date(s.ts).toLocaleString(); } catch (_) {}
     const msg = document.createElement('span');
-    msg.textContent = `↩ Restored your unsaved work${when ? ' (' + when + ')' : ''}.`;
-    const fresh = document.createElement('button');
-    fresh.textContent = 'Start fresh'; fresh.className = 'btn';
-    fresh.onclick = () => {
+    msg.textContent = message;
+    t.appendChild(msg);
+    if (opts.actionLabel && typeof opts.onAction === 'function') {
+      const btn = document.createElement('button');
+      btn.textContent = opts.actionLabel; btn.className = 'btn';
+      btn.onclick = () => { try { opts.onAction(); } finally { t.remove(); } };
+      t.appendChild(btn);
+    }
+    document.body.appendChild(t);
+    requestAnimationFrame(() => { t.style.opacity = '1'; });
+    const ttl = opts.timeout || 6000;
+    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, ttl);
+  } catch (_) { /* toast is best-effort */ }
+}
+function showRestoredToast(s) {
+  let when = ''; try { when = new Date(s.ts).toLocaleString(); } catch (_) {}
+  showToast(`↩ Restored your unsaved work${when ? ' (' + when + ')' : ''}.`, {
+    actionLabel: 'Start fresh',
+    onAction: () => {
       try { localStorage.removeItem(AUTOSAVE_KEY); } catch (_) {}
       _autosaveRestore = null;
       try { createNewWorkflow(); } catch (_) {}
-      t.remove();
-    };
-    t.append(msg, fresh);
-    document.body.appendChild(t);
-    requestAnimationFrame(() => { t.style.opacity = '1'; });
-    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 6000);
-  } catch (_) { /* toast is best-effort */ }
+    },
+  });
 }
 
 // ============================================================================
