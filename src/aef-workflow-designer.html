@@ -4294,7 +4294,10 @@ function renderProperties() {
       wm.title = v;
       refreshLibraryUI();
     }, { hint: 'human-readable name shown in picker' }));
-    sMeta.appendChild(field('Version', wm.version || '1', v => {
+    // Labelled "Workflow version" (not bare "Version") to disambiguate the manual
+    // contract-version bump from the saved-snapshot revisions ("saved · vN" / the
+    // "Versions —" modal) — T-152 / F5. Matches the existing bump-prompt wording.
+    sMeta.appendChild(field('Workflow version', wm.version || '1', v => {
       const trimmed = (v || '').trim();
       if (!trimmed) return;
       wm.version = trimmed;
