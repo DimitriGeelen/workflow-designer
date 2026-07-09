@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-151: Open-project card title clipped against thumbnail edge (F6)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-09T12:30:50Z
+# ============================================================================
+
+task_id: T-151
+task_name: "Open-project card title clipped against thumbnail edge (F6)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-09T12:28:06Z
+completed: 2026-07-09T12:30:48Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-09T14:30:43+02:00
+last_commit: 2026-07-09T14:30:43+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Open-project card title breathing room — no descender clip (F6)
+
+# Key outcomes
+outcomes:
+  - 'Card title div has an explicit line-height (≥1.3) so `overflow:hidden` no longer clips descenders; title no longer sits tight against the thumbnail edge — added `line-height:1.35` (computed 18px); breathing room visible below thumbnail'
+  - 'Ellipsis still works for long titles (still `white-space:nowrap;overflow:hidden;text-overflow:ellipsis`) — computed overflow=hidden, text-overflow=ellipsis retained'
+  - 'src mirrored to build/gallery/designer.html (diff -q clean) — MIRROR-OK'
+  - 'Visual: element screenshot of an Open-project card with a descender-bearing title showing no clipping (## Visual Verification)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.playwright-mcp/t151-card-title-no-clip.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-151-open-project-card-title-clipped-against-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-09T14:30:43"
+    action: "T-151: Open-project card title breathing room — no descender clip (F6)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 3
+  lines_added: 197
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-151-open-project-card-title-clipped-against-.md
+generated_by: context-agent-hybrid
