@@ -2187,6 +2187,7 @@ function renderNodes() {
     const g = el('g', { class: cls, 'data-id': n.id });
     g.addEventListener('mousedown', e => onNodeMouseDown(e, n));
     g.addEventListener('click', e => { e.stopPropagation(); onNodeClick(n, e); });
+    g.addEventListener('dblclick', e => { e.stopPropagation(); onNodeDblClick(n, e); });   // T-160: handoff jump
 
     if (n.type === 'startEvent') {
       g.appendChild(el('circle', { cx: n.x + def.w / 2, cy: n.y + def.h / 2, r: def.w / 2, class: 'node-shape', fill: 'var(--green-soft)', stroke: 'var(--green)', 'stroke-width': '1.5' }));
@@ -4716,6 +4717,18 @@ function renderProperties() {
         // Free-text override field, always visible — lets the user type a workflow id
         // not currently loaded into the session.
         sAef.appendChild(field(meta.label + ' (free text)', n.aef[f] || '', v => { n.aef[f] = v; renderProperties(); }, { mono: true, hint: 'override or workflow not loaded' }));
+        // T-160: explicit jump affordance (double-clicking the node does the same). Disabled
+        // until a target is set. Only rendered for the targetWorkflow field (workflowPicker).
+        const jumpBtn = document.createElement('button');
+        jumpBtn.className = 'btn';
+        jumpBtn.type = 'button';
+        jumpBtn.textContent = '↗ Open target workflow';
+        jumpBtn.style.marginTop = '6px';
+        const _tw = (n.aef[f] || '').trim();
+        jumpBtn.disabled = !_tw;
+        jumpBtn.title = _tw ? ('Open ' + _tw) : 'Set a target workflow first';
+        jumpBtn.onclick = () => jumpToWorkflow(n.aef[f]);
+        sAef.appendChild(jumpBtn);
       } else {
         sAef.appendChild(field(meta.label, n.aef[f] || '', v => { n.aef[f] = v; }, { mono: true, textarea: meta.textarea, hint: meta.hint }));
       }
@@ -6244,6 +6257,42 @@ function onNodeMouseDown(e, n) {
   } else {
     drag = { id: n.id, offX: pt.x - n.x, offY: pt.y - n.y, startX: pt.x, startY: pt.y, moved: false };
   }
+}
+// T-160: handoff navigation. Handoff nodes (linkEventThrow "Handoff →" / linkEventCatch
+// "← Handoff") carry aef.targetWorkflow; jumping resolves it three ways and opens it.
+const HANDOFF_TYPES = new Set(['linkEventThrow', 'linkEventCatch']);
+async function jumpToWorkflow(id) {
+  id = (id || '').trim();
+  if (!id) { alert('This handoff node has no target workflow set.\nPick or type one in the "Target workflow" field first.'); return; }
+  if (id === activeKey) { alert('Already viewing "' + id + '".'); return; }
+  // 1. Loaded in this session's library → instant switch (persist current edits first).
+  if (typeof library !== 'undefined' && library.has(id)) {
+    saveActiveToLibrary();
+    loadFromLibrary(id);
+    return;
+  }
+  // 2. Project corpus / saved maps — resolve via /api/list, open with the same path the
+  //    browser modal uses (openProjectMap opens the latest saved version, else rendered).
+  if (_apiAvailable) {
+    try {
+      const res = await fetch('/api/list');
+      if (res.ok) {
+        const d = await res.json();
+        const m = (Array.isArray(d.maps) ? d.maps : []).find(x => x.id === id);
+        if (m) { await openProjectMap(m); return; }
+      }
+    } catch (_) { /* fall through to not-found */ }
+  }
+  // 3. Nowhere to jump.
+  alert('Target workflow "' + id + '" is not loaded in this session and was not found in '
+    + 'the project.\nOpen or save that workflow first, then try again.');
+}
+// Double-click a handoff node → jump to its target. Non-handoff nodes ignore it; single-
+// click still selects/edits (unchanged). Suppressed in connect mode.
+function onNodeDblClick(n, e) {
+  if (mode === 'connect') return;
+  if (!HANDOFF_TYPES.has(n.type)) return;
+  jumpToWorkflow(n.aef && n.aef.targetWorkflow);
 }
 function onNodeClick(n, e) {
   if (mode === 'connect') {
