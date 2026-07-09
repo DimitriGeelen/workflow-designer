@@ -4,10 +4,10 @@ name: "Remove the bare 'v1' contract-version badge from the toolbar"
 description: >
   Operator: the unlabeled 'v1' toolbar badge (brand-version, contract version) is confusing next to the new snapshot badge and re-creates an F5-style collision. Remove it. Contract version stays editable via the properties 'Workflow version' field. Must remove the element AND its JS refs (versionEl updater ~1929, unguarded onclick ~7284 that would throw on a null element).
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T15:35:14Z
-last_update: 2026-07-09T15:35:14Z
-date_finished: null
+last_update: 2026-07-09T15:38:16Z
+date_finished: 2026-07-09T15:38:16Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -196,3 +196,6 @@ Reloaded `http://localhost:8834/designer.html`.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-158-remove-the-bare-v1-contract-version-badg.md
 - **Context:** Initial task creation
+
+### 2026-07-09T15:38:16Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-158: Remove the bare 'v1' contract-version badge from the toolbar
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-09T15:38:17Z
+# ============================================================================
+
+task_id: T-158
+task_name: "Remove the bare 'v1' contract-version badge from the toolbar"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-09T15:35:14Z
+completed: 2026-07-09T15:38:16Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-09T17:37:28+02:00
+last_commit: 2026-07-09T17:38:15+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Remove the bare 'v1' contract-version badge from the toolbar. Reword comment so it doesn't trip the no-JS-ref verification grep
+
+# Key outcomes
+outcomes:
+  - '`#brand-version` span removed from the toolbar; no `brand-version` id references remain in JS (grep clean) — only CSS rules + comments reference it; `getElementById(''brand-version'')` returns null'
+  - 'App initialises with no console error (the unguarded onclick is gone); the `🕘 vN` snapshot badge still works — 0 console errors on load; snapshot badge shows 🕘 v4 after opening arc-lifecycle'
+  - 'Contract version still editable via the properties "Workflow version" field (unchanged) — the field''s setter (T-152) is untouched'
+  - 'src mirrored to build/gallery/designer.html (diff -q clean) — MIRROR-OK'
+  - 'Visual: screenshot of the toolbar without the bare v1 badge (## Visual Verification)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.playwright-mcp/t158-toolbar-no-v1.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-158-remove-the-bare-v1-contract-version-badg.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-09T17:37:28"
+    action: "T-158: Remove the bare 'v1' contract-version badge from the toolbar"
+  - time: "2026-07-09T17:38:15"
+    action: "T-158: Reword comment so it doesn't trip the no-JS-ref verification grep"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 2
+  files_changed: 3
+  lines_added: 206
+  lines_removed: 19
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-158-remove-the-bare-v1-contract-version-badg.md
+generated_by: context-agent-hybrid
