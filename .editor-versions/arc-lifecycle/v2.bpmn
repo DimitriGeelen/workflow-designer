@@ -35,7 +35,7 @@
       </bpmn:lane>
       <bpmn:lane id="agent" name="Agent · Initiative">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="agt" authority="initiative" height="150"/>
+          <aef:laneMeta abbr="agt" authority="initiative" height="150.6317241379311"/>
         </bpmn:extensionElements>
         <bpmn:flowNodeRef>agt_1_arc</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>agt_4_tag</bpmn:flowNodeRef>
@@ -50,7 +50,7 @@
     <bpmn:startEvent id="agt_1_arc" name="Arc proposed (headline mechanic identified)">
       <bpmn:extensionElements>
         <aef:uid value="n_req"/>
-        <aef:position x="153.9" y="504.9"/>
+        <aef:position x="153.1" y="517.1"/>
         <aef:meta triggeredBy="fw arc create &lt;id&gt; --name --headline-mechanic"/>
         <aef:io>
           <aef:output name="headline_mechanic" type="string"/>
@@ -62,7 +62,7 @@
     <bpmn:endEvent id="frw_4_arc" name="Arc closed (immutable)">
       <bpmn:extensionElements>
         <aef:uid value="n_end_closed"/>
-        <aef:position x="1973.9" y="259.8"/>
+        <aef:position x="2058.3" y="255.4"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_12</bpmn:incoming>
     </bpmn:endEvent>
@@ -70,7 +70,7 @@
     <bpmn:endEvent id="frw_3_arc" name="Arc abandoned (immutable)">
       <bpmn:extensionElements>
         <aef:uid value="n_end_abandoned"/>
-        <aef:position x="1973.9" y="371.3"/>
+        <aef:position x="2058.3" y="364.7"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_13</bpmn:incoming>
     </bpmn:endEvent>
@@ -78,7 +78,7 @@
     <bpmn:serviceTask id="agt_4_tag" name="Tag member tasks (arc_id / arc: tag)">
       <bpmn:extensionElements>
         <aef:uid value="n_tag"/>
-        <aef:position x="772.5" y="490.9"/>
+        <aef:position x="693.1" y="503.1"/>
         <aef:meta tier="1" gate="check-arc-id.py (arc_id must resolve; else block exit 2)"/>
         <aef:endpoint>fw arc tag ${arc_id} T-XXXX</aef:endpoint>
         <aef:io>
@@ -92,7 +92,7 @@
     <bpmn:serviceTask id="agt_5_bvp" name="BVP rescore (writes PROPOSED scores only)">
       <bpmn:extensionElements>
         <aef:uid value="n_bvp"/>
-        <aef:position x="1003.3" y="490.9"/>
+        <aef:position x="873.1" y="503.1"/>
         <aef:meta tier="1"/>
         <aef:endpoint>fw arc rescore ${arc_id}</aef:endpoint>
       </bpmn:extensionElements>
@@ -103,7 +103,7 @@
     <bpmn:serviceTask id="agt_6_work" name="Work member tasks (each = own task-lifecycle + Evolution log)">
       <bpmn:extensionElements>
         <aef:uid value="n_work"/>
-        <aef:position x="1234.2" y="490.9"/>
+        <aef:position x="1273.1" y="503.1"/>
         <aef:meta tier="2"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_6</bpmn:incoming>
@@ -113,7 +113,7 @@
     <bpmn:userTask id="hum_1_approve" name="Approve value drivers (human-only)">
       <bpmn:extensionElements>
         <aef:uid value="n_approve_driver"/>
-        <aef:position x="1119.9" y="103.6"/>
+        <aef:position x="1065.0" y="128.0"/>
         <aef:meta tier="0"/>
         <aef:endpoint>fw arc approve-driver ${arc_id} --i-am-human</aef:endpoint>
       </bpmn:extensionElements>
@@ -124,7 +124,7 @@
     <bpmn:userTask id="hum_2_close" name="Close or abandon? (human-only)">
       <bpmn:extensionElements>
         <aef:uid value="n_close_decide"/>
-        <aef:position x="1397.1" y="103.6"/>
+        <aef:position x="1483.3" y="131.9"/>
         <aef:meta tier="0"/>
         <aef:endpoint>watchtower:/arcs/${arc_id}/close  |  fw arc close --i-am-human</aef:endpoint>
         <aef:decisionOutputs>close, abandon</aef:decisionOutputs>
@@ -136,7 +136,7 @@
     <bpmn:scriptTask id="agt_2_create" name="Create arc (status draft, immutable arc-NNN)">
       <bpmn:extensionElements>
         <aef:uid value="n_create"/>
-        <aef:position x="310.8" y="490.9"/>
+        <aef:position x="333.1" y="503.1"/>
         <aef:meta tier="1" state="draft"/>
         <aef:endpoint>lib/arc.sh:344</aef:endpoint>
         <aef:artifactsWrites paths=".context/arcs/&lt;slug&gt;.yaml"/>
@@ -151,7 +151,7 @@
     <bpmn:scriptTask id="agt_3_start" name="Start arc (draft → in-progress)">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
-        <aef:position x="541.6" y="490.9"/>
+        <aef:position x="513.1" y="503.1"/>
         <aef:meta tier="1" state="in-progress"/>
         <aef:endpoint>fw arc start ${arc_id}</aef:endpoint>
       </bpmn:extensionElements>
@@ -162,7 +162,7 @@
     <bpmn:scriptTask id="agt_7_emit" name="Emit close review surface (Watchtower URL + QR)">
       <bpmn:extensionElements>
         <aef:uid value="n_review"/>
-        <aef:position x="1397.1" y="490.9"/>
+        <aef:position x="1483.3" y="503.1"/>
         <aef:meta tier="1"/>
         <aef:endpoint>fw arc review ${arc_id}</aef:endpoint>
       </bpmn:extensionElements>
@@ -173,7 +173,7 @@
     <bpmn:scriptTask id="frw_2_close" name="Close arc (in-progress → closed) + record demo_evidence">
       <bpmn:extensionElements>
         <aef:uid value="n_close"/>
-        <aef:position x="1773.9" y="239.1"/>
+        <aef:position x="1858.3" y="239.1"/>
         <aef:meta tier="1" state="closed" note="immutable — arc YAML never moved/deleted (F6)"/>
         <aef:endpoint>lib/arc.sh:643</aef:endpoint>
       </bpmn:extensionElements>
@@ -184,7 +184,7 @@
     <bpmn:scriptTask id="frw_1_abandon" name="Abandon arc (reason ≥30 chars)">
       <bpmn:extensionElements>
         <aef:uid value="n_abandon"/>
-        <aef:position x="1773.9" y="366.4"/>
+        <aef:position x="1858.3" y="366.4"/>
         <aef:meta tier="1" state="abandoned" note="side exit reachable from draft or in-progress too"/>
         <aef:endpoint>lib/arc.sh:770</aef:endpoint>
       </bpmn:extensionElements>
@@ -195,7 +195,7 @@
     <bpmn:exclusiveGateway id="hum_3_close" name="Close or abandon?">
       <bpmn:extensionElements>
         <aef:uid value="n_route"/>
-        <aef:position x="1589.9" y="111.6"/>
+        <aef:position x="1674.3" y="139.9"/>
         <aef:meta decisionOwner="human"/>
         <aef:decisionInput>${decision}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -251,7 +251,7 @@
     <bpmn:sequenceFlow id="flow_8" sourceRef="agt_7_emit" targetRef="hum_2_close">
       <bpmn:extensionElements>
         <aef:uid value="e_08"/>
-        <aef:routingHint role="seg_mid" offset="3.6"/>
+        <aef:routingHint role="seg_mid" offset="-89.1"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 

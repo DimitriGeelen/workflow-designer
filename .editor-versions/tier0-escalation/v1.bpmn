@@ -30,10 +30,10 @@
         </bpmn:extensionElements>
         <bpmn:flowNodeRef>frw_6_executed</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_1_pretooluse</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_4_block</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_block</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_5_consume</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_2_matches</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_3_valid</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_valid</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="agent" name="Agent · Initiative">
         <bpmn:extensionElements>
@@ -47,7 +47,7 @@
     <bpmn:startEvent id="agt_1_agent" name="Agent issues a Bash command">
       <bpmn:extensionElements>
         <aef:uid value="n_propose"/>
-        <aef:position x="246.2" y="494.0"/>
+        <aef:position x="120.0" y="494.0"/>
         <aef:io>
           <aef:output name="command" type="string"/>
         </aef:io>
@@ -58,7 +58,7 @@
     <bpmn:endEvent id="frw_6_executed" name="Executed (logged)">
       <bpmn:extensionElements>
         <aef:uid value="n_end_run"/>
-        <aef:position x="1402.0" y="324.0"/>
+        <aef:position x="1200.0" y="404.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_12</bpmn:incoming>
     </bpmn:endEvent>
@@ -66,7 +66,7 @@
     <bpmn:endEvent id="hum_3_abandoned" name="Abandoned (not executed)">
       <bpmn:extensionElements>
         <aef:uid value="n_end_abandoned"/>
-        <aef:position x="1402.0" y="130.0"/>
+        <aef:position x="1320.0" y="164.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_10</bpmn:incoming>
     </bpmn:endEvent>
@@ -74,7 +74,7 @@
     <bpmn:serviceTask id="agt_2_command" name="Command executes">
       <bpmn:extensionElements>
         <aef:uid value="n_run"/>
-        <aef:position x="966.4" y="480.0"/>
+        <aef:position x="960.0" y="480.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_3</bpmn:incoming>
       <bpmn:incoming>flow_11</bpmn:incoming>
@@ -84,7 +84,7 @@
     <bpmn:userTask id="hum_1_human" name="Human reviews — approve or abandon">
       <bpmn:extensionElements>
         <aef:uid value="n_human_decide"/>
-        <aef:position x="840.2" y="116.0"/>
+        <aef:position x="920.0" y="70.0"/>
         <aef:meta tier="0"/>
         <aef:endpoint>fw tier0 approve  |  Watchtower approval surface</aef:endpoint>
         <aef:decisionOutputs>approve, abandon</aef:decisionOutputs>
@@ -96,7 +96,7 @@
     <bpmn:scriptTask id="frw_1_pretooluse" name="PreToolUse hook intercepts (check-tier0.sh)">
       <bpmn:extensionElements>
         <aef:uid value="n_intercept"/>
-        <aef:position x="209.2" y="310.0"/>
+        <aef:position x="320.0" y="310.0"/>
         <aef:meta tier="0" trigger="PreToolUse:Bash (every command)"/>
         <aef:endpoint>agents/context/check-tier0.sh</aef:endpoint>
         <aef:io>
@@ -109,10 +109,10 @@
       <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:scriptTask id="frw_4_block" name="BLOCK (exit 2) with explanation">
+    <bpmn:scriptTask id="frw_3_block" name="BLOCK (exit 2) with explanation">
       <bpmn:extensionElements>
         <aef:uid value="n_block"/>
-        <aef:position x="745.0" y="248.0"/>
+        <aef:position x="720.0" y="222.0"/>
         <aef:meta tier="0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_6</bpmn:incoming>
@@ -122,7 +122,7 @@
     <bpmn:scriptTask id="frw_5_consume" name="Consume token (single-use) + log approval">
       <bpmn:extensionElements>
         <aef:uid value="n_consume"/>
-        <aef:position x="745.0" y="368.0"/>
+        <aef:position x="720.0" y="398.0"/>
         <aef:meta tier="0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_5</bpmn:incoming>
@@ -132,7 +132,7 @@
     <bpmn:exclusiveGateway id="frw_2_matches" name="Matches a destructive pattern?">
       <bpmn:extensionElements>
         <aef:uid value="n_match"/>
-        <aef:position x="366.4" y="318.0"/>
+        <aef:position x="520.0" y="318.0"/>
         <aef:meta decisionOwner="framework" note="high-confidence PATTERNS (force push, rm -rf /, DROP TABLE, hard reset)"/>
         <aef:decisionInput>${match}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -141,10 +141,10 @@
       <bpmn:outgoing>flow_4</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:exclusiveGateway id="frw_3_valid" name="Valid single-use approval token?">
+    <bpmn:exclusiveGateway id="frw_4_valid" name="Valid single-use approval token?">
       <bpmn:extensionElements>
         <aef:uid value="n_check_approval"/>
-        <aef:position x="492.6" y="318.0"/>
+        <aef:position x="720.0" y="318.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${approved}</aef:decisionInput>
         <aef:constituents>
@@ -160,7 +160,7 @@
     <bpmn:exclusiveGateway id="hum_2_approve" name="Approve or abandon?">
       <bpmn:extensionElements>
         <aef:uid value="n_route"/>
-        <aef:position x="1123.6" y="124.0"/>
+        <aef:position x="1120.0" y="158.0"/>
         <aef:meta decisionOwner="human"/>
         <aef:decisionInput>${decision}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -185,36 +185,33 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${match == false}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_03"/>
-        <aef:loopDetour y="543.7"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_4" name="destructive match" sourceRef="frw_2_matches" targetRef="frw_3_valid">
+    <bpmn:sequenceFlow id="flow_4" name="destructive match" sourceRef="frw_2_matches" targetRef="frw_4_valid">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${match == true}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_04"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_5" name="valid token" sourceRef="frw_3_valid" targetRef="frw_5_consume">
+    <bpmn:sequenceFlow id="flow_5" name="valid token" sourceRef="frw_4_valid" targetRef="frw_5_consume">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${approved == true}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_05"/>
-        <aef:routingHint role="seg_first" offset="1.3"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_6" name="no approval" sourceRef="frw_3_valid" targetRef="frw_4_block">
+    <bpmn:sequenceFlow id="flow_6" name="no approval" sourceRef="frw_4_valid" targetRef="frw_3_block">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${approved == false}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_06"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_7" sourceRef="frw_4_block" targetRef="hum_1_human">
+    <bpmn:sequenceFlow id="flow_7" sourceRef="frw_3_block" targetRef="hum_1_human">
       <bpmn:extensionElements>
         <aef:uid value="e_07"/>
-        <aef:anchors targetPort="W"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
@@ -228,7 +225,6 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${decision == 'approve'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_09"/>
-        <aef:anchors targetPort="N"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
@@ -242,7 +238,6 @@
     <bpmn:sequenceFlow id="flow_11" sourceRef="frw_5_consume" targetRef="agt_2_command">
       <bpmn:extensionElements>
         <aef:uid value="e_11"/>
-        <aef:anchors targetPort="N"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 

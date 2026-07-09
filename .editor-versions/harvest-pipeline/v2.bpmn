@@ -60,7 +60,7 @@
     <bpmn:startEvent id="agt_1_trigger" name="Trigger — `fw harvest [project]`">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
-        <aef:position x="142.0" y="104.0"/>
+        <aef:position x="100.0" y="104.0"/>
         <aef:endpoint>fw harvest</aef:endpoint>
       </bpmn:extensionElements>
       <bpmn:outgoing>flow_1</bpmn:outgoing>

@@ -41,7 +41,7 @@
     <bpmn:startEvent id="agt_1_fw" name="fw fabric blast-radius [ref]">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
-        <aef:position x="222.0" y="114.0"/>
+        <aef:position x="90.0" y="114.0"/>
         <aef:meta triggeredBy="agent, before committing (CLAUDE.md Component Fabric practice) or post-commit review"/>
         <aef:io>
           <aef:output name="ref" type="string"/>
@@ -53,7 +53,7 @@
     <bpmn:endEvent id="frw_3_no" name="no files changed (exit 0)">
       <bpmn:extensionElements>
         <aef:uid value="n_none"/>
-        <aef:position x="431.2" y="462.0"/>
+        <aef:position x="338.0" y="434.0"/>
         <aef:meta terminalKind="success" state="no-op" exitCode="0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_3</bpmn:incoming>
@@ -62,7 +62,7 @@
     <bpmn:endEvent id="frw_9_impact" name="impact reported (advisory — exit 0 always)">
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
-        <aef:position x="1422.0" y="334.0"/>
+        <aef:position x="942.0" y="334.0"/>
         <aef:meta terminalKind="success" state="reported" note="blast-radius never blocks — it informs the agent's commit decision" exitCode="0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_10</bpmn:incoming>
@@ -71,7 +71,7 @@
     <bpmn:scriptTask id="frw_1_git" name="git diff-tree → changed files; commit msg header">
       <bpmn:extensionElements>
         <aef:uid value="n_diff"/>
-        <aef:position x="201.0" y="320.0"/>
+        <aef:position x="180.0" y="320.0"/>
         <aef:meta tier="1"/>
         <aef:endpoint>traverse.sh:159-173 (diff-tree --name-only -r ref; log -1 %s)</aef:endpoint>
         <aef:contextReads paths="git object store (diff-tree, log)"/>
@@ -83,7 +83,7 @@
     <bpmn:scriptTask id="frw_4_for" name="for each changed file: skip non-source, find fabric card">
       <bpmn:extensionElements>
         <aef:uid value="n_scan"/>
-        <aef:position x="587.3" y="320.0"/>
+        <aef:position x="420.0" y="320.0"/>
         <aef:meta tier="1" note="body below drawn for ONE iteration — no scope construct bounds it (FC-15)"/>
         <aef:endpoint>traverse.sh:175-210 (while read file; case skip; card grep)</aef:endpoint>
         <aef:multiInstance over="${changed_files} (git diff-tree output)" mode="sequential" predicate="file not under .context/ .fabric/ .tasks/ (case skip, traverse.sh:178-180)" collects="impacted[]"/>
@@ -95,7 +95,7 @@
     <bpmn:scriptTask id="frw_7_quick" name="quick impact: card writes → targets; count component">
       <bpmn:extensionElements>
         <aef:uid value="n_writes"/>
-        <aef:position x="945.0" y="220.0"/>
+        <aef:position x="660.0" y="250.0"/>
         <aef:meta tier="1"/>
         <aef:endpoint>traverse.sh:191-201 (depends_on type==writes → print targets)</aef:endpoint>
         <aef:contextReads paths=".fabric/components/*.yaml (matched card)"/>
@@ -107,7 +107,7 @@
     <bpmn:scriptTask id="frw_6_report" name="report '(no fabric card)' — advisory gap">
       <bpmn:extensionElements>
         <aef:uid value="n_nocard"/>
-        <aef:position x="945.0" y="320.0"/>
+        <aef:position x="660.0" y="370.0"/>
         <aef:meta note="unregistered file — drift signal (fw fabric drift finds these); never blocks" softFail="advisory"/>
         <aef:endpoint>traverse.sh:206-208</aef:endpoint>
       </bpmn:extensionElements>
@@ -118,7 +118,7 @@
     <bpmn:scriptTask id="frw_8_report" name="report: N registered component(s) changed">
       <bpmn:extensionElements>
         <aef:uid value="n_total"/>
-        <aef:position x="1185.0" y="320.0"/>
+        <aef:position x="810.0" y="320.0"/>
         <aef:endpoint>traverse.sh:212-213</aef:endpoint>
         <aef:aggregation over="impacted[]" reduce="count" outputs="total_impact"/>
       </bpmn:extensionElements>
@@ -130,7 +130,7 @@
     <bpmn:exclusiveGateway id="frw_2_any" name="any files changed?">
       <bpmn:extensionElements>
         <aef:uid value="g_changed"/>
-        <aef:position x="425.2" y="328.0"/>
+        <aef:position x="332.0" y="328.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:endpoint>traverse.sh:162-165</aef:endpoint>
         <aef:decisionInput>${changed_files != ""}</aef:decisionInput>
@@ -144,7 +144,7 @@
     <bpmn:exclusiveGateway id="frw_5_fabric" name="fabric card exists for file?">
       <bpmn:extensionElements>
         <aef:uid value="g_card"/>
-        <aef:position x="776.0" y="328.0"/>
+        <aef:position x="570.0" y="328.0"/>
         <aef:meta decisionOwner="framework" note="the inner card scan is a NESTED loop, collapsed into this decision (FC-15)"/>
         <aef:endpoint>traverse.sh:183-187 (inner scan of components/*.yaml, grep ^location)</aef:endpoint>
         <aef:decisionInput>${any card with location == file}</aef:decisionInput>
@@ -171,7 +171,6 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">changed_files == ''</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e3"/>
-        <aef:anchors sourcePort="SE"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
@@ -192,7 +191,6 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">card_found</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e6"/>
-        <aef:routingHint role="seg_mid" offset="-50.1"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
@@ -206,14 +204,12 @@
     <bpmn:sequenceFlow id="flow_8" sourceRef="frw_7_quick" targetRef="frw_8_report">
       <bpmn:extensionElements>
         <aef:uid value="e8"/>
-        <aef:anchors targetPort="N"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_9" sourceRef="frw_6_report" targetRef="frw_8_report">
       <bpmn:extensionElements>
         <aef:uid value="e9"/>
-        <aef:anchors sourcePort="S" targetPort="S"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 

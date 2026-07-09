@@ -208,7 +208,6 @@
     <bpmn:sequenceFlow id="flow_4" sourceRef="agt_3_suggest" targetRef="hum_1_human">
       <bpmn:extensionElements>
         <aef:uid value="e_04"/>
-        <aef:anchors targetPort="W"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
@@ -216,7 +215,6 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${act == true}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_05"/>
-        <aef:anchors sourcePort="N"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
@@ -230,14 +228,12 @@
     <bpmn:sequenceFlow id="flow_7" sourceRef="hum_2_choose" targetRef="agt_4_apply">
       <bpmn:extensionElements>
         <aef:uid value="e_07"/>
-        <aef:anchors sourcePort="E"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_8" sourceRef="agt_4_apply" targetRef="frw_3_log">
       <bpmn:extensionElements>
         <aef:uid value="e_08"/>
-        <aef:anchors sourcePort="E"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 

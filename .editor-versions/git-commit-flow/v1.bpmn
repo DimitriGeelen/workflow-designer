@@ -29,9 +29,9 @@
         </bpmn:extensionElements>
         <bpmn:flowNodeRef>frw_6_commit</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_1_blocked</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_3_git</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>frw_4_log</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_2_git</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_log</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_git</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_5_pre</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="agent" name="Agent · Initiative">
@@ -48,7 +48,7 @@
     <bpmn:startEvent id="agt_1_git" name="git.sh commit -m &quot;T-XXX: …&quot;">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
-        <aef:position x="142.0" y="598.7"/>
+        <aef:position x="90.0" y="636.5"/>
         <aef:meta triggeredBy="agent (or fw git commit) — commit.sh:do_commit"/>
         <aef:io>
           <aef:output name="message" type="string"/>
@@ -62,7 +62,7 @@
     <bpmn:endEvent id="frw_6_commit" name="commit recorded (task stamped)">
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
-        <aef:position x="1342.0" y="422.0"/>
+        <aef:position x="830.0" y="481.5"/>
         <aef:meta terminalKind="success" state="committed"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_8</bpmn:incoming>
@@ -72,17 +72,17 @@
     <bpmn:endEvent id="frw_1_blocked" name="BLOCKED — no ref / hook hit / no reason">
       <bpmn:extensionElements>
         <aef:uid value="n_block"/>
-        <aef:position x="582.0" y="422.0"/>
+        <aef:position x="400.0" y="481.5"/>
         <aef:meta terminalKind="error" state="blocked" note="sources — g_taskref no-ref (P-002), g_hooks blocked (secret/dup/large/msg), n_reason no-reason" exitCode="1"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_10</bpmn:incoming>
       <bpmn:incoming>flow_13</bpmn:incoming>
     </bpmn:endEvent>
 
-    <bpmn:serviceTask id="frw_3_git" name="git commit (bypass) — still fires hooks">
+    <bpmn:serviceTask id="frw_2_git" name="git commit (bypass) — still fires hooks">
       <bpmn:extensionElements>
         <aef:uid value="n_commit_bypass"/>
-        <aef:position x="825.0" y="288.9"/>
+        <aef:position x="440.0" y="297.5"/>
         <aef:meta tier="1"/>
         <aef:endpoint>commit.sh:78-79 (git commit -m … ; NO --no-verify)</aef:endpoint>
       </bpmn:extensionElements>
@@ -93,7 +93,7 @@
     <bpmn:serviceTask id="frw_4_log" name="log_bypass_entry → .context/bypass-log.yaml">
       <bpmn:extensionElements>
         <aef:uid value="n_logbypass"/>
-        <aef:position x="985.0" y="288.9"/>
+        <aef:position x="600.0" y="297.5"/>
         <aef:meta tier="1"/>
         <aef:endpoint>bypass.sh:76-113 (log_bypass_entry)</aef:endpoint>
       </bpmn:extensionElements>
@@ -101,10 +101,10 @@
       <bpmn:outgoing>flow_7</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="frw_2_git" name="git commit (triggers hooks)">
+    <bpmn:serviceTask id="frw_3_git" name="git commit (triggers hooks)">
       <bpmn:extensionElements>
         <aef:uid value="n_commit"/>
-        <aef:position x="825.0" y="408.0"/>
+        <aef:position x="520.0" y="467.5"/>
         <aef:meta tier="1"/>
         <aef:endpoint>commit.sh:113 (git commit -m … "${git_args[@]}")</aef:endpoint>
       </bpmn:extensionElements>
@@ -115,7 +115,7 @@
     <bpmn:userTask id="hum_1_authorise" name="authorise bypass — reason required (Tier-2)">
       <bpmn:extensionElements>
         <aef:uid value="n_reason"/>
-        <aef:position x="345.0" y="100.0"/>
+        <aef:position x="300.0" y="100.0"/>
         <aef:meta tier="2" note="single-use situational authorisation; the human owns the reason" guard="no reason → ERROR exit 1 (bypass needs a reason)"/>
         <aef:endpoint>commit.sh:67-76 (prompt if empty; empty → ERROR exit 1)</aef:endpoint>
       </bpmn:extensionElements>
@@ -126,7 +126,7 @@
     <bpmn:userTask id="hum_2_reminder" name="reminder: create retroactive task">
       <bpmn:extensionElements>
         <aef:uid value="n_reminder"/>
-        <aef:position x="1305.0" y="100.0"/>
+        <aef:position x="760.0" y="100.0"/>
         <aef:meta note="advisory nudge — not structurally enforced (bypass leaves a task-debt)"/>
         <aef:endpoint>commit.sh:83-85 (REMINDER: create-task.sh)</aef:endpoint>
       </bpmn:extensionElements>
@@ -137,7 +137,7 @@
     <bpmn:scriptTask id="agt_2_parse" name="parse args; check_git_repo; require -m">
       <bpmn:extensionElements>
         <aef:uid value="n_parse"/>
-        <aef:position x="225.0" y="584.7"/>
+        <aef:position x="150.0" y="622.5"/>
         <aef:meta tier="1" guard="empty message → ERROR exit 1 (blocks before any branch)"/>
         <aef:endpoint>commit.sh:8-64 (arg loop + check_git_repo + message-required)</aef:endpoint>
       </bpmn:extensionElements>
@@ -148,7 +148,7 @@
     <bpmn:exclusiveGateway id="agt_3_bypass" name="--bypass?">
       <bpmn:extensionElements>
         <aef:uid value="g_bypass"/>
-        <aef:position x="376.0" y="592.7"/>
+        <aef:position x="300.0" y="630.5"/>
         <aef:meta decisionOwner="agent"/>
         <aef:endpoint>commit.sh:66 ($bypass == true)</aef:endpoint>
         <aef:decisionInput>${bypass}</aef:decisionInput>
@@ -162,7 +162,7 @@
     <bpmn:exclusiveGateway id="agt_4_xxx" name="T-XXX in message? (P-002, agent-level)">
       <bpmn:extensionElements>
         <aef:uid value="g_taskref"/>
-        <aef:position x="576.0" y="592.7"/>
+        <aef:position x="410.0" y="630.5"/>
         <aef:meta decisionOwner="framework"/>
         <aef:endpoint>commit.sh:96-110 (found_task=extract_task_id "$message")</aef:endpoint>
         <aef:decisionInput>${extract_task_id(message) != ""}</aef:decisionInput>
@@ -176,7 +176,7 @@
     <bpmn:exclusiveGateway id="frw_5_pre" name="pre-commit + commit-msg hooks pass?">
       <bpmn:extensionElements>
         <aef:uid value="g_hooks"/>
-        <aef:position x="1016.0" y="416.0"/>
+        <aef:position x="680.0" y="475.5"/>
         <aef:meta decisionOwner="framework"/>
         <aef:endpoint>hooks.sh:271-358 (pre-commit) + hooks.sh:55-88 (commit-msg)</aef:endpoint>
         <aef:decisionInput>${all_hook_gates_pass}</aef:decisionInput>
@@ -219,14 +219,13 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_5" name="reason given" sourceRef="hum_1_authorise" targetRef="frw_3_git">
+    <bpmn:sequenceFlow id="flow_5" name="reason given" sourceRef="hum_1_authorise" targetRef="frw_2_git">
       <bpmn:extensionElements>
         <aef:uid value="e5"/>
-        <aef:anchors targetPort="N"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_6" sourceRef="frw_3_git" targetRef="frw_4_log">
+    <bpmn:sequenceFlow id="flow_6" sourceRef="frw_2_git" targetRef="frw_4_log">
       <bpmn:extensionElements>
         <aef:uid value="e6"/>
       </bpmn:extensionElements>
@@ -235,22 +234,19 @@
     <bpmn:sequenceFlow id="flow_7" sourceRef="frw_4_log" targetRef="hum_2_reminder">
       <bpmn:extensionElements>
         <aef:uid value="e7"/>
-        <aef:anchors targetPort="W"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_8" sourceRef="hum_2_reminder" targetRef="frw_6_commit">
       <bpmn:extensionElements>
         <aef:uid value="e8"/>
-        <aef:anchors sourcePort="S"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_9" name="has ref" sourceRef="agt_4_xxx" targetRef="frw_2_git">
+    <bpmn:sequenceFlow id="flow_9" name="has ref" sourceRef="agt_4_xxx" targetRef="frw_3_git">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">found_task != ''</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e9"/>
-        <aef:anchors targetPort="S"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
@@ -261,7 +257,7 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_11" sourceRef="frw_2_git" targetRef="frw_5_pre">
+    <bpmn:sequenceFlow id="flow_11" sourceRef="frw_3_git" targetRef="frw_5_pre">
       <bpmn:extensionElements>
         <aef:uid value="e11"/>
       </bpmn:extensionElements>
@@ -278,8 +274,6 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">!all_hook_gates_pass</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e13"/>
-        <aef:anchors sourcePort="SE"/>
-        <aef:loopDetour y="464.2"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
   </bpmn:process>

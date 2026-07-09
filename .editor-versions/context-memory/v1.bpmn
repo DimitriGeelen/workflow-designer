@@ -26,14 +26,14 @@
       </bpmn:lane>
       <bpmn:lane id="project" name="Project Memory · durable cross-task">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="prj" authority="none" height="326.92930574413435"/>
+          <aef:laneMeta abbr="prj" authority="none" height="250"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>prj_6_project</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>prj_1_add</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>prj_3_add</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>prj_5_project</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>prj_2_add</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>prj_4_add</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>prj_5_promote</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>prj_2_capture</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>prj_6_add</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>prj_3_promote</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>prj_1_capture</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="episodic" name="Episodic Memory · completed histories">
         <bpmn:extensionElements>
@@ -48,7 +48,7 @@
     <bpmn:startEvent id="wrk_1_session" name="Session start">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
-        <aef:position x="121.6" y="117.8"/>
+        <aef:position x="100.0" y="81.5"/>
         <aef:meta triggeredBy="fw context init (session start)"/>
       </bpmn:extensionElements>
       <bpmn:outgoing>flow_1</bpmn:outgoing>
@@ -57,16 +57,16 @@
     <bpmn:startEvent id="epi_1_task" name="task work-completed (P-011 passed)">
       <bpmn:extensionElements>
         <aef:uid value="n_complete"/>
-        <aef:position x="136.7" y="607.0"/>
+        <aef:position x="380.0" y="484.0"/>
         <aef:meta triggeredBy="update-task.sh:1254 / 1980 (auto on --status work-completed)"/>
       </bpmn:extensionElements>
       <bpmn:outgoing>flow_11</bpmn:outgoing>
     </bpmn:startEvent>
 
-    <bpmn:endEvent id="prj_6_project" name="project memory durable (survives session)">
+    <bpmn:endEvent id="prj_5_project" name="project memory durable (survives session)">
       <bpmn:extensionElements>
         <aef:uid value="n_persisted"/>
-        <aef:position x="1086.6" y="333.5"/>
+        <aef:position x="553.5" y="402.3"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_8</bpmn:incoming>
       <bpmn:incoming>flow_9</bpmn:incoming>
@@ -76,7 +76,7 @@
     <bpmn:endEvent id="epi_3_episodic" name="episodic stored — feeds future recall">
       <bpmn:extensionElements>
         <aef:uid value="n_stored"/>
-        <aef:position x="716.4" y="607.0"/>
+        <aef:position x="680.0" y="484.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_12</bpmn:incoming>
     </bpmn:endEvent>
@@ -84,7 +84,7 @@
     <bpmn:serviceTask id="wrk_2_context" name="context init — seed session + focus + counters">
       <bpmn:extensionElements>
         <aef:uid value="n_init"/>
-        <aef:position x="229.3" y="103.8"/>
+        <aef:position x="200.0" y="67.5"/>
         <aef:meta agentType="framework"/>
         <aef:endpoint>lib/init.sh:26-77</aef:endpoint>
         <aef:artifactsWrites paths=".context/working/session.yaml, .context/working/focus.yaml"/>
@@ -96,7 +96,7 @@
     <bpmn:serviceTask id="wrk_3_context" name="context focus T-XXX — set current_task + recall briefing">
       <bpmn:extensionElements>
         <aef:uid value="n_focus"/>
-        <aef:position x="412.8" y="103.8"/>
+        <aef:position x="380.0" y="67.5"/>
         <aef:endpoint>lib/focus.sh:49-127</aef:endpoint>
         <aef:contextReads paths=".context/project/learnings.yaml, .context/project/patterns.yaml"/>
       </bpmn:extensionElements>
@@ -104,10 +104,10 @@
       <bpmn:outgoing>flow_3</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="prj_1_add" name="add-learning -&gt; learnings.yaml">
+    <bpmn:serviceTask id="prj_2_add" name="add-learning -&gt; learnings.yaml">
       <bpmn:extensionElements>
         <aef:uid value="n_learning"/>
-        <aef:position x="509.8" y="441.7"/>
+        <aef:position x="360.0" y="305.0"/>
         <aef:meta agentType="any"/>
         <aef:endpoint>lib/learning.sh:91-126</aef:endpoint>
         <aef:artifactsWrites paths=".context/project/learnings.yaml"/>
@@ -116,10 +116,10 @@
       <bpmn:outgoing>flow_7</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="prj_3_add" name="add-pattern &lt;failure|success|workflow&gt; -&gt; patterns.yaml">
+    <bpmn:serviceTask id="prj_4_add" name="add-pattern &lt;failure|success|workflow&gt; -&gt; patterns.yaml">
       <bpmn:extensionElements>
         <aef:uid value="n_pattern"/>
-        <aef:position x="782.7" y="319.5"/>
+        <aef:position x="516.5" y="305.0"/>
         <aef:meta agentType="any"/>
         <aef:endpoint>lib/pattern.sh:124-157</aef:endpoint>
         <aef:artifactsWrites paths=".context/project/patterns.yaml"/>
@@ -128,10 +128,10 @@
       <bpmn:outgoing>flow_8</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="prj_4_add" name="add-decision -&gt; decisions.yaml">
+    <bpmn:serviceTask id="prj_6_add" name="add-decision -&gt; decisions.yaml">
       <bpmn:extensionElements>
         <aef:uid value="n_decision"/>
-        <aef:position x="1049.6" y="224.9"/>
+        <aef:position x="660.0" y="305.0"/>
         <aef:meta agentType="any"/>
         <aef:endpoint>lib/decision.sh:103-147</aef:endpoint>
         <aef:artifactsWrites paths=".context/project/decisions.yaml"/>
@@ -140,10 +140,10 @@
       <bpmn:outgoing>flow_9</bpmn:outgoing>
     </bpmn:serviceTask>
 
-    <bpmn:serviceTask id="prj_5_promote" name="promote L-&gt;practice-&gt;directive (3+ applications)">
+    <bpmn:serviceTask id="prj_3_promote" name="promote L-&gt;practice-&gt;directive (3+ applications)">
       <bpmn:extensionElements>
         <aef:uid value="n_promote"/>
-        <aef:position x="1049.6" y="441.7"/>
+        <aef:position x="360.0" y="388.3"/>
         <aef:endpoint>lib/promote.sh:4-5 (fw promote); cross-project lib/harvest.sh</aef:endpoint>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_7</bpmn:incoming>
@@ -153,7 +153,7 @@
     <bpmn:scriptTask id="epi_2_generate" name="generate-episodic — task file + git log -&gt; episodic/T-XXX.yaml">
       <bpmn:extensionElements>
         <aef:uid value="n_episodic"/>
-        <aef:position x="389.5" y="593.0"/>
+        <aef:position x="500.0" y="470.0"/>
         <aef:meta agentType="framework"/>
         <aef:endpoint>lib/episodic.sh:242-441</aef:endpoint>
         <aef:contextReads paths=".tasks/completed/${task_id}.md, git log --grep ^${task_id}"/>
@@ -163,10 +163,10 @@
       <bpmn:outgoing>flow_12</bpmn:outgoing>
     </bpmn:scriptTask>
 
-    <bpmn:exclusiveGateway id="prj_2_capture" name="capture what? (agent judgement)">
+    <bpmn:exclusiveGateway id="prj_1_capture" name="capture what? (agent judgement)">
       <bpmn:extensionElements>
         <aef:uid value="g_capture"/>
-        <aef:position x="540.8" y="314.9"/>
+        <aef:position x="250.0" y="313.0"/>
         <aef:meta decisionOwner="agent"/>
         <aef:decisionInput>${knowledge_kind}</aef:decisionInput>
         <aef:decisionOutputs>learning, pattern, decision</aef:decisionOutputs>
@@ -189,54 +189,52 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_3" name="agent captures knowledge during work" sourceRef="wrk_3_context" targetRef="prj_2_capture">
+    <bpmn:sequenceFlow id="flow_3" name="agent captures knowledge during work" sourceRef="wrk_3_context" targetRef="prj_1_capture">
       <bpmn:extensionElements>
         <aef:uid value="e_03"/>
-        <aef:anchors targetPort="W"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_4" name="learning" sourceRef="prj_2_capture" targetRef="prj_1_add">
+    <bpmn:sequenceFlow id="flow_4" name="learning" sourceRef="prj_1_capture" targetRef="prj_2_add">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${kind == 'learning'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_04"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_5" name="pattern (failure/success/workflow)" sourceRef="prj_2_capture" targetRef="prj_3_add">
+    <bpmn:sequenceFlow id="flow_5" name="pattern (failure/success/workflow)" sourceRef="prj_1_capture" targetRef="prj_4_add">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${kind == 'pattern'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_05"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_6" name="decision" sourceRef="prj_2_capture" targetRef="prj_4_add">
+    <bpmn:sequenceFlow id="flow_6" name="decision" sourceRef="prj_1_capture" targetRef="prj_6_add">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${kind == 'decision'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_06"/>
-        <aef:anchors sourcePort="N"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_7" name="3+ applications -&gt; graduate" sourceRef="prj_1_add" targetRef="prj_5_promote">
+    <bpmn:sequenceFlow id="flow_7" name="3+ applications -&gt; graduate" sourceRef="prj_2_add" targetRef="prj_3_promote">
       <bpmn:extensionElements>
         <aef:uid value="e_07"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_8" sourceRef="prj_3_add" targetRef="prj_6_project">
+    <bpmn:sequenceFlow id="flow_8" sourceRef="prj_4_add" targetRef="prj_5_project">
       <bpmn:extensionElements>
         <aef:uid value="e_08"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_9" sourceRef="prj_4_add" targetRef="prj_6_project">
+    <bpmn:sequenceFlow id="flow_9" sourceRef="prj_6_add" targetRef="prj_5_project">
       <bpmn:extensionElements>
         <aef:uid value="e_09"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_10" sourceRef="prj_5_promote" targetRef="prj_6_project">
+    <bpmn:sequenceFlow id="flow_10" sourceRef="prj_3_promote" targetRef="prj_5_project">
       <bpmn:extensionElements>
         <aef:uid value="e_10"/>
       </bpmn:extensionElements>

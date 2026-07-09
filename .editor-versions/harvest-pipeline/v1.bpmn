@@ -60,7 +60,7 @@
     <bpmn:startEvent id="agt_1_trigger" name="Trigger — `fw harvest [project]`">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
-        <aef:position x="142.0" y="104.0"/>
+        <aef:position x="100.0" y="104.0"/>
         <aef:endpoint>fw harvest</aef:endpoint>
       </bpmn:extensionElements>
       <bpmn:outgoing>flow_1</bpmn:outgoing>
@@ -96,7 +96,7 @@
     <bpmn:endEvent id="frw_19_dry" name="Dry-run — no changes">
       <bpmn:extensionElements>
         <aef:uid value="n_dry"/>
-        <aef:position x="1719.6" y="431.6"/>
+        <aef:position x="1620.0" y="430.0"/>
         <aef:meta terminalKind="success"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_25</bpmn:incoming>
@@ -105,7 +105,7 @@
     <bpmn:endEvent id="frw_20_nothing" name="Nothing new to harvest">
       <bpmn:extensionElements>
         <aef:uid value="n_nothing"/>
-        <aef:position x="1719.6" y="531.6"/>
+        <aef:position x="1620.0" y="530.0"/>
         <aef:meta terminalKind="success"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_26</bpmn:incoming>
@@ -114,7 +114,7 @@
     <bpmn:endEvent id="frw_22_harvested" name="Harvested ✓">
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
-        <aef:position x="2009.6" y="321.6"/>
+        <aef:position x="1910.0" y="320.0"/>
         <aef:meta terminalKind="success"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_28</bpmn:incoming>
@@ -151,7 +151,7 @@
     <bpmn:scriptTask id="frw_14_harvest" name="Harvest patterns (dedup + append)">
       <bpmn:extensionElements>
         <aef:uid value="n_h_patterns"/>
-        <aef:position x="1259.6" y="201.6"/>
+        <aef:position x="1160.0" y="200.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_11</bpmn:incoming>
       <bpmn:outgoing>flow_17</bpmn:outgoing>
@@ -160,7 +160,7 @@
     <bpmn:scriptTask id="frw_13_harvest" name="Harvest learnings (dedup + append)">
       <bpmn:extensionElements>
         <aef:uid value="n_h_learnings"/>
-        <aef:position x="1259.6" y="281.6"/>
+        <aef:position x="1160.0" y="280.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_12</bpmn:incoming>
       <bpmn:outgoing>flow_18</bpmn:outgoing>
@@ -169,7 +169,7 @@
     <bpmn:scriptTask id="frw_11_harvest" name="Harvest decisions (dedup + append)">
       <bpmn:extensionElements>
         <aef:uid value="n_h_decisions"/>
-        <aef:position x="1259.6" y="361.6"/>
+        <aef:position x="1160.0" y="360.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_13</bpmn:incoming>
       <bpmn:outgoing>flow_19</bpmn:outgoing>
@@ -178,7 +178,7 @@
     <bpmn:scriptTask id="frw_12_harvest" name="Harvest episodics">
       <bpmn:extensionElements>
         <aef:uid value="n_h_episodics"/>
-        <aef:position x="1259.6" y="441.6"/>
+        <aef:position x="1160.0" y="440.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_14</bpmn:incoming>
       <bpmn:outgoing>flow_20</bpmn:outgoing>
@@ -187,7 +187,7 @@
     <bpmn:scriptTask id="frw_15_harvest" name="Harvest practices (dedup + append)">
       <bpmn:extensionElements>
         <aef:uid value="n_h_practices"/>
-        <aef:position x="1259.6" y="521.6"/>
+        <aef:position x="1160.0" y="520.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_15</bpmn:incoming>
       <bpmn:outgoing>flow_21</bpmn:outgoing>
@@ -196,7 +196,7 @@
     <bpmn:scriptTask id="frw_10_harvest" name="Harvest CLAUDE.md additions">
       <bpmn:extensionElements>
         <aef:uid value="n_h_claude"/>
-        <aef:position x="1259.6" y="601.6"/>
+        <aef:position x="1160.0" y="600.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_16</bpmn:incoming>
       <bpmn:outgoing>flow_22</bpmn:outgoing>
@@ -205,7 +205,7 @@
     <bpmn:scriptTask id="frw_17_tally" name="Tally counts (new vs duplicates)">
       <bpmn:extensionElements>
         <aef:uid value="n_summary"/>
-        <aef:position x="1569.6" y="307.6"/>
+        <aef:position x="1470.0" y="306.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_23</bpmn:incoming>
       <bpmn:outgoing>flow_24</bpmn:outgoing>
@@ -214,7 +214,7 @@
     <bpmn:scriptTask id="frw_21_log" name="Log harvest + write framework files">
       <bpmn:extensionElements>
         <aef:uid value="n_log"/>
-        <aef:position x="1859.6" y="307.6"/>
+        <aef:position x="1760.0" y="306.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_27</bpmn:incoming>
       <bpmn:outgoing>flow_28</bpmn:outgoing>
@@ -259,7 +259,7 @@
     <bpmn:exclusiveGateway id="frw_18_dry" name="dry-run? new items?">
       <bpmn:extensionElements>
         <aef:uid value="n_mode_gate"/>
-        <aef:position x="1713.6" y="315.6"/>
+        <aef:position x="1614.0" y="314.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${dry_run -&gt; dry; new_total&gt;0 -&gt; write; else nothing}</aef:decisionInput>
       </bpmn:extensionElements>
@@ -272,7 +272,7 @@
     <bpmn:parallelGateway id="frw_9_fan" name="Fan out — 6 memory categories">
       <bpmn:extensionElements>
         <aef:uid value="n_fork"/>
-        <aef:position x="1016.0" y="419.6"/>
+        <aef:position x="1010.0" y="418.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_10</bpmn:incoming>
       <bpmn:outgoing>flow_11</bpmn:outgoing>
@@ -286,7 +286,7 @@
     <bpmn:parallelGateway id="frw_16_join" name="Join — all categories scanned">
       <bpmn:extensionElements>
         <aef:uid value="n_join"/>
-        <aef:position x="1429.6" y="419.6"/>
+        <aef:position x="1330.0" y="418.0"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_17</bpmn:incoming>
       <bpmn:incoming>flow_18</bpmn:incoming>
@@ -300,7 +300,6 @@
     <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_trigger" targetRef="frw_1_parse">
       <bpmn:extensionElements>
         <aef:uid value="e_01"/>
-        <aef:anchors targetPort="W"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
@@ -355,14 +354,12 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${has_context}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_09"/>
-        <aef:anchors sourcePort="E"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
     <bpmn:sequenceFlow id="flow_10" sourceRef="ext_1_read" targetRef="frw_9_fan">
       <bpmn:extensionElements>
         <aef:uid value="e_10"/>
-        <aef:anchors targetPort="W"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
@@ -399,7 +396,6 @@
     <bpmn:sequenceFlow id="flow_16" sourceRef="frw_9_fan" targetRef="frw_10_harvest">
       <bpmn:extensionElements>
         <aef:uid value="e_16"/>
-        <aef:anchors sourcePort="SW"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
