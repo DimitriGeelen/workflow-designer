@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-154: Open-project vs workflow-picker dropdown overlap (dedupe/clarify)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-09T19:42:14Z
+# ============================================================================
+
+task_id: T-154
+task_name: "Open-project vs workflow-picker dropdown overlap (dedupe/clarify)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-09T15:01:58Z
+completed: 2026-07-09T19:42:12Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-09T21:42:06+02:00
+last_commit: 2026-07-09T21:42:06+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Replace workflow-picker <select> with brand-area '📂 Open project' button
+
+# Key outcomes
+outcomes:
+  - 'The toolbar `<select id="workflow-picker">` is removed; the `📂 Open project…` button (`#btn-open-project`, `openProjectModal`) sits in the brand area next to the `+` button. **Verified:** `pickerRemoved:true`, `buttonInBrandArea:true`, label `📂 Open project…`.'
+  - 'No duplicate control: exactly ONE `id="btn-open-project"` exists in the source (the old `.actions` copy is moved, not duplicated). **Verified:** `grep -c` = 1; DOM `querySelectorAll(''#btn-open-project'').length` = 1.'
+  - 'No dead `workflow-picker` wiring remains: the `$(''workflow-picker'').onchange` handler is removed (the element is gone; leaving it would throw at init). `loadFromLibrary` is retained — still used by the palette map-list (`row.onclick`). **Verified:** only live ref is the null-guarded `$(''workflow-picker'')` in `refreshLibraryUI` (early-returns); init has 0 console errors.'
+  - 'The button stays API-gated: `display:none` until `/api/health` succeeds, revealed by the unchanged `detectSaveApi` path (finds it by id). **Verified:** button visible after API detect; markup keeps `style="display:none"`.'
+  - 'src↔build mirror invariant holds: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`. **Verified:** MIRROR-OK.'
+  - 'Playwright visual verification: the brand-area `📂 Open project…` button is visible under the gallery API, clicking it opens the modal (25 maps with tiles); init has 0 console errors; element screenshot READ. **Verified:** click → modal with 26 buttons (25 maps + ✕); 0 console errors; toolbar screenshot READ.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-154-open-project-vs-workflow-picker-dropdown.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-09T21:42:06"
+    action: "T-154: Replace workflow-picker <select> with brand-area '📂 Open project' button"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 280 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 280
+  commits: 1
+  files_changed: 2
+  lines_added: 50
+  lines_removed: 13
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-154-open-project-vs-workflow-picker-dropdown.md
+generated_by: context-agent-hybrid
