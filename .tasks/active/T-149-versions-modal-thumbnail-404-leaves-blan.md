@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T11:24:33Z
-last_update: 2026-07-09T11:24:33Z
+last_update: 2026-07-09T11:26:02Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -55,10 +55,10 @@ placeholder to the Versions modal.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Shared `makeThumbPlaceholder({w,h,radius})` helper extracted; `openProjectModal` still renders its ▦ placeholder for rendered-only cards (no regression)
-- [ ] `openVersionsModal` replaces a 404'd version thumbnail with the ▦ placeholder (no blank gap)
-- [ ] src mirrored to build/gallery/designer.html (diff -q clean)
-- [ ] Visual: screenshot Versions modal with a forced-404 thumb showing ▦ (## Visual Verification)
+- [x] Shared `makeThumbPlaceholder({w,h,radius})` helper extracted; `openProjectModal` still renders its ▦ placeholder for rendered-only cards (no regression) — module-level helper at src ~6883; openProjectModal's `thumbPlaceholder` closure now delegates to it. Regression check: Open-project modal renders 13 ▦ placeholders + 12 image cards (25 total), no broken images.
+- [x] `openVersionsModal` replaces a 404'd version thumbnail with the ▦ placeholder (no blank gap) — `img.onerror` now `img.replaceWith(makeThumbPlaceholder({w:120,h:74,radius:4,flex:'0 0 auto',fontSize:22}))`. Forced-404 on arc-lifecycle v2: DOM shows exactly 1 ▦ tile + 3 real thumbs across 4 rows.
+- [x] src mirrored to build/gallery/designer.html (diff -q clean) — MIRROR-OK
+- [x] Visual: screenshot Versions modal with a forced-404 thumb showing ▦ (## Visual Verification)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -123,22 +123,44 @@ placeholder to the Versions modal.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+out=$(grep -n "function makeThumbPlaceholder" src/aef-workflow-designer.html); echo "$out" | grep -q "makeThumbPlaceholder"
+out=$(grep -n "img.replaceWith(makeThumbPlaceholder" src/aef-workflow-designer.html); echo "$out" | grep -q "makeThumbPlaceholder"
+diff -q src/aef-workflow-designer.html build/gallery/designer.html
+test -f .playwright-mcp/t149-versions-404-placeholder.png
+
+## Visual Verification
+
+Forced a 404 by moving `.editor-versions/arc-lifecycle/v2.png` aside (curl confirmed
+`/api/thumb?id=arc-lifecycle&v=2` → 404, v1 → 200), then opened the Versions modal via
+Playwright on `http://localhost:8834/designer.html`.
+
+- **Screenshot:** `.playwright-mcp/t149-versions-404-placeholder.png` — read and confirmed:
+  v4/v3/v1 rows show real BPMN thumbnails; the **v2 row shows a neutral ▦ tile** at the
+  same 120×74 size with rounded border, sitting in-row. No blank gap, no broken-image icon.
+- **DOM assertion (Versions modal):** 4 rows, exactly 1 ▦ placeholder, 3 remaining `<img>`.
+- **Regression (Open-project modal):** 25 cards → 13 ▦ placeholders (rendered-only maps) +
+  12 image cards; the shared helper renders correctly in both modals.
+- v2.png restored after the test; no version-store changes committed.
 
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
+**Symptom:** In the Versions modal, a version whose thumbnail PNG was missing/404'd
+rendered as a blank gap (the `<img>` was set `visibility:hidden`), leaving a ragged
+empty tile — inconsistent with the Open-project modal, which already showed a ▦ tile.
 
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
+**Root cause:** The 404 handler `img.onerror = () => img.style.visibility = 'hidden'`
+hid the broken image instead of substituting a placeholder. The ▦ placeholder existed
+only as a closure *local to* `openProjectModal`, so the Versions modal had no access to it.
 
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
+**Why structurally allowed:** The placeholder was written for one modal (T-144) as a
+private closure, not a shared helper — so the second consumer silently diverged. DOM-rect
+verification wouldn't catch it (geometry is unaffected); only looking at the rendered
+output reveals the empty tile.
+
+**Prevention:** Extracted `makeThumbPlaceholder({w,h,radius,...})` as a single module-level
+helper both modals call, so any future thumbnail surface reuses the same neutral tile
+rather than re-implementing (and diverging on) the 404 path. Visual-verification screenshot
+is the check that catches a regression of the rendered output.
 
 ## Evolution
 

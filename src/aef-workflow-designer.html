@@ -6878,6 +6878,30 @@ async function revertToVersion(id, v) {
     if (typeof showToast === 'function') showToast(`↩ Reverted to ${id} v${v}.`);
   } catch (e) { alert('Revert failed: ' + (e && e.message || e)); }
 }
+
+// Neutral ▦ thumbnail placeholder — shared by the Versions modal and the Open-project
+// modal so a missing/404'd version PNG shows a neutral tile, not a blank gap or the
+// browser's broken-image icon (T-144 / T-149 F2). Options:
+//   w, h   — number (px) or CSS string; default 100% × 104
+//   radius — border-radius in px (omit for square)
+//   borderBottom — true = border-bottom only (card variant); else full border
+//   flex, fontSize — passthrough tweaks
+function makeThumbPlaceholder(opts) {
+  opts = opts || {};
+  const w = opts.w == null ? '100%' : (typeof opts.w === 'number' ? opts.w + 'px' : opts.w);
+  const h = opts.h == null ? '104px' : (typeof opts.h === 'number' ? opts.h + 'px' : opts.h);
+  const border = opts.borderBottom
+    ? 'border-bottom:1px solid var(--border,#2a3140);'
+    : 'border:1px solid var(--border,#334);';
+  const radius = opts.radius ? `border-radius:${opts.radius}px;` : '';
+  const flex = opts.flex ? `flex:${opts.flex};` : '';
+  const p = document.createElement('div');
+  p.style.cssText = `width:${w};height:${h};display:flex;align-items:center;justify-content:center;`
+    + `background:#0f1115;${border}${radius}${flex}color:var(--muted,#8b95a5);font-size:${opts.fontSize || 28}px`;
+  p.textContent = '▦';
+  return p;
+}
+
 async function openVersionsModal() {
   if (!_apiAvailable) return;
   const id = state.workflowMeta.id;
@@ -6918,7 +6942,7 @@ async function openVersionsModal() {
       img.src = `/api/thumb?id=${encodeURIComponent(id)}&v=${e.v}`;
       img.alt = `v${e.v} preview`;
       img.style.cssText = 'width:120px;height:74px;object-fit:contain;background:#0f1115;border:1px solid var(--border,#334);border-radius:4px;flex:0 0 auto';
-      img.onerror = () => { img.style.visibility = 'hidden'; };
+      img.onerror = () => { img.replaceWith(makeThumbPlaceholder({ w: 120, h: 74, radius: 4, flex: '0 0 auto', fontSize: 22 })); };  // 404 → ▦ placeholder, not blank gap (T-149 F2)
       const meta = document.createElement('div');
       meta.style.cssText = 'flex:1 1 auto;min-width:0';
       let when = ''; try { when = new Date(e.ts).toLocaleString(); } catch (_) {}
@@ -7015,13 +7039,8 @@ async function openProjectModal() {
 
   // Neutral thumbnail placeholder for maps without a saved-version PNG (rendered-only,
   // or a saved thumb that 404s). Avoids the browser broken-image icon (T-144 visual fix).
-  const thumbPlaceholder = () => {
-    const p = document.createElement('div');
-    p.style.cssText = 'width:100%;height:104px;display:flex;align-items:center;justify-content:center;'
-      + 'background:#0f1115;border-bottom:1px solid var(--border,#2a3140);color:var(--muted,#8b95a5);font-size:28px';
-    p.textContent = '▦';
-    return p;
-  };
+  // Shared helper makeThumbPlaceholder (T-149 F2); card variant = full-width, border-bottom.
+  const thumbPlaceholder = () => makeThumbPlaceholder({ w: '100%', h: 104, borderBottom: true, fontSize: 28 });
 
   const cards = [];
   for (const m of maps.slice().sort((a, b) => a.id.localeCompare(b.id))) {
