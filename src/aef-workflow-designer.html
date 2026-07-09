@@ -4321,9 +4321,10 @@ function renderProperties() {
     }, { mono: true, hint: '0–3 · applies to nodes without explicit tier' }));
     props.appendChild(sMeta);
 
-    // Library section — quick view of all loaded workflows
+    // Recently-opened section — quick view of all loaded workflows (T-159: operator
+    // relabel, "Library" → "Recently opened"; the list IS the maps opened this session).
     if (library.size > 1) {
-      const sLib = section('Library');
+      const sLib = section('Recently opened');
       const libList = document.createElement('div');
       libList.className = 'props-lib-list';
       for (const [k, wf] of Array.from(library.entries()).sort()) {
