@@ -7012,6 +7012,16 @@ async function openProjectModal() {
     body.appendChild(empty);
   }
 
+  // Neutral thumbnail placeholder for maps without a saved-version PNG (rendered-only,
+  // or a saved thumb that 404s). Avoids the browser broken-image icon (T-144 visual fix).
+  const thumbPlaceholder = () => {
+    const p = document.createElement('div');
+    p.style.cssText = 'width:100%;height:104px;display:flex;align-items:center;justify-content:center;'
+      + 'background:#0f1115;border-bottom:1px solid var(--border,#2a3140);color:var(--muted,#8b95a5);font-size:28px';
+    p.textContent = '▦';
+    return p;
+  };
+
   const cards = [];
   for (const m of maps.slice().sort((a, b) => a.id.localeCompare(b.id))) {
     const card = document.createElement('button');
@@ -7021,11 +7031,16 @@ async function openProjectModal() {
       + 'display:flex;flex-direction:column;overflow:hidden';
     card.title = 'Open ' + m.id;
     const saved = m.latest && m.openTarget && m.openTarget.kind === 'version';
-    const img = document.createElement('img');
-    img.alt = m.id + ' preview';
-    img.style.cssText = 'width:100%;height:104px;object-fit:contain;background:#0f1115;border-bottom:1px solid var(--border,#2a3140)';
-    if (saved) { img.src = `/api/thumb?id=${encodeURIComponent(m.id)}&v=${m.latest.v}`; }
-    img.onerror = () => { img.style.visibility = 'hidden'; };
+    let thumb;
+    if (saved) {
+      thumb = document.createElement('img');
+      thumb.alt = m.id + ' preview';
+      thumb.style.cssText = 'width:100%;height:104px;object-fit:contain;background:#0f1115;border-bottom:1px solid var(--border,#2a3140)';
+      thumb.src = `/api/thumb?id=${encodeURIComponent(m.id)}&v=${m.latest.v}`;
+      thumb.onerror = () => { thumb.replaceWith(thumbPlaceholder()); };  // 404 → placeholder, not blank gap
+    } else {
+      thumb = thumbPlaceholder();
+    }
     const meta = document.createElement('div');
     meta.style.cssText = 'padding:8px 10px;min-width:0';
     const badge = saved
@@ -7035,7 +7050,7 @@ async function openProjectModal() {
       + `${(m.title || m.id).replace(/</g, '&lt;')}</div>`
       + `<div style="color:var(--muted,#8b95a5);font-size:.85em">${m.id.replace(/</g, '&lt;')}</div>`
       + `<div style="font-size:.85em;margin-top:2px">${badge}</div>`;
-    card.append(img, meta);
+    card.append(thumb, meta);
     card.onclick = () => openProjectMap(m);
     card._hay = (m.id + ' ' + (m.title || '')).toLowerCase();
     body.appendChild(card);

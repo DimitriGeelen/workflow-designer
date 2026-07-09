@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-08T12:19:53Z
-last_update: 2026-07-08T12:19:53Z
+last_update: 2026-07-08T12:23:45Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -55,20 +55,20 @@ version. Reuses the `openVersionsModal` UI pattern and the `adoptImportedXml` op
 ## Acceptance Criteria
 
 ### Agent
-- [ ] New `📂 Open project…` toolbar button (`btn-open-project`), shipped `display:none` and
+- [x] New `📂 Open project…` toolbar button (`btn-open-project`), shipped `display:none` and
       revealed only by `detectSaveApi()` alongside Save/Versions (hidden on static gallery)
-- [ ] Clicking it opens a modal built on the `openVersionsModal` pattern: fetches `/api/list`,
+- [x] Clicking it opens a modal built on the `openVersionsModal` pattern: fetches `/api/list`,
       renders one card per map with title, source badge (rendered/saved), latest-version label
       (thumbnail via `/api/thumb` when a saved version exists), and a client-side filter box
-- [ ] Clicking a map opens it IN-PLACE (no page reload) via `adoptImportedXml(text,
+- [x] Clicking a map opens it IN-PLACE (no page reload) via `adoptImportedXml(text,
       {replace:true, userImport:true})`, resolving `openTarget`: latest saved version
       (`/api/version?id=&v=`) when present, else the rendered baseline (`rendered/<id>.bpmn`)
-- [ ] Modal closes on Escape / backdrop click; no leaked keydown listener (mirrors
+- [x] Modal closes on Escape / backdrop click; no leaked keydown listener (mirrors
       `closeVersionsModal`/`_versionsEsc`)
-- [ ] Read-only: no writes; the T-138 save-gate verifier still passes 6/6; no change to
+- [x] Read-only: no writes; the T-138 save-gate verifier still passes 6/6; no change to
       `/api/save`
-- [ ] Editor JS synced byte-identical to `build/gallery/designer.html` (mirror invariant)
-- [ ] Headless proof: with the gallery running, `btn-open-project` is visible; clicking it
+- [x] Editor JS synced byte-identical to `build/gallery/designer.html` (mirror invariant)
+- [x] Headless proof: with the gallery running, `btn-open-project` is visible; clicking it
       lists 24 maps; clicking a saved map (e.g. arc-lifecycle) opens it in-place with URL
       unchanged and `state.workflowMeta.id` == the chosen map
 
@@ -85,7 +85,30 @@ version. Reuses the `openVersionsModal` UI pattern and the `adoptImportedXml` op
 ## Visual Verification
 
 <!-- Element screenshots of the modal (light + dark if the change affects both). -->
-- [ ] Modal screenshotted (element-level) and read back — cards render with title/badge/label
+- [x] Modal screenshotted (element-level) and read back — cards render with title/badge/label
+
+**Evidence (2026-07-09, live :8834, dark theme):**
+- `.playwright-mcp/t144-open-project-modal.png` — first pass; **caught a regression:** rendered-only maps
+  (no saved thumb) rendered a browser broken-image icon + spilled alt text ("<id> preview").
+  Root cause: an `<img>` was created for every card but `src` was only set when `saved`;
+  an img with no `src` never fires `onerror`, so the `visibility:hidden` fallback never ran.
+- **Fix:** only build an `<img>` when a saved-version thumb exists; rendered-only cards (and
+  saved thumbs that 404) get a neutral `▦` placeholder of the same height. Verified via
+  network trace: only the 11 saved maps fire `/api/thumb` (200); the 13 rendered-only maps
+  fire none.
+- `.playwright-mcp/t144-open-project-modal-fixed.png` — re-shot and read back: 11 real thumbnails + 13 clean
+  `▦` placeholders, no broken icons, badges/titles/version labels correct.
+
+**Functional headless proof (live :8834):** button visible (detectSaveApi); modal lists 24
+maps; filter `arc` → 1 card, cleared → 24; clicking arc-lifecycle opens in-place — window
+sentinel survives (no reload), URL unchanged, modal auto-closes, canvas header +
+workflow-picker both read `arc-lifecycle`, and the open fetched
+`/api/version?id=arc-lifecycle&v=4` (latest saved version, IW-5). Escape closes; a second
+Escape is a no-op (listener removed). Console: 0 errors.
+
+> Minor, out of scope (pre-existing): the browser tab `document.title` stays `investigate.bpmn`
+> after an in-place open — `adoptImportedXml` doesn't update it (same for the existing Load…
+> path). On-canvas identity updates correctly. Not introduced by T-144; not fixed here.
 
 ## Verification
 
@@ -167,14 +190,26 @@ python3 tools/_gallery-save-allowlist-verify.py
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-07-09 — Thumbnail placeholder for maps without a saved-version PNG
+- **Chose:** Build an `<img>` only when a saved-version thumb exists; rendered-only cards
+  (and saved thumbs that 404) get a neutral `▦` placeholder `<div>` of the same height.
+- **Why:** Visual verification caught that an img with no `src` never fires `onerror`, so the
+  `visibility:hidden` fallback never ran → the browser painted a broken-image icon and spilled
+  the alt text across ~half the cards.
+- **Rejected:** (a) leaving the `visibility:hidden` onerror only — doesn't fire without a src,
+  so it never triggers; (b) pointing all cards at `/api/thumb` regardless — 13 needless 404s
+  and still a fallback problem.
+
+## Recommendation
+
+**Complete (agent ACs done).** All 7 Agent ACs verified live on :8834: the button is gated by
+`detectSaveApi`, the modal lists all 24 maps with correct titles/badges/version labels, the
+filter narrows and clears, and clicking a saved map opens it in-place (no reload, URL
+unchanged) at its latest saved version (`/api/version?id=arc-lifecycle&v=4`), falling back to
+the rendered baseline otherwise. Read-only invariants hold (save-allowlist 6/6, no `/api/save`
+change), mirror is byte-identical, and the Visual Verification pass caught + fixed a
+broken-image regression. 0 console errors. Remaining: one `### Human` [REVIEW] AC (owner:
+human) — task moves to partial-complete for human sign-off.
 
 ## Decision
 
