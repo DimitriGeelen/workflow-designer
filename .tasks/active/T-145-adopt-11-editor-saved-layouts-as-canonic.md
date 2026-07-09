@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T07:11:45Z
-last_update: 2026-07-09T07:11:45Z
+last_update: 2026-07-09T07:13:27Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -46,13 +46,13 @@ harvest-pipeline, healing-loop, resume-status, task-gate, tier0-escalation.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] All 11 modified `examples/aef-processes/rendered/<id>.bpmn` parse as well-formed XML
-- [ ] Every saved snapshot `.editor-versions/<id>/v*.bpmn` parses as well-formed XML
-- [ ] For each of the 11, `rendered/<id>.bpmn` is byte-identical to its latest saved version
+- [x] All 11 modified `examples/aef-processes/rendered/<id>.bpmn` parse as well-formed XML
+- [x] Every saved snapshot `.editor-versions/<id>/v*.bpmn` parses as well-formed XML
+- [x] For each of the 11, `rendered/<id>.bpmn` is byte-identical to its latest saved version
       (`index.json` max v) — confirms the corpus reflects the newest save, no half-state
-- [ ] The 11 `rendered/*.bpmn` edits + the 11 `.editor-versions/<id>/` stores are committed;
-      `git status` shows them no longer modified/untracked
-- [ ] No unrelated files swept into the commit (only the 11 maps + their version stores)
+- [x] The 11 `rendered/*.bpmn` edits + the 11 `.editor-versions/<id>/` stores are committed;
+      `git status` shows them no longer modified/untracked (commit 2d33b2b; drift now CLEAN)
+- [x] No unrelated files swept into the commit (only the 11 maps + their version stores)
 
 ## Verification
 
