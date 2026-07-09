@@ -7070,7 +7070,7 @@ async function openProjectModal() {
     const badge = saved
       ? `<span style="color:#7ab8ff">saved · v${m.latest.v}</span>`
       : `<span style="color:var(--muted,#8b95a5)">rendered</span>`;
-    meta.innerHTML = `<div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">`
+    meta.innerHTML = `<div style="font-weight:600;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">`
       + `${(m.title || m.id).replace(/</g, '&lt;')}</div>`
       + `<div style="color:var(--muted,#8b95a5);font-size:.85em">${m.id.replace(/</g, '&lt;')}</div>`
       + `<div style="font-size:.85em;margin-top:2px">${badge}</div>`;
