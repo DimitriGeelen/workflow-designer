@@ -689,3 +689,10 @@ decisions:
     date: 2026-07-08
     task: T-143
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-078
+    decision: "Build an `<img>` only when a saved-version thumb exists; rendered-only cards"
+    scope: project
+    date: 2026-07-09
+    task: T-144
+    rationale: "Auto-captured from task file on completion"

@@ -4,9 +4,9 @@ name: "In-editor Open-from-project modal (uses /api/list, opens latest version i
 description: >
   T-142 GO build task 2 of 2. Add an 'Open…' toolbar button (gated by detectSaveApi like Save/Versions) that opens a modal listing maps from /api/list (T-143) — thumbnail + title + source badge + latest-version label + client-side filter. Clicking a map opens it IN-PLACE (no reload) via adoptImportedXml with replace semantics, defaulting to openTarget (latest saved version, else rendered baseline). Validated in T-142 Spike 2. Mirror invariant + T-138 untouched (read path).
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-08T12:19:53Z
-last_update: 2026-07-09T06:43:01Z
-date_finished: null
+last_update: 2026-07-09T06:43:32Z
+date_finished: 2026-07-09T06:43:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -238,3 +238,6 @@ AC on subjective "feels right" quality, which only the human may check.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-144-in-editor-open-from-project-modal-uses-a.md
 - **Context:** Initial task creation
+
+### 2026-07-09T06:43:32Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
