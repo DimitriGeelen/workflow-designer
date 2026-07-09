@@ -940,9 +940,9 @@
       <span class="brand-separator">·</span>
       <select class="brand-picker" id="workflow-picker" title="Switch workflow"></select>
       <button class="btn-icon" id="btn-new-workflow" title="New workflow">+</button>
-      <span class="brand-version" id="brand-version">v1</span>
-      <!-- T-157: currently-loaded saved-version (snapshot) badge — distinct from the
-           contract "Workflow version" above; hidden for new/unsaved maps -->
+      <!-- T-158: bare 'v1' contract-version badge removed (confusing beside the snapshot
+           badge; contract version stays editable in the properties "Workflow version" field). -->
+      <!-- T-157: currently-loaded saved-version (snapshot) badge — hidden for new/unsaved maps -->
       <span id="map-saved-version" title="Currently-loaded saved version (snapshot). Click 🕘 Versions to browse." style="display:none;margin-left:8px;padding:1px 7px;border-radius:10px;background:rgba(122,184,255,.14);color:#7ab8ff;border:1px solid rgba(122,184,255,.35);font-size:12px;font-weight:600"></span>
     </div>
     <div class="actions">
@@ -1926,11 +1926,8 @@ function refreshLibraryUI() {
     if (k === activeKey) opt.selected = true;
     picker.appendChild(opt);
   }
-  const versionEl = $('brand-version');
-  if (versionEl) {
-    const v = state?.workflowMeta?.version || '1';
-    versionEl.textContent = 'v' + v;
-  }
+  // T-158: contract-version badge removed from the toolbar; the version is edited in the
+  // properties "Workflow version" field instead. (Was: update #brand-version textContent.)
 }
 
 // Create a new empty workflow and add it to the library, making it active.
@@ -7281,16 +7278,8 @@ $('workflow-picker').onchange = ev => {
   const key = ev.target.value;
   if (key !== activeKey) loadFromLibrary(key);
 };
-$('brand-version').onclick = () => {
-  const cur = state.workflowMeta.version || '1';
-  const next = prompt('Workflow version', cur);
-  if (next == null) return;
-  const trimmed = String(next).trim();
-  if (!trimmed) return;
-  state.workflowMeta.version = trimmed;
-  refreshLibraryUI();
-  renderProperties();
-};
+// T-158: removed $('brand-version').onclick — the bare 'v1' toolbar badge is gone;
+// the contract version is bumped via the properties "Workflow version" field (T-152).
 
 // ============================================================================
 //  BPMN XML build
