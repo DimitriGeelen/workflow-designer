@@ -6841,11 +6841,15 @@ async function saveToProject() {
       if (btn) btn.textContent = label || '⤓ Save to project';
       return;
     }
+    // Optional per-version note (T-150 / F4). Blank or cancelled → no note (the
+    // Versions modal simply omits the note line). Server trims to 200 chars.
+    let note = '';
+    try { note = (window.prompt('Optional note for this version (leave blank to skip):', '') || '').trim().slice(0, 200); } catch (_) { note = ''; }
     if (btn) btn.textContent = '⤓ Saving…';
     const png = await captureThumbnail();
     const res = await fetch('/api/save', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, bpmn, png, note: '' }),
+      body: JSON.stringify({ id, bpmn, png, note }),
     });
     const data = await res.json().catch(() => ({}));
     if (res.ok && data.ok) {
