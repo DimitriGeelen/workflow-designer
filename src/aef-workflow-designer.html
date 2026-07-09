@@ -7035,6 +7035,44 @@ async function openVersionInPlace(id, v) {
     if (typeof showToast === 'function') showToast(`⤢ Opened ${id} v${v}.`);
   } catch (e) { alert('Open failed: ' + (e && e.message || e)); }
 }
+// T-167: archive a single saved version (recoverable). Confirms, POSTs scope:'version'.
+async function deleteVersion(id, v) {
+  const ok = await confirmDialog({
+    title: '🗑 Delete version',
+    message: `Delete version v${v} of “${id}”?\n\nArchived to .editor-versions/_trash — recoverable.`,
+    confirmLabel: 'Delete', danger: true,
+  });
+  if (!ok) return;
+  try {
+    const res = await fetch('/api/delete', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, scope: 'version', v }),
+    });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok || !d.ok) { alert('Delete failed: ' + (d.error || ('HTTP ' + res.status))); return; }
+    if (typeof showToast === 'function') showToast(`🗑 Deleted ${id} v${v}.`);
+    closeVersionsModal(); openVersionsModal();   // refresh
+  } catch (e) { alert('Delete failed: ' + (e && e.message || e)); }
+}
+// T-167: keep only the newest saved version; archive the rest. POSTs scope:'prune-old'.
+async function pruneOldVersions(id) {
+  const ok = await confirmDialog({
+    title: 'Keep only latest',
+    message: `Delete all saved versions of “${id}” except the newest?\n\nOlder snapshots are archived to .editor-versions/_trash — recoverable.`,
+    confirmLabel: 'Keep only latest', danger: true,
+  });
+  if (!ok) return;
+  try {
+    const res = await fetch('/api/delete', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, scope: 'prune-old' }),
+    });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok || !d.ok) { alert('Prune failed: ' + (d.error || ('HTTP ' + res.status))); return; }
+    if (typeof showToast === 'function') showToast(`Kept only ${id} v${d.kept}.`);
+    closeVersionsModal(); openVersionsModal();   // refresh
+  } catch (e) { alert('Prune failed: ' + (e && e.message || e)); }
+}
 
 // Neutral ▦ thumbnail placeholder — shared by the Versions modal and the Open-project
 // modal so a missing/404'd version PNG shows a neutral tile, not a blank gap or the
@@ -7082,8 +7120,19 @@ async function openVersionsModal() {
   const head = document.createElement('div');
   head.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border,#334);position:sticky;top:0;background:var(--panel,#1e2530)';
   const h = document.createElement('strong'); h.textContent = `Versions — ${id}`;
+  const headRight = document.createElement('div');
+  headRight.style.cssText = 'display:flex;gap:8px;align-items:center;flex:0 0 auto';
+  // T-167: "Keep only latest" prunes older snapshots — only meaningful with ≥2 versions.
+  if (list.length >= 2) {
+    const keep = document.createElement('button');
+    keep.className = 'btn'; keep.type = 'button'; keep.textContent = 'Keep only latest';
+    keep.title = 'Delete all saved versions except the newest (archived, recoverable)';
+    keep.onclick = () => pruneOldVersions(id);
+    headRight.appendChild(keep);
+  }
   const x = document.createElement('button'); x.className = 'btn'; x.textContent = '✕'; x.onclick = closeVersionsModal;
-  head.append(h, x);
+  headRight.appendChild(x);
+  head.append(h, headRight);
   panel.appendChild(head);
 
   if (!list.length) {
@@ -7126,7 +7175,13 @@ async function openVersionsModal() {
       rev.title = `Revert the editor to v${e.v}`;
       rev.setAttribute('data-v', e.v);
       rev.onclick = () => revertToVersion(id, e.v);
-      actions.append(open, rev);
+      // T-167: 🗑 archive just this snapshot (recoverable).
+      const del = document.createElement('button');
+      del.className = 'btn'; del.type = 'button'; del.textContent = '🗑';
+      del.title = `Delete v${e.v} (archived, recoverable)`;
+      del.setAttribute('data-v', e.v);
+      del.onclick = () => deleteVersion(id, e.v);
+      actions.append(open, rev, del);
       row.append(img, meta, actions);
       panel.appendChild(row);
     }

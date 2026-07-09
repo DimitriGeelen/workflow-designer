@@ -348,8 +348,15 @@ class Handler(SimpleHTTPRequestHandler):
         scope = payload.get('scope', 'workflow')
         if not self._valid_id(id_):
             return self._json(400, {'ok': False, 'error': 'invalid id (need ^[a-z0-9][a-z0-9_-]*$)'})
-        if scope != 'workflow':
-            return self._json(400, {'ok': False, 'error': "unsupported scope (want 'workflow')"})
+        if scope == 'workflow':
+            return self._delete_workflow(id_)
+        if scope == 'version':
+            return self._delete_version(id_, payload.get('v'))
+        if scope == 'prune-old':
+            return self._prune_old_versions(id_)
+        return self._json(400, {'ok': False, 'error': "unsupported scope (want workflow|version|prune-old)"})
+
+    def _delete_workflow(self, id_):
         ts = int(time.time() * 1000)
         trash = trash_dir(id_, ts)
         # Whole-workflow delete: version store + committed corpus baseline + rendered thumbnail.
@@ -371,6 +378,46 @@ class Handler(SimpleHTTPRequestHandler):
         if not archived:
             return self._json(404, {'ok': False, 'error': 'nothing to delete for id %r' % id_})
         return self._json(200, {'ok': True, 'archived': archived, 'trash': os.path.relpath(trash, REPO)})
+
+    def _delete_version(self, id_, v):
+        # Archive a single snapshot (vN.bpmn + vN.png) and drop its index entry (T-167).
+        if not (isinstance(v, int) or (isinstance(v, str) and str(v).isdigit())):
+            return self._json(400, {'ok': False, 'error': 'missing/invalid v'})
+        v = int(v)
+        index = read_index(id_)
+        if not any(e.get('v') == v for e in index):
+            return self._json(404, {'ok': False, 'error': 'no such version %d' % v})
+        ts = int(time.time() * 1000)
+        trash = trash_dir(id_, ts)
+        vdir = versions_dir(id_)
+        archived = [rel for rel in (
+            archive_move(os.path.join(vdir, 'v%d.bpmn' % v), os.path.join(trash, 'v%d.bpmn' % v)),
+            archive_move(os.path.join(vdir, 'v%d.png' % v), os.path.join(trash, 'v%d.png' % v)),
+        ) if rel]
+        write_index(id_, [e for e in index if e.get('v') != v])
+        return self._json(200, {'ok': True, 'v': v, 'archived': archived, 'trash': os.path.relpath(trash, REPO)})
+
+    def _prune_old_versions(self, id_):
+        # Keep only the highest-numbered snapshot; archive the rest (T-167).
+        index = read_index(id_)
+        if not index:
+            return self._json(404, {'ok': False, 'error': 'no versions for id %r' % id_})
+        keep = max(e.get('v', 0) for e in index)
+        older = [e for e in index if e.get('v') != keep]
+        if not older:
+            return self._json(200, {'ok': True, 'kept': keep, 'archived': []})  # single version → no-op
+        ts = int(time.time() * 1000)
+        trash = trash_dir(id_, ts)
+        vdir = versions_dir(id_)
+        archived = []
+        for e in older:
+            n = e.get('v')
+            for rel in (archive_move(os.path.join(vdir, 'v%d.bpmn' % n), os.path.join(trash, 'v%d.bpmn' % n)),
+                        archive_move(os.path.join(vdir, 'v%d.png' % n), os.path.join(trash, 'v%d.png' % n))):
+                if rel:
+                    archived.append(rel)
+        write_index(id_, [e for e in index if e.get('v') == keep])
+        return self._json(200, {'ok': True, 'kept': keep, 'archived': archived, 'trash': os.path.relpath(trash, REPO)})
 
 
 def main():
