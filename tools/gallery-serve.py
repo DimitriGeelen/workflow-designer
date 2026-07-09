@@ -38,6 +38,7 @@ import base64
 import json
 import os
 import re
+import shutil
 import sys
 import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -92,6 +93,36 @@ def write_index(id_, index):
     os.makedirs(d, exist_ok=True)
     with open(os.path.join(d, 'index.json'), 'w', encoding='utf-8') as f:
         json.dump(index, f, indent=2)
+
+
+# ---- delete/archive (T-166) — deletion is recoverable: sources move to _trash ----
+def trash_dir(id_, ts):
+    """Per-delete archive folder: .editor-versions/_trash/<id>-<ts>/. The '_trash'
+    prefix starts with '_' so ID_RE/build_map_list never re-enumerate archived maps."""
+    return os.path.join(REPO, '.editor-versions', '_trash', '%s-%d' % (id_, ts))
+
+
+def _within_repo(path):
+    """True iff path resolves inside REPO (traversal guard, PL-020). Belt-and-braces
+    on top of the ID_RE format check — a valid id still shouldn't escape the tree."""
+    rp = os.path.realpath(path)
+    return rp == REPO or rp.startswith(REPO + os.sep)
+
+
+def archive_move(src, dst):
+    """Move src → dst if src exists and is inside REPO; create parents. Returns the
+    REPO-relative source path if it was archived, else None. Never clobbers: an
+    existing dst is suffixed with -1, -2, ..."""
+    if not os.path.exists(src) or not _within_repo(src):
+        return None
+    os.makedirs(os.path.dirname(dst), exist_ok=True)
+    final = dst
+    n = 1
+    while os.path.exists(final):
+        final = '%s-%d' % (dst, n)
+        n += 1
+    shutil.move(src, final)
+    return os.path.relpath(src, REPO)
 
 
 # ---- /api/list (T-143, T-142 GO) — read-only corpus + saved-map enumeration ----
@@ -245,13 +276,15 @@ class Handler(SimpleHTTPRequestHandler):
     # ---- POST ----
     def do_POST(self):
         parsed = urlparse(self.path)
-        if parsed.path != '/api/save':
+        if parsed.path not in ('/api/save', '/api/delete'):
             return self._json(404, {'ok': False, 'error': 'unknown endpoint'})
         try:
             length = int(self.headers.get('Content-Length', '0'))
             payload = json.loads(self.rfile.read(length) or b'{}')
         except Exception as e:
             return self._json(400, {'ok': False, 'error': 'bad json: %s' % e})
+        if parsed.path == '/api/delete':
+            return self._api_delete(payload)
         id_ = payload.get('id', '')
         bpmn = payload.get('bpmn', '')
         if not self._valid_id(id_):
@@ -309,6 +342,36 @@ class Handler(SimpleHTTPRequestHandler):
 
         return self._json(200, {'ok': True, 'v': v, 'ts': ts, 'corpus': to_corpus})
 
+    # ---- DELETE (T-166) — archive-based, recoverable ----
+    def _api_delete(self, payload):
+        id_ = payload.get('id', '')
+        scope = payload.get('scope', 'workflow')
+        if not self._valid_id(id_):
+            return self._json(400, {'ok': False, 'error': 'invalid id (need ^[a-z0-9][a-z0-9_-]*$)'})
+        if scope != 'workflow':
+            return self._json(400, {'ok': False, 'error': "unsupported scope (want 'workflow')"})
+        ts = int(time.time() * 1000)
+        trash = trash_dir(id_, ts)
+        # Whole-workflow delete: version store + committed corpus baseline + rendered thumbnail.
+        candidates = [
+            (versions_dir(id_), os.path.join(trash, 'versions')),
+            (os.path.join(REPO, 'examples', 'aef-processes', 'rendered', '%s.bpmn' % id_),
+             os.path.join(trash, 'rendered', '%s.bpmn' % id_)),
+            (os.path.join(REPO, '.editor-versions', '_rendered', '%s.png' % id_),
+             os.path.join(trash, 'rendered_thumb', '%s.png' % id_)),
+        ]
+        archived = [rel for rel in (archive_move(s, d) for s, d in candidates) if rel]
+        # served copy is gitignored and regenerable — just drop it (best-effort).
+        served = os.path.join(DOCROOT, 'rendered', '%s.bpmn' % id_)
+        try:
+            if os.path.exists(served):
+                os.remove(served)
+        except Exception:
+            pass
+        if not archived:
+            return self._json(404, {'ok': False, 'error': 'nothing to delete for id %r' % id_})
+        return self._json(200, {'ok': True, 'archived': archived, 'trash': os.path.relpath(trash, REPO)})
+
 
 def main():
     _args(sys.argv[1:])
@@ -322,7 +385,7 @@ def main():
     sys.stderr.write("gallery-serve (write-capable) docroot=%s repo=%s\n" % (DOCROOT, REPO))
     sys.stderr.write("Local:  http://localhost:%d/\n" % PORT)
     sys.stderr.write("LAN:    http://%s:%d/\n" % (ip, PORT))
-    sys.stderr.write("API:    /api/health /api/list /api/save /api/versions /api/version /api/thumb\n")
+    sys.stderr.write("API:    /api/health /api/list /api/save /api/delete /api/versions /api/version /api/thumb\n")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

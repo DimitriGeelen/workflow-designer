@@ -7237,6 +7237,73 @@ async function openProjectMap(m) {
   }
 }
 
+// ── Themed confirm dialog (T-166) — reusable Promise<boolean>. Replaces native confirm()
+// for destructive actions (delete). Uses a CAPTURE-phase keydown so Esc cancels THIS dialog
+// without also reaching an underlying modal's Esc handler. danger:true → red confirm button. ──
+function confirmDialog(opts) {
+  opts = opts || {};
+  return new Promise(resolve => {
+    const backdrop = document.createElement('div');
+    backdrop.style.cssText = 'position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,.55);'
+      + 'display:flex;align-items:center;justify-content:center;font:13px system-ui,sans-serif';
+    const panel = document.createElement('div');
+    panel.style.cssText = 'background:var(--panel,#1e2530);color:var(--fg,#e6edf3);border:1px solid var(--border,#334);'
+      + 'border-radius:10px;max-width:440px;width:92%;box-shadow:0 8px 40px rgba(0,0,0,.5);padding:18px 20px';
+    const h = document.createElement('div');
+    h.style.cssText = 'font-weight:700;font-size:15px;margin-bottom:8px';
+    h.textContent = opts.title || 'Confirm';
+    const body = document.createElement('div');
+    body.style.cssText = 'color:var(--muted,#8b95a5);white-space:pre-wrap;line-height:1.45;margin-bottom:16px';
+    body.textContent = opts.message || '';
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;justify-content:flex-end;gap:8px';
+    const cancel = document.createElement('button');
+    cancel.className = 'btn'; cancel.type = 'button'; cancel.textContent = opts.cancelLabel || 'Cancel';
+    const ok = document.createElement('button');
+    ok.className = 'btn'; ok.type = 'button'; ok.textContent = opts.confirmLabel || 'OK';
+    if (opts.danger) ok.style.cssText = 'background:#b3261e;border-color:#b3261e;color:#fff';
+    row.append(cancel, ok);
+    panel.append(h, body, row);
+    backdrop.appendChild(panel);
+    function done(val) { document.removeEventListener('keydown', onKey, true); backdrop.remove(); resolve(val); }
+    function onKey(e) {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); done(false); }
+      else if (e.key === 'Enter') { e.preventDefault(); e.stopImmediatePropagation(); done(true); }
+    }
+    cancel.onclick = () => done(false);
+    ok.onclick = () => done(true);
+    backdrop.onclick = e => { if (e.target === backdrop) done(false); };
+    document.addEventListener('keydown', onKey, true);   // capture: intercept before modal Esc
+    document.body.appendChild(backdrop);
+    ok.focus();
+  });
+}
+
+// Archive-delete a whole workflow from the project (T-166). Confirms, calls POST /api/delete,
+// then refreshes the browser list. Files move to .editor-versions/_trash (recoverable).
+async function onDeleteWorkflow(m) {
+  const isCorpus = (m.sources || []).includes('rendered');
+  const ok = await confirmDialog({
+    title: '🗑 Delete workflow',
+    message: `Delete “${m.title || m.id}” (${m.id})?\n\n`
+      + `This archives its saved versions${isCorpus ? ' and the shipped corpus map' : ''} to `
+      + `.editor-versions/_trash — recoverable. It disappears from the project.`,
+    confirmLabel: 'Delete', danger: true,
+  });
+  if (!ok) return;
+  try {
+    const res = await fetch('/api/delete', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: m.id, scope: 'workflow' }),
+    });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok || !d.ok) { alert('Delete failed: ' + (d.error || ('HTTP ' + res.status))); return; }
+    if (typeof showToast === 'function') showToast(`🗑 Deleted ${m.id} (archived to _trash).`);
+    closeProjectModal();
+    openProjectModal();   // re-fetch /api/list so the deleted map is gone from the browser
+  } catch (e) { alert('Delete failed: ' + (e && e.message || e)); }
+}
+
 // opts.pick(mapId): when supplied, this opens in PICK mode — a card click returns the
 // chosen map id to the callback and closes the modal instead of navigating to it (T-163).
 // Default (no opts) = Open-project behaviour: a card click opens the map in place.
@@ -7336,13 +7403,33 @@ async function openProjectModal(opts) {
     card.onmouseleave = () => hideProjectPreview();
     card.addEventListener('focus', () => showProjectPreview(card));
     card.addEventListener('blur', () => hideProjectPreview());
-    body.appendChild(card);
+    // T-166: wrap so a 🗑 delete affordance can overlay the card without nesting <button>s.
+    // Only in default (manage) mode — not while picking a target workflow.
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;display:flex';
+    card.style.flex = '1 1 auto';
+    wrap.appendChild(card);
+    if (!pickMode) {
+      const del = document.createElement('button');
+      del.type = 'button';
+      del.textContent = '🗑';
+      del.title = 'Delete ' + m.id + ' from the project (archived, recoverable)';
+      del.style.cssText = 'position:absolute;top:6px;right:6px;z-index:2;width:26px;height:26px;'
+        + 'display:flex;align-items:center;justify-content:center;padding:0;border-radius:6px;cursor:pointer;'
+        + 'background:rgba(15,17,21,.82);color:#e6edf3;border:1px solid var(--border,#334);font-size:13px';
+      del.onmouseenter = () => { hideProjectPreview(); del.style.background = '#b3261e'; del.style.borderColor = '#b3261e'; };
+      del.onmouseleave = () => { del.style.background = 'rgba(15,17,21,.82)'; del.style.borderColor = 'var(--border,#334)'; };
+      del.onclick = (e) => { e.stopPropagation(); onDeleteWorkflow(m); };
+      wrap.appendChild(del);
+    }
+    card._wrap = wrap;
+    body.appendChild(wrap);
     cards.push(card);
   }
 
   filter.oninput = () => {
     const q = filter.value.trim().toLowerCase();
-    for (const c of cards) c.style.display = (!q || c._hay.includes(q)) ? '' : 'none';
+    for (const c of cards) (c._wrap || c).style.display = (!q || c._hay.includes(q)) ? '' : 'none';
   };
 
   backdrop.appendChild(panel);
