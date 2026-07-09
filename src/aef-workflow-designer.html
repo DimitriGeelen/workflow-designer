@@ -7002,6 +7002,10 @@ async function saveToProject() {
 function closeVersionsModal() {
   const m = document.getElementById('versions-modal');
   if (m) m.remove();
+  // T-164: tear down the shared hover-zoom preview so it never lingers after close.
+  hideProjectPreview();
+  const pv = document.getElementById('project-hover-preview');
+  if (pv) pv.remove();
   document.removeEventListener('keydown', _versionsEsc);
 }
 function _versionsEsc(e) { if (e.key === 'Escape') closeVersionsModal(); }
@@ -7077,14 +7081,21 @@ async function openVersionsModal() {
     for (const e of list) {
       const row = document.createElement('div');
       row.style.cssText = 'display:flex;gap:12px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border,#2a3140)';
+      let when = ''; try { when = new Date(e.ts).toLocaleString(); } catch (_) {}
+      const thumbSrc = `/api/thumb?id=${encodeURIComponent(id)}&v=${e.v}`;
       const img = document.createElement('img');
-      img.src = `/api/thumb?id=${encodeURIComponent(id)}&v=${e.v}`;
+      img.src = thumbSrc;
       img.alt = `v${e.v} preview`;
-      img.style.cssText = 'width:120px;height:74px;object-fit:contain;background:#0f1115;border:1px solid var(--border,#334);border-radius:4px;flex:0 0 auto';
+      img.style.cssText = 'width:120px;height:74px;object-fit:contain;background:#0f1115;border:1px solid var(--border,#334);border-radius:4px;flex:0 0 auto;cursor:zoom-in';
       img.onerror = () => { img.replaceWith(makeThumbPlaceholder({ w: 120, h: 74, radius: 4, flex: '0 0 auto', fontSize: 22 })); };  // 404 → ▦ placeholder, not blank gap (T-149 F2)
+      // T-164: hover-zoom parity with the Open-project card browser (T-156). Hovering the
+      // version thumbnail shows the same enlarged floating preview, positioned beside the modal.
+      img._previewSrc = thumbSrc;
+      img._previewMeta = { title: `v${e.v}`, id, badge: (e.note ? e.note : when) };
+      img.onmouseenter = () => showProjectPreview(img);
+      img.onmouseleave = () => hideProjectPreview();
       const meta = document.createElement('div');
       meta.style.cssText = 'flex:1 1 auto;min-width:0';
-      let when = ''; try { when = new Date(e.ts).toLocaleString(); } catch (_) {}
       meta.innerHTML = `<div style="font-weight:600">v${e.v}</div>`
         + `<div style="color:var(--muted,#8b95a5)">${when}</div>`
         + (e.note ? `<div style="color:var(--muted,#8b95a5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.note.replace(/</g, '&lt;')}</div>` : '');
@@ -7135,7 +7146,10 @@ function hideProjectPreview() {
   if (el) el.style.display = 'none';
 }
 function showProjectPreview(card) {
-  const modal = document.getElementById('project-modal');
+  // T-164: resolve the anchor modal generically so the hover-zoom works in the Versions
+  // modal too, not just Open-project. Prefer the modal the hovered element lives inside.
+  const modal = (card && card.closest && card.closest('#project-modal, #versions-modal'))
+    || document.getElementById('project-modal') || document.getElementById('versions-modal');
   if (!modal || !card) return;
   const el = _projectPreviewEl();
   const meta = card._previewMeta || {};
