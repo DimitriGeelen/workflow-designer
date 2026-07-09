@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-08T12:19:53Z
-last_update: 2026-07-08T12:23:45Z
+last_update: 2026-07-09T06:43:01Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -202,14 +202,25 @@ python3 tools/_gallery-save-allowlist-verify.py
 
 ## Recommendation
 
-**Complete (agent ACs done).** All 7 Agent ACs verified live on :8834: the button is gated by
-`detectSaveApi`, the modal lists all 24 maps with correct titles/badges/version labels, the
-filter narrows and clears, and clicking a saved map opens it in-place (no reload, URL
-unchanged) at its latest saved version (`/api/version?id=arc-lifecycle&v=4`), falling back to
-the rendered baseline otherwise. Read-only invariants hold (save-allowlist 6/6, no `/api/save`
-change), mirror is byte-identical, and the Visual Verification pass caught + fixed a
-broken-image regression. 0 console errors. Remaining: one `### Human` [REVIEW] AC (owner:
-human) — task moves to partial-complete for human sign-off.
+**Recommendation:** GO — accept the Open-project modal; sign off the one Human [REVIEW] AC.
+
+**Rationale:** All 7 Agent ACs are verified live on :8834, not just statically. The feature is
+gated exactly like Save/Versions (`detectSaveApi`), opens maps in-place at their latest saved
+version (the IW-5 requirement), and is read-only (no `/api/save` change, save-allowlist still
+6/6). The only reason this isn't fully auto-completing is the deliberate `### Human` [REVIEW]
+AC on subjective "feels right" quality, which only the human may check.
+
+**Evidence:**
+- Button gated by `detectSaveApi` — visible on :8834 (API present), ships `display:none`.
+- Modal lists 24 maps; filter `arc` → 1 card, cleared → 24 (headless).
+- arc-lifecycle opens in-place: no reload (window sentinel survives), URL unchanged, canvas
+  header + workflow-picker both read `arc-lifecycle`; fetch was
+  `/api/version?id=arc-lifecycle&v=4` (latest saved, not rendered baseline).
+- Escape closes the modal; a second Escape is a no-op (listener removed, no leak).
+- Read-only: `python3 tools/_gallery-save-allowlist-verify.py` → 6/6; no `/api/save` change.
+- Mirror byte-identical: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`.
+- Visual Verification caught + fixed a broken-thumb regression; re-shot clean
+  (`.playwright-mcp/t144-open-project-modal-fixed.png`). 0 console errors.
 
 ## Decision
 
