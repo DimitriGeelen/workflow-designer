@@ -7021,6 +7021,20 @@ async function revertToVersion(id, v) {
     if (typeof showToast === 'function') showToast(`↩ Reverted to ${id} v${v}.`);
   } catch (e) { alert('Revert failed: ' + (e && e.message || e)); }
 }
+// T-165: non-destructive counterpart to Revert. Loads version vN into the editor in place
+// for viewing/editing, framed as "open" rather than "roll back". Same load mechanism; the
+// distinction is intent/wording so users aren't scared off just looking at an old version.
+async function openVersionInPlace(id, v) {
+  try {
+    const res = await fetch(`/api/version?id=${encodeURIComponent(id)}&v=${encodeURIComponent(v)}`);
+    if (!res.ok) { alert('Could not load version ' + v); return; }
+    const bpmn = await res.text();
+    closeVersionsModal();
+    adoptImportedXml(bpmn, { userImport: false, replace: true });
+    setLoadedSavedVersion(v);   // reflect that we're now viewing snapshot vN
+    if (typeof showToast === 'function') showToast(`⤢ Opened ${id} v${v}.`);
+  } catch (e) { alert('Open failed: ' + (e && e.message || e)); }
+}
 
 // Neutral ▦ thumbnail placeholder — shared by the Versions modal and the Open-project
 // modal so a missing/404'd version PNG shows a neutral tile, not a blank gap or the
@@ -7099,11 +7113,21 @@ async function openVersionsModal() {
       meta.innerHTML = `<div style="font-weight:600">v${e.v}</div>`
         + `<div style="color:var(--muted,#8b95a5)">${when}</div>`
         + (e.note ? `<div style="color:var(--muted,#8b95a5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.note.replace(/</g, '&lt;')}</div>` : '');
+      // T-165: ⤢ Open (non-destructive view/edit) sits next to ↩ Revert (rollback).
+      const actions = document.createElement('div');
+      actions.style.cssText = 'display:flex;gap:6px;flex:0 0 auto';
+      const open = document.createElement('button');
+      open.className = 'btn'; open.textContent = '⤢ Open';
+      open.title = `Open v${e.v} in the editor (view / work from it — does not change saved history)`;
+      open.setAttribute('data-v', e.v);
+      open.onclick = () => openVersionInPlace(id, e.v);
       const rev = document.createElement('button');
-      rev.className = 'btn'; rev.textContent = '↩ Revert'; rev.style.flex = '0 0 auto';
+      rev.className = 'btn'; rev.textContent = '↩ Revert';
+      rev.title = `Revert the editor to v${e.v}`;
       rev.setAttribute('data-v', e.v);
       rev.onclick = () => revertToVersion(id, e.v);
-      row.append(img, meta, rev);
+      actions.append(open, rev);
+      row.append(img, meta, actions);
       panel.appendChild(row);
     }
   }
