@@ -4,10 +4,10 @@ name: "Version notes are inert: wire up or remove the note field (F4)"
 description: >
   T-146 finding F4: saveToProject hardcodes note:'' so version notes are never stored; openVersionsModal renders e.note but it is always empty. Decide: wire up a note input on save, or remove the inert note-display. One deliverable.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T12:19:30Z
-last_update: 2026-07-09T12:19:30Z
-date_finished: null
+last_update: 2026-07-09T12:27:01Z
+date_finished: 2026-07-09T12:27:01Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -207,3 +207,6 @@ Full UI round-trip on `http://localhost:8834/designer.html`:
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-150-version-notes-are-inert-wire-up-or-remov.md
 - **Context:** Initial task creation
+
+### 2026-07-09T12:27:01Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

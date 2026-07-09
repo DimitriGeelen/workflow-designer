@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-150: Version notes are inert: wire up or remove the note field (F4)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-09T12:27:03Z
+# ============================================================================
+
+task_id: T-150
+task_name: "Version notes are inert: wire up or remove the note field (F4)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-09T12:19:30Z
+completed: 2026-07-09T12:27:01Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-09T14:26:55+02:00
+last_commit: 2026-07-09T14:26:55+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Wire up optional per-version notes (F4)
+
+# Key outcomes
+outcomes:
+  - '`saveToProject` sends a real (optional) note instead of the hardcoded `note: ''''` — captured via `window.prompt`, trimmed to 200 chars; UI save of id `p` persisted `note: "reviewed with ops — approved layout"` to `index.json`'
+  - 'A saved note renders in the Versions modal row (existing `e.note` path exercised with non-empty data) — DOM `innerText` contains the note; screenshot confirms it renders below the timestamp'
+  - 'Empty/omitted note still works (backward compatible — no note row shown, no error) — blank/cancel → `''''`; all prior `note:''''` versions (T-149 arc-lifecycle screenshot) render with no note line'
+  - 'src mirrored to build/gallery/designer.html (diff -q clean) — MIRROR-OK'
+  - 'Visual: screenshot Versions modal showing a version with a note (## Visual Verification)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.playwright-mcp/t150-version-note-rendered.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-150-version-notes-are-inert-wire-up-or-remov.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-09T14:26:55"
+    action: "T-150: Wire up optional per-version notes (F4)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 7
+  commits: 1
+  files_changed: 3
+  lines_added: 214
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-150-version-notes-are-inert-wire-up-or-remov.md
+generated_by: context-agent-hybrid
