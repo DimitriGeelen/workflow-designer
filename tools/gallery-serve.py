@@ -225,9 +225,19 @@ class Handler(SimpleHTTPRequestHandler):
                 return self._bytes(200, f.read(), 'application/xml')
         if route == '/api/thumb':
             v = (q.get('v') or [''])[0]
-            p = os.path.join(versions_dir(id_), 'v%s.png' % v)
-            if not (v.isdigit() and os.path.exists(p)):
-                return self._json(404, {'ok': False, 'error': 'no thumbnail'})
+            if v:
+                # saved-version thumbnail (unchanged)
+                p = os.path.join(versions_dir(id_), 'v%s.png' % v)
+                if not (v.isdigit() and os.path.exists(p)):
+                    return self._json(404, {'ok': False, 'error': 'no thumbnail'})
+            else:
+                # T-153: rendered-corpus cached tile. Corpus BPMNs carry no DI coords and
+                # no saved PNG, so tools/gen-rendered-thumbs.mjs pre-renders each map into
+                # this tracked cache. id_ is ID_RE-validated above (no traversal). The
+                # cache dir starts with '_' so build_map_list() never enumerates it as a map.
+                p = os.path.join(REPO, '.editor-versions', '_rendered', '%s.png' % id_)
+                if not os.path.exists(p):
+                    return self._json(404, {'ok': False, 'error': 'no thumbnail'})
             with open(p, 'rb') as f:
                 return self._bytes(200, f.read(), 'image/png')
         return self._json(404, {'ok': False, 'error': 'unknown endpoint'})

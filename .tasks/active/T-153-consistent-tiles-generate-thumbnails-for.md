@@ -4,10 +4,10 @@ name: "Consistent tiles: generate thumbnails for rendered-corpus maps (Open-proj
 description: >
   Open-project modal shows the ▦ placeholder for all rendered-only corpus maps (no saved PNG). Corpus BPMNs carry no DI coords, so tiles need a headless-render thumbnail pipeline: render each corpus map in the designer, capture a PNG, cache it server-side, and have /api/thumb serve it for rendered maps (▦ fallback). Flagship of the F-series browsing polish.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T15:01:58Z
-last_update: 2026-07-09T15:01:58Z
+last_update: 2026-07-09T15:45:15Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -50,8 +50,12 @@ This is the suggested first task for the next session.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `tools/gen-rendered-thumbs.mjs` exists — a headless CDP batch generator (same harness family as `tools/_*-verify-cdp.mjs`) that loads each rendered-corpus map, calls `captureThumbnail()`, and writes `.editor-versions/_rendered/<id>.png`. Exits 0 and reports 24/24 generated. **Verified:** ran clean, `24/24 thumbnails generated`, each with real bbox + node count.
+- [x] After running the generator, `.editor-versions/_rendered/` contains one non-empty PNG per corpus map (24 files), and the cache dir is skipped by the map scanner (starts with `_`, fails `ID_RE`) so it never appears as a fake map in `/api/list`. **Verified:** 24 PNGs on disk; `/api/list` returns 25 real maps, `_rendered` absent, no underscore-leading ids.
+- [x] `gallery-serve.py` `/api/thumb?id=<id>` (no `v`) serves the cached rendered PNG (`image/png`, 200) when it exists, and returns 404 JSON when it does not. The existing saved-version path (`&v=<n>`) is unchanged. **Verified:** `audit-process` no-v → 200 image/png 14821B; `arc-lifecycle&v=1` → 200 (unchanged); `nonexistent` → 404.
+- [x] `openProjectModal` renders a real `<img src="/api/thumb?id=<id>">` for rendered-only cards (▦ `makeThumbPlaceholder` fallback on `onerror`), and sets `card._previewSrc` so T-156 hover-zoom shows the tile for rendered maps too. **Verified:** 25/25 tiles loaded, 0 broken, 0 ▦ placeholders; hover-zoom on rendered `cross-host-dispatch` loads 320×141, no overlap.
+- [x] src↔build mirror invariant holds: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`. **Verified:** MIRROR-OK.
+- [x] Playwright visual verification: Open-project modal shows real tiles (not ▦) for rendered maps; 0 console errors; element screenshot READ. **Verified:** see `## Visual Verification` — every card shows a genuine diagram; console errors = 0.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -116,6 +120,26 @@ This is the suggested first task for the next session.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+test -f tools/gen-rendered-thumbs.mjs
+test "$(ls .editor-versions/_rendered/*.png 2>/dev/null | wc -l)" -eq 24
+diff -q src/aef-workflow-designer.html build/gallery/designer.html
+out=$(cat tools/gallery-serve.py); echo "$out" | grep -q "_rendered"
+out=$(cat src/aef-workflow-designer.html); echo "$out" | grep -q "api/thumb?id="
+
+## Visual Verification
+
+Viewport 1440×900, Open-project modal, gallery on :8834 (restarted to pick up the
+`/api/thumb` change):
+
+- `.playwright-mcp/t153-tiles-modal.png` — the full modal: all 25 cards show a real
+  rendered diagram tile (nodes, gateways, edges, lanes). Zero ▦ placeholders. READ and
+  confirmed — this is the "consistent tiles" the operator asked for.
+- `.playwright-mcp/t153-hover-rendered.png` — hover-zoom preview of the rendered-only map
+  `cross-host-dispatch`: enlarged legible diagram, caption "cross-host-dispatch · rendered",
+  no overlap with the modal. Confirms T-156 hover-zoom now works for rendered maps too.
+
+Console errors during modal open + hover: **0**.
 
 ## RCA
 
@@ -184,3 +208,7 @@ This is the suggested first task for the next session.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-153-consistent-tiles-generate-thumbnails-for.md
 - **Context:** Initial task creation
+
+### 2026-07-09T15:45:15Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
