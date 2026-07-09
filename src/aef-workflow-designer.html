@@ -941,6 +941,9 @@
       <select class="brand-picker" id="workflow-picker" title="Switch workflow"></select>
       <button class="btn-icon" id="btn-new-workflow" title="New workflow">+</button>
       <span class="brand-version" id="brand-version">v1</span>
+      <!-- T-157: currently-loaded saved-version (snapshot) badge — distinct from the
+           contract "Workflow version" above; hidden for new/unsaved maps -->
+      <span id="map-saved-version" title="Currently-loaded saved version (snapshot). Click 🕘 Versions to browse." style="display:none;margin-left:8px;padding:1px 7px;border-radius:10px;background:rgba(122,184,255,.14);color:#7ab8ff;border:1px solid rgba(122,184,255,.35);font-size:12px;font-weight:600"></span>
     </div>
     <div class="actions">
       <button class="btn" id="btn-add-lane">+ Add Lane</button>
@@ -1868,6 +1871,7 @@ function loadFromLibrary(key) {
   refreshDisplayIds();
   renderAll();
   refreshLibraryUI();
+  if (typeof setLoadedSavedVersion === 'function') setLoadedSavedVersion(null);  // T-157: switching library workflows clears the snapshot badge
   return true;
 }
 
@@ -1961,6 +1965,7 @@ function createNewWorkflow() {
   refreshDisplayIds();
   renderAll();
   refreshLibraryUI();
+  if (typeof setLoadedSavedVersion === 'function') setLoadedSavedVersion(null);  // T-157: new map = no snapshot
 }
 
 // Rename the active workflow's id. Updates the library key, the workflowMeta.id,
@@ -6857,6 +6862,7 @@ async function saveToProject() {
     const data = await res.json().catch(() => ({}));
     if (res.ok && data.ok) {
       if (btn) { btn.textContent = `✓ Saved v${data.v}`; setTimeout(() => { btn.textContent = '⤓ Save to project'; }, 2500); }
+      setLoadedSavedVersion(data.v);   // T-157: now on the newly-saved snapshot
     } else {
       alert('Save to project failed: ' + (data.error || ('HTTP ' + res.status)));
       if (btn) btn.textContent = label || '⤓ Save to project';
@@ -6881,6 +6887,7 @@ async function revertToVersion(id, v) {
     const bpmn = await res.text();
     closeVersionsModal();
     adoptImportedXml(bpmn, { userImport: false, replace: true });
+    setLoadedSavedVersion(v);   // T-157: now viewing snapshot vN
     // Accurate, action-free confirmation (T-148) — NOT the autosave-restore banner.
     if (typeof showToast === 'function') showToast(`↩ Reverted to ${id} v${v}.`);
   } catch (e) { alert('Revert failed: ' + (e && e.message || e)); }
@@ -7060,6 +7067,8 @@ async function openProjectMap(m) {
     // replace: overwrite the in-memory entry for this id (no _v2). userImport: apply the
     // same clean-on-import/nudge behaviour a gallery ?load open has.
     adoptImportedXml(text, { replace: true, userImport: true });
+    // T-157: reflect the loaded snapshot (or clear for a rendered baseline).
+    setLoadedSavedVersion(ot.kind === 'version' ? ot.v : null);
   } catch (e) {
     alert('Could not open “' + m.id + '”: ' + (e && e.message || e));
   }
@@ -7203,6 +7212,22 @@ function adoptImportedXml(text, opts) {
   // and clean-on-import is off. Programmatic adoption never nudges.
   if (opts && opts.userImport) { maybeShowCleanNudge(); }
   else { const nudge = $('clean-nudge'); if (nudge) nudge.style.display = 'none'; }
+  // T-157: any adoption clears the loaded-snapshot badge; the specific callers that DO
+  // load a known snapshot (openProjectMap version, revertToVersion) re-set it afterwards.
+  setLoadedSavedVersion(null);
+}
+
+// ── Loaded saved-version badge (T-157) — shows which snapshot is currently open ──
+let _loadedSavedVersion = null;
+function setLoadedSavedVersion(v) {
+  _loadedSavedVersion = (v == null || v === '') ? null : v;
+  updateSavedVersionBadge();
+}
+function updateSavedVersionBadge() {
+  const el = document.getElementById('map-saved-version');
+  if (!el) return;
+  if (_loadedSavedVersion == null) { el.style.display = 'none'; el.textContent = ''; }
+  else { el.textContent = '🕘 v' + _loadedSavedVersion; el.style.display = ''; }
 }
 // Briefly show the Clean toolbar button's moved-count feedback (shared by the
 // Clean button and clean-on-import) so the operator sees geometry changed.
