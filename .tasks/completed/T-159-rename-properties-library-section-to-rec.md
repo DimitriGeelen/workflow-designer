@@ -4,10 +4,10 @@ name: "Rename properties 'Library' section to 'Recently opened'"
 description: >
   Rename properties 'Library' section to 'Recently opened'
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T19:48:22Z
-last_update: 2026-07-09T19:48:22Z
-date_finished: null
+last_update: 2026-07-09T19:51:23Z
+date_finished: 2026-07-09T19:51:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -197,3 +197,6 @@ field hint ("unique in library" — id-uniqueness scope), intentionally left.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-159-rename-properties-library-section-to-rec.md
 - **Context:** Initial task creation
+
+### 2026-07-09T19:51:23Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
