@@ -4691,32 +4691,38 @@ function renderProperties() {
       } else if (meta.special === 'select') {
         sAef.appendChild(selectField(meta.label, n.aef[f] || '', meta.options, v => { n.aef[f] = v; }, meta.hint));
       } else if (meta.special === 'workflowPicker') {
-        // Dropdown listing all loaded workflows; plus a "(other — type below)" option
-        // for the case where the target workflow isn't loaded in this session.
-        const options = Array.from(library.keys()).filter(k => k !== activeKey);
-        options.push('__other__');
-        const cur = n.aef[f] || '';
-        // If the current value matches a known workflow, show as selected; else show "(other)" and a text field below
-        const knownMatch = options.includes(cur);
-        sAef.appendChild(selectField(
-          meta.label,
-          knownMatch ? cur : (cur ? '__other__' : ''),
-          options.map(o => o === '__other__' ? '(other — type below)' : o),
-          v => {
-            // Reverse the display mapping
-            if (v === '(other — type below)') {
-              n.aef[f] = n.aef[f] && n.aef[f] !== '__other__' ? n.aef[f] : '';
-              renderProperties();
-            } else {
-              n.aef[f] = v;
-              renderProperties();
-            }
-          },
-          meta.hint,
-        ));
-        // Free-text override field, always visible — lets the user type a workflow id
-        // not currently loaded into the session.
-        sAef.appendChild(field(meta.label + ' (free text)', n.aef[f] || '', v => { n.aef[f] = v; renderProperties(); }, { mono: true, hint: 'override or workflow not loaded' }));
+        // T-163: pick the target from the SAME card browser as Open-project (thumbnails,
+        // filter, hover-zoom), replacing the old dropdown+free-text pair. The browser lists
+        // the full corpus + saved maps via /api/list — a superset of the in-session library —
+        // so the dropdown/free-text desync (T-160 note) is gone.
+        const cur = (n.aef[f] || '').trim();
+        // Current-target readout: the chosen id, or a muted "— none —".
+        const curWrap = document.createElement('div');
+        curWrap.style.cssText = 'margin:2px 0 6px';
+        const lbl = document.createElement('div');
+        lbl.style.cssText = 'font-size:.8em;color:var(--muted,#8b95a5);margin-bottom:2px';
+        lbl.textContent = meta.label;
+        const val = document.createElement('div');
+        val.style.cssText = 'font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em;'
+          + (cur ? '' : 'color:var(--muted,#8b95a5)');
+        val.textContent = cur || '— none —';
+        curWrap.append(lbl, val);
+        sAef.appendChild(curWrap);
+        // "Choose from project…" → open the Open-project card browser in pick mode; the
+        // chosen id is written back into aef and the panel re-renders. Needs the API.
+        const chooseBtn = document.createElement('button');
+        chooseBtn.className = 'btn';
+        chooseBtn.type = 'button';
+        chooseBtn.textContent = '📂 Choose from project…';
+        chooseBtn.style.marginRight = '6px';
+        chooseBtn.disabled = !_apiAvailable;
+        chooseBtn.title = _apiAvailable ? 'Pick the target workflow from the project browser'
+          : 'Project browser needs the gallery server';
+        chooseBtn.onclick = () => openProjectModal({ pick: id => { n.aef[f] = id; renderProperties(); } });
+        sAef.appendChild(chooseBtn);
+        // Free-text override — a target may be referenced before it is saved to the project,
+        // so keep a way to type an id the browser can't list yet.
+        sAef.appendChild(field(meta.label + ' (or type an id)', n.aef[f] || '', v => { n.aef[f] = v; renderProperties(); }, { mono: true, hint: 'for a workflow not yet in the project' }));
         // T-160: explicit jump affordance (double-clicking the node does the same). Disabled
         // until a target is set. Only rendered for the targetWorkflow field (workflowPicker).
         const jumpBtn = document.createElement('button');
@@ -7193,8 +7199,13 @@ async function openProjectMap(m) {
   }
 }
 
-async function openProjectModal() {
+// opts.pick(mapId): when supplied, this opens in PICK mode — a card click returns the
+// chosen map id to the callback and closes the modal instead of navigating to it (T-163).
+// Default (no opts) = Open-project behaviour: a card click opens the map in place.
+// Close-without-pick (Cancel / Esc / backdrop) never fires the callback = "no change".
+async function openProjectModal(opts) {
   if (!_apiAvailable) return;
+  const pickMode = opts && typeof opts.pick === 'function';
   let maps = [];
   try {
     const res = await fetch('/api/list');
@@ -7213,7 +7224,7 @@ async function openProjectModal() {
 
   const head = document.createElement('div');
   head.style.cssText = 'display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border,#334)';
-  const h = document.createElement('strong'); h.textContent = 'Open project map';
+  const h = document.createElement('strong'); h.textContent = pickMode ? 'Choose target workflow' : 'Open project map';
   h.style.flex = '0 0 auto';
   const filter = document.createElement('input');
   filter.type = 'search'; filter.placeholder = 'Filter…';
@@ -7249,7 +7260,7 @@ async function openProjectModal() {
     card.style.cssText = 'text-align:left;background:var(--bg,#0f1115);color:var(--fg,#e6edf3);'
       + 'border:1px solid var(--border,#334);border-radius:8px;padding:0;cursor:pointer;'
       + 'display:flex;flex-direction:column;overflow:hidden';
-    card.title = 'Open ' + m.id;
+    card.title = (pickMode ? 'Choose ' : 'Open ') + m.id;
     const saved = m.latest && m.openTarget && m.openTarget.kind === 'version';
     // T-153: consistent tiles. Saved maps → the version PNG; rendered-only maps →
     // /api/thumb?id=<id> (no &v=), the pre-rendered corpus tile from gen-rendered-thumbs.mjs.
@@ -7274,7 +7285,10 @@ async function openProjectModal() {
       + `<div style="color:var(--muted,#8b95a5);font-size:.85em">${m.id.replace(/</g, '&lt;')}</div>`
       + `<div style="font-size:.85em;margin-top:2px">${badge}</div>`;
     card.append(thumb, meta);
-    card.onclick = () => openProjectMap(m);
+    // Pick mode (T-163): return the id and close, no navigation. Default: open the map.
+    card.onclick = pickMode
+      ? () => { const id = m.id; closeProjectModal(); opts.pick(id); }
+      : () => openProjectMap(m);
     card._hay = (m.id + ' ' + (m.title || '')).toLowerCase();
     // Hover-zoom preview (T-156): remember what to enlarge, then show on enter/focus.
     // T-153: rendered maps now have a tile too, so hover-zoom works for every card.

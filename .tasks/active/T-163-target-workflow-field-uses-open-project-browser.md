@@ -5,7 +5,7 @@ description: >
   The handoff-node "Target workflow" field currently uses a dropdown + free-text control.
   Operator wants it to provide the SAME interface as Open-project — i.e. pick the target
   from the visual card browser (thumbnails, filter) instead of a plain dropdown.
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -13,7 +13,7 @@ tags: []
 components: []
 related_tasks: [T-160, T-153, T-144]
 created: 2026-07-10T00:00:00Z
-last_update: 2026-07-10T00:00:00Z
+last_update: 2026-07-09T22:50:42Z
 date_finished: null
 ---
 
@@ -60,11 +60,11 @@ corpus" everywhere and fixes the desync.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] `openProjectModal` accepts a pick mode (options arg) that, on card click, returns the map id to a callback and closes — without navigating; default no-arg behaviour is unchanged (still opens the map).
-- [ ] The handoff-node Target-workflow field offers a "Choose from project…" button that opens the card browser in pick mode; choosing a card sets `aef.targetWorkflow` to that id and the field reflects it. The T-160 "↗ Open target workflow" jump button is retained.
-- [ ] The picker lists the full corpus + saved maps (via `/api/list`), not only in-session library entries; the old dropdown/free-text desync (T-160 note) is gone.
-- [ ] src↔build mirror invariant holds: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`.
-- [ ] Playwright: select a handoff node → Choose from project… → the card browser opens; clicking a card sets the target (verified via `aef.targetWorkflow`) and closes the modal; the jump button then navigates there; 0 console errors; element screenshot READ.
+- [x] `openProjectModal` accepts a pick mode (options arg) that, on card click, returns the map id to a callback and closes — without navigating; default no-arg behaviour is unchanged (still opens the map). *(verified: pick-mode title "Choose target workflow"; default title "Open project map")*
+- [x] The handoff-node Target-workflow field offers a "Choose from project…" button that opens the card browser in pick mode; choosing a card sets `aef.targetWorkflow` to that id and the field reflects it. The T-160 "↗ Open target workflow" jump button is retained. *(verified: picked `arc-lifecycle`, aef.targetWorkflow set, readout + jump-enabled reflect it)*
+- [x] The picker lists the full corpus + saved maps (via `/api/list`), not only in-session library entries; the old dropdown/free-text desync (T-160 note) is gone. *(verified: 25 cards — the full corpus)*
+- [x] src↔build mirror invariant holds: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`. *(MIRROR-OK)*
+- [x] Playwright: select a handoff node → Choose from project… → the card browser opens; clicking a card sets the target (verified via `aef.targetWorkflow`) and closes the modal; the jump button then navigates there; 0 console errors; element screenshot READ. *(.playwright-mcp/t163-pick-modal.png — read; 0 console errors)*
 
 ## Verification
 
@@ -80,3 +80,6 @@ diff -q src/aef-workflow-designer.html build/gallery/designer.html
 - Captured from operator request during the T-153/T-160/T-161/T-162 browsing-polish session.
   Deferred to next session (this one hit budget-critical). Full design notes above so the
   next session can build immediately.
+
+### 2026-07-09T22:50:42Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
