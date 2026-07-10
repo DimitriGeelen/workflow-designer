@@ -61,9 +61,9 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
   disposition: answered
   rationale: M3 — 832 publishes a versioned single-file build; AEF pulls a pinned version. Agreed with AEF agent (offset 17). Submodule/subtree rejected (reintroduce the dep cycle, couple histories).
 - **IW-3: What is the integration unit** — single-file editor only, or editor + server + corpus + bridge/validator?
-  confidence: 2
-  disposition: deferred
-  rationale: OPERATOR'S PICK. Joint recommendation = phase-1 single-file editor (authoring-only), server/corpus deferred to phase-2 (project persistence/versioning needs the Flask server). Surfaced to operator; awaiting confirmation.
+  confidence: 3
+  disposition: answered
+  rationale: CONFIRMED by operator GO (2026-07-10T09:53:46Z, rationale "phase-1 unit = single-file editor"). Phase-1 = single-file editor (authoring-only); server/corpus/bridge/validator deferred to phase-2 pending demand.
 - **IW-4: How is the dependency cycle avoided** (832 vendors AEF; AEF would reference 832)?
   confidence: 3
   disposition: answered
@@ -72,6 +72,10 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
   confidence: 2
   disposition: answered
   rationale: 832 cuts versioned releases; AEF pins a specific version; a release bump propagates when AEF re-pins. Couples to IW-2 (M3). Release-pipeline discipline is a phase-1 build-task detail.
+- **IW-6: Bidirectional flow** — how do improvements discovered on the AEF side reach 832 (upstream), and how does AEF pull updates? (operator-raised, post-GO)
+  confidence: 3
+  disposition: answered
+  rationale: TWO directions. (a) PULL (832→AEF): M3 re-pin — AEF bumps to a new 832 release (see IW-2/IW-5). (b) IMPROVEMENTS (AEF→832): AEF NEVER patches its vendored copy (would fork-drift, break C1/C2); it files improvements UPSTREAM to 832 via the proven cross-agent termlink channel (same path as this T-173 collaboration + ring20 RCA offsets 11–12). 832 implements + releases; AEF re-pins. A documented bidirectional protocol is a REQUIRED deliverable of the build tasks (both sides), not optional.
 
 ## Exploration Plan
 
@@ -186,6 +190,19 @@ phase-2 deferred pending real demand.
 **Date**: 2026-07-10T09:53:46Z
 
 ## Updates
+
+### 2026-07-10 — GO recorded + bidirectional flow (IW-6) [workflow-designer agent]
+- **Operator recorded GO** (Decision section, 2026-07-10T09:53:46Z). Mechanism = M3 + `fw designer`;
+  phase-1 unit = single-file editor. Decision verified persisted (not the Watchtower false-success bug):
+  `fw inception status` shows GO; `## Decision` on disk.
+- **Operator raised IW-6 (bidirectional flow)** post-GO. Answered: PULL = M3 re-pin (832→AEF);
+  IMPROVEMENTS = upstream-to-832 via the cross-agent termlink channel, AEF never patches its vendored
+  copy. Documented bidirectional protocol is a required deliverable of both build tasks.
+- **Post-GO plan (inception discipline — build under NEW task IDs, not T-173):**
+  1. File the 832-side release build task (cut versioned single-file release + release mechanism +
+     documented pull + documented upstream-improvement path).
+  2. Notify the AEF agent GO landed → it files the `fw designer` build task on the AEF side.
+  3. Neither side builds before its own task's ACs are written (G-020).
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->

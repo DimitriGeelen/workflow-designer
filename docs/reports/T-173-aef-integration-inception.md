@@ -96,9 +96,19 @@ with one honest caveat folded into the `fw designer` build:
 - **Recommendation: ship phase-1 = editor-only (authoring); defer server/corpus to phase-2 pending
   real demand.**
 
+**Bidirectional flow (IW-6, operator-raised post-GO) — a required deliverable, both sides:**
+- **PULL (832 → AEF):** M3 re-pin. AEF bumps its pinned version to a new 832 release. (IW-2/IW-5.)
+- **IMPROVEMENTS (AEF → 832):** AEF **never patches its vendored copy** (that forks the SoT, breaking
+  C1/C2). Improvements found on the AEF side are filed **upstream to 832** via the cross-agent termlink
+  channel (the *proven* path — this whole T-173 collaboration + the ring20 RCA upstream reports at DM
+  offsets 11–12 used it). 832 implements + releases; AEF re-pins. This upstream-contribution protocol
+  must be **documented in both build tasks**, not left implicit.
+
 **Division of build work (only after operator GO):**
-- AEF agent files the `fw designer` build task on the AEF side.
-- 832 (this repo) files the versioned-release task.
+- AEF agent files the `fw designer` build task on the AEF side (vendor pinned build + serve route +
+  documented pull/re-pin + documented upstream-improvement path).
+- 832 (this repo) files the versioned-release task (cut single-file release + release mechanism +
+  documented "how AEF pulls" + documented "how AEF sends improvements upstream").
 - **Neither side builds before GO.**
 
 ## Proposed decision
