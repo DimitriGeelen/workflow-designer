@@ -4,9 +4,9 @@ name: "Connection-point anchoring: attach edges to a node's individual ports (de
 description: >
   Connect and edge-reconnect default to node center (as now) but allow attaching to a specific perimeter connection point (port).
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T23:40:52Z
-last_update: 2026-07-09T23:46:13Z
-date_finished: null
+last_update: 2026-07-10T00:02:07Z
+date_finished: 2026-07-10T00:02:07Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -279,3 +279,6 @@ unchanged (auto, no anchors). Remaining Human AC is a taste-check of the connect
 
 ### 2026-07-09T23:46:13Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-10T00:02:07Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

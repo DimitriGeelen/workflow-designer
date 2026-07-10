@@ -5,16 +5,16 @@ description: >
   The handoff-node "Target workflow" field currently uses a dropdown + free-text control.
   Operator wants it to provide the SAME interface as Open-project — i.e. pick the target
   from the visual card browser (thumbnails, filter) instead of a plain dropdown.
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: [T-160, T-153, T-144]
 created: 2026-07-10T00:00:00Z
-last_update: 2026-07-09T22:50:42Z
-date_finished: null
+last_update: 2026-07-09T22:54:06Z
+date_finished: 2026-07-09T22:54:06Z
 ---
 
 # T-163: Target-workflow field uses the Open-project card browser to pick a map
@@ -83,3 +83,6 @@ diff -q src/aef-workflow-designer.html build/gallery/designer.html
 
 ### 2026-07-09T22:50:42Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-09T22:54:06Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
