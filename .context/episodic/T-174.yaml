@@ -1,0 +1,97 @@
+# ============================================================================
+# EPISODIC MEMORY - T-174: Cut versioned single-file designer release + release mechanism (phase-1, AEF integration)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-10T13:35:13Z
+# ============================================================================
+
+task_id: T-174
+task_name: "Cut versioned single-file designer release + release mechanism (phase-1, AEF integration)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-10T09:56:33Z
+completed: 2026-07-10T10:59:14Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-10T11:57:22+02:00
+last_commit: 2026-07-10T12:59:14+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  File 832-side release build task (phase-1 single-file release + bidirectional protocol) per T-173 GO. Cut designer release 0.1.0 (deterministic release script + dist artifact + manifest + bidirectional integration protocol). Add Recommendation block (release cut + verified; human REVIEW = offline-authoring smoke test). Fix Recommendation label format for T-679 gate. Add Evolution entry (release scheme from scratch + CDN-font gap → T-176). Complete (partial — awaiting human REVIEW); file T-176 font-hardening follow-up
+
+# Key outcomes
+outcomes:
+  - 'A versioned release artifact of the single-file designer exists'
+  - 'The version is discoverable/reproducible — `VERSION` file (0.1.0) + `dist/MANIFEST.yaml`'
+  - 'A deterministic release mechanism exists — `scripts/release-designer.sh` produces the artifact from'
+  - '`docs/aef-designer-integration-protocol.md` documents the **bidirectional protocol** (IW-6):'
+  - 'Self-containment claim is honest: the released artifact **authors offline** (system-font fallback;'
+  - 'Offline authoring + export/import round-trip verified **headless** (downgraded from a mislabeled'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Fix Recommendation label format for T-679 gate'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/working/.reviewed-T-174'
+  - 'dist/aef-workflow-designer-0.1.0.html'
+  - 'dist/MANIFEST.yaml'
+  - 'docs/aef-designer-integration-protocol.md'
+  - 'scripts/release-designer.sh'
+  - '.tasks/active/T-174-cut-versioned-single-file-designer-relea.md'
+  - '.tasks/active/T-175-workflow-designer-as-aef-process-authori.md'
+  - '.tasks/active/T-176-offline-harden-the-designer-inline-or-se.md'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-10T11:57:22"
+    action: "T-174: File 832-side release build task (phase-1 single-file release + bidirectional protocol) per T-173 GO"
+  - time: "2026-07-10T12:56:39"
+    action: "T-174: Cut designer release 0.1.0 (deterministic release script + dist artifact + manifest + bidirectional integration protocol)"
+  - time: "2026-07-10T12:58:09"
+    action: "T-174: Add Recommendation block (release cut + verified; human REVIEW = offline-authoring smoke test)"
+  - time: "2026-07-10T12:58:32"
+    action: "T-174: Fix Recommendation label format for T-679 gate"
+  - time: "2026-07-10T12:58:53"
+    action: "T-174: Add Evolution entry (release scheme from scratch + CDN-font gap → T-176)"
+  - time: "2026-07-10T12:59:14"
+    action: "T-174: Complete (partial — awaiting human REVIEW); file T-176 font-hardening follow-up"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 6 commit(s), 62 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: ["arc:designer-authoring-surface"]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 62
+  commits: 6
+  files_changed: 9
+  lines_added: 8927
+  lines_removed: 39
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-174-cut-versioned-single-file-designer-relea.md
+generated_by: context-agent-hybrid

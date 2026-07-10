@@ -4,10 +4,10 @@ name: "Provision OneDev repo + GitHub cascade for Workflow Designer via ring20-m
 description: >
   Provision OneDev repo + GitHub cascade for Workflow Designer via ring20-management
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [infra, onedev, coordination]
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-02T17:00:16Z
-last_update: 2026-07-09T08:18:24Z
-date_finished: null
+last_update: 2026-07-10T09:54:24Z
+date_finished: 2026-07-10T09:54:24Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -54,7 +54,7 @@ credentials arrive via ring20's secure channel (deploy-key-install style).
 - [x] `origin` (OneDev, SSH `ssh://git@192.168.10.201:6611/workflow-designer`) + `github` remotes added; no token in origin URL (SSH key auth), no token committed
 - [x] `fw audit` run before push (Pass 78 / Warn 2 / Fail 0; a pre-push hook audit also passed 12/0/0). Working tree note: push publishes committed history only — the 1171 in-flight uncommitted files (T-014/T-015 session) are excluded and untouched
 - [x] `master` pushed to OneDev origin (HEAD c958686, full history); `.onedev-buildspec.yml` mirror job committed + pushed (BranchUpdateTrigger fired)
-- [ ] **PENDING ring20/operator — cascade requested LIVE (2026-07-09):** OneDev→GitHub cascade confirmed populating `github.com/DimitriGeelen/workflow-designer`. Prior status (2026-07-02) was operator-DEFERRED; operator reversed on 2026-07-09 ("OneDev primary, cascading to GitHub"). GitHub repo already exists (verified empty via `git ls-remote`). Only remaining server-side step: ring20/operator sets the `github-push-token` job-secret (GitHub PAT, Contents R+W on the repo) on OneDev project 45 — the buildspec already references it (`passwordSecret: github-push-token`, `jobExecutor: server-docker`). Requested via DM to ring20 (thread T-016). Verify green + GitHub HEAD == OneDev HEAD once the secret is set, then check this box.
+- [x] **DONE — cascade LIVE + verified (2026-07-10):** ring20 set the `github-push-token` job-secret on OneDev project 45 and fired "Push to GitHub Mirror" #184 = SUCCESSFUL (DM thread T-016, offset 114). Independently verified from .201: `git ls-remote` returns the SAME HEAD on both remotes — origin (OneDev `ssh://git@192.168.10.201:6611/workflow-designer`) `refs/heads/master` = `00e9cb3` AND `github.com/DimitriGeelen/workflow-designer` `refs/heads/master` = `00e9cb3`. Auto-mirror proven: the cascade advanced `ccda05b`→`00e9cb3` with zero manual steps (BranchUpdateTrigger fires per push). Backed by estate-wide GITHUB_TOKEN for now; swap to fine-grained WD_GITHUB_PUSH_TOKEN is a future no-op re-verify. Confirmation posted to ring20 at offset 120.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -88,6 +88,10 @@ credentials arrive via ring20's secure channel (deploy-key-install style).
 -->
 
 ## Verification
+
+# T-016 cascade proof: OneDev origin HEAD must equal GitHub mirror HEAD (auto-mirror live).
+# Capture-then-compare (no grep -q SIGPIPE); timeout guards a slow/unreachable GitHub.
+onedev=$(git ls-remote origin -h refs/heads/master 2>/dev/null | awk '{print $1}'); github=$(timeout 30 git ls-remote https://github.com/DimitriGeelen/workflow-designer.git -h refs/heads/master 2>/dev/null | awk '{print $1}'); test -n "$onedev" && test "$onedev" = "$github"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -192,3 +196,6 @@ credentials arrive via ring20's secure channel (deploy-key-install style).
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-016-provision-onedev-repo--github-cascade-fo.md
 - **Context:** Initial task creation
+
+### 2026-07-10T09:54:24Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

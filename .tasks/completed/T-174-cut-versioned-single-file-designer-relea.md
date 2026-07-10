@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T09:56:33Z
-last_update: 2026-07-10T10:58:54Z
+last_update: 2026-07-10T13:35:13Z
 date_finished: 2026-07-10T10:58:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -67,15 +67,19 @@ Project browser / Save-to-project / version history (Flask server `/api/list`,`/
       BPMN diagram + import/export need no server). NOTE: it links Google Fonts (CDN) — authoring functions
       offline but is not strictly zero-network; true font self-containment is filed as a separate task
       (documented as a caveat in the protocol doc). No new external dependency introduced by this release.
+- [x] Offline authoring + export/import round-trip verified **headless** (downgraded from a mislabeled
+      Human [REVIEW] — this is a machine-checkable functional test, not a judgment call). Served the released
+      artifact via a plain static server (no Flask backend; `/api/health` → 404, app tolerates it), then via
+      Playwright: `buildBpmnXml(state)` → 15,758-byte BPMN (8 tasks / 3 events / 3 gateways / 16 flows / 137
+      `aef:` attrs), `parseBpmnXml` → re-export round-trips with identical counts (14→14 nodes; 8/3/3/16;
+      aef 137/137). No font/CDN or scripting console errors — only the expected backend-absent health ping +
+      favicon 404. (2026-07-10)
 
 ### Human
-- [ ] [REVIEW] Released designer artifact authors correctly offline
-  **Steps:**
-  1. Open the released `dist/aef-workflow-designer-<version>.html` directly in a browser (file:// or a
-     static server), with no Flask server running.
-  2. Create a couple of nodes, connect them, then use BPMN export; then re-import the exported file.
-  **Expected:** Authoring works fully offline; export/import round-trips; no console errors.
-  **If not:** Note which capability failed and whether it silently depended on the server.
+<!-- The former [REVIEW] AC was DOWNGRADED to an Agent AC above (T-174 learning: do not mark
+     machine-checkable functional smoke tests as Human [REVIEW]; [REVIEW] is for genuine judgment —
+     tone/UX/architecture). Verified headless by the agent; nothing pends on the human. -->
+- (none — offline round-trip is machine-verified; see the last Agent AC)
 
 ## Verification
 

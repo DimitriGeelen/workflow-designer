@@ -4,10 +4,10 @@ name: "G-020 gate circularly blocks its own type-inception remediation"
 description: >
   check-active-task.sh build-readiness gate blocks fw task update --type inception, the very command it prints as the unblock, because the task is still a placeholder build task. Fix: exempt type-conversion commands from the gate.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T04:36:54Z
-last_update: 2026-07-10T04:37:38Z
-date_finished: null
+last_update: 2026-07-10T04:40:44Z
+date_finished: 2026-07-10T04:40:44Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -217,3 +217,6 @@ redirect/brackets; filed separately (one bug = one task).
   - case4 `fw task update T-999 --type inception` (different id) → exit 2 (scoped to focus) ✓
 - **Gates:** `bash -n` SYNTAX-OK; `.claude/settings.json` untouched.
 
+
+### 2026-07-10T04:40:44Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
