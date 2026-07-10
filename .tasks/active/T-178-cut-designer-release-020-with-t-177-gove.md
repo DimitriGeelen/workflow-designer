@@ -69,8 +69,18 @@ governance dropdowns go live on `:3001/designer`.
 **Evidence:**
 - `dist/MANIFEST.yaml` sha256 `e301986b…` == artifact == delivered `file_send` sha256 (xfer-mcp-3173253, 395178 bytes)
 - Deterministic build confirmed (re-run identical sha256)
-- Live `:3001/designer` confirmed still `0.1.0` without the fields (the gap this closes)
 - T-177 fields verified in-source (round-trip + parity + inspector screenshot, commit 0ebb8f7/71ce0e4)
+
+**LIVE VERIFICATION — 2026-07-10T21:29Z (re-pin confirmed):**
+AEF re-pinned 0.2.0; the live capability is now Playwright-verified end-to-end. The Human [REVIEW] AC
+above is satisfied by this evidence (operator checks the box + runs `work-completed` to finalize):
+- `curl :3001/designer` → sha256 `e301986b993baf58d5ed29ed25436d94b08ed2be910c6781b0f4b906c25c153a`,
+  395178 bytes — **byte-identical** to the delivered 0.2.0 (was `d0e0177c…` 0.1.0 before re-pin).
+- Playwright render (not curl): serviceTask "Decompose" inspector → EXTENSIONS (aef:) block renders
+  **Horizon** (now/next/later), **Workflow type** (build/test/refactor/decommission/specification/design/
+  inception), **Owner** (human/agent) — all three T-177 dropdowns, correct option sets.
+- Visual: `docs/reports/assets/T-178-live-inspector-governance-fields.png` (screenshot READ, dropdowns present).
+- Non-fatal: 1 console error `GET /api/health → 404` (page renders fully; captured for T-179's render-check).
 
 ## Verification
 
