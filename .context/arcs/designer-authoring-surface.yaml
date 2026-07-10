@@ -1,0 +1,21 @@
+id: arc-001
+slug: designer-authoring-surface
+name: "Workflow Designer as AEF's process-authoring surface"
+description: "Program: deep bidirectional integration of the Workflow Designer into AEF as its\
+  \ visual authoring surface (forward: diagram->governed work; reverse: AEF-record/code->process\
+  \ map), tenant-neutral, standard-defined. Framing inception T-175 decomposes it.\
+  \ Co-designed with the AEF agent."
+status: in-progress
+anchor_task: T-175
+headline_mechanic: "A human draws a process in the browser designer and the AEF agent turns it into an\
+  \ approved governed task/inception graph; conversely existing AEF work is rendered\
+  \ back as an editable process map \u2014 over a portable BPMN<->task-YAML standard."
+demo_evidence: null
+created: 2026-07-10T10:43:47Z
+closed_at: null
+decision: null
+# T-1918 (arc-006, value-prioritisation): BVP scoring fields. Semantics in
+# docs/reports/T-1915-bvp-inception.md §4 (D7-reframe) and §7 (M2).
+bvp_scores: {}
+scoped_drivers: []           # max 3, weight ≤6 each (M2). Approved by fw arc approve-driver (T-1926).
+proposed_scoped_drivers: []  # uncapped persistence (D7-reframe). Estimator may write here freely.
