@@ -135,15 +135,15 @@ produce a scoped set of child inceptions for operator GO/NO-GO.
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -200,7 +200,11 @@ Framing inception: lock the designer-as-framework-surface architecture (7 decisi
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Framing inception: lock the designer-as-framework-surface architecture (7 decisions resolved with operator) and decompose into child inceptions; co-design with the AEF agent before any build.
+
+**Date**: 2026-07-10T15:48:48Z
 
 ## Updates
 
@@ -209,3 +213,8 @@ Framing inception: lock the designer-as-framework-surface architecture (7 decisi
 
 ### 2026-07-10T10:42:43Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-10T15:48:48Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Framing inception: lock the designer-as-framework-surface architecture (7 decisions resolved with operator) and decompose into child inceptions; co-design with the AEF agent before any build.
