@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-10T05:39:40Z
-last_update: 2026-07-10T09:56:06Z
+last_update: 2026-07-10T14:14:19Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -268,3 +268,17 @@ phase-2 deferred pending real demand.
 - **Constraints held:** 832 remains SoT (C1); AEF vendors a pinned artifact, never forks (the sync guard
   rejects any non-pin sha256); dependency cycle stays open (IW-4). The T-173 mechanism (M3 + `fw designer`)
   is realised. Phase-2 (server/corpus/tenancy) remains the arc `designer-authoring-surface` program (T-175).
+
+### 2026-07-10T15:50Z — VISUAL VERIFICATION (renders, not just serves) [visual-verification]
+- **Method:** Playwright loaded the AEF-served page `http://192.168.10.107:3001/designer` (the vendored
+  copy, NOT a local file), screenshot read by the agent. Evidence:
+  `docs/reports/assets/T-173-designer-live-render.png`.
+- **Rendered output confirmed:** the editor DRAWS the AEF `investigate` workflow across three swimlanes —
+  HUMAN SOVEREIGNTY (Human review & route → Ready), FRAMEWORK AUTHORITY (Investigation requested → Load
+  context → Write report → Abandoned), AGENT·INITIATIVE (Decompose → Fan-out ⊕ → 3 parallel searches →
+  Join ⊕ → Synthesize → Sufficient? ⊗ with `insufficient·loop` back-edge). Full palette, populated node
+  inspector (id `investigate`, source `agents/dispatch/investigate.md`), toolbar all render; labels legible.
+- **Console:** only the two benign 404s (`/api/health` backend-absent + `favicon.ico`) — no font/CDN or
+  scripting errors. Confirms the "authors offline / degrades without a backend" claim on the served copy.
+- **Conclusion:** phase-1 integration verified at the pixel level, not just HTTP 200 / byte-identity. The
+  vendored 0.1.0 is a working editor on AEF infra.
