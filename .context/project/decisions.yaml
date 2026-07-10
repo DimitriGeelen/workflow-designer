@@ -703,3 +703,10 @@ decisions:
     date: 2026-07-10
     task: T-016
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-080
+    decision: "Operator authorized JOINT CONVERGENCE of the designer-authoring-surface arc decomposition (T-175 IW-8) as a proposal: the 832 + AEF agents co-author the child list/order/ownership; operator GO/NO-GOs each child individually; nothing commits AEF until his per-child gate. Resolves the AEF agent's correct hold (it declined to converge a decomposition autonomously — a sovereignty call). 832 sent a concrete 5-child proposal + ownership split to the AEF agent (thread T-175, offset 21) for react."
+    scope: project
+    date: 2026-07-10
+    task: T-175
+    rationale: "Decomposition of a program-level arc is the operator's sovereign call (AEF agent flagged this correctly); operator authorization makes joint agent convergence in-bounds while preserving per-child GO/NO-GO."

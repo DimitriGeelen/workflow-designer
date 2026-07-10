@@ -464,3 +464,159 @@ FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-140: File backlog b
 git add src/aef-workflow-designer.html .tasks/ .context/ 2>/dev/null
 git reset -q t141-toolbar.png 2>/dev/null || true
 FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git com'
+- timestamp: '2026-07-08T06:07:02Z'
+  task: 'T-142'
+  flag: '--skip-sovereignty'
+  caller: 'check_human_sovereignty'
+  reason: 'Inception decision: GO'
+- timestamp: '2026-07-08T07:23:59Z'
+  task: 'T-041'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-143'
+  command: 'cd /opt/832-Workflow-designer
+# stage the active-side deletions of the moved task files (clean rename)
+git add -A .tasks/active/T-142-in-editor-open-from-project-browser-for-.md .tasks/active/T-143-ad'
+- timestamp: '2026-07-09T06:44:40Z'
+  task: 'T-041'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-144'
+  command: 'cd /opt/832-Workflow-designer
+git add .tasks/active/T-144-in-editor-open-from-project-modal-uses-a.md \
+        .tasks/active/T-041-render-inception-review-and-run-operator.md \
+        .context/proje'
+- timestamp: '2026-07-09T12:20:33Z'
+  task: 'T-150'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-149'
+  command: 'cd /opt/832-Workflow-designer
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-149: Complete — move to completed/ + episodic (F2 fixed & verified)" 2>&1 | tail -8'
+- timestamp: '2026-07-09T12:28:51Z'
+  task: 'T-151'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-150'
+  command: 'cd /opt/832-Workflow-designer
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-150: Complete — move to completed/ + episodic (F4 wired & verified)" 2>&1 | tail -6'
+- timestamp: '2026-07-09T12:33:12Z'
+  task: 'T-152'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-151'
+  command: 'cd /opt/832-Workflow-designer
+git add .tasks/completed/T-151-open-project-card-title-clipped-against-.md .context/episodic/T-151.yaml
+git rm --cached --ignore-unmatch -q .tasks/active/T-151-open-proje'
+- timestamp: '2026-07-09T22:41:59Z'
+  task: 'T-016'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-163'
+  command: 'cd /opt/832-Workflow-designer
+git add .tasks/active/T-163-target-workflow-field-uses-open-project-browser.md
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-163: Capture — target-workfl'
+- timestamp: '2026-07-09T23:29:12Z'
+  task: 'T-167'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-166'
+  command: 'cd /opt/832-Workflow-designer
+git add .tasks/active/T-166-delete-a-workflow-from-the-project-archi.md
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-166: Finalize — partial-complete (h'
+- timestamp: '2026-07-09T23:29:59Z'
+  task: 'T-167'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-166'
+  command: 'cd /opt/832-Workflow-designer
+git add .tasks/active/T-166-delete-a-workflow-from-the-project-archi.md
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-166: Finalize — partial-complete (h'
+- timestamp: '2026-07-09T23:37:03Z'
+  task: 'T-016'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-167'
+  command: 'cd /opt/832-Workflow-designer
+git add .tasks/active/T-167-version-level-delete-and-keep-only-lates.md
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-167: Finalize — partial-complete (h'
+- timestamp: '2026-07-09T23:41:37Z'
+  task: 'T-016'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-168'
+  command: 'cd /opt/832-Workflow-designer
+git add .tasks/active/T-168-connection-point-anchoring-attach-edges-.md
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-168: Capture — connection-point anc'
+- timestamp: '2026-07-10T04:57:34Z'
+  task: 'T-155'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-171'
+  command: 'cd /opt/832-Workflow-designer
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-171: Complete — atomic metrics-history write; episodic + PL-024
+
+Bug-fix task closed (all 4 agent ACs verif'
+- timestamp: '2026-07-10T05:05:51Z'
+  task: 'T-155'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-170'
+  command: 'cd /opt/832-Workflow-designer
+git add .context/project/learnings.yaml .context/episodic/T-170.yaml .tasks/completed/T-170-check-active-task-write-pattern-false-po.md
+echo "=== staged ==="; git diff --'
+- timestamp: '2026-07-10T05:26:36Z'
+  task: 'T-155'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-172'
+  command: 'cd /opt/832-Workflow-designer
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-172: Partial-complete — Recommendation GO, awaiting human REVIEW
+
+All 7 agent ACs verified via synthetic Pl'
+- timestamp: '2026-07-10T05:26:57Z'
+  task: 'T-155'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-172'
+  command: 'cd /opt/832-Workflow-designer
+git add .tasks/active/T-172-drag-to-place-nodes-from-the-palette-ont.md
+git diff --cached --stat
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-172: Partial'
+- timestamp: '2026-07-10T09:53:47Z'
+  task: 'T-173'
+  flag: '--skip-sovereignty'
+  caller: 'check_human_sovereignty'
+  reason: 'Inception decision: GO'
+- timestamp: '2026-07-10T09:55:55Z'
+  task: 'T-173'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-016'
+  command: 'cd /opt/832-Workflow-designer
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-016: Complete — OneDev→GitHub cascade LIVE + verified (HEAD parity 00e9cb3)
+
+ring20 set the github-push-t'
+- timestamp: '2026-07-10T15:48:49Z'
+  task: 'T-175'
+  flag: '--skip-sovereignty'
+  caller: 'check_human_sovereignty'
+  reason: 'Inception decision: GO'
+- timestamp: '2026-07-10T21:02:05Z'
+  task: 'T-175'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-178'
+  command: 'cd /opt/832-Workflow-designer
+export FW_SWITCH_FOCUS=1
+git reset -q
+git add .tasks/active/T-178-cut-designer-release-020-with-t-177-gove.md
+test -f .context/working/.reviewed-T-178 && git add .context'
+- timestamp: '2026-07-10T21:18:07Z'
+  task: 'T-175'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-179'
+  command: 'cd /opt/832-Workflow-designer
+.agentic-framework/bin/fw context focus T-179 >/dev/null 2>&1
+echo "=== new/changed tracking files ==="; git status --short | grep -iE "T-179|learning|\.context/project" '

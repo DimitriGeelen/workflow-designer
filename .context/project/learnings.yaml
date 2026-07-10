@@ -176,3 +176,31 @@ learnings:
   date: 2026-07-10
   context: Added via context agent
   application: TBD
+- id: PL-026
+  learning: "When the human has given a standing 'proceed' directive AND a decision is recorded (a GO), act decisively — do not present menus or re-gate settled decisions. A GO is authorization to proceed; a human REVIEW AC is a lightweight check, not a blocker requiring agent hand-wringing. Source: operator 'a go is a go, a review is a review'."
+  source: P-003
+  task: T-175
+  date: 2026-07-10
+  context: Added via context agent
+  application: TBD
+- id: PL-027
+  learning: "Do NOT mark machine-checkable functional tests as Human [REVIEW] ACs. T-174's 'authors offline / export-import round-trips / no console errors' was mechanically verifiable (Playwright: serve artifact statically, call buildBpmnXml(state)+parseBpmnXml, assert node/flow/aef counts survive) — should have been an Agent AC or [RUBBER-STAMP], never [REVIEW]. [REVIEW] is for genuine human JUDGMENT (tone/UX/architecture), not functional smoke tests the agent can run headless. Second instance of over-gating (cf. 'a go is a go, a review is a review')."
+  source: P-003
+  task: T-174
+  date: 2026-07-10
+  context: Added via context agent
+  application: TBD
+- id: PL-028
+  learning: "Cross-agent collaboration: respect a peer agent's stated governance hold; read its ACTUAL state (terminal output) before pressing. The AEF agent deliberately held on T-2521/IW-8 ('needs operator GO + my own live verification'; 'committing AEF to a decomposition is the operator's sovereign call'; 'continued pressing won't move it') — the SAME governance we apply. I misread that principled hold as dormancy and injected 3 nudges before reading its terminal, which showed its reasoning + an unsubmitted operator GO. Lesson: when a peer goes quiet, termlink_output (read its screen) BEFORE re-nudging; a silent peer may be correctly waiting on its human, not stuck. Over-pressing a peer that declined proxy-verification is itself a proxy-for-verification anti-pattern."
+  source: P-004
+  task: T-173
+  date: 2026-07-10
+  context: Added via context agent
+  application: TBD
+- id: PL-029
+  learning: "Deployment verification needs a browser render-check of the SERVED artifact, not curl+sha256. curl/sha only prove the bytes match the pin — they cannot catch render failures, console errors, or that the served pin is a STALE version. Verify by loading the URL in a browser and asserting: (1) render (key elements present), (2) expected version markers (e.g. a feature-specific global like FIELD_META.horizon), (3) console cleanliness (whitelisting expected backend-absent 404s like /api/health)."
+  source: P-011
+  task: T-178
+  date: 2026-07-10
+  context: Added via context agent
+  application: TBD
