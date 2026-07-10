@@ -53,25 +53,25 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 -->
 
 - **IW-1: Does AEF already have a plugin/component/tool-registration mechanism the designer can plug into** (component cards, a `fw <tool>` route, a plugins dir)?
-  confidence: 0
-  disposition: deferred
-  rationale: TBD — ASK the AEF agent (`tl-uhqt63fb`); decides whether the "component" path exists or must be built.
+  confidence: 2
+  disposition: answered
+  rationale: AEF agent (DM offset 17) — designer plugs in as a `fw designer` route serving a pinned vendored build. The `fw <route>` mechanism exists; no new plugin subsystem needed for phase-1.
 - **IW-2: What reference/sync mechanism keeps 832 as source of truth** — git submodule, subtree, released artifact, or mirror-sync?
-  confidence: 1
-  disposition: deferred
-  rationale: TBD — depends on IW-1 and AEF conventions; lean toward a versioned release consumed by AEF (avoids sync loops).
+  confidence: 2
+  disposition: answered
+  rationale: M3 — 832 publishes a versioned single-file build; AEF pulls a pinned version. Agreed with AEF agent (offset 17). Submodule/subtree rejected (reintroduce the dep cycle, couple histories).
 - **IW-3: What is the integration unit** — single-file editor only, or editor + server + corpus + bridge/validator?
-  confidence: 1
+  confidence: 2
   disposition: deferred
-  rationale: TBD — smaller unit = cheaper; needs operator + AEF-agent input.
+  rationale: OPERATOR'S PICK. Joint recommendation = phase-1 single-file editor (authoring-only), server/corpus deferred to phase-2 (project persistence/versioning needs the Flask server). Surfaced to operator; awaiting confirmation.
 - **IW-4: How is the dependency cycle avoided** (832 vendors AEF; AEF would reference 832)?
-  confidence: 1
-  disposition: deferred
-  rationale: TBD — reference must be to a pinned ref / build artifact, not a recursive source pull.
+  confidence: 3
+  disposition: answered
+  rationale: AEF references a pinned *build artifact*, never a recursive source pull. Because it's the release (not source), the 832-vendors-AEF / AEF-references-832 cycle never closes. Agreed offset 17.
 - **IW-5: Version & release cadence** — how does an AEF user get a specific reproducible designer version, and how do releases propagate?
-  confidence: 0
-  disposition: deferred
-  rationale: TBD — couples to IW-2 (release vs submodule).
+  confidence: 2
+  disposition: answered
+  rationale: 832 cuts versioned releases; AEF pins a specific version; a release bump propagates when AEF re-pins. Couples to IW-2 (M3). Release-pipeline discipline is a phase-1 build-task detail.
 
 ## Exploration Plan
 
@@ -184,3 +184,16 @@ Exploration not yet started. Integration spans two repos and two agents (this de
   bridge+validator). (4) Then write a joint recommendation for operator GO/NO-GO; no build before GO.
 - **Leading hypothesis to confirm with AEF agent:** hybrid M3+M4 — 832 cuts a versioned release; AEF
   references that pinned version as a first-class component. Keeps 832 as SoT, avoids the dep cycle.
+
+### 2026-07-10 — CONVERGED: joint recommendation ready for operator [workflow-designer agent]
+- **Outcome:** Two-agent design work complete. Both agents concur on **M3 + `fw designer`** (832
+  publishes a versioned single-file build; AEF vendors a pinned copy and serves it via `fw designer`).
+  My concurrence posted to the AEF agent (DM offset 17). Nothing remains to resolve between the agents.
+- **IW dispositions:** IW-1/IW-2/IW-4/IW-5 → answered (see above). IW-3 → operator's pick; joint
+  recommendation = phase-1 single-file editor (authoring), server/corpus deferred to phase-2.
+- **Artifact updated:** `docs/reports/T-173-aef-integration-inception.md` — Joint recommendation section
+  + Dialogue Log entries + IW resolution.
+- **AWAITING OPERATOR:** GO/NO-GO + IW-3 confirmation. Record via:
+  `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw inception decide T-173 go --rationale 'M3 + fw designer; phase-1 unit = single-file editor' --i-am-human`
+  On GO: I file the 832-side release build task; the AEF agent files the `fw designer` build task.
+  **Neither side builds before GO.**

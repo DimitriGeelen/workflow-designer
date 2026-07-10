@@ -72,11 +72,40 @@ component model.
 4. On GO: decompose into build tasks — likely one in 832 (release/manifest) and one in AEF (reference/
    registry), coordinated across the two agents.
 
+## Joint recommendation (converged with the AEF agent — 2026-07-10)
+
+Both agents concur; nothing remains to resolve **between** the two sides. What remains is the
+operator's call (GO/NO-GO + the IW-3 integration-unit pick).
+
+**Mechanism — M3 + `fw designer`** (agreed, no dissent):
+- **832 publishes a versioned single-file build** of the designer. 832 stays SoT; future development
+  continues here (C1/C2 honored).
+- **AEF vendors a *pinned copy* of that release** and exposes it via a `fw designer` route.
+- **Why not submodule/subtree (M1/M2):** those pull 832's *source* recursively. Since 832 already
+  vendors AEF, that closes the dependency cycle and couples histories. Referencing a *build artifact*
+  (a pinned ref, not source) breaks the cycle cleanly (resolves IW-4). Rejected for that reason.
+
+**Integration unit (IW-3) — recommend phase-1 = the single-file editor** (`src/aef-workflow-designer.html`),
+with one honest caveat folded into the `fw designer` build:
+- The single HTML file is fully self-contained for **authoring** (diagramming + BPMN import/export, no
+  server) → maps cleanly to "AEF serves one pinned HTML + a launcher."
+- The **project browser / Save-to-project / version history** depend on the **Flask server**
+  (`/api/list`, `/api/save`, `.editor-versions/`) + a corpus dir — *not* in the single file. Shipping
+  those = **phase-2** where AEF hosts a service (a materially bigger cost jump). The YAML→BPMN bridge +
+  validator are separate pipeline tools, not needed for the editor.
+- **Recommendation: ship phase-1 = editor-only (authoring); defer server/corpus to phase-2 pending
+  real demand.**
+
+**Division of build work (only after operator GO):**
+- AEF agent files the `fw designer` build task on the AEF side.
+- 832 (this repo) files the versioned-release task.
+- **Neither side builds before GO.**
+
 ## Proposed decision
 
-**DEFER** pending (a) the AEF agent's answer on IW-1/IW-2 (AEF's component + reference model) and
-(b) operator confirmation of the integration unit (IW-3). This is a genuine two-repo architecture
-decision; getting the mechanism right up front avoids a sync/lock-in mess later.
+**DEFER** — the two-agent design work is complete and a single mechanism is recommended; the decision
+now belongs to the operator. On GO, this DEFER converts to the two build tasks above. The mechanism
+choice (M3 + `fw designer`) is settled; only the operator's GO and IW-3 confirmation remain.
 
 ## Dialogue Log
 
@@ -84,3 +113,22 @@ decision; getting the mechanism right up front avoids a sync/lock-in mess later.
   this repo, future development continues here"). Fleet discovery located the AEF agent (`aef`,
   `tl-uhqt63fb`, `/opt/999-Agentic-Engineering-Framework`) and two AEF task-workers (T-2512, T-2517).
   Next: send the kickoff message and record the AEF agent's response here.
+- 2026-07-10 09:44Z — **Kickoff posted** to the AEF agent (DM topic `dm:d1993c2c3ec44c94:…`, offset 16):
+  goal + C1–C3 + IW-1..IW-5. (Shared-identity fleet: the "DM" is a shared-identity inbox, not
+  point-to-point — messages are distinguished by content, not sender fingerprint.)
+- 2026-07-10 — **AEF agent replied** (via its session, relayed): concur/push-back sought on **M3 + `fw
+  designer`**; asked me to (1) concur or push back on the mechanism, (2) recommend the IW-3 unit, (3)
+  assemble the joint recommendation for the operator. AEF agent's default IW-3 = the single-file editor.
+- 2026-07-10 09:31Z — **My concurrence posted** (offset 17): concur on M3 + `fw designer`, no push-back;
+  recommend IW-3 phase-1 = single-file editor with the server/corpus phase-2 caveat; agreed neither
+  side builds before operator GO. **Convergence reached** — see "Joint recommendation" above.
+- **IW resolution (collaboration outcome):**
+  - IW-1 (does AEF have a mechanism?) → **answered:** yes — AEF exposes tools via `fw <route>`; the
+    designer plugs in as `fw designer` serving a pinned vendored build.
+  - IW-2 (reference/sync mechanism?) → **answered:** M3 — a versioned released artifact AEF pulls.
+  - IW-3 (integration unit?) → **operator's pick;** recommendation = single-file editor (phase-1).
+  - IW-4 (cycle avoidance?) → **answered:** reference a pinned *build artifact*, never a recursive
+    source pull; that keeps the 832↔AEF cycle open.
+  - IW-5 (version/release cadence?) → **answered (couples to IW-2):** 832 cuts versioned releases; AEF
+    pins a specific version; release bumps propagate by AEF re-pinning.
+- **Awaiting: operator GO/NO-GO + IW-3 confirmation.** No build on either side before GO.
