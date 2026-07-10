@@ -66,8 +66,12 @@ Mirrors T-175 `## Open Questions` (IW-1..IW-8). Summary:
 
 Child inceptions/arcs under arc-001, roughly in dependency order:
 
+> **Strawman for child-1 drafted:** `docs/reports/T-175-mapping-strawman.md` — a concrete BPMN⇄AEF mapping
+> table (forward + reverse) + known mismatches + testable assumptions (A-001..A-003), authored 832-side to
+> give the AEF agent something to react to and to de-risk that the keystone is tractable.
+
 1. **Mapping standard** (keystone) — define + document BPMN ⇄ task/inception-YAML. *Do first; everything
-   depends on it.*
+   depends on it.* Strawman: `T-175-mapping-strawman.md`.
 2. **Forward bridge** — diagram → agent-enriched proposed graph → approval gate → governed tasks.
 3. **Reverse discovery** — AEF process record → rendered/editable process map.
 4. **Collaboration & concurrency** — browser channel + fine-grained claim/lease; termlink for agents.

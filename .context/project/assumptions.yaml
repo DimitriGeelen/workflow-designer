@@ -99,3 +99,30 @@ assumptions:
   linked_task: T-142
   created: '2026-07-07'
   resolved_date: null
+- id: A-012
+  statement: 'Every AEF workflow_type and owner is representable by (BPMN type + aef:
+    extension) with no new BPMN shape'
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-175
+  created: '2026-07-10'
+  resolved_date: null
+- id: A-013
+  statement: AEF's task/inception model can receive a BPMN-derived proposed task graph
+    (forward compile target exists or is cheap)
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-175
+  created: '2026-07-10'
+  resolved_date: null
+- id: A-014
+  statement: AEF's own record (task graph + fabric + episodic) is structured enough
+    to reconstruct a faithful process map deterministically
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-175
+  created: '2026-07-10'
+  resolved_date: null
