@@ -4,9 +4,9 @@ name: "Drag-to-place nodes from the palette onto the canvas"
 description: >
   Drag-to-place nodes from the palette onto the canvas
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T05:19:47Z
-last_update: 2026-07-10T05:19:47Z
-date_finished: null
+last_update: 2026-07-10T05:25:59Z
+date_finished: 2026-07-10T05:25:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -220,3 +220,26 @@ diff -q src/aef-workflow-designer.html build/gallery/designer.html
   `preventDefault`s and sets `dropEffect='copy'`; `drop` reads the type, validates against
   `NODE_DEFAULTS`, converts client→world via `clientToSvg`, and calls `createNodeAt` (which already
   handles one undo entry, lane-by-y, and selection). Click-to-place path untouched.
+
+## Recommendation
+
+**Recommendation:** GO
+
+**Rationale:** Drag-to-place is implemented as a purely additive second path — click-to-place is
+untouched and verified unregressed. The drop reuses the existing `createNodeAt`, so it inherits the
+same lane assignment, single-undo entry, and post-create selection as a click placement; there is no
+new node-model or serialization surface. All seven agent ACs verified end-to-end via a synthetic
+Playwright drag. Only the subjective "feels natural" judgment remains — genuinely yours (native drag
+cursor/feel is best judged with a real pointer, which synthetic events can't capture).
+
+**Evidence:**
+- Synthetic drag: `added=1`, `newType=serviceTask`, drop world `968,392` vs node center `965,394`
+  (~3px), `lane=framework` (by y), `selectedIsNew=true`, `undoRemovedOne=true`, redo restores.
+- Regression: click-to-place still adds a node and returns to `select` mode.
+- Screenshot READ: `.playwright-mcp/t172-drop-serviceTask.png` — dropped node rendered + selected;
+  palette hint updated; no visual regression.
+- Verification gate: 4/4 (dragstart / dragover / drop handlers present; mirror `diff -q` clean).
+- `src/aef-workflow-designer.html:5079+` (palette dragstart + canvas dragover/drop), hint at `:1110`.
+
+### 2026-07-10T05:25:59Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
