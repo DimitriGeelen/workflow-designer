@@ -34,6 +34,27 @@ if ! diff -q "$SRC" "$ARTIFACT" >/dev/null; then
   exit 1
 fi
 
+# Render gate (T-180, arc: designer-authoring-surface). A byte-identical copy can
+# still be a broken or stale build — sha256 proves bytes, not that the artifact
+# renders or still carries the governance fields. Run the dynamic render-check
+# against the freshly built artifact BEFORE writing the manifest, so a failed
+# gate never leaves a manifest pointing at a bad build. Fail-closed; the only
+# bypass (browser-less envs) is an explicit, loudly-warned opt-out — never silent.
+RENDER_TEST="$REPO_ROOT/tests/test_designer_render.py"
+if [ "${RELEASE_SKIP_RENDER_CHECK:-0}" = "1" ]; then
+  echo "WARNING: RELEASE_SKIP_RENDER_CHECK=1 — render gate SKIPPED; artifact NOT verified to render." >&2
+elif [ -f "$RENDER_TEST" ]; then
+  echo "Render gate: python3 tests/test_designer_render.py"
+  if ! python3 "$RENDER_TEST"; then
+    echo "ERROR: render gate FAILED — built artifact did not render / lost governance fields." >&2
+    echo "       release aborted (no manifest written). Fix src, or in a browser-less env" >&2
+    echo "       re-run with RELEASE_SKIP_RENDER_CHECK=1 (bypass is logged to stderr)." >&2
+    exit 1
+  fi
+else
+  echo "WARNING: render test not found ($RENDER_TEST) — render gate skipped." >&2
+fi
+
 SHA="$(sha256sum "$ARTIFACT" | awk '{print $1}')"
 BYTES="$(wc -c < "$ARTIFACT" | tr -d '[:space:]')"
 

@@ -55,6 +55,12 @@ boundary. Neither side crosses the other's filesystem.
 **Reproduce a build from source** (audit / provenance): run `scripts/release-designer.sh` in this repo at
 the matching `VERSION`; it is deterministic (byte-identical artifact + checksum on every run).
 
+**Render gate (T-180):** the release cut runs a headless render-check (`tests/test_designer_render.py`)
+against the freshly built artifact before writing the manifest — sha256 proves the *bytes*, this proves the
+build actually *renders* and still carries the governance fields (catches a broken or stale build a
+byte-check would pass). Fail-closed; the only bypass, for browser-less environments, is
+`RELEASE_SKIP_RENDER_CHECK=1`, which warns loudly on stderr (never a silent skip).
+
 Provenance convention: each release corresponds to a git tag `designer-v<version>` on this repo.
 
 ---
