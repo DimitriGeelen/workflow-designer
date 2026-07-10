@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T09:56:33Z
-last_update: 2026-07-10T10:58:09Z
+last_update: 2026-07-10T10:58:32Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -138,6 +138,17 @@ sh -c 'grep -q "PULL" docs/aef-designer-integration-protocol.md && grep -q "IMPR
 -->
 
 ## Evolution
+
+### 2026-07-10 — CDN-font self-containment gap surfaced during release
+- **What changed:** No app-level version scheme existed (the `version="1.0"` in the HTML is a BPMN XML
+  attribute, not the app), so the release scheme was established from scratch: `VERSION` + deterministic
+  `scripts/release-designer.sh` + tracked `dist/` + checksum manifest. Also learned the designer is **not**
+  strictly self-contained: it links Google Fonts (CDN). Authoring functions offline (system-font fallback),
+  but "zero network" was an over-claim in the original AC-5.
+- **Plan impact:** AC-5 rewritten to an honest claim (authors offline with fallback, not zero-network).
+  The release ships as-is; altering fonts is a visual change to `src/`, out of scope for "cut a release".
+- **Triggered:** T-176 (offline-harden the designer: inline/self-host fonts, horizon: later); font caveat
+  documented in `docs/aef-designer-integration-protocol.md`.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
