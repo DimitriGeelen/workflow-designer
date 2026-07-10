@@ -4,10 +4,10 @@ name: "check-active-task write-pattern false-positive blocks safe bootstrap comm
 description: >
   has_bash_write_pattern mis-flags safe bootstrap commands (fw context focus, fw task create) as writes when arguments contain a benign redirect like dev-null or angle-bracket text, skipping the line 77 allowlist and blocking them under a placeholder-build focus. Scope the write-pattern check so redirects inside fw bootstrap commands do not defeat the allowlist. Discovered during T-169.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T04:40:07Z
-last_update: 2026-07-10T05:00:59Z
-date_finished: null
+last_update: 2026-07-10T05:05:21Z
+date_finished: 2026-07-10T05:05:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -234,3 +234,6 @@ future regression in either direction fails the completion gate.
   `[0]` `fw context focus T-5 >/dev/null 2>&1` (was falsely blocked) · `[0]` `fw task create … --description "…<T>…"` (was falsely blocked) · `[2]` `echo pwned > src/app.js` · `[2]` `echo "safe" > realfile.js` · `[0]` `git status` (control).
 - **Counterfactual:** the old regex `[^2>&]>[^>&]|>>` MATCHED both false-positive commands, confirming
   the harness detects the bug (not a no-op test).
+
+### 2026-07-10T05:05:21Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

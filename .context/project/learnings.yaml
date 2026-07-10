@@ -169,3 +169,10 @@ learnings:
   date: 2026-07-10
   context: Added via context agent
   application: TBD
+- id: PL-025
+  learning: "Detecting shell write-intent with a character-level regex over-approximates: a redirect operator only acts OUTSIDE quotes and a redirect to a /dev sink is a discard, not a source write. has_bash_write_pattern flagged >/dev/null and quoted <T> as writes. When a heuristic reasons about raw characters instead of shell semantics, pin the true-positive/false-positive boundary with a test corpus (genuine writes must stay caught, benign forms must pass) so over-broad matches surface before they block real commands."
+  source: P-001
+  task: T-170
+  date: 2026-07-10
+  context: Added via context agent
+  application: TBD
