@@ -4809,12 +4809,28 @@ pruned = sorted(old_by_day.values(), key=lambda x: x.get("timestamp") or "") + r
 
 data["entries"] = pruned
 
-with open(METRICS_FILE, "w") as f:
-    # Preserve header comment
-    f.write("# Time-series metrics history\n")
-    f.write("# Auto-appended by audit.sh on each run\n")
-    f.write("# 30-day rolling retention\n")
-    yaml.dump({"entries": pruned}, f, default_flow_style=False, sort_keys=False)
+# T-171: atomic write — a truncate-in-place open() leaves the file empty/partial
+# during the write, which a concurrent reader (T-1610 pre-push YAML gate, another
+# cron audit, `fw metrics`) can catch mid-write and mis-parse. Write to a temp file
+# in the same directory, then os.replace() — an atomic rename on POSIX — so readers
+# always see either the complete old file or the complete new file.
+import tempfile
+_dir = os.path.dirname(METRICS_FILE)
+_fd, _tmp = tempfile.mkstemp(dir=_dir, prefix=".metrics-history.", suffix=".tmp")
+try:
+    with os.fdopen(_fd, "w") as f:
+        # Preserve header comment
+        f.write("# Time-series metrics history\n")
+        f.write("# Auto-appended by audit.sh on each run\n")
+        f.write("# 30-day rolling retention\n")
+        yaml.dump({"entries": pruned}, f, default_flow_style=False, sort_keys=False)
+    os.replace(_tmp, METRICS_FILE)
+except Exception:
+    try:
+        os.unlink(_tmp)
+    except OSError:
+        pass
+    raise
 METRICS_EOF
 fi
 
