@@ -4,10 +4,10 @@ name: "Emit aef horizon workflow-type owner as first-class semantic attributes i
 description: >
   Emit aef horizon workflow-type owner as first-class semantic attributes in designer
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T19:36:18Z
-last_update: 2026-07-10T19:36:18Z
-date_finished: null
+last_update: 2026-07-10T19:58:17Z
+date_finished: 2026-07-10T19:58:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -47,26 +47,36 @@ pre-deciding the mapping contract. See `docs/reports/T-175-mapping-strawman.md` 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `horizon`, `workflowType`, `owner` added to `FIELD_META` as `special: 'select'` fields with closed
+- [x] `horizon`, `workflowType`, `owner` added to `FIELD_META` as `special: 'select'` fields with closed
       value sets (horizon: now/next/later; workflowType: build/test/refactor/decommission/specification/design/inception;
       owner: human/agent), and added to `AEF_FIELDS` for task-like node types (serviceTask, userTask, scriptTask, subProcess).
-- [ ] All three added to the editor's `metaKeys` array (export, `aefExtensionXml`) so they emit as `<aef:meta>` attributes.
-- [ ] All three added to the Python bridge `META_KEYS` (`tools/yaml-to-bpmn.py`) in lockstep — editor↔bridge parity preserved.
-- [ ] Round-trip verified: a node with the three fields set exports to `<aef:meta horizon=… workflowType=… owner=…/>` and
-      re-imports (`parseBpmnXml`) with identical values — no drift, no drop.
-- [ ] Editor↔bridge meta-parity test passes (`tests/test_editor_bridge_meta_parity.py`).
-- [ ] No regression: existing round-trip (14→14 node investigate corpus) still exports/imports with identical counts.
+- [x] All three added to the editor's `metaKeys` array (export, `aefExtensionXml`) so they emit as `<aef:meta>` attributes.
+- [x] All three added to the Python bridge `META_KEYS` (`tools/yaml-to-bpmn.py`) in lockstep — editor↔bridge parity preserved.
+- [x] Round-trip verified: a node with the three fields set exports to `<aef:meta horizon=… workflowType=… owner=…/>` and
+      re-imports (`parseBpmnXml`) with identical values — no drift, no drop. (headless: values preserved now/build/agent)
+- [x] Editor↔bridge meta-parity test passes (`tests/test_editor_bridge_meta_parity.py`). (exit 0: 20 ⊆ 29)
+- [x] No regression: existing round-trip (14→14 node investigate corpus) still exports/imports with identical counts. (14→14 nodes, 16→16 edges)
 
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.
 python3 tests/test_editor_bridge_meta_parity.py
 # All three keys present in the editor metaKeys array
-out=$(grep -A4 "const metaKeys" src/aef-workflow-designer.html); echo "$out" | grep -q "horizon" && echo "$out" | grep -q "workflowType" && echo "$out" | grep -q "owner"
+out=$(grep -A7 "const metaKeys" src/aef-workflow-designer.html); echo "$out" | grep -q "horizon" && echo "$out" | grep -q "workflowType" && echo "$out" | grep -q "owner"
 # All three keys present in the bridge META_KEYS
 grep -q "horizon" tools/yaml-to-bpmn.py && grep -q "workflowType" tools/yaml-to-bpmn.py && grep -q "owner" tools/yaml-to-bpmn.py
 
+## Visual Verification
 
+Screenshot: `docs/reports/assets/T-177-inspector-governance-fields.png` — the scriptTask inspector's
+EXTENSIONS section rendered live (served editor, headless Chromium). Confirms the three new dropdowns
+render correctly at the top of the aef: extensions block, in style, with correct labels/hints and closed
+value sets: **Horizon**=now, **Workflow type**=build, **Owner**=agent. Existing fields (Tier, Endpoint,
+Context reads, Artifacts writes, I/O contract) still render below with no layout regression. DOM-level
+option sets also verified: horizon [now/next/later], workflowType [build/test/refactor/decommission/
+specification/design/inception], owner [human/agent].
+
+# Verification section continues below.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
 #
@@ -164,3 +174,6 @@ grep -q "horizon" tools/yaml-to-bpmn.py && grep -q "workflowType" tools/yaml-to-
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-177-emit-aef-horizon-workflow-type-owner-as-.md
 - **Context:** Initial task creation
+
+### 2026-07-10T19:58:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
