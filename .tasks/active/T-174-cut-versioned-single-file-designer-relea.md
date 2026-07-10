@@ -4,9 +4,9 @@ name: "Cut versioned single-file designer release + release mechanism (phase-1, 
 description: >
   832-side deliverable of T-173 GO: publish a versioned, pinnable single-file designer build that AEF vendors; document the pull (re-pin) and upstream-improvement paths.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: ["arc:designer-authoring-surface"]
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T09:56:33Z
-last_update: 2026-07-10T10:58:32Z
-date_finished: null
+last_update: 2026-07-10T10:58:54Z
+date_finished: 2026-07-10T10:58:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -217,3 +217,6 @@ true font self-containment filed as T-176 (horizon: later).
 
 ### 2026-07-10T10:53:28Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-10T10:58:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
