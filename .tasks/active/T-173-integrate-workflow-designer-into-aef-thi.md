@@ -252,3 +252,19 @@ The path is bounded, scoped, testable, and reversible (matches the GO criteria):
 release-build task; AEF files one `fw designer` task. Phase-1 ships the self-contained single-file
 editor (authoring only); project persistence/versioning (Flask server + corpus) is a clearly-scoped
 phase-2 deferred pending real demand.
+
+### 2026-07-10T13:30Z — phase-1 mechanism VERIFIED LIVE end-to-end [delivery]
+- **Both build tasks landed:** 832-side release (T-174, release 0.1.0) complete; AEF-side `fw designer`
+  phase-1 (T-2521, under GO'd T-2520) built + verified live by the AEF agent.
+- **832 delivered the build (Direction-1 PULL, executed as a push):** the AEF session is boundary-blocked
+  (T-559) from pulling `/opt/832`, so 832 pushed `dist/aef-workflow-designer-0.1.0.html` over the termlink
+  file_send channel to session `tl-uhqt63fb` (transfer `xfer-mcp-3173253`, 394110 bytes,
+  sha256 `d0e0177cffd3cdd86f99710d4ee98cc17ee7be2bf0153c5b68a3f3feccb0317d`).
+- **AEF `fw designer sync` verified + installed** the pinned copy read-only; `GET /designer` on the AEF
+  Watchtower (`:3001`) flipped from the "not yet vendored" placeholder to the live editor.
+- **End-to-end fidelity proven (not by proxy):** the served `/designer` bytes are **byte-identical** to
+  832's source — served sha256 == pin sha256 == `d0e0177c…0317d`, 394110 bytes. The whole loop
+  (832 builds → deliver → sha256-verify → serve read-only ≡ source) is closed and observed on real infra.
+- **Constraints held:** 832 remains SoT (C1); AEF vendors a pinned artifact, never forks (the sync guard
+  rejects any non-pin sha256); dependency cycle stays open (IW-4). The T-173 mechanism (M3 + `fw designer`)
+  is realised. Phase-2 (server/corpus/tenancy) remains the arc `designer-authoring-surface` program (T-175).
