@@ -4,10 +4,10 @@ name: "check-active-task write-pattern false-positive blocks safe bootstrap comm
 description: >
   has_bash_write_pattern mis-flags safe bootstrap commands (fw context focus, fw task create) as writes when arguments contain a benign redirect like dev-null or angle-bracket text, skipping the line 77 allowlist and blocking them under a placeholder-build focus. Scope the write-pattern check so redirects inside fw bootstrap commands do not defeat the allowlist. Discovered during T-169.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T04:40:07Z
-last_update: 2026-07-10T04:40:07Z
+last_update: 2026-07-10T05:00:59Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,16 +34,34 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+`has_bash_write_pattern()` in `agents/context/lib/safe-commands.sh` flags a command as a "write"
+purely from the redirect regex `[^2>&]>[^>&]|>>` (line 166). This false-positives on two safe cases,
+both hit this session:
+1. **`/dev` sink redirects** — `fw context focus T-169 >/dev/null 2>&1` — a discard, not a source
+   write, but the `>` matches. The command then loses its safe/bootstrap fast-pass and is blocked
+   when no task is active.
+2. **Angle-bracket tokens in quoted args** — `fw task create --description "…<T>…"` — the substring
+   `T>` matches `[^2>&]>[^>&]`. Shell never interprets a quoted `>` as a redirect, yet the gate does.
+
+Root fix (principled): shell redirect operators only act **outside quotes**, and `/dev` sinks are not
+source-file writes. Strip quoted spans and `/dev` redirects before the redirect test. Security note:
+`sh`/`bash`/`eval` are NOT in the safe-command allowlist, so a redirect hidden inside `sh -c "…"`
+never gets a fast-pass regardless — stripping quotes for redirect detection introduces no evasion for
+an allowlisted command (a quoted `>` is not a real redirect for `cat`/`echo`/`fw`/etc.).
+
+Scope: only the redirect check (line 166) changes. The `rm`/`sed -i`/heredoc/`tee` checks stay on the
+raw command (unquoting them would be wrong — `"rm" file` still executes rm).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `has_bash_write_pattern` no longer flags a `/dev` sink redirect (`>/dev/null`, `2>/dev/null`, `&>/dev/null`) as a write.
+- [x] `has_bash_write_pattern` no longer flags angle-bracket text inside a quoted arg (e.g. `--description "a <T> b"`) as a write.
+- [x] Genuine writes are STILL detected: `echo x > src/f.js`, `echo x >> log`, `cat a > b`, `sed -i`, `rm f`, `tee f`, heredoc all still return 0 (write) — 10/10 function corpus.
+- [x] A hook harness confirms the two false-positive commands are ALLOWED with no active task ([0]), and real-redirect commands are still gated ([2]) — evidence in Updates.
 
-### Human
+### Human-removed
+<!-- Human section removed: fix is fully agent-verifiable via hook harness.
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -75,6 +93,13 @@ date_finished: null
 -->
 
 ## Verification
+
+# T-170 — false positives now pass, real writes still caught:
+bash -c 'source .agentic-framework/agents/context/lib/safe-commands.sh; has_bash_write_pattern "fw context focus T-1 >/dev/null 2>&1" && exit 1 || exit 0'
+bash -c 'source .agentic-framework/agents/context/lib/safe-commands.sh; has_bash_write_pattern "fw task create --description \"adds a <T> placeholder\"" && exit 1 || exit 0'
+bash -c 'source .agentic-framework/agents/context/lib/safe-commands.sh; has_bash_write_pattern "echo pwned > src/app.js" && exit 0 || exit 1'
+bash -c 'source .agentic-framework/agents/context/lib/safe-commands.sh; has_bash_write_pattern "echo x >> build.log" && exit 0 || exit 1'
+bash -c 'source .agentic-framework/agents/context/lib/safe-commands.sh; has_bash_write_pattern "echo safe > realfile" && exit 0 || exit 1'
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -122,6 +147,25 @@ date_finished: null
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** Safe bootstrap commands were blocked by the active-task gate: `fw context focus T-169
+>/dev/null 2>&1` and `fw task create --description "…<T>…"` each hit "No active task" (or lost their
+safe-command fast-pass) even though they write nothing.
+
+**Root cause:** `has_bash_write_pattern` classified them as writes purely from the redirect regex
+`[^2>&]>[^>&]|>>`. That regex fires on (a) `>/dev/null` — a discard, not a source write; and (b) the
+`T>` inside a quoted `<T>` — a `>` that shell never interprets as a redirect because it is inside
+quotes. The detector reasoned about raw characters, not shell semantics.
+
+**Why structurally allowed:** the write-pattern check was a coarse character-level heuristic with no
+notion of quoting or of harmless sinks. It over-approximated "write" and there was no test corpus
+pinning the false-positive/true-positive boundary, so the over-broad match went unnoticed until it
+blocked real bootstrap commands.
+
+**Prevention:** the fix strips quoted spans and `/dev` redirects before the redirect test (redirects
+only act outside quotes; `/dev` sinks aren't source writes). A 5-case Verification corpus pins the
+boundary — two former false-positives must pass, three genuine writes must still be caught — so a
+future regression in either direction fails the completion gate.
 
 ## Evolution
 
@@ -174,3 +218,19 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-170-check-active-task-write-pattern-false-po.md
 - **Context:** Initial task creation
+
+### 2026-07-10T05:00:59Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
+
+### 2026-07-10 — verification evidence [agent]
+- **Fix:** `safe-commands.sh` `has_bash_write_pattern` redirect check now strips quoted spans
+  (`sed "s/\"[^\"]*\"//g; s/'…'//g"`) and `/dev/{null,stderr,stdout}` redirects before applying the
+  redirect regex. Shell redirects only act outside quotes; `/dev` sinks are discards, not writes.
+- **Function corpus (10/10):** false-positives `>/dev/null`, quoted `<T>`, `cat >/dev/null` → not
+  writes; genuine writes `> src/app.js`, `>>`, `> realfile`, `"safe" > realfile` (quoted arg + REAL
+  redirect), `sed -i`, `rm`, `tee` → still writes.
+- **Hook harness (PROJECT_ROOT=temp, focus→nonexistent T-9999, i.e. no active task):**
+  `[0]` `fw context focus T-5 >/dev/null 2>&1` (was falsely blocked) · `[0]` `fw task create … --description "…<T>…"` (was falsely blocked) · `[2]` `echo pwned > src/app.js` · `[2]` `echo "safe" > realfile.js` · `[0]` `git status` (control).
+- **Counterfactual:** the old regex `[^2>&]>[^>&]|>>` MATCHED both false-positive commands, confirming
+  the harness detects the bug (not a no-op test).

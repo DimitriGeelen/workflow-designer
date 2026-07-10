@@ -162,8 +162,19 @@ is_bash_safe_command() {
 has_bash_write_pattern() {
     local cmd="$1"
 
-    # Redirect operators (but not comparison operators like 2>&1)
-    if echo "$cmd" | grep -qE '[^2>&]>[^>&]|>>'; then
+    # Redirect operators (but not comparison operators like 2>&1).
+    # T-170: reason about shell semantics, not raw characters. A redirect only
+    # acts OUTSIDE quotes, and a redirect to a /dev sink is a discard, not a
+    # source-file write. Strip quoted spans and /dev redirects before the test so
+    # `fw … >/dev/null 2>&1` and quoted angle-bracket text like --description
+    # "…<T>…" are not mistaken for writes. (sh/bash/eval are not in the safe-command
+    # allowlist, so a redirect hidden inside `sh -c "…"` never gets a fast-pass —
+    # stripping quotes here introduces no evasion for an allowlisted command.)
+    local _redir_scan
+    _redir_scan=$(printf '%s' "$cmd" \
+        | sed -E "s/\"[^\"]*\"//g; s/'[^']*'//g" \
+        | sed -E 's#[0-9]*>>?[[:space:]]*/dev/(null|stderr|stdout)\b##g; s#&>>?[[:space:]]*/dev/(null|stderr|stdout)\b##g')
+    if echo "$_redir_scan" | grep -qE '[^2>&]>[^>&]|>>'; then
         return 0
     fi
 
