@@ -56,7 +56,11 @@ META_KEYS = ("determinism", "tier", "authority", "endpoint", "sideEffect",
              # T-081: scopeOf — a subProcess node marking itself as the
              # collapsed scope/body of another node (FC-15 boundary marker).
              # Scalar node-uid back-reference; validator checks it resolves.
-             "scopeOf")
+             "scopeOf",
+             # T-177: task-governance scalars — horizon / workflow_type / owner.
+             # Mirrored in the editor's metaKeys for round-trip; kept in parity
+             # by tests/test_editor_bridge_meta_parity.py.
+             "horizon", "workflowType", "owner")
 
 # T-061 (FC-13): the full set of aef.* keys the bridge handles with dedicated
 # emit logic. Any aef key NOT in here and NOT under the aef.x-* extension prefix
