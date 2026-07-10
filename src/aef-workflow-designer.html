@@ -1107,7 +1107,7 @@
       </div>
 
       <div class="palette-section">
-        <div class="palette-hint">Click a palette item, then click on the canvas to place. <br><br>To connect, switch to <b>Connect</b>, click source, then click target. <br><br><b>+ Add Lane</b> appends a new swimlane to the pool.</div>
+        <div class="palette-hint">Click a palette item then click the canvas to place — or <b>drag</b> it straight onto the canvas. <br><br>To connect, switch to <b>Connect</b>, click source, then click target. <br><br><b>+ Add Lane</b> appends a new swimlane to the pool.</div>
       </div>
     </aside>
 
@@ -5076,8 +5076,41 @@ document.querySelectorAll('.palette-tool').forEach(el => {
   if (!el.dataset.mode) return; // routing toggles reuse the style, not the tool behaviour
   el.addEventListener('click', () => setMode(el.dataset.mode));
 });
+// T-172: MIME type used to carry the node type through an HTML5 palette→canvas drag.
+const AEF_NODE_DND_TYPE = 'application/x-aef-node';
 document.querySelectorAll('.palette-item').forEach(el => {
   el.addEventListener('click', () => setMode('create:' + el.dataset.create));
+  // T-172: drag-to-place — press a palette item and drag it onto the canvas to drop
+  // a node at the cursor. Complements click-to-place (both paths coexist). Only node
+  // items (data-create) are draggable; the add-lane affordance (no data-create) is not.
+  if (el.dataset.create) {
+    el.draggable = true;
+    el.addEventListener('dragstart', e => {
+      e.dataTransfer.setData(AEF_NODE_DND_TYPE, el.dataset.create);
+      e.dataTransfer.setData('text/plain', el.dataset.create); // fallback for odd hosts
+      e.dataTransfer.effectAllowed = 'copy';
+    });
+  }
+});
+
+// T-172: canvas is the drop target for palette drag-to-place.
+svg.addEventListener('dragover', e => {
+  // getData() is not readable during dragover (browser security) — gate on the
+  // advertised MIME type instead, then preventDefault to permit the drop.
+  if (!e.dataTransfer || !e.dataTransfer.types.includes(AEF_NODE_DND_TYPE)) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'copy';
+});
+svg.addEventListener('drop', e => {
+  if (!e.dataTransfer) return;
+  const type = e.dataTransfer.getData(AEF_NODE_DND_TYPE) || e.dataTransfer.getData('text/plain');
+  if (!type || !NODE_DEFAULTS[type]) return;   // ignore drops of anything but a known node type
+  e.preventDefault();
+  const pt = clientToSvg(e.clientX, e.clientY);
+  // createNodeAt handles the rest identically to click-to-place: one undo entry,
+  // lane assignment by y, and selecting the new node.
+  createNodeAt(type, pt.x, pt.y);
+  setMode('select');   // clear any create-mode left armed by a prior palette click
 });
 // Routing attach preference (T-070)
 // ============================================================================
