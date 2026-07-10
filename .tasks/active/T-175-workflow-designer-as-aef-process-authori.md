@@ -12,7 +12,7 @@ tags: ["arc:designer-authoring-surface"]
 components: []
 related_tasks: []
 created: 2026-07-10T10:42:06Z
-last_update: 2026-07-10T10:50:06Z
+last_update: 2026-07-10T22:11:26Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -90,9 +90,9 @@ the program (IW-8) with the AEF agent. Full detail:
   disposition: answered
   rationale: STANDARD BPMN⇄task/inception-YAML contract AS the interface + THIS designer as the blessed REFERENCE implementation. Framework talks to the format, not the tool. Operator dialogue.
 - **IW-8: Decomposition** — what child inceptions does this program split into, and in what order?
-  confidence: 2
+  confidence: 3
   disposition: deferred
-  rationale: PROGRAM (arc: designer-authoring-surface). Proposed children: (1) mapping standard [keystone], (2) forward bridge, (3) reverse discovery, (4) collaboration+concurrency, (5) hosting+tenancy. To be confirmed/sequenced with the AEF agent in the joint design pass. This is the framing inception's remaining open question.
+  rationale: PROGRAM (arc: designer-authoring-surface). 5 children scoped to per-child GO/NO-GO in `docs/reports/T-175-child-decomposition.md` (2026-07-11): (1) mapping standard [keystone, GO-ready — strawman converged, T-177 emission shipped, uid verified], (2) forward bridge, (3) reverse discovery, (4) collaboration+concurrency, (5) hosting+tenancy — with ownership split (832 vs AEF) + sequencing. Recommendation: GO 1 now, GO 2 next, DEFER 3–5 (each with a revisit trigger). Disposition stays `deferred` pending the operator's sovereign per-child GO — the framing inception's deliverable is produced; ratification is the operator's downstream action.
 
 ## Exploration Plan
 
