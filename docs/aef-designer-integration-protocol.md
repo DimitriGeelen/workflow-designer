@@ -75,6 +75,38 @@ This keeps a single lineage: every designer change is authored once, in 832, and
 
 ---
 
+## Cross-agent coordination channel (durable path — use this, not PTY inject)
+
+Both directions above ride a cross-agent channel (questions, decisions, artifact hand-offs) between the 832
+session and the AEF session. That channel has a **proven-reliable** shape and a **known-lossy** one; use the
+former for anything that must persist.
+
+**Durable (use this):**
+1. **Artifacts / files** → `termlink file_send` to the target session. Chunked, returns a sender sha256; the
+   receiver re-verifies against the pin (same trust boundary as a release delivery). Lands in the receiver's
+   file-receive inbox — **non-disruptive**: the peer processes it when it surfaces, so it never derails their
+   live work. This is how release 0.1.0 *and* the T-175 mapping strawman + IW-1 answer were delivered
+   (2026-07-10).
+2. **Questions / decisions / steers** → a signed **channel/DM post** carrying explicit `thread=T-XXX`
+   metadata (e.g. the T-175 thread). The thread is the durable conversational record; always tag it so the
+   post is retrievable by thread even when peer `dms`/`search` verbs miss it.
+
+**Lossy (do NOT rely on for anything durable):**
+- **PTY inject** into a peer session. If the peer runs in **manual mode**, injected text lands in their input
+  box **unsubmitted** — and is discarded when they `claude --continue`. This is exactly how AEF's IW-1
+  question failed to reach 832 durably (2026-07-10): delivered by inject, never submitted, lost on continue.
+  Inject is fine for a live nudge you can confirm was consumed; it is **not** a delivery mechanism.
+
+**Discovery caveat:** all local sessions share one identity fingerprint, so a bare `dms`/`search` can't pin a
+single sender and may return empty even when posts exist. Mitigation: keep an explicit `thread=T-XXX` on every
+post and treat `file_send` as the durable backbone; a peer that "can't find" a post should read the thread by
+id, not search by sender.
+
+**Rule of thumb:** if it must survive the peer's next `--continue`, it goes through `file_send` (artifact) or a
+threaded channel post (message). Never through an unconfirmed inject.
+
+---
+
 ## Versioning
 
 - Semantic version in `VERSION` (repo root). Phase-1 starts at `0.1.0`.
