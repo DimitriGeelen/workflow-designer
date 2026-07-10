@@ -539,12 +539,24 @@ fi
 # Inception tasks have their own gate above; skip them here.
 if [ -n "$ACTIVE_FILE" ]; then
     WORKFLOW_TYPE=$({ grep "^workflow_type:" "$ACTIVE_FILE" 2>/dev/null || true; } | head -1 | sed 's/workflow_type:[[:space:]]*//')
+    # T-169: self-unblock exemption. This gate governs SOURCE-FILE edits, but it also
+    # sees Bash commands (FILE_PATH empty). `fw task update <CURRENT_TASK> … --type …`
+    # is a metadata change — and is the exact remediation this gate prints at the
+    # "Or change to inception" line below. Without this exemption the gate blocks its
+    # own fix (circular). Scope it narrowly: only the type-conversion of the FOCUSED
+    # task is exempt; general source edits under a placeholder build task stay blocked.
+    TYPE_CONVERT_EXEMPT=0
+    if [ "$TOOL_NAME" = "Bash" ] && [ -n "${BASH_CMD:-}" ] \
+       && [[ "$BASH_CMD" =~ (^|[[:space:]]|/)fw[[:space:]]+task[[:space:]]+update[[:space:]]+${CURRENT_TASK}([[:space:]]|$) ]] \
+       && [[ "$BASH_CMD" =~ (^|[[:space:]])--type([[:space:]]|=) ]]; then
+        TYPE_CONVERT_EXEMPT=1
+    fi
     case "$WORKFLOW_TYPE" in
         build|refactor|test|decommission)
             AC_SECTION=$(sed -n '/^## Acceptance Criteria/,/^## [^A]/p' "$ACTIVE_FILE" 2>/dev/null | sed '$d')
             HAS_PLACEHOLDER=$(echo "$AC_SECTION" | grep -ciE '\[(First|Second|Third|Fourth|Fifth) criterion\]' 2>/dev/null || true)
             REAL_AC_COUNT=$(echo "$AC_SECTION" | grep -cE '^\s*-\s*\[[ x]\]' 2>/dev/null || true)
-            if [ "${HAS_PLACEHOLDER:-0}" -gt 0 ] || [ "${REAL_AC_COUNT:-0}" -eq 0 ]; then
+            if [ "$TYPE_CONVERT_EXEMPT" = "0" ] && { [ "${HAS_PLACEHOLDER:-0}" -gt 0 ] || [ "${REAL_AC_COUNT:-0}" -eq 0 ]; }; then
                 echo "" >&2
                 echo "BLOCKED: Task $CURRENT_TASK is a $WORKFLOW_TYPE task with placeholder/missing ACs." >&2
                 echo "" >&2
