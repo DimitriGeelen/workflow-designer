@@ -1843,6 +1843,8 @@ let rubberBand = null; // { startX, startY, x, y } while drawing
 let groupDrag = null;  // { startX, startY, originalPositions: Map<nodeId, {x, y}> }
 let mode = 'select'; // 'select' | 'connect' | 'create:<type>'
 let connectFrom = null;
+let connectFromPort = null;   // T-168: port pinned at the first (source) connect click, or null = auto
+let connectPreviewSnap = null; // T-168: {nodeId, port} the connect preview is currently snapped to
 let drag = null;
 let edgeDrag = null; // { kind: 'endpoint'|'waypoint'|'add-waypoint', edgeId, ... }
 let laneResizeDrag = null; // { laneId, startY, startHeight }
@@ -2959,6 +2961,23 @@ function nearestPortName(node, worldPt) {
     if (dd < bestD) { bestD = dd; best = p; }
   }
   return best;
+}
+
+// T-168: how close (world units) a click/cursor must be to a port to snap to it.
+// Matches the endpoint-drag SNAP_RADIUS so connect-mode and reconnect feel identical.
+const PORT_SNAP_RADIUS = 22;
+
+// Nearest port to a world point, but ONLY if within PORT_SNAP_RADIUS — otherwise
+// null (= keep the default auto/middle attach). This is the "click the body → auto,
+// click near a point → pin" rule the operator asked for, applied to the connect gesture.
+function portNearPoint(node, worldPt) {
+  let best = null, bestD = Infinity;
+  for (const p of PORT_NAMES) {
+    const pt = portPointAt(node, p);
+    const d = Math.hypot(pt.x - worldPt.x, pt.y - worldPt.y);
+    if (d < bestD) { bestD = d; best = p; }
+  }
+  return bestD <= PORT_SNAP_RADIUS ? best : null;
 }
 
 // Compute the anchor point used by the renderer. If port is 'auto' or missing,
@@ -4996,6 +5015,8 @@ function setMode(m) {
   svg.classList.toggle('mode-create', m.startsWith('create:'));
   svg.classList.toggle('mode-connect', m === 'connect');
   connectFrom = null;
+  connectFromPort = null;
+  connectPreviewSnap = null;
   gPreview.innerHTML = '';
 }
 
@@ -5033,6 +5054,8 @@ document.addEventListener('keydown', e => {
     selection = null;
     multiSelect = new Set();
     connectFrom = null;
+    connectFromPort = null;
+    connectPreviewSnap = null;
     gPreview.innerHTML = '';
     setMode('select');
     renderAll();
@@ -5193,9 +5216,36 @@ svg.addEventListener('mousemove', e => {
     const pt = clientToSvg(e.clientX, e.clientY);
     const from = findNode(connectFrom);
     if (!from) return;
-    const fc = { x: from.x + NODE_DEFAULTS[from.type].w / 2, y: from.y + NODE_DEFAULTS[from.type].h / 2 };
+    // Source anchor: start from the port pinned at the first click (if any), else centre.
+    const fc = connectFromPort
+      ? portPointAt(from, connectFromPort)
+      : { x: from.x + NODE_DEFAULTS[from.type].w / 2, y: from.y + NODE_DEFAULTS[from.type].h / 2 };
     gPreview.innerHTML = '';
-    gPreview.appendChild(el('path', { d: `M${fc.x} ${fc.y} L${pt.x} ${pt.y}`, class: 'connect-preview' }));
+    // T-168: aim-assist — reveal candidate ports on nodes near the cursor and snap the
+    // preview end to the nearest in-radius port, so "attach to a point" is discoverable.
+    // Mirrors the endpoint-drag affordance (AIM_RADIUS/opacity falloff + strong snap dot).
+    const AIM_RADIUS = 140;
+    let snapPt = null, snapD = Infinity;
+    connectPreviewSnap = null;
+    for (const nd of state.nodes) {
+      if (nd.id === connectFrom) continue;
+      const nc = { x: nd.x + NODE_DEFAULTS[nd.type].w / 2, y: nd.y + NODE_DEFAULTS[nd.type].h / 2 };
+      const distToNode = Math.hypot(pt.x - nc.x, pt.y - nc.y);
+      if (distToNode > AIM_RADIUS) continue;
+      const t = Math.max(0, Math.min(1, (AIM_RADIUS - distToNode) / (AIM_RADIUS - 60)));
+      const opacity = 0.25 + 0.6 * t;
+      for (const p of PORT_NAMES) {
+        const portPt = portPointAt(nd, p);
+        const d = Math.hypot(portPt.x - pt.x, portPt.y - pt.y);
+        if (d <= PORT_SNAP_RADIUS && d < snapD) {
+          snapD = d; snapPt = portPt; connectPreviewSnap = { nodeId: nd.id, port: p };
+        }
+        gPreview.appendChild(el('circle', { cx: portPt.x, cy: portPt.y, r: 3.5, class: 'port-aim-assist', style: `opacity: ${opacity.toFixed(2)}` }));
+      }
+    }
+    const endPt = snapPt || pt;
+    gPreview.appendChild(el('path', { d: `M${fc.x} ${fc.y} L${endPt.x} ${endPt.y}`, class: 'connect-preview' }));
+    if (snapPt) gPreview.appendChild(el('circle', { cx: snapPt.x, cy: snapPt.y, r: 7, class: 'port-indicator-snap' }));
   }
   if (drag) {
     const pt = clientToSvg(e.clientX, e.clientY);
@@ -6302,11 +6352,22 @@ function onNodeDblClick(n, e) {
 }
 function onNodeClick(n, e) {
   if (mode === 'connect') {
+    const clickPt = e ? clientToSvg(e.clientX, e.clientY) : null;
     if (!connectFrom) {
+      // T-168: first click sets the source. If it landed near a port, pin it; else auto.
       connectFrom = n.id;
+      connectFromPort = clickPt ? portNearPoint(n, clickPt) : null;
+      connectPreviewSnap = null;
     } else if (connectFrom !== n.id) {
-      addEdge(connectFrom, n.id);
+      // T-168: prefer the port the preview snapped to (what the user saw); otherwise
+      // fall back to nearest-port-to-click, otherwise auto.
+      const targetPort = (connectPreviewSnap && connectPreviewSnap.nodeId === n.id)
+        ? connectPreviewSnap.port
+        : (clickPt ? portNearPoint(n, clickPt) : null);
+      addEdge(connectFrom, n.id, { sourcePort: connectFromPort, targetPort });
       connectFrom = null;
+      connectFromPort = null;
+      connectPreviewSnap = null;
       gPreview.innerHTML = '';
     }
     return;
@@ -6664,10 +6725,17 @@ function defaultName(type) {
     subProcess: 'Sub-process',
   })[type] || type;
 }
-function addEdge(source, target) {
+function addEdge(source, target, opts) {
   pushHistory();   // B5: undo entry before adding an edge (connect gesture only)
   const uid = generateUid('e');
-  state.edges.push({ uid, id: uid, source, target });
+  const edge = { uid, id: uid, source, target };
+  // T-168: optional explicit ports from the connect gesture. Absent/'auto' ⇒ omit,
+  // so a plain body→body connect stays auto/middle and emits no <aef:anchors>.
+  if (opts) {
+    if (opts.sourcePort && opts.sourcePort !== 'auto') edge.sourcePort = opts.sourcePort;
+    if (opts.targetPort && opts.targetPort !== 'auto') edge.targetPort = opts.targetPort;
+  }
+  state.edges.push(edge);
   refreshDisplayIds();
   renderEdges();
 }

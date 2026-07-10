@@ -4,7 +4,7 @@ name: "Connection-point anchoring: attach edges to a node's individual ports (de
 description: >
   Connect and edge-reconnect default to node center (as now) but allow attaching to a specific perimeter connection point (port).
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T23:40:52Z
-last_update: 2026-07-09T23:40:52Z
+last_update: 2026-07-09T23:46:13Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -44,7 +44,32 @@ Applies to (a) drawing a new connection in `connect` mode and (b) reconnecting a
 endpoint by dragging it (the T-136/T-137 endpoint-drag path). Same "center by default, port on
 demand" behaviour in both.
 
-This is the classic diagram "ports/anchors" feature and is **multi-part** — not a quick edit:
+### Session findings (2026-07-10) — most of this feature already exists
+
+Investigation (Explore agent + live Playwright against the running editor) found the ports/anchors
+feature is **already substantially built and shipped** in `src/aef-workflow-designer.html`:
+
+- **Data model:** edges carry optional `sourcePort`/`targetPort` (PORT_NAMES `N…NW` or `auto`);
+  absent ⇒ today's auto/center. `PORT_NAMES`/`PORT_OFFSETS`/`portPointAt` (per-shape perimeter
+  projection for rect/circle/diamond) at ~:2910.
+- **Rendering:** `anchorPoint(node, port, toward)` (:2968) honours an explicit port *exactly* —
+  verified live: a pinned E→W edge renders with `gapStart=0, gapEnd=0` from the exact port pixels.
+- **Round-trip:** serialized as `<aef:anchors sourcePort=".." targetPort=".."/>` (:7797), parsed
+  back (:8039). Verified: E/W round-trips; the seed corpus already contains port-pinned edges.
+- **Interaction (existing):** endpoint-drag snap with aim-assist ghost dots + strong snap indicator
+  (:5273–5368, commit :5449); clickable port-indicator dots on the selected edge incl. an "auto"
+  clear dot (`renderPortIndicators` :2858); properties-panel **Source/Target port** dropdowns +
+  **Clear ports** + **Reverse** + inline help (screenshot `.playwright-mcp/t168-existing-ports.png`).
+
+**The one genuine gap** vs the operator's literal words ("make … the **connect** start in the middle
+as current **with the option** to attach to the individual connection point"): `connect` mode is
+pure node→node (`onNodeClick` :6304 → `addEdge` :6667) — a new edge is always `auto`; to pin a port
+you must afterwards select the edge and use the (existing) UI. **This task's deliverable** is to add
+port-awareness to the connect gesture: click a node's body ⇒ auto/middle (unchanged); click within
+snap radius of a port ⇒ pin that port, with aim-assist dots during the preview for discoverability.
+The remaining design-note items below were already implemented — kept for reference.
+
+Original framing (mostly already built — see findings above):
 
 ### Design notes (for the next session)
 - **Data model (biggest piece):** an edge END is currently center/auto-routed. Add an optional
@@ -74,14 +99,25 @@ Reassess whether this should be an inception (interaction design has real choice
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these.
-     PLACEHOLDER — the operator's interpretation must be confirmed and this likely decomposes
-     into ≥2 tasks (see Design notes). Real ACs to be written at build start. Candidate ACs: -->
-- [ ] Edge ends carry an optional explicit anchor (`sourceAnchor`/`targetAnchor`) that round-trips through parse→serialize; absent anchor = current center/auto behaviour (backwards compatible; round-trip guard updated).
-- [ ] `connect` mode reveals a node's connection points on approach and snaps the new edge end to the nearest port; releasing over the body (not near a port) keeps today's center/auto attach.
-- [ ] Dragging an existing edge endpoint can re-attach it to a specific port (reuses T-136/T-137 endpoint-drag path); the router honours a fixed anchor (de-jog/straight-snap passes respect it).
-- [ ] src↔build mirror invariant holds: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`.
+     Scoped to the one genuine gap (connect-mode port targeting) after the 2026-07-10 finding
+     that the rest of the ports feature already ships. AC1 verifies the pre-existing base; the
+     rest deliver + verify the new connect-mode slice. -->
+- [x] Verified the pre-existing ports base works end-to-end: `anchorPoint` honours an explicit port exactly (pinned E→W edge renders `gapStart=0, gapEnd=0`), `<aef:anchors>` round-trips (E/W survives parse→serialize), and the selected-edge UI (port dots, Source/Target dropdowns, Clear ports, Reverse) is present. *(evidence: live Playwright + `.playwright-mcp/t168-existing-ports.png`)*
+- [x] `connect` mode: clicking a node's **body** attaches the new edge end as `auto`/middle (unchanged default); clicking within the port snap radius of a specific perimeter port **pins that port** — `sourcePort` from the first (source) click, `targetPort` from the second (target) click. New edge carries the expected ports.
+- [x] During the connect gesture, **aim-assist port dots** appear on nodes near the cursor and the preview line snaps its end to the nearest in-radius port (discoverability), reusing the endpoint-drag affordance; when `routingPrefs.attach === 'middle'` a body click stays auto (only an explicit near-port click pins), matching the endpoint-drag rule.
+- [x] Backwards compatible: a body→body connect still yields an `auto` edge that emits **no** `<aef:anchors>` in serialization; `addEdge(a,b)` with no port opts is unchanged.
+- [x] src↔build mirror invariant holds: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`, and `python3 -c "import ast; ast.parse(open('tools/gallery-serve.py').read())"` parses (no server change expected — kept as guard).
+- [x] Playwright (throwaway scratch): body→body connect ⇒ edge with no ports; connect clicking near source **E** then target **W** ⇒ `sourcePort='E'`, `targetPort='W'` and the rendered polyline attaches at those ports; element/viewport screenshot READ; 0 non-benign console errors.
 
 ### Human
+- [ ] [REVIEW] Connect-to-port feels natural and the default is unchanged
+  **Steps:**
+  1. Open `http://localhost:8834/designer.html`, click **Connect →**.
+  2. Draw an edge by clicking one node's body then another's body → it should attach in the middle (as before).
+  3. Draw another edge, but this time click **near a specific connection point** (the small dots that light up as you approach a node) on each end.
+  **Expected:** Body clicks still attach at the middle; clicking near a port pins the edge to that exact point. The port dots appear as you approach a node so the option is discoverable.
+  **If not:** Note whether the default changed, the dots didn't appear, or the pin missed.
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -114,6 +150,9 @@ Reassess whether this should be an inception (interaction design has real choice
 
 ## Verification
 
+diff -q src/aef-workflow-designer.html build/gallery/designer.html
+python3 -c "import ast; ast.parse(open('tools/gallery-serve.py').read())"
+
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -144,6 +183,31 @@ Reassess whether this should be an inception (interaction design has real choice
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+## Visual Verification
+
+Connect-mode port targeting exercised live and screenshotted in every mode it affects:
+- `.playwright-mcp/t168-connect-aim-assist.png` (READ) — connect gesture from source **E** port,
+  cursor near target **W**: green dashed preview line E→W, aim-assist port dots lit on nearby
+  nodes' perimeters, dashed snap-indicator on the target W port, no dots on the source node.
+- `.playwright-mcp/t168-existing-ports.png` (READ) — pre-existing ports UI (ROUTING panel:
+  Source/Target port dropdowns, Clear ports, Reverse) with a pinned E→W edge attaching exactly.
+
+## Recommendation
+
+**Recommendation:** GO
+**Rationale:** Investigation found the ports/anchors feature already ships (data model, exact
+rendering, `<aef:anchors>` round-trip, endpoint-drag snap, port-dot UI, properties dropdowns).
+The one genuine gap — port targeting *during the connect gesture* — is now implemented, matching
+the operator's literal ask ("connect start in the middle as current with the option to attach to
+the individual connection point"). It is additive and backwards-compatible: a body→body connect is
+unchanged (auto, no anchors). Remaining Human AC is a taste-check of the connect feel.
+**Evidence:**
+- Playwright: body→body connect ⇒ no ports; near-port connect (a.E→b.W) ⇒ `sourcePort='E'`,
+  `targetPort='W'`, rendered polyline `gapStart=0/gapEnd=0`, serialized `<aef:anchors sourcePort="E"
+  targetPort="W"/>`, `parseBpmnXml` round-trips true.
+- Preview aim-assist: 32 port dots + 1 snap indicator + 1 preview line, `connectPreviewSnap={W}`.
+- Screenshots read (see Visual Verification). Gates: `diff -q src build` MIRROR-OK; `ast.parse` PARSE-OK.
 
 ## RCA
 
@@ -212,3 +276,6 @@ Reassess whether this should be an inception (interaction design has real choice
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-168-connection-point-anchoring-attach-edges-.md
 - **Context:** Initial task creation
+
+### 2026-07-09T23:46:13Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
