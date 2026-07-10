@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T09:56:33Z
-last_update: 2026-07-10T10:53:28Z
+last_update: 2026-07-10T10:56:40Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -181,6 +181,22 @@ sh -c 'grep -q "PULL" docs/aef-designer-integration-protocol.md && grep -q "IMPR
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
      without auto-creating; T-1832 added auto-create as fallback for
      legacy tasks lacking this section. -->
+
+## Recommendation
+
+**GO / partial-complete.** The phase-1 release is cut and verified: `dist/aef-workflow-designer-0.1.0.html`
+is byte-identical to source, produced deterministically by `scripts/release-designer.sh` (same sha256
+across runs), with a parseable `dist/MANIFEST.yaml` (latest + checksum a consumer pins to) and the
+bidirectional integration protocol documented (`docs/aef-designer-integration-protocol.md`). All 5 agent
+ACs checked; all 5 verification commands pass.
+
+**Remaining = one Human [REVIEW]:** open the released artifact in a browser and confirm it authors offline
+(nodes + connect + BPMN export/import round-trip, no console errors). This is real human judgment (rendered
+behaviour), so the task goes partial-complete awaiting that check.
+
+**Evidence:** commit for T-174 release; verification block (5 commands, all pass); manifest sha256
+d0e0177c…. **Known caveat (not a blocker):** CDN Google Fonts — authoring functions offline via system-font
+fallback; true font self-containment filed as T-176 (horizon: later).
 
 ## Updates
 
