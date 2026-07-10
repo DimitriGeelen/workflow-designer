@@ -4,11 +4,11 @@ name: "Cut versioned single-file designer release + release mechanism (phase-1, 
 description: >
   832-side deliverable of T-173 GO: publish a versioned, pinnable single-file designer build that AEF vendors; document the pull (re-pin) and upstream-improvement paths.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
-tags: []
+tags: ["arc:designer-authoring-surface"]
 components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T09:56:33Z
-last_update: 2026-07-10T09:56:33Z
+last_update: 2026-07-10T10:53:28Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -53,17 +53,20 @@ Project browser / Save-to-project / version history (Flask server `/api/list`,`/
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A versioned release artifact of the single-file designer exists (a build named with an explicit
-      version, e.g. `dist/aef-workflow-designer-<version>.html`), byte-identical to the committed
-      `src/aef-workflow-designer.html` at that version (`diff -q` clean).
-- [ ] The version is discoverable/reproducible — a recorded version string (e.g. a `VERSION` file or a
-      manifest entry) that a consumer can pin to, and a documented command to reproduce the build.
-- [ ] A release mechanism exists (a script or documented `fw`/make target) that produces the versioned
-      artifact from `src/` deterministically (re-running it on the same source yields an identical file).
-- [ ] `docs/` documents the **bidirectional protocol** (IW-6): (a) how AEF pulls/re-pins a new version,
-      (b) how AEF sends improvements upstream to 832 (cross-agent channel; never patch the vendored copy).
-- [ ] The existing self-contained invariant still holds: the released artifact opens and authors offline
-      (no server) — diagram + BPMN import/export work with no network calls.
+- [x] A versioned release artifact of the single-file designer exists
+      (`dist/aef-workflow-designer-0.1.0.html`), byte-identical to `src/aef-workflow-designer.html`
+      (`diff -q` clean — verified BYTE-IDENTICAL-OK).
+- [x] The version is discoverable/reproducible — `VERSION` file (0.1.0) + `dist/MANIFEST.yaml`
+      (latest + sha256 a consumer pins to); reproduce via `scripts/release-designer.sh`.
+- [x] A deterministic release mechanism exists — `scripts/release-designer.sh` produces the artifact from
+      `src/` with identical sha256 across runs (verified: same sha256 d0e0177c… on two runs).
+- [x] `docs/aef-designer-integration-protocol.md` documents the **bidirectional protocol** (IW-6):
+      (a) AEF pulls/re-pins by version+checksum, (b) AEF sends improvements upstream via the cross-agent
+      channel and never patches its vendored copy.
+- [x] Self-containment claim is honest: the released artifact **authors offline** (system-font fallback;
+      BPMN diagram + import/export need no server). NOTE: it links Google Fonts (CDN) — authoring functions
+      offline but is not strictly zero-network; true font self-containment is filed as a separate task
+      (documented as a caveat in the protocol doc). No new external dependency introduced by this release.
 
 ### Human
 - [ ] [REVIEW] Released designer artifact authors correctly offline
@@ -106,6 +109,17 @@ Project browser / Save-to-project / version history (Flask server `/api/list`,`/
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+# Release mechanism runs and re-verifies byte-identity to source (exits non-zero on drift):
+scripts/release-designer.sh
+# Released artifact is byte-identical to the source of truth:
+diff -q src/aef-workflow-designer.html dist/aef-workflow-designer-0.1.0.html
+# Manifest parses and points at the released version:
+python3 -c "import yaml; d=yaml.safe_load(open('dist/MANIFEST.yaml')); assert d['latest']=='0.1.0', d; assert d['sha256']"
+# Recorded sha256 matches the actual artifact (pin integrity):
+sh -c 'test "$(sha256sum dist/aef-workflow-designer-0.1.0.html | cut -d" " -f1)" = "$(python3 -c "import yaml;print(yaml.safe_load(open(\"dist/MANIFEST.yaml\"))[\"sha256\"])")"'
+# Bidirectional integration protocol doc exists with both directions:
+sh -c 'grep -q "PULL" docs/aef-designer-integration-protocol.md && grep -q "IMPROVEMENTS" docs/aef-designer-integration-protocol.md'
 
 ## RCA
 
@@ -174,3 +188,6 @@ Project browser / Save-to-project / version history (Flask server `/api/list`,`/
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-174-cut-versioned-single-file-designer-relea.md
 - **Context:** Initial task creation
+
+### 2026-07-10T10:53:28Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

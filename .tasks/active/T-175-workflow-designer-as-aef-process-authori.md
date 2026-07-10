@@ -12,7 +12,7 @@ tags: ["arc:designer-authoring-surface"]
 components: []
 related_tasks: []
 created: 2026-07-10T10:42:06Z
-last_update: 2026-07-10T10:42:43Z
+last_update: 2026-07-10T10:50:06Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -96,15 +96,33 @@ the program (IW-8) with the AEF agent. Full detail:
 
 ## Exploration Plan
 
-<!-- How will we validate assumptions? Spikes, prototypes, research? Time-box each. -->
+The architecture (IW-1..7) is resolved; this inception's remaining work is to close **IW-8
+(decomposition)** and validate the three assumptions. Steps:
+
+1. **Keystone strawman (DONE)** — `docs/reports/T-175-mapping-strawman.md`: concrete BPMN⇄AEF mapping
+   (forward + reverse) + mismatches + assumptions A-001..A-003. De-risks that child-1 is tractable.
+2. **Joint design pass with the AEF agent (IN FLIGHT)** — thread T-175 (DM offset 19). Validate A-002/A-003
+   against AEF's actual model (can it *receive* a BPMN-derived graph? is the record structured enough for
+   reverse?), confirm/sequence the 5-child decomposition, split per-child ownership (832 vs AEF).
+3. **Converge the decomposition** — fold the AEF agent's answers into the artifact; finalise the child list
+   + order + ownership.
+4. **Operator hand-off** — present the scoped child inceptions for GO/NO-GO. Each child then gets its own
+   inception → build tasks. No build under T-175.
+
+Time-box: bounded by the AEF agent's async availability; no code in this inception.
 
 ## Technical Constraints
 
-<!-- What platform, browser, network, or hardware constraints apply?
-     For web apps: HTTPS requirements, browser API restrictions, CORS, device support.
-     For hardware APIs (mic, camera, GPS, Bluetooth): access requirements, permissions model.
-     For infrastructure: network topology, firewall rules, latency bounds.
-     Fill this BEFORE building. Discovering constraints after implementation wastes sessions. -->
+- **Browser hosting (IW-5/IW-6):** the human channel is a served browser app, so the designer must run
+  hosted (not just file://). Any device-API-free authoring works over plain HTTP on localhost/LAN; a
+  public deployment needs HTTPS. Multi-tenant serving is an AEF-side concern (child-5).
+- **Concurrency substrate (IW-5):** the claim/lease reuses termlink's claim primitive — availability of
+  that primitive in the hosted context must be confirmed (termlink is agent-side; the browser lease may
+  need a server-mediated bridge).
+- **Portability (IW-7):** the contract is BPMN + `aef:` extension attributes ⇄ task/inception YAML — both
+  open, text, diffable. No proprietary format; any conformant editor can drive the loop.
+- **Cross-repo:** 832 = SoT for the designer/mapping-reference-editor; AEF hosts the surface + owns the
+  framework-concept half of the mapping. Coordinated over termlink (thread T-175), per T-173's model.
 
 ## Scope Fence
 
