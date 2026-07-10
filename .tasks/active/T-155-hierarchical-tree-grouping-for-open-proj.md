@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T15:01:59Z
-last_update: 2026-07-10T04:41:16Z
+last_update: 2026-07-10T04:41:36Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,51 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**This is an inception/exploration task** (converted from build 2026-07-10). The operator floated
+— tentatively — reorganizing the flat Open-project card grid (`openProjectModal`) into a
+hierarchical **tree-style grouping**. This is a larger redesign of the browser, so per pickup/
+inception discipline it needs a design pass + a go/no-go decision before any build, not an
+autonomous build.
+
+**Deliverable of this inception:** a research artifact (`docs/reports/T-155-tree-grouping-inception.md`,
+to be created at the start of the research session per C-001) that surveys the grouping design
+space, recommends one approach, and presents a GO/NO-GO for the operator. After a GO, decompose
+into separate build tasks.
+
+**Known context (from this session's work on the browser):** a "map" in the browser carries: an
+`id`, whether it is a **corpus baseline** (`examples/aef-processes/rendered/<id>.bpmn`) vs a
+**user-saved** workflow (`.editor-versions/<id>/`), a thumbnail, and a saved-version history.
+Handoff nodes (`linkEventThrow`/`linkEventCatch`) carry `aef.targetWorkflow`, giving an implicit
+**cross-workflow graph**. These are the candidate grouping keys.
+
+## Open Questions
+<!-- Inception readiness (G-067): at least one IW-N entry required before source edits. -->
+- **IW-1: What is the grouping key?** Options: (a) source — corpus vs saved; (b) id naming
+  convention / prefix (e.g. `arc-*`, `frw_*`); (c) handoff-graph clusters (workflows that link to
+  each other); (d) explicit user-assigned folders/tags (needs a new metadata field + save path).
+  confidence: 1
+  disposition: deferred   # resolve during research + operator dialogue
+  rationale: TBD
+- **IW-2: Tree vs. grouped-sections vs. collapsible folders?** Full tree (arbitrary depth) is a
+  big build; grouped sections (one level of headers over the existing grid) may deliver 80% of the
+  value at a fraction of the cost. Which does the operator actually want?
+  confidence: 1
+  disposition: deferred
+  rationale: TBD
+- **IW-3: Does grouping require persisted metadata** (folder/tag per workflow, round-tripped
+  through save/serialization + the server), or can it be derived purely from existing data (source,
+  id, handoff graph) with zero storage changes?
+  confidence: 2
+  disposition: deferred
+  rationale: TBD — deriving from existing data is strongly preferred (no schema change).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+<!-- Inception ACs: exploration deliverables, not build criteria. Real build ACs come after GO. -->
+- [ ] Research artifact `docs/reports/T-155-tree-grouping-inception.md` created (C-001) surveying the grouping design space and answering IW-1..IW-3.
+- [ ] A recommended approach + GO/NO-GO/DEFER presented to the operator with rationale and a cost/scope estimate; decision recorded via `fw inception decide T-155 …`.
+- [ ] On GO: follow-up build tasks filed (decomposed); no production UI built under this inception id.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
