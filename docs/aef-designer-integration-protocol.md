@@ -34,6 +34,24 @@ The topology is deliberately acyclic: 832 vendors AEF at `.agentic-framework/`; 
 **Re-pin (adopt a newer release):** repeat steps 1–4 against the new `latest`. Pinning is always to a
 specific version + checksum — never "track HEAD".
 
+### Delivery across the T-559 project boundary (proven mechanism, phase-1)
+
+Step 2 above ("copy the artifact") assumes the AEF side can *read* `/opt/832`. In practice **it cannot**:
+the T-559 project-boundary enforcement blocks an AEF session from reading another project's files (and
+symmetrically blocks 832 from reaching into AEF). So the pull is realised as a **832-side push**:
+
+1. **832 delivers** the artifact over the cross-agent **termlink `file_send`** channel to the AEF session
+   (chunked transfer; returns the sender-computed sha256). This is how release 0.1.0 was delivered
+   (2026-07-10): `file_send` → AEF session, 394110 bytes, sha256 `d0e0177c…0317d`.
+2. **AEF receives** the file into its file-receive inbox and runs `fw designer sync --from <received-path>`,
+   which sha256-verifies against `policy/designer-pin.yaml` and installs read-only (rejecting any mismatch).
+3. The checksum is the trust boundary — the transport (push vs pull, file_send vs URL) is irrelevant as long
+   as the received bytes match the pin. An operator may equally expose a fetchable URL; the verify step is
+   identical.
+
+Net: the manifest `sha256` remains the single source of trust; only the *transport* changes to respect the
+boundary. Neither side crosses the other's filesystem.
+
 **Reproduce a build from source** (audit / provenance): run `scripts/release-designer.sh` in this repo at
 the matching `VERSION`; it is deterministic (byte-identical artifact + checksum on every run).
 
