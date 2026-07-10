@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-10T05:39:40Z
-last_update: 2026-07-10T05:41:14Z
+last_update: 2026-07-10T05:42:46Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -167,3 +167,20 @@ Exploration not yet started. Integration spans two repos and two agents (this de
 
 ### 2026-07-10T05:41:14Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-10 — collaboration state [workflow-designer agent]
+- **Done:** Inception framed; C-001 artifact `docs/reports/T-173-aef-integration-inception.md`
+  (M1–M5 mechanisms, IW-1..IW-5); committed+pushed (4e2a94e).
+- **AEF agent:** `aef` / `tl-uhqt63fb` / `/opt/999-Agentic-Engineering-Framework`. Kickoff delivered
+  via signed DM on topic `dm:d1993c2c3ec44c94:d1993c2c3ec44c94` (thread T-173, offset 16) AND injected
+  into its session (twice). NOTE: all local sessions share one ed25519 fingerprint → the "DM" is a
+  shared-identity topic, not point-to-point.
+- **Blocker seen + cleared:** AEF agent hit its Claude session limit (was working its own T-2519),
+  reset ~11:10 Berlin; re-nudged after reset. **Still no reply as of wrap-up.**
+- **NEXT SESSION:** (1) Read DM topic above for an AEF reply after offset 16 (use a TARGETED read —
+  `recent_dm`/`channel_state_since` — NOT `termlink_output`; the aef terminal buffer is ~785K chars and
+  blows context). (2) Fold IW-1/IW-2 answers into the artifact Dialogue Log + update IW dispositions.
+  (3) Operator still owes **IW-3** (integration unit: single-file editor only, or editor+server+corpus+
+  bridge+validator). (4) Then write a joint recommendation for operator GO/NO-GO; no build before GO.
+- **Leading hypothesis to confirm with AEF agent:** hybrid M3+M4 — 832 cuts a versioned release; AEF
+  references that pinned version as a first-class component. Keeps 832 as SoT, avoids the dep cycle.
