@@ -4,10 +4,10 @@ name: "atomic write for metrics-history.yaml to fix push-gate race"
 description: >
   atomic write for metrics-history.yaml to fix push-gate race
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T04:50:05Z
-last_update: 2026-07-10T04:50:05Z
-date_finished: null
+last_update: 2026-07-10T04:56:23Z
+date_finished: 2026-07-10T04:56:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -46,10 +46,10 @@ re-read the file after the write completed, so it found no YAMLError text). Fix:
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `audit.sh` writes `metrics-history.yaml` via temp-file + `os.replace()` (no direct `open(METRICS_FILE, "w")` truncate-in-place).
-- [ ] The temp file is created in the same directory as the target (so `os.replace` is a same-filesystem atomic rename), and is cleaned up on write failure.
-- [ ] Running `fw audit` still appends a well-formed entry: the file parses and its newest `entries[-1].timestamp` is the run just performed.
-- [ ] A concurrent-read stress check does not observe a partial/empty file (see Verification).
+- [x] `audit.sh` writes `metrics-history.yaml` via temp-file + `os.replace()` (no direct `open(METRICS_FILE, "w")` truncate-in-place).
+- [x] The temp file is created in the same directory as the target (so `os.replace` is a same-filesystem atomic rename), and is cleaned up on write failure.
+- [x] Running `fw audit` still appends a well-formed entry: the file parses and its newest `entries[-1].timestamp` is the run just performed (verified: 869→870 entries, newest `2026-07-10T04:52:01Z`).
+- [x] A concurrent-read stress check does not observe a partial/empty file (verified: new atomic pattern 0/53 partial reads vs old truncate-in-place 19/24).
 
 ### Human-removed
 <!-- Human section removed: fix is fully agent-verifiable. -->
@@ -211,3 +211,6 @@ Verification grep guards against the truncate-in-place pattern regressing.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-171-atomic-write-for-metrics-historyyaml-to-.md
 - **Context:** Initial task creation
+
+### 2026-07-10T04:56:23Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

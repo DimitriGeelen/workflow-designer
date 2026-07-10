@@ -155,3 +155,17 @@ learnings:
   date: 2026-07-07
   context: Added via context agent
   application: TBD
+- id: PL-023
+  learning: "Before building a captured/deferred feature task, verify the CURRENT code state first — the feature may already be substantially implemented. T-168 (connection-point ports) was captured as unbuilt but ~95% shipped already (data model, rendering, round-trip, endpoint-drag, port-dot UI); scoping against live code reduced it to one real gap (connect-mode port targeting)."
+  source: P-001
+  task: T-168
+  date: 2026-07-10
+  context: Added via context agent
+  application: TBD
+- id: PL-024
+  learning: "Non-atomic file writes (open(path,'w') truncate-in-place) to any file that a gate or another process concurrently reads/parses cause transient false failures — e.g. metrics-history.yaml written by cron audits while the T-1610 pre-push YAML gate parsed it, producing an empty-detail parse-failure push block. The empty error is diagnostic: the reader caught the file empty/header-only, so safe_load returned None (not a YAMLError). Fix: atomic write via same-dir temp file + os.replace() (POSIX atomic rename). Stress signature: old pattern failed 19/24 concurrent reads, atomic 0/53."
+  source: P-001
+  task: T-171
+  date: 2026-07-10
+  context: Added via context agent
+  application: TBD
