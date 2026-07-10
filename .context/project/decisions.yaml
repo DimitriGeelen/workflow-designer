@@ -696,3 +696,10 @@ decisions:
     date: 2026-07-09
     task: T-144
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-079
+    decision: "OneDev is the primary remote; wire the OneDev→GitHub PushRepository mirror so pushes cascade to `github.com/DimitriGeelen/workflow-designer`. Keep the committed `.onedev-buildspec.yml` mirror job as-is; request ring20/operator set the `github-push-token` secret on OneDev project 45."
+    scope: project
+    date: 2026-07-10
+    task: T-016
+    rationale: "Auto-captured from task file on completion"

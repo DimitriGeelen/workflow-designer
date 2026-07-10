@@ -1,0 +1,92 @@
+# ============================================================================
+# EPISODIC MEMORY - T-016: Provision OneDev repo + GitHub cascade for Workflow Designer via ring20-management
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-10T09:54:27Z
+# ============================================================================
+
+task_id: T-016
+task_name: "Provision OneDev repo + GitHub cascade for Workflow Designer via ring20-management"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-02T17:00:16Z
+completed: 2026-07-10T09:54:24Z
+duration_days: 8
+updates_count: 2
+first_commit: 2026-07-02T19:01:33+02:00
+last_commit: 2026-07-09T17:39:39+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Request OneDev repo + GitHub cascade from ring20-management (DM sent). Add OneDev->GitHub mirror buildspec for workflow-designer. Record OneDev push + buildspec done; github cascade pending ring20. Reverse cascade deferral — request ring20 light up OneDev→GitHub mirror. Record operator decisions on browsing backlog (T-153 GO pipeline, T-154 dropdown→browser)
+
+# Key outcomes
+outcomes:
+  - 'Provisioning request sent to ring20-management-agent (`9219671e28054458`) — sent (DM T-016 offset 102); GRANTED at offset 103 (OneDev project `workflow-designer` id 45, LIVE)'
+  - '`origin` (OneDev, SSH `ssh://git@192.168.10.201:6611/workflow-designer`) + `github` remotes added; no token in origin URL (SSH key auth), no token committed'
+  - '`fw audit` run before push (Pass 78 / Warn 2 / Fail 0; a pre-push hook audit also passed 12/0/0). Working tree note: push publishes committed history only — the 1171 in-flight uncommitted files (T-014/T-015 session) are excluded and untouched'
+  - '`master` pushed to OneDev origin (HEAD c958686, full history); `.onedev-buildspec.yml` mirror job committed + pushed (BranchUpdateTrigger fired)'
+  - '**DONE — cascade LIVE + verified (2026-07-10):** ring20 set the `github-push-token` job-secret on OneDev project 45 and fired "Push to GitHub Mirror" #184 = SUCCESSFUL (DM thread T-016, offset 114). Independently verified from .201: `git ls-remote` returns the SAME HEAD on both remotes — origin (OneDev `ssh://git@192.168.10.201:6611/workflow-designer`) `refs/heads/master` = `00e9cb3` AND `github.com/DimitriGeelen/workflow-designer` `refs/heads/master` = `00e9cb3`. Auto-mirror proven: the cascade advanced `ccda05b`→`00e9cb3` with zero manual steps (BranchUpdateTrigger fires per push). Backed by estate-wide GITHUB_TOKEN for now; swap to fine-grained WD_GITHUB_PUSH_TOKEN is a future no-op re-verify. Confirmation posted to ring20 at offset 120.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+  - decision: '2026-07-09 — GitHub cascade: light it up (reverse the 2026-07-02 deferral)'
+    chose: 'OneDev is the primary remote; wire the OneDev→GitHub PushRepository mirror so pushes cascade to `github.com/DimitriGeelen/workflow-designer`. Keep the committed `.onedev-buildspec.yml` mirror job as-is; request ring20/operator set the `github-push-token` secret on OneDev project 45.'
+    rationale: 'Operator directive 2026-07-09 ("I want OneDev to be the primary remote that cascades to GitHub"). Matches the termlink / agentic-engineering-framework sibling posture.'
+    alternatives_rejected: ['(a) Leave deferred / OneDev-only (card-redirect posture) — was ring20''s 2026-07-02 recommendation, now overridden by operator. (b) Disable the mirror job to keep OneDev builds green — no longer wanted; the job SHOULD run and go green once the secret is set.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.onedev-buildspec.yml'
+  - '.tasks/active/T-016-provision-onedev-repo--github-cascade-fo.md'
+  - '.tasks/active/T-153-consistent-tiles-generate-thumbnails-for.md'
+  - '.tasks/active/T-154-open-project-vs-workflow-picker-dropdown.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-02T19:01:33"
+    action: "T-016: Request OneDev repo + GitHub cascade from ring20-management (DM sent)"
+  - time: "2026-07-02T20:22:23"
+    action: "T-016: Add OneDev->GitHub mirror buildspec for workflow-designer"
+  - time: "2026-07-02T20:23:37"
+    action: "T-016: Record OneDev push + buildspec done; github cascade pending ring20"
+  - time: "2026-07-09T10:35:13"
+    action: "T-016: Reverse cascade deferral — request ring20 light up OneDev→GitHub mirror"
+  - time: "2026-07-09T17:39:39"
+    action: "T-016: Record operator decisions on browsing backlog (T-153 GO pipeline, T-154 dropdown→browser)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 11094 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [infra, onedev, coordination]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 11094
+  commits: 5
+  files_changed: 4
+  lines_added: 605
+  lines_removed: 7
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-016-provision-onedev-repo--github-cascade-fo.md
+generated_by: context-agent-hybrid
