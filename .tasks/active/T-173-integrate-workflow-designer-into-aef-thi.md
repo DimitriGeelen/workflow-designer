@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-10T05:39:40Z
-last_update: 2026-07-10T05:42:46Z
+last_update: 2026-07-10T09:49:04Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -93,15 +93,15 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -133,17 +133,30 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Recommendation
 
-**Recommendation:** DEFER
+**Recommendation:** GO — mechanism **M3 + `fw designer`**, phase-1 unit = single-file editor.
 
 **Rationale:**
 
-Exploration not yet started. Integration spans two repos and two agents (this designer repo + the AEF framework, worked by the AEF agent) and is an architecture/ownership decision with portability lock-in implications (submodule vs subtree vs package vs fw plugin vs vendored mirror; sync direction). Hard constraint: this repo remains the source of truth and future development continues here. Needs a design pass + AEF-agent collaboration + operator GO before any integration code.
+Exploration complete; the two-agent design work converged. The designer becomes part of AEF's surface
+area **without breaking the hard constraints**: 832 stays source of truth (C1) and future development
+continues here (C2) because AEF vendors a *pinned build artifact* of 832's release — never 832's source.
+That artifact reference (not a recursive source pull) keeps the 832-vendors-AEF / AEF-references-832
+dependency cycle from ever closing (IW-4), which is exactly why submodule/subtree (M1/M2) were rejected.
+The path is bounded, scoped, testable, and reversible (matches the GO criteria): 832 files one
+release-build task; AEF files one `fw designer` task. Phase-1 ships the self-contained single-file
+editor (authoring only); project persistence/versioning (Flask server + corpus) is a clearly-scoped
+phase-2 deferred pending real demand.
+
+**Operator still owns:** the GO/NO-GO itself, and IW-3 (confirm phase-1 = single-file editor, or direct
+the fuller editor+server+corpus unit now).
 
 **Evidence:**
 
-<!-- Add evidence bullets as exploration progresses (file paths,
-     commit hashes, test results). The filing-time recommendation
-     can be revised before fw inception decide. -->
+- Design-space survey + joint recommendation: `docs/reports/T-173-aef-integration-inception.md`
+  (M1–M5 evaluated; Joint recommendation + Dialogue Log + IW resolution).
+- Cross-agent convergence: DM topic `dm:d1993c2c3ec44c94:…` — kickoff (offset 16), concurrence (offset 17).
+- IW-1/IW-2/IW-4/IW-5 answered (see `## Open Questions`); IW-3 surfaced to operator.
+- AEF collaborator: `aef` / `tl-uhqt63fb` / `/opt/999-Agentic-Engineering-Framework`.
 
 ## Decisions
 
@@ -158,7 +171,19 @@ Exploration not yet started. Integration spans two repos and two agents (this de
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Exploration complete; the two-agent design work converged. The designer becomes part of AEF's surface
+area **without breaking the hard constraints**: 832 stays source of truth (C1) and future development
+continues here (C2) because AEF vendors a *pinned build artifact* of 832's release — never 832's source.
+That artifact reference (not a recursive source pull) keeps the 832-vendors-AEF / AEF-references-832
+dependency cycle from ever closing (IW-4), which is exactly why submodule/subtree (M1/M2) were rejected.
+The path is bounded, scoped, testable, and reversible (matches the GO criteria): 832 files one
+release-build task; AEF files one `fw designer` task. Phase-1 ships the self-contained single-file
+editor (authoring only); project persistence/versioning (Flask server + corpus) is a clearly-scoped
+phase-2 deferred pending real demand.
+
+**Date**: 2026-07-10T09:53:46Z
 
 ## Updates
 
@@ -197,3 +222,16 @@ Exploration not yet started. Integration spans two repos and two agents (this de
   `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw inception decide T-173 go --rationale 'M3 + fw designer; phase-1 unit = single-file editor' --i-am-human`
   On GO: I file the 832-side release build task; the AEF agent files the `fw designer` build task.
   **Neither side builds before GO.**
+
+### 2026-07-10T09:53:46Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Exploration complete; the two-agent design work converged. The designer becomes part of AEF's surface
+area **without breaking the hard constraints**: 832 stays source of truth (C1) and future development
+continues here (C2) because AEF vendors a *pinned build artifact* of 832's release — never 832's source.
+That artifact reference (not a recursive source pull) keeps the 832-vendors-AEF / AEF-references-832
+dependency cycle from ever closing (IW-4), which is exactly why submodule/subtree (M1/M2) were rejected.
+The path is bounded, scoped, testable, and reversible (matches the GO criteria): 832 files one
+release-build task; AEF files one `fw designer` task. Phase-1 ships the self-contained single-file
+editor (authoring only); project persistence/versioning (Flask server + corpus) is a clearly-scoped
+phase-2 deferred pending real demand.
