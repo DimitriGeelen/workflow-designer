@@ -4,9 +4,9 @@ name: "Cut designer release 0.2.0 with T-177 governance fields and deliver to AE
 description: >
   Cut designer release 0.2.0 with T-177 governance fields and deliver to AEF
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T20:58:44Z
-last_update: 2026-07-10T20:58:44Z
-date_finished: null
+last_update: 2026-07-10T21:01:10Z
+date_finished: 2026-07-10T21:01:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -57,6 +57,20 @@ Release-then-repin cycle per `docs/aef-designer-integration-protocol.md`.
       3. (Or check yourself:) open a task node's inspector → EXTENSIONS shows Horizon / Workflow type / Owner dropdowns.
       **Expected:** the three dropdowns appear on task-like nodes; `AEF_FIELDS.scriptTask` includes `horizon`.
       **If not:** the re-pin didn't take — confirm AEF's pin sha256 == `dist/MANIFEST.yaml` sha256 for 0.2.0.
+
+## Recommendation
+
+**Recommendation:** GO (advance AEF to re-pin 0.2.0)
+**Rationale:** The 832 half is verified complete — deterministic release cut, delivered to AEF with sha256
+matching the manifest byte-for-byte. The only remaining step is mechanical: AEF runs `fw designer sync`
+against the delivered artifact (sha256-gated, rejects on mismatch). No judgment call in the re-pin itself;
+the one genuine human action is deciding *when* to advance the AEF session. Once re-pinned, T-177's
+governance dropdowns go live on `:3001/designer`.
+**Evidence:**
+- `dist/MANIFEST.yaml` sha256 `e301986b…` == artifact == delivered `file_send` sha256 (xfer-mcp-3173253, 395178 bytes)
+- Deterministic build confirmed (re-run identical sha256)
+- Live `:3001/designer` confirmed still `0.1.0` without the fields (the gap this closes)
+- T-177 fields verified in-source (round-trip + parity + inspector screenshot, commit 0ebb8f7/71ce0e4)
 
 ## Verification
 
@@ -165,3 +179,6 @@ grep -q 'latest: "0.2.0"' dist/MANIFEST.yaml
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-178-cut-designer-release-020-with-t-177-gove.md
 - **Context:** Initial task creation
+
+### 2026-07-10T21:01:10Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
