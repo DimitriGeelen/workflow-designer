@@ -4,10 +4,10 @@ name: "IW-9: v1.1 mapping-standard delta — collapse triple-encoded authority (
 description: >
   AEF IW-9 design finding (T-2523). Node-level owner duplicates the lane; collapse to two orthogonal axes. v1.1 delta to FROZEN v1 mapping standard — needs operator sign-off. Agent can draft the delta on GO.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: human
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-11T16:56:45Z
-last_update: 2026-07-11T16:56:45Z
+last_update: 2026-07-11T21:38:37Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -55,8 +55,11 @@ Agent may draft the delta on operator GO; agent must NOT unilaterally edit froze
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] v1.1 authority-collapse delta is drafted as a PROPOSAL document at `docs/reports/T-189-iw9-authority-collapse-delta.md` — the FROZEN v1 standard (`docs/standards/aef-bpmn-mapping-v1.md`) is NOT edited under agent control
+- [x] The proposal specifies exact before→after textual changes to frozen v1 §2 (governance meta-keys table + `conformance-governance-meta-keys` block) and §3 (the "owner precedence" line), realizing: Lane = sole authority-of-record for who-performs; workflow_type = kind-of-work; node-level `owner` override REMOVED
+- [x] The proposal states the graduation blast-radius: which conformance assertions in `tests/test_mapping_standard_conformance.py` (and editor/bridge `metaKeys`/`META_KEYS`) change, so the version bump + test update is scoped before it happens
+- [x] Open sub-questions that genuinely need an operator ruling (e.g. lane-vs-task-type tiebreak when a serviceTask sits in a human lane) are enumerated rather than silently resolved
+- [x] Proposal document is referenced from this task and AEF is informed on the DM rail that the 832-side delta is drafted and awaiting Dimitri's sign-off (rail offset 27)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -88,8 +91,23 @@ Agent may draft the delta on operator GO; agent must NOT unilaterally edit froze
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+- [ ] [REVIEW] Operator sign-off to graduate the IW-9 delta into the FROZEN v1 standard (v1 → v1.1)
+  **Steps:**
+  1. Read the drafted delta: `docs/reports/T-189-iw9-authority-collapse-delta.md` (exact before→after changes to `docs/standards/aef-bpmn-mapping-v1.md` §2/§3, plus graduation blast-radius on the conformance test)
+  2. Rule on the enumerated open sub-questions (esp. the lane-vs-task-type tiebreak) — the delta cannot be finalized until these are decided
+  3. If GO: authorize the agent to graduate — apply the §2/§3 edits to frozen v1, bump to v1.1, and update `tests/test_mapping_standard_conformance.py` to match — then run the conformance suite green and complete this task. If NO-GO/refine: annotate the delta and hand back.
+  **Expected:** A recorded GO/refine/NO-GO decision on the delta; on GO, explicit authorization to edit the frozen standard (that edit is gated on this sign-off — see Context)
+  **If not:** The delta stays a proposal; frozen v1 is untouched and this task holds in partial-complete
 
 ## Verification
+
+# Delta proposal exists and carries the exact-change and blast-radius content
+test -f docs/reports/T-189-iw9-authority-collapse-delta.md
+grep -q "conformance-governance-meta-keys" docs/reports/T-189-iw9-authority-collapse-delta.md
+# Standard↔implementation conformance MUST be green — both before graduation and
+# after (the delta is written to stay green: removing owner from the frozen fence
+# keeps frozen ⊆ editor/bridge — see proposal §4.1).
+python3 tests/test_mapping_standard_conformance.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -189,3 +207,7 @@ Agent may draft the delta on operator GO; agent must NOT unilaterally edit froze
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-189-iw-9-v11-mapping-standard-delta--collaps.md
 - **Context:** Initial task creation
+
+### 2026-07-11T21:38:37Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
