@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-183: Child-2: Forward bridge — 832 support (emission spec + reference fixtures for AEF translator)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-11T11:49:19Z
+# ============================================================================
+
+task_id: T-183
+task_name: "Child-2: Forward bridge — 832 support (emission spec + reference fixtures for AEF translator)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-11T05:30:52Z
+completed: 2026-07-11T11:49:17Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-11T13:49:06+02:00
+last_commit: 2026-07-11T13:49:06+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  child-2 forward-bridge 832 support — reference BPMN fixtures + forward-compile spec + fixture-conformance test
+
+# Key outcomes
+outcomes:
+  - 'Reference BPMN(+aef:) fixture set under `tests/fixtures/aef-bpmn/` with at least one'
+  - 'Forward-compile spec published at `docs/standards/aef-bpmn-forward-compile-v1.md`: for'
+  - 'Fixture-conformance test `tests/test_forward_fixtures.py` (pure stdlib) asserts: every'
+  - 'Editor-emission confirmation recorded in the spec: `src/aef-workflow-designer.html` already'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'child-2 forward-bridge 832 support — reference BPMN fixtures + forward-compile spec + fixture-conformance test'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/standards/aef-bpmn-forward-compile-v1.md'
+  - '.tasks/active/T-183-child-2-forward-bridge--832-support-emis.md'
+  - 'tests/fixtures/aef-bpmn/arc-lifecycle.bpmn'
+  - 'tests/fixtures/aef-bpmn/harvest-pipeline.bpmn'
+  - 'tests/fixtures/aef-bpmn/investigate.bpmn'
+  - 'tests/fixtures/aef-bpmn/resume-status.bpmn'
+  - 'tests/test_forward_fixtures.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-11T13:49:06"
+    action: "T-183: child-2 forward-bridge 832 support — reference BPMN fixtures + forward-compile spec + fixture-conformance test"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 378 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 378
+  commits: 1
+  files_changed: 7
+  lines_added: 1792
+  lines_removed: 37
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-183-child-2-forward-bridge--832-support-emis.md
+generated_by: context-agent-hybrid
