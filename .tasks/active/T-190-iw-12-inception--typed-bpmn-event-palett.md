@@ -28,7 +28,25 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+AEF design finding IW-12 (rail `dm:0e7ee6cad65137fc:6a646ce8b1bc6560`, offset 20): the 0.2.0
+event palette has only plain start/end. AEF first-class concepts map onto BPMN *typed* events
+but can't be expressed: `status:issues` → error / boundary-error event; `horizon` + cron
+scheduling → timer event; `dispatch`/`pickup`/bus hand-offs → message event. Without typed
+events, AEF error paths, scheduled triggers, and cross-agent hand-offs flatten into plain
+tasks — losing exactly the semantics the mapping contract exists to preserve. 832-side read
+(offset 24): AGREED, real gap, 832 (SoT) build call; but inception-scale, not a quick build —
+new node subtypes + aef: serialization + bridge parity (`yaml-to-bpmn.py`) + a mapping-standard
+row per typed event + DI rendering. Initial set: error, timer, message, incl. boundary-on-
+task/subProcess. The T-187/T-188 round-trip guards will cover the new serialization the moment
+it lands.
+
+**AEF operator RATIFIED this framing** (offset 25, 2026-07-11). Related ratified ruling that
+constrains the inception representation: **G-3 — the go/no-go gateway is CONSTITUTIVE, not
+decorative**; the permitted lightweight inception form is a COLLAPSED subProcess with the
+gateway implied at the boundary (NOT a gateway-less task-node). That collapsed-subProcess
+carrier already exists 832-side as T-081 (`aef:scopeOf` marker), so the typed-event work should
+target it so editor + forward-compiler agree. **Prioritization is Dimitri's call** (arc-scale);
+agent must NOT start the inception without operator GO.
 
 ## Assumptions
 

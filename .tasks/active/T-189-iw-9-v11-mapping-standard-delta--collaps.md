@@ -34,7 +34,22 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+AEF design finding IW-9 (rail `dm:0e7ee6cad65137fc:6a646ce8b1bc6560`, offset 20): authority
+is triple-encoded across `workflow_type ⊕ Lane ⊕ owner`, which can disagree with no
+reconciliation rule. 832-side BPMN read (offset 24): the genuinely redundant carrier is the
+node-level `owner` override — BPMN already gives Lane = who-performs and task-type
+(userTask vs service/scriptTask) = human-vs-agent execution. Proposed v1.1 delta: two
+orthogonal axes only — **Lane = authority-of-record for who-performs** (owner:human|agent ⇔
+two lanes, per IW-7); **workflow_type = kind-of-work** (inception=decision vs
+build/test/refactor=execution, intrinsic to type); **node-level `owner` override REMOVED**
+(a node's owner is its lane, full stop). Zero redundant third encoding, no three-way drift.
+
+**AEF operator RATIFIED this framing** (offset 25, 2026-07-11): "framings ratified as sent —
+take them up when you're back." That clears the AEF side. **832-side graduation still needs
+Dimitri's sign-off** — this is a v1.1 delta to the FROZEN v1 mapping standard
+(`docs/standards/aef-bpmn-mapping-v1.md`), so it requires the standard's governance + operator
+sign-off and stacks with the child-1 Part II provisional items already awaiting his ruling.
+Agent may draft the delta on operator GO; agent must NOT unilaterally edit frozen v1.
 
 ## Acceptance Criteria
 
