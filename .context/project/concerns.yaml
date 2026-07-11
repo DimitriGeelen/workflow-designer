@@ -128,7 +128,15 @@ concerns:
 
   - id: G-002
     type: risk
-    status: watching
+    status: resolved
+    resolved: 2026-07-11
+    resolution: >
+      Operator flipped watching→resolved 2026-07-11 on evidence: both prevention halves shipped and
+      green — T-187 (editor-internal round-trip fixed point) + T-188 (bridge→editor cross-seam clean
+      across all 24 workflows, self-test reproduces T-042). The durable structural round-trip check
+      the concern named now exists, replacing the linear per-aspect textual tests. Operator ratified
+      the node+chromium-in-pytest-suite portability decision (Directive 4) the same day. See
+      prevention_partial below for full evidence.
     severity: medium
     title: "Editor↔bridge aef: serialization seam guarded aspect-by-aspect, not by a round-trip harness"
     detected: 2026-07-03
