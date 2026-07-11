@@ -170,8 +170,19 @@ concerns:
       - "Behavioral proof for T-053 captured live via browser Playwright (parseBpmnXml/buildBpmnXml round-trip), not the missing automated harness."
       - "Third instance of the class (2026-07-04, found during T-079 verification): editor-INTERNAL parse/build asymmetry — parseBpmnXml drops the bpmn:participant pool id/name, so every import→export cycle rewrites Pool_* to Process_*-derived values. Not an aef: field and not a bridge disagreement, so it does not mechanically fire the THIRD-incident trigger — but it was caught only by an ad-hoc in-browser round-trip check, which is precisely the harness this concern proposes. Filed as T-080."
     prevention_partial:
-      status: "HALF shipped — awaiting human ratification before closure (portability decision per description, line 167)"
+      status: "BOTH HALVES SHIPPED + GREEN (T-187 editor-internal, T-188 bridge→editor cross-seam). Human ratified the portability decision. READY FOR CLOSURE — operator to flip status watching→resolved."
+      human_ratification: "2026-07-11 — operator approved decision 1(a): node+chromium wired into the pytest suite (skip-guarded), and 2(a): extend the harness to the bridge→editor cross-seam. This is the human portability decision the description (line 167) reserved — made, not bypassed."
       shipped_by: T-187
+      half2_shipped_by: T-188
+      half2_result: >
+        T-188 (tools/_bridge-seam-roundtrip-cdp.mjs + tests/test_bridge_seam_roundtrip.py) runs the
+        real bridge on all 24 examples/aef-processes/*.workflow.yaml, imports each into the real
+        editor, and asserts no aef:uid or editor-known aef:meta is silently dropped, plus editor
+        fixed-point on bridge output. Result: cross-seam CLEAN across all 24 workflows (620+ uids,
+        zero drops). Self-test mangles the aef namespace URI (reproduces T-042) → detector reports
+        27/27 dropped uids, proving it bites. This is the durable structural fix this concern named
+        (bridge YAML → BPMN → editor parse → editor emit → re-validate), replacing the per-aspect
+        textual tests with a structural round-trip check.
       note: >
         T-187 (2026-07-11) shipped tools/_roundtrip-serialization-cdp.mjs + a pytest wrapper:
         a fixed-point harness that drives the REAL editor runtime (parseBpmnXml→buildBpmnXml)

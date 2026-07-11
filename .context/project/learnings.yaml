@@ -211,3 +211,10 @@ learnings:
   date: 2026-07-11
   context: Added via context agent
   application: TBD
+- id: PL-031
+  learning: "Cross-ARTIFACT round-trip drop-detection has two traps: (1) restrict the comparison to the CONSUMER's known vocabulary, not the producer's full output — here the Python bridge emits a documented superset of aef:meta keys (editor metaKeys ⊆ bridge META_KEYS), so comparing all bridge keys would false-flag the legitimately-unread ones as drops; (2) make the self-test REPRODUCE the actual historical incident, not a synthetic one — mangling the aef namespace URI reproduces T-042 exactly and proves the detector catches the real class (27/27 uids dropped)."
+  source: P-001
+  task: T-188
+  date: 2026-07-11
+  context: Added via context agent
+  application: TBD
