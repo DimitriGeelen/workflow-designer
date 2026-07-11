@@ -12,7 +12,7 @@ tags: ["arc:designer-authoring-surface"]
 components: []
 related_tasks: []
 created: 2026-07-10T10:42:06Z
-last_update: 2026-07-10T22:11:26Z
+last_update: 2026-07-10T22:12:15Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -189,14 +189,11 @@ Framing inception: lock the designer-as-framework-surface architecture (7 decisi
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-07-11 — IW-8 per-child go/no-go (operator sovereign decision)
+- **Chose:** **GO child-1 (mapping standard) + child-2 (forward bridge); DEFER child-3 (reverse discovery), child-4 (collaboration/concurrency), child-5 (hosting/tenancy).**
+- **Why:** Operator ratified the recommended split (`docs/reports/T-175-child-decomposition.md`). Funds the primary value path (contract + draw→governed work); parks reverse/live-coedit/multi-tenancy behind their revisit triggers.
+- **Realization:** child-1 → 832-led build task (formalize the converged mapping standard, G-3/tier/AC-seed provisional pending AEF ruling). child-2 → AEF-led; 832 tracks its support (emission spec + fixtures). child-3/4/5 → captured, `horizon: later`, with revisit triggers.
+- **Rejected:** GO-all (all-or-nothing umbrella, framework-discouraged); DEFER-all (stalls the keystone that's ~90% done).
 
 ## Decision
 
