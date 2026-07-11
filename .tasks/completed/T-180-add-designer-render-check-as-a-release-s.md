@@ -4,10 +4,10 @@ name: "Add designer render-check as a release-script gate"
 description: >
   Wire tests/test_designer_render.py into scripts/release-designer.sh so a release cut fails if the freshly-built artifact does not render or lost the T-177 governance fields. Closes the T-179 loop: the guarding test currently only runs manually/P-011, not at release time. Arc: designer-authoring-surface (release-then-repin hardening, Directive 1).
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T21:47:11Z
-last_update: 2026-07-10T21:47:11Z
-date_finished: null
+last_update: 2026-07-10T21:50:58Z
+date_finished: 2026-07-10T21:50:58Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -160,3 +160,6 @@ grep -q 'render-check' docs/aef-designer-integration-protocol.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-180-add-designer-render-check-as-a-release-s.md
 - **Context:** Initial task creation
+
+### 2026-07-10T21:50:58Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

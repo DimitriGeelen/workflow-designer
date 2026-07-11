@@ -4,10 +4,10 @@ name: "Child-1: Publish AEF BPMN mapping standard v1 + conformance test"
 description: >
   arc: designer-authoring-surface child-1 (keystone), GO'd by operator 2026-07-11. Formalize the converged BPMN<->task/inception-YAML contract from docs/reports/T-175-mapping-strawman.md into a versioned standard docs/standards/aef-bpmn-mapping-v1.md (frozen: two-class attribute partition, semantic vocabulary, forward+reverse mapping tables, aef:uid identity hinge, conformance rules; PROVISIONAL pending AEF ruling: G-3 inception marker shape, tier default, AC-seeding). Add a conformance test guarding standard<->implementation parity (the doc's frozen semantic attribute list must match the editor AEF_FIELDS/metaKeys and the bridge META_KEYS).
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-11T05:26:01Z
-last_update: 2026-07-11T05:26:01Z
-date_finished: null
+last_update: 2026-07-11T05:29:25Z
+date_finished: 2026-07-11T05:29:25Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -191,3 +191,6 @@ grep -q '# Part II — Provisional' docs/standards/aef-bpmn-mapping-v1.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-182-child-1-publish-aef-bpmn-mapping-standar.md
 - **Context:** Initial task creation
+
+### 2026-07-11T05:29:25Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

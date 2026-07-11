@@ -169,10 +169,33 @@ concerns:
       - "T-042/T-044 and T-053 RCA sections; both fixes shipped with per-aspect cross-seam tests."
       - "Behavioral proof for T-053 captured live via browser Playwright (parseBpmnXml/buildBpmnXml round-trip), not the missing automated harness."
       - "Third instance of the class (2026-07-04, found during T-079 verification): editor-INTERNAL parse/build asymmetry — parseBpmnXml drops the bpmn:participant pool id/name, so every import→export cycle rewrites Pool_* to Process_*-derived values. Not an aef: field and not a bridge disagreement, so it does not mechanically fire the THIRD-incident trigger — but it was caught only by an ad-hoc in-browser round-trip check, which is precisely the harness this concern proposes. Filed as T-080."
+    prevention_partial:
+      status: "HALF shipped — awaiting human ratification before closure (portability decision per description, line 167)"
+      shipped_by: T-187
+      note: >
+        T-187 (2026-07-11) shipped tools/_roundtrip-serialization-cdp.mjs + a pytest wrapper:
+        a fixed-point harness that drives the REAL editor runtime (parseBpmnXml→buildBpmnXml)
+        in isolated headless chromium over tests/fixtures/aef-bpmn/*.bpmn, with a self-test that
+        perturbs a governance attr to prove the guard bites. All 4 fixtures round-trip byte-
+        identically. This covers the EDITOR-INTERNAL round trip — structurally catches the
+        instance-#3 class (T-080 pool-id drop) that the per-aspect textual tests cannot.
+      NOT_yet_covered: >
+        The BRIDGE→editor cross-seam (bridge YAML → yaml-to-bpmn.py emit → editor parse → editor
+        emit → re-validate) — the JS↔Python drift that was this concern's original motivation
+        (instances #1 T-042 namespace, #2 T-053 decisionOutputs). T-187's fixtures are editor
+        emissions, not bridge emissions, so this half is unexercised. A follow-up would add a
+        bridge-fed stage to the same harness.
+      human_decision_required: >
+        (a) Ratify wiring node+chromium into the pytest suite (the reserved portability decision,
+        Directive 4) — the T-187 wrapper skips cleanly when the toolchain is absent, so it does
+        not hard-break pure-Python environments; and (b) whether to extend to the bridge→editor
+        stage to fully close, or keep the two halves separate. Status stays `watching` until then.
     related:
       - T-042
       - T-044
       - T-053
+      - T-080
+      - T-187
 
   - id: G-003
     type: gap

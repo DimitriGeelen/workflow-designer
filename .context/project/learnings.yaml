@@ -204,3 +204,10 @@ learnings:
   date: 2026-07-10
   context: Added via context agent
   application: TBD
+- id: PL-030
+  learning: "Aspect-by-aspect seam guards (parity/conformance/field-coverage) can all pass while the true round trip silently drifts — the definitive guard is a fixed-point harness driven through the REAL runtime (editor parseBpmnXml->buildBpmnXml in isolated headless chromium), asserting a uid-keyed semantic projection is stable across parse->emit->parse. Exclude presentational data. Critically: include a self-test that perturbs one invariant and asserts the projection detects it — a green that cannot go red is worthless."
+  source: P-001
+  task: T-187
+  date: 2026-07-11
+  context: Added via context agent
+  application: TBD

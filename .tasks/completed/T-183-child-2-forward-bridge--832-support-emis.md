@@ -4,10 +4,10 @@ name: "Child-2: Forward bridge — 832 support (emission spec + reference fixtur
 description: >
   arc: designer-authoring-surface child-2 (forward bridge), GO'd by operator 2026-07-11. AEF-LED build (translator + enrichment + sovereignty gate). 832's supporting deliverable: (a) confirm the editor emits the full v1 semantic vocabulary + stable aef:uid (already shipped), (b) provide AEF a reference BPMN fixture set + the forward-compile spec derived from docs/standards/aef-bpmn-mapping-v1.md, (c) modify-vs-create semantics doc (uid-resolves test). Not started — teed up; depends on child-1 standard (done, T-182).
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-11T05:30:52Z
-last_update: 2026-07-11T11:39:43Z
-date_finished: null
+last_update: 2026-07-11T11:49:17Z
+date_finished: 2026-07-11T11:49:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -197,3 +197,6 @@ python3 tests/test_mapping_standard_conformance.py
 ### 2026-07-11T11:39:43Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-07-11T11:49:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

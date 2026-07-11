@@ -4,10 +4,10 @@ name: "Playwright render-check guarding test for designer build"
 description: >
   Add a committable Playwright render-check that guards the designer BUILD (complement to curl+sha byte-check). Serves the built artifact locally, loads it headless, asserts: (1) render — palette, canvas nodes, inspector present; (2) version/feature marker — FIELD_META.horizon present (catches stale/wrong build); (3) console clean EXCEPT the documented /api/health 404 (whitelist+comment the expected backend-absent probe; do NOT suppress in src) and favicon. Needs new node/playwright dev tooling (832 is shell+python only today; chromium already cached). Origin: T-178. See learning under T-178 (P-011).
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T21:17:29Z
-last_update: 2026-07-10T21:37:53Z
-date_finished: null
+last_update: 2026-07-10T21:45:05Z
+date_finished: 2026-07-10T21:45:05Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -168,3 +168,6 @@ python3 tests/test_editor_bridge_meta_parity.py
 
 ### 2026-07-10T21:37:53Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-10T21:45:05Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

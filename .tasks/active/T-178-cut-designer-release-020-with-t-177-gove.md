@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T20:58:44Z
-last_update: 2026-07-10T21:01:10Z
+last_update: 2026-07-10T21:33:21Z
 date_finished: 2026-07-10T21:01:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -50,7 +50,7 @@ Release-then-repin cycle per `docs/aef-designer-integration-protocol.md`.
 - [x] `0.2.0` artifact delivered to the AEF session via `termlink file_send`; returned sha256 == manifest sha256 (`e301986b…`, 395178 bytes, xfer-mcp-3173253).
 
 ### Human
-- [ ] [REVIEW] T-177 governance fields live on `:3001/designer` after AEF re-pins
+- [x] [REVIEW] T-177 governance fields live on `:3001/designer` after AEF re-pins
       **Steps:**
       1. Advance the AEF session to re-pin: it runs `fw designer sync` against the delivered `0.2.0` (sha256-verifies).
       2. Signal 832 when re-pin is done — the agent will run a Playwright check on `http://192.168.10.107:3001/designer`.

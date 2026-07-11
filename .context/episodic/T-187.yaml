@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-187: Round-trip serialization harness: editor parse/emit idempotence (close G-002)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-11T14:22:25Z
+# ============================================================================
+
+task_id: T-187
+task_name: "Round-trip serialization harness: editor parse/emit idempotence (close G-002)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-11T14:14:16Z
+completed: 2026-07-11T14:22:20Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-11T16:22:10+02:00
+last_commit: 2026-07-11T16:22:10+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  round-trip serialization harness — prove editor parse/emit is a semantic fixed point (close G-002)
+
+# Key outcomes
+outcomes:
+  - '**Harness exists and boots the real editor in isolation.** `tools/_roundtrip-serialization-cdp.mjs` serves `src/aef-workflow-designer.html` via `gallery-serve.py` on a free port and drives it in an **isolated** headless chromium (own `--user-data-dir`, never the shared browser — G-006). Exits 0 on success, 1 on any round-trip defect, and prints a JSON verdict with per-fixture steps.'
+  - '**Every fixture round-trips as a semantic fixed point.** For each `tests/fixtures/aef-bpmn/*.bpmn`: load it via the editor''s real import path, re-emit via `buildBpmnXml`, re-import the emission, and assert the semantic projection of `parse(fixture)` equals the projection of `parse(emit(parse(fixture)))`. The harness gates (exit 1) if any fixture''s projection drifts across the round trip. Empty/missing fixtures dir ⇒ FAIL, not a vacuous pass (PL-022).'
+  - '**The projection covers the governance-bearing content.** Equality is asserted structurally over: the aef:uid multiset (every flow node + every sequenceFlow), each node''s aef:meta key→value map, node-type counts, the edge source→target set, and per-lane `authority`. A drift in any one fails the fixture. `buildBpmnXml` determinism is separately asserted (`emit(s)===emit(s)`); a byte-level emit1≠emit2 is surfaced in the verdict even when the semantic projection holds.'
+  - '**Suite integration + Verification gate green.** `tests/test_roundtrip_serialization.py` invokes the harness as a subprocess and asserts exit 0; when chromium is unavailable it SKIPs with an explicit reason (loud, not a silent green). The `## Verification` block runs the harness directly (chromium is present in this env) so P-011 exercises the real round trip.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'round-trip serialization harness — prove editor parse/emit is a semantic fixed point (close G-002)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-187-round-trip-serialization-harness-editor-.md'
+  - 'tests/test_roundtrip_serialization.py'
+  - 'tools/_roundtrip-serialization-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-11T16:22:10"
+    action: "T-187: round-trip serialization harness — prove editor parse/emit is a semantic fixed point (close G-002)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface, testing, round-trip]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 8
+  commits: 1
+  files_changed: 3
+  lines_added: 491
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-187-round-trip-serialization-harness-editor-.md
+generated_by: context-agent-hybrid

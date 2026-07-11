@@ -4,10 +4,10 @@ name: "Tag designer releases per provenance convention"
 description: >
   Create annotated git tags designer-v0.1.0 and designer-v0.2.0 at their release commits, per the provenance convention documented in docs/aef-designer-integration-protocol.md ('each release corresponds to a git tag designer-v<version>'). Currently zero tags exist — the convention is stated but unfollowed. Tag messages cite the manifest sha256 for auditability. Arc: designer-authoring-surface (Directive 2 Reliability/auditability).
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T21:54:16Z
-last_update: 2026-07-10T21:54:16Z
-date_finished: null
+last_update: 2026-07-10T21:55:57Z
+date_finished: 2026-07-10T21:55:57Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -188,3 +188,6 @@ git ls-remote --tags origin 2>/dev/null | grep -q designer-v0.2.0
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-181-tag-designer-releases-per-provenance-con.md
 - **Context:** Initial task creation
+
+### 2026-07-10T21:55:57Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
