@@ -218,3 +218,10 @@ learnings:
   date: 2026-07-11
   context: Added via context agent
   application: TBD
+- id: PL-032
+  learning: "Cross-host termlink file_send can silently fail (deprecated replay path) — the sender sees success but the file never arrives. For byte-exact artifact hand-off between agents, post the bytes INSIDE the rail envelope via channel_post payload_b64 with sha256 in metadata, and prove delivery by decode-and-hash round-trip before claiming it. channel_post is durable (read back verbatim by channel_state) and boundary-safe."
+  source: P-002
+  task: T-193
+  date: 2026-07-12
+  context: Added via context agent
+  application: TBD
