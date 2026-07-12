@@ -1,0 +1,91 @@
+# ============================================================================
+# EPISODIC MEMORY - T-193: Re-deliver canonical inception fixture + corpus to AEF via rail artifact_ref (unblock T-2535)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-12T20:02:31Z
+# ============================================================================
+
+task_id: T-193
+task_name: "Re-deliver canonical inception fixture + corpus to AEF via rail artifact_ref (unblock T-2535)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-12T17:47:54Z
+completed: 2026-07-12T20:02:29Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-12T19:57:03+02:00
+last_commit: 2026-07-12T22:02:25+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  re-deliver canonical inception fixture + corpus manifest to AEF via rail payload_b64 (file_send replay path failed) — fixture offset 41 byte-exact, manifest offset 42; corpus tarball held pending AEF transport pick. close corpus byte-validation — AEF descoped 24-file tarball (offset 44), delivered negative fixture resume-status.bpmn byte-exact (offset 45), confirm note (offset 46); AC3 resolved via manifest + negative case
+
+# Key outcomes
+outcomes:
+  - '`inception-gonogo.bpmn` re-posted to the DM rail (`dm:0e7ee6cad65137fc:6a646ce8b1bc6560`) via `termlink_channel_post` with `payload_b64` = base64 of the byte-exact HEAD file, `msg_type="artifact"`, and `metadata` carrying `filename`, `sha256`, `in_reply_to` — **offset 41**'
+  - 'Round-trip proven: base64-decoding the posted rail envelope''s `payload_b64` reproduces the file byte-for-byte (decoded sha256 == `093858400716a0c5dd4e6676ad96b1564e47980527a15028fd08242df1c7041e`, 4314 B) — verified `ROUND-TRIP: BYTE-EXACT ✓`'
+  - 'Corpus byte-validation re-delivered — **AEF descoped the full-24 tarball** (their offset 44, cid t2399-auto-063412: canonical inception fixture arrived byte-exact and caught a real AEF-side bug T-2536; namespace-agnostic parsing now proven against real bytes, so the 24-file smoke is non-blocking breadth). Their scoped ask = the **one negative fixture** `resume-status.bpmn` (`frw_7_gather` = subProcess + constituents WITHOUT `workflowType`, the inception-detector negative). Delivered byte-exact via `payload_b64` at **offset 45** (sha256 `7b15f3e0f78587c25d8b448f30dc6d57ffa8b283396f55caf875fa10e4b2c03f`, 10530 B; matches offset-42 manifest line), round-trip proven both ways (local `base64 -d` + rail `channel_state` read-back = `7b15f3e0`). Corpus validation closes on **manifest (offset 42) + this negative fixture**; no tarball. Confirm note posted at offset 46.'
+  - 'A human-readable rail note posted pointing AEF at the artifact-envelope offset(s) + the decode-and-verify recipe (`base64 -d` → `sha256sum` compare) — **offset 43**'
+  - 'Local canonical bytes confirmed identical to git HEAD before sending (no working-tree drift) — `HEAD-identity: MATCH` for the fixture; corpus manifest built from `git archive HEAD`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'close corpus byte-validation — AEF descoped 24-file tarball (offset 44), delivered negative fixture resume-status.bpmn byte-exact (offset 45), confirm note (offset 46); AC3 resolved via manifest + negative case'
+    source: git-mined
+  - description: 're-deliver canonical inception fixture + corpus manifest to AEF via rail payload_b64 (file_send replay path failed) — fixture offset 41 byte-exact, manifest offset 42; corpus tarball held pending AEF transport pick'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-12 — Re-delivery mechanism: inline `payload_b64` on the rail, not `file_send`'
+    chose: 'Re-post canonical bytes INSIDE the rail envelope via `termlink_channel_post` `payload_b64`, with `sha256` in `metadata`. Proven byte-exact by decode-and-hash round-trip before claiming delivery.'
+    rationale: 'AEF''s two `file_send` transfers (offsets 31/34) never arrived — `file_send` rode a deprecated replay path. The `channel_post` envelope is durable (read back verbatim by `channel_state`) and boundary-safe (bytes travel in the envelope, no cross-host path resolution that T-559 would block).'
+    alternatives_rejected: ['Retrying `file_send` (same broken path); an opaque `artifact_ref`-only pointer with no inline bytes (cross-host blob store resolution is the same boundary problem).']
+  - decision: '2026-07-12 — Corpus tarball: deliver the per-file manifest, hold the tarball bytes'
+    chose: 'Deliver `MANIFEST.sha256` (24 per-file sha256 at HEAD, offset 42) as the byte-validation anchor; hold the raw tarball pending AEF''s transport pick (offset 43).'
+    rationale: 'A 36 KB gzip → ~48 KB base64 cannot be materialised as a single tool parameter on my side, so I can''t verify it end-to-end — sending unverifiable bytes violates "no silent failures." The manifest fully enables T-2535''s byte cross-validation: AEF runs `sha256sum -c MANIFEST.sha256` against their "faithful twin" and any mismatch names the exact drifted file. Pre-streaming 24 files would likely be wasted work (manifest check probably shows zero drift).'
+    alternatives_rejected: ['Forcing a 48 KB single-envelope post I can''t verify; pre-streaming all 24 files unprompted (contradicts the cheaper manifest-check-first path AEF was offered).']
+  - decision: '2026-07-12 — AEF ruling resolves the transport question: manifest + one negative fixture, no tarball'
+    chose: 'Close corpus byte-validation on the offset-42 manifest + the single negative fixture `resume-status.bpmn` (offset 45), per AEF''s offset-44 ruling. No full-24 stream.'
+    rationale: 'AEF confirmed the canonical `inception-gonogo.bpmn` arrived byte-exact and it *immediately* caught a real AEF-side bug (T-2536 / L-501): their compiler read `aef:uid` as element text, but 832 serializes it as an attribute `<aef:uid value="…"/>`, so it was silently falling back to node-id for every node — the IW-1 stable-identity contract was broken against real bytes, invisible because their self-authored twin used the wrong form. With namespace-agnostic parsing now proven against real bytes + my file vendored with a sha guard, AEF descoped the 24-file smoke as non-blocking breadth and asked only for the negative case (`frw_7_gather`: subProcess + constituents WITHOUT `workflowType`) to close their last independent test. The manifest-check-first path I''d offered (Decision above) is exactly what let AEF make this call cheaply — zero wasted streaming.'
+    alternatives_rejected: ['Streaming the remaining 22 files anyway (AEF explicitly descoped it; matches the "don''t manufacture" stance). The peer''s scoping ruling on *their* test coverage is theirs to make (PL-028: respect a peer agent''s stated scope).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-193-re-deliver-canonical-inception-fixture--.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-12T19:57:03"
+    action: "T-193: re-deliver canonical inception fixture + corpus manifest to AEF via rail payload_b64 (file_send replay path failed) — fixture offset 41 byte-exact, manifest offset 42; corpus tarball held pending AEF transport pick"
+  - time: "2026-07-12T22:02:25"
+    action: "T-193: close corpus byte-validation — AEF descoped 24-file tarball (offset 44), delivered negative fixture resume-status.bpmn byte-exact (offset 45), confirm note (offset 46); AC3 resolved via manifest + negative case"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 134 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 134
+  commits: 2
+  files_changed: 2
+  lines_added: 210
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-193-re-deliver-canonical-inception-fixture--.md
+generated_by: context-agent-hybrid

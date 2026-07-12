@@ -4,10 +4,10 @@ name: "Re-deliver canonical inception fixture + corpus to AEF via rail artifact_
 description: >
   AEF's termlink file_send transfers (offsets 31/34) never arrived — deprecated replay path. AEF asked for re-send via rail artifact_ref. Re-post inception-gonogo.bpmn (and 24-map corpus) byte-exact via termlink_channel_post payload_b64 on the DM rail, with sha256 in metadata for their T-2535 byte/behaviour cross-validation.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-12T17:47:54Z
-last_update: 2026-07-12T17:57:04Z
-date_finished: null
+last_update: 2026-07-12T20:02:29Z
+date_finished: 2026-07-12T20:02:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -199,3 +199,6 @@ python3 tests/test_forward_fixtures.py
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-193-re-deliver-canonical-inception-fixture--.md
 - **Context:** Initial task creation
+
+### 2026-07-12T20:02:29Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
