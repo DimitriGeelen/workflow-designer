@@ -1,6 +1,11 @@
 # AEF BPMN ⇄ task/inception-YAML Mapping Standard — v1
 
-**Version:** 1.0 (2026-07-11) · **Status:** frozen core + provisional annex · **Arc:** designer-authoring-surface (child-1, keystone)
+**Version:** 1.1 (2026-07-12) · **Status:** frozen core + provisional annex · **Arc:** designer-authoring-surface (child-1, keystone)
+
+> **v1.1 (2026-07-12):** G-3 inception-marker shape graduates from Part II provisional into Part I frozen (§7),
+> ratified as the collapsed `subProcess` with the go/no-go implied at the boundary (AEF operator, termlink
+> T-175; 832 sovereign GO, T-195). Reverse-mapping row for inceptions (§4) updated to match. IW-9 owner-model
+> and the remaining Part II items stay provisional pending their own rulings.
 **Origin:** T-175 (framing inception, GO) → T-182 (child-1 build). Converged from `docs/reports/T-175-mapping-strawman.md`, validated against `src/aef-workflow-designer.html`.
 
 ## Purpose & principle
@@ -96,7 +101,7 @@ First target is AEF's own structured record (IW-4); arbitrary source parsing is 
 |---|---|
 | A task | Task node, typed by `workflow_type`, laned by `owner` |
 | `related_tasks` / dependency | Sequence flow |
-| Inception decision (go/no-go) | exclusiveGateway with GO/NO-GO branches |
+| An inception (go/no-go) | Collapsed `subProcess` w/ `aef:meta workflowType="inception"` in a sovereignty lane; go/no-go **implied at the boundary** (no child gateway — §7) |
 | An arc | Collapsed subProcess containing its constituents |
 | Parallel/independent tasks | parallelGateway fan-out |
 | Episodic (completed order) | Left-to-right flow ordering |
@@ -123,6 +128,16 @@ An implementation is **v1-conformant** iff:
 The frozen governance meta-key list (§2) is machine-checked against the reference editor and bridge by
 `tests/test_mapping_standard_conformance.py` (standard↔implementation parity; complements the T-060 editor↔bridge parity test).
 
+## 7. Inception marker (G-3) — ratified v1.1
+
+An inception is a **collapsed `subProcess`** carrying `aef:meta workflowType="inception"`, laned in a
+**sovereignty** lane. With no node-level `owner` set, `owner` derives to `human` via the §3 lane default. The
+go/no-go gateway is **implied at the subProcess boundary**: a conformant inception **MUST NOT** emit a child
+`exclusiveGateway` (T-081 phase-1 is collapsed-only, no nesting). Members are listed in `<aef:constituents>`.
+A gateway-less task-node is **not** an acceptable inception form — the lightweight inception **is** the
+collapsed subProcess. Detection: a `subProcess` **with** `workflowType="inception"` ⇒ inception; **without**
+⇒ ordinary composite (cf. §4). Reference fixture: `tests/fixtures/aef-bpmn/inception-gonogo.bpmn`.
+
 ---
 
 # Part II — Provisional (pending AEF ruling)
@@ -130,10 +145,6 @@ The frozen governance meta-key list (§2) is machine-checked against the referen
 These are **not** frozen. They carry the reference-implementation's proposal; the AEF side rules before they
 enter a future frozen version.
 
-- **Inception marker shape (G-3):** proposed — an inception is a `subProcess` with `aef:meta workflowType=inception`
-  whose terminal element is an `exclusiveGateway` carrying `aef:decisionInput`/`aef:decisionOutputs` (the
-  go/no-go), reusing `aef:constituents` for members. *Open:* whether a single task-node-with-marker is also
-  acceptable for lightweight inceptions.
 - **`tier` default:** the absent-value default for `tier` is project-dependent; the canonical default is
   unratified.
 - **AC-seeding:** acceptance criteria have no BPMN shape; they live in node metadata and are filled by the
