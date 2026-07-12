@@ -752,3 +752,10 @@ decisions:
     date: 2026-07-12
     task: T-195
     rationale: "AEF operator ratified on termlink T-175; 832 sovereign (Dimitri) authorized the frozen edit. IW-9 held provisional to keep graduations independent."
+
+  - id: PD-087
+    decision: "IW-9 authority-collapse graduated to v1.1 of BOTH standards (mapping-v1 + forward-compile) under Dimitri sovereign GO: owner derived from lane authority, node-level owner override REMOVED. Operator rulings: O-1=lane-wins+WARN (not hard error), O-2=keep owner in editor/bridge metaKeys, O-3=inception go/no-go MUST be human-laned (machine-checkable). Folded into v1.1 alongside G-3. Behavioral code change filed as separate build task."
+    scope: project
+    date: 2026-07-12
+    task: T-189
+    rationale: "AEF ratified framing (rail offset 25); Dimitri authorized frozen graduation. Rulings align with AEF Child-2 compiler T-2531 -> zero rework."
