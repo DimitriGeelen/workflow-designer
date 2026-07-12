@@ -710,3 +710,45 @@ decisions:
     date: 2026-07-10
     task: T-175
     rationale: "Decomposition of a program-level arc is the operator's sovereign call (AEF agent flagged this correctly); operator authorization makes joint agent convergence in-bounds while preserving per-child GO/NO-GO."
+
+  - id: PD-081
+    decision: "Source the drop from `git archive HEAD` (canonical committed corpus)."
+    scope: project
+    date: 2026-07-12
+    task: T-191
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-082
+    decision: "Add a **Source** column and a 5th row marking `inception-gonogo.bpmn` as hand-authored + provisional-G-3, and reword the intro to \"4 editor-emitted + 1 hand-authored\" — rather than simply bumping \"Four\" → \"Five\"."
+    scope: project
+    date: 2026-07-12
+    task: T-194
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-083
+    decision: "Re-post canonical bytes INSIDE the rail envelope via `termlink_channel_post` `payload_b64`, with `sha256` in `metadata`. Proven byte-exact by decode-and-hash round-trip before claiming delivery."
+    scope: project
+    date: 2026-07-12
+    task: T-193
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-084
+    decision: "Deliver `MANIFEST.sha256` (24 per-file sha256 at HEAD, offset 42) as the byte-validation anchor; hold the raw tarball pending AEF's transport pick (offset 43)."
+    scope: project
+    date: 2026-07-12
+    task: T-193
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-085
+    decision: "Close corpus byte-validation on the offset-42 manifest + the single negative fixture `resume-status.bpmn` (offset 45), per AEF's offset-44 ruling. No full-24 stream."
+    scope: project
+    date: 2026-07-12
+    task: T-193
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-086
+    decision: "G-3 inception marker graduated to mapping-v1 v1.1 (frozen Part I §7) under Dimitri sovereign GO: collapsed subProcess + workflowType=inception, go/no-go implied at boundary, no child gateway. Reverse-map §4 row + version bumped; strawman removed from Part II. Scoped orthogonal to IW-9 (T-189): owner derives via current §3 lane-default, NOT the ungraduated node-owner-removal rule."
+    scope: project
+    date: 2026-07-12
+    task: T-195
+    rationale: "AEF operator ratified on termlink T-175; 832 sovereign (Dimitri) authorized the frozen edit. IW-9 held provisional to keep graduations independent."
