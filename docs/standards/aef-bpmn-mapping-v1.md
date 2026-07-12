@@ -4,8 +4,11 @@
 
 > **v1.1 (2026-07-12):** G-3 inception-marker shape graduates from Part II provisional into Part I frozen (§7),
 > ratified as the collapsed `subProcess` with the go/no-go implied at the boundary (AEF operator, termlink
-> T-175; 832 sovereign GO, T-195). Reverse-mapping row for inceptions (§4) updated to match. IW-9 owner-model
-> and the remaining Part II items stay provisional pending their own rulings.
+> T-175; 832 sovereign GO, T-195). Reverse-mapping row for inceptions (§4) updated to match. **IW-9** — authority
+> collapsed to two orthogonal axes (Lane = who-performs; `workflow_type` = kind); the node-level `owner`
+> override is **removed** (§2 table + conformance fence, §3), `owner` now derives from the lane authority
+> (T-189). O-1 resolved lane-wins + WARN; O-3 makes an inception's go/no-go human-lane a compile-time **MUST**
+> (§7). Remaining Part II items (`tier` default, AC-seeding) stay provisional pending their own rulings.
 **Origin:** T-175 (framing inception, GO) → T-182 (child-1 build). Converged from `docs/reports/T-175-mapping-strawman.md`, validated against `src/aef-workflow-designer.html`.
 
 ## Purpose & principle
@@ -54,7 +57,6 @@ are the following. A conformant editor MUST emit each on task-like nodes, and th
 ```conformance-governance-meta-keys
 horizon
 workflowType
-owner
 tier
 agentType
 ```
@@ -63,7 +65,7 @@ agentType
 |---|---|---|---|
 | `horizon` | `horizon` | `now` \| `next` \| `later` | `now` |
 | `workflowType` | `workflow_type` | build \| test \| refactor \| decommission \| specification \| design \| inception | inferred from BPMN type (service/script→build; user→human-facing) |
-| `owner` | `owner` | `human` \| `agent` | lane default; node value overrides lane (§4) |
+| ~~`owner`~~ *(derived — see §3)* | `owner` | `human` \| `agent` | **derived from the node's lane (Axis 1); no node-level override.** `owner` remains in task-YAML output but has no node-level BPMN carrier in v1.1. |
 | `tier` | enforcement tier | `0`..`3` | project default |
 | `agentType` | agent assignment | `primary` \| `termlink-worker` \| `human` | `primary` |
 
@@ -91,7 +93,7 @@ approval is a separate sovereignty gate).
 | sequence flow (edge) | Ordering dependency | A→B ⇒ B depends on A |
 | node documentation / annotation | Acceptance-criteria seed | ACs enriched by the agent (IW-3) |
 
-**owner precedence:** node-level `owner` MUST override the lane default; absent → lane default.
+**owner is the lane (IW-9, v1.1):** a node's `owner` MUST be its lane — there is **no** node-level `owner` override. The Lane (its `aef:laneMeta authority`) is the sole authority-of-record for who-performs, compiled via the collapse map `sovereignty→human`, `initiative→agent`, `authority→agent`, `external→no task`. Task-type (userTask vs service/scriptTask) SHOULD agree with the lane and is **presentational** where it does not; the forward-compiler emits a validation **WARNING** on the mismatch rather than refusing the diagram (O-1: lane wins, warn-not-refuse).
 
 ## 4. Reverse mapping (AEF record → rendered process map)
 
@@ -131,7 +133,7 @@ The frozen governance meta-key list (§2) is machine-checked against the referen
 ## 7. Inception marker (G-3) — ratified v1.1
 
 An inception is a **collapsed `subProcess`** carrying `aef:meta workflowType="inception"`, laned in a
-**sovereignty** lane. With no node-level `owner` set, `owner` derives to `human` via the §3 lane default. The
+**sovereignty** lane. It **MUST** be sovereignty-laned: a conformant inception's go/no-go boundary MUST sit in a sovereignty (human) lane, machine-checked at compile time (O-3, v1.1); `owner` derives to `human` from that lane (§3, no node override). The
 go/no-go gateway is **implied at the subProcess boundary**: a conformant inception **MUST NOT** emit a child
 `exclusiveGateway` (T-081 phase-1 is collapsed-only, no nesting). Members are listed in `<aef:constituents>`.
 A gateway-less task-node is **not** an acceptable inception form — the lightweight inception **is** the

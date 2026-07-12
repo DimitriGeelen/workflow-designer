@@ -1,6 +1,10 @@
 # AEF Forward-Compile Spec — BPMN(+aef:) → proposed task/inception graph — v1
 
-**Version:** 1.0 (2026-07-11) · **Status:** 832-side support deliverable for the AEF-led forward bridge
+**Version:** 1.1 (2026-07-12) · **Status:** 832-side support deliverable for the AEF-led forward bridge
+
+> **v1.1 (2026-07-12):** IW-9 authority-collapse graduated (mapping-v1 v1.1, T-189) — `owner` is derived from
+> the lane `authority`, no node-level override (§3B.1/§3B.2/§2); O-1 = lane-wins + WARN; O-3 = inception go/no-go
+> MUST be human-laned (§8). Matches AEF's Child-2 compiler (T-2531), built to this collapse from day one.
 **Arc:** designer-authoring-surface (child-2, forward bridge) · **Origin:** T-183
 **Derives from:** `docs/standards/aef-bpmn-mapping-v1.md` (child-1, frozen v1) — this document adds no new
 contract; it specifies the *expected output* of compiling a v1-conformant diagram, so the AEF translator
@@ -25,11 +29,12 @@ A conformant input is any BPMN diagram that passes the v1 conformance requiremen
 §6). Concretely, the reference editor `src/aef-workflow-designer.html` emits, and the compiler may rely on:
 
 - **`aef:uid`** on every flow node and every sequence flow (v1 §5) — the identity hinge.
-- **`aef:meta`** carrying governance scalars as attributes (v1 §2/§3): `tier`, `agentType`, `owner`,
-  `horizon`, `workflowType` (frozen), plus editor-vocabulary keys (`state`, `gate`, `triggeredBy`,
+- **`aef:meta`** carrying governance scalars as attributes (v1 §2/§3): `tier`, `agentType`,
+  `horizon`, `workflowType` (frozen; `owner` is **no longer author-supplied** in v1.1 — it is derived from the
+  lane `authority`, see §3B.1), plus editor-vocabulary keys (`state`, `gate`, `triggeredBy`,
   `decisionOwner`, `terminalKind`, `note`, `softFail`, `guard`, `external`, `exitCode`, …). Every key the
   editor emits is within the bridge `META_KEYS` whitelist (guarded by `test_editor_bridge_meta_parity.py`).
-- **Lanes** with `aef:laneMeta authority="sovereignty|authority|initiative|external"` — the owner source.
+- **Lanes** with `aef:laneMeta authority="sovereignty|authority|initiative|external"` — the **sole** owner source (v1.1, IW-9).
 - **Process-level `aef:workflowMeta`** (`id`, `version`, `tier_default`, `title`).
 - **Structured semantic elements** (v1 §1, semantic class): `aef:io`/`aef:input`/`aef:output`,
   `aef:endpoint`, `aef:artifactsWrites`, `aef:contextReads`, `aef:decisionInput`/`aef:decisionOutputs`,
@@ -59,7 +64,7 @@ enrichment (ACs, refined descriptions) is a separate AEF pass over the proposal.
 | `bpmn:sequenceFlow` A→B | Ordering dependency | **B depends_on A.** |
 | node `documentation` / annotation | Acceptance-criteria seed | filled by the AEF enrichment step (v1 Part II — AC-seeding is provisional). |
 
-**owner precedence:** a node-level `aef:meta owner` overrides its lane's default; absent → lane default (v1 §3).
+**owner is the lane authority (IW-9, v1.1):** `owner` is derived from the member lane's `aef:laneMeta authority` via the collapse map (`sovereignty→human`, `initiative→agent`, `authority→agent`, `external→no task`). There is **no** node-level `aef:meta owner` override.
 
 ### 3.2 Scalar field mapping (`aef:meta` → task-YAML)
 
@@ -69,7 +74,7 @@ Per v1 §2, on each proposed task:
 |---|---|---|
 | `horizon` | `horizon` | default `now` when absent |
 | `workflowType` | `workflow_type` | else inferred from BPMN node type |
-| `owner` | `owner` | overrides lane (§3.1) |
+| ~~`owner`~~ *(derived)* | `owner` | **derived from lane `authority` (§3.1); no node-level override** |
 | `tier` | enforcement tier | else `workflowMeta.tier_default`, else project default |
 | `agentType` | agent assignment | default `primary` |
 
@@ -161,8 +166,9 @@ assignable `aef:uid` on every node and edge. No editor change is required for ch
 
 Deferred to AEF and pending on termlink thread T-175; on ruling they graduate into a v1.1 of both standards:
 - **Enrichment output format** — the exact proposed-task-YAML shape and the AC-seed field.
-- **Inception marker shape (G-3)** — **RESOLVED (ratified AEF-side, pending v1.1 graduation).** The form is a
+- **Inception marker shape (G-3)** — **GRADUATED to v1.1** (mapping-v1 §7; 832 sovereign GO, T-195). The form is a
   collapsed `subProcess` + `aef:meta workflowType="inception"` in a sovereignty lane, with the go/no-go
-  **implied at the boundary** (no child gateway); a gateway-less task-node is not acceptable. See §5
-  (`inception-gonogo.bpmn`) and the delta proposal `docs/reports/T-195-g3-collapsed-inception-delta.md`.
+  **implied at the boundary** (no child gateway); a gateway-less task-node is not acceptable. **O-3 (v1.1):** the
+  go/no-go boundary MUST be sovereignty(human)-laned — the compiler asserts this and fails fast on a malformed
+  inception. See §5 (`inception-gonogo.bpmn`) and mapping-v1 §7.
 - **`tier` default** — canonical absent-value default vs. `workflowMeta.tier_default`.
