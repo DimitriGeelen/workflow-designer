@@ -161,5 +161,8 @@ assignable `aef:uid` on every node and edge. No editor change is required for ch
 
 Deferred to AEF and pending on termlink thread T-175; on ruling they graduate into a v1.1 of both standards:
 - **Enrichment output format** — the exact proposed-task-YAML shape and the AC-seed field.
-- **Inception marker shape (G-3)** — subProcess-with-decision vs. single-node-with-marker.
+- **Inception marker shape (G-3)** — **RESOLVED (ratified AEF-side, pending v1.1 graduation).** The form is a
+  collapsed `subProcess` + `aef:meta workflowType="inception"` in a sovereignty lane, with the go/no-go
+  **implied at the boundary** (no child gateway); a gateway-less task-node is not acceptable. See §5
+  (`inception-gonogo.bpmn`) and the delta proposal `docs/reports/T-195-g3-collapsed-inception-delta.md`.
 - **`tier` default** — canonical absent-value default vs. `workflowMeta.tier_default`.
