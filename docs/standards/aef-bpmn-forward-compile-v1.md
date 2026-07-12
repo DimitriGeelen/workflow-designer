@@ -99,16 +99,20 @@ tuple alongside the mapped fields.
 
 ## 5. Reference corpus (`tests/fixtures/aef-bpmn/`)
 
-Four authentic editor-emitted diagrams, curated to cover every v1 §3 row present in the editor vocabulary.
-Guarded by `tests/test_forward_fixtures.py` (parse; `aef:uid` on every node+edge; every `aef:meta` key within
-the bridge whitelist; `tier`/`agentType`/owner-via-lanes exercised).
+The corpus is **5 fixtures**: **4 authentic editor-emitted diagrams**, curated to cover every v1 §3 row
+present in the editor vocabulary, **plus 1 hand-authored inception fixture** (`inception-gonogo.bpmn`) that
+exercises the *provisional* **G-3 inception marker** (mapping-v1 Part II — ratified AEF-side, **pending
+Dimitri's v1.1 graduation**; hand-authored, not editor-emitted, not frozen). All 5 are guarded by
+`tests/test_forward_fixtures.py` (parse; `aef:uid` on every node+edge; every `aef:meta` key within the bridge
+whitelist; `tier`/`agentType`/owner-via-lanes exercised).
 
-| Fixture | Exercises |
-|---|---|
-| `arc-lifecycle.bpmn` | userTask, serviceTask, scriptTask, exclusiveGateway (human decision), 3 lanes (hum/frw/agt), start/end events, sequence-flow chain, `aef:io`/`aef:endpoint`/`aef:artifactsWrites`/`aef:decisionInput` |
-| `harvest-pipeline.bpmn` | **parallelGateway** fan-out/fan-in, dense scriptTask chain, multiple exclusiveGateways |
-| `investigate.bpmn` | parallelGateway + exclusiveGateway with `aef:decisionInput`, userTask + serviceTask mix, loop-back edge |
-| `resume-status.bpmn` | **subProcess** (composite), scriptTask chain, exclusiveGateway |
+| Fixture | Source | Exercises |
+|---|---|---|
+| `arc-lifecycle.bpmn` | editor-emitted | userTask, serviceTask, scriptTask, exclusiveGateway (human decision), 3 lanes (hum/frw/agt), start/end events, sequence-flow chain, `aef:io`/`aef:endpoint`/`aef:artifactsWrites`/`aef:decisionInput` |
+| `harvest-pipeline.bpmn` | editor-emitted | **parallelGateway** fan-out/fan-in, dense scriptTask chain, multiple exclusiveGateways |
+| `investigate.bpmn` | editor-emitted | parallelGateway + exclusiveGateway with `aef:decisionInput`, userTask + serviceTask mix, loop-back edge |
+| `resume-status.bpmn` | editor-emitted | **subProcess** (composite), scriptTask chain, exclusiveGateway |
+| `inception-gonogo.bpmn` | **hand-authored** (provisional) | Positive inception case for slice-3 detection: collapsed **`subProcess`** with `aef:meta workflowType="inception"` in a **sovereignty** lane (owner derives to human), `aef:constituents` members, go/no-go gateway **implied at the boundary** (T-081 phase-1 — no child gateway). Embodies the *provisional* **G-3 marker** (mapping-v1 Part II, pending v1.1 graduation) — **not** editor-emitted, **not** frozen. |
 
 ### 5.1 Worked example — `arc-lifecycle.bpmn` → proposed graph
 
