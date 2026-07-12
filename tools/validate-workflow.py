@@ -879,6 +879,81 @@ class XmlValidator:
                         "terminates)",
                     )
 
+        # v1.1 IW-9 authority enforcement (mapping-v1 §3/§7): O-1 type/lane
+        # mismatch (WARN) + O-3 inception-must-be-sovereignty-laned (ERROR).
+        self._check_iw9_authority(process)
+
+    def _check_iw9_authority(self, process):
+        """v1.1 IW-9 authority enforcement on the BPMN form (mapping-v1 §3/§7).
+
+        O-3 (E-INCEPTION-NOT-SOVEREIGN, ERROR): a subProcess carrying
+          ``aef:meta workflowType="inception"`` MUST be a member of a lane whose
+          ``aef:laneMeta authority="sovereignty"`` — the go/no-go boundary is
+          human-owned. Fails fast on a malformed inception.
+        O-1 (W-TYPE-LANE-MISMATCH, WARN): a userTask/serviceTask/scriptTask whose
+          task-type-implied performer disagrees with the lane authority collapse.
+          The lane is authority-of-record and wins; task-type is presentational.
+        """
+        # lane authority -> task-YAML owner collapse (mapping-v1 §3)
+        AUTHORITY_OWNER = {
+            "sovereignty": "human",
+            "initiative": "agent",
+            "authority": "agent",
+            # external -> no task authored; none -> unspecified (both skipped)
+        }
+        TYPE_PERFORMER = {
+            "userTask": "human",
+            "serviceTask": "agent",
+            "scriptTask": "agent",
+        }
+        lane_set = process.find("{%s}laneSet" % BPMN_NS)
+        if lane_set is None:
+            return
+        # flow-node id -> its lane's authority
+        node_authority = {}
+        for lane in lane_set.findall("{%s}lane" % BPMN_NS):
+            lm = lane.find(
+                "{%s}extensionElements/{%s}laneMeta" % (BPMN_NS, AEF_NS)
+            )
+            authority = lm.get("authority") if lm is not None else None
+            for ref_el in lane.findall("{%s}flowNodeRef" % BPMN_NS):
+                ref = (ref_el.text or "").strip()
+                if ref:
+                    node_authority[ref] = authority
+        for child in list(process):
+            local = self._local(child.tag)
+            nid = child.get("id")
+            if nid is None:
+                continue
+            authority = node_authority.get(nid)
+            # O-3: an inception's boundary MUST be sovereignty(human)-laned
+            if local == "subProcess":
+                meta = child.find(
+                    "{%s}extensionElements/{%s}meta" % (BPMN_NS, AEF_NS)
+                )
+                wft = meta.get("workflowType") if meta is not None else None
+                if wft == "inception" and authority != "sovereignty":
+                    self.err(
+                        "E-INCEPTION-NOT-SOVEREIGN",
+                        "subProcess '%s'" % nid,
+                        'inception (workflowType="inception") must be in a '
+                        "sovereignty (human) lane; its lane authority is %s "
+                        "(O-3, mapping-v1 §7)"
+                        % ("absent" if authority is None else "'%s'" % authority),
+                    )
+            # O-1: task-type should agree with lane authority (lane wins)
+            if local in TYPE_PERFORMER and authority is not None:
+                owner = AUTHORITY_OWNER.get(authority)
+                if owner is not None and owner != TYPE_PERFORMER[local]:
+                    self.warn(
+                        "W-TYPE-LANE-MISMATCH",
+                        "node '%s'" % nid,
+                        "%s implies performer '%s' but its lane authority '%s' "
+                        "collapses to owner '%s'; the lane wins, task-type is "
+                        "presentational (O-1, mapping-v1 §3)"
+                        % (local, TYPE_PERFORMER[local], authority, owner),
+                    )
+
 
 def exit_code(findings):
     if any(f.severity == ERROR for f in findings):
