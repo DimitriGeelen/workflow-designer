@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-11T16:56:45Z
-last_update: 2026-07-11T21:38:37Z
+last_update: 2026-07-11T21:43:12Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -56,8 +56,8 @@ Agent may draft the delta on operator GO; agent must NOT unilaterally edit froze
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] v1.1 authority-collapse delta is drafted as a PROPOSAL document at `docs/reports/T-189-iw9-authority-collapse-delta.md` — the FROZEN v1 standard (`docs/standards/aef-bpmn-mapping-v1.md`) is NOT edited under agent control
-- [x] The proposal specifies exact before→after textual changes to frozen v1 §2 (governance meta-keys table + `conformance-governance-meta-keys` block) and §3 (the "owner precedence" line), realizing: Lane = sole authority-of-record for who-performs; workflow_type = kind-of-work; node-level `owner` override REMOVED
-- [x] The proposal states the graduation blast-radius: which conformance assertions in `tests/test_mapping_standard_conformance.py` (and editor/bridge `metaKeys`/`META_KEYS`) change, so the version bump + test update is scoped before it happens
+- [x] The proposal specifies exact before→after textual changes to BOTH standards IW-9 touches — `aef-bpmn-mapping-v1.md` §2/§3 and `aef-bpmn-forward-compile-v1.md` §2/§3.1/§3.2/§5.1 (its §8 anticipates a v1.1 of both) — realizing: Lane authority (4-valued `aef:laneMeta authority`) = sole who-performs carrier; workflow_type = kind-of-work; node-level `owner` override REMOVED
+- [x] The proposal states the graduation blast-radius across both test paths (`tests/test_mapping_standard_conformance.py` and `tests/test_forward_fixtures.py`, plus editor/bridge `metaKeys`/`META_KEYS`) — both verified conformance-safe/green as written, so the version bump is scoped before it happens
 - [x] Open sub-questions that genuinely need an operator ruling (e.g. lane-vs-task-type tiebreak when a serviceTask sits in a human lane) are enumerated rather than silently resolved
 - [x] Proposal document is referenced from this task and AEF is informed on the DM rail that the 832-side delta is drafted and awaiting Dimitri's sign-off (rail offset 27)
 

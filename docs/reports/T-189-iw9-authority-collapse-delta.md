@@ -1,7 +1,7 @@
 # IW-9 — v1.1 Mapping-Standard Delta: Collapse Triple-Encoded Authority
 
 **Task:** T-189 · **Status:** DRAFT proposal — awaiting operator (Dimitri) sign-off · **Arc:** designer-authoring-surface
-**Targets:** `docs/standards/aef-bpmn-mapping-v1.md` (FROZEN v1) — a v1 → **v1.1** delta
+**Targets:** `docs/standards/aef-bpmn-mapping-v1.md` (FROZEN v1) **and** `docs/standards/aef-bpmn-forward-compile-v1.md` — a v1 → **v1.1** delta to **both** (the forward-compile spec's §8 already anticipates this)
 **Origin:** AEF design-review finding IW-9 (rail `dm:0e7ee6cad65137fc:6a646ce8b1bc6560`, offset 20); 832-side BPMN read (offset 24); **AEF operator RATIFIED the framing** (offset 25, 2026-07-11).
 
 > **This document is a proposal, not a graduation.** Under 832 governance, editing the FROZEN v1 standard
@@ -33,8 +33,13 @@ rule to reconcile it. This extends IW-7 (owner↔Lane double-encoding) with a *t
 Collapse to **exactly one authority-of-record axis and one kind axis**, which are orthogonal and therefore
 cannot disagree:
 
-- **Axis 1 — WHO performs (authority-of-record) = the Lane.** `owner:human` ⇔ human lane; `owner:agent` ⇔
-  agent lane (per IW-7). The task-YAML `owner` field is compiled **from the node's lane, always**.
+- **Axis 1 — WHO performs (authority-of-record) = the Lane.** The concrete carrier is the lane's
+  **`aef:laneMeta authority`** attribute, which is *4-valued* (`sovereignty | authority | initiative |
+  external`) — not a bare human/agent split (see `aef-bpmn-forward-compile-v1.md` §2/§3.1). The task-YAML
+  `owner` field is compiled **from the lane authority, always**, via the fixed collapse map:
+  `sovereignty → owner:human`; `initiative → owner:agent`; `authority → owner:agent` (framework acts as an
+  agent); `external → no task authored`. This subsumes IW-7's two-lane view and makes the lane the *single*
+  who-performs carrier.
 - **Axis 2 — WHAT KIND of work = `workflow_type`** (via `aef:meta workflowType`). `inception` = a
   decision / go-no-go unit; `build`/`test`/`refactor`/… = execution units. This is intrinsic to the type and
   is **not** a separate authority carrier.
@@ -111,6 +116,51 @@ it is derived from the lane. See §4 for why this specific removal is conformanc
 
 ---
 
+## 3B. Second carrier — the forward-compile spec (`aef-bpmn-forward-compile-v1.md`)
+
+IW-9 authority is encoded in **two** standards, and its §8 states open rulings "graduate into a **v1.1 of
+both standards**." The delta above (§3) is incomplete without the parallel edits here; graduating only the
+mapping standard would leave the forward-compile spec asserting the opposite ("owner overrides lane") — the
+exact cross-document drift this arc exists to prevent.
+
+### 3B.1 §3.1 structural table — the "owner precedence" line
+
+**BEFORE**
+> **owner precedence:** a node-level `aef:meta owner` overrides its lane's default; absent → lane default (v1 §3).
+
+**AFTER**
+> **owner is the lane authority (IW-9, v1.1):** `owner` is derived from the member lane's `aef:laneMeta
+> authority` via the collapse map (`sovereignty→human`, `initiative→agent`, `authority→agent`,
+> `external→no task`). There is **no** node-level `aef:meta owner` override.
+
+### 3B.2 §3.2 scalar table — the `owner` row
+
+**BEFORE**
+
+| `aef:meta` key | task-YAML field | note |
+|---|---|---|
+| `owner` | `owner` | overrides lane (§3.1) |
+
+**AFTER**
+
+| `aef:meta` key | task-YAML field | note |
+|---|---|---|
+| ~~`owner`~~ *(derived)* | `owner` | **derived from lane `authority` (§3.1); no node-level override** |
+
+### 3B.3 §2 input contract — the relied-upon scalars
+
+The bullet listing `aef:meta` governance scalars currently names `owner` among
+`tier, agentType, owner, horizon, workflowType`. On graduation, `owner` moves out of the *author-supplied*
+scalar list and into the *derived* column: the compiler MUST source `owner` from `aef:laneMeta authority`,
+not from an `aef:meta owner` attribute. (The lanes bullet already names `aef:laneMeta authority=…` as "the
+owner source" — v1.1 makes it the *sole* source.)
+
+### 3B.4 §5.1 worked example
+
+The worked example already derives owner purely from lanes (human=sovereignty→human, agent/framework lanes→
+agent) with no node-level override in play, so it needs **no change** — it happens to already illustrate the
+v1.1 rule. Worth a one-line note in the graduated doc confirming that.
+
 ## 4. Graduation blast-radius (what the version bump touches)
 
 Scoped *now* so the apply is bounded and no red slips past:
@@ -126,11 +176,20 @@ Scoped *now* so the apply is bounded and no red slips past:
    ignored rather than honored as an override) is real code and is **out of scope for this doc-delta** — it is
    downstream build work the graduation authorizes, not part of editing the standard. Recommend a separate
    build task filed on GO. The T-187/T-188 round-trip guards will cover that serialization change when it lands.
-3. **No fixture regen** — `aef:uid` and node/edge identity are untouched; this is a semantics/wording delta,
+3. **`aef-bpmn-forward-compile-v1.md`** — the second standard IW-9 touches (§3B). Same class of edit
+   (owner-precedence line, owner scalar row, input-contract sourcing) + a version bump to match. Its §8
+   already anticipates graduating "into a v1.1 of both standards."
+4. **`tests/test_forward_fixtures.py`** — **already** asserts "owner via lanes (`aef:laneMeta`)" and requires
+   lanes to be present (lines 186–191); it does **not** rely on a node-level `owner` override. The delta is
+   precisely what this test already enforces → **green, no edit required.** (Verified: the test's governance
+   contract is "tier + agentType at node level, owner-via-lanes.")
+5. **No fixture regen** — `aef:uid` and node/edge identity are untouched; this is a semantics/wording delta,
    not a geometry or identity change.
 
-Net: the *standard* delta is three text edits + a version bump and is conformance-green as written. The
-*implementation* of owner-from-lane is a separate, clearly-scoped build task.
+Net: the *standards* delta is a small set of text edits across **two** documents + matching version bumps,
+and is conformance-green as written on **both** test paths (`test_mapping_standard_conformance.py` and
+`test_forward_fixtures.py`). The *implementation* of owner-from-lane (forward-compile reads lane authority,
+ignores any node `owner` meta) is a separate, clearly-scoped build task — not part of this doc-delta.
 
 ---
 
@@ -139,10 +198,14 @@ Net: the *standard* delta is three text edits + a version bump and is conformanc
 These are genuine forks the delta should **not** silently resolve:
 
 - **O-1 — Lane vs task-type tiebreak.** BPMN task-type also implies execution authority (userTask→human,
-  service/scriptTask→agent). If a serviceTask sits in a *human* lane, which wins? Proposed: **Lane wins**
-  (it is authority-of-record) and the forward-compile emits a validation warning on the mismatch; task-type
-  becomes presentational where it disagrees. Alternative: treat the mismatch as a hard error the editor
-  forbids at author time. **Needs your call** — it changes whether the editor blocks or warns.
+  service/scriptTask→agent). The lane's authority is 4-valued (`sovereignty/authority/initiative/external`),
+  so the mismatch space is real: e.g. a `serviceTask` (implies agent) in a `sovereignty` lane (implies human),
+  or a `userTask` in an `authority` (framework) lane. Which wins? Proposed: **lane `authority` wins** (it is
+  authority-of-record) and the forward-compile emits a validation warning on the mismatch; task-type becomes
+  presentational where it disagrees. Alternative: treat the mismatch as a hard error the editor forbids at
+  author time. **Needs your call** — it changes whether the editor blocks or warns. Note the `authority`
+  (framework) lane has no distinct task-YAML `owner` value (collapses to `agent`); if framework-vs-agent
+  needs to survive into task-YAML, that is a *separate* field, not `owner` — flag if so.
 - **O-2 — Keep or drop `owner` in editor/bridge `metaKeys`.** Conformance-safe either way (§4.2). Keeping it
   serves reverse-render laning symmetry; dropping it is a stronger "one carrier" guarantee but a wider code
   change. Recommend **keep** (reverse still writes `owner` for laning), but flag for your preference.
@@ -161,9 +224,10 @@ These are genuine forks the delta should **not** silently resolve:
 - This item also stacks with the Part II provisional items already awaiting Dimitri's ruling (inception
   marker shape, `tier` default, AC-seeding) — he may wish to rule on them together in one v1.1.
 
-**On GO:** apply §3.1–§3.4 to the frozen standard, run `python3 tests/test_mapping_standard_conformance.py`
-(expect green — §4.1), file the separate owner-from-lane build task (§4.2), resolve O-1..O-3, and complete
-T-189. **Until then:** the standard is untouched and T-189 holds in partial-complete.
+**On GO:** apply §3.1–§3.4 (mapping standard) **and** §3B.1–§3B.4 (forward-compile spec), bump both to v1.1,
+run `python3 tests/test_mapping_standard_conformance.py` **and** `python3 tests/test_forward_fixtures.py`
+(expect both green — §4.1/§4.4), file the separate owner-from-lane build task (§4.2), resolve O-1..O-3, and
+complete T-189. **Until then:** both standards are untouched and T-189 holds in partial-complete.
 
 ---
 
