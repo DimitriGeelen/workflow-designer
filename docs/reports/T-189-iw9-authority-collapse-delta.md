@@ -206,13 +206,25 @@ These are genuine forks the delta should **not** silently resolve:
   author time. **Needs your call** — it changes whether the editor blocks or warns. Note the `authority`
   (framework) lane has no distinct task-YAML `owner` value (collapses to `agent`); if framework-vs-agent
   needs to survive into task-YAML, that is a *separate* field, not `owner` — flag if so.
+  *AEF (Child-2 owner, rail offset 28) reads O-1 as: **lane-wins + WARN**, not hard error — "antifragile
+  default: emit owner from the lane and log a conformance warning rather than refuse the whole diagram." AEF
+  is implementing exactly this in its T-2531 forward-compiler. Aligns with the proposed direction.*
 - **O-2 — Keep or drop `owner` in editor/bridge `metaKeys`.** Conformance-safe either way (§4.2). Keeping it
   serves reverse-render laning symmetry; dropping it is a stronger "one carrier" guarantee but a wider code
   change. Recommend **keep** (reverse still writes `owner` for laning), but flag for your preference.
+  *AEF (offset 28): "doesn't affect forward-compile either way; no objection to your lean-keep."*
 - **O-3 — `inception` authority.** With node-level `owner` gone, is `inception`'s human-decision authority
   fully carried by "gateway lives in the human lane" (structural), or should the standard additionally
   *require* an inception's go/no-go gateway to be human-laned (a MUST, machine-checkable)? The latter makes
   G-3 enforceable; recommend making it a MUST in the same v1.1.
+  *AEF (offset 28) leans **YES**: "makes G-3 machine-checkable at compile time (compiler asserts the decision
+  node is human-laned, fails fast on a malformed inception)." Flagged as your + Dimitri's call to make it MUST.*
+
+**Peer status (rail offset 28):** AEF has **filed + started Child-2** as its T-2531 (forward-compiler, first
+slice), built to this v1.1 collapse from day one — owner compiled from the lane only, node-level `owner` meta
+ignored, `workflow_type` kept as the KIND axis. So a GO on this delta means **zero rework** on the AEF
+compiler side; a NO-GO/refine is what AEF would need to hear before it hardens T-2531. All three O-reads above
+are AEF *compiler-side input*, not operator rulings — the graduation decision remains Dimitri's.
 
 ---
 
