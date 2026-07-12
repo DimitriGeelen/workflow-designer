@@ -225,3 +225,10 @@ learnings:
   date: 2026-07-12
   context: Added via context agent
   application: TBD
+- id: PL-033
+  learning: "When a peer agent cross-validates against YOUR canonical artifact, push real bytes early via inline rail payload_b64 (not file_send, not a described spec) — a peer's self-authored twin fixture silently encodes THEIR guess at your serialization and hides contract drift until real bytes land. AEF's twin used element-text <aef:uid>x</aef:uid>; 832 canonical uses attribute <aef:uid value=x/> — the mismatch broke their IW-1 stable-identity compile silently (their T-2536/L-501), invisible until the byte-exact inception-gonogo.bpmn arrived. As source-of-truth, byte-delivery is a first-class deliverable, especially for Child-2 forward-compile and Child-3 reverse-discovery where AEF parses 832 bytes."
+  source: P-001
+  task: T-175
+  date: 2026-07-12
+  context: Added via context agent
+  application: TBD

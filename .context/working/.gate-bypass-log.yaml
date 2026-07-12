@@ -620,3 +620,41 @@ test -f .context/working/.reviewed-T-178 && git add .context'
   command: 'cd /opt/832-Workflow-designer
 .agentic-framework/bin/fw context focus T-179 >/dev/null 2>&1
 echo "=== new/changed tracking files ==="; git status --short | grep -iE "T-179|learning|\.context/project" '
+- timestamp: '2026-07-11T11:50:07Z'
+  task: 'T-175'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-183'
+  command: 'cd /opt/832-Workflow-designer
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-183: episodic memory for completed child-2 support task" 2>&1 | tail -5'
+- timestamp: '2026-07-11T11:50:21Z'
+  task: 'T-175'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-183'
+  command: 'cd /opt/832-Workflow-designer
+git add .context/episodic/T-183.yaml
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-183: episodic memory for completed child-2 support task" 2>&1 | tail -5'
+- timestamp: '2026-07-11T14:25:27Z'
+  task: 'T-175'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-187'
+  command: 'git add -A .context/episodic/T-187.yaml .tasks/ .context/project/learnings.yaml .context/project/concerns.yaml .context/working/focus.yaml 2>&1
+git status --short | grep -E "T-187|learnings|concerns|f'
+- timestamp: '2026-07-11T14:39:34Z'
+  task: 'T-175'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-188'
+  command: 'cd /opt/832-Workflow-designer
+git add -A .context/episodic/T-188.yaml .tasks/ .context/project/learnings.yaml .context/project/concerns.yaml 2>&1
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit'
+- timestamp: '2026-07-11T15:11:12Z'
+  task: 'T-175'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-188'
+  command: 'cd /opt/832-Workflow-designer
+git add .context/project/concerns.yaml
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-188: close G-002 (operator decision) — editor↔bridge seam now roun'
