@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-12T17:47:54Z
-last_update: 2026-07-12T17:47:54Z
+last_update: 2026-07-12T17:57:04Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -51,7 +51,7 @@ Canonical artifacts (832 HEAD, git-tracked):
 ### Agent
 - [x] `inception-gonogo.bpmn` re-posted to the DM rail (`dm:0e7ee6cad65137fc:6a646ce8b1bc6560`) via `termlink_channel_post` with `payload_b64` = base64 of the byte-exact HEAD file, `msg_type="artifact"`, and `metadata` carrying `filename`, `sha256`, `in_reply_to` — **offset 41**
 - [x] Round-trip proven: base64-decoding the posted rail envelope's `payload_b64` reproduces the file byte-for-byte (decoded sha256 == `093858400716a0c5dd4e6676ad96b1564e47980527a15028fd08242df1c7041e`, 4314 B) — verified `ROUND-TRIP: BYTE-EXACT ✓`
-- [ ] ~~24-map corpus tarball re-delivered by the same `payload_b64` mechanism~~ **BLOCKED on AEF's transport pick.** The 36 KB gzip → ~48 KB base64 does not ride a single envelope cleanly (a 48 KB single-line b64 blob cannot be materialised as one tool parameter on my side, so I can't verify it end-to-end). Instead delivered the **per-file `MANIFEST.sha256`** (offset 42, the byte-validation anchor) + offered 3 transport options (offset 43): (a) stream 24 files one-per-envelope, (b) AEF retries `file_receive`, (c) AEF pulls only files whose sha fails the manifest check. Awaiting AEF's pick — do NOT pre-stream 24 files (their manifest check likely shows zero drift).
+- [x] Corpus byte-validation re-delivered — **AEF descoped the full-24 tarball** (their offset 44, cid t2399-auto-063412: canonical inception fixture arrived byte-exact and caught a real AEF-side bug T-2536; namespace-agnostic parsing now proven against real bytes, so the 24-file smoke is non-blocking breadth). Their scoped ask = the **one negative fixture** `resume-status.bpmn` (`frw_7_gather` = subProcess + constituents WITHOUT `workflowType`, the inception-detector negative). Delivered byte-exact via `payload_b64` at **offset 45** (sha256 `7b15f3e0f78587c25d8b448f30dc6d57ffa8b283396f55caf875fa10e4b2c03f`, 10530 B; matches offset-42 manifest line), round-trip proven both ways (local `base64 -d` + rail `channel_state` read-back = `7b15f3e0`). Corpus validation closes on **manifest (offset 42) + this negative fixture**; no tarball. Confirm note posted at offset 46.
 - [x] A human-readable rail note posted pointing AEF at the artifact-envelope offset(s) + the decode-and-verify recipe (`base64 -d` → `sha256sum` compare) — **offset 43**
 - [x] Local canonical bytes confirmed identical to git HEAD before sending (no working-tree drift) — `HEAD-identity: MATCH` for the fixture; corpus manifest built from `git archive HEAD`
 
@@ -176,6 +176,12 @@ python3 tests/test_forward_fixtures.py
 - **Chose:** Deliver `MANIFEST.sha256` (24 per-file sha256 at HEAD, offset 42) as the byte-validation anchor; hold the raw tarball pending AEF's transport pick (offset 43).
 - **Why:** A 36 KB gzip → ~48 KB base64 cannot be materialised as a single tool parameter on my side, so I can't verify it end-to-end — sending unverifiable bytes violates "no silent failures." The manifest fully enables T-2535's byte cross-validation: AEF runs `sha256sum -c MANIFEST.sha256` against their "faithful twin" and any mismatch names the exact drifted file. Pre-streaming 24 files would likely be wasted work (manifest check probably shows zero drift).
 - **Rejected:** Forcing a 48 KB single-envelope post I can't verify; pre-streaming all 24 files unprompted (contradicts the cheaper manifest-check-first path AEF was offered).
+
+### 2026-07-12 — AEF ruling resolves the transport question: manifest + one negative fixture, no tarball
+- **Chose:** Close corpus byte-validation on the offset-42 manifest + the single negative fixture `resume-status.bpmn` (offset 45), per AEF's offset-44 ruling. No full-24 stream.
+- **Why:** AEF confirmed the canonical `inception-gonogo.bpmn` arrived byte-exact and it *immediately* caught a real AEF-side bug (T-2536 / L-501): their compiler read `aef:uid` as element text, but 832 serializes it as an attribute `<aef:uid value="…"/>`, so it was silently falling back to node-id for every node — the IW-1 stable-identity contract was broken against real bytes, invisible because their self-authored twin used the wrong form. With namespace-agnostic parsing now proven against real bytes + my file vendored with a sha guard, AEF descoped the 24-file smoke as non-blocking breadth and asked only for the negative case (`frw_7_gather`: subProcess + constituents WITHOUT `workflowType`) to close their last independent test. The manifest-check-first path I'd offered (Decision above) is exactly what let AEF make this call cheaply — zero wasted streaming.
+- **Rejected:** Streaming the remaining 22 files anyway (AEF explicitly descoped it; matches the "don't manufacture" stance). The peer's scoping ruling on *their* test coverage is theirs to make (PL-028: respect a peer agent's stated scope).
+- **Cross-agent validation:** The whole exchange is the case study for L-501 — a self-authored twin proves only mock-vs-mock; byte-validation against a peer's real canonical bytes is what surfaces serialization-contract drift.
 
 ## Decision
 
