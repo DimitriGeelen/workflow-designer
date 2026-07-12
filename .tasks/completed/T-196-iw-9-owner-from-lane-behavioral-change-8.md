@@ -4,10 +4,10 @@ name: "IW-9 owner-from-lane behavioral change (832 editor/bridge)"
 description: >
   Authorized by the IW-9 v1.1 graduation (T-189). Standards now mandate owner is derived from the lane authority with NO node-level override. This is the 832-side CODE change: the forward path must source owner from aef:laneMeta authority (collapse map sovereignty->human, initiative/authority->agent, external->no task) and IGNORE any node-level aef:meta owner rather than honor it; emit an O-1 validation WARNING on task-type/lane mismatch (lane wins). O-2: KEEP owner in editor metaKeys/bridge META_KEYS for reverse-render laning (conformance-safe). O-3: assert an inception's go/no-go boundary is human-laned, fail fast if not. AEF's Child-2 compiler (T-2531) already implements this; T-187/T-188 round-trip guards cover the serialization change. Doc-delta was T-189; this is the implementation it teed up.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-12T20:45:40Z
-last_update: 2026-07-12T20:59:23Z
-date_finished: null
+last_update: 2026-07-12T21:09:38Z
+date_finished: 2026-07-12T21:09:38Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -192,3 +192,6 @@ for f in tests/fixtures/aef-bpmn/*.bpmn; do python3 tools/validate-workflow.py "
 ### 2026-07-12T20:59:23Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+### 2026-07-12T21:09:38Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
