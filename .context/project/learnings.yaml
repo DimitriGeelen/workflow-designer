@@ -232,3 +232,10 @@ learnings:
   date: 2026-07-12
   context: Added via context agent
   application: TBD
+- id: PL-034
+  learning: "A guard that checks INTERNAL SELF-CONSISTENCY cannot detect a broken promise to a consumer — immutability needs a check against history, not against self. release-designer.sh verified artifact==src and manifest==artifact and so was green by construction, while silently rewriting the pinned bytes AEF vendors (0.2.0 @ e301986b) and rewriting the manifest sha to follow the mutation. Its own post-cp 'diff -q $SRC $ARTIFACT' compared the copy to its source: a check that can never fail is not a check. Ask of any release/publish path: what does this compare against that it did NOT itself just write? If the answer is nothing, the promise is unenforced. Sibling of PL-033 (push real bytes early): both are the same failure class — an artifact contract is only real when something compares it to bytes it did not produce. Found by scoping T-197 (the first src change since 0.2.0 shipped), not by a field failure: the hazard sat armed and invisible from T-174 because nothing had changed src at a released VERSION yet. Corollary: version-pinned publish paths are trap-shaped — the flaw only fires on the FIRST edit after a release, i.e. long after review."
+  source: P-001
+  task: T-198
+  date: 2026-07-16
+  context: Added via context agent
+  application: TBD

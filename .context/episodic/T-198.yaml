@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-198: Release immutability guard: refuse to overwrite an already-released VERSION with different bytes (G-007)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-16T05:30:55Z
+# ============================================================================
+
+task_id: T-198
+task_name: "Release immutability guard: refuse to overwrite an already-released VERSION with different bytes (G-007)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-16T05:26:33Z
+completed: 2026-07-16T05:30:52Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-16T07:30:04+02:00
+last_commit: 2026-07-16T07:30:04+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release immutability guard — refuse to overwrite an already-released VERSION with different bytes (G-007)
+
+# Key outcomes
+outcomes:
+  - '`scripts/release-designer.sh` aborts (non-zero exit, no artifact write, no manifest write) when the target `dist/aef-workflow-designer-$VERSION.html` already exists AND its bytes differ from `src/aef-workflow-designer.html`'
+  - 'The abort message is actionable: it names the version, states that it is already released and pinned, and gives the two real options (bump `VERSION`, or set the explicit bypass) as copy-pasteable commands'
+  - 'Re-running at an already-released VERSION whose bytes are UNCHANGED still succeeds (idempotent re-cut stays green — determinism is the script''s contract, per its own header)'
+  - 'A deliberate re-cut is possible but never silent: an explicit env bypass (mirroring `RELEASE_SKIP_RENDER_CHECK`''s loud-opt-out idiom) overwrites, printing a WARNING to stderr naming the old and new sha256'
+  - 'Cutting a NEW version (VERSION not yet in `dist/`) is unaffected — no existing artifact, no guard fires'
+  - 'Guard fires BEFORE the render gate and before any write, so a blocked release leaves `dist/` and `MANIFEST.yaml` byte-identical to their pre-run state'
+  - '`tests/test_release_immutability.py` covers all five paths above (blocked-mutation, unchanged-idempotent, bypass-overwrites, new-version, dist-untouched-on-block) against a temp `dist/`, never mutating the real `dist/aef-workflow-designer-0.2.0.html`'
+  - 'Regression proof: `dist/aef-workflow-designer-0.2.0.html` still hashes to `e301986b993baf58d5ed29ed25436d94b08ed2be910c6781b0f4b906c25c153a` after the full test run — AEF''s pin is intact'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - 'scripts/release-designer.sh'
+  - '.tasks/active/T-198-release-immutability-guard-refuse-to-ove.md'
+  - 'tests/test_release_immutability.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-16T07:30:04"
+    action: "T-198: release immutability guard — refuse to overwrite an already-released VERSION with different bytes (G-007)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [release, arc:designer-authoring-surface]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 4
+  lines_added: 545
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-198-release-immutability-guard-refuse-to-ove.md
+generated_by: context-agent-hybrid

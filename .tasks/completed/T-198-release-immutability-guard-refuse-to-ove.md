@@ -4,10 +4,10 @@ name: "Release immutability guard: refuse to overwrite an already-released VERSI
 description: >
   scripts/release-designer.sh:29 does an unconditional cp of src over dist/aef-workflow-designer-$VERSION.html. Re-running at an already-released VERSION silently mutates the artifact AEF has pinned (0.2.0 @ e301986b, cited in mapping-v1:164) and rewrites MANIFEST.yaml's sha to match the mutation — every existing guard stays green because they check internal self-consistency (artifact==src, manifest==artifact), never immutability-vs-history. Add a fail-closed guard: if the target artifact already exists AND its bytes differ from src, abort with an actionable message (bump VERSION, or set an explicit deliberate-recut bypass). Land BEFORE T-197, the first src change since 0.2.0 shipped, whose render gate forces a build and puts the unguarded cp on the happy path. Register: G-007.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [release, arc:designer-authoring-surface]
 components: []
 related_tasks: [T-197, T-178, T-174]
@@ -16,8 +16,8 @@ related_tasks: [T-197, T-178, T-174]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-16T05:26:33Z
-last_update: 2026-07-16T05:27:08Z
-date_finished: null
+last_update: 2026-07-16T05:30:52Z
+date_finished: 2026-07-16T05:30:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -85,22 +85,6 @@ bridge_aef_passthrough, bridge_seam_roundtrip, release_immutability.
 after the full run; `git status dist/ VERSION` clean (only `scripts/` modified +
 the new test added).
 
-## Evolution
-
-### 2026-07-16 — the guard was found by scoping T-197, not by planning
-- **What changed:** G-007 was not on any roadmap. It surfaced while mapping T-197's
-  scope: the render gate resolves its artifact from `VERSION` with no override, so
-  any `src` change is only verifiable by cutting a build — which put the
-  unguarded `cp` directly on T-197's happy path, with AEF pinned downstream. The
-  hazard had existed since T-174 but was invisible because nothing had changed
-  `src` since 0.2.0 shipped; it was a trap armed and waiting for the next task.
-- **Plan impact:** T-197 grew a hard prerequisite (this task) and a real open
-  question it cannot answer alone — whether retiring the owner field warrants
-  cutting 0.3.0 (a release + re-pin decision, human sovereignty), or whether the
-  render test should gain an artifact override so `src` changes are verifiable
-  pre-release. T-197 is blocked on that fork, not on effort.
-- **Triggered:** G-007 registered; T-198 filed and completed ahead of T-197.
-
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
@@ -167,7 +151,7 @@ the new test added).
 
 bash -n scripts/release-designer.sh
 python3 tests/test_release_immutability.py
-sha256sum dist/aef-workflow-designer-0.2.0.html | grep -q e301986b993baf58d5ed29ed25436d94b08ed2be910c6781b0f4b906c25c153a
+out=$(sha256sum dist/aef-workflow-designer-0.2.0.html 2>&1); echo "$out" | grep -q e301986b993baf58d5ed29ed25436d94b08ed2be910c6781b0f4b906c25c153a
 
 ## RCA
 
@@ -209,6 +193,20 @@ sha256sum dist/aef-workflow-designer-0.2.0.html | grep -q e301986b993baf58d5ed29
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-07-16 — the guard was found by scoping T-197, not by planning
+- **What changed:** G-007 was not on any roadmap. It surfaced while mapping T-197's
+  scope: the render gate resolves its artifact from `VERSION` with no override, so
+  any `src` change is only verifiable by cutting a build — which put the
+  unguarded `cp` directly on T-197's happy path, with AEF pinned downstream. The
+  hazard had existed since T-174 but was invisible because nothing had changed
+  `src` since 0.2.0 shipped; it was a trap armed and waiting for the next task.
+- **Plan impact:** T-197 grew a hard prerequisite (this task) and a real open
+  question it cannot answer alone — whether retiring the owner field warrants
+  cutting 0.3.0 (a release + re-pin decision, human sovereignty), or whether the
+  render test should gain an artifact override so `src` changes are verifiable
+  pre-release. T-197 is blocked on that fork, not on effort.
+- **Triggered:** G-007 registered; T-198 filed and completed ahead of T-197.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -239,3 +237,6 @@ sha256sum dist/aef-workflow-designer-0.2.0.html | grep -q e301986b993baf58d5ed29
 
 ### 2026-07-16T05:27:08Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-16T05:30:52Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
