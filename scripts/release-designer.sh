@@ -25,6 +25,51 @@ VERSION="$(tr -d '[:space:]' < "$VERSION_FILE")"
 ARTIFACT="$DIST/aef-workflow-designer-$VERSION.html"
 MANIFEST="$DIST/MANIFEST.yaml"
 
+# Release immutability guard (T-198, G-007). A release is a promise: version X
+# means these exact bytes, forever. AEF vendors a pinned copy of a dist/ artifact
+# and verifies its sha256 (protocol: docs/aef-designer-integration-protocol.md),
+# so rewriting an already-released version in place breaks a consumer's pin with
+# NO local signal — the checks below this point can't catch it, because they all
+# verify internal self-consistency (artifact==src, manifest==artifact) rather
+# than immutability against what was already published.
+#
+# Fires BEFORE any write (no mkdir, no cp, no manifest), so a refused release
+# leaves dist/ byte-identical to its prior state. An unchanged re-cut is NOT a
+# mutation and stays green — determinism is this script's contract. Fail-closed;
+# the only bypass is explicit and loudly warned, never silent.
+if [ -f "$ARTIFACT" ] && ! cmp -s "$SRC" "$ARTIFACT"; then
+  RELEASED_SHA="$(sha256sum "$ARTIFACT" | awk '{print $1}')"
+  SRC_SHA="$(sha256sum "$SRC" | awk '{print $1}')"
+  if [ "${RELEASE_ALLOW_OVERWRITE:-0}" = "1" ]; then
+    echo "WARNING: RELEASE_ALLOW_OVERWRITE=1 — deliberately re-cutting an ALREADY-RELEASED version." >&2
+    echo "WARNING:   version:      $VERSION" >&2
+    echo "WARNING:   released sha: $RELEASED_SHA" >&2
+    echo "WARNING:   new sha:      $SRC_SHA" >&2
+    echo "WARNING: any consumer pinned to the released sha will now FAIL verification." >&2
+  else
+    cat >&2 <<MSG
+ERROR: refusing to overwrite an already-released version.
+
+  version:      $VERSION
+  artifact:     dist/aef-workflow-designer-$VERSION.html
+  released sha: $RELEASED_SHA
+  current src:  $SRC_SHA
+
+  Version $VERSION is already released and may be pinned by a consumer (AEF
+  vendors dist/ artifacts and verifies them by sha256). Rewriting it in place
+  would silently break that pin. A version denotes fixed bytes, or it denotes
+  nothing.
+
+  Cutting a NEW release? Bump VERSION, then re-run:
+    cd $REPO_ROOT && echo "0.3.0" > VERSION && scripts/release-designer.sh
+
+  Re-cutting THIS version on purpose (nothing has pinned it yet)?
+    cd $REPO_ROOT && RELEASE_ALLOW_OVERWRITE=1 scripts/release-designer.sh
+MSG
+    exit 1
+  fi
+fi
+
 mkdir -p "$DIST"
 cp "$SRC" "$ARTIFACT"
 

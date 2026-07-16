@@ -252,3 +252,66 @@ concerns:
       - T-069
       - T-071
       - T-070
+
+  - id: G-007
+    type: gap
+    status: watching
+    severity: high
+    title: "release-designer.sh has no immutability guard — re-running at an already-released VERSION silently mutates the artifact AEF has pinned"
+    detected: 2026-07-16
+    origin_task: T-197
+    decision_trigger: >
+      scripts/release-designer.sh refuses to overwrite an existing
+      dist/aef-workflow-designer-<VERSION>.html whose bytes differ from src
+      (fail-closed, with an explicit bypass for a deliberate re-cut), so a
+      released+pinned version cannot change under a consumer. Then close G-007.
+    description: |
+      A release is a PROMISE to a consumer: version X means these exact bytes,
+      forever. AEF vendors dist/aef-workflow-designer-0.2.0.html and verifies
+      it by sha256 (e301986b…) per docs/aef-designer-integration-protocol.md;
+      the mapping standard's own versioning section cites that sha as the
+      editor state v1.1 was validated against. Nothing enforces the promise.
+
+      scripts/release-designer.sh:29 does an unconditional `cp "$SRC"
+      "$ARTIFACT"`. There is no check that $ARTIFACT already exists, and no
+      check that its bytes match. So: edit src, re-run the script WITHOUT
+      bumping VERSION, and dist/aef-workflow-designer-0.2.0.html is silently
+      rewritten with different content, MANIFEST.yaml's sha256 is rewritten to
+      match the mutation, and every downstream guard reports green — because
+      each guard verifies internal self-consistency (artifact == src, manifest
+      == artifact), never immutability-vs-history. The two "deterministic"
+      guarantees in the script's own header ("same source + same VERSION =>
+      byte-identical artifact") hold only if source never changes at a fixed
+      VERSION, which is precisely the condition nothing checks.
+
+      Consequence for the consumer is silent and asymmetric: AEF's pin verify
+      fails against a version they never asked to change (a mystery integrity
+      error on their side, cause invisible from their repo), or worse they
+      re-pin to a mutated "0.2.0" and two parties now mean different bytes by
+      the same version string — the exact cross-implementation ambiguity the
+      byte-validation work (T-193, PL-033) exists to prevent.
+
+      This is not hypothetical, and that is why it is filed now rather than
+      noted: T-197 (retire the node-owner override from the editor UI) is the
+      first change to src since 0.2.0 shipped. Its render gate
+      (tests/test_designer_render.py) resolves its artifact from the VERSION
+      file, so T-197 is only verifiable by producing a build — putting the
+      unguarded `cp` directly on the next task's happy path, with a pinned
+      consumer downstream. src currently still matches dist 0.2.0 byte-for-byte,
+      so the mutation has NOT yet occurred; the guard wants to land before the
+      first src change, not after.
+
+      Severity high on Reliability (a silent, consumer-visible integrity break
+      with no local signal) and Portability (a version string that does not
+      denote fixed bytes is not a portable contract).
+    evidence:
+      - "scripts/release-designer.sh:29 `cp \"$SRC\" \"$ARTIFACT\"` — unconditional; no `[ -f \"$ARTIFACT\" ]` existence/equality guard anywhere in the script (verified by grep for exists/already/immutab/overwrit)."
+      - "The script's post-cp `diff -q \"$SRC\" \"$ARTIFACT\"` compares the copy to its own source — it can never fail, and proves nothing about prior released bytes."
+      - "MANIFEST.yaml is regenerated from the (possibly mutated) artifact: `SHA=$(sha256sum \"$ARTIFACT\")` — the manifest follows the mutation instead of catching it."
+      - "Pinned consumer confirmed: dist/aef-workflow-designer-0.2.0.html sha256 = e301986b993baf58d5ed29ed25436d94b08ed2be910c6781b0f4b906c25c153a, cited in docs/standards/aef-bpmn-mapping-v1.md:164 and vendored by AEF per the integration protocol."
+      - "Current state is clean: `diff -q src/aef-workflow-designer.html dist/aef-workflow-designer-0.2.0.html` matches, so 0.2.0 is still reproducible from src — the window to add the guard is now."
+      - "Render gate couples src changes to a build: tests/test_designer_render.py:_resolve_build() reads VERSION → dist/aef-workflow-designer-<VERSION>.html, with no artifact override, so verifying any src change requires cutting a build."
+    related:
+      - T-197
+      - T-178
+      - T-174
