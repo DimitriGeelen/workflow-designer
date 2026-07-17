@@ -906,12 +906,20 @@ class XmlValidator:
             "serviceTask": "agent",
             "scriptTask": "agent",
         }
+        # A missing laneSet must NOT short-circuit O-3 (T-199). Absent lanes means
+        # absent authority-of-record — precisely what §7's MUST rejects — so an
+        # early return here made the one diagram carrying no human signal at all
+        # the only diagram that passed. Leave node_authority empty instead and let
+        # every node read as authority-absent. O-1 below is already guarded on
+        # `authority is not None`, so a lane-less diagram stays WARN-quiet: absent
+        # authority is not a disagreement, there is nothing to disagree with.
         lane_set = process.find("{%s}laneSet" % BPMN_NS)
-        if lane_set is None:
-            return
+        lanes = (
+            lane_set.findall("{%s}lane" % BPMN_NS) if lane_set is not None else []
+        )
         # flow-node id -> its lane's authority
         node_authority = {}
-        for lane in lane_set.findall("{%s}lane" % BPMN_NS):
+        for lane in lanes:
             lm = lane.find(
                 "{%s}extensionElements/{%s}laneMeta" % (BPMN_NS, AEF_NS)
             )

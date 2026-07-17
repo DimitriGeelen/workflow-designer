@@ -124,6 +124,91 @@ def failures():
     if "E-INCEPTION-NOT-SOVEREIGN" in got:
         fails.append("(d) resume-status.bpmn (no inception) wrongly flagged O-3")
 
+    # ---- absent-authority family (T-199) -----------------------------------
+    # mapping-v1 §3 (IW-9 v1.1) makes aef:laneMeta@authority the SOLE
+    # authority-of-record. So "no authority" is NOT a softer case than "wrong
+    # authority" — it is the same failure: §7's MUST is unmet. 832 issued this
+    # reading to AEF as a conformance ruling (rail offset 49, vetoing their
+    # name-only-Human leniency); these cases GUARD the ruling rather than
+    # leaving it asserted-only (PL-034: a promise with no guard).
+    #
+    # Case (h) is the one that was actually broken: _check_iw9_authority opened
+    # with `if lane_set is None: return`, so the single diagram carrying no human
+    # signal whatsoever was the only diagram that passed — leaving 832's
+    # reference validator MORE lenient than AEF's compiler, which already
+    # fail-fasts there.
+    inception_sp = (
+        '<bpmn:subProcess id="sp1" name="inception">'
+        '<bpmn:extensionElements><aef:meta workflowType="inception"/>'
+        "</bpmn:extensionElements></bpmn:subProcess>"
+    )
+
+    def laneset(inner):
+        return '<bpmn:laneSet id="LS">%s</bpmn:laneSet>' % inner
+
+    absent_authority_cases = {
+        # (f) lane NAMED "Human" but carrying no laneMeta — a name is a string a
+        #     human typed, not a governance assertion. English-only name-matching
+        #     is exactly the lock-in laneMeta exists to prevent (Directive 4).
+        "f/name-only-Human-lane": laneset(
+            '<bpmn:lane id="l1" name="Human">'
+            "<bpmn:flowNodeRef>sp1</bpmn:flowNodeRef></bpmn:lane>"
+        ),
+        # (g) laneMeta present but no @authority attribute
+        "g/laneMeta-without-authority": laneset(
+            '<bpmn:lane id="l1" name="Human"><bpmn:extensionElements>'
+            '<aef:laneMeta abbr="hum"/></bpmn:extensionElements>'
+            "<bpmn:flowNodeRef>sp1</bpmn:flowNodeRef></bpmn:lane>"
+        ),
+        # (h) NO laneSet at all — the regression this task fixes
+        "h/no-laneSet-at-all": "",
+        # (i) authority="external" — a real authority, but not sovereignty
+        "i/authority-external": laneset(
+            '<bpmn:lane id="l1" name="Outside"><bpmn:extensionElements>'
+            '<aef:laneMeta authority="external"/></bpmn:extensionElements>'
+            "<bpmn:flowNodeRef>sp1</bpmn:flowNodeRef></bpmn:lane>"
+        ),
+        # (j) lanes exist and are sovereignty, but the inception is in NONE of them
+        "j/inception-outside-every-lane": laneset(
+            '<bpmn:lane id="l1" name="Human"><bpmn:extensionElements>'
+            '<aef:laneMeta authority="sovereignty"/></bpmn:extensionElements>'
+            "<bpmn:flowNodeRef>someone_else</bpmn:flowNodeRef></bpmn:lane>"
+        ),
+    }
+    for label, lane_xml in absent_authority_cases.items():
+        xml = BPMN_HEAD + lane_xml + inception_sp + BPMN_TAIL
+        if "E-INCEPTION-NOT-SOVEREIGN" not in rules(xml):
+            fails.append(
+                "(%s) inception with no sovereignty authority-of-record was "
+                "ACCEPTED — O-3 not enforced" % label
+            )
+
+    # (k) the message must name the CAUSE (absent vs wrong), not just the verdict
+    no_lane_xml = BPMN_HEAD + inception_sp + BPMN_TAIL
+    msgs = [
+        f.message for f in vw.run_xml(no_lane_xml)
+        if f.rule == "E-INCEPTION-NOT-SOVEREIGN"
+    ]
+    if not any("absent" in m for m in msgs):
+        fails.append(
+            "(k) absent-authority block message does not name the cause "
+            "('absent'); got: %r" % msgs
+        )
+
+    # (l) O-1 must stay quiet when there is no laneSet: absent authority is not a
+    #     disagreement. Widening O-3 must not spray WARNs over lane-less diagrams.
+    lane_less_task = (
+        BPMN_HEAD
+        + '<bpmn:serviceTask id="st9" name="svc"><bpmn:extensionElements>'
+        '<aef:uid value="u9"/></bpmn:extensionElements></bpmn:serviceTask>'
+        + BPMN_TAIL
+    )
+    if "W-TYPE-LANE-MISMATCH" in rules(lane_less_task):
+        fails.append(
+            "(l) serviceTask in a laneSet-less process wrongly flagged "
+            "W-TYPE-LANE-MISMATCH — absent authority is not a mismatch"
+        )
+
     return fails
 
 
@@ -134,7 +219,8 @@ def main():
             sys.stderr.write("FAIL: %s\n" % f)
         return 1
     print("OK: IW-9 validator rules (O-1 W-TYPE-LANE-MISMATCH, O-3 "
-          "E-INCEPTION-NOT-SOVEREIGN) — 7 checks pass")
+          "E-INCEPTION-NOT-SOVEREIGN) — 14 checks pass, incl. the full "
+          "absent-authority family (T-199)")
     return 0
 
 
