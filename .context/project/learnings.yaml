@@ -239,3 +239,10 @@ learnings:
   date: 2026-07-16
   context: Added via context agent
   application: TBD
+- id: PL-035
+  learning: "When a spec names X the SOLE source of a decision, ABSENCE of X is a violation of the same severity as a WRONG X — and the absent case is the one nobody writes a fixture for. IW-9 v1.1 made aef:laneMeta@authority the sole authority-of-record, so a diagram with no lanes is not a milder case than a diagram with the wrong lane; both fail §7's MUST identically. T-196 tested wrong-authority and never absent-authority, because absence reads intuitively as a GAP (nothing to check) rather than a VIOLATION (the requirement is unmet). The resulting guard, 'if lane_set is None: return', made the check get WEAKER as the evidence got WORSE: the one diagram with no human signal at all was the only one that passed. Root distinction to carry: an existence rule ('there MUST be a sovereignty lane') and a comparison rule ('task-type should agree with its lane') have OPPOSITE behaviour on missing input — the comparison correctly no-ops, the existence rule must fire. One early return served both and inverted the severe one. Test heuristic: for every closed value set, enumerate the EMPTY case explicitly, and ask 'does my guard fire hardest when the input is worst?'. Corpus blindness compounds it: 80/80 lanes carried explicit authority, so no real fixture could ever expose the empty case — a clean corpus HIDES absence bugs by construction. Sibling of PL-034 (a promise with no guard): here the promise was one 832 had just issued to AEF as a conformance ruling, while our own code was more permissive than the peer's we vetoed. Writing the test to LOCK a ruling is what exposed that we did not honour it."
+  source: P-001
+  task: T-199
+  date: 2026-07-17
+  context: Added via context agent
+  application: TBD

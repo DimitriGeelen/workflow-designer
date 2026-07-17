@@ -4,10 +4,10 @@ name: "O-3 hole: a laneSet-less process silently accepts an inception — fix th
 description: >
   BUG in T-196's _check_iw9_authority (tools/validate-workflow.py): it opens with `if lane_set is None: return`, so a process carrying NO bpmn:laneSet at all skips O-3 entirely and an inception is ACCEPTED — the single case with no authority signal whatsoever is the one case not checked. Verified: (a) lane named 'Human' with no laneMeta -> ERROR, (b) laneMeta without @authority -> ERROR, (d) authority=external -> ERROR, (e) inception outside every lane -> ERROR, but (c) NO laneSet -> *** ACCEPTED ***. This makes 832's reference validator MORE LENIENT than AEF's compiler, which already fail-fasts on 'no lane / no human signal at all' (their offset 48) — and 832 vetoed AEF's name-only leniency on rail offset 49 while carrying a wider hole of its own. Fix the early return so an absent laneSet yields absent authority (=> O-3 ERROR), keep O-1 WARN quiet for lane-less diagrams (authority None is not a mismatch), and lock every absent-authority case in tests/test_validate_iw9.py so the ruling issued to AEF is guarded rather than asserted. PL-034 class — a promise with no guard.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface, conformance]
 components: []
 related_tasks: [T-196, T-189, T-195]
@@ -16,8 +16,8 @@ related_tasks: [T-196, T-189, T-195]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-17T10:58:04Z
-last_update: 2026-07-17T10:59:16Z
-date_finished: null
+last_update: 2026-07-17T11:01:56Z
+date_finished: 2026-07-17T11:01:56Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -241,3 +241,6 @@ X, and the absent case is the one nobody writes a fixture for.
 
 ### 2026-07-17T10:59:16Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-17T11:01:56Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
