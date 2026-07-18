@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-18T08:04:17Z
-last_update: 2026-07-18T08:07:36Z
+last_update: 2026-07-18T08:08:28Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -63,13 +63,13 @@ criteria: `docs/reports/T-201-writeout-mode-inception.md`.**
   disposition: <deferred — Spike-1>
   rationale: The whole GO hinges on this (A1/A2). Not yet spiked.
 - **IW-2: Where does the write seam live — 832 emits a portable task-bundle that AEF ingests, vs AEF's `fw bpmn compile --write` writes its own `.tasks/` directly?**
-  confidence: 1
-  disposition: <deferred — Spike-2, needs AEF rail input>
-  rationale: Load-bearing architecture fork; both push the authoring act to a different gate.
+  confidence: 3
+  disposition: answered
+  rationale: Resolved via rail dialogue (AEF T-2541, 2026-07-18 08:20Z) — false binary; manifest-as-seam. Content authority=832, gated-write=AEF via `fw bpmn promote`→`fw task create`. G3 becomes mechanical because the write stays inside the task-gate perimeter. Both peers concur. See docs/reports/T-201-writeout-mode-inception.md §3a.
 - **IW-3: What is the idempotent re-compile reconciliation rule (uid-keyed add/edit/delete) so re-compiling an edited diagram reconciles rather than clobbers or duplicates — and what happens to a task whose node was deleted?**
-  confidence: 1
-  disposition: <deferred — Spike-3>
-  rationale: Unbounded reconciliation is an explicit NO-GO criterion; needs a predictable documented rule.
+  confidence: 2
+  disposition: <deferred — Spike-3 test; rule drafted>
+  rationale: Rule drafted (§3b) — task frontmatter `aef_provenance` authoritative, reconcile keyed on (uid, source_bpmn_sha): new→create / unchanged→no-op / changed→propose-not-clobber / deleted→orphan-and-flag. Bounded, so the NO-GO "unbounded reconciliation" trigger is excluded. Remaining: test against a 2-revision diagram.
 
 See `docs/reports/T-201-writeout-mode-inception.md` for full framing, guardrail table, and go/no-go criteria.
 
