@@ -4,9 +4,9 @@ name: "Offline-harden the designer: inline or self-host fonts (remove Google Fon
 description: >
   Surfaced by T-174: the designer links Google Fonts (fonts.googleapis.com/gstatic). Authoring functions offline (system-font fallback) but is not zero-network, which matters for air-gapped AEF deployments vendoring the released artifact. Inline the woff2 fonts as base64 (or self-host) so the single file is truly self-contained. Visual change to src/ — needs visual verification across modes.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: ["arc:designer-authoring-surface"]
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T10:57:14Z
-last_update: 2026-07-18T07:50:07Z
-date_finished: null
+last_update: 2026-07-18T07:55:04Z
+date_finished: 2026-07-18T07:55:04Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -244,3 +244,6 @@ Human AC steps), check the `[REVIEW]` box, then
 ### 2026-07-18T07:50:07Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+### 2026-07-18T07:55:04Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
