@@ -158,14 +158,24 @@ can't live on the collapsed-subProcess carrier.
 **DEFER if:** a prerequisite collides (e.g. the write-out arc T-201 serialization work
 mid-flight) — sequence, don't cancel.
 
-## 7. Recommendation (provisional)
+## 7. Recommendation (FIRM — post Spike-1 + Spike-2)
 
-**GO to build error/timer/message typed events; boundary variants contingent on IW-2**
-— likely a clean split (ship non-boundary first) if attachment proves expensive. The
-capability is AEF-ratified and on the arc; the only real unknown is boundary-event
-cost, and that resolves to a scope decision, not a kill. Flips to NO-GO only if no
-serialization round-trips or the set can't live on the G-3 carrier. **Go/no-go is
-Dimitri's, after the spikes.**
+**GO — build error/timer/message AND boundary variants, as a two-slice build under one
+task.** Both load-bearing unknowns are now resolved:
+
+- **Spike-1 (§3a) fixed serialization** to the `aef:`-extension encoding — a guaranteed,
+  tested round-trip (T-061 passthrough contract), mirroring the existing `aef:link`
+  branch. No native `bpmn:*EventDefinition` machinery needed on either editor side or
+  the bridge.
+- **Spike-2 (§3b) sized boundary attachment** as a **bounded, additive** change: host
+  ref rides the existing `aef:scopeOf`/`aef:constituents` node→node reference precedent
+  (T-081), host-follow reuses `groupDrag`, edges reuse the T-168 port machinery, and the
+  only net-new piece is a host-relative render branch in `renderNodes`. The NO-GO
+  "unbounded editor redesign" trigger does **not** fire.
+
+Sequencing: ship non-boundary error/timer/message first, boundary variants second — this
+is build decomposition, **not** a second inception. The capability is AEF-ratified and on
+the arc, and no serialization/​carrier NO-GO condition holds. **Go/no-go is Dimitri's.**
 
 ## 8. Dialogue Log
 
