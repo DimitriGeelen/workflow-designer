@@ -1,0 +1,200 @@
+---
+id: T-204
+name: "Typed BPMN event palette: error/timer/message + boundary events (two-slice build)"
+description: >
+  Build authorized by T-190 GO (inception, firm post Spike-1+2). Add typed BPMN events to the designer palette using the aef:-extension encoding (IW-1): a BPMN event tag + aef:eventDef marker (kind=error|timer|message + binding: status:issues / cron / bus-topic), riding the tested aef:/x- round-trip channel — NO native bpmn:*EventDefinition machinery required. Two slices under one task (IW-3): Slice 1 = non-boundary error/timer/message (palette entry + subtype + aef: serialization in buildBpmnXml + bridge parity in yaml-to-bpmn.py + mapping-standard row + DI render); Slice 2 = boundary variants (host binding as additive aef field hostRef+boundaryPos+interrupting per scopeOf/constituents precedent T-081; host-follow via groupDrag ~5493; boundary-origin edges via T-168 ports; host-relative render branch in renderNodes ~2354). Target carrier: T-081 collapsed-subProcess (G-3). Guards T-187/T-188 round-trip + T-202 export-contract must stay green.
+
+status: started-work
+workflow_type: build
+owner: agent
+horizon: now
+tags: [typed-events, editor, bridge, aef, arc]
+components: []
+related_tasks: []
+# arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
+#                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
+#                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
+#                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
+created: 2026-07-18T19:42:25Z
+last_update: 2026-07-18T19:42:25Z
+date_finished: null
+# revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
+# revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
+# ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
+# bvp_scores:                     # confirmed per-driver scores 0-5, set by `fw bvp confirm` (T-1924).
+#                                 # Sovereignty boundary — only set after human or agent confirmation.
+#                                 # Shape: {D1: <int 0-5>, D2: <int 0-5>, D3: <int 0-5>, D4: <int 0-5>, [<free-driver-id>: <int>]...}
+# bvp_scores_proposed:            # estimator-proposed scores (T-1922 worker). Persists when ≥2 delta
+#                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
+# cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
+#                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+---
+
+# T-204: Typed BPMN event palette: error/timer/message + boundary events (two-slice build)
+
+## Context
+
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+
+## Acceptance Criteria
+
+### Agent
+
+**Slice 1 — non-boundary error / timer / message**
+- [ ] Palette gains three typed-event entries (error / timer / message). Placing one creates a BPMN event node carrying an `aef:eventDef` extension marker (`kind` ∈ `error|timer|message`) plus its AEF binding (error→`status:issues`, timer→cron/`horizon`, message→bus topic). No native `bpmn:*EventDefinition` is emitted as the primary encoding (IW-1: aef:-extension shape).
+- [ ] `buildBpmnXml(state)` serializes each typed event as `<bpmn:*Event>` + `<extensionElements><aef:eventDef …/></>`; the editor re-imports losslessly (export→import→export is stable for the eventDef fields).
+- [ ] `tools/yaml-to-bpmn.py` bridge parity: `aef:eventDef` fields ride the `aef:`/`x-` passthrough channel per the T-061 contract (bare unknown still drops loudly). Existing `tests/test_bridge_aef_passthrough.py` stays green + a new assertion covers `eventDef`.
+- [ ] One mapping-standard row per typed event added on the T-081 collapsed-subProcess carrier (editor and forward-compiler agree).
+
+**Slice 2 — boundary variants**
+- [ ] A typed event attaches to a host node's boundary via an additive `aef` field set (`hostRef` uid + `boundaryPos` + `interrupting`), serialized as `<bpmn:boundaryEvent attachedToRef=…>` + `aef:eventDef`, round-tripping losslessly (reuses the `aef:scopeOf`/`aef:constituents` node→node ref precedent, T-081).
+- [ ] Host-follow: moving a host moves its boundary events (reuses `groupDrag` ~5493); a boundary-origin edge anchors via the T-168 port machinery.
+- [ ] Boundary event renders at a host-relative perimeter point (contained new branch in `renderNodes` ~2354), not at free `x/y`.
+
+**Guards (both slices)**
+- [ ] Round-trip guards T-187/T-188, export-contract T-202, and render gate `tests/test_designer_render.py` all stay green; a new test asserts the typed-event export→import→export round-trip and the `aef:eventDef` serialization.
+
+### Human
+<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
+     Remove this section if all criteria are agent-verifiable.
+     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
+
+     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
+     If your Expected clause is grep-able / file-exists / structural (a deterministic
+     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
+     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
+     verification genuinely needs human taste (tone, feel, layout rhythm).
+     See CLAUDE.md §AC Classification Guidance for the conversion rule.
+
+     [REVIEW] example (genuine human judgment):
+       - [ ] [REVIEW] Dashboard renders correctly
+         **Steps:**
+         1. Open https://example.com/dashboard in browser
+         2. Verify all panels load within 2 seconds
+         3. Check browser console for errors
+         **Expected:** All panels visible, no console errors
+         **If not:** Screenshot the broken panel and note the console error
+
+     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
+       - [ ] [REVIEWER] Block message names both bypass mechanisms
+         **Steps:**
+         1. Run `bin/fw reviewer T-XXX`
+         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
+         **If not:** Inspect hook block-message string and add missing mechanism
+       Conversion: this AC should be moved to ### Agent and
+       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+-->
+- [ ] [REVIEW] Typed-event nodes render correctly in the served designer across visual modes.
+  **Steps:**
+  1. Open the designer at the served URL (see `.context/working/watchtower.url`), place an error, timer, and message event from the palette, and (Slice 2) attach an error event to a serviceTask host.
+  2. Inspect element-level screenshots in each affected mode (mono/sans/serif fonts; light/dark themes; compact/normal densities).
+  **Expected:** each typed event has a distinct, legible glyph; the boundary event sits on the host perimeter and follows the host on drag; no overlap/regression versus plain events.
+  **If not:** screenshot the failing mode and note which glyph/placement is wrong.
+
+## Visual Verification
+<!-- Screenshot references added during Slice-1/Slice-2 build per CLAUDE.md §Visual Verification for UI Changes. -->
+
+## Verification
+
+python3 tests/test_designer_render.py
+python3 tests/test_designer_export_contract.py
+python3 tests/test_bridge_aef_passthrough.py
+
+# Shell commands that MUST pass before work-completed. One per line.
+# Lines starting with # are comments (skipped). Empty lines ignored.
+# The completion gate runs each command — if any exits non-zero, completion is blocked.
+#
+# Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
+# *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
+# pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
+# past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
+#
+# Pipefail/SIGPIPE hint (L-387): P-011 runs each command under `set -eo pipefail`.
+# `cmd | grep -q PATTERN` exits 141 (SIGPIPE) when grep matches and closes stdin
+# while the upstream is still writing — verification then "fails" even though
+# the pattern was present. Safe pattern: capture first, grep the capture:
+#     out=$(cmd 2>&1); echo "$out" | grep -q "PATTERN"
+# Or:
+#     cmd > /tmp/.out 2>&1 && grep -q "PATTERN" /tmp/.out
+# Origin: L-387, captured 4× (T-1716, T-1838, T-1862, T-1863) before this hint.
+#
+# Single pipe only — no intermediate tail/awk/sed stages between capture and grep
+# (T-2090): `echo "$out" | tail -3 | grep -q PAT` re-introduces the SIGPIPE risk
+# the capture step closed off — the middle stage is what `grep -q` slams its
+# stdin on. `echo "$out"` is small and immediate; grep scans the whole captured
+# string anyway, so the tail-3 was cosmetic. Drop it: `echo "$out" | grep -q PAT`.
+#
+# Enforcement-baseline hint (L-398, T-1886): if you edited `.claude/settings.json`
+# (added/removed/reorganised hooks), add `bin/fw enforcement baseline` to your
+# Verification block. Otherwise the canonical hash diverges and `fw doctor`
+# reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
+# Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
+# the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+## RCA
+
+<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
+     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
+     Non-bug-class tasks may leave this section empty or remove it.
+
+     For bug-class, fill in:
+       **Symptom:** what was observed (the user-facing manifestation).
+       **Root cause:** the specific structural/logical gap — not "the code was wrong".
+       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
+       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
+
+     The completion gate (T-1550, G-019) blocks --status work-completed when
+     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
+-->
+
+## Evolution
+
+<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
+     understanding evolved during build — what was learned that wasn't known at
+     filing, what in the original plan no longer fits, what triggered pivots
+     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
+     before --status work-completed.
+
+     Origin: T-1717 grill Q4 — "the understanding of what we need and want
+     evolves with the process of materialisation." Structural counter to §ACD:
+     spec-vs-build divergence is logged as soon as it happens, not lost as
+     folklore.
+
+     Format (one entry per slice boundary or significant insight):
+       ### YYYY-MM-DD — [topic]
+       - **What changed:** [what we learned that we didn't know at filing]
+       - **Plan impact:** [what in the plan no longer fits]
+       - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
+
+     The completion gate (T-1718) blocks --status work-completed when this
+     section exists but is empty/template-only. Use --skip-evolution to bypass
+     (logged Tier-2). Non-arc tasks may leave this empty.
+-->
+
+## Decisions
+
+<!-- Record decisions ONLY when choosing between alternatives.
+     Skip for tasks with no meaningful choices.
+     Format:
+     ### [date] — [topic]
+     - **Chose:** [what was decided]
+     - **Why:** [rationale]
+     - **Rejected:** [alternatives and why not]
+-->
+
+## Decision
+
+<!-- Filled at completion of inception tasks via:
+     fw inception decide T-XXX go|no-go|defer --rationale "..."
+
+     For non-inception tasks this section is ignored. Kept in template
+     so `fw inception decide` (lib/inception.sh) finds the anchor heading
+     without auto-creating; T-1832 added auto-create as fallback for
+     legacy tasks lacking this section. -->
+
+## Updates
+
+### 2026-07-18T19:42:25Z — task-created [task-create-agent]
+- **Action:** Created task via task-create agent
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-204-typed-bpmn-event-palette-errortimermessa.md
+- **Context:** Initial task creation
