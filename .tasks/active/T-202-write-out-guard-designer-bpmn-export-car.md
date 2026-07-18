@@ -4,7 +4,7 @@ name: "Write-out: guard designer .bpmn export carries the promote content contra
 description: >
   Post-GO on T-201 write-out inception. Seam resolved: content-authority=832, gated-write=AEF via fw bpmn promote -> fw task create (T-2541). This is 832's side of the content contract: guarantee the designer .bpmn export carries a stable aef:uid and a defined lane authority for every owner-bearing node, so promote can derive owner (IW-9) and stamp provenance with no gaps. Machine-verifiable guard; end-to-end integration waits on AEF T-2541 promote+Spike-1.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T08:44:10Z
-last_update: 2026-07-18T08:44:10Z
+last_update: 2026-07-18T08:48:06Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -53,12 +53,14 @@ T-2541; this guard is independent and buildable now.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A guard test asserts every owner-bearing node (`serviceTask`/`userTask`/`scriptTask`/`subProcess`) in the designer's serialized `.bpmn` export carries a non-empty `aef:uid`.
-- [ ] The same guard asserts every owner-bearing node belongs to a lane whose authority is one of the five defined values (`sovereignty`/`authority`/`initiative`/`external`/`none`) — so IW-9 owner derivation never resolves against an undefined/absent lane.
-- [ ] The guard runs against the designer's seed workflow (`getInvestigateWorkflow`) and passes; it fails (red) if a uid is stripped or a node is placed in a lane with no authority — proving it is a real gate, not a tautology.
-- [ ] The test is wired into the designer test suite (src-served, same harness as `test_designer_owner_derived.py`) and is green.
+- [x] A guard test asserts every owner-bearing node (`serviceTask`/`userTask`/`scriptTask`/`subProcess`) in the designer's serialized `.bpmn` export carries a non-empty `aef:uid`. — `audit()` §(1), `tests/test_designer_export_contract.py`
+- [x] The same guard asserts every owner-bearing node belongs to a lane whose authority is one of the five defined values (`sovereignty`/`authority`/`initiative`/`external`/`none`) — so IW-9 owner derivation never resolves against an undefined/absent lane. — `audit()` §(2)
+- [x] The guard runs against the designer's seed workflow (`getInvestigateWorkflow`) and passes; it fails (red) if a uid is stripped or a node is placed in a lane with no authority — proving it is a real gate, not a tautology. — teeth check via `_strip_first_uid` / `_blank_first_lane_authority`; PASS reports "8 owner-bearing node(s) … teeth proven".
+- [x] The test is wired into the designer test suite (src-served, same harness as `test_designer_owner_derived.py`) and is green. — added to `## Verification`; `python3 tests/test_designer_export_contract.py` exits 0.
 
 ## Verification
+
+python3 tests/test_designer_export_contract.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -158,3 +160,6 @@ T-2541; this guard is independent and buildable now.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-202-write-out-guard-designer-bpmn-export-car.md
 - **Context:** Initial task creation
+
+### 2026-07-18T08:48:06Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
