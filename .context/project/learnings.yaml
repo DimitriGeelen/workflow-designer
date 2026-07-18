@@ -260,3 +260,10 @@ learnings:
   date: 2026-07-18
   context: Added via context agent
   application: TBD
+- id: PL-038
+  learning: "Governance-gate token scanners must anchor question/section markers to block-start (leading -/#/* run). check_disposition_gate matched IW-N unanchored, so a cross-reference to another question inside rationale PROSE was tokenized as a new (empty) question, producing false 'under-disposed' completion blocks. Sibling Q-N branch was already anchored — the asymmetry shipped because no test used a cross-referencing rationale (the natural way to write evidence). Anchor + fixture-with-cross-ref regression test."
+  source: P-001
+  task: T-203
+  date: 2026-07-18
+  context: Added via context agent
+  application: TBD

@@ -766,8 +766,13 @@ check_disposition_gate() {
     local current_q="" has_disposition=false has_rationale=false
 
     while IFS= read -r line; do
-        # Match question markers: "- IW-1: ..." or "### IW-1 ..." or "**IW-1**:"
-        if echo "$line" | grep -qE "(IW-[0-9]+|^[[:space:]]*-[[:space:]]*Q-?[0-9]+)"; then
+        # Match question markers: "- IW-1: ..." or "### IW-1 ..." or "**IW-1**:".
+        # ANCHORED to a block-start (leading -, #, or * run) so an IW-N/Q-N that
+        # appears inside rationale PROSE — a legitimate cross-reference to another
+        # question — is NOT mistaken for a new question marker (T-203). An
+        # unanchored IW-N match here flushed the real question with rationale=false
+        # AND spawned a phantom empty question → false "under-disposed" blocks.
+        if echo "$line" | grep -qE "^[[:space:]]*([-#*]+[[:space:]]*)+(IW-[0-9]+|Q-?[0-9]+)"; then
             # Flush previous question's verdict
             if [ -n "$current_q" ] && { [ "$has_disposition" = false ] || [ "$has_rationale" = false ]; }; then
                 missing=$((missing + 1))

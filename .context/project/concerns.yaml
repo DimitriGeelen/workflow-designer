@@ -315,3 +315,36 @@ concerns:
       - T-197
       - T-178
       - T-174
+  - id: G-008
+    type: gap
+    status: watching
+    severity: medium
+    title: "Disposition-gate anchor fix lives in the VENDORED framework copy — lost on next re-vendor unless upstreamed to AEF"
+    detected: 2026-07-18
+    origin_task: T-203
+    decision_trigger: >
+      The check_disposition_gate marker-anchoring fix (agents/task-create/update-task.sh)
+      and its regression test (agents/task-create/tests/test_disposition_gate.sh) are
+      merged into the upstream AEF framework and re-vendored here (same pattern as
+      G-001/G-004). Then close G-008.
+    description: |
+      T-203 fixed a false-positive in the inception disposition gate: the IW-N
+      question-marker regex was UNANCHORED, so an IW-N/Q-N appearing inside a
+      rationale PROSE cross-reference was tokenized as a new (empty) question →
+      false "under-disposed" completion blocks (it blocked T-190's completion
+      despite all three questions being fully disposed). The fix anchors the
+      marker to a block-start run of -/#/*; a regression test proves the gate
+      tolerates cross-references AND still blocks a genuinely under-disposed
+      question. BUT both edits are in the vendored `.agentic-framework/` tree, so
+      a future `fw vendor` re-sync from upstream would silently revert them (the
+      exact loss mode G-001/G-004 already track). The fix is DONE + tested here;
+      this concern tracks only upstream propagation so the fix survives re-vendor.
+    evidence:
+      - ".agentic-framework/agents/task-create/update-task.sh:770 — marker regex now `^[[:space:]]*([-#*]+[[:space:]]*)+(IW-[0-9]+|Q-?[0-9]+)` (was unanchored `IW-[0-9]+`)."
+      - ".agentic-framework/agents/task-create/tests/test_disposition_gate.sh — extracts the real function, asserts cross-ref fixture PASSES and under-disposed fixture BLOCKS; green (exit 0)."
+      - "Gate verified over the real unchanged T-190 file: 'all Open Questions disposed ✓' (exit 0)."
+    related:
+      - T-203
+      - T-190
+      - G-001
+      - G-004
