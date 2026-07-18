@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-11T16:56:46Z
-last_update: 2026-07-18T09:58:58Z
+last_update: 2026-07-18T10:01:14Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -128,15 +128,15 @@ mapping-standard beyond adding rows for the three initial typed events.
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -216,7 +216,32 @@ live on the G-3 collapsed-subProcess carrier.
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Recommendation: GO (going-in advisory — to be firmed/revised by the §Exploration Plan spikes)
+
+Rationale:
+
+The gap is real and AEF-ratified: without typed events, AEF's error paths (`status:issues`),
+scheduled triggers (`horizon`+cron), and cross-agent hand-offs (`dispatch`/`pickup`/bus) flatten
+into plain tasks, losing exactly the semantics the mapping contract exists to preserve. The
+capability is squarely on the authoring-surface arc and you prioritized it. The OPEN questions
+the inception must resolve before a firm GO are (1) the serialization shape and (2) the
+boundary-event attachment cost — the latter is the one that could force a v1 split rather than a
+NO-GO. My going-in lean: GO to build error/timer/message typed events; boundary variants
+contingent on IW-2 — likely a clean split (ship non-boundary first) if attachment proves
+expensive. This flips to NO-GO only if no serialization stays round-trippable, or the set can't
+live on the G-3 collapsed-subProcess carrier.
+
+Evidence:
+
+- Problem statement AEF-ratified (rail offset 25, 2026-07-11); G-3 carrier ruling ratified.
+- Link-event precedent for `aef:` extension encoding + working round-trip (src ~7906).
+- T-187/T-188 round-trip guards already exist to cover the new serialization on landing.
+
+Advisory only — the go/no-go decision is Dimitri's, after the spikes.
+
+**Date**: 2026-07-18T10:31:19Z
 
 ## Updates
 
@@ -226,3 +251,29 @@ live on the G-3 collapsed-subProcess carrier.
 ### 2026-07-18T09:58:58Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+### 2026-07-18T10:31:19Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Recommendation: GO (going-in advisory — to be firmed/revised by the §Exploration Plan spikes)
+
+Rationale:
+
+The gap is real and AEF-ratified: without typed events, AEF's error paths (`status:issues`),
+scheduled triggers (`horizon`+cron), and cross-agent hand-offs (`dispatch`/`pickup`/bus) flatten
+into plain tasks, losing exactly the semantics the mapping contract exists to preserve. The
+capability is squarely on the authoring-surface arc and you prioritized it. The OPEN questions
+the inception must resolve before a firm GO are (1) the serialization shape and (2) the
+boundary-event attachment cost — the latter is the one that could force a v1 split rather than a
+NO-GO. My going-in lean: GO to build error/timer/message typed events; boundary variants
+contingent on IW-2 — likely a clean split (ship non-boundary first) if attachment proves
+expensive. This flips to NO-GO only if no serialization stays round-trippable, or the set can't
+live on the G-3 collapsed-subProcess carrier.
+
+Evidence:
+
+- Problem statement AEF-ratified (rail offset 25, 2026-07-11); G-3 carrier ruling ratified.
+- Link-event precedent for `aef:` extension encoding + working round-trip (src ~7906).
+- T-187/T-188 round-trip guards already exist to cover the new serialization on landing.
+
+Advisory only — the go/no-go decision is Dimitri's, after the spikes.
