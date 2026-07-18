@@ -187,7 +187,7 @@ release-build task; AEF files one `fw designer` task. Phase-1 ships the self-con
 editor (authoring only); project persistence/versioning (Flask server + corpus) is a clearly-scoped
 phase-2 deferred pending real demand.
 
-**Date**: 2026-07-10T09:53:46Z
+**Date**: 2026-07-18T09:15:34Z
 
 ## Updates
 
@@ -282,3 +282,16 @@ phase-2 deferred pending real demand.
   scripting errors. Confirms the "authors offline / degrades without a backend" claim on the served copy.
 - **Conclusion:** phase-1 integration verified at the pixel level, not just HTTP 200 / byte-identity. The
   vendored 0.1.0 is a working editor on AEF infra.
+
+### 2026-07-18T09:15:34Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Exploration complete; the two-agent design work converged. The designer becomes part of AEF's surface
+area **without breaking the hard constraints**: 832 stays source of truth (C1) and future development
+continues here (C2) because AEF vendors a *pinned build artifact* of 832's release — never 832's source.
+That artifact reference (not a recursive source pull) keeps the 832-vendors-AEF / AEF-references-832
+dependency cycle from ever closing (IW-4), which is exactly why submodule/subtree (M1/M2) were rejected.
+The path is bounded, scoped, testable, and reversible (matches the GO criteria): 832 files one
+release-build task; AEF files one `fw designer` task. Phase-1 ships the self-contained single-file
+editor (authoring only); project persistence/versioning (Flask server + corpus) is a clearly-scoped
+phase-2 deferred pending real demand.
