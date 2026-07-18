@@ -4,7 +4,7 @@ name: "IW-12: inception — typed BPMN event palette (error/timer/message + boun
 description: >
   AEF IW-12 design finding (T-2523). 0.2.0 palette has only plain start/end; issues->boundary-error, horizon/cron->timer, dispatch/pickup->message are undiagrammable. Inception-scale (new node subtypes + aef serialization + bridge parity + mapping rows + DI). Operator prioritization (arc-scale).
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: human
 horizon: now
@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-11T16:56:46Z
-last_update: 2026-07-18T10:34:26Z
+last_update: 2026-07-18T19:40:13Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
