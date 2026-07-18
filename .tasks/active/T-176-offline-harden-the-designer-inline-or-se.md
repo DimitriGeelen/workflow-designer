@@ -4,10 +4,10 @@ name: "Offline-harden the designer: inline or self-host fonts (remove Google Fon
 description: >
   Surfaced by T-174: the designer links Google Fonts (fonts.googleapis.com/gstatic). Authoring functions offline (system-font fallback) but is not zero-network, which matters for air-gapped AEF deployments vendoring the released artifact. Inline the woff2 fonts as base64 (or self-host) so the single file is truly self-contained. Visual change to src/ — needs visual verification across modes.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: later
+horizon: now
 tags: ["arc:designer-authoring-surface"]
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T10:57:14Z
-last_update: 2026-07-10T10:57:14Z
+last_update: 2026-07-18T07:50:07Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,23 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The designer links Google Fonts (`fonts.googleapis.com` preconnect ×2 +
+a css2 stylesheet for JetBrains Mono 400/500/600 and Outfit 400/500/600/700).
+The "single-file self-contained" artifact AEF vendors therefore makes a live
+network call at load — it degrades to system fonts offline, but is not
+zero-network, which breaks fidelity in air-gapped AEF deployments (Directive 4,
+Portability). Fix: embed the woff2 faces as base64 `@font-face` inside the file
+so it is truly self-contained, keeping `--mono`/`--sans` stacks (embedded family
+first, system fallback retained) unchanged.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] All three Google Fonts `<link>` tags (2× preconnect + css2 stylesheet) removed from `src/aef-workflow-designer.html`; no `fonts.googleapis.com` / `fonts.gstatic.com` / external font URL remains (grep-clean).
+- [x] JetBrains Mono (400/500/600) + Outfit (400/500/600/700) embedded as base64 woff2 `@font-face` rules in one inline `<style>` block; `--mono`/`--sans` variables unchanged (embedded family first, system fallback retained).
+- [x] Generator `scripts/embed-fonts.py` committed — reproducibly re-fetches + re-embeds (documents source URL, families, weights, subsets) so a future weight change is one command, not hand-edited base64.
+- [x] Rendered with the network blocked, the real JetBrains Mono + Outfit faces render (not system fallback) — proven by screenshot read with the Read tool.
+- [x] No console/render regression: `python3 tests/test_designer_owner_derived.py` + the 5 JS↔Py seam guards still exit 0 (src unaffected structurally).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -73,6 +82,13 @@ date_finished: null
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+- [ ] [REVIEW] Embedded fonts render identically to the CDN version, no visible regression
+  **Steps:**
+  1. Serve the source: `cd /opt/832-Workflow-designer && python3 -m http.server 8199 --directory src`
+  2. Open `http://127.0.0.1:8199/aef-workflow-designer.html` (optionally with the network throttled to offline in devtools)
+  3. Compare the canvas node labels, IDs, headings, and property-panel text against `docs/screenshots/t176-fonts-*.png`
+  **Expected:** JetBrains Mono (mono labels/IDs/badges) and Outfit (headings/node names) render exactly as before; no fallback-font flash, no metric shift, no console font error.
+  **If not:** Screenshot the affected element and note whether it fell back to a system font.
 
 ## Verification
 
@@ -106,6 +122,20 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+# no external font references remain
+! grep -Eq "fonts\.(googleapis|gstatic)\.com" src/aef-workflow-designer.html
+# fonts embedded as base64 woff2 @font-face
+grep -q "@font-face" src/aef-workflow-designer.html
+grep -q "data:font/woff2;base64," src/aef-workflow-designer.html
+# both families still wired into the CSS variables
+grep -q "JetBrains Mono" src/aef-workflow-designer.html
+grep -q "Outfit" src/aef-workflow-designer.html
+# generator is committed and runnable
+test -f scripts/embed-fonts.py
+# structural guards unaffected by the font embed
+out=$(python3 tests/test_designer_owner_derived.py 2>&1); echo "$out" | grep -q "PASS"
+python3 tests/test_editor_bridge_meta_parity.py
+python3 tests/test_editor_namespace_consistency.py
 
 ## RCA
 
@@ -147,6 +177,42 @@ date_finished: null
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-07-18 — subset scope decided at build time
+- **What changed:** css2 returns 26 unicode-range faces (latin, latin-ext, cyrillic, greek, vietnamese). Full embed = +525 KB; latin+latin-ext = +429 KB (14 faces). The designer UI + realistic AEF process content is latin/latin-ext; exotic scripts were never part of the design and fall back to system fonts exactly as they do today.
+- **Plan impact:** Chose latin-only embed (the generator keeps `--latin-only` as the used mode and full as the fallback default) — ~100 KB smaller on every vendored copy with no fidelity loss for the actual content.
+- **Triggered:** none — bounded within the task.
+
+## Visual Verification
+
+`docs/screenshots/t176-fonts-baseline-cdn.png` (CDN fonts, online) and
+`docs/screenshots/t176-fonts-embedded.png` (embedded data-URI fonts, no font
+network) are **byte-identical (70588 B each)** — pixel-identical rendering.
+Headings render in Outfit, mono labels/IDs/paths in JetBrains Mono; no
+system-font fallback, no metric shift. `document.fonts` shows all 7 weights
+`loaded` from the inline faces, and the network trace shows **zero** requests to
+any font host (only the HTML + the whitelisted `/api/health` probe) — proving
+the artifact is zero-network for fonts.
+
+## Recommendation
+
+**Recommendation:** GO
+
+**Rationale:** The single-file artifact is now truly self-contained — the live
+Google Fonts dependency is gone, closing the Directive-4 (Portability) gap for
+air-gapped AEF deployments that vendor the released build. Rendering is proven
+pixel-identical (byte-identical screenshots), so there is no design regression;
+the one Human AC is a fidelity confirmation.
+
+**Evidence:**
+- 0 external font hosts in src; 14 base64 woff2 `@font-face` embedded; families still wired to `--mono`/`--sans`.
+- Byte-identical before/after screenshots; zero font network requests.
+- All 6 JS↔Py seam/render structural guards still exit 0 (embed is presentational only).
+- Reproducible via `scripts/embed-fonts.py --latin-only`.
+
+**To finalize:** review `docs/screenshots/t176-fonts-embedded.png` (or run the
+Human AC steps), check the `[REVIEW]` box, then
+`cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task update T-176 --status work-completed`.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -174,3 +240,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-176-offline-harden-the-designer-inline-or-se.md
 - **Context:** Initial task creation
+
+### 2026-07-18T07:50:07Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
