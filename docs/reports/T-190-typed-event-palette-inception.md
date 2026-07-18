@@ -51,6 +51,44 @@ targets that carrier so editor + forward-compiler agree.
   follow-on, decided by IW-2's cost. One inception, one go/no-go; a boundary split is
   build-decomposition, not a second inception.
 
+### 3a. Spike-1 finding — IW-1 RESOLVED: `aef:`-extension encoding (2026-07-18)
+
+Investigated both sides of the pipeline + the round-trip contract:
+
+- **Bridge (`tools/yaml-to-bpmn.py`) + T-061 passthrough contract** (pinned by
+  `tests/test_bridge_aef_passthrough.py`): a scalar `aef.x-<name>` key round-trips
+  as `<aef:meta … x-<name>="…">`; an unknown *bare* `aef.<name>` drops **loudly**
+  (WARN to stderr, exit 0); known vocabulary unaffected. So the `aef:` extension
+  channel is a **guaranteed, tested round-trip path** for new event metadata.
+- **Editor + bridge have NO native `bpmn:*EventDefinition` machinery.** Event
+  semantics ride `aef:` extension uniformly: link events map to
+  `intermediateThrow/CatchEvent` tags (bridge lines 34-35) and carry their
+  semantics via `aef:link` (`targetWorkflow`/`linkId`), NOT a native
+  `bpmn:linkEventDefinition`. Grep confirms zero `EventDefinition` handling on the
+  editor import side. The AEF model is deliberately "BPMN skeleton + `aef:`
+  extension carries AEF semantics."
+
+**Decision (IW-1): encode typed events the same way link events already are** — a
+BPMN event tag (`startEvent`/`intermediateCatch|ThrowEvent`/`boundaryEvent`) + an
+`aef:` extension marker for the type and its AEF binding (e.g.
+`aef:eventDef kind="error|timer|message"` + the trigger: `status:issues` / cron
+expr / bus topic), riding the proven `aef:`/`x-` channel. Rationale:
+
+- **Least change + guaranteed round-trip:** reuses the existing `aef:link` template
+  and the tested passthrough; adding native `bpmn:*EventDefinition` would mean new
+  parse+emit branches on BOTH editor sides *and* the bridge, for no functional gain
+  the editor consumes.
+- **Portability is not sacrificed in substance:** the AEF binding (which concept
+  fired) can't live in pure-native BPMN anyway — you'd need `aef:` regardless. A
+  native `bpmn:*EventDefinition` child MAY additionally be emitted **write-only** as
+  a courtesy for third-party BPMN readers (editor keys off `aef:` on re-import) — an
+  optional add, not the primary encoding.
+
+**Cost implication:** because the marginal encoding per event type is small (mirrors
+the existing `linkEvent` branch), the dominant cost is confirmed to be **IW-2
+(boundary attachment topology)**, not serialization. Spike-1 did not touch
+production code (analysis of existing src + bridge + guards only).
+
 ## 4. Assumptions
 
 - **A1:** native BPMN event-definitions are the portability-correct shape and

@@ -73,9 +73,9 @@ agent must NOT start the inception without operator GO.
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
 - **IW-1: Serialization shape — do typed events encode as NATIVE BPMN event-definition children (`<bpmn:errorEventDefinition/>`, `timerEventDefinition`, `messageEventDefinition`) or via the `aef:` extension channel (as link events already do, `aef:link`)?**
-  confidence: 1
-  disposition: <deferred — Spike-1>
-  rationale: Load-bearing. Portability (Directive 4) favors native BPMN; but the existing pipeline routes link events through `aef:` extension (src ~7906, aefExtensionXml) — there is precedent + a working round-trip for extension encoding. The choice sets the size of the editor + bridge (`yaml-to-bpmn.py`) change and whether T-187/T-188 round-trip guards cover it for free.
+  confidence: 3
+  disposition: answered
+  rationale: Spike-1 (§3a). Encode via `aef:` extension (BPMN event tag + `aef:eventDef kind=...` + binding), same as link events. Both editor and bridge have ZERO native `bpmn:*EventDefinition` machinery; the `aef:`/`x-` channel is a tested round-trip path (T-061, test_bridge_aef_passthrough.py). Native `bpmn:*EventDefinition` optional write-only for portability. Marginal per-type cost small ⇒ dominant cost is IW-2, not serialization.
 - **IW-2: Boundary events — how is an event ATTACHED to a host (task/subProcess) modeled in the editor's node/edge data model? A boundary event is not a free node; it is anchored to a host's boundary, a new topological relation.**
   confidence: 1
   disposition: <deferred — Spike-2>
