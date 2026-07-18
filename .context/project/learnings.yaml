@@ -246,3 +246,17 @@ learnings:
   date: 2026-07-17
   context: Added via context agent
   application: TBD
+- id: PL-036
+  learning: "A test that guards an immutable versioned artifact (a release gate) must NOT have its expectations flipped by a source change that has not yet been released. When src retires a field, the release-gate test over the already-shipped build still correctly asserts the OLD contract about those immutable bytes; its expectations flip atomically with the VERSION bump that rebuilds the artifact. Flipping the gate in the src-only task would (a) assert a falsehood about immutable bytes and (b) be un-greenable under a same-version rebuild guard (G-007). Split: src change + src-served guard now; release-gate flip travels with the release (human-owned). Origin T-197 (IW-9 editor owner retire) vs dist-0.2.0 render gate."
+  source: P-011
+  task: T-197
+  date: 2026-07-18
+  context: Added via context agent
+  application: TBD
+- id: PL-037
+  learning: "When two governed peers face a 'who writes the protected artifact' fork, resolve it by routing the write through the single existing gated interface both already trust (here: promote delegates to 'fw task create', the one governed .tasks/ writer) rather than by assigning ownership to one side. Reframe: the guardrail is not WHO emits but 'the write never leaves the gate perimeter' — that turns a convention into a mechanical gate (inherits task-gate + G-020 for free). Split content-authority (author) from gated-write (framework). Origin: T-201/T-2541 write-out seam."
+  source: P-002
+  task: T-201
+  date: 2026-07-18
+  context: Added via context agent
+  application: TBD

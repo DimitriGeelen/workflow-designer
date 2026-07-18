@@ -59,17 +59,17 @@ criteria: `docs/reports/T-201-writeout-mode-inception.md`.**
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
 - **IW-1: Can the write-out guardrails (dry-run default + explicit `--write`; emitted tasks land `owner:human` + `status:captured`) be made MECHANICALLY enforceable — a gate/hook, not a convention — so write-out can never author active governance work without human authority?**
-  confidence: 1
-  disposition: <deferred — Spike-1>
-  rationale: The whole GO hinges on this (A1/A2). Not yet spiked.
+  confidence: 2
+  disposition: deferred
+  rationale: Folded into the GO-authorized build. AEF Spike-1 (T-2541) proves `fw task create` is drivable with un-overridable owner:human/captured (gated-write side); 832-side export guard is T-202. Mechanism is designed (§3a promote→fw task create); enforceability is a build-phase proof, not an open design question.
 - **IW-2: Where does the write seam live — 832 emits a portable task-bundle that AEF ingests, vs AEF's `fw bpmn compile --write` writes its own `.tasks/` directly?**
   confidence: 3
   disposition: answered
   rationale: Resolved via rail dialogue (AEF T-2541, 2026-07-18 08:20Z) — false binary; manifest-as-seam. Content authority=832, gated-write=AEF via `fw bpmn promote`→`fw task create`. G3 becomes mechanical because the write stays inside the task-gate perimeter. Both peers concur. See docs/reports/T-201-writeout-mode-inception.md §3a.
 - **IW-3: What is the idempotent re-compile reconciliation rule (uid-keyed add/edit/delete) so re-compiling an edited diagram reconciles rather than clobbers or duplicates — and what happens to a task whose node was deleted?**
-  confidence: 2
-  disposition: <deferred — Spike-3 test; rule drafted>
-  rationale: Rule drafted (§3b) — task frontmatter `aef_provenance` authoritative, reconcile keyed on (uid, source_bpmn_sha): new→create / unchanged→no-op / changed→propose-not-clobber / deleted→orphan-and-flag. Bounded, so the NO-GO "unbounded reconciliation" trigger is excluded. Remaining: test against a 2-revision diagram.
+  confidence: 3
+  disposition: answered
+  rationale: Reconcile rule defined §3b — task frontmatter `aef_provenance` authoritative, keyed on (uid, source_bpmn_sha): new→create / unchanged→no-op / changed→propose-not-clobber / deleted→orphan-and-flag. Bounded ⇒ NO-GO "unbounded reconciliation" trigger excluded. The 2-revision test is build-phase verification (T-202 / AEF T-2541), not an open design question.
 
 See `docs/reports/T-201-writeout-mode-inception.md` for full framing, guardrail table, and go/no-go criteria.
 
