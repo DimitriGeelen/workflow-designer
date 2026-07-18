@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T07:39:35Z
-last_update: 2026-07-18T09:52:32Z
+last_update: 2026-07-18T09:56:34Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -53,11 +53,11 @@ Human-owned: a release is a sovereignty promise (immutable versioned bytes, G-00
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] VERSION bumped 0.2.0 → 0.3.0 (new release; the immutability guard G-007 forbids re-cutting 0.2.0 with different bytes).
-- [ ] `tests/test_designer_render.py` flipped for the retired-owner (IW-9) build: `owner` dropped from `SIG`, from the `AEF_FIELDS.serviceTask` marker loop, and from the rendered-DOM select assertions — horizon + workflowType still asserted. Docstring/console-note updated (T-176 embedded fonts ⇒ no CDN font request).
-- [ ] `scripts/release-designer.sh` cut `dist/aef-workflow-designer-0.3.0.html`; the render gate passed against it; `dist/MANIFEST.yaml` updated to `latest: 0.3.0` with the new sha256 + byte count (larger — embedded fonts).
-- [ ] Released artifact is byte-identical to `src/` (retired owner + embedded fonts); `python3 tests/test_designer_render.py` exits 0 against 0.3.0.
-- [ ] AEF notified of the 0.3.0 release on the rail with version + sha256 + bytes, per `docs/aef-designer-integration-protocol.md` (AEF-side re-pin/adoption is AEF's action, out of 832's control).
+- [x] VERSION bumped 0.2.0 → 0.3.0 (new release; the immutability guard G-007 forbids re-cutting 0.2.0 with different bytes). — `VERSION` = 0.3.0.
+- [x] `tests/test_designer_render.py` flipped for the retired-owner (IW-9) build: `owner` dropped from `SIG`, from the `AEF_FIELDS.serviceTask` marker loop, and from the rendered-DOM select assertions — horizon + workflowType still asserted. Docstring/console-note updated (T-176 embedded fonts ⇒ no CDN font request). — commit `af90f67`.
+- [x] `scripts/release-designer.sh` cut `dist/aef-workflow-designer-0.3.0.html`; the render gate passed against it; `dist/MANIFEST.yaml` updated to `latest: 0.3.0` with the new sha256 + byte count (larger — embedded fonts). — sha `36be033d…`, 826643 bytes; render gate "PASS (0.3.0)".
+- [x] Released artifact is byte-identical to `src/` (retired owner + embedded fonts); `python3 tests/test_designer_render.py` exits 0 against 0.3.0. — release script `diff -q` guarantee + render gate green.
+- [x] AEF notified of the 0.3.0 release on the rail with version + sha256 + bytes, per `docs/aef-designer-integration-protocol.md` (AEF-side re-pin/adoption is AEF's action, out of 832's control). — rail offset 61.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
