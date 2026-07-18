@@ -4,10 +4,10 @@ name: "Joint integration test: designer .bpmn export -> AEF compile/promote -> g
 description: >
   Joint integration test: designer .bpmn export -> AEF compile/promote -> gated fw task create
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T21:08:00Z
-last_update: 2026-07-18T21:08:00Z
-date_finished: null
+last_update: 2026-07-18T21:19:45Z
+date_finished: 2026-07-18T21:19:45Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -210,3 +210,6 @@ python3 tests/test_promote_contract.py
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-206-joint-integration-test-designer-bpmn-exp.md
 - **Context:** Initial task creation
+
+### 2026-07-18T21:19:45Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
