@@ -89,6 +89,42 @@ the existing `linkEvent` branch), the dominant cost is confirmed to be **IW-2
 (boundary attachment topology)**, not serialization. Spike-1 did not touch
 production code (analysis of existing src + bridge + guards only).
 
+### 3b. Spike-2 finding — IW-2 RESOLVED: bounded additive change, NOT a redesign (2026-07-18)
+
+The feared cost was that "event attached to a host" is a new topological relation
+the free-node model can't express. Investigation shows the model **already has the
+pieces**:
+
+- **Node→node uid references already exist and round-trip.** `aef:scopeOf` (a
+  subProcess bound to the node it is the collapsed body of, T-081/FC-15) and
+  `aef:constituents` (a list of `{id,name,ref}` children) are both authored fields
+  that serialize (metaKeys + the list-of-dicts channel, src ~7934/~7986/~8280) and
+  re-import. A boundary event's host binding is the **same shape**: an additive
+  `aef` field — `hostRef` (host uid) + `boundaryPos` (perimeter offset) +
+  `interrupting` (bool). No new relational primitive.
+- **Interaction infra already exists to reuse.** Group-drag (`groupDrag`, src ~5493;
+  `node.x = orig.x + dx`, ~5500) already moves multiple nodes by a shared delta —
+  the exact mechanic host-follow needs ("host moves ⇒ its boundary events move").
+  Edge endpoints already anchor via the T-168 port/anchor machinery, which a
+  boundary-origin edge reuses.
+- **The one genuinely new piece is host-relative rendering.** Nodes render at
+  absolute `n.x/n.y` (renderNodes, ~2354). A boundary event must instead render at
+  a point computed from its host's perimeter. That is a **contained new branch** in
+  renderNodes (position from `hostRef`, not free x/y), not a model rewrite.
+
+**Verdict:** boundary-event attachment is a **bounded, additive** change (data ref =
+free via scopeOf/constituents precedent; drag + edges = reuse existing infra; only a
+host-relative render branch is net-new). It does **not** force a data-model redesign,
+so the §6 NO-GO trigger ("unbounded editor redesign") does **not** fire. Spike-2 was
+analysis-only — no production code.
+
+**Consequence for IW-3 (v1 scope):** since attachment is bounded, boundary variants
+**can ship in v1**. Lowest-risk sequencing is still a **two-slice build under one
+task** — error/timer/message (non-boundary) first, boundary variants second — but
+this is build-decomposition, **not** a separate inception. A3 (T-081 carrier) is
+confirmed by the same scopeOf/constituents evidence; Spike-3's mapping-standard rows
+are a build-time detail on that carrier, not a go/no-go blocker.
+
 ## 4. Assumptions
 
 - **A1:** native BPMN event-definitions are the portability-correct shape and

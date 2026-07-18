@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-11T16:56:46Z
-last_update: 2026-07-18T10:01:14Z
+last_update: 2026-07-18T10:34:26Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -77,13 +77,13 @@ agent must NOT start the inception without operator GO.
   disposition: answered
   rationale: Spike-1 (§3a). Encode via `aef:` extension (BPMN event tag + `aef:eventDef kind=...` + binding), same as link events. Both editor and bridge have ZERO native `bpmn:*EventDefinition` machinery; the `aef:`/`x-` channel is a tested round-trip path (T-061, test_bridge_aef_passthrough.py). Native `bpmn:*EventDefinition` optional write-only for portability. Marginal per-type cost small ⇒ dominant cost is IW-2, not serialization.
 - **IW-2: Boundary events — how is an event ATTACHED to a host (task/subProcess) modeled in the editor's node/edge data model? A boundary event is not a free node; it is anchored to a host's boundary, a new topological relation.**
-  confidence: 1
-  disposition: <deferred — Spike-2>
-  rationale: Likely the dominant cost driver. The current node model is free-floating nodes in lanes; "attached-to-host" is a new relationship (host ref + boundary position + interrupting/non-interrupting flag). If this forces a data-model redesign it is a decompose/split signal, not a blanket NO-GO.
+  confidence: 3
+  disposition: answered
+  rationale: Spike-2 (§3b). Bounded additive change, NOT a redesign. Node→node uid refs already exist + round-trip (aef:scopeOf/constituents, T-081) → host binding is an additive aef field (hostRef+boundaryPos+interrupting). groupDrag (~5493) + T-168 ports reused for host-follow drag + boundary-origin edges. Only net-new piece: a host-relative render branch in renderNodes (~2354). NO-GO "unbounded redesign" trigger does not fire.
 - **IW-3: v1 scope — which typed events ship first (error / timer / message as start+intermediate), and are BOUNDARY variants in v1 or a follow-on?**
-  confidence: 2
-  disposition: <deferred — resolved by IW-2 cost>
-  rationale: If IW-2 shows boundary attachment is bounded, boundary variants ship with v1; if unbounded, ship error/timer/message (non-boundary) first and split boundary events into a follow-on build task. One inception, one go/no-go; the split is a build-decomposition, not a second inception.
+  confidence: 3
+  disposition: answered
+  rationale: Spike-2 shows boundary attachment is bounded, so boundary variants CAN ship in v1. Lowest-risk sequencing = two-slice build under ONE task (non-boundary error/timer/message first, boundary second) — build-decomposition, not a second inception. A3 (T-081 carrier) confirmed by the same scopeOf/constituents evidence.
 
 ## Exploration Plan
 
@@ -180,7 +180,21 @@ T-201, is mid-flight and would collide with the serialization work) — sequence
 <!-- REQUIRED before fw inception decide. Write your recommendation here (T-974).
      Watchtower reads this section — if it's empty, the human sees nothing. -->
 
-**Recommendation:** GO (going-in advisory — to be firmed/revised by the §Exploration Plan spikes)
+**Recommendation:** GO — FIRM (post-Spike-1 + Spike-2)
+
+Both spikes closed favorably and all three §Go/No-Go NO-GO triggers are excluded:
+- IW-1 (Spike-1): serialization is a small, round-trip-guaranteed `aef:`-extension change.
+- IW-2 (Spike-2): boundary attachment is a BOUNDED ADDITIVE change (node→node uid refs
+  scopeOf/constituents already round-trip; groupDrag + T-168 ports reused; only a
+  host-relative render branch is net-new) — the feared unbounded redesign does not occur.
+- IW-3: boundary variants ship in v1 as a two-slice build under ONE task (non-boundary
+  first, boundary second) — not a second inception.
+Recommended build scope (blast_radius 3): palette + node subtypes + `aef:eventDef`
+serialization + mapping rows + DI on the T-081 carrier, covered by T-187/T-188 guards.
+Full evidence: docs/reports/T-190-typed-event-palette-inception.md §3a/§3b/§7.
+**Go/no-go remains Dimitri's (Tier-0).**
+
+_(Going-in advisory below was written pre-spike; superseded by the FIRM GO above.)_
 
 **Rationale:**
 
