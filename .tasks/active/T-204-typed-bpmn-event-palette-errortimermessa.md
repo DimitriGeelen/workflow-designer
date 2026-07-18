@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T19:42:25Z
-last_update: 2026-07-18T19:42:25Z
+last_update: 2026-07-18T19:44:05Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,7 +34,39 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Authorized by T-190 GO (see `docs/reports/T-190-typed-event-palette-inception.md`).
+Design: `aef:`-extension encoding (IW-1) — BPMN event tag + `<aef:eventDef>` marker; NO
+native `bpmn:*EventDefinition`. Mirror the existing `linkEvent*` pattern end-to-end.
+
+### Slice 1 anchor map (src/aef-workflow-designer.html — verified 2026-07-18, pre-edit)
+New node types `eventError` / `eventTimer` / `eventMessage`, added at every site where
+`linkEventThrow`/`linkEventCatch` appear:
+
+| Site | line(s) | change |
+|---|---|---|
+| Palette HTML | 1109–1205 (`linkEventThrow`/`Catch` at 1193/1205) | 3 `.palette-item data-create="eventError\|eventTimer\|eventMessage"` |
+| Node dims | 1608–1618 (`linkEvent*` 1617/1618) | `{ w:36, h:36, lane:'framework' }` each |
+| Field defs (per-type aef fields) | 1626–1638 (`linkEvent*` 1637/1638 = `['targetWorkflow','linkId']`) | error→binding `status:issues`; timer→cron/`horizon`; message→bus topic |
+| Field META (label/hint) | ~1665–1666 | new field labels/hints for the eventDef fields |
+| Ports in/out | 1686–1696 (`linkEvent*` 1695/1696) | in/out flags |
+| Render branch | 2380–2397 (`linkEvent*` branch) | draw glyph; add types to event `ly`/`isBelow` at 2397/2459/2564/3645 |
+| Icon SVG | 5004–5011 (`linkEvent*` 5010/5011) | error ▲/⚡, timer ⏱, message ✉ |
+| **TYPE_TAG** | 7894–7910 (`linkEvent*` 7906/7907) | map new types → BPMN tag |
+| **aefExtensionXml** | 7912–8001; `aef:link` emit at 7944–7948 | add `<aef:eventDef kind="…" binding="…"/>` branch (mirror aef:link) |
+| **buildBpmnXml** | 8005; tag via `TYPE_TAG[n.type]` at 8053; aef via `aefExtensionXml(n)` at 8060 | no change beyond TYPE_TAG/aefExtensionXml |
+| **REVERSE_TYPE** (import) | built 8185 from TYPE_TAG | ⚠ COLLISION: if error/timer/message share a BPMN tag (e.g. all `intermediateCatchEvent`, which also = `linkEventCatch`), `REVERSE_TYPE[tag]` can't disambiguate — import MUST read `aef:eventDef.kind` to pick the type (same override linkEvent needs vs a plain intermediate event). |
+| **Import parser** | `adoptImportedXml` at 7779 | parse `<aef:eventDef>` back → set node.type from kind + restore fields (round-trip) |
+
+### Key design decisions to lock at build time
+1. **BPMN tag per type:** non-boundary error/timer/message → likely all `bpmn:intermediateCatchEvent` (neutral "event in flow"), type carried by `aef:eventDef.kind`. Because that tag already maps to `linkEventCatch`, the import path must branch on extension content (`aef:link` → linkEventCatch; `aef:eventDef` → typed event). Confirm against REVERSE_TYPE(8185)+adoptImportedXml(7779) before editing.
+2. **Bridge (`tools/yaml-to-bpmn.py`):** confirm whether `aef.eventDef` is added as known vocabulary (dedicated element) or rides `aef.x-*` passthrough (T-061 guarantees x- round-trips; bare unknown drops LOUDLY). Read the bridge first — AC says "rides the aef:/x- channel."
+3. **Round-trip test:** export→import→export byte-stable for eventDef fields; assert `<aef:eventDef>` present. New `tests/test_designer_typed_events.py` (or extend `test_designer_export_contract.py`).
+
+### Build order (each a commit + check-in)
+1. Data path: TYPE_TAG + aefExtensionXml eventDef + import parse + round-trip test (green) — load-bearing core.
+2. Registry + palette + render glyphs + icons (visual).
+3. Bridge parity + mapping-standard rows.
+4. Visual verification (Playwright element screenshots, all modes) → tick Human AC.
 
 ## Acceptance Criteria
 
