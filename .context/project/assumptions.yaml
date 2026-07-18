@@ -126,3 +126,21 @@ assumptions:
   linked_task: T-175
   created: '2026-07-10'
   resolved_date: null
+- id: A-015
+  statement: Write-out guardrails (dry-run default, --write, owner:human+captured
+    emit) are mechanically enforceable as gates, not conventions
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-201
+  created: '2026-07-18'
+  resolved_date: null
+- id: A-016
+  statement: owner:human + status:captured on every emitted task keeps write-out on
+    the initiative side of the Authority Model (no auto-activation)
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-201
+  created: '2026-07-18'
+  resolved_date: null
