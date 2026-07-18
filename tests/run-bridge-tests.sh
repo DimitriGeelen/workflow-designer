@@ -103,6 +103,15 @@ else
 fi
 
 echo
+echo "== designer→AEF promote contract (T-206) =="
+if python3 "$ROOT/tests/test_promote_contract.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "designer .bpmn export drifted from the AEF promote contract (uid / lane-authority / manifest-tuple / source_bpmn_sha)"
+  fail=$((fail + 1))
+fi
+
+echo
 # Corpus geometry sweep (T-052): every authored map's nodes must sit inside their
 # lane bands, modulo the exact legacy allowlist. Guards against new maps silently
 # straddling bands — the G-019 blindness found in T-050.
