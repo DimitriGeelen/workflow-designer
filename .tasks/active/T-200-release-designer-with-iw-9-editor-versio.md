@@ -34,7 +34,20 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The next designer release (VERSION bump, rebuild dist from src) now carries TWO
+committed src changes beyond 0.2.0, both landing atomically:
+1. **T-197** — node-level `owner` override retired from the editor (IW-9 v1.1).
+   The release must ALSO flip `tests/test_designer_render.py` — drop `owner`
+   from SIG (~line 64), the AEF_FIELDS marker loop (~158), and the rendered-DOM
+   owner assertions (~183/191) — so the render gate matches the new bytes.
+2. **T-176** — web fonts embedded as base64 woff2 (offline / zero-network). This
+   also RESOLVES the render-test's own flagged concern (its CONSOLE_WHITELIST
+   note says a Google-Fonts/CDN error "is NOT whitelisted and would legitimately
+   fail this test") — post-T-176 there is no font network call to fail on.
+   src grew 398 KB → 827 KB; expect the manifest sha + size to change accordingly.
+
+Re-pin/notify AEF per docs/aef-designer-integration-protocol.md after the cut.
+Human-owned: a release is a sovereignty promise (immutable versioned bytes, G-007).
 
 ## Acceptance Criteria
 
