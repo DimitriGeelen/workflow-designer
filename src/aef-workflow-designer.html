@@ -1497,15 +1497,31 @@ const NODE_DEFAULTS = {
 const AEF_FIELDS = {
   startEvent:   ['triggeredBy', 'contextReads'],
   endEvent:     ['emits'],
-  serviceTask:  ['horizon', 'workflowType', 'owner', 'tier', 'agentType', 'endpoint', 'contextReads', 'artifactsWrites'],
-  userTask:     ['horizon', 'workflowType', 'owner', 'tier', 'endpoint', 'decisionOutputs'],
-  scriptTask:   ['horizon', 'workflowType', 'owner', 'tier', 'endpoint', 'contextReads', 'artifactsWrites'],
+  // T-197 (IW-9 v1.1): node-level `owner` is NOT authorable — it derives from
+  // the node's lane authority (Axis 1). The panel shows it read-only via
+  // ownerFromAuthority(); it is retained in the metaKeys writer for O-2
+  // reverse-render laning, but never offered as an editable field here.
+  serviceTask:  ['horizon', 'workflowType', 'tier', 'agentType', 'endpoint', 'contextReads', 'artifactsWrites'],
+  userTask:     ['horizon', 'workflowType', 'tier', 'endpoint', 'decisionOutputs'],
+  scriptTask:   ['horizon', 'workflowType', 'tier', 'endpoint', 'contextReads', 'artifactsWrites'],
   exclusiveGateway: ['decisionInput', 'decisionOwner'],
   parallelGateway: [],
   linkEventThrow: ['targetWorkflow', 'linkId'],
   linkEventCatch: ['targetWorkflow', 'linkId'],
-  subProcess:   ['horizon', 'workflowType', 'owner', 'tier', 'endpoint', 'contextReads', 'artifactsWrites', 'scopeOf'],
+  subProcess:   ['horizon', 'workflowType', 'tier', 'endpoint', 'contextReads', 'artifactsWrites', 'scopeOf'],
 };
+
+// T-197 (IW-9 v1.1): the authority→owner collapse map. owner is DERIVED from the
+// node's lane authority, never authored per-node. Mirror of the mapping-v1 §3
+// collapse (sovereignty→human, initiative/authority→agent, external→no task).
+// Returns '' (no task / not derivable) for external/none/unknown.
+const OWNER_FROM_AUTHORITY = { sovereignty: 'human', initiative: 'agent', authority: 'agent', external: '' };
+function ownerFromAuthority(authority) {
+  return OWNER_FROM_AUTHORITY[authority] || '';
+}
+// Node types that carry a derived owner (task-like nodes — those that had the
+// retired owner field). Used to render the read-only Owner readout.
+const OWNER_BEARING_TYPES = new Set(['serviceTask', 'userTask', 'scriptTask', 'subProcess']);
 
 const FIELD_META = {
   triggeredBy:    { label: 'Triggered by',    hint: 'event or fw command', textarea: false },
@@ -1528,7 +1544,11 @@ const FIELD_META = {
   // (kept in bridge parity — see metaKeys + tools/yaml-to-bpmn.py META_KEYS).
   horizon:        { label: 'Horizon',         hint: 'when to work on it', special: 'select', options: ['', 'now', 'next', 'later'] },
   workflowType:   { label: 'Workflow type',   hint: 'task workflow_type', special: 'select', options: ['', 'build', 'test', 'refactor', 'decommission', 'specification', 'design', 'inception'] },
-  owner:          { label: 'Owner',           hint: 'node-level owner (overrides lane)', special: 'select', options: ['', 'human', 'agent'] },
+  // T-197 (IW-9 v1.1): owner is NO LONGER an editable field — removed from
+  // AEF_FIELDS. It derives from lane authority (ownerFromAuthority) and renders
+  // read-only. This entry is retained only as the value-vocabulary of record;
+  // it is not rendered by the panel loop.
+  owner:          { label: 'Owner',           hint: 'derived from lane authority — read-only (IW-9)', special: 'derived', options: ['', 'human', 'agent'] },
 };
 
 // I/O contract — which node types declare typed inputs/outputs, and the type vocabulary.
@@ -4764,6 +4784,33 @@ function renderProperties() {
       } else {
         sAef.appendChild(field(meta.label, n.aef[f] || '', v => { n.aef[f] = v; }, { mono: true, textarea: meta.textarea, hint: meta.hint }));
       }
+    }
+    // T-197 (IW-9 v1.1): read-only derived Owner. owner is no longer authored
+    // per-node; it derives from the node's lane authority (Axis 1). Show the
+    // derived value and the authority it came from so the collapse is legible;
+    // it updates automatically when the Lane select above changes (which
+    // re-renders the panel). external/none → "— none —" (no task).
+    if (OWNER_BEARING_TYPES.has(n.type)) {
+      const ownerLane = findLane(n.lane);
+      const ownerAuth = ownerLane ? ownerLane.authority : 'none';
+      const derivedOwner = ownerFromAuthority(ownerAuth);
+      const ownerField = document.createElement('div');
+      ownerField.className = 'field';
+      const ownerLabel = document.createElement('div');
+      ownerLabel.className = 'field-label';
+      ownerLabel.textContent = 'Owner';
+      const ownerHint = document.createElement('span');
+      ownerHint.className = 'field-hint';
+      ownerHint.textContent = `· derived from lane (${ownerAuth})`;
+      ownerLabel.appendChild(ownerHint);
+      ownerField.appendChild(ownerLabel);
+      const ownerValue = document.createElement('div');
+      ownerValue.className = 'field-input';
+      ownerValue.style.cssText = 'background: var(--surface); color: '
+        + (derivedOwner ? 'var(--text-faint)' : 'var(--muted, #8b95a5)') + '; user-select: text;';
+      ownerValue.textContent = derivedOwner || '— none —';
+      ownerField.appendChild(ownerValue);
+      sAef.appendChild(ownerField);
     }
     props.appendChild(sAef);
   }
