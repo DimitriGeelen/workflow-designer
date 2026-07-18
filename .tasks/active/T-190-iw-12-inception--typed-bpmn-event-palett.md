@@ -4,15 +4,15 @@ name: "IW-12: inception — typed BPMN event palette (error/timer/message + boun
 description: >
   AEF IW-12 design finding (T-2523). 0.2.0 palette has only plain start/end; issues->boundary-error, horizon/cron->timer, dispatch/pickup->message are undiagrammable. Inception-scale (new node subtypes + aef serialization + bridge parity + mapping rows + DI). Operator prioritization (arc-scale).
 
-status: captured
+status: started-work
 workflow_type: inception
 owner: human
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-11T16:56:46Z
-last_update: 2026-07-11T16:56:46Z
+last_update: 2026-07-18T09:58:58Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -51,6 +51,9 @@ agent must NOT start the inception without operator GO.
 ## Assumptions
 
 <!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-XXX -->
+- **A1:** Native BPMN event-definition children are the portability-correct serialization and round-trip through `yaml-to-bpmn.py` + T-187/T-188 guards with a bounded change. *(If false → aef:-extension encoding, per link-event precedent.)*
+- **A2:** Boundary-event host-attachment is the dominant cost driver; error/timer/message as plain start/intermediate events are a comparatively small lift. *(Sets whether v1 splits.)*
+- **A3:** The collapsed-subProcess carrier (T-081 `aef:scopeOf`) is the correct attach target so editor + forward-compiler agree, per the ratified G-3 ruling.
 
 ## Open Questions
 
@@ -69,22 +72,57 @@ agent must NOT start the inception without operator GO.
      §Disposition Gate. Bypass: --skip-disposition-gate "rationale" (direct) or
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
+- **IW-1: Serialization shape — do typed events encode as NATIVE BPMN event-definition children (`<bpmn:errorEventDefinition/>`, `timerEventDefinition`, `messageEventDefinition`) or via the `aef:` extension channel (as link events already do, `aef:link`)?**
+  confidence: 1
+  disposition: <deferred — Spike-1>
+  rationale: Load-bearing. Portability (Directive 4) favors native BPMN; but the existing pipeline routes link events through `aef:` extension (src ~7906, aefExtensionXml) — there is precedent + a working round-trip for extension encoding. The choice sets the size of the editor + bridge (`yaml-to-bpmn.py`) change and whether T-187/T-188 round-trip guards cover it for free.
+- **IW-2: Boundary events — how is an event ATTACHED to a host (task/subProcess) modeled in the editor's node/edge data model? A boundary event is not a free node; it is anchored to a host's boundary, a new topological relation.**
+  confidence: 1
+  disposition: <deferred — Spike-2>
+  rationale: Likely the dominant cost driver. The current node model is free-floating nodes in lanes; "attached-to-host" is a new relationship (host ref + boundary position + interrupting/non-interrupting flag). If this forces a data-model redesign it is a decompose/split signal, not a blanket NO-GO.
+- **IW-3: v1 scope — which typed events ship first (error / timer / message as start+intermediate), and are BOUNDARY variants in v1 or a follow-on?**
+  confidence: 2
+  disposition: <deferred — resolved by IW-2 cost>
+  rationale: If IW-2 shows boundary attachment is bounded, boundary variants ship with v1; if unbounded, ship error/timer/message (non-boundary) first and split boundary events into a follow-on build task. One inception, one go/no-go; the split is a build-decomposition, not a second inception.
 
 ## Exploration Plan
 
 <!-- How will we validate assumptions? Spikes, prototypes, research? Time-box each. -->
+Spikes are NOT started yet — this going-in framing is presented for operator review first
+(inception discipline). Planned time-boxed spikes on GO-to-explore:
+1. **Spike-1 (serialization shape, IW-1/A1):** encode one error event both ways (native
+   `bpmn:errorEventDefinition` vs `aef:` extension) and round-trip each through
+   `yaml-to-bpmn.py`; check T-187/T-188 guards. Pick the shape that round-trips with the
+   smaller diff. *(~½ day)*
+2. **Spike-2 (boundary attachment, IW-2/A2):** prototype the editor data-model delta for a
+   boundary-error event attached to a serviceTask host (host ref + boundary position +
+   interrupting flag). Measure whether it is an additive field or a model redesign. *(~1 day)*
+3. **Spike-3 (mapping-standard rows, A3):** draft the mapping-standard row per typed event on
+   the T-081 collapsed-subProcess carrier; confirm editor + forward-compiler agree. *(~½ day)*
+
+Decompose signal: if Spike-2 shows boundary attachment needs a model redesign, split boundary
+events into a follow-on build task and ship error/timer/message first (IW-3).
 
 ## Technical Constraints
 
-<!-- What platform, browser, network, or hardware constraints apply?
-     For web apps: HTTPS requirements, browser API restrictions, CORS, device support.
-     For hardware APIs (mic, camera, GPS, Bluetooth): access requirements, permissions model.
-     For infrastructure: network topology, firewall rules, latency bounds.
-     Fill this BEFORE building. Discovering constraints after implementation wastes sessions. -->
+<!-- What platform, browser, network, or hardware constraints apply? -->
+- **BPMN standard fidelity (Directive 4, Portability):** typed events should prefer native BPMN
+  event-definition semantics so a third-party BPMN tool can read the export; `aef:` extension is
+  the fallback only where native BPMN can't carry the AEF concept.
+- **Round-trip parity:** every new serialization must survive `src → export → yaml-to-bpmn.py →
+  re-import` unchanged (T-187/T-188 guards) — the mapping contract depends on it.
+- **G-3 carrier:** the ratified inception form is the collapsed subProcess (T-081 `aef:scopeOf`),
+  not a gateway-less task-node; typed-event attachment targets that carrier.
 
 ## Scope Fence
 
 <!-- What's IN scope for this exploration? What's explicitly OUT? -->
+**IN:** the go/no-go on adding typed events (error, timer, message) + the boundary variants
+question; the serialization-shape decision (IW-1); the boundary-attachment cost (IW-2); a v1
+scope recommendation (IW-3). **OUT:** building the palette/serialization/DI (that is the
+GO-authorized build task, not this inception); non-initial event types (escalation, signal,
+compensation, conditional) — explicitly deferred beyond error/timer/message; any change to the
+mapping-standard beyond adding rows for the three initial typed events.
 
 ## Acceptance Criteria
 
@@ -110,12 +148,21 @@ agent must NOT start the inception without operator GO.
 
 <!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
 **GO if:**
-- Root cause identified with bounded fix path
-- Fix is scoped, testable, and reversible
+- The serialization shape (IW-1) resolves to one option (native BPMN or `aef:` ext) that
+  round-trips through `yaml-to-bpmn.py` + T-187/T-188 guards with a bounded editor + bridge change.
+- Each typed event reduces to a repeatable recipe: palette entry + node subtype + serialization +
+  mapping-standard row + DI rendering, on the T-081 collapsed-subProcess carrier.
+- Boundary-event attachment (IW-2) is either a bounded additive data-model change, OR cleanly
+  splits into a follow-on so error/timer/message ship first.
 
 **NO-GO if:**
-- Problem requires fundamental redesign or unbounded scope
-- Fix cost exceeds benefit given current evidence
+- Boundary-event attachment forces an unbounded editor data-model redesign AND can't be split out.
+- No serialization shape stays round-trippable through the bridge (breaks the mapping contract).
+- The typed-event set can't be expressed on the G-3 collapsed-subProcess carrier (editor +
+  forward-compiler would disagree).
+
+**DEFER if:** the capability is sound but a prerequisite is missing (e.g. the write-out arc,
+T-201, is mid-flight and would collide with the serialization work) — sequence, don't cancel.
 
 ## Verification
 
@@ -131,14 +178,30 @@ agent must NOT start the inception without operator GO.
 ## Recommendation
 
 <!-- REQUIRED before fw inception decide. Write your recommendation here (T-974).
-     Watchtower reads this section — if it's empty, the human sees nothing.
-     Format:
-     **Recommendation:** GO / NO-GO / DEFER
-     **Rationale:** Why (cite evidence from exploration)
-     **Evidence:**
-     - Finding 1
-     - Finding 2
--->
+     Watchtower reads this section — if it's empty, the human sees nothing. -->
+
+**Recommendation:** GO (going-in advisory — to be firmed/revised by the §Exploration Plan spikes)
+
+**Rationale:**
+
+The gap is real and AEF-ratified: without typed events, AEF's error paths (`status:issues`),
+scheduled triggers (`horizon`+cron), and cross-agent hand-offs (`dispatch`/`pickup`/bus) flatten
+into plain tasks, losing exactly the semantics the mapping contract exists to preserve. The
+capability is squarely on the authoring-surface arc and you prioritized it. The OPEN questions
+the inception must resolve before a firm GO are (1) the serialization shape and (2) the
+boundary-event attachment cost — the latter is the one that could force a v1 split rather than a
+NO-GO. My going-in lean: **GO to build error/timer/message typed events; boundary variants
+contingent on IW-2** — likely a clean split (ship non-boundary first) if attachment proves
+expensive. This flips to NO-GO only if no serialization stays round-trippable, or the set can't
+live on the G-3 collapsed-subProcess carrier.
+
+**Evidence:**
+
+- Problem statement AEF-ratified (rail offset 25, 2026-07-11); G-3 carrier ruling ratified.
+- Link-event precedent for `aef:` extension encoding + working round-trip (src ~7906).
+- T-187/T-188 round-trip guards already exist to cover the new serialization on landing.
+
+**Advisory only — the go/no-go decision is Dimitri's, after the spikes.**
 
 ## Decisions
 
@@ -159,3 +222,7 @@ agent must NOT start the inception without operator GO.
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-07-18T09:58:58Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
