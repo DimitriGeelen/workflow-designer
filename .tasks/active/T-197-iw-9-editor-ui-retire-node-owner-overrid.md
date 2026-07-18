@@ -4,9 +4,9 @@ name: "IW-9 editor UI: retire node-owner override field, derive owner from lane"
 description: >
   Sibling of T-196 (which did the validator enforcement). The IW-9 v1.1 graduation removed the node-level owner override. 832 editor still OFFERS it: src/aef-workflow-designer.html:1531 FIELD_META.owner (hint literally says 'overrides lane'), wired into AEF_FIELDS for serviceTask/userTask/scriptTask/subProcess (1500-1507). This task: (1) remove/neutralize the node-level owner SELECT so users can no longer author the now-invalid override; ideally show owner READ-ONLY derived from the node's lane authority via the collapse map (sovereignty->human, initiative/authority->agent). (2) KEEP owner in editor metaKeys (7761) + bridge META_KEYS per O-2 for reverse-render laning (no change). (3) Update tests/test_designer_render.py (64/158/183/191) which currently assert the owner input renders with options ['','human','agent']. REQUIRES Playwright visual verification per CLAUDE.md (property panel UI change): screenshot the node property panel in relevant modes, confirm the owner override input is gone / shown derived, no regression. Explore scope map in T-196 episodic.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-12T21:08:47Z
-last_update: 2026-07-18T07:32:07Z
-date_finished: null
+last_update: 2026-07-18T07:40:17Z
+date_finished: 2026-07-18T07:40:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -140,6 +140,33 @@ python3 tests/test_editor_bridge_structured_parity.py
 af=$(sed -n '/const AEF_FIELDS = {/,/^};/p' src/aef-workflow-designer.html); ! echo "$af" | grep -q "'owner'"
 mk=$(sed -n "/const metaKeys = \[/,/\];/p" src/aef-workflow-designer.html); echo "$mk" | grep -q "'owner'"
 
+## Recommendation
+
+**Recommendation:** GO
+
+**Rationale:** The editor half of the IW-9 v1.1 graduation is complete and
+verified. The now-invalid node-level `owner` override is retired from the
+authoring surface and replaced by a read-only readout derived from lane
+authority — exactly the mapping-v1 §3 collapse the validator (T-196) already
+enforces. The one Human AC is a taste check on the readout's clarity; all
+structural behaviour is already agent-verified (below). No release coupling is
+triggered — the immutable 0.2.0 dist and its render gate are untouched (that
+flip is T-200, human-owned).
+
+**Evidence:**
+- All 5 Agent ACs checked; Verification gate 8/8 PASS (owner-derived guard +
+  5 JS↔Py seam guards + AEF_FIELDS/metaKeys greps).
+- Live Playwright: Owner readout re-derives on Lane change — human/sovereignty→
+  `human`, framework/authority→`agent`, agent/initiative→`agent`; all read-only,
+  no editable owner `<select>` (`docs/screenshots/t197-panel-dark-owner.png`).
+- `owner` kept in metaKeys + bridge META_KEYS (O-2) — meta-parity green.
+- Release gate `tests/test_designer_render.py` still PASS against 0.2.0 (proves
+  decoupling; no immutable-bytes contradiction).
+
+**To finalize:** review `docs/screenshots/t197-panel-dark-owner.png` (or run the
+Human AC steps), check the `[REVIEW]` box, then
+`cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task update T-197 --status work-completed`.
+
 ## Visual Verification
 
 Property panel of a selected serviceTask node (seed "Decompose problem"),
@@ -230,3 +257,6 @@ Lane-change behaviour verified live (readout re-derives on Lane select change):
 ### 2026-07-18T07:32:07Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+### 2026-07-18T07:40:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
