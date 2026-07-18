@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-18T08:04:17Z
-last_update: 2026-07-18T08:05:29Z
+last_update: 2026-07-18T08:07:36Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,7 +28,14 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+Should the BPMN compiler promote proposals into real `.tasks/*.md` files
+(write-out mode), closing the arc's author→compile→execute loop? The capability
+is useful but sovereignty-sensitive: a compiler emitting `.tasks/` authors the
+exact governance artifact the task-gate + Authority Model protect (IW-1/IW-3).
+The question is whether the guardrails can be made mechanical enough that
+write-out never authors active governance work without human authority.
+**Full framing, guardrail table (G1–G6), seam analysis, spikes, and go/no-go
+criteria: `docs/reports/T-201-writeout-mode-inception.md`.**
 
 ## Assumptions
 
@@ -104,14 +111,16 @@ See `docs/reports/T-201-writeout-mode-inception.md` for full framing, guardrail 
 
 ## Go/No-Go Criteria
 
-<!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
+<!-- Full criteria in docs/reports/T-201-writeout-mode-inception.md §6. -->
 **GO if:**
-- Root cause identified with bounded fix path
-- Fix is scoped, testable, and reversible
+- Guardrails G1–G6 each reduce to a mechanical check (gate/hook/flag) and A1+A2 hold — write-out provably cannot author active governance work without human authority.
+- The write seam (G3, IW-2) resolves to one option with AEF concurrence.
+- Re-compile reconciliation (G4, IW-3) has a predictable, documented rule.
 
 **NO-GO if:**
-- Problem requires fundamental redesign or unbounded scope
-- Fix cost exceeds benefit given current evidence
+- Any guardrail can only be a convention, not a gate — the sovereignty boundary would depend on agent discipline, which the framework rejects.
+- The seam stays genuinely ambiguous / both sides push authority to the other.
+- Reconciliation is unbounded (re-compile risks clobbering human edits to emitted tasks).
 
 ## Verification
 
