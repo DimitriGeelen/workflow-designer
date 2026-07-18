@@ -20,11 +20,13 @@ What it asserts against ``dist/aef-workflow-designer-<VERSION>.html``:
                        (Service/User/Script Task, Sub-process) + canvas nodes
                        present; <title> contains "Workflow Designer".
   2. FEATURE MARKER  — in-page ``FIELD_META.horizon`` truthy AND
-                       ``AEF_FIELDS.serviceTask`` contains horizon/workflowType/
-                       owner. FAILS on any pre-T-177 build (stale-build guard).
-  3. RENDERED DOM    — selecting a serviceTask node renders the three T-177
-                       governance <select>s (Horizon / Workflow type / Owner)
-                       with their exact option sets in the inspector.
+                       ``AEF_FIELDS.serviceTask`` contains horizon/workflowType.
+                       FAILS on any pre-T-177 build (stale-build guard). Owner is
+                       retired from AEF_FIELDS as of IW-9/T-197 (derived, not a field).
+  3. RENDERED DOM    — selecting a serviceTask node renders the two editable
+                       governance <select>s (Horizon / Workflow type) with their
+                       exact option sets. Owner is now a read-only derived readout
+                       (IW-9/T-197), guarded by tests/test_designer_owner_derived.py.
   4. CONSOLE         — no console errors EXCEPT the whitelisted, documented
                        backend-absent probes (/api/health, /favicon.ico). The
                        source is NOT modified to suppress them.
@@ -48,20 +50,21 @@ DIST = ROOT / "dist"
 
 # Console errors we intentionally tolerate. The designer probes a backend that
 # is absent when served as a static file (same condition as :3001/designer).
-# Documented, non-fatal (T-178). Scoped to EXACTLY these two per spec — a
-# font/CDN error (see T-176, Google Fonts dependency) is NOT whitelisted and
-# would legitimately fail this test.
+# Documented, non-fatal (T-178). Scoped to EXACTLY these two per spec. As of
+# T-176 the web fonts are embedded (base64 woff2) — there is NO CDN font request
+# in 0.3.0+, so a font/CDN error can no longer occur (nor is it whitelisted).
 CONSOLE_WHITELIST = ("/api/health", "/favicon.ico")
 
-# Expected T-177 governance dropdown option-sets (order-sensitive signatures).
+# Expected governance dropdown option-sets (order-sensitive signatures).
 # Matched by signature rather than by DOM position so the assertion is robust
-# to inspector markup changes. Owner (["","human","agent"]) is distinct from
-# the Lane select (["human","framework","agent"] — no blank, has framework).
+# to inspector markup changes. Owner was an editable T-177 <select> but is
+# RETIRED as of IW-9/T-197 — it is now a read-only readout derived from lane
+# authority, so it is deliberately NOT asserted here (the derived readout is
+# guarded separately by tests/test_designer_owner_derived.py).
 SIG = {
     "horizon": ["", "now", "next", "later"],
     "workflowType": ["", "build", "test", "refactor", "decommission",
                      "specification", "design", "inception"],
-    "owner": ["", "human", "agent"],
 }
 
 
@@ -155,7 +158,7 @@ def main():
             if not marker["horizon"]:
                 failures.append("FIELD_META.horizon missing/falsey — stale (pre-T-177) build?")
             fields = marker["fields"] or []
-            for f in ("horizon", "workflowType", "owner"):
+            for f in ("horizon", "workflowType"):
                 if f not in fields:
                     failures.append(
                         f"AEF_FIELDS.serviceTask missing '{f}' — stale build? (got {fields})"
@@ -180,7 +183,6 @@ def main():
                     return { ok: true, has: {
                         horizon: has(sigs.horizon),
                         workflowType: has(sigs.workflowType),
-                        owner: has(sigs.owner),
                     }};
                 }""",
                 SIG,
@@ -188,7 +190,7 @@ def main():
             if not selected.get("ok"):
                 failures.append("rendered-DOM: " + selected.get("reason", "node selection failed"))
             else:
-                for k in ("horizon", "workflowType", "owner"):
+                for k in ("horizon", "workflowType"):
                     if not selected["has"][k]:
                         failures.append(
                             f"rendered-DOM: inspector '{k}' dropdown not rendered "

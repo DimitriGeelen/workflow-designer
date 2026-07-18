@@ -4,10 +4,10 @@ name: "Release designer with IW-9 editor (VERSION bump) + flip render-gate SIG"
 description: >
   Follow-up to T-197. T-197 retired the node-level owner override from src/ but left tests/test_designer_render.py (the release render gate over the immutable 0.2.0 dist) unchanged, because that dist legitimately still carries owner and G-007 forbids a same-version rebuild. This task cuts the release that ships the IW-9 editor: (1) bump VERSION (e.g. 0.3.0); (2) run scripts/release-designer.sh to rebuild dist from the retired-owner src; (3) in the SAME commit, flip test_designer_render.py — drop 'owner' from SIG (line ~64), from the AEF_FIELDS marker loop (~158), and from the rendered-DOM owner assertions (~183/191) — so the release render gate matches the new bytes; (4) re-pin/notify AEF per docs/aef-designer-integration-protocol.md. Human-owned: a release is a sovereignty promise (immutable bytes).
 
-status: captured
+status: started-work
 workflow_type: build
 owner: human
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T07:39:35Z
-last_update: 2026-07-18T07:39:35Z
+last_update: 2026-07-18T09:52:32Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -53,8 +53,11 @@ Human-owned: a release is a sovereignty promise (immutable versioned bytes, G-00
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] VERSION bumped 0.2.0 → 0.3.0 (new release; the immutability guard G-007 forbids re-cutting 0.2.0 with different bytes).
+- [ ] `tests/test_designer_render.py` flipped for the retired-owner (IW-9) build: `owner` dropped from `SIG`, from the `AEF_FIELDS.serviceTask` marker loop, and from the rendered-DOM select assertions — horizon + workflowType still asserted. Docstring/console-note updated (T-176 embedded fonts ⇒ no CDN font request).
+- [ ] `scripts/release-designer.sh` cut `dist/aef-workflow-designer-0.3.0.html`; the render gate passed against it; `dist/MANIFEST.yaml` updated to `latest: 0.3.0` with the new sha256 + byte count (larger — embedded fonts).
+- [ ] Released artifact is byte-identical to `src/` (retired owner + embedded fonts); `python3 tests/test_designer_render.py` exits 0 against 0.3.0.
+- [ ] AEF notified of the 0.3.0 release on the rail with version + sha256 + bytes, per `docs/aef-designer-integration-protocol.md` (AEF-side re-pin/adoption is AEF's action, out of 832's control).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -88,6 +91,11 @@ Human-owned: a release is a sovereignty promise (immutable versioned bytes, G-00
 -->
 
 ## Verification
+
+test "$(tr -d '[:space:]' < VERSION)" = "0.3.0"
+test -f dist/aef-workflow-designer-0.3.0.html
+grep -q 'latest: "0.3.0"' dist/MANIFEST.yaml
+python3 tests/test_designer_render.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -187,3 +195,7 @@ Human-owned: a release is a sovereignty promise (immutable versioned bytes, G-00
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-200-release-designer-with-iw-9-editor-versio.md
 - **Context:** Initial task creation
+
+### 2026-07-18T09:52:32Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
