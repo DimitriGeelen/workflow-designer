@@ -348,3 +348,48 @@ concerns:
       - T-190
       - G-001
       - G-004
+  - id: G-009
+    type: gap
+    status: watching
+    severity: medium
+    title: "Completion-gate AC counter mis-parses inline comments containing '>' — swallows the ### Human header, mis-attributing Human ACs as unchecked agent ACs and hard-blocking review handoff"
+    detected: 2026-07-19
+    origin_task: T-204
+    decision_trigger: >
+      The one-line-comment strip in check_acceptance_criteria (agents/task-create/
+      update-task.sh:91) uses `sed -E 's/<!--[^>]*-->//g'` — the `[^>]*` stops at the
+      first '>', so a one-line AC comment containing a literal '>' (e.g. `<bpmn:*Event>`)
+      is NOT stripped by that pass; the subsequent range strip `/<!--/,/-->/d` then enters
+      delete-mode (per the T-1967 same-line note) and swallows content down to a later
+      '-->', including the `### Human` header. Fix `[^>]*` → a '>'-tolerant match (e.g.
+      `.*?` per-comment, or strip by `<!--` … first `-->` on the same line explicitly),
+      extend the T-1967 regression fixture with a '>'-bearing one-line comment, re-vendor
+      to AEF (same propagation path as G-008), then close.
+    description: |
+      Attempting `fw task update T-204 --status work-completed` reported
+      "1/3 agent AC unchecked" and pointed at the `[REVIEW]` Human AC — despite all
+      9 agent ACs being checked and the `[REVIEW]` AC being correctly placed under
+      `### Human`. Root cause: every T-204 agent AC carries an inline `<!-- … -->`
+      comment referencing BPMN tags (`<bpmn:*Event>`, `<bpmn:boundaryEvent …>`), i.e.
+      containing literal '>'. The `[^>]*` one-line strip skips them, and the range
+      strip then range-deletes across the `### Human` header, so the parser loses the
+      Agent/Human split and treats the leftover `[REVIEW]` as an unchecked agent AC —
+      a HARD BLOCK instead of the intended partial-complete downgrade (T-193).
+      This is an incomplete T-1967 fix (that fix handled '>'-free one-line comments).
+      Impact: any agent-owned task whose AC comments cite XML/HTML/generics ('>' chars)
+      cannot reach partial-complete review handoff without --skip (a logged bypass that
+      also needs human authorization). Effect is silent — reads as "work incomplete".
+      Bug is in the VENDORED `.agentic-framework/` governance tool (not the designer↔AEF
+      product seam, so T-559 symmetric boundary does not apply); it is 832's governance
+      layer, and CLAUDE.md prioritises framework-tooling fixes — but the fix + its
+      regression test must be upstreamed to AEF to survive re-vendor (the G-001/G-004/
+      G-008 loss mode). NOT YET FIXED — registered pending a decision on the fix task.
+    evidence:
+      - ".agentic-framework/agents/task-create/update-task.sh:91 — `ac_section=$(echo \"$ac_section\" | sed -E 's/<!--[^>]*-->//g' | sed '/<!--/,/-->/d')`; the `[^>]*` is the defect."
+      - "T-204 has 9 checked agent ACs (### Agent) + 1 unchecked [REVIEW] (### Human); gate reported '1/3 agent AC unchecked' → header-swallow miscount."
+      - "All 8 T-204 agent AC inline comments contain literal '>' (verified by awk scan) — the trigger set."
+      - "T-1967/L-414 is the prior same-family fix (multi-line range-delete on one-line comments); it did not cover '>'-bearing one-line comments."
+    related:
+      - T-204
+      - T-1967
+      - G-008
