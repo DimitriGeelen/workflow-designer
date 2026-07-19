@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-202: Write-out: guard designer .bpmn export carries the promote content contract (aef:uid + lane authority)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-18T08:51:25Z
+# ============================================================================
+
+task_id: T-202
+task_name: "Write-out: guard designer .bpmn export carries the promote content contract (aef:uid + lane authority)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-18T08:44:10Z
+completed: 2026-07-18T08:51:21Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-18T10:51:15+02:00
+last_commit: 2026-07-18T10:51:15+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  guard designer .bpmn export carries write-out content contract (aef:uid + lane authority)
+
+# Key outcomes
+outcomes:
+  - 'A guard test asserts every owner-bearing node (`serviceTask`/`userTask`/`scriptTask`/`subProcess`) in the designer''s serialized `.bpmn` export carries a non-empty `aef:uid`. — `audit()` §(1), `tests/test_designer_export_contract.py`'
+  - 'The same guard asserts every owner-bearing node belongs to a lane whose authority is one of the five defined values (`sovereignty`/`authority`/`initiative`/`external`/`none`) — so IW-9 owner derivation never resolves against an undefined/absent lane. — `audit()` §(2)'
+  - 'The guard runs against the designer''s seed workflow (`getInvestigateWorkflow`) and passes; it fails (red) if a uid is stripped or a node is placed in a lane with no authority — proving it is a real gate, not a tautology. — teeth check via `_strip_first_uid` / `_blank_first_lane_authority`; PASS reports "8 owner-bearing node(s) … teeth proven".'
+  - 'The test is wired into the designer test suite (src-served, same harness as `test_designer_owner_derived.py`) and is green. — added to `## Verification`; `python3 tests/test_designer_export_contract.py` exits 0.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-202-write-out-guard-designer-bpmn-export-car.md'
+  - 'tests/test_designer_export_contract.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-18T10:51:15"
+    action: "T-202: guard designer .bpmn export carries write-out content contract (aef:uid + lane authority)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 7
+  commits: 1
+  files_changed: 2
+  lines_added: 272
+  lines_removed: 6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-202-write-out-guard-designer-bpmn-export-car.md
+generated_by: context-agent-hybrid

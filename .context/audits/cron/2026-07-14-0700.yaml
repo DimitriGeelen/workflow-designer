@@ -1,0 +1,201 @@
+# Audit Results - 2026-07-14-0700
+timestamp: 2026-07-14T05:00:01Z
+sections: "oe-daily"
+summary:
+  pass: 80
+  warn: 9
+  fail: 2
+findings:
+  - level: PASS
+    check: "CTL-002: Tier 0 guard installed and wired in settings.json"
+  - level: PASS
+    check: "CTL-005: Error watchdog installed and wired in settings.json"
+  - level: PASS
+    check: "CTL-006: Handover coverage for compactions (148 handovers, 53 compactions)"
+  - level: PASS
+    check: "CTL-007: Post-compact resume hook configured in settings.json"
+  - level: PASS
+    check: "CTL-009: Inception T-173 has decision (11 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-175 has decision (11 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-002 has decision (11 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-006 has decision (4 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-007 has decision (4 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-015 has decision (4 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-020 has decision (11 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-068 has decision (7 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-092 has decision (3 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-112 has decision (6 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-128 has decision (3 commits)"
+  - level: PASS
+    check: "CTL-009: Inception T-142 has decision (3 commits)"
+  - level: FAIL
+    check: "CTL-027: Inception T-155 missing required sections: ## Recommendation"
+    mitigation: "Add missing sections to task file: /opt/832-Workflow-designer/.tasks/active/T-155-hierarchical-tree-grouping-for-open-proj.md"
+  - level: PASS
+    check: "CTL-027: Inception T-173 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-027: Inception T-175 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-027: Inception T-184 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-027: Inception T-185 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-027: Inception T-186 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-027: Inception T-190 has Recommendation + Decision sections"
+  - level: PASS
+    check: "CTL-010: Bypass log exists but empty (no bypasses detected)"
+  - level: PASS
+    check: "CTL-011: pre-push hook installed and executable"
+  - level: PASS
+    check: "CTL-013: T-196 verification re-run: 6/6 pass"
+  - level: PASS
+    check: "CTL-013: T-193 verification re-run: 3/3 pass"
+  - level: PASS
+    check: "CTL-013: T-194 verification re-run: 5/5 pass"
+  - level: PASS
+    check: "CTL-019: claude-fw wrapper installed and executable"
+  - level: PASS
+    check: "CTL-025: T-073 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-074 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-075 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-076 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-077 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-079 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-081 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-082 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-083 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-084 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-085 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-087 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-089 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-090 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-093 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-094 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-095 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-096 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-097 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-098 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-099 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-100 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-104 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-106 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-107 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-108 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-109 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-114 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-115 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-116 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-117 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-118 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-119 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-127 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-132 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-134 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-136 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-137 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-139 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-141 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-144 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-164 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-165 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-166 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-167 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-168 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-172 partial-complete with owner:human ✓"
+  - level: PASS
+    check: "CTL-025: T-178 partial-complete with owner:human ✓"
+  - level: WARN
+    check: "CTL-029: 2 stuck partial-complete task(s) — all ACs ticked, in active/ — run: bin/fw task archive-eligible"
+    mitigation: "Sweep with: bin/fw task archive-eligible (origin: T-1903, L-403)"
+  - level: PASS
+    check: "CTL-026: Human sovereignty gate present (completion + owner protection)"
+  - level: PASS
+    check: "CTL-028: All completed/ tasks have frontmatter status: work-completed"
+  - level: FAIL
+    check: "CTL-030: T-174 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: WARN
+    check: "CTL-029: T-041 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-041 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-101 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-101 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-102 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-102 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-105 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-105 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-173 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-173 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-175 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-175 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-189 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-189 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-195 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-195 --status work-completed"
+  - level: PASS
+    check: "CTL-012: All 133 completed tasks have checked ACs"
+  - level: PASS
+    check: "Arc 'arc-001': 3/5 (0.6000) — below threshold 0.80, no closure pressure"

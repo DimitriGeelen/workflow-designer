@@ -759,3 +759,17 @@ decisions:
     date: 2026-07-12
     task: T-189
     rationale: "AEF ratified framing (rail offset 25); Dimitri authorized frozen graduation. Rulings align with AEF Child-2 compiler T-2531 -> zero rework."
+
+  - id: PD-088
+    decision: "Change `src/` + add a `src`-served regression guard (`tests/test_designer_owner_derived.py`). Leave `tests/test_designer_render.py` (the dist/release gate) unchanged."
+    scope: project
+    date: 2026-07-18
+    task: T-197
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-089
+    decision: "Remove `owner` from `AEF_FIELDS` (no authoring) but keep it in the editor `metaKeys` writer and bridge `META_KEYS`."
+    scope: project
+    date: 2026-07-18
+    task: T-197
+    rationale: "Auto-captured from task file on completion"

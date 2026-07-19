@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-07-18T08:51:24Z ===
+task_id: T-202
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-202.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Write-out: guard designer .bpmn export carries the promote content contract (aef:uid + lane authority)
+  Duration: 0 days (7 min)
+  Updates: 3
+  Commits: 1
+  Lines: +272 -6 across 2 files
+  Outcomes: 4 AC checked
+  Artifacts: 2 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-202-write-out-guard-designer-bpmn-export-car.md
+--- exit code: 0 ---

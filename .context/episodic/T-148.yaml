@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-148: Revert shows wrong toast — reuses autosave-restore banner
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-09T11:24:17Z
+# ============================================================================
+
+task_id: T-148
+task_name: "Revert shows wrong toast — reuses autosave-restore banner"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-09T11:19:47Z
+completed: 2026-07-09T11:24:15Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-09T13:23:58+02:00
+last_commit: 2026-07-09T13:23:58+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Revert shows accurate toast, not the autosave-restore banner (F1)
+
+# Key outcomes
+outcomes:
+  - 'Generic `showToast(message, {actionLabel,onAction,timeout})` helper added; `showRestoredToast` becomes a thin wrapper (restore message + "Start fresh" action) — behaviour unchanged for autosave-restore'
+  - '`revertToVersion` shows `↩ Reverted to <id> v<N>` with NO "Start fresh" button (no doc-wipe action on a revert)'
+  - '`src` mirrored to `build/gallery/designer.html` (diff -q clean)'
+  - 'Visual: screenshot the revert toast; message reads "Reverted to …", no Start-fresh button (see ## Visual Verification)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Revert shows accurate toast, not the autosave-restore banner (F1)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.playwright-mcp/t148-revert-toast-v2.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-148-revert-shows-wrong-toast--reuses-autosav.md'
+  - '.tasks/completed/T-147-fix-open-project-misfire-when-autosave-r.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-09T13:23:58"
+    action: "T-148: Revert shows accurate toast, not the autosave-restore banner (F1)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 4
+  lines_added: 219
+  lines_removed: 15
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-148-revert-shows-wrong-toast--reuses-autosav.md
+generated_by: context-agent-hybrid

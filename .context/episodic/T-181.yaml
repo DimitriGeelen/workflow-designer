@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-181: Tag designer releases per provenance convention
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-10T21:55:59Z
+# ============================================================================
+
+task_id: T-181
+task_name: "Tag designer releases per provenance convention"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-10T21:54:16Z
+completed: 2026-07-10T21:55:57Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-10T23:55:57+02:00
+last_commit: 2026-07-10T23:55:57+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Tag designer releases designer-v0.1.0/v0.2.0 per provenance convention
+
+# Key outcomes
+outcomes:
+  - 'Annotated tag `designer-v0.1.0` at the 0.1.0 release commit `6fe5741`, message citing sha256 `d0e0177c…0317d`.'
+  - 'Annotated tag `designer-v0.2.0` at the 0.2.0 release commit `16b2aab`, message citing sha256 `e301986b…c153a`.'
+  - 'Both tags point at commits that actually contain the matching `dist/aef-workflow-designer-<version>.html` (tag→artifact resolves; verified sha256 both).'
+  - 'Both tags pushed to origin (`git ls-remote --tags origin` shows both).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-181-tag-designer-releases-per-provenance-con.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-10T23:55:57"
+    action: "T-181: Tag designer releases designer-v0.1.0/v0.2.0 per provenance convention"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1
+  commits: 1
+  files_changed: 1
+  lines_added: 190
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-181-tag-designer-releases-per-provenance-con.md
+generated_by: context-agent-hybrid

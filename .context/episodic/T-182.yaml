@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-182: Child-1: Publish AEF BPMN mapping standard v1 + conformance test
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-11T05:29:27Z
+# ============================================================================
+
+task_id: T-182
+task_name: "Child-1: Publish AEF BPMN mapping standard v1 + conformance test"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-11T05:26:01Z
+completed: 2026-07-11T05:29:25Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-11T07:29:25+02:00
+last_commit: 2026-07-11T07:29:25+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  child-1 — publish AEF BPMN mapping standard v1 + standard↔implementation conformance test
+
+# Key outcomes
+outcomes:
+  - '`docs/standards/aef-bpmn-mapping-v1.md` published: versioned (`v1`), with a clearly-separated **Frozen (v1)** part and a **Provisional (pending AEF ruling)** part.'
+  - 'Frozen part specifies: the two-class attribute partition (semantic → task/inception YAML; presentational → diagram-only), the governance meta-key list, the forward mapping table (node/lane/gateway/subProcess → task concept), the reverse mapping, the `aef:uid` identity hinge + round-trip rules, and conformance requirements.'
+  - 'Provisional part lists the open items (G-3 inception marker shape, tier default, AC-seeding) as pending AEF ratification — not presented as settled.'
+  - 'The frozen governance meta-key list in the standard is honored by both implementations — conformance test exit 0: all 5 keys (horizon, workflowType, owner, tier, agentType) present in editor `metaKeys` AND bridge `META_KEYS`; none absent from either.'
+  - '`tests/test_mapping_standard_conformance.py` exists and passes: parses the standard''s frozen list (fenced block; missing/empty fence = failure, not vacuous pass) and asserts it ⊆ editor emission AND ⊆ bridge `META_KEYS`. Imports the T-060 parity parsers (single extraction source); has a self-test.'
+  - '`## Verification` runs the conformance test.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/standards/aef-bpmn-mapping-v1.md'
+  - '.tasks/active/T-182-child-1-publish-aef-bpmn-mapping-standar.md'
+  - 'tests/test_mapping_standard_conformance.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-11T07:29:25"
+    action: "T-182: child-1 — publish AEF BPMN mapping standard v1 + standard↔implementation conformance test"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 3
+  lines_added: 472
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-182-child-1-publish-aef-bpmn-mapping-standar.md
+generated_by: context-agent-hybrid

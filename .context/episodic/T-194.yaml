@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-194: Sync forward-compile spec §5 corpus inventory with the 5th (inception) fixture
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-12T19:34:32Z
+# ============================================================================
+
+task_id: T-194
+task_name: "Sync forward-compile spec §5 corpus inventory with the 5th (inception) fixture"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-12T19:31:01Z
+completed: 2026-07-12T19:34:30Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-12T21:34:23+02:00
+last_commit: 2026-07-12T21:34:23+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  sync forward-compile spec §5 corpus inventory — add 5th (hand-authored, provisional-G-3) inception fixture, distinguish from 4 editor exports
+
+# Key outcomes
+outcomes:
+  - '§5 corpus intro no longer claims "Four authentic editor-emitted diagrams" as the whole corpus; it states the corpus is **5 fixtures = 4 authentic editor exports + 1 hand-authored inception fixture** — verified (`grep -c "Four authentic..."` = 0)'
+  - '`inception-gonogo.bpmn` added as a 5th row in the §5 table with an accurate "Exercises" cell: collapsed `subProcess` + `aef:meta workflowType="inception"`, sovereignty-lane owner-derivation, `aef:constituents`, implied (gateway-less) go/no-go boundary — added, with a new **Source** column distinguishing editor-emitted vs hand-authored'
+  - 'The row/intro explicitly flags it as **hand-authored** and embodying the **provisional G-3 marker** (mapping-v1 Part II, pending Dimitri''s v1.1 graduation) — NOT editor-emitted, NOT frozen — verified (`grep hand-authored`, `grep provisional`)'
+  - 'No change to §2 (input contract) or §3 (forward-compile mapping) — verified unchanged; single diff hunk at §5 only (14+/10-)'
+  - '`tests/test_forward_fixtures.py` still green — `OK: 5 fixture(s) ... conformant`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'sync forward-compile spec §5 corpus inventory — add 5th (hand-authored, provisional-G-3) inception fixture, distinguish from 4 editor exports'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-12 — List the inception fixture as a distinct hand-authored/provisional category'
+    chose: 'Add a **Source** column and a 5th row marking `inception-gonogo.bpmn` as hand-authored + provisional-G-3, and reword the intro to "4 editor-emitted + 1 hand-authored" — rather than simply bumping "Four" → "Five".'
+    rationale: 'The 5th fixture is genuinely different in kind: it is not an editor export, and it embodies the G-3 marker which is still mapping-v1 **Part II provisional** (ratified AEF-side, not yet graduated to frozen v1.1 by Dimitri). Folding it into the "authentic editor-emitted" count would misstate both its provenance and its normative status. Inventory-only edit — the frozen contract (§2/§3) is untouched, so no version bump is warranted.'
+    alternatives_rejected: ['(a) "Four"→"Five" one-word edit (loses the provenance + provisional distinctions); (b) leaving the drift (test guards 5, spec says 4 — a reader of the support spec would be misled); (c) waiting for v1.1 graduation to document it (the fixture already exists and is guarded now — the inventory must match reality now, with status flagged).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/standards/aef-bpmn-forward-compile-v1.md'
+  - '.tasks/active/T-194-sync-forward-compile-spec-5-corpus-inven.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-12T21:34:23"
+    action: "T-194: sync forward-compile spec §5 corpus inventory — add 5th (hand-authored, provisional-G-3) inception fixture, distinguish from 4 editor exports"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 2
+  lines_added: 203
+  lines_removed: 10
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-194-sync-forward-compile-spec-5-corpus-inven.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-146: Evaluate version storage-browsing-retrieval via Playwright
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-09T11:15:26Z
+# ============================================================================
+
+task_id: T-146
+task_name: "Evaluate version storage-browsing-retrieval via Playwright"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-09T10:58:14Z
+completed: 2026-07-09T11:15:24Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-09T13:14:32+02:00
+last_commit: 2026-07-09T13:15:24+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Evaluate version storage/browsing/retrieval via Playwright. Finalize eval — triaged F1-F6, drop unused human-AC template
+
+# Key outcomes
+outcomes:
+  - 'Storage, browsing (Open-project + Versions) and retrieval (open-in-place + revert-to-version) each exercised live via Playwright, with element screenshots read'
+  - 'Findings recorded (F1–F6) with src line refs; no source mutated during evaluation (read-only, store/corpus untouched)'
+  - 'Findings triaged with severity + recommended fix sequence (F3 race first, then F1/F2/F4 quick wins)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.playwright-mcp/t146-after-open-project-click.png'
+  - '.playwright-mcp/t146-open-project-modal.png'
+  - '.playwright-mcp/t146-reverted-v1.png'
+  - '.playwright-mcp/t146-versions-modal.png'
+  - '.tasks/active/T-146-evaluate-version-storage-browsing-retrie.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-09T13:14:32"
+    action: "T-146: Evaluate version storage/browsing/retrieval via Playwright"
+  - time: "2026-07-09T13:15:24"
+    action: "T-146: Finalize eval — triaged F1-F6, drop unused human-AC template"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 17 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 17
+  commits: 2
+  files_changed: 5
+  lines_added: 217
+  lines_removed: 32
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-146-evaluate-version-storage-browsing-retrie.md
+generated_by: context-agent-hybrid

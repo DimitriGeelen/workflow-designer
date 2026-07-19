@@ -267,3 +267,10 @@ learnings:
   date: 2026-07-18
   context: Added via context agent
   application: TBD
+- id: PL-039
+  learning: "termlink MCP file_send auto-mints transfer_id from a per-process counter and reuses it across back-to-back sends in one session; two sends to the same target collide under one id and file_receive blends the chunk streams (17/1 chunks) and rejects. Never issue two file_send calls back-to-back in one session — space them across sessions or interleave a rail round-trip. Delivery is not done until the recipient sha-verifies the reassembled bytes; ok:true is hub-acceptance, not delivery."
+  source: P-002
+  task: T-207
+  date: 2026-07-19
+  context: Added via context agent
+  application: TBD

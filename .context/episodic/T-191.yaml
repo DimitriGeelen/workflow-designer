@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-191: Package and deliver 24-map rendered corpus to AEF as rail fixture drop (T-559 boundary)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-12T13:19:35Z
+# ============================================================================
+
+task_id: T-191
+task_name: "Package and deliver 24-map rendered corpus to AEF as rail fixture drop (T-559 boundary)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-12T13:12:21Z
+completed: 2026-07-12T13:19:33Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-12T15:19:32+02:00
+last_commit: 2026-07-12T15:19:32+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  package + deliver 24-map rendered corpus to AEF (fixture drop, from HEAD 11e2826, sha cbb318ff)
+
+# Key outcomes
+outcomes:
+  - 'Package built under `build/aef-corpus-drop/`: a single `aef-rendered-corpus-11e2826.tar.gz` containing all 24 rendered `.bpmn` + `README.md` + `MANIFEST.txt` (HEAD sha, count) + `MANIFEST.sha256` (per-file sha256)'
+  - 'Integrity: the package is sourced from git HEAD (NOT the dirty working tree — see Decision), count = 24, staged copies self-consistent, and every staged file byte-matches its HEAD blob (`git hash-object` == `HEAD:<path>`)'
+  - 'Delivered to AEF over the termlink chunked file transfer — transfer_id `xfer-mcp-2054011` → session `tl-dlwor5gh` (aef); archive SHA256 `cbb318ff19e1ee7f094a5f8dae0c66a531f59dff12236e97f3cb69a42d73eb6c`'
+  - 'Rail message posted (offset 31) with: archive filename + SHA256, 832 HEAD `11e2826`, file count, `termlink file_receive` instructions, and the T-101 re-vendor caveat'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'package + deliver 24-map rendered corpus to AEF (fixture drop, from HEAD 11e2826, sha cbb318ff)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-12 — Package from git HEAD, not the working tree'
+    chose: 'Source the drop from `git archive HEAD` (canonical committed corpus).'
+    rationale: 'On packaging, the integrity check surfaced that 3 maps (audit-process, review-emission, verification-gate) carry UNCOMMITTED working-tree edits (703 ins / 486 del, touching aef:uid/name/geometry) — in-flight, unreviewed T-101 Clean re-bake / T-105 edge-label work from a prior session. The corpus AEF vendors must be the git-tracked canonical set; shipping unreviewed working-tree geometry as canonical would violate the "832 ships reviewed fixtures" contract (rail offsets 23/26). AEF explicitly accepted a re-vendor once T-101 lands (offset 28).'
+    alternatives_rejected: ['(a) Package the working tree — would deliver unreviewed geometry as canonical. (b) Commit/revert the 3 dirty files to clean the tree — they are a prior session''s in-flight work; not mine to commit or discard without the owner/operator. Left untouched.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-191-package-and-deliver-24-map-rendered-corp.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-12T15:19:32"
+    action: "T-191: package + deliver 24-map rendered corpus to AEF (fixture drop, from HEAD 11e2826, sha cbb318ff)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 7
+  commits: 1
+  files_changed: 1
+  lines_added: 191
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-191-package-and-deliver-24-map-rendered-corp.md
+generated_by: context-agent-hybrid

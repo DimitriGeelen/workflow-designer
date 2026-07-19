@@ -1,0 +1,156 @@
+# ============================================================================
+# EPISODIC MEMORY - T-145: Adopt 11 editor-saved layouts as canonical corpus + commit version stores
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-09T07:13:55Z
+# ============================================================================
+
+task_id: T-145
+task_name: "Adopt 11 editor-saved layouts as canonical corpus + commit version stores"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-09T07:11:45Z
+completed: 2026-07-09T07:13:53Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-09T09:13:27+02:00
+last_commit: 2026-07-09T09:13:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Adopt 11 editor-saved layouts as canonical corpus + commit version stores. Check agent ACs — corpus adoption verified and committed
+
+# Key outcomes
+outcomes:
+  - 'All 11 modified `examples/aef-processes/rendered/<id>.bpmn` parse as well-formed XML'
+  - 'Every saved snapshot `.editor-versions/<id>/v*.bpmn` parses as well-formed XML'
+  - 'For each of the 11, `rendered/<id>.bpmn` is byte-identical to its latest saved version'
+  - 'The 11 `rendered/*.bpmn` edits + the 11 `.editor-versions/<id>/` stores are committed;'
+  - 'No unrelated files swept into the commit (only the 11 maps + their version stores)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.editor-versions/arc-lifecycle/index.json'
+  - '.editor-versions/arc-lifecycle/v1.bpmn'
+  - '.editor-versions/arc-lifecycle/v1.png'
+  - '.editor-versions/arc-lifecycle/v2.bpmn'
+  - '.editor-versions/arc-lifecycle/v2.png'
+  - '.editor-versions/arc-lifecycle/v3.bpmn'
+  - '.editor-versions/arc-lifecycle/v3.png'
+  - '.editor-versions/arc-lifecycle/v4.bpmn'
+  - '.editor-versions/arc-lifecycle/v4.png'
+  - '.editor-versions/assumption-validation/index.json'
+  - '.editor-versions/assumption-validation/v1.bpmn'
+  - '.editor-versions/assumption-validation/v1.png'
+  - '.editor-versions/assumption-validation/v2.bpmn'
+  - '.editor-versions/assumption-validation/v2.png'
+  - '.editor-versions/assumption-validation/v3.bpmn'
+  - '.editor-versions/assumption-validation/v3.png'
+  - '.editor-versions/context-memory/index.json'
+  - '.editor-versions/context-memory/v1.bpmn'
+  - '.editor-versions/context-memory/v1.png'
+  - '.editor-versions/context-memory/v2.bpmn'
+  - '.editor-versions/context-memory/v2.png'
+  - '.editor-versions/error-escalation-ladder/index.json'
+  - '.editor-versions/error-escalation-ladder/v1.bpmn'
+  - '.editor-versions/error-escalation-ladder/v1.png'
+  - '.editor-versions/error-escalation-ladder/v2.bpmn'
+  - '.editor-versions/error-escalation-ladder/v2.png'
+  - '.editor-versions/error-escalation-ladder/v3.bpmn'
+  - '.editor-versions/error-escalation-ladder/v3.png'
+  - '.editor-versions/fabric-blast-radius/index.json'
+  - '.editor-versions/fabric-blast-radius/v1.bpmn'
+  - '.editor-versions/fabric-blast-radius/v1.png'
+  - '.editor-versions/fabric-blast-radius/v2.bpmn'
+  - '.editor-versions/fabric-blast-radius/v2.png'
+  - '.editor-versions/git-commit-flow/index.json'
+  - '.editor-versions/git-commit-flow/v1.bpmn'
+  - '.editor-versions/git-commit-flow/v1.png'
+  - '.editor-versions/git-commit-flow/v2.bpmn'
+  - '.editor-versions/git-commit-flow/v2.png'
+  - '.editor-versions/git-commit-flow/v3.bpmn'
+  - '.editor-versions/git-commit-flow/v3.png'
+  - '.editor-versions/harvest-pipeline/index.json'
+  - '.editor-versions/harvest-pipeline/v1.bpmn'
+  - '.editor-versions/harvest-pipeline/v1.png'
+  - '.editor-versions/harvest-pipeline/v2.bpmn'
+  - '.editor-versions/harvest-pipeline/v2.png'
+  - '.editor-versions/harvest-pipeline/v3.bpmn'
+  - '.editor-versions/harvest-pipeline/v3.png'
+  - '.editor-versions/healing-loop/index.json'
+  - '.editor-versions/healing-loop/v1.bpmn'
+  - '.editor-versions/healing-loop/v1.png'
+  - '.editor-versions/healing-loop/v2.bpmn'
+  - '.editor-versions/healing-loop/v2.png'
+  - '.editor-versions/resume-status/index.json'
+  - '.editor-versions/resume-status/v1.bpmn'
+  - '.editor-versions/resume-status/v1.png'
+  - '.editor-versions/task-gate/index.json'
+  - '.editor-versions/task-gate/v1.bpmn'
+  - '.editor-versions/task-gate/v1.png'
+  - '.editor-versions/task-gate/v2.bpmn'
+  - '.editor-versions/task-gate/v2.png'
+  - '.editor-versions/tier0-escalation/index.json'
+  - '.editor-versions/tier0-escalation/v1.bpmn'
+  - '.editor-versions/tier0-escalation/v1.png'
+  - '.editor-versions/tier0-escalation/v2.bpmn'
+  - '.editor-versions/tier0-escalation/v2.png'
+  - 'examples/aef-processes/rendered/arc-lifecycle.bpmn'
+  - 'examples/aef-processes/rendered/assumption-validation.bpmn'
+  - 'examples/aef-processes/rendered/context-memory.bpmn'
+  - 'examples/aef-processes/rendered/error-escalation-ladder.bpmn'
+  - 'examples/aef-processes/rendered/fabric-blast-radius.bpmn'
+  - 'examples/aef-processes/rendered/git-commit-flow.bpmn'
+  - 'examples/aef-processes/rendered/harvest-pipeline.bpmn'
+  - 'examples/aef-processes/rendered/healing-loop.bpmn'
+  - 'examples/aef-processes/rendered/resume-status.bpmn'
+  - 'examples/aef-processes/rendered/task-gate.bpmn'
+  - 'examples/aef-processes/rendered/tier0-escalation.bpmn'
+  - '.tasks/active/T-145-adopt-11-editor-saved-layouts-as-canonic.md'
+  - 'tools/_corpus-adopt-verify.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-09T09:13:27"
+    action: "T-145: Adopt 11 editor-saved layouts as canonical corpus + commit version stores"
+  - time: "2026-07-09T09:13:53"
+    action: "T-145: Check agent ACs — corpus adoption verified and committed"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 2
+  files_changed: 78
+  lines_added: 10447
+  lines_removed: 1508
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-145-adopt-11-editor-saved-layouts-as-canonic.md
+generated_by: context-agent-hybrid

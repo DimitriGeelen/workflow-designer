@@ -1,0 +1,134 @@
+# ============================================================================
+# EPISODIC MEMORY - T-179: Playwright render-check guarding test for designer build
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-10T21:45:11Z
+# ============================================================================
+
+task_id: T-179
+task_name: "Playwright render-check guarding test for designer build"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-10T21:17:29Z
+completed: 2026-07-10T21:45:05Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-10T23:18:10+02:00
+last_commit: 2026-07-10T23:44:56+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  File render-check guarding test (captured) + capture deployment-verification learning. Playwright render-check guarding test for designer build (render + T-177 markers + inspector dropdowns + console whitelist)
+
+# Key outcomes
+outcomes:
+  - '`tests/test_designer_render.py` exists and is runnable standalone (`python3 tests/test_designer_render.py`); it resolves the current build from `VERSION` → `dist/aef-workflow-designer-<version>.html`, serves `dist/` on an ephemeral localhost port via a stdlib static server, and drives it headless via python-playwright/chromium.'
+  - '**Render assertion:** the page loads with no uncaught JS exception; palette task items (Service Task, User Task, Script Task, Sub-process) and the canvas are present in the DOM; page `<title>` contains "Workflow Designer".'
+  - '**Feature-marker assertion (stale-build guard):** in-page `FIELD_META.horizon` is truthy AND `AEF_FIELDS.serviceTask` contains `horizon`, `workflowType`, and `owner` — this assertion FAILS on any pre-T-177 build (proven: pointed at 0.1.0 sha `d0e0177c…` → `FIELD_META.horizon: False`, `serviceTask=[''tier'',''agentType'',''endpoint'',''contextReads'',''artifactsWrites'']`, guard fires on all three missing).'
+  - '**Rendered-DOM assertion:** placing a task node and selecting it renders the three governance `<select>` controls (Horizon / Workflow type / Owner) in the inspector''s EXTENSIONS block, each with the expected option sets.'
+  - '**Console assertion:** no console errors EXCEPT whitelisted `/api/health` and `/favicon.ico` 404s (documented backend-absent probes; the test whitelists them by URL and comments why — src is NOT modified to suppress them).'
+  - 'Test passes against the current `0.2.0` build (exit 0); one-time dev setup (`pip install playwright && playwright install chromium`) is documented in the test''s module docstring.'
+  - '`## Verification` runs the test so P-011 gates future builds on it.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/arc-focus.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-016.log'
+  - '.context/working/episodic-gen/T-142.log'
+  - '.context/working/episodic-gen/T-145.log'
+  - '.context/working/episodic-gen/T-146.log'
+  - '.context/working/episodic-gen/T-147.log'
+  - '.context/working/episodic-gen/T-148.log'
+  - '.context/working/episodic-gen/T-149.log'
+  - '.context/working/episodic-gen/T-150.log'
+  - '.context/working/episodic-gen/T-151.log'
+  - '.context/working/episodic-gen/T-152.log'
+  - '.context/working/episodic-gen/T-153.log'
+  - '.context/working/episodic-gen/T-154.log'
+  - '.context/working/episodic-gen/T-156.log'
+  - '.context/working/episodic-gen/T-157.log'
+  - '.context/working/episodic-gen/T-158.log'
+  - '.context/working/episodic-gen/T-159.log'
+  - '.context/working/episodic-gen/T-160.log'
+  - '.context/working/episodic-gen/T-161.log'
+  - '.context/working/episodic-gen/T-162.log'
+  - '.context/working/episodic-gen/T-163.log'
+  - '.context/working/episodic-gen/T-169.log'
+  - '.context/working/episodic-gen/T-170.log'
+  - '.context/working/episodic-gen/T-171.log'
+  - '.context/working/episodic-gen/T-177.log'
+  - '.context/working/.gate-bypass-log.yaml'
+  - '.context/working/.handover-cooldown'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.restart-requested'
+  - '.context/working/.reviewed-T-142'
+  - '.context/working/.reviewed-T-164'
+  - '.context/working/.reviewed-T-165'
+  - '.context/working/.reviewed-T-166'
+  - '.context/working/.reviewed-T-167'
+  - '.context/working/.reviewed-T-168'
+  - '.context/working/.reviewed-T-172'
+  - '.context/working/.reviewed-T-173'
+  - '.context/working/.reviewed-T-175'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-179-playwright-render-check-guarding-test-fo.md'
+  - 'tests/test_designer_render.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-10T23:18:10"
+    action: "T-179: File render-check guarding test (captured) + capture deployment-verification learning"
+  - time: "2026-07-10T23:44:56"
+    action: "T-179: Playwright render-check guarding test for designer build (render + T-177 markers + inspector dropdowns + console whitelist)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 27 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 27
+  commits: 2
+  files_changed: 54
+  lines_added: 7404
+  lines_removed: 5274
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-179-playwright-render-check-guarding-test-fo.md
+generated_by: context-agent-hybrid

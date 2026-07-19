@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-169: G-020 gate circularly blocks its own type-inception remediation
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-10T04:40:46Z
+# ============================================================================
+
+task_id: T-169
+task_name: "G-020 gate circularly blocks its own type-inception remediation"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-10T04:36:54Z
+completed: 2026-07-10T04:40:44Z
+duration_days: 0
+updates_count: 4
+first_commit: 2026-07-10T06:40:36+02:00
+last_commit: 2026-07-10T06:40:36+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Exempt fw task update --type conversions from G-020 build-readiness gate
+
+# Key outcomes
+outcomes:
+  - '`check-active-task.sh` exempts a Bash `fw task update <CURRENT_TASK> … --type …` command from the G-020 build-readiness gate, so converting a placeholder build task to inception (the gate''s own printed remediation) is no longer circularly blocked. Exemption is scoped to the type-conversion of the *focused* task only.'
+  - 'Regression: a Write/Edit to a real source file (outside `.tasks/.context/.claude`) under a placeholder build task is STILL blocked (exit 2) — the exemption does not widen to general edits.'
+  - 'Regression: a `fw task update <CURRENT_TASK> --status …` (no `--type`) still passes through the existing gates unchanged (not newly exempted).'
+  - 'Verified live via the hook harness: piping the conversion command''s JSON with focus on a placeholder build task → exit 0; piping a source-file Edit JSON with the same focus → exit 2. Evidence pasted in Updates.'
+  - '`bash -n agents/context/check-active-task.sh` parses clean; `.claude/settings.json` untouched (no enforcement-baseline refresh needed).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.tasks/active/T-169-g-020-gate-circularly-blocks-its-own-typ.md'
+  - '.tasks/active/T-170-check-active-task-write-pattern-false-po.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-10T06:40:36"
+    action: "T-169: Exempt fw task update --type conversions from G-020 build-readiness gate"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 3
+  lines_added: 408
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-169-g-020-gate-circularly-blocks-its-own-typ.md
+generated_by: context-agent-hybrid
