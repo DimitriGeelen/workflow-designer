@@ -2408,8 +2408,49 @@ function onLaneClick(lane) {
 
 function text(s) { const t = document.createTextNode(s); return t; }
 
+// T-204 Slice 2: a typed event carrying aef.hostRef is a boundary event — its
+// position is DERIVED from the host perimeter, not authored freely (AC: "renders at
+// a host-relative perimeter point, not at free x/y"). boundaryHostOf resolves the host
+// (or null for an in-flow event / dangling ref); boundaryPerimeterPoint walks the host
+// rect clockwise from top-left by the boundaryPos fraction (default: bottom-centre).
+function boundaryHostOf(n) {
+  if (!EVENT_KIND[n.type] || !n.aef || !n.aef.hostRef) return null;
+  return findNode(n.aef.hostRef) || null;
+}
+function boundaryPerimeterPoint(host, frac) {
+  const hd = NODE_DEFAULTS[host.type] || NODE_DEFAULTS.serviceTask;
+  const hw = hd.w, hh = hd.h, hx = host.x, hy = host.y;
+  const f = (typeof frac === 'number' && isFinite(frac)) ? ((frac % 1) + 1) % 1 : null;
+  if (f == null) return { x: hx + hw / 2, y: hy + hh };        // default: bottom-centre
+  const P = 2 * (hw + hh);
+  let d = f * P;
+  if (d < hw) return { x: hx + d, y: hy };                     // top edge  L→R
+  d -= hw;
+  if (d < hh) return { x: hx + hw, y: hy + d };                // right edge T→B
+  d -= hh;
+  if (d < hw) return { x: hx + hw - d, y: hy + hh };           // bottom edge R→L
+  d -= hw;
+  return { x: hx, y: hy + hh - d };                            // left edge  B→T
+}
+// Snap every attached boundary event onto its host's perimeter. Idempotent and
+// deterministic (a synced event stays put), so calling it before each render keeps
+// the model position authoritative for edges, hit-testing and serialization alike.
+function syncBoundaryPositions() {
+  for (const n of state.nodes) {
+    const host = boundaryHostOf(n);
+    if (!host) continue;
+    const def = NODE_DEFAULTS[n.type];
+    const raw = n.aef.boundaryPos;
+    const frac = (raw != null && raw !== '') ? parseFloat(raw) : null;
+    const pt = boundaryPerimeterPoint(host, frac);
+    n.x = pt.x - def.w / 2;
+    n.y = pt.y - def.h / 2;
+  }
+}
+
 function renderNodes() {
   gNodes.innerHTML = '';
+  syncBoundaryPositions();
   for (const n of state.nodes) {
     const def = NODE_DEFAULTS[n.type];
     const isPrimary = selection?.kind === 'node' && selection.id === n.id;
@@ -2471,6 +2512,13 @@ function renderNodes() {
       const cx = n.x + def.w / 2, cy = n.y + def.h / 2, r = def.w / 2;
       const stroke = { eventError: 'var(--red)', eventTimer: 'var(--blue)', eventMessage: 'var(--green)' }[n.type];
       g.appendChild(el('circle', { cx, cy, r, class: 'node-shape', fill: 'var(--surface-2)', stroke, 'stroke-width': '1.5' }));
+      // T-204 Slice 2: a boundary event (attached to a host) wears the BPMN double
+      // ring; a non-interrupting one's outer ring is dashed (cancelActivity="false").
+      if (boundaryHostOf(n)) {
+        const ringAttrs = { cx, cy, r: r + 3, fill: 'none', stroke, 'stroke-width': '1.2' };
+        if (n.aef.interrupting === 'false') ringAttrs['stroke-dasharray'] = '3 2';
+        g.appendChild(el('circle', ringAttrs));
+      }
       if (n.type === 'eventError') {
         // filled lightning bolt (BPMN error convention)
         g.appendChild(el('path', {

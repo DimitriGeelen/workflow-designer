@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T19:42:25Z
-last_update: 2026-07-19T15:39:50Z
+last_update: 2026-07-19T18:24:01Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -87,7 +87,9 @@ New node types `eventError` / `eventTimer` / `eventMessage`, added at every site
 <!-- Remaining Slice-2 sub-parts (host-follow drag, boundary-origin ports, host-relative render) below are steps 2-3. -->
 
 - [ ] Host-follow: moving a host moves its boundary events (reuses `groupDrag` ~5493); a boundary-origin edge anchors via the T-168 port machinery.
-- [ ] Boundary event renders at a host-relative perimeter point (contained new branch in `renderNodes` ~2354), not at free `x/y`.
+- [x] Boundary event renders at a host-relative perimeter point (contained new branch in `renderNodes` ~2354), not at free `x/y`. <!-- step 2: syncBoundaryPositions() derives each attached event's x/y from boundaryPerimeterPoint(host, boundaryPos) at the top of renderNodes (default bottom-centre); the typed-event render branch adds the BPMN double ring (dashed outer ring = non-interrupting). Visually verified — docs/reports/T-204-slice2-visual/boundary-on-host.png: error event straddles the host bottom edge (solid double ring), timer straddles the top edge (dashed outer ring); both host-relative. Known cosmetic follow-up: boundary-event LABELS can overlap the host label (intrinsic to boundary/host overlap) — placement polish, not a functional defect. -->
+      <!-- Note: because position is host-derived, a boundary event is pinned to its host (can't be dragged free) — correct BPMN behaviour; sliding it along the perimeter (edit boundaryPos by drag) is a step-3 refinement. -->
+
 
 **Guards (both slices)**
 - [x] Round-trip guards T-187/T-188, export-contract T-202, and render gate `tests/test_designer_render.py` all stay green; a new test asserts the typed-event export→import→export round-trip and the `aef:eventDef` serialization. <!-- verified post step-2: render gate PASS, export-contract PASS, round-trip fixed point PASS, full bridge suite 34/0, test_typed_events.py PASS -->
@@ -160,6 +162,27 @@ light/serif/density variants exist in this app), so the applicable visual-mode a
 Symptom-free: each typed event has a distinct legible glyph; no overlap/regression vs plain
 events. (The `[REVIEW]` Human AC below still requires the human's own confirmation on the
 served release — these are the agent's own pre-commit verification per §Visual Verification.)
+
+### 2026-07-19 — Slice 2 step 2 (host-relative render)
+
+Served `src/aef-workflow-designer.html` over local HTTP, drove headless Chrome via
+Playwright, imported `tests/fixtures/aef-bpmn/boundary-events.bpmn` (host serviceTask +
+interrupting error boundary @ boundaryPos 0.75 + non-interrupting timer boundary @ 0.25),
+framed the host, and READ the rendered canvas.
+
+- `docs/reports/T-204-slice2-visual/boundary-on-host.png` — the host "do the work"
+  (blue serviceTask rect); **"on error"** = red lightning event with a **solid double
+  ring** (interrupting) straddling the host **bottom edge** (boundaryPos 0.75 → bottom
+  R→L walk, center y = host bottom); **"timeout"** = blue clock event with a **dashed
+  outer ring** (non-interrupting) straddling the host **top edge** (boundaryPos 0.25 →
+  top L→R walk, center y = host top). Both anchored to the host perimeter (verified in
+  JS: berr center on bottom edge, btmr center on top edge — NOT the free fixture x/y),
+  each with an outgoing edge to its handler end event. The BPMN solid-vs-dashed
+  interrupting convention reads clearly.
+- **Known cosmetic artifact (not a functional defect):** boundary-event name labels
+  render below the shape and can overlap the host's own label when the event sits near
+  the host body ("timeout" over "do the work"). Intrinsic to boundary/host overlap;
+  boundary-label placement is a polish follow-up. Perimeter placement (the AC) is met.
 
 ## Verification
 
@@ -237,6 +260,24 @@ python3 tests/test_bridge_aef_passthrough.py
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-07-19 — Slice 2 step 2 (host-relative render) landed; interaction remains
+
+- **What changed / built:** `renderNodes` now calls `syncBoundaryPositions()` first —
+  for every typed event with a resolvable `hostRef`, its x/y is DERIVED from
+  `boundaryPerimeterPoint(host, boundaryPos)` (clockwise perimeter walk from top-left;
+  default bottom-centre). The typed-event render branch gained the BPMN boundary double
+  ring (outer ring **dashed** when `interrupting==='false'`). Keeping the derived point
+  in the model (not just at draw time) means edges/hit-testing/serialization all see the
+  perimeter position — one source of truth. Visually verified (see §Visual Verification).
+- **Design note:** a boundary event is now **pinned** to its host (render re-derives its
+  position each frame), which is correct BPMN behaviour — you don't drag a boundary event
+  freely. Two refinements belong to step 3: (a) dragging a host carries its boundary
+  events (`groupDrag`), (b) dragging a boundary event *along the perimeter* edits its
+  `boundaryPos`, and boundary-origin edges anchor via the T-168 port machinery.
+- **Known cosmetic follow-up:** boundary-event name labels can overlap the host label
+  (boundary/host overlap is intrinsic). Perimeter placement (the AC) is met; label
+  placement is polish, logged not lost.
 
 ### 2026-07-19 — Slice 2 step 1 (boundary data path) landed; render + interaction remain
 
