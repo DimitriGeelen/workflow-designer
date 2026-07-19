@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T19:42:25Z
-last_update: 2026-07-18T19:44:05Z
+last_update: 2026-07-19T08:11:08Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -202,6 +202,32 @@ python3 tests/test_bridge_aef_passthrough.py
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-07-19 — Slice 1 step 1 (data path) landed; steps 2–4 remain
+
+- **What changed / locked at build time:**
+  - **BPMN tag (decision #1):** all three typed events → `intermediateCatchEvent`
+    (neutral "event in flow"); the kind rides `<aef:eventDef kind=… binding=…/>`,
+    mirroring `aef:link`. The anchor-map REVERSE_TYPE(8185) collision (tag also =
+    `linkEventCatch`) is resolved in `adoptImportedXml` by branching on extension
+    content — `aef:eventDef` present → typed node type; else the default
+    `linkEventCatch` stands. Proven by the BITE test (strip eventDef → linkEventCatch).
+  - **Binding storage:** one kind-specific aef field each — `errorStatus`
+    (`status:issues`), `timerSpec` (cron/horizon), `busTopic` — via
+    `EVENT_BINDING_FIELD`. `EVENT_KIND`/`EVENT_KIND_TYPE`/`EVENT_BINDING_FIELD` are
+    the single source of truth shared by export + import (no drift).
+  - **Testing:** fixed-point round-trip proves *self-consistency* only, so a
+    dedicated CDP harness (`tools/_typed-events-cdp.mjs` + `tests/test_typed_events.py`)
+    was added for *correctness* (actual types+bindings+eventDef emit) + BITE. The
+    shared round-trip harness projection was extended (METAKEYS +errorStatus/timerSpec/
+    busTopic) so its fixed point also has teeth on the binding.
+- **Plan impact:** none — the anchor map held. Decision #2 (bridge `aef.eventDef`
+  vocabulary vs `x-` passthrough) is UNRESOLVED, deferred to **step 3** (bridge parity).
+- **Remaining (next session):** step 2 = registry + palette + render glyphs + icons
+  (the visual surface — needs Playwright element screenshots per §Visual Verification,
+  all modes); step 3 = bridge parity in `tools/yaml-to-bpmn.py` + mapping-standard rows;
+  step 4 = tick Human AC after visual verification. Field defs/META/dims/ports/render
+  anchors are in the map above (1608–2397, 5004–5011). Stopped here on budget (~256K/300k).
 
 ## Decisions
 
