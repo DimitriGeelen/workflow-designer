@@ -4,9 +4,9 @@ name: "Pair-draft dispatch-loop corpus diagram (AEF arc-015)"
 description: >
   Pair-draft dispatch-loop corpus diagram (AEF arc-015)
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-19T21:21:33Z
-last_update: 2026-07-19T21:21:33Z
-date_finished: null
+last_update: 2026-07-19T21:39:39Z
+date_finished: 2026-07-19T21:39:39Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -59,10 +59,10 @@ every sequenceFlow; balanced parallel fork/join with NO conditionExpression on p
 ## Acceptance Criteria
 
 ### Agent
-- [ ] New fixture `tests/fixtures/aef-bpmn/dispatch-loop.bpmn` authored in the canonical dialect (3 authority-typed lanes; every flow node has `aef:uid` + `aef:position`; every sequenceFlow has `aef:uid`)
-- [ ] It validates CLEAN under `tools/validate-workflow.py` (exit 0, no findings) — including balanced parallel fork/join (no W-PGW-* WARN) and the O-3 sovereignty rule (the human check-in node sits in the sovereignty lane)
-- [ ] It faithfully models the dispatch protocol: scope → framework headroom gate → **mode exclusiveGateway** (parallel vs sequential) → **parallelGateway fan-out (≤5)** → sub-agent workers → **parallelGateway join** → collect-from-ledger → synthesize → **completeness exclusiveGateway** (re-dispatch back-edge vs done) → framework commit checkpoint → human check-in → end
-- [ ] Fixture is well-formed XML and byte-stable (sha recorded in the delivery); delivered to AEF rail-inline with its sha for their `fw bpmn` compile
+- [x] New fixture `tests/fixtures/aef-bpmn/dispatch-loop.bpmn` authored in the canonical dialect (3 authority-typed lanes; every flow node has `aef:uid` + `aef:position`; every sequenceFlow has `aef:uid`)
+- [x] It validates CLEAN under `tools/validate-workflow.py` (exit 0, no findings) — including balanced parallel fork/join (no W-PGW-* WARN) and the O-3 sovereignty rule (the human check-in node sits in the sovereignty lane)
+- [x] It faithfully models the dispatch protocol: scope → framework headroom gate → **mode exclusiveGateway** (parallel vs sequential) → **parallelGateway fan-out (≤5)** → sub-agent workers → **parallelGateway join** → collect-from-ledger → synthesize → **completeness exclusiveGateway** (re-dispatch back-edge vs done) → framework commit checkpoint → human check-in → end
+- [x] Fixture is well-formed XML and byte-stable (sha `95bc24cd…43594b`, 18793 B); delivered to AEF rail-inline with its sha for their `fw bpmn` compile (rail offsets 99+101, concat-verified)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -230,3 +230,6 @@ grep -q "exclusiveGateway" tests/fixtures/aef-bpmn/dispatch-loop.bpmn
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-215-pair-draft-dispatch-loop-corpus-diagram-.md
 - **Context:** Initial task creation
+
+### 2026-07-19T21:39:39Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
