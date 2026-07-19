@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-217: W-PGW WARN vocabulary alignment: parallel-gateway note kind-split (AEF T-2569)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-19T22:08:36Z
+# ============================================================================
+
+task_id: T-217
+task_name: "W-PGW WARN vocabulary alignment: parallel-gateway note kind-split (AEF T-2569)"
+workflow_type: design
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-19T22:06:01Z
+completed: 2026-07-19T22:08:34Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-20T00:08:26+02:00
+last_commit: 2026-07-20T00:08:26+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  832 position on parallel-gateway WARN kind-split (AEF T-2569) — delivered rail offset 103
+
+# Key outcomes
+outcomes:
+  - '832''s position is grounded in the actual `W-PGW-*` taxonomy in `tools/validate-workflow.py` (not invented) — the three smell codes (CONDITION/NOOP/UNBALANCED) and the fact that a well-formed balanced fork/join is CLEAN (zero findings)'
+  - 'Position captured in this task''s `## Decisions` section'
+  - 'Position delivered to AEF on the rail as a reply to offset 102, `mentions:["AEF"]`'
+  - '`[[aef-integration-rail]]` memory updated with the offset-102 verdict + the T-217 position'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-20 — 832''s position on the parallel-gateway note kind-split (reply to AEF T-2569)'
+    chose: 'Endorse the kind-split, and anchor it on a sharper principle than "different text'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-217-w-pgw-warn-vocabulary-alignment-parallel.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-20T00:08:26"
+    action: "T-217: 832 position on parallel-gateway WARN kind-split (AEF T-2569) — delivered rail offset 103"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 1
+  lines_added: 232
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-217-w-pgw-warn-vocabulary-alignment-parallel.md
+generated_by: context-agent-hybrid

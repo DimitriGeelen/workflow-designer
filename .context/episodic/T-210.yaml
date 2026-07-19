@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-210: Completion-gate AC counter mis-parses >-bearing inline comments (G-009)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-19T19:24:57Z
+# ============================================================================
+
+task_id: T-210
+task_name: "Completion-gate AC counter mis-parses >-bearing inline comments (G-009)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-19T19:20:48Z
+completed: 2026-07-19T19:24:55Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-19T21:24:49+02:00
+last_commit: 2026-07-19T21:24:49+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  fix completion-gate AC counter — tolerate '>' in one-line AC comments (G-009)
+
+# Key outcomes
+outcomes:
+  - '`check_acceptance_criteria` one-line comment strip tolerates a literal `>` inside the comment: the `[^>]*` pattern is replaced with a minimal-match that stops at the first comment close and does not truncate on `>` (no lazy quantifier, POSIX/GNU sed safe).'
+  - 'A task whose agent ACs all carry one-line comments containing a `>` (and are all checked) with one unchecked `### Human` AC is classified as agent-complete + partial-complete (Human AC not counted as an agent AC) — the gate does NOT block.'
+  - 'Teeth preserved: a task with a genuinely unchecked `### Agent` AC (comments also containing `>`) still BLOCKS completion.'
+  - 'New regression test `agents/task-create/tests/test_ac_comment_strip.sh` extracts the real `check_acceptance_criteria` verbatim and asserts both the pass fixture (no false block) and the teeth fixture (still blocks); exits 0.'
+  - 'The genuine multi-line comment case still strips (the range-strip fall-through is unaffected) — covered by the existing behaviour and not regressed by the pass/teeth fixtures.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'fix completion-gate AC counter — tolerate ''>'' in one-line AC comments (G-009)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/task-create/tests/test_ac_comment_strip.sh'
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.context/project/concerns.yaml'
+  - '.tasks/active/T-210-completion-gate-ac-counter-mis-parses--b.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-19T21:24:49"
+    action: "T-210: fix completion-gate AC counter — tolerate '>' in one-line AC comments (G-009)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 4
+  lines_added: 288
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-210-completion-gate-ac-counter-mis-parses--b.md
+generated_by: context-agent-hybrid

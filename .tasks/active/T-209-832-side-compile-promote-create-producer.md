@@ -34,7 +34,54 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+AEF (rail offset 78) proposed a 832-side test mirroring their
+`tests/unit/bpmn_promote_e2e.bats` contract. **Scope assessment (G-020 — this is a
+PROPOSAL, not authorization):** decompose the proposal by the T-559 symmetric boundary
+(832 cannot run AEF's `fw bpmn compile`/`promote`/gate) into producer INPUTS (832's side)
+vs AEF OUTPUTS (AEF's side), then map the input half against what
+`tests/test_promote_contract.py` (T-206) + `tests/test_two_lane_joint_contract.py`
+(T-208) already assert.
+
+### Proposal item → side → coverage
+| AEF offset-78 item | Side (T-559) | 832 coverage today |
+|---|---|---|
+| manifest shape `{name, owner, workflow_type}` | producer INPUT | ✅ `extract_manifest` + failures() check (3) pins the EXACT tuple |
+| owner `agent` + `human` (lane-derived) | producer INPUT | ✅ human via T-206 (sovereignty), agent via T-208 (initiative serviceTask) |
+| uid totality / `source_bpmn_sha` (reconcile KEYS) | producer INPUT | ✅ check (2) uid totality + teeth (5b); check (4) pinned sha |
+| inception-node → DEFER-materialization **input** | producer INPUT | ✅ check (3) pins `workflow_type: "inception"`; teeth (5a) rejects inception out of the sovereignty lane |
+| promote CLI output | AEF OUTPUT | n/a — AEF's bats (T-559) |
+| `aef_provenance` block | AEF OUTPUT | n/a — AEF's bats |
+| `captured` forcing (`status: captured`) | AEF OUTPUT | n/a — not a 832 producer field |
+| reconcile STATES | AEF OUTPUT | n/a — 832 owns only the reconcile KEYS (uid + sha), covered |
+| gate refusal | AEF OUTPUT | n/a — AEF's bats |
+
+### Finding
+Every producer-INPUT item AEF's proposal names is **already covered** by T-206 + T-208
+(one canonical contract, two fixtures, shared helpers — PL-005). The remaining items are
+AEF OUTPUTS that, per the symmetric boundary, 832 must NOT assert (asserting them here
+would build against the wrong contract — the exact inversion `test_promote_contract`'s
+header warns against). There is **no new producer-input surface** in the offset-78
+proposal for the promote/manifest contract.
+
+The one genuinely-new 832 producer artifact since the proposal is the **typed-event**
+serialization (T-204: `typed-events.bpmn` / `boundary-events.bpmn`) — a DIFFERENT contract
+surface (typed-event encoding), already in motion on the rail (AEF shipped a WARN detector
+T-2552; byte-exact cross-validation pending a fixture delivery, rail offsets 82–83). Track
+it as its own producer-contract concern, not folded into T-209's promote/manifest scope.
+
+### Recommendation (needs human/AEF confirmation — declining a peer proposal)
+**DEFER — do NOT build a new promote/manifest producer-contract test.** The contract is
+covered by T-206 + T-208. Suggested dispositions:
+1. Reply to AEF on the rail that the offset-78 producer-input contract is already met by
+   T-206 + T-208 (cite the tuple-pin at check (3) incl. `workflow_type: "inception"`, the
+   agent+human derivations, and the pinned reconcile keys); the AEF-OUTPUT half correctly
+   lives in their bats.
+2. If a gap is desired, the only candidate is **typed-event byte-exact cross-validation**
+   (separate surface) — file that as its own task, not under T-209.
+3. Close T-209 as satisfied-by-T-206+T-208 once confirmed.
+
+This is a decision to decline/defer a peer's proposal → left for human (Dimitri)
+confirmation before closing or replying. Assessment only — no source written (budget-wrap).
 
 ## Acceptance Criteria
 

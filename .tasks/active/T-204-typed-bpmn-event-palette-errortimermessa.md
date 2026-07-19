@@ -4,11 +4,11 @@ name: "Typed BPMN event palette: error/timer/message + boundary events (two-slic
 description: >
   Build authorized by T-190 GO (inception, firm post Spike-1+2). Add typed BPMN events to the designer palette using the aef:-extension encoding (IW-1): a BPMN event tag + aef:eventDef marker (kind=error|timer|message + binding: status:issues / cron / bus-topic), riding the tested aef:/x- round-trip channel — NO native bpmn:*EventDefinition machinery required. Two slices under one task (IW-3): Slice 1 = non-boundary error/timer/message (palette entry + subtype + aef: serialization in buildBpmnXml + bridge parity in yaml-to-bpmn.py + mapping-standard row + DI render); Slice 2 = boundary variants (host binding as additive aef field hostRef+boundaryPos+interrupting per scopeOf/constituents precedent T-081; host-follow via groupDrag ~5493; boundary-origin edges via T-168 ports; host-relative render branch in renderNodes ~2354). Target carrier: T-081 collapsed-subProcess (G-3). Guards T-187/T-188 round-trip + T-202 export-contract must stay green.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
-tags: [typed-events, editor, bridge, aef, arc]
+tags: [typed-events, editor, bridge, aef, arc, feature]
 components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T19:42:25Z
-last_update: 2026-07-19T18:32:00Z
-date_finished: null
+last_update: 2026-07-19T19:27:19Z
+date_finished: 2026-07-19T19:27:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -132,6 +132,35 @@ New node types `eventError` / `eventTimer` / `eventMessage`, added at every site
   2. Inspect element-level screenshots in each affected mode (mono/sans/serif fonts; light/dark themes; compact/normal densities).
   **Expected:** each typed event has a distinct, legible glyph; the boundary event sits on the host perimeter and follows the host on drag; no overlap/regression versus plain events.
   **If not:** screenshot the failing mode and note which glyph/placement is wrong.
+
+## Recommendation
+
+**Recommendation:** GO
+
+**Rationale:** Both slices are agent-complete — all 8 agent ACs + the guards AC are
+checked and independently verified. Typed error/timer/message events serialize via the
+`aef:eventDef` extension (no native `bpmn:*EventDefinition`), round-trip losslessly, and
+bridge-parity holds; boundary variants attach as native `<bpmn:boundaryEvent>`, render on
+the host perimeter with the BPMN double ring, follow the host on drag, and their outgoing
+edges now exit the perimeter outward via the T-168 port machinery (never crossing the host
+body). The only open item is the `[REVIEW]` Human AC, which is genuine human taste on the
+served release (glyph legibility + boundary placement) — not something the agent can self-
+certify. Nothing blocks GO; the agent-verifiable surface is fully green.
+
+**Evidence:**
+- Guards 5/5 green (P-011): `test_designer_render`, `test_designer_export_contract`,
+  `test_bridge_aef_passthrough`, `test_roundtrip_serialization`, `test_typed_events`
+  (typed + boundary correctness + BITE + port-anchoring assertions).
+- Round-trip fixed point across all `tests/fixtures/aef-bpmn/*.bpmn` incl.
+  `boundary-events.bpmn` (byte-idempotent; `hostRef`/`interrupting` teeth in the projection).
+- Port anchoring proven in-editor: source anchor == outward port AND routed polyline never
+  crosses the host body for both boundary edges, incl. the hard top-edge case
+  (`PORT_ASSERT_EXPR` in `tools/_typed-events-cdp.mjs`).
+- Visual evidence read + saved: `docs/reports/T-204-slice1-visual/` (glyphs, palette,
+  inspector) and `docs/reports/T-204-slice2-visual/` (`boundary-on-host.png`,
+  `boundary-ports.png`).
+- Commits: `e8d611e` (data path), `ef25739` (host-relative render), `49ed247` (host-follow),
+  `4f2029b` (T-168 ports). All pushed to the ssh remote.
 
 ## Visual Verification
 
@@ -489,3 +518,9 @@ python3 tests/test_typed_events.py
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-204-typed-bpmn-event-palette-errortimermessa.md
 - **Context:** Initial task creation
+
+### 2026-07-19T19:27:19Z — status-update [task-update-agent]
+- **Change:** tags: +feature
+
+### 2026-07-19T19:27:19Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

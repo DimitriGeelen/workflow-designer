@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-216: Byte-pin guard for delivered corpus fixtures (session-handover + dispatch-loop)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-19T21:44:30Z
+# ============================================================================
+
+task_id: T-216
+task_name: "Byte-pin guard for delivered corpus fixtures (session-handover + dispatch-loop)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-19T21:41:14Z
+completed: 2026-07-19T21:44:11Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-19T23:44:06+02:00
+last_commit: 2026-07-19T23:44:06+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  byte-pin guard for delivered corpus fixtures (session-handover + dispatch-loop) — closes 832-side drift gap on the shared AEF artifacts
+
+# Key outcomes
+outcomes:
+  - 'New test `tests/test_corpus_fixture_pins.py` pins the full sha256 of both delivered fixtures (`session-handover.bpmn`, `dispatch-loop.bpmn`) and asserts each still validates CLEAN under `tools/validate-workflow.py`'
+  - 'The test passes standalone (`python3 tests/test_corpus_fixture_pins.py` exits 0) and has teeth (a byte change to either fixture flips the pinned-sha assertion to fail)'
+  - 'Wired into `tests/run-bridge-tests.sh` (adds a pass/fail line to the suite — verified 36/0)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'byte-pin guard for delivered corpus fixtures (session-handover + dispatch-loop) — closes 832-side drift gap on the shared AEF artifacts'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-216-byte-pin-guard-for-delivered-corpus-fixt.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_corpus_fixture_pins.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-19T23:44:06"
+    action: "T-216: byte-pin guard for delivered corpus fixtures (session-handover + dispatch-loop) — closes 832-side drift gap on the shared AEF artifacts"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 3
+  lines_added: 329
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-216-byte-pin-guard-for-delivered-corpus-fixt.md
+generated_by: context-agent-hybrid
