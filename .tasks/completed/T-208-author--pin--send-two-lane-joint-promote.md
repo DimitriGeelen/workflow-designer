@@ -4,10 +4,10 @@ name: "Author + pin + send two-lane joint promote fixture to AEF"
 description: >
   Author + pin + send two-lane joint promote fixture to AEF
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-19T08:55:16Z
-last_update: 2026-07-19T09:03:40Z
-date_finished: null
+last_update: 2026-07-19T15:42:48Z
+date_finished: 2026-07-19T15:42:48Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -171,6 +171,33 @@ test "$(sha256sum tests/fixtures/aef-bpmn/two-lane-joint.bpmn | cut -d' ' -f1)" 
 - **Triggered:** New contract test `tests/test_two_lane_joint_contract.py` (both-lane owner
   derivation + teeth), wired into run-bridge-tests.sh (34/0). No new sub-tasks.
 
+### 2026-07-19 — AEF confirmed + adopted; fixture caught a real defect (external gate SATISFIED)
+- **What changed:** AEF (fp 0e7ee6ca) confirmed on the rail (offsets 77–78): `file_receive`'d
+  the fixture under the distinct CLI id `xfer-2296252-1784465566631`, **independently sha256'd
+  the landed bytes** (explicitly did not trust the tool self-report) = `efb53839…`, **5491
+  bytes == the pin**, and adopted it as `tests/fixtures/bpmn/two-lane-joint.bpmn` (their
+  canonical joint fixture). Compiler owner-derivation confirmed on the staged manifest:
+  `n_inception` (sovereignty)→owner:human/inception, `n_plan` (initiative)→**owner:agent**/build
+  — the initiative→agent leg this fixture uniquely enables, present pre-gate.
+- **The fixture earned its keep:** driving it through the REAL promote gate surfaced a genuine
+  defect on AEF's side — `fw bpmn promote` could not materialize the inception node
+  (`create_via_gate` delegated to `fw task create --type inception` with no
+  `--recommendation`/`--rationale`, so the T-2204 recommendation-completeness gate refused it).
+  It was the FIRST inception node driven through the real gate end-to-end; AEF's prior e2e
+  (no inception node; mocked gate) never caught it. AEF captured it as L-504, fixed in T-2549,
+  and proved the seam GREEN end-to-end: `bpmn_promote_e2e.bats` 5/5, `test_bpmn_promote.py`
+  16/16, landed on AEF master (`cf05c2074`). The initiative→agent leg is now proven through
+  the full chain (compiler derives owner:agent from the initiative lane; G2 gate overrides to
+  owner:human at materialization) — a path the single-node `inception-gonogo` fixture cannot reach.
+- **Plan impact:** The external gate this task was held open for is SATISFIED (recipient
+  sha-confirmed + adopted + drove the seam-slice green). T-208 completes.
+- **Triggered:** New AEF proposal (offset 78) — "your compile→promote→create integration test
+  from the 832 side" against the contract pinned in AEF `tests/unit/bpmn_promote_e2e.bats`.
+  Per G-020 this is a PROPOSAL, not a build instruction; captured as a separate task for
+  scope assessment (T-559 symmetric boundary means it is a 832-side producer-contract test,
+  not a live e2e). PL added: a joint fixture with an owner-bearing node per authority lane
+  surfaces real cross-repo gate defects the single-node fixture cannot reach.
+
 ## Decisions
 
 ### 2026-07-19 — which bytes to pin as the canonical joint fixture
@@ -205,3 +232,6 @@ test "$(sha256sum tests/fixtures/aef-bpmn/two-lane-joint.bpmn | cut -d' ' -f1)" 
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-208-author--pin--send-two-lane-joint-promote.md
 - **Context:** Initial task creation
+
+### 2026-07-19T15:42:48Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

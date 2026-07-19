@@ -1,0 +1,129 @@
+# ============================================================================
+# EPISODIC MEMORY - T-208: Author + pin + send two-lane joint promote fixture to AEF
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-19T15:42:52Z
+# ============================================================================
+
+task_id: T-208
+task_name: "Author + pin + send two-lane joint promote fixture to AEF"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-19T08:55:16Z
+completed: 2026-07-19T15:42:48Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-19T11:03:40+02:00
+last_commit: 2026-07-19T14:58:42+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  author + pin two-lane joint promote fixture (both-lane owner derivation). deliver two-lane fixture (durable inline + CLI); close T-207 (0.3.0 AEF-confirmed)
+
+# Key outcomes
+outcomes:
+  - 'New fixture `tests/fixtures/aef-bpmn/two-lane-joint.bpmn` authored in the canonical editor-export shape: namespaced `<aef:uid>` on every flow node AND every edge; `<aef:laneMeta authority=…>` per lane; no node-level owner override (IW-9)'
+  - 'Fixture has an owner-bearing task in BOTH lanes: `hum_1_inception` (subProcess) in the `authority="sovereignty"` lane → owner:human, and `agt_2_plan` (serviceTask) in the `authority="initiative"` lane → owner:agent'
+  - 'Fixture validates CLEAN under `tools/validate-workflow.py` (exit 0 — O-3 sovereignty + shape)'
+  - 'Fixture is a round-trip fixed point in the REAL editor (`test_roundtrip_serialization.py`: two-lane-joint.bpmn ok:true, projEqual, deterministic, 0 missing uids)'
+  - 'Manifest extraction (reuses `test_promote_contract.py` helpers) yields BOTH owner-bearing tuples — n_inception{owner:human←sovereignty, wf:inception} and n_plan{owner:agent←initiative, wf:build}; uid-totality holds; teeth verified (`tests/test_two_lane_joint_contract.py`, wired into run-bridge-tests.sh, 34/0)'
+  - 'sha256 pinned: `efb53839bfddeb44c12bf0d8e11198c4394b017f55f0e0e238eb2524271a8c92` (5491 bytes), recompute-stable'
+  - 'Fixture delivered to `aef` under a DISTINCT id AND durably inline: CLI `termlink file send` (per-process id `xfer-2296252-1784465566631`) + a durable `channel post` artifact envelope at rail offset 75 (base64 payload, `sha256=efb53839…` in metadata) — the byte-exact-handoff path preferred over MCP file_send (PL-033/PL-039). Rail notices posted (offsets 74, 76) with pin + verify request (ok:true ≠ delivered)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'deliver two-lane fixture (durable inline + CLI); close T-207 (0.3.0 AEF-confirmed)'
+    source: git-mined
+  - description: 'author + pin two-lane joint promote fixture (both-lane owner derivation)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-19 — which bytes to pin as the canonical joint fixture'
+    chose: 'Pin the hand-authored `.bpmn` file (5491 bytes, sha `efb53839…`), authored in'
+    rationale: 'The established convention IS hand-authored fixtures — `inception-gonogo.bpmn`'
+    alternatives_rejected: ['Pinning the editor''s `buildBpmnXml` output — it strips the explanatory']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-19.yaml'
+  - '.context/audits/cron/2026-07-19-1100.yaml'
+  - '.context/audits/cron/2026-07-19-1115.yaml'
+  - '.context/audits/cron/2026-07-19-1130.yaml'
+  - '.context/audits/cron/2026-07-19-1145.yaml'
+  - '.context/audits/cron/2026-07-19-1200.yaml'
+  - '.context/audits/cron/2026-07-19-1215.yaml'
+  - '.context/audits/cron/2026-07-19-1230.yaml'
+  - '.context/audits/cron/2026-07-19-1245.yaml'
+  - '.context/audits/cron/2026-07-19-1300.yaml'
+  - '.context/audits/cron/2026-07-19-1315.yaml'
+  - '.context/audits/cron/2026-07-19-1330.yaml'
+  - '.context/audits/cron/2026-07-19-1345.yaml'
+  - '.context/audits/cron/2026-07-19-1400.yaml'
+  - '.context/audits/cron/2026-07-19-1415.yaml'
+  - '.context/audits/cron/2026-07-19-1430.yaml'
+  - '.context/audits/cron/2026-07-19-1445.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/episodic/T-207.yaml'
+  - '.context/locks/T-207.lock'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-207.log'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.session-start-ts'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-176-offline-harden-the-designer-inline-or-se.md'
+  - '.tasks/active/T-197-iw-9-editor-ui-retire-node-owner-overrid.md'
+  - '.tasks/active/T-200-release-designer-with-iw-9-editor-versio.md'
+  - '.tasks/active/T-204-typed-bpmn-event-palette-errortimermessa.md'
+  - '.tasks/active/T-208-author--pin--send-two-lane-joint-promote.md'
+  - '.tasks/completed/T-191-package-and-deliver-24-map-rendered-corp.md'
+  - '.tasks/completed/T-192-author-minimal-inception-subprocess-fixt.md'
+  - '.tasks/completed/T-194-sync-forward-compile-spec-5-corpus-inven.md'
+  - '.tasks/completed/T-202-write-out-guard-designer-bpmn-export-car.md'
+  - '.tasks/completed/T-203-disposition-gate-false-positive-iw-n-cro.md'
+  - '.tasks/completed/T-207-re-deliver-designer-030-to-aef-under-fre.md'
+  - 'tests/fixtures/aef-bpmn/two-lane-joint.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_two_lane_joint_contract.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-19T11:03:40"
+    action: "T-208: author + pin two-lane joint promote fixture (both-lane owner derivation)"
+  - time: "2026-07-19T14:58:42"
+    action: "T-208: deliver two-lane fixture (durable inline + CLI); close T-207 (0.3.0 AEF-confirmed)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 407 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 407
+  commits: 2
+  files_changed: 46
+  lines_added: 3789
+  lines_removed: 239
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-208-author--pin--send-two-lane-joint-promote.md
+generated_by: context-agent-hybrid

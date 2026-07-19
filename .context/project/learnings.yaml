@@ -281,3 +281,10 @@ learnings:
   date: 2026-07-19
   context: Added via context agent
   application: TBD
+- id: PL-041
+  learning: "A joint cross-repo fixture with an owner-bearing node per AUTHORITY LANE (sovereignty+initiative) surfaces real integration defects a single-node fixture cannot reach. T-208's two-lane-joint.bpmn was the first inception node ever driven through AEF's real promote gate end-to-end — it caught a gate-refusal defect (create_via_gate had no --recommendation for inception nodes; AEF L-504/T-2549) that AEF's mocked-gate e2e never found. The value of a joint fixture is not that it passes but that it exercises derivation legs (initiative->agent) and gate paths the minimal fixture structurally cannot."
+  source: P-001
+  task: T-208
+  date: 2026-07-19
+  context: Added via context agent
+  application: TBD
