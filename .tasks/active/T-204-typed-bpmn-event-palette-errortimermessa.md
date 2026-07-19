@@ -73,8 +73,9 @@ New node types `eventError` / `eventTimer` / `eventMessage`, added at every site
 ### Agent
 
 **Slice 1 — non-boundary error / timer / message**
-- [ ] Palette gains three typed-event entries (error / timer / message). Placing one creates a BPMN event node carrying an `aef:eventDef` extension marker (`kind` ∈ `error|timer|message`) plus its AEF binding (error→`status:issues`, timer→cron/`horizon`, message→bus topic). No native `bpmn:*EventDefinition` is emitted as the primary encoding (IW-1: aef:-extension shape).
-- [ ] `buildBpmnXml(state)` serializes each typed event as `<bpmn:*Event>` + `<extensionElements><aef:eventDef …/></>`; the editor re-imports losslessly (export→import→export is stable for the eventDef fields).
+- [x] Palette gains three typed-event entries (error / timer / message). Placing one creates a BPMN event node carrying an `aef:eventDef` extension marker (`kind` ∈ `error|timer|message`) plus its AEF binding (error→`status:issues`, timer→cron/`horizon`, message→bus topic). No native `bpmn:*EventDefinition` is emitted as the primary encoding (IW-1: aef:-extension shape). <!-- step 2: palette section + dims/fields/ports/render/icons/defaultName; placement verified via Playwright (docs/reports/T-204-slice1-visual/) -->
+- [x] `buildBpmnXml(state)` serializes each typed event as `<bpmn:*Event>` + `<extensionElements><aef:eventDef …/></>`; the editor re-imports losslessly (export→import→export is stable for the eventDef fields). <!-- step 1 data path; proven by tests/test_typed_events.py (correctness+BITE) + round-trip fixed point -->
+
 - [ ] `tools/yaml-to-bpmn.py` bridge parity: `aef:eventDef` fields ride the `aef:`/`x-` passthrough channel per the T-061 contract (bare unknown still drops loudly). Existing `tests/test_bridge_aef_passthrough.py` stays green + a new assertion covers `eventDef`.
 - [ ] One mapping-standard row per typed event added on the T-081 collapsed-subProcess carrier (editor and forward-compiler agree).
 
@@ -84,7 +85,8 @@ New node types `eventError` / `eventTimer` / `eventMessage`, added at every site
 - [ ] Boundary event renders at a host-relative perimeter point (contained new branch in `renderNodes` ~2354), not at free `x/y`.
 
 **Guards (both slices)**
-- [ ] Round-trip guards T-187/T-188, export-contract T-202, and render gate `tests/test_designer_render.py` all stay green; a new test asserts the typed-event export→import→export round-trip and the `aef:eventDef` serialization.
+- [x] Round-trip guards T-187/T-188, export-contract T-202, and render gate `tests/test_designer_render.py` all stay green; a new test asserts the typed-event export→import→export round-trip and the `aef:eventDef` serialization. <!-- verified post step-2: render gate PASS, export-contract PASS, round-trip fixed point PASS, full bridge suite 34/0, test_typed_events.py PASS -->
+
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -124,7 +126,35 @@ New node types `eventError` / `eventTimer` / `eventMessage`, added at every site
   **If not:** screenshot the failing mode and note which glyph/placement is wrong.
 
 ## Visual Verification
-<!-- Screenshot references added during Slice-1/Slice-2 build per CLAUDE.md §Visual Verification for UI Changes. -->
+
+### 2026-07-19 — Slice 1 step 2 (visual surface)
+
+Served `src/aef-workflow-designer.html` over local HTTP (single-file app), drove headless
+Chrome via Playwright, placed all three typed events on a clean canvas, and READ each
+rendered screenshot. Designer is **dark-theme-only** (`:root` defines a single palette; no
+light/serif/density variants exist in this app), so the applicable visual-mode axis is
+**label size (s/m/l)** — all captured. Element-level screenshots (not full-viewport zoom-out):
+
+- `docs/reports/T-204-slice1-visual/canvas-default.png` — canvas, default label size:
+  Error = red circle + filled lightning bolt; Timer = blue circle + clock face/hands;
+  Message = green circle + envelope. All three glyphs distinct, legible, correctly coloured
+  from the theme vars (`--red`/`--blue`/`--green`). Labels + derived display IDs correct.
+- `docs/reports/T-204-slice1-visual/canvas-labelsize-s.png` — label size `s`: no glyph/label
+  collision, no regression.
+- `docs/reports/T-204-slice1-visual/canvas-labelsize-l.png` — label size `l`: labels larger,
+  still clear of glyphs and id-badges; no regression.
+- `docs/reports/T-204-slice1-visual/palette-typed-events.png` — the new **TYPED EVENTS**
+  palette section: three items (Error/on status:issues, Timer/cron·horizon, Message/on bus
+  topic), each with its distinct glyph at palette size.
+- `docs/reports/T-204-slice1-visual/full-palette-inspector.png` — full app: palette (left,
+  Typed events section disambiguated from the Start/End "Events" section), canvas (three
+  events), and inspector (right) for the selected `eventMessage` showing the envelope badge
+  icon (typeBadgeSvg) + the **EXTENSIONS · AEF: "Bus topic"** binding field — confirms
+  `AEF_FIELDS`/`FIELD_META` wired end-to-end.
+
+Symptom-free: each typed event has a distinct legible glyph; no overlap/regression vs plain
+events. (The `[REVIEW]` Human AC below still requires the human's own confirmation on the
+served release — these are the agent's own pre-commit verification per §Visual Verification.)
 
 ## Verification
 
@@ -203,6 +233,25 @@ python3 tests/test_bridge_aef_passthrough.py
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-07-19 — Slice 1 step 2 (visual surface) landed; step 3–4 remain
+
+- **What changed / built:** the visual surface mirroring `linkEvent*` at 8 sites —
+  palette section (now labelled **"Typed events"**), `NODE_DEFAULTS` dims (36×36),
+  `AEF_FIELDS` binding fields, `FIELD_META` (errorStatus/timerSpec/busTopic labels+hints),
+  `NODE_IO`, on-canvas render branch (circle + kind glyph: lightning/clock/envelope,
+  coloured `--red`/`--blue`/`--green`), below-label placement (`startsWith('event')` added
+  to `ly` + the three isBelow predicates), `typeBadgeSvg` inspector icons, and `defaultName`.
+  All guards stayed green; Playwright visual verification passed in every applicable mode
+  (see `## Visual Verification`).
+- **Plan impact:** none new — the anchor map held. Two small choices locked (see Decisions):
+  NODE_IO for typed events is `{in:false,out:false}` (trigger nodes, no typed-data panel;
+  the eventDef binding IS the content); palette label disambiguated to "Typed events" so it
+  doesn't collide with the existing Start/End "Events" section header.
+- **Remaining:** step 3 = bridge parity in `tools/yaml-to-bpmn.py` (decision #2 still open:
+  `aef.eventDef` as known vocabulary vs `x-` passthrough — resolve by reading the bridge
+  first) + mapping-standard rows (AC3, AC4); step 4 = human ticks the `[REVIEW]` AC on the
+  served release. Slice 2 (boundary variants) after Slice 1 closes.
+
 ### 2026-07-19 — Slice 1 step 1 (data path) landed; steps 2–4 remain
 
 - **What changed / locked at build time:**
@@ -239,6 +288,16 @@ python3 tests/test_bridge_aef_passthrough.py
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-07-19 — NODE_IO for typed events
+- **Chose:** `eventError/eventTimer/eventMessage` → `{ in: false, out: false }` (no typed-data I/O panel in the inspector).
+- **Why:** typed intermediate events are trigger/signal nodes — their semantic content is the `aef:eventDef` binding (status:issues / cron / bus topic), not a typed data contract flowing between steps. Sequence-flow in/out is handled by the edge machinery independent of `NODE_IO` (which only gates the I/O panel, per its single consumer at renderProperties). Adding an I/O list would create untested round-trip surface for no modelling gain.
+- **Rejected:** mirroring `linkEventCatch {in:false,out:true}` — would offer an Outputs list implying the event carries a typed payload into the flow; not true for these framework-trigger events, and would need its own round-trip coverage.
+
+### 2026-07-19 — Palette section label "Typed events"
+- **Chose:** label the new palette section **"Typed events"** (not "Events").
+- **Why:** the palette already has an "Events" section (Start/End). Two sections both rendering as uppercased "EVENTS" is confusing (caught in visual verification). "Typed events" matches the task/feature vocabulary and disambiguates.
+- **Rejected:** "Events" (collision); "Intermediate events" (accurate but longer and leaks BPMN jargon the rest of the palette avoids).
 
 ## Decision
 
