@@ -130,6 +130,18 @@ else
 fi
 
 echo
+echo "== typed-event fixture contract: sha-pin + shape (T-212, browser-independent) =="
+# Byte-pin + aef:-extension shape guard for the shared typed-event/boundary fixtures AEF
+# cross-validates against (rail 88/89). Pure Python — runs even when test_typed_events.py
+# skips for lack of chromium, so the shared byte contract is never silently unguarded.
+if python3 "$ROOT/tests/test_typed_event_fixture_contract.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "typed-event fixture drifted from the pinned source_bpmn_sha or aef:eventDef shape (fixture edited? re-pin + notify AEF)"
+  fail=$((fail + 1))
+fi
+
+echo
 # Corpus geometry sweep (T-052): every authored map's nodes must sit inside their
 # lane bands, modulo the exact legacy allowlist. Guards against new maps silently
 # straddling bands — the G-019 blindness found in T-050.
