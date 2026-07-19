@@ -142,6 +142,19 @@ else
 fi
 
 echo
+echo "== pair-draft corpus fixture pins: sha + validator-clean (T-216, browser-independent) =="
+# Byte-pin + validator-clean guard for the pair-draft diagrams AEF cross-holds byte-exact
+# (session-handover rail 92; dispatch-loop rail 99+101). Pure Python — no editor harness
+# covers these hand-authored dialect exemplars, so without this a silent edit breaks AEF's
+# cross-validation with no local signal (the drift class T-212 closed, extended to pair-drafts).
+if python3 "$ROOT/tests/test_corpus_fixture_pins.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "pair-draft corpus fixture drifted from its pinned source_bpmn_sha or stopped validating clean (fixture edited? re-pin + notify AEF)"
+  fail=$((fail + 1))
+fi
+
+echo
 # Corpus geometry sweep (T-052): every authored map's nodes must sit inside their
 # lane bands, modulo the exact legacy allowlist. Guards against new maps silently
 # straddling bands — the G-019 blindness found in T-050.
