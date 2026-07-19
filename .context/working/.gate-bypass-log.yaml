@@ -769,3 +769,9 @@ AEF (rail 77-'
   command: 'cd /opt/832-Workflow-designer
 git add .context/project/learnings.yaml 2>/dev/null
 FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-210: capture PL-042 — recurring AC/comment-strip fragil'
+- timestamp: '2026-07-19T20:47:36Z'
+  task: 'T-155'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-213'
+  command: 'cd /opt/832-Workflow-designer; git add .tasks/active/T-213-disposition-aefworkflowmeta-diagram-kind.md .context/working/ 2>&1 | tail -1; FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-21'
