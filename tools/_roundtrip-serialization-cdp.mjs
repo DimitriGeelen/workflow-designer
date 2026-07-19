@@ -96,7 +96,11 @@ const ROUNDTRIP_EXPR = `(function(){
   var METAKEYS = ['tier','agentType','decisionOwner','triggeredBy','terminalKind','state','note',
     'softFail','section','guard','external','exitCode','autoTrigger','trigger','gatewayKind',
     'gate','scopeOf','horizon','workflowType','owner',
-    'errorStatus','timerSpec','busTopic'];
+    'errorStatus','timerSpec','busTopic',
+    // T-204 Slice 2: boundary attachment is governance-bearing — hostRef (the resolved
+    // host uid) and interrupting (cancelActivity) must survive the fixed point. boundaryPos
+    // is presentational (like position/waypoints) and is deliberately NOT projected.
+    'hostRef','interrupting'];
   function proj(m){
     if(!m) return null;
     var laneAuth = {}; (m.lanes||[]).forEach(function(l){ laneAuth[l.id]=l.authority; });

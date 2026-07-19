@@ -25,6 +25,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
 const SERVER = join(HERE, 'gallery-serve.py');
 const FIXTURE = join(REPO, 'tests', 'fixtures', 'aef-bpmn', 'typed-events.bpmn');
+const BFIXTURE = join(REPO, 'tests', 'fixtures', 'aef-bpmn', 'boundary-events.bpmn');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
@@ -72,9 +73,60 @@ const ASSERT_EXPR = `(function(){
   } catch(e) { return { ok:false, errs:['exception: '+(e&&e.message||e)] }; }
 })()`;
 
+// T-204 Slice 2 correctness guard for the BOUNDARY form. The round-trip harness proves
+// a semantic fixed point but cannot prove the emitted TAG is literally bpmn:boundaryEvent
+// (a wrong-but-consistent intermediateCatchEvent+attachedToRef would also be a fixed point
+// once hostRef is projected). This asserts, IN THE REAL EDITOR:
+//   * parse resolves attachedToRef → aef.hostRef (the host uid) + cancelActivity → interrupting;
+//   * build re-emits <bpmn:boundaryEvent attachedToRef=<hostDisplayId> cancelActivity=…>,
+//     the host itself stays a serviceTask, and both cancelActivity values appear;
+//   * BITE: strip attachedToRef and the same node loses its hostRef — attachment is driven
+//     by the native attribute, not by the boundaryEvent tag.
+const BOUNDARY_ASSERT_EXPR = `(function(){
+  var text = window.__BFIXTURE__;
+  var errs = [];
+  var wantB = {
+    n_berr: { type:'eventError', interrupting:'true'  },
+    n_btmr: { type:'eventTimer', interrupting:'false' }
+  };
+  try {
+    var m = parseBpmnXml(text);
+    if(!m) return { ok:false, errs:['parse-null'] };
+    var byUid = {}; m.nodes.forEach(function(n){ byUid[n.uid]=n; });
+    var host = byUid['n_host'];
+    if(!host){ errs.push('missing host n_host'); return { ok:false, errs:errs }; }
+    for (var uid in wantB) {
+      var n = byUid[uid];
+      if(!n){ errs.push('missing boundary node '+uid); continue; }
+      var aef = n.aef||{};
+      if(n.type !== wantB[uid].type) errs.push(uid+' type '+n.type+' != '+wantB[uid].type);
+      if(aef.hostRef !== 'n_host') errs.push(uid+' hostRef='+JSON.stringify(aef.hostRef)+' != "n_host"');
+      if(aef.interrupting !== wantB[uid].interrupting) errs.push(uid+' interrupting='+JSON.stringify(aef.interrupting)+' != '+wantB[uid].interrupting);
+    }
+    state = m; refreshDisplayIds();
+    var hostDid = displayIdOf(host);
+    var emit = buildBpmnXml(state);
+    if(emit.indexOf('<bpmn:serviceTask id="'+hostDid+'"') < 0) errs.push('host not emitted as <bpmn:serviceTask id="'+hostDid+'">');
+    var nb = (emit.match(/<bpmn:boundaryEvent /g)||[]).length;
+    if(nb !== 2) errs.push('expected 2 <bpmn:boundaryEvent>, got '+nb);
+    if(emit.indexOf('attachedToRef="'+hostDid+'"') < 0) errs.push('no boundary event attachedToRef the host displayId '+hostDid);
+    if(emit.indexOf('cancelActivity="true"') < 0) errs.push('missing cancelActivity="true" (interrupting)');
+    if(emit.indexOf('cancelActivity="false"') < 0) errs.push('missing cancelActivity="false" (non-interrupting)');
+    // BITE: strip the native attachment → the same node must lose its hostRef.
+    var stripped = text.replace(/ attachedToRef="[^"]*"/g, '').replace(/ cancelActivity="[^"]*"/g, '');
+    var m2 = parseBpmnXml(stripped);
+    var probe = m2 ? m2.nodes.filter(function(n){return n.uid==='n_berr';})[0] : null;
+    var biteOk = !!probe && !((probe.aef||{}).hostRef);
+    if(!biteOk) errs.push('BITE FAIL: n_berr without attachedToRef still had hostRef '+(probe&&probe.aef?probe.aef.hostRef:'<none>'));
+    return { ok: errs.length===0, errs:errs, biteOk:biteOk };
+  } catch(e) { return { ok:false, errs:['exception: '+(e&&e.message||e)] }; }
+})()`;
+
 async function main() {
   if (!existsSync(FIXTURE)) { process.stdout.write(JSON.stringify({ ok:false, error:'fixture missing: '+FIXTURE })+'\n'); process.exitCode = 2; return; }
+  if (!existsSync(BFIXTURE)) { process.stdout.write(JSON.stringify({ ok:false, error:'fixture missing: '+BFIXTURE })+'\n'); process.exitCode = 2; return; }
   const text = readFileSync(FIXTURE, 'utf8');
+  const btext = readFileSync(BFIXTURE, 'utf8');
   const doc = mkdtempSync(join(tmpdir(), 'te-doc-'));
   const repo = mkdtempSync(join(tmpdir(), 'te-repo-'));
   copyFileSync(join(REPO, 'src/aef-workflow-designer.html'), join(doc, 'designer.html'));
@@ -99,8 +151,11 @@ async function main() {
     await waitReady(cmd); await sleep(300);
     await ev(cmd, `window.__FIXTURE__ = ${JSON.stringify(text)};`);
     const r = await ev(cmd, ASSERT_EXPR);
-    process.stdout.write(JSON.stringify(r, null, 2) + '\n');
-    process.exitCode = r && r.ok ? 0 : 1;
+    await ev(cmd, `window.__BFIXTURE__ = ${JSON.stringify(btext)};`);
+    const rb = await ev(cmd, BOUNDARY_ASSERT_EXPR);
+    const out = { ok: !!(r && r.ok && rb && rb.ok), typed: r, boundary: rb };
+    process.stdout.write(JSON.stringify(out, null, 2) + '\n');
+    process.exitCode = out.ok ? 0 : 1;
   } catch (e) {
     process.stdout.write(JSON.stringify({ ok: false, error: String(e && e.stack || e) }, null, 2) + '\n');
     process.exitCode = 1;

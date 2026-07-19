@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T19:42:25Z
-last_update: 2026-07-19T14:15:50Z
+last_update: 2026-07-19T15:39:50Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -81,7 +81,11 @@ New node types `eventError` / `eventTimer` / `eventMessage`, added at every site
 
 
 **Slice 2 — boundary variants**
-- [ ] A typed event attaches to a host node's boundary via an additive `aef` field set (`hostRef` uid + `boundaryPos` + `interrupting`), serialized as `<bpmn:boundaryEvent attachedToRef=…>` + `aef:eventDef`, round-tripping losslessly (reuses the `aef:scopeOf`/`aef:constituents` node→node ref precedent, T-081).
+- [x] A typed event attaches to a host node's boundary via an additive `aef` field set (`hostRef` uid + `boundaryPos` + `interrupting`), serialized as `<bpmn:boundaryEvent attachedToRef=…>` + `aef:eventDef`, round-tripping losslessly (reuses the `aef:scopeOf`/`aef:constituents` node→node ref precedent, T-081). <!-- step 1 data path: export tag/attrs (boundaryEvent + attachedToRef + cancelActivity) + boundaryPos presentational element + inspector fields (hostRef/boundaryPos/interrupting) + import (nodeTags + attachedToRef→hostRef post-pass resolution). Proven by boundary-events.bpmn round-trip (7 nodes, byte-idempotent, hostRef/interrupting teeth in proj) + boundary correctness+BITE in _typed-events-cdp.mjs (real boundaryEvent tag + both cancelActivity values). -->
+<!-- step 1 also gives an authoring surface (inspector text/select fields) so a boundary event is human-authorable before the drag UX in step 3. -->
+
+<!-- Remaining Slice-2 sub-parts (host-follow drag, boundary-origin ports, host-relative render) below are steps 2-3. -->
+
 - [ ] Host-follow: moving a host moves its boundary events (reuses `groupDrag` ~5493); a boundary-origin edge anchors via the T-168 port machinery.
 - [ ] Boundary event renders at a host-relative perimeter point (contained new branch in `renderNodes` ~2354), not at free `x/y`.
 
@@ -233,6 +237,38 @@ python3 tests/test_bridge_aef_passthrough.py
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-07-19 — Slice 2 step 1 (boundary data path) landed; render + interaction remain
+
+- **What changed / built:** the boundary-event *data path* — additive and byte-stable.
+  A typed event (`eventError`/`eventTimer`/`eventMessage`) carrying `aef.hostRef` becomes a
+  native `<bpmn:boundaryEvent attachedToRef=<host displayId> cancelActivity=<interrupting>>`;
+  the kind still rides `<aef:eventDef>`. Import adds `boundaryEvent` to `nodeTags`, reads the
+  native `attachedToRef`/`cancelActivity`, and resolves `attachedToRef` (a displayId) back to
+  the host **uid** in a post-loop pass (`_hostDisplayId` → `hostRef`), so file order is
+  irrelevant. Inspector gains `hostRef`/`boundaryPos`/`interrupting` fields (authoring surface
+  before the drag UX). New `tests/fixtures/aef-bpmn/boundary-events.bpmn` (host + interrupting
+  error + non-interrupting timer) round-trips byte-identical (4836==4836); round-trip proj
+  gained `hostRef`+`interrupting` teeth; `_typed-events-cdp.mjs` gained a boundary correctness
+  assertion (real `boundaryEvent` tag, both `cancelActivity` values, host stays serviceTask) +
+  a BITE (strip `attachedToRef` ⇒ `hostRef` gone — attachment is attribute-driven, not tag-driven).
+- **Field taxonomy decision (v1 §1):** `hostRef` + `interrupting` are **semantic** (attachment +
+  cancelActivity change execution) → carried on native BPMN attributes, projected in the fixed
+  point. `boundaryPos` is **presentational** (where the badge sits on the perimeter) → its own
+  `<aef:boundaryPos>` element like `aef:position`, excluded from the projection. This deliberately
+  keeps `boundaryPos` OFF the `aef:meta` channel, so the editor↔bridge meta-parity invariant
+  (`metaKeys ⊆ META_KEYS`) is untouched — no bridge change is forced by Slice-2 step 1.
+- **Bridge/mapping deferred (flagged):** `tools/yaml-to-bpmn.py` still emits the in-flow
+  `intermediateCatchEvent` for typed events; it does not yet emit `boundaryEvent`/`attachedToRef`.
+  The Slice-2 ACs are editor-scoped (attach/serialize/round-trip via the editor's own
+  parse/build, host-follow, host-relative render) and do not require the forward-compile bridge.
+  Bridge boundary parity + a mapping-standard row are a **separate follow-up** (candidate task)
+  if/when the forward-compiler needs to author boundary events — captured here so the divergence
+  is logged, not lost.
+- **Remaining (steps 2-3):** host-relative perimeter render branch in `renderNodes` (~2354);
+  host-follow drag via `groupDrag` (~5493, ~6624) so moving a host moves its boundary events;
+  boundary-origin edges via the T-168 port machinery; then Playwright visual verification of the
+  boundary glyph on the host perimeter (Human `[REVIEW]` AC). Do NOT set work-completed.
 
 ### 2026-07-19 — Slice 1 step 3 (bridge parity + mapping rows) landed; Slice 1 agent-complete
 

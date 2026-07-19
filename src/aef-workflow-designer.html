@@ -1686,9 +1686,12 @@ const AEF_FIELDS = {
   linkEventCatch: ['targetWorkflow', 'linkId'],
   // T-204 Slice 1: one kind-specific binding field per typed event (single source
   // of truth is EVENT_BINDING_FIELD, mirrored here for the inspector panel).
-  eventError:   ['errorStatus'],
-  eventTimer:   ['timerSpec'],
-  eventMessage: ['busTopic'],
+  // T-204 Slice 2: additive boundary-attachment fields (hostRef/boundaryPos/
+  // interrupting) — an empty hostRef leaves the event in-flow; setting it makes the
+  // event a bpmn:boundaryEvent on that host (per the T-081 scopeOf node→node precedent).
+  eventError:   ['errorStatus', 'hostRef', 'boundaryPos', 'interrupting'],
+  eventTimer:   ['timerSpec', 'hostRef', 'boundaryPos', 'interrupting'],
+  eventMessage: ['busTopic', 'hostRef', 'boundaryPos', 'interrupting'],
   subProcess:   ['horizon', 'workflowType', 'tier', 'endpoint', 'contextReads', 'artifactsWrites', 'scopeOf'],
 };
 
@@ -1722,6 +1725,12 @@ const FIELD_META = {
   errorStatus:    { label: 'On status',        hint: 'framework status, e.g. issues', textarea: false },
   timerSpec:      { label: 'Timer',            hint: 'cron expr or horizon (now/next/later)', textarea: false },
   busTopic:       { label: 'Bus topic',        hint: 'termlink bus topic to listen on', textarea: false },
+  // T-204 Slice 2: boundary-event attachment. hostRef makes a typed event a
+  // bpmn:boundaryEvent attachedToRef=<host>; interrupting → native cancelActivity;
+  // boundaryPos is a presentational perimeter fraction (rides its own aef element).
+  hostRef:        { label: 'Attached to (host)', hint: 'uid of the host node — set to make this a boundary event', textarea: false },
+  boundaryPos:    { label: 'Boundary position',  hint: 'perimeter fraction 0..1 (clockwise from top-left)', textarea: false },
+  interrupting:   { label: 'Interrupting',       hint: 'cancel the host on fire?', special: 'select', options: ['', 'true', 'false'] },
   // T-081: FC-15 boundary marker — this subProcess is the collapsed scope of another node.
   scopeOf:        { label: 'Scope of',        hint: 'uid of the node this is the collapsed body of', textarea: false },
   // T-177: the three core task-governance fields, expressible on task-like nodes so
@@ -8070,6 +8079,13 @@ function aefExtensionXml(node) {
     const binding = bindField ? (aef[bindField] || '') : '';
     out += `        <aef:eventDef kind="${escAttr(EVENT_KIND[node.type])}" binding="${escAttr(binding)}"/>\n`;
   }
+  // T-204 Slice 2: boundary perimeter position — presentational layout hint (v1 §1
+  // presentational class, like aef:position). The host attachment + interrupting flag
+  // ride the native bpmn:boundaryEvent attachedToRef / cancelActivity attributes
+  // (see buildBpmnXml); only this cosmetic fraction needs its own aef element.
+  if (aef.boundaryPos != null && aef.boundaryPos !== '') {
+    out += `        <aef:boundaryPos value="${escAttr(aef.boundaryPos)}"/>\n`;
+  }
 
   // I/O data contract
   if (inputs.length || outputs.length) {
@@ -8175,13 +8191,27 @@ function buildBpmnXml(s) {
 
   // nodes
   for (const n of s.nodes) {
-    const tag = TYPE_TAG[n.type];
+    let tag = TYPE_TAG[n.type];
+    // T-204 Slice 2: a typed event carrying a host reference is a boundary event —
+    // native bpmn:boundaryEvent attachedToRef=<host displayId> + cancelActivity. The
+    // kind still rides <aef:eventDef>; only the tag + attachment differ from the
+    // in-flow form. hostRef stores the host uid (resolved to its displayId here). A
+    // dangling hostRef (host deleted) degrades to the plain in-flow tag.
+    let boundaryAttrs = '';
+    if (EVENT_KIND[n.type] && n.aef && n.aef.hostRef) {
+      const host = findNode(n.aef.hostRef);
+      if (host) {
+        tag = 'boundaryEvent';
+        const interrupting = n.aef.interrupting !== 'false';
+        boundaryAttrs = ` attachedToRef="${escAttr(displayIdOf(host))}" cancelActivity="${interrupting}"`;
+      }
+    }
     const nodeDisplayId = displayIdOf(n);
     // For incoming/outgoing references, use the *edge* displayIds (which look like flow_N).
     const incoming = s.edges.filter(e => e.target === n.id).map(e => `      <bpmn:incoming>${displayIdOf(e)}</bpmn:incoming>`).join('\n');
     const outgoing = s.edges.filter(e => e.source === n.id).map(e => `      <bpmn:outgoing>${displayIdOf(e)}</bpmn:outgoing>`).join('\n');
     lines.push(``);
-    lines.push(`    <bpmn:${tag} id="${escAttr(nodeDisplayId)}" name="${escAttr(n.name)}">`);
+    lines.push(`    <bpmn:${tag} id="${escAttr(nodeDisplayId)}" name="${escAttr(n.name)}"${boundaryAttrs}>`);
     const aefBlock = aefExtensionXml(n);
     if (aefBlock) lines.push(aefBlock.trimEnd());
     if (incoming) lines.push(incoming);
@@ -8317,7 +8347,7 @@ function parseBpmnXml(text) {
 
   const nodeTags = ['startEvent', 'endEvent', 'serviceTask', 'userTask', 'scriptTask',
                     'exclusiveGateway', 'parallelGateway', 'intermediateThrowEvent', 'intermediateCatchEvent',
-                    'subProcess'];
+                    'boundaryEvent', 'subProcess'];
   for (const tag of nodeTags) {
     for (const el of byBpmn(proc, tag)) {
       const displayId = el.getAttribute('id') || '';
@@ -8382,6 +8412,17 @@ function parseBpmnXml(text) {
           if (bindField) aef[bindField] = eventDefEl.getAttribute('binding') || '';
         }
       }
+      // T-204 Slice 2: boundary event — the native attachedToRef (host displayId) is
+      // resolved to a host uid in a post-pass below (the host may appear after its
+      // boundary event in the file); cancelActivity carries the interrupting flag;
+      // aef:boundaryPos is the presentational perimeter fraction.
+      const attachedTo = el.getAttribute('attachedToRef');
+      if (attachedTo) {
+        aef._hostDisplayId = attachedTo;
+        aef.interrupting = el.getAttribute('cancelActivity') === 'false' ? 'false' : 'true';
+      }
+      const bposEl = byAef(el, 'boundaryPos')[0];
+      if (bposEl) aef.boundaryPos = bposEl.getAttribute('value') || '';
 
       // I/O
       const io = { inputs: [], outputs: [] };
@@ -8445,6 +8486,17 @@ function parseBpmnXml(text) {
         aef, io,
       });
       displayIdToUid.set(displayId, uid);
+    }
+  }
+
+  // T-204 Slice 2: resolve boundary-event host references (attachedToRef displayId →
+  // host uid) now that every node's displayId is known. A dangling reference (host
+  // absent) simply drops — the event falls back to its in-flow form on re-export.
+  for (const n of nodes) {
+    if (n.aef && n.aef._hostDisplayId) {
+      const hostUid = displayIdToUid.get(n.aef._hostDisplayId);
+      if (hostUid) n.aef.hostRef = hostUid;
+      delete n.aef._hostDisplayId;
     }
   }
 
