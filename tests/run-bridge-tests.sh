@@ -112,6 +112,15 @@ else
 fi
 
 echo
+echo "== two-lane joint promote fixture contract (T-208) =="
+if python3 "$ROOT/tests/test_two_lane_joint_contract.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "two-lane joint fixture drifted from the promote contract (uid / both-lane owner derivation / manifest-tuple / source_bpmn_sha)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== typed intermediate events: correctness + bite (T-204) =="
 if python3 "$ROOT/tests/test_typed_events.py"; then
   pass=$((pass + 1))
