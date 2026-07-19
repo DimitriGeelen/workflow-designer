@@ -90,6 +90,7 @@ approval is a separate sovereignty gate).
 | subProcess | Arc or composite task | `aef:constituents` = members; collapsed = child arc |
 | startEvent / endEvent | Process boundary markers | no task |
 | linkEventThrow / Catch | Cross-process reference / dependency | `related_tasks` |
+| intermediateCatchEvent (error / timer / message via `aef:eventDef kind=..`) | Trigger annotation on the flow (no task itself) | kind lives in the extension, never the tag; binding via `aef:eventDef binding=..` — error→`status:issues`, timer→cron/`horizon`, message→bus topic (T-204) |
 | sequence flow (edge) | Ordering dependency | A→B ⇒ B depends on A |
 | node documentation / annotation | Acceptance-criteria seed | ACs enriched by the agent (IW-3) |
 

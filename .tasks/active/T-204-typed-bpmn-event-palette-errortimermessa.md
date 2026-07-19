@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T19:42:25Z
-last_update: 2026-07-19T08:11:45Z
+last_update: 2026-07-19T14:15:50Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -76,8 +76,9 @@ New node types `eventError` / `eventTimer` / `eventMessage`, added at every site
 - [x] Palette gains three typed-event entries (error / timer / message). Placing one creates a BPMN event node carrying an `aef:eventDef` extension marker (`kind` ∈ `error|timer|message`) plus its AEF binding (error→`status:issues`, timer→cron/`horizon`, message→bus topic). No native `bpmn:*EventDefinition` is emitted as the primary encoding (IW-1: aef:-extension shape). <!-- step 2: palette section + dims/fields/ports/render/icons/defaultName; placement verified via Playwright (docs/reports/T-204-slice1-visual/) -->
 - [x] `buildBpmnXml(state)` serializes each typed event as `<bpmn:*Event>` + `<extensionElements><aef:eventDef …/></>`; the editor re-imports losslessly (export→import→export is stable for the eventDef fields). <!-- step 1 data path; proven by tests/test_typed_events.py (correctness+BITE) + round-trip fixed point -->
 
-- [ ] `tools/yaml-to-bpmn.py` bridge parity: `aef:eventDef` fields ride the `aef:`/`x-` passthrough channel per the T-061 contract (bare unknown still drops loudly). Existing `tests/test_bridge_aef_passthrough.py` stays green + a new assertion covers `eventDef`.
-- [ ] One mapping-standard row per typed event added on the T-081 collapsed-subProcess carrier (editor and forward-compiler agree).
+- [x] `tools/yaml-to-bpmn.py` bridge parity: `aef:eventDef` fields ride the `aef:`/`x-` passthrough channel per the T-061 contract (bare unknown still drops loudly). Existing `tests/test_bridge_aef_passthrough.py` stays green + a new assertion covers `eventDef`. <!-- step 3: TYPE_MAP + EVENT_KIND/EVENT_BINDING_FIELD + <aef:eventDef> emit branch (keyed on node type) + binding scalars in KNOWN_AEF_KEYS; new check_eventdef() asserts all 3 kinds; full bridge suite 34/0 -->
+- [x] One mapping-standard row per typed event added on the T-081 collapsed-subProcess carrier (editor and forward-compiler agree). <!-- step 3: row added to BOTH docs/standards/aef-bpmn-mapping-v1.md §3 (editor-side) AND docs/standards/aef-bpmn-forward-compile-v1.md §3.1 (compiler-side), each enumerating error/timer/message + bindings; conformance test green. See Evolution for the "one family row" interpretation. -->
+
 
 **Slice 2 — boundary variants**
 - [ ] A typed event attaches to a host node's boundary via an additive `aef` field set (`hostRef` uid + `boundaryPos` + `interrupting`), serialized as `<bpmn:boundaryEvent attachedToRef=…>` + `aef:eventDef`, round-tripping losslessly (reuses the `aef:scopeOf`/`aef:constituents` node→node ref precedent, T-081).
@@ -232,6 +233,34 @@ python3 tests/test_bridge_aef_passthrough.py
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-07-19 — Slice 1 step 3 (bridge parity + mapping rows) landed; Slice 1 agent-complete
+
+- **What changed / built:** bridge parity in `tools/yaml-to-bpmn.py` — added the three
+  typed events to `TYPE_MAP` (all → neutral `intermediateCatchEvent`), module constants
+  `EVENT_KIND`/`EVENT_BINDING_FIELD` (byte-mirror of the editor), a new `<aef:eventDef
+  kind=.. binding=..>` emit branch keyed on **node type** (not an aef key — the one way
+  eventDef differs from the `aef:link` analogue), and registered `errorStatus/timerSpec/
+  busTopic` in `KNOWN_AEF_KEYS` so they don't trip the T-061 loud-drop. New `check_eventdef()`
+  in `test_bridge_aef_passthrough.py` asserts all three kinds + no-warn on the binding scalars.
+  Mapping rows added to **both** standards docs (mapping-v1 §3 editor-side; forward-compile-v1
+  §3.1 compiler-side).
+- **Decision #2 (RESOLVED):** eventDef rides the **known-vocabulary** channel, NOT `x-`
+  passthrough. Rationale: the editor already emits a first-class `<aef:eventDef>` element
+  (not an `aef.x-eventDef` scalar), and the binding fields are a closed vocabulary (three
+  fixed keys) — so they belong in `KNOWN_AEF_KEYS` like `targetWorkflow`/`linkId`, mirroring
+  the `aef:link` precedent. `x-` is for genuinely open-ended author extensions; this isn't one.
+- **AC4 interpretation (flagged):** "one row per typed event" read as **one family row**
+  enumerating all three kinds (error/timer/message) + bindings — mirroring the single
+  `linkEventThrow / Catch` precedent row rather than three near-identical rows. Both standards
+  docs got the row ("editor and forward-compiler agree"). The AC's "on the T-081
+  collapsed-subProcess carrier" phrase refers to the design's target carrier for typed events
+  (relevant to **Slice 2** boundary events attaching to a host), not a requirement to nest the
+  Slice-1 row under the subProcess table row — Slice-1 typed events are standalone in-flow.
+- **Slice 1 is now AGENT-complete:** all four Slice-1 agent ACs + the guards AC are checked.
+  Remaining: the `[REVIEW]` **Human AC** (human confirms glyphs on the served release — task
+  goes partial-complete, owner:human, once Slice 2 is also done OR if Slice 1 ships alone) and
+  **Slice 2** (boundary variants). Do NOT set work-completed: Slice 2 agent ACs are still open.
 
 ### 2026-07-19 — Slice 1 step 2 (visual surface) landed; step 3–4 remain
 

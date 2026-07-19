@@ -61,6 +61,7 @@ enrichment (ACs, refined descriptions) is a separate AEF pass over the proposal.
 | `bpmn:parallelGateway` | Fan-out (fork = independent tasks) / fan-in (join = barrier) | forked branches carry no ordering dependency between siblings. |
 | `bpmn:subProcess` | Arc or composite task | `aef:constituents` = members; nested flow nodes compile as child tasks. |
 | `bpmn:startEvent` / `bpmn:endEvent` | Process boundary markers | **no task.** `endEvent` `aef:meta terminalKind` records the terminal semantics; `aef:meta emits` records an event. |
+| `bpmn:intermediateCatchEvent` (+ `aef:eventDef kind=..`) | Trigger annotation on the flow | **no task itself.** `kind` (error/timer/message) comes from `aef:eventDef`, never the tag; `binding` records the trigger — error→`status:issues`, timer→cron/`horizon`, message→bus topic (T-204). |
 | `bpmn:sequenceFlow` A→B | Ordering dependency | **B depends_on A.** |
 | node `documentation` / annotation | Acceptance-criteria seed | filled by the AEF enrichment step (v1 Part II — AC-seeding is provisional). |
 

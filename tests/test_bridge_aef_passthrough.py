@@ -50,6 +50,23 @@ edges: []
 """
 
 
+# T-204: typed intermediate events. The bridge must emit <aef:eventDef kind=.. binding=..>
+# — kind derived from the node TYPE, binding from the kind-specific aef scalar
+# (errorStatus/timerSpec/busTopic) — byte-mirroring the editor's aefExtensionXml. The
+# binding scalars are KNOWN keys, so they must NOT trip the loud-drop WARN.
+EVENTDEF_YAML = """\
+workflowMeta: {id: t204, version: 1, schemaVersion: 2}
+pool: {id: P, name: t204}
+lanes:
+  - {id: L, name: L, abbr: l, authority: none, height: 120}
+nodes:
+  - {uid: e1, type: eventError,   name: err, slug: err, lane: L, x: 100, y: 80,  aef: {errorStatus: issues}}
+  - {uid: e2, type: eventTimer,   name: tmr, slug: tmr, lane: L, x: 220, y: 80,  aef: {timerSpec: 'cron:@daily'}}
+  - {uid: e3, type: eventMessage, name: msg, slug: msg, lane: L, x: 340, y: 80,  aef: {busTopic: bus.topic.x}}
+edges: []
+"""
+
+
 def run_bridge(yaml_text):
     """Run the bridge on yaml_text; return (stdout, stderr, returncode)."""
     with tempfile.NamedTemporaryFile("w", suffix=".workflow.yaml", delete=False) as fh:
@@ -93,9 +110,39 @@ def check():
     return fails
 
 
+def check_eventdef():
+    """T-204: typed-event eventDef bridge parity. Return list of failure strings."""
+    fails = []
+    out, err, rc = run_bridge(EVENTDEF_YAML)
+
+    if rc != 0:
+        fails.append("bridge exited %d on typed-event YAML (expected 0)\n%s" % (rc, err))
+        return fails
+
+    # 1. eventDef emitted per kind, kind from node type + binding from the aef scalar.
+    for kind, binding in (("error", "issues"),
+                          ("timer", "cron:@daily"),
+                          ("message", "bus.topic.x")):
+        needle = '<aef:eventDef kind="%s" binding="%s"/>' % (kind, binding)
+        if needle not in out:
+            fails.append("eventDef parity: missing %r in bridge output" % needle)
+
+    # 2. the binding scalars are KNOWN keys — they must NOT trip the loud-drop WARN.
+    for scalar in ("errorStatus", "timerSpec", "busTopic"):
+        if "unknown aef key '%s'" % scalar in err:
+            fails.append("binding scalar %r wrongly reported unknown (must be KNOWN, "
+                         "consumed by eventDef)" % scalar)
+
+    # 3. the neutral tag is used (kind lives in the extension, never the tag).
+    if "intermediateCatchEvent" not in out:
+        fails.append("typed events did not map to the neutral intermediateCatchEvent tag")
+
+    return fails
+
+
 def main():
     try:
-        fails = check()
+        fails = check() + check_eventdef()
     except Exception as exc:  # harness failure, not a contract result
         sys.stderr.write("HARNESS ERROR: %s\n" % exc)
         return 2
@@ -105,6 +152,8 @@ def main():
             sys.stderr.write("  - %s\n" % f)
         return 1
     print("OK: aef.x-* passes through; bare unknown keys warn+drop (non-fatal); known keys intact")
+    print("OK: typed-event <aef:eventDef kind=.. binding=..> parity (error/timer/message); "
+          "binding scalars KNOWN (no loud-drop)")
     return 0
 
 

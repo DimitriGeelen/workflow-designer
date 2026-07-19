@@ -33,7 +33,23 @@ XSI_NS = "http://www.w3.org/2001/XMLSchema-instance"
 TYPE_MAP = {
     "linkEventCatch": "intermediateCatchEvent",
     "linkEventThrow": "intermediateThrowEvent",
+    # T-204: typed intermediate events (error/timer/message) all carry the neutral
+    # intermediateCatchEvent tag; the kind is carried by <aef:eventDef kind=..> so
+    # the tag alone never disambiguates (same reason the editor branches on the
+    # extension on import). Mirrors the editor TYPE_TAG.
+    "eventError": "intermediateCatchEvent",
+    "eventTimer": "intermediateCatchEvent",
+    "eventMessage": "intermediateCatchEvent",
 }
+
+# T-204: typed intermediate events. The kind is derived from the node TYPE (not an
+# aef key); the binding is a kind-specific aef scalar. These mirror the editor's
+# EVENT_KIND / EVENT_BINDING_FIELD (src/aef-workflow-designer.html) so both producers
+# emit byte-identical <aef:eventDef kind=.. binding=..> — kept honest by
+# tests/test_bridge_aef_passthrough.py.
+EVENT_KIND = {"eventError": "error", "eventTimer": "timer", "eventMessage": "message"}
+EVENT_BINDING_FIELD = {"eventError": "errorStatus", "eventTimer": "timerSpec",
+                       "eventMessage": "busTopic"}
 
 # aef: bag keys emitted as <aef:meta> attributes (scalars only). Others
 # (decisionInput/decisionOutputs) get their own child elements below.
@@ -97,6 +113,9 @@ KNOWN_AEF_KEYS = frozenset(META_KEYS) | frozenset((
     "decisionInput", "decisionOutputs",
     "contextReads", "artifactsWrites",
     "targetWorkflow", "linkId",
+    # T-204: typed-event binding scalars — consumed by the <aef:eventDef> branch
+    # (keyed on node type), so they are "handled" and must not trip the loud-drop.
+    "errorStatus", "timerSpec", "busTopic",
 )) | frozenset(STRUCTURED_LIST_KEYS) | frozenset(STRUCTURED_DICT_KEYS) \
   | frozenset(STRUCTURED_ITEMLIST_KEYS)
 
@@ -226,6 +245,15 @@ def emit(workflow):
         if aef.get("targetWorkflow") or aef.get("linkId"):
             out.append('        <aef:link targetWorkflow=%s linkId=%s/>'
                        % (_attr(aef.get("targetWorkflow", "")), _attr(aef.get("linkId", ""))))
+        # T-204: typed intermediate event — kind derives from the node TYPE (not an
+        # aef key), binding from the kind-specific aef scalar. Emitted as
+        # <aef:eventDef kind=.. binding=..>, byte-mirroring the editor's aefExtensionXml
+        # so the two producers agree (editor↔bridge parity).
+        _ntype = n.get("type", "")
+        if _ntype in EVENT_KIND:
+            out.append('        <aef:eventDef kind=%s binding=%s/>'
+                       % (_attr(EVENT_KIND[_ntype]),
+                          _attr(aef.get(EVENT_BINDING_FIELD[_ntype], ""))))
         # I/O data contract — a top-level node key (sibling of aef), not under aef.
         # Editor io reader: required only when true; outputs carry no required.
         io = n.get("io", {}) or {}
