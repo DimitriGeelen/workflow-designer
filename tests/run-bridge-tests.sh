@@ -112,6 +112,15 @@ else
 fi
 
 echo
+echo "== typed intermediate events: correctness + bite (T-204) =="
+if python3 "$ROOT/tests/test_typed_events.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "typed event error/timer/message decode/encode broke (type or aef:eventDef binding drift)"
+  fail=$((fail + 1))
+fi
+
+echo
 # Corpus geometry sweep (T-052): every authored map's nodes must sit inside their
 # lane bands, modulo the exact legacy allowlist. Guards against new maps silently
 # straddling bands — the G-019 blindness found in T-050.

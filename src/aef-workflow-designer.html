@@ -7905,9 +7905,25 @@ const TYPE_TAG = {
   // already routes through extensionElements.
   linkEventThrow: 'intermediateThrowEvent',
   linkEventCatch: 'intermediateCatchEvent',
+  // T-204 (IW-1): typed intermediate events. The BPMN tag is a neutral
+  // intermediateCatchEvent; the specific kind (error|timer|message) rides
+  // <aef:eventDef>, exactly as link events ride <aef:link>. NO native
+  // bpmn:*EventDefinition. Because this tag also maps to linkEventCatch, import
+  // disambiguates on extension content (aef:link vs aef:eventDef) — see adoptImportedXml.
+  eventError: 'intermediateCatchEvent',
+  eventTimer: 'intermediateCatchEvent',
+  eventMessage: 'intermediateCatchEvent',
   // T-081: collapsed composite — BPMN-native tag, phase 1 emits no children.
   subProcess: 'subProcess',
 };
+
+// T-204: typed-event node-type <-> aef:eventDef kind, and the aef field each
+// kind's binding lives in (error→status trigger, timer→cron/horizon, message→bus
+// topic). Single source of truth for both export (aefExtensionXml) and import
+// (adoptImportedXml), so the two directions can't drift.
+const EVENT_KIND = { eventError: 'error', eventTimer: 'timer', eventMessage: 'message' };
+const EVENT_KIND_TYPE = { error: 'eventError', timer: 'eventTimer', message: 'eventMessage' };
+const EVENT_BINDING_FIELD = { eventError: 'errorStatus', eventTimer: 'timerSpec', eventMessage: 'busTopic' };
 
 function aefExtensionXml(node) {
   const aef = node.aef || {};
@@ -7944,6 +7960,15 @@ function aefExtensionXml(node) {
   // Link event: targetWorkflow + linkId (for linkEventThrow / linkEventCatch)
   if (aef.targetWorkflow || aef.linkId) {
     out += `        <aef:link targetWorkflow="${escAttr(aef.targetWorkflow || '')}" linkId="${escAttr(aef.linkId || '')}"/>\n`;
+  }
+  // T-204: typed intermediate event — kind + binding ride <aef:eventDef>,
+  // mirroring aef:link. The kind is derived from the node type (the BPMN tag is
+  // a neutral intermediateCatchEvent); the binding comes from the kind-specific
+  // field. Always emitted for a typed event so re-import can recover the type.
+  if (EVENT_KIND[node.type]) {
+    const bindField = EVENT_BINDING_FIELD[node.type];
+    const binding = bindField ? (aef[bindField] || '') : '';
+    out += `        <aef:eventDef kind="${escAttr(EVENT_KIND[node.type])}" binding="${escAttr(binding)}"/>\n`;
   }
 
   // I/O data contract
@@ -8197,7 +8222,9 @@ function parseBpmnXml(text) {
     for (const el of byBpmn(proc, tag)) {
       const displayId = el.getAttribute('id') || '';
       const name = el.getAttribute('name') || displayId;
-      const type = REVERSE_TYPE[tag] || 'serviceTask';
+      // let, not const: <aef:eventDef> below can override the shared
+      // intermediateCatchEvent tag to a specific typed-event node type (T-204).
+      let type = REVERSE_TYPE[tag] || 'serviceTask';
       // uid from aef:uid extension, else generate
       const uidEl = byAef(el, 'uid')[0];
       const uid = uidEl?.getAttribute('value') || generateUid('n');
@@ -8240,6 +8267,20 @@ function parseBpmnXml(text) {
       if (linkEl) {
         aef.targetWorkflow = linkEl.getAttribute('targetWorkflow') || '';
         aef.linkId = linkEl.getAttribute('linkId') || '';
+      }
+      // T-204: typed intermediate event — <aef:eventDef> disambiguates the shared
+      // intermediateCatchEvent tag (which also decodes to linkEventCatch) into the
+      // specific typed-event node type, and restores the kind-specific binding
+      // field. Same override link events need vs a plain intermediate event.
+      const eventDefEl = byAef(el, 'eventDef')[0];
+      if (eventDefEl) {
+        const kind = eventDefEl.getAttribute('kind') || '';
+        const mapped = EVENT_KIND_TYPE[kind];
+        if (mapped) {
+          type = mapped;
+          const bindField = EVENT_BINDING_FIELD[mapped];
+          if (bindField) aef[bindField] = eventDefEl.getAttribute('binding') || '';
+        }
       }
 
       // I/O

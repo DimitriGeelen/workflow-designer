@@ -89,10 +89,14 @@ async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = awa
 // The round-trip, executed inside the editor for one fixture (text pre-set as window.__FIXTURE__).
 const ROUNDTRIP_EXPR = `(function(){
   var text = window.__FIXTURE__;
-  // aef scalar-meta keys the editor serializes as <aef:meta> attributes (buildBpmnXml metaKeys).
+  // aef scalar keys projected per node. The first group are <aef:meta> attributes
+  // (buildBpmnXml metaKeys); the T-204 trailing group are the typed-event binding
+  // fields (which ride <aef:eventDef binding=…>, not <aef:meta>) — included here so
+  // the semantic fixed point has teeth on the binding value, not just node.type.
   var METAKEYS = ['tier','agentType','decisionOwner','triggeredBy','terminalKind','state','note',
     'softFail','section','guard','external','exitCode','autoTrigger','trigger','gatewayKind',
-    'gate','scopeOf','horizon','workflowType','owner'];
+    'gate','scopeOf','horizon','workflowType','owner',
+    'errorStatus','timerSpec','busTopic'];
   function proj(m){
     if(!m) return null;
     var laneAuth = {}; (m.lanes||[]).forEach(function(l){ laneAuth[l.id]=l.authority; });
