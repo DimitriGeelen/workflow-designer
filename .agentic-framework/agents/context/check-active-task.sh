@@ -486,8 +486,12 @@ if [ -n "$ACTIVE_FILE" ] && grep -q "^workflow_type: inception" "$ACTIVE_FILE" 2
     if grep -q "^## Open Questions" "$ACTIVE_FILE" 2>/dev/null; then
         # Extract Open Questions section content (between header and next ## heading)
         OQ_SECTION=$(awk '/^## Open Questions/{f=1; next} /^## /{f=0} f' "$ACTIVE_FILE" 2>/dev/null)
-        # Strip HTML comments so the template guidance does not count
-        OQ_STRIPPED=$(echo "$OQ_SECTION" | sed -E 's/<!--[^>]*-->//g' | sed '/<!--/,/-->/d')
+        # Strip HTML comments so the template guidance does not count.
+        # G-009 (T-211): the one-line strip must tolerate '>' inside comments
+        # (OQ guidance cites <tag>s). `[^>]*` stops at the first '>', leaving the
+        # comment, and the range strip then swallows real IW-N entries → mis-count.
+        # `([^-]|-[^-]|--[^>])*` matches any char except a literal '-->' terminator.
+        OQ_STRIPPED=$(echo "$OQ_SECTION" | sed -E 's/<!--([^-]|-[^-]|--[^>])*-->//g' | sed '/<!--/,/-->/d')
         # Count real IW-N entries
         HAS_IW=$(echo "$OQ_STRIPPED" | grep -cE '^\s*-\s*\*\*IW-[0-9]+:' 2>/dev/null || true)
         if [ "${HAS_IW:-0}" -eq 0 ]; then

@@ -1,0 +1,23 @@
+=== episodic-gen invocation: 2026-07-19T19:24:57Z ===
+task_id: T-210
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-210.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Completion-gate AC counter mis-parses >-bearing inline comments (G-009)
+  Duration: 0 days (4 min)
+  Updates: 2
+  Commits: 1
+  Lines: +288 -2 across 4 files
+  Outcomes: 5 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 4 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-210-completion-gate-ac-counter-mis-parses--b.md
+--- exit code: 0 ---

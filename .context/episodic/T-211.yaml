@@ -1,0 +1,73 @@
+# ============================================================================
+# EPISODIC MEMORY - T-211: Propagate G-009 fix to remaining vendored sites (check-active-task.sh, update-task.sh partial-recheck)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-19T20:11:20Z
+# ============================================================================
+
+task_id: T-211
+task_name: "Propagate G-009 fix to remaining vendored sites (check-active-task.sh, update-task.sh partial-recheck)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-19T20:07:34Z
+completed: 2026-07-19T20:11:18Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '`check-active-task.sh:~490` OQ strip uses the `>`-tolerant regex `([^-]|-[^-]|--[^>])*` (not `[^>]*`)'
+  - '`update-task.sh:~1217` partial-complete re-check uses the `>`-tolerant regex (not `[^>]*`)'
+  - 'No `[^>]*-->` broken one-line-comment strip remains anywhere under `.agentic-framework/agents/`'
+  - 'T-210 regression test (`test_ac_comment_strip.sh`) still green (the first site''s fix is not disturbed)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-211-propagate-g-009-fix-to-remaining-vendore.md
+generated_by: context-agent-hybrid

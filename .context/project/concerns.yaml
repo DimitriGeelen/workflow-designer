@@ -350,7 +350,7 @@ concerns:
       - G-004
   - id: G-009
     type: gap
-    status: watching
+    status: resolved
     severity: medium
     title: "Completion-gate AC counter mis-parses inline comments containing '>' — swallows the ### Human header, mis-attributing Human ACs as unchecked agent ACs and hard-blocking review handoff"
     detected: 2026-07-19
@@ -386,7 +386,17 @@ concerns:
       G-008 loss mode). FIXED locally under T-210 (pattern → `<!--([^-]|-[^-]|--[^>])*-->`
       + regression test test_ac_comment_strip.sh, proven to block on pre-fix code and pass
       on fixed); this concern now tracks ONLY upstream propagation to AEF so the fix + test
-      survive the next re-vendor (identical to G-008). Close once AEF has merged + re-vendored.
+      survive the next re-vendor (identical to G-008).
+      RESOLVED 2026-07-19: (a) AEF confirmed repro on its canonical copy, fixed at THREE sites
+      and landed master 8c07bb091 (adopting my regex verbatim) + extended its bats to 10 cases
+      with source invariants pinning the new regex at all 3 sites (rail offset 86). (b) AEF's
+      sweep revealed my T-210 fix covered only ONE of three sites in the SAME vendored copy;
+      T-211 propagated the identical fix to the other two — check-active-task.sh:490 (inception
+      OQ strip) and update-task.sh:1217 (partial-complete re-check). (c) Prevention now exists on
+      both sides: T-211 Verification greps the whole .agentic-framework/agents/ tree for any
+      residual `[^>]*-->` broken pattern (behavior-over-pattern invariant), and AEF pins the
+      regex in bats. Both copies fixed → re-vendor parity holds. Class captured as PL-042 (3rd
+      instance). No residual propagation risk.
     evidence:
       - ".agentic-framework/agents/task-create/update-task.sh:91 — `ac_section=$(echo \"$ac_section\" | sed -E 's/<!--[^>]*-->//g' | sed '/<!--/,/-->/d')`; the `[^>]*` is the defect."
       - "T-204 has 9 checked agent ACs (### Agent) + 1 unchecked [REVIEW] (### Human); gate reported '1/3 agent AC unchecked' → header-swallow miscount."
@@ -394,5 +404,7 @@ concerns:
       - "T-1967/L-414 is the prior same-family fix (multi-line range-delete on one-line comments); it did not cover '>'-bearing one-line comments."
     related:
       - T-204
+      - T-210
+      - T-211
       - T-1967
       - G-008

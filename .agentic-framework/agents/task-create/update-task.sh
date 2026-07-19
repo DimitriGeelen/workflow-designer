@@ -1214,7 +1214,11 @@ if [ -n "$NEW_STATUS" ]; then
             AC_SECTION=$(sed -n '/^## Acceptance Criteria/,/^## /p' "$TASK_FILE" 2>/dev/null | sed '$d')
             # Strip HTML comments — template examples contain checkbox patterns.
             # T-1967: two-step strip (one-line first, then range) — see line ~87.
-            AC_SECTION=$(echo "$AC_SECTION" | sed -E 's/<!--[^>]*-->//g' | sed '/<!--/,/-->/d')
+            # G-009 (T-211): `>`-tolerant one-line strip — `[^>]*` mis-parsed AC
+            # comments citing <tag>s, folding the ### Human header into the Agent
+            # count and blocking partial-complete re-archival. Matches the fix at
+            # check_acceptance_criteria (line ~98).
+            AC_SECTION=$(echo "$AC_SECTION" | sed -E 's/<!--([^-]|-[^-]|--[^>])*-->//g' | sed '/<!--/,/-->/d')
             ALL_TOTAL=$(echo "$AC_SECTION" | grep -cE '^\s*-\s*\[[ x]\]' || true)
             ALL_CHECKED=$(echo "$AC_SECTION" | grep -cE '^\s*-\s*\[x\]' || true)
             ALL_UNCHECKED=$((ALL_TOTAL - ALL_CHECKED))

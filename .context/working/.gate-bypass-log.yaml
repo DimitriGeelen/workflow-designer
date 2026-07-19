@@ -752,3 +752,20 @@ FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-'
   target: 'T-175'
   command: 'for id in T-173 T-175 T-190 T-201; do git add -A .tasks/active/$id-*.md .tasks/completed/$id-*.md 2>/dev/null; done
 FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-190/T-201/T-173/T-175: '
+- timestamp: '2026-07-19T15:44:21Z'
+  task: 'T-204'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-208'
+  command: 'cd /opt/832-Workflow-designer
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-208: close (AEF sha-confirmed + adopted joint fixture; caught real gate defect); capture T-209
+
+AEF (rail 77-'
+- timestamp: '2026-07-19T19:31:33Z'
+  task: 'T-155'
+  flag: 'FW_SWITCH_FOCUS=1'
+  caller: 'check-active-task focus-drift'
+  target: 'T-210'
+  command: 'cd /opt/832-Workflow-designer
+git add .context/project/learnings.yaml 2>/dev/null
+FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-210: capture PL-042 — recurring AC/comment-strip fragil'
