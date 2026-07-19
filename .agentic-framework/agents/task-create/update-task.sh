@@ -88,7 +88,14 @@ check_acceptance_criteria() {
     # it opens — `/<!--/,/-->/d` on a one-line `<!-- ... -->` enters delete-mode at that
     # line and stays there until the NEXT `-->` later in the file, swallowing Agent ACs.
     # Fix: strip one-line comments first, then run the range strip for genuine multi-line.
-    ac_section=$(echo "$ac_section" | sed -E 's/<!--[^>]*-->//g' | sed '/<!--/,/-->/d')
+    # G-009 (T-210): the one-line strip must tolerate '>' INSIDE the comment (AC comments
+    # cite BPMN/XML tags like a bpmn element). The old `[^>]*` stopped at the first '>',
+    # left the comment un-stripped, and the range strip then swallowed the `### Human`
+    # header — mis-attributing Human ACs as unchecked agent ACs. `([^-]|-[^-]|--[^>])*`
+    # matches comment content up to the FIRST literal `-->` (minimal, no lazy quantifier
+    # which POSIX/GNU sed lack), so '>' inside the comment is fine and multi-line comments
+    # still fall through to the range strip.
+    ac_section=$(echo "$ac_section" | sed -E 's/<!--([^-]|-[^-]|--[^>])*-->//g' | sed '/<!--/,/-->/d')
     [ -z "$ac_section" ] && return 0
 
     has_agent_header=$(echo "$ac_section" | grep -c '^### Agent' || true)
