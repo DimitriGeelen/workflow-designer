@@ -288,3 +288,10 @@ learnings:
   date: 2026-07-19
   context: Added via context agent
   application: TBD
+- id: PL-042
+  learning: "Completion-gate AC/comment parsing in update-task.sh is a recurring fragility class: sed-based HTML-comment stripping breaks on content it didn't anticipate (T-1967: one-line comments confused the range-delete; G-009/T-210: a literal '>' inside a one-line comment defeated the [^>]* strip, swallowing the ### Human header and mis-counting Human ACs as agent ACs). When touching this stripper, use a delimiter-complete minimal match (<!--([^-]|-[^-]|--[^>])*-->), never a char-class that assumes comment bodies avoid a metacharacter, and add a regression fixture exercising the awkward content (>, --, multi-line). 2nd instance of this class — the 3rd is preventable."
+  source: P-011
+  task: T-210
+  date: 2026-07-19
+  context: Added via context agent
+  application: TBD
