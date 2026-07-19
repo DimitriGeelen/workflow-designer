@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T19:42:25Z
-last_update: 2026-07-19T18:24:01Z
+last_update: 2026-07-19T18:29:28Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -86,7 +86,8 @@ New node types `eventError` / `eventTimer` / `eventMessage`, added at every site
 
 <!-- Remaining Slice-2 sub-parts (host-follow drag, boundary-origin ports, host-relative render) below are steps 2-3. -->
 
-- [ ] Host-follow: moving a host moves its boundary events (reuses `groupDrag` ~5493); a boundary-origin edge anchors via the T-168 port machinery.
+- [ ] Host-follow: moving a host moves its boundary events (reuses `groupDrag` ~5493); a boundary-origin edge anchors via the T-168 port machinery. <!-- HALF DONE. Host-follow ✓ — delivered for FREE by the step-2 render-sync: both the single-node drag (renderNodes at ~5639) and groupDrag (~5662) call renderNodes() every frame, and renderNodes()→syncBoundaryPositions() re-derives each boundary event's x/y from host.x. Confirmed via Playwright: shifting the host by (+180,+40) moved BOTH boundary events by exactly (+180,+40). No groupDrag change was needed. STILL OPEN: boundary-origin edge port anchoring (T-168) so a boundary event's outgoing edge exits the perimeter away from the host body, and (refinement) drag-a-boundary-event-to-set-boundaryPos. Do NOT check this box until the port half lands. -->
+
 - [x] Boundary event renders at a host-relative perimeter point (contained new branch in `renderNodes` ~2354), not at free `x/y`. <!-- step 2: syncBoundaryPositions() derives each attached event's x/y from boundaryPerimeterPoint(host, boundaryPos) at the top of renderNodes (default bottom-centre); the typed-event render branch adds the BPMN double ring (dashed outer ring = non-interrupting). Visually verified — docs/reports/T-204-slice2-visual/boundary-on-host.png: error event straddles the host bottom edge (solid double ring), timer straddles the top edge (dashed outer ring); both host-relative. Known cosmetic follow-up: boundary-event LABELS can overlap the host label (intrinsic to boundary/host overlap) — placement polish, not a functional defect. -->
       <!-- Note: because position is host-derived, a boundary event is pinned to its host (can't be dragged free) — correct BPMN behaviour; sliding it along the perimeter (edit boundaryPos by drag) is a step-3 refinement. -->
 
@@ -260,6 +261,25 @@ python3 tests/test_bridge_aef_passthrough.py
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-07-19 — Slice 2 host-follow confirmed free; only ports remain for step 3
+
+- **What we learned:** host-follow (AC2 first half) needs NO code — it falls out of the
+  step-2 render-sync. Every drag frame (single `drag` at ~5639, `groupDrag` at ~5662) calls
+  `renderNodes()`, which calls `syncBoundaryPositions()` first, re-deriving each boundary
+  event's x/y from the (now-moved) host. Confirmed via Playwright: host +（180,40) → both
+  boundary events +（180,40) exactly. This is cleaner than threading boundary events through
+  `groupDrag` (the original plan) — the single source of truth (host perimeter) does it.
+- **Plan impact:** step 3 shrinks to the **port half of AC2**: boundary-origin edges should
+  anchor via the T-168 port machinery so an outgoing edge exits the perimeter *away from the
+  host body* (today it connects center-to-center, which can cross the host). Optional
+  refinement: drag a boundary event along the perimeter to set `boundaryPos` (today it's a
+  text field + pinned position). Plus the noted boundary-label placement polish.
+- **Remaining for a fresh session (step 3):** (a) T-168 port anchoring for boundary-origin
+  edges; (b) optional perimeter-slide authoring of `boundaryPos`; (c) label-placement polish.
+  Then the human `[REVIEW]` AC (glyphs + boundary placement on the served release). Everything
+  else in Slice 2 (attach/serialize/round-trip, host-relative render, host-follow) is done +
+  verified. Do NOT set work-completed until the port half lands or is explicitly de-scoped.
 
 ### 2026-07-19 — Slice 2 step 2 (host-relative render) landed; interaction remains
 
