@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T19:42:25Z
-last_update: 2026-07-19T18:29:28Z
+last_update: 2026-07-19T18:32:00Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -86,7 +86,7 @@ New node types `eventError` / `eventTimer` / `eventMessage`, added at every site
 
 <!-- Remaining Slice-2 sub-parts (host-follow drag, boundary-origin ports, host-relative render) below are steps 2-3. -->
 
-- [ ] Host-follow: moving a host moves its boundary events (reuses `groupDrag` ~5493); a boundary-origin edge anchors via the T-168 port machinery. <!-- HALF DONE. Host-follow ✓ — delivered for FREE by the step-2 render-sync: both the single-node drag (renderNodes at ~5639) and groupDrag (~5662) call renderNodes() every frame, and renderNodes()→syncBoundaryPositions() re-derives each boundary event's x/y from host.x. Confirmed via Playwright: shifting the host by (+180,+40) moved BOTH boundary events by exactly (+180,+40). No groupDrag change was needed. STILL OPEN: boundary-origin edge port anchoring (T-168) so a boundary event's outgoing edge exits the perimeter away from the host body, and (refinement) drag-a-boundary-event-to-set-boundaryPos. Do NOT check this box until the port half lands. -->
+- [x] Host-follow: moving a host moves its boundary events (reuses `groupDrag` ~5493); a boundary-origin edge anchors via the T-168 port machinery. <!-- DONE (both halves). Host-follow ✓ — delivered for FREE by the step-2 render-sync: both the single-node drag (renderNodes at ~5639) and groupDrag (~5662) call renderNodes() every frame, and renderNodes()→syncBoundaryPositions() re-derives each boundary event's x/y from host.x. Confirmed via Playwright: shifting the host by (+180,+40) moved BOTH boundary events by exactly (+180,+40). PORT HALF ✓ (step 3) — boundaryOutwardPort(node,host) returns the host-edge outward NORMAL (N/E/S/W) derived from the SAME boundaryPos perimeter walk as boundaryPerimeterPoint (deterministic; a centre-to-centre heuristic ties and picks the wrong axis at corners). renderEdges pins a boundary-origin edge's source anchor to that port (auto source only — an explicit pin still wins) via a local srcPortEff, threaded through anchor + exitDirection + straighten-skip. So the edge EXITS the perimeter away from the host body instead of the default centre-toward-target anchor that can cross the host — proven on the hard case (n_btmr, a TOP-edge boundary whose handler is BELOW: exits N and routes AROUND, not down through the host). Also fixed a latent one-frame bug: renderAll runs renderEdges BEFORE renderNodes, so syncBoundaryPositions was hoisted to renderAll ahead of renderEdges (kept in renderNodes too for the drag path). Teeth: new PORT_ASSERT_EXPR in _typed-events-cdp.mjs asserts source-anchor==outward-port AND polyline-never-crosses-host for both boundary edges. Visual: docs/reports/T-204-slice2-visual/boundary-ports.png. Optional refinement NOT done: drag-a-boundary-event-along-the-perimeter to set boundaryPos (still a text field) + boundary-label placement polish — de-scoped to follow-ups (see Evolution). -->
 
 - [x] Boundary event renders at a host-relative perimeter point (contained new branch in `renderNodes` ~2354), not at free `x/y`. <!-- step 2: syncBoundaryPositions() derives each attached event's x/y from boundaryPerimeterPoint(host, boundaryPos) at the top of renderNodes (default bottom-centre); the typed-event render branch adds the BPMN double ring (dashed outer ring = non-interrupting). Visually verified — docs/reports/T-204-slice2-visual/boundary-on-host.png: error event straddles the host bottom edge (solid double ring), timer straddles the top edge (dashed outer ring); both host-relative. Known cosmetic follow-up: boundary-event LABELS can overlap the host label (intrinsic to boundary/host overlap) — placement polish, not a functional defect. -->
       <!-- Note: because position is host-derived, a boundary event is pinned to its host (can't be dragged free) — correct BPMN behaviour; sliding it along the perimeter (edit boundaryPos by drag) is a step-3 refinement. -->
@@ -185,11 +185,27 @@ framed the host, and READ the rendered canvas.
   the host body ("timeout" over "do the work"). Intrinsic to boundary/host overlap;
   boundary-label placement is a polish follow-up. Perimeter placement (the AC) is met.
 
+### 2026-07-19 — Slice 2 step 3 (boundary-origin ports)
+
+Served `src/aef-workflow-designer.html` over local HTTP, drove headless Chrome via
+Playwright, imported `boundary-events.bpmn`, framed the host cluster, and READ the canvas.
+
+- `docs/reports/T-204-slice2-visual/boundary-ports.png` — host "do the work"
+  (blue serviceTask); **"on error"** (red lightning, solid ring) on the host BOTTOM edge —
+  its edge drops straight DOWN to "handle issue"; **"timeout"** (blue clock, dashed ring)
+  on the host TOP edge — its edge exits UP (outward) and routes AROUND the host's right
+  side down to "handle timeout", NOT straight down through the host body. Corroborated by
+  an in-page geometry assertion (source anchor == outward port; routed polyline does not
+  enter the host interior; `headingIntoHost:false`, `crossesHostBody:false` for both) — now
+  a permanent guard (`PORT_ASSERT_EXPR` in `tools/_typed-events-cdp.mjs`).
+
 ## Verification
 
 python3 tests/test_designer_render.py
 python3 tests/test_designer_export_contract.py
 python3 tests/test_bridge_aef_passthrough.py
+python3 tests/test_roundtrip_serialization.py
+python3 tests/test_typed_events.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -239,6 +255,38 @@ python3 tests/test_bridge_aef_passthrough.py
 -->
 
 ## Evolution
+
+### 2026-07-19 — Slice 2 step 3 (T-168 boundary-origin ports) landed; all Slice-2 agent ACs done
+
+- **What changed / built:** boundary-origin edges now exit the host perimeter OUTWARD.
+  `boundaryOutwardPort(node, host)` returns the host-edge outward normal (N/E/S/W) from
+  the SAME `boundaryPos` perimeter walk that places the event — deterministic, where a
+  centre-to-centre heuristic ties at the corners and picks the wrong axis (observed: a
+  bottom-edge event tie-breaking to W instead of S). `renderEdges` pins the source anchor
+  to that port for auto-source boundary edges via a local `srcPortEff`, threaded through
+  the anchor computation, `exitDirection`, and the straighten-skip guard. Explicit port
+  pins still win. Guarded by a new `PORT_ASSERT_EXPR` in `_typed-events-cdp.mjs`
+  (source-anchor == outward-port AND routed polyline never crosses the host body, both
+  boundary edges). Visually verified — `docs/reports/T-204-slice2-visual/boundary-ports.png`.
+- **Bug found + fixed while building (the port guard caught it):** `renderAll` runs
+  `renderEdges()` BEFORE `renderNodes()`, but `syncBoundaryPositions()` lived only inside
+  `renderNodes` — so on the FIRST render after a parse, boundary-origin edges routed from
+  the stale pre-sync x/y (self-corrected one frame later). Hoisted `syncBoundaryPositions()`
+  into `renderAll` ahead of `renderEdges`; kept the call in `renderNodes` too because the
+  drag handlers call `renderNodes()+renderEdges()` directly (renderNodes first) and
+  host-follow re-derives positions there. Idempotent, so the double call is a no-op.
+- **Design note (why frac-derived, not centre-derived):** the outward direction MUST agree
+  with where the event was placed. Both come from the one perimeter walk keyed on
+  `boundaryPos`, so they can never disagree — the earlier centre-vector version was
+  tie-sensitive at exactly the diagonal corner positions the fixture uses.
+- **De-scoped to follow-ups (logged, not lost):** (a) drag-a-boundary-event-along-the-
+  perimeter to author `boundaryPos` by mouse (today a text field + pinned position);
+  (b) boundary-event label-placement polish (a name label can overlap the host label when
+  the event sits near the host body). Neither is required by any Slice-2 AC. Slice 2 is now
+  AGENT-complete; the only open item is the Human `[REVIEW]` AC (glyphs + boundary placement
+  + follow on the served release) — task goes partial-complete, owner:human.
+
+
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at

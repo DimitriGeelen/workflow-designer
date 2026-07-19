@@ -122,6 +122,55 @@ const BOUNDARY_ASSERT_EXPR = `(function(){
   } catch(e) { return { ok:false, errs:['exception: '+(e&&e.message||e)] }; }
 })()`;
 
+// T-204 Slice 2 step 3 (T-168 ports) render-path guard. The boundary data-path and
+// round-trip guards prove serialization; they say nothing about how a boundary event's
+// OUTGOING edge is routed. This asserts, IN THE REAL EDITOR after a full render:
+//   * each boundary-origin edge's SOURCE anchor sits at the host-edge outward port
+//     (boundaryOutwardPort ≡ the perimeter normal, so the edge leaves the host); and
+//   * the routed polyline never passes through the host-body interior — including the
+//     hard case (n_btmr, a TOP-edge boundary whose handler is BELOW): it must exit
+//     upward and route AROUND, not straight down through the host.
+// Without this, a regression to centre-toward-target anchoring (edge crossing the host)
+// would pass every other guard silently.
+const PORT_ASSERT_EXPR = `(function(){
+  var text = window.__BFIXTURE__;
+  var errs = [];
+  try {
+    var m = parseBpmnXml(text);
+    if(!m) return { ok:false, errs:['parse-null'] };
+    state = m; refreshDisplayIds();
+    if (typeof renderAll === 'function') renderAll(); else { renderNodes(); renderEdges(); }
+    var host = findNode('n_host');
+    if(!host){ errs.push('missing host n_host'); return { ok:false, errs:errs }; }
+    var hd = NODE_DEFAULTS[host.type];
+    var hr = { x: host.x, y: host.y, w: hd.w, h: hd.h };
+    var checked = 0;
+    for (var i=0;i<state.edges.length;i++){
+      var e = state.edges[i];
+      var src = findNode(e.source);
+      if(!src || !boundaryHostOf(src)) continue;
+      checked++;
+      var poly = e._renderedPolyline;
+      if(!poly || poly.length < 2){ errs.push(e.id+' no rendered polyline'); continue; }
+      var port = boundaryOutwardPort(src, host);
+      var anch = portPointAt(src, port);
+      if (Math.hypot(anch.x-poly[0].x, anch.y-poly[0].y) > 0.5)
+        errs.push(e.id+' source anchor not at outward port '+port+' (got '+JSON.stringify(poly[0])+', want '+JSON.stringify(anch)+')');
+      var crosses = false, pad = 2;
+      for (var s=0;s<poly.length-1 && !crosses;s++){
+        for (var t=0;t<=1;t+=0.02){
+          var x = poly[s].x + (poly[s+1].x-poly[s].x)*t;
+          var y = poly[s].y + (poly[s+1].y-poly[s].y)*t;
+          if (x>hr.x+pad && x<hr.x+hr.w-pad && y>hr.y+pad && y<hr.y+hr.h-pad){ crosses=true; break; }
+        }
+      }
+      if(crosses) errs.push(e.id+' routed polyline crosses the host body');
+    }
+    if(checked !== 2) errs.push('expected 2 boundary-origin edges, checked '+checked);
+    return { ok: errs.length===0, errs:errs, checked:checked };
+  } catch(e) { return { ok:false, errs:['exception: '+(e&&e.message||e)] }; }
+})()`;
+
 async function main() {
   if (!existsSync(FIXTURE)) { process.stdout.write(JSON.stringify({ ok:false, error:'fixture missing: '+FIXTURE })+'\n'); process.exitCode = 2; return; }
   if (!existsSync(BFIXTURE)) { process.stdout.write(JSON.stringify({ ok:false, error:'fixture missing: '+BFIXTURE })+'\n'); process.exitCode = 2; return; }
@@ -153,7 +202,8 @@ async function main() {
     const r = await ev(cmd, ASSERT_EXPR);
     await ev(cmd, `window.__BFIXTURE__ = ${JSON.stringify(btext)};`);
     const rb = await ev(cmd, BOUNDARY_ASSERT_EXPR);
-    const out = { ok: !!(r && r.ok && rb && rb.ok), typed: r, boundary: rb };
+    const rp = await ev(cmd, PORT_ASSERT_EXPR);
+    const out = { ok: !!(r && r.ok && rb && rb.ok && rp && rp.ok), typed: r, boundary: rb, ports: rp };
     process.stdout.write(JSON.stringify(out, null, 2) + '\n');
     process.exitCode = out.ok ? 0 : 1;
   } catch (e) {
