@@ -4,10 +4,10 @@ name: "Sync forward-compile spec §5 corpus inventory with the 5th (inception) f
 description: >
   T-192 added tests/fixtures/aef-bpmn/inception-gonogo.bpmn (a hand-authored positive inception case embodying the provisional G-3 marker), but docs/standards/aef-bpmn-forward-compile-v1.md §5 still says 'Four authentic editor-emitted diagrams' and lists only 4. Close the spec-vs-reality drift accurately: distinguish the 4 authentic editor exports from the 1 hand-authored provisional-G-3 fixture, without overstating G-3's status (still Part II provisional pending Dimitri's v1.1 graduation).
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-12T19:31:01Z
-last_update: 2026-07-12T19:31:01Z
-date_finished: null
+last_update: 2026-07-12T19:34:30Z
+date_finished: 2026-07-12T19:34:30Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -187,3 +187,6 @@ python3 tests/test_forward_fixtures.py
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-194-sync-forward-compile-spec-5-corpus-inven.md
 - **Context:** Initial task creation
+
+### 2026-07-12T19:34:30Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

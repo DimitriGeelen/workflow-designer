@@ -4,10 +4,10 @@ name: "Disposition gate false-positive: IW-N cross-reference in rationale prose 
 description: >
   check_disposition_gate (agents/task-create/update-task.sh:770) uses an UNANCHORED regex for the IW-N question marker, so any IW-N appearing in rationale prose (a legitimate cross-reference) is tokenized as a new question block. This (a) flushes the real question with rationale=false and (b) creates a phantom empty question, producing false 'under-disposed' completion blocks. The sibling Q-N branch is already anchored (^\s*-). Fix: anchor the IW-N branch to block-start (- **IW-N / ### IW-N) only. Discovered blocking T-190 completion.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [bug, framework, governance, disposition-gate]
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T19:17:45Z
-last_update: 2026-07-18T19:17:45Z
-date_finished: null
+last_update: 2026-07-18T19:23:45Z
+date_finished: 2026-07-18T19:23:45Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -185,3 +185,6 @@ bash .agentic-framework/agents/task-create/tests/test_disposition_gate.sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-203-disposition-gate-false-positive-iw-n-cro.md
 - **Context:** Initial task creation
+
+### 2026-07-18T19:23:45Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

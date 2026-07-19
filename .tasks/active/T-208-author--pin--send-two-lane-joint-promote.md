@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-19T08:55:16Z
-last_update: 2026-07-19T08:55:16Z
+last_update: 2026-07-19T09:03:40Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -54,7 +54,7 @@ with another send — PL-039). Arc: designer-authoring-surface. Feeds AEF T-2546
 - [x] Fixture is a round-trip fixed point in the REAL editor (`test_roundtrip_serialization.py`: two-lane-joint.bpmn ok:true, projEqual, deterministic, 0 missing uids)
 - [x] Manifest extraction (reuses `test_promote_contract.py` helpers) yields BOTH owner-bearing tuples — n_inception{owner:human←sovereignty, wf:inception} and n_plan{owner:agent←initiative, wf:build}; uid-totality holds; teeth verified (`tests/test_two_lane_joint_contract.py`, wired into run-bridge-tests.sh, 34/0)
 - [x] sha256 pinned: `efb53839bfddeb44c12bf0d8e11198c4394b017f55f0e0e238eb2524271a8c92` (5491 bytes), recompute-stable
-- [ ] `file_send` to target `aef` hub-accepted under a transfer_id DISTINCT from T-207's `xfer-mcp-3313260` (separate send, this session); rail notice posted with the pin + explicit reassembly-verify request (ok:true ≠ delivered)
+- [x] Fixture delivered to `aef` under a DISTINCT id AND durably inline: CLI `termlink file send` (per-process id `xfer-2296252-1784465566631`) + a durable `channel post` artifact envelope at rail offset 75 (base64 payload, `sha256=efb53839…` in metadata) — the byte-exact-handoff path preferred over MCP file_send (PL-033/PL-039). Rail notices posted (offsets 74, 76) with pin + verify request (ok:true ≠ delivered)
 
 <!-- NOT an agent AC — externally gated on AEF: AEF sha-verifies the reassembled fixture
      and adopts it as the canonical joint fixture, then drives its bpmn_promote_e2e.bats
@@ -145,6 +145,19 @@ test "$(sha256sum tests/fixtures/aef-bpmn/two-lane-joint.bpmn | cut -d' ' -f1)" 
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-07-19 — delivery mechanism: session-constant id → CLI → durable inline
+- **What changed:** The MCP `file_send` mints ONE transfer_id per session (not per-send), so
+  the fixture send drew the same `xfer-mcp-3313260` as T-207's 0.3.0 send. I initially feared
+  a re-blend and over-corrected on the rail (offset 73) before reading AEF's already-posted
+  71/72 — which showed the 0.3.0 had already landed clean from that id (AEF had drained it
+  before my second send). Corrected the record (offset 74). Delivered the fixture robustly:
+  CLI `termlink file send` (per-process id `xfer-2296252`) + a durable `channel post` artifact
+  envelope (offset 75, base64 + sha256 metadata) — the PL-033/line-222 byte-exact path.
+- **Plan impact:** Send AC reworded from "MCP file_send under distinct id" to the durable-inline
+  + CLI delivery actually used. Task stays open pending AEF's fixture sha-confirm/adoption.
+- **Triggered:** PL-039 corrected (session-constant id nuance + delivery preference order);
+  PL-040 added (read latest inbound before posting an async-rail correction).
 
 ### 2026-07-19 — authoring by minimal extension of the proven fixture
 - **What changed:** Rather than author a fresh two-lane workflow from scratch (higher risk

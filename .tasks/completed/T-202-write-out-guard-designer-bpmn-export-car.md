@@ -4,10 +4,10 @@ name: "Write-out: guard designer .bpmn export carries the promote content contra
 description: >
   Post-GO on T-201 write-out inception. Seam resolved: content-authority=832, gated-write=AEF via fw bpmn promote -> fw task create (T-2541). This is 832's side of the content contract: guarantee the designer .bpmn export carries a stable aef:uid and a defined lane authority for every owner-bearing node, so promote can derive owner (IW-9) and stamp provenance with no gaps. Machine-verifiable guard; end-to-end integration waits on AEF T-2541 promote+Spike-1.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T08:44:10Z
-last_update: 2026-07-18T08:48:06Z
-date_finished: null
+last_update: 2026-07-18T08:51:21Z
+date_finished: 2026-07-18T08:51:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -163,3 +163,6 @@ python3 tests/test_designer_export_contract.py
 
 ### 2026-07-18T08:48:06Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-18T08:51:21Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

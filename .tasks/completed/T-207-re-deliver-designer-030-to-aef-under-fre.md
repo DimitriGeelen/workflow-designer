@@ -4,10 +4,10 @@ name: "Re-deliver designer 0.3.0 to AEF under fresh transfer-id"
 description: >
   Re-deliver designer 0.3.0 to AEF under fresh transfer-id
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-19T08:51:08Z
-last_update: 2026-07-19T08:51:08Z
-date_finished: null
+last_update: 2026-07-19T12:57:48Z
+date_finished: 2026-07-19T12:57:48Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -52,11 +52,14 @@ designer-authoring-surface. Blocks AEF's T-2546 re-pin.
 - [x] rail notice posted (offset 70) with the fresh id + pin + explicit reassembly-verify request (hub-accepted ≠ delivered)
 - [x] transfer-id-reuse failure class captured as a learning
 
-<!-- NOT an agent AC — externally gated on AEF: AEF file_receive reassembles clean +
-     sha matches the pin, then AEF re-pins (their T-2546). Per the T-205 lesson
-     (hub-accepted ≠ delivered), this task stays open until AEF confirms on the rail;
-     completing on hub-acceptance alone would repeat the exact over-claim that hid
-     the first failure. -->
+<!-- External gate SATISFIED (2026-07-19, rail offsets 71 + 72): AEF file_receive'd
+     the 0.3.0 under xfer-mcp-3313260, independently sha256'd the landed bytes
+     (36be033d…, 826643 bytes) == pin → MATCH; then `fw designer sync` installed it
+     read-only, Watchtower /designer serves it byte-exact (served sha == pin), offline-
+     hardening reconfirmed on served bytes, pin bumped to 0.3.0, AEF T-2546 CLOSED. The
+     recipient-confirmed-before-done bar (T-205 lesson) is met — safe to complete.
+     Note: the feared session-constant-id collision did NOT bite here — AEF drained the
+     0.3.0 before the later fixture send reused the id (see PL-039 correction). -->
 
 ## Verification
 
@@ -187,3 +190,6 @@ task deliberately stays open on that external confirmation rather than completin
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-207-re-deliver-designer-030-to-aef-under-fre.md
 - **Context:** Initial task creation
+
+### 2026-07-19T12:57:48Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
