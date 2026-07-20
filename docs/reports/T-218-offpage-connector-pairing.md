@@ -72,10 +72,62 @@ ask. This inception has established the current-state understanding; a build/des
 spins out of AEF's specifics (which of (1)/(2), and whether it's validator, designer, or
 both).
 
+## AEF seam proposal (rail offset 107, AEF T-2571) + 832 positions
+
+AEF made contact with a full **seam proposal** (operator-steered on the AEF side). Their
+DECIDED half: immutable **uuid** per workflow in meta.json (name→display-only); connectors
+pin the uuid; a pending-ref **registry** (`.context/designer/registry.yaml`) with unresolved
+refs rendered as **GHOST** gallery entries; first sighting of a dangling ref **mints a
+documentation task** (owner:human, captured, horizon later, idempotent per uuid). Proposed
+832 half + three questions, with 832's grounded positions:
+
+**Reassurance from the code survey — most of this already exists in 832:**
+- Connectors already serialize as `<aef:link targetWorkflow="…" linkId="…"/>`
+  (aef-workflow-designer.html:8158); import disambiguates on `aef:link` (8108).
+- `workflowPicker` special field already consumes `/api/list` (5057-5091);
+  `jumpToWorkflow` resolves a ref "three ways and opens" (6726-6759).
+- `gallery-serve.py` already serves `/api/list` → `{maps:[{id,title,sources,latest…}]}`.
+- BUT identity today IS the slug/name (`renameActiveWorkflow` slugifies, 2211-2219; nodes
+  use a `nextId` counter, 2080) — no uuid. That is precisely the "name-only" gap.
+
+**Q1 — `workflowRef` on `aef:link`, or a new `aef:offPageRef` element?**
+→ **Extend the existing `<aef:link>`**; do NOT mint a new element. Additive-vocab discipline;
+the pipeline already branches on `aef:link`. Proposed shape:
+`<aef:link workflowRef="<uuid>" name="<display>" linkId="<intra-diagram pairing>"/>`.
+Preserve TWO distinct axes — `workflowRef` = cross-workflow uuid (AEF's focus) vs `linkId` =
+intra-diagram throw↔catch pairing (a separate concern 832 already models; don't collapse
+them). Renaming `targetWorkflow`→`workflowRef` is fine with a back-compat import alias.
+
+**Q2 — draw-time uuid minting in the editor, or store-mints-on-save (write-back)?**
+→ **Accept draw-time minting in the editor.** Fits 832's architecture (editor is the
+authoring surface) and avoids a store write-back channel (less coupling; identity decided
+where intent is expressed). `crypto.randomUUID()` makes minting trivial. FLAG: today there
+is no uuid at all — workflow identity is the slug — so this is a real identity-model addition
+(uuid as primary key threaded through save/load/rename/collision + /api), the largest piece.
+
+**Q3 — "create from pending ref" picker feasible in 0.x line? want the API contract now?**
+→ **Feasible** — the `workflowPicker` + `jumpToWorkflow` scaffolding already reads `/api/list`.
+**Yes, send the contract** so I can design against it — but **don't fork a second endpoint**:
+extend the existing `/api/list` (already consumed by the picker) with `{uuid, status:
+live|ghost, referenced_by}`, or have `/api/workflows` served by `gallery-serve.py` reading
+`.context/designer/registry.yaml`, so the editor keeps talking to one server. Open seam-Q
+back to AEF: who serves the endpoint, and where does the registry live relative to
+gallery-serve.py? "create from pending ref" + `fw bpmn claim` CLI backstop both good; agree
+no silent name-matching.
+
+**Correction to AEF:** 832 is on **0.3.0** (T-200 shipped it), not the 0.2.x their Q3 assumed.
+
+**Build gating:** this is editor-architecture-scope build (uuid identity + serialization +
+picker + /api) → gated on operator go/no-go on this inception. The rail reply carries design
+positions + a request for the contract; the BUILD lands on operator prioritization.
+
 ## Dialogue Log
 
 - **2026-07-20 — operator heads-up (Dimitri):** "the off-page connectors in AEF are not
   connected; AEF agent captured a number of processes; expect the AEF agent to contact you
-  for this." → Registered as this inception; read-only survey done; awaiting AEF rail
-  contact. AEF's offsets 104-106 (same window) were about the parallel-gateway vocabulary
-  (T-2570) and accumulator drain — **no** off-page-connector message yet.
+  for this." → Registered as this inception; read-only survey done.
+- **2026-07-20 — AEF contact (rail offset 107, T-2571):** full seam proposal (above).
+  Disambiguates IW-1 toward a real machine-linkage gap: off-page connectors are "name-only
+  visuals — no machine link to the referenced workflow, and no capture when the referenced
+  workflow doesn't exist yet." 832 positions on Q1-Q3 drafted; **held for operator steer
+  before committing on the rail** (seam was operator-steered on the AEF side).
