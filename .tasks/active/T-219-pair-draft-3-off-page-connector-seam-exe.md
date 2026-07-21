@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T07:41:22Z
-last_update: 2026-07-21T11:25:49Z
+last_update: 2026-07-21T17:55:34Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -68,12 +68,12 @@ delivery gated on AEF's `{id,uuid}` reply.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `tests/fixtures/aef-bpmn/offpage-seam.bpmn` authored in canonical dialect: 3 authority-typed lanes (human·sovereignty / framework·authority / agent·initiative) with `aef:laneMeta`, `aef:uid` + `aef:position` on every flow node, `aef:uid` on every sequenceFlow, `aef:workflowMeta schemaVersion="2"`
-- [ ] Carries all three ratified link legs: (a) resolved `<aef:link workflowRef="<live-uuid>" name=…/>`, (b) ghost `<aef:link workflowRef="<unresolved-uuid>" name=…/>`, (c) legacy `<aef:link targetWorkflow="<slug>"/>` with NO workflowRef
-- [ ] Validates CLEAN under `tools/validate-workflow.py` (exit 0, no findings)
-- [ ] Resolved leg's `workflowRef` == a real live uuid from AEF's store (from AEF rail reply to offset 114) — NOT a placeholder
-- [ ] Byte-pinned (sha256) into `tests/test_corpus_fixture_pins.py` `FULL_SHA` + the wired bridge-suite guard passes
-- [ ] Delivered to AEF rail-inline (chunked if >12KB b64, concat-verified to the pin BEFORE posting)
+- [x] `tests/fixtures/aef-bpmn/offpage-seam.bpmn` authored in canonical dialect: 3 authority-typed lanes (human·sovereignty / framework·authority / agent·initiative) with `aef:laneMeta`, `aef:uid` + `aef:position` on every flow node, `aef:uid` on every sequenceFlow, `aef:workflowMeta schemaVersion="2"`
+- [x] Carries all three ratified link legs: (a) resolved `<aef:link workflowRef="1f9b5f0c-0be4-4cfe-9158-d9e6f0c1d4c7" name="aef-task-lifecycle"/>` (AEF's recommended live uuid, rail 118), (b) ghost `workflowRef="22222222-…"` (unresolved), (c) legacy `targetWorkflow="review-map"` NO workflowRef
+- [x] Validates CLEAN under `tools/validate-workflow.py` (exit 0, no findings)
+- [x] Resolved leg's `workflowRef` == a real live uuid from AEF's store (aef-task-lifecycle 1f9b5f0c, rail offset 118) — NOT a placeholder
+- [x] Byte-pinned (sha256 `0bc15bfac81d80cc13df527a09056dda6170def304d5a43c038bb504b691449d`) into `tests/test_corpus_fixture_pins.py` `FULL_SHA` + guard passes 3/3
+- [ ] Delivered to AEF rail-inline (chunked, concat-verified to the pin BEFORE posting) — **PENDING: budget ceiling hit at byte-gen; do FIRST next window. Notified AEF w/ sha at rail offset 119. Delivery: `B64=$(base64 -w0 tests/fixtures/aef-bpmn/offpage-seam.bpmn); HALF=$((${#B64}/2))`; split, `printf '%s%s' "${B64:0:$HALF}" "${B64:$HALF}" | base64 -d | sha256sum` must==0bc15bfac8…; post 2 chunks via termlink_channel_reply topic dm:0e7ee6cad65137fc:6a646ce8b1bc6560; then complete T-219**
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

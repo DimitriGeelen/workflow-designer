@@ -4,10 +4,10 @@ name: "Investigate: Tier-0 approvals not surfacing in Watchtower /approvals page
 description: >
   Investigate: Tier-0 approvals not surfacing in Watchtower /approvals page
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T12:33:59Z
-last_update: 2026-07-21T12:33:59Z
-date_finished: null
+last_update: 2026-07-21T12:40:14Z
+date_finished: 2026-07-21T12:40:14Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -206,3 +206,6 @@ git check-ignore -q .context/working/.tier0-approval
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-222-investigate-tier-0-approvals-not-surfaci.md
 - **Context:** Initial task creation
+
+### 2026-07-21T12:40:14Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
