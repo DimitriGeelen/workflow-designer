@@ -309,3 +309,17 @@ learnings:
   date: 2026-07-21
   context: Added via context agent
   application: TBD
+- id: PL-045
+  learning: "A server-side slice is not 'live' until the SERVED surface is verify-live'd — committed code != running code. The gallery-serve.py :8834 instance was Jul-10 (pre-S1); S1-S3 landed in git but the running process served the old /api/list shape. AEF's peer probe (committed!=serving discipline) caught that I announced 'S3 live' against a stale surface. FIX PATTERN: after completing a server-side slice, redeploy the running instance (serve-gallery.sh restart) AND curl the served endpoint to confirm the new response shape BEFORE announcing 'live' to a peer. Same class as T-223/T-2589 entry-point shadowing."
+  source: P-001
+  task: T-227
+  date: 2026-07-21
+  context: Added via context agent
+  application: TBD
+- id: PL-046
+  learning: "Identity must be minted at object BIRTH, not on the load/import path: attaching uuid mint only to the load path (assuming every map round-trips through it) leaves the net-new creation path emitting identity-less objects. Verify the creation path, not just the import path. Found by peer field-testing the live + button (T-229, S1 seam-identity gap)."
+  source: P-001
+  task: T-229
+  date: 2026-07-21
+  context: Added via context agent
+  application: TBD

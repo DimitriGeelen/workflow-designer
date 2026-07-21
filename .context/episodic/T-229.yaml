@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-229: S1 new-map mint gap: net-new maps save without workflowMeta uuid
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-21T22:30:52Z
+# ============================================================================
+
+task_id: T-229
+task_name: "S1 new-map mint gap: net-new maps save without workflowMeta uuid"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-21T22:24:48Z
+completed: 2026-07-21T22:30:49Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-22T00:30:24+02:00
+last_commit: 2026-07-22T00:30:24+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  mint seam uuid at new-map birth (createNewWorkflow) — closes S1 gap where net-new maps saved uuid:null (AEF S4 e2e, rail 139). Playwright verify-live on served :8834: born map carries v4 uuid, /api/list non-null, invariant across rename+reopen; 22/22 + 17/17 verifiers green; static birth-mint guard added
+
+# Key outcomes
+outcomes:
+  - '`createNewWorkflow()` mints a v4 uuid into `workflowMeta.uuid` at creation (via the existing `mintUuid()`), so a net-new map carries seam identity from birth — no load-path round-trip required'
+  - 'After creating a new map via the served editor and saving through `/api/save` (no reopen), `/api/list` reports a **non-null** `uuid` (36-char v4) for that map'
+  - 'uuid is invariant across a subsequent rename (`renameActiveWorkflow`) and a reopen (load-path backfill at `:8007` is a no-op when uuid already present — no double-mint / churn)'
+  - 'Existing behaviour unchanged for legacy maps loaded without a uuid (backfill still mints on load) and for the emit path (uuid emitted only when present)'
+  - 'A verify path (Playwright against served `:8834`) exercises: new map via + → save → `/api/list` uuid non-null; then rename + reload → same uuid. Screenshots/response captured'
+  - 'No regression: `_gallery-list-verify.py`, `_gallery-registry-verify.py` still green; editor byte-diff vs deployed `designer.html` limited to this change'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-229-s1-new-map-mint-gap-net-new-maps-save-wi.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-22T00:30:24"
+    action: "T-229: mint seam uuid at new-map birth (createNewWorkflow) — closes S1 gap where net-new maps saved uuid:null (AEF S4 e2e, rail 139). Playwright verify-live on served :8834: born map carries v4 uuid, /api/list non-null, invariant across rename+reopen; 22/22 + 17/17 verifiers green; static birth-mint guard added"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 2
+  lines_added: 176
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-229-s1-new-map-mint-gap-net-new-maps-save-wi.md
+generated_by: context-agent-hybrid
