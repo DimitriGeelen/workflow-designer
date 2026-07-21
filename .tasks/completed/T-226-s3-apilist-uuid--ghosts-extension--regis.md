@@ -4,10 +4,10 @@ name: "S3 /api/list uuid + ghosts[] extension + registry twin (.context/designer
 description: >
   S3 /api/list uuid + ghosts[] extension + registry twin (.context/designer/registry.yaml) with 3 ghost-drop rules (T-218 GO slice 3)
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T20:04:35Z
-last_update: 2026-07-21T20:06:41Z
-date_finished: null
+last_update: 2026-07-21T21:33:16Z
+date_finished: 2026-07-21T21:33:16Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -56,15 +56,19 @@ stateful registry subsystem. Recommend splitting:
 ## Acceptance Criteria
 
 ### Agent
-<!-- Full-S3 criteria; if split, S3a takes the first three, S3b the rest. -->
-- [ ] `/api/list` `maps[]` gains an additive `uuid` field per map (read from the map's `<aef:workflowMeta uuid=…>`; null when absent — legacy/rendered maps with no uuid yet); existing `maps[]` shape otherwise unchanged (no field renamed/removed)
-- [ ] `/api/list` response gains a NEW top-level `ghosts[]` array: each entry `{uuid, name, referenced_by:[{id,node,nodeName}], task, first_seen}` derived by scanning every listed map's `<aef:link workflowRef>` refs and keeping those whose uuid resolves to no live map uuid; resolved refs (uuid matches a map) produce NO ghost
-- [ ] `ghosts[]` is a SEPARATE top-level array (NOT status-flagged inside `maps[]`) so a 0.3.0 picker never tries to open a versionless ghost (openTarget-break avoidance, ratified offset 109/113)
-- [ ] Registry `.context/designer/registry.yaml` `{ghosts:[], claims:[]}` is created/updated via atomic write (temp-file + rename); malformed/missing → treated as empty, never crashes `/api/list`
-- [ ] `/api/save` rescans the saved map's `aef:link` refs and merges unresolved ones into `registry.ghosts` (name-dedup); `/api/delete` strips the deleted map from every ghost's `referenced_by`
-- [ ] The 3 ghost-DROP rules apply at sync exactly as ratified (offset 113); uuid-pinned (`workflowRef`) ghosts are never auto-dropped (exit only via claim, S4)
-- [ ] `tools/_gallery-list-verify.py` extended to assert `maps[].uuid` present + `ghosts[]` shape on a fixture with a resolved and an unresolved ref; passes
-- [ ] Existing `/api/list` read-only guarantees hold (no corpus/version writes from a GET); existing gallery tests still pass
+<!-- SPLIT (2026-07-21): T-226 delivers S3a (read-only). S3b (stateful registry
+     twin) is tracked in T-227 — ACs 4/5/6 below moved there; see ## Decisions. -->
+- [x] `/api/list` `maps[]` gains an additive `uuid` field per map (read from the map's `<aef:workflowMeta uuid=…>`; null when absent — legacy/rendered maps with no uuid yet); existing `maps[]` shape otherwise unchanged (no field renamed/removed)
+- [x] `/api/list` response gains a NEW top-level `ghosts[]` array: each entry `{uuid, name, referenced_by:[{id,node,nodeName}], task, first_seen}` derived by scanning every listed map's `<aef:link workflowRef>` refs and keeping those whose uuid resolves to no live map uuid; resolved refs (uuid matches a map) produce NO ghost
+- [x] `ghosts[]` is a SEPARATE top-level array (NOT status-flagged inside `maps[]`) so a 0.3.0 picker never tries to open a versionless ghost (openTarget-break avoidance, ratified offset 109/113)
+- [x] `tools/_gallery-list-verify.py` extended to assert `maps[].uuid` present + `ghosts[]` shape on a fixture with a resolved and an unresolved ref; passes (22/22, was 13)
+- [x] Existing `/api/list` read-only guarantees hold (no corpus/version writes from a GET); existing gallery tests still pass (save-allowlist 6/6, corpus-adopt 11 maps, byte-pins green)
+<!-- ↓ MOVED to T-227 (S3b — stateful registry twin): -->
+<!-- - Registry `.context/designer/registry.yaml` {ghosts,claims} atomic write; malformed/missing → empty -->
+<!-- - `/api/save` rescan → merge unresolved refs into registry.ghosts (name-dedup); `/api/delete` back-ref strip -->
+<!-- - 3 ghost-DROP rules (offset 113); uuid-pinned (workflowRef) ghosts never auto-dropped (exit only via claim, S4) -->
+<!-- - OPEN SEAM Q (blocks S3b drop-rule semantics): does 832's local twin mint doc-tasks (task field), or is `task` always null with AEF the sole minter? → asked on rail. -->
+
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -129,6 +133,9 @@ stateful registry subsystem. Recommend splitting:
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+python3 tools/_gallery-list-verify.py
+python3 tools/_gallery-save-allowlist-verify.py
+python3 -m pytest tests/test_corpus_fixture_pins.py -q
 
 ## RCA
 
@@ -170,16 +177,17 @@ stateful registry subsystem. Recommend splitting:
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-07-21 — S3 split into S3a (this task) + S3b (T-227) at the read/write seam
+- **What changed:** Budget was fresh this window, so the S3a/S3b split was no longer forced by context pressure — but building S3b surfaced a genuine *seam-semantics* question the read-only slice does not have: does 832's local `registry.yaml` twin mint doc-tasks (populating each ghost's `task` field), or is `task` always null with AEF's substrate the sole minter (FW_TASK_ORIGIN=designer-ghost)? This determines the 3 ghost-DROP rules' behavior (offset 113 rule 2 "KEEP when task set" and rule 3 "even with a task minted" both hinge on it).
+- **Plan impact:** S3a (read-only `maps[].uuid` + derived `ghosts[]`) is a clean, tested, independently-shippable deliverable and completes here. The stateful registry twin (atomic write + `/api/save` rescan + `/api/delete` strip + drop rules) becomes T-227 and should not be built on an unconfirmed seam assumption (PL-005 editor/store drift risk).
+- **Triggered:** T-227 filed (S3b). Rail question posted to AEF (they are "standing by for your S3 ghost-rescan ping" — the ghost-rescan IS S3b). S3a ghost derivation is host-agnostic (`<aef:link>` child-keyed, seam-fact offset 130) and byte-pins/gallery tests stay green.
+
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-07-21 — ghost host-node resolution climbs to nearest id-bearing ancestor
+- **Chose:** In `_link_refs_from_text`, resolve a ref's host node by walking parents up to the nearest element carrying an `id` attribute, not the `<aef:link>`'s direct parent.
+- **Why:** The editor nests `<aef:link>` inside `<bpmn:extensionElements>`, so the direct parent has no id/name — `referenced_by[].node`/`nodeName` would be null. Climbing yields the actual flow node (e.g. `agt_8_ghost` / "→ publish-map (ghost)"). Verified against the pinned `offpage-seam.bpmn`. Host tag itself is irrelevant (child-keyed seam-fact).
+- **Rejected:** Keying off the host tag or the direct parent (both break on the real serialization); regex backward-scan for the enclosing tag (fragile with nested content vs. an ElementTree parent map).
 
 ## Decision
 
@@ -197,3 +205,6 @@ stateful registry subsystem. Recommend splitting:
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-226-s3-apilist-uuid--ghosts-extension--regis.md
 - **Context:** Initial task creation
+
+### 2026-07-21T21:33:16Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

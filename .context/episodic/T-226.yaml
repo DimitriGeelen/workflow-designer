@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-226: S3 /api/list uuid + ghosts[] extension + registry twin (.context/designer/registry.yaml) with 3 ghost-drop rules (T-218 GO slice 3)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-21T21:33:20Z
+# ============================================================================
+
+task_id: T-226
+task_name: "S3 /api/list uuid + ghosts[] extension + registry twin (.context/designer/registry.yaml) with 3 ghost-drop rules (T-218 GO slice 3)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-21T20:04:35Z
+completed: 2026-07-21T21:33:16Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-21T22:06:41+02:00
+last_commit: 2026-07-21T22:06:41+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  scope S3 (/api/list uuid+ghosts[] + registry twin) with real ACs + recommended S3a/S3b decomposition — teed up for a fresh window (S3 too big to start at 70% budget)
+
+# Key outcomes
+outcomes:
+  - '`/api/list` `maps[]` gains an additive `uuid` field per map (read from the map''s `<aef:workflowMeta uuid=…>`; null when absent — legacy/rendered maps with no uuid yet); existing `maps[]` shape otherwise unchanged (no field renamed/removed)'
+  - '`/api/list` response gains a NEW top-level `ghosts[]` array: each entry `{uuid, name, referenced_by:[{id,node,nodeName}], task, first_seen}` derived by scanning every listed map''s `<aef:link workflowRef>` refs and keeping those whose uuid resolves to no live map uuid; resolved refs (uuid matches a map) produce NO ghost'
+  - '`ghosts[]` is a SEPARATE top-level array (NOT status-flagged inside `maps[]`) so a 0.3.0 picker never tries to open a versionless ghost (openTarget-break avoidance, ratified offset 109/113)'
+  - '`tools/_gallery-list-verify.py` extended to assert `maps[].uuid` present + `ghosts[]` shape on a fixture with a resolved and an unresolved ref; passes (22/22, was 13)'
+  - 'Existing `/api/list` read-only guarantees hold (no corpus/version writes from a GET); existing gallery tests still pass (save-allowlist 6/6, corpus-adopt 11 maps, byte-pins green)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-21 — ghost host-node resolution climbs to nearest id-bearing ancestor'
+    chose: 'In `_link_refs_from_text`, resolve a ref''s host node by walking parents up to the nearest element carrying an `id` attribute, not the `<aef:link>`''s direct parent.'
+    rationale: 'The editor nests `<aef:link>` inside `<bpmn:extensionElements>`, so the direct parent has no id/name — `referenced_by[].node`/`nodeName` would be null. Climbing yields the actual flow node (e.g. `agt_8_ghost` / "→ publish-map (ghost)"). Verified against the pinned `offpage-seam.bpmn`. Host tag itself is irrelevant (child-keyed seam-fact).'
+    alternatives_rejected: ['Keying off the host tag or the direct parent (both break on the real serialization); regex backward-scan for the enclosing tag (fragile with nested content vs. an ElementTree parent map).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-226-s3-apilist-uuid--ghosts-extension--regis.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-21T22:06:41"
+    action: "T-226: scope S3 (/api/list uuid+ghosts[] + registry twin) with real ACs + recommended S3a/S3b decomposition — teed up for a fresh window (S3 too big to start at 70% budget)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 88 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 88
+  commits: 1
+  files_changed: 1
+  lines_added: 199
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-226-s3-apilist-uuid--ghosts-extension--regis.md
+generated_by: context-agent-hybrid
