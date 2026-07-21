@@ -2208,12 +2208,28 @@ function createNewWorkflow() {
 // Rename the active workflow's id. Updates the library key, the workflowMeta.id,
 // and the pool id/name (since those default to following the workflow id).
 // Enforces uniqueness against existing workflows in the library.
+// T-224 (S1, seam identity): mint a stable v4 uuid — the connector-referenceable identity that
+// survives a rename (the slug does not). crypto.randomUUID is present on localhost/HTTPS (the
+// designer is already so-gated); the fallback keeps file:// usage working.
+function mintUuid() {
+  try {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+  } catch (_) { /* fall through */ }
+  // RFC-4122-ish v4 fallback (non-crypto) — only reached without crypto.randomUUID.
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = (Math.random() * 16) | 0, v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 function renameActiveWorkflow(newId) {
   newId = (newId || '').trim().toLowerCase().replace(/[^a-z0-9_\-]/g, '-');
   if (!newId || newId === activeKey) return false;
   if (library.has(newId)) return false; // collision
   library.delete(activeKey);
   state.workflowMeta.id = newId;
+  // T-224: uuid is INVARIANT across rename — only the slug (id), pool name/id, and library key
+  // change. Connectors pin workflowMeta.uuid precisely so an off-page ref survives this rename.
   if (state.pool && state.pool.name === activeKey) state.pool.name = newId;
   if (state.pool && state.pool.id === `Pool_${activeKey}`) state.pool.id = `Pool_${newId}`;
   library.set(newId, state);
@@ -8254,6 +8270,9 @@ function buildBpmnXml(s) {
     `version="${escAttr(wm.version || '1')}"`,
     `schemaVersion="${escAttr(wm.schemaVersion || 2)}"`,
   ];
+  // T-224 (S1): emit the stable identity uuid right after id (additive, process-level). Additive-
+  // only — absent uuid changes nothing; the hand-authored corpus fixtures are not editor-exported.
+  if (wm.uuid) wmAttrs.splice(1, 0, `uuid="${escAttr(wm.uuid)}"`);
   if (wm.title) wmAttrs.push(`title="${escAttr(wm.title)}"`);
   if (wm.description) wmAttrs.push(`description="${escAttr(wm.description)}"`);
   if (wm.source) wmAttrs.push(`source="${escAttr(wm.source)}"`);
