@@ -2190,6 +2190,10 @@ function createNewWorkflow() {
     pool: { id: `Pool_${id}`, name: id },
     workflowMeta: {
       id,
+      // T-229 (S1): mint seam identity at BIRTH, not just on the load path (:8007 backfill).
+      // A map born via the + button must carry a uuid so off-page workflowRef connectors can
+      // resolve to it without a load-path round-trip; uuid is rename-invariant (T-224).
+      uuid: mintUuid(),
       version: '1',
       schemaVersion: 2,
       title: 'Untitled workflow',
