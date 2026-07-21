@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-222: Investigate: Tier-0 approvals not surfacing in Watchtower /approvals page
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-21T12:40:17Z
+# ============================================================================
+
+task_id: T-222
+task_name: "Investigate: Tier-0 approvals not surfacing in Watchtower /approvals page"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-21T12:33:59Z
+completed: 2026-07-21T12:40:14Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-21T14:39:44+02:00
+last_commit: 2026-07-21T14:39:44+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  fix .context/working/.gitignore tier0-approval pattern (missing leading dot leaked Tier-0 tokens into git); diagnose approvals-not-surfacing as operator-approved-wrong-request (my --help probe), page works
+
+# Key outcomes
+outcomes:
+  - 'Traced the Tier-0 flow: check-tier0.sh writes `.tier0-approval.pending` + `.context/approvals/pending-<hash>.yaml`; `/approvals` reads the latter; grants land in `.tier0-approval` + `resolved-<hash>.yaml`'
+  - 'Root cause identified: symptom is expected (page works — proven by resolved-97cb4290 approved via watchtower); nothing pending because the only request was the agent''s `--help` no-op (already resolved) and no GO request was ever submitted'
+  - 'Classified: reported symptom = expected-behavior/operator-confusion (not a bug); incidental real bug found = gitignore pattern typo (`.context/working/.gitignore:6`)'
+  - 'Bug fixed (gitignore `.tier0-approval*`); correct operator path to record T-218 GO documented (run directly, or agent surfaces the real GO request for Watchtower approval)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'fix .context/working/.gitignore tier0-approval pattern (missing leading dot leaked Tier-0 tokens into git); diagnose approvals-not-surfacing as operator-approved-wrong-request (my --help probe), page works'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/working/.gitignore'
+  - '.context/working/.tier0-approval'
+  - '.context/working/.tier0-approval.pending'
+  - '.tasks/active/T-222-investigate-tier-0-approvals-not-surfaci.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-21T14:39:44"
+    action: "T-222: fix .context/working/.gitignore tier0-approval pattern (missing leading dot leaked Tier-0 tokens into git); diagnose approvals-not-surfacing as operator-approved-wrong-request (my --help probe), page works"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 4
+  lines_added: 212
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-222-investigate-tier-0-approvals-not-surfaci.md
+generated_by: context-agent-hybrid

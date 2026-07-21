@@ -302,3 +302,10 @@ learnings:
   date: 2026-07-21
   context: Added via context agent
   application: TBD
+- id: PL-044
+  learning: "Never run 'fw inception decide' with ANY argument (incl. --help/--dry-run) to inspect it — check-tier0's regex 'fw\\s+inception\\s+decide' (check-tier0.sh:156) matches every subcommand, so even --help trips the Tier-0 gate and writes a spurious pending approval request to .context/approvals/ that the operator may approve by mistake (truncated command_preview hides the --help). To learn the syntax, read the block message or the hook source, don't attempt the command."
+  source: P-001
+  task: T-222
+  date: 2026-07-21
+  context: Added via context agent
+  application: TBD
