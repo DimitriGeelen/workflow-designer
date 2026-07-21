@@ -41,6 +41,7 @@ import re
 import shutil
 import sys
 import time
+import xml.etree.ElementTree as ET
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 
@@ -149,13 +150,126 @@ def _latest_version(id_):
     return {'v': top.get('v'), 'ts': top.get('ts'), 'count': len(idx)}
 
 
-def build_map_list():
-    """Merge the rendered corpus with saved maps into one read-only listing.
+# ---- S3a (T-226) — additive uuid + read-only ghosts[] derivation ----
+# The off-page connector seam (T-218 GO): a map carries an immutable uuid in
+# <aef:workflowMeta uuid=…> (minted by the editor at draw time, S1/T-224), and
+# off-page connectors pin a target by <aef:link workflowRef="<uuid>"/>. A ref
+# whose uuid matches no live map uuid is a GHOST (unresolved reference). S3a
+# derives both read-only from the authoritative BPMN of each listed map; no file
+# is written. The stateful registry twin + drop rules are S3b.
+_WORKFLOWMETA_UUID_RE = re.compile(r'<aef:workflowMeta\b[^>]*\buuid="([^"]*)"')
 
-    Per map: {id, title, sources:[rendered|saved], latest:{v,ts,count}|null,
-    openTarget:{kind:'version',v}|{kind:'rendered'}}. openTarget is the latest saved
-    version when one exists, else the rendered baseline. Read-only; every id is
-    validated with ID_RE so nothing outside the corpus/version store is enumerated."""
+
+def _rendered_path(id_):
+    return os.path.join(REPO, 'examples', 'aef-processes', 'rendered', '%s.bpmn' % id_)
+
+
+def _authoritative_bpmn_path(id_, latest):
+    """Path to the BPMN a map's openTarget would load: the latest saved version
+    when one exists, else the rendered corpus file. None if neither is present."""
+    if latest:
+        p = os.path.join(versions_dir(id_), 'v%s.bpmn' % latest['v'])
+        if os.path.exists(p):
+            return p
+    p = _rendered_path(id_)
+    return p if os.path.exists(p) else None
+
+
+def _read_text(path):
+    if not path:
+        return None
+    try:
+        with open(path, encoding='utf-8') as f:
+            return f.read()
+    except Exception:
+        return None
+
+
+def _uuid_from_text(text):
+    """The map's own uuid from <aef:workflowMeta uuid=…>; None when absent
+    (legacy/rendered maps not yet saved through the uuid-minting editor)."""
+    if not text:
+        return None
+    m = _WORKFLOWMETA_UUID_RE.search(text)
+    return m.group(1) if m else None
+
+
+def _local(tag):
+    return tag.rsplit('}', 1)[-1] if '}' in tag else tag
+
+
+def _link_refs_from_text(text):
+    """Every uuid-pinned off-page ref in a map: [{workflowRef, name, node, nodeName}].
+    node/nodeName come from the ENCLOSING element — the <aef:link> child is the key,
+    the host tag is host-agnostic (rail seam-fact, offset 130). Legacy refs
+    (targetWorkflow, no workflowRef) are ignored: only uuid-pinned refs resolve/ghost."""
+    if not text:
+        return []
+    try:
+        root = ET.fromstring(text)
+    except Exception:
+        return []
+    parents = {child: parent for parent in root.iter() for child in parent}
+    refs = []
+    for el in root.iter():
+        if _local(el.tag) != 'link':
+            continue
+        wref = el.get('workflowRef')
+        if not wref:
+            continue
+        # Climb to the nearest ancestor carrying an id — the flow node. The editor
+        # nests <aef:link> under <bpmn:extensionElements>, so the direct parent has
+        # no id/name; the host tag itself is host-agnostic (rail seam-fact).
+        host = parents.get(el)
+        while host is not None and host.get('id') is None:
+            host = parents.get(host)
+        refs.append({
+            'workflowRef': wref,
+            'name': el.get('name'),
+            'node': host.get('id') if host is not None else None,
+            'nodeName': host.get('name') if host is not None else None,
+        })
+    return refs
+
+
+def _derive_ghosts(records):
+    """Read-only ghosts[] from the listed maps' uuid-pinned refs (S3a).
+
+    A ref resolves when its workflowRef matches some live map's uuid → no ghost.
+    Otherwise it is a ghost, grouped by uuid: {uuid, name, referenced_by:[{id,node,
+    nodeName}], task, first_seen}. task/first_seen are null here — they are owned by
+    the persistent registry twin (S3b); this derivation never writes state."""
+    live_uuids = {r['uuid'] for r in records if r.get('uuid')}
+    ghosts = {}
+    for r in records:
+        for ref in r['refs']:
+            wref = ref['workflowRef']
+            if wref in live_uuids:
+                continue
+            g = ghosts.get(wref)
+            if g is None:
+                g = {'uuid': wref, 'name': ref.get('name'), 'referenced_by': [],
+                     'task': None, 'first_seen': None}
+                ghosts[wref] = g
+            elif g['name'] is None and ref.get('name'):
+                g['name'] = ref['name']
+            g['referenced_by'].append({'id': r['id'], 'node': ref['node'],
+                                       'nodeName': ref['nodeName']})
+    return sorted(ghosts.values(), key=lambda g: g['uuid'])
+
+
+def build_map_list():
+    """Merge the rendered corpus with saved maps into one read-only listing, and
+    derive the off-page ghost[] set (S3a/T-226).
+
+    Returns (maps, ghosts). Per map: {id, title, sources:[rendered|saved],
+    latest:{v,ts,count}|null, uuid:str|null, openTarget:{kind:'version',v}|
+    {kind:'rendered'}}. `uuid` is additive (read from <aef:workflowMeta uuid=…>,
+    null when absent). `ghosts` is a SEPARATE top-level array (never status-flagged
+    inside maps[]) so a 0.3.0 picker never tries to open a versionless ghost.
+    openTarget is the latest saved version when one exists, else the rendered
+    baseline. Read-only; every id is validated with ID_RE so nothing outside the
+    corpus/version store is enumerated."""
     rendered_dir = os.path.join(REPO, 'examples', 'aef-processes', 'rendered')
     maps = {}
     if os.path.isdir(rendered_dir):
@@ -184,11 +298,16 @@ def build_map_list():
             else:
                 maps[id_] = {'id': id_, 'title': id_, 'sources': ['saved'], 'latest': lv}
     out = []
+    records = []
     for m in maps.values():
         m['openTarget'] = ({'kind': 'version', 'v': m['latest']['v']}
                            if m['latest'] else {'kind': 'rendered'})
+        text = _read_text(_authoritative_bpmn_path(m['id'], m['latest']))
+        m['uuid'] = _uuid_from_text(text)
+        records.append({'id': m['id'], 'uuid': m['uuid'], 'refs': _link_refs_from_text(text)})
         out.append(m)
-    return sorted(out, key=lambda m: m['id'])
+    out.sort(key=lambda m: m['id'])
+    return out, _derive_ghosts(records)
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -241,7 +360,9 @@ class Handler(SimpleHTTPRequestHandler):
             return self._json(200, {'ok': True, 'store': '.editor-versions'})
         if route == '/api/list':
             # T-143: read-only corpus + saved-map enumeration (no id required).
-            return self._json(200, {'maps': build_map_list()})
+            # T-226/S3a: additive maps[].uuid + separate top-level ghosts[].
+            maps, ghosts = build_map_list()
+            return self._json(200, {'maps': maps, 'ghosts': ghosts})
         id_ = (q.get('id') or [''])[0]
         if route in ('/api/versions', '/api/version', '/api/thumb') and not self._valid_id(id_):
             return self._json(400, {'ok': False, 'error': 'invalid id'})
