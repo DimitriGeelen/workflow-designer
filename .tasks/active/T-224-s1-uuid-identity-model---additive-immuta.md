@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T19:23:57Z
-last_update: 2026-07-21T19:25:04Z
+last_update: 2026-07-21T19:29:02Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -56,24 +56,24 @@ first-time uuid backfill from the dirty-check, or every legacy open nags "unsave
 2. `renameActiveWorkflow` — added a comment documenting uuid is INVARIANT across rename (code already only touches id/pool/key; no change needed — Step 5 done).
 3. Export (Step 3): in `buildBpmnXml` wmAttrs (~line 8270), `if (wm.uuid) wmAttrs.splice(1, 0, uuid="…")` — emits uuid right after id. **Inert until something sets `wm.uuid`.**
 
-**REMAINING (source edits blocked by budget gate — do FIRST next window, in order):**
-- **Step 4a — import parse (parseBpmnXml, ~line 8399):** in the `const workflowMeta = {` object, add `uuid: aefMetaEl?.getAttribute('uuid') || null,` right after the `id:` line. (This exact edit was blocked at the gate — apply it first.)
-- **Step 4b — backfill (adoptImportedXml, ~line 7982, right after `saveActiveToLibrary();` / before `let key = loaded.workflowMeta.id`):** `if (!loaded.workflowMeta.uuid) loaded.workflowMeta.uuid = mintUuid();` — one-time legacy backfill. Do NOT call scheduleAutosave (there's no global dirty nag; adopt doesn't autosave, so backfill-not-dirty holds naturally — confirmed no beforeunload/isDirty mechanism exists).
-- **Step 1 (second half) — seed uuid BEFORE `_seedBpmn` (line ~8829, `const _seedBpmn = buildBpmnXml(state);`):** insert `if (!state.workflowMeta.uuid) state.workflowMeta.uuid = mintUuid();` on the line ABOVE the `_seedBpmn` capture. **PL-022 trap #1** — must be before, or the T-141 pristine-seed guard (saveToProject line ~7451, `bpmn === _seedBpmn`) misfires.
-- Then: refresh build/gallery/designer.html from src (`cp`), Playwright-verify on :8834 (new-map uuid present; export→import round-trip stable; rename holds uuid; legacy corpus open not-dirty); run the Verification block + tests/ suite; check ACs; complete.
+**REMAINING — ALL DONE (2026-07-21, next window; committed):**
+- **Step 4a — import parse (parseBpmnXml, live line 8419):** added `uuid: aefMetaEl?.getAttribute('uuid') || null,` after the `id:` line. ✓
+- **Step 4b — backfill (adoptImportedXml, live line 7998, after `saveActiveToLibrary();`):** added `if (!loaded.workflowMeta.uuid) loaded.workflowMeta.uuid = mintUuid();`. ✓
+- **Step 1 (second half) — seed uuid BEFORE `_seedBpmn` (live line 8848):** inserted `if (!state.workflowMeta.uuid) state.workflowMeta.uuid = mintUuid();` above the capture. PL-022 trap #1 verified intact (check1b: `buildBpmnXml(state) === _seedBpmn`). ✓
+- Refreshed build/gallery/designer.html; Playwright-verified on :8834 (7/7 checks true); Verification block + tests/ suite (roundtrip + corpus-pins) green; validate-workflow.py VALID exit 0. All 7 agent ACs checked.
 
 **Anchors verified this window (post-T-223 shift):** renameActiveWorkflow 2211; adoptImportedXml 7975; wmAttrs export ~8270 (was 8252); parseBpmnXml workflowMeta ~8399; `_seedBpmn` capture 8829; autoLoadStored() call 8831. T-141 pristine guard = saveToProject ~7451 (`bpmn === _seedBpmn`). No global dirty/beforeunload mechanism exists.
 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] A new/seed workflow has `workflowMeta.uuid` (crypto.randomUUID v4) set BEFORE the `_seedBpmn` capture; the T-141 pristine-seed guard still fires correctly (unedited seed → save prompts; edited → saves silently)
-- [ ] Export emits `<aef:workflowMeta … uuid="<v4>" …>` (additive, process-level); re-import yields the same uuid (round-trip stable)
-- [ ] `renameActiveWorkflow` changes the slug (`workflowMeta.id`) but `uuid` is byte-identical before/after (uuid invariant across rename)
-- [ ] A legacy map (no `uuid` on import) backfills exactly once via `mintUuid()`; opening it does NOT mark it dirty / nag unsaved changes; a subsequent save persists the uuid
-- [ ] Two imports of the same slug resolve to distinct library keys AND distinct uuids
-- [ ] `tools/validate-workflow.py` stays clean (exit 0) on a `uuid`-bearing exported map (validator ignores unknown `aef:workflowMeta` attrs)
-- [ ] Visual/functional-verified in Playwright (:8834): new-map uuid present, export→import round-trip, rename-holds-uuid, legacy-open-not-dirty — evidence read back
+- [x] A new/seed workflow has `workflowMeta.uuid` (crypto.randomUUID v4) set BEFORE the `_seedBpmn` capture; the T-141 pristine-seed guard still fires correctly (unedited seed → save prompts; edited → saves silently) — verified: seed uuid `fa41adbc-…` is v4; `buildBpmnXml(state) === _seedBpmn` (check1b true), so the guard baseline carries the uuid and does not misfire (PL-022 trap #1)
+- [x] Export emits `<aef:workflowMeta … uuid="<v4>" …>` (additive, process-level); re-import yields the same uuid (round-trip stable) — verified: export attr present, positioned right after `id=`, `parseBpmnXml(xml).workflowMeta.uuid` === seed uuid (check2)
+- [x] `renameActiveWorkflow` changes the slug (`workflowMeta.id`) but `uuid` is byte-identical before/after (uuid invariant across rename) — verified: id → `renamed-probe-xyz`, uuid unchanged (check3)
+- [x] A legacy map (no `uuid` on import) backfills exactly once via `mintUuid()`; opening it does NOT mark it dirty / nag unsaved changes; a subsequent save persists the uuid — verified: stripped-uuid parse → null, `mintUuid()` backfill → v4 (check4); no isDirty/beforeunload mechanism exists so adopt-open stays clean (PL-022 trap #2); subsequent `buildBpmnXml` emits the uuid (check2 path)
+- [x] Two imports of the same slug resolve to distinct library keys AND distinct uuids — verified: distinct uuids per parse+backfill (check5); distinct keys via the existing `_v<n>` collision loop (unchanged)
+- [x] `tools/validate-workflow.py` stays clean (exit 0) on a `uuid`-bearing exported map (validator ignores unknown `aef:workflowMeta` attrs) — verified: `VALID -- no findings`, exit 0
+- [x] Visual/functional-verified in Playwright (:8834): new-map uuid present, export→import round-trip, rename-holds-uuid, legacy-open-not-dirty — evidence read back — verified via `browser_evaluate` on a cleared-localStorage fresh seed; all 7 checks returned true (JSON read back). Data-model change (no CSS/HTML), so element screenshots N/A per the Visual Verification rule.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -188,7 +188,10 @@ python3 -c "import html.parser; p=html.parser.HTMLParser(); p.feed(open('src/aef
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
-## Decisions
+### 2026-07-21 — S1 landed; the crux was ordering, not the field
+- **What changed:** The uuid field itself is trivial (additive attr, `if (wm.uuid)` gated export → byte-identical corpus, confirmed by the still-green pin test). The real risk lived entirely in *ordering* against two existing invariants: (1) the T-141 pristine-seed guard captures `_seedBpmn` at Init, so the seed uuid MUST be minted on the line above that capture or the guard misfires — verified directly (`buildBpmnXml(state) === _seedBpmn` after minting); (2) legacy backfill had to ride `adoptImportedXml` (which never autosaves) rather than any dirty-marking path, which held because the editor has *no* isDirty/beforeunload mechanism at all (confirmed by read).
+- **Plan impact:** T-221 spec's line anchors were ~44 lines stale (pre-T-223); re-located live (parse 8419, backfill 7998, seed-mint 8848). No design change.
+- **Triggered:** Nothing new. S2 (workflowRef serialization on `<aef:link>`) is next per the T-220 decomposition — it consumes this uuid as the connector target.
 
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.

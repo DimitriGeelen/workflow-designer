@@ -7995,6 +7995,10 @@ function adoptImportedXml(text, opts) {
     return;
   }
   saveActiveToLibrary();
+  // S1 (T-224): one-time uuid backfill for legacy maps that predate the field. Not a dirty edit —
+  // adopt does not autosave and there is no beforeunload/isDirty nag, so opening a legacy map stays
+  // clean (PL-022 trap #2); the uuid persists on the next deliberate save.
+  if (!loaded.workflowMeta.uuid) loaded.workflowMeta.uuid = mintUuid();
   let key = loaded.workflowMeta.id;
   if (opts && opts.replace) {
     // Restore/replace (B1): overwrite any existing entry with this id — no _v2 suffix.
@@ -8417,6 +8421,7 @@ function parseBpmnXml(text) {
   const aefMetaEl = byAef(proc, 'workflowMeta')[0];
   const workflowMeta = {
     id: aefMetaEl?.getAttribute('id') || procName || 'imported',
+    uuid: aefMetaEl?.getAttribute('uuid') || null,   // S1 (T-224): connector-referenceable identity; null → legacy, backfilled on adopt
     version: aefMetaEl?.getAttribute('version') || '1',
     schemaVersion: parseInt(aefMetaEl?.getAttribute('schemaVersion') || '2', 10),
     title: aefMetaEl?.getAttribute('title') || procName || 'Imported workflow',
@@ -8845,6 +8850,10 @@ setMode('select');
 // may replace it), and every buildBpmnXml dependency (e.g. TYPE_TAG) is initialized at this
 // point in Init. saveToProject() compares against this to guard an accidental save of the
 // unedited starter example (the residue source diagnosed in T-140).
+// S1 (T-224) PL-022 trap #1: mint the seed's uuid BEFORE the pristine capture below, so the
+// baseline already carries it. Minting after would make the seed's live BPMN diverge from
+// _seedBpmn and misfire the T-141 unedited-seed guard (saveToProject: bpmn === _seedBpmn).
+if (!state.workflowMeta.uuid) state.workflowMeta.uuid = mintUuid();
 const _seedBpmn = buildBpmnXml(state);
 _appReady = true;            // from here on, edits autosave to localStorage
 autoLoadStored();            // B1: if a prior session left unsaved work, bring it back automatically
