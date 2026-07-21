@@ -1,8 +1,8 @@
 ---
 id: T-228
-name: "S4: off-page claim UX — 'create from pending ref' picker + fw bpmn claim CLI (name-match suggest-only)"
+name: "S4a: off-page claim UX — editor 'create from pending ref' picker (name-match suggest-only)"
 description: >
-  S4: off-page claim UX — 'create from pending ref' picker + fw bpmn claim CLI (name-match suggest-only)
+  S4a: editor 'create from pending ref' picker — seeds a new map adopting a pending ghost's uuid; saving claims it (via:ui). CLI split to S4b/T-230.
 
 status: started-work
 workflow_type: build
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T21:50:40Z
-last_update: 2026-07-21T21:50:40Z
+last_update: 2026-07-21T21:51:25Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,68 +30,49 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-228: S4: off-page claim UX — 'create from pending ref' picker + fw bpmn claim CLI (name-match suggest-only)
+# T-228: S4a: off-page claim UX — editor 'create from pending ref' picker (name-match suggest-only)
 
 ## Context
 
-S4 of the off-page connector seam (T-218 GO); depends on **S3/T-226+T-227** (ghost registry
+**S4a** of the off-page connector seam (T-218 GO); depends on **S3/T-226+T-227** (ghost registry
 DONE — `/api/list ghosts[]` live, `.context/designer/registry.yaml {ghosts,claims}` maintained).
 S4 lets an operator **claim** a pending ghost: turn a ghost uuid into a real map identity so all
-its referrers resolve with ZERO diagram edit. Two surfaces (ratified offset 109/110): an editor
-picker **"create from pending ref"** (lists `ghosts[]`, creates a new map adopting the ghost's
-uuid) and a **`fw bpmn claim <uuid> <project>` CLI** (headless path). On claim: ghost removed from
-`registry.ghosts` → recorded in `registry.claims:[{uuid,project,ts,via:ui|cli}]` → uuid written
-into the new/target map's `<aef:workflowMeta uuid=…>`. **Name-match is suggest-only, never silent**
-(rail-ratified). AEF runs their S4 end-to-end re-verify against this (T-2523 lane). Critical path
-per T-220: S1→S2→**S4**. See `docs/plans/T-220-offpage-seam-editor-build-decomposition.md` §S4 and
-`[[aef-integration-rail]]`.
+its referrers resolve with ZERO diagram edit.
 
-**Not started (filed for next window; budget ceiling ~70% at S3 completion).** uuid-pinned ghosts
-exit ONLY via claim (S3 confirmed: they otherwise re-materialize from XML — claim is the sole
-resolution path). Name-only (store-minted) ghosts resolve when their named target goes live.
+**Scope split (2026-07-22, operator-decided).** S4 was two deliverables; decomposed per task-sizing:
+- **S4a = THIS task (T-228):** the editor **"create from pending ref"** picker (the primary operator
+  UX). Selecting a pending ghost seeds a NEW map that adopts the ghost's uuid → on save that uuid
+  becomes a live map → the claim is recorded (`via:"ui"`) and the ghost drops; all referrers resolve
+  by S3 rescan. Fully 832-product-owned, no vendored-boundary question.
+- **S4b = T-230:** the headless `fw bpmn claim <uuid> <project>` CLI (`via:"cli"`), added as a real
+  `bpmn` subcommand to the vendored `.agentic-framework/bin/fw` (operator-decided home).
+
+On claim (either surface): ghost removed from `registry.ghosts` → recorded in
+`registry.claims:[{uuid,project,ts,via:ui|cli}]` → uuid lives in the new/target map's
+`<aef:workflowMeta uuid=…>`. **Name-match is suggest-only, never silent** (rail-ratified). AEF runs
+their S4 end-to-end claim-picker re-verify against this (T-2523 lane); ready-made pending refs left
+in 832's store (`s4-e2e-probe` + 2 live ghosts, rail offset 139). Critical path per T-220:
+S1→S2→**S4**. See `docs/plans/T-220-offpage-seam-editor-build-decomposition.md` §S4 and
+`[[aef-integration-rail]]`. uuid-pinned ghosts exit ONLY via claim (S3: else re-materialize from XML).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these.
-     DRAFT — refine when starting S4; written now so G-020 doesn't gate on placeholders. -->
-- [ ] `fw bpmn claim <uuid> <project>` CLI: resolves the ghost by uuid in `.context/designer/registry.yaml`; removes it from `ghosts`; appends `{uuid, project, ts, via:"cli"}` to `claims`; writes the uuid into the target map's `<aef:workflowMeta uuid=…>` (via `/api/save` or direct, one authoritative path); atomic; errors clearly if the uuid is not a known ghost
-- [ ] After a claim, `/api/list` no longer lists that uuid in `ghosts[]` and the target map's `maps[].uuid` equals the claimed uuid — every referrer now resolves (S3a derivation: referrer's `workflowRef` matches a live map uuid → no ghost) with NO diagram-XML edit to the referrers
-- [ ] Editor picker "create from pending ref": lists `ghosts[]` (uuid, name, referrer count); selecting one seeds a new map whose `workflowMeta.uuid` == the ghost uuid; **name-match is suggest-only** (a same-named live map is offered, never auto-adopted)
-- [ ] `claims[]` is an audit trail (append-only within a claim); a re-claim of an already-claimed uuid is a no-op or clear error (idempotent), never a double entry
-- [ ] A verify tool (`tools/_gallery-claim-verify.py` or extension) exercises: cli claim removes ghost + records claim + resolves referrers; picker path seeds uuid; re-claim idempotent; unknown-uuid error. Passes
-- [ ] No regression: S3a/S3b verifiers, save-allowlist, corpus-adopt, byte-pins all still green
+- [ ] Editor picker **"create from pending ref"**: lists `/api/list ghosts[]` (uuid, name, referrer count); selecting one seeds a NEW map whose `workflowMeta.uuid` == the ghost uuid; **name-match is suggest-only** (a same-named live map is surfaced as a suggestion, never auto-adopted/opened)
+- [ ] Saving the picker-seeded map **claims** the ghost: the server records `{uuid, project, ts, via:"ui"}` in `registry.claims` and the ghost drops from `registry.ghosts` (its uuid is now a live map); recorded through the one authoritative `/api/save` path
+- [ ] After the claim, `/api/list`: the uuid is **absent** from `ghosts[]` and present as that map's `maps[].uuid` — every referrer now resolves (S3a derivation: referrer `workflowRef` matches a live map uuid → no ghost) with **NO diagram-XML edit** to the referrers
+- [ ] `claims[]` is an append-only audit trail; re-seeding/re-saving the same already-claimed uuid is idempotent (no duplicate claim entry, ghost stays gone)
+- [ ] A verify tool (`tools/_gallery-claim-verify.py`) exercises the ui-claim path end-to-end (seed uuid → save → ghost dropped + claim `via:"ui"` recorded + referrer resolves; idempotent re-claim). Passes
+- [ ] No regression: S3a/S3b verifiers (`_gallery-list-verify.py` 22/22, `_gallery-registry-verify.py` 17/17), save-allowlist, corpus-adopt, byte-pins all still green; editor byte-diff vs deployed `designer.html` limited to this change
 
 ### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+- [ ] [REVIEW] The "create from pending ref" picker reads clearly and the suggest-only affordance is unambiguous
+  **Steps:**
+  1. `cd /opt/832-Workflow-designer && nohup tools/serve-gallery.sh 8834 >/dev/null 2>&1 &` then open http://192.168.10.107:8834/designer.html
+  2. Open the picker (control added by this task); with `s4-e2e-probe`'s pending refs in the store, review the ghost list (uuid, name, referrer count)
+  3. Pick a ghost whose name matches an existing live map; confirm the same-named map is shown only as a *suggestion*, not auto-adopted
+  **Expected:** The list is legible; selecting seeds a new map adopting the ghost uuid; any name-match is offered, never applied silently
+  **If not:** Note which affordance misled you (label, ordering, the suggestion wording) — that is the UX fix
 
 ## Verification
 
@@ -125,6 +106,9 @@ resolution path). Name-only (store-minted) ghosts resolve when their named targe
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+python3 tools/_gallery-list-verify.py
+python3 tools/_gallery-registry-verify.py
+python3 tools/_gallery-claim-verify.py
 
 ## RCA
 
@@ -168,14 +152,16 @@ resolution path). Name-only (store-minted) ghosts resolve when their named targe
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-07-22 — S4 decomposition + claim-CLI home (operator-decided)
+- **Chose:** Split S4 → S4a (this task, editor picker) built first; S4b (T-230, `fw bpmn claim` CLI) separate. Picker is the primary operator UX and is fully 832-product-owned (no boundary question), so it doesn't wait on the CLI-home call.
+- **Why:** Task-sizing rule (one task = one deliverable); T-228 bundled picker + CLI. Picker-first also unblocks AEF's S4 claim-picker re-verify sooner.
+- **Rejected:** CLI-first (needs the home decision up front, delays the higher-value UX); both-under-one-task (larger multi-commit unit, mixes a clean product deliverable with a boundary-touching one).
+
+### 2026-07-22 — where 832's claim CLI lives (S4b/T-230, operator-decided)
+- **Chose:** Add a real `bpmn` subcommand to the vendored `.agentic-framework/bin/fw`, so the operator command is literally `fw bpmn claim <uuid> <project>` (matches the ratified contract shape verbatim).
+- **Why:** Operator preference for the ratified command shape; the vendored `fw` has no project-local subcommand hook (dispatcher hard-fails on unknown commands, `bin/fw:6622`), so a local tool wouldn't be `fw bpmn`. G-008 upstream path applies to the vendored edit.
+- **Rejected:** 832-local `tools/bpmn.py` (cleaner product/governance separation + portability, but the operator command wouldn't be `fw bpmn claim` and would need rail-coordination with AEF on the exact invocation).
+- **Note:** operates ONLY on 832's own store (`.context/designer/registry.yaml` + gallery) — not running AEF's tooling (T-559 boundary intact).
 
 ## Decision
 
