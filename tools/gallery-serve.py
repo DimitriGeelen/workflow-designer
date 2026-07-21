@@ -385,12 +385,38 @@ def sync_registry_after_delete(map_id):
         write_registry(reg)
 
 
+def claim_ghost_after_save(map_id, bpmn_text, via='ui'):
+    """S4a claim: if the just-saved map's OWN uuid matches a pending ghost, record the
+    claim (audit) and drop that ghost. The uuid is now a live map identity, so every
+    referrer resolves by S3 rescan with ZERO diagram edit. Fires only through the
+    editor's 'create from pending ref' picker, which seeds a new map adopting the ghost
+    uuid (a normal new map gets a fresh mint — T-229 — so it can't collide).
+
+    Idempotent: the claim fires only while the ghost is still present in
+    registry.ghosts; a re-save of an already-claimed map finds no matching ghost and is
+    a no-op (no duplicate claim entry). Returns the claimed uuid, or None."""
+    map_uuid = _uuid_from_text(bpmn_text)
+    if not map_uuid:
+        return None
+    with _REG_LOCK:
+        reg = read_registry()
+        idx = next((i for i, g in enumerate(reg['ghosts']) if g.get('uuid') == map_uuid), None)
+        if idx is None:
+            return None                    # not a pending ghost → nothing to claim
+        reg['ghosts'].pop(idx)
+        reg.setdefault('claims', []).append(
+            {'uuid': map_uuid, 'project': map_id, 'ts': int(time.time()), 'via': via})
+        write_registry(reg)
+        return map_uuid
+
+
 def merged_ghosts():
     """/api/list ghosts[] = S3a live derivation (authoritative for current uuid-pinned
     referenced_by) UNION the persisted registry (authoritative for first_seen + the
     name-only ghosts derivation can't see). Read-only — never writes the registry.
     Emits the S3a wire shape {uuid,name,referenced_by,task,first_seen} (no `kind`)."""
     _maps, derived = build_map_list()
+    live_uuids = {m['uuid'] for m in _maps if m.get('uuid')}
     reg = read_registry()
     reg_by_uuid = {g['uuid']: g for g in reg['ghosts']}
     out = {}
@@ -402,7 +428,9 @@ def merged_ghosts():
             entry['first_seen'] = rg.get('first_seen')
         out[g['uuid']] = entry
     for g in reg['ghosts']:                     # registry-only (name-only, mainly)
-        if g['uuid'] in out or not g.get('referenced_by'):
+        # A uuid that is now a live map is resolved by definition (matches S3a derivation);
+        # never surface a stale registry ghost for it (belt-and-suspenders to claim-drop).
+        if g['uuid'] in out or g['uuid'] in live_uuids or not g.get('referenced_by'):
             continue
         out[g['uuid']] = {'uuid': g['uuid'], 'name': g.get('name'),
                           'referenced_by': g.get('referenced_by', []),
@@ -645,6 +673,9 @@ class Handler(SimpleHTTPRequestHandler):
         #    save (the version snapshot in step 1 already persisted the operator's work).
         try:
             sync_registry_after_save(id_, bpmn)
+            # S4a: a save of a map whose own uuid is a pending ghost IS a claim (via the
+            # 'create from pending ref' picker). Record it + drop the ghost. Best-effort.
+            claim_ghost_after_save(id_, bpmn, via='ui')
         except Exception as e:
             sys.stderr.write("[gallery-serve] registry sync (save) failed for %r: %s\n" % (id_, e))
 
