@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T21:50:40Z
-last_update: 2026-07-21T21:51:25Z
+last_update: 2026-07-21T22:45:50Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -59,11 +59,11 @@ S1→S2→**S4**. See `docs/plans/T-220-offpage-seam-editor-build-decomposition.
 
 ### Agent
 - [ ] Editor picker **"create from pending ref"**: lists `/api/list ghosts[]` (uuid, name, referrer count); selecting one seeds a NEW map whose `workflowMeta.uuid` == the ghost uuid; **name-match is suggest-only** (a same-named live map is surfaced as a suggestion, never auto-adopted/opened)
-- [ ] Saving the picker-seeded map **claims** the ghost: the server records `{uuid, project, ts, via:"ui"}` in `registry.claims` and the ghost drops from `registry.ghosts` (its uuid is now a live map); recorded through the one authoritative `/api/save` path
-- [ ] After the claim, `/api/list`: the uuid is **absent** from `ghosts[]` and present as that map's `maps[].uuid` — every referrer now resolves (S3a derivation: referrer `workflowRef` matches a live map uuid → no ghost) with **NO diagram-XML edit** to the referrers
-- [ ] `claims[]` is an append-only audit trail; re-seeding/re-saving the same already-claimed uuid is idempotent (no duplicate claim entry, ghost stays gone)
-- [ ] A verify tool (`tools/_gallery-claim-verify.py`) exercises the ui-claim path end-to-end (seed uuid → save → ghost dropped + claim `via:"ui"` recorded + referrer resolves; idempotent re-claim). Passes
-- [ ] No regression: S3a/S3b verifiers (`_gallery-list-verify.py` 22/22, `_gallery-registry-verify.py` 17/17), save-allowlist, corpus-adopt, byte-pins all still green; editor byte-diff vs deployed `designer.html` limited to this change
+- [x] Saving the picker-seeded map **claims** the ghost: the server records `{uuid, project, ts, via:"ui"}` in `registry.claims` and the ghost drops from `registry.ghosts` (its uuid is now a live map); recorded through the one authoritative `/api/save` path
+- [x] After the claim, `/api/list`: the uuid is **absent** from `ghosts[]` and present as that map's `maps[].uuid` — every referrer now resolves (S3a derivation: referrer `workflowRef` matches a live map uuid → no ghost) with **NO diagram-XML edit** to the referrers
+- [x] `claims[]` is an append-only audit trail; re-seeding/re-saving the same already-claimed uuid is idempotent (no duplicate claim entry, ghost stays gone)
+- [x] A verify tool (`tools/_gallery-claim-verify.py`) exercises the ui-claim path end-to-end (seed uuid → save → ghost dropped + claim `via:"ui"` recorded + referrer resolves; idempotent re-claim). Passes
+- [x] No regression: S3a/S3b verifiers (`_gallery-list-verify.py` 22/22, `_gallery-registry-verify.py` 17/17), save-allowlist, corpus-adopt, byte-pins all still green; editor byte-diff vs deployed `designer.html` limited to this change
 
 ### Human
 - [ ] [REVIEW] The "create from pending ref" picker reads clearly and the suggest-only affordance is unambiguous
@@ -149,6 +149,12 @@ python3 tools/_gallery-claim-verify.py
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-07-22 — claim mechanics landed on the SERVER, not the editor
+- **What changed:** The claim is a pure server-side reaction to `/api/save`, not editor logic. When a saved map's OWN `workflowMeta.uuid` matches a pending registry ghost, gallery-serve.py records the claim (`via:"ui"`) and drops the ghost. The editor picker's only job is to SEED a new map adopting the ghost uuid — the save does the claim. This keeps the claim atomic + testable headlessly and means the CLI (S4b) reuses the exact same server path (calling the same `claim_ghost_after_save`, `via:"cli"`).
+- **Idempotency fell out for free:** the claim fires only while the ghost is still in `registry.ghosts`; a re-save finds no match → no-op. No separate guard needed. Also hardened `merged_ghosts()` to never surface a registry ghost whose uuid is now a live map (S3a-consistent invariant).
+- **Plan impact:** AC-2/3/4/5/6 (server claim + audit + idempotency + verify + no-regression) are DONE and verified headlessly (`tools/_gallery-claim-verify.py` 11/11). Only AC-1 (the picker UI) + the Human [REVIEW] remain.
+- **Triggered:** UI half (picker modal + seed-adopting-uuid + name-match suggest-only + Playwright verify) deferred to next window at 68% budget (Work Proposal Rule — UI build isn't a small bounded unit). Task stays started-work. S4b/T-230 unchanged (reuses the server claim path).
 
 ## Decisions
 
