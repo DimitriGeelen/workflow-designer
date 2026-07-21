@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T07:41:22Z
-last_update: 2026-07-21T07:47:15Z
+last_update: 2026-07-21T11:25:49Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -110,8 +110,9 @@ delivery gated on AEF's `{id,uuid}` reply.
 
 python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/offpage-seam.bpmn
 # all three link legs present (resolved workflowRef, ghost workflowRef, legacy targetWorkflow-no-workflowRef)
-out=$(cat tests/fixtures/aef-bpmn/offpage-seam.bpmn); echo "$out" | grep -q 'aef:link workflowRef='
-echo "$out" | grep -q 'aef:link targetWorkflow='
+# NB: gate runs each line as its OWN shell under set -u — no cross-line $out; each grep is self-contained (see T-220)
+grep -q 'aef:link workflowRef=' tests/fixtures/aef-bpmn/offpage-seam.bpmn
+grep -q 'aef:link targetWorkflow=' tests/fixtures/aef-bpmn/offpage-seam.bpmn
 # byte-pin guard passes (includes offpage-seam.bpmn once pinned)
 python3 tests/test_corpus_fixture_pins.py
 
