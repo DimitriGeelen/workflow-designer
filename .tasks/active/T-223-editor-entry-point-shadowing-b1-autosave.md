@@ -51,19 +51,18 @@ See `[[aef-integration-rail]]`.
 - `showRestoredToast` rewritten: base toast (unchanged "Start fresh") + async `/api/list` check → when the same map id has a saved `latest.{v,ts}`, upgrade toast to offer **"Open latest saved (vN)"** + "Keep draft" + "Start fresh", flagging when server copy is NEWER (via `_tsToMs` normalize). `openProjectMap(m)` loads it. Helpers `_tsToMs`, `_startFresh` added.
 - **Verified in Playwright:** page loads clean (only benign favicon 404); confirmed `/api/list` exposes `latest.{v,ts}` (15/25 corpus maps have saved versions); planted an arc-lifecycle draft with older ts.
 
-**REMAINING (one-line fix — blocked by budget gate, apply next session FIRST):**
-- **Ordering bug:** `autoLoadStored()` (line ~8785) runs BEFORE `detectSaveApi()` (~8786), so `_apiAvailable` is still false at restore time → my `if (!_apiAvailable || !s || !s.id) return;` bails and the server check never fires (Playwright-confirmed: toast never upgraded; `_apiAvailable` flipped true only after). **Fix:** change that guard to `if (!s || !s.id) return;` — the `fetch('/api/list')` is itself the availability probe (fails → caught → base toast stays). Edit was staged but blocked at 298K.
-- Then re-verify: refresh `build/gallery/designer.html` from src, plant arc-lifecycle draft (ts < 1783344902118), reload :8834/designer.html, confirm enriched toast "NEWER saved version (v4)" with 3 buttons; element-screenshot light+dark; read them. Then check ACs + complete.
-- **No regression risk in the committed WIP:** base toast + Start fresh behave exactly as before; enriched path is simply dormant until the guard fix.
+**DONE (2026-07-21, fresh window):**
+- **Ordering bug FIXED:** dropped `!_apiAvailable` from the guard at line 8787 → `if (!s || !s.id) return;` (with an explanatory comment: the `fetch('/api/list')` in the async IIFE IS the availability probe — rejects on `file://` → caught → base toast stays; returns non-ok when no write-capable server). `autoLoadStored()` (8827) runs before `detectSaveApi()` (8828), which is why the old guard bailed.
+- **Verified via Playwright** (:8834, build refreshed from src via `cp`): (1) NEWER variant fires — "↩ Restored your unsaved draft — but the project has a NEWER saved version (v4)." + 3 buttons; (2) non-newer variant — "A saved version (v4) is in the project." + 3 buttons; (3) **no regression** — id with no server version keeps the original base toast ("Restored your unsaved work" + single "Start fresh"). Screenshots read back (see `## Visual Verification`).
 
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Verified the current B1 autosave-restore behavior in `src/aef-workflow-designer.html` (autoLoadStored + restore toast) against AEF's diagnosis, with file:line evidence
-- [ ] On restore, when a write-capable server is present, the map's server latest version is checked and — if newer than / different from the restored draft — the operator is told a newer saved version exists
-- [ ] The restore toast offers an "Open latest saved" action alongside "Start fresh" (not just discard-to-blank)
-- [ ] `?load=<id>` / same-map deep-link is honored rather than silently shadowed by a stale autosave draft of a different map (or the shadowing is made visible + reversible)
-- [ ] Visual-verified with element-level Playwright screenshots of the restore toast (both actions visible) in at least light+dark; screenshots read back
+- [x] Verified the current B1 autosave-restore behavior in `src/aef-workflow-designer.html` (autoLoadStored + restore toast) against AEF's diagnosis, with file:line evidence — `autoLoadStored()` (8716) adopts the localStorage draft silently; `showRestoredToast` (8783) is the surface. Root ordering bug: `autoLoadStored()` (8827) runs BEFORE `detectSaveApi()` (8828), so `_apiAvailable` was false at restore time.
+- [x] On restore, when a write-capable server is present, the map's server latest version is checked and — if newer than / different from the restored draft — the operator is told a newer saved version exists — `showRestoredToast` async-fetches `/api/list`, compares `_tsToMs(latest.ts)` vs draft ts, shows "NEWER saved version (vN)" when server is newer (Playwright-verified both branches).
+- [x] The restore toast offers an "Open latest saved" action alongside "Start fresh" (not just discard-to-blank) — 3-button enriched toast: "Open latest saved (vN)" → `openProjectMap(m)`, "Keep draft", "Start fresh".
+- [x] `?load=<id>` / same-map deep-link is honored rather than silently shadowed by a stale autosave draft of a different map (or the shadowing is made visible + reversible) — deep-link precedence preserved unchanged (8720: explicit `?load` to another map wins); the shadowing is now made **visible + reversible** via the "Open latest saved" action.
+- [x] Visual-verified with element-level Playwright screenshots of the restore toast (both actions visible); screenshots read back — `.playwright-mcp/t223-toast-dark.png` (NEWER variant, 3 buttons) + `.playwright-mcp/t223-toast-nonewer.png` (non-newer variant, 3 buttons). Editor is dark-theme only (no light/`data-theme`/`prefers-color-scheme`) → dark is the sole mode; the second screenshot covers the other message branch instead. See `## Visual Verification`.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -98,6 +97,13 @@ See `[[aef-integration-rail]]`.
 
 ## Verification
 
+# The _apiAvailable ordering-bug guard is gone (the fix); the availability-probe comment is present.
+grep -q 'do NOT gate on _apiAvailable' src/aef-workflow-designer.html
+# The enriched restore path (server-latest check + Open latest saved) is wired into the restore toast.
+grep -q 'Open latest saved' src/aef-workflow-designer.html
+# Editor still parses as a single well-formed HTML document (no truncation from the edit).
+python3 -c "import html.parser,sys; p=html.parser.HTMLParser(); p.feed(open('src/aef-workflow-designer.html').read()); print('html-parse-ok')"
+
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
@@ -128,6 +134,14 @@ See `[[aef-integration-rail]]`.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+## Visual Verification
+
+Editor is **dark-theme only** (fixed `:root` dark vars; no `data-theme` / `prefers-color-scheme` / theme toggle) → dark is the sole rendering mode. Screenshots cover both message branches of the enriched restore toast instead of nonexistent light/dark modes. Captured on :8834 (build refreshed from src), element-visible, read back with the Read tool.
+
+- `.playwright-mcp/t223-toast-dark.png` — **NEWER** variant: "↩ Restored your unsaved draft — but the project has a NEWER saved version (v4)." with 3 buttons (Open latest saved (v4) / Keep draft / Start fresh). Message wraps to 3 lines, buttons legible, no layout breakage.
+- `.playwright-mcp/t223-toast-nonewer.png` — **non-newer** variant: "↩ Restored your unsaved draft. A saved version (v4) is in the project." with the same 3 buttons. Clean render.
+- No-regression path (base toast, id absent from store → single "Start fresh") verified programmatically via Playwright evaluate (not screenshotted — identical to pre-T-223 rendering).
 
 ## RCA
 

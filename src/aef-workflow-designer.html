@@ -8784,7 +8784,11 @@ function showRestoredToast(s) {
   let when = ''; try { when = new Date(s.ts).toLocaleString(); } catch (_) {}
   const base = `↩ Restored your unsaved work${when ? ' (' + when + ')' : ''}.`;
   showToast(base, { actionLabel: 'Start fresh', onAction: _startFresh });
-  if (!_apiAvailable || !s || !s.id) return;
+  // NB (T-223): do NOT gate on _apiAvailable here — autoLoadStored() (and thus this toast)
+  // runs BEFORE detectSaveApi() in Init, so _apiAvailable is still false at restore time.
+  // The fetch('/api/list') below IS the availability probe: it rejects on file:// (caught →
+  // base toast stays) and returns non-ok when there's no write-capable server.
+  if (!s || !s.id) return;
   (async () => {
     try {
       const res = await fetch('/api/list');
