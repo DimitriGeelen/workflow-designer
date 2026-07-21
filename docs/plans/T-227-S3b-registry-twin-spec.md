@@ -1,8 +1,9 @@
 # T-227 / S3b — Designer registry twin: implementation spec
 
-**Status:** execution-ready except the *name-only/legacy branch*, which is BLOCKED on the
-rail seam-Q (posted offset 133). Both branches are specified below; when AEF answers, keep
-one and delete the other — no re-derivation needed.
+**Status:** execution-ready, FULLY UNBLOCKED. Seam-Q resolved on the rail (offset 133→134):
+`task` is always null on the 832 twin, the drop logic collapses to a single rule, and 832 mirrors
+the name-only store-mint. Corrections from AEF folded in below (§4 was rewritten — the earlier
+uuid-pinned drop-exemption and independent name-in-slugs trigger were both wrong).
 
 **Predecessor:** T-226 / S3a (read-only `maps[].uuid` + derived `ghosts[]`) — DONE. This spec
 extends the same `tools/gallery-serve.py`; reuse S3a's `_link_refs_from_text`, `_uuid_from_text`,
@@ -32,9 +33,10 @@ claims: []                   # populated by S4 (fw bpmn claim): [{uuid, project,
 ```
 
 `kind` is additive over the ratified `{uuid,name,referenced_by,task,first_seen}` shape — internal
-to the twin's drop logic; `/api/list` MAY omit it from the wire payload (S3a's derived entries
-have no `kind`), so serve it only if harmless. Keep the wire `ghosts[]` entry shape identical to
-S3a's.
+to the twin. It grants **no drop exemption** (rail offset 134); its only job is to distinguish a
+store-minted name-only uuid from an XML-pinned workflowRef uuid at CLAIM time (S4) and to key the
+upsert (name-only dedupes by name, uuid-pinned by uuid). `/api/list` MAY omit it from the wire
+payload — keep the wire `ghosts[]` entry shape identical to S3a's.
 
 ### Serialization — stay stdlib-only (portability, Directive 4)
 `gallery-serve.py` is stdlib-only today. **Write with `json.dump` (indent=2), extension `.yaml`.**
@@ -82,17 +84,30 @@ _sync_registry_after_save(id_, bpmn)   # bpmn = the just-saved XML string
 ```
 
 `_sync_registry_after_save`:
-1. `refs = _link_refs_from_text(bpmn)` (uuid-pinned) — reuse S3a.
-   Legacy: `_legacy_refs_from_text(bpmn)` (targetWorkflow, no workflowRef) — **name-only branch, §4**.
-2. Compute live map uuids: `{m['uuid'] for m in build_map_list()[0] if m['uuid']}`.
+1. `uuid_refs = _link_refs_from_text(bpmn)` (workflowRef) — reuse S3a.
+   `legacy_refs = _legacy_refs_from_text(bpmn)` — NEW helper: `<aef:link targetWorkflow="slug">`
+   with NO `workflowRef`; return `[{slug, node, nodeName}]` via the same ancestor-climb as S3a.
+2. Live maps: `maps = build_map_list()[0]`; `live_uuids = {m['uuid'] for m in maps if m['uuid']}`;
+   `live_slugs = {m['id'] for m in maps}` (store slug == map id).
 3. Under `_REG_LOCK`: `reg = read_registry()`.
-4. First, **drop this map's stale contributions**: for every ghost, remove any
-   `referenced_by` entry whose `id == id_` (this save is the fresh truth for that map).
-5. For each uuid-pinned ref whose `workflowRef` ∉ live uuids: upsert a `kind:"uuid-pinned"`
-   ghost — find by uuid; if absent create `{uuid, name, kind, referenced_by:[], task:null,
-   first_seen:now}`; append `{id:id_, node, nodeName}` (dedup by `(id,node)`).
-   A ref that DOES resolve to a live uuid contributes nothing (and step 4 already cleared it).
-6. Apply drop rules (§4) → `write_registry(reg)`.
+4. **Drop this map's stale contributions:** for every ghost, remove any `referenced_by` entry
+   whose `id == id_` (this save is the fresh truth for that map).
+5. **uuid-pinned:** for each uuid ref whose `workflowRef` ∉ `live_uuids`: upsert a ghost by uuid —
+   if absent create `{uuid, name, kind:"uuid-pinned", referenced_by:[], task:null, first_seen:now}`;
+   append `{id:id_, node, nodeName}` (dedup by `(id,node)`). Refs that resolve contribute nothing.
+5b. **name-only (legacy), sub-Q YES:** for each legacy ref whose `slug` ∉ `live_slugs`
+   (**skip recording when the target IS live** — that's the "name matches slug" behavior, done by
+   omission, §4): upsert a ghost keyed **by display name** (`slug`) — dedupe so two referrers of
+   the same missing workflow share ONE ghost; if absent **store-mint** `uuid = _mint_uuid4()`
+   (uuid4, registry-side only, **never rewrite diagram XML**) → `{uuid, name:slug,
+   kind:"name-only", referenced_by:[], task:null, first_seen:now}`; append the referrer
+   (dedup by `(id,node)`). Find-existing by `name==slug AND kind=="name-only"`.
+6. **Apply the single drop rule (§4):** remove every ghost whose `referenced_by` is now empty.
+   `write_registry(reg)`.
+
+`_mint_uuid4()`: `str(uuid.uuid4())` — add `import uuid` (stdlib). uuid4 makes cross-store
+collision a non-issue (AEF rationale: a minted ghost uuid becomes real identity only at claim
+time in whichever store performs the claim).
 
 `now = int(time.time())` (epoch seconds; S3a's derived entries use null first_seen — registry is
 authoritative once persisted, see §3).
@@ -123,38 +138,31 @@ authoritative once persisted, see §3).
 
 ---
 
-## 4. The 3 ghost-drop rules (AC4) — **branches on the seam-Q**
+## 4. The drop rule (AC4) — **RESOLVED, rail offset 134: ONE rule**
 
-Applied on every registry sync (save + delete), AFTER referenced_by is recomputed:
+AEF confirmed (code-verified `designer_registry.py:158-163`): `task` is always null on the 832
+twin (their substrate is the sole doc-task minter). Their full keep-rule
+`keep iff (referenced_by nonempty OR task set) AND NOT (referenced_by empty AND name in live_slugs)`
+collapses with `task≡null` to a **single rule applied on every registry sync (save + delete)**:
 
-**Exemption (both branches, unconditional):** a `kind:"uuid-pinned"` ghost is NEVER auto-dropped.
-It exits ONLY via an S4 claim (uuid → project meta.json, removed from `ghosts`, recorded in
-`claims`). Rules below govern ONLY `kind:"name-only"` ghosts.
+> **DROP a ghost when its `referenced_by` becomes empty — for `uuid-pinned` AND `name-only` alike.**
 
-Live slugs for rule 3: `{m['id'] for m in maps}` (store slug == map id) plus any name→slug match.
+Two corrections to the earlier draft (both were wrong):
+- **NO uuid-pinned drop exemption.** The registry is a **debt record, not an identity record** —
+  the uuid identity lives in the diagram XML. A uuid-pinned ghost whose last referrer is deleted
+  DROPS on rescan (deleted-connector debt closed); it **re-materializes** from S3a derivation /
+  the next save if the ref returns. "Exit via claim" (S4) is about name-*resolution*, not a drop
+  exemption. → The `kind` field is still useful to distinguish store-minted vs XML-pinned uuids at
+  claim time, but it grants NO drop exemption.
+- **"name matches live slug" is NOT an independent drop trigger.** The rescan simply **skips
+  recording** a legacy ref whose named target is already live (see §2, legacy branch); referrers
+  then decay per-project as each referring map is re-saved. The slug-match clause only ever fires
+  when `referenced_by` is also empty, so with `task≡null` it is dead code — do not implement it.
+  Consequence (congruent both sides): a name-only ghost whose target now exists keeps showing
+  until every referring map has been re-saved.
 
-### Branch A — 832 twin does NOT mint tasks (`task` always null) — my working assumption
-Rules 2/3's "task set" clauses can't fire, so they collapse to:
-- **Drop** a name-only ghost when `referenced_by` is empty (rule 1; rule 3's slug-match is a
-  strict subset — an empty-ref name-only ghost drops regardless of whether its name now matches a
-  live slug).
-- Net: name-only ghost lives exactly as long as some saved map still carries its legacy slug ref.
-- Simplest to implement + test. **Preferred pending confirmation.**
-
-### Branch B — 832 twin mints doc-tasks (`task` populated, mirrors AEF)
-Full offset-113 semantics:
-1. **DROP** when `referenced_by` empty AND `task` is null.
-2. **KEEP** when `referenced_by` empty AND `task` set AND the named target still doesn't exist
-   (a live map with that slug/name) — debt stays visible.
-3. **DROP** when `referenced_by` empty AND the ghost's `name` now matches a live map slug, even
-   if `task` is set (legacy debt closes once the target is created).
-Requires a task-minting path (gated writer, idempotent per uuid) — a meaningfully larger build;
-if AEF picks this, consider splitting task-minting into its own slice.
-
-**Sub-Q (also on rail):** whether 832 store-mints a uuid for a legacy `targetWorkflow` slug with
-no live map at all (creating the name-only ghost) — if AEF says "leave legacy slugs untracked,"
-the entire name-only branch + rules 2/3 disappear and S3b is only uuid-pinned persistence +
-claim-exit, which is small and unblocked.
+Delete-path parity: `/api/delete`'s strip applies the same single "drop when empty" filter.
+No `task`-set KEEP branch, no task-minting path — S3b builds no `fw task create` call.
 
 ---
 
@@ -165,14 +173,20 @@ Isolated-temp-repo pattern from `_gallery-list-verify.py`. Assert:
    `first_seen` int, `kind:"uuid-pinned"`, referenced_by=[that map/node].
 2. second save of same map (same ref) → referenced_by not duplicated (dedup by id,node).
 3. save a second map referencing the same ghost uuid → referenced_by has both maps.
-4. delete one referrer → its entries stripped; ghost still present (uuid-pinned, claim-only).
-5. delete last referrer → uuid-pinned ghost KEPT with empty referenced_by.
+4. delete one of two referrers → its entries stripped; ghost still present (other referrer).
+5. delete the LAST referrer → ghost **DROPS** (single rule; uuid-pinned is NOT exempt).
+5b. **re-materialize:** re-save a map still carrying that workflowRef → ghost reappears with a
+   fresh first_seen (registry is a debt cache, not identity — uuid identity lives in the XML).
 6. resolve: create a live map whose uuid == the ghost's uuid, re-save a referrer → that ref no
-   longer contributes a ghost (moves to resolved); `/api/list` ghosts[] no longer lists it.
-7. atomic write leaves no `*.tmp` behind in `.context/designer/`.
-8. malformed registry.yaml (write garbage) → `/api/list` still 200, treated as empty.
-9. [Branch A] name-only ghost drops when its last referrer is removed.
-   [Branch B, if chosen] rules 1/2/3 fire/hold per the offset-113 table.
+   longer contributes; `/api/list` ghosts[] no longer lists it.
+7. **name-only:** save a map with legacy `targetWorkflow="absent-slug"` (not live) → a
+   `kind:"name-only"` ghost minted with a uuid4, `name=="absent-slug"`, first_seen set.
+7b. **dedupe-by-name:** a SECOND map with the same `targetWorkflow="absent-slug"` → shares the
+   SAME ghost (one entry, two referrers), not a second mint.
+7c. **skip-when-live:** save a map with `targetWorkflow="alpha"` where `alpha` IS a live map →
+   NO ghost recorded for it.
+8. atomic write leaves no `*.tmp` behind in `.context/designer/`.
+9. malformed registry.yaml (write garbage) → `/api/list` still 200, treated as empty.
 
 ## Verification block for T-227
 ```
@@ -184,9 +198,13 @@ python3 -m pytest tests/test_corpus_fixture_pins.py -q
 
 ## Decisions captured here
 - **json.dump into .yaml** (valid YAML, keeps server stdlib-only) — not `import yaml`.
-- **`kind` field** on registry ghosts to encode the uuid-pinned drop-exemption explicitly rather
-  than re-deriving it (a uuid-pinned ghost could momentarily have empty referenced_by and must
-  not be mistaken for a droppable name-only one).
+- **`kind` field** on registry ghosts distinguishes store-minted (name-only) from XML-pinned
+  (uuid-pinned) uuids — for the upsert key (dedupe by name vs uuid) and S4 claim behavior. It is
+  NOT a drop exemption (rail offset 134): both kinds drop on empty referenced_by.
+- **Single drop rule** (rail offset 134): drop when referenced_by empty, both kinds. Registry is
+  a debt cache, not identity — dropped uuid-pinned ghosts re-materialize from XML on re-save.
+- **name-only store-mint** (uuid4, dedupe by display name, registry-side only, never rewrite XML)
+  mirrors AEF for S4 congruence on pair-draft-3's legacy `review-map` leg.
 - **Threading lock** around registry read-modify-write (ThreadingHTTPServer).
 - **Merge policy:** derivation authoritative for referenced_by; registry authoritative for
   task/first_seen. Prevents the persisted registry from masking a just-drawn ref and vice-versa.

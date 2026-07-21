@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T21:33:02Z
-last_update: 2026-07-21T21:36:01Z
+last_update: 2026-07-21T21:38:22Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -44,22 +44,25 @@ Server: `tools/gallery-serve.py` — POST `/api/save` handler + `/api/delete` ha
 registry module (`.context/designer/registry.yaml`). Contract ratified offset 109/110; drop
 rules offset 113. See `[[aef-integration-rail]]` and the S3a decisions in `T-226`.
 
-**⚠ BLOCKED on rail seam Q (posted offset 133):** does 832's local twin populate ghost `task`
-(mint doc-tasks mirroring AEF's `FW_TASK_ORIGIN=designer-ghost`), or is `task` always null with
-AEF the sole minter? This sets drop-rules 2/3. Spec below documents BOTH branches so execution
-is a fast fill-in once AEF confirms. **Do not build the name-only/legacy branch until confirmed**
-(PL-005 editor↔store drift risk). Spec: `docs/plans/T-227-S3b-registry-twin-spec.md`.
+**✅ SEAM Q RESOLVED (rail offset 133→134), UNBLOCKED.** AEF confirmed (code-verified): `task`
+is always null on 832's twin (their substrate is sole doc-task minter); the drop logic collapses
+to a **single rule — drop when `referenced_by` empty, both ghost kinds** (registry is a debt cache,
+not identity; dropped uuid-pinned ghosts re-materialize from XML on re-save); and 832 **mirrors the
+name-only store-mint** (uuid4, dedupe by display name, registry-side only). My earlier two-branch
+model over-preserved on two counts (no uuid-pinned exemption; name-in-slugs is skip-on-record, not
+a drop trigger) — both corrected in the spec. Spec: `docs/plans/T-227-S3b-registry-twin-spec.md`
+(§4 authoritative). Ready to build.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [ ] `tools/gallery-serve.py` gains a registry module reading/writing `.context/designer/registry.yaml` (`{ghosts:[], claims:[]}`) via **atomic write** (temp-file in same dir + `os.replace`); a malformed or missing file is treated as empty `{ghosts:[],claims:[]}` and NEVER raises into `/api/list` or `/api/save`
-- [ ] POST `/api/save` rescans the saved map's `<aef:link workflowRef>` refs and merges each unresolved one into `registry.ghosts` — upsert keyed by `uuid`: create with `first_seen=now` (epoch) on first sight, else update `referenced_by` (dedup by `{id,node}`); a ref that now resolves to a live map uuid is removed from that map's contribution to `referenced_by`
-- [ ] `/api/delete` strips the deleted map id from every ghost's `referenced_by` (and applies the drop rules afterward), so deleting the last referrer of a uuid-pinned ghost leaves it referenced_by-empty but PRESENT (claim-only exit), while other rules may drop name-only ghosts
-- [ ] The 3 ghost-DROP rules apply at each registry sync exactly as ratified (offset 113): (1) DROP when `referenced_by` empty AND no task; (2) KEEP when empty + task set + named target still absent; (3) DROP when empty AND ghost name now matches a live map slug even with a task — AND **uuid-pinned (`workflowRef`) ghosts are exempt from all auto-drop** (exit only via claim, S4). [Branch on the seam-Q answer: if `task` always null on 832, rules 2/3 collapse per spec.]
-- [ ] `/api/list` `ghosts[]` is served from the **merged** view of the persisted registry (task/first_seen from registry) UNION the live read-only derivation from S3a (so a freshly-drawn ref shows before its first save) — registry is authoritative for task/first_seen, derivation is authoritative for current `referenced_by`
-- [ ] A new `tools/_gallery-registry-verify.py` (or extension of `_gallery-list-verify.py`) exercises: save→ghost persisted with first_seen; second save dedups referenced_by; delete strips referrer; uuid-pinned survives referenced_by-empty; each drop rule fires/holds as specified; atomic write leaves no temp file; malformed registry → empty, no crash. Passes.
+- [ ] POST `/api/save` rescans the saved map's refs and syncs `registry.ghosts` (all `task=null`): **uuid-pinned** — each `<aef:link workflowRef>` ∉ live map uuids upserts a `kind:"uuid-pinned"` ghost keyed by uuid (create with `first_seen=now`, else append referrer, dedup by `{id,node}`); **name-only** — each legacy `<aef:link targetWorkflow="slug">` (no workflowRef) whose slug ∉ live map slugs upserts a `kind:"name-only"` ghost keyed by display **name**, store-minting a uuid4 on first sight (registry-side only, **never rewrite diagram XML**), dedup so two referrers of the same missing workflow share one ghost; a ref whose target is live is **skipped (not recorded)**. This map's prior `referenced_by` entries are cleared first (fresh truth)
+- [ ] `/api/delete` strips the deleted map id from every ghost's `referenced_by`, then applies the single drop rule
+- [ ] The drop logic is the **single rule** confirmed on the rail (offset 134, `task≡null`): **DROP a ghost when its `referenced_by` becomes empty — uuid-pinned AND name-only alike** (registry is a debt cache, not identity; the uuid lives in diagram XML so a dropped uuid-pinned ghost re-materializes on a later save). NO uuid-pinned drop-exemption, NO independent name-in-slugs trigger (skip-on-record handles it), NO `fw task create` call
+- [ ] `/api/list` `ghosts[]` = **merged** view: S3a live derivation (authoritative for current uuid-pinned `referenced_by`) UNION the persisted registry (authoritative for `first_seen` + the name-only ghosts S3a can't derive) — wire entry shape stays identical to S3a's `{uuid,name,referenced_by,task,first_seen}`
+- [ ] A new `tools/_gallery-registry-verify.py` exercises: save→uuid-pinned ghost persisted w/ first_seen; second referrer dedups; delete one referrer keeps ghost, delete last referrer DROPS it; re-save re-materializes; resolve (uuid→live map) removes it; name-only mint (uuid4, dedupe-by-name); legacy ref to a LIVE slug records no ghost; atomic write leaves no temp file; malformed registry → empty, no crash. Passes
 - [ ] No regression: byte-pins, `_gallery-list-verify.py` (S3a), `_gallery-save-allowlist-verify.py`, `_corpus-adopt-verify.py` all still green
 
 ### Human
