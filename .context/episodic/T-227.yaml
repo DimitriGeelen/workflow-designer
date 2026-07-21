@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-227: S3b: designer registry twin (.context/designer/registry.yaml) — /api/save rescan + /api/delete strip + 3 ghost-drop rules
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-21T21:48:51Z
+# ============================================================================
+
+task_id: T-227
+task_name: "S3b: designer registry twin (.context/designer/registry.yaml) — /api/save rescan + /api/delete strip + 3 ghost-drop rules"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-21T21:33:02Z
+completed: 2026-07-21T21:48:46Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-21T23:38:22+02:00
+last_commit: 2026-07-21T23:42:26+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  execution-ready S3b spec + real ACs (registry twin), both seam-Q branches. seam-Q RESOLVED (rail 134) — collapse to single drop rule, fold AEF corrections
+
+# Key outcomes
+outcomes:
+  - '`tools/gallery-serve.py` gains a registry module reading/writing `.context/designer/registry.yaml` (`{ghosts:[], claims:[]}`) via **atomic write** (temp-file in same dir + `os.replace`); a malformed or missing file is treated as empty `{ghosts:[],claims:[]}` and NEVER raises into `/api/list` or `/api/save`'
+  - 'POST `/api/save` rescans the saved map''s refs and syncs `registry.ghosts` (all `task=null`): **uuid-pinned** — each `<aef:link workflowRef>` ∉ live map uuids upserts a `kind:"uuid-pinned"` ghost keyed by uuid (create with `first_seen=now`, else append referrer, dedup by `{id,node}`); **name-only** — each legacy `<aef:link targetWorkflow="slug">` (no workflowRef) whose slug ∉ live map slugs upserts a `kind:"name-only"` ghost keyed by display **name**, store-minting a uuid4 on first sight (registry-side only, **never rewrite diagram XML**), dedup so two referrers of the same missing workflow share one ghost; a ref whose target is live is **skipped (not recorded)**. This map''s prior `referenced_by` entries are cleared first (fresh truth)'
+  - '`/api/delete` strips the deleted map id from every ghost''s `referenced_by`, then applies the single drop rule'
+  - 'The drop logic is the **single rule** confirmed on the rail (offset 134, `task≡null`): **DROP a ghost when its `referenced_by` becomes empty — uuid-pinned AND name-only alike** (registry is a debt cache, not identity; the uuid lives in diagram XML so a dropped uuid-pinned ghost re-materializes on a later save). NO uuid-pinned drop-exemption, NO independent name-in-slugs trigger (skip-on-record handles it), NO `fw task create` call'
+  - '`/api/list` `ghosts[]` = **merged** view: S3a live derivation (authoritative for current uuid-pinned `referenced_by`) UNION the persisted registry (authoritative for `first_seen` + the name-only ghosts S3a can''t derive) — wire entry shape stays identical to S3a''s `{uuid,name,referenced_by,task,first_seen}`'
+  - 'A new `tools/_gallery-registry-verify.py` exercises: save→uuid-pinned ghost persisted w/ first_seen; second referrer dedups; delete one referrer keeps ghost, delete last referrer DROPS it; re-save re-materializes; resolve (uuid→live map) removes it; name-only mint (uuid4, dedupe-by-name); legacy ref to a LIVE slug records no ghost; atomic write leaves no temp file; malformed registry → empty, no crash. Passes'
+  - 'No regression: byte-pins, `_gallery-list-verify.py` (S3a), `_gallery-save-allowlist-verify.py`, `_corpus-adopt-verify.py` all still green'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-21 — registry serialized as JSON into a .yaml file'
+    chose: '`json.dump(indent=2)` into `.context/designer/registry.yaml`.'
+    rationale: 'JSON is a strict subset of YAML 1.2, so the `.yaml` parses under any `yaml.safe_load` (AEF-side/audit tooling), while `gallery-serve.py` stays **stdlib-only** (no PyYAML import) — Directive 4 portability. Verified round-trip.'
+    alternatives_rejected: ['`import yaml` (adds a dependency to a stdlib-only server); a `.json` extension (diverges from the ratified `registry.yaml` path).']
+  - decision: '2026-07-21 — registry path resolved at call time, not a module constant'
+    chose: '`registry_path()` reads the `REPO` global at call time.'
+    rationale: '`--repo` reassigns `REPO` AFTER import (the test harness + any non-default deployment). A module-level `REGISTRY_PATH = os.path.join(REPO, …)` froze the pre-override path — during the first test run it wrote a `registry.yaml` into the real source tree. `build_map_list` already reads `REPO` dynamically; the registry now matches that discipline. (Class: module constant capturing a mutable global — caught in dev, cleaned up, no field impact.)'
+    alternatives_rejected: ['Reassigning a `REGISTRY_PATH` global inside `_args` (works but leaves a stale-by-default footgun for any other entry point).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/plans/T-227-S3b-registry-twin-spec.md'
+  - '.tasks/active/T-227-s3b-designer-registry-twin-contextdesign.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-21T23:38:22"
+    action: "T-227: execution-ready S3b spec + real ACs (registry twin), both seam-Q branches"
+  - time: "2026-07-21T23:42:26"
+    action: "T-227: seam-Q RESOLVED (rail 134) — collapse to single drop rule, fold AEF corrections"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 15 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 15
+  commits: 2
+  files_changed: 2
+  lines_added: 305
+  lines_removed: 70
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-227-s3b-designer-registry-twin-contextdesign.md
+generated_by: context-agent-hybrid
