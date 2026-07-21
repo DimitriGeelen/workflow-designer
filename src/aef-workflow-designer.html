@@ -8744,10 +8744,16 @@ function showToast(message, opts) {
     const msg = document.createElement('span');
     msg.textContent = message;
     t.appendChild(msg);
-    if (opts.actionLabel && typeof opts.onAction === 'function') {
+    // Actions: either a single {actionLabel,onAction} (legacy — version-revert, T-148)
+    // or an {actions:[{label,onAction}]} array (T-223, restore toast needs 2-3 choices).
+    const _actions = Array.isArray(opts.actions) ? opts.actions
+      : (opts.actionLabel && typeof opts.onAction === 'function'
+          ? [{ label: opts.actionLabel, onAction: opts.onAction }] : []);
+    for (const a of _actions) {
+      if (!a || !a.label || typeof a.onAction !== 'function') continue;
       const btn = document.createElement('button');
-      btn.textContent = opts.actionLabel; btn.className = 'btn';
-      btn.onclick = () => { try { opts.onAction(); } finally { t.remove(); } };
+      btn.textContent = a.label; btn.className = 'btn';
+      btn.onclick = () => { try { a.onAction(); } finally { t.remove(); } };
       t.appendChild(btn);
     }
     document.body.appendChild(t);
@@ -8756,16 +8762,52 @@ function showToast(message, opts) {
     setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, ttl);
   } catch (_) { /* toast is best-effort */ }
 }
+// Normalize a version timestamp to epoch-ms. Server /api/save ts may be seconds or ms;
+// the autosave uses Date.now() (ms). Treat any value below ~year-2001-in-ms as seconds.
+function _tsToMs(ts) {
+  const n = Number(ts);
+  if (!isFinite(n) || n <= 0) return 0;
+  return n < 1e12 ? n * 1000 : n;
+}
+function _startFresh() {
+  try { localStorage.removeItem(AUTOSAVE_KEY); } catch (_) {}
+  _autosaveRestore = null;
+  try { createNewWorkflow(); } catch (_) {}
+}
+// T-223 (AEF UX-defect input, rail T-2586): the restore silently adopts the operator's
+// last localStorage draft. When the SERVER holds a saved version of the same map, an
+// operator whose draft predates freshly-shipped content sees a stale map (same title) and
+// concludes "still broken". Base toast keeps "Start fresh"; if a server version exists we
+// upgrade it to also offer "Open latest saved" (+ "Keep draft"), and flag when the server
+// copy is NEWER than the restored draft. Entry-point shadowing becomes visible + reversible.
 function showRestoredToast(s) {
   let when = ''; try { when = new Date(s.ts).toLocaleString(); } catch (_) {}
-  showToast(`↩ Restored your unsaved work${when ? ' (' + when + ')' : ''}.`, {
-    actionLabel: 'Start fresh',
-    onAction: () => {
-      try { localStorage.removeItem(AUTOSAVE_KEY); } catch (_) {}
-      _autosaveRestore = null;
-      try { createNewWorkflow(); } catch (_) {}
-    },
-  });
+  const base = `↩ Restored your unsaved work${when ? ' (' + when + ')' : ''}.`;
+  showToast(base, { actionLabel: 'Start fresh', onAction: _startFresh });
+  if (!_apiAvailable || !s || !s.id) return;
+  (async () => {
+    try {
+      const res = await fetch('/api/list');
+      if (!res.ok) return;
+      const d = await res.json();
+      const m = (Array.isArray(d.maps) ? d.maps : []).find(x => x.id === s.id);
+      if (!m || !m.latest || m.latest.v == null) return;   // no saved server version → keep base toast
+      const serverMs = _tsToMs(m.latest.ts);
+      const draftMs = _tsToMs(s.ts);
+      const newer = serverMs && draftMs && serverMs > draftMs;
+      const msg = newer
+        ? `↩ Restored your unsaved draft — but the project has a NEWER saved version (v${m.latest.v}).`
+        : `↩ Restored your unsaved draft. A saved version (v${m.latest.v}) is in the project.`;
+      showToast(msg, {
+        timeout: 13000,
+        actions: [
+          { label: `Open latest saved (v${m.latest.v})`, onAction: () => openProjectMap(m) },
+          { label: 'Keep draft', onAction: () => {} },
+          { label: 'Start fresh', onAction: _startFresh },
+        ],
+      });
+    } catch (_) { /* server check is best-effort; base toast already shown */ }
+  })();
 }
 
 // ============================================================================
