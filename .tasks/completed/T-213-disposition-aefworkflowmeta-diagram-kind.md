@@ -4,16 +4,16 @@ name: "Disposition: aef:workflowMeta diagram-kind marker (documentation|work-pla
 description: >
   Scope + operator sign-off on whether to ratify AEF's additive-vocabulary proposal (rail offset 87, AEF T-2556): a diagram-kind marker in the 832-owned schema, e.g. aef:workflowMeta kind=documentation|work-plan. Motivation: a documentation diagram compiles to promotable work-plan skeletons with zero intent signal. Additive/frozen-v1 (absent marker = byte-identical). Disposition (ratify + attribute name/values, or decline) is an operator design call; if ratified, produce the byte-exact fixture per the AEF fixture loop and AEF wires compile-notice + promote-refusal on kind=documentation.
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-19T20:47:03Z
-last_update: 2026-07-21T19:21:23Z
-date_finished: null
+last_update: 2026-07-21T19:22:51Z
+date_finished: 2026-07-21T19:22:51Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -74,15 +74,15 @@ Corpus diagrams D1–D5 are **documentation** — framework processes drawn for 
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -148,7 +148,30 @@ AEF's proposal (rail offset 125, their T-2556) is low-risk and well-shaped, and 
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Recommendation: GO — ratify as-is (agent read; ratification is the operator's sovereign call)
+
+Rationale:
+
+AEF's proposal (rail offset 125, their T-2556) is low-risk and well-shaped, and it closes a real live defect. The design meets every GO criterion — root cause identified (no intent signal in the serialized file), bounded/scoped/testable/reversible:
+- Additive + frozen-v1 safe. One optional attribute on `aef:workflowMeta`: `kind="documentation" | "work-plan"`. Absent/unknown `kind` → byte-identical today-behavior on both sides. No other serialization change, so it cannot break the existing byte-pinned corpus (session-handover / dispatch-loop / offpage-seam) — those stay clean until deliberately re-marked.
+- Solves the defect at the right layer. Intent lives in the 832-owned schema (where authoring happens), and AEF consumes it: `fw bpmn compile` adds one advisory on `kind=documentation` (skeletons unchanged); `fw bpmn promote` refuses `kind=documentation` (explicit override for the deliberate case). Regression tests pin both paths.
+- Author-decision default is correct. New diagrams default UNSET (not `work-plan`), so the marker stays an explicit author choice — no silent reclassification, no bulk rewrite. The 5 corpus diagrams get re-marked `kind=documentation` via normal editor saves after ratification.
+
+Amendment options for the operator to weigh (all viable; my default is ratify-as-is):
+- Attribute name: `kind=` is concise and namespaced under `aef:workflowMeta`; no collision with existing attrs. Fine as-is.
+- Values: enum `documentation | work-plan` vs open string. Recommend closed enum (frozen-v1: an open vocabulary invites drift; a third value can be added later additively without moving a pin).
+- Could add a neutral third value later (e.g. `template`) — defer; not needed for the defect.
+
+Evidence:
+
+- Rail offset 125 (AEF T-2556 full proposal) + offset 87 (original) — `[[aef-integration-rail]]`.
+- Live defect: AEF L-504 / T-2548–T-2549 (documentation nodes promoted into the task gate via a joint fixture).
+- 832 owns the dialect; this mirrors the seam loop exactly — operator ratifies → 832 produces the byte-exact fixture (validate-clean → byte-pin → rail-inline) → AEF wires compile-notice + promote-refusal. Same producer-contract discipline as T-219.
+- On ratify: spin a 832 build task for (a) `kind=` surfaced in the meta-edit UI (default UNSET) + (b) the byte-exact `kind=documentation` fixture; then re-mark the 5 corpus diagrams via normal saves. AEF builds their T-2556 legs only after our ratification.
+
+**Date**: 2026-07-21T19:22:50Z
 
 ## Updates
 
@@ -158,3 +181,31 @@ AEF's proposal (rail offset 125, their T-2556) is low-risk and well-shaped, and 
 ### 2026-07-21T19:21:23Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-07-21T19:22:50Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Recommendation: GO — ratify as-is (agent read; ratification is the operator's sovereign call)
+
+Rationale:
+
+AEF's proposal (rail offset 125, their T-2556) is low-risk and well-shaped, and it closes a real live defect. The design meets every GO criterion — root cause identified (no intent signal in the serialized file), bounded/scoped/testable/reversible:
+- Additive + frozen-v1 safe. One optional attribute on `aef:workflowMeta`: `kind="documentation" | "work-plan"`. Absent/unknown `kind` → byte-identical today-behavior on both sides. No other serialization change, so it cannot break the existing byte-pinned corpus (session-handover / dispatch-loop / offpage-seam) — those stay clean until deliberately re-marked.
+- Solves the defect at the right layer. Intent lives in the 832-owned schema (where authoring happens), and AEF consumes it: `fw bpmn compile` adds one advisory on `kind=documentation` (skeletons unchanged); `fw bpmn promote` refuses `kind=documentation` (explicit override for the deliberate case). Regression tests pin both paths.
+- Author-decision default is correct. New diagrams default UNSET (not `work-plan`), so the marker stays an explicit author choice — no silent reclassification, no bulk rewrite. The 5 corpus diagrams get re-marked `kind=documentation` via normal editor saves after ratification.
+
+Amendment options for the operator to weigh (all viable; my default is ratify-as-is):
+- Attribute name: `kind=` is concise and namespaced under `aef:workflowMeta`; no collision with existing attrs. Fine as-is.
+- Values: enum `documentation | work-plan` vs open string. Recommend closed enum (frozen-v1: an open vocabulary invites drift; a third value can be added later additively without moving a pin).
+- Could add a neutral third value later (e.g. `template`) — defer; not needed for the defect.
+
+Evidence:
+
+- Rail offset 125 (AEF T-2556 full proposal) + offset 87 (original) — `[[aef-integration-rail]]`.
+- Live defect: AEF L-504 / T-2548–T-2549 (documentation nodes promoted into the task gate via a joint fixture).
+- 832 owns the dialect; this mirrors the seam loop exactly — operator ratifies → 832 produces the byte-exact fixture (validate-clean → byte-pin → rail-inline) → AEF wires compile-notice + promote-refusal. Same producer-contract discipline as T-219.
+- On ratify: spin a 832 build task for (a) `kind=` surfaced in the meta-edit UI (default UNSET) + (b) the byte-exact `kind=documentation` fixture; then re-mark the 5 corpus diagrams via normal saves. AEF builds their T-2556 legs only after our ratification.
+
+### 2026-07-21T19:22:51Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
