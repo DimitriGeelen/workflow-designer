@@ -131,3 +131,10 @@ positions + a request for the contract; the BUILD lands on operator prioritizati
   visuals — no machine link to the referenced workflow, and no capture when the referenced
   workflow doesn't exist yet." 832 positions on Q1-Q3 drafted; **held for operator steer
   before committing on the rail** (seam was operator-steered on the AEF side).
+- **2026-07-20 — operator steer (Dimitri):** (1) send the Q1-Q3 positions as-is; (2) build
+  appetite = **design-dialogue only** (positions + contract exchange now; no build
+  authorization yet — inception stays open, no source edits). → Positions delivered to AEF on
+  the rail at **offset 108** (reply to 107), framed as design-dialogue-only with the build
+  gated on a later operator go/no-go. Also proposed pair-draft #3 be an off-page-connector
+  exemplar once the seam firms. Awaiting AEF's `/api/workflows` (or extended `/api/list`)
+  contract + answer on who-serves-it / registry location.
