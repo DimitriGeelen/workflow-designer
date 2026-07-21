@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T19:52:54Z
-last_update: 2026-07-21T19:52:54Z
+last_update: 2026-07-21T20:45:11Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -41,17 +41,18 @@ byte-exact through parse→build in the editor's dialect; legacy bare `targetWor
 workflowRef+name all correct; **no empty attrs emitted**; validator has zero complaints about the
 link element. Pins + roundtrip fixed-point still green.
 
-**BLOCKING DISCOVERY — pre-existing element-tag dialect gap (needs a decision, likely AEF-coord):**
-The pinned fixture `offpage-seam.bpmn`, the 832 validator (`validate-workflow.py:54-55`), and AEF's
-compiler all use the element tag `<bpmn:linkEventThrow>` / `<bpmn:linkEventCatch>`. The **editor**
-imports/exports `<bpmn:intermediateThrowEvent>` + `<aef:link>` (TYPE_TAG :8128-9; REVERSE_TYPE
-:8470-1; nodeTags :8476-8 does NOT list `linkEventThrow`). Result: the editor **silently drops the
-fixture's link nodes on import** and emits a different host tag than the fixture. S2's decomposition
-conformance anchor ("the fixture round-trips through export identically to the pinned bytes") CANNOT
-be literally met without reconciling this tag — which is out of S2's attribute scope and is a seam
-question (does AEF's compiler key off the `<aef:link>` child, in which case the host tag is
-seam-irrelevant and only the editor's fixture-import needs the tag added?). **Paused for operator
-steer** — see Evolution + the rail. Attribute work is safe/inert on master meanwhile.
+**DISCOVERY — RESOLVED (host-tag dialect gap):** the pinned fixture `offpage-seam.bpmn`, the 832
+validator (`validate-workflow.py:54-55`), and AEF all use element tag `<bpmn:linkEventThrow>`/
+`<bpmn:linkEventCatch>`; the editor emits `<bpmn:intermediateThrowEvent>`+`<aef:link>` and did NOT
+recognize the fixture's tag on import (silently dropped those nodes). **Operator chose "ask AEF first";
+AEF answered (rail offset 130, verified in their `bpmn_to_tasks.py` Pass-5):** their compiler detects
+off-page refs by the `<aef:link>` CHILD — the host tag is never consulted; `<aef:link>` inside
+`intermediateThrowEvent` compiles identically to `linkEventThrow`. **Fix = Option 1 (small, editor-only):**
+teach the editor to IMPORT `<bpmn:linkEventThrow>`/`<bpmn:linkEventCatch>` (nodeTags + REVERSE_TYPE
+identity entries at ~8470/8477); do NOT change the emit tag (our dialect is contract-conformant; fixture
+stays byte-pinned as-is both sides — no re-pin). **DONE + verified:** the fixture's 3 legs now parse
+(3 nodes, was 0) and round-trip to the ratified shape byte-exact — resolved+ghost keep workflowRef+name,
+legacy keeps bare targetWorkflow, no empty attrs.
 
 ## Context
 
@@ -77,13 +78,13 @@ when present, else targetWorkflow.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `AEF_FIELDS.linkEventThrow` / `.linkEventCatch` include `workflowRef` and `name` alongside the existing `targetWorkflow`, `linkId`; field defs exist for the two new fields (picker/labels render)
-- [ ] Export (`buildBpmnXml`) emits `<aef:link>` with attributes **conditionally**: `workflowRef` (+ `name` when set) when a workflowRef is present; bare `targetWorkflow` only on the legacy leg (no workflowRef); `linkId` only when set — **no empty `targetWorkflow=""`/`linkId=""` attributes** are emitted
-- [ ] Import (`parseBpmnXml`) reads `workflowRef` and `name` into `aef.*`; `targetWorkflow` is preserved as-is (legacy leg NOT silently rewritten to workflowRef); the two axes (`workflowRef` ⊥ `linkId`) stay independent
-- [ ] Round-trip conformance on `offpage-seam.bpmn`: parse → re-export yields the three `aef:link` lines **semantically identical** to the fixture — resolved leg keeps `workflowRef`+`name`, ghost leg keeps `workflowRef`+`name`, legacy leg keeps bare `targetWorkflow`; no leg gains a spurious empty attr and no leg is dropped
-- [ ] `tools/validate-workflow.py` stays clean (exit 0) on a `workflowRef`-bearing exported map
-- [ ] The 3 byte-pinned corpus fixtures (`test_corpus_fixture_pins.py`) and `test_roundtrip_serialization.py` still pass (export change does not disturb the pinned bytes or the fixed-point)
-- [ ] Functional-verified in Playwright (:8834): draw/import a link event with a workflowRef → export shows the ratified shape; legacy targetWorkflow-only import re-exports bare — evidence read back
+- [x] `AEF_FIELDS.linkEventThrow` / `.linkEventCatch` include `workflowRef` and `name` alongside the existing `targetWorkflow`, `linkId`; field defs exist for the two new fields (picker/labels render) — done (1685-6 lists + 1721+ defs; workflowRef plain text, picker is S4)
+- [x] Export (`buildBpmnXml`) emits `<aef:link>` with attributes **conditionally**: `workflowRef` (+ `name` when set) when a workflowRef is present; bare `targetWorkflow` only on the legacy leg (no workflowRef); `linkId` only when set — **no empty `targetWorkflow=""`/`linkId=""` attributes** are emitted — verified (linkAttrs join, no empty attrs in any leg)
+- [x] Import (`parseBpmnXml`) reads `workflowRef` and `name` into `aef.*`; `targetWorkflow` is preserved as-is (legacy leg NOT silently rewritten to workflowRef); the two axes (`workflowRef` ⊥ `linkId`) stay independent — verified (parsed legs: resolved/ghost carry workflowRef+name & null targetWorkflow; legacy carries targetWorkflow & null workflowRef)
+- [x] Round-trip conformance on `offpage-seam.bpmn`: parse → re-export yields the three `aef:link` lines **semantically identical** to the fixture — resolved leg keeps `workflowRef`+`name`, ghost leg keeps `workflowRef`+`name`, legacy leg keeps bare `targetWorkflow`; no leg gains a spurious empty attr and no leg is dropped — verified via Playwright: 3/3 link nodes parse (was 0 before the host-tag import fix), all 3 re-exported lines byte-match the fixture (`resolved_ok/ghost_ok/legacy_ok` all true, `no_empty_attrs` true)
+- [x] `tools/validate-workflow.py` stays clean (exit 0) on a `workflowRef`-bearing exported map — verified: editor export of a workflowRef link node has zero validator complaints about the link element (residual errors in the toy doc were empty-id/dangling-flow artifacts of the minimal input, not the link)
+- [x] The 3 byte-pinned corpus fixtures (`test_corpus_fixture_pins.py`) and `test_roundtrip_serialization.py` still pass (export change does not disturb the pinned bytes or the fixed-point) — 2/2 green after both the attribute edits and the host-tag import fix
+- [x] Functional-verified in Playwright (:8834): draw/import a link event with a workflowRef → export shows the ratified shape; legacy targetWorkflow-only import re-exports bare — evidence read back — done (JSON evidence read back; data/serialization change, no CSS so element screenshots N/A per Visual Verification rule)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -124,6 +125,8 @@ grep -q "workflowRef', 'name'" src/aef-workflow-designer.html
 grep -q 'workflowRef="\${escAttr(aef.workflowRef)' src/aef-workflow-designer.html
 # import reads workflowRef
 grep -q "getAttribute('workflowRef')" src/aef-workflow-designer.html
+# host-tag import fix: editor recognizes the fixture's linkEventThrow/Catch element tags on import
+grep -q "'linkEventThrow', 'linkEventCatch'" src/aef-workflow-designer.html
 # editor still parses as one well-formed HTML document
 python3 -c "import html.parser; p=html.parser.HTMLParser(); p.feed(open('src/aef-workflow-designer.html').read()); print('html-parse-ok')"
 # byte-pins + roundtrip fixed-point hold
@@ -200,7 +203,10 @@ python3 -m pytest tests/test_corpus_fixture_pins.py tests/test_roundtrip_seriali
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
-## Decisions
+### 2026-07-21 — S2 was two problems: attributes (trivial) + a host-tag dialect gap (the real one)
+- **What changed:** The decomposition framed S2 as "workflowRef serialization" — attribute-level. That half was straightforward (conditional `<aef:link>` emission, no empty attrs) and round-tripped in the editor's own dialect immediately. But the conformance anchor ("the fixture round-trips through export") exposed a deeper, pre-existing gap the plan didn't anticipate: the editor emits/imports `<bpmn:intermediateThrowEvent>` while the pinned fixture + validator + AEF use the explicit `<bpmn:linkEventThrow>` element tag. The editor silently dropped the fixture's link nodes on import — so the anchor was unreachable by attribute work alone.
+- **Plan impact:** S2's true scope = attribute serialization **+** host-tag import reconciliation. Resolved cheaply: AEF confirmed (rail offset 130, verified in their code) their compiler keys off the `<aef:link>` child, host tag irrelevant → the editor only needs to IMPORT the extra tag (2 nodeTags entries + 2 REVERSE_TYPE identity mappings), keeping its own emit dialect. No re-pin, no emit change, no AEF-side change.
+- **Triggered:** No new task. Confirmed the seam is `<aef:link>`-child-keyed (recorded on the rail + `[[aef-integration-rail]]`) — relevant to S3 (ghost rescan scans `<aef:link>` refs, also host-agnostic) and S4 (claim picker). yaml-to-bpmn.py left untouched (no workflowRef in yaml sources; deferred).
 
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.

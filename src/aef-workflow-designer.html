@@ -8466,15 +8466,22 @@ function parseBpmnXml(text) {
   // ---- nodes ----
   const REVERSE_TYPE = {}; // bpmn-tag → our node type
   for (const [k, v] of Object.entries(TYPE_TAG)) REVERSE_TYPE[v] = k;
-  // Link events use a different mapping (added in v2)
+  // Link events use a different mapping (added in v2). We EMIT the standard
+  // intermediateThrow/CatchEvent tag, but must also IMPORT the explicit
+  // linkEventThrow/linkEventCatch tag that hand-authored / peer fixtures use
+  // (S2/T-225, AEF rail offset 130: the seam keys off the <aef:link> child, the
+  // host tag is irrelevant — so accept both host tags, keep emitting our own).
   REVERSE_TYPE['intermediateThrowEvent'] = 'linkEventThrow';
   REVERSE_TYPE['intermediateCatchEvent'] = 'linkEventCatch';
+  REVERSE_TYPE['linkEventThrow'] = 'linkEventThrow';
+  REVERSE_TYPE['linkEventCatch'] = 'linkEventCatch';
 
   const nodes = [];
   const displayIdToUid = new Map(); // for resolving sourceRef/targetRef on edges
 
   const nodeTags = ['startEvent', 'endEvent', 'serviceTask', 'userTask', 'scriptTask',
                     'exclusiveGateway', 'parallelGateway', 'intermediateThrowEvent', 'intermediateCatchEvent',
+                    'linkEventThrow', 'linkEventCatch',
                     'boundaryEvent', 'subProcess'];
   for (const tag of nodeTags) {
     for (const el of byBpmn(proc, tag)) {
