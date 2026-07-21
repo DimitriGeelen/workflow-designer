@@ -121,17 +121,23 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Recommendation
 
-**Recommendation:** DEFER
+**Recommendation:** GO
 
 **Rationale:**
 
-Operator observed off-page connectors 'not connected' in AEF-captured processes; AEF is expected to make rail contact with specifics. 832's dialect already models link events (linkEventThrow/linkEventCatch are allowed node types, seeded in the reachability check), so the likely gap is throw<->catch pairing (by name) not being resolved/rendered. Recommend DEFER the fix until AEF contacts with the actual captured artifacts + their concrete ask (G-020: don't preempt a build from a heads-up); use this container to hold read-only prep findings so I can move fast when they do.
+REVISED 2026-07-21 (was DEFER at filing 2026-07-20). The original DEFER was a G-020 anti-preemption hold: don't build off a vague operator heads-up — wait for AEF's actual captured artifacts + a concrete, ratified ask. **Every condition that hold was waiting on is now met**, so the hold's own premise resolves to GO:
+- AEF made rail contact and both sides **ratified off-page connector seam contract v0** (rail offsets 107→110): serialization `<aef:link workflowRef name linkId/>`, additive `/api/list` `maps[].uuid` + top-level `ghosts[]`, store-side registry `.context/designer/registry.yaml`, draw-time uuid mint, claim flow.
+- **Pair-draft #3 byte-fixture CLOSED both sides** (T-219, rail offsets 120–123): AEF verified byte-exact (sha `0bc15bfac8…`), compiled clean, all three legs (resolved/ghost/legacy) classified exactly per contract v0. The seam is proven end-to-end on paper AND on a shared fixture.
+- The gap is now precisely characterised: 832's identity IS the slug/name — no immutable uuid — which is the one real addition the seam needs.
+
+The GO criteria hold: root cause identified (identity-model gap), bounded fix path, scoped/testable/reversible. Fix decomposes cleanly (below) into one-deliverable slices; no fundamental redesign, no unbounded scope.
 
 **Evidence:**
 
-<!-- Add evidence bullets as exploration progresses (file paths,
-     commit hashes, test results). The filing-time recommendation
-     can be revised before fw inception decide. -->
+- `docs/plans/T-220-offpage-seam-editor-build-decomposition.md` — build decomposed into S1 (uuid identity model) → S2 (workflowRef serialization) → S3 (/api/list additive maps[].uuid + ghosts[] + registry twin) → S4 (claim UX + `fw bpmn claim`) → S5 (parity guard + gallery ghost cards). Critical path S1→S2→S4.
+- `docs/plans/T-221-S1-uuid-identity-model-spec.md` — execution-ready S1 spec: uuid as ADDITIVE immutable `aef:workflowMeta` field, library STAYS slug-keyed; 6 steps anchored to real line numbers; two PL-022 traps flagged (mint seed uuid BEFORE `_seedBpmn` capture at line ~8825; exclude legacy-uuid-backfill from the dirty-check).
+- Contract ratification + seam closure recorded on the AEF rail (memory `[[aef-integration-rail]]`, offsets 110 + 120–123); AEF reaffirmed the whole 832 build "remains fully yours whenever T-218 GOes," no timeline pressure.
+- On GO: spin S1–S5 as SEPARATE build tasks (Inception Discipline — one deliverable each, not built under this inception id). Start with S1 from the T-221 spec.
 
 ## Decisions
 
