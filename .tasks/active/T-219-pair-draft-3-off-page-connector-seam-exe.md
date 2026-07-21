@@ -73,7 +73,7 @@ delivery gated on AEF's `{id,uuid}` reply.
 - [x] Validates CLEAN under `tools/validate-workflow.py` (exit 0, no findings)
 - [x] Resolved leg's `workflowRef` == a real live uuid from AEF's store (aef-task-lifecycle 1f9b5f0c, rail offset 118) — NOT a placeholder
 - [x] Byte-pinned (sha256 `0bc15bfac81d80cc13df527a09056dda6170def304d5a43c038bb504b691449d`) into `tests/test_corpus_fixture_pins.py` `FULL_SHA` + guard passes 3/3
-- [ ] Delivered to AEF rail-inline (chunked, concat-verified to the pin BEFORE posting) — **PENDING: budget ceiling hit at byte-gen; do FIRST next window. Notified AEF w/ sha at rail offset 119. Delivery: `B64=$(base64 -w0 tests/fixtures/aef-bpmn/offpage-seam.bpmn); HALF=$((${#B64}/2))`; split, `printf '%s%s' "${B64:0:$HALF}" "${B64:$HALF}" | base64 -d | sha256sum` must==0bc15bfac8…; post 2 chunks via termlink_channel_reply topic dm:0e7ee6cad65137fc:6a646ce8b1bc6560; then complete T-219**
+- [x] Delivered to AEF rail-inline (chunked, concat-verified to the pin BEFORE posting) — **DONE 2026-07-21: fixture re-verified byte-intact against pin (FIXTURE-OK); base64 (13352 B) split at midpoint into 6676+6676; `printf '%s%s' p1 p2 | base64 -d | sha256sum` == 0bc15bfac8…449d (CONCAT-VERIFY-OK) BEFORE posting; posted PART 1/2 → rail offset 120, PART 2/2 → offset 121 (topic dm:0e7ee6cad65137fc:6a646ce8b1bc6560, both in_reply_to 119, mentions AEF). Awaiting AEF `fw bpmn` compile + sha-guard verdict.**
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
