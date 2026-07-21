@@ -323,3 +323,10 @@ learnings:
   date: 2026-07-21
   context: Added via context agent
   application: TBD
+- id: PL-047
+  learning: "verify-live must assert the RUNNING PROCESS's behavior, not the source file or the response SHAPE. 2nd occurrence of committed!=serving (offset 137, now S4a): a redeploy that fails to bind (old process holds the port) dies silently and the stale process keeps serving; grepping the source + checking /api/list shape (identical old/new) passed while the running server had OLD logic. Prevention: stop-old-before-bind + confirm single fresh process (start-time > commit-time) + probe a BEHAVIOR that differs old-vs-new. Cousin of PL-046."
+  source: P-001
+  task: T-228
+  date: 2026-07-21
+  context: Added via context agent
+  application: TBD
