@@ -102,11 +102,11 @@
       <bpmn:outgoing>flow_6</bpmn:outgoing>
     </bpmn:exclusiveGateway>
 
-    <bpmn:linkEventThrow id="agt_5_resolved" name="&#8594; validate-map (resolved)">
+    <bpmn:linkEventThrow id="agt_5_resolved" name="&#8594; aef-task-lifecycle (resolved)">
       <bpmn:extensionElements>
         <aef:uid value="n_4d5e6f70"/>
         <aef:position x="740.0" y="330.0"/>
-        <aef:link workflowRef="11111111-1111-4111-8111-111111111111" name="validate-map"/>
+        <aef:link workflowRef="1f9b5f0c-0be4-4cfe-9158-d9e6f0c1d4c7" name="aef-task-lifecycle"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_4</bpmn:incoming>
     </bpmn:linkEventThrow>

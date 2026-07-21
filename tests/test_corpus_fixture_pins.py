@@ -42,6 +42,10 @@ FULL_SHA = {
         "d971a2fccbac6cf93bebcb8ed7de63e6dfc3c6445626e286f18fc282c87f5855",
     "dispatch-loop.bpmn":
         "95bc24cdb0d27952a4f85da55368b74fc8c1e9586960d0dd839453595543594b",
+    # offpage-seam.bpmn (T-219, pair-draft #3) — resolved leg pinned to AEF's live
+    # aef-task-lifecycle uuid (rail offset 118); delivered rail-inline offset TBD.
+    "offpage-seam.bpmn":
+        "0bc15bfac81d80cc13df527a09056dda6170def304d5a43c038bb504b691449d",
 }
 
 
