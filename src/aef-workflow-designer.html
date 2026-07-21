@@ -1682,8 +1682,8 @@ const AEF_FIELDS = {
   scriptTask:   ['horizon', 'workflowType', 'tier', 'endpoint', 'contextReads', 'artifactsWrites'],
   exclusiveGateway: ['decisionInput', 'decisionOwner'],
   parallelGateway: [],
-  linkEventThrow: ['targetWorkflow', 'linkId'],
-  linkEventCatch: ['targetWorkflow', 'linkId'],
+  linkEventThrow: ['workflowRef', 'name', 'targetWorkflow', 'linkId'],
+  linkEventCatch: ['workflowRef', 'name', 'targetWorkflow', 'linkId'],
   // T-204 Slice 1: one kind-specific binding field per typed event (single source
   // of truth is EVENT_BINDING_FIELD, mirrored here for the inspector panel).
   // T-204 Slice 2: additive boundary-attachment fields (hostRef/boundaryPos/
@@ -1718,7 +1718,13 @@ const FIELD_META = {
   decisionInput:  { label: 'Decision input',  hint: 'expression, e.g. ${findings.confidence}', textarea: false },
   decisionOwner:  { label: 'Decision owner',  hint: 'agent | human | framework', special: 'select', options: ['agent', 'human', 'framework'] },
   decisionOutputs:{ label: 'Decision outputs',hint: 'enum, comma-separated', textarea: false },
-  targetWorkflow: { label: 'Target workflow', hint: 'id of the other workflow', special: 'workflowPicker' },
+  // S2 (T-225): off-page connector pins the target workflow's immutable uuid via workflowRef
+  // (survives the target's rename — S1). `name` is the display label. targetWorkflow stays as the
+  // back-compat legacy leg (slug-only, no workflowRef). workflowRef ⊥ linkId (orthogonal axes).
+  // Plain text for S2 (serialization slice). The uuid-aware "create from pending ref" picker is S4.
+  workflowRef:    { label: 'Workflow ref (uuid)', hint: 'uuid of the target workflow (rename-stable)', textarea: false },
+  name:           { label: 'Ref display name', hint: 'display label for the referenced workflow', textarea: false },
+  targetWorkflow: { label: 'Target workflow', hint: 'legacy: slug of the other workflow (no uuid)', special: 'workflowPicker' },
   linkId:         { label: 'Link ID',         hint: 'identifier shared with matching catch/throw', textarea: false },
   // T-204 Slice 1: typed-event AEF bindings (error→status:issues, timer→cron/horizon,
   // message→bus topic). Emitted as <aef:eventDef kind=… binding=…/> (see aefExtensionXml).
@@ -8173,9 +8179,20 @@ function aefExtensionXml(node) {
   if (aef.artifactsWrites) out += `        <aef:artifactsWrites paths="${escAttr(aef.artifactsWrites)}"/>\n`;
   if (aef.decisionInput) out += `        <aef:decisionInput>${escText(aef.decisionInput)}</aef:decisionInput>\n`;
   if (aef.decisionOutputs) out += `        <aef:decisionOutputs>${escText(aef.decisionOutputs)}</aef:decisionOutputs>\n`;
-  // Link event: targetWorkflow + linkId (for linkEventThrow / linkEventCatch)
-  if (aef.targetWorkflow || aef.linkId) {
-    out += `        <aef:link targetWorkflow="${escAttr(aef.targetWorkflow || '')}" linkId="${escAttr(aef.linkId || '')}"/>\n`;
+  // Link event (S2/T-225): pin the target uuid via workflowRef (+ display name); fall back to the
+  // legacy targetWorkflow slug only when there is no workflowRef. linkId is orthogonal (intra-diagram
+  // pairing). Attributes are emitted CONDITIONALLY — no empty targetWorkflow=""/linkId="" — so all
+  // three seam legs (resolved / ghost / legacy) round-trip to the ratified shape.
+  if (aef.workflowRef || aef.targetWorkflow || aef.linkId || aef.name) {
+    const linkAttrs = [];
+    if (aef.workflowRef) {
+      linkAttrs.push(`workflowRef="${escAttr(aef.workflowRef)}"`);
+      if (aef.name) linkAttrs.push(`name="${escAttr(aef.name)}"`);
+    } else if (aef.targetWorkflow) {
+      linkAttrs.push(`targetWorkflow="${escAttr(aef.targetWorkflow)}"`);
+    }
+    if (aef.linkId) linkAttrs.push(`linkId="${escAttr(aef.linkId)}"`);
+    if (linkAttrs.length) out += `        <aef:link ${linkAttrs.join(' ')}/>\n`;
   }
   // T-204: typed intermediate event — kind + binding ride <aef:eventDef>,
   // mirroring aef:link. The kind is derived from the node type (the BPMN tag is
@@ -8503,9 +8520,13 @@ function parseBpmnXml(text) {
       // tolerant of the legacy `values="…"` attribute form so previously-exported
       // files don't silently lose their outputs (T-053).
       if (decOutEl) aef.decisionOutputs = (decOutEl.textContent || '').trim() || (decOutEl.getAttribute('values') || '');
-      // Link event extension: targetWorkflow + linkId
+      // Link event extension (S2/T-225): read workflowRef (uuid) + name; keep targetWorkflow as the
+      // legacy leg (NOT rewritten to workflowRef — ratified: diagram XML is never silently migrated).
+      // workflowRef ⊥ linkId stay independent axes.
       const linkEl = byAef(el, 'link')[0];
       if (linkEl) {
+        aef.workflowRef = linkEl.getAttribute('workflowRef') || '';
+        aef.name = linkEl.getAttribute('name') || '';
         aef.targetWorkflow = linkEl.getAttribute('targetWorkflow') || '';
         aef.linkId = linkEl.getAttribute('linkId') || '';
       }
