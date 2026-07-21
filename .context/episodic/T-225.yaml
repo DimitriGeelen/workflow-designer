@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-225: S2 workflowRef connector serialization - pin uuid on aef:link, keep linkId orthogonal, targetWorkflow legacy alias (T-218 GO slice 2)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-21T20:47:46Z
+# ============================================================================
+
+task_id: T-225
+task_name: "S2 workflowRef connector serialization - pin uuid on aef:link, keep linkId orthogonal, targetWorkflow legacy alias (T-218 GO slice 2)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-07-21T19:52:54Z
+completed: 2026-07-21T20:47:42Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-21T22:01:45+02:00
+last_commit: 2026-07-21T22:47:37+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  S2 aef:link attribute serialization — workflowRef/name added, conditional export (no empty attrs), import read. Ratified shape round-trips byte-exact in editor dialect; pins+roundtrip green. PAUSED on discovered linkEventThrow-vs-intermediateThrowEvent host-tag gap (seam decision). S2 COMPLETE — host-tag import fix (editor now imports <bpmn:linkEventThrow>/<linkEventCatch> per AEF offset 130; emit unchanged). Fixture 3 legs round-trip byte-exact (3/3 nodes, was 0); all 7 ACs verified
+
+# Key outcomes
+outcomes:
+  - '`AEF_FIELDS.linkEventThrow` / `.linkEventCatch` include `workflowRef` and `name` alongside the existing `targetWorkflow`, `linkId`; field defs exist for the two new fields (picker/labels render) — done (1685-6 lists + 1721+ defs; workflowRef plain text, picker is S4)'
+  - 'Export (`buildBpmnXml`) emits `<aef:link>` with attributes **conditionally**: `workflowRef` (+ `name` when set) when a workflowRef is present; bare `targetWorkflow` only on the legacy leg (no workflowRef); `linkId` only when set — **no empty `targetWorkflow=""`/`linkId=""` attributes** are emitted — verified (linkAttrs join, no empty attrs in any leg)'
+  - 'Import (`parseBpmnXml`) reads `workflowRef` and `name` into `aef.*`; `targetWorkflow` is preserved as-is (legacy leg NOT silently rewritten to workflowRef); the two axes (`workflowRef` ⊥ `linkId`) stay independent — verified (parsed legs: resolved/ghost carry workflowRef+name & null targetWorkflow; legacy carries targetWorkflow & null workflowRef)'
+  - 'Round-trip conformance on `offpage-seam.bpmn`: parse → re-export yields the three `aef:link` lines **semantically identical** to the fixture — resolved leg keeps `workflowRef`+`name`, ghost leg keeps `workflowRef`+`name`, legacy leg keeps bare `targetWorkflow`; no leg gains a spurious empty attr and no leg is dropped — verified via Playwright: 3/3 link nodes parse (was 0 before the host-tag import fix), all 3 re-exported lines byte-match the fixture (`resolved_ok/ghost_ok/legacy_ok` all true, `no_empty_attrs` true)'
+  - '`tools/validate-workflow.py` stays clean (exit 0) on a `workflowRef`-bearing exported map — verified: editor export of a workflowRef link node has zero validator complaints about the link element (residual errors in the toy doc were empty-id/dangling-flow artifacts of the minimal input, not the link)'
+  - 'The 3 byte-pinned corpus fixtures (`test_corpus_fixture_pins.py`) and `test_roundtrip_serialization.py` still pass (export change does not disturb the pinned bytes or the fixed-point) — 2/2 green after both the attribute edits and the host-tag import fix'
+  - 'Functional-verified in Playwright (:8834): draw/import a link event with a workflowRef → export shows the ratified shape; legacy targetWorkflow-only import re-exports bare — evidence read back — done (JSON evidence read back; data/serialization change, no CSS so element screenshots N/A per Visual Verification rule)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'S2 COMPLETE — host-tag import fix (editor now imports <bpmn:linkEventThrow>/<linkEventCatch> per AEF offset 130; emit unchanged). Fixture 3 legs round-trip byte-exact (3/3 nodes, was 0); all 7 ACs verified'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-225-s2-workflowref-connector-serialization--.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-21T22:01:45"
+    action: "T-225: S2 aef:link attribute serialization — workflowRef/name added, conditional export (no empty attrs), import read. Ratified shape round-trips byte-exact in editor dialect; pins+roundtrip green. PAUSED on discovered linkEventThrow-vs-intermediateThrowEvent host-tag gap (seam decision)"
+  - time: "2026-07-21T22:47:37"
+    action: "T-225: S2 COMPLETE — host-tag import fix (editor now imports <bpmn:linkEventThrow>/<linkEventCatch> per AEF offset 130; emit unchanged). Fixture 3 legs round-trip byte-exact (3/3 nodes, was 0); all 7 ACs verified"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 54 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 54
+  commits: 2
+  files_changed: 2
+  lines_added: 291
+  lines_removed: 28
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-225-s2-workflowref-connector-serialization--.md
+generated_by: context-agent-hybrid
