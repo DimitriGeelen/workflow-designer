@@ -3,4 +3,7 @@
 .prev-token-reading
 session.yaml
 focus.yaml
-tier0-approval
+# T-222: pattern was `tier0-approval` (no leading dot) — never matched the real
+# `.tier0-approval` token, so transient Tier-0 grants leaked into commits. Glob the
+# `.pending`/`.consumed` siblings too.
+.tier0-approval*
