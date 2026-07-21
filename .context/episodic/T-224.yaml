@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-224: S1 uuid identity model - additive immutable workflowMeta.uuid connector-referenceable rename-stable identity (T-218 GO slice 1)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-21T19:50:48Z
+# ============================================================================
+
+task_id: T-224
+task_name: "S1 uuid identity model - additive immutable workflowMeta.uuid connector-referenceable rename-stable identity (T-218 GO slice 1)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-07-21T19:23:57Z
+completed: 2026-07-21T19:50:45Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-21T21:25:04+02:00
+last_commit: 2026-07-21T21:50:40+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  scaffold S1 build task (uuid identity model) with real ACs + verification from T-221 spec — T-218 GO slice 1. S1 uuid identity (partial) — mintUuid helper + rename-invariant comment + export uuid splice (all inert until seed-mint/backfill); WIP state + remaining steps recorded (budget ceiling mid-impl). S1 uuid identity COMPLETE — seed-mint (pre-_seedBpmn), import-parse, legacy backfill. All 3 remaining edits landed; 7/7 Playwright checks green, validator VALID, pins hold
+
+# Key outcomes
+outcomes:
+  - 'A new/seed workflow has `workflowMeta.uuid` (crypto.randomUUID v4) set BEFORE the `_seedBpmn` capture; the T-141 pristine-seed guard still fires correctly (unedited seed → save prompts; edited → saves silently) — verified: seed uuid `fa41adbc-…` is v4; `buildBpmnXml(state) === _seedBpmn` (check1b true), so the guard baseline carries the uuid and does not misfire (PL-022 trap #1)'
+  - 'Export emits `<aef:workflowMeta … uuid="<v4>" …>` (additive, process-level); re-import yields the same uuid (round-trip stable) — verified: export attr present, positioned right after `id=`, `parseBpmnXml(xml).workflowMeta.uuid` === seed uuid (check2)'
+  - '`renameActiveWorkflow` changes the slug (`workflowMeta.id`) but `uuid` is byte-identical before/after (uuid invariant across rename) — verified: id → `renamed-probe-xyz`, uuid unchanged (check3)'
+  - 'A legacy map (no `uuid` on import) backfills exactly once via `mintUuid()`; opening it does NOT mark it dirty / nag unsaved changes; a subsequent save persists the uuid — verified: stripped-uuid parse → null, `mintUuid()` backfill → v4 (check4); no isDirty/beforeunload mechanism exists so adopt-open stays clean (PL-022 trap #2); subsequent `buildBpmnXml` emits the uuid (check2 path)'
+  - 'Two imports of the same slug resolve to distinct library keys AND distinct uuids — verified: distinct uuids per parse+backfill (check5); distinct keys via the existing `_v<n>` collision loop (unchanged)'
+  - '`tools/validate-workflow.py` stays clean (exit 0) on a `uuid`-bearing exported map (validator ignores unknown `aef:workflowMeta` attrs) — verified: `VALID -- no findings`, exit 0'
+  - 'Visual/functional-verified in Playwright (:8834): new-map uuid present, export→import round-trip, rename-holds-uuid, legacy-open-not-dirty — evidence read back — verified via `browser_evaluate` on a cleared-localStorage fresh seed; all 7 checks returned true (JSON read back). Data-model change (no CSS/HTML), so element screenshots N/A per the Visual Verification rule.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-224-s1-uuid-identity-model---additive-immuta.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-21T21:25:04"
+    action: "T-224: scaffold S1 build task (uuid identity model) with real ACs + verification from T-221 spec — T-218 GO slice 1"
+  - time: "2026-07-21T21:29:02"
+    action: "T-224: S1 uuid identity (partial) — mintUuid helper + rename-invariant comment + export uuid splice (all inert until seed-mint/backfill); WIP state + remaining steps recorded (budget ceiling mid-impl)"
+  - time: "2026-07-21T21:50:40"
+    action: "T-224: S1 uuid identity COMPLETE — seed-mint (pre-_seedBpmn), import-parse, legacy backfill. All 3 remaining edits landed; 7/7 Playwright checks green, validator VALID, pins hold"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 26 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 26
+  commits: 3
+  files_changed: 2
+  lines_added: 263
+  lines_removed: 15
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-224-s1-uuid-identity-model---additive-immuta.md
+generated_by: context-agent-hybrid
