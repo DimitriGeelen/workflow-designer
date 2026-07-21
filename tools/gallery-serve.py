@@ -40,7 +40,10 @@ import os
 import re
 import shutil
 import sys
+import tempfile
+import threading
 import time
+import uuid as _uuidlib
 import xml.etree.ElementTree as ET
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
@@ -232,6 +235,181 @@ def _link_refs_from_text(text):
     return refs
 
 
+# ---- S3b (T-227) — persistent registry twin (.context/designer/registry.yaml) ----
+# The registry is a DEBT record, not an identity record (rail offset 134): a ghost's
+# uuid identity lives in the diagram XML, so a ghost dropped when its last referrer
+# goes away re-materializes from the XML on a later save. `task` is ALWAYS null on this
+# twin — AEF's substrate is the sole doc-task minter. Two ghost kinds:
+#   uuid-pinned  — from <aef:link workflowRef=<uuid>>; keyed/deduped by uuid.
+#   name-only    — from a legacy <aef:link targetWorkflow=<slug>> whose target is not a
+#                  live map; store-mints a uuid4 (registry-side only, XML never rewritten),
+#                  keyed/deduped by display name.
+# ONE drop rule, on every sync (save + delete): drop a ghost when referenced_by is empty
+# — both kinds alike (no uuid-pinned exemption). File is written as JSON (a strict subset
+# of YAML 1.2) so the server stays stdlib-only yet the .yaml parses under any yaml.safe_load.
+_REG_LOCK = threading.Lock()
+
+
+def registry_path():
+    """Resolved at call time — REPO is reassigned by --repo AFTER import, so a module
+    constant would freeze the wrong path (and write into the source tree during tests)."""
+    return os.path.join(REPO, '.context', 'designer', 'registry.yaml')
+
+
+def read_registry():
+    """Registry as {ghosts:[], claims:[]}. Missing/malformed → empty; never raises
+    (a corrupt registry must never break /api/list or /api/save)."""
+    try:
+        with open(registry_path(), encoding='utf-8') as f:
+            data = json.load(f)
+        return {'ghosts': data.get('ghosts') or [], 'claims': data.get('claims') or []}
+    except Exception:
+        return {'ghosts': [], 'claims': []}
+
+
+def write_registry(reg):
+    """Atomic write: temp file in the same dir + os.replace (atomic on POSIX)."""
+    path = registry_path()
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=os.path.dirname(path), suffix='.tmp')
+    try:
+        with os.fdopen(fd, 'w', encoding='utf-8') as f:
+            json.dump({'ghosts': reg.get('ghosts', []), 'claims': reg.get('claims', [])},
+                      f, indent=2)
+        os.replace(tmp, path)
+    except Exception:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+
+
+def _mint_uuid4():
+    return str(_uuidlib.uuid4())
+
+
+def _legacy_refs_from_text(text):
+    """Legacy off-page refs: <aef:link targetWorkflow="slug"> with NO workflowRef.
+    Returns [{slug, node, nodeName}] via the same nearest-id ancestor climb as S3a."""
+    if not text:
+        return []
+    try:
+        root = ET.fromstring(text)
+    except Exception:
+        return []
+    parents = {child: parent for parent in root.iter() for child in parent}
+    refs = []
+    for el in root.iter():
+        if _local(el.tag) != 'link' or el.get('workflowRef'):
+            continue
+        slug = el.get('targetWorkflow')
+        if not slug:
+            continue
+        host = parents.get(el)
+        while host is not None and host.get('id') is None:
+            host = parents.get(host)
+        refs.append({'slug': slug,
+                     'node': host.get('id') if host is not None else None,
+                     'nodeName': host.get('name') if host is not None else None})
+    return refs
+
+
+def _append_referrer(ghost, map_id, node, node_name):
+    """Add {id,node,nodeName} to a ghost's referenced_by, deduped by (id, node)."""
+    for e in ghost['referenced_by']:
+        if e.get('id') == map_id and e.get('node') == node:
+            return
+    ghost['referenced_by'].append({'id': map_id, 'node': node, 'nodeName': node_name})
+
+
+def _drop_empty(ghosts):
+    """The single drop rule (rail offset 134): drop any ghost with empty referenced_by,
+    uuid-pinned and name-only alike. task is always null here so no KEEP branch applies."""
+    return [g for g in ghosts if g.get('referenced_by')]
+
+
+def sync_registry_after_save(map_id, bpmn_text):
+    """Rescan a just-saved map's off-page refs and reconcile the registry (S3b).
+    uuid-pinned refs → upsert by uuid; legacy refs whose target is not live → upsert a
+    name-only ghost by display name (store-minted uuid4). This map's prior referrers are
+    cleared first (the save is the fresh truth), then the single drop rule is applied."""
+    maps = build_map_list()[0]
+    live_uuids = {m['uuid'] for m in maps if m.get('uuid')}
+    live_slugs = {m['id'] for m in maps}
+    uuid_refs = _link_refs_from_text(bpmn_text)
+    legacy_refs = _legacy_refs_from_text(bpmn_text)
+    now = int(time.time())
+    with _REG_LOCK:
+        reg = read_registry()
+        ghosts = reg['ghosts']
+        for g in ghosts:                       # clear this map's stale contributions
+            g['referenced_by'] = [r for r in g.get('referenced_by', []) if r.get('id') != map_id]
+        by_uuid = {g['uuid']: g for g in ghosts if g.get('kind') == 'uuid-pinned'}
+        by_name = {g.get('name'): g for g in ghosts if g.get('kind') == 'name-only'}
+        for ref in uuid_refs:                  # uuid-pinned
+            wref = ref['workflowRef']
+            if wref in live_uuids:
+                continue                       # resolved → contributes no ghost
+            g = by_uuid.get(wref)
+            if g is None:
+                g = {'uuid': wref, 'name': ref.get('name'), 'kind': 'uuid-pinned',
+                     'referenced_by': [], 'task': None, 'first_seen': now}
+                ghosts.append(g)
+                by_uuid[wref] = g
+            elif not g.get('name') and ref.get('name'):
+                g['name'] = ref['name']
+            _append_referrer(g, map_id, ref['node'], ref['nodeName'])
+        for ref in legacy_refs:                # name-only (legacy slug)
+            slug = ref['slug']
+            if slug in live_slugs:
+                continue                       # target live → skip recording (offset 134)
+            g = by_name.get(slug)
+            if g is None:
+                g = {'uuid': _mint_uuid4(), 'name': slug, 'kind': 'name-only',
+                     'referenced_by': [], 'task': None, 'first_seen': now}
+                ghosts.append(g)
+                by_name[slug] = g
+            _append_referrer(g, map_id, ref['node'], ref['nodeName'])
+        reg['ghosts'] = _drop_empty(ghosts)
+        write_registry(reg)
+
+
+def sync_registry_after_delete(map_id):
+    """Strip a deleted map from every ghost's referenced_by, then apply the drop rule."""
+    with _REG_LOCK:
+        reg = read_registry()
+        for g in reg['ghosts']:
+            g['referenced_by'] = [r for r in g.get('referenced_by', []) if r.get('id') != map_id]
+        reg['ghosts'] = _drop_empty(reg['ghosts'])
+        write_registry(reg)
+
+
+def merged_ghosts():
+    """/api/list ghosts[] = S3a live derivation (authoritative for current uuid-pinned
+    referenced_by) UNION the persisted registry (authoritative for first_seen + the
+    name-only ghosts derivation can't see). Read-only — never writes the registry.
+    Emits the S3a wire shape {uuid,name,referenced_by,task,first_seen} (no `kind`)."""
+    _maps, derived = build_map_list()
+    reg = read_registry()
+    reg_by_uuid = {g['uuid']: g for g in reg['ghosts']}
+    out = {}
+    for g in derived:                          # uuid-pinned, live referenced_by
+        entry = {'uuid': g['uuid'], 'name': g['name'], 'referenced_by': g['referenced_by'],
+                 'task': None, 'first_seen': None}
+        rg = reg_by_uuid.get(g['uuid'])
+        if rg:
+            entry['first_seen'] = rg.get('first_seen')
+        out[g['uuid']] = entry
+    for g in reg['ghosts']:                     # registry-only (name-only, mainly)
+        if g['uuid'] in out or not g.get('referenced_by'):
+            continue
+        out[g['uuid']] = {'uuid': g['uuid'], 'name': g.get('name'),
+                          'referenced_by': g.get('referenced_by', []),
+                          'task': g.get('task'), 'first_seen': g.get('first_seen')}
+    return sorted(out.values(), key=lambda g: g['uuid'])
+
+
 def _derive_ghosts(records):
     """Read-only ghosts[] from the listed maps' uuid-pinned refs (S3a).
 
@@ -361,8 +539,9 @@ class Handler(SimpleHTTPRequestHandler):
         if route == '/api/list':
             # T-143: read-only corpus + saved-map enumeration (no id required).
             # T-226/S3a: additive maps[].uuid + separate top-level ghosts[].
-            maps, ghosts = build_map_list()
-            return self._json(200, {'maps': maps, 'ghosts': ghosts})
+            # T-227/S3b: ghosts[] is the merged live-derivation ∪ persisted-registry view.
+            maps, _derived = build_map_list()
+            return self._json(200, {'maps': maps, 'ghosts': merged_ghosts()})
         id_ = (q.get('id') or [''])[0]
         if route in ('/api/versions', '/api/version', '/api/thumb') and not self._valid_id(id_):
             return self._json(400, {'ok': False, 'error': 'invalid id'})
@@ -461,6 +640,14 @@ class Handler(SimpleHTTPRequestHandler):
         index.append({'v': v, 'ts': ts, 'note': note, 'thumb': thumb, 'bytes': len(bpmn_bytes)})
         write_index(id_, index)
 
+        # 5. registry twin (T-227/S3b) — rescan this map's off-page refs into the ghost
+        #    registry. Best-effort: a registry glitch must never fail an otherwise-durable
+        #    save (the version snapshot in step 1 already persisted the operator's work).
+        try:
+            sync_registry_after_save(id_, bpmn)
+        except Exception as e:
+            sys.stderr.write("[gallery-serve] registry sync (save) failed for %r: %s\n" % (id_, e))
+
         return self._json(200, {'ok': True, 'v': v, 'ts': ts, 'corpus': to_corpus})
 
     # ---- DELETE (T-166) — archive-based, recoverable ----
@@ -498,6 +685,12 @@ class Handler(SimpleHTTPRequestHandler):
             pass
         if not archived:
             return self._json(404, {'ok': False, 'error': 'nothing to delete for id %r' % id_})
+        # registry twin (T-227/S3b) — strip this map from every ghost's referenced_by, then
+        # drop now-unreferenced ghosts. Best-effort: never fail a completed delete.
+        try:
+            sync_registry_after_delete(id_)
+        except Exception as e:
+            sys.stderr.write("[gallery-serve] registry sync (delete) failed for %r: %s\n" % (id_, e))
         return self._json(200, {'ok': True, 'archived': archived, 'trash': os.path.relpath(trash, REPO)})
 
     def _delete_version(self, id_, v):
