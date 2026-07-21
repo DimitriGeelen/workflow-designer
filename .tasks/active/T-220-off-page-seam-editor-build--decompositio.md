@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T08:40:15Z
-last_update: 2026-07-21T08:40:15Z
+last_update: 2026-07-21T08:42:33Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -84,9 +84,9 @@ code anchors. See `docs/reports/T-218-offpage-connector-pairing.md` + `[[aef-int
 ## Verification
 
 test -f docs/plans/T-220-offpage-seam-editor-build-decomposition.md
-out=$(cat docs/plans/T-220-offpage-seam-editor-build-decomposition.md); echo "$out" | grep -q 'S1 — uuid identity model'
-echo "$out" | grep -q 'aef-workflow-designer.html:8158'
-echo "$out" | grep -q 'ghost-DROP rules\|Ghost-DROP rules'
+grep -q 'S1 — uuid identity model' docs/plans/T-220-offpage-seam-editor-build-decomposition.md
+grep -q 'aef-workflow-designer.html:8158' docs/plans/T-220-offpage-seam-editor-build-decomposition.md
+grep -qi 'ghost-DROP rules' docs/plans/T-220-offpage-seam-editor-build-decomposition.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
