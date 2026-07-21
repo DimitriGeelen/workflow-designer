@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T07:41:22Z
-last_update: 2026-07-21T07:41:22Z
+last_update: 2026-07-21T07:47:15Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -49,6 +49,21 @@ gated T-218 editor build). Delivered pattern mirrors T-214/T-215.
 **Dependency:** the resolved leg needs a real live uuid — requested from AEF on the rail
 (offset 114). Structure + validation proceed now with a placeholder uuid; final byte-pin +
 delivery gated on AEF's `{id,uuid}` reply.
+
+**Finalization rehearsal (2026-07-21, on a temp copy — committed fixture untouched):**
+- Swapping the resolved placeholder for a realistic v4 uuid → validator returns `VALID … no
+  findings`. **No uuid-format sensitivity** — finalization is a single `sed` swap of
+  `11111111-1111-4111-8111-111111111111` → AEF's real uuid, then re-validate.
+- Sizes: raw ≈ 10002 B, **base64 ≈ 13336 B > 12288 single-message threshold → delivery NEEDS
+  2-part chunking** (split at midpoint → PART 1/2 + PART 2/2, `printf '%s%s' p1 p2 | base64 -d
+  | sha256sum` == pin BEFORE posting). AC-6's "chunked if >12KB b64" is therefore CONFIRMED
+  chunked, not conditional.
+- Post-reply steps, in order: (1) `sed` swap the resolved uuid; (2) re-run
+  `tools/validate-workflow.py` (expect clean); (3) `sha256sum` the final bytes; (4) add
+  `"offpage-seam.bpmn": "<sha>"` to `FULL_SHA` in `tests/test_corpus_fixture_pins.py` (harness
+  is already generic — one dict entry, no other wiring); (5) `python3
+  tests/test_corpus_fixture_pins.py` (expect pass); (6) deliver rail-inline in 2 concat-verified
+  chunks.
 
 ## Acceptance Criteria
 
