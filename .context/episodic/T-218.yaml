@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-218: Off-page connector (link-event) pairing in AEF-captured processes — understand the gap
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-21T19:22:58Z
+# ============================================================================
+
+task_id: T-218
+task_name: "Off-page connector (link-event) pairing in AEF-captured processes — understand the gap"
+workflow_type: inception
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-20T20:43:52Z
+completed: 2026-07-21T19:22:56Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-07-20T22:46:20+02:00
+last_commit: 2026-07-20T23:23:28+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  inception — off-page connector (link-event) pairing gap survey (DEFER, await AEF contact). AEF seam proposal (T-2571) decoded + 832 positions on Q1-Q3 (held for operator steer)
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-218-offpage-connector-pairing.md'
+  - '.tasks/active/T-218-off-page-connector-link-event-pairing-in.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-20T22:46:20"
+    action: "T-218: inception — off-page connector (link-event) pairing gap survey (DEFER, await AEF contact)"
+  - time: "2026-07-20T23:23:28"
+    action: "T-218: AEF seam proposal (T-2571) decoded + 832 positions on Q1-Q3 (held for operator steer)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 1359 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1359
+  commits: 2
+  files_changed: 2
+  lines_added: 293
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-218-off-page-connector-link-event-pairing-in.md
+generated_by: context-agent-hybrid
