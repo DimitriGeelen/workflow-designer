@@ -1,0 +1,40 @@
+# Audit Results - 2026-07-20-2245
+timestamp: 2026-07-20T20:45:01Z
+sections: "oe-fast,oe-research"
+summary:
+  pass: 7
+  warn: 6
+  fail: 0
+findings:
+  - level: WARN
+    check: "C-001: Inception T-218 has no research artifact in docs/reports/"
+    mitigation: "Create docs/reports/T-218-*.md — the thinking trail IS the artifact"
+  - level: PASS
+    check: "C-002: commit-msg hook has research artifact check"
+  - level: PASS
+    check: "C-002: No research warnings logged (clean or first run)"
+  - level: PASS
+    check: "C-003: Research checkpoint logic present in checkpoint.sh"
+  - level: WARN
+    check: "C-006: Inception T-155 has template-only Recommendation block"
+    mitigation: "Retrofit: fill in **Recommendation:** GO"
+  - level: WARN
+    check: "C-006: Inception T-184 has template-only Recommendation block"
+    mitigation: "Retrofit: fill in **Recommendation:** GO"
+  - level: WARN
+    check: "C-006: Inception T-185 has template-only Recommendation block"
+    mitigation: "Retrofit: fill in **Recommendation:** GO"
+  - level: WARN
+    check: "C-006: Inception T-186 has template-only Recommendation block"
+    mitigation: "Retrofit: fill in **Recommendation:** GO"
+  - level: WARN
+    check: "C-006: Inception T-213 has template-only Recommendation block"
+    mitigation: "Retrofit: fill in **Recommendation:** GO"
+  - level: PASS
+    check: "CTL-001: Focus file has active task (T-218)"
+  - level: PASS
+    check: "CTL-003: Budget status file fresh (< 5min old)"
+  - level: PASS
+    check: "CTL-004: Tool counter at 9 (last commit: 23 hours ago)"
+  - level: PASS
+    check: "CTL-018: Budget status valid JSON (level: ok)"

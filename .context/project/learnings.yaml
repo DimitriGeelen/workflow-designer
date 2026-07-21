@@ -295,3 +295,10 @@ learnings:
   date: 2026-07-19
   context: Added via context agent
   application: "When fixing a hand-rolled parse pattern, grep the whole tree for sibling copies of the SAME pattern and fix/guard all of them in one task — never assume the observed site is the only one. Pin a whole-tree absence invariant, not a single-line regex match."
+- id: PL-043
+  learning: "P-011 Verification runs each line as its OWN shell under set -u — a variable set by out=$(...) on one line is unbound on any LATER line (echo \"$out\" → 'out: unbound variable', command fails, completion blocked). Distinct from the L-387 SIGPIPE / T-2090 single-pipe hints (those are about pipes). Fix: make each Verification line self-contained — grep -q PAT file directly, no cross-line $out. Hit 2x same session (T-219, T-220)."
+  source: P-011
+  task: T-219
+  date: 2026-07-21
+  context: Added via context agent
+  application: TBD

@@ -773,3 +773,31 @@ decisions:
     date: 2026-07-18
     task: T-197
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-090
+    decision: "Pin the hand-authored `.bpmn` file (5491 bytes, sha `efb53839…`), authored in"
+    scope: project
+    date: 2026-07-19
+    task: T-208
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-091
+    decision: "`eventError/eventTimer/eventMessage` → `{ in: false, out: false }` (no typed-data I/O panel in the inspector)."
+    scope: project
+    date: 2026-07-19
+    task: T-204
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-092
+    decision: "label the new palette section **\"Typed events\"** (not \"Events\")."
+    scope: project
+    date: 2026-07-19
+    task: T-204
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-093
+    decision: "Endorse the kind-split, and anchor it on a sharper principle than \"different text"
+    scope: project
+    date: 2026-07-19
+    task: T-217
+    rationale: "Auto-captured from task file on completion"
