@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-221: S1 uuid identity model — execution-ready implementation spec (pre-GO design for T-218 build slice S1)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-21T12:23:11Z
+# ============================================================================
+
+task_id: T-221
+task_name: "S1 uuid identity model — execution-ready implementation spec (pre-GO design for T-218 build slice S1)"
+workflow_type: design
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-21T12:21:37Z
+completed: 2026-07-21T12:23:10Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-21T14:23:10+02:00
+last_commit: 2026-07-21T14:23:10+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  S1 uuid identity model execution-ready spec (additive uuid field, no library re-key; PL-022 seed/backfill traps; pre-GO design)
+
+# Key outcomes
+outcomes:
+  - 'Spec exists at `docs/plans/T-221-S1-uuid-identity-model-spec.md`'
+  - 'Numbered execution steps (1–6) each anchored to a verified `file:line`'
+  - 'Names the design decision (additive uuid field, no library re-key) with chose/why/rejected'
+  - 'Calls out the PL-022 pristine-seed + legacy-backfill dirty-check traps explicitly'
+  - 'Includes S1-build ACs + a test plan (incl. PL-005 bridge-parity guard)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/plans/T-221-S1-uuid-identity-model-spec.md'
+  - '.tasks/active/T-221-s1-uuid-identity-model--execution-ready-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-21T14:23:10"
+    action: "T-221: S1 uuid identity model execution-ready spec (additive uuid field, no library re-key; PL-022 seed/backfill traps; pre-GO design)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1
+  commits: 1
+  files_changed: 2
+  lines_added: 304
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-221-s1-uuid-identity-model--execution-ready-.md
+generated_by: context-agent-hybrid
