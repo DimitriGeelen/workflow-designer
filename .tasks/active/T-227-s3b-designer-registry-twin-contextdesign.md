@@ -4,7 +4,7 @@ name: "S3b: designer registry twin (.context/designer/registry.yaml) — /api/sa
 description: >
   S3b stateful half of the off-page connector seam (T-218 GO). Persist .context/designer/registry.yaml {ghosts,claims} via atomic write; /api/save rescans saved-map aef:link refs and merges unresolved ones into registry.ghosts (name-dedup); /api/delete strips deleted map from every ghost referenced_by; 3 ghost-DROP rules (rail offset 113); uuid-pinned (workflowRef) ghosts never auto-drop (exit only via claim, S4). Depends on T-226 (S3a, read-only ghost derivation, DONE). BLOCKED on rail seam Q: does 832 local twin mint doc-tasks (task field) or is task null with AEF sole minter.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T21:33:02Z
-last_update: 2026-07-21T21:33:02Z
+last_update: 2026-07-21T21:36:01Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,33 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+S3b — stateful half of the off-page connector seam (T-218 GO); depends on **T-226/S3a**
+(read-only `maps[].uuid` + derived `ghosts[]`, DONE). Where S3a *derives* ghosts read-only
+from `<aef:link workflowRef>` on every `/api/list`, S3b *persists* a registry twin so ghost
+identity survives across saves, `first_seen`/`task` can be recorded, and claims (S4) have a
+store to mutate. Mirrors AEF's live half (rail offsets 111-113).
+
+Server: `tools/gallery-serve.py` — POST `/api/save` handler + `/api/delete` handler + a new
+registry module (`.context/designer/registry.yaml`). Contract ratified offset 109/110; drop
+rules offset 113. See `[[aef-integration-rail]]` and the S3a decisions in `T-226`.
+
+**⚠ BLOCKED on rail seam Q (posted offset 133):** does 832's local twin populate ghost `task`
+(mint doc-tasks mirroring AEF's `FW_TASK_ORIGIN=designer-ghost`), or is `task` always null with
+AEF the sole minter? This sets drop-rules 2/3. Spec below documents BOTH branches so execution
+is a fast fill-in once AEF confirms. **Do not build the name-only/legacy branch until confirmed**
+(PL-005 editor↔store drift risk). Spec: `docs/plans/T-227-S3b-registry-twin-spec.md`.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] `tools/gallery-serve.py` gains a registry module reading/writing `.context/designer/registry.yaml` (`{ghosts:[], claims:[]}`) via **atomic write** (temp-file in same dir + `os.replace`); a malformed or missing file is treated as empty `{ghosts:[],claims:[]}` and NEVER raises into `/api/list` or `/api/save`
+- [ ] POST `/api/save` rescans the saved map's `<aef:link workflowRef>` refs and merges each unresolved one into `registry.ghosts` — upsert keyed by `uuid`: create with `first_seen=now` (epoch) on first sight, else update `referenced_by` (dedup by `{id,node}`); a ref that now resolves to a live map uuid is removed from that map's contribution to `referenced_by`
+- [ ] `/api/delete` strips the deleted map id from every ghost's `referenced_by` (and applies the drop rules afterward), so deleting the last referrer of a uuid-pinned ghost leaves it referenced_by-empty but PRESENT (claim-only exit), while other rules may drop name-only ghosts
+- [ ] The 3 ghost-DROP rules apply at each registry sync exactly as ratified (offset 113): (1) DROP when `referenced_by` empty AND no task; (2) KEEP when empty + task set + named target still absent; (3) DROP when empty AND ghost name now matches a live map slug even with a task — AND **uuid-pinned (`workflowRef`) ghosts are exempt from all auto-drop** (exit only via claim, S4). [Branch on the seam-Q answer: if `task` always null on 832, rules 2/3 collapse per spec.]
+- [ ] `/api/list` `ghosts[]` is served from the **merged** view of the persisted registry (task/first_seen from registry) UNION the live read-only derivation from S3a (so a freshly-drawn ref shows before its first save) — registry is authoritative for task/first_seen, derivation is authoritative for current `referenced_by`
+- [ ] A new `tools/_gallery-registry-verify.py` (or extension of `_gallery-list-verify.py`) exercises: save→ghost persisted with first_seen; second save dedups referenced_by; delete strips referrer; uuid-pinned survives referenced_by-empty; each drop rule fires/holds as specified; atomic write leaves no temp file; malformed registry → empty, no crash. Passes.
+- [ ] No regression: byte-pins, `_gallery-list-verify.py` (S3a), `_gallery-save-allowlist-verify.py`, `_corpus-adopt-verify.py` all still green
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -174,3 +193,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-227-s3b-designer-registry-twin-contextdesign.md
 - **Context:** Initial task creation
+
+### 2026-07-21T21:36:01Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
