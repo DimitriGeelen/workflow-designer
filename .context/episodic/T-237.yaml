@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-237: eventDef/linkEventCatch vocabulary collision: typed catch events misclassified as workflow handoffs (AEF rail 153, 0.3.1)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-22T11:02:03Z
+# ============================================================================
+
+task_id: T-237
+task_name: "eventDef/linkEventCatch vocabulary collision: typed catch events misclassified as workflow handoffs (AEF rail 153, 0.3.1)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-22T10:41:18Z
+completed: 2026-07-22T11:02:00Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-22T13:01:23+02:00
+last_commit: 2026-07-22T13:01:23+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  eventDef/linkEventCatch collision — root cause is 0.3.0 release-lineage (dist artifact predates T-204 vocabulary, 0 eventDef hits; master classifies right); fixed 2 secondary master defects: eventDef override now catch-hosts-only (kills silent throw->catch tag mutation) and link-with-target wins over eventDef. Behavior-verified 4 fixture legs on served :8834; contracts+pins green; PL-052 vocabulary-versioning learning
+
+# Key outcomes
+outcomes:
+  - 'The misclassification is REPRODUCED first on the running :8834 served editor (PL-046 behavior repro, not source grep) with an eventDef-bearing catch node (typed-events.bpmn fixture or a byte-faithful copy of AEF''s failing node shape), and the actual divergence point is identified and named in the RCA — no fix lands before the repro is understood (finding: master classifies CORRECTLY; AEF''s repro is the 0.3.0 release-lineage gap — dist artifact has 0 eventDef hits; two secondary master defects found + fixed, see RCA)'
+  - 'After the fix: an `intermediateCatchEvent` carrying `aef:eventDef` imports/classifies as the mapped typed event (eventError/eventTimer/eventMessage) — properties panel shows the typed-event type and binding field, NO "Target workflow" / "Open target workflow" affordance, and the typed glyph renders (served :8834: typed-events.bpmn → 3/3 typed with bindings errorStatus/timerSpec/busTopic; typed types are field-keyed, not in HANDOFF_TYPES)'
+  - '`linkEventCatch` classification is reserved for catches carrying `aef:link` (workflowRef/targetWorkflow); the bare-catch default (neither extension) is decided and recorded in Decisions (bare → linkEventCatch, status quo, rationale in Decisions)'
+  - 'Throw side disambiguated the same way: `intermediateThrowEvent` + `aef:eventDef` does not classify as a catch-typed event (was: eventMessage + silent throw→catch tag mutation on re-export — behavior-proven pre-fix, gone post-fix; + `aef:link` still classifies linkEventThrow)'
+  - 'Round-trip safety: importing then re-exporting typed-events.bpmn and boundary-events.bpmn keeps their sha-pinned byte contract green (tests/test_typed_event_fixture_contract.py) and the T-219 offpage-seam link legs still classify as link events (no over-correction) (contract OK + pins OK + offpage 3/3 link legs on served editor; boundary events keep hostRef/interrupting)'
+  - 'Playwright-verified on the RUNNING :8834 gallery: drive the fixture through the served editor, assert node type + panel affordances for BOTH a typed catch and a real link catch; redeploy (cp src → build/gallery/designer.html) byte-identical (4 fixture legs driven: typed-events, throw-repro, boundary-events, offpage-seam; cmp clean)'
+  - 'Announce on the rail when landed (rides the 0.3.1 tag with T-234) — with the fix commit and what AEF should re-verify on their aef-dispatch-loop map (rail offset 156: commit dd8ce64, release-lineage root cause, both secondary fixes, post-re-pin re-verify steps, typed-throw contract offer)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'eventDef/linkEventCatch collision — root cause is 0.3.0 release-lineage (dist artifact predates T-204 vocabulary, 0 eventDef hits; master classifies right); fixed 2 secondary master defects: eventDef override now catch-hosts-only (kills silent throw->catch tag mutation) and link-with-target wins over eventDef. Behavior-verified 4 fixture legs on served :8834; contracts+pins green; PL-052 vocabulary-versioning learning'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+  - decision: '2026-07-22 — Bare-catch default (AEF left it 832''s call)'
+    chose: 'A catch event with NEITHER `aef:link` nor `aef:eventDef` keeps classifying as'
+    rationale: 'The editor has no neutral "plain intermediate event" type; linkEventCatch is the'
+    alternatives_rejected: ['Minting a new neutral intermediate-event node type — schema/palette/glyph/']
+  - decision: '2026-07-22 — Override scope: catch hosts only; link-with-target wins over eventDef'
+    chose: 'The eventDef type-override fires only when the host tag is'
+    rationale: '(1) All EVENT_KIND types export as intermediateCatchEvent — overriding a THROW'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-237-eventdeflinkeventcatch-vocabulary-collis.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-22T13:01:23"
+    action: "T-237: eventDef/linkEventCatch collision — root cause is 0.3.0 release-lineage (dist artifact predates T-204 vocabulary, 0 eventDef hits; master classifies right); fixed 2 secondary master defects: eventDef override now catch-hosts-only (kills silent throw->catch tag mutation) and link-with-target wins over eventDef. Behavior-verified 4 fixture legs on served :8834; contracts+pins green; PL-052 vocabulary-versioning learning"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 20 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug, designer, aef-integration]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 20
+  commits: 1
+  files_changed: 3
+  lines_added: 121
+  lines_removed: 6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-237-eventdeflinkeventcatch-vocabulary-collis.md
+generated_by: context-agent-hybrid

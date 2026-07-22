@@ -850,3 +850,17 @@ decisions:
     date: 2026-07-22
     task: T-234
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-101
+    decision: "A catch event with NEITHER `aef:link` nor `aef:eventDef` keeps classifying as"
+    scope: project
+    date: 2026-07-22
+    task: T-237
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-102
+    decision: "The eventDef type-override fires only when the host tag is"
+    scope: project
+    date: 2026-07-22
+    task: T-237
+    rationale: "Auto-captured from task file on completion"
