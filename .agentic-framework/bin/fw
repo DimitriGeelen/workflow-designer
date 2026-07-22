@@ -3020,6 +3020,20 @@ case "$cmd" in
     audit)
         exec "$AGENTS_DIR/audit/audit.sh" "$@"
         ;;
+    bpmn)
+        # T-230/S4b: headless off-page-connector ops (currently `claim <uuid> <project>`).
+        # Operator-decided home: the dispatcher hard-fails unknown commands, so a
+        # project-local tool could not be reached as `fw bpmn`. The project-owned logic
+        # (operates on 832's designer store — T-559 boundary) lives in tools/bpmn-cli.py,
+        # which reads PROJECT_ROOT (exported above). G-008: this vendored edit must be
+        # mirrored upstream when the framework repo is next synced.
+        _bpmn_cli="$PROJECT_ROOT/tools/bpmn-cli.py"
+        if [ ! -f "$_bpmn_cli" ]; then
+            echo -e "${RED}fw bpmn: $_bpmn_cli not found (needs the 832-Workflow-designer project)${NC}" >&2
+            exit 1
+        fi
+        exec python3 "$_bpmn_cli" "$@"
+        ;;
     reviewer)
         # T-1443 v1.0–v1.4: machine-reviewer (anti-pattern static-scan + audit + overrides)
         if [ "${1:-}" = "" ] || [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
