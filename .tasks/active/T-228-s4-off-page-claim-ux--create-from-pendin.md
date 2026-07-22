@@ -191,6 +191,16 @@ referrer resolves with no diagram edit. Test artifacts cleaned up afterward.
 - **Plan impact:** AC-2/3/4/5/6 (server claim + audit + idempotency + verify + no-regression) are DONE and verified headlessly (`tools/_gallery-claim-verify.py` 11/11). Only AC-1 (the picker UI) + the Human [REVIEW] remain.
 - **Triggered:** UI half (picker modal + seed-adopting-uuid + name-match suggest-only + Playwright verify) deferred to next window at 68% budget (Work Proposal Rule — UI build isn't a small bounded unit). Task stays started-work. S4b/T-230 unchanged (reuses the server claim path).
 
+## Recommendation
+
+**Recommendation:** GO
+**Rationale:** The picker is behavior-verified end-to-end by TWO independent parties on the RUNNING :8834 UI (not source inspection): my own Playwright round-trip and AEF's peer re-verify (their T-2597) both drove open→adopt→Save→claim and confirmed the full outcome — ghost dropped, live map carries the uuid, `registry.claims` records `via:ui`, referrers resolve with zero diagram edit. The suggest-only invariant (name-match shown as "⤷ open existing", never auto-opened) is implemented as an inline affordance and was exercised in both runs. The remaining Human AC is pure UX taste (legibility/wording), not function.
+**Evidence:**
+- My E2E (this task, 2026-07-22): throwaway ghost → picker card → properties showed adopted map → Save → claim `{project:picker-e2e-target, via:ui}` recorded, ghost dropped, referrer resolved; artifacts cleaned up
+- AEF peer re-verify (rail offset 149, all green): modal listed all 3 pending refs with referrer info; adopted `1f9b5f0c`; claim fired; other fixtures untouched — "S4a UI leg CLOSED our side. Your T-228 [REVIEW] can cite this run."
+- Screenshot `.playwright-mcp/t228-picker-dark.png` (app is dark-only; single-mode visual verify)
+- Headless suites green: claim 11/11, list 22/22, registry 17/17; all 6 Agent ACs checked, P-010/P-011 clean
+
 ## Decisions
 
 ### 2026-07-22 — S4 decomposition + claim-CLI home (operator-decided)
