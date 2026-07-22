@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-236: Write evidence-based Recommendation blocks for the NO-REC review-queue backlog (8 tasks)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-22T09:55:11Z
+# ============================================================================
+
+task_id: T-236
+task_name: "Write evidence-based Recommendation blocks for the NO-REC review-queue backlog (8 tasks)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-22T09:50:36Z
+completed: 2026-07-22T09:55:09Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-22T11:54:09+02:00
+last_commit: 2026-07-22T11:55:08+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  recommendations for the NO-REC review backlog — 4 GO w/ evidence (T-041 T-105 T-189 T-195) + 3 DEFER unstarted (T-184/185/186); queue predicate now 0 NO-REC; no Human-AC/status changes. replace inline verification with tools/_norec-verify.py — the inline python -c hit shell $() command-substitution inside double quotes (regex group eaten + glob executed); standing guard, 0 NO-REC
+
+# Key outcomes
+outcomes:
+  - 'The NO-REC set is enumerated mechanically (tasks with unchecked `### Human` ACs and no parseable `**Recommendation:**` verdict) — same predicate the Watchtower queue uses'
+  - 'Every set member gets a `## Recommendation` block with an honest verdict: GO only where agent-verifiable evidence exists and is cited (checked Agent ACs, passing verifiers, committed artifacts); DEFER with a named missing-evidence list otherwise; none invented'
+  - 'Zero Human-AC checkboxes modified, zero status changes, zero closures (diff shows task-file `## Recommendation` insertions only)'
+  - 'The review pages render the new verdicts (spot-check ≥2 via curl: `Recommendation — GO|DEFER`, not NO-REC)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_norec-verify.yaml'
+  - '.tasks/active/T-041-render-inception-review-and-run-operator.md'
+  - '.tasks/active/T-105-baked-verification-gate-gateway-label-collision.md'
+  - '.tasks/active/T-184-child-3-reverse-discovery-aef-record---e.md'
+  - '.tasks/active/T-185-child-4-collaboration-and-concurrency-pe.md'
+  - '.tasks/active/T-186-child-5-hosting-and-tenancy-tenant-neutr.md'
+  - '.tasks/active/T-189-iw-9-v11-mapping-standard-delta--collaps.md'
+  - '.tasks/active/T-195-draft-g-3-collapsed-inception-v11-delta-.md'
+  - '.tasks/active/T-236-write-evidence-based-recommendation-bloc.md'
+  - 'tools/_norec-verify.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-22T11:54:09"
+    action: "T-236: recommendations for the NO-REC review backlog — 4 GO w/ evidence (T-041 T-105 T-189 T-195) + 3 DEFER unstarted (T-184/185/186); queue predicate now 0 NO-REC; no Human-AC/status changes"
+  - time: "2026-07-22T11:55:08"
+    action: "T-236: replace inline verification with tools/_norec-verify.py — the inline python -c hit shell $() command-substitution inside double quotes (regex group eaten + glob executed); standing guard, 0 NO-REC"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 2
+  files_changed: 10
+  lines_added: 295
+  lines_removed: 29
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-236-write-evidence-based-recommendation-bloc.md
+generated_by: context-agent-hybrid
