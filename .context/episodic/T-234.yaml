@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-234: 0.3.0 jump-autosave poisoning bug — post-jump autosave records original deep-link src, wrong map renders on revisit (AEF T-2596 RCA, 0.3.1 root fix)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-22T10:50:55Z
+# ============================================================================
+
+task_id: T-234
+task_name: "0.3.0 jump-autosave poisoning bug — post-jump autosave records original deep-link src, wrong map renders on revisit (AEF T-2596 RCA, 0.3.1 root fix)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-22T06:45:31Z
+completed: 2026-07-22T10:50:52Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-22T08:47:55+02:00
+last_commit: 2026-07-22T12:50:02+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file 0.3.0 jump-autosave poisoning bug (AEF T-2596 RCA confirmed vs src, real ACs, 0.3.1 root-fix candidates) + T-235 exemplar delivery task (AEF-accepted spec, 3ceaf02d vehicle) + T-228 peer re-verify evidence appended for operator [REVIEW]. root-fix 0.3.0 jump-autosave poisoning — autosaveNow stamped src unconditionally; _loadSrcKey now tracks the ?load-adopted map identity and src stamps only while active===adopted. Playwright 4-leg matrix PASS on served :8834 (repro + 3 B1 legs); deployed byte-identical (build ignored by git). RCA filled, G-010 registered (no standing editor-behavior suite), PL-050 learning; T-237 filed (rail 153 eventDef/linkEventCatch collision)
+
+# Key outcomes
+outcomes:
+  - 'The poisoning repro is fixed at the ROOT: after `open ?load=X → jumpToWorkflow(Y) → autosave fires`, the persisted autosave record no longer associates Y''s content with X''s src (either src is nulled/updated on in-place switch, or records are keyed per map) — and revisiting `?load=X` renders X, not Y'
+  - 'The legitimate B1 restore path still works: no `?load` → last work restored; `?load` matching a stored autosave OF THAT MAP → in-progress edits restored with `_suppressDeepLink`; `?load` differing → deep-link wins untouched (existing behavior, no regression)'
+  - 'Playwright-verified on the RUNNING :8834 gallery (behavior, not source grep — PL-046): drive the actual repro sequence (open ?load=X, jump to Y, wait past the 700ms autosave debounce, re-enter ?load=X) and assert the rendered map is X; plus the no-regression restore legs'
+  - 'Redeployed (cp src → build/gallery/designer.html) and the fix verified against the served copy; deployed copy byte-identical to src'
+  - 'RCA section filled (peer-found field bug — G-019 escalation applies: why could a wrong-map render ship silently? capture prevention, e.g. a repro-sequence Playwright leg in the standing suite); learning recorded if this is a new failure class (bug-fix learning checkpoint — it is: state/url identity drift across in-place navigation)'
+  - 'Announce on the rail when landed (AEF holds 0.3.1 re-pin on it) — and note the fix commit for the operator''s 0.3.1 tag decision (rail offset 155: commit 7390131, 4-leg matrix results, no-schema-change note, nonce-workaround release note)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'root-fix 0.3.0 jump-autosave poisoning — autosaveNow stamped src unconditionally; _loadSrcKey now tracks the ?load-adopted map identity and src stamps only while active===adopted. Playwright 4-leg matrix PASS on served :8834 (repro + 3 B1 legs); deployed byte-identical (build ignored by git). RCA filled, G-010 registered (no standing editor-behavior suite), PL-050 learning; T-237 filed (rail 153 eventDef/linkEventCatch collision)'
+    source: git-mined
+  - description: 'file 0.3.0 jump-autosave poisoning bug (AEF T-2596 RCA confirmed vs src, real ACs, 0.3.1 root-fix candidates) + T-235 exemplar delivery task (AEF-accepted spec, 3ceaf02d vehicle) + T-228 peer re-verify evidence appended for operator [REVIEW]'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+  - decision: '2026-07-22 — Fix shape: candidate (a) `_loadSrcKey` tracking, not (b) per-map records'
+    chose: 'Candidate (a): track the map identity adopted FROM the `?load` deep-link'
+    rationale: 'Kills exactly the false association (content-of-Y ↔ src-of-X) with zero schema'
+    alternatives_rejected: ['(b) per-map autosave records (keyed by map id). Bigger win (multi-map']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.context/project/learnings.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-228-s4-off-page-claim-ux--create-from-pendin.md'
+  - '.tasks/active/T-234-030-jump-autosave-poisoning-bug--post-ju.md'
+  - '.tasks/active/T-235-author-s4-picker-exemplar-via-claim-of-3.md'
+  - '.tasks/active/T-237-eventdeflinkeventcatch-vocabulary-collis.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-22T08:47:55"
+    action: "T-234: file 0.3.0 jump-autosave poisoning bug (AEF T-2596 RCA confirmed vs src, real ACs, 0.3.1 root-fix candidates) + T-235 exemplar delivery task (AEF-accepted spec, 3ceaf02d vehicle) + T-228 peer re-verify evidence appended for operator [REVIEW]"
+  - time: "2026-07-22T12:50:02"
+    action: "T-234: root-fix 0.3.0 jump-autosave poisoning — autosaveNow stamped src unconditionally; _loadSrcKey now tracks the ?load-adopted map identity and src stamps only while active===adopted. Playwright 4-leg matrix PASS on served :8834 (repro + 3 B1 legs); deployed byte-identical (build ignored by git). RCA filled, G-010 registered (no standing editor-behavior suite), PL-050 learning; T-237 filed (rail 153 eventDef/linkEventCatch collision)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 245 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 245
+  commits: 2
+  files_changed: 7
+  lines_added: 689
+  lines_removed: 9
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-234-030-jump-autosave-poisoning-bug--post-ju.md
+generated_by: context-agent-hybrid

@@ -801,3 +801,52 @@ decisions:
     date: 2026-07-19
     task: T-217
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-094
+    decision: "In `_link_refs_from_text`, resolve a ref's host node by walking parents up to the nearest element carrying an `id` attribute, not the `<aef:link>`'s direct parent."
+    scope: project
+    date: 2026-07-21
+    task: T-226
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-095
+    decision: "`json.dump(indent=2)` into `.context/designer/registry.yaml`."
+    scope: project
+    date: 2026-07-21
+    task: T-227
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-096
+    decision: "`registry_path()` reads the `REPO` global at call time."
+    scope: project
+    date: 2026-07-21
+    task: T-227
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-097
+    decision: "A thin `bpmn)` route in the vendored `.agentic-framework/bin/fw` that"
+    scope: project
+    date: 2026-07-22
+    task: T-230
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-098
+    decision: "If the target already carries a *different* `workflowMeta uuid`, error with"
+    scope: project
+    date: 2026-07-22
+    task: T-230
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-099
+    decision: "A stdlib-only guard that sha-pins the shared fixture then asserts key-set /"
+    scope: project
+    date: 2026-07-22
+    task: T-232
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-100
+    decision: "Candidate (a): track the map identity adopted FROM the `?load` deep-link"
+    scope: project
+    date: 2026-07-22
+    task: T-234
+    rationale: "Auto-captured from task file on completion"

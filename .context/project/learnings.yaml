@@ -351,3 +351,10 @@ learnings:
   date: 2026-07-22
   context: Added via context agent
   application: TBD
+- id: PL-051
+  learning: "L-387 refinement (5th family instance): the documented capture-first pattern (out=$(cmd); echo \"$out\" | grep -q PAT) is itself SIGPIPE-unsafe when the capture exceeds the ~64KB pipe buffer — grep -q exits on first match and echo takes exit 141 on the still-in-flight write (hit with an 860KB HTML payload in T-234 P-011). For large payloads use a full-consume form: test \"$(cmd | grep -c PAT)\" -ge 1, or write to a file and grep the file."
+  source: P-011
+  task: T-234
+  date: 2026-07-22
+  context: Added via context agent
+  application: TBD
