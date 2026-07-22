@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-07-21T19:50:48Z ===
+task_id: T-224
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-224.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: S1 uuid identity model - additive immutable workflowMeta.uuid connector-referenceable rename-stable identity (T-218 GO slice 1)
+  Duration: 0 days (26 min)
+  Updates: 2
+  Commits: 3
+  Lines: +263 -15 across 2 files
+  Outcomes: 7 AC checked
+  Artifacts: 2 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-224-s1-uuid-identity-model---additive-immuta.md
+--- exit code: 0 ---

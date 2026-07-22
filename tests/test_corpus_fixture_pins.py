@@ -46,6 +46,13 @@ FULL_SHA = {
     # aef-task-lifecycle uuid (rail offset 118); delivered rail-inline offset TBD.
     "offpage-seam.bpmn":
         "0bc15bfac81d80cc13df527a09056dda6170def304d5a43c038bb504b691449d",
+    # s4-exemplar.bpmn (T-235) — S4 picker-claim exemplar, byte-copy of the map SAVED
+    # through the running editor (.editor-versions/claim-smoke-legacy/v1.bpmn): born via
+    # the T-228 pending-refs picker (adopts+claims ghost 3ceaf02d, via:ui), carries the
+    # 3 off-page legs (resolved 1f9b5f0c / ghost 4300eae7 / legacy review-map). AEF holds
+    # it at tests/fixtures/832/s4-exemplar.{bpmn,sha256} (their T-2593 intake).
+    "s4-exemplar.bpmn":
+        "82b6ab78cd5f54b800b3c644b6f35eefbb169dc3ca6d05ce802807a3cec956b7",
 }
 
 

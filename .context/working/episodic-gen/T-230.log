@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-07-22T05:59:55Z ===
+task_id: T-230
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-230.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: S4b: fw bpmn claim CLI — add bpmn subcommand to vendored fw (headless ghost claim, via:cli)
+  Duration: 1 days (437 min)
+  Updates: 3
+  Commits: 2
+  Lines: +511 -15 across 6 files
+  Outcomes: 5 AC checked
+  Artifacts: 6 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-230-s4b-fw-bpmn-claim-cli--add-bpmn-subcomma.md
+--- exit code: 0 ---

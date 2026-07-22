@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-07-22T05:39:22Z ===
+task_id: T-231
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-231.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Harden serve-gallery.sh: clean-stop-before-bind + fail-loud on port-in-use + behavior probe (committed!=serving prevention)
+  Duration: 1 days (369 min)
+  Updates: 3
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 5 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-231-harden-serve-gallerysh-clean-stop-before.md
+--- exit code: 0 ---

@@ -1,0 +1,63 @@
+{
+  "ghosts": [
+    {
+      "uuid": "adb0e0f2-f2ff-40a2-a898-22f369adee2f",
+      "name": "review-map",
+      "kind": "name-only",
+      "referenced_by": [
+        {
+          "id": "s4-e2e-probe",
+          "node": "hum_1_legacy",
+          "nodeName": "legacy review"
+        },
+        {
+          "id": "claim-smoke-legacy",
+          "node": "frw_3_handoff-3",
+          "nodeName": "legacy: review-map"
+        }
+      ],
+      "task": null,
+      "first_seen": 1784671980
+    },
+    {
+      "uuid": "4300eae7-f2b4-4a1f-abcf-a2812a882a5e",
+      "name": "future-map",
+      "kind": "uuid-pinned",
+      "referenced_by": [
+        {
+          "id": "claim-smoke-legacy",
+          "node": "frw_2_handoff-2",
+          "nodeName": "ghost: future-map"
+        }
+      ],
+      "task": null,
+      "first_seen": 1784743837
+    }
+  ],
+  "claims": [
+    {
+      "uuid": "502081ac-3869-479e-bccd-89552115b097",
+      "project": "claim-smoke-target",
+      "ts": 1784676439,
+      "via": "ui"
+    },
+    {
+      "uuid": "bb6ae088-7e5b-4776-bb51-f2449fbbc961",
+      "project": "claim-smoke-target2",
+      "ts": 1784676575,
+      "via": "ui"
+    },
+    {
+      "uuid": "1f9b5f0c-0be4-4cfe-9158-d9e6f0c1d4c7",
+      "project": "aef-task-lifecycle",
+      "ts": 1784699865,
+      "via": "ui"
+    },
+    {
+      "uuid": "3ceaf02d-07a7-49e2-ad15-63dfe68cf474",
+      "project": "claim-smoke-legacy",
+      "ts": 1784743837,
+      "via": "ui"
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+# ============================================================================
+# EPISODIC MEMORY - T-223: Editor entry-point shadowing: B1 autosave-restore hides server-latest map, no 'open latest saved' action (AEF UX-defect input, operator recurrence)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-21T18:29:34Z
+# ============================================================================
+
+task_id: T-223
+task_name: "Editor entry-point shadowing: B1 autosave-restore hides server-latest map, no 'open latest saved' action (AEF UX-defect input, operator recurrence)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-21T12:49:17Z
+completed: 2026-07-21T18:29:32Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-21T15:26:21+02:00
+last_commit: 2026-07-21T20:29:27+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  memory + context — entry-point shadowing fix WIP, AEF ack offset 116. fix entry-point shadowing — drop _apiAvailable ordering-bug guard so restore toast surfaces server-latest ('Open latest saved'). Playwright-verified both branches + no-regression; screenshots pinned
+
+# Key outcomes
+outcomes:
+  - 'Verified the current B1 autosave-restore behavior in `src/aef-workflow-designer.html` (autoLoadStored + restore toast) against AEF''s diagnosis, with file:line evidence — `autoLoadStored()` (8716) adopts the localStorage draft silently; `showRestoredToast` (8783) is the surface. Root ordering bug: `autoLoadStored()` (8827) runs BEFORE `detectSaveApi()` (8828), so `_apiAvailable` was false at restore time.'
+  - 'On restore, when a write-capable server is present, the map''s server latest version is checked and — if newer than / different from the restored draft — the operator is told a newer saved version exists — `showRestoredToast` async-fetches `/api/list`, compares `_tsToMs(latest.ts)` vs draft ts, shows "NEWER saved version (vN)" when server is newer (Playwright-verified both branches).'
+  - 'The restore toast offers an "Open latest saved" action alongside "Start fresh" (not just discard-to-blank) — 3-button enriched toast: "Open latest saved (vN)" → `openProjectMap(m)`, "Keep draft", "Start fresh".'
+  - '`?load=<id>` / same-map deep-link is honored rather than silently shadowed by a stale autosave draft of a different map (or the shadowing is made visible + reversible) — deep-link precedence preserved unchanged (8720: explicit `?load` to another map wins); the shadowing is now made **visible + reversible** via the "Open latest saved" action.'
+  - 'Visual-verified with element-level Playwright screenshots of the restore toast (both actions visible); screenshots read back — `.playwright-mcp/t223-toast-dark.png` (NEWER variant, 3 buttons) + `.playwright-mcp/t223-toast-nonewer.png` (non-newer variant, 3 buttons). Editor is dark-theme only (no light/`data-theme`/`prefers-color-scheme`) → dark is the sole mode; the second screenshot covers the other message branch instead. See `## Visual Verification`.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'fix entry-point shadowing — drop _apiAvailable ordering-bug guard so restore toast surfaces server-latest (''Open latest saved''). Playwright-verified both branches + no-regression; screenshots pinned'
+    source: git-mined
+  - description: 'memory + context — entry-point shadowing fix WIP, AEF ack offset 116'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-21.yaml'
+  - '.context/audits/cron/2026-07-21-1445.yaml'
+  - '.context/audits/cron/2026-07-21-1500.yaml'
+  - '.context/audits/cron/2026-07-21-1515.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.handover-cooldown'
+  - '.context/working/.hook-counter'
+  - '.context/working/.restart-requested'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.playwright-mcp/t223-toast-dark.png'
+  - '.playwright-mcp/t223-toast-nonewer.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-223-editor-entry-point-shadowing-b1-autosave.md'
+  - '.tasks/completed/T-219-pair-draft-3-off-page-connector-seam-exe.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-21T15:26:21"
+    action: "T-223: memory + context — entry-point shadowing fix WIP, AEF ack offset 116"
+  - time: "2026-07-21T20:29:27"
+    action: "T-223: fix entry-point shadowing — drop _apiAvailable ordering-bug guard so restore toast surfaces server-latest ('Open latest saved'). Playwright-verified both branches + no-regression; screenshots pinned"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 340 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 340
+  commits: 2
+  files_changed: 20
+  lines_added: 466
+  lines_removed: 89
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-223-editor-entry-point-shadowing-b1-autosave.md
+generated_by: context-agent-hybrid

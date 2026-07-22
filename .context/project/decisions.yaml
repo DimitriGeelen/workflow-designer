@@ -864,3 +864,17 @@ decisions:
     date: 2026-07-22
     task: T-237
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-103
+    decision: "the exemplar map keeps id/slug/title `claim-smoke-legacy` — the picker's default, slugified from the ghost name."
+    scope: project
+    date: 2026-07-22
+    task: T-235
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-104
+    decision: "a minimal spine (start → serviceTask) with sequence flows from the task to all 3 link connectors."
+    scope: project
+    date: 2026-07-22
+    task: T-235
+    rationale: "Auto-captured from task file on completion"

@@ -4,10 +4,10 @@ name: "S1 new-map mint gap: net-new maps save without workflowMeta uuid"
 description: >
   Net-new maps created via the + button (createNewWorkflow) emit workflowMeta without a uuid; mint only fires on the import/load path (line 8007). A map born in the S1 editor must carry identity from birth. Found by AEF S4 e2e (rail offset 139).
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T22:24:48Z
-last_update: 2026-07-21T22:26:00Z
-date_finished: null
+last_update: 2026-07-21T22:30:49Z
+date_finished: 2026-07-21T22:30:49Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -47,12 +47,12 @@ new-map creation (identity from birth), matching the pre-pristine-seed semantics
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `createNewWorkflow()` mints a v4 uuid into `workflowMeta.uuid` at creation (via the existing `mintUuid()`), so a net-new map carries seam identity from birth — no load-path round-trip required
-- [ ] After creating a new map via the served editor and saving through `/api/save` (no reopen), `/api/list` reports a **non-null** `uuid` (36-char v4) for that map
-- [ ] uuid is invariant across a subsequent rename (`renameActiveWorkflow`) and a reopen (load-path backfill at `:8007` is a no-op when uuid already present — no double-mint / churn)
-- [ ] Existing behaviour unchanged for legacy maps loaded without a uuid (backfill still mints on load) and for the emit path (uuid emitted only when present)
-- [ ] A verify path (Playwright against served `:8834`) exercises: new map via + → save → `/api/list` uuid non-null; then rename + reload → same uuid. Screenshots/response captured
-- [ ] No regression: `_gallery-list-verify.py`, `_gallery-registry-verify.py` still green; editor byte-diff vs deployed `designer.html` limited to this change
+- [x] `createNewWorkflow()` mints a v4 uuid into `workflowMeta.uuid` at creation (via the existing `mintUuid()`), so a net-new map carries seam identity from birth — no load-path round-trip required
+- [x] After creating a new map via the served editor and saving through `/api/save` (no reopen), `/api/list` reports a **non-null** `uuid` (36-char v4) for that map
+- [x] uuid is invariant across a subsequent rename (`renameActiveWorkflow`) and a reopen (load-path backfill at `:8007` is a no-op when uuid already present — no double-mint / churn)
+- [x] Existing behaviour unchanged for legacy maps loaded without a uuid (backfill still mints on load) and for the emit path (uuid emitted only when present)
+- [x] A verify path (Playwright against served `:8834`) exercises: new map via + → save → `/api/list` uuid non-null; then rename + reload → same uuid. Screenshots/response captured
+- [x] No regression: `_gallery-list-verify.py`, `_gallery-registry-verify.py` still green; editor byte-diff vs deployed `designer.html` limited to this change
 
 <!-- No Human ACs: the fix is a deterministic serialization behaviour (uuid present in
      /api/list), fully agent-verifiable through the served surface + gallery verifiers. -->
@@ -170,3 +170,6 @@ yields a non-null uuid, closing the CI blind spot that let a whole authoring pat
 
 ### 2026-07-21T22:26:00Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-21T22:30:49Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

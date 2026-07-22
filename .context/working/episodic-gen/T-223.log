@@ -1,0 +1,23 @@
+=== episodic-gen invocation: 2026-07-21T18:29:34Z ===
+task_id: T-223
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-223.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Editor entry-point shadowing: B1 autosave-restore hides server-latest map, no 'open latest saved' action (AEF UX-defect input, operator recurrence)
+  Duration: 0 days (340 min)
+  Updates: 2
+  Commits: 2
+  Lines: +466 -89 across 20 files
+  Outcomes: 5 AC checked
+  Challenges: 2 detected from git
+  Artifacts: 20 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-223-editor-entry-point-shadowing-b1-autosave.md
+--- exit code: 0 ---

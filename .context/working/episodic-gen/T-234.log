@@ -1,0 +1,23 @@
+=== episodic-gen invocation: 2026-07-22T10:50:55Z ===
+task_id: T-234
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-234.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: 0.3.0 jump-autosave poisoning bug — post-jump autosave records original deep-link src, wrong map renders on revisit (AEF T-2596 RCA, 0.3.1 root fix)
+  Duration: 0 days (245 min)
+  Updates: 2
+  Commits: 2
+  Lines: +689 -9 across 7 files
+  Outcomes: 6 AC checked
+  Challenges: 2 detected from git
+  Artifacts: 7 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-234-030-jump-autosave-poisoning-bug--post-ju.md
+--- exit code: 0 ---

@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-235: Author S4 picker exemplar via claim of 3ceaf02d and deliver b64+sha to AEF T-2593 intake
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-22T18:15:39Z
+# ============================================================================
+
+task_id: T-235
+task_name: "Author S4 picker exemplar via claim of 3ceaf02d and deliver b64+sha to AEF T-2593 intake"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-22T06:46:37Z
+completed: 2026-07-22T18:15:35Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-22T13:04:27+02:00
+last_commit: 2026-07-22T13:04:27+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  prep — real ACs + AEF-accepted delivery spec in task (picker-birth provenance, 3 legs, via:ui claim, sha-pin, chunked delivery); ghosts 3ceaf02d+adb0e0f2 verified intact; build deferred to fresh window (claim is one-way, budget 231K)
+
+# Key outcomes
+outcomes:
+  - 'The exemplar map is born via the REAL picker path on the served :8834 editor (open "create from pending ref" → click the 3ceaf02d card → map adopts uuid 3ceaf02d), not via hand-authored XML — the provenance IS the deliverable (Playwright: btn-pending-refs → 3ceaf02d card → state.workflowMeta.uuid = 3ceaf02d-07a7-49e2-ad15-63dfe68cf474, id claim-smoke-legacy)'
+  - 'The authored map carries the 3 off-page legs (resolved → 1f9b5f0c live uuid; ghost → fresh unresolved uuid 4300eae7; legacy → bare targetWorkflow="review-map") plus start→task spine + reachability edges — validate-workflow.py: VALID, no findings (pre-save AND on saved bytes)'
+  - 'Save-to-project fired the server claim: registry.claims gained {uuid: 3ceaf02d…, project: claim-smoke-legacy, via: ui}; ghost 3ceaf02d dropped from /api/list ghosts[]; the claim-smoke-ref referrer resolves (slug claim-smoke-legacy live); AEF''s adb0e0f2 ghost UNTOUCHED (still pending, s4-e2e-probe referrer intact; gained the exemplar''s legacy-leg referrer = designed rescan behavior)'
+  - 'Saved .bpmn bytes sha256-pinned (82b6ab78cd5f54b800b3c644b6f35eefbb169dc3ca6d05ce802807a3cec956b7) — byte-copy at tests/fixtures/aef-bpmn/s4-exemplar.bpmn, pin wired into tests/test_corpus_fixture_pins.py (green)'
+  - 'Delivery posted on the rail at offset 158: single message (4846 B → 6464 b64, under the 12KB chunk limit), concat-decode verified against the pin BEFORE posting, sha256 + version note + intended AEF path included'
+  - 'Registry + list verifiers green after the claim: _gallery-list-verify 22/22, _gallery-registry-verify 17/17, _gallery-claim-verify 11/11'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-22 — Keep the picker-default slug "claim-smoke-legacy" (no rename to s4-exemplar)'
+    chose: 'the exemplar map keeps id/slug/title `claim-smoke-legacy` — the picker''s default, slugified from the ghost name.'
+    rationale: 'ghost 3ceaf02d is NAME-ONLY: its referrer (claim-smoke-ref/hum_1_legacy) points via legacy `targetWorkflow="claim-smoke-legacy"`, and legacy refs resolve by LIVE SLUG in the save-rescan. Renaming would leave the slug dead — the next save of claim-smoke-ref would re-mint a fresh "claim-smoke-legacy" ghost, undoing the claim''s resolution. `s4-exemplar` is AEF''s FILENAME at their drop path (tests/fixtures/832/), which is theirs to choose; the map''s identity is the uuid.'
+    alternatives_rejected: ['rename to `s4-exemplar` for name symmetry with AEF''s fixture path — breaks legacy-referrer resolution (above) and deviates from the pure picker path the provenance AC exists to demonstrate.']
+  - decision: '2026-07-22 — Reachability edges instead of claim-smoke-ref''s floating-node shape'
+    chose: 'a minimal spine (start → serviceTask) with sequence flows from the task to all 3 link connectors.'
+    rationale: 'the validator''s W-XML-UNREACHABLE fires for nodes unreachable from a startEvent once a startEvent exists; "validates clean" is an AC. claim-smoke-ref passed only because it has NO start event (reachability check vacuous) — an exemplar should model a real flow, not exploit that hole.'
+    alternatives_rejected: ['no-start floating-connectors shape (claim-smoke-ref precedent) — validates clean but is a degenerate map, wrong thing to hand a peer as the canonical picker exemplar.']
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-235-author-s4-picker-exemplar-via-claim-of-3.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-22T13:04:27"
+    action: "T-235: prep — real ACs + AEF-accepted delivery spec in task (picker-birth provenance, 3 legs, via:ui claim, sha-pin, chunked delivery); ghosts 3ceaf02d+adb0e0f2 verified intact; build deferred to fresh window (claim is one-way, budget 231K)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 688 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 688
+  commits: 1
+  files_changed: 1
+  lines_added: 26
+  lines_removed: 6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-235-author-s4-picker-exemplar-via-claim-of-3.md
+generated_by: context-agent-hybrid

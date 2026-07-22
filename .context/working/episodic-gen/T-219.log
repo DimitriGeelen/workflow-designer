@@ -1,0 +1,23 @@
+=== episodic-gen invocation: 2026-07-21T18:22:23Z ===
+task_id: T-219
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-219.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Pair-draft #3: off-page connector seam exemplar (resolved + ghost + legacy legs) — AEF T-2571 byte-fixture
+  Duration: 0 days (640 min)
+  Updates: 2
+  Commits: 7
+  Lines: +18055 -11928 across 379 files
+  Outcomes: 6 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 378 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-219-pair-draft-3-off-page-connector-seam-exe.md
+--- exit code: 0 ---

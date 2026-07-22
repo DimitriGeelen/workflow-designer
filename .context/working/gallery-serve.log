@@ -1,0 +1,25 @@
+Gallery root: /opt/832-Workflow-designer/build/gallery (24 maps)
+Local:  http://localhost:8834/
+LAN:    http://192.168.10.107:8834/
+gallery-serve (write-capable) docroot=/opt/832-Workflow-designer/build/gallery repo=/opt/832-Workflow-designer
+Local:  http://localhost:8834/
+LAN:    http://192.168.10.107:8834/
+API:    /api/health /api/list /api/save /api/delete /api/versions /api/version /api/thumb
+[gallery-serve] "GET /api/list HTTP/1.1" 200 -
+[gallery-serve] "GET /api/list HTTP/1.1" 200 -
+[gallery-serve] "GET /designer.html HTTP/1.1" 200 -
+[gallery-serve] "GET / HTTP/1.1" 200 -
+[gallery-serve] code 404, message File not found
+[gallery-serve] "GET /favicon.ico HTTP/1.1" 404 -
+[gallery-serve] "GET /designer.html?load=rendered/task-lifecycle.bpmn HTTP/1.1" 200 -
+[gallery-serve] "GET /rendered/task-lifecycle.bpmn HTTP/1.1" 200 -
+[gallery-serve] "GET /api/health HTTP/1.1" 200 -
+[gallery-serve] "GET /api/list HTTP/1.1" 200 -
+[gallery-serve] "POST /api/save HTTP/1.1" 200 -
+[gallery-serve] "GET /api/list HTTP/1.1" 200 -
+[gallery-serve] "POST /api/save HTTP/1.1" 200 -
+[gallery-serve] "GET /api/list HTTP/1.1" 200 -
+[gallery-serve] "GET /api/version?id=s4-e2e-probe&v=1 HTTP/1.1" 200 -
+[gallery-serve] "POST /api/save HTTP/1.1" 200 -
+[gallery-serve] "GET /api/list HTTP/1.1" 200 -
+[gallery-serve] "GET /api/list HTTP/1.1" 200 -

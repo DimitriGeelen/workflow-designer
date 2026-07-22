@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-07-21T19:22:52Z ===
+task_id: T-213
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer/.agentic-framework
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-213.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Disposition: aef:workflowMeta diagram-kind marker (documentation|work-plan) — AEF T-2556
+  Duration: 2 days (2795 min)
+  Updates: 3
+  Commits: 2
+  Lines: +306 -43 across 10 files
+  Outcomes: 4 AC checked
+  Artifacts: 10 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-213-disposition-aefworkflowmeta-diagram-kind.md
+--- exit code: 0 ---
