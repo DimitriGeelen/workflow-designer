@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T21:50:40Z
-last_update: 2026-07-21T22:45:50Z
+last_update: 2026-07-21T23:29:36Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -58,7 +58,7 @@ S1→S2→**S4**. See `docs/plans/T-220-offpage-seam-editor-build-decomposition.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Editor picker **"create from pending ref"**: lists `/api/list ghosts[]` (uuid, name, referrer count); selecting one seeds a NEW map whose `workflowMeta.uuid` == the ghost uuid; **name-match is suggest-only** (a same-named live map is surfaced as a suggestion, never auto-adopted/opened)
+- [x] Editor picker **"create from pending ref"**: lists `/api/list ghosts[]` (uuid, name, referrer count); selecting one seeds a NEW map whose `workflowMeta.uuid` == the ghost uuid; **name-match is suggest-only** (a same-named live map is surfaced as a suggestion, never auto-adopted/opened)
 - [x] Saving the picker-seeded map **claims** the ghost: the server records `{uuid, project, ts, via:"ui"}` in `registry.claims` and the ghost drops from `registry.ghosts` (its uuid is now a live map); recorded through the one authoritative `/api/save` path
 - [x] After the claim, `/api/list`: the uuid is **absent** from `ghosts[]` and present as that map's `maps[].uuid` — every referrer now resolves (S3a derivation: referrer `workflowRef` matches a live map uuid → no ghost) with **NO diagram-XML edit** to the referrers
 - [x] `claims[]` is an append-only audit trail; re-seeding/re-saving the same already-claimed uuid is idempotent (no duplicate claim entry, ghost stays gone)
@@ -109,6 +109,29 @@ S1→S2→**S4**. See `docs/plans/T-220-offpage-seam-editor-build-decomposition.
 python3 tools/_gallery-list-verify.py
 python3 tools/_gallery-registry-verify.py
 python3 tools/_gallery-claim-verify.py
+# served surface carries the picker (behavior-critical: designer.html is re-read per request)
+grep -q "openPendingRefModal" build/gallery/designer.html
+grep -q "btn-pending-refs" build/gallery/designer.html
+
+## Visual Verification
+
+Element-level Playwright screenshot of the live picker, driven against the running
+gallery-serve (`:8834`) with the 3 fixture ghosts in the store. Read with the Read tool.
+
+- **`t228-picker-dark.png`** — the "Pending off-page references" modal: header + filter +
+  3 ghost cards, each with 🔗 name (bold), short uuid (mono/muted), referrer count (blue),
+  and referrer detail (`map · node`). No clipping; ellipsis correct; grid clean.
+
+The designer is **dark-only** (CSS-var fallbacks `--panel,#1e2530` are the sole values — no
+theme toggle / no `prefers-color-scheme`), so dark is the only mode this modal can render in;
+one screenshot covers every visual mode the change can affect.
+
+**Behavior verification (not source grep)** — full round-trip driven through the actual UI on a
+throwaway ghost `77777777…` (AEF's 3 fixtures left untouched): open picker → click card →
+`createFromPendingRef` seeds map `picker-e2e-target` adopting the uuid (properties panel shows it)
+→ Save to project (note-modal completed) → server claim fires: ghost dropped from `/api/list`,
+live map carries the uuid, `registry.claims` records `{project:picker-e2e-target, via:ui, ts}`,
+referrer resolves with no diagram edit. Test artifacts cleaned up afterward.
 
 ## RCA
 
@@ -149,6 +172,18 @@ python3 tools/_gallery-claim-verify.py
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-07-22 — picker BUILT + live-verified (a genuine /compact freed the window)
+- **What changed:** The prior two resumes were `/compact`-*continue* (reinject ~250K → gate blocked the first source Edit at ~95%). A genuine `/compact` this window opened at `ok`/0 tokens with real headroom, so the picker built in one pass exactly as the design note specified. All 4 edits landed (button + detectSaveApi reveal + `openPendingRefModal`/`createFromPendingRef` + wiring), deployed (static `designer.html` re-read per request → live on copy, no server restart), and **behavior-verified against the running page** (not source grep): the full open→adopt→save→claim round-trip fires `via:"ui"` on a throwaway ghost; AEF's 3 fixtures untouched. Dark-only app → single-mode visual verify complete (`t228-picker-dark.png`).
+- **One investigation en route:** first Save appeared not to claim — root cause was the normal `promptSaveNote` modal awaiting input (saveToProject:7492), not a picker defect; completing the note dialog fired the claim. Confirms the picker correctly routes through the one authoritative save path (no bypass).
+- **Plan impact:** all 6 Agent ACs now checked; only the Human [REVIEW] remains → task is partial-complete (owner→human).
+- **Triggered:** ping AEF for S4a UI re-verify against the 2 held fixtures (1f9b5f0c, adb0e0f2) + a picker-authored exemplar for their T-2593 intake. S4b/T-230 (CLI) unchanged — reuses the same server claim path.
+
+### 2026-07-22 — picker build blocked on resume by context saturation (env constraint)
+- **What changed:** On the S4a-picker window, the budget-gate blocked the FIRST source Edit — it read ~286K/300K (~95%) from the live transcript even though the post-compact cache said 0. The compaction summary + the large CLAUDE.md reinjected every turn + this window's file reads saturate the context window before any picker code is written. The picker needs source edits (`designer.html`) + Playwright visual verify — neither is possible under the wrapping-up gate.
+- **Design is READY (no code yet, gate-blocked):** button `#btn-pending-refs` in the brand area (API-gated via detectSaveApi, mirrors `#btn-open-project`); `openPendingRefModal()` mirrors `openProjectModal()` (line 7871) — fetch `/api/list`, list `ghosts[]` (name, short uuid, referrer count) as cards; card click → `createFromPendingRef(ghost)` which mirrors `createNewWorkflow()` (line 2180) but sets `workflowMeta.uuid = ghost.uuid` (ADOPT); name-match suggest-only = if a live map shares the name, show an inline "⤷ open existing 'name'" affordance (never auto-open). Save → the S4a server claim (done) drops the ghost + records `via:"ui"`.
+- **Plan impact:** none — server half + verifiers are done and live; only the UI + Human REVIEW remain.
+- **Triggered:** picker build needs a GENUINELY fresh session (not a /compact-continue, which reinjects ~250K before work). Recommend the next session open clean and build the picker in one pass. 2 fixture ghosts held by AEF (1f9b5f0c, adb0e0f2) + claim-smoke-ref remain as picker pending-refs.
 
 ### 2026-07-22 — claim mechanics landed on the SERVER, not the editor
 - **What changed:** The claim is a pure server-side reaction to `/api/save`, not editor logic. When a saved map's OWN `workflowMeta.uuid` matches a pending registry ghost, gallery-serve.py records the claim (`via:"ui"`) and drops the ghost. The editor picker's only job is to SEED a new map adopting the ghost uuid — the save does the claim. This keeps the claim atomic + testable headlessly and means the CLI (S4b) reuses the exact same server path (calling the same `claim_ghost_after_save`, `via:"cli"`).

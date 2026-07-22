@@ -1071,6 +1071,12 @@ font-family: 'Outfit';
            dropdown). Moved here from .actions; keeps id/handler/API-gating (detectSaveApi
            reveals it by id). Hidden until /api/health succeeds. -->
       <button class="btn" id="btn-open-project" title="Browse the project's workflow maps and open one (opens each map's latest saved version; requires the write-capable gallery server)" style="display:none">📂 Open project…</button>
+      <!-- T-228 (S4a): pending off-page refs picker. An off-page connector may point at a
+           workflowRef uuid that has no live map yet (a "ghost"). This button lists those pending
+           refs; picking one SEEDS a new map that ADOPTS the ghost uuid — saving it claims the
+           ghost server-side (claim_ghost_after_save), so every referrer resolves with no diagram
+           edit. Hidden until /api/health succeeds (detectSaveApi reveals it, like Open project). -->
+      <button class="btn" id="btn-pending-refs" title="Create a workflow to satisfy a pending off-page connector reference (an off-page link that points at a map that doesn't exist yet)" style="display:none">🔗 Pending refs…</button>
       <button class="btn-icon" id="btn-new-workflow" title="New workflow">+</button>
       <!-- T-158: bare 'v1' contract-version badge removed (confusing beside the snapshot
            badge; contract version stays editable in the properties "Workflow version" field). -->
@@ -7331,6 +7337,8 @@ async function detectSaveApi() {
       if (bv) bv.style.display = '';
       const bo = $('btn-open-project');   // T-144: in-editor project browser
       if (bo) bo.style.display = '';
+      const bp = $('btn-pending-refs');   // T-228 (S4a): pending off-page refs picker
+      if (bp) bp.style.display = '';
     }
   } catch (_) { /* static gallery — leave the button hidden */ }
 }
@@ -7998,6 +8006,166 @@ async function openProjectModal(opts) {
   filter.focus();
 }
 
+// ── Pending off-page refs picker (T-228 / S4a) ──────────────────────────────
+// An off-page connector's workflowRef may point at a uuid with no live map yet — the
+// gallery server surfaces these as `ghosts` on /api/list. This modal lists them; picking
+// one calls createFromPendingRef(ghost), which SEEDS a new map that adopts the ghost uuid.
+// Saving that map is the claim (the server drops the ghost and records it) — so the pending
+// referrers resolve with ZERO diagram-XML edit. Mirrors openProjectModal's backdrop/panel/grid
+// idiom (and reuses closeProjectModal/_projectEsc so Esc + backdrop-click close it too).
+async function openPendingRefModal() {
+  if (!_apiAvailable) return;
+  let ghosts = [], maps = [];
+  try {
+    const res = await fetch('/api/list');
+    if (res.ok) {
+      const d = await res.json();
+      ghosts = Array.isArray(d.ghosts) ? d.ghosts : [];
+      maps = Array.isArray(d.maps) ? d.maps : [];
+    }
+  } catch (_) { /* fall through to empty state */ }
+  // name-match suggest-only (T-228): a ghost whose name equals a live map's title/id is likely
+  // an already-existing map the operator forgot to open — offer it, never auto-adopt over it.
+  const liveByName = new Map();
+  for (const m of maps) {
+    for (const k of [m.id, m.title]) {
+      if (k) liveByName.set(String(k).toLowerCase(), m);
+    }
+  }
+
+  const backdrop = document.createElement('div');
+  backdrop.id = 'project-modal';   // reuse closeProjectModal()/_projectEsc teardown
+  backdrop.style.cssText = 'position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.55);'
+    + 'display:flex;align-items:center;justify-content:center;font:13px system-ui,sans-serif';
+  backdrop.onclick = e => { if (e.target === backdrop) closeProjectModal(); };
+
+  const panel = document.createElement('div');
+  panel.style.cssText = 'background:var(--panel,#1e2530);color:var(--fg,#e6edf3);border:1px solid var(--border,#334);'
+    + 'border-radius:10px;max-width:720px;width:94%;max-height:82vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.5)';
+
+  const head = document.createElement('div');
+  head.style.cssText = 'display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border,#334)';
+  const h = document.createElement('strong'); h.textContent = 'Pending off-page references';
+  h.style.flex = '0 0 auto';
+  const filter = document.createElement('input');
+  filter.type = 'search'; filter.placeholder = 'Filter…';
+  filter.style.cssText = 'flex:1 1 auto;min-width:0;background:var(--bg,#0f1115);color:var(--fg,#e6edf3);'
+    + 'border:1px solid var(--border,#334);border-radius:6px;padding:6px 10px;font:inherit';
+  const x = document.createElement('button'); x.className = 'btn'; x.textContent = '✕';
+  x.style.flex = '0 0 auto'; x.onclick = closeProjectModal;
+  head.append(h, filter, x);
+  panel.appendChild(head);
+
+  const body = document.createElement('div');
+  body.style.cssText = 'overflow:auto;padding:12px 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));grid-auto-rows:max-content;gap:12px';
+  panel.appendChild(body);
+
+  if (!ghosts.length) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'grid-column:1/-1;padding:28px 16px;text-align:center;color:var(--muted,#8b95a5)';
+    empty.textContent = 'No pending references — every off-page connector resolves to a live map. ✅';
+    body.appendChild(empty);
+  }
+
+  const cards = [];
+  for (const g of ghosts.slice().sort((a, b) => (a.name || a.uuid).localeCompare(b.name || b.uuid))) {
+    const refs = Array.isArray(g.referenced_by) ? g.referenced_by : [];
+    const existing = liveByName.get(String(g.name || '').toLowerCase());
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.style.cssText = 'text-align:left;background:var(--bg,#0f1115);color:var(--fg,#e6edf3);'
+      + 'border:1px solid var(--border,#334);border-radius:8px;padding:10px 12px;cursor:pointer;'
+      + 'display:flex;flex-direction:column;gap:6px;overflow:hidden';
+    card.title = 'Create a new workflow adopting this pending ref (uuid ' + g.uuid + ')';
+    const refWord = refs.length === 1 ? 'referrer' : 'referrers';
+    // referrer detail: which map/node points here (first shown, +N more).
+    const first = refs[0];
+    const refDetail = first
+      ? `${(first.id || '').replace(/</g, '&lt;')} · ${(first.nodeName || first.node || '').replace(/</g, '&lt;')}`
+        + (refs.length > 1 ? ` +${refs.length - 1} more` : '')
+      : 'no referrers';
+    card.innerHTML =
+      `<div style="font-weight:600;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">`
+      + `🔗 ${(g.name || '(unnamed)').replace(/</g, '&lt;')}</div>`
+      + `<div style="color:var(--muted,#8b95a5);font-size:.82em;font-family:ui-monospace,monospace">${g.uuid.slice(0, 8)}…</div>`
+      + `<div style="font-size:.85em"><span style="color:#7ab8ff">${refs.length} ${refWord}</span></div>`
+      + `<div style="color:var(--muted,#8b95a5);font-size:.8em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${refDetail}</div>`;
+    card.onclick = () => { closeProjectModal(); createFromPendingRef(g); };
+    card._hay = ((g.name || '') + ' ' + g.uuid).toLowerCase();
+
+    // Suggest-only affordance (T-228): a same-name live map probably already satisfies this —
+    // offer to open it instead. Never auto-open; the operator decides adopt-new vs open-existing.
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:4px';
+    card.style.flex = '1 1 auto';
+    wrap.appendChild(card);
+    if (existing) {
+      const hint = document.createElement('button');
+      hint.type = 'button';
+      hint.textContent = `⤷ open existing “${existing.id}”`;
+      hint.title = 'A live map with this name already exists — open it instead of creating a new one';
+      hint.style.cssText = 'text-align:left;background:transparent;color:#7ab8ff;border:1px dashed var(--border,#334);'
+        + 'border-radius:6px;padding:4px 8px;font:inherit;font-size:.85em;cursor:pointer';
+      hint.onclick = (e) => { e.stopPropagation(); closeProjectModal(); openProjectMap(existing); };
+      wrap.appendChild(hint);
+    }
+    card._wrap = wrap;
+    body.appendChild(wrap);
+    cards.push(card);
+  }
+
+  filter.oninput = () => {
+    const q = filter.value.trim().toLowerCase();
+    for (const c of cards) (c._wrap || c).style.display = (!q || c._hay.includes(q)) ? '' : 'none';
+  };
+
+  backdrop.appendChild(panel);
+  document.body.appendChild(backdrop);
+  document.addEventListener('keydown', _projectEsc);
+  filter.focus();
+}
+
+// Seed a new workflow that ADOPTS a pending ghost's uuid (T-228 / S4a). Mirrors
+// createNewWorkflow, but instead of minting a fresh uuid it takes the ghost's uuid so the
+// SAVE claims the ghost server-side and the pending referrers resolve. The slug/title seed
+// from the ghost name (operator can rename freely — uuid is rename-invariant, T-224).
+function createFromPendingRef(ghost) {
+  if (!ghost || !ghost.uuid) return;
+  saveActiveToLibrary();
+  // Slugify the ghost name for a friendly starting id; fall back to a unique 'workflow_N'.
+  let base = String(ghost.name || 'workflow').trim().toLowerCase().replace(/[^a-z0-9_\-]/g, '-').replace(/^-+|-+$/g, '') || 'workflow';
+  let id = base, n = 2;
+  while (library.has(id)) id = `${base}_${n++}`;
+  const title = ghost.name || 'Untitled workflow';
+  const newState = {
+    pool: { id: `Pool_${id}`, name: id },
+    workflowMeta: {
+      id,
+      uuid: ghost.uuid,   // ADOPT the pending uuid — saving this map claims the ghost (server-side)
+      version: '1',
+      schemaVersion: 2,
+      title,
+      description: '',
+      tier_default: '2',
+    },
+    lanes: defaultLanes(),
+    nodes: [],
+    edges: [],
+  };
+  library.set(id, newState);
+  state = newState;
+  activeKey = id;
+  selection = null;
+  multiSelect.clear();
+  refreshDisplayIds();
+  renderAll();
+  refreshLibraryUI();
+  if (typeof setLoadedSavedVersion === 'function') setLoadedSavedVersion(null);   // new map = no snapshot
+  if (typeof showToast === 'function') {
+    showToast(`🔗 New map adopts pending ref ${ghost.uuid.slice(0, 8)}… — Save to project to claim it.`);
+  }
+}
+
 function adoptImportedXml(text, opts) {
   const loaded = parseBpmnXml(text);
   if (!loaded) {
@@ -8105,6 +8273,7 @@ $('btn-new-workflow').onclick = () => { createNewWorkflow(); };
 $('btn-save-project').onclick = saveToProject;
 $('btn-versions').onclick = openVersionsModal;
 $('btn-open-project').onclick = openProjectModal;   // T-144 (moved to brand area in T-154)
+$('btn-pending-refs').onclick = openPendingRefModal; // T-228 (S4a): pending off-page refs picker
 // T-154: the workflow-picker <select> and its onchange handler are gone — the brand-area
 // "📂 Open project…" button is the single entry point. loadFromLibrary() is retained; it is
 // still invoked by the palette map-list rows (createNewWorkflow / library switching).
