@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-239: Release 0.3.1 — dist bundle + tag + notes (T-234/T-237 fixes, T-204 vocabulary)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-22T20:02:30Z
+# ============================================================================
+
+task_id: T-239
+task_name: "Release 0.3.1 — dist bundle + tag + notes (T-234/T-237 fixes, T-204 vocabulary)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-22T19:58:45Z
+completed: 2026-07-22T20:02:28Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-22T22:00:52+02:00
+last_commit: 2026-07-22T22:00:52+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release designer 0.3.1 — T-234 jump-autosave root fix + T-237 eventDef/link classification fixes; first bundle carrying the T-204 typed-event vocabulary (PL-052: 0.3.0 provably predated it). sha d99a42da, 862852 bytes, render gate + immutability guard green, 0.3.0 untouched
+
+# Key outcomes
+outcomes:
+  - 'VERSION bumped to 0.3.1 and `scripts/release-designer.sh` run clean: immutability guard passes (new version, no overwrite), render gate passes, `dist/aef-workflow-designer-0.3.1.html` cut byte-identical to src, MANIFEST.yaml points at 0.3.1 with sha256+bytes'
+  - 'The 0.3.1 artifact provably carries the fix content: contains `_loadSrcKey` (T-234) and `EVENT_KIND_TYPE` (T-204 vocabulary — the exact marker whose absence in 0.3.0 was the T-237 root cause); `dist/aef-workflow-designer-0.3.0.html` untouched (byte-identical to its released sha 36be033d…)'
+  - 'Release tests green: tests/test_release_immutability.py + tests/test_designer_render.py pass'
+  - 'Provenance tags per protocol (docs/aef-designer-integration-protocol.md): annotated `designer-v0.3.1` on the release commit with notes carrying the PL-052 vocabulary line (adds T-204 typed-event vocabulary + T-234/T-237 fixes); missing `designer-v0.3.0` backfilled at af90f67 (protocol drift repair)'
+  - 'Commit + tags pushed to origin (ssh remote; github mirrored — never pushed directly)'
+  - 'Release announced on the AEF rail (offset 162) with version, sha256, bytes, and the PL-052 vocabulary-coverage note — the trigger for their T-2546 re-pin + e2e re-verify'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'release designer 0.3.1 — T-234 jump-autosave root fix + T-237 eventDef/link classification fixes; first bundle carrying the T-204 typed-event vocabulary (PL-052: 0.3.0 provably predated it). sha d99a42da, 862852 bytes, render gate + immutability guard green, 0.3.0 untouched'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'dist/aef-workflow-designer-0.3.1.html'
+  - 'dist/MANIFEST.yaml'
+  - '.tasks/active/T-214-pair-draft-sessionhandover-corpus-diagra.md'
+  - '.tasks/active/T-239-release-031--dist-bundle--tag--notes-t-2.md'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-22T22:00:52"
+    action: "T-239: release designer 0.3.1 — T-234 jump-autosave root fix + T-237 eventDef/link classification fixes; first bundle carrying the T-204 typed-event vocabulary (PL-052: 0.3.0 provably predated it). sha d99a42da, 862852 bytes, render gate + immutability guard green, 0.3.0 untouched"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 5
+  lines_added: 9287
+  lines_removed: 6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-239-release-031--dist-bundle--tag--notes-t-2.md
+generated_by: context-agent-hybrid

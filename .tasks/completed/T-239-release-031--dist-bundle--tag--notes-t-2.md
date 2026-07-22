@@ -4,10 +4,10 @@ name: "Release 0.3.1 — dist bundle + tag + notes (T-234/T-237 fixes, T-204 voc
 description: >
   Release 0.3.1 — dist bundle + tag + notes (T-234/T-237 fixes, T-204 vocabulary)
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-22T19:58:45Z
-last_update: 2026-07-22T19:58:45Z
-date_finished: null
+last_update: 2026-07-22T20:02:28Z
+date_finished: 2026-07-22T20:02:28Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -40,12 +40,12 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] VERSION bumped to 0.3.1 and `scripts/release-designer.sh` run clean: immutability guard passes (new version, no overwrite), render gate passes, `dist/aef-workflow-designer-0.3.1.html` cut byte-identical to src, MANIFEST.yaml points at 0.3.1 with sha256+bytes
-- [ ] The 0.3.1 artifact provably carries the fix content: contains `_loadSrcKey` (T-234) and `EVENT_KIND_TYPE` (T-204 vocabulary — the exact marker whose absence in 0.3.0 was the T-237 root cause); `dist/aef-workflow-designer-0.3.0.html` untouched (byte-identical to its released sha 36be033d…)
-- [ ] Release tests green: tests/test_release_immutability.py + tests/test_designer_render.py pass
-- [ ] Provenance tags per protocol (docs/aef-designer-integration-protocol.md): annotated `designer-v0.3.1` on the release commit with notes carrying the PL-052 vocabulary line (adds T-204 typed-event vocabulary + T-234/T-237 fixes); missing `designer-v0.3.0` backfilled at af90f67 (protocol drift repair)
-- [ ] Commit + tags pushed to origin (ssh remote; github mirrored — never pushed directly)
-- [ ] Release announced on the AEF rail with version, sha256, bytes, and the PL-052 vocabulary-coverage note — the trigger for their T-2546 re-pin + e2e re-verify
+- [x] VERSION bumped to 0.3.1 and `scripts/release-designer.sh` run clean: immutability guard passes (new version, no overwrite), render gate passes, `dist/aef-workflow-designer-0.3.1.html` cut byte-identical to src, MANIFEST.yaml points at 0.3.1 with sha256+bytes
+- [x] The 0.3.1 artifact provably carries the fix content: contains `_loadSrcKey` (T-234) and `EVENT_KIND_TYPE` (T-204 vocabulary — the exact marker whose absence in 0.3.0 was the T-237 root cause); `dist/aef-workflow-designer-0.3.0.html` untouched (byte-identical to its released sha 36be033d…)
+- [x] Release tests green: tests/test_release_immutability.py + tests/test_designer_render.py pass
+- [x] Provenance tags per protocol (docs/aef-designer-integration-protocol.md): annotated `designer-v0.3.1` on the release commit with notes carrying the PL-052 vocabulary line (adds T-204 typed-event vocabulary + T-234/T-237 fixes); missing `designer-v0.3.0` backfilled at af90f67 (protocol drift repair)
+- [x] Commit + tags pushed to origin (ssh remote; github mirrored — never pushed directly)
+- [x] Release announced on the AEF rail (offset 162) with version, sha256, bytes, and the PL-052 vocabulary-coverage note — the trigger for their T-2546 re-pin + e2e re-verify
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -193,3 +193,6 @@ git tag -l | grep -q "designer-v0.3.0"
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-239-release-031--dist-bundle--tag--notes-t-2.md
 - **Context:** Initial task creation
+
+### 2026-07-22T20:02:28Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
