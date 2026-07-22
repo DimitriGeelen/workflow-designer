@@ -365,3 +365,10 @@ learnings:
   date: 2026-07-22
   context: Added via context agent
   application: TBD
+- id: PL-053
+  learning: "Prove a new behavior/regression suite's teeth by replaying the actual pre-fix build from git history (harness takes an artifact-path override; run vs 'git show <fixcommit>^:path' and require the suite to FAIL with the original field symptoms). Stronger than in-run BITE mutations for cross-page/persistence behavior, and direct evidence for a G-019 prevention-in-place claim."
+  source: G-010
+  task: T-238
+  date: 2026-07-22
+  context: Added via context agent
+  application: TBD

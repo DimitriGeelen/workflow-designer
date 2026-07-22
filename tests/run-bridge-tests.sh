@@ -155,6 +155,18 @@ else
 fi
 
 echo
+echo "== editor behavior suite: T-234 jump-no-poison + T-237 classification (G-010/T-238) =="
+# Standing behavior legs for the two field-found 0.3.1 blockers — hermetic sidecar +
+# isolated chromium (tools/_editor-behavior-verify-cdp.mjs). Prints a LOUD SKIP line
+# when chromium/node is absent (T-212 convention — never silently unguarded).
+if python3 "$ROOT/tests/test_editor_behavior.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "editor behavior leg failed — jump-autosave poisoning or eventDef/link classification regressed (T-234/T-237 class)"
+  fail=$((fail + 1))
+fi
+
+echo
 # Corpus geometry sweep (T-052): every authored map's nodes must sit inside their
 # lane bands, modulo the exact legacy allowlist. Guards against new maps silently
 # straddling bands — the G-019 blindness found in T-050.

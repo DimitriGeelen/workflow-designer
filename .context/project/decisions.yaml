@@ -878,3 +878,17 @@ decisions:
     date: 2026-07-22
     task: T-235
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-105
+    decision: "the suite bootstraps its own throwaway gallery-serve.py (temp --repo, temp docroot with src/ editor + 2 rendered maps copied in) on a free port — the _typed-events-cdp.mjs architecture — instead of targeting the live :8834 server like _autoload-verify-cdp.mjs does."
+    scope: project
+    date: 2026-07-22
+    task: T-238
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-106
+    decision: "the harness accepts an editor path override; teeth are proven by running it against `git show 7390131^:src/aef-workflow-designer.html` and requiring BOTH legs to fail with the field symptoms."
+    scope: project
+    date: 2026-07-22
+    task: T-238
+    rationale: "Auto-captured from task file on completion"

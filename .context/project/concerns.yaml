@@ -411,7 +411,7 @@ concerns:
 
   - id: G-010
     type: gap
-    status: watching
+    status: prevention-in-place   # T-238 (2026-07-22): standing suite exists + wired; close after it survives a cron/runner cycle
     severity: medium
     title: "Editor load/persistence behavior paths (deep-link, autosave restore, in-place map switch) have no standing behavior tests — two field-found 0.3.0 defects shipped silently"
     detected: 2026-07-22
@@ -440,9 +440,11 @@ concerns:
       - "AEF rail offset 149: operator-reported wrong-map render, RCA confirmed against src (autosaveNow stamped src: currentLoadSrc() unconditionally; jumpToWorkflow switches in-place)."
       - "Defect window: T-127 (B1 autosave) landed 2026-07-1x, found 2026-07-21 by peer — shipped in tagged 0.3.0, >0 releases affected."
       - "tools/ contains 5 _*-verify.py standing guards — all server-side; zero browser-behavior guards."
+      - "PREVENTION (T-238, 2026-07-22): tools/_editor-behavior-verify-cdp.mjs — hermetic sidecar + isolated chromium; legs = T-234 jump-no-poison + same-map edit-restore + T-237 classification contract (4 probes). Wrapper tests/test_editor_behavior.py wired into tests/run-bridge-tests.sh with LOUD chromium skip. TEETH proven: vs pre-fix editor (7390131^) both legs fail with the exact field symptoms."
     related:
       - T-234
       - T-237
+      - T-238
       - T-127
       - T-160
       - G-003
