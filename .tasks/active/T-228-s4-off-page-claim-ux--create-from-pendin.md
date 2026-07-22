@@ -6,7 +6,7 @@ description: >
 
 status: started-work
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T21:50:40Z
-last_update: 2026-07-21T23:29:36Z
+last_update: 2026-07-22T05:23:12Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -220,3 +220,10 @@ referrer resolves with no diagram edit. Test artifacts cleaned up afterward.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-228-s4-off-page-claim-ux--create-from-pendin.md
 - **Context:** Initial task creation
+
+### 2026-07-22T05:23:12Z — status-update [task-update-agent]
+- **Change:** owner: agent → human
+
+### 2026-07-22T06:45:00Z — peer-verification evidence for the Human [REVIEW] [agent note]
+- **Evidence:** AEF independently re-verified the S4a picker END-TO-END on the running :8834 UI (their T-2597, rail offset 149): pending-refs modal listed all 3 pending refs with referrer info; card click seeded a map ADOPTING uuid 1f9b5f0c (properties confirmed); Save → claim fired — ghost GONE from /api/list, live map carries the uuid, other fixtures untouched. "S4a UI leg CLOSED our side. Your T-228 [REVIEW] can cite this run."
+- **Suggestion to operator:** the [REVIEW] can be finalized citing AEF's green run + screenshot `.playwright-mcp/t228-picker-dark.png`. To finalize: `.agentic-framework/bin/fw task update T-228 --status work-completed` (after checking the [REVIEW] box yourself if satisfied).
