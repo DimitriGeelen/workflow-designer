@@ -4,10 +4,10 @@ name: "Author S4 picker exemplar via claim of 3ceaf02d and deliver b64+sha to AE
 description: >
   Author the S4 picker exemplar for AEF T-2593 intake: via the RUNNING :8834 picker, claim ghost 3ceaf02d (claim-smoke-legacy, referrer claim-smoke-ref — 832-owned fixture); author 3 aef:link legs in the adopted map per AEF spec (rail 149): (a) RESOLVED workflowRef=1f9b5f0c (aef-task-lifecycle, now LIVE after AEF re-verify), (b) GHOST workflowRef=fresh uuid not in store (save-rescan mints it), (c) LEGACY targetWorkflow=review-map name-only. Save (claim fires via:ui). Deliver like pair-draft-3: b64 chunks on the DM + sha256 + version note; AEF drops at tests/fixtures/832/s4-exemplar.{bpmn,sha256} and flips 2 skips in test_s4_exemplar_intake.py. Do NOT touch remaining AEF fixture adb0e0f2.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-22T06:46:37Z
-last_update: 2026-07-22T06:46:37Z
+last_update: 2026-07-22T11:02:50Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,30 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+AEF-accepted delivery spec (rail offsets 149/152, their T-2593 intake): author the S4
+picker-claim EXEMPLAR — the first real map born through the T-228 "create from pending
+ref" picker — and deliver it byte-pinned so AEF drops it at
+`tests/fixtures/832/s4-exemplar.{bpmn,sha256}` and flips the 2 skips in their
+`test_s4_exemplar_intake.py`. Vehicle: pending ghost **3ceaf02d** (name
+`claim-smoke-legacy`, referenced by claim-smoke-ref) — the fixture AEF reserved for this.
+The map must exercise the 3 off-page legs in picker-authored form: **resolved** →
+`1f9b5f0c-0be4-4cfe-9158-d9e6f0c1d4c7` (aef-task-lifecycle, NOW LIVE post-claim),
+**ghost** → a fresh unresolved uuid, **legacy** → bare `targetWorkflow="review-map"`.
+Save through /api/save so the claim fires server-side ({via:ui} — the picker path IS the
+exemplar's provenance). Do NOT touch AEF's fixture ghost **adb0e0f2** (review-map,
+stays untouched). Delivery: b64 chunks + sha256 pin, concat-verified BEFORE posting
+(PL rail-delivery lesson, offsets 96-101), plus the saved version note.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] The exemplar map is born via the REAL picker path on the served :8834 editor (open "create from pending ref" → click the 3ceaf02d card → map adopts uuid 3ceaf02d), not via hand-authored XML — the provenance IS the deliverable
+- [ ] The authored map carries the 3 off-page legs (resolved → 1f9b5f0c live uuid; ghost → fresh unresolved uuid; legacy → bare targetWorkflow="review-map") plus enough surrounding structure to validate clean (validate-workflow.py no findings)
+- [ ] Save-to-project fires the server claim: registry.claims gains {uuid: 3ceaf02d..., project: <exemplar id>, via: ui}; ghost 3ceaf02d drops from /api/list ghosts[]; the claim-smoke-ref referrer resolves; AEF's adb0e0f2 ghost is UNTOUCHED
+- [ ] The saved .bpmn bytes are sha256-pinned and the pin is wired into tests/test_corpus_fixture_pins.py (or a sibling standing guard) so drift is caught our side
+- [ ] Delivery posted on the rail: b64 chunks concat-verified to the pin BEFORE posting, sha256 + version note + intended AEF path (tests/fixtures/832/s4-exemplar.{bpmn,sha256}) — sized per the 12KB-per-message chunking lesson
+- [ ] Registry + list verifiers still green after the claim (tools/_gallery-list-verify.py, tools/_gallery-registry-verify.py, tools/_gallery-claim-verify.py)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -174,3 +190,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-235-author-s4-picker-exemplar-via-claim-of-3.md
 - **Context:** Initial task creation
+
+### 2026-07-22T11:02:50Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
