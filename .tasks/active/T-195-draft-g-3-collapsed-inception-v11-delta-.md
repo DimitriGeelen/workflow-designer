@@ -145,6 +145,15 @@ python3 tests/test_forward_fixtures.py
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Recommendation
+
+**Recommendation:** GO
+**Rationale:** Proposal complete and decision-ready: ratified G-3 form definition, exact before→after edits for both standards, blast-radius (§4) showing fixtures/tests/editor/bridge conformance-safe, and the §5 sign-off boundary explicitly reserving graduation to you (AEF's operator ratification does not transfer). GO = ready for your ruling; the graduation decision itself is yours.
+**Evidence:**
+- Proposal at `docs/reports/T-195-g3-collapsed-inception-delta.md` (all 4 Agent ACs checked)
+- forward-compile §8 stale open-question phrasing reconciled (grep count 0)
+- Frozen standards untouched pending your GO
+
 ## Decisions
 
 ### 2026-07-12 — Split the delta: apply §8 (support-doc) now, hold §3A (frozen) for Dimitri

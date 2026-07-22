@@ -180,6 +180,15 @@ python3 tests/test_mapping_standard_conformance.py
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Recommendation
+
+**Recommendation:** GO
+**Rationale:** The delta proposal is complete and decision-ready: exact before→after text for BOTH touched standards, graduation blast-radius enumerated, and the FROZEN v1 standard untouched under agent control (the sovereignty boundary held). GO here means "ready for your ruling" — the ruling itself (graduate v1→v1.1, incl. the lane-vs-task-type tiebreak) is yours and is not prejudged.
+**Evidence:**
+- Proposal at `docs/reports/T-189-iw9-authority-collapse-delta.md` (15KB, all 5 Agent ACs checked)
+- `docs/standards/aef-bpmn-mapping-v1.md` unedited (frozen-standard discipline)
+- Blast radius across `test_mapping_standard_conformance.py` + `test_forward_fixtures.py` stated in the proposal
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.

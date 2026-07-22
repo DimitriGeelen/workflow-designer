@@ -112,15 +112,11 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Recommendation
 
-<!-- REQUIRED before fw inception decide. Write your recommendation here (T-974).
-     Watchtower reads this section — if it's empty, the human sees nothing.
-     Format:
-     **Recommendation:** GO / NO-GO / DEFER
-     **Rationale:** Why (cite evidence from exploration)
-     **Evidence:**
-     - Finding 1
-     - Finding 2
--->
+
+**Recommendation:** DEFER
+**Rationale:** No agent work has started on this hosting/tenancy child exploration (status captured, all Agent ACs unchecked) — there is nothing to verify yet. The Human ACs were filed upfront with the scope; they become actionable only after the exploration runs. Skip in the current review pass.
+**Evidence:**
+- Status `captured`; 0 Agent ACs checked; no artifacts produced under this task ID
 
 ## Decisions
 
