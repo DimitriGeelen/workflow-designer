@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-232: S5a off-page seam parity guard pure-Python no-silent-drop on T-219 byte-fixture
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-22T06:27:22Z
+# ============================================================================
+
+task_id: T-232
+task_name: "S5a off-page seam parity guard pure-Python no-silent-drop on T-219 byte-fixture"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-22T06:22:01Z
+completed: 2026-07-22T06:27:18Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-22T08:27:07+02:00
+last_commit: 2026-07-22T08:27:07+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  S5a off-page seam parity guard — pure-Python no-silent-drop on the T-219 byte-fixture
+
+# Key outcomes
+outcomes:
+  - 'A pure-Python, stdlib-only guard (`tools/_offpage-seam-parity-verify.py`) loads the byte-pinned shared fixture `tests/fixtures/aef-bpmn/offpage-seam.bpmn` and asserts its sha256 matches the pin (`0bc15bfac81d80cc13df527a09056dda6170def304d5a43c038bb504b691449d`) before checking anything — a fixture edit fails loud (re-pin + notify AEF), never silently re-baselines'
+  - '**No-silent-drop / key-set parity (PL-030 core):** every `<aef:link>` element in the fixture is accounted for by exactly one 832 parser path — `_link_refs_from_text` (uuid-pinned) ∪ `_legacy_refs_from_text` (legacy) — i.e. `count(<aef:link> in raw XML) == len(uuid_refs) + len(legacy_refs)`; no link is dropped by BOTH and none double-counted'
+  - '**Field-set completeness per leg:** `_link_refs_from_text` returns exactly the 2 uuid-pinned legs with their FULL field set — `{workflowRef:1f9b5f0c-0be4-4cfe-9158-d9e6f0c1d4c7, name:aef-task-lifecycle}` and `{workflowRef:22222222-2222-4222-8222-222222222222, name:publish-map}` — each with a resolved id-bearing host `node`/`nodeName` (the nearest-ancestor climb); `_legacy_refs_from_text` returns exactly the 1 legacy leg `{slug:review-map}` with a resolved host node'
+  - '**Cross-side anchor:** the resolved leg''s `workflowRef` equals AEF''s live uuid `1f9b5f0c-0be4-4cfe-9158-d9e6f0c1d4c7` (the pinned pair-draft-#3 resolved target — this is the byte the two sides agree on)'
+  - 'The guard reuses gallery-serve.py''s OWN parser functions (imported by path — no re-implementation; single source of truth, so a future parser change re-runs through the guard); passes; existing verifiers still green (list 22/22, registry 17/17, claim 11/11, save-allowlist 6/6, corpus-adopt OK, serve-gallery 9/9, bpmn-claim-cli 15/15) and `tests/test_corpus_fixture_pins.py` still green'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'S5a off-page seam parity guard — pure-Python no-silent-drop on the T-219 byte-fixture'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-22 — pure-Python static parity guard on the shared bytes (not Playwright round-trip)'
+    chose: 'A stdlib-only guard that sha-pins the shared fixture then asserts key-set /'
+    rationale: 'PD-015 (static seam test, key-set equality) + PL-030 (assert whole-fixture'
+    alternatives_rejected: ['A Playwright editor import→export round-trip (heavy, skipped in headless CI —']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_offpage-seam-parity-verify.yaml'
+  - '.tasks/active/T-232-s5a-off-page-seam-parity-guard-pure-pyth.md'
+  - '.tasks/active/T-233-s5b-gallery-ghost-cards-render-ghosts-as.md'
+  - 'tools/_offpage-seam-parity-verify.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-22T08:27:07"
+    action: "T-232: S5a off-page seam parity guard — pure-Python no-silent-drop on the T-219 byte-fixture"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 4
+  lines_added: 495
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-232-s5a-off-page-seam-parity-guard-pure-pyth.md
+generated_by: context-agent-hybrid
