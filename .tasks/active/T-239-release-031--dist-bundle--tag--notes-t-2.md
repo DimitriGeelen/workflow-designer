@@ -1,12 +1,12 @@
 ---
-id: T-214
-name: "Pair-draft session/handover corpus diagram in canonical dialect (AEF arc-014)"
+id: T-239
+name: "Release 0.3.1 — dist bundle + tag + notes (T-234/T-237 fixes, T-204 vocabulary)"
 description: >
-  Pair-draft session/handover corpus diagram in canonical dialect (AEF arc-014)
+  Release 0.3.1 — dist bundle + tag + notes (T-234/T-237 fixes, T-204 vocabulary)
 
-status: work-completed
+status: started-work
 workflow_type: build
-owner: human
+owner: agent
 horizon: now
 tags: []
 components: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-19T20:51:06Z
-last_update: 2026-07-22T18:30:06Z
-date_finished: 2026-07-19T21:00:33Z
+created: 2026-07-22T19:58:45Z
+last_update: 2026-07-22T19:58:45Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,33 +30,22 @@ date_finished: 2026-07-19T21:00:33Z
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-214: Pair-draft session/handover corpus diagram in canonical dialect (AEF arc-014)
+# T-239: Release 0.3.1 — dist bundle + tag + notes (T-234/T-237 fixes, T-204 vocabulary)
 
 ## Context
 
-Arc: designer-authoring-surface (↔ AEF corpus arc-014). Taking up AEF's standing pair-draft
-invitation (rail offsets 84/87): 832 authors a REAL (non-fixture) framework process as a
-BPMN diagram in the designer's canonical dialect, the operator reviews/corrects it in the
-designer UI, then AEF compiles it through `fw bpmn`. AEF drafted D1 (`aef-task-lifecycle`);
-832 drafts the **session/handover lifecycle** — Session Start Protocol → work + commit
-cadence → budget-gate loop → Session Capture → handover → persist. This dogfoods the 832
-designer's client contract with real content and gives AEF's arc-014 a second corpus
-constituent. The diagram deliberately includes ONE exclusiveGateway (budget critical?) and
-ONE back-edge (work loop) — both realistic AND the exact constructs AEF flagged (their
-T-2557 gateway/branch-label silent-loss) so it doubles as a cross-validation case.
-
-Model dialect on `tests/fixtures/aef-bpmn/arc-lifecycle.bpmn`: three lanes
-(human·sovereignty / framework·authority / agent·initiative) with `aef:laneMeta`, every flow
-node carrying `aef:uid` + `aef:position`, typed nodes (startEvent/endEvent/scriptTask/
-serviceTask/userTask/exclusiveGateway), and `aef:uid` on every sequenceFlow.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] New fixture `tests/fixtures/aef-bpmn/session-handover.bpmn` authored in the canonical dialect (3 authority-typed lanes; every flow node has `aef:uid` + `aef:position`; every sequenceFlow has `aef:uid`)
-- [x] It validates CLEAN under `tools/validate-workflow.py` (exit 0, no findings) — including the sovereignty O-3 rule (the human-only pickup node sits in the sovereignty lane)
-- [x] It faithfully models the session lifecycle: Session Start (context inject) → focus → work → commit → gate → **budget exclusiveGateway** (continue back-edge vs wrap) → capture → handover → persist → end; with one human·sovereignty node (next-session pickup)
-- [x] Fixture is well-formed XML and byte-stable (sha `d971a2fc…` recorded in the delivery); delivered to AEF rail-inline with its sha for their `fw bpmn` compile (rail offset 92)
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [ ] VERSION bumped to 0.3.1 and `scripts/release-designer.sh` run clean: immutability guard passes (new version, no overwrite), render gate passes, `dist/aef-workflow-designer-0.3.1.html` cut byte-identical to src, MANIFEST.yaml points at 0.3.1 with sha256+bytes
+- [ ] The 0.3.1 artifact provably carries the fix content: contains `_loadSrcKey` (T-234) and `EVENT_KIND_TYPE` (T-204 vocabulary — the exact marker whose absence in 0.3.0 was the T-237 root cause); `dist/aef-workflow-designer-0.3.0.html` untouched (byte-identical to its released sha 36be033d…)
+- [ ] Release tests green: tests/test_release_immutability.py + tests/test_designer_render.py pass
+- [ ] Provenance tags per protocol (docs/aef-designer-integration-protocol.md): annotated `designer-v0.3.1` on the release commit with notes carrying the PL-052 vocabulary line (adds T-204 typed-event vocabulary + T-234/T-237 fixes); missing `designer-v0.3.0` backfilled at af90f67 (protocol drift repair)
+- [ ] Commit + tags pushed to origin (ssh remote; github mirrored — never pushed directly)
+- [ ] Release announced on the AEF rail with version, sha256, bytes, and the PL-052 vocabulary-coverage note — the trigger for their T-2546 re-pin + e2e re-verify
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -88,40 +77,8 @@ serviceTask/userTask/exclusiveGateway), and `aef:uid` on every sequenceFlow.
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-- [ ] [REVIEW] The session/handover diagram reads faithfully in the designer UI (the pair-draft review step)
-  **Steps:**
-  1. Open the designer at the served URL (see `.context/working/watchtower.url`), use in-editor Open-from-project (or load `tests/fixtures/aef-bpmn/session-handover.bpmn`).
-  2. Trace the flow: Session begins → context injected → pickup (human) → focus → work → commit → gate → budget gateway → (continue loops back to work) / (critical wraps) → capture → handover → persist → end.
-  3. Check the three lanes read correctly (human·sovereignty top, framework·authority middle, agent·initiative bottom) and node labels match the real framework steps.
-  **Expected:** The diagram is a recognisable, correct depiction of the session lifecycle; lanes/owners are right; the budget gateway + work back-edge render legibly.
-  **If not:** Note the step that is wrong/missing or mis-laned; correct it in the UI (or tell me) and re-save.
-
-## Recommendation
-
-**Recommendation:** GO
-
-**GO — accept the pair-draft, pending your UI read.** All agent-verifiable criteria pass: the
-diagram validates CLEAN under the canonical validator (exit 0, no findings, incl. O-3
-sovereignty), is well-formed and byte-stable (sha `d971a2fc…`), and was delivered to AEF
-rail-inline (offset 92) for their `fw bpmn` compile. It faithfully models the real session
-lifecycle across the three authority lanes with the budget gateway + work back-edge.
-
-The one remaining step is the pair-draft's whole point: **your eyes on the rendered diagram**
-in the designer (the `[REVIEW]` Human AC) — confirm it reads as a correct, legible depiction
-of the session lifecycle. Evidence it's ready: `tools/validate-workflow.py` clean; the
-designer is served (see `.context/working/watchtower.url`). If it reads right, check the AC
-and run `fw task update T-214 --status work-completed`. Not recommending closure without your
-UI read — DOM/validator correctness ≠ a faithful diagram (that's a human judgment).
 
 ## Verification
-
-# The authored diagram validates CLEAN under the canonical validator (exit 0, no findings):
-python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/session-handover.bpmn
-# It is well-formed XML:
-python3 -c "import xml.etree.ElementTree as ET; ET.parse('tests/fixtures/aef-bpmn/session-handover.bpmn')"
-# It carries the required dialect markers (workflowMeta, 3 lanes, a budget gateway, a human pickup):
-grep -q "aef:workflowMeta" tests/fixtures/aef-bpmn/session-handover.bpmn
-grep -q "exclusiveGateway" tests/fixtures/aef-bpmn/session-handover.bpmn
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -153,6 +110,21 @@ grep -q "exclusiveGateway" tests/fixtures/aef-bpmn/session-handover.bpmn
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+# Manifest points at 0.3.1 with the cut sha
+grep -q 'latest: "0.3.1"' dist/MANIFEST.yaml
+grep -q "d99a42da304fc9377e580a1e34e54467431727058026ded7a8ee85fd464fd05c" dist/MANIFEST.yaml
+# Artifact is byte-identical to source and carries both fix markers
+cmp src/aef-workflow-designer.html dist/aef-workflow-designer-0.3.1.html
+test "$(grep -c "_loadSrcKey" dist/aef-workflow-designer-0.3.1.html)" -ge 1
+test "$(grep -c "EVENT_KIND_TYPE" dist/aef-workflow-designer-0.3.1.html)" -ge 1
+# 0.3.0 stays immutable (AEF's current pin)
+test "$(sha256sum dist/aef-workflow-designer-0.3.0.html | cut -d' ' -f1)" = "36be033d66aa1c159a9e75df674f02032eb9f308882af288fad909e6d754a4bb"
+# Release machinery guards green
+python3 tests/test_release_immutability.py > /dev/null
+# Provenance tags exist per protocol
+git tag -l | grep -q "designer-v0.3.1"
+git tag -l | grep -q "designer-v0.3.0"
 
 ## RCA
 
@@ -217,10 +189,7 @@ grep -q "exclusiveGateway" tests/fixtures/aef-bpmn/session-handover.bpmn
 
 ## Updates
 
-### 2026-07-19T20:51:06Z — task-created [task-create-agent]
+### 2026-07-22T19:58:45Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-214-pair-draft-sessionhandover-corpus-diagra.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-239-release-031--dist-bundle--tag--notes-t-2.md
 - **Context:** Initial task creation
-
-### 2026-07-19T21:00:33Z — status-update [task-update-agent]
-- **Change:** status: started-work → work-completed
