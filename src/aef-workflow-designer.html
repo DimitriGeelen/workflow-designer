@@ -8264,6 +8264,7 @@ $('btn-load').onclick = () => {
     // (which runs autoLoadStored) always completes before this await resolves.
     if (typeof _suppressDeepLink !== 'undefined' && _suppressDeepLink) return;
     adoptImportedXml(await res.text(), { userImport: true });
+    _loadSrcKey = activeKey;   // T-234: remember which map identity this ?load adopted
   } catch (e) {
     console.error('Deep-link load failed:', e);
     alert('Could not load workflow from URL:\n' + e.message);
@@ -8905,6 +8906,12 @@ let _autosaveTimer = null;
 let _appReady = false;                 // suppress autosave during the initial seed render
 let _autosaveRestore = null;
 let _suppressDeepLink = false;         // B1: set when a same-map restore should win over ?load
+// T-234: the map identity (activeKey) adopted FROM this session's ?load deep-link.
+// autosaveNow stamps src only while the ACTIVE map is still that identity — before
+// this, a post-jumpToWorkflow autosave persisted {content: jumped-to map, src:
+// original deep-link} and the next entry via the same ?load silently rendered the
+// wrong map (AEF T-2596). null = this session's document didn't come from ?load.
+let _loadSrcKey = null;
 try { _autosaveRestore = JSON.parse(localStorage.getItem(AUTOSAVE_KEY) || 'null'); } catch (_) {}
 
 // The ?load deep-link src this session was opened with (stable — we never rewrite
@@ -8921,7 +8928,11 @@ function autosaveNow() {
     localStorage.setItem(AUTOSAVE_KEY, JSON.stringify({
       id: state.workflowMeta.id,
       title: state.workflowMeta.title || state.workflowMeta.id,
-      src: currentLoadSrc(),
+      // T-234: only associate this snapshot with the deep-link while the active map
+      // IS the map that deep-link adopted; after an in-place switch (jumpToWorkflow,
+      // Open-project, New) the content is another map's — stamp null so a revisit of
+      // the original ?load takes the deep-link, not this record.
+      src: (_loadSrcKey != null && activeKey === _loadSrcKey) ? currentLoadSrc() : null,
       ts: Date.now(),
       xml: buildBpmnXml(state),
     }));
@@ -8947,6 +8958,9 @@ function autoLoadStored() {
   // fetch for this same src is in flight, suppress it so it can't overwrite the restore.
   if (load && (s.src || null) === load) _suppressDeepLink = true;
   try { adoptImportedXml(s.xml, { userImport: false, replace: true }); } catch (_) { return; }
+  // T-234: a same-src restore means the restored document IS the deep-link's map —
+  // track its identity so autosaveNow keeps stamping src for it (and stops after a jump).
+  if (load && (s.src || null) === load) _loadSrcKey = activeKey;
   showRestoredToast(s);
 }
 // Generic bottom-center toast. opts: { actionLabel, onAction, timeout=6000 }.

@@ -408,3 +408,41 @@ concerns:
       - T-211
       - T-1967
       - G-008
+
+  - id: G-010
+    type: gap
+    status: watching
+    severity: medium
+    title: "Editor load/persistence behavior paths (deep-link, autosave restore, in-place map switch) have no standing behavior tests — two field-found 0.3.0 defects shipped silently"
+    detected: 2026-07-22
+    origin_task: T-234
+    decision_trigger: >
+      A standing, shell-runnable browser-behavior suite exercises the editor's
+      load/persistence contract (the T-234 four-leg matrix: poisoning repro +
+      three B1 restore legs, plus deep-link adoption) against the served bundle,
+      wired into a task Verification block or cron audit. Then close G-010.
+    description: |
+      G-019 escalation from T-234 (peer-found field bug, AEF T-2596): a post-jump
+      autosave stamping the ORIGINAL deep-link src shipped in 0.3.0 and made every
+      handoff-jump self-poison the entered deep-link — the next visit to the same
+      ?load silently rendered the WRONG map. The framework was structurally blind:
+      the interaction of three individually-tested features (B1 autosave restore
+      T-127, ?load deep-links, T-160 jumpToWorkflow) is a state/url identity
+      contract that NOTHING verified end-to-end. All existing guards are
+      server-side pure-Python (tools/_*-verify.py) or source greps; editor
+      BEHAVIOR is only verified ad-hoc per task via Playwright driven by the
+      agent, then never again — so cross-feature regressions ship undetected
+      until a peer or operator trips them (same blindness class as G-003,
+      which covers pointer-interaction paths; this covers load/persistence).
+      T-237 (eventDef/linkEventCatch collision, also field-found in 0.3.0 the
+      same week) is a second instance of the class.
+    evidence:
+      - "AEF rail offset 149: operator-reported wrong-map render, RCA confirmed against src (autosaveNow stamped src: currentLoadSrc() unconditionally; jumpToWorkflow switches in-place)."
+      - "Defect window: T-127 (B1 autosave) landed 2026-07-1x, found 2026-07-21 by peer — shipped in tagged 0.3.0, >0 releases affected."
+      - "tools/ contains 5 _*-verify.py standing guards — all server-side; zero browser-behavior guards."
+    related:
+      - T-234
+      - T-237
+      - T-127
+      - T-160
+      - G-003

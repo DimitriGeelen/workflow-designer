@@ -1,22 +1,22 @@
 ---
-id: T-234
-name: "0.3.0 jump-autosave poisoning bug — post-jump autosave records original deep-link src, wrong map renders on revisit (AEF T-2596 RCA, 0.3.1 root fix)"
+id: T-237
+name: "eventDef/linkEventCatch vocabulary collision: typed catch events misclassified as workflow handoffs (AEF rail 153, 0.3.1)"
 description: >
-  0.3.0 jump-autosave poisoning bug — post-jump autosave records original deep-link src, wrong map renders on revisit (AEF T-2596 RCA, 0.3.1 root fix)
+  Peer-reported (AEF rail offset 153, operator-escalated twice their side): 0.3.0 editor classifies EVERY bpmn:intermediateCatchEvent as linkEventCatch (handoff-from-another-workflow), even when the node carries aef:eventDef (T-204 typed-event vocabulary, e.g. kind=message binding=bus:...). Repro on AEF corpus map aef-dispatch-loop node agt_msg_result: typed message-catch, zero aef:link -> properties panel shows type linkEventCatch, Target workflow none, permanently-inert Open-target-workflow affordance. Ask for 0.3.1 (rides with T-234): eventDef-bearing catches classify/render as the typed event (distinct type label, NO jump affordance); linkEventCatch reserved for aef:link carriers (bare catches: our call, record in Decisions). Check throw side for the same ambiguity (intermediateThrowEvent + eventDef vs + link).
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
 horizon: now
-tags: []
+tags: [bug, designer, aef-integration]
 components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-22T06:45:31Z
-last_update: 2026-07-22T10:40:42Z
+created: 2026-07-22T10:41:18Z
+last_update: 2026-07-22T10:41:18Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,38 +30,18 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-234: 0.3.0 jump-autosave poisoning bug — post-jump autosave records original deep-link src, wrong map renders on revisit (AEF T-2596 RCA, 0.3.1 root fix)
+# T-237: eventDef/linkEventCatch vocabulary collision: typed catch events misclassified as workflow handoffs (AEF rail 153, 0.3.1)
 
 ## Context
 
-**Peer-reported field bug (AEF T-2596, rail offset 149, operator-reported regression their
-side): the 0.3.0 bundle self-poisons its own deep-links.** RCA is AEF's, confirmed against
-current src: `jumpToWorkflow` (src/aef-workflow-designer.html:6760) switches maps IN-PLACE
-without touching `location ?load`; `autosaveNow` (:8917) stamps `src: currentLoadSrc()`
-unconditionally → every post-jump autosave persists `{content: JUMPED-TO map, src: ORIGINAL
-deep-link}`; `autoLoadStored` (:8941) restores on `stored-src === ?load` with
-`_suppressDeepLink` → the next entry via the SAME deep-link silently renders the WRONG map.
-**Repro: open `?load=X` → jump to Y → revisit `?load=X` → renders Y.** The handoff jump
-working once is what breaks the deep-link thereafter. AEF neutralized it THEIR side (landing
-cards mint a click-time nonce in the load value + hx-boost=false, their 495b5a022) but the
-ROOT fix is ours and is requested for the 0.3.1 tag. Affects ANY `?load` consumer of the
-bundle. Candidate fixes (choose in-build, record in Decisions): (a) track the deep-link's
-adopted map identity (`_loadSrcKey = activeKey` at ?load adoption) and stamp
-`src: activeKey === _loadSrcKey ? currentLoadSrc() : null` in autosaveNow — minimal, kills
-the cross-map association; (b) per-map autosave records keyed by active map id — bigger,
-also fixes multi-map autosave loss. Side note from AEF (no action unless we embed behind
-htmx): htmx-boosted anchors navigate off the cached href, discarding onclick href mutations.
-See `[[aef-integration-rail]]` offset 149.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] The poisoning repro is fixed at the ROOT: after `open ?load=X → jumpToWorkflow(Y) → autosave fires`, the persisted autosave record no longer associates Y's content with X's src (either src is nulled/updated on in-place switch, or records are keyed per map) — and revisiting `?load=X` renders X, not Y
-- [x] The legitimate B1 restore path still works: no `?load` → last work restored; `?load` matching a stored autosave OF THAT MAP → in-progress edits restored with `_suppressDeepLink`; `?load` differing → deep-link wins untouched (existing behavior, no regression)
-- [x] Playwright-verified on the RUNNING :8834 gallery (behavior, not source grep — PL-046): drive the actual repro sequence (open ?load=X, jump to Y, wait past the 700ms autosave debounce, re-enter ?load=X) and assert the rendered map is X; plus the no-regression restore legs
-- [x] Redeployed (cp src → build/gallery/designer.html) and the fix verified against the served copy; deployed copy byte-identical to src
-- [x] RCA section filled (peer-found field bug — G-019 escalation applies: why could a wrong-map render ship silently? capture prevention, e.g. a repro-sequence Playwright leg in the standing suite); learning recorded if this is a new failure class (bug-fix learning checkpoint — it is: state/url identity drift across in-place navigation)
-- [ ] Announce on the rail when landed (AEF holds 0.3.1 re-pin on it) — and note the fix commit for the operator's 0.3.1 tag decision
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -127,13 +107,6 @@ See `[[aef-integration-rail]]` offset 149.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-# Fix present in src (behavioral proof was the in-build Playwright 4-leg matrix, PL-046)
-grep -q "_loadSrcKey" src/aef-workflow-designer.html
-# Deployed copy byte-identical to src
-cmp src/aef-workflow-designer.html build/gallery/designer.html
-# Served copy carries the fix
-out=$(curl -sf http://localhost:8834/designer.html); echo "$out" | grep -q "_loadSrcKey"
-
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -149,35 +122,6 @@ out=$(curl -sf http://localhost:8834/designer.html); echo "$out" | grep -q "_loa
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
-
-**Symptom:** Opening the designer via a `?load=X` deep-link after having once jumped
-(handoff double-click / jumpToWorkflow) to another map Y silently renders Y instead of X.
-Field-found by the peer (AEF T-2596, rail offset 149) — their operator's landing-card
-deep-links "broke" after the first successful handoff jump.
-
-**Root cause:** `autosaveNow` stamped `src: currentLoadSrc()` UNCONDITIONALLY, while
-`jumpToWorkflow` switches the active map in-place without touching `location`. Every
-post-jump autosave therefore persisted `{content: Y, src: X's ?load value}` — a false
-association between one map's content and another map's URL identity. On the next entry
-via `?load=X`, `autoLoadStored` saw stored-src === load, set `_suppressDeepLink`, and
-adopted Y's snapshot as if it were in-progress work on X.
-
-**Why structurally allowed:** three individually-verified features (B1 autosave restore
-T-127, `?load` deep-link, T-160 jump navigation) form a cross-feature state/url identity
-contract that nothing verified end-to-end. All standing guards in tools/ are server-side;
-editor behavior is only Playwright-verified ad-hoc inside the task that builds it, never
-against feature interactions added later. The framework was blind from T-160's landing
-until a peer operator tripped it in tagged 0.3.0 (>7 days) — G-019 applies.
-
-**Prevention:** (1) gap **G-010** registered (concerns.yaml): standing browser-behavior
-suite for editor load/persistence paths is the missing structural guard; close criterion
-is a shell-runnable 4-leg matrix (this task's repro + the three B1 legs) wired into
-Verification/cron. (2) Learning recorded (new failure class: state/URL identity drift
-across in-place navigation — any feature that persists a URL-derived identity must
-re-derive it at write time from the ACTIVE document, not the session). (3) The fix itself
-is structural, not sited: `_loadSrcKey` makes the src-stamp condition explicit at the
-single write point, so future in-place switch paths (new "open" affordances) inherit
-correct behavior without needing to know about autosave.
 
 ## Evolution
 
@@ -214,22 +158,6 @@ correct behavior without needing to know about autosave.
      - **Rejected:** [alternatives and why not]
 -->
 
-### 2026-07-22 — Fix shape: candidate (a) `_loadSrcKey` tracking, not (b) per-map records
-- **Chose:** Candidate (a): track the map identity adopted FROM the `?load` deep-link
-  (`_loadSrcKey = activeKey` at the two adoption sites — deep-link fetch IIFE and the
-  same-src autosave-restore branch) and stamp `src` only while `activeKey === _loadSrcKey`
-  (else `null`). 4 small edits, single write-point condition.
-- **Why:** Kills exactly the false association (content-of-Y ↔ src-of-X) with zero schema
-  change: the autosave record shape, AUTOSAVE_KEY, and all three B1 restore branches are
-  untouched — post-jump work still restores on a no-`?load` entry (src null = "last work"),
-  which is the correct B1 semantic for it. Minimal risk for a 0.3.1 patch release AEF is
-  holding on.
-- **Rejected:** (b) per-map autosave records (keyed by map id). Bigger win (multi-map
-  autosave loss also fixed) but a storage-schema change: migration of existing single-record
-  autosaves, restore-priority policy (which map wins a no-?load entry), quota multiplication,
-  and a re-verify of every restore/toast path — wrong size for the blocking patch. Filed
-  direction stays available; G-010's standing suite is the prerequisite for doing it safely.
-
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -242,7 +170,7 @@ correct behavior without needing to know about autosave.
 
 ## Updates
 
-### 2026-07-22T06:45:31Z — task-created [task-create-agent]
+### 2026-07-22T10:41:18Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-234-030-jump-autosave-poisoning-bug--post-ju.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-237-eventdeflinkeventcatch-vocabulary-collis.md
 - **Context:** Initial task creation

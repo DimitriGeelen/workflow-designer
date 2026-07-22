@@ -330,3 +330,24 @@ learnings:
   date: 2026-07-21
   context: Added via context agent
   application: TBD
+- id: PL-048
+  learning: "When flipping a task to partial-complete/owner:human, write the ## Recommendation block (GO/NO-GO + rationale + evidence) IN THE SAME operation — the Watchtower review queue marks recommendation-less tasks NO-REC/'not ready for review', so the handoff silently stalls: the agent thinks it handed over, the operator sees nothing actionable"
+  source: P-002
+  task: T-228
+  date: 2026-07-22
+  context: Added via context agent
+  application: TBD
+- id: PL-049
+  learning: "P-011 Verification lines: never put $( in a double-quoted python -c one-liner — the gate's shell command-substitutes it (regex like ^Header\\s*$(.*?) loses its group AND the glob executes as a command). New member of the L-387/PL-043 gate-line family. Fix: move the predicate to a checked-in tools/_*-verify.py and reference it plainly"
+  source: P-011
+  task: T-236
+  date: 2026-07-22
+  context: Added via context agent
+  application: TBD
+- id: PL-050
+  learning: "State/URL identity drift across in-place navigation: any feature that persists a URL-derived identity (e.g. autosave stamping the ?load src) must re-derive the association at WRITE time from the active document identity, not from session-start URL state — in-place navigation (jumpToWorkflow, open-modal, New) silently invalidates the session-level association and poisons the persisted record. Guard shape: track the identity the URL adopted (one variable), condition the stamp on active===adopted."
+  source: G-019
+  task: T-234
+  date: 2026-07-22
+  context: Added via context agent
+  application: TBD
