@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-22T09:50:36Z
-last_update: 2026-07-22T09:50:36Z
+last_update: 2026-07-22T09:54:09Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -115,7 +115,11 @@ recommendation naming exactly what's missing, or is left NO-REC and reported.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
-python3 -c "import glob,re; f=[p for p in glob.glob('.tasks/active/*.md')+glob.glob('.tasks/completed/*.md') if (lambda s: (m:=re.search(r'^### Human\\s*$(.*?)(?=^## |\\Z)',s,re.M|re.S)) and re.search(r'^\\s*- \\[ \\]',m.group(1),re.M) and not ((r:=re.search(r'^## Recommendation\\s*$(.*?)(?=^#{2,} |\\Z)',s,re.M|re.S)) and re.search(r'\\*\\*Recommendation:\\*\\*\\s*(GO|NO-GO|DEFER)',r.group(1))))(re.sub(r'<!--.*?-->','',open(p,encoding='utf-8',errors='replace').read(),flags=re.S))]; import sys; sys.exit(1 if f else 0)"
+# Shell-substitution trap (this task's own find): a python -c one-liner whose regex
+# contains $( ... ) inside DOUBLE quotes gets command-substituted by the gate's shell —
+# the regex group vanishes (IndexError) AND the glob runs as a command. Predicate moved
+# to a checked-in tool instead:
+python3 tools/_norec-verify.py
 
 ## RCA
 
