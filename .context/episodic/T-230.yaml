@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-230: S4b: fw bpmn claim CLI — add bpmn subcommand to vendored fw (headless ghost claim, via:cli)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-22T05:59:55Z
+# ============================================================================
+
+task_id: T-230
+task_name: "S4b: fw bpmn claim CLI — add bpmn subcommand to vendored fw (headless ghost claim, via:cli)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-21T22:42:51Z
+completed: 2026-07-22T05:59:51Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-07-22T07:59:30+02:00
+last_commit: 2026-07-22T07:59:48+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  S4b fw bpmn claim CLI — headless ghost claim (via:cli). register fabric cards for bpmn-cli + verify tool
+
+# Key outcomes
+outcomes:
+  - '`fw bpmn claim <uuid> <project>` exists as a real `bpmn` subcommand in the vendored `.agentic-framework/bin/fw` (routed through the dispatcher → `exec python3 $PROJECT_ROOT/tools/bpmn-cli.py`); `fw bpmn` with no/invalid args prints usage and exits non-zero (G-008 upstream path applies to the vendored edit — noted in the route comment + Evolution)'
+  - '**Claim mutation:** resolves `<uuid>` in `.context/designer/registry.yaml ghosts[]`; on match removes it from `ghosts[]` and appends `{uuid, project, ts, via:"cli"}` to `claims[]` (append-only; re-claiming an already-claimed uuid is an idempotent no-op success — no duplicate entry, ghost stays gone). Reuses gallery-serve.py''s `claim_ghost_after_save(via=''cli'')` — the exact fn the server calls on save (single source of truth)'
+  - '**Map carries the uuid:** the target `<project>`''s stored BPMN gains `<aef:workflowMeta uuid=<uuid>>` (uuid attr spliced into the existing workflowMeta open tag, all other content untouched; written as a new version so it becomes the authoritative + served + corpus-if-existing copy), so `/api/list` lists it as a live `maps[].uuid` and referrers whose `workflowRef==<uuid>` resolve — matching the S4a `via:"ui"` result exactly (same registry shape + same resolution, only `via` differs)'
+  - '**Guardrails:** an unknown uuid (not a pending ghost) → clear error + non-zero exit + NO registry mutation; an unknown/absent `<project>` in the store → clear error + non-zero exit; a target with a *different* existing uuid or no workflowMeta → clear error + NO mutation (avoids orphaning identity — see Decisions); the command touches only 832''s `.context/designer/registry.yaml` + gallery store (T-559 — no AEF tooling invoked)'
+  - 'A verify tool (`tools/_bpmn-claim-cli-verify.py`, stdlib-only, isolated temp repo) exercises the cli path end-to-end (seed ghost + referrer → `fw bpmn claim` → ghost dropped + `claims[]` records `via:"cli"` + map carries the uuid + referrer resolves; idempotent re-claim; unknown-uuid/unknown-project rejected). **Passes 15/15**; existing verifiers still green (list 22/22, registry 17/17, claim 11/11, save-allowlist 6/6, serve-gallery 9/9, corpus-adopt OK)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-22 — CLI home + logic split (dispatcher route → project-owned Python)'
+    chose: 'A thin `bpmn)` route in the vendored `.agentic-framework/bin/fw` that'
+    rationale: 'Operator decided `fw bpmn` is the home (the dispatcher hard-fails unknown'
+    alternatives_rejected: ['Re-implementing registry/version logic in bash (drift risk, no reuse);']
+  - decision: '2026-07-22 — orphan guard: refuse to claim onto a map with a different live uuid'
+    chose: 'If the target already carries a *different* `workflowMeta uuid`, error with'
+    rationale: 'S4a''s picker seeds a *fresh* map (no prior identity) adopting the ghost uuid,'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/bin/fw'
+  - '.fabric/components/tools-_bpmn-claim-cli-verify.yaml'
+  - '.fabric/components/tools-bpmn-cli.yaml'
+  - '.tasks/active/T-230-s4b-fw-bpmn-claim-cli--add-bpmn-subcomma.md'
+  - 'tools/_bpmn-claim-cli-verify.py'
+  - 'tools/bpmn-cli.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-22T07:59:30"
+    action: "T-230: S4b fw bpmn claim CLI — headless ghost claim (via:cli)"
+  - time: "2026-07-22T07:59:48"
+    action: "T-230: register fabric cards for bpmn-cli + verify tool"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 437 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 437
+  commits: 2
+  files_changed: 6
+  lines_added: 511
+  lines_removed: 15
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-230-s4b-fw-bpmn-claim-cli--add-bpmn-subcomma.md
+generated_by: context-agent-hybrid
