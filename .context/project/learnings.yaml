@@ -358,3 +358,10 @@ learnings:
   date: 2026-07-22
   context: Added via context agent
   application: TBD
+- id: PL-052
+  learning: "A fixture/vocabulary contract delivered to a peer must name the MINIMUM bundle/release version that understands it: 832 shipped the T-204 typed-event fixture contract rail-inline while AEF's pinned 0.3.0 designer bundle predated the vocabulary entirely (release cut 07-18, vocabulary landed 07-19) — peer authored valid maps their artifact rendered as misclassified handoffs, operator escalated twice. Release notes / contract announcements must carry a vocabulary-coverage line tying aef:* vocabulary to the artifact version."
+  source: G-019
+  task: T-237
+  date: 2026-07-22
+  context: Added via context agent
+  application: TBD

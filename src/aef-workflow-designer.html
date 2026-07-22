@@ -8715,8 +8715,16 @@ function parseBpmnXml(text) {
       // intermediateCatchEvent tag (which also decodes to linkEventCatch) into the
       // specific typed-event node type, and restores the kind-specific binding
       // field. Same override link events need vs a plain intermediate event.
+      // T-237 scoping: (1) catch-side hosts only (in-flow catch or boundaryEvent) —
+      // EVENT_KIND types all export as intermediateCatchEvent, so overriding a THROW
+      // host would silently mutate its tag to a catch on round-trip (typed-throw
+      // vocabulary doesn't exist yet); (2) a node whose aef:link actually carries a
+      // target (workflowRef/targetWorkflow) stays a link event — classifying it as a
+      // typed event would hide the jump/target UI on a node that has a target.
       const eventDefEl = byAef(el, 'eventDef')[0];
-      if (eventDefEl) {
+      const _catchHost = tag === 'intermediateCatchEvent' || tag === 'linkEventCatch' || tag === 'boundaryEvent';
+      const _linkHasTarget = !!(linkEl && ((linkEl.getAttribute('workflowRef') || '') || (linkEl.getAttribute('targetWorkflow') || '')));
+      if (eventDefEl && _catchHost && !_linkHasTarget) {
         const kind = eventDefEl.getAttribute('kind') || '';
         const mapped = EVENT_KIND_TYPE[kind];
         if (mapped) {
