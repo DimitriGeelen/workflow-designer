@@ -50,11 +50,77 @@ IP=$(hostname -I 2>/dev/null | awk '{print $1}')
 echo "Gallery root: $OUT ($COUNT maps)"
 echo "Local:  http://localhost:$PORT/"
 echo "LAN:    http://${IP:-localhost}:$PORT/"
+# ── committed!=serving prevention (T-231) ──────────────────────────────────────
+# A stale server still holding $PORT makes the new bind fail; under `nohup ... &`
+# that death is invisible and the OLD process keeps serving stale code (hit twice:
+# rail offset 137 pre-S1 server, S4a claim). So: clean-stop any listener on $PORT
+# BEFORE binding, and refuse to start a shadow if the port stays held.
+
+# Space-separated PIDs listening on TCP $1 (own-user procs; no privilege needed).
+# Always exits 0 (|| true) so a no-listener grep-miss doesn't trip `set -e`.
+listeners_on_port() {
+  { ss -ltnpH "sport = :$1" 2>/dev/null \
+      | grep -oE 'pid=[0-9]+' | cut -d= -f2 | sort -u | tr '\n' ' '; } || true
+}
+
+held="$(listeners_on_port "$PORT")"
+if [ -n "${held// /}" ]; then
+  echo "serve-gallery: port $PORT already held by PID(s): ${held% } — clean-stopping before rebind" >&2
+  # gallery-serve.py's HTTPServer handles KeyboardInterrupt (SIGINT) but ignores
+  # SIGTERM; send TERM once (for other server kinds), then INT — never a silent -9.
+  for attempt in 1 2 3; do
+    still="$(listeners_on_port "$PORT")"
+    [ -z "${still// /}" ] && break
+    sig=INT; [ "$attempt" = 1 ] && sig=TERM
+    for pid in $still; do kill -"$sig" "$pid" 2>/dev/null || true; done
+    for _ in $(seq 1 20); do
+      [ -z "$(listeners_on_port "$PORT" | tr -d ' ')" ] && break
+      sleep 0.1
+    done
+  done
+  still="$(listeners_on_port "$PORT")"
+  if [ -n "${still// /}" ]; then
+    echo "serve-gallery: FATAL — port $PORT still held by PID(s): ${still% } after TERM+INT;" >&2
+    echo "  refusing to start a second, shadowed server (it would serve stale code)." >&2
+    echo "  Stop it manually then re-run:  kill -INT ${still% }" >&2
+    exit 1
+  fi
+  echo "serve-gallery: port $PORT released." >&2
+fi
+
 # Write-capable sidecar (T-129/B2): serves the same gallery + /api/* so the editor
 # can Save into the repo with versioning. Falls back to the static server if the
 # sidecar script is missing (keeps the gallery working in a minimal checkout).
 if [ -f "$ROOT/tools/gallery-serve.py" ]; then
-  exec python3 "$ROOT/tools/gallery-serve.py" "$PORT" --docroot "$OUT" --repo "$ROOT" --bind 0.0.0.0
+  python3 "$ROOT/tools/gallery-serve.py" "$PORT" --docroot "$OUT" --repo "$ROOT" --bind 0.0.0.0 &
+  SRV=$!; PROBE_PATH="/api/health"
 else
-  exec python3 -m http.server "$PORT" --directory "$OUT" --bind 0.0.0.0
+  python3 -m http.server "$PORT" --directory "$OUT" --bind 0.0.0.0 &
+  SRV=$!; PROBE_PATH="/"
 fi
+
+# Forward stop signals to the child so the NEXT invocation's clean-stop works and a
+# Ctrl-C / nohup-kill cleanly ends the server instead of orphaning it.
+trap 'kill -INT "$SRV" 2>/dev/null || true' INT TERM
+
+# ── post-deploy BEHAVIOR probe (T-231) ─────────────────────────────────────────
+# Assert the RUNNING process actually answers before reporting success — do NOT
+# confuse a committed source file with a serving process (PL-046). If the server
+# dies (e.g. a failed bind we missed), stop waiting and fail loud.
+probe_ok=0
+for _ in $(seq 1 100); do
+  if curl -sf "http://127.0.0.1:$PORT$PROBE_PATH" >/dev/null 2>&1; then probe_ok=1; break; fi
+  kill -0 "$SRV" 2>/dev/null || break     # server exited — stop waiting
+  sleep 0.1
+done
+if [ "$probe_ok" != 1 ]; then
+  echo "serve-gallery: FATAL — server on :$PORT did not answer $PROBE_PATH (PID $SRV); deploy failed" >&2
+  kill -INT "$SRV" 2>/dev/null || true
+  wait "$SRV" 2>/dev/null || true
+  exit 1
+fi
+started="$(ps -o lstart= -p "$SRV" 2>/dev/null | sed 's/^ *//')"
+echo "serve-gallery: LIVE on :$PORT (PID $SRV, started ${started:-?}) — $PROBE_PATH OK" >&2
+
+# Block on the server like the old `exec` did (nohup keeps this parent alive).
+wait "$SRV"

@@ -4,10 +4,10 @@ name: "Harden serve-gallery.sh: clean-stop-before-bind + fail-loud on port-in-us
 description: >
   serve-gallery.sh line 57 execs python3 gallery-serve.py --bind without stopping an existing server on the port; if the port is held the new process fails to bind and dies silently, leaving the STALE process serving old code (committed!=serving, hit twice: rail offset 137 + S4a). Harden: stop any gallery-serve on the target PORT first (SIGINT, it ignores SIGTERM), confirm the port is free, then bind; fail loudly if the port stays held; emit the served process's start-time so verify-live can assert start-time>commit-time. Add a post-deploy behavior probe helper (not a source grep). Prevention for the verify-live learning.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: next
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T23:28:52Z
-last_update: 2026-07-21T23:28:52Z
-date_finished: null
+last_update: 2026-07-22T05:38:51Z
+date_finished: 2026-07-22T05:38:51Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,45 +34,29 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+`serve-gallery.sh` `exec`s `gallery-serve.py` with no clean-stop-before-bind. Under the
+canonical `nohup tools/serve-gallery.sh 8834 >/dev/null 2>&1 &` invocation, a stale process
+already holding the port makes the new process **fail to bind and die silently**, while the
+OLD process keeps serving stale code — the **committed!=serving** failure, hit twice (rail
+offset 137 pre-S1 server; S4a claim, offset 142). This hardens the deploy: **clean-stop-before-bind**
+(SIGINT — `gallery-serve.py`'s HTTPServer handles KeyboardInterrupt but ignores SIGTERM),
+**fail-loud** if the port stays held (never leave a shadow), and a **post-deploy behavior probe**
+that asserts the RUNNING process answers before reporting success + emits the served PID/start-time
+(so verify-live can assert start-time>commit-time). Prevention layer for the verify-live learning
+(assert running-process BEHAVIOR, not source/shape). See `[[aef-integration-rail]]`.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **Clean-stop-before-bind:** before binding, `serve-gallery.sh` detects any process listening on the target PORT (via `ss`) and stops it cleanly (SIGTERM then SIGINT, since `gallery-serve.py` ignores SIGTERM), waiting for the port to release
+- [x] **Fail-loud on still-held:** if the port is still held after the stop attempt, the script prints a clear FATAL message naming the port + holder PID(s) and exits non-zero — it never binds a second, shadowed server (the committed!=serving root cause) and never escalates to SIGKILL silently
+- [x] **Post-deploy behavior probe:** after starting the server the script probes the RUNNING process (`/api/health` for gallery-serve, `/` for the static fallback) and only reports "live" on success (emitting the served PID + start-time); if the server never answers, the script exits non-zero rather than claiming success
+- [x] **Lifecycle regression test** (`tools/_serve-gallery-verify.py`) reproduces both failure modes: (A) start on port P, start AGAIN on P → exactly ONE listener answers `/api/health` afterward and it is a FRESH pid (old one cleanly stopped, no dual-process); (B) a SIGINT-deaf holder on P → serve-gallery.sh exits non-zero with a loud message and starts no shadow server. Passes
+- [x] **No regression:** the normal single-start path still serves the gallery + `/api/*` (health OK, index lists the corpus maps); `bash -n tools/serve-gallery.sh` is clean
 
 ### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+<!-- None — all criteria are deterministic infra checks, verified by the lifecycle
+     test + bash -n in ## Verification. -->
 
 ## Verification
 
@@ -106,22 +90,29 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+bash -n tools/serve-gallery.sh
+python3 tools/_serve-gallery-verify.py
 
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
+**Symptom:** After committing server-side code (S1 pre-server offset 137; S4a claim offset 142)
+and "redeploying", the running `:8834` kept serving the PRE-commit code — the claim did not fire,
+`/api/list` served the old shape — even though the source + git were correct. Hit twice.
 
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
+**Root cause:** `serve-gallery.sh` `exec`s `gallery-serve.py` with no clean-stop-before-bind.
+A stale process still holds the port, so the "redeploy" process **fails to bind and dies**; under
+`nohup ... &` that death is invisible, leaving TWO processes with the stale one still serving.
 
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
+**Why structurally allowed:** the deploy script had zero port-conflict handling and no post-deploy
+behavior probe — "redeploy" was assumed to replace the server but silently didn't. The verify step
+compounded it by grepping the SOURCE file + checking response SHAPE (identical old/new) instead of
+the RUNNING process's behavior (the PL-046 blind spot, hit a 2nd time).
+
+**Prevention:** clean-stop-before-bind (stop the old listener first) + fail-loud (never bind a
+shadow — if the port stays held, abort non-zero) + post-deploy behavior probe (assert the LIVE
+process answers, emit its PID/start-time) + a lifecycle regression test that reproduces the race
+and fails if a future edit reintroduces the silent-shadow path. Distinct from the fix: the test is
+the standing guard.
 
 ## Evolution
 
@@ -174,3 +165,10 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-231-harden-serve-gallerysh-clean-stop-before.md
 - **Context:** Initial task creation
+
+### 2026-07-22T05:32:58Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+### 2026-07-22T05:38:51Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

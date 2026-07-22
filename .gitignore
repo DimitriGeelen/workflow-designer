@@ -1,3 +1,4 @@
 # Project-level git ignore
 .termlink-task
 build/
+tools/__pycache__/

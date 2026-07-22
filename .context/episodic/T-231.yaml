@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-231: Harden serve-gallery.sh: clean-stop-before-bind + fail-loud on port-in-use + behavior probe (committed!=serving prevention)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-22T05:39:23Z
+# ============================================================================
+
+task_id: T-231
+task_name: "Harden serve-gallery.sh: clean-stop-before-bind + fail-loud on port-in-use + behavior probe (committed!=serving prevention)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-21T23:28:52Z
+completed: 2026-07-22T05:38:51Z
+duration_days: 1
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**Clean-stop-before-bind:** before binding, `serve-gallery.sh` detects any process listening on the target PORT (via `ss`) and stops it cleanly (SIGTERM then SIGINT, since `gallery-serve.py` ignores SIGTERM), waiting for the port to release'
+  - '**Fail-loud on still-held:** if the port is still held after the stop attempt, the script prints a clear FATAL message naming the port + holder PID(s) and exits non-zero — it never binds a second, shadowed server (the committed!=serving root cause) and never escalates to SIGKILL silently'
+  - '**Post-deploy behavior probe:** after starting the server the script probes the RUNNING process (`/api/health` for gallery-serve, `/` for the static fallback) and only reports "live" on success (emitting the served PID + start-time); if the server never answers, the script exits non-zero rather than claiming success'
+  - '**Lifecycle regression test** (`tools/_serve-gallery-verify.py`) reproduces both failure modes: (A) start on port P, start AGAIN on P → exactly ONE listener answers `/api/health` afterward and it is a FRESH pid (old one cleanly stopped, no dual-process); (B) a SIGINT-deaf holder on P → serve-gallery.sh exits non-zero with a loud message and starts no shadow server. Passes'
+  - '**No regression:** the normal single-start path still serves the gallery + `/api/*` (health OK, index lists the corpus maps); `bash -n tools/serve-gallery.sh` is clean'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 369 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 369
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-231-harden-serve-gallerysh-clean-stop-before.md
+generated_by: context-agent-hybrid
