@@ -285,6 +285,35 @@ font-family: 'Outfit';
     grid-template-columns: 220px 1fr 320px;
     min-height: 0;
   }
+  /* T-245 view-chrome: hiding a side panel must also drop its grid track, or the
+     canvas would keep a dead band where the panel was. Focus mode hides all three
+     chrome regions; the SVG's fit-to-view viewBox (T-043) reflows the diagram into
+     the freed space with no zoom math. */
+  body.vc-no-palette .palette { display: none; }
+  body.vc-no-palette main { grid-template-columns: 1fr 320px; }
+  body.vc-no-props .properties { display: none; }
+  body.vc-no-props main { grid-template-columns: 220px 1fr; }
+  body.vc-no-palette.vc-no-props main { grid-template-columns: 1fr; }
+  body.vc-focus .app { grid-template-rows: 1fr; }
+  body.vc-focus header { display: none; }
+  body.vc-focus main { grid-template-columns: 1fr; }
+  body.vc-focus .palette, body.vc-focus .properties { display: none; }
+  #vc-exit {
+    display: none;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 900;
+    opacity: 0.55;
+    transition: opacity 0.15s ease;
+  }
+  #vc-exit:hover { opacity: 1; }
+  body.vc-focus #vc-exit { display: inline-flex; }
+  .btn-icon[aria-pressed="true"] {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: rgba(196,238,84,0.35);
+  }
 
   /* ============ Palette ============ */
   .palette {
@@ -1084,6 +1113,12 @@ font-family: 'Outfit';
       <span id="map-saved-version" title="Currently-loaded saved version (snapshot). Click 🕘 Versions to browse." style="display:none;margin-left:8px;padding:1px 7px;border-radius:10px;background:rgba(122,184,255,.14);color:#7ab8ff;border:1px solid rgba(122,184,255,.35);font-size:12px;font-weight:600"></span>
     </div>
     <div class="actions">
+      <!-- T-245 view-chrome controls: per-panel hide/show (persisted in aefViewPrefs)
+           + focus mode (transient — hides header/palette/properties AND requests
+           browser fullscreen; #vc-exit floating button or Esc restores). -->
+      <button class="btn-icon" id="btn-toggle-palette" title="Hide palette" aria-pressed="false">◧</button>
+      <button class="btn-icon" id="btn-toggle-props" title="Hide properties panel" aria-pressed="false">◨</button>
+      <button class="btn-icon" id="btn-focus-mode" title="Focus mode — hide all panels and fill the screen (Esc exits)">⛶</button>
       <button class="btn" id="btn-add-lane">+ Add Lane</button>
       <button class="btn" id="btn-reset">Reset</button>
       <button class="btn" id="btn-clean" title="Tidy + branch pitch + align rows on every lane — one click, Ctrl+Z reverts">✨ Clean layout</button>
@@ -1322,6 +1357,10 @@ font-family: 'Outfit';
       </div>
     </aside>
   </main>
+
+  <!-- T-245: the only visible chrome in focus mode — floating, semi-transparent
+       until hovered so it never fights the diagram in a presentation. -->
+  <button class="btn" id="vc-exit" title="Exit focus mode (Esc)" type="button">⛶ Exit focus</button>
 
   <!-- ============ Editor settings (modal, T-075) ============ -->
   <!-- Every control here is an editor-local preference (localStorage only) —
@@ -2066,18 +2105,59 @@ function setLabelPref(key, value) {
 // rowSpacing does NOT move geometry on load — only an explicit control change
 // re-spaces (PD-044). (Density, a snap-threshold multiplier that never grew
 // lanes, was retired here — see rowPitch.)
-let viewPrefs = { branchPitch: 'auto', cleanOnImport: false, rowSpacing: 96, colSpacing: 150 };
+let viewPrefs = { branchPitch: 'auto', cleanOnImport: false, rowSpacing: 96, colSpacing: 150, paletteHidden: false, propsHidden: false };
 try {
   const _storedView = JSON.parse(localStorage.getItem('aefViewPrefs') || '{}');
   if (['compact', 'auto', 'roomy'].includes(_storedView.branchPitch)) viewPrefs.branchPitch = _storedView.branchPitch;
   if (typeof _storedView.cleanOnImport === 'boolean') viewPrefs.cleanOnImport = _storedView.cleanOnImport;
   if (typeof _storedView.rowSpacing === 'number' && _storedView.rowSpacing >= 72 && _storedView.rowSpacing <= 240) viewPrefs.rowSpacing = _storedView.rowSpacing;
   if (typeof _storedView.colSpacing === 'number' && _storedView.colSpacing >= 130 && _storedView.colSpacing <= 360) viewPrefs.colSpacing = _storedView.colSpacing;
+  if (typeof _storedView.paletteHidden === 'boolean') viewPrefs.paletteHidden = _storedView.paletteHidden;
+  if (typeof _storedView.propsHidden === 'boolean') viewPrefs.propsHidden = _storedView.propsHidden;
 } catch (_) {}
 function setViewPref(key, value) {
   viewPrefs[key] = value;
   try { localStorage.setItem('aefViewPrefs', JSON.stringify(viewPrefs)); } catch (_) {}
+  applyViewChrome();
   renderAll();
+}
+// T-245 view-chrome. Panel visibility lives in viewPrefs (persisted); focus mode is
+// deliberately TRANSIENT — a presentation state, not a preference, so a reload
+// always comes back with chrome. requestFullscreen needs a user gesture (the
+// button click) and may still be denied (headless, iframe policy) — focus mode
+// must not depend on it, so the promise rejection is swallowed: chrome-hiding
+// alone already fills the window.
+let focusMode = false;
+function applyViewChrome() {
+  document.body.classList.toggle('vc-no-palette', !!viewPrefs.paletteHidden);
+  document.body.classList.toggle('vc-no-props', !!viewPrefs.propsHidden);
+  document.body.classList.toggle('vc-focus', focusMode);
+  const bp = document.getElementById('btn-toggle-palette');
+  if (bp) { bp.setAttribute('aria-pressed', String(!!viewPrefs.paletteHidden)); bp.title = viewPrefs.paletteHidden ? 'Show palette' : 'Hide palette'; }
+  const br = document.getElementById('btn-toggle-props');
+  if (br) { br.setAttribute('aria-pressed', String(!!viewPrefs.propsHidden)); br.title = viewPrefs.propsHidden ? 'Show properties panel' : 'Hide properties panel'; }
+}
+function setFocusMode(on) {
+  focusMode = !!on;
+  applyViewChrome();
+  if (focusMode) {
+    const el = document.documentElement;
+    if (el.requestFullscreen) { try { el.requestFullscreen().catch(() => {}); } catch (_) {} }
+  } else if (document.fullscreenElement) {
+    try { document.exitFullscreen().catch(() => {}); } catch (_) {}
+  }
+}
+// Browser-native fullscreen exit (Esc is consumed by the browser while
+// fullscreen) must also restore the chrome, or the operator is left in a
+// windowed page with everything still hidden and no visible way back.
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement && focusMode) { focusMode = false; applyViewChrome(); }
+});
+// T-245: a hidden properties panel must not strand node editing — an explicit
+// click-selection un-hides it (persisted, so the reveal survives reload). NOT
+// applied in focus mode: presentation intent wins there, and exit restores all.
+function revealPropsForSelection() {
+  if (viewPrefs.propsHidden && !focusMode) setViewPref('propsHidden', false);
 }
 let multiSelect = new Set(); // node ids in the active multi-selection (always includes primary if it's a node)
 let rubberBand = null; // { startX, startY, x, y } while drawing
@@ -5473,6 +5553,11 @@ document.addEventListener('keydown', e => {
       e.preventDefault();
     }
   } else if (e.key === 'Escape') {
+    // T-245: in focus mode Esc exits the mode and nothing else — the operator's
+    // selection/connect state must survive a presentation round-trip. (When
+    // browser fullscreen is active the browser consumes Esc itself; that path
+    // restores chrome via the fullscreenchange listener instead.)
+    if (focusMode) { setFocusMode(false); return; }
     selection = null;
     multiSelect = new Set();
     connectFrom = null;
@@ -5564,6 +5649,13 @@ function openSettings() { syncSettingsUI(); $('view-apply-row').style.display = 
 function closeSettings() { $('settings-modal').classList.remove('visible'); }
 $('btn-settings').onclick = openSettings;
 $('btn-close-settings').onclick = closeSettings;
+// T-245 view-chrome wiring; applyViewChrome() here also applies the persisted
+// panel state on load (script runs at end of body — DOM is present).
+$('btn-toggle-palette').onclick = () => setViewPref('paletteHidden', !viewPrefs.paletteHidden);
+$('btn-toggle-props').onclick = () => setViewPref('propsHidden', !viewPrefs.propsHidden);
+$('btn-focus-mode').onclick = () => setFocusMode(true);
+$('vc-exit').onclick = () => setFocusMode(false);
+applyViewChrome();
 $('settings-modal').addEventListener('mousedown', e => { if (e.target === $('settings-modal')) closeSettings(); });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && $('settings-modal').classList.contains('visible')) { closeSettings(); e.stopPropagation(); }
@@ -6850,12 +6942,14 @@ function onNodeClick(n, e) {
   // Plain click — primary selection, single-node selection set
   selection = { kind: 'node', id: n.id };
   multiSelect = new Set([n.id]);
+  revealPropsForSelection();
   renderNodes(); renderEdges(); renderProperties();
 }
 function onEdgeClick(e) {
   if (mode === 'connect') return;
   selection = { kind: 'edge', id: e.id };
   multiSelect = new Set();
+  revealPropsForSelection();
   renderEdges(); renderProperties();
 }
 
@@ -7166,6 +7260,7 @@ function createNodeAt(type, x, y) {
   // Now that the node is in state, derive a unique-within-lane slug.
   node.slug = deriveUniqueSlug(node, name);
   selection = { kind: 'node', id: uid };
+  revealPropsForSelection();
   refreshDisplayIds();
   renderAll();
 }

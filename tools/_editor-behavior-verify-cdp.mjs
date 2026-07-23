@@ -428,6 +428,55 @@ async function main() {
     const leg7 = !!(t240 && t240.ok) && t240Landed.id === 't240-target' && t240Landed.nodes > 0;
     verdict.legs.push({ leg: 't240-uuid-resolve', pass: leg7, got: { assert: t240, landed: t240Landed } });
 
+    // ── Leg 8 (T-245): view-chrome controls — panel toggles, persistence, focus mode ──
+    // Real-affordance probes: every transition goes through the actual buttons
+    // (element.click()), not internal setters. requestFullscreen is expected to be
+    // DENIED here (synthetic click = no user activation) — the leg proves focus
+    // mode's chrome-hiding works without it, which is the graceful-degradation AC.
+    await ev(cmd, `localStorage.clear()`);
+    await nav(BASE + '/designer.html');
+    const vcProbe = `(function(){
+      // offsetParent is null for position:fixed elements regardless of visibility,
+      // so #vc-exit needs the computed-style check; rect-width guards display:none.
+      var vis = function(id){ var el=document.getElementById(id)||document.querySelector(id); if(!el) return false; return getComputedStyle(el).display !== 'none' && el.getBoundingClientRect().width > 0; };
+      return {
+        palette: !!(document.querySelector('.palette') && document.querySelector('.palette').offsetParent !== null),
+        props: vis('properties'),
+        header: !!(document.querySelector('header') && document.querySelector('header').offsetParent !== null),
+        exitBtn: vis('vc-exit'),
+        canvasW: document.querySelector('.canvas-wrap').getBoundingClientRect().width,
+        palettePressed: document.getElementById('btn-toggle-palette').getAttribute('aria-pressed'),
+        prefs: (function(){ try { var p=JSON.parse(localStorage.getItem('aefViewPrefs')||'{}'); return {paletteHidden:!!p.paletteHidden, propsHidden:!!p.propsHidden}; } catch(e){ return null; } })()
+      };
+    })()`;
+    const vc0 = await ev(cmd, vcProbe);                                        // baseline: all chrome visible
+    await ev(cmd, `document.getElementById('btn-toggle-palette').click()`);
+    const vc1 = await ev(cmd, vcProbe);                                        // palette hidden, canvas grew
+    await nav(BASE + '/designer.html');
+    const vc2 = await ev(cmd, vcProbe);                                        // persistence: still hidden after reload
+    await ev(cmd, `document.getElementById('btn-toggle-palette').click()`);
+    await ev(cmd, `document.getElementById('btn-toggle-props').click()`);
+    const vc3 = await ev(cmd, vcProbe);                                        // props hidden, palette back
+    // auto-reveal: a REAL click on a node group must un-hide the properties panel
+    await ev(cmd, `(function(){ var g=document.querySelector('#g-nodes g'); g.dispatchEvent(new MouseEvent('click', {bubbles:true})); })()`);
+    const vc4 = await ev(cmd, vcProbe);                                        // props revealed by selection
+    await ev(cmd, `document.getElementById('btn-focus-mode').click()`);
+    const vc5 = await ev(cmd, vcProbe);                                        // focus: all chrome gone, exit floats
+    await ev(cmd, `document.getElementById('vc-exit').click()`);
+    const vc6 = await ev(cmd, vcProbe);                                        // exit restores everything
+    await ev(cmd, `document.getElementById('btn-focus-mode').click()`);
+    await nav(BASE + '/designer.html');
+    const vc7 = await ev(cmd, vcProbe);                                        // focus is transient: reload restores chrome
+    const leg8 = vc0.palette && vc0.props && vc0.header && !vc0.exitBtn
+      && !vc1.palette && vc1.props && vc1.canvasW > vc0.canvasW && vc1.palettePressed === 'true' && vc1.prefs.paletteHidden
+      && !vc2.palette && vc2.prefs.paletteHidden
+      && vc3.palette && !vc3.props && vc3.prefs.propsHidden
+      && vc4.props && !vc4.prefs.propsHidden
+      && !vc5.palette && !vc5.props && !vc5.header && vc5.exitBtn && vc5.canvasW > vc4.canvasW
+      && vc6.palette && vc6.props && vc6.header && !vc6.exitBtn
+      && vc7.header && vc7.palette && !vc7.exitBtn;
+    verdict.legs.push({ leg: 't245-view-chrome', pass: leg8, got: { vc0, vc1, vc2, vc3, vc4, vc5, vc6, vc7 } });
+
     verdict.pass = verdict.legs.every(l => l.pass);
     process.stdout.write(JSON.stringify(verdict, null, 2) + '\n');
     process.exitCode = verdict.pass ? 0 : 1;
