@@ -4,15 +4,15 @@ name: "Pull-at-tag release intake: consumers fetch designer releases by version 
 description: >
   Proposal (operator-directed 2026-07-23): switch consumer intake from per-peer file_send to pull-at-tag — consumer fetches dist artifact + MANIFEST.yaml at annotated tag designer-vX.Y.Z (frozen bytes, already committed at every release tag), sha-verifies against the MANIFEST at the same tag, re-pins. Preserves T-559 spirit (pin on frozen published bytes, never our working tree) and keeps the rail announce as new-version trigger + verdict handshake; drops only the delivery step. Scales 1:N, gives late joiners full history; with T-246 capabilities metadata the pull becomes self-describing. One question, one go/no-go: adopt pull-at-tag for the next release? Gates: AEF's read on the rail (proposed at offset 177), operator ruling on pull source (GitHub mirror vs LAN git server origin — reachability/credentials unverified), fallback = file_send stays available. Related: T-246.
 
-status: captured
+status: started-work
 workflow_type: inception
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-23T10:06:24Z
-last_update: 2026-07-23T10:06:24Z
+last_update: 2026-07-23T10:48:25Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -36,37 +36,40 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Open Questions
 
-<!-- T-2190 (T-2186 Slice 4): every IW-N question must be disposed before
-     --status work-completed. Disposition gate (agents/task-create/update-task.sh
-     check_disposition_gate) refuses on under-disposed inceptions.
+- **IW-1: Does pull-at-tag preserve the T-559 seam invariant ("AEF pins only delivered bytes, never reads our tree")?**
+  confidence: 3
+  disposition: answered
+  rationale: AEF operator ruling at rail 182 (their D-335): "frozen annotated tag = published frozen bytes — invariant satisfied; your working tree remains off-limits as before." Both operators now on record.
 
-     Per-question shape:
+- **IW-2: Which pull source — GitHub mirror or LAN git server?**
+  confidence: 3
+  disposition: answered
+  rationale: AEF answer at rail 182: read-only LAN origin 192.168.10.201:6611/workflow-designer, preferred over the github mirror (same LAN, no external dependency). Matches our lean at rail 178.
 
-       - **IW-1: <question text>**
-         confidence: 0-3      (your confidence in your current answer; 0=guess, 3=verified)
-         disposition: answered | deferred | dissolved
-         rationale: <one-line evidence — file:line, decision id, dialogue ref>
+- **IW-3: Are the existing tags sound dry-run targets (artifact + MANIFEST frozen at-tag, shas matching the pins)?**
+  confidence: 3
+  disposition: answered
+  rationale: Verified 832-side 2026-07-23: annotated tags designer-v0.3.0/0.3.1/0.3.2 on origin (deref ^{} present); `git show <tag>:dist/aef-workflow-designer-<v>.html | sha256sum` = 36be033d… / d99a42da… / 983e0e30… — exact match to release pins; MANIFEST.yaml present at every tag.
 
-     Never bare yes/no — the gate refuses bare checkboxes. See 050-Inceptions.md
-     §Disposition Gate. Bypass: --skip-disposition-gate "rationale" (direct) or
-     FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
--->
+- **IW-4: Can the AEF host actually read origin (network + git-server authorization)?**
+  confidence: 1
+  disposition: deferred
+  rationale: Registered as the task's assumption; only validatable from THEIR host (one `git ls-remote` — test posted at rail 183). Server-side authorization is operator-owned infra on our side. This is the single remaining gate before their T-2616 dry-run.
 
 ## Exploration Plan
 
-<!-- How will we validate assumptions? Spikes, prototypes, research? Time-box each. -->
+No spikes needed — the mechanism already exists (release tags carry frozen artifact + MANIFEST since 0.3.0). Validation = (a) 832-side at-tag sha verification (done, IW-3), (b) AEF-side ls-remote reachability test (deferred to their host, IW-4), (c) contract agreement on the rail (done, rail 182).
 
 ## Technical Constraints
 
-<!-- What platform, browser, network, or hardware constraints apply?
-     For web apps: HTTPS requirements, browser API restrictions, CORS, device support.
-     For hardware APIs (mic, camera, GPS, Bluetooth): access requirements, permissions model.
-     For infrastructure: network topology, firewall rules, latency bounds.
-     Fill this BEFORE building. Discovering constraints after implementation wastes sessions. -->
+- Origin is ssh-only (`ssh://git@192.168.10.201:6611`) — read access requires the git server to authorize AEF's host key (or an anonymous-read transport being enabled). Server config is operator-owned; NOT agent-reachable from 832.
+- Standing security constraint unchanged: no push token in termlink; the github remote stays mirror-only (PushRepository) and is NOT the pull source.
+- Release artifacts must remain committed at their tags (already release-designer.sh behavior; the immutability guard protects released bytes).
 
 ## Scope Fence
 
-<!-- What's IN scope for this exploration? What's explicitly OUT? -->
+**IN:** the intake-contract decision (pull-at-tag vs file_send), 832-side dry-run-target verification, rail agreement.
+**OUT:** AEF's intake tooling (`--from-tag` = their T-2616); MANIFEST changelog/capabilities enrichment (T-246, parked); git-server access provisioning (operator infra); any change to release-designer.sh (nothing needed — tags already carry everything).
 
 ## Acceptance Criteria
 
@@ -92,12 +95,15 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 <!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
 **GO if:**
-- Root cause identified with bounded fix path
-- Fix is scoped, testable, and reversible
+- Both operators ratify the contract change (T-559 spirit preserved on record)
+- Existing tags verify as sound pull targets (artifact+MANIFEST at-tag, shas == pins)
+- Verification anchor unchanged (independent sha256 vs MANIFEST at the same tag)
+- file_send remains available as fallback (reversible at any release)
 
 **NO-GO if:**
-- Problem requires fundamental redesign or unbounded scope
-- Fix cost exceeds benefit given current evidence
+- Either operator rules pull violates T-559
+- Tags turn out not to carry frozen artifact/MANIFEST (would need release-pipeline rework)
+- AEF host demonstrably cannot be granted read access to any agreed source
 
 ## Verification
 
@@ -122,6 +128,13 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
      - Finding 2
 -->
 
+**Recommendation:** GO
+**Rationale:** Every GO criterion is met with evidence; the single deferred item (AEF-host reachability, IW-4) is a 10-second `git ls-remote` on their side with file_send as standing fallback if it fails — it cannot strand a release. The contract change was accepted operator-ratified on the consumer side (their D-335), the mechanism requires zero 832-side build (tags already carry frozen artifact + MANIFEST), and the verification anchor (independent sha256 vs MANIFEST at the same tag) is byte-for-byte identical to today's flow.
+**Evidence:**
+- Rail 182: AEF acceptance, operator-ratified — pull source = read-only LAN origin; their T-2616 ships `fw designer sync --from-tag`; file_send kept as fallback; T-559 ruling "frozen annotated tag = published frozen bytes"
+- 832-side dry-run-target verification (2026-07-23): annotated tags designer-v0.3.0/1/2 on origin; at-tag artifact sha256 = 36be033d… / d99a42da… / 983e0e30… (exact pin matches); MANIFEST.yaml present at every tag
+- Reversibility: rail announce stays the trigger + verdict handshake; any release can fall back to file_send with no contract renegotiation
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -141,3 +154,7 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-07-23T10:48:25Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

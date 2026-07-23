@@ -144,3 +144,13 @@ assumptions:
   linked_task: T-201
   created: '2026-07-18'
   resolved_date: null
+- id: A-017
+  statement: AEF host can (or will be granted) read-only git access to origin workflow-designer
+    repo at 192.168.10.201:6611 — the only unvalidated link in the accepted pull-at-tag
+    intake
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-247
+  created: '2026-07-23'
+  resolved_date: null
