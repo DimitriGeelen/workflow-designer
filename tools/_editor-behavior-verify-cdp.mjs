@@ -25,6 +25,14 @@
 //     6. typed-catch — catch + eventDef kind=message, no link target ⇒ eventMessage
 //        with busTopic binding, re-export carries <aef:eventDef kind="message">.
 //
+//   T-240 leg (live editor; AEF field observation, their T-2611):
+//     7. uuid-resolve — a link node with ONLY workflowRef (uuid) + name whose uuid
+//        matches exactly one live map: after ?load, the Target-workflow readout shows
+//        the resolved id (marked auto-resolved) instead of "— none —", the jump button
+//        is enabled and really jumps; a ghost uuid stays "— none —"/disabled; nothing
+//        is written into aef.targetWorkflow (serialization byte-stance: no silent
+//        migration — emitted XML carries no targetWorkflow attribute).
+//
 // ISOLATION (G-006 + read-only-by-construction): the editor is served from a temp
 // docroot by a throwaway gallery-serve.py on a free port with a temp --repo, in an
 // isolated headless chromium. The suite cannot touch the real registry, versions
@@ -32,7 +40,7 @@
 // lesson: autosave restore masks fresh-fetch behavior otherwise).
 // Exit 0 = all legs pass; 1 = a leg failed; 2 = misconfig (missing editor/server).
 import { spawn } from 'node:child_process';
-import { mkdtempSync, existsSync, readFileSync, readdirSync, mkdirSync, copyFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, existsSync, readFileSync, readdirSync, mkdirSync, copyFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -149,6 +157,124 @@ const T237_ASSERT = `(function(){
   } catch (e) { return { ok:false, errs:['exception: '+(e&&e.message||e)] }; }
 })()`;
 
+// ── T-240 fixtures — live target map (with workflowMeta uuid) + source map whose link
+// nodes carry ONLY workflowRef uuids: one resolvable, one ghost. Same saved-map dialect.
+const T240_TARGET_UUID = '7a1c2e33-9d41-4b6a-8f55-0c3d9b2e6f10';
+const T240_GHOST_UUID = '00000000-dead-4bee-8123-456789abcdef';
+const T240_TARGET = `<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_t240-target"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+  <bpmn:collaboration id="Collaboration_t240-target">
+    <bpmn:participant id="Pool_t240-target" name="t240-target" processRef="Process_t240-target"/>
+  </bpmn:collaboration>
+  <bpmn:process id="Process_t240-target" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="t240-target" uuid="${T240_TARGET_UUID}" version="1" schemaVersion="2" title="t240-target" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="200"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>frw_1_task</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:serviceTask id="frw_1_task" name="target work">
+      <bpmn:extensionElements>
+        <aef:uid value="n_tgt"/>
+        <aef:position x="100" y="80"/>
+      </bpmn:extensionElements>
+    </bpmn:serviceTask>
+  </bpmn:process>
+</bpmn:definitions>`;
+const T240_SRC = `<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_t240-src"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+  <bpmn:collaboration id="Collaboration_t240-src">
+    <bpmn:participant id="Pool_t240-src" name="t240-src" processRef="Process_t240-src"/>
+  </bpmn:collaboration>
+  <bpmn:process id="Process_t240-src" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="t240-src" version="1" schemaVersion="2" title="t240-src" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="200"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>frw_1_res</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_gh</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:intermediateThrowEvent id="frw_1_res" name="Handoff → t240-target">
+      <bpmn:extensionElements>
+        <aef:uid value="n_res"/>
+        <aef:position x="100" y="80"/>
+        <aef:link workflowRef="${T240_TARGET_UUID}" name="t240-target"/>
+      </bpmn:extensionElements>
+    </bpmn:intermediateThrowEvent>
+    <bpmn:intermediateThrowEvent id="frw_2_gh" name="Handoff → future-map">
+      <bpmn:extensionElements>
+        <aef:uid value="n_gh"/>
+        <aef:position x="220" y="80"/>
+        <aef:link workflowRef="${T240_GHOST_UUID}" name="future-map"/>
+      </bpmn:extensionElements>
+    </bpmn:intermediateThrowEvent>
+  </bpmn:process>
+</bpmn:definitions>`;
+
+// In-page assertions for leg 7. Selects each probe node, renders the real properties
+// panel, and reads the REAL affordances (readout div + jump button) — not internals.
+const T240_ASSERT = `(function(){
+  var errs = [];
+  function panelFor(uid){
+    var n = state.nodes.filter(function(x){ return x.uid === uid; })[0];
+    if (!n) { errs.push(uid + ' missing'); return null; }
+    selection = { kind: 'node', id: n.id };
+    if (typeof multiSelect !== 'undefined' && multiSelect && multiSelect.clear) multiSelect.clear();
+    renderProperties();
+    var props = document.getElementById('properties');
+    var jump = Array.prototype.filter.call(props.querySelectorAll('button'), function(b){
+      return (b.textContent || '').indexOf('Open target workflow') >= 0; })[0] || null;
+    return { n: n, text: props.textContent || '', jump: jump };
+  }
+  try {
+    if (state.workflowMeta.id !== 't240-src') errs.push('wrong doc loaded: ' + state.workflowMeta.id);
+    if (_uuidIndex === null) errs.push('_uuidIndex never arrived');
+    // no-migration precheck: the source doc has no targetWorkflow anywhere and the
+    // resolver must not mint one — in state or in the emitted XML.
+    var emit = buildBpmnXml(state);
+    if (emit.indexOf('targetWorkflow=') >= 0) errs.push('emit gained a targetWorkflow attribute (silent migration)');
+    // resolvable uuid ref → readout shows resolved id, marked, jump enabled
+    var r = panelFor('n_res');
+    if (r) {
+      if ((r.n.aef || {}).targetWorkflow) errs.push('n_res aef.targetWorkflow was written: ' + JSON.stringify(r.n.aef.targetWorkflow));
+      if (r.text.indexOf('t240-target') < 0) errs.push('n_res panel lacks resolved id t240-target');
+      if (r.text.indexOf('auto-resolved') < 0) errs.push('n_res panel lacks the auto-resolved marker');
+      if (!r.jump) errs.push('n_res jump button missing');
+      else if (r.jump.disabled) errs.push('n_res jump button disabled (the AEF field symptom)');
+      if (typeof effectiveJumpTarget === 'function') {
+        if (effectiveJumpTarget(r.n) !== 't240-target') errs.push('effectiveJumpTarget(n_res) = ' + JSON.stringify(effectiveJumpTarget(r.n)));
+      } else errs.push('effectiveJumpTarget missing (dbl-click path unresolved)');
+    }
+    // ghost uuid → unchanged pre-T-240 behavior: "— none —", jump disabled
+    var g = panelFor('n_gh');
+    if (g) {
+      if (g.text.indexOf('— none —') < 0) errs.push('n_gh panel lacks the muted none readout');
+      if (g.text.indexOf('auto-resolved') >= 0) errs.push('n_gh falsely marked auto-resolved');
+      if (!g.jump) errs.push('n_gh jump button missing');
+      else if (!g.jump.disabled) errs.push('n_gh jump button ENABLED for a ghost uuid (false binding)');
+    }
+    // real affordance: re-select the resolvable node and click its jump button
+    if (errs.length === 0) { var r2 = panelFor('n_res'); if (r2 && r2.jump) r2.jump.click(); }
+    return { ok: errs.length === 0, errs: errs };
+  } catch (e) { return { ok:false, errs: errs.concat(['exception: ' + (e && e.message || e)]) }; }
+})()`;
+
 async function main() {
   if (!existsSync(EDITOR)) { process.stdout.write(JSON.stringify({ ok: false, error: 'editor missing: ' + EDITOR }) + '\n'); process.exitCode = 2; return; }
   if (!existsSync(SERVER)) { process.stdout.write(JSON.stringify({ ok: false, error: 'server missing: ' + SERVER }) + '\n'); process.exitCode = 2; return; }
@@ -165,6 +291,12 @@ async function main() {
   mkdirSync(repoRendered, { recursive: true });
   copyFileSync(join(RENDERED, MAP_X), join(repoRendered, MAP_X));
   copyFileSync(join(RENDERED, MAP_Y + '.bpmn'), join(repoRendered, MAP_Y + '.bpmn'));
+  // T-240 fixtures: docroot copy is what ?load / openProjectMap fetch; repo copy is
+  // what /api/list enumerates (and where the target's uuid becomes "live").
+  for (const dir of [join(doc, 'rendered'), repoRendered]) {
+    writeFileSync(join(dir, 't240-src.bpmn'), T240_SRC);
+    writeFileSync(join(dir, 't240-target.bpmn'), T240_TARGET);
+  }
 
   const port = await freePort();
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
@@ -221,6 +353,17 @@ async function main() {
     await ev(cmd, `window.__T237__ = ${JSON.stringify(T237_FIXTURE)};`);
     const t237 = await ev(cmd, T237_ASSERT);
     verdict.legs.push({ leg: 't237-classification', pass: !!(t237 && t237.ok), got: t237 });
+
+    // ── Leg 7 (T-240): uuid workflowRef auto-resolve after ?load deep-link ──
+    await ev(cmd, `localStorage.clear()`);
+    await nav(BASE + '/designer.html?load=' + encodeURIComponent('rendered/t240-src.bpmn'));
+    // the uuid index arrives async (detectSaveApi → refreshUuidIndex) — wait for it
+    { const t0 = Date.now(); for (;;) { const got = await ev(cmd, `(typeof _uuidIndex !== 'undefined' && _uuidIndex !== null)`).catch(() => false); if (got) break; if (Date.now() - t0 > 8000) break; await sleep(150); } }
+    const t240 = await ev(cmd, T240_ASSERT);
+    await sleep(600);   // the assert's final act clicks the real jump button
+    const t240Landed = await ev(cmd, `({id: state.workflowMeta.id, nodes: state.nodes.length})`);
+    const leg7 = !!(t240 && t240.ok) && t240Landed.id === 't240-target' && t240Landed.nodes > 0;
+    verdict.legs.push({ leg: 't240-uuid-resolve', pass: leg7, got: { assert: t240, landed: t240Landed } });
 
     verdict.pass = verdict.legs.every(l => l.pass);
     process.stdout.write(JSON.stringify(verdict, null, 2) + '\n');

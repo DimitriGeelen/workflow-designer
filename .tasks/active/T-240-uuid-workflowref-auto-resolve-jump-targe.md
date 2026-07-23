@@ -4,10 +4,10 @@ name: "uuid workflowRef: auto-resolve jump target on load"
 description: >
   AEF field observation (rail offset 166, their T-2611, non-blocking): a linkEventThrow with uuid workflowRef + name shows 'Target workflow — none —' and a disabled jump after a ?load deep-link load, until the operator re-binds via Choose-from-project; legacy slug refs bind directly. AEF's whole corpus is uuid-form post-recreate, so this costs one picker step per jump per session. Candidate fix (AEF-suggested): resolve uuid->project via /api/list at load/import time and bind the jump target when exactly one live map matches the workflowRef.
 
-status: captured
+status: work-completed
 workflow_type: build
-owner: agent
-horizon: next
+owner: human
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-22T21:20:28Z
-last_update: 2026-07-22T21:20:28Z
-date_finished: null
+last_update: 2026-07-23T07:07:17Z
+date_finished: 2026-07-23T07:07:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,35 +34,62 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+AEF field observation (rail 166, their T-2611): after a `?load` deep-link, a link node carrying
+only `workflowRef` (uuid) + `name` shows "Target workflow — none —" with a disabled jump button;
+the operator must re-bind via Choose-from-project once per session. Root cause (investigated):
+the jump affordance (properties readout at ~5094, jump button at ~5124, dbl-click at ~6791) is
+wired ONLY to `aef.targetWorkflow` (legacy slug), and `jumpToWorkflow()` resolves by library key
+or `/api/list` map `id` — never by uuid. `/api/list` already exposes `uuid` per map (gallery-serve
+`list_project_maps`), so a runtime uuid→project index is sufficient; no server change needed.
+
+Design: module-level uuid→project-id index built from `/api/list` (refreshed at `detectSaveApi()`
+success, after a successful save-to-project, and opportunistically inside `jumpToWorkflow`'s
+existing fetch). `effectiveJumpTarget(n)` = explicit `targetWorkflow` else index lookup of
+`workflowRef`. Binding is RUNTIME-ONLY — `aef.targetWorkflow` is never written (ratified: diagram
+XML is never silently migrated; serialization stays byte-identical). Ambiguity guard: a uuid
+matching more than one live map is dropped from the index (bind only on exactly-one match, per
+the AEF-suggested contract); a uuid matching zero live maps (ghost) stays unresolved — readout
+"— none —", jump disabled, no false binding.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] With the gallery API available, a link node with only `workflowRef` (uuid) + `name` whose
+      uuid matches exactly one live project map shows that map's id in the Target workflow
+      readout (visibly marked as auto-resolved from the uuid) instead of "— none —", and the
+      "Open target workflow" jump button is enabled — including after a `?load` deep-link load
+      (the exact AEF field case).
+      *(t240-uuid-resolve leg: panel DOM read after `?load` shows resolved id + marker, button enabled)*
+- [x] Jump works from both affordances on such a node (jump button and node double-click) and
+      opens the resolved map.
+      *(leg clicks the REAL jump button → lands on t240-target with nodes>0; dbl-click delegates to
+      `effectiveJumpTarget(n)`, asserted to return the resolved id)*
+- [x] No silent migration: resolving/jumping never writes `aef.targetWorkflow`; the serialized
+      XML for a workflowRef-only node contains no `targetWorkflow` attribute after resolve+jump.
+      *(leg asserts `aef.targetWorkflow` unset in state AND `buildBpmnXml` emit carries no
+      `targetWorkflow=` substring)*
+- [x] Negative guard: a uuid matching zero live maps (ghost) keeps "— none —" and a disabled
+      jump button; an explicit `targetWorkflow` always wins over the uuid resolution.
+      *(ghost probe n_gh asserted "— none —" + disabled + no marker; explicit-wins is structural:
+      `effectiveJumpTarget` short-circuits on `targetWorkflow`, and the panel computes `resolved`
+      only when `cur` is empty; duplicate-uuid ambiguity drops the uuid from the index entirely)*
+- [x] `jumpToWorkflow()` also resolves a raw uuid argument via the `/api/list` uuid match
+      (free-text uuid target jumps instead of dead-ending at "not found").
+      *(step-2 finder now matches `x.id === id || x.uuid === id`)*
+- [x] A T-240 leg is added to the standing editor-behavior CDP suite
+      (`tools/_editor-behavior-verify-cdp.mjs`) covering the resolve, jump, ghost-guard, and
+      no-migration assertions hermetically; the full suite passes.
+      *(4/4 legs green: jump-no-poison, same-map-edit-restore, t237-classification, t240-uuid-resolve;
+      pytest wrapper tests/test_editor_behavior.py passes)*
 
 ### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
+- [ ] [REVIEW] The auto-resolved readout reads clearly in the properties panel
+      **Steps:**
+      1. `cd /opt/832-Workflow-designer && python3 tools/gallery-serve.py --port 8834` (if not already running)
+      2. Open http://192.168.10.107:8834/aef-workflow-designer.html?load=arc-lifecycle.bpmn (or any map with a uuid link node), click a link event whose ref is a uuid
+      **Expected:** Target workflow shows the resolved map id with an "auto-resolved" note, jump button enabled; one click lands on the target map
+      **If not:** Screenshot the properties panel and note what reads wrong
+<!--
 
      [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
        - [ ] [REVIEWER] Block message names both bypass mechanisms
@@ -74,7 +101,38 @@ date_finished: null
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Visual Verification
+
+Element-level screenshots of the properties panel, captured hermetically (isolated
+chromium + sidecar, G-006) and READ:
+- `.playwright-mcp/t240-panel-resolved.png` — resolved node: "Target workflow / t240-target"
+  in normal text + "↳ auto-resolved from workflow ref (uuid)" marker, styled like existing hints.
+- `.playwright-mcp/t240-panel-ghost.png` — ghost node: muted "— none —", no marker.
+No layout regression in either state.
+
+## Recommendation
+
+**Recommendation:** GO
+**Rationale:** All six Agent ACs verified via the standing hermetic suite (real panel DOM,
+real button click), no serialization change by construction (runtime-only index, never
+written into aef), and the exact AEF field case (?load deep-link) is the tested path.
+Open item: the Human [REVIEW] AC on how the auto-resolved readout reads.
+**Evidence:**
+- t240-uuid-resolve leg green: resolved readout + marker + enabled jump after ?load; real
+  button click lands on t240-target (1 node); ghost stays "— none —"/disabled
+- No-migration: state `aef.targetWorkflow` unset + emitted XML has no `targetWorkflow=`
+- Full suite 4/4 legs, pytest wrapper green, corpus pins green
+- Panel screenshots (both states) captured and read — see Visual Verification
+
 ## Verification
+
+out=$(node tools/_editor-behavior-verify-cdp.mjs 2>&1); python3 -c "import json,sys; v=json.loads(sys.argv[1]); assert v['pass'], 'suite failed'; legs={l['leg']: l['pass'] for l in v['legs']}; assert legs.get('t240-uuid-resolve'), 't240 leg failed'" "$out"
+python3 -m pytest tests/test_editor_behavior.py -q
+grep -q "auto-resolved from workflow ref (uuid)" src/aef-workflow-designer.html
+grep -q "function effectiveJumpTarget" src/aef-workflow-designer.html
+grep -q "t240-uuid-resolve" tools/_editor-behavior-verify-cdp.mjs
+test -s .playwright-mcp/t240-panel-resolved.png
+test -s .playwright-mcp/t240-panel-ghost.png
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -174,3 +232,10 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-240-uuid-workflowref-auto-resolve-jump-targe.md
 - **Context:** Initial task creation
+
+### 2026-07-23T06:57:52Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+### 2026-07-23T07:07:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -5092,7 +5092,12 @@ function renderProperties() {
         // the full corpus + saved maps via /api/list — a superset of the in-session library —
         // so the dropdown/free-text desync (T-160 note) is gone.
         const cur = (n.aef[f] || '').trim();
-        // Current-target readout: the chosen id, or a muted "— none —".
+        // T-240: with no explicit slug, a uuid workflowRef that matches exactly one
+        // live project map auto-resolves — the readout shows the resolved id (marked)
+        // instead of "— none —" and the jump button below is enabled. Runtime-only:
+        // aef.targetWorkflow is never written.
+        const resolved = cur ? '' : resolveWorkflowRef(n);
+        // Current-target readout: the chosen id, the auto-resolved id, or a muted "— none —".
         const curWrap = document.createElement('div');
         curWrap.style.cssText = 'margin:2px 0 6px';
         const lbl = document.createElement('div');
@@ -5100,9 +5105,15 @@ function renderProperties() {
         lbl.textContent = meta.label;
         const val = document.createElement('div');
         val.style.cssText = 'font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em;'
-          + (cur ? '' : 'color:var(--muted,#8b95a5)');
-        val.textContent = cur || '— none —';
+          + ((cur || resolved) ? '' : 'color:var(--muted,#8b95a5)');
+        val.textContent = cur || resolved || '— none —';
         curWrap.append(lbl, val);
+        if (resolved) {
+          const note = document.createElement('div');
+          note.style.cssText = 'font-size:.75em;color:var(--muted,#8b95a5)';
+          note.textContent = '↳ auto-resolved from workflow ref (uuid)';
+          curWrap.appendChild(note);
+        }
         sAef.appendChild(curWrap);
         // "Choose from project…" → open the Open-project card browser in pick mode; the
         // chosen id is written back into aef and the panel re-renders. Needs the API.
@@ -5126,10 +5137,11 @@ function renderProperties() {
         jumpBtn.type = 'button';
         jumpBtn.textContent = '↗ Open target workflow';
         jumpBtn.style.marginTop = '6px';
-        const _tw = (n.aef[f] || '').trim();
+        // T-240: explicit slug or the uuid-resolved live map both enable the jump.
+        const _tw = cur || resolved;
         jumpBtn.disabled = !_tw;
         jumpBtn.title = _tw ? ('Open ' + _tw) : 'Set a target workflow first';
-        jumpBtn.onclick = () => jumpToWorkflow(n.aef[f]);
+        jumpBtn.onclick = () => jumpToWorkflow(_tw);
         sAef.appendChild(jumpBtn);
       } else {
         sAef.appendChild(field(meta.label, n.aef[f] || '', v => { n.aef[f] = v; }, { mono: true, textarea: meta.textarea, hint: meta.hint }));
@@ -6774,7 +6786,9 @@ async function jumpToWorkflow(id) {
       const res = await fetch('/api/list');
       if (res.ok) {
         const d = await res.json();
-        const m = (Array.isArray(d.maps) ? d.maps : []).find(x => x.id === id);
+        _updateUuidIndex(d.maps);   // T-240: opportunistic — this fetch is free
+        // T-240: a raw uuid target (free-text workflowRef form) matches by uuid too.
+        const m = (Array.isArray(d.maps) ? d.maps : []).find(x => x.id === id || (x.uuid && x.uuid === id));
         if (m) { await openProjectMap(m); return; }
       }
     } catch (_) { /* fall through to not-found */ }
@@ -6788,7 +6802,8 @@ async function jumpToWorkflow(id) {
 function onNodeDblClick(n, e) {
   if (mode === 'connect') return;
   if (!HANDOFF_TYPES.has(n.type)) return;
-  jumpToWorkflow(n.aef && n.aef.targetWorkflow);
+  // T-240: legacy slug if set, else the uuid workflowRef resolved to a live map.
+  jumpToWorkflow(effectiveJumpTarget(n));
 }
 function onNodeClick(n, e) {
   if (mode === 'connect') {
@@ -7324,6 +7339,46 @@ $('btn-save').onclick = () => {
 // Progressive enhancement: the button is revealed only when the write-capable
 // gallery server answers /api/health. On the static gallery it stays hidden.
 let _apiAvailable = false;
+// ── uuid workflowRef → live project map resolution (T-240) ──
+// AEF field observation (their T-2611): a link node carrying only workflowRef (uuid)
+// shows "— none —" / disabled jump after a ?load deep-link until re-bound via the
+// picker. Runtime-only index from /api/list (which exposes uuid per map): bind the
+// jump target when EXACTLY one live map matches the uuid. Never written back into
+// aef.targetWorkflow — diagram XML is never silently migrated (ratified, T-225).
+let _uuidIndex = null;   // Map uuid → project id; null until first /api/list arrives
+function _updateUuidIndex(maps) {
+  const idx = new Map(), dup = new Set();
+  for (const m of (Array.isArray(maps) ? maps : [])) {
+    const u = (m && m.uuid || '').trim();
+    if (!u) continue;
+    if (idx.has(u)) { dup.add(u); continue; }   // ambiguity → bind nothing
+    idx.set(u, m.id);
+  }
+  for (const u of dup) idx.delete(u);
+  _uuidIndex = idx;
+}
+async function refreshUuidIndex() {
+  if (!_apiAvailable) return;
+  try {
+    const res = await fetch('/api/list');
+    if (!res.ok) return;
+    const d = await res.json();
+    _updateUuidIndex(d.maps);
+    // A properties panel opened before the index arrived shows "— none —" for a
+    // resolvable uuid ref — re-render so it upgrades in place (no-op when nothing
+    // is selected).
+    renderProperties();
+  } catch (_) { /* best-effort — unresolved refs just keep the picker path */ }
+}
+// Resolved project id for a node's uuid workflowRef, '' when unresolvable.
+function resolveWorkflowRef(n) {
+  const u = (n && n.aef && n.aef.workflowRef || '').trim();
+  return (u && _uuidIndex && _uuidIndex.get(u)) || '';
+}
+// Explicit legacy slug always wins; uuid resolution is the fallback.
+function effectiveJumpTarget(n) {
+  return ((n && n.aef && n.aef.targetWorkflow || '').trim()) || resolveWorkflowRef(n);
+}
 async function detectSaveApi() {
   try {
     const r = await fetch('/api/health', { cache: 'no-store' });
@@ -7339,6 +7394,7 @@ async function detectSaveApi() {
       if (bo) bo.style.display = '';
       const bp = $('btn-pending-refs');   // T-228 (S4a): pending off-page refs picker
       if (bp) bp.style.display = '';
+      refreshUuidIndex();   // T-240: bind uuid workflowRefs to live maps at startup
     }
   } catch (_) { /* static gallery — leave the button hidden */ }
 }
@@ -7501,6 +7557,7 @@ async function saveToProject() {
     if (res.ok && data.ok) {
       if (btn) { btn.textContent = `✓ Saved v${data.v}`; setTimeout(() => { btn.textContent = '⤓ Save to project'; }, 2500); }
       setLoadedSavedVersion(data.v);   // T-157: now on the newly-saved snapshot
+      refreshUuidIndex();   // T-240: a save can make a ghost uuid live (claim) — rebind
     } else {
       alert('Save to project failed: ' + (data.error || ('HTTP ' + res.status)));
       if (btn) btn.textContent = label || '⤓ Save to project';
