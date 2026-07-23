@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-247: Pull-at-tag release intake: consumers fetch designer releases by version tag (seam-contract proposal)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-23T11:10:38Z
+# ============================================================================
+
+task_id: T-247
+task_name: "Pull-at-tag release intake: consumers fetch designer releases by version tag (seam-contract proposal)"
+workflow_type: inception
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-23T10:06:24Z
+completed: 2026-07-23T11:10:36Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-23T12:07:31+02:00
+last_commit: 2026-07-23T12:53:04+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture + propose pull-at-tag release intake (inception, horizon next) — consumer fetches artifact+MANIFEST at designer-vX.Y.Z tag, sha-verify unchanged, rail announce kept as trigger/handshake, file_send fallback; proposed to AEF at rail 178 (crossed w/ their T-2556 release-check at 177, closed at 179: no release past 0.3.2, T-245 unreleased on master). pull-at-tag ACCEPTED by AEF operator (rail 182, their D-335/T-2616) — source = read-only LAN origin, file_send fallback kept, T-559 satisfied (frozen tag = published frozen bytes); 832 dry-run targets verified (at-tag shas 36be033d/d99a42da/983e0e30 == pins, MANIFEST at every tag, posted 183); inception fully evidenced: IW-1..3 answered, IW-4 (their host reachability) deferred pending their ls-remote, Recommendation GO — awaiting operator decide. research artifact (C-001) + Problem Statement — pull-at-tag findings, dialogue log, decision trail; exploration complete, GO recommendation awaiting operator decide
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/assumptions.yaml'
+  - 'docs/reports/T-247-pull-at-tag-intake.md'
+  - '.tasks/active/T-247-pull-at-tag-release-intake-consumers-fet.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-23T12:07:31"
+    action: "T-247: capture + propose pull-at-tag release intake (inception, horizon next) — consumer fetches artifact+MANIFEST at designer-vX.Y.Z tag, sha-verify unchanged, rail announce kept as trigger/handshake, file_send fallback; proposed to AEF at rail 178 (crossed w/ their T-2556 release-check at 177, closed at 179: no release past 0.3.2, T-245 unreleased on master)"
+  - time: "2026-07-23T12:50:42"
+    action: "T-247: pull-at-tag ACCEPTED by AEF operator (rail 182, their D-335/T-2616) — source = read-only LAN origin, file_send fallback kept, T-559 satisfied (frozen tag = published frozen bytes); 832 dry-run targets verified (at-tag shas 36be033d/d99a42da/983e0e30 == pins, MANIFEST at every tag, posted 183); inception fully evidenced: IW-1..3 answered, IW-4 (their host reachability) deferred pending their ls-remote, Recommendation GO — awaiting operator decide"
+  - time: "2026-07-23T12:53:04"
+    action: "T-247: research artifact (C-001) + Problem Statement — pull-at-tag findings, dialogue log, decision trail; exploration complete, GO recommendation awaiting operator decide"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 64 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 64
+  commits: 3
+  files_changed: 3
+  lines_added: 267
+  lines_removed: 28
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-247-pull-at-tag-release-intake-consumers-fet.md
+generated_by: context-agent-hybrid
