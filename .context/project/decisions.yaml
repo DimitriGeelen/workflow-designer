@@ -892,3 +892,17 @@ decisions:
     date: 2026-07-22
     task: T-238
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-107
+    decision: "A RESOLVABLE workflowRef wins over an explicit targetWorkflow slug; the slug"
+    scope: project
+    date: 2026-07-23
+    task: T-242
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-108
+    decision: "Dual-form emits BOTH attrs verbatim; the editor never adds, drops, or"
+    scope: project
+    date: 2026-07-23
+    task: T-242
+    rationale: "Auto-captured from task file on completion"

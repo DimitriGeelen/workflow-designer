@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-243: release designer 0.3.2 hotfix: T-240 uuid auto-resolve + T-242 dual-form contract
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-23T07:40:56Z
+# ============================================================================
+
+task_id: T-243
+task_name: "release designer 0.3.2 hotfix: T-240 uuid auto-resolve + T-242 dual-form contract"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-23T07:35:07Z
+completed: 2026-07-23T07:40:53Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-23T09:37:29+02:00
+last_commit: 2026-07-23T09:39:25+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release designer 0.3.2 — HOTFIX for AEF corpus-wide dead handoff jumps (their T-2612, rail 168). Content since 0.3.1: T-240 uuid workflowRef auto-resolve at load + T-242 dual-form contract (alias preserved on emit, workflowRef authoritative when resolvable). sha 983e0e30, 866701 bytes. Full bridge suite + render gate + immutability guard green; 0.3.1/0.3.0 untouched. release 0.3.2 complete — tag designer-v0.3.2 pushed, artifact file_send-delivered to AEF (18 chunks, sha 983e0e30 match), rail-announced offset 171 (their re-pin + resolves_workflow_ref flip trigger), all 6 ACs verified, P-011 gate 9/9 green
+
+# Key outcomes
+outcomes:
+  - 'Full bridge test suite green before the cut (includes the G-010 editor-behavior'
+  - 'Release cut is deterministic and gated: VERSION → 0.3.2, `dist/aef-workflow-designer-0.3.2.html`'
+  - 'Immutability: 0.3.1 (d99a42da…, 862852 B) and 0.3.0 (36be033d…, 826643 B) bytes'
+  - 'Both hotfix markers provably in the released bundle: the T-240 auto-resolved'
+  - 'Annotated tag `designer-v0.3.2` created on the release commit and pushed to origin'
+  - 'Artifact delivered to AEF via termlink file_send (sender sha == MANIFEST sha) and'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'release designer 0.3.2 — HOTFIX for AEF corpus-wide dead handoff jumps (their T-2612, rail 168). Content since 0.3.1: T-240 uuid workflowRef auto-resolve at load + T-242 dual-form contract (alias preserved on emit, workflowRef authoritative when resolvable). sha 983e0e30, 866701 bytes. Full bridge suite + render gate + immutability guard green; 0.3.1/0.3.0 untouched'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'dist/aef-workflow-designer-0.3.2.html'
+  - 'dist/MANIFEST.yaml'
+  - '.tasks/active/T-243-release-designer-032-hotfix-t-240-uuid-a.md'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-23T09:37:29"
+    action: "T-243: release designer 0.3.2 — HOTFIX for AEF corpus-wide dead handoff jumps (their T-2612, rail 168). Content since 0.3.1: T-240 uuid workflowRef auto-resolve at load + T-242 dual-form contract (alias preserved on emit, workflowRef authoritative when resolvable). sha 983e0e30, 866701 bytes. Full bridge suite + render gate + immutability guard green; 0.3.1/0.3.0 untouched"
+  - time: "2026-07-23T09:39:25"
+    action: "T-243: release 0.3.2 complete — tag designer-v0.3.2 pushed, artifact file_send-delivered to AEF (18 chunks, sha 983e0e30 match), rail-announced offset 171 (their re-pin + resolves_workflow_ref flip trigger), all 6 ACs verified, P-011 gate 9/9 green"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 2
+  files_changed: 4
+  lines_added: 9384
+  lines_removed: 12
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-243-release-designer-032-hotfix-t-240-uuid-a.md
+generated_by: context-agent-hybrid

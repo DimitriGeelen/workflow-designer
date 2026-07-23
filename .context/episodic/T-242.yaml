@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-242: dual-form aef:link contract: workflowRef authoritative, alias preserved on round-trip
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-23T07:16:28Z
+# ============================================================================
+
+task_id: T-242
+task_name: "dual-form aef:link contract: workflowRef authoritative, alias preserved on round-trip"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-23T07:10:50Z
+completed: 2026-07-23T07:16:09Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'Round-trip preservation: a dual-form link node re-exports with BOTH attributes'
+  - 'Binding precedence per contract-v0: when both attrs are present, a RESOLVABLE'
+  - 'Legacy-only nodes (slug, no uuid) bind via the slug unchanged; uuid-only nodes keep'
+  - 'The G-010 suite''s t240 leg is extended with dual-form probes: stale-slug+live-uuid'
+  - 'The T-240 "explicit targetWorkflow always wins" decision is superseded in writing'
+  - 'Python-side parse safety confirmed tree-wide: `_legacy_refs_from_text` skips any'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-23 — Binding precedence: workflowRef authoritative (supersedes T-240 AC wording)'
+    chose: 'A RESOLVABLE workflowRef wins over an explicit targetWorkflow slug; the slug'
+    rationale: 'Contract-v0 per AEF''s rail-168 ask: dual-form = "both attrs present, workflowRef'
+    alternatives_rejected: ['Keeping slug-first (breaks the peer contract and the rename case);']
+  - decision: '2026-07-23 — Alias preservation on emit (no normalization)'
+    chose: 'Dual-form emits BOTH attrs verbatim; the editor never adds, drops, or'
+    rationale: 'The ratified no-silent-migration rule; the alias is load-bearing for'
+    alternatives_rejected: ['Emit-side folding to workflowRef-only (that IS the hazard AEF asked us']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-242-dual-form-aeflink-contract-workflowref-a.md
+generated_by: context-agent-hybrid
