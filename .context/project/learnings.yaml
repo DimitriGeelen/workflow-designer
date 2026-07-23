@@ -379,3 +379,10 @@ learnings:
   date: 2026-07-23
   context: Added via context agent
   application: TBD
+- id: PL-055
+  learning: "Cross-project announce numbers must state their counting method: grep -c counts LINES not occurrences (a line with two hits counts once). AEF's 0.4.0 intake flagged _loadSrcKey as 'x4 vs x5' — same bytes, different arithmetic. Post marker counts as 'grep -c (lines)' or use grep -o|wc -l for occurrences."
+  source: AEF rail 191 (their T-2617 verdict)
+  task: T-248
+  date: 2026-07-23
+  context: Added via context agent
+  application: TBD
