@@ -1,13 +1,13 @@
 ---
-id: T-246
-name: "Consumer-facing release metadata: changelog + structured capabilities block in MANIFEST.yaml"
+id: T-248
+name: "Release designer 0.4.0 — T-245 view-chrome controls; first pull-at-tag delivery"
 description: >
-  Today a consumer learns what a designer release contains (and can DO) only from ephemeral rail announces and tag annotations — MANIFEST.yaml carries sha/bytes but no changelog and no capability declarations. Extend release-designer.sh to emit, per release entry: (a) a consumer-facing changes list (task IDs + one-liners, distinguishing contract-affecting from view-chrome-only), and (b) a structured capabilities block (generalizing the ad-hoc resolves_workflow_ref flag AEF keys emit+lint off — PL-054: seam pins must carry capability flags, not just bytes). A new subscriber then has a durable, machine-readable record instead of needing rail archaeology. Horizon later: single-consumer reality today; promote to now if a second app subscribes to designer releases. Companion question (NOT this task, per one-task-one-deliverable): a 1:N release broadcast channel over termlink.
+  Operator 'go' 2026-07-23 on AEF's rail-185 request. Content since 0.3.2: exactly T-245 (panel toggles + fullscreen focus mode; zero seam surface). Version 0.4.0 (feature => minor bump; 0.3.1/0.3.2 were fixes). FIRST release under the T-247 pull-at-tag contract: announce version/sha/bytes/tag on rail; AEF pulls artifact+MANIFEST at tag from LAN origin (file_send fallback only on their request per their 185).
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: later
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-23T10:02:42Z
-last_update: 2026-07-23T10:02:50Z
-date_finished: null
+created: 2026-07-23T17:03:48Z
+last_update: 2026-07-23T17:06:59Z
+date_finished: 2026-07-23T17:06:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,18 +30,21 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-246: Consumer-facing release metadata: changelog + structured capabilities block in MANIFEST.yaml
+# T-248: Release designer 0.4.0 — T-245 view-chrome controls; first pull-at-tag delivery
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Operator-authorized ("go", 2026-07-23) release cut requested by AEF's operator at rail 185. Content since designer-v0.3.2: exactly T-245 (view-chrome controls — ◧/◨ panel toggles persisted in aefViewPrefs, ⛶ fullscreen focus mode, auto-reveal guard). Zero seam surface: no document/bridge/contract change, so AEF expects pin+sync+e2e only. First release delivered under the T-247 pull-at-tag contract (both-operator-ratified, path validated live at rail 186): rail announce carries version/sha256/bytes/tag; AEF pulls dist artifact + MANIFEST at the tag from read-only LAN origin; file_send only as fallback on their request.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Pre-cut gates green at the release commit's content: full bridge suite (round-trip + geometry) AND the standing editor-behavior suite including the t245-view-chrome leg — *bridge 37/37, geometry 24 clean, editor-behavior 5/5 legs, run immediately pre-cut at the same content*
+- [x] VERSION bumped to 0.4.0 and `scripts/release-designer.sh` produces `dist/aef-workflow-designer-0.4.0.html` byte-identical to src, with MANIFEST.yaml updated (latest=0.4.0, sha256, bytes) and the render gate passing — *sha ea47db53…80d7, 872147 B, cmp clean, render gate PASS*
+- [x] T-245 markers present in the released bundle (btn-focus-mode, vc-exit, revealPropsForSelection); prior-release markers retained — *counts in bundle: 2/6/4; retained: _loadSrcKey x4, EVENT_KIND_TYPE x2, auto-resolved-from-workflow-ref x1*
+- [x] Immutability: 0.3.2/0.3.1/0.3.0 dist bytes untouched (shas still 983e0e30…/d99a42da…/36be033d…) and the standalone immutability script passes — *all three re-verified post-cut; guard script 5/5 paths*
+- [x] Annotated tag designer-v0.4.0 created on the release commit and pushed to origin; artifact + MANIFEST verifiably frozen AT the tag (at-tag sha == MANIFEST == pin) — *tag on 413e111 pushed; `git show designer-v0.4.0:dist/…0.4.0.html | sha256sum` = ea47db53 = MANIFEST-at-tag sha*
+- [x] Release announced on the rail per the T-247 contract (version, sha256, bytes, tag; pull instructions; file_send fallback offer) — *announce = rail offset 190 (reply to their 185 request); no offset gap*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -107,6 +110,22 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# T-248 release verification
+test "$(cat VERSION)" = "0.4.0"
+grep -q 'latest: "0.4.0"' dist/MANIFEST.yaml
+grep -q 'ea47db53a55be41df7ee6a2ff934146eeeed9f247b4a9bb1db9bcc152c3880d7' dist/MANIFEST.yaml
+cmp -s src/aef-workflow-designer.html dist/aef-workflow-designer-0.4.0.html
+test "$(grep -c 'vc-exit' dist/aef-workflow-designer-0.4.0.html)" -ge 4
+# prior releases untouched
+out=$(sha256sum dist/aef-workflow-designer-0.3.2.html); echo "$out" | grep -q '983e0e304a3dc12e'
+out=$(sha256sum dist/aef-workflow-designer-0.3.1.html); echo "$out" | grep -q 'd99a42da304fc937'
+out=$(sha256sum dist/aef-workflow-designer-0.3.0.html); echo "$out" | grep -q '36be033d66aa1c15'
+python3 tests/test_release_immutability.py
+# tag exists, annotated, and artifact+MANIFEST frozen at-tag with the release sha
+git rev-parse designer-v0.4.0 >/dev/null
+out=$(git show designer-v0.4.0:dist/aef-workflow-designer-0.4.0.html | sha256sum); echo "$out" | grep -q 'ea47db53a55be41d'
+out=$(git show designer-v0.4.0:dist/MANIFEST.yaml); echo "$out" | grep -q 'ea47db53a55be41d'
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -170,7 +189,10 @@ date_finished: null
 
 ## Updates
 
-### 2026-07-23T10:02:42Z — task-created [task-create-agent]
+### 2026-07-23T17:03:48Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-246-consumer-facing-release-metadata-changel.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-248-release-designer-040--t-245-view-chrome-.md
 - **Context:** Initial task creation
+
+### 2026-07-23T17:06:59Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
