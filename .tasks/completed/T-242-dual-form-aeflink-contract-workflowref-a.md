@@ -1,13 +1,13 @@
 ---
-id: T-214
-name: "Pair-draft session/handover corpus diagram in canonical dialect (AEF arc-014)"
+id: T-242
+name: "dual-form aef:link contract: workflowRef authoritative, alias preserved on round-trip"
 description: >
-  Pair-draft session/handover corpus diagram in canonical dialect (AEF arc-014)
+  AEF rail 168 (their T-2612) contract sanity-check on dual-form <aef:link targetWorkflow=slug workflowRef=uuid> found two hazards in our tree: (1) buildBpmnXml emits workflowRef ELSE targetWorkflow — dual-form loses the alias on re-export (silent migration; breaks the 0.3.1-pin compatibility the alias exists for); (2) T-240 binding precedence gives the slug priority, so a stale slug shadows a resolvable uuid — contract says workflowRef authoritative. Fix: emit BOTH attrs when both present; bind uuid-first-when-resolvable with slug fallback.
 
 status: work-completed
 workflow_type: build
-owner: human
-horizon: now
+owner: agent
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-19T20:51:06Z
-last_update: 2026-07-23T07:06:05Z
-date_finished: 2026-07-19T21:00:33Z
+created: 2026-07-23T07:10:50Z
+last_update: 2026-07-23T07:16:09Z
+date_finished: 2026-07-23T07:16:09Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,33 +30,53 @@ date_finished: 2026-07-19T21:00:33Z
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-214: Pair-draft session/handover corpus diagram in canonical dialect (AEF arc-014)
+# T-242: dual-form aef:link contract: workflowRef authoritative, alias preserved on round-trip
 
 ## Context
 
-Arc: designer-authoring-surface (↔ AEF corpus arc-014). Taking up AEF's standing pair-draft
-invitation (rail offsets 84/87): 832 authors a REAL (non-fixture) framework process as a
-BPMN diagram in the designer's canonical dialect, the operator reviews/corrects it in the
-designer UI, then AEF compiles it through `fw bpmn`. AEF drafted D1 (`aef-task-lifecycle`);
-832 drafts the **session/handover lifecycle** — Session Start Protocol → work + commit
-cadence → budget-gate loop → Session Capture → handover → persist. This dogfoods the 832
-designer's client contract with real content and gives AEF's arc-014 a second corpus
-constituent. The diagram deliberately includes ONE exclusiveGateway (budget critical?) and
-ONE back-edge (work loop) — both realistic AND the exact constructs AEF flagged (their
-T-2557 gateway/branch-label silent-loss) so it doubles as a cross-validation case.
+AEF migrated their corpus to uuid workflowRef form ahead of the T-240 consumer capability —
+their operators hit dead handoff jumps corpus-wide on pinned 0.3.1 (rail 168, their T-2612).
+Their interim: `fw corpus emit` now writes dual-form `<aef:link targetWorkflow="slug"
+workflowRef="uuid" …/>` so 0.3.1 binds via the slug while the uuid stays canonical. They asked
+us to sanity-check dual-form against our tree AND the T-240 implementation before the hotfix
+cut. Check found two hazards (both ours):
 
-Model dialect on `tests/fixtures/aef-bpmn/arc-lifecycle.bpmn`: three lanes
-(human·sovereignty / framework·authority / agent·initiative) with `aef:laneMeta`, every flow
-node carrying `aef:uid` + `aef:position`, typed nodes (startEvent/endEvent/scriptTask/
-serviceTask/userTask/exclusiveGateway), and `aef:uid` on every sequenceFlow.
+1. **Alias dropped on re-export** — `buildBpmnXml` emitted `workflowRef` ELSE `targetWorkflow`;
+   a dual-form node re-saved through our editor silently lost the alias (silent migration,
+   and it would re-break their 0.3.1 pin for that map).
+2. **Slug shadows uuid** — T-240's `effectiveJumpTarget` gave the slug priority; a stale slug
+   (target renamed) shadows a resolvable uuid → dead jump. Contract-v0: workflowRef is
+   authoritative when both attrs are present.
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] New fixture `tests/fixtures/aef-bpmn/session-handover.bpmn` authored in the canonical dialect (3 authority-typed lanes; every flow node has `aef:uid` + `aef:position`; every sequenceFlow has `aef:uid`)
-- [x] It validates CLEAN under `tools/validate-workflow.py` (exit 0, no findings) — including the sovereignty O-3 rule (the human-only pickup node sits in the sovereignty lane)
-- [x] It faithfully models the session lifecycle: Session Start (context inject) → focus → work → commit → gate → **budget exclusiveGateway** (continue back-edge vs wrap) → capture → handover → persist → end; with one human·sovereignty node (next-session pickup)
-- [x] Fixture is well-formed XML and byte-stable (sha `d971a2fc…` recorded in the delivery); delivered to AEF rail-inline with its sha for their `fw bpmn` compile (rail offset 92)
+- [x] Round-trip preservation: a dual-form link node re-exports with BOTH attributes
+      (`workflowRef` + `name` + `targetWorkflow`) — no attr is dropped; legacy-only and
+      uuid-only nodes serialize exactly as before (fixtures unaffected).
+      *(suite emit asserts: n_dual line keeps both attrs, n_res exactly workflowRef+name,
+      n_leg slug-only shape unchanged; corpus pins test green — fixture bytes untouched)*
+- [x] Binding precedence per contract-v0: when both attrs are present, a RESOLVABLE
+      workflowRef wins (readout + jump go to the uuid-resolved map even when the slug is
+      stale/divergent); when the uuid does not resolve (ghost/API-down), the slug fallback
+      binds exactly as 0.3.1 did.
+      *(n_dual probe: stale slug "stale-old-name" + live uuid → panel shows t240-target with
+      auto-resolved marker, effectiveJumpTarget = t240-target, alias untouched in state;
+      n_fall probe: ghost uuid + live slug → binds t240-target via slug, unmarked)*
+- [x] Legacy-only nodes (slug, no uuid) bind via the slug unchanged; uuid-only nodes keep
+      the T-240 behavior.
+      *(n_leg probe: readout t240-target, no marker, jump enabled; n_res/n_gh probes unchanged)*
+- [x] The G-010 suite's t240 leg is extended with dual-form probes: stale-slug+live-uuid
+      (uuid must win), and emit assertions that dual-form keeps both attrs while uuid-only
+      keeps exactly one; full suite passes.
+      *(5 probes: n_res, n_gh, n_dual, n_leg, n_fall; 4/4 legs green; pytest wrapper green)*
+- [x] The T-240 "explicit targetWorkflow always wins" decision is superseded in writing
+      (Decisions section) citing the rail-168 contract ask.
+- [x] Python-side parse safety confirmed tree-wide: `_legacy_refs_from_text` skips any
+      `<aef:link>` with a workflowRef, so dual-form contributes exactly one uuid-pinned
+      ref and a stale alias can never mint a spurious name-only ghost; remaining
+      `targetWorkflow` consumers are producers/fixture-verifiers (yaml-to-bpmn, seam
+      verifiers) — no dual-form consumer hazard.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -88,40 +108,29 @@ serviceTask/userTask/exclusiveGateway), and `aef:uid` on every sequenceFlow.
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-- [ ] [REVIEW] The session/handover diagram reads faithfully in the designer UI (the pair-draft review step)
-  **Steps:**
-  1. Open the designer at the served URL (see `.context/working/watchtower.url`), use in-editor Open-from-project (or load `tests/fixtures/aef-bpmn/session-handover.bpmn`).
-  2. Trace the flow: Session begins → context injected → pickup (human) → focus → work → commit → gate → budget gateway → (continue loops back to work) / (critical wraps) → capture → handover → persist → end.
-  3. Check the three lanes read correctly (human·sovereignty top, framework·authority middle, agent·initiative bottom) and node labels match the real framework steps.
-  **Expected:** The diagram is a recognisable, correct depiction of the session lifecycle; lanes/owners are right; the budget gateway + work back-edge render legibly.
-  **If not:** Note the step that is wrong/missing or mis-laned; correct it in the UI (or tell me) and re-save.
 
 ## Recommendation
 
 **Recommendation:** GO
-
-**GO — accept the pair-draft, pending your UI read.** All agent-verifiable criteria pass: the
-diagram validates CLEAN under the canonical validator (exit 0, no findings, incl. O-3
-sovereignty), is well-formed and byte-stable (sha `d971a2fc…`), and was delivered to AEF
-rail-inline (offset 92) for their `fw bpmn` compile. It faithfully models the real session
-lifecycle across the three authority lanes with the budget gateway + work back-edge.
-
-The one remaining step is the pair-draft's whole point: **your eyes on the rendered diagram**
-in the designer (the `[REVIEW]` Human AC) — confirm it reads as a correct, legible depiction
-of the session lifecycle. Evidence it's ready: `tools/validate-workflow.py` clean; the
-designer is served (see `.context/working/watchtower.url`). If it reads right, check the AC
-and run `fw task update T-214 --status work-completed`. Not recommending closure without your
-UI read — DOM/validator correctness ≠ a faithful diagram (that's a human judgment).
+**Rationale:** Contract compliance verified with five in-suite probes covering every
+attr combination (uuid-only, ghost, dual stale-slug, legacy-only, dual ghost-uuid);
+serialization asserted per-line so no fixture or legacy shape changed; Python-side
+safety confirmed by code (legacy extractor skips workflowRef-bearing links). This
+unblocks AEF's ask 2 and clears the way for the 0.3.2 hotfix cut (ask 1, operator-gated).
+**Evidence:**
+- Suite 4/4 legs green with the extended t240 leg (n_dual: uuid wins over stale slug,
+  marker shown, alias untouched; n_fall: slug fallback binds; n_leg unmarked slug bind)
+- Emit asserts: dual keeps both attrs, uuid-only gains nothing, legacy-only unchanged
+- tests/test_editor_behavior.py + tests/test_corpus_fixture_pins.py green
 
 ## Verification
 
-# The authored diagram validates CLEAN under the canonical validator (exit 0, no findings):
-python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/session-handover.bpmn
-# It is well-formed XML:
-python3 -c "import xml.etree.ElementTree as ET; ET.parse('tests/fixtures/aef-bpmn/session-handover.bpmn')"
-# It carries the required dialect markers (workflowMeta, 3 lanes, a budget gateway, a human pickup):
-grep -q "aef:workflowMeta" tests/fixtures/aef-bpmn/session-handover.bpmn
-grep -q "exclusiveGateway" tests/fixtures/aef-bpmn/session-handover.bpmn
+out=$(node tools/_editor-behavior-verify-cdp.mjs 2>&1); python3 -c "import json,sys; v=json.loads(sys.argv[1]); assert v['pass'], 'suite failed'; legs={l['leg']: l['pass'] for l in v['legs']}; assert legs.get('t240-uuid-resolve'), 't240/t242 leg failed'" "$out"
+python3 -m pytest tests/test_editor_behavior.py tests/test_corpus_fixture_pins.py -q
+grep -q "T-242 (AEF rail 168, contract-v0 dual-form)" src/aef-workflow-designer.html
+out2=$(grep -A1 "function effectiveJumpTarget" src/aef-workflow-designer.html); echo "$out2" | grep -q "return resolveWorkflowRef(n) ||"
+grep -q "n_dual" tools/_editor-behavior-verify-cdp.mjs
+grep -q "n_fall" tools/_editor-behavior-verify-cdp.mjs
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -155,6 +164,19 @@ grep -q "exclusiveGateway" tests/fixtures/aef-bpmn/session-handover.bpmn
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 ## RCA
+
+**Symptom:** (latent, peer-caught) A dual-form `<aef:link>` re-saved through the editor
+would lose its `targetWorkflow` alias; and post-T-240, a stale alias slug would shadow a
+resolvable uuid into a dead jump.
+**Root cause:** `buildBpmnXml`'s link emit was an either/or (`workflowRef` ELSE
+`targetWorkflow`) written in the T-225 era when the two forms never co-existed on one
+node; T-240's precedence was authored against the same single-form assumption.
+**Why structurally allowed:** No fixture or suite probe carried BOTH attrs on one node —
+the seam matrix (resolved/ghost/legacy) treated the forms as disjoint, so the dual cell
+was never exercised.
+**Prevention:** The G-010 suite now carries permanent dual-form probes (n_dual, n_fall)
+asserting binding precedence AND per-line emit shape; any future either/or regression in
+parse, bind, or emit fails the standing suite.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -196,6 +218,27 @@ grep -q "exclusiveGateway" tests/fixtures/aef-bpmn/session-handover.bpmn
 
 ## Decisions
 
+### 2026-07-23 — Binding precedence: workflowRef authoritative (supersedes T-240 AC wording)
+- **Chose:** A RESOLVABLE workflowRef wins over an explicit targetWorkflow slug; the slug
+  is the fallback when the uuid does not resolve. Supersedes T-240's "explicit
+  targetWorkflow always wins" (my own design guess, ratified nowhere).
+- **Why:** Contract-v0 per AEF's rail-168 ask: dual-form = "both attrs present, workflowRef
+  authoritative". Slug-first re-creates the rename hazard the uuid exists to fix — a stale
+  alias would shadow a resolvable uuid into a dead jump.
+- **Rejected:** Keeping slug-first (breaks the peer contract and the rename case);
+  dropping the alias on emit to avoid the question entirely (silent migration, and it
+  re-breaks maps for any consumer still pinned pre-T-240).
+
+### 2026-07-23 — Alias preservation on emit (no normalization)
+- **Chose:** Dual-form emits BOTH attrs verbatim; the editor never adds, drops, or
+  rewrites either attr. Normalization (folding to uuid-only) stays AEF-side in their
+  canonical().
+- **Why:** The ratified no-silent-migration rule; the alias is load-bearing for
+  pre-T-240 pinned editors, and 832 stripping it on a casual re-save would silently
+  re-dead their corpus jumps.
+- **Rejected:** Emit-side folding to workflowRef-only (that IS the hazard AEF asked us
+  to check for).
+
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
@@ -217,10 +260,10 @@ grep -q "exclusiveGateway" tests/fixtures/aef-bpmn/session-handover.bpmn
 
 ## Updates
 
-### 2026-07-19T20:51:06Z — task-created [task-create-agent]
+### 2026-07-23T07:10:50Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-214-pair-draft-sessionhandover-corpus-diagra.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-242-dual-form-aeflink-contract-workflowref-a.md
 - **Context:** Initial task creation
 
-### 2026-07-19T21:00:33Z — status-update [task-update-agent]
+### 2026-07-23T07:16:09Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed

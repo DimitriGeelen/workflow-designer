@@ -5092,11 +5092,14 @@ function renderProperties() {
         // the full corpus + saved maps via /api/list — a superset of the in-session library —
         // so the dropdown/free-text desync (T-160 note) is gone.
         const cur = (n.aef[f] || '').trim();
-        // T-240: with no explicit slug, a uuid workflowRef that matches exactly one
-        // live project map auto-resolves — the readout shows the resolved id (marked)
-        // instead of "— none —" and the jump button below is enabled. Runtime-only:
+        // T-240: a uuid workflowRef that matches exactly one live project map
+        // auto-resolves — the readout shows the resolved id (marked) instead of
+        // "— none —" and the jump button below is enabled. Runtime-only:
         // aef.targetWorkflow is never written.
-        const resolved = cur ? '' : resolveWorkflowRef(n);
+        // T-242 (contract-v0): the resolvable uuid is authoritative even when a legacy
+        // slug alias is ALSO present (dual-form) — a stale slug must not shadow it.
+        // The slug stays visible/editable in the free-text field below.
+        const resolved = resolveWorkflowRef(n);
         // Current-target readout: the chosen id, the auto-resolved id, or a muted "— none —".
         const curWrap = document.createElement('div');
         curWrap.style.cssText = 'margin:2px 0 6px';
@@ -5106,7 +5109,7 @@ function renderProperties() {
         const val = document.createElement('div');
         val.style.cssText = 'font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em;'
           + ((cur || resolved) ? '' : 'color:var(--muted,#8b95a5)');
-        val.textContent = cur || resolved || '— none —';
+        val.textContent = resolved || cur || '— none —';
         curWrap.append(lbl, val);
         if (resolved) {
           const note = document.createElement('div');
@@ -5137,8 +5140,8 @@ function renderProperties() {
         jumpBtn.type = 'button';
         jumpBtn.textContent = '↗ Open target workflow';
         jumpBtn.style.marginTop = '6px';
-        // T-240: explicit slug or the uuid-resolved live map both enable the jump.
-        const _tw = cur || resolved;
+        // T-240/T-242: resolvable uuid (authoritative) or the slug both enable the jump.
+        const _tw = resolved || cur;
         jumpBtn.disabled = !_tw;
         jumpBtn.title = _tw ? ('Open ' + _tw) : 'Set a target workflow first';
         jumpBtn.onclick = () => jumpToWorkflow(_tw);
@@ -7375,9 +7378,11 @@ function resolveWorkflowRef(n) {
   const u = (n && n.aef && n.aef.workflowRef || '').trim();
   return (u && _uuidIndex && _uuidIndex.get(u)) || '';
 }
-// Explicit legacy slug always wins; uuid resolution is the fallback.
+// T-242 (contract-v0, AEF rail 168): a RESOLVABLE workflowRef is authoritative — a
+// stale legacy slug must not shadow it (the rename case the uuid exists for). The
+// slug is the fallback when the uuid doesn't resolve (ghost, API down, legacy-only).
 function effectiveJumpTarget(n) {
-  return ((n && n.aef && n.aef.targetWorkflow || '').trim()) || resolveWorkflowRef(n);
+  return resolveWorkflowRef(n) || ((n && n.aef && n.aef.targetWorkflow || '').trim());
 }
 async function detectSaveApi() {
   try {
@@ -8419,6 +8424,10 @@ function aefExtensionXml(node) {
     if (aef.workflowRef) {
       linkAttrs.push(`workflowRef="${escAttr(aef.workflowRef)}"`);
       if (aef.name) linkAttrs.push(`name="${escAttr(aef.name)}"`);
+      // T-242 (AEF rail 168, contract-v0 dual-form): the legacy slug ALIAS rides along
+      // when present — dropping it on re-export is a silent migration and re-breaks
+      // pre-T-240 pinned editors that bind via the slug. workflowRef stays authoritative.
+      if (aef.targetWorkflow) linkAttrs.push(`targetWorkflow="${escAttr(aef.targetWorkflow)}"`);
     } else if (aef.targetWorkflow) {
       linkAttrs.push(`targetWorkflow="${escAttr(aef.targetWorkflow)}"`);
     }

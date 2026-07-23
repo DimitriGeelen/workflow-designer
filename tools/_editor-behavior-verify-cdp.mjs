@@ -31,7 +31,9 @@
 //        the resolved id (marked auto-resolved) instead of "— none —", the jump button
 //        is enabled and really jumps; a ghost uuid stays "— none —"/disabled; nothing
 //        is written into aef.targetWorkflow (serialization byte-stance: no silent
-//        migration — emitted XML carries no targetWorkflow attribute).
+//        migration). T-242 dual-form probes (contract-v0, AEF rail 168): stale slug +
+//        live uuid ⇒ the uuid WINS (no alias shadowing); dual-form re-exports with BOTH
+//        attrs (alias preserved); legacy-only slug still binds via the slug, unmarked.
 //
 // ISOLATION (G-006 + read-only-by-construction): the editor is served from a temp
 // docroot by a throwaway gallery-serve.py on a free port with a temp --repo, in an
@@ -208,6 +210,9 @@ const T240_SRC = `<?xml version="1.0" encoding="UTF-8"?>
         </bpmn:extensionElements>
         <bpmn:flowNodeRef>frw_1_res</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_2_gh</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_dual</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_leg</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_5_fall</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
     <bpmn:intermediateThrowEvent id="frw_1_res" name="Handoff → t240-target">
@@ -222,6 +227,27 @@ const T240_SRC = `<?xml version="1.0" encoding="UTF-8"?>
         <aef:uid value="n_gh"/>
         <aef:position x="220" y="80"/>
         <aef:link workflowRef="${T240_GHOST_UUID}" name="future-map"/>
+      </bpmn:extensionElements>
+    </bpmn:intermediateThrowEvent>
+    <bpmn:intermediateThrowEvent id="frw_3_dual" name="Handoff → dual-form">
+      <bpmn:extensionElements>
+        <aef:uid value="n_dual"/>
+        <aef:position x="340" y="80"/>
+        <aef:link workflowRef="${T240_TARGET_UUID}" name="t240-target" targetWorkflow="stale-old-name"/>
+      </bpmn:extensionElements>
+    </bpmn:intermediateThrowEvent>
+    <bpmn:intermediateThrowEvent id="frw_4_leg" name="Handoff → legacy">
+      <bpmn:extensionElements>
+        <aef:uid value="n_leg"/>
+        <aef:position x="460" y="80"/>
+        <aef:link targetWorkflow="t240-target"/>
+      </bpmn:extensionElements>
+    </bpmn:intermediateThrowEvent>
+    <bpmn:intermediateThrowEvent id="frw_5_fall" name="Handoff → fallback">
+      <bpmn:extensionElements>
+        <aef:uid value="n_fall"/>
+        <aef:position x="580" y="80"/>
+        <aef:link workflowRef="${T240_GHOST_UUID}" name="future-map" targetWorkflow="t240-target"/>
       </bpmn:extensionElements>
     </bpmn:intermediateThrowEvent>
   </bpmn:process>
@@ -245,10 +271,18 @@ const T240_ASSERT = `(function(){
   try {
     if (state.workflowMeta.id !== 't240-src') errs.push('wrong doc loaded: ' + state.workflowMeta.id);
     if (_uuidIndex === null) errs.push('_uuidIndex never arrived');
-    // no-migration precheck: the source doc has no targetWorkflow anywhere and the
-    // resolver must not mint one — in state or in the emitted XML.
+    // Serialization contract (T-240 no-migration + T-242 alias preservation):
+    //  - uuid-only node (n_res) must NOT gain a targetWorkflow (silent migration)
+    //  - dual-form node (n_dual) must KEEP both attrs (alias preserved verbatim)
+    //  - legacy-only node (n_leg) keeps its slug-only <aef:link>
     var emit = buildBpmnXml(state);
-    if (emit.indexOf('targetWorkflow=') >= 0) errs.push('emit gained a targetWorkflow attribute (silent migration)');
+    var linkLines = emit.split('\\n').filter(function(l){ return l.indexOf('<aef:link ') >= 0; });
+    var resLine = linkLines.filter(function(l){ return l.indexOf('name="t240-target"') >= 0 && l.indexOf('targetWorkflow=') < 0; });
+    if (resLine.length !== 1) errs.push('uuid-only link line wrong (want exactly 1 with workflowRef+name, no targetWorkflow): ' + JSON.stringify(linkLines));
+    var dualLine = linkLines.filter(function(l){ return l.indexOf('targetWorkflow="stale-old-name"') >= 0; });
+    if (dualLine.length !== 1) errs.push('dual-form alias lost on emit');
+    else if (dualLine[0].indexOf('workflowRef="') < 0) errs.push('dual-form line lost its workflowRef');
+    if (linkLines.filter(function(l){ return l.indexOf('<aef:link targetWorkflow="t240-target"') >= 0; }).length !== 1) errs.push('legacy-only link line changed shape');
     // resolvable uuid ref → readout shows resolved id, marked, jump enabled
     var r = panelFor('n_res');
     if (r) {
@@ -268,6 +302,35 @@ const T240_ASSERT = `(function(){
       if (g.text.indexOf('auto-resolved') >= 0) errs.push('n_gh falsely marked auto-resolved');
       if (!g.jump) errs.push('n_gh jump button missing');
       else if (!g.jump.disabled) errs.push('n_gh jump button ENABLED for a ghost uuid (false binding)');
+    }
+    // T-242 dual-form: stale slug + resolvable uuid ⇒ uuid WINS (no alias shadowing)
+    var d = panelFor('n_dual');
+    if (d) {
+      if (d.text.indexOf('t240-target') < 0) errs.push('n_dual panel lacks the uuid-resolved id (stale slug shadowed it?)');
+      if (d.text.indexOf('auto-resolved') < 0) errs.push('n_dual panel lacks the auto-resolved marker');
+      if (!d.jump) errs.push('n_dual jump button missing');
+      else if (d.jump.disabled) errs.push('n_dual jump button disabled');
+      if (effectiveJumpTarget(d.n) !== 't240-target') errs.push('n_dual effectiveJumpTarget = ' + JSON.stringify(effectiveJumpTarget(d.n)) + ' (slug shadowing — contract: workflowRef authoritative)');
+      if ((d.n.aef || {}).targetWorkflow !== 'stale-old-name') errs.push('n_dual alias mutated in state: ' + JSON.stringify((d.n.aef || {}).targetWorkflow));
+    }
+    // T-242 legacy-only: slug binding unchanged, no auto-resolved marker
+    var lg = panelFor('n_leg');
+    if (lg) {
+      if (lg.text.indexOf('t240-target') < 0) errs.push('n_leg panel lacks the slug target');
+      if (lg.text.indexOf('auto-resolved') >= 0) errs.push('n_leg falsely marked auto-resolved (legacy path must be unmarked)');
+      if (!lg.jump) errs.push('n_leg jump button missing');
+      else if (lg.jump.disabled) errs.push('n_leg jump button disabled (legacy binding regressed)');
+      if (effectiveJumpTarget(lg.n) !== 't240-target') errs.push('n_leg effectiveJumpTarget = ' + JSON.stringify(effectiveJumpTarget(lg.n)));
+    }
+    // T-242 slug fallback: UNRESOLVABLE uuid + live slug ⇒ slug binds (the exact
+    // 0.3.1-compat path AEF's dual-form interim relies on), unmarked
+    var fb = panelFor('n_fall');
+    if (fb) {
+      if (fb.text.indexOf('t240-target') < 0) errs.push('n_fall panel lacks the slug fallback target');
+      if (fb.text.indexOf('auto-resolved') >= 0) errs.push('n_fall falsely marked auto-resolved (ghost uuid cannot have resolved)');
+      if (!fb.jump) errs.push('n_fall jump button missing');
+      else if (fb.jump.disabled) errs.push('n_fall jump button disabled (slug fallback regressed)');
+      if (effectiveJumpTarget(fb.n) !== 't240-target') errs.push('n_fall effectiveJumpTarget = ' + JSON.stringify(effectiveJumpTarget(fb.n)));
     }
     // real affordance: re-select the resolvable node and click its jump button
     if (errs.length === 0) { var r2 = panelFor('n_res'); if (r2 && r2.jump) r2.jump.click(); }
