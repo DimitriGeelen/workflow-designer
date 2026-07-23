@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-23T07:35:07Z
-last_update: 2026-07-23T07:35:07Z
+last_update: 2026-07-23T07:37:30Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -44,19 +44,30 @@ flag, and drops the dual-form compat aliases.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Full bridge test suite green before the cut (includes the G-010 editor-behavior
+- [x] Full bridge test suite green before the cut (includes the G-010 editor-behavior
       suite with the 5 T-240/T-242 probes).
-- [ ] Release cut is deterministic and gated: VERSION → 0.3.2, `dist/aef-workflow-designer-0.3.2.html`
+      *(run pre-cut: 37/37 round-trip, geometry sweep 24 clean, editor-behavior legs green,
+      pins green, exit 0)*
+- [x] Release cut is deterministic and gated: VERSION → 0.3.2, `dist/aef-workflow-designer-0.3.2.html`
       byte-identical to `src/aef-workflow-designer.html`, MANIFEST.yaml updated with
       content-derived sha256+bytes, render gate green.
-- [ ] Immutability: 0.3.1 (d99a42da…, 862852 B) and 0.3.0 (36be033d…, 826643 B) bytes
+      *(sha 983e0e304a3dc12e41ed9ea7270ba6edd032453c72c9ee423f466aa9d9e8d38a, 866701 B;
+      cmp src↔artifact identical; render gate PASS on 0.3.2)*
+- [x] Immutability: 0.3.1 (d99a42da…, 862852 B) and 0.3.0 (36be033d…, 826643 B) bytes
       untouched; immutability test green.
-- [ ] Both hotfix markers provably in the released bundle: the T-240 auto-resolved
+      *(shas re-verified post-cut; standalone guard test: 5/5 paths pass, "no tests ran"
+      under pytest is expected — it is a standalone script, same as T-239's run)*
+- [x] Both hotfix markers provably in the released bundle: the T-240 auto-resolved
       readout marker and the T-242 dual-form emit comment.
-- [ ] Annotated tag `designer-v0.3.2` created on the release commit and pushed to origin
+      *(grep counts: "auto-resolved from workflow ref (uuid)" ×1, "T-242 (AEF rail 168,
+      contract-v0 dual-form)" ×1 in dist/aef-workflow-designer-0.3.2.html)*
+- [x] Annotated tag `designer-v0.3.2` created on the release commit and pushed to origin
       along with the release commit(s).
-- [ ] Artifact delivered to AEF via termlink file_send (sender sha == MANIFEST sha) and
+      *(release commit 99431de + tag pushed together to origin)*
+- [x] Artifact delivered to AEF via termlink file_send (sender sha == MANIFEST sha) and
       the release announced on the rail with sha/bytes/tag + re-pin trigger.
+      *(transfer xfer-mcp-888946-1784792300564-0, 18 chunks, 866701 B, sha match;
+      announced at rail offset 171 with their re-pin flow spelled out)*
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -89,7 +100,25 @@ flag, and drops the dual-form compat aliases.
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Recommendation
+
+**Recommendation:** GO
+**Rationale:** Full gated release executed per protocol, identical to the 0.3.1 flow;
+every gate green pre-tag; delivery sha-matched; prior releases byte-untouched. Awaiting
+only AEF's sha-confirm + re-pin verdict on the rail.
+**Evidence:** see checked Agent ACs — each carries its measured result.
+
 ## Verification
+
+MAN=$(cat dist/MANIFEST.yaml); echo "$MAN" | grep -q 'latest: "0.3.2"'
+MAN=$(cat dist/MANIFEST.yaml); echo "$MAN" | grep -q '983e0e304a3dc12e41ed9ea7270ba6edd032453c72c9ee423f466aa9d9e8d38a'
+cmp src/aef-workflow-designer.html dist/aef-workflow-designer-0.3.2.html
+grep -q "auto-resolved from workflow ref (uuid)" dist/aef-workflow-designer-0.3.2.html
+grep -q "T-242 (AEF rail 168, contract-v0 dual-form)" dist/aef-workflow-designer-0.3.2.html
+SHA1=$(sha256sum dist/aef-workflow-designer-0.3.1.html | cut -d' ' -f1); test "$SHA1" = "d99a42da304fc9377e580a1e34e54467431727058026ded7a8ee85fd464fd05c"
+SHA0=$(sha256sum dist/aef-workflow-designer-0.3.0.html | cut -d' ' -f1); test "$SHA0" = "36be033d66aa1c159a9e75df674f02032eb9f308882af288fad909e6d754a4bb"
+python3 tests/test_release_immutability.py
+TAGS=$(git tag -l 'designer-v*'); echo "$TAGS" | grep -q "designer-v0.3.2"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
