@@ -1,8 +1,8 @@
 # AEF Workflow Designer — release manifest. Content-derived, deterministic.
 # AEF vendors a pinned copy of the artifact named below and verifies its sha256.
 # Protocol: docs/aef-designer-integration-protocol.md
-latest: "0.3.1"
-artifact: "dist/aef-workflow-designer-0.3.1.html"
-sha256: "d99a42da304fc9377e580a1e34e54467431727058026ded7a8ee85fd464fd05c"
-bytes: 862852
+latest: "0.3.2"
+artifact: "dist/aef-workflow-designer-0.3.2.html"
+sha256: "983e0e304a3dc12e41ed9ea7270ba6edd032453c72c9ee423f466aa9d9e8d38a"
+bytes: 866701
 source: "src/aef-workflow-designer.html"
