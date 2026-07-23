@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-23T10:06:24Z
-last_update: 2026-07-23T10:48:25Z
+last_update: 2026-07-23T10:50:42Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,7 +28,7 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+Consumers of designer releases (today: AEF; tomorrow: possibly more) have no self-serve way to learn a new version exists or to obtain it — discovery is a 1:1 rail announce and delivery is a per-peer file_send. The gap became operator-visible twice in one day (2026-07-23): AEF's operator heard of unreleased master work and sent their agent on a fruitless release hunt (their T-2556, rail 177), and our operator asked "how do subscribers know / how do they get the changes?". Explored: pull-at-tag intake — the release tag already carries the frozen artifact + MANIFEST, so consumers could fetch and sha-verify by version number, scaling discovery and delivery 1:N with zero new release machinery.
 
 ## Assumptions
 
