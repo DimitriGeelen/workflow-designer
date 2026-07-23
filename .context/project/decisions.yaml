@@ -906,3 +906,17 @@ decisions:
     date: 2026-07-23
     task: T-242
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-109
+    decision: "Focus mode is a transient presentation state (plain runtime flag), never persisted; per-panel hidden states ARE persisted (aefViewPrefs)."
+    scope: project
+    date: 2026-07-23
+    task: T-245
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-110
+    decision: "An explicit click-selection (node, edge, palette-create) un-hides the properties panel by clearing the pref (persisted); auto-reveal is suppressed in focus mode."
+    scope: project
+    date: 2026-07-23
+    task: T-245
+    rationale: "Auto-captured from task file on completion"

@@ -372,3 +372,10 @@ learnings:
   date: 2026-07-22
   context: Added via context agent
   application: TBD
+- id: PL-054
+  learning: "Cross-project seam pins that carry only BYTES (sha) cannot catch a producer format migration outrunning consumer capability — AEF's corpus moved to uuid workflowRef form while the pinned editor could only bind slugs, deadening every handoff jump with zero gate firing. Structural fix: pins must carry CAPABILITY flags too (their resolves_workflow_ref + editor-unbindable lint). Also: triage peer field observations by OPERATOR SURFACE impact, not implementation-effort framing — 'one picker step' at rail 166 was actually a dead affordance."
+  source: P-001
+  task: T-243
+  date: 2026-07-23
+  context: Added via context agent
+  application: TBD
