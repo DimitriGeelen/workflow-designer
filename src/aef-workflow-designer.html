@@ -419,6 +419,23 @@ font-family: 'Outfit';
   #canvas.drag-endpoint-snap { cursor: alias; }
   #canvas.drag-endpoint-float { cursor: no-drop; }
 
+  /* T-251 (T-249 GO) canvas navigation: when zoomed past fit, the wrap is the
+     scroll container and the SVG element carries an explicit inline size
+     (viewBox × zoom) — the viewBox itself stays content-driven (T-043 untouched). */
+  .canvas-wrap.zoomed { overflow: auto; }
+  .canvas-wrap.pan-ready #canvas { cursor: grab; }
+  .canvas-wrap.panning #canvas { cursor: grabbing; }
+  #zoom-level {
+    min-width: 40px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    cursor: pointer;
+    user-select: none;
+  }
+  #zoom-level:hover { color: var(--text); }
+
   .canvas-overlay {
     position: absolute;
     bottom: 12px;
@@ -1116,6 +1133,13 @@ font-family: 'Outfit';
       <!-- T-245 view-chrome controls: per-panel hide/show (persisted in aefViewPrefs)
            + focus mode (transient — hides header/palette/properties AND requests
            browser fullscreen; #vc-exit floating button or Esc restores). -->
+      <!-- T-251 canvas navigation: zoom controls. Zoom is transient VIEW state —
+           fit is the load default; Ctrl+wheel zooms at the cursor; middle-mouse or
+           space+drag pans; native scrollbars appear past fit. -->
+      <button class="btn-icon" id="btn-zoom-out" title="Zoom out (Ctrl+wheel down)">−</button>
+      <span id="zoom-level" title="Current zoom — click for 100%">fit</span>
+      <button class="btn-icon" id="btn-zoom-in" title="Zoom in (Ctrl+wheel up)">+</button>
+      <button class="btn-icon" id="btn-zoom-fit" title="Fit whole diagram (default)" aria-pressed="true">⤢</button>
       <button class="btn-icon" id="btn-toggle-palette" title="Hide palette" aria-pressed="false">◧</button>
       <button class="btn-icon" id="btn-toggle-props" title="Hide properties panel" aria-pressed="false">◨</button>
       <button class="btn-icon" id="btn-focus-mode" title="Focus mode — hide all panels and fill the screen (Esc exits)">⛶</button>
@@ -2217,6 +2241,116 @@ const gEdges = $('g-edges');
 const gNodes = $('g-nodes');
 const gPreview = $('g-preview');
 
+// ============================================================================
+//  Canvas zoom + pan (T-251, mechanism validated by the T-249 spike 12/12)
+// ============================================================================
+// Zoom is VIEW state — never serialized, reset to fit on load. The fit-to-view
+// viewBox math (T-043) is untouched: when zoomed, only the SVG ELEMENT is sized
+// (inline style = viewBox × zoom) and .canvas-wrap scrolls. syncCanvasSize()
+// re-applies the element size after every viewBox recompute, so zoom survives
+// renderAll() and tracks content growth. The zoom lives IN the screen CTM, so
+// every pointer path that flows through clientToSvg (T-071) stays correct.
+let zoomFactor = null;            // null = fit (default)
+const ZOOM_MIN = 0.2, ZOOM_MAX = 4;
+const canvasWrap = document.querySelector('.canvas-wrap');
+function effectiveZoom() {
+  if (zoomFactor != null) return zoomFactor;
+  try { return svg.getScreenCTM().a; } catch (_) { return 1; }
+}
+function applyCanvasZoom() {
+  const vb = svg.viewBox.baseVal;
+  if (zoomFactor == null) {
+    svg.style.width = ''; svg.style.height = '';
+    canvasWrap.classList.remove('zoomed');
+  } else {
+    svg.style.width = (vb.width * zoomFactor) + 'px';
+    svg.style.height = (vb.height * zoomFactor) + 'px';
+    canvasWrap.classList.add('zoomed');
+  }
+  const zl = $('zoom-level');
+  if (zl) zl.textContent = zoomFactor == null ? 'fit' : Math.round(zoomFactor * 100) + '%';
+  const zf = $('btn-zoom-fit');
+  if (zf) zf.setAttribute('aria-pressed', String(zoomFactor == null));
+  syncOverlayPin();
+}
+// Keep the svg point under (anchorX, anchorY) stationary across the zoom change —
+// Ctrl+wheel anchors at the cursor; buttons anchor at the viewport centre.
+function setZoom(f, anchorX, anchorY) {
+  const wr = canvasWrap.getBoundingClientRect();
+  const ax = anchorX != null ? anchorX : wr.left + canvasWrap.clientWidth / 2;
+  const ay = anchorY != null ? anchorY : wr.top + canvasWrap.clientHeight / 2;
+  const pt = clientToSvg(ax, ay);
+  zoomFactor = f == null ? null : Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, f));
+  applyCanvasZoom();
+  if (zoomFactor != null) {
+    const vb = svg.viewBox.baseVal;
+    canvasWrap.scrollLeft = (pt.x - vb.x) * zoomFactor - (ax - wr.left);
+    canvasWrap.scrollTop = (pt.y - vb.y) * zoomFactor - (ay - wr.top);
+  }
+  syncOverlayPin();
+}
+// The status overlay and clean-nudge are absolutely positioned INSIDE the wrap,
+// so they scroll away with the content (T-249 spike P10). Counter-translate by
+// the scroll offset to pin them to the viewport. The nudge's translateX(-50%)
+// centering must be preserved in the composed transform.
+function syncOverlayPin() {
+  const dx = canvasWrap.scrollLeft, dy = canvasWrap.scrollTop;
+  const o = document.querySelector('.canvas-overlay');
+  if (o) o.style.transform = (dx || dy) ? `translate(${dx}px, ${dy}px)` : '';
+  const n = $('clean-nudge');
+  if (n) n.style.transform = (dx || dy) ? `translate(calc(-50% + ${dx}px), ${dy}px)` : '';
+}
+// Drag-to-pan: middle-mouse always, or left-drag while Space is held. CAPTURE
+// phase on the wrap + stopPropagation preempts the svg-level rubber-band
+// mousedown without modifying any existing handler (T-249 spike P7/P7b — with
+// pan not engaged, marquee/node-drag/connect are byte-identical).
+let panDrag = null, panKeyHeld = false;
+canvasWrap.addEventListener('mousedown', e => {
+  if (e.button !== 1 && !panKeyHeld) return;
+  panDrag = { x: e.clientX, y: e.clientY, sl: canvasWrap.scrollLeft, st: canvasWrap.scrollTop };
+  canvasWrap.classList.add('panning');
+  e.preventDefault(); e.stopPropagation();
+}, true);
+window.addEventListener('mousemove', e => {
+  if (!panDrag) return;
+  canvasWrap.scrollLeft = panDrag.sl - (e.clientX - panDrag.x);
+  canvasWrap.scrollTop = panDrag.st - (e.clientY - panDrag.y);
+  e.preventDefault(); e.stopPropagation();
+}, true);
+window.addEventListener('mouseup', e => {
+  if (!panDrag) return;
+  panDrag = null;
+  canvasWrap.classList.remove('panning');
+  e.preventDefault(); e.stopPropagation();
+}, true);
+document.addEventListener('keydown', e => {
+  if (e.code !== 'Space') return;
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
+  panKeyHeld = true;
+  canvasWrap.classList.add('pan-ready');
+  e.preventDefault();   // Space must not page-scroll while it arms the pan
+});
+document.addEventListener('keyup', e => {
+  if (e.code !== 'Space') return;
+  panKeyHeld = false;
+  canvasWrap.classList.remove('pan-ready');
+});
+window.addEventListener('blur', () => {   // alt-tab with Space held must not stick
+  panKeyHeld = false; panDrag = null;
+  canvasWrap.classList.remove('pan-ready', 'panning');
+});
+// Ctrl+wheel = zoom at cursor. preventDefault ONLY here (over the canvas, ctrl
+// held) — plain wheel keeps native scrolling of the zoomed container, and the
+// browser's page zoom is untouched everywhere else.
+canvasWrap.addEventListener('wheel', e => {
+  if (!e.ctrlKey) return;
+  e.preventDefault();
+  const step = e.deltaY < 0 ? 1.12 : 1 / 1.12;
+  setZoom(effectiveZoom() * step, e.clientX, e.clientY);
+}, { passive: false });
+canvasWrap.addEventListener('scroll', syncOverlayPin);
+
 function el(tag, attrs = {}, children = []) {
   const e = document.createElementNS(SVG_NS, tag);
   for (const k in attrs) e.setAttribute(k, attrs[k]);
@@ -2385,6 +2519,7 @@ function syncCanvasSize() {
   } catch (_) { /* detached / headless — fall back to node-box floor */ }
   svg.setAttribute('viewBox', `${minX} ${minY} ${w} ${h}`);
   svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
+  applyCanvasZoom();  // T-251: re-apply element size × zoom after every viewBox recompute
 }
 // Lane-label fit ladder (T-084): the rotated header text must fit inside the
 // lane height. Ladder, in order: (1) wrap on '·' / word boundaries into two
@@ -5656,6 +5791,11 @@ $('btn-toggle-props').onclick = () => setViewPref('propsHidden', !viewPrefs.prop
 $('btn-focus-mode').onclick = () => setFocusMode(true);
 $('vc-exit').onclick = () => setFocusMode(false);
 applyViewChrome();
+// T-251 canvas-navigation wiring. Buttons anchor the zoom at the viewport centre.
+$('btn-zoom-in').onclick = () => setZoom(effectiveZoom() * 1.25);
+$('btn-zoom-out').onclick = () => setZoom(effectiveZoom() / 1.25);
+$('btn-zoom-fit').onclick = () => setZoom(null);
+$('zoom-level').onclick = () => setZoom(1);
 $('settings-modal').addEventListener('mousedown', e => { if (e.target === $('settings-modal')) closeSettings(); });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && $('settings-modal').classList.contains('visible')) { closeSettings(); e.stopPropagation(); }
@@ -7529,6 +7669,9 @@ function captureThumbnail() {
       const pad = 20;
       const vbX = bb.x - pad, vbY = bb.y - pad, vbW = bb.width + 2 * pad, vbH = bb.height + 2 * pad;
       const clone = svg.cloneNode(true);
+      // T-251: the live canvas may carry an inline zoom size (style width/height) —
+      // strip it so thumbnails are byte-stable regardless of the operator's zoom.
+      clone.removeAttribute('style');
       _inlineComputedStyles(svg, clone);
       clone.setAttribute('viewBox', `${vbX} ${vbY} ${vbW} ${vbH}`);
       clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');

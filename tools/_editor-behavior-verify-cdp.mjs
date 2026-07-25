@@ -477,6 +477,129 @@ async function main() {
       && vc7.header && vc7.palette && !vc7.exitBtn;
     verdict.legs.push({ leg: 't245-view-chrome', pass: leg8, got: { vc0, vc1, vc2, vc3, vc4, vc5, vc6, vc7 } });
 
+    // ── Leg 9 (T-251, T-249 GO): canvas navigation — zoom, scrollbars, pan ──
+    // G-003 class: pointer probes use REAL trusted input (Input.dispatchMouseEvent /
+    // dispatchKeyEvent), not synthetic dispatchEvent — same fidelity as the T-249 spike.
+    const mPress = async (x, y, b = 'left') => { await cmd('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: b, clickCount: 1 }); await cmd('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: b, clickCount: 1 }); };
+    const mDrag = async (x1, y1, x2, y2, b = 'left') => {
+      await cmd('Input.dispatchMouseEvent', { type: 'mousePressed', x: x1, y: y1, button: b, clickCount: 1 });
+      for (let i = 1; i <= 6; i++) { await cmd('Input.dispatchMouseEvent', { type: 'mouseMoved', x: x1 + (x2 - x1) * i / 6, y: y1 + (y2 - y1) * i / 6, button: b }); await sleep(15); }
+      await cmd('Input.dispatchMouseEvent', { type: 'mouseReleased', x: x2, y: y2, button: b, clickCount: 1 });
+    };
+    await ev(cmd, `localStorage.clear()`);
+    await nav(LOAD_X);
+    // oversize through the real content pipeline (viewBox recomputed from content)
+    const z0 = await ev(cmd, `(function(){
+      state.nodes.forEach(function(n, i){ n.x = 80 + (i % 10) * 520; });
+      renderAll();
+      return { vbW: Math.round(svg.viewBox.baseVal.width), zoomed: canvasWrap.classList.contains('zoomed'),
+               scrollW: canvasWrap.scrollWidth, clientW: canvasWrap.clientWidth,
+               readout: document.getElementById('zoom-level').textContent, styleW: svg.style.width || '' };
+    })()`);
+    await ev(cmd, `document.getElementById('btn-zoom-in').click()`);
+    const z1 = await ev(cmd, `({ zoomed: canvasWrap.classList.contains('zoomed'), scrollW: canvasWrap.scrollWidth, clientW: canvasWrap.clientWidth, readout: document.getElementById('zoom-level').textContent, fitPressed: document.getElementById('btn-zoom-fit').getAttribute('aria-pressed'), zf: zoomFactor })`);
+    // real click on a node while zoomed + scrolled (CTM accuracy)
+    const zTarget = await ev(cmd, `(function(){
+      canvasWrap.scrollLeft = 250; canvasWrap.scrollTop = 40; selection = null; renderAll();
+      const wr = canvasWrap.getBoundingClientRect(); let best = null, bd = 1e9;
+      state.nodes.forEach(function(n){
+        const g = document.querySelector('g[data-id="' + n.id + '"]'); if (!g) return;
+        const r = g.getBoundingClientRect(); const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        if (cx < wr.left + 20 || cx > wr.right - 20 || cy < wr.top + 20 || cy > wr.bottom - 20) return;
+        const d = Math.abs(cx - (wr.left + wr.width / 2)) + Math.abs(cy - (wr.top + wr.height / 2));
+        if (d < bd) { bd = d; best = { id: n.id, x: Math.round(cx), y: Math.round(cy) }; }
+      });
+      return best;
+    })()`);
+    let z2 = { zTarget };
+    if (zTarget) { await mPress(zTarget.x, zTarget.y); await sleep(250); z2 = await ev(cmd, `({ sel: selection && selection.id })`); z2.zTarget = zTarget; }
+    // zoom survives a render (edit simulation)
+    const z3 = await ev(cmd, `(function(){
+      const n = state.nodes[0]; n.y = (n.y || 100) + 25; renderAll();
+      const vb = svg.viewBox.baseVal, r = svg.getBoundingClientRect();
+      return { elW: r.width, want: vb.width * zoomFactor, zoomed: canvasWrap.classList.contains('zoomed') };
+    })()`);
+    // Ctrl+wheel at cursor: zoom increases; the svg point under the cursor stays put
+    // PER OVERFLOWING AXIS (an axis with no overflow has no scroll freedom — the
+    // anchor cannot hold there; at deep zoom-out the element is smaller than the wrap).
+    const wheelAt = await ev(cmd, `(function(){
+      const wr = canvasWrap.getBoundingClientRect(), sr = svg.getBoundingClientRect();
+      const x = Math.round(Math.max(wr.left + 20, Math.min(wr.right - 20, sr.left + Math.min(sr.width, wr.width) / 2)));
+      const y = Math.round(Math.max(wr.top + 20, Math.min(wr.bottom - 20, sr.top + Math.min(sr.height, wr.height) / 2)));
+      const p = clientToSvg(x, y); return { x, y, px: p.x, py: p.y, zf: zoomFactor };
+    })()`);
+    await cmd('Input.dispatchMouseEvent', { type: 'mouseWheel', x: wheelAt.x, y: wheelAt.y, deltaX: 0, deltaY: -120, modifiers: 2 });
+    await sleep(150);
+    const z4b = await ev(cmd, `(function(){
+      const p = clientToSvg(${wheelAt.x}, ${wheelAt.y});
+      return { zf: zoomFactor, px: p.x, py: p.y,
+               overH: canvasWrap.scrollWidth > canvasWrap.clientWidth + 2,
+               overV: canvasWrap.scrollHeight > canvasWrap.clientHeight + 2 };
+    })()`);
+    // middle-mouse pan on empty background: scroll moves, nothing selects
+    const bgPt = await ev(cmd, `(function(){
+      const wr = canvasWrap.getBoundingClientRect();
+      const isBg = function(el){ return el === svg || (el && el.tagName === 'rect' && el.classList.contains('lane-bg')); };
+      for (let dy = 30; dy < wr.height - 30; dy += 20) for (let dx = 30; dx < wr.width - 30; dx += 20) {
+        const x = wr.left + dx, y = wr.top + dy;
+        if (isBg(document.elementFromPoint(x, y))) return { x: Math.round(x), y: Math.round(y) };
+      }
+      return null;
+    })()`);
+    let z5 = { bgPt };
+    if (bgPt) {
+      // clean slate: no selection, and scroll headroom for the 140px pan
+      await ev(cmd, `selection = null; multiSelect = new Set(); renderAll(); canvasWrap.scrollLeft = 100; canvasWrap.scrollTop = 0;`);
+      const pre = await ev(cmd, `({ sl: canvasWrap.scrollLeft, st: canvasWrap.scrollTop })`);
+      await mDrag(bgPt.x, bgPt.y, bgPt.x - 140, bgPt.y - 40, 'middle');
+      await sleep(150);
+      z5 = await ev(cmd, `({ sl: canvasWrap.scrollLeft, st: canvasWrap.scrollTop, rb: rubberBand, sel: selection && selection.id, msel: Array.from(multiSelect || []) })`);
+      z5.dSL = z5.sl - pre.sl; z5.bgPt = bgPt;
+    }
+    // space+drag pan (real key events arm/disarm the pan)
+    await cmd('Input.dispatchKeyEvent', { type: 'rawKeyDown', code: 'Space', key: ' ', windowsVirtualKeyCode: 32 });
+    await sleep(80);
+    const bgPt2 = bgPt ? await ev(cmd, `(function(){
+      const wr = canvasWrap.getBoundingClientRect();
+      const isBg = function(el){ return el === svg || (el && el.tagName === 'rect' && el.classList.contains('lane-bg')); };
+      for (let dy = 30; dy < wr.height - 30; dy += 20) for (let dx = 30; dx < wr.width - 30; dx += 20) {
+        const x = wr.left + dx, y = wr.top + dy;
+        if (isBg(document.elementFromPoint(x, y))) return { x: Math.round(x), y: Math.round(y) };
+      }
+      return null;
+    })()`) : null;
+    let z6 = { bgPt2 };
+    if (bgPt2) {
+      await ev(cmd, `canvasWrap.scrollLeft = 100; canvasWrap.scrollTop = 0;`);
+      const pre = await ev(cmd, `({ sl: canvasWrap.scrollLeft, armed: canvasWrap.classList.contains('pan-ready') })`);
+      await mDrag(bgPt2.x, bgPt2.y, bgPt2.x - 120, bgPt2.y, 'left');
+      await sleep(150);
+      z6 = await ev(cmd, `({ sl: canvasWrap.scrollLeft, rb: rubberBand, msel: Array.from(multiSelect || []) })`);
+      z6.dSL = z6.sl - pre.sl; z6.armed = pre.armed; z6.bgPt2 = bgPt2;
+    }
+    await cmd('Input.dispatchKeyEvent', { type: 'keyUp', code: 'Space', key: ' ', windowsVirtualKeyCode: 32 });
+    // overlay pinned while scrolled
+    const z7 = await ev(cmd, `(function(){
+      canvasWrap.scrollLeft = 400; canvasWrap.scrollTop = 60; syncOverlayPin();
+      const o = document.querySelector('.canvas-overlay');
+      const or = o.getBoundingClientRect(), wr = canvasWrap.getBoundingClientRect();
+      return { visible: or.left >= wr.left - 2 && or.bottom <= wr.bottom + 2 && or.top >= wr.top - 2 };
+    })()`);
+    // fit restore = today's exact behavior
+    await ev(cmd, `document.getElementById('btn-zoom-fit').click()`);
+    const z8 = await ev(cmd, `({ zoomed: canvasWrap.classList.contains('zoomed'), styleW: svg.style.width || '', scrollW: canvasWrap.scrollWidth, clientW: canvasWrap.clientWidth, readout: document.getElementById('zoom-level').textContent, zf: zoomFactor })`);
+    const leg9 = z0.vbW > 3000 && !z0.zoomed && z0.scrollW <= z0.clientW + 2 && z0.readout === 'fit' && z0.styleW === ''
+      && z1.zoomed && z1.scrollW > z1.clientW + 20 && /%$/.test(z1.readout) && z1.fitPressed === 'false'
+      && zTarget && z2.sel === zTarget.id
+      && Math.abs(z3.elW - z3.want) < 3 && z3.zoomed
+      && z4b.zf > wheelAt.zf
+      && (!z4b.overH || Math.abs(z4b.px - wheelAt.px) < 3) && (!z4b.overV || Math.abs(z4b.py - wheelAt.py) < 3)
+      && bgPt && z5.dSL > 100 && !z5.rb && !z5.sel && z5.msel.length === 0
+      && bgPt2 && z6.armed && z6.dSL > 80 && !z6.rb && z6.msel.length === 0
+      && z7.visible
+      && !z8.zoomed && z8.styleW === '' && z8.scrollW <= z8.clientW + 2 && z8.readout === 'fit' && z8.zf === null;
+    verdict.legs.push({ leg: 't249-canvas-nav', pass: leg9, got: { z0, z1, z2, z3, wheelAt, z4b, z5, z6, z7, z8 } });
+
     verdict.pass = verdict.legs.every(l => l.pass);
     process.stdout.write(JSON.stringify(verdict, null, 2) + '\n');
     process.exitCode = verdict.pass ? 0 : 1;
