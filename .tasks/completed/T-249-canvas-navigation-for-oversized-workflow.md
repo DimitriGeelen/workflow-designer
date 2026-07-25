@@ -4,16 +4,16 @@ name: "Canvas navigation for oversized workflows: zoom, scrollbars, drag-to-pan"
 description: >
   Inception: Canvas navigation for oversized workflows: zoom, scrollbars, drag-to-pan
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: human
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-25T14:45:33Z
-last_update: 2026-07-25T14:48:23Z
-date_finished: null
+last_update: 2026-07-25T19:33:03Z
+date_finished: 2026-07-25T19:33:03Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -81,15 +81,15 @@ Output: Findings in docs/reports/T-249-canvas-navigation.md + GO/NO-GO recommend
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -151,7 +151,11 @@ All four open questions answered by the timeboxed spike (well under the 1h box),
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: All four open questions answered by the timeboxed spike (well under the 1h box), every GO criterion met, no NO-GO criterion triggered. Mechanism: explicit SVG element sizing via a syncCanvasSize wrapper — proven against the UNMODIFIED shipping editor with zero source edits, so the production diff is small, additive, and reversible (fit stays default; zoom is transient view state, never serialized). Pointer correctness — the G-003 risk that motivated inception — verified with real CDP trusted input at zoom+scroll (click, marquee, pan all CTM-exact). Build task should implement: zoom controls (Fit/100%/+/−), Ctrl+wheel-at-cursor, overflow:auto scrollbars, middle-mouse + space+drag pan (one shared capture-phase code path), overlay re-anchor, captureThumbnail clone-style strip, and promote spike probes P1–P8 into the G-010 standing suite.
+
+**Date**: 2026-07-25T19:33:03Z
 
 ## Updates
 
@@ -160,3 +164,12 @@ All four open questions answered by the timeboxed spike (well under the 1h box),
 
 ### 2026-07-25T14:46:11Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-25T19:33:03Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** All four open questions answered by the timeboxed spike (well under the 1h box), every GO criterion met, no NO-GO criterion triggered. Mechanism: explicit SVG element sizing via a syncCanvasSize wrapper — proven against the UNMODIFIED shipping editor with zero source edits, so the production diff is small, additive, and reversible (fit stays default; zoom is transient view state, never serialized). Pointer correctness — the G-003 risk that motivated inception — verified with real CDP trusted input at zoom+scroll (click, marquee, pan all CTM-exact). Build task should implement: zoom controls (Fit/100%/+/−), Ctrl+wheel-at-cursor, overflow:auto scrollbars, middle-mouse + space+drag pan (one shared capture-phase code path), overlay re-anchor, captureThumbnail clone-style strip, and promote spike probes P1–P8 into the G-010 standing suite.
+
+### 2026-07-25T19:33:03Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO

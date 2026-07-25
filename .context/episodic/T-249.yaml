@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-249: Canvas navigation for oversized workflows: zoom, scrollbars, drag-to-pan
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-25T19:33:05Z
+# ============================================================================
+
+task_id: T-249
+task_name: "Canvas navigation for oversized workflows: zoom, scrollbars, drag-to-pan"
+workflow_type: inception
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-25T14:45:33Z
+completed: 2026-07-25T19:33:03Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-25T16:48:23+02:00
+last_commit: 2026-07-25T21:29:03+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file inception — canvas navigation for oversized workflows (zoom + scrollbars + drag-to-pan). Template filled: IW-1 mechanism-vs-viewBox-recompute, IW-2 pan gesture collision, IW-3 secondary render consumers, IW-4 focus-mode composition; A-018 registered; spike planned (~1h, hermetic harness), NOT yet run — template presented to operator first per inception discipline. spike COMPLETE — explicit-SVG-sizing zoom proven 12/12 probes green against unmodified editor (syncCanvasSize wrapper = single integration point; zoom survives renderAll + content growth; real-CDP click/marquee/pan CTM-exact at zoom+scroll; middle-mouse+space pan preempts rubber-band via capture phase, zero handler edits; focus-mode composes; thumbnails unaffected). A-018 validated, IW-1..4 answered, Go/No-Go criteria filled, Recommendation GO. Findings in docs/reports/T-249-canvas-navigation.md
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/assumptions.yaml'
+  - '.context/project/metrics-history.yaml'
+  - 'docs/reports/T-249-canvas-navigation.md'
+  - '.tasks/active/T-249-canvas-navigation-for-oversized-workflow.md'
+  - 'tools/_t249-spike-zoom-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-25T16:48:23"
+    action: "T-249: file inception — canvas navigation for oversized workflows (zoom + scrollbars + drag-to-pan). Template filled: IW-1 mechanism-vs-viewBox-recompute, IW-2 pan gesture collision, IW-3 secondary render consumers, IW-4 focus-mode composition; A-018 registered; spike planned (~1h, hermetic harness), NOT yet run — template presented to operator first per inception discipline"
+  - time: "2026-07-25T21:29:03"
+    action: "T-249: spike COMPLETE — explicit-SVG-sizing zoom proven 12/12 probes green against unmodified editor (syncCanvasSize wrapper = single integration point; zoom survives renderAll + content growth; real-CDP click/marquee/pan CTM-exact at zoom+scroll; middle-mouse+space pan preempts rubber-band via capture phase, zero handler edits; focus-mode composes; thumbnails unaffected). A-018 validated, IW-1..4 answered, Go/No-Go criteria filled, Recommendation GO. Findings in docs/reports/T-249-canvas-navigation.md"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 287 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 287
+  commits: 2
+  files_changed: 5
+  lines_added: 5245
+  lines_removed: 4729
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-249-canvas-navigation-for-oversized-workflow.md
+generated_by: context-agent-hybrid
