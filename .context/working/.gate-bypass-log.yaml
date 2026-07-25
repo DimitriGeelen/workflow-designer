@@ -819,3 +819,8 @@ FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-231: serve-gallery.
   caller: 'check-active-task focus-drift'
   target: 'T-214'
   command: 'FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-214: enrich handover S-2026-0722-1304 — arc-correct first action (T-235 claim early, not T-125) + session note (T-234+T-237 landed, 0.3.1'
+- timestamp: '2026-07-25T19:33:03Z'
+  task: 'T-249'
+  flag: '--skip-sovereignty'
+  caller: 'check_human_sovereignty'
+  reason: 'Inception decision: GO'
