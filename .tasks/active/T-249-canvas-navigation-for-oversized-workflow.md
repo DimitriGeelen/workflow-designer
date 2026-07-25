@@ -1,0 +1,157 @@
+---
+id: T-249
+name: "Canvas navigation for oversized workflows: zoom, scrollbars, drag-to-pan"
+description: >
+  Inception: Canvas navigation for oversized workflows: zoom, scrollbars, drag-to-pan
+
+status: started-work
+workflow_type: inception
+owner: human
+horizon: now
+tags: []
+components: []
+related_tasks: []
+created: 2026-07-25T14:45:33Z
+last_update: 2026-07-25T14:46:11Z
+date_finished: null
+# revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
+# revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
+# ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
+target_blast_radius: 3            # int 0..9. Anticipated component count of the build work this inception would authorise on GO.
+                                  # Substitutes for the absent components: list in the F8 cost formula (040). Required.
+                                  # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
+voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
+                                  # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+---
+
+# T-249: Canvas navigation for oversized workflows: zoom, scrollbars, drag-to-pan
+
+## Problem Statement
+
+Large workflows never overflow the page — the canvas fits everything via the every-render viewBox recompute + `preserveAspectRatio="meet"` (T-043), so oversized maps **shrink until illegible** with no way to view at working scale and move around. Operator request (2026-07-23): zoom to a readable scale, then navigate via native scrollbars AND drag-to-pan. Fit-to-view stays the default; navigation is the missing second mode.
+
+## Assumptions
+
+- A-018 (registered): explicit-SVG-sizing zoom (viewBox untouched, element width/height = content × zoom, overflow:auto container) survives the every-render viewBox recompute and keeps all pointer paths CTM-correct.
+
+## Open Questions
+
+- **IW-1: Which zoom mechanism composes safely with render()'s every-render viewBox recompute — explicit SVG element sizing, viewBox windowing, or CSS transform?**
+  confidence: 1
+  disposition: deferred
+  rationale: Pre-spike lean = explicit sizing (native scrollbars for free, CTM stays authoritative); spike must prove render() doesn't clobber element size and overlays/snap-guides/marquee stay correct. To be answered by the spike.
+
+- **IW-2: Which drag-to-pan gesture avoids collision with node-drag, marquee select, connect mode, and lane resize?**
+  confidence: 1
+  disposition: deferred
+  rationale: Candidates: space+drag, middle-mouse drag, empty-canvas drag while a pan tool is active. Constraint: empty-canvas drag currently starts rubber-band select — a naive pan gesture breaks multi-select. To be answered by the spike.
+
+- **IW-3: Do secondary render consumers (thumbnails /api/thumb, export/save PNG, hermetic suite probes) stay unaffected by the chosen mechanism?**
+  confidence: 1
+  disposition: deferred
+  rationale: If zoom lives only in element size/CSS on the LIVE canvas (never in viewBox or document), server-side and offscreen renders should be untouched — verify in spike, don't assume.
+
+- **IW-4: Does zoomed navigation compose with T-245 focus mode (fullscreen + zoom + scroll + pan simultaneously)?**
+  confidence: 1
+  disposition: deferred
+  rationale: canvas-wrap is the scroll container in both modes; expected to compose, needs one probe in the spike.
+
+## Exploration Plan
+
+One spike, timeboxed ~1h, in the hermetic sidecar harness (G-006-safe, throwaway docroot):
+1. Prototype mechanism 1 (explicit SVG sizing + overflow:auto) against a deliberately oversized fixture map.
+2. Probe: zoom in → scrollbars appear; click a node at 150% while scrolled → selection lands correctly (CTM check); renderAll() during zoom (drag a node) → zoom survives; snap guides/marquee/status overlay positions; Fit restores.
+3. Trial pan gestures (IW-2) on the prototype; pick the least-colliding one.
+4. Only if mechanism 1 fails structurally: compare CSS-transform variant.
+Output: Findings in docs/reports/T-249-canvas-navigation.md + GO/NO-GO recommendation with the mechanism + gesture named.
+
+## Technical Constraints
+
+- Zoom is VIEW state — never serialized into the BPMN document (same seam principle as T-245's aefViewPrefs; zero contract surface).
+- All pointer math must keep flowing through `clientToSvg`'s `getScreenCTM().inverse()` (T-071) — any mechanism that bypasses the CTM is disqualified.
+- G-003 standing gap (pointer paths, 2 field bugs historically): the eventual build MUST add suite probes (zoomed click accuracy, scrollbar presence, fit-restore, pan-then-click).
+- Ctrl+wheel must not fight native wheel-scroll of the overflow container; browser pinch-zoom (ctrl+wheel default) needs preventDefault only over the canvas.
+
+## Scope Fence
+
+**IN:** zoom controls (Fit / 100% / + / −), Ctrl+wheel zoom at cursor, native scrollbars past fit, drag-to-pan (gesture per IW-2), suite probes, T-245 focus-mode composition.
+**OUT:** minimap/overview widget, touch/pinch gestures, per-map zoom persistence (session-only unless trivially free), any document-format change, any Python/server change.
+
+## Acceptance Criteria
+
+### Agent
+<!-- @auto-tick-on-decide -->
+- [ ] Problem statement validated
+<!-- @auto-tick-on-decide -->
+- [ ] Assumptions tested
+<!-- @auto-tick-on-decide -->
+- [ ] Recommendation written with rationale
+
+### Human
+<!-- @auto-tick-on-decide -->
+- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+  **Steps:**
+  1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
+  2. Review the Agent Recommendation section and go/no-go criteria evaluation
+  3. Record decision via the Watchtower form or the command shown alongside the QR code
+  **Expected:** Decision recorded, task completed
+  **If not:** Ask agent for clarification on specific findings
+
+## Go/No-Go Criteria
+
+<!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
+**GO if:**
+- Root cause identified with bounded fix path
+- Fix is scoped, testable, and reversible
+
+**NO-GO if:**
+- Problem requires fundamental redesign or unbounded scope
+- Fix cost exceeds benefit given current evidence
+
+## Verification
+
+# Shell commands that MUST pass before work-completed. One per line.
+# Lines starting with # are comments (skipped). Empty lines ignored.
+# For inception tasks, verification is often not needed (decisions, not code).
+#
+# Toolchain hint (L-291): if a GO decision will mean editing *.vbproj/*.csproj/*.xaml,
+# *.go, Cargo.toml, tsconfig.json, or pom.xml in the build task, plan to add the
+# matching build command (dotnet build / go build / cargo check / tsc --noEmit /
+# mvn compile) to that build task's ## Verification — P-011 only runs what you write.
+
+## Recommendation
+
+**Recommendation:** DEFER
+
+**Rationale:**
+
+Filing pre-spike: the mechanism question (how zoom composes with the every-render viewBox recompute — viewBox-multiply vs explicit SVG width/height vs CSS transform) is unanswered; DEFER until the timeboxed spike produces evidence. Operator has ratified the NEED (oversized maps shrink to illegible under fit-to-view; wants zoom + scrollbars + drag-to-pan), so the inception question is mechanism selection, not desirability.
+
+**Evidence:**
+
+<!-- Add evidence bullets as exploration progresses (file paths,
+     commit hashes, test results). The filing-time recommendation
+     can be revised before fw inception decide. -->
+
+## Decisions
+
+<!-- Record decisions ONLY when choosing between alternatives.
+     Skip for tasks with no meaningful choices.
+     Format:
+     ### [date] — [topic]
+     - **Chose:** [what was decided]
+     - **Why:** [rationale]
+     - **Rejected:** [alternatives and why not]
+-->
+
+## Decision
+
+<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+
+## Updates
+
+<!-- Auto-populated by git mining at task completion.
+     Manual entries optional during execution. -->
+
+### 2026-07-25T14:46:11Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

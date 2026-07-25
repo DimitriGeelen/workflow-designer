@@ -159,3 +159,13 @@ assumptions:
   linked_task: T-247
   created: '2026-07-23'
   resolved_date: '2026-07-23'
+- id: A-018
+  statement: Explicit-SVG-sizing zoom (viewBox untouched; element width/height = content
+    x zoom; overflow:auto container) survives the every-render viewBox recompute and
+    keeps all pointer paths CTM-correct
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-249
+  created: '2026-07-25'
+  resolved_date: null
