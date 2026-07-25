@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-25T14:45:33Z
-last_update: 2026-07-25T14:46:11Z
+last_update: 2026-07-25T14:48:23Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -32,29 +32,29 @@ Large workflows never overflow the page — the canvas fits everything via the e
 
 ## Assumptions
 
-- A-018 (registered): explicit-SVG-sizing zoom (viewBox untouched, element width/height = content × zoom, overflow:auto container) survives the every-render viewBox recompute and keeps all pointer paths CTM-correct.
+- A-018 (VALIDATED by spike): explicit-SVG-sizing zoom (viewBox untouched, element width/height = content × zoom, overflow:auto container) survives the every-render viewBox recompute and keeps all pointer paths CTM-correct. Evidence: 12/12 probes green, tools/_t249-spike-zoom-cdp.mjs.
 
 ## Open Questions
 
 - **IW-1: Which zoom mechanism composes safely with render()'s every-render viewBox recompute — explicit SVG element sizing, viewBox windowing, or CSS transform?**
-  confidence: 1
-  disposition: deferred
-  rationale: Pre-spike lean = explicit sizing (native scrollbars for free, CTM stays authoritative); spike must prove render() doesn't clobber element size and overlays/snap-guides/marquee stay correct. To be answered by the spike.
+  confidence: 9
+  disposition: answered
+  rationale: Explicit SVG element sizing, via a syncCanvasSize wrapper (single integration point). Spike P1/P3/P4/P5 green against the unmodified shipping editor: zoom survives renderAll(), tracks content growth, fit-restore is byte-identical to today; CTM carries the zoom (ctmA=1.4999993 at 1.5). Alternatives never needed — mechanism 1 passed every probe.
 
 - **IW-2: Which drag-to-pan gesture avoids collision with node-drag, marquee select, connect mode, and lane resize?**
-  confidence: 1
-  disposition: deferred
-  rationale: Candidates: space+drag, middle-mouse drag, empty-canvas drag while a pan tool is active. Constraint: empty-canvas drag currently starts rubber-band select — a naive pan gesture breaks multi-select. To be answered by the spike.
+  confidence: 8
+  disposition: answered
+  rationale: Capture-phase listener on .canvas-wrap gated by a pan flag (space-held) OR middle-mouse — stopPropagation preempts the svg-level rubber-band mousedown without touching any existing handler. Spike P7: pan moves scroll exactly, rubberBand never starts, selection untouched; P7b: middle-mouse pans with no mode key; P6: marquee still exact with the pan listener installed but inactive. Build: middle-mouse always on + space+drag alternative, one shared code path.
 
 - **IW-3: Do secondary render consumers (thumbnails /api/thumb, export/save PNG, hermetic suite probes) stay unaffected by the chosen mechanism?**
-  confidence: 1
-  disposition: deferred
-  rationale: If zoom lives only in element size/CSS on the LIVE canvas (never in viewBox or document), server-side and offscreen renders should be untouched — verify in spike, don't assume.
+  confidence: 8
+  disposition: answered
+  rationale: /api/thumb is server-side (untouched by construction); captureThumbnail() renders fine at zoom (P9, dims derive from getBBox = viewBox-space); suite renders never set zoom → fit path unchanged (P5). One-line build hardening: strip cloned inline style in captureThumbnail for byte-stable thumbnails.
 
 - **IW-4: Does zoomed navigation compose with T-245 focus mode (fullscreen + zoom + scroll + pan simultaneously)?**
-  confidence: 1
-  disposition: deferred
-  rationale: canvas-wrap is the scroll container in both modes; expected to compose, needs one probe in the spike.
+  confidence: 9
+  disposition: answered
+  rationale: Spike P8: focus mode + zoom 1.5 → zoom held, scrollbars live, Esc exits focus with zoom intact. canvas-wrap is the scroll container in both modes, as expected.
 
 ## Exploration Plan
 
@@ -99,14 +99,17 @@ Output: Findings in docs/reports/T-249-canvas-navigation.md + GO/NO-GO recommend
 
 ## Go/No-Go Criteria
 
-<!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
 **GO if:**
-- Root cause identified with bounded fix path
-- Fix is scoped, testable, and reversible
+- A zoom mechanism survives the every-render viewBox recompute WITHOUT modifying render()'s existing behavior (fit stays default, restore byte-identical)
+- Pointer paths (click, marquee, pan) proven CTM-correct at zoom+scroll with REAL trusted input (G-003 class), not synthetic dispatch
+- A pan gesture coexists with rubber-band select, node-drag, and connect mode without editing existing handlers
+- Secondary render consumers (/api/thumb, captureThumbnail, suite) demonstrably unaffected
+- Focus mode (T-245) composes with zoom+scroll
 
 **NO-GO if:**
-- Problem requires fundamental redesign or unbounded scope
-- Fix cost exceeds benefit given current evidence
+- Every candidate mechanism requires restructuring render()/syncCanvasSize or forking pointer math off the CTM path
+- Pan cannot be added without changing rubber-band/drag handler logic (regression surface on the 2-field-bug pointer pipeline)
+- Zoom state leaks into serialization or secondary renders
 
 ## Verification
 
@@ -121,17 +124,19 @@ Output: Findings in docs/reports/T-249-canvas-navigation.md + GO/NO-GO recommend
 
 ## Recommendation
 
-**Recommendation:** DEFER
+**Recommendation:** GO
 
 **Rationale:**
 
-Filing pre-spike: the mechanism question (how zoom composes with the every-render viewBox recompute — viewBox-multiply vs explicit SVG width/height vs CSS transform) is unanswered; DEFER until the timeboxed spike produces evidence. Operator has ratified the NEED (oversized maps shrink to illegible under fit-to-view; wants zoom + scrollbars + drag-to-pan), so the inception question is mechanism selection, not desirability.
+All four open questions answered by the timeboxed spike (well under the 1h box), every GO criterion met, no NO-GO criterion triggered. Mechanism: explicit SVG element sizing via a syncCanvasSize wrapper — proven against the UNMODIFIED shipping editor with zero source edits, so the production diff is small, additive, and reversible (fit stays default; zoom is transient view state, never serialized). Pointer correctness — the G-003 risk that motivated inception — verified with real CDP trusted input at zoom+scroll (click, marquee, pan all CTM-exact). Build task should implement: zoom controls (Fit/100%/+/−), Ctrl+wheel-at-cursor, overflow:auto scrollbars, middle-mouse + space+drag pan (one shared capture-phase code path), overlay re-anchor, captureThumbnail clone-style strip, and promote spike probes P1–P8 into the G-010 standing suite.
 
 **Evidence:**
 
-<!-- Add evidence bullets as exploration progresses (file paths,
-     commit hashes, test results). The filing-time recommendation
-     can be revised before fw inception decide. -->
+- Spike harness + prototype: `tools/_t249-spike-zoom-cdp.mjs` (hermetic, G-006-safe, real trusted input)
+- Verdict: 12/12 probes green (grow-fixture, P1 zoom-scrollbars, P2 ctm-click-zoomed-scrolled, P3 zoom-survives-render, P4 content-growth-tracked, P5 fit-restore, P6 marquee-at-zoom expected==selected, P7 pan-preempts-marquee, P7b middle-mouse-pan, P8 focus-mode-composes, P9 thumbnail-renders-at-zoom, P10 overlay observation)
+- A-018 validated (fw assumption validate A-018, spike evidence recorded)
+- Full findings: `docs/reports/T-249-canvas-navigation.md` §Findings
+- Two scoped build findings, neither a blocker: status-overlay scrolls out of view when panned (re-anchor it); Ctrl+wheel-at-cursor arithmetic left to build (no structural risk — standard formula on exposed knobs)
 
 ## Decisions
 
