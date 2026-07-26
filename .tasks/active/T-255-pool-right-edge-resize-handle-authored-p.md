@@ -4,9 +4,9 @@ name: "Pool right-edge resize handle: authored page-width floor (mirror lane-hei
 description: >
   Pool right-edge resize handle: authored page-width floor (mirror lane-height resize on the horizontal axis)
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-26T19:49:17Z
-last_update: 2026-07-26T19:49:17Z
-date_finished: null
+last_update: 2026-07-26T20:07:37Z
+date_finished: 2026-07-26T20:07:37Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -124,8 +124,9 @@ Operator request 2026-07-26 ("scale the horizontal end of a page, same as swimmi
 # pool-resize handle + pageWidth plumbing present in source
 grep -q "pool-resize-handle" src/aef-workflow-designer.html
 grep -q "pageWidth" src/aef-workflow-designer.html
-# full editor-behavior suite (incl. new t255-pool-width leg) — file-based grep (L-387)
-node tools/_editor-behavior-verify-cdp.mjs > /tmp/.t255suite 2>&1 && grep -q "PASS" /tmp/.t255suite
+# full editor-behavior suite (incl. new t255-pool-width leg) — exit 0 only when all legs pass
+# (suite emits JSON with lowercase "pass": true — no uppercase PASS marker to grep; the exit code IS the verdict)
+node tools/_editor-behavior-verify-cdp.mjs > /tmp/.t255suite 2>&1
 # bridge tests
 bash tests/run-bridge-tests.sh > /tmp/.t255bridge 2>&1
 # corpus geometry unaffected (24 maps clean)
@@ -175,7 +176,13 @@ python3 tests/test_designer_render.py > /tmp/.t255render 2>&1
 
 ## Recommendation
 
-**GO.** The feature is the exact horizontal mirror of an affordance the operator already uses daily (lane-height drag), implemented as a floor inside the single function every width consumer reads (`contentRightEdge()`), with additive-only serialization — untouched maps export byte-identically and AEF ignores unknown attributes (zero seam surface). All 7 agent ACs green: suite 7/7 (new leg drives the handle with real trusted input), bridge 37/37, geometry 24 clean, render gate PASS, visuals read. The one open judgment is feel (hit-zone width, snap-back-to-auto behavior, fit-zoom re-scale while dragging) — exactly what the Human [REVIEW] AC checks.
+**Recommendation:** GO
+**Rationale:** Exact horizontal mirror of an affordance the operator already uses daily (lane-height drag), implemented as a floor inside the single function every width consumer reads (`contentRightEdge()`), with additive-only serialization — untouched maps export byte-identically and AEF ignores unknown attributes (zero seam surface). The one open judgment is feel (hit-zone width, snap-back-to-auto behavior, fit-zoom re-scale while dragging) — exactly what the Human [REVIEW] AC checks at the sha-verified gallery URL.
+**Evidence:**
+- Suite 7/7 legs incl. new t255-pool-width driving the handle with real trusted CDP input (probes w0–w6: baseline no-attr, drag grows, render survival, round-trip, T-043 floor invariant, inward-clear, undo restore)
+- bridge 37/37, corpus geometry 24 clean, render gate PASS (P-011 re-ran all of these green, 6/6)
+- 4 screenshots read (`.playwright-mcp/t255-*.png`): grip renders in lane-grip visual language; widened canvas spans correctly; cleared state pixel-identical to baseline
+- Implementation commit dda0587; live at http://192.168.10.107:8834/designer.html (served copy sha == src, verified over HTTP)
 
 ## Visual Verification
 
@@ -218,3 +225,6 @@ Screenshots produced by `tools/_t255-visual-shots.mjs` (hermetic sidecar, dark-o
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-255-pool-right-edge-resize-handle-authored-p.md
 - **Context:** Initial task creation
+
+### 2026-07-26T20:07:37Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
