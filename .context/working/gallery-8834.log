@@ -172,3 +172,22 @@ API:    /api/health /api/list /api/save /api/delete /api/versions /api/version /
 [gallery-serve] "GET /designer.html HTTP/1.1" 200 -
 [gallery-serve] "GET /rendered/harvest-pipeline.bpmn HTTP/1.1" 200 -
 [gallery-serve] "GET /designer.html HTTP/1.1" 200 -
+[gallery-serve] "GET /designer.html?load=rendered%2Fharvest-pipeline.bpmn HTTP/1.1" 200 -
+[gallery-serve] "GET /rendered/harvest-pipeline.bpmn HTTP/1.1" 200 -
+[gallery-serve] "GET /api/health HTTP/1.1" 200 -
+[gallery-serve] code 404, message File not found
+[gallery-serve] "GET /favicon.ico HTTP/1.1" 404 -
+[gallery-serve] "GET /api/list HTTP/1.1" 200 -
+[gallery-serve] "HEAD /designer.html HTTP/1.1" 200 -
+[gallery-serve] "GET /designer.html HTTP/1.1" 200 -
+[gallery-serve] "GET /rendered/harvest-pipeline.bpmn HTTP/1.1" 200 -
+[gallery-serve] "GET /designer.html HTTP/1.1" 200 -
+[gallery-serve] "GET /designer.html?load=rendered%2Fharvest-pipeline.bpmn HTTP/1.1" 200 -
+[gallery-serve] "GET /rendered/harvest-pipeline.bpmn HTTP/1.1" 200 -
+[gallery-serve] "GET /api/health HTTP/1.1" 200 -
+[gallery-serve] "GET /api/list HTTP/1.1" 200 -
+[gallery-serve] "GET /designer.html?load=rendered%2Fharvest-pipeline.bpmn HTTP/1.1" 200 -
+[gallery-serve] "GET /rendered/harvest-pipeline.bpmn HTTP/1.1" 200 -
+[gallery-serve] "GET /api/health HTTP/1.1" 200 -
+[gallery-serve] "GET /api/list HTTP/1.1" 200 -
+[gallery-serve] "GET /api/list HTTP/1.1" 200 -

@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-253: Operator reports T-251 review URL dead (?load=harvest-pipeline on :8834) — diagnose served-page runtime vs client cache
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-26T15:06:41Z
+# ============================================================================
+
+task_id: T-253
+task_name: "Operator reports T-251 review URL dead (?load=harvest-pipeline on :8834) — diagnose served-page runtime vs client cache"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-25T19:58:24Z
+completed: 2026-07-26T15:06:39Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-07-25T22:01:14+02:00
+last_commit: 2026-07-25T22:01:14+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  root cause of dead T-251 review URL — ufw default-deny, 8834 never allowed (gallery LAN-advertised but LAN-unreachable since day one); runtime + cache hypotheses disproved with isolated-browser probe evidence; remedy = operator ufw command; RCA: agent-side reachability probes bypass inbound filtering, new-port URLs need a ufw allowed-port check
+
+# Key outcomes
+outcomes:
+  - 'Root cause identified with probe evidence, three hypotheses tested in order: (1) served-page runtime — DISPROVED, isolated headless load of the exact URL renders harvest-pipeline 24 nodes + zoom controls (.playwright-mcp/t253-live-probe.png, only favicon 404); (2) browser cache — DISPROVED, live headers carry Cache-Control: no-store (pre-existing fix, server restarted after it); (3) FIREWALL — CONFIRMED: ufw active, INPUT policy DROP, allowed = 22/5000/8080/3000/8888/8000; 8834 absent → connections from the operator''s machine hang silently ("nothing happens"). Host-local probes passed because they bypass inbound filtering.'
+  - 'Remedy: no free allowed port exists (8080 occupied by pid 7932, others are named apps), so the fix is the operator-owned ufw rule — single copy-pasteable command delivered (`sudo ufw allow 8834/tcp comment ''AEF designer corpus gallery''`). Firewall is a security boundary: operator action, not agent action.'
+  - 'Operator confirms the URL loads after opening the port — operator ran the ufw command and reported "works great" (2026-07-25)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.playwright-mcp/t253-live-probe.png'
+  - '.tasks/active/T-253-operator-reports-t-251-review-url-dead-l.md'
+  - 'tools/_t253-live-url-probe.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-25T22:01:14"
+    action: "T-253: root cause of dead T-251 review URL — ufw default-deny, 8834 never allowed (gallery LAN-advertised but LAN-unreachable since day one); runtime + cache hypotheses disproved with isolated-browser probe evidence; remedy = operator ufw command; RCA: agent-side reachability probes bypass inbound filtering, new-port URLs need a ufw allowed-port check"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1148 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1148
+  commits: 1
+  files_changed: 3
+  lines_added: 231
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-253-operator-reports-t-251-review-url-dead-l.md
+generated_by: context-agent-hybrid

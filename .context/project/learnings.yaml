@@ -386,3 +386,10 @@ learnings:
   date: 2026-07-23
   context: Added via context agent
   application: TBD
+- id: PL-056
+  learning: "Agent-side reachability probes (curl/headless on the serving host) bypass inbound firewall filtering — a URL can be 200-green locally and dead for every LAN client. Before handing the operator a URL on a NEW port, check 'ufw status' for the port (host-local, agent-verifiable) and include the ufw allow command in the steps if absent."
+  source: P-001
+  task: T-253
+  date: 2026-07-26
+  context: Added via context agent
+  application: TBD

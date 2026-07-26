@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-07-26T15:06:41Z ===
+task_id: T-253
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-253.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Operator reports T-251 review URL dead (?load=harvest-pipeline on :8834) — diagnose served-page runtime vs client cache
+  Duration: 1 days (1148 min)
+  Updates: 2
+  Commits: 1
+  Lines: +231 -0 across 3 files
+  Outcomes: 3 AC checked
+  Artifacts: 3 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-253-operator-reports-t-251-review-url-dead-l.md
+--- exit code: 0 ---
