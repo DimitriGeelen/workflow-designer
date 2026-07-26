@@ -494,6 +494,9 @@ font-family: 'Outfit';
   }
   .lane-resize-handle:hover .lane-resize-grip { opacity: 1; fill: var(--accent); }
   .lane-resize-handle.dragging .lane-resize-grip { opacity: 1; fill: var(--accent); }
+  .pool-resize-handle { cursor: ew-resize; }
+  .pool-resize-handle:hover .lane-resize-grip { opacity: 1; fill: var(--accent); }
+  .pool-resize-handle.dragging .lane-resize-grip { opacity: 1; fill: var(--accent); }
   .lane-label {
     fill: var(--text-faint);
     font-family: var(--mono);
@@ -2026,13 +2029,23 @@ function poolHeight() {
 // the viewBox scales to fit (preserveAspectRatio meet), giving fit-to-view
 // instead of a hard crop. Falls back to the POOL_WIDTH floor for small diagrams
 // so the default layout is unchanged. (T-043)
-function contentRightEdge() {
+// T-255: the natural (content-driven) edge, without the authored page-width floor —
+// also the inward clamp for the pool right-edge resize drag (authored width can
+// never crop content).
+function contentRightEdgeNatural() {
   let right = POOL_X + LANE_HEADER + POOL_WIDTH; // authored minimum
   for (const n of (state?.nodes || [])) {
     const d = NODE_DEFAULTS[n.type] || NODE_DEFAULTS.serviceTask;
     right = Math.max(right, n.x + d.w + 60 /* right margin */);
   }
   return right;
+}
+function contentRightEdge() {
+  // T-255: workflowMeta.pageWidth is an authored FLOOR (pool-relative width set by
+  // dragging the pool's right edge), never a replacement — content past it still
+  // grows the page, preserving the T-043 never-clip guarantee for every consumer.
+  const authored = state?.workflowMeta?.pageWidth;
+  return Math.max(contentRightEdgeNatural(), authored ? POOL_X + authored : 0);
 }
 // Locate which lane a given y-coordinate falls into; returns lane id or first lane id as fallback.
 function laneAtY(y) {
@@ -2193,6 +2206,7 @@ let connectPreviewSnap = null; // T-168: {nodeId, port} the connect preview is c
 let drag = null;
 let edgeDrag = null; // { kind: 'endpoint'|'waypoint'|'add-waypoint', edgeId, ... }
 let laneResizeDrag = null; // { laneId, startY, startHeight }
+let poolResizeDrag = null; // { startX, startWidth } — T-255 pool right-edge resize
 let nextId = 100;
 
 // ============================================================================
@@ -2317,6 +2331,24 @@ window.addEventListener('mousemove', e => {
   canvasWrap.scrollTop = panDrag.st - (e.clientY - panDrag.y);
   e.preventDefault(); e.stopPropagation();
 }, true);
+// T-255 pool right-edge resize: WINDOW-level like the pan above — at fit zoom the
+// pool's right edge sits at the canvas-wrap boundary, so a rightward drag leaves
+// the svg immediately and svg-level mousemove would never see it. Delta converts
+// client px → svg px via the CTM scale captured at drag START (poolResizeDrag.scale):
+// the drag itself grows the viewBox, so reading the live CTM mid-drag would feed
+// the rescale back into the mapping.
+window.addEventListener('mousemove', e => {
+  if (!poolResizeDrag) return;
+  const wanted = poolResizeDrag.startWidth + (e.clientX - poolResizeDrag.clientX0) / poolResizeDrag.scale;
+  const natural = contentRightEdgeNatural() - POOL_X; // inward clamp: never crop content
+  const PAGE_WIDTH_MAX = 16000;
+  const next = wanted <= natural ? null : Math.round(Math.min(PAGE_WIDTH_MAX, wanted));
+  if (next !== (state.workflowMeta.pageWidth || null)) {
+    state.workflowMeta.pageWidth = next; // null = auto-fit (attribute not emitted)
+    renderAll();
+  }
+  e.preventDefault();
+});
 window.addEventListener('mouseup', e => {
   if (!panDrag) return;
   panDrag = null;
@@ -2640,6 +2672,15 @@ function renderPool() {
   }
   // bottom border
   gPool.appendChild(el('rect', { x: px, y: py, width: pw, height: ph, class: 'pool-border' }));
+
+  // T-255: resize handle at the pool's *right* edge — the horizontal mirror of the
+  // lane bottom-edge handle. Dragging authors a page-width floor (workflowMeta.pageWidth);
+  // dragging back to the natural content edge clears it (auto-fit restored).
+  const rightG = el('g', { class: 'pool-resize-handle' + (poolResizeDrag ? ' dragging' : '') });
+  rightG.appendChild(el('rect', { x: px + pw - 4, y: py + POOL_HEADER, width: 8, height: ph - POOL_HEADER, class: 'lane-resize-hit' }));
+  rightG.appendChild(el('rect', { x: px + pw - 1, y: py + POOL_HEADER + (ph - POOL_HEADER) / 2 - 12, width: 2, height: 24, rx: 1, class: 'lane-resize-grip' }));
+  rightG.addEventListener('mousedown', onPoolResizeMouseDown);
+  gPool.appendChild(rightG);
 
   // "+ Add another lane" strip below the pool — clearly discoverable
   const stripY = py + ph + 8;
@@ -6232,6 +6273,11 @@ window.addEventListener('mouseup', e => {
   if (laneResizeDrag) {
     document.querySelectorAll('.lane-resize-handle.dragging').forEach(el => el.classList.remove('dragging'));
   }
+  if (poolResizeDrag) {
+    poolResizeDrag = null; // clear BEFORE renderAll so the handle re-renders without .dragging
+    document.querySelectorAll('.pool-resize-handle.dragging').forEach(el => el.classList.remove('dragging'));
+    renderAll();
+  }
   if (rubberBand) {
     // Finalize selection from rubber-band bounds
     finalizeRubberBandSelection();
@@ -6261,6 +6307,16 @@ function onLaneResizeMouseDown(ev, laneId) {
   const pt = clientToSvg(ev.clientX, ev.clientY);
   laneResizeDrag = { laneId, startY: pt.y, startHeight: lane.height };
   // visual feedback while dragging
+  ev.currentTarget.classList.add('dragging');
+}
+
+function onPoolResizeMouseDown(ev) {
+  ev.stopPropagation();
+  ev.preventDefault();
+  let scale = 1;
+  try { scale = svg.getScreenCTM().a || 1; } catch (_) { /* keep 1 */ }
+  pushHistory(); // one undo entry per resize gesture (T-132)
+  poolResizeDrag = { clientX0: ev.clientX, startWidth: contentRightEdge() - POOL_X, scale };
   ev.currentTarget.classList.add('dragging');
 }
 
@@ -8776,6 +8832,9 @@ function buildBpmnXml(s) {
   if (wm.description) wmAttrs.push(`description="${escAttr(wm.description)}"`);
   if (wm.source) wmAttrs.push(`source="${escAttr(wm.source)}"`);
   if (wm.tier_default) wmAttrs.push(`tier_default="${escAttr(wm.tier_default)}"`);
+  // T-255: authored page-width floor (pool right-edge drag). Additive-only, same
+  // pattern as uuid — absent when unset, so untouched maps export byte-identically.
+  if (wm.pageWidth) wmAttrs.push(`pageWidth="${escAttr(wm.pageWidth)}"`);
   lines.push(`      <aef:workflowMeta ${wmAttrs.join(' ')}/>`);
   lines.push(`    </bpmn:extensionElements>`);
 
@@ -8922,6 +8981,7 @@ function parseBpmnXml(text) {
     title: aefMetaEl?.getAttribute('title') || procName || 'Imported workflow',
     description: aefMetaEl?.getAttribute('description') || '',
     tier_default: aefMetaEl?.getAttribute('tier_default') || '2',
+    pageWidth: parseInt(aefMetaEl?.getAttribute('pageWidth') || '0', 10) || null, // T-255: authored page-width floor; null = auto-fit
   };
 
   // ---- lanes ----

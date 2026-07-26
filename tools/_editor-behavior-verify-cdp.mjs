@@ -600,6 +600,64 @@ async function main() {
       && !z8.zoomed && z8.styleW === '' && z8.scrollW <= z8.clientW + 2 && z8.readout === 'fit' && z8.zf === null;
     verdict.legs.push({ leg: 't249-canvas-nav', pass: leg9, got: { z0, z1, z2, z3, wheelAt, z4b, z5, z6, z7, z8 } });
 
+    // ── Leg 10 (T-255): pool right-edge resize — authored page-width floor ──
+    // Same G-003 discipline: the resize gesture is driven with REAL trusted mouse
+    // input on the rendered handle, not by poking state. Asserts the floor-not-
+    // replacement invariant (T-043 preserved), additive-only serialization, the
+    // drag-inward-clears-to-auto-fit behavior, and T-132 undo integration.
+    await ev(cmd, `localStorage.clear()`);
+    await nav(LOAD_X);
+    const handlePt = async () => await ev(cmd, `(function(){
+      const r = document.querySelector('.pool-resize-handle .lane-resize-hit').getBoundingClientRect();
+      return { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) };
+    })()`);
+    const w0 = await ev(cmd, `(function(){
+      const xml = buildBpmnXml(state);
+      return { pw: state.workflowMeta.pageWidth || null, edge: Math.round(contentRightEdge()),
+               natural: Math.round(contentRightEdgeNatural()), poolX: POOL_X,
+               handle: !!document.querySelector('.pool-resize-handle'),
+               attrInXml: /pageWidth="/.test(xml),
+               nodeX: state.nodes[0] ? state.nodes[0].x : null };
+    })()`);
+    const h1 = await handlePt();
+    await mDrag(h1.x, h1.y, h1.x + 300, h1.y);
+    await sleep(150);
+    const w1 = await ev(cmd, `({ pw: state.workflowMeta.pageWidth || null, edge: Math.round(contentRightEdge()), nodeX: state.nodes[0] ? state.nodes[0].x : null })`);
+    // survives a full re-render (edit simulation)
+    const w2 = await ev(cmd, `(function(){ renderAll(); return { pw: state.workflowMeta.pageWidth || null, edge: Math.round(contentRightEdge()) }; })()`);
+    // export → import round-trip; attribute emitted only when set
+    const w3 = await ev(cmd, `(function(){
+      const xml = buildBpmnXml(state);
+      const back = parseBpmnXml(xml);
+      return { attrInXml: /pageWidth="\\d+"/.test(xml), rtPw: back && back.workflowMeta ? back.workflowMeta.pageWidth : null };
+    })()`);
+    // floor, not replacement: content pushed past the authored edge still grows the page
+    const w4 = await ev(cmd, `(function(){
+      const n = state.nodes[0]; const oldX = n.x;
+      n.x = (contentRightEdge() - POOL_X) + 400; renderAll();
+      const grew = Math.round(contentRightEdge());
+      const authoredEdge = POOL_X + state.workflowMeta.pageWidth;
+      n.x = oldX; renderAll();
+      return { grew, authoredEdge, restored: Math.round(contentRightEdge()) };
+    })()`);
+    // drag far inward: clears the authored floor (back to auto-fit, attribute gone)
+    const h2 = await handlePt();
+    await mDrag(h2.x, h2.y, Math.max(60, h2.x - 900), h2.y);
+    await sleep(150);
+    const w5 = await ev(cmd, `({ pw: state.workflowMeta.pageWidth || null, edge: Math.round(contentRightEdge()), attrInXml: /pageWidth="/.test(buildBpmnXml(state)) })`);
+    // T-132: one undo step per gesture — undo restores the authored width the inward drag cleared
+    await ev(cmd, `undo()`);
+    await sleep(150);
+    const w6 = await ev(cmd, `({ pw: state.workflowMeta.pageWidth || null })`);
+    const leg10 = w0.handle && w0.pw === null && !w0.attrInXml && w0.edge === w0.natural
+      && w1.pw !== null && w1.edge > w0.edge + 100 && w1.edge === w0.poolX + w1.pw && w1.nodeX === w0.nodeX
+      && w2.pw === w1.pw && w2.edge === w1.edge
+      && w3.attrInXml && w3.rtPw === w1.pw
+      && w4.grew > w4.authoredEdge && w4.restored === w1.edge
+      && w5.pw === null && w5.edge === w0.natural && !w5.attrInXml
+      && w6.pw === w1.pw;
+    verdict.legs.push({ leg: 't255-pool-width', pass: leg10, got: { w0, h1, w1, w2, w3, w4, w5, w6 } });
+
     verdict.pass = verdict.legs.every(l => l.pass);
     process.stdout.write(JSON.stringify(verdict, null, 2) + '\n');
     process.exitCode = verdict.pass ? 0 : 1;
