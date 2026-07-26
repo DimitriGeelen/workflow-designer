@@ -4,10 +4,10 @@ name: "Release designer 0.5.0 (T-251 canvas navigation) + rail announce per pull
 description: >
   OPERATOR-AUTHORIZED 2026-07-26 ('2 do cut and put on rail') — cut blocked in prior session only by budget gate. Steps (T-248 pattern): bump VERSION 0.4.0->0.5.0; scripts/release-designer.sh (render gate + immutability: 0.4.0 ea47db53 + 0.3.x pins untouched); verify at-tag freeze (artifact sha at designer-v0.5.0 == MANIFEST-at-tag); push master+tag to origin (ssh, never github); announce on rail dm:0e7ee6cad65137fc:6a646ce8b1bc6560 per pull-at-tag contract (version/sha256/bytes/tag, content = exactly T-251 canvas navigation, zero seam surface, markers with counting method stated); AEF pulls via fw designer sync --from-tag. Rail cursor 199.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-26T15:14:04Z
-last_update: 2026-07-26T15:14:04Z
-date_finished: null
+last_update: 2026-07-26T15:23:24Z
+date_finished: 2026-07-26T15:23:24Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,14 +34,16 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Operator authorized 2026-07-26 ("2 do cut and put on rail") after T-251 canvas navigation reached partial-complete (agent ACs 7/7, P-011 9/9, suite 6/6 legs) and the operator confirmed the live gallery works ("works great"). Content of this release = exactly T-251 (zoom controls, Ctrl+wheel-at-cursor, native scrollbars past fit, middle-mouse/space drag-to-pan, overlay pinning, thumbnail zoom-independence). Zero seam surface: no changes to BPMN serialization, aef:* vocabulary, or the consumer API — AEF's side is pin + `fw designer sync --from-tag` + e2e only. Follows the T-248 release pattern under the pull-at-tag contract (T-247 GO both sides).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] VERSION bumped 0.4.0 → 0.5.0; scripts/release-designer.sh runs clean (render gate PASS) producing dist/aef-workflow-designer-0.5.0.html + MANIFEST.yaml with latest=0.5.0 and matching sha256/bytes — Evidence: script output "Released designer 0.5.0", sha256 787e40251f624bb39532be096232f4e25ea9014fe7dc0da0bc46285e140e025e, bytes 879243, render gate "PASS: designer render-check (0.5.0)"
+- [x] Immutability preserved: 0.4.0 artifact still sha256 ea47db53a55be41df7ee6a2ff934146eeeed9f247b4a9bb1db9bcc152c3880d7 and 0.3.x/0.2.0/0.1.0 dist artifacts byte-untouched (git diff clean for prior dist files) — Evidence: post-cut sha256sum 0.4.0=ea47db53… 0.3.2=983e0e30…; git status showed only VERSION, MANIFEST.yaml, and the new 0.5.0 artifact changed
+- [x] Annotated tag designer-v0.5.0 exists; at-tag freeze verified: sha256 of `git show designer-v0.5.0:dist/aef-workflow-designer-0.5.0.html` equals the sha256 recorded in MANIFEST.yaml at the same tag — Evidence: both = 787e40251f624bb39532be096232f4e25ea9014fe7dc0da0bc46285e140e025e
+- [x] master + designer-v0.5.0 tag pushed to origin (ssh remote only — github is mirrored, never pushed directly) — Evidence: push output "ee1ce2b..00cbefc master -> master" + "[new tag] designer-v0.5.0"; pre-push audit 16 PASS
+- [x] Rail announce posted on dm:0e7ee6cad65137fc:6a646ce8b1bc6560 with version/sha256/bytes/tag, content summary (= exactly T-251, zero seam surface), and grep markers with counting method stated; frontier acked — Evidence: announce landed at offset 199 (expected, no gap), markers btn-zoom-fit=3/applyCanvasZoom=3/syncOverlayPin=4 with grep -c = LINES stated, ack at offset 200
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -106,6 +108,21 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+# VERSION and MANIFEST agree at 0.5.0
+grep -q "^0.5.0$" VERSION
+grep -q 'latest: "0.5.0"' dist/MANIFEST.yaml
+# working-tree artifact sha matches MANIFEST top block
+test "$(sha256sum dist/aef-workflow-designer-0.5.0.html | awk '{print $1}')" = "$(awk -F'"' '/^sha256:/{print $2; exit}' dist/MANIFEST.yaml)"
+# immutability: 0.4.0 pinned artifact untouched
+test "$(sha256sum dist/aef-workflow-designer-0.4.0.html | awk '{print $1}')" = "ea47db53a55be41df7ee6a2ff934146eeeed9f247b4a9bb1db9bcc152c3880d7"
+test "$(sha256sum dist/aef-workflow-designer-0.3.2.html | awk '{print $1}')" = "983e0e304a3dc12e41ed9ea7270ba6edd032453c72c9ee423f466aa9d9e8d38a"
+# at-tag freeze: artifact-at-tag sha == MANIFEST-at-tag sha
+git show designer-v0.5.0:dist/aef-workflow-designer-0.5.0.html > /tmp/.t254art && git show designer-v0.5.0:dist/MANIFEST.yaml > /tmp/.t254man && test "$(sha256sum /tmp/.t254art | awk '{print $1}')" = "$(awk -F'"' '/^sha256:/{print $2; exit}' /tmp/.t254man)"
+# tag pushed to origin
+git ls-remote origin refs/tags/designer-v0.5.0 > /tmp/.t254rem 2>&1 && grep -q designer-v0.5.0 /tmp/.t254rem
+# render gate green on released source
+python3 tests/test_designer_render.py > /tmp/.t254render 2>&1
 
 ## RCA
 
@@ -174,3 +191,9 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-254-release-designer-050-t-251-canvas-naviga.md
 - **Context:** Initial task creation
+
+### 2026-07-26T15:20:24Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+### 2026-07-26T15:23:24Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

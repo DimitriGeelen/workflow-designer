@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-254: Release designer 0.5.0 (T-251 canvas navigation) + rail announce per pull-at-tag contract
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-26T15:23:29Z
+# ============================================================================
+
+task_id: T-254
+task_name: "Release designer 0.5.0 (T-251 canvas navigation) + rail announce per pull-at-tag contract"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-26T15:14:04Z
+completed: 2026-07-26T15:23:24Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-26T17:14:11+02:00
+last_commit: 2026-07-26T17:22:01+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture operator-authorized 0.5.0 release cut + rail announce (budget gate deferred execution to next session). release designer 0.5.0 — T-251 canvas navigation (zoom/pan/scroll); sha256 787e40251f624bb39532be096232f4e25ea9014fe7dc0da0bc46285e140e025e, 879243 bytes; render gate PASS; 0.4.0/0.3.x pins untouched
+
+# Key outcomes
+outcomes:
+  - 'VERSION bumped 0.4.0 → 0.5.0; scripts/release-designer.sh runs clean (render gate PASS) producing dist/aef-workflow-designer-0.5.0.html + MANIFEST.yaml with latest=0.5.0 and matching sha256/bytes — Evidence: script output "Released designer 0.5.0", sha256 787e40251f624bb39532be096232f4e25ea9014fe7dc0da0bc46285e140e025e, bytes 879243, render gate "PASS: designer render-check (0.5.0)"'
+  - 'Immutability preserved: 0.4.0 artifact still sha256 ea47db53a55be41df7ee6a2ff934146eeeed9f247b4a9bb1db9bcc152c3880d7 and 0.3.x/0.2.0/0.1.0 dist artifacts byte-untouched (git diff clean for prior dist files) — Evidence: post-cut sha256sum 0.4.0=ea47db53… 0.3.2=983e0e30…; git status showed only VERSION, MANIFEST.yaml, and the new 0.5.0 artifact changed'
+  - 'Annotated tag designer-v0.5.0 exists; at-tag freeze verified: sha256 of `git show designer-v0.5.0:dist/aef-workflow-designer-0.5.0.html` equals the sha256 recorded in MANIFEST.yaml at the same tag — Evidence: both = 787e40251f624bb39532be096232f4e25ea9014fe7dc0da0bc46285e140e025e'
+  - 'master + designer-v0.5.0 tag pushed to origin (ssh remote only — github is mirrored, never pushed directly) — Evidence: push output "ee1ce2b..00cbefc master -> master" + "[new tag] designer-v0.5.0"; pre-push audit 16 PASS'
+  - 'Rail announce posted on dm:0e7ee6cad65137fc:6a646ce8b1bc6560 with version/sha256/bytes/tag, content summary (= exactly T-251, zero seam surface), and grep markers with counting method stated; frontier acked — Evidence: announce landed at offset 199 (expected, no gap), markers btn-zoom-fit=3/applyCanvasZoom=3/syncOverlayPin=4 with grep -c = LINES stated, ack at offset 200'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-26.yaml'
+  - '.context/episodic/T-251.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.handover-cooldown'
+  - '.context/working/.hook-counter'
+  - '.context/working/.restart-requested'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - 'dist/aef-workflow-designer-0.5.0.html'
+  - 'dist/MANIFEST.yaml'
+  - '.tasks/active/T-254-release-designer-050-t-251-canvas-naviga.md'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-26T17:14:11"
+    action: "T-254: capture operator-authorized 0.5.0 release cut + rail announce (budget gate deferred execution to next session)"
+  - time: "2026-07-26T17:22:01"
+    action: "T-254: release designer 0.5.0 — T-251 canvas navigation (zoom/pan/scroll); sha256 787e40251f624bb39532be096232f4e25ea9014fe7dc0da0bc46285e140e025e, 879243 bytes; render gate PASS; 0.4.0/0.3.x pins untouched"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 2
+  files_changed: 15
+  lines_added: 10244
+  lines_removed: 37
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-254-release-designer-050-t-251-canvas-naviga.md
+generated_by: context-agent-hybrid
