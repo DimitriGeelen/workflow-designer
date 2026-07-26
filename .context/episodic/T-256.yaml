@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-256: Release designer 0.6.0 (T-255 pool right-edge resize) + rail announce per pull-at-tag contract
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-26T20:26:05Z
+# ============================================================================
+
+task_id: T-256
+task_name: "Release designer 0.6.0 (T-255 pool right-edge resize) + rail announce per pull-at-tag contract"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-26T20:22:46Z
+completed: 2026-07-26T20:26:00Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-26T22:24:04+02:00
+last_commit: 2026-07-26T22:24:04+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release designer 0.6.0 — T-255 pool right-edge resize (authored page-width floor); sha256 c2aceff44a2cdf91dd2dfefb8c12db1550bfed2b40a4e62cdf7b145ba3a97e57, 882944 bytes; render gate PASS; 0.5.0/0.4.0/0.3.x pins untouched
+
+# Key outcomes
+outcomes:
+  - 'VERSION bumped 0.5.0 → 0.6.0; scripts/release-designer.sh runs clean (render gate PASS) producing dist/aef-workflow-designer-0.6.0.html + MANIFEST.yaml with latest=0.6.0 and matching sha256/bytes — Evidence: "Released designer 0.6.0", sha256 c2aceff44a2cdf91dd2dfefb8c12db1550bfed2b40a4e62cdf7b145ba3a97e57, bytes 882944, "PASS: designer render-check (0.6.0)"'
+  - 'Immutability preserved: 0.5.0 artifact still sha256 787e40251f624bb39532be096232f4e25ea9014fe7dc0da0bc46285e140e025e and 0.4.0 still ea47db53a55be41df7ee6a2ff934146eeeed9f247b4a9bb1db9bcc152c3880d7; all older dist artifacts byte-untouched — Evidence: post-cut sha256sum matches both pins; commit 5e4cb13 touched only VERSION, MANIFEST.yaml, and the new 0.6.0 artifact'
+  - 'Annotated tag designer-v0.6.0 exists; at-tag freeze verified: sha256 of `git show designer-v0.6.0:dist/aef-workflow-designer-0.6.0.html` equals the sha256 in MANIFEST.yaml at the same tag — Evidence: both = c2aceff44a2cdf91dd2dfefb8c12db1550bfed2b40a4e62cdf7b145ba3a97e57'
+  - 'master + designer-v0.6.0 tag pushed to origin (ssh remote only — github is mirrored, never pushed directly) — Evidence: push output "c91eb61..5e4cb13 master -> master" + "[new tag] designer-v0.6.0"'
+  - 'Rail announce posted on dm:0e7ee6cad65137fc:6a646ce8b1bc6560 with version/sha256/bytes/tag, content summary (= exactly T-255, zero seam surface), grep markers with counting method stated; AEF 201 (eventDef defect) and 202 (0.5.0 verdict) acked with the defect captured as its own task per one-bug-one-task — Evidence: defect reply at offset 203 (T-257 filed, T-237 lineage stated, v1/v2 fixture accepted), announce at 204 (markers pool-resize-handle=5 / pageWidth=7 / contentRightEdgeNatural=3, grep -c = LINES), ack at 205'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'dist/aef-workflow-designer-0.6.0.html'
+  - 'dist/MANIFEST.yaml'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-26T22:24:04"
+    action: "T-256: release designer 0.6.0 — T-255 pool right-edge resize (authored page-width floor); sha256 c2aceff44a2cdf91dd2dfefb8c12db1550bfed2b40a4e62cdf7b145ba3a97e57, 882944 bytes; render gate PASS; 0.5.0/0.4.0/0.3.x pins untouched"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 3
+  lines_added: 9455
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-256-release-designer-060-t-255-pool-right-ed.md
+generated_by: context-agent-hybrid
