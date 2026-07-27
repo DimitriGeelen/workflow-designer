@@ -569,6 +569,19 @@ font-family: 'Outfit';
   svg[data-lsize="l"] .lane-label { font-size: 11.5px; }
   .node-io-badge { fill: var(--text-dim); font-family: var(--mono); font-size: 8px; pointer-events: none; }
   .node-id-badge { fill: var(--text-faint); font-family: var(--mono); font-size: 9px; pointer-events: none; letter-spacing: 0.02em; }
+  /* T-258: annotation seam v0 (T-250 GO) — read-only badge layer driven by the
+     embedding parent via postMessage. Never serialized; wiped on every render. */
+  .aef-annotation { pointer-events: none; }
+  .aef-annotation text { font-family: var(--mono); font-size: 9px; letter-spacing: 0.02em; }
+  .aef-annotation rect { stroke-width: 1; }
+  .aef-annotation.tone-info rect { fill: var(--blue-soft); stroke: var(--blue); }
+  .aef-annotation.tone-info text { fill: var(--blue); }
+  .aef-annotation.tone-ok rect { fill: var(--green-soft); stroke: var(--green); }
+  .aef-annotation.tone-ok text { fill: var(--green); }
+  .aef-annotation.tone-warn rect { fill: var(--orange-soft); stroke: var(--orange); }
+  .aef-annotation.tone-warn text { fill: var(--orange); }
+  .aef-annotation.tone-err rect { fill: var(--red-soft); stroke: var(--red); }
+  .aef-annotation.tone-err text { fill: var(--red); }
   .node.selected .node-shape { stroke-width: 3px; filter: drop-shadow(0 0 6px var(--accent)); }
   .node.multi-selected .node-shape { stroke-width: 2.5px; filter: drop-shadow(0 0 3px var(--accent)); stroke: var(--accent); }
   .node:hover .node-shape { stroke-width: 2.5px; }
@@ -2408,7 +2421,83 @@ function renderAll() {
   syncCanvasSize();
   updateStatus();
   scheduleAutosave();   // T-126/G-005: persist the live document so a reload/navigation can't lose work
+  // T-258 (T-250 GO): re-handshake per render. renderNodes() just rebuilt the SVG
+  // wholesale, wiping any annotation badges — the ratified contract is that the
+  // designer re-emits aef:ready after EVERY full render and the parent re-annotates.
+  aefEmitReady();
 }
+
+// ── T-258: annotation seam v0 (T-250 GO, shape A postMessage) ─────────────────
+// Contract (ratified 2026-07-27, announced to AEF at rail 216):
+//   OUT  {type:'aef:ready', version:1, workflow:<meta id>, uids:[...]} → parent,
+//        after every renderAll() including initial load. Only when embedded.
+//   IN   {type:'aef:annotate', annotations:[{uid, badge, tone?, title?}]} from the
+//        embedding parent ONLY (event.source === window.parent). Renders a
+//        read-only badge pill anchored to the node's g[data-id=uid].
+//   Lifecycle: badges live ONLY in the DOM overlay — never serialized into BPMN
+//   (buildBpmnXml reads state, not DOM), wiped by the next render (parent
+//   re-annotates after the re-handshake), dropped on document switch (which
+//   renders), stripped from thumbnails (_stripAnnotationLayer in captureThumbnail).
+//   Unknown uids and malformed payloads are ignored silently — the seam must
+//   never break the editor.
+// Origin policy v0 (T-250 IW-3, recorded in T-258 Decisions): emit with
+// targetOrigin '*' (uid list is map structure, not a secret; tool is LAN-scoped),
+// accept only from window.parent. Tighten to an allowlist when a second embedder
+// class appears. Badge text renders via text nodes only — no HTML injection path.
+const AEF_ANNOTATION_TONES = { info: 1, ok: 1, warn: 1, err: 1 };
+function _aefEmbedded() { try { return !!window.parent && window.parent !== window; } catch (_) { return true; } }
+function aefEmitReady() {
+  if (!_aefEmbedded()) return;
+  try {
+    window.parent.postMessage({
+      type: 'aef:ready',
+      version: 1,
+      workflow: (state.workflowMeta && state.workflowMeta.id) || '',
+      uids: state.nodes.map(n => n.uid),
+    }, '*');
+  } catch (_) { /* seam must never break the editor */ }
+}
+function _stripAnnotationLayer(root) {
+  try { root.querySelectorAll('.aef-annotation').forEach(e => e.remove()); } catch (_) {}
+}
+function aefApplyAnnotations(list) {
+  if (!Array.isArray(list)) return 0;
+  let applied = 0;
+  for (const a of list) {
+    if (!a || typeof a.uid !== 'string') continue;
+    const badgeText = (a.badge == null ? '' : String(a.badge)).slice(0, 48);
+    if (!badgeText) continue;
+    let host = null;
+    try { host = gNodes.querySelector('g[data-id="' + CSS.escape(a.uid) + '"]'); } catch (_) { host = null; }
+    const n = findNode(a.uid);
+    if (!host || !n) continue; // unknown uid — silently ignored (ratified)
+    const def = NODE_DEFAULTS[n.type] || { w: 120, h: 48 };
+    const tone = AEF_ANNOTATION_TONES[a.tone] ? a.tone : 'info';
+    const bg = el('g', { class: 'aef-annotation tone-' + tone });
+    const t = el('text', { x: 0, y: 0 }, [text(badgeText)]);
+    bg.appendChild(t);
+    host.appendChild(bg);
+    // Measure, then wrap in a pill anchored at the node's top-right corner.
+    let tw = 0; try { tw = t.getBBox().width; } catch (_) { tw = badgeText.length * 6; }
+    const rw = Math.ceil(tw) + 12, rh = 16;
+    const rx = n.x + def.w - rw + 8, ry = n.y - rh - 3;
+    const r = el('rect', { x: rx, y: ry, width: rw, height: rh, rx: 8 });
+    t.setAttribute('x', rx + 6); t.setAttribute('y', ry + 11.5);
+    bg.insertBefore(r, t);
+    if (typeof a.title === 'string' && a.title) {
+      bg.appendChild(el('title', {}, [text(String(a.title).slice(0, 200))]));
+    }
+    applied++;
+  }
+  return applied;
+}
+window.addEventListener('message', ev => {
+  if (!_aefEmbedded()) return;
+  if (ev.source !== window.parent) return;
+  const d = ev.data;
+  if (!d || d.type !== 'aef:annotate') return;
+  try { aefApplyAnnotations(d.annotations); } catch (_) { /* never break the editor */ }
+});
 function refreshLibraryUI() {
   const picker = $('workflow-picker');
   if (!picker) return;
@@ -7728,6 +7817,9 @@ function captureThumbnail() {
       // T-251: the live canvas may carry an inline zoom size (style width/height) —
       // strip it so thumbnails are byte-stable regardless of the operator's zoom.
       clone.removeAttribute('style');
+      // T-258: annotation badges are a live-state overlay, not document content —
+      // thumbnails must stay annotation-free (and byte-stable across parent feeds).
+      _stripAnnotationLayer(clone);
       _inlineComputedStyles(svg, clone);
       clone.setAttribute('viewBox', `${vbX} ${vbY} ${vbW} ${vbH}`);
       clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');

@@ -122,6 +122,44 @@ threaded channel post (message). Never through an unconfirmed inject.
 
 ---
 
+## Annotation seam (postMessage) — live-state badges on served maps
+
+Ratified T-250 GO (shape A, operator decision 2026-07-27, rail 216). Available when the
+manifest carries `capabilities: { annotation_seam: 1 }` (0.7.0+). The embedding page
+(AEF Watchtower) drives it; the designer is a passive display surface.
+
+**Handshake (designer → parent), after EVERY full render including initial load:**
+
+```json
+{ "type": "aef:ready", "version": 1, "workflow": "<workflowMeta id>", "uids": ["n_...", ...] }
+```
+
+Renders rebuild the SVG wholesale, so annotations are wiped per render — the parent
+re-annotates after each `aef:ready`. Emitted only when embedded (`parent !== window`),
+targetOrigin `*` (v0; see origin policy below). Transient intra-gesture partial renders
+(mid-drag) may clear badges early; the gesture-ending full render re-handshakes.
+
+**Annotate (parent → designer):**
+
+```json
+{ "type": "aef:annotate", "annotations": [
+    { "uid": "n_abc", "badge": "running", "tone": "ok", "title": "since 12:04Z" } ] }
+```
+
+- `uid` — node uid (the `aef:uid` value; also the SVG `g[data-id]`). Unknown uids are
+  ignored silently. `badge` — short text, clamped to 48 chars, rendered as a pill at the
+  node's top-right. `tone` — one of `info | ok | warn | err` (default `info`).
+  `title` — optional hover tooltip (native SVG `<title>`, clamped to 200 chars).
+- Accepted ONLY from the embedding parent (`event.source === window.parent`).
+- Read-only overlay: never serialized into BPMN, never in autosave, stripped from
+  thumbnails, dropped on document switch. Malformed payloads are ignored without error.
+
+**Origin policy v0:** emit `*`, accept parent-source only. The uid list is map structure,
+not a secret, and badge text renders via text nodes (no HTML path). Tightening to an
+origin allowlist is the designated next step if a second embedder class appears.
+
+---
+
 ## Known caveat — CDN fonts (offline behaviour)
 
 The designer links **Google Fonts** (`fonts.googleapis.com` / `fonts.gstatic.com`) for its typefaces

@@ -115,6 +115,12 @@ artifact: "dist/aef-workflow-designer-$VERSION.html"
 sha256: "$SHA"
 bytes: $BYTES
 source: "src/aef-workflow-designer.html"
+# T-258/T-246: structured capability flags — a consumer (AEF) self-configures
+# conditional behaviour at re-pin by reading these instead of sniffing bytes.
+# annotation_seam: postMessage aef:ready/aef:annotate read-only badge layer
+# (contract: docs/aef-designer-integration-protocol.md §Annotation seam).
+capabilities:
+  annotation_seam: 1
 EOF
 
 echo "Released designer $VERSION"

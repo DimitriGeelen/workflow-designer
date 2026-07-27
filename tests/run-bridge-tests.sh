@@ -155,6 +155,30 @@ else
 fi
 
 echo
+echo "== eventDef preservation passthrough: start/throw survive open-save (T-259) =="
+# Correctness guard against the rail-201 field defect — drives the real editor
+# against the pinned AEF peer bytes (t257-eventdef-roundtrip/v1). The fixed-point
+# round-trip harness CANNOT catch a consistent drop; this leg can (BITE-proven).
+if python3 "$ROOT/tests/test_t259_eventdef_preservation.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "start/throw aef:eventDef preservation regressed — layout-only save drops typed-event semantics again (T-2620 class)"
+  fail=$((fail + 1))
+fi
+
+echo
+echo "== annotation seam v0: aef:ready/aef:annotate loop (T-258, T-250 GO) =="
+# Embeds the real editor in an iframe host (AEF Watchtower topology): ready
+# handshake per render, badge intake + unknown-uid/spoof rejection, display-only
+# invariants (BPMN clean, thumbnail strip, wipe-on-render, drop-on-doc-switch).
+if python3 "$ROOT/tests/test_t258_annotation_seam.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "annotation seam loop broke — ready handshake, badge intake, or a display-only invariant regressed (T-250 contract)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== editor behavior suite: T-234 jump-no-poison + T-237 classification (G-010/T-238) =="
 # Standing behavior legs for the two field-found 0.3.1 blockers — hermetic sidecar +
 # isolated chromium (tools/_editor-behavior-verify-cdp.mjs). Prints a LOUD SKIP line
