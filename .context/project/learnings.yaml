@@ -400,3 +400,11 @@ learnings:
   date: 2026-07-27
   context: Added via context agent
   application: TBD
+
+- id: L-001
+  learning: "AEF delivered both reviewer policy files via file_send (rail 234, their T-2636): anti-patterns.yaml sha 04f89678 + escalation-patterns.yaml sha 7ebf939d; installed project-local per the code's vendored-consumer fallback path"
+  source: healing-loop
+  task: T-262
+  date: 2026-07-27
+  context: "Resolved issue in T-262"
+  application: "Apply when encountering similar vendored-code-without-data issues"
