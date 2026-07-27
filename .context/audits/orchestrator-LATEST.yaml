@@ -2,20 +2,17 @@ audit: orchestrator-mcp-scan
 task: T-1646
 parent_arc: T-1644
 origin: T-1641
-last_run: '2026-07-26T06:00:58Z'
-baseline_count: 263
+last_run: '2026-07-27T23:14:47Z'
+baseline_count: 272
 current_count: 272
 gated_baseline: 4
 gated_current: 4
 mutators_ungated_baseline: 58
-readonly_exempt_baseline: 201
+readonly_exempt_baseline: 210
 status: warn
 exit_code: 1
 findings:
-  new_unclassified_tools:
-  - termlink_fleet_governor_history
-  - termlink_substrate_history
-  - termlink_substrate_status
+  new_unclassified_tools: []
   gate_drop_outs: []
   gate_added_ratchet_candidates: []
   removed_tools: []
@@ -27,18 +24,10 @@ findings:
     - email-archive
   auto_classified:
     mutators_ungated: []
-    readonly_exempt:
-    - termlink_agent_find_idle_history
-    - termlink_channel_claims_history
-    - termlink_channel_cv_keys
-    - termlink_channel_queue_history
-    - termlink_channel_set_retention
-    - termlink_channel_sweep
+    readonly_exempt: []
 apply_result: null
-sessions_scanned: 57
+sessions_scanned: 58
 sessions_probe_error: null
 warnings:
-- "NEW: 3 unclassified tool(s) (manual review needed \u2014 outside T-1761 convention\
-  \ scope): termlink_fleet_governor_history, termlink_substrate_history, termlink_substrate_status"
 - 'TAG-FORMAT-DRIFT: 1 non-canonical tag prefix(es) in live sessions: respawn=(1)'
 errors: []

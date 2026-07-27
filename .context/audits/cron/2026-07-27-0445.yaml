@@ -1,0 +1,36 @@
+# Audit Results - 2026-07-27-0445
+timestamp: 2026-07-27T02:45:02Z
+sections: "oe-fast,oe-research"
+summary:
+  pass: 8
+  warn: 4
+  fail: 0
+findings:
+  - level: PASS
+    check: "C-001: All 1 active inceptions have research artifacts"
+  - level: PASS
+    check: "C-002: commit-msg hook has research artifact check"
+  - level: PASS
+    check: "C-002: No research warnings logged (clean or first run)"
+  - level: PASS
+    check: "C-003: Research checkpoint logic present in checkpoint.sh"
+  - level: WARN
+    check: "C-006: Inception T-155 has template-only Recommendation block"
+    mitigation: "Retrofit: fill in **Recommendation:** GO"
+  - level: WARN
+    check: "C-006: Inception T-244 has template-only Recommendation block"
+    mitigation: "Retrofit: fill in **Recommendation:** GO"
+  - level: WARN
+    check: "C-006: Inception T-250 has template-only Recommendation block"
+    mitigation: "Retrofit: fill in **Recommendation:** GO"
+  - level: WARN
+    check: "C-006: Inception T-257 has template-only Recommendation block"
+    mitigation: "Retrofit: fill in **Recommendation:** GO"
+  - level: PASS
+    check: "CTL-001: Focus file empty (no recent activity — expected)"
+  - level: PASS
+    check: "CTL-003: Budget status file stale (378min — no active session)"
+  - level: PASS
+    check: "CTL-004: Tool counter at 2 (last commit: 6 hours ago)"
+  - level: PASS
+    check: "CTL-018: Budget status valid JSON (level: urgent)"

@@ -55,6 +55,13 @@ failure_patterns:
     learned_from: T-118
     mitigation: "CLAUDE.md error investigation protocol: STOP, investigate, report, fix, then proceed."
 
+  - id: FP-008
+    pattern: "vendored-code-without-data"
+    description: "Issue resolved in T-262"
+    learned_from: T-262
+    date_learned: 2026-07-27
+    mitigation: "AEF delivered both reviewer policy files via file_send (rail 234, their T-2636): anti-patterns.yaml sha 04f89678 + escalation-patterns.yaml sha 7ebf939d; installed project-local per the code's vendored-consumer fallback path"
+
 success_patterns:
   - id: SP-001
     pattern: "Phased implementation"

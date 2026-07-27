@@ -63,8 +63,13 @@
 # Update 2026-06-09 (T-2154): convention auto-classification applied via --apply. +0 mutators, +9 readonly. Baseline 252 → 261. T-1761 verb whitelist canonical (see orchestrator-mcp-scan.sh classify_by_convention).
 # Update 2026-06-09 (T-014): manual classification of 2 unclassified tools — both _status suffix (read-shaped):
 # termlink_fleet_governor_status + termlink_hub_governor_status → readonly_exempt. Baseline 261 → 263.
-baseline_count: 263
-last_verified: '2026-06-09'
+# Update 2026-07-28 (T-2154): convention auto-classification applied via --apply. +0 mutators, +6 readonly. Baseline 263 → 269. T-1761 verb whitelist canonical (see orchestrator-mcp-scan.sh classify_by_convention).
+# Update 2026-07-28 (T-272): manual classification of 3 unclassified tools — all read-shaped
+# (_history/_status suffixes, pure introspection; same class as the T-014 governor_status pair):
+# termlink_fleet_governor_history + termlink_substrate_history + termlink_substrate_status
+# → readonly_exempt. Baseline 269 → 272.
+baseline_count: 272
+last_verified: '2026-07-28'
 gated:
   description: "Enforces check_task_governance() \u2014 TERMLINK_TASK_GOVERNANCE=1\
     \ requires task_id"
@@ -167,6 +172,7 @@ readonly_exempt:
   - termlink_agent_engagement_rate
   - termlink_agent_envelope
   - termlink_agent_find_idle
+  - termlink_agent_find_idle_history
   - termlink_agent_first_post_by
   - termlink_agent_first_responders
   - termlink_agent_followups
@@ -254,8 +260,10 @@ readonly_exempt:
   - termlink_channel_claim_force_release
   - termlink_channel_claim_transfer
   - termlink_channel_claims
+  - termlink_channel_claims_history
   - termlink_channel_claims_summary
   - termlink_channel_claims_summary_all
+  - termlink_channel_cv_keys
   - termlink_channel_describe
   - termlink_channel_digest
   - termlink_channel_edit_stats
@@ -270,6 +278,7 @@ readonly_exempt:
   - termlink_channel_pin_history
   - termlink_channel_pinned
   - termlink_channel_poll_results
+  - termlink_channel_queue_history
   - termlink_channel_queue_status
   - termlink_channel_quote_stats
   - termlink_channel_reactions_of
@@ -281,12 +290,14 @@ readonly_exempt:
   - termlink_channel_renew
   - termlink_channel_replies_of
   - termlink_channel_search
+  - termlink_channel_set_retention
   - termlink_channel_snapshot
   - termlink_channel_snapshot_diff
   - termlink_channel_snippet
   - termlink_channel_starred
   - termlink_channel_state
   - termlink_channel_state_since
+  - termlink_channel_sweep
   - termlink_channel_thread
   - termlink_channel_threads
   - termlink_channel_topic_stats
@@ -304,15 +315,16 @@ readonly_exempt:
   - termlink_fleet_adoption_snapshot
   - termlink_fleet_bootstrap_check
   - termlink_fleet_doctor
+  - termlink_fleet_governor_history
+  - termlink_fleet_governor_status
   - termlink_fleet_history
   - termlink_fleet_secrets_audit
-  - termlink_fleet_governor_status  # _status suffix — read-shaped; T-014 manual
   - termlink_fleet_status
   - termlink_fleet_verify
   - termlink_help
   - termlink_hub_export_secret
   - termlink_hub_fingerprint
-  - termlink_hub_governor_status  # _status suffix — read-shaped; T-014 manual
+  - termlink_hub_governor_status
   - termlink_hub_probe
   - termlink_hub_status
   - termlink_inbox_list
@@ -338,6 +350,8 @@ readonly_exempt:
   - termlink_request
   - termlink_resize
   - termlink_status
+  - termlink_substrate_history
+  - termlink_substrate_status
   - termlink_tofu_list
   - termlink_tofu_verify
   - termlink_token_inspect

@@ -1,0 +1,23 @@
+=== episodic-gen invocation: 2026-07-27T23:03:33Z ===
+task_id: T-270
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-270.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Upstream pending vendored-framework gaps to AEF over the rail (G-001 G-004 G-008)
+  Duration: 0 days (2 min)
+  Updates: 1
+  Commits: 1
+  Lines: +190 -0 across 2 files
+  Outcomes: 5 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 2 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-270-upstream-pending-vendored-framework-gaps.md
+--- exit code: 0 ---

@@ -131,8 +131,20 @@ Why the native click didn't already do this: the halo's `mousedown` calls `stopP
 reaches the sibling's `.edge-hit`; and even if it did, it would re-select the SAME (halo-owning)
 edge, not the sibling.
 
+## Updates
+
+<!-- Section header backfilled 2026-07-28 (T-272): the status-update entry below was stranded
+     at the tail of ## Decisions; commit trail added from git history (audit warn: missing
+     Updates section). -->
+
 ### 2026-07-06T16:19:11Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+### 2026-07-28 — commit-trail backfill [T-272]
+- 84403d9 capture overlapping-endpoint selection bug + diagnosis (T-133 halo suspect)
+- d5eb10c fix overlapping-endpoint selection at convergence points (click-fallthrough, keeps T-133 grab size)
+- 3daf623 / b88a7a7 Recommendation block added, then reformatted to T-679 GO format
+- fb3f079 finalize — agent ACs complete, verified 6/6, handed to human for live REVIEW
 
 ## Reviewer Verdict (v1.5)
 

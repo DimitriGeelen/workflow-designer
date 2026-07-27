@@ -1,0 +1,1227 @@
+# Reviewer feedback stream (T-1443 v1.0, Spike I)
+# Append-only. Events separated by ---.
+# Schema: kind, timestamp, scan_id, task_id, payload
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:19:27Z'
+scan_id: R-6b066fcc
+task_id: T-255
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:19:27Z'
+scan_id: R-6b066fcc
+task_id: T-255
+payload:
+  task_file: .tasks/active/T-255-pool-right-edge-resize-handle-authored-p.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:08Z'
+scan_id: R-4b142962
+task_id: T-073
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:08Z'
+scan_id: R-4b142962
+task_id: T-073
+payload:
+  task_file: .tasks/active/T-073-router-straightening-tolerance--near-ali.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:08Z'
+scan_id: R-463eeb2f
+task_id: T-074
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:08Z'
+scan_id: R-463eeb2f
+task_id: T-074
+payload:
+  task_file: .tasks/active/T-074-magnetic-drag-snapping--lane-centre-neig.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:09Z'
+scan_id: R-54017b24
+task_id: T-075
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:09Z'
+scan_id: R-54017b24
+task_id: T-075
+payload:
+  task_file: .tasks/active/T-075-editor-settings-page--consolidate-routin.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:09Z'
+scan_id: R-cbb0583f
+task_id: T-076
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:09Z'
+scan_id: R-cbb0583f
+task_id: T-076
+payload:
+  task_file: .tasks/active/T-076-routing-survey-r-2-loop-back-edges-shoul.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:09Z'
+scan_id: R-630b3105
+task_id: T-077
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:09Z'
+scan_id: R-630b3105
+task_id: T-077
+payload:
+  task_file: .tasks/active/T-077-routing-survey-r-5-keep-badges-and-edge-.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:09Z'
+scan_id: R-1e6c2d07
+task_id: T-079
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:09Z'
+scan_id: R-1e6c2d07
+task_id: T-079
+payload:
+  task_file: .tasks/active/T-079-adaptive-alignment-rows-sub-row-snap-lin.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:09Z'
+scan_id: R-9778acd3
+task_id: T-081
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:09Z'
+scan_id: R-9778acd3
+task_id: T-081
+payload:
+  task_file: .tasks/active/T-081-subprocess-node-type-phase-1-collapsed-o.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:10Z'
+scan_id: R-c2d17e1f
+task_id: T-082
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:10Z'
+scan_id: R-c2d17e1f
+task_id: T-082
+payload:
+  task_file: .tasks/active/T-082-edge-label-placement-pass-measure-after-.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:10Z'
+scan_id: R-030dfaf8
+task_id: T-083
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:10Z'
+scan_id: R-030dfaf8
+task_id: T-083
+payload:
+  task_file: .tasks/active/T-083-label-halo-theme-background-rect-behind-.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:10Z'
+scan_id: R-d1a93b91
+task_id: T-084
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:10Z'
+scan_id: R-d1a93b91
+task_id: T-084
+payload:
+  task_file: .tasks/active/T-084-lane-header-ellipsis-truncate-vertical-l.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:10Z'
+scan_id: R-e0c0e7d4
+task_id: T-085
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:10Z'
+scan_id: R-e0c0e7d4
+task_id: T-085
+payload:
+  task_file: .tasks/active/T-085-view-density--label-visibilitysize-contr.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:11Z'
+scan_id: R-b81283c0
+task_id: T-087
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:11Z'
+scan_id: R-b81283c0
+task_id: T-087
+payload:
+  task_file: .tasks/active/T-087-node-label-fit-ladder-long-task-names-mu.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:11Z'
+scan_id: R-359eb70e
+task_id: T-089
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:11Z'
+scan_id: R-359eb70e
+task_id: T-089
+payload:
+  task_file: .tasks/active/T-089-edge-label-wrap-multi-line-edge-labels-s.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:11Z'
+scan_id: R-f44f03c8
+task_id: T-090
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:11Z'
+scan_id: R-f44f03c8
+task_id: T-090
+payload:
+  task_file: .tasks/active/T-090-watchtower-review-pages-all-500---dispat.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:11Z'
+scan_id: R-769e6e66
+task_id: T-093
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:11Z'
+scan_id: R-769e6e66
+task_id: T-093
+payload:
+  task_file: .tasks/active/T-093-branch-pitch-setting-parallel-block-stac.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:11Z'
+scan_id: R-2e16beee
+task_id: T-094
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:11Z'
+scan_id: R-2e16beee
+task_id: T-094
+payload:
+  task_file: .tasks/active/T-094-align-rows-one-shot-action-snap-lane-row.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:12Z'
+scan_id: R-7b2ea326
+task_id: T-095
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:12Z'
+scan_id: R-7b2ea326
+task_id: T-095
+payload:
+  task_file: .tasks/active/T-095-clean-layout-composite-action-tidy--bran.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:12Z'
+scan_id: R-2591e58d
+task_id: T-096
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:12Z'
+scan_id: R-2591e58d
+task_id: T-096
+payload:
+  task_file: .tasks/active/T-096-density-setting-has-no-visible-effect---.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:12Z'
+scan_id: R-6a5697ca
+task_id: T-097
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:12Z'
+scan_id: R-6a5697ca
+task_id: T-097
+payload:
+  task_file: .tasks/active/T-097-crossing-aware-branch-ordering-order-fan.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:12Z'
+scan_id: R-a845824f
+task_id: T-098
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:12Z'
+scan_id: R-a845824f
+task_id: T-098
+payload:
+  task_file: .tasks/active/T-098-edge-channel-separation-setting-corridor.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:13Z'
+scan_id: R-4f0bbf9f
+task_id: T-099
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:13Z'
+scan_id: R-4f0bbf9f
+task_id: T-099
+payload:
+  task_file: .tasks/active/T-099-clean-layout-on-import-opt-in-setting-ap.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:13Z'
+scan_id: R-7623684c
+task_id: T-100
+payload:
+  overall: CONCERN
+  finding_count: 3
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:13Z'
+scan_id: R-7623684c
+task_id: T-100
+payload:
+  task_file: .tasks/active/T-100-clean-layout-nudge-offer-one-click-clean.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:13Z'
+scan_id: R-4d9e5b57
+task_id: T-104
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:13Z'
+scan_id: R-4d9e5b57
+task_id: T-104
+payload:
+  task_file: .tasks/active/T-104-density-and-branch-pitch-view-settings-a.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:13Z'
+scan_id: R-c263880d
+task_id: T-106
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:13Z'
+scan_id: R-c263880d
+task_id: T-106
+payload:
+  task_file: .tasks/active/T-106-routing-margin-setting-reserved-peripher.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:14Z'
+scan_id: R-40258ff6
+task_id: T-107
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:14Z'
+scan_id: R-40258ff6
+task_id: T-107
+payload:
+  task_file: .tasks/active/T-107-align-columns-one-shot-action-snap-near-.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:14Z'
+scan_id: R-445f06d9
+task_id: T-108
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:14Z'
+scan_id: R-445f06d9
+task_id: T-108
+payload:
+  task_file: .tasks/active/T-108-vertical-spacing-control-and-density-bra.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:14Z'
+scan_id: R-1e78122e
+task_id: T-109
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:14Z'
+scan_id: R-1e78122e
+task_id: T-109
+payload:
+  task_file: .tasks/active/T-109-distribute-evenly-action-equalise-horizo.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:14Z'
+scan_id: R-6fd62372
+task_id: T-114
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:14Z'
+scan_id: R-6fd62372
+task_id: T-114
+payload:
+  task_file: .tasks/active/T-114-obstacle-avoiding-orthogonal-edge-routin.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:15Z'
+scan_id: R-f22e5827
+task_id: T-115
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:15Z'
+scan_id: R-f22e5827
+task_id: T-115
+payload:
+  task_file: .tasks/active/T-115-horizontal-spacing-control-mirror-of-ver.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:15Z'
+scan_id: R-f9abaa40
+task_id: T-116
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:15Z'
+scan_id: R-f9abaa40
+task_id: T-116
+payload:
+  task_file: .tasks/active/T-116-align-in-middle-wire-align-columns-centr.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:15Z'
+scan_id: R-cd772241
+task_id: T-117
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:15Z'
+scan_id: R-cd772241
+task_id: T-117
+payload:
+  task_file: .tasks/active/T-117-de-jog-routed-edges-collapse-tiny-interi.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:15Z'
+scan_id: R-b18f5798
+task_id: T-118
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:15Z'
+scan_id: R-b18f5798
+task_id: T-118
+payload:
+  task_file: .tasks/active/T-118-endpoint-straight-snap-collapse-endpoint.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:15Z'
+scan_id: R-028a0a71
+task_id: T-119
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:15Z'
+scan_id: R-028a0a71
+task_id: T-119
+payload:
+  task_file: .tasks/active/T-119-consolidate-split-migrations-two-step-st.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:16Z'
+scan_id: R-d19c7351
+task_id: T-127
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:16Z'
+scan_id: R-d19c7351
+task_id: T-127
+payload:
+  task_file: .tasks/active/T-127-editor-repo-save-versioning-revert-autoreload.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:16Z'
+scan_id: R-001d9d2c
+task_id: T-132
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:16Z'
+scan_id: R-001d9d2c
+task_id: T-132
+payload:
+  task_file: .tasks/active/T-132-b5-general-undo-redo-history-stack.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:16Z'
+scan_id: R-ae94c38f
+task_id: T-134
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:16Z'
+scan_id: R-ae94c38f
+task_id: T-134
+payload:
+  task_file: .tasks/active/T-134-selection-scoped-align-and-distribute-fo.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:16Z'
+scan_id: R-2a078997
+task_id: T-136
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:16Z'
+scan_id: R-2a078997
+task_id: T-136
+payload:
+  task_file: .tasks/active/T-136-endpoint-overlap-selection-blocked-at-convergence.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:17Z'
+scan_id: R-eb99442a
+task_id: T-137
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:17Z'
+scan_id: R-eb99442a
+task_id: T-137
+payload:
+  task_file: .tasks/active/T-137-loop-back-edges-with-persisted-detoury-c.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:17Z'
+scan_id: R-91bfd3f6
+task_id: T-139
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:17Z'
+scan_id: R-91bfd3f6
+task_id: T-139
+payload:
+  task_file: .tasks/active/T-139-retire-align-columns-and-distribute-even.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:17Z'
+scan_id: R-15f46c79
+task_id: T-141
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:17Z'
+scan_id: R-15f46c79
+task_id: T-141
+payload:
+  task_file: .tasks/active/T-141-guard-save-to-project-against-the-pristi.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:17Z'
+scan_id: R-979a830d
+task_id: T-144
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:17Z'
+scan_id: R-979a830d
+task_id: T-144
+payload:
+  task_file: .tasks/active/T-144-in-editor-open-from-project-modal-uses-a.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:18Z'
+scan_id: R-9706d264
+task_id: T-164
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:18Z'
+scan_id: R-9706d264
+task_id: T-164
+payload:
+  task_file: .tasks/active/T-164-consistent-tile-hover-zoom-in-the-versio.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:18Z'
+scan_id: R-668e5754
+task_id: T-165
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:18Z'
+scan_id: R-668e5754
+task_id: T-165
+payload:
+  task_file: .tasks/active/T-165-open-this-version-action-in-the-versions.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:18Z'
+scan_id: R-e191ba9a
+task_id: T-166
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:18Z'
+scan_id: R-e191ba9a
+task_id: T-166
+payload:
+  task_file: .tasks/active/T-166-delete-a-workflow-from-the-project-archi.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:18Z'
+scan_id: R-2ed4d58b
+task_id: T-167
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:18Z'
+scan_id: R-2ed4d58b
+task_id: T-167
+payload:
+  task_file: .tasks/active/T-167-version-level-delete-and-keep-only-lates.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:18Z'
+scan_id: R-04fc8d30
+task_id: T-168
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:18Z'
+scan_id: R-04fc8d30
+task_id: T-168
+payload:
+  task_file: .tasks/active/T-168-connection-point-anchoring-attach-edges-.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:19Z'
+scan_id: R-0c052868
+task_id: T-172
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:19Z'
+scan_id: R-0c052868
+task_id: T-172
+payload:
+  task_file: .tasks/active/T-172-drag-to-place-nodes-from-the-palette-ont.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:19Z'
+scan_id: R-2e406094
+task_id: T-176
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:19Z'
+scan_id: R-2e406094
+task_id: T-176
+payload:
+  task_file: .tasks/active/T-176-offline-harden-the-designer-inline-or-se.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:19Z'
+scan_id: R-b45bc8ec
+task_id: T-178
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:19Z'
+scan_id: R-b45bc8ec
+task_id: T-178
+payload:
+  task_file: .tasks/active/T-178-cut-designer-release-020-with-t-177-gove.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:19Z'
+scan_id: R-28a81980
+task_id: T-197
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:19Z'
+scan_id: R-28a81980
+task_id: T-197
+payload:
+  task_file: .tasks/active/T-197-iw-9-editor-ui-retire-node-owner-overrid.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:20Z'
+scan_id: R-4d259533
+task_id: T-204
+payload:
+  overall: CONCERN
+  finding_count: 3
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:20Z'
+scan_id: R-4d259533
+task_id: T-204
+payload:
+  task_file: .tasks/active/T-204-typed-bpmn-event-palette-errortimermessa.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:20Z'
+scan_id: R-59923117
+task_id: T-214
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:20Z'
+scan_id: R-59923117
+task_id: T-214
+payload:
+  task_file: .tasks/active/T-214-pair-draft-sessionhandover-corpus-diagra.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:20Z'
+scan_id: R-4d7d29fa
+task_id: T-215
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:20Z'
+scan_id: R-4d7d29fa
+task_id: T-215
+payload:
+  task_file: .tasks/active/T-215-pair-draft-dispatch-loop-corpus-diagram-.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:20Z'
+scan_id: R-5c31107b
+task_id: T-240
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:20Z'
+scan_id: R-5c31107b
+task_id: T-240
+payload:
+  task_file: .tasks/active/T-240-uuid-workflowref-auto-resolve-jump-targe.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:21Z'
+scan_id: R-161275f0
+task_id: T-245
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:21Z'
+scan_id: R-161275f0
+task_id: T-245
+payload:
+  task_file: .tasks/active/T-245-canvas-view-chrome-controls-paletteprope.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:21Z'
+scan_id: R-9b45cc36
+task_id: T-255
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:21Z'
+scan_id: R-9b45cc36
+task_id: T-255
+payload:
+  task_file: .tasks/active/T-255-pool-right-edge-resize-handle-authored-p.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:20:21Z'
+scan_id: R-5ab4807f
+task_id: T-258
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:20:21Z'
+scan_id: R-5ab4807f
+task_id: T-258
+payload:
+  task_file: .tasks/active/T-258-annotation-seam-v0-postmessage-aefreadya.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:23:09Z'
+scan_id: R-2692efff
+task_id: T-262
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:23:09Z'
+scan_id: R-2692efff
+task_id: T-262
+payload:
+  task_file: .tasks/active/T-262-reviewer-agent-sweep-over-the-partial-co.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T21:46:02Z'
+scan_id: R-38b8bc37
+task_id: T-264
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T21:46:02Z'
+scan_id: R-38b8bc37
+task_id: T-264
+payload:
+  task_file: .tasks/active/T-264-save-target-guard-set-id-field-collision.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T22:11:35Z'
+scan_id: R-fdf9b687
+task_id: T-125
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T22:11:35Z'
+scan_id: R-fdf9b687
+task_id: T-125
+payload:
+  task_file: .tasks/active/T-125-vertical-lane-compaction-in-cleanlayout-.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T22:34:19Z'
+scan_id: R-49eb79ce
+task_id: T-264
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T22:34:19Z'
+scan_id: R-49eb79ce
+task_id: T-264
+payload:
+  task_file: .tasks/active/T-264-save-target-guard-set-id-field-collision.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T22:35:54Z'
+scan_id: R-bd90f0cb
+task_id: T-266
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T22:35:54Z'
+scan_id: R-bd90f0cb
+task_id: T-266
+payload:
+  task_file: .tasks/active/T-266-install-aef-reviewer-catalogue-v14-escal.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T22:41:20Z'
+scan_id: R-0d261996
+task_id: T-267
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T22:41:20Z'
+scan_id: R-0d261996
+task_id: T-267
+payload:
+  task_file: .tasks/active/T-267-ctl-030-legacy-cleanup-null-stored-horiz.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T22:54:05Z'
+scan_id: R-0aa78218
+task_id: T-268
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T22:54:05Z'
+scan_id: R-0aa78218
+task_id: T-268
+payload:
+  task_file: .tasks/active/T-268-backfill-missing-episodic-summaries-for-.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T22:56:18Z'
+scan_id: R-8004610c
+task_id: T-269
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T22:56:18Z'
+scan_id: R-8004610c
+task_id: T-269
+payload:
+  task_file: .tasks/active/T-269-register-fabric-card-for-libdispatchpaus.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T23:03:32Z'
+scan_id: R-fd17b47f
+task_id: T-270
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T23:03:32Z'
+scan_id: R-fd17b47f
+task_id: T-270
+payload:
+  task_file: .tasks/active/T-270-upstream-pending-vendored-framework-gaps.md
+---
+kind: scan_emitted
+timestamp: '2026-07-27T23:07:25Z'
+scan_id: R-35b4a9c2
+task_id: T-271
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-27T23:07:25Z'
+scan_id: R-35b4a9c2
+task_id: T-271
+payload:
+  task_file: .tasks/active/T-271-concern-register-evidence-sweep-mark-clo.md

@@ -112,15 +112,20 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Recommendation
 
-<!-- REQUIRED before fw inception decide. Write your recommendation here (T-974).
-     Watchtower reads this section — if it's empty, the human sees nothing.
-     Format:
-     **Recommendation:** GO / NO-GO / DEFER
-     **Rationale:** Why (cite evidence from exploration)
-     **Evidence:**
-     - Finding 1
-     - Finding 2
--->
+**Recommendation:** DEFER
+
+**Rationale:** Preliminary lean (unratified, stated to AEF on the rail at offset 176, 2026-07-23):
+render a bare `intermediateCatchEvent` (no aef:link, no eventDef) as a **neutral untyped glyph**
+instead of the link-catch UI with an empty never-bindable target — the empty link-catch presentation
+is what AEF's operator misread as a broken connector (their T-2613). DEFER rather than GO because
+the triggering case no longer exists in the wild: AEF fixed their corpus side (typed the event,
+added the missing handoff), so no corpus currently exercises bare-catch rendering. Horizon stays
+`later`; promote if the case reappears or an operator hits it in authoring.
+
+**Evidence:**
+- AEF rail 174 (their T-2613): operator read the empty link-catch UI as a broken connector; corpus-side fix shipped their side (typed error + timer siblings), binds+lands on 0.3.2.
+- Our rail 176 reply: lean = neutral glyph; agreed to notify the rail if rendering changes.
+- No current corpus map (ours or theirs) contains a bare intermediateCatchEvent — zero live exposure.
 
 ## Decisions
 
