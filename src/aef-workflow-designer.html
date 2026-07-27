@@ -5023,6 +5023,11 @@ function renderMultiSelectProps(props) {
   props.appendChild(sDist);
 }
 
+// T-264: one-shot feedback for a refused workflow-ID rename. renameActiveWorkflow
+// refuses collisions by design (library keys are unique); before this the field just
+// reverted with zero signal — the T-263 / rail-225 "didn't rebind" trap.
+let _idRenameNotice = null;
+
 function renderProperties() {
   const props = $('properties');
   props.innerHTML = '';
@@ -5642,8 +5647,20 @@ function field(label, value, onInput, opts = {}) {
   inp.className = opts.textarea ? 'field-textarea' : 'field-input';
   inp.value = value;
   inp.spellcheck = false;
-  inp.addEventListener('input', e => onInput(e.target.value));
-  inp.addEventListener('blur', () => { renderProperties(); });
+  if (opts.deferred) {
+    // T-264: commit once on blur/Enter. A live per-keystroke commit whose handler
+    // re-renders the panel (workflow rename) destroys this input mid-typing —
+    // the first character commits and focus lands on <body> (T-263 probe leg2).
+    let committed = false;
+    const commit = () => { if (committed) return; committed = true; onInput(inp.value); };
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !opts.textarea) { e.preventDefault(); commit(); }
+    });
+    inp.addEventListener('blur', () => { commit(); });
+  } else {
+    inp.addEventListener('input', e => onInput(e.target.value));
+    inp.addEventListener('blur', () => { renderProperties(); });
+  }
   wrap.appendChild(inp);
   return wrap;
 }

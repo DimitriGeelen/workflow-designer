@@ -4,10 +4,10 @@ name: "Save-target guard set: ID-field collision feedback + commit-on-blur + loa
 description: >
   Build task authorized by T-263 GO (operator decision 2026-07-27). Three guards, zero seam surface, all in src/aef-workflow-designer.html: (1) props-panel ID field shows visible feedback when a rename collides with an existing library key (today: silent revert, 0 alerts/toasts — T-263 probe leg3); (2) ID field commits on blur/Enter instead of every input event (today: successful per-keystroke rename re-renders the panel and dumps focus mid-typing — probe leg2); (3) saveToProject confirms when the current load source names a different map than workflowMeta.id (today: silent overwrite of the original — probe leg4, the AEF rail-225 incident). workflowMeta-id-wins stays the design; no second identity authority. Evidence base: docs/reports/T-263-save-target-binding.md + tools/_t263-save-target-cdp.mjs (extend its legs into regression asserts).
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T21:23:22Z
-last_update: 2026-07-27T21:23:22Z
+last_update: 2026-07-27T21:24:08Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,69 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+T-263 GO (operator, 2026-07-27). Evidence: docs/reports/T-263-save-target-binding.md;
+probe harness tools/_t263-save-target-cdp.mjs (legs become regression asserts).
+Origin incident: AEF rail 225 — scratch copy carrying the original's workflowMeta id
+silently overwrote the original project. Design ruling: workflowMeta-id-wins stays;
+the fix is feedback + guard, not a second identity authority.
+
+**BUILD STATE (session ended at budget gate ~287k, 2026-07-27):** Two INERT edits
+landed in src/aef-workflow-designer.html — (1) `field()` grew an `opts.deferred`
+commit-on-blur/Enter branch (no caller passes it yet, so zero behavior change);
+(2) `let _idRenameNotice = null` declared above renderProperties (unused yet).
+**Next session continues with:** (a) rewrite the ID-field callback in
+renderProperties (:~5045) to pass `deferred: true`, set `_idRenameNotice` on
+renameActiveWorkflow refusal, always re-render, and render the notice div after the
+ID field append (styled `field-hint id-rename-notice`, `var(--danger)`); (b) add
+`_loadSrcStem(src)` helper near currentLoadSrc (:~9414): strip query/hash, basename,
+strip `.bpmn/.xml` + `.vN`, lowercase; (c) in saveToProject after the id-regex check
+(:~7935): `const _src = (_loadSrcKey != null && activeKey === _loadSrcKey) ?
+currentLoadSrc() : null;` → if `_loadSrcStem(_src)` is non-empty and ≠ id.toLowerCase(),
+`confirm('Loaded from "<src>" but will save as "<id>" — proceed?')` — abort save on
+decline (restore btn label); (d) new harness tools/_t264-save-target-guards-cdp.mjs
+(legs: input-event does NOT commit / blur commits / Enter commits / insertText keeps
+focus mid-typing / collision renders notice naming the id / mismatch-confirm via
+history.replaceState('?load=rendered/other-map.bpmn') + _loadSrcKey=activeKey with
+stubbed confirm false→abort true→POST, same-stem→no confirm, no-?load BITE / Title
+field still live-commits); (e) wrapper test + run-bridge-tests.sh leg; (f) screenshot
+of the collision notice, READ it (visual verification); (g) full bridge suite green.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Collision feedback: renaming the workflow (props-panel ID field) to an id that
+      already exists in the library shows a visible, non-blocking hint at the field
+      (naming the colliding id) instead of today's silent revert; state remains
+      unchanged (renameActiveWorkflow still refuses — only the feedback is new).
+- [ ] ID-field commit-on-blur/Enter: the workflow ID field no longer commits a rename
+      on every input event; the rename fires once on blur or Enter. Typing multiple
+      characters into the field keeps focus for the whole edit (no mid-typing panel
+      re-render). Other meta fields (Title/Version/Description/Source) keep their
+      existing live-commit behavior.
+- [ ] Load-source mismatch confirm: when the document was loaded from a ?load/deep-link
+      source whose map name differs from state.workflowMeta.id at save time,
+      saveToProject asks one confirm ("Loaded from '<source>' but will save as '<id>'
+      — proceed?") before POSTing; same-id saves and non-deep-link documents see no
+      new prompt.
+- [ ] Probe harness extended into a regression guard: _t263 legs re-asserted against
+      the new behavior (collision now surfaces feedback; blur/Enter commits; mismatch
+      confirm observed via stubbed confirm + /api/save), BITE included (guards driven
+      by state, not string echo); suite leg registered in tests/run-bridge-tests.sh;
+      full bridge suite green.
+- [ ] Zero seam surface confirmed: no change to aef:* messages, BPMN emit, MANIFEST,
+      or any AEF-facing contract (diff scoped to editor UI paths + tests).
+
+### Human
+- [ ] [REVIEW] Guard prompts read right (wording + non-naggy feel)
+  **Steps:**
+  1. Open the editor at http://192.168.10.107:8834/designer.html (gallery serve of
+     current src; if 404, ask the agent to refresh the gallery docroot first)
+  2. Click empty canvas (no selection) → in the right panel, edit the ID field to an
+     existing map's id and press Enter → a hint appears naming the collision
+  3. Load any map via "Open from project", change its ID, then "Save to project" —
+     the mismatch confirm names both the load source and the save target
+  **Expected:** Hint and confirm wording are clear; typing in the ID field keeps focus
+  **If not:** Note which prompt reads wrong — wording lives in one place each
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -174,3 +229,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-264-save-target-guard-set-id-field-collision.md
 - **Context:** Initial task creation
+
+### 2026-07-27T21:24:08Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
