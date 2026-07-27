@@ -120,6 +120,7 @@ concerns:
       - "watchtower.log: ModuleNotFoundError: No module named 'dispatch_pause' at review.py:25 on every /review GET."
       - "T-090 RCA: buggy expression sys.path.insert(0, str(PROJECT_ROOT / 'lib')) at review.py:18; docs/cockpit/enforcement/quality blueprints all use FRAMEWORK_ROOT."
       - "T-091 (2026-07-05): upstream patch STAGED at docs/patches/T-091-0001-review-py-lib-path-framework-root.patch (git apply --check verified against vendored copy) + maintainer report docs/reports/T-091-upstream-shared-mode-fixes.md incl. shared-mode smoke test proposal; awaiting ring20 cascade (T-016) for delivery."
+      - "DELIVERED to AEF 2026-07-28 over the DM rail at offset 253 (T-270): patch inline + split-root CI smoke proposal + T-015 env-leak pointer. Awaiting their fix + our re-vendor; then delete lib/dispatch_pause.py shim and close."
     related:
       - T-090
       - T-015
@@ -157,6 +158,7 @@ concerns:
       - "F2/F4 confirmed by code inspection during bootstrap (see docs/reports/T-006-*.md, framework-agent-pickup-2026-06-05.md §F2/§F4)."
       - "Cross-project corroboration: `[fan-dashboard → framework-agent] RCA: fw init vendoring drops required runtime files` on agent-chat-arc 2026-06-05T12:10Z — same class, different consumer."
       - "Pickup delivered to framework agent 9219671e28054458 (DM + chat-arc) 2026-06-05T10:32Z; no response yet (agent offline)."
+      - "RE-DELIVERED to AEF 2026-07-28 over the live DM rail at offset 256 (T-270): both instances (F2 baseline yaml, F4 secret-scan) + fresh same-day evidence (secret-scan 'scanner not found (skipping)' on every 2026-07-27/28 commit) + proposal to extend their T-2637 fresh-machine consumer sim with a payload-completeness assert / no-silent-skip policy. Awaiting their fix + our re-vendor to close."
     related:
       - T-006
       - T-007
@@ -379,6 +381,7 @@ concerns:
       - ".agentic-framework/agents/task-create/update-task.sh:770 — marker regex now `^[[:space:]]*([-#*]+[[:space:]]*)+(IW-[0-9]+|Q-?[0-9]+)` (was unanchored `IW-[0-9]+`)."
       - ".agentic-framework/agents/task-create/tests/test_disposition_gate.sh — extracts the real function, asserts cross-ref fixture PASSES and under-disposed fixture BLOCKS; green (exit 0)."
       - "Gate verified over the real unchanged T-190 file: 'all Open Questions disposed ✓' (exit 0)."
+      - "DELIVERED to AEF 2026-07-28 over the DM rail at offset 254 (T-270): anchored regex + function-extraction regression-test description inline. Awaiting their merge + our re-vendor to close."
     related:
       - T-203
       - T-190
