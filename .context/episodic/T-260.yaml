@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-260: Cut designer release 0.7.0 (T-259 eventDef preservation + T-258 annotation seam + capabilities MANIFEST) and deliver to AEF
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-27T19:16:22Z
+# ============================================================================
+
+task_id: T-260
+task_name: "Cut designer release 0.7.0 (T-259 eventDef preservation + T-258 annotation seam + capabilities MANIFEST) and deliver to AEF"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-27T19:11:11Z
+completed: 2026-07-27T19:16:20Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-27T21:11:56+02:00
+last_commit: 2026-07-27T21:11:56+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release designer 0.7.0 — T-259 eventDef preservation (start/throw survive open-save, cures AEF T-2620) + T-258 annotation seam v0 (aef:ready/aef:annotate badge layer, T-250 GO) + first structured MANIFEST capabilities block (annotation_seam: 1); sha 472d6a5d, 889411 B; render gate PASS, immutability guard green, 0.6.0-and-earlier pins byte-untouched
+
+# Key outcomes
+outcomes:
+  - 'VERSION bumped 0.6.0 → 0.7.0; scripts/release-designer.sh run clean'
+  - 'dist/MANIFEST.yaml points at 0.7.0 with matching sha256/bytes AND carries'
+  - 'Annotated tag `designer-v0.7.0` created on the release commit; commit + tag'
+  - 'Release announced on the AEF rail with sha, bytes, content summary, and'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'dist/aef-workflow-designer-0.7.0.html'
+  - 'dist/MANIFEST.yaml'
+  - '.tasks/active/T-260-cut-designer-release-070-t-259-eventdef-.md'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-27T21:11:56"
+    action: "T-260: release designer 0.7.0 — T-259 eventDef preservation (start/throw survive open-save, cures AEF T-2620) + T-258 annotation seam v0 (aef:ready/aef:annotate badge layer, T-250 GO) + first structured MANIFEST capabilities block (annotation_seam: 1); sha 472d6a5d, 889411 B; render gate PASS, immutability guard green, 0.6.0-and-earlier pins byte-untouched"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 4
+  lines_added: 9761
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-260-cut-designer-release-070-t-259-eventdef-.md
+generated_by: context-agent-hybrid

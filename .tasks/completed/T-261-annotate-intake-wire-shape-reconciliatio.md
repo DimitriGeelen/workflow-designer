@@ -4,10 +4,10 @@ name: "Annotate intake wire-shape reconciliation: accept AEF live overlay payloa
 description: >
   Contract-shape divergence caught via crossed rail messages (219/220) minutes after the 0.7.0 cut: AEF's live overlay stack (Slice A /api/overlay + Slice B wrapper, both LIVE on :3001) posts {type:'aef:annotate', map, generated, nodes:[{uid,badge,text,severity}]} verbatim (severity info|warn|alert) — 0.7.0's intake reads annotations:[{uid,badge,tone,title}], so their re-pin would silently no-op. Real payload curled and pinned from their invitation at 219. Fix: tolerant intake — accept nodes[] (wire-canonical, theirs) AND annotations[] (documented alias); map severity->tone (info->info, warn->warn, alert->err), text->title tooltip fallback; harness leg asserts against the REAL curled payload bytes; protocol doc updated to document the wire-canonical shape first. Then cut 0.7.1, tag, announce, so their re-pin lights badges first try. One bug = one task; RCA required (shape defined without re-verifying the 197 advisory bytes).
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T19:16:35Z
-last_update: 2026-07-27T19:16:36Z
-date_finished: null
+last_update: 2026-07-27T19:21:45Z
+date_finished: 2026-07-27T19:21:45Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -53,7 +53,7 @@ payload curled from their :3001 endpoint (their explicit invitation at 219).
 - [x] Protocol doc §Annotation seam rewritten: wire-canonical shape (nodes/severity/
       text) documented FIRST as what AEF's wrapper posts; annotations/tone/title kept
       as accepted alias.
-- [ ] Release 0.7.1 cut clean (immutability guard green, render gate PASS), tagged
+- [x] Release 0.7.1 cut clean (immutability guard green, render gate PASS), tagged
       designer-v0.7.1, pushed with tag, announced on rail (markers + "re-pin 0.7.1
       not 0.7.0"), acked to frontier.
 
@@ -120,6 +120,10 @@ payload curled from their :3001 endpoint (their explicit invitation at 219).
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+python3 tests/test_t258_annotation_seam.py
+grep -q "annotation_seam: 1" dist/MANIFEST.yaml
+grep -q 'latest: "0.7.1"' dist/MANIFEST.yaml
 
 ## RCA
 
@@ -210,3 +214,6 @@ contract test input. Drift in their feed shape now fails the suite locally.
 
 ### 2026-07-27T19:16:36Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-27T19:21:45Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

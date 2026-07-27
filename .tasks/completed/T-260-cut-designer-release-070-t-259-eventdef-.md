@@ -4,10 +4,10 @@ name: "Cut designer release 0.7.0 (T-259 eventDef preservation + T-258 annotatio
 description: >
   Operator-authorized cut (2026-07-27 'do 1 and 2'). Content since 0.6.0: T-259 eventDef preservation passthrough (cures AEF field defect T-2620/rail 201 — start/throw aef:eventDef survive open-save) + T-258 annotation seam v0 (postMessage aef:ready/aef:annotate read-only badge layer, T-250 GO shape A) + MANIFEST structured capabilities block (annotation_seam: 1, first capability — T-246 promotion trigger). Steps: bump VERSION 0.6.0->0.7.0, scripts/release-designer.sh (immutability guard + render gate + deterministic manifest), verify sha/bytes, tag designer-v0.7.0, push with tag, announce on rail with markers, ack. AEF re-pin at tag gets both fixes + the capability flag their conditional-emit guard self-configures on.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T19:11:11Z
-last_update: 2026-07-27T19:11:12Z
-date_finished: null
+last_update: 2026-07-27T19:16:20Z
+date_finished: 2026-07-27T19:16:20Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -46,9 +46,9 @@ docs/aef-designer-integration-protocol.md.
       render gate PASS; artifact == src byte-identical).
 - [x] dist/MANIFEST.yaml points at 0.7.0 with matching sha256/bytes AND carries
       `capabilities:` with `annotation_seam: 1`.
-- [ ] Annotated tag `designer-v0.7.0` created on the release commit; commit + tag
+- [x] Annotated tag `designer-v0.7.0` created on the release commit; commit + tag
       pushed to origin.
-- [ ] Release announced on the AEF rail with sha, bytes, content summary, and
+- [x] Release announced on the AEF rail with sha, bytes, content summary, and
       grep-able markers; rail acked to frontier.
 
 ### Human
@@ -185,3 +185,6 @@ docs/aef-designer-integration-protocol.md.
 
 ### 2026-07-27T19:11:12Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-27T19:16:20Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

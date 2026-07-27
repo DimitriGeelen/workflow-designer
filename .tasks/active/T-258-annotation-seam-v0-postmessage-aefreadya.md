@@ -4,9 +4,9 @@ name: "Annotation seam v0: postMessage aef:ready/aef:annotate read-only badge la
 description: >
   Build the T-250 GO-ratified annotation seam, shape A (operator decision 2026-07-27): (1) designer emits postMessage {type:'aef:ready', uid list} to parent after EVERY render including initial load (renderAll rebuilds SVG so annotations wipe per render — re-handshake is the contract); (2) accept {type:'aef:annotate', annotations keyed by node uid} and render a read-only badge layer on g[data-id=uid] — never serialized into BPMN, dropped on document switch, unknown uids ignored silently; (3) add MANIFEST capabilities flag (annotation_seam) — T-246 second-consumer promotion trigger, AEF conditional-emit guard self-configures at re-pin; (4) suite leg + origin-policy decision (IW-3 deferred from T-250). Consumer contract fixed both sides: AEF feed = single Watchtower aggregation endpoint emitting aef:annotate verbatim (rail 210); their overlay v0 build is unblocked by this ratification (announced at rail 216).
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T17:54:59Z
-last_update: 2026-07-27T19:00:30Z
-date_finished: null
+last_update: 2026-07-27T19:10:53Z
+date_finished: 2026-07-27T19:10:53Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -169,6 +169,25 @@ grep -q "annotation_seam: 1" scripts/release-designer.sh
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Recommendation
+
+**Recommendation:** GO
+**Rationale:** The ratified T-250 contract is implemented exactly and proven
+end-to-end in the real embedded topology; every display-only invariant holds under
+adversarial probes; the one open judgment call (badge look-and-feel) is yours and
+trivially adjustable.
+**Evidence:**
+- Full-loop CDP harness green (tests/test_t258_annotation_seam.py): ready handshake
+  on load/re-render/doc-switch with correct uid sets, badge intake, unknown-uid
+  silent-ignore, sibling-frame spoof rejected, BPMN emit clean, thumbnail strip,
+  wipe-on-render — plus BITE leg.
+- Bridge suite 39/39 (both new legs registered), geometry 24 clean, round-trip +
+  typed-events + T-259 preservation green.
+- Visual verification screenshot read: pills legible, tones distinct, placement
+  clear of node chrome (.playwright-mcp/t258-annotation-badges.png).
+- MANIFEST capabilities.annotation_seam wired into the deterministic release script;
+  protocol doc §Annotation seam documents the contract for AEF.
+
 ## Decisions
 
 ### 2026-07-27 — Origin policy v0 (T-250 IW-3, deferred to this build)
@@ -214,3 +233,6 @@ grep -q "annotation_seam: 1" scripts/release-designer.sh
 ### 2026-07-27T19:00:30Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-07-27T19:10:53Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

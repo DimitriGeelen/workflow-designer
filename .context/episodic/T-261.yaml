@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-261: Annotate intake wire-shape reconciliation: accept AEF live overlay payload (nodes/severity/text) + cut 0.7.1
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-27T19:21:50Z
+# ============================================================================
+
+task_id: T-261
+task_name: "Annotate intake wire-shape reconciliation: accept AEF live overlay payload (nodes/severity/text) + cut 0.7.1"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-27T19:16:35Z
+completed: 2026-07-27T19:21:45Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-27T21:20:50+02:00
+last_commit: 2026-07-27T21:20:50+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  annotate intake wire-shape reconciliation + release 0.7.1 — accept AEF's live nodes[]/severity/text verbatim payload (severity alert->err mapping, text->tooltip) alongside the 0.7.0 annotations[]/tone/title alias; harness replays the PINNED REAL /api/overlay payload (peer bytes as contract input, T-257 fixture pattern); protocol doc wire-canonical first; sha d2bf0d63, 890278 B; 0.7.0 pin untouched; RCA: shape defined from memory of the 197 advisory, harness was self-consistent-only
+
+# Key outcomes
+outcomes:
+  - 'Tolerant intake: aef:annotate handler accepts `nodes[]` (wire-canonical, AEF'
+  - 'Harness extended with a leg that replays the REAL curled AEF payload bytes'
+  - 'Protocol doc §Annotation seam rewritten: wire-canonical shape (nodes/severity/'
+  - 'Release 0.7.1 cut clean (immutability guard green, render gate PASS), tagged'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'annotate intake wire-shape reconciliation + release 0.7.1 — accept AEF''s live nodes[]/severity/text verbatim payload (severity alert->err mapping, text->tooltip) alongside the 0.7.0 annotations[]/tone/title alias; harness replays the PINNED REAL /api/overlay payload (peer bytes as contract input, T-257 fixture pattern); protocol doc wire-canonical first; sha d2bf0d63, 890278 B; 0.7.0 pin untouched; RCA: shape defined from memory of the 197 advisory, harness was self-consistent-only'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'dist/aef-workflow-designer-0.7.1.html'
+  - 'dist/MANIFEST.yaml'
+  - 'docs/aef-designer-integration-protocol.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-261-annotate-intake-wire-shape-reconciliatio.md'
+  - 'tests/fixtures/aef-overlay/live-payload-2026-07-27.json'
+  - 'tools/_t258-annotation-seam-cdp.mjs'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-27T21:20:50"
+    action: "T-261: annotate intake wire-shape reconciliation + release 0.7.1 — accept AEF's live nodes[]/severity/text verbatim payload (severity alert->err mapping, text->tooltip) alongside the 0.7.0 annotations[]/tone/title alias; harness replays the PINNED REAL /api/overlay payload (peer bytes as contract input, T-257 fixture pattern); protocol doc wire-canonical first; sha d2bf0d63, 890278 B; 0.7.0 pin untouched; RCA: shape defined from memory of the 197 advisory, harness was self-consistent-only"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 8
+  lines_added: 9860
+  lines_removed: 15
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-261-annotate-intake-wire-shape-reconciliatio.md
+generated_by: context-agent-hybrid

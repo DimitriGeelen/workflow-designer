@@ -948,3 +948,17 @@ decisions:
     date: 2026-07-27
     task: T-257
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-115
+    decision: "Emit `aef:ready` with targetOrigin `*`; accept `aef:annotate` only when"
+    scope: project
+    date: 2026-07-27
+    task: T-258
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-116
+    decision: "`{uid, badge (≤48 chars), tone: info|ok|warn|err (default info),"
+    scope: project
+    date: 2026-07-27
+    task: T-258
+    rationale: "Auto-captured from task file on completion"
