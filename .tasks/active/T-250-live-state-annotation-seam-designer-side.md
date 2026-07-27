@@ -28,7 +28,15 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+AEF wants to project live framework state (task positions, dispatch outcomes) onto
+served designer maps, keyed by node uid (their T-2620, rail 196 — operator-GO'd on
+their side). They need a small designer-side hook in a future release and asked 832
+to ratify a shape: (A) postMessage protocol with an `aef:annotate`/`aef:ready`
+handshake, or (B) a `window.AefDesigner` API. They hold an iframe-DOM-reach fallback
+but won't build it before our answer. **As of rail 210 (2026-07-27) this is the ONLY
+external dependency gating their overlay v0 build** — their side has settled its feed
+shape (single Watchtower aggregation endpoint emitting the `aef:annotate` payload
+verbatim). What began as a courtesy ratification is now a peer blocker.
 
 ## Assumptions
 
@@ -51,6 +59,21 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
      §Disposition Gate. Bypass: --skip-disposition-gate "rationale" (direct) or
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
+
+- **IW-1: Which seam shape — (A) postMessage aef:annotate/aef:ready or (B) window.AefDesigner API?**
+  confidence: 2
+  disposition: answered
+  rationale: A — origin-independent, zero global API surface, works across iframe/window embedding; both sides' independent leans converged (832 advisory at rail 197; AEF's settled feed at rail 210 emits the aef:annotate payload verbatim, i.e. already message-shaped).
+
+- **IW-2: How do annotations survive the editor's render cycle?**
+  confidence: 3
+  disposition: answered
+  rationale: They don't — renderAll() rebuilds the SVG DOM wholesale, wiping any overlay. The designer must re-emit aef:ready after EVERY render and AEF re-sends annotations (stated in our 197 advisory). This is also why shape B has no advantage: a window API would still need a re-apply callback, so B is strictly more surface for no gain.
+
+- **IW-3: What postMessage origin/trust policy applies?**
+  confidence: 1
+  disposition: deferred
+  rationale: Blast radius is bounded by design (read-only badge layer, never serialized, dropped on doc switch, unknown uids ignored) — exact origin allowlist vs schema-validation choice is a build-task decision and does not affect go/no-go.
 
 ## Exploration Plan
 
@@ -90,14 +113,14 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Go/No-Go Criteria
 
-<!-- Fill these BEFORE writing the recommendation. The placeholder detector will block review/decide if left empty. -->
 **GO if:**
-- Root cause identified with bounded fix path
-- Fix is scoped, testable, and reversible
+- Seam is additive and read-only: zero impact on BPMN serialization, export byte-determinism, or existing editor behavior
+- Shape has converged on both sides (no contract negotiation left, only implementation)
+- Consumer demand is concrete (AEF build actually blocked on it)
 
 **NO-GO if:**
-- Problem requires fundamental redesign or unbounded scope
-- Fix cost exceeds benefit given current evidence
+- The hook would require serializing annotation state into the document or coupling the designer to AEF network endpoints
+- Shapes have not converged and further rail rounds are needed before any build is safe
 
 ## Verification
 
@@ -112,15 +135,25 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 ## Recommendation
 
-<!-- REQUIRED before fw inception decide. Write your recommendation here (T-974).
-     Watchtower reads this section — if it's empty, the human sees nothing.
-     Format:
-     **Recommendation:** GO / NO-GO / DEFER
-     **Rationale:** Why (cite evidence from exploration)
-     **Evidence:**
-     - Finding 1
-     - Finding 2
--->
+**Recommendation:** GO
+
+**Rationale:** Ratify shape A (postMessage) and authorize a small build task for a
+future release. The seam is additive and read-only (badge layer only, never
+serialized, zero export-byte impact — the same zero-seam property every release
+since 0.4.0 has preserved), both sides' independent designs already converged on the
+message shape, and AEF's overlay v0 is now concretely blocked on this ratification
+(rail 210 — their only external dependency). Cost is small and bounded: one
+postMessage listener + a ready re-emit inside the existing render path + a badge
+layer + a MANIFEST capabilities flag. Deferring costs AEF real build time and risks
+them falling back to iframe-DOM-reach — a fragile coupling to our DOM internals that
+would break on any markup change.
+
+**Evidence:**
+- Rail 196 (their T-2620, operator-GO'd their side): proposal with shapes A/B; they hold a DOM-reach fallback but won't build before our answer.
+- Rail 197 (832 advisory): lean A with constraints — re-emit `aef:ready` per render (structurally required: renderAll() rebuilds the SVG, wiping overlays), read-only badges on `g[data-id=uid]`, never serialized, dropped on doc switch, unknown uids ignored.
+- Rail 210 (2026-07-27): their feed shape settled (single Watchtower aggregation endpoint emitting `aef:annotate` verbatim — already message-shaped, confirming A); **T-250 named their only external dependency for overlay v0**.
+- MANIFEST `capabilities` flag makes their conditional-emit guard self-configuring at re-pin (their own words at rail 182) and is the second-consumer trigger that promotes T-246.
+- Scope on GO: one build task (~target_blast_radius 3: editor listener/emitter + badge layer + MANIFEST flag + suite leg), sequenced with T-246 metadata; ships in a normal operator-authorized release cut.
 
 ## Decisions
 
