@@ -61,6 +61,14 @@ concerns:
     evidence:
       - "browser_evaluate: sessionStorage empty, indexedDB.databases()=[], no undo stack; localStorage held only *Prefs keys."
       - "src/aef-workflow-designer.html: localStorage.setItem only for aefRoutingPrefs/aefSnapPrefs/aefLabelPrefs/aefViewPrefs; btn-save downloads `${id}.v${v}.bpmn` (no persistence)."
+    closure_evidence:
+      verified: 2026-07-28 (T-271)
+      status_note: "READY FOR CLOSURE — operator to flip watching→resolved. Trigger is met verbatim."
+      trigger_restated: "Editor autosaves the current document (debounced) to localStorage on mutation and offers recover-on-load; a reload mid-edit restores the in-progress document."
+      evidence:
+        - "src/aef-workflow-designer.html:9570 — 'Document autosave (T-126 / G-005)' block: debounced (_autosaveTimer) document autosave on mutation, suppressed during initial seed render (_appReady)."
+        - "T-127 (B1, shipped in 0.3.x): reload auto-loads the stored autosaved version with no banner (autoLoadStored at ~:8819/:8898) — a reload mid-edit restores the in-progress document."
+        - "Standing regression coverage: tools/_editor-behavior-verify-cdp.mjs (T-238 suite, wired into tests/run-bridge-tests.sh) includes B1 restore legs + the T-234 jump-no-poison leg; green in every full-suite run since 2026-07-22."
     related:
       - T-126
       - G-006
@@ -86,6 +94,14 @@ concerns:
     evidence:
       - "browser_evaluate 2026-07-06: navigator.webdriver=false; UA 'Chrome/149.0.0.0' (not HeadlessChrome); doc reset to default investigate.bpmn after agent navigation."
       - "First browser_navigate errored 'Target page/context/browser has been closed' then reconnected — attachment to a persistent/shared browser, not a fresh isolated one."
+    closure_evidence:
+      verified: 2026-07-28 (T-271)
+      status_note: "READY FOR CLOSURE — operator to flip watching→resolved. Both trigger halves (learning + structural convention) exist."
+      trigger_restated: "A convention/guard ensures agent browser automation uses an ISOLATED headless context before any navigate/adoptImportedXml; captured as a learning and, ideally, a pre-flight check."
+      evidence:
+        - "Learning recorded: learnings.yaml (PL-line ~124) — 'Verify browser-based editors in an ISOLATED headless context (own --user-data-dir), never a shared/live browser.'"
+        - "Convention is structural, not aspirational: every browser harness in tools/ (_*-cdp.mjs, 10+ scripts) spawns its OWN chromium (--headless=new, mkdtemp --user-data-dir, killed + cleaned in finally) — none attaches to a shared/live browser. The T-238 hermetic-sidecar pattern is the standing template."
+        - "No recurrence since 2026-07-06 across hundreds of harness runs."
     related:
       - T-126
       - G-005
@@ -349,10 +365,18 @@ concerns:
       - "Pinned consumer confirmed: dist/aef-workflow-designer-0.2.0.html sha256 = e301986b993baf58d5ed29ed25436d94b08ed2be910c6781b0f4b906c25c153a, cited in docs/standards/aef-bpmn-mapping-v1.md:164 and vendored by AEF per the integration protocol."
       - "Current state is clean: `diff -q src/aef-workflow-designer.html dist/aef-workflow-designer-0.2.0.html` matches, so 0.2.0 is still reproducible from src — the window to add the guard is now."
       - "Render gate couples src changes to a build: tests/test_designer_render.py:_resolve_build() reads VERSION → dist/aef-workflow-designer-<VERSION>.html, with no artifact override, so verifying any src change requires cutting a build."
+    closure_evidence:
+      verified: 2026-07-28 (T-271)
+      status_note: "READY FOR CLOSURE — operator to flip watching→resolved. Trigger is met verbatim, guard battle-tested across 5 release cuts."
+      trigger_restated: "release-designer.sh refuses to overwrite an existing dist artifact whose bytes differ from src (fail-closed, explicit bypass for a deliberate re-cut)."
+      evidence:
+        - "scripts/release-designer.sh:28-66 (T-198): immutability guard fires BEFORE any write — [ -f $ARTIFACT ] && ! cmp -s $SRC $ARTIFACT → hard refusal with released-vs-src shas; only bypass is explicit RELEASE_ALLOW_OVERWRITE=1 with loud warning; unchanged re-cut stays green (determinism preserved)."
+        - "Standing test: tests/test_release_immutability.py — reported 5/5 at every release cut since 0.3.2 (0.3.2, 0.4.0, 0.5.0, 0.6.0, 0.7.1 all verified prior pins untouched at tag time)."
     related:
       - T-197
       - T-178
       - T-174
+      - T-198
   - id: G-008
     type: gap
     status: watching
@@ -480,6 +504,14 @@ concerns:
       - "Defect window: T-127 (B1 autosave) landed 2026-07-1x, found 2026-07-21 by peer — shipped in tagged 0.3.0, >0 releases affected."
       - "tools/ contains 5 _*-verify.py standing guards — all server-side; zero browser-behavior guards."
       - "PREVENTION (T-238, 2026-07-22): tools/_editor-behavior-verify-cdp.mjs — hermetic sidecar + isolated chromium; legs = T-234 jump-no-poison + same-map edit-restore + T-237 classification contract (4 probes). Wrapper tests/test_editor_behavior.py wired into tests/run-bridge-tests.sh with LOUD chromium skip. TEETH proven: vs pre-fix editor (7390131^) both legs fail with the exact field symptoms."
+    closure_evidence:
+      verified: 2026-07-28 (T-271)
+      status_note: "READY FOR CLOSURE — operator to flip prevention-in-place→resolved. The 'survives a cron/runner cycle' condition is met many times over."
+      trigger_restated: "A standing, shell-runnable browser-behavior suite exercises the editor's load/persistence contract against the served bundle, wired into a task Verification block or cron audit; close after it survives a cron/runner cycle."
+      evidence:
+        - "Suite is standing in tests/run-bridge-tests.sh (editor-behavior leg) and has run green in every full-suite invocation since 2026-07-22 — T-251, T-258/T-259, T-264, T-125 all gated on it (latest run: 41 passed / 0 failed)."
+        - "Coverage grew since filing: T-259 eventDef preservation, T-258 annotation seam, T-264 save-target guards, T-125 lane compaction each added standing behavior legs on the same hermetic pattern — the class guard is now 6 browser-behavior legs, not one."
+        - "Cross-validated externally: AEF live-verified the T-259 leg's contract end-to-end on their served 0.7.1 (rail 255, their T-2644, zero semantic loss)."
     related:
       - T-234
       - T-237
