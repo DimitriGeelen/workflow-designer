@@ -7,7 +7,7 @@ description: >
 status: work-completed
 workflow_type: inception
 owner: human
-horizon: now
+horizon: null
 tags: ["arc:designer-authoring-surface"]
 components: []
 related_tasks: []

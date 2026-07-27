@@ -1,13 +1,13 @@
 ---
-id: T-251
-name: "Canvas navigation build: zoom controls + Ctrl+wheel + scrollbars + drag-to-pan (T-249 GO)"
+id: T-267
+name: "CTL-030 legacy cleanup: null stored horizon in 6 completed task files"
 description: >
-  Canvas navigation build: zoom controls + Ctrl+wheel + scrollbars + drag-to-pan (T-249 GO)
+  CTL-030 legacy cleanup: null stored horizon in 6 completed task files
 
-status: work-completed
+status: started-work
 workflow_type: build
-owner: human
-horizon: null
+owner: agent
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-25T19:35:43Z
-last_update: 2026-07-26T15:10:52Z
-date_finished: 2026-07-25T19:45:54Z
+created: 2026-07-27T22:38:11Z
+last_update: 2026-07-27T22:38:11Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,29 +30,22 @@ date_finished: 2026-07-25T19:45:54Z
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-251: Canvas navigation build: zoom controls + Ctrl+wheel + scrollbars + drag-to-pan (T-249 GO)
+# T-267: CTL-030 legacy cleanup: null stored horizon in 6 completed task files
 
 ## Context
 
-Build authorized by T-249 inception GO (decision de35df3, spike 12/12 green — see
-`docs/reports/T-249-canvas-navigation.md` §Findings and `tools/_t249-spike-zoom-cdp.mjs`).
-Mechanism fixed by the spike: explicit SVG element sizing (inline style = viewBox × zoom)
-applied from `syncCanvasSize()` (single integration point); `.canvas-wrap` becomes the
-scroll container (`overflow:auto`) when zoomed; pan = capture-phase listener on the wrap
-(middle-mouse always + space+drag), preempting rubber-band without modifying existing
-handlers. Zoom is VIEW state — never serialized, fit stays the load default, fit-restore
-must be byte-identical to today's behavior.
+Six completed task files (T-173, T-174, T-175, T-190, T-201, T-251) still store `horizon: now`
+from before the null-on-complete tooling fix (T-2160 contract: completed tasks store null/absent,
+render derives 'past' from _location). Audit CTL-030 FAILs on each. Pure legacy-data cleanup —
+current tooling is correct (T-266 completed today stores `horizon: null`).
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] Header zoom controls: − / zoom% readout / + / Fit / 100%; buttons drive setZoom; readout live-updates; Fit restores exactly today's behavior (no inline size, overflow back to hidden) — suite leg9 z0/z1/z8 (readout fit→26%→fit, styleW empty at fit, aria-pressed tracks); screenshots t251-header-{fit,zoomed,fit-after}.png
-- [x] Ctrl+wheel over the canvas zooms at the cursor (point under cursor stays put); preventDefault applies ONLY over the canvas (page/browser zoom untouched elsewhere); plain wheel still scrolls the zoomed container natively — leg9 z4b: real CDP mouseWheel modifiers=2, zf 0.2→0.224, anchor px drift 2.0 svg units (<3) on the overflowing axis; wheel listener guards on e.ctrlKey before any preventDefault
-- [x] Past-fit zoom shows native scrollbars on .canvas-wrap; zoom survives renderAll() and content growth — leg9 z1 (scrollW 1023 > clientW 660), z3 (elW==vb×zf ±3 after node-move+renderAll); T-249 spike P4 proved content-growth tracking for the same mechanism
-- [x] Drag-to-pan: middle-mouse always pans (leg9 z5: dSL 140, no rubber-band, no selection); space+drag pans via REAL key events (leg9 z6: pan-ready armed, dSL 120, multiSelect untouched); typing guard (INPUT/TEXTAREA/SELECT/contentEditable) on the Space handler; marquee byte-identical when pan not engaged (leg9 z2 click + spike P6)
-- [x] Status overlay and clean-nudge pinned while scrolled — syncOverlayPin counter-translate; leg9 z7 visible=true; screenshot t251-canvas-zoomed-scrolled.png (Mode: select box bottom-left at scrollLeft 300)
-- [x] captureThumbnail() independent of live zoom — clone.removeAttribute('style') before style inlining; diff touches only src/aef-workflow-designer.html + tools/_editor-behavior-verify-cdp.mjs + tools/_t251-visual-shots.mjs (no .py, no document format)
-- [x] G-010 suite: new t249-canvas-nav leg, 6/6 legs PASS; bridge 37/37 PASS; geometry sweep 24 clean; render gate PASS (all run 2026-07-25 on this working tree)
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [x] All six legacy completed files store `horizon: null` (no `horizon: now` remains among them)
+- [x] `fw audit` reports zero CTL-030 findings — "[PASS] CTL-030: All completed/ tasks have null/absent stored horizon"
+- [x] Diff touches exactly the six horizon lines, nothing else — git diff --stat: 6 files, 1 line each
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -84,15 +77,6 @@ must be byte-identical to today's behavior.
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-
-### Human
-- [x] [REVIEW] Zoom + pan feel right on a real oversized map
-  **Steps:**
-  1. Open the designer, load a large map (e.g. via Open project), zoom in with Ctrl+wheel or the + button until scrollbars appear
-  2. Pan with middle-mouse drag and with space+drag; scroll with the scrollbars and plain wheel
-  3. Click Fit — the whole map returns to fit-to-view exactly as before this change
-  **Expected:** Zooming feels anchored under the cursor, panning is smooth, nothing selects while panning, Fit looks identical to the old behavior
-  **If not:** Note which gesture felt wrong (zoom anchor drift / pan starting a selection box / Fit not restoring) — each is independently fixable
 
 ## Verification
 
@@ -126,35 +110,6 @@ must be byte-identical to today's behavior.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
-
-grep -q "btn-zoom-fit" src/aef-workflow-designer.html
-grep -q "applyCanvasZoom" src/aef-workflow-designer.html
-grep -q "t249-canvas-nav" tools/_editor-behavior-verify-cdp.mjs
-# zoom must never be serialized: the BPMN builder must not mention zoomFactor
-! grep -q "zoomFactor" <(sed -n '/function buildBpmnXml/,/^function /p' src/aef-workflow-designer.html)
-node tools/_editor-behavior-verify-cdp.mjs > /tmp/.t251-suite.json 2>&1
-python3 -c "import json; v=json.load(open('/tmp/.t251-suite.json')); assert v['pass'] and len(v['legs'])==6"
-bash tests/check-corpus-geometry.sh > /tmp/.t251-geom.out 2>&1
-bash tests/run-bridge-tests.sh > /tmp/.t251-bridge.out 2>&1
-python3 tests/test_designer_render.py > /tmp/.t251-render.out 2>&1
-
-## Visual Verification
-
-Element-level screenshots (hermetic harness, tools/_t251-visual-shots.mjs), all READ and checked 2026-07-25:
-- `.playwright-mcp/t251-header-fit.png` — zoom controls at fit ("fit" readout, ⤢ pressed) alongside T-245 toggles
-- `.playwright-mcp/t251-header-zoomed.png` — "26%" readout, ⤢ un-pressed
-- `.playwright-mcp/t251-canvas-zoomed-scrolled.png` — native horizontal scrollbar, content at scale, Mode overlay pinned bottom-left at scrollLeft=300
-- `.playwright-mcp/t251-focus-zoomed.png` — focus mode full-bleed with zoom held, Exit-focus floating, overlay pinned
-- `.playwright-mcp/t251-fit-restore.png` — fit after zoom identical to pre-change fit-to-view
-- `.playwright-mcp/t251-header-fit-after.png` — readout back to "fit", ⤢ pressed again
-
-## Recommendation
-
-**Recommendation:** GO
-
-**Rationale:** All seven agent ACs verified with standing-suite + real-trusted-input evidence; zero regressions across the four gates (behavior suite 6/6 incl. the 5 pre-existing legs, bridge 37/37, geometry 24 clean, render gate). Zoom is transient view state with zero seam surface (same class as T-245) — release-eligible whenever the operator wants to cut, no AEF coordination required beyond the usual announce.
-
-**Evidence:** Suite verdicts in leg `t249-canvas-nav`; screenshots listed under Visual Verification; T-249 research artifact documents the mechanism rationale.
 
 ## RCA
 
@@ -219,10 +174,7 @@ Element-level screenshots (hermetic harness, tools/_t251-visual-shots.mjs), all 
 
 ## Updates
 
-### 2026-07-25T19:35:43Z — task-created [task-create-agent]
+### 2026-07-27T22:38:11Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-251-canvas-navigation-build-zoom-controls--c.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-267-ctl-030-legacy-cleanup-null-stored-horiz.md
 - **Context:** Initial task creation
-
-### 2026-07-25T19:45:54Z — status-update [task-update-agent]
-- **Change:** status: started-work → work-completed
