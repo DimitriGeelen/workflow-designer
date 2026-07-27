@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-27T20:22:54Z
-last_update: 2026-07-27T20:30:27Z
+last_update: 2026-07-27T20:36:27Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -36,12 +36,26 @@ docs/reports/T-263-save-target-binding.md. Ruling owed to AEF on the rail.
 
 ## Recommendation
 
-**GO** — one small build task (zero seam surface): (1) collision feedback on the
-props ID field (today: silent revert, 0 alerts/toasts — probe leg3); (2) ID-field
-commit-on-blur/Enter (today: commits every keystroke, successful rename re-renders
-the panel and dumps focus — probe leg2); (3) saveToProject confirm when load-source
-≠ workflowMeta.id (today: silent overwrite of the original — probe leg4, the peer's
-exact incident). workflowMeta-id-wins stays the design; no second identity authority.
+**Recommendation:** GO
+
+**Rationale:** The peer's overwrite incident is real and fully explained:
+workflowMeta-id-wins IS the design (the meta id is the document identity per the
+T-224 slug/uuid model, and no save dialog carries a target input), but the one field
+that redirects the save target fails silently in three ways, and saveToProject never
+warns when the target differs from where the document was loaded. A small,
+zero-seam-surface UX-guard build task converts the silent overwrite into an informed
+choice without introducing a second identity authority.
+
+**Evidence:**
+- saveToProject POSTs `id = state.workflowMeta.id` unconditionally (src :7930/:7954); the save modal is note-only — confirmed end-to-end vs a stubbed /api/save (probe leg4, postedId === metaIdAtSave).
+- The props ID field rebinds state for BOTH synthetic (value+input event) and real (CDP insertText) edits — probe legs 1+2; the peer's H1 (synthetic-events artifact) and H2 (dead UI) are both refuted as stated.
+- Collision with an existing library key → silent no-op: 0 alerts, 0 toasts, field reverts on re-render (probe leg3; renameActiveWorkflow :2588 returns false, caller :5043 just re-renders).
+- Successful rename re-renders the props panel and destroys the focused input mid-typing (probe leg2, sameElementFocused=false; field() commits on every input event :5645).
+- Probe harness: tools/_t263-save-target-cdp.mjs (5 legs, isolated chromium vs served editor); full findings: docs/reports/T-263-save-target-binding.md.
+
+**Fix shape on GO (one build task):** (1) visible collision feedback at the ID field;
+(2) ID-field commit-on-blur/Enter instead of per-keystroke; (3) saveToProject confirm
+when the load source names a different map than workflowMeta.id.
 
 ## Assumptions
 
