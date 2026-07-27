@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-26T20:24:56Z
-last_update: 2026-07-27T16:34:36Z
+last_update: 2026-07-27T16:49:23Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -70,9 +70,9 @@ byte-pair fixture (rail 208/209, pinned under tests/fixtures/aef-bpmn/t257-event
   rationale:
 
 - **IW-3: What is the exact drop site in the save path (parse-time discard vs export-time filter), and does a preservation fix risk emitting eventDef on hosts AEF's compiler rejects?**
-  confidence: 0
+  confidence: 1
   disposition:
-  rationale:
+  rationale: SECOND HALF CLOSED by AEF at rail 215 (verified in their source): aef:eventDef is accepted + round-tripped verbatim on ANY host (corpus_spec.py:212 host-agnostic, no rejection path); lint classifies direction by host tag (throw=throw, start=neutral/no finding), so preservation on both hosts is safe against their intake and restoring throw eventDefs also cures the emitterless-typed-catch lint. FIRST HALF (drop-site localization in our save path) still open — 832-side exploration.
 
 ## Exploration Plan
 

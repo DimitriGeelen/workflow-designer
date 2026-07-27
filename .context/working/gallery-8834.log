@@ -191,3 +191,16 @@ API:    /api/health /api/list /api/save /api/delete /api/versions /api/version /
 [gallery-serve] "GET /api/health HTTP/1.1" 200 -
 [gallery-serve] "GET /api/list HTTP/1.1" 200 -
 [gallery-serve] "GET /api/list HTTP/1.1" 200 -
+[gallery-serve] "GET /designer.html HTTP/1.1" 200 -
+[gallery-serve] "GET /designer.html?load=rendered%2Fharvest-pipeline.bpmn HTTP/1.1" 200 -
+[gallery-serve] "GET /rendered/harvest-pipeline.bpmn HTTP/1.1" 200 -
+[gallery-serve] "GET /api/health HTTP/1.1" 200 -
+[gallery-serve] "GET /api/list HTTP/1.1" 200 -
+[gallery-serve] "GET /api/list HTTP/1.1" 200 -
+[gallery-serve] "POST /api/save HTTP/1.1" 200 -
+[gallery-serve] "GET /api/list HTTP/1.1" 200 -
+[gallery-serve] "GET /designer.html?load=rendered%2Fharvest-pipeline.bpmn HTTP/1.1" 200 -
+[gallery-serve] "GET /rendered/harvest-pipeline.bpmn HTTP/1.1" 200 -
+[gallery-serve] "GET /api/health HTTP/1.1" 200 -
+[gallery-serve] "GET /api/list HTTP/1.1" 200 -
+[gallery-serve] "GET /api/list HTTP/1.1" 200 -

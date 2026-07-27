@@ -920,3 +920,24 @@ decisions:
     date: 2026-07-23
     task: T-245
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-111
+    decision: "window-level mousemove (like the T-251 pan handlers), with client-px→svg-px conversion via the screen-CTM scale captured at drag START"
+    scope: project
+    date: 2026-07-26
+    task: T-255
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-112
+    decision: "optional `pageWidth` attribute on `aef:workflowMeta` (pool-relative width, floor semantics inside contentRightEdge(), null = auto-fit, emitted only when set)"
+    scope: project
+    date: 2026-07-26
+    task: T-255
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-113
+    decision: "pushHistory() at resize-gesture start (one undo entry per drag, T-132 pattern)"
+    scope: project
+    date: 2026-07-26
+    task: T-255
+    rationale: "Auto-captured from task file on completion"

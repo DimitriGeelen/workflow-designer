@@ -824,3 +824,8 @@ FW_SWITCH_FOCUS=1 .agentic-framework/bin/fw git commit -m "T-231: serve-gallery.
   flag: '--skip-sovereignty'
   caller: 'check_human_sovereignty'
   reason: 'Inception decision: GO'
+- timestamp: '2026-07-27T17:54:08Z'
+  task: 'T-250'
+  flag: '--skip-sovereignty'
+  caller: 'check_human_sovereignty'
+  reason: 'Inception decision: GO'
