@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-190: IW-12: inception — typed BPMN event palette (error/timer/message + boundary events)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-27T22:48:32Z
+# ============================================================================
+
+task_id: T-190
+task_name: "IW-12: inception — typed BPMN event palette (error/timer/message + boundary events)"
+workflow_type: inception
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-11T16:56:46Z
+completed: 2026-07-18T19:40:13Z
+duration_days: 7
+updates_count: 2
+first_commit: 2026-07-18T12:01:13+02:00
+last_commit: 2026-07-18T16:30:07+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  open typed-event-palette inception on operator GO — going-in framing (C-001). inception decision GO (via Watchtower). Spike-1 — IW-1 resolved (aef:-extension encoding for typed events). Spike-2 — IW-2/IW-3 resolved; recommendation firms to GO. reconcile artifact §7 to firm GO (post Spike-1+2)
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-190-typed-event-palette-inception.md'
+  - '.tasks/active/T-190-iw-12-inception--typed-bpmn-event-palett.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-18T12:01:13"
+    action: "T-190: open typed-event-palette inception on operator GO — going-in framing (C-001)"
+  - time: "2026-07-18T12:31:20"
+    action: "T-190: inception decision GO (via Watchtower)"
+  - time: "2026-07-18T12:34:26"
+    action: "T-190: Spike-1 — IW-1 resolved (aef:-extension encoding for typed events)"
+  - time: "2026-07-18T12:40:22"
+    action: "T-190: Spike-2 — IW-2/IW-3 resolved; recommendation firms to GO"
+  - time: "2026-07-18T16:30:07"
+    action: "T-190: reconcile artifact §7 to firm GO (post Spike-1+2)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 10243 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 10243
+  commits: 5
+  files_changed: 2
+  lines_added: 365
+  lines_removed: 45
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-190-iw-12-inception--typed-bpmn-event-palett.md
+generated_by: context-agent-hybrid

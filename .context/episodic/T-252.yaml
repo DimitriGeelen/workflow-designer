@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-252: Refresh stale gallery serve root so operator can test T-251 (served designer.html is Jul-22 build)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-27T22:48:33Z
+# ============================================================================
+
+task_id: T-252
+task_name: "Refresh stale gallery serve root so operator can test T-251 (served designer.html is Jul-22 build)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-25T19:52:42Z
+completed: 2026-07-25T19:55:22Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-25T21:55:35+02:00
+last_commit: 2026-07-25T21:55:35+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  refresh stale gallery serve root — :8834 now serves current src (sha-verified over HTTP, zoom controls present); root cause = serve-gallery.sh snapshots src at build time (Jul-22 copy served since); draft-trigger-handling is AEF-side (their pinned 0.4.0 — zoom arrives via next release re-pin); L-387 addendum: capture pattern still SIGPIPEs on large captures, file-based grep is the fix
+
+# Key outcomes
+outcomes:
+  - 'Bytes actually served over HTTP at :8834/designer.html contain the T-251 zoom controls and match current src — served sha256 787e4025… == src sha, btn-zoom-fit marker present (3 lines, grep -c = LINES)'
+  - 'Rendered corpus maps in the serve root refreshed from examples/aef-processes/rendered — NOTE (finding): `draft-trigger-handling` is an AEF-side corpus map, not ours; it runs on their pinned 0.4.0 instance and gets zoom only via the next release + their re-pin. Largest LOCAL map (harvest-pipeline, 26 elements) substituted for the test URL.'
+  - 'Server healthy after refresh: index 200, designer.html 200 (879243 B), rendered/harvest-pipeline.bpmn 200; test URL given to operator (http://192.168.10.107:8834/designer.html?load=rendered%2Fharvest-pipeline.bpmn)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'refresh stale gallery serve root — :8834 now serves current src (sha-verified over HTTP, zoom controls present); root cause = serve-gallery.sh snapshots src at build time (Jul-22 copy served since); draft-trigger-handling is AEF-side (their pinned 0.4.0 — zoom arrives via next release re-pin); L-387 addendum: capture pattern still SIGPIPEs on large captures, file-based grep is the fix'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-25.yaml'
+  - '.context/locks/T-252.lock'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/gallery-8834.log'
+  - '.context/working/.hook-counter'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-251-canvas-navigation-build-zoom-controls--c.md'
+  - '.tasks/completed/T-252-refresh-stale-gallery-serve-root-so-oper.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-25T21:55:35"
+    action: "T-252: refresh stale gallery serve root — :8834 now serves current src (sha-verified over HTTP, zoom controls present); root cause = serve-gallery.sh snapshots src at build time (Jul-22 copy served since); draft-trigger-handling is AEF-side (their pinned 0.4.0 — zoom arrives via next release re-pin); L-387 addendum: capture pattern still SIGPIPEs on large captures, file-based grep is the fix"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 10
+  lines_added: 349
+  lines_removed: 16
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-252-refresh-stale-gallery-serve-root-so-oper.md
+generated_by: context-agent-hybrid

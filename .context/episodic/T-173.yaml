@@ -1,0 +1,97 @@
+# ============================================================================
+# EPISODIC MEMORY - T-173: Integrate Workflow Designer into AEF (this repo stays source of truth)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-27T22:48:31Z
+# ============================================================================
+
+task_id: T-173
+task_name: "Integrate Workflow Designer into AEF (this repo stays source of truth)"
+workflow_type: inception
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-10T05:39:40Z
+completed: 2026-07-18T19:40:13Z
+duration_days: 8
+updates_count: 8
+first_commit: 2026-07-10T07:42:45+02:00
+last_commit: 2026-07-18T11:15:35+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Inception kickoff — integrate Workflow Designer into AEF (832 stays SoT). Record collaboration state — AEF agent nudged post-limit-reset, awaiting reply. Converged joint recommendation (M3 + fw designer) — IW dispositions resolved, awaiting operator GO. inception decision GO (via Watchtower). GO recorded; add IW-6 bidirectional flow (pull=re-pin, improvements=upstream-to-832). Record phase-1 mechanism verified LIVE end-to-end (byte-identical /designer on AEF, sha256 d0e0177c). Visual verification — AEF /designer renders the live editor (investigate workflow), pixel-level evidence. Document proven cross-boundary delivery (832 push via termlink file_send; T-559 blocks pull). Document durable cross-agent coordination channel (file_send + threaded post; PTY-inject is lossy)
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/aef-designer-integration-protocol.md'
+  - 'docs/reports/assets/T-173-designer-live-render.png'
+  - 'docs/reports/T-173-aef-integration-inception.md'
+  - '.tasks/active/T-173-integrate-workflow-designer-into-aef-thi.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-10T07:42:45"
+    action: "T-173: Inception kickoff — integrate Workflow Designer into AEF (832 stays SoT)"
+  - time: "2026-07-10T11:29:45"
+    action: "T-173: Record collaboration state — AEF agent nudged post-limit-reset, awaiting reply"
+  - time: "2026-07-10T11:49:04"
+    action: "T-173: Converged joint recommendation (M3 + fw designer) — IW dispositions resolved, awaiting operator GO"
+  - time: "2026-07-10T11:53:47"
+    action: "T-173: inception decision GO (via Watchtower)"
+  - time: "2026-07-10T11:56:06"
+    action: "T-173: GO recorded; add IW-6 bidirectional flow (pull=re-pin, improvements=upstream-to-832)"
+  - time: "2026-07-10T16:14:18"
+    action: "T-173: Record phase-1 mechanism verified LIVE end-to-end (byte-identical /designer on AEF, sha256 d0e0177c)"
+  - time: "2026-07-10T17:53:55"
+    action: "T-173: Visual verification — AEF /designer renders the live editor (investigate workflow), pixel-level evidence"
+  - time: "2026-07-10T17:55:25"
+    action: "T-173: Document proven cross-boundary delivery (832 push via termlink file_send; T-559 blocks pull)"
+  - time: "2026-07-10T20:42:52"
+    action: "T-173: Document durable cross-agent coordination channel (file_send + threaded post; PTY-inject is lossy)"
+  - time: "2026-07-18T11:15:35"
+    action: "T-173: inception decision GO (via Watchtower)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 10 commit(s), 12360 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 12360
+  commits: 10
+  files_changed: 4
+  lines_added: 527
+  lines_removed: 36
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-173-integrate-workflow-designer-into-aef-thi.md
+generated_by: context-agent-hybrid

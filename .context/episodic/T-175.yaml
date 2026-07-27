@@ -1,0 +1,129 @@
+# ============================================================================
+# EPISODIC MEMORY - T-175: Workflow Designer as AEF process-authoring surface (framing + decomposition)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-27T22:48:32Z
+# ============================================================================
+
+task_id: T-175
+task_name: "Workflow Designer as AEF process-authoring surface (framing + decomposition)"
+workflow_type: inception
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-10T10:42:06Z
+completed: 2026-07-18T19:40:13Z
+duration_days: 8
+updates_count: 2
+first_commit: 2026-07-10T12:44:58+02:00
+last_commit: 2026-07-12T22:03:54+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Frame designer-as-authoring-surface program (arc-001); capture 7 resolved decisions + decomposition. Draft BPMN<->AEF mapping strawman (keystone de-risk) + register assumptions A-001..A-003. inception decision GO (via Watchtower). Child-inception decomposition dossier (IW-8) — per-child GO/NO-GO framing + commit converged strawman. Point IW-8 at the child-decomposition dossier (deliverable produced; per-child GO pending operator). Realize IW-8 decomposition — child-2 teed up (T-183), children 3-5 registered deferred (T-184/185/186) with revisit triggers. capture AEF design-review open items — IW-9 (T-189, v1.1 authority-collapse standard delta) + IW-12 (T-190, typed-event-palette inception). capture AEF operator-ratified IW-9/IW-12 framings into T-189/T-190. capture PL-033 — cross-agent byte-validation, push real bytes early (peer twin hides serialization drift; AEF T-2536/L-501 case)
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-11 — IW-8 per-child go/no-go (operator sovereign decision)'
+    chose: '**GO child-1 (mapping standard) + child-2 (forward bridge); DEFER child-3 (reverse discovery), child-4 (collaboration/concurrency), child-5 (hosting/tenancy).**'
+    rationale: 'Operator ratified the recommended split (`docs/reports/T-175-child-decomposition.md`). Funds the primary value path (contract + draw→governed work); parks reverse/live-coedit/multi-tenancy behind their revisit triggers.'
+    alternatives_rejected: ['GO-all (all-or-nothing umbrella, framework-discouraged); DEFER-all (stalls the keystone that''s ~90% done).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/arcs/designer-authoring-surface.yaml'
+  - '.context/project/assumptions.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-179.log'
+  - '.context/working/episodic-gen/T-180.log'
+  - '.context/working/episodic-gen/T-181.log'
+  - '.context/working/episodic-gen/T-182.log'
+  - '.context/working/episodic-gen/T-183.log'
+  - '.context/working/episodic-gen/T-187.log'
+  - '.context/working/episodic-gen/T-188.log'
+  - '.context/working/episodic-gen/T-191.log'
+  - '.context/working/episodic-gen/T-192.log'
+  - '.context/working/episodic-gen/T-193.log'
+  - '.context/working/episodic-gen/T-194.log'
+  - '.context/working/.gate-bypass-log.yaml'
+  - '.context/working/.handover-cooldown'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.restart-requested'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - 'docs/reports/T-175-child-decomposition.md'
+  - 'docs/reports/T-175-designer-authoring-surface-inception.md'
+  - 'docs/reports/T-175-mapping-strawman.md'
+  - '.tasks/active/T-175-workflow-designer-as-aef-process-authori.md'
+  - '.tasks/active/T-183-child-2-forward-bridge--832-support-emis.md'
+  - '.tasks/active/T-184-child-3-reverse-discovery-aef-record---e.md'
+  - '.tasks/active/T-185-child-4-collaboration-and-concurrency-pe.md'
+  - '.tasks/active/T-186-child-5-hosting-and-tenancy-tenant-neutr.md'
+  - '.tasks/active/T-189-iw-9-v11-mapping-standard-delta--collaps.md'
+  - '.tasks/active/T-190-iw-12-inception--typed-bpmn-event-palett.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-10T12:44:58"
+    action: "T-175: Frame designer-as-authoring-surface program (arc-001); capture 7 resolved decisions + decomposition"
+  - time: "2026-07-10T12:50:05"
+    action: "T-175: Draft BPMN<->AEF mapping strawman (keystone de-risk) + register assumptions A-001..A-003"
+  - time: "2026-07-10T17:48:49"
+    action: "T-175: inception decision GO (via Watchtower)"
+  - time: "2026-07-11T00:11:26"
+    action: "T-175: Child-inception decomposition dossier (IW-8) — per-child GO/NO-GO framing + commit converged strawman"
+  - time: "2026-07-11T00:12:15"
+    action: "T-175: Point IW-8 at the child-decomposition dossier (deliverable produced; per-child GO pending operator)"
+  - time: "2026-07-11T07:31:28"
+    action: "T-175: Realize IW-8 decomposition — child-2 teed up (T-183), children 3-5 registered deferred (T-184/185/186) with revisit triggers"
+  - time: "2026-07-11T18:57:01"
+    action: "T-175: capture AEF design-review open items — IW-9 (T-189, v1.1 authority-collapse standard delta) + IW-12 (T-190, typed-event-palette inception)"
+  - time: "2026-07-11T19:33:42"
+    action: "T-175: capture AEF operator-ratified IW-9/IW-12 framings into T-189/T-190"
+  - time: "2026-07-12T22:03:54"
+    action: "T-175: capture PL-033 — cross-agent byte-validation, push real bytes early (peer twin hides serialization drift; AEF T-2536/L-501 case)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 10 commit(s), 12058 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: ["arc:designer-authoring-surface"]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 12058
+  commits: 10
+  files_changed: 39
+  lines_added: 4550
+  lines_removed: 80
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-175-workflow-designer-as-aef-process-authori.md
+generated_by: context-agent-hybrid
