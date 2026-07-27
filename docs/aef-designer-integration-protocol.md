@@ -139,17 +139,24 @@ re-annotates after each `aef:ready`. Emitted only when embedded (`parent !== win
 targetOrigin `*` (v0; see origin policy below). Transient intra-gesture partial renders
 (mid-drag) may clear badges early; the gesture-ending full render re-handshakes.
 
-**Annotate (parent → designer):**
+**Annotate (parent → designer) — wire-canonical shape (0.7.1+), what AEF's
+`/api/overlay` emits and its wrapper posts verbatim:**
 
 ```json
-{ "type": "aef:annotate", "annotations": [
-    { "uid": "n_abc", "badge": "running", "tone": "ok", "title": "since 12:04Z" } ] }
+{ "type": "aef:annotate", "map": "aef-task-lifecycle", "generated": 1785179747,
+  "nodes": [
+    { "uid": "tl_work", "badge": "31", "text": "31 task(s) — focus: T-100196", "severity": "warn" } ] }
 ```
 
 - `uid` — node uid (the `aef:uid` value; also the SVG `g[data-id]`). Unknown uids are
   ignored silently. `badge` — short text, clamped to 48 chars, rendered as a pill at the
-  node's top-right. `tone` — one of `info | ok | warn | err` (default `info`).
-  `title` — optional hover tooltip (native SVG `<title>`, clamped to 200 chars).
+  node's top-right. `severity` — `info | warn | alert` (mapped to designer tones
+  info/warn/err). `text` — optional long descriptor, becomes the hover tooltip
+  (native SVG `<title>`, clamped to 200 chars). `map`/`generated` are ignored by the
+  designer (feed metadata).
+- **Accepted alias (0.7.0 documented form):** `annotations:[{uid, badge, tone, title}]`
+  with `tone` ∈ `info | ok | warn | err`. Both carriers work; `severity` wins over
+  `tone` when both appear on an entry, `title` wins over `text`.
 - Accepted ONLY from the embedding parent (`event.source === window.parent`).
 - Read-only overlay: never serialized into BPMN, never in autosave, stripped from
   thumbnails, dropped on document switch. Malformed payloads are ignored without error.

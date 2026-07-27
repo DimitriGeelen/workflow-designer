@@ -29,6 +29,9 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
 const SERVER = join(HERE, 'gallery-serve.py');
 const SHOT = join(REPO, '.playwright-mcp', 't258-annotation-badges.png');
+// T-261: the REAL payload AEF's live /api/overlay served on 2026-07-27 (their
+// wrapper posts this verbatim) — wire-canonical shape {nodes:[{uid,badge,text,severity}]}.
+const WIRE_FIXTURE = join(REPO, 'tests', 'fixtures', 'aef-overlay', 'live-payload-2026-07-27.json');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
@@ -51,6 +54,9 @@ const HOST_HTML = `<!doctype html>
   });
   window.__annotate = function(annotations){
     document.getElementById('f').contentWindow.postMessage({ type: 'aef:annotate', annotations: annotations }, '*');
+  };
+  window.__post = function(obj){
+    document.getElementById('f').contentWindow.postMessage(obj, '*');
   };
 </script>
 </body></html>`;
@@ -201,6 +207,44 @@ async function main() {
     })()`);
     if (!sw.match) errs.push('post-switch ready.uids do not match the new document');
     if (sw.badges !== 0) errs.push('doc switch left ' + sw.badges + ' badge(s)');
+
+    // (8) T-261 wire-shape leg: replay the REAL AEF payload bytes verbatim against a
+    // document carrying two of its uids — nodes[]/severity/text must light badges
+    // with mapped tones (alert→err) and text→tooltip; the 3 absent uids stay ignored.
+    const wire = JSON.parse(readFileSync(WIRE_FIXTURE, 'utf8'));
+    if (wire.type !== 'aef:annotate' || !Array.isArray(wire.nodes)) throw new Error('wire fixture malformed: ' + WIRE_FIXTURE);
+    // Step (7) left an EMPTY new document — switch back to the seed map (still in
+    // the in-session library) and rename two of its uids to the wire payload's.
+    await ev(cmd, `(function(){
+      var f = document.getElementById('f').contentWindow;
+      f.eval("var k = Array.from(library.keys()).filter(function(x){ return x !== activeKey; })[0]; loadFromLibrary(k);" +
+             "state.nodes[0].uid = 'tl_work'; state.nodes[0].id = 'tl_work';" +
+             "state.nodes[1].uid = 'tl_human_review'; state.nodes[1].id = 'tl_human_review';" +
+             "refreshDisplayIds(); renderAll();");
+      return true;
+    })()`);
+    await sleep(200);
+    await ev(cmd, `(window.__post(${JSON.stringify(wire)}), true)`);
+    await waitFor(cmd, `document.getElementById('f').contentWindow.document.querySelectorAll('.aef-annotation').length === 2`, 5000, '2 wire-shape badges');
+    const wireCheck = await ev(cmd, `(function(){
+      var d = document.getElementById('f').contentWindow.document;
+      var w = d.querySelector('g[data-id="tl_work"] .aef-annotation');
+      var h = d.querySelector('g[data-id="tl_human_review"] .aef-annotation');
+      return {
+        workTone: w ? /tone-warn/.test(w.getAttribute('class')) : false,
+        workBadge: w ? w.querySelector('text').textContent : null,
+        workTip: w && w.querySelector('title') ? w.querySelector('title').textContent : '',
+        reviewTone: h ? /tone-err/.test(h.getAttribute('class')) : false,
+        reviewBadge: h ? h.querySelector('text').textContent : null
+      };
+    })()`);
+    const wWork = wire.nodes.find(n => n.uid === 'tl_work');
+    const wRev = wire.nodes.find(n => n.uid === 'tl_human_review');
+    if (!wWork || !wRev) throw new Error('wire fixture lost its tl_work/tl_human_review carriers');
+    if (wWork.severity !== 'warn' || wRev.severity !== 'alert') errs.push('wire fixture severities drifted — re-pin deliberately');
+    if (!wireCheck.workTone || wireCheck.workBadge !== String(wWork.badge)) errs.push('wire: tl_work badge wrong: ' + JSON.stringify(wireCheck) + ' want ' + wWork.badge);
+    if (wireCheck.workTip !== String(wWork.text).slice(0, 200)) errs.push('wire: tl_work tooltip missing text→title fallback: ' + JSON.stringify(wireCheck.workTip));
+    if (!wireCheck.reviewTone || wireCheck.reviewBadge !== String(wRev.badge)) errs.push('wire: tl_human_review severity alert did not map to tone-err: ' + JSON.stringify(wireCheck));
 
     const out = { ok: errs.length === 0, errs, screenshot: existsSync(SHOT) ? SHOT : null };
     process.stdout.write(JSON.stringify(out, null, 2) + '\n');
