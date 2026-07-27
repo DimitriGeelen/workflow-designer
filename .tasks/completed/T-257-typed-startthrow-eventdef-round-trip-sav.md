@@ -4,16 +4,16 @@ name: "Typed start/throw eventDef round-trip: save drops aef:eventDef from start
 description: >
   AEF field defect (rail 201, their T-2620 report, 2026-07-26): operator opened their draft-trigger-handling v1 (start kind=timer, throw kind=message) in the 0.4.0 editor, made a LAYOUT-ONLY edit, saved -> v2 lost both start/throw eventDefs while the catch kept its. Root lineage: this is the recorded T-237 decision (eventDef override = catch-hosts-only; throw+eventDef payload deliberately dropped as invalid hybrid; typed-THROW named a FUTURE CONTRACT ROUND and offered to AEF at rail 156) now colliding with real corpus usage - the contract round has arrived with field evidence. Impact: save silently strips typed-event semantics -> manufactures emitterless typed catches (the T-2551 lint class both sides pinned). Scope to explore: aef:eventDef preservation/rendering on startEvent + intermediateThrowEvent hosts (round-trip first, palette/UI second); AEF offered the v1/v2 byte-pair as a fixture - accept it. Everything else in their round-trip was clean (19 uids, 20 flows, name->workflowRef auto-resolve held under real operator editing).
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-26T20:24:56Z
-last_update: 2026-07-27T16:49:23Z
-date_finished: null
+last_update: 2026-07-27T18:25:49Z
+date_finished: 2026-07-27T18:25:49Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -117,15 +117,15 @@ no schema change on the AEF side (their intake is already host-agnostic, rail 21
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -208,7 +208,16 @@ export; regression leg = fixture v1 open→save keeps all 3 eventDefs.
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: The drop is fully localized to two bounded sites in one file, the fix
+is a preservation passthrough with zero UI surface and zero risk to the existing
+typed-catch behaviour, and the peer side has pre-cleared intake (rail 215,
+source-verified). This cures a field defect that silently destroys operator-authored
+semantics on every layout-only save — the strongest class of GO evidence (real data
+loss, bounded fix, byte-pair fixture already pinned for regression).
+
+**Date**: 2026-07-27T18:25:49Z
 
 ## Updates
 
@@ -234,3 +243,17 @@ export; regression leg = fixture v1 open→save keeps all 3 eventDefs.
   not preservation), IW-3 answered (both halves closed). All dispositions filed.
 - Recommendation GO + fix shape + scope fence written; awaiting operator decision
   at /inception/T-257.
+
+### 2026-07-27T18:25:49Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** The drop is fully localized to two bounded sites in one file, the fix
+is a preservation passthrough with zero UI surface and zero risk to the existing
+typed-catch behaviour, and the peer side has pre-cleared intake (rail 215,
+source-verified). This cures a field defect that silently destroys operator-authored
+semantics on every layout-only save — the strongest class of GO evidence (real data
+loss, bounded fix, byte-pair fixture already pinned for regression).
+
+### 2026-07-27T18:25:49Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO

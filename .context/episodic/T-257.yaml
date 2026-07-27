@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-257: Typed start/throw eventDef round-trip: save drops aef:eventDef from startEvent and intermediateThrowEvent carriers
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-27T18:25:51Z
+# ============================================================================
+
+task_id: T-257
+task_name: "Typed start/throw eventDef round-trip: save drops aef:eventDef from startEvent and intermediateThrowEvent carriers"
+workflow_type: inception
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-26T20:24:56Z
+completed: 2026-07-27T18:25:49Z
+duration_days: 1
+updates_count: 5
+first_commit: 2026-07-27T18:49:22+02:00
+last_commit: 2026-07-27T20:20:39+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  pin AEF eventDef-roundtrip fixture pair (rail 208/209) — v1 5845caae (3 eventDefs) / v2 7c0bd69a (catch-only survives 0.4.0 save), byte-verbatim + provenance README; inception Open Questions IW-1..3 filed (preservation-only vs full typed round, T-237 hybrid concern, drop-site location). drop-site exploration complete — parse-time _catchHost guard (:9088-9099) + export-time EVENT_KIND gate (:8735-8739) both localized; IW-1..3 disposed (preservation-only, T-237 hybrid concern dissolved, peer intake pre-cleared rail 215); Recommendation GO + fix shape + scope fence + research artifact; awaiting operator decision
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'drop-site exploration complete — parse-time _catchHost guard (:9088-9099) + export-time EVENT_KIND gate (:8735-8739) both localized; IW-1..3 disposed (preservation-only, T-237 hybrid concern dissolved, peer intake pre-cleared rail 215); Recommendation GO + fix shape + scope fence + research artifact; awaiting operator decision'
+    source: git-mined
+  - description: 'pin AEF eventDef-roundtrip fixture pair (rail 208/209) — v1 5845caae (3 eventDefs) / v2 7c0bd69a (catch-only survives 0.4.0 save), byte-verbatim + provenance README; inception Open Questions IW-1..3 filed (preservation-only vs full typed round, T-237 hybrid concern, drop-site location)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-27 — Canonical re-emit vs byte-verbatim attribute preservation'
+    chose: 'Re-emit passthrough eventDefs in the exporter''s canonical form'
+    rationale: 'The surviving catch in fixture v2 already shows this normalization in'
+    alternatives_rejected: ['Raw attribute-string passthrough — extra machinery, no gain.']
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-257-eventdef-drop-site.md'
+  - '.tasks/active/T-257-typed-startthrow-eventdef-round-trip-sav.md'
+  - 'tests/fixtures/aef-bpmn/t257-eventdef-roundtrip/draft-trigger-handling-v1.bpmn'
+  - 'tests/fixtures/aef-bpmn/t257-eventdef-roundtrip/draft-trigger-handling-v2.bpmn'
+  - 'tests/fixtures/aef-bpmn/t257-eventdef-roundtrip/README.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-27T18:49:22"
+    action: "T-257: pin AEF eventDef-roundtrip fixture pair (rail 208/209) — v1 5845caae (3 eventDefs) / v2 7c0bd69a (catch-only survives 0.4.0 save), byte-verbatim + provenance README; inception Open Questions IW-1..3 filed (preservation-only vs full typed round, T-237 hybrid concern, drop-site location)"
+  - time: "2026-07-27T20:20:39"
+    action: "T-257: drop-site exploration complete — parse-time _catchHost guard (:9088-9099) + export-time EVENT_KIND gate (:8735-8739) both localized; IW-1..3 disposed (preservation-only, T-237 hybrid concern dissolved, peer intake pre-cleared rail 215); Recommendation GO + fix shape + scope fence + research artifact; awaiting operator decision"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 1320 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1320
+  commits: 2
+  files_changed: 5
+  lines_added: 912
+  lines_removed: 29
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-257-typed-startthrow-eventdef-round-trip-sav.md
+generated_by: context-agent-hybrid
