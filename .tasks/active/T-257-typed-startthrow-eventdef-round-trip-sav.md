@@ -60,35 +60,58 @@ byte-pair fixture (rail 208/209, pinned under tests/fixtures/aef-bpmn/t257-event
 -->
 
 - **IW-1: Should start/throw eventDef round-trip be preservation-only (parse + re-emit verbatim, no palette/UI), or full typed-event semantics (render glyphs, editable kind) in the same round?**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 3
+  disposition: answered
+  rationale: Preservation-only this round. Full typed start/throw semantics requires a new typed-throw node vocabulary (TYPE_TAG entries, palette items, glyphs, properties UI) — exactly the future contract round T-237 deferred and rail 156 offered. Preservation alone cures the field defect completely (silent data loss + the emitterless-typed-catch lint class, per AEF rail 215: restoring throw eventDefs cures the lint). Semantics can layer on later without reworking the passthrough.
 
 - **IW-2: Does preserving throw+eventDef reopen the T-237 "invalid hybrid" concern (throw+eventDef was deliberately dropped), or was that concern specific to the link-throw overlap that no longer applies to plain typed throws?**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 3
+  disposition: dissolved
+  rationale: T-237's concern was about TYPE-OVERRIDE, not preservation — the src comment (aef-workflow-designer.html:9082-9087) states it: EVENT_KIND types all export as intermediateCatchEvent, so overriding a THROW host's node type would silently mutate its tag to a catch on round-trip; and a link-with-target must stay a link event. A passthrough that leaves node type and host tag untouched triggers neither failure mode. Fixture confirms no aef:link on either dropped carrier (v1 th_obs_fire, th_signal) — no classification interplay.
 
 - **IW-3: What is the exact drop site in the save path (parse-time discard vs export-time filter), and does a preservation fix risk emitting eventDef on hosts AEF's compiler rejects?**
-  confidence: 1
-  disposition:
-  rationale: SECOND HALF CLOSED by AEF at rail 215 (verified in their source): aef:eventDef is accepted + round-tripped verbatim on ANY host (corpus_spec.py:212 host-agnostic, no rejection path); lint classifies direction by host tag (throw=throw, start=neutral/no finding), so preservation on both hosts is safe against their intake and restoring throw eventDefs also cures the emitterless-typed-catch lint. FIRST HALF (drop-site localization in our save path) still open — 832-side exploration.
+  confidence: 3
+  disposition: answered
+  rationale: BOTH mechanisms, now localized (2026-07-27 code read). (a) Parse-time discard — adoptImportedXml, aef-workflow-designer.html:9088-9099: eventDefEl is read but consumed only under the `_catchHost` guard (intermediateCatchEvent/linkEventCatch/boundaryEvent); on startEvent and intermediateThrowEvent hosts kind/binding never enter the node model. (b) Export-time absence — aefExtensionXml:8735-8739 emits <aef:eventDef> only when EVENT_KIND[node.type] matches (the three typed-catch types). Fix must touch both. AEF-rejection risk: none — closed at rail 215 (corpus_spec.py:212 host-agnostic accept, lint start=neutral/throw=emitter).
 
 ## Exploration Plan
 
-<!-- How will we validate assumptions? Spikes, prototypes, research? Time-box each. -->
+Executed 2026-07-27 (single session, code-read + fixture-diff — no prototype needed):
+1. Locate every eventDef touchpoint in the save path (grep src) — DONE: all in
+   src/aef-workflow-designer.html (import adoptImportedXml, export aefExtensionXml).
+2. Trace the fixture repro through both directions — DONE: v1 start (th_obs_fire,
+   kind=timer) keeps node type startEvent, v1 throw (th_signal, kind=message) becomes
+   linkEventThrow; neither passes the `_catchHost` guard at :9091, so kind/binding
+   never enter the model; export gate at :8735 (EVENT_KIND[node.type]) then has
+   nothing to emit. Catch (th_pickup) passes the guard, is type-overridden to
+   eventMessage, and re-exports — v2:238 shows the exporter's canonical
+   normalization (binding="" added), which AEF's intake accepted, proving canonical
+   re-emit (vs byte-verbatim attr preservation) is fine.
+3. Peer-intake risk — CLOSED externally at rail 215 (host-agnostic accept, verified
+   in AEF source).
 
 ## Technical Constraints
 
-<!-- What platform, browser, network, or hardware constraints apply?
-     For web apps: HTTPS requirements, browser API restrictions, CORS, device support.
-     For hardware APIs (mic, camera, GPS, Bluetooth): access requirements, permissions model.
-     For infrastructure: network topology, firewall rules, latency bounds.
-     Fill this BEFORE building. Discovering constraints after implementation wastes sessions. -->
+None beyond the existing single-file editor architecture. No new APIs, no network,
+no schema change on the AEF side (their intake is already host-agnostic, rail 215).
 
 ## Scope Fence
 
-<!-- What's IN scope for this exploration? What's explicitly OUT? -->
+**IN (build task on GO):**
+- Import: passthrough capture of <aef:eventDef kind binding> on hosts the
+  typed-catch override skips (startEvent, intermediateThrowEvent; also
+  link-with-target nodes for symmetry) — stored as inert aef fields, no node-type change.
+- Export: re-emit the passthrough <aef:eventDef> for nodes carrying it (canonical
+  form, binding="" when absent — matches the accepted v2 catch normalization).
+- Regression test leg: open fixture v1 → save → assert all 3 eventDefs survive with
+  kinds intact (timer/message/message on th_obs_fire/th_signal/th_pickup).
+
+**OUT (explicitly deferred):**
+- Typed start/throw palette, glyphs, editable-kind UI (the full-semantics contract
+  round — separate future inception).
+- Any change to the typed-CATCH override path (T-204/T-237 behaviour unchanged).
+- Byte-verbatim attribute preservation (canonical re-emit is ratified by field
+  evidence — v2 catch).
 
 ## Acceptance Criteria
 
@@ -134,17 +157,45 @@ byte-pair fixture (rail 208/209, pinned under tests/fixtures/aef-bpmn/t257-event
 
 ## Recommendation
 
-<!-- REQUIRED before fw inception decide. Write your recommendation here (T-974).
-     Watchtower reads this section — if it's empty, the human sees nothing.
-     Format:
-     **Recommendation:** GO / NO-GO / DEFER
-     **Rationale:** Why (cite evidence from exploration)
-     **Evidence:**
-     - Finding 1
-     - Finding 2
--->
+**Recommendation:** GO
+
+**Rationale:** The drop is fully localized to two bounded sites in one file, the fix
+is a preservation passthrough with zero UI surface and zero risk to the existing
+typed-catch behaviour, and the peer side has pre-cleared intake (rail 215,
+source-verified). This cures a field defect that silently destroys operator-authored
+semantics on every layout-only save — the strongest class of GO evidence (real data
+loss, bounded fix, byte-pair fixture already pinned for regression).
+
+**Evidence:**
+- Drop site (a): parse-time discard — adoptImportedXml `_catchHost` guard,
+  src/aef-workflow-designer.html:9088-9099. startEvent/intermediateThrowEvent hosts
+  never get kind/binding into the node model.
+- Drop site (b): export-time gate — aefExtensionXml:8735-8739 emits eventDef only
+  for the three typed-catch node types.
+- Fixture trace matches exactly: v1 th_obs_fire (timer) + th_signal (message)
+  dropped, th_pickup (message) survives via the catch override path (v2:238, with
+  canonical binding="" normalization AEF accepted — canonical re-emit ratified).
+- Peer intake safe: AEF rail 215, corpus_spec.py:212 host-agnostic accept, no
+  rejection path; lint start=neutral; restoring throw eventDefs also cures the
+  emitterless-typed-catch lint class (T-2551) both sides pinned.
+- T-237 "invalid hybrid" concern dissolved: it guarded against TYPE-OVERRIDE tag
+  mutation, which a passthrough never performs (IW-2).
+- Scope ≈ blast radius 1-2 (single source file + one test leg) vs anticipated 3.
+
+**Fix shape for the build task:** capture kind/binding as inert aef passthrough
+fields at import when the catch-override doesn't apply; re-emit canonically at
+export; regression leg = fixture v1 open→save keeps all 3 eventDefs.
 
 ## Decisions
+
+### 2026-07-27 — Canonical re-emit vs byte-verbatim attribute preservation
+- **Chose:** Re-emit passthrough eventDefs in the exporter's canonical form
+  (`kind="…" binding=""` when binding absent in source).
+- **Why:** The surviving catch in fixture v2 already shows this normalization in
+  the wild and AEF's intake accepted it (rail 215 byte-check was on OUR pinned
+  copies; their corpus_spec captures verbatim what we emit). Byte-verbatim attr
+  preservation would need raw-attr storage for zero consumer benefit.
+- **Rejected:** Raw attribute-string passthrough — extra machinery, no gain.
 
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
@@ -174,3 +225,12 @@ byte-pair fixture (rail 208/209, pinned under tests/fixtures/aef-bpmn/t257-event
 - sha256 v1 `5845caae2f83479bc7aeb4b97c2db297cb77edca4cf75fcdc1a3db21bbfa293f` (16443 B),
   v2 `7c0bd69a17e1c240771cc4727e403002423e36b2ee03fe6bc97cb8c7c24deb4b` (16675 B); both XML-parse clean.
 - Diff confirms the reported repro exactly: start timer + throw message eventDefs dropped, catch message retained.
+
+### 2026-07-27 — drop-site exploration complete, recommendation GO written
+- Both drop mechanisms localized in src/aef-workflow-designer.html: parse-time
+  `_catchHost` guard (adoptImportedXml :9088-9099) + export-time EVENT_KIND gate
+  (aefExtensionXml :8735-8739). Fixture trace matches the field repro exactly.
+- IW-1 answered (preservation-only), IW-2 dissolved (T-237 concern = type-override,
+  not preservation), IW-3 answered (both halves closed). All dispositions filed.
+- Recommendation GO + fix shape + scope fence written; awaiting operator decision
+  at /inception/T-257.
