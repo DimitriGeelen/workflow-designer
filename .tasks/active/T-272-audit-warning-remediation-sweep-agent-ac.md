@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T23:13:18Z
-last_update: 2026-07-27T23:13:18Z
+last_update: 2026-07-27T23:16:11Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -48,11 +48,11 @@ T-250 research-artifact backfill (history fabrication risk — left for operator
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] T-136 completed file has an `## Updates` section (honest backfill entry citing git history) — warn gone
-- [ ] T-244 has a real `**Recommendation:** DEFER` block reflecting the rail-176 lean — C-006 + D14 warns gone
-- [ ] MCP drift investigated: 3 unclassified tools identified; baseline refreshed ONLY if they are legitimate known additions (otherwise report) — warn gone or escalated
-- [ ] Routine .context audit churn committed; only T-265-scoped corpus files remain uncommitted
-- [ ] fw audit warn count strictly below 23 with 0 fail
+- [x] T-136 completed file has an `## Updates` section — the status-update entry was stranded in ## Decisions; header inserted at its true position + commit-trail backfill, marked as backfill — warn gone
+- [x] T-244 has a real `**Recommendation:** DEFER` block reflecting the rail-176 lean (neutral glyph; zero live exposure since AEF's corpus fix) — C-006 + D14 warns gone
+- [x] MCP drift resolved: termlink_fleet_governor_history / termlink_substrate_history / termlink_substrate_status all read-shaped introspection (same class as T-014's governor_status pair), classified readonly_exempt with provenance, baseline 269→272 (+6 via scan --apply) — unclassified-tools warn gone; residual tag-format sub-warn is another project's live session (respawn= tag on 050-email-archive's session), not remediable from this repo
+- [x] Routine .context audit churn committed (245 files); remaining uncommitted = T-265-scoped corpus files + the operator-flagged pre-existing .mcp.json/.framework.yaml drift (2026-07-23 note) — both deliberately untouched
+- [x] fw audit: 154 pass / 20 warn / 0 fail (was 151/23/0) — 3 warns cleared, none traded for fails
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
