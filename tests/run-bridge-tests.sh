@@ -203,6 +203,18 @@ else
 fi
 
 echo
+echo "== lane compaction: fit lanes to content, exact Clean fixpoint (T-125, T-122 pairs) =="
+# The dominant operator-correction rule — 24-map headless sweep asserting
+# vertical-only, fixpoint convergence, band containment, no new overlaps,
+# exact undo, and pair-map height ceilings (tools/_t125-lane-compaction-cdp.mjs).
+if python3 "$ROOT/tests/test_t125_lane_compaction.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "lane compaction regressed — fixpoint, containment, overlap, undo, or a pair-map height ceiling (T-125/T-122 class)"
+  fail=$((fail + 1))
+fi
+
+echo
 # Corpus geometry sweep (T-052): every authored map's nodes must sit inside their
 # lane bands, modulo the exact legacy allowlist. Guards against new maps silently
 # straddling bands — the G-019 blindness found in T-050.

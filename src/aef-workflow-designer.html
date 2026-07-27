@@ -6774,6 +6774,143 @@ function redo() {
 // rows (T-094) on EVERY lane, recorded as a single lastTidy step so one
 // Ctrl+Z restores all node ys and lane heights. Edges reroute on render.
 // Only the button calls this — no render pass or pref change does (PD-044).
+// ── Lane compaction (T-125) ─────────────────────────────────────────────────
+// The dominant rule from the operator correction pairs 1–3 (T-122): every pair
+// halves the diagram height by shrinking each lane to fit its content — the
+// auto-layout gave lanes large content-independent heights and parked rows at
+// lane edges, leaving empty inter-lane bands and ~450px cross-lane verticals
+// (arc-lifecycle Pair 3 identified the mechanism: laneHeight = contentExtent +
+// padding, row placed WITHIN the fitted lane). This pass fits each lane's height
+// to its node extent (+ label allowance for label-below types, + padding) and
+// rigid-shifts the lane's nodes so the content sits PAD from the fitted lane top;
+// lanes below move up as the cursor advances. Vertical-only (x untouched —
+// matches all three pairs); intra-lane geometry preserved (rigid shift), so no
+// intra-lane overlap can appear, and every node is contained in its fitted band
+// by construction. Runs only inside cleanLayout() (explicit action, PD-044);
+// undo rides Clean's composite before-diff. Unlike respaceRows' grow-only rule,
+// shrinking is the point here — Clean IS the operator's re-derive gesture.
+// Convergence constraint: tidyLane snaps every non-stack node to laneRowYs'
+// uniform grid, and that grid is DERIVED from lane.height — so a naive
+// extent+pad fit re-grids the lane every Clean pass and tidy↔compact 2-cycles
+// forever (measured: 16/24 corpus maps never reached the bake fixpoint), while
+// a coarse ROW_PITCH-multiple quantization inflates already-trim lanes by up to
+// a whole pitch (arc-lifecycle +26%). So the fit solves for the canonical form
+// directly: non-stack rows are placed ON consecutive grid lines, with the line
+// pitch p = h/n chosen minimal subject to round(h/ROW_PITCH) === n (the exact
+// grid laneRowYs will derive back from h) and 12px containment of every row's
+// fixed top/bottom overhang (node halves, below-shape labels, attached branch
+// stacks). Stacks ride their nearest row rigidly, keeping their T-093 pitch so
+// tidyLane's stack pass stays a no-op. The placed lane is an EXACT fixpoint of
+// the tidy grid by construction. Measure-after-move: a lane whose placement
+// would add a node intersection reverts untouched (PD-030).
+const LANE_FIT_MARGIN = 12;   // containment margin, above tidyLane's 8px grow trigger
+const LANE_FIT_LABEL = 18;    // below-shape name line (events/gateways, ly = h+14)
+const LANE_FIT_EMPTY = 80;    // lanes with no nodes collapse to a slim visible band
+function compactLanesFit() {
+  const labelBelow = t => (t === 'startEvent' || t === 'endEvent' ||
+    t === 'linkEventThrow' || t === 'linkEventCatch' ||
+    t.startsWith('event') || t.endsWith('Gateway'));
+  const cyOf = n => n.y + NODE_DEFAULTS[n.type].h / 2;
+  const topOf = n => n.y;
+  const botOf = n => n.y + NODE_DEFAULTS[n.type].h + (labelBelow(n.type) ? LANE_FIT_LABEL : 0);
+  let yCursor = POOL_Y + POOL_HEADER;
+  for (const lane of state.lanes) {
+    const ns = state.nodes.filter(n => n.lane === lane.id);
+    if (!ns.length) {
+      lane.height = Math.max(60, Math.min(lane.height, LANE_FIT_EMPTY));
+      yCursor += lane.height;
+      continue;
+    }
+    const stacks = branchStacksInLane(lane.id);
+    const inStack = new Set(stacks.flat().map(n => n.id));
+    const nonStack = ns.filter(n => !inStack.has(n.id));
+    const topExt = Math.min(...ns.map(topOf));
+    const botExt = Math.max(...ns.map(botOf));
+    if (!nonStack.length) {
+      // Stack-only lane: nothing row-snaps here, a plain fit is already stable.
+      const h = Math.max(60, (botExt - topExt) + 2 * LANE_FIT_MARGIN);
+      const delta = (yCursor + LANE_FIT_MARGIN) - topExt;
+      lane.height = h;
+      if (Math.abs(delta) > 0.01) for (const n of ns) n.y += delta;
+      yCursor += h;
+      continue;
+    }
+    // Cluster non-stack nodes into rows (same band respaceRows uses), then
+    // attach each stack to the row nearest its centroid — it moves with it.
+    const sorted = nonStack.map(n => ({ n, cy: cyOf(n) })).sort((a, b) => a.cy - b.cy);
+    const rows = [];
+    let cur = [sorted[0]];
+    for (let i = 1; i < sorted.length; i++) {
+      if (sorted[i].cy - sorted[i - 1].cy > ROW_SPACING_BAND) { rows.push(cur); cur = []; }
+      cur.push(sorted[i]);
+    }
+    rows.push(cur);
+    const groups = rows.map(r => ({
+      cy: r.reduce((s, it) => s + it.cy, 0) / r.length,
+      nodes: r.map(it => it.n),
+    }));
+    for (const st of stacks) {
+      const cen = st.reduce((s, n) => s + cyOf(n), 0) / st.length;
+      let best = groups[0];
+      for (const g of groups) if (Math.abs(g.cy - cen) < Math.abs(best.cy - cen)) best = g;
+      best.nodes = best.nodes.concat(st);
+    }
+    // Fixed per-row overhangs (do not change when rows are re-pitched).
+    for (const g of groups) {
+      g.topOff = g.cy - Math.min(...g.nodes.map(topOf));
+      g.botOff = Math.max(...g.nodes.map(botOf)) - g.cy;
+    }
+    const R = groups.length;
+    // Solve minimal h: rows on consecutive lines i0..i0+R-1 of an n-line grid,
+    // pitch p = h/n, round(h/ROW_PITCH) === n, all overhangs contained.
+    let sol = null;
+    for (let n = R; n <= R + 4 && !sol; n++) {
+      const bandLo = ROW_PITCH * n - Math.floor(ROW_PITCH / 2) + 1;
+      const bandHi = ROW_PITCH * n + Math.ceil(ROW_PITCH / 2) - 1;
+      let bestH = null, bestI0 = 0;
+      for (let i0 = 0; i0 + R <= n; i0++) {
+        let pMin = 0;
+        for (let j = 0; j < R; j++) {
+          pMin = Math.max(pMin,
+            (groups[j].topOff + LANE_FIT_MARGIN) / (i0 + j + 0.5),
+            (groups[j].botOff + LANE_FIT_MARGIN) / (n - i0 - j - 0.5));
+        }
+        const h = Math.max(n * pMin, bandLo);
+        if (h <= bandHi && (bestH === null || h < bestH)) { bestH = h; bestI0 = i0; }
+      }
+      if (bestH !== null) sol = { n, i0: bestI0, h: Math.ceil(bestH) };
+    }
+    if (!sol) { yCursor += lane.height; continue; } // pathological — leave lane as-is
+    // Guard n drift from the ceil: keep round(h/pitch) === n.
+    if (Math.round(sol.h / ROW_PITCH) !== sol.n) sol.h = ROW_PITCH * sol.n;
+    const others = state.nodes.filter(o => o.lane !== lane.id);
+    const collisions = () => {
+      let c = 0;
+      for (let a = 0; a < ns.length; a++) {
+        for (let b = a + 1; b < ns.length; b++)
+          if (rectsIntersect(nodeRect(ns[a]), nodeRect(ns[b]))) c++;
+        for (const o of others) if (rectsIntersect(nodeRect(ns[a]), nodeRect(o))) c++;
+      }
+      return c;
+    };
+    const before = ns.map(n => ({ n, y: n.y }));
+    const collBefore = collisions();
+    const p = sol.h / sol.n;
+    for (let j = 0; j < R; j++) {
+      const target = yCursor + (sol.i0 + j + 0.5) * p;
+      const d = target - groups[j].cy;
+      if (Math.abs(d) > 0.01) for (const n of groups[j].nodes) n.y += d;
+    }
+    if (collisions() > collBefore) {
+      for (const b of before) b.n.y = b.y; // placement made things worse — revert lane
+      yCursor += lane.height;
+      continue;
+    }
+    lane.height = sol.h;
+    yCursor += sol.h;
+  }
+}
+
 function cleanLayout() {
   const beforeY = new Map(state.nodes.map(n => [n.id, n.y]));
   const beforeH = new Map(state.lanes.map(l => [l.id, l.height]));
@@ -6781,6 +6918,9 @@ function cleanLayout() {
     tidyLane(l.id);
     alignRowsLane(l.id);
   }
+  // T-125: fit lanes to content AFTER row snapping settles the rows. Captured by
+  // the before-diffs below, so Clean's single undo reverts compaction too.
+  compactLanesFit();
   const positions = [];
   for (const n of state.nodes) {
     const y = beforeY.get(n.id);

@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-06T09:06:43Z
-last_update: 2026-07-06T09:06:43Z
+last_update: 2026-07-27T21:51:52Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,16 +34,56 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Track-B rule #1 from the T-122 operator correction pairs (see T-122 ## Decisions +
+## Correction pairs). Pairs 1–3 (task-lifecycle, promotion-pipeline, arc-lifecycle)
+share one dominant delta: the human halves the diagram height by shrinking every
+lane to fit its content — my auto-layout gives lanes large content-independent
+heights and parks rows at lane edges, producing empty inter-lane bands and ~450px
+cross-lane verticals. Mechanism identified in Pair 3: `laneHeight = contentExtent
++ padding`, place the row within the fitted lane. Node x-positions unchanged in
+all three pairs — this rule is vertical-only.
+
+Scope guard (T-122 RCA): this is a cleanLayout EDITOR rule only — no re-bake, no
+writes to examples/*.workflow.yaml or rendered/ (the clobber class cannot recur
+under this task). Baking the compacted layouts into the corpus is T-101's call,
+operator-sequenced.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Lane-compaction pass in cleanLayout: after the pass, each lane's height fits
+      its content extent plus bounded padding (no content-independent uniform or
+      inflated lane heights); node rows sit within the fitted lane, not parked at a
+      far lane edge.
+- [x] Empty inter-lane bands removed: lanes stack with a bounded inter-lane gap;
+      on the three correction-pair maps (task-lifecycle, promotion-pipeline,
+      arc-lifecycle) total diagram height after Clean is measurably reduced vs the
+      pre-rule Clean output, and max cross-lane edge vertical span shrinks.
+- [x] Vertical-only: node x-positions are unchanged by the compaction pass
+      (matches all three correction pairs).
+- [x] Guarded corpus-wide: headless measurement over all 24 corpus maps shows no
+      new node-cuts, no new lane-band straddles, no new node overlaps vs baseline;
+      corpus geometry sweep stays clean.
+- [x] Regression leg: compaction assertions land in the bridge-suite (headless
+      harness leg), full suite green.
+- [x] No corpus writes: diff touches src/ + tests/ + tools/ harness only — zero
+      changes under examples/ and rendered/ (T-122 clobber guard); zero seam
+      surface (no aef:* / BPMN-emit / MANIFEST changes).
 
 ### Human
+- [ ] [REVIEW] Compacted layouts match your correction taste (pairs 1–3)
+  **Steps:**
+  1. Open http://192.168.10.107:8834/designer.html?load=rendered/task-lifecycle.bpmn
+     and run Clean layout (toolbar) — compare against your hand-corrected version
+     (your image #9): AGENT row snug under FRAMEWORK, no empty band
+  2. Repeat for ?load=rendered/promotion-pipeline.bpmn and
+     ?load=rendered/arc-lifecycle.bpmn — each should come out roughly half the
+     old auto-height, rows inside fitted lanes
+  **Expected:** No giant empty lane bands; cross-lane edges are short hops; nothing
+  feels cramped (padding still breathes)
+  **If not:** Note which map and which lane is still too deep/too tight — the
+  padding and gap constants are single knobs
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -75,6 +115,54 @@ date_finished: null
 -->
 
 ## Verification
+
+# T-125 lane compaction: pass present in src, harness + suite leg registered, 24-map sweep green.
+grep -q 'compactLanesFit' src/aef-workflow-designer.html
+grep -q 'test_t125_lane_compaction' tests/run-bridge-tests.sh
+# 7-leg 24-map CDP harness via the pytest wrapper (L-387-safe: wrapper captures output).
+python3 tests/test_t125_lane_compaction.py
+# T-122 clobber guard: this task never writes the corpus (drift predating 2026-07-28 excluded).
+bash tests/check-corpus-geometry.sh
+
+## Visual Verification
+
+- Three pair-map post-Clean screenshots (canvas-level, dark theme), READ 2026-07-28:
+  task-lifecycle / promotion-pipeline / arc-lifecycle all render with lanes hugging
+  content, rows inside fitted bands, cross-lane edges as short hops, no empty
+  inter-lane bands, no clipped nodes or labels. Promotion-pipeline's "Warn early
+  promotion" satellite sits roughly inline (Pair 2's secondary delta). Published:
+  http://192.168.10.107:8834/t125-task-lifecycle-clean.png
+  http://192.168.10.107:8834/t125-promotion-pipeline-clean.png
+  http://192.168.10.107:8834/t125-arc-lifecycle-clean.png
+
+## Decisions
+
+### 2026-07-28 — Fit mechanism: canonical row-line solver, not extent+pad
+- **Chose:** compactLanesFit solves for lane height h and line index i0 such that
+  non-stack rows land exactly ON laneRowYs' derived grid (round(h/96)===n, pitch
+  h/n minimal, 12px containment of fixed per-row overhangs incl. stacks + below-
+  shape labels); stacks ride their nearest row rigidly.
+- **Why:** tidyLane snaps nodes to a grid DERIVED from lane.height — a naive
+  extent+pad fit re-grids every pass and 2-cycles (measured 16/24 maps never
+  reached the bake fixpoint); a coarse 96-multiple quantization inflated trim
+  maps (arc-lifecycle +26%). The solver output is an exact fixpoint of the grid
+  by construction: corpus converges in ≤3 iterations, total height 76% of
+  baseline, pair maps 61–79%.
+- **Rejected:** extent+pad fit (diverges); ROW_PITCH-multiple quantization
+  (inflates); loosening tidyLane's snap to a tolerance (regresses gross-import
+  tidying, larger blast radius).
+
+### 2026-07-28 — Empty lanes collapse to a slim band (80px)
+- **Chose:** lanes with zero nodes shrink to min(height, 80).
+- **Why:** Pair 2's "tall empty band" class; 80 stays visible/labeled/resizable.
+- **Rejected:** leaving empty lanes untouched (keeps dead vertical space Clean
+  exists to remove); deleting them (structure is the operator's call).
+
+### 2026-07-28 — Per-lane measure-after-move revert
+- **Chose:** a lane whose placement would add any node intersection reverts
+  wholesale (positions + height untouched).
+- **Why:** PD-030 pattern; re-pitching rows to h/n can theoretically squeeze a
+  satellite into an attached stack — reverted lanes are trivially stable.
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -147,17 +235,6 @@ date_finished: null
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
-## Decisions
-
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
-
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -174,3 +251,12 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-125-vertical-lane-compaction-in-cleanlayout-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-fdf9b687
+- **Timestamp:** 2026-07-27T22:11:35Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
