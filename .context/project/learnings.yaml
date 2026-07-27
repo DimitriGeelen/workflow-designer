@@ -393,3 +393,10 @@ learnings:
   date: 2026-07-26
   context: Added via context agent
   application: TBD
+- id: PL-057
+  learning: "Human AC steps must reference artifacts the operator's BROWSER can dereference — a repo file path (.playwright-mcp/*.png) in a review-page AC is invisible: Watchtower's review template renders no images and serves no repo files. Serve the artifact (gallery docroot on the ufw-open port, sha-verify over HTTP) and put THAT URL in the AC. Second instance of the operator-reachability class: T-253 was port-unreachable (ufw), T-258 was file-unserved. The test: click every URL/path in a Human AC from the operator's seat before handing it over."
+  source: P-001
+  task: T-258
+  date: 2026-07-27
+  context: Added via context agent
+  application: TBD
