@@ -182,3 +182,17 @@ The remaining Human AC is a quick visual taste-check.
 
 ### 2026-07-09T23:01:11Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9706d264
+- **Timestamp:** 2026-07-27T21:20:18Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#5 (Agent)** — Playwright: open the Versions modal for a map with ≥1 saved version → hover a version thumbnail → the enlarged preview appears (verified present + visible) → close the modal → the preview element is g
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=playwright-mcp/t164-versions-hover-zoom.png in: Playwright: open the Versions modal for a map with ≥1 saved version → hover a version thumbnail → the enlarged preview appears (verified present + vis`

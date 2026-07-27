@@ -203,3 +203,17 @@ test -z "$(git diff --name-only -- 'examples/aef-processes/*.workflow.yaml' 'exa
 
 ### 2026-07-05T19:09:36Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-40258ff6
+- **Timestamp:** 2026-07-27T21:20:14Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#9 (Agent)** — Before/after screenshots READ (`.playwright-mcp/t107-pair-before.png` vs `t107-pair-after2.png`): the "Dir exists?"→"No such dir" edge goes from a 6px dogleg to dead-straight into the node centre; hor
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=playwright-mcp/t107-pair-before.png in: Before/after screenshots READ (`.playwright-mcp/t107-pair-before.png` vs `t107-pair-after2.png`): the "Dir exists?"→"No such dir" edge goes from a 6px`

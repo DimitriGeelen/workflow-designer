@@ -4,7 +4,7 @@ name: "Reviewer-agent sweep over the partial-complete review queue: evidence ver
 description: >
   Operator directive 2026-07-27 ('for the 3 consider using our reviewer agent'): run fw reviewer across the ~54 partial-complete tasks awaiting Human [REVIEW] ticks, collect per-task verdicts (PASS/findings), and produce a digest the operator can rule from — evidence per task, never ticking Human ACs (T-372/T-373: suggest-with-evidence only). Output: digest report in docs/reports/ + summary to operator with per-task citations.
 
-status: issues
+status: started-work
 workflow_type: test
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T19:23:06Z
-last_update: 2026-07-27T20:28:57Z
+last_update: 2026-07-27T21:18:53Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -42,14 +42,17 @@ can rule from evidence. Human ACs are NEVER ticked by this task (T-372/T-373).
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `fw reviewer T-XXX` run on every partial-complete task in .tasks/active/
+- [x] `fw reviewer T-XXX` run on every partial-complete task in .tasks/active/
       (status work-completed, unchecked Human ACs); per-task verdict written to the
-      task body by the reviewer itself.
-- [ ] Digest report at docs/reports/T-262-reviewer-sweep.md: per-task verdict table
+      task body by the reviewer itself. (57/57 swept 2026-07-27; 38 PASS / 19 CONCERN
+      / 0 FAIL; verdicts in each task's `## Reviewer Verdict (v1.5)` section.)
+- [x] Digest report at docs/reports/T-262-reviewer-sweep.md: per-task verdict table
       (PASS / findings count / notable finding), grouped so the operator can
-      rubber-stamp the clean ones and inspect the flagged ones.
-- [ ] Summary to operator with counts + the flagged subset called out; zero Human
-      AC checkboxes modified by this sweep.
+      rubber-stamp the clean ones and inspect the flagged ones. (Clean-38 list +
+      flagged-19 by pattern with per-pattern FP assessment.)
+- [x] Summary to operator with counts + the flagged subset called out; zero Human
+      AC checkboxes modified by this sweep. (Reviewer writes only its verdict
+      section; sweep loop invoked `fw reviewer` exclusively — no task edits by hand.)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -114,6 +117,11 @@ can rule from evidence. Human ACs are NEVER ticked by this task (T-372/T-373).
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+test -f policy/anti-patterns.yaml
+test -f policy/escalation-patterns.yaml
+test -f docs/reports/T-262-reviewer-sweep.md
+n=$(grep -l "^status: work-completed" .tasks/active/*.md | xargs grep -l "## Reviewer Verdict (v1.5)" | wc -l); [ "$n" -eq 57 ]
 
 ## RCA
 
@@ -189,3 +197,12 @@ can rule from evidence. Human ACs are NEVER ticked by this task (T-372/T-373).
 ### 2026-07-27T20:28:57Z — status-update [task-update-agent]
 - **Change:** status: started-work → issues
 - **Reason:** fw reviewer structurally unrunnable: vendored .agentic-framework/ ships reviewer code without policy/anti-patterns.yaml catalogue (no policy/ dir framework- or project-side). G-011 registered; catalogue requested from AEF at rail 229 (file_send ask). Sweep resumes on receipt.
+
+### 2026-07-27T21:18:53Z — status-update [task-update-agent]
+- **Change:** status: issues → started-work
+
+### 2026-07-27T21:19:01Z — issue-resolved [healing-agent]
+- **Action:** Issue resolved via healing loop
+- **Output:** Pattern FP-008 recorded
+- **Mitigation:** AEF delivered both reviewer policy files via file_send (rail 234, their T-2636): anti-patterns.yaml sha 04f89678 + escalation-patterns.yaml sha 7ebf939d; installed project-local per the code's vendored-consumer fallback path
+- **Context:** Resolution logged for future reference

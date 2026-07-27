@@ -524,3 +524,21 @@ python3 tests/test_typed_events.py
 
 ### 2026-07-19T19:27:19Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4d259533
+- **Timestamp:** 2026-07-27T21:20:20Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 3
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — `tools/yaml-to-bpmn.py` bridge parity: `aef:eventDef` fields ride the `aef:`/`x-` passthrough channel per the T-061 contract (bare unknown still drops loudly). Existing `tests/test_bridge_aef_passthro
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/yaml-to-bpmn.py in: `tools/yaml-to-bpmn.py` bridge parity: `aef:eventDef` fields ride the `aef:`/`x-` passthrough channel per the T-061 contract (bare unknown still drops`
+- **AC#6 (Agent)** — Host-follow: moving a host moves its boundary events (reuses `groupDrag` ~5493); a boundary-origin edge anchors via the T-168 port machinery. <!-- DONE (both halves). Host-follow ✓ — delivered for FRE
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=docs/reports/T-204-slice2-visual/boundary-ports.png in: Host-follow: moving a host moves its boundary events (reuses `groupDrag` ~5493); a boundary-origin edge anchors via the T-168 port machinery. <!-- DON`
+- **AC#7 (Agent)** — Boundary event renders at a host-relative perimeter point (contained new branch in `renderNodes` ~2354), not at free `x/y`. <!-- step 2: syncBoundaryPositions() derives each attached event's x/y from 
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=docs/reports/T-204-slice2-visual/boundary-on-host.png in: Boundary event renders at a host-relative perimeter point (contained new branch in `renderNodes` ~2354), not at free `x/y`. <!-- step 2: syncBoundaryP`

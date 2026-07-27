@@ -4,7 +4,7 @@
 concerns:
   - id: G-011
     type: gap
-    status: watching
+    status: prevention-in-place   # 2026-07-27: AEF file_send'd both policy files (rail 234, shas verified exact); installed project-local; fw reviewer live (T-255 trial + 57-task sweep). AEF filing an fw-upgrade fix that vendors policy/ data WITH lib/reviewer code (their T-2636 note) — close G-011 once a future framework re-vendor lands with policy/ included, proving recurrence is prevented.
     severity: medium
     title: "Vendored framework ships reviewer code without its policy/ catalogue — fw reviewer structurally unrunnable since initial vendoring"
     detected: 2026-07-27

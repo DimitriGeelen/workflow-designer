@@ -133,3 +133,17 @@ edge, not the sibling.
 
 ### 2026-07-06T16:19:11Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2a078997
+- **Timestamp:** 2026-07-27T21:20:16Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — Repro written & confirms cause: `tools/_endpoint-overlap-verify-cdp.mjs` reproduces the
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_endpoint-overlap-verify-cdp.mjs in: Repro written & confirms cause: `tools/_endpoint-overlap-verify-cdp.mjs` reproduces the`

@@ -185,3 +185,17 @@ the UI row 🗑 and header "Keep only latest" verified live. Remaining Human AC 
 
 ### 2026-07-09T23:36:45Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2ed4d58b
+- **Timestamp:** 2026-07-27T21:20:18Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#6 (Agent)** — Playwright (throwaway scratch map with ≥3 versions): delete a middle version → it's gone, others remain; then Keep-only-latest → only the newest remains; files archived under `_trash`; 0 console error
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=playwright-mcp/t167-version-actions.png in: Playwright (throwaway scratch map with ≥3 versions): delete a middle version → it's gone, others remain; then Keep-only-latest → only the newest remai`

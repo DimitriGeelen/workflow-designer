@@ -191,3 +191,17 @@ deletion feels safe.
 
 ### 2026-07-09T23:28:46Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e191ba9a
+- **Timestamp:** 2026-07-27T21:20:18Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#6 (Agent)** — Playwright (against a throwaway temp store so no real map is harmed): save a scratch map → it appears in the browser → 🗑 → confirm → it disappears from the list and its files are archived under `_tras
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=playwright-mcp/t166-delete-confirm.png in: Playwright (against a throwaway temp store so no real map is harmed): save a scratch map → it appears in the browser → 🗑 → confirm → it disappears fro`

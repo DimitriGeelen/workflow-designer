@@ -210,3 +210,19 @@ Screenshots taken via Playwright and READ:
 
 ### 2026-07-05T10:29:29Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4f0bbf9f
+- **Timestamp:** 2026-07-27T21:20:13Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#4 (Agent)** — Live check: pref ON + `?load=rendered/task-lifecycle.bpmn` opens pre-cleaned (15 nodes moved, geometry byte-equal to manual load+Clean); pref OFF equals the raw file exactly (off_equals_raw: true, on_
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=rendered/task-lifecycle.bpmn in: Live check: pref ON + `?load=rendered/task-lifecycle.bpmn` opens pre-cleaned (15 nodes moved, geometry byte-equal to manual load+Clean); pref OFF equa`
+- **AC#6 (Agent)** — Screenshots READ: settings row (`.playwright-mcp/t099-settings-clean-on-import.png`), cleaned-on-load (`t099-tasklifecycle-cleaned-on-load.png`)
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=playwright-mcp/t099-settings-clean-on-import.png in: Screenshots READ: settings row (`.playwright-mcp/t099-settings-clean-on-import.png`), cleaned-on-load (`t099-tasklifecycle-cleaned-on-load.png`)`

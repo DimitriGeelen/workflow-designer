@@ -197,3 +197,17 @@ awk '/<script>/{f=1;next}/<\/script>/{f=0}f' src/aef-workflow-designer.html > /t
 
 ### 2026-07-04T14:32:01Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9778acd3
+- **Timestamp:** 2026-07-27T21:20:09Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 14
+     - evidence: `! grep -n "x-checks:\|x-sources:\|x-captures:" examples/aef-processes/session-capture.workflow.yaml examples/aef-processes/resume-status.workflow.yaml examples/aef-processes/git-commit-flow.workflow.y`

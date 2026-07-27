@@ -282,3 +282,17 @@ unchanged (auto, no anchors). Remaining Human AC is a taste-check of the connect
 
 ### 2026-07-10T00:02:07Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-04fc8d30
+- **Timestamp:** 2026-07-27T21:20:18Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — Verified the pre-existing ports base works end-to-end: `anchorPoint` honours an explicit port exactly (pinned E→W edge renders `gapStart=0, gapEnd=0`), `<aef:anchors>` round-trips (E/W survives parse→
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=playwright-mcp/t168-existing-ports.png in: Verified the pre-existing ports base works end-to-end: `anchorPoint` honours an explicit port exactly (pinned E→W edge renders `gapStart=0, gapEnd=0`)`

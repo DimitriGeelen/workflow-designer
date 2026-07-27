@@ -214,3 +214,21 @@ Screenshots taken via Playwright and READ:
 
 ### 2026-07-05T10:37:54Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7623684c
+- **Timestamp:** 2026-07-27T21:20:13Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 3
+
+**Per-AC findings:**
+
+- **AC#4 (Agent)** — Live check: `?load=rendered/task-lifecycle.bpmn` (pref off) shows the nudge (messiness 9); the 6 clean corpus maps (release-pipeline, cross-host-dispatch, fabric-blast-radius, inception-review, resume
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=rendered/task-lifecycle.bpmn in: Live check: `?load=rendered/task-lifecycle.bpmn` (pref off) shows the nudge (messiness 9); the 6 clean corpus maps (release-pipeline, cross-host-dispa`
+- **AC#6 (Agent)** — Screenshots READ: nudge shown (`.playwright-mcp/t100-nudge-shown.png`), after-clean (`t100-after-clean.png` — nudge gone, map tidied)
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=playwright-mcp/t100-nudge-shown.png in: Screenshots READ: nudge shown (`.playwright-mcp/t100-nudge-shown.png`), after-clean (`t100-after-clean.png` — nudge gone, map tidied)`
+- **AC#3 (Human)** — [REVIEW] Nudge is helpful, not naggy
+  - **human-ac-mechanical-signal** (partial, heuristic) — `matched='show n' in Expected: A small "This map could use Clean layout" prompt appears on a messy map; Clean tidies it and the prompt vanishes; ✕ dismisses without changi`

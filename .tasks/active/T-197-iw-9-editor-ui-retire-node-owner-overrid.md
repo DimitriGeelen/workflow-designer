@@ -260,3 +260,17 @@ Lane-change behaviour verified live (readout re-derives on Lane select change):
 
 ### 2026-07-18T07:40:17Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-28a81980
+- **Timestamp:** 2026-07-27T21:20:19Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 40
+     - evidence: `af=$(sed -n '/const AEF_FIELDS = {/,/^};/p' src/aef-workflow-designer.html); ! echo "$af" | grep -q "'owner'"`

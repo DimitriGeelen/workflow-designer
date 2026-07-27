@@ -302,3 +302,17 @@ annoying up-and-over edges into clean lines and that they stay straight after Sa
 
 ### 2026-07-06T18:59:13Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-eb99442a
+- **Timestamp:** 2026-07-27T21:20:17Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#4 (Agent)** — Verified headless (`tools/_edge-straighten-verify-cdp.mjs`, 8/8): on task-gate,
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_edge-straighten-verify-cdp.mjs in: Verified headless (`tools/_edge-straighten-verify-cdp.mjs`, 8/8): on task-gate,`

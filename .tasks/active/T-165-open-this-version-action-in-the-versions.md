@@ -176,3 +176,17 @@ clearly.
 
 ### 2026-07-09T23:08:09Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-668e5754
+- **Timestamp:** 2026-07-27T21:20:18Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#5 (Agent)** — Playwright: open the Versions modal → click ⤢ Open on a non-latest version → the editor loads that version (verified: loaded-version badge = vN, node count matches that version), modal closed; 0 conso
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=playwright-mcp/t165-open-revert.png in: Playwright: open the Versions modal → click ⤢ Open on a non-latest version → the editor loads that version (verified: loaded-version badge = vN, node `

@@ -101,3 +101,17 @@ remains (Human AC).
 
 ### 2026-07-06T12:34:59Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d19c7351
+- **Timestamp:** 2026-07-27T21:20:16Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#5 (Agent)** — **Verified in ISOLATED headless** (`tools/_autoload-verify-cdp.mjs`, new — the T-126
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_autoload-verify-cdp.mjs in: **Verified in ISOLATED headless** (`tools/_autoload-verify-cdp.mjs`, new — the T-126`
