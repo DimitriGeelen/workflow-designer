@@ -4,16 +4,16 @@ name: "Live-state annotation seam: designer-side hook for AEF served-map overlay
 description: >
   AEF proposal (rail 196, their T-2620, operator-GO'd direction their side): accept a small designer-side annotation hook in a future release so AEF can project live state (task positions, dispatch outcomes) onto served maps keyed by node uid. Candidate shapes: (A) postMessage protocol with aef:annotate/aef:ready handshake, (B) window.AefDesigner API. Read-only presentation, additive, MANIFEST capabilities flag (promotes T-246). Preliminary 832 agent lean: A (postMessage). Operator-gated: shape ratification + priority.
 
-status: captured
+status: work-completed
 workflow_type: inception
 owner: human
-horizon: later
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-25T19:19:59Z
-last_update: 2026-07-25T19:20:26Z
-date_finished: null
+last_update: 2026-07-27T17:54:08Z
+date_finished: 2026-07-27T17:54:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -95,15 +95,15 @@ verbatim). What began as a courtesy ratification is now a peer blocker.
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -168,9 +168,45 @@ would break on any markup change.
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Ratify shape A (postMessage) and authorize a small build task for a
+future release. The seam is additive and read-only (badge layer only, never
+serialized, zero export-byte impact — the same zero-seam property every release
+since 0.4.0 has preserved), both sides' independent designs already converged on the
+message shape, and AEF's overlay v0 is now concretely blocked on this ratification
+(rail 210 — their only external dependency). Cost is small and bounded: one
+postMessage listener + a ready re-emit inside the existing render path + a badge
+layer + a MANIFEST capabilities flag. Deferring costs AEF real build time and risks
+them falling back to iframe-DOM-reach — a fragile coupling to our DOM internals that
+would break on any markup change.
+
+**Date**: 2026-07-27T17:54:07Z
 
 ## Updates
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-07-27T17:54:07Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Ratify shape A (postMessage) and authorize a small build task for a
+future release. The seam is additive and read-only (badge layer only, never
+serialized, zero export-byte impact — the same zero-seam property every release
+since 0.4.0 has preserved), both sides' independent designs already converged on the
+message shape, and AEF's overlay v0 is now concretely blocked on this ratification
+(rail 210 — their only external dependency). Cost is small and bounded: one
+postMessage listener + a ready re-emit inside the existing render path + a badge
+layer + a MANIFEST capabilities flag. Deferring costs AEF real build time and risks
+them falling back to iframe-DOM-reach — a fragile coupling to our DOM internals that
+would break on any markup change.
+
+### 2026-07-27T17:54:07Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
+- **Reason:** Inception decision in progress
+
+### 2026-07-27T17:54:08Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO

@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-250: Live-state annotation seam: designer-side hook for AEF served-map overlays (their T-2620)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-27T17:54:10Z
+# ============================================================================
+
+task_id: T-250
+task_name: "Live-state annotation seam: designer-side hook for AEF served-map overlays (their T-2620)"
+workflow_type: inception
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-25T19:19:59Z
+completed: 2026-07-27T17:54:08Z
+duration_days: 2
+updates_count: 3
+first_commit: 2026-07-25T21:20:26+02:00
+last_commit: 2026-07-27T19:51:50+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture AEF rail 196 proposal (their T-2620) — live-state annotation seam for served maps (postMessage vs window API); prelim advisory lean A posted at 197 (re-emit aef:ready per render, read-only badge layer, MANIFEST capability flag = T-246 second-consumer trigger); inception, horizon later, operator-gated; acked through 196. write structured Recommendation GO (shape A postMessage) + Open Questions IW-1..3 + tailored go/no-go — operator flagged empty review page; evidence = rail 196/197/210 (AEF overlay v0 now blocked on this ratification); no status/Human-AC changes
+
+# Key outcomes
+outcomes:
+  - 'Problem statement validated'
+  - 'Assumptions tested'
+  - 'Recommendation written with rationale'
+  - '[REVIEW] Review exploration findings and approve go/no-go decision'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-250-live-state-annotation-seam-designer-side.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-25T21:20:26"
+    action: "T-250: capture AEF rail 196 proposal (their T-2620) — live-state annotation seam for served maps (postMessage vs window API); prelim advisory lean A posted at 197 (re-emit aef:ready per render, read-only badge layer, MANIFEST capability flag = T-246 second-consumer trigger); inception, horizon later, operator-gated; acked through 196"
+  - time: "2026-07-27T19:51:50"
+    action: "T-250: write structured Recommendation GO (shape A postMessage) + Open Questions IW-1..3 + tailored go/no-go — operator flagged empty review page; evidence = rail 196/197/210 (AEF overlay v0 now blocked on this ratification); no status/Human-AC changes"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 2794 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2794
+  commits: 2
+  files_changed: 1
+  lines_added: 191
+  lines_removed: 15
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-250-live-state-annotation-seam-designer-side.md
+generated_by: context-agent-hybrid
