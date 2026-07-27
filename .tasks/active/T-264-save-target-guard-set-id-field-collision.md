@@ -1,13 +1,13 @@
 ---
-id: T-262
-name: "Reviewer-agent sweep over the partial-complete review queue: evidence verdicts for operator"
+id: T-264
+name: "Save-target guard set: ID-field collision feedback + commit-on-blur + load-source mismatch confirm (T-263 GO)"
 description: >
-  Operator directive 2026-07-27 ('for the 3 consider using our reviewer agent'): run fw reviewer across the ~54 partial-complete tasks awaiting Human [REVIEW] ticks, collect per-task verdicts (PASS/findings), and produce a digest the operator can rule from — evidence per task, never ticking Human ACs (T-372/T-373: suggest-with-evidence only). Output: digest report in docs/reports/ + summary to operator with per-task citations.
+  Build task authorized by T-263 GO (operator decision 2026-07-27). Three guards, zero seam surface, all in src/aef-workflow-designer.html: (1) props-panel ID field shows visible feedback when a rename collides with an existing library key (today: silent revert, 0 alerts/toasts — T-263 probe leg3); (2) ID field commits on blur/Enter instead of every input event (today: successful per-keystroke rename re-renders the panel and dumps focus mid-typing — probe leg2); (3) saveToProject confirms when the current load source names a different map than workflowMeta.id (today: silent overwrite of the original — probe leg4, the AEF rail-225 incident). workflowMeta-id-wins stays the design; no second identity authority. Evidence base: docs/reports/T-263-save-target-binding.md + tools/_t263-save-target-cdp.mjs (extend its legs into regression asserts).
 
-status: started-work
-workflow_type: test
+status: captured
+workflow_type: build
 owner: agent
-horizon: now
+horizon: next
 tags: []
 components: []
 related_tasks: []
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-27T19:23:06Z
-last_update: 2026-07-27T21:18:53Z
+created: 2026-07-27T21:23:22Z
+last_update: 2026-07-27T21:23:22Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,29 +30,18 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-262: Reviewer-agent sweep over the partial-complete review queue: evidence verdicts for operator
+# T-264: Save-target guard set: ID-field collision feedback + commit-on-blur + load-source mismatch confirm (T-263 GO)
 
 ## Context
 
-Operator directive: use the framework reviewer agent on the review queue.
-The reviewer (fw reviewer) writes structural verdicts into task bodies; this sweep
-runs it across every partial-complete task and digests the results so the operator
-can rule from evidence. Human ACs are NEVER ticked by this task (T-372/T-373).
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] `fw reviewer T-XXX` run on every partial-complete task in .tasks/active/
-      (status work-completed, unchecked Human ACs); per-task verdict written to the
-      task body by the reviewer itself. (57/57 swept 2026-07-27; 38 PASS / 19 CONCERN
-      / 0 FAIL; verdicts in each task's `## Reviewer Verdict (v1.5)` section.)
-- [x] Digest report at docs/reports/T-262-reviewer-sweep.md: per-task verdict table
-      (PASS / findings count / notable finding), grouped so the operator can
-      rubber-stamp the clean ones and inspect the flagged ones. (Clean-38 list +
-      flagged-19 by pattern with per-pattern FP assessment.)
-- [x] Summary to operator with counts + the flagged subset called out; zero Human
-      AC checkboxes modified by this sweep. (Reviewer writes only its verdict
-      section; sweep loop invoked `fw reviewer` exclusively — no task edits by hand.)
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -118,11 +107,6 @@ can rule from evidence. Human ACs are NEVER ticked by this task (T-372/T-373).
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-test -f policy/anti-patterns.yaml
-test -f policy/escalation-patterns.yaml
-test -f docs/reports/T-262-reviewer-sweep.md
-n=$(grep -l "^status: work-completed" .tasks/active/*.md | xargs grep -l "## Reviewer Verdict (v1.5)" | wc -l); [ "$n" -eq 57 ]
-
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -186,23 +170,7 @@ n=$(grep -l "^status: work-completed" .tasks/active/*.md | xargs grep -l "## Rev
 
 ## Updates
 
-### 2026-07-27T19:23:06Z — task-created [task-create-agent]
+### 2026-07-27T21:23:22Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-262-reviewer-agent-sweep-over-the-partial-co.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-264-save-target-guard-set-id-field-collision.md
 - **Context:** Initial task creation
-
-### 2026-07-27T19:23:07Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
-
-### 2026-07-27T20:28:57Z — status-update [task-update-agent]
-- **Change:** status: started-work → issues
-- **Reason:** fw reviewer structurally unrunnable: vendored .agentic-framework/ ships reviewer code without policy/anti-patterns.yaml catalogue (no policy/ dir framework- or project-side). G-011 registered; catalogue requested from AEF at rail 229 (file_send ask). Sweep resumes on receipt.
-
-### 2026-07-27T21:18:53Z — status-update [task-update-agent]
-- **Change:** status: issues → started-work
-
-### 2026-07-27T21:19:01Z — issue-resolved [healing-agent]
-- **Action:** Issue resolved via healing loop
-- **Output:** Pattern FP-008 recorded
-- **Mitigation:** AEF delivered both reviewer policy files via file_send (rail 234, their T-2636): anti-patterns.yaml sha 04f89678 + escalation-patterns.yaml sha 7ebf939d; installed project-local per the code's vendored-consumer fallback path
-- **Context:** Resolution logged for future reference
