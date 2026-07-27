@@ -191,6 +191,18 @@ else
 fi
 
 echo
+echo "== save-target guard set: collision notice + blur/Enter commit + mismatch confirm (T-264, T-263 GO) =="
+# The three guards from the rail-225 scratch-copy overwrite incident — hermetic
+# sidecar + isolated chromium (tools/_t264-save-target-guards-cdp.mjs), 8 legs
+# incl. the BITE proving the mismatch confirm reads state, not string echo.
+if python3 "$ROOT/tests/test_t264_save_target_guards.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "save-target guard regressed — collision notice, ID commit-on-blur/Enter, or load-source mismatch confirm (T-264/T-263 class)"
+  fail=$((fail + 1))
+fi
+
+echo
 # Corpus geometry sweep (T-052): every authored map's nodes must sit inside their
 # lane bands, modulo the exact legacy allowlist. Guards against new maps silently
 # straddling bands — the G-019 blindness found in T-050.

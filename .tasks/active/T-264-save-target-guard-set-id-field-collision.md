@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T21:23:22Z
-last_update: 2026-07-27T21:24:08Z
+last_update: 2026-07-27T21:29:06Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -39,6 +39,10 @@ probe harness tools/_t263-save-target-cdp.mjs (legs become regression asserts).
 Origin incident: AEF rail 225 — scratch copy carrying the original's workflowMeta id
 silently overwrote the original project. Design ruling: workflowMeta-id-wins stays;
 the fix is feedback + guard, not a second identity authority.
+
+**BUILD COMPLETE (2026-07-27, next session):** all steps (a)–(g) below executed;
+8-leg harness green, suite 40/40, collision-notice screenshot READ + published
+(see ## Visual Verification). Awaiting the Human [REVIEW] AC only.
 
 **BUILD STATE (session ended at budget gate ~287k, 2026-07-27):** Two INERT edits
 landed in src/aef-workflow-designer.html — (1) `field()` grew an `opts.deferred`
@@ -64,26 +68,26 @@ of the collision notice, READ it (visual verification); (g) full bridge suite gr
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Collision feedback: renaming the workflow (props-panel ID field) to an id that
+- [x] Collision feedback: renaming the workflow (props-panel ID field) to an id that
       already exists in the library shows a visible, non-blocking hint at the field
       (naming the colliding id) instead of today's silent revert; state remains
       unchanged (renameActiveWorkflow still refuses — only the feedback is new).
-- [ ] ID-field commit-on-blur/Enter: the workflow ID field no longer commits a rename
+- [x] ID-field commit-on-blur/Enter: the workflow ID field no longer commits a rename
       on every input event; the rename fires once on blur or Enter. Typing multiple
       characters into the field keeps focus for the whole edit (no mid-typing panel
       re-render). Other meta fields (Title/Version/Description/Source) keep their
       existing live-commit behavior.
-- [ ] Load-source mismatch confirm: when the document was loaded from a ?load/deep-link
+- [x] Load-source mismatch confirm: when the document was loaded from a ?load/deep-link
       source whose map name differs from state.workflowMeta.id at save time,
       saveToProject asks one confirm ("Loaded from '<source>' but will save as '<id>'
       — proceed?") before POSTing; same-id saves and non-deep-link documents see no
       new prompt.
-- [ ] Probe harness extended into a regression guard: _t263 legs re-asserted against
+- [x] Probe harness extended into a regression guard: _t263 legs re-asserted against
       the new behavior (collision now surfaces feedback; blur/Enter commits; mismatch
       confirm observed via stubbed confirm + /api/save), BITE included (guards driven
       by state, not string echo); suite leg registered in tests/run-bridge-tests.sh;
       full bridge suite green.
-- [ ] Zero seam surface confirmed: no change to aef:* messages, BPMN emit, MANIFEST,
+- [x] Zero seam surface confirmed: no change to aef:* messages, BPMN emit, MANIFEST,
       or any AEF-facing contract (diff scoped to editor UI paths + tests).
 
 ### Human
@@ -98,7 +102,6 @@ of the collision notice, READ it (visual verification); (g) full bridge suite gr
   **Expected:** Hint and confirm wording are clear; typing in the ID field keeps focus
   **If not:** Note which prompt reads wrong — wording lives in one place each
 
-### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -130,6 +133,23 @@ of the collision notice, READ it (visual verification); (g) full bridge suite gr
 -->
 
 ## Verification
+
+# T-264 guard set: all three guards present in src, harness green, suite leg registered.
+grep -q 'id-rename-notice' src/aef-workflow-designer.html
+grep -q '_loadSrcStem' src/aef-workflow-designer.html
+grep -q 'opts.deferred' src/aef-workflow-designer.html
+grep -q 'test_t264_save_target_guards' tests/run-bridge-tests.sh
+# Full 8-leg CDP harness via the pytest wrapper (L-387-safe: wrapper captures output).
+python3 tests/test_t264_save_target_guards.py
+
+## Visual Verification
+
+- Collision notice, element-level screenshot (properties panel, dark theme), READ 2026-07-27:
+  red `.id-rename-notice` renders between the reverted ID field and Title, text
+  `id "task-lifecycle" already exists in this library — rename not applied`, hint shows
+  "Enter/blur applies", no overlap/regression in adjacent fields.
+  Published for operator: http://192.168.10.107:8834/t264-collision-notice.png
+  (sha256 557d2b1730df8937dfe9275534968c691bc5e659e5047acfe57faedec618ae6f)
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -233,3 +253,12 @@ of the collision notice, READ it (visual verification); (g) full bridge suite gr
 ### 2026-07-27T21:24:08Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-38b8bc37
+- **Timestamp:** 2026-07-27T21:46:02Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none

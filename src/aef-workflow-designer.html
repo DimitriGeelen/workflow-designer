@@ -5042,17 +5042,26 @@ function renderProperties() {
     props.appendChild(propsHeader('workflow', wm.id, null));
 
     const sMeta = section('Workflow');
+    // T-264: deferred commit (blur/Enter) — a per-keystroke rename re-renders this
+    // panel and destroys the focused input after the first character (T-263 leg2).
+    // On collision renameActiveWorkflow refuses; surface that instead of silently
+    // reverting (T-263 leg3 / the rail-225 overwrite trap).
     sMeta.appendChild(field('ID', wm.id, v => {
       const trimmed = (v || '').trim().toLowerCase().replace(/[^a-z0-9_\-]/g, '-');
-      if (!trimmed || trimmed === activeKey) return;
-      const ok = renameActiveWorkflow(trimmed);
-      if (!ok) {
-        // collision — re-render to revert the field
-        renderProperties();
-      } else {
-        renderProperties();
+      if (!trimmed || trimmed === activeKey) { renderProperties(); return; }
+      if (!renameActiveWorkflow(trimmed)) {
+        _idRenameNotice = `id "${trimmed}" already exists in this library — rename not applied`;
       }
-    }, { mono: true, hint: 'identifier · lowercase, no spaces · unique in library' }));
+      renderProperties();
+    }, { mono: true, hint: 'identifier · lowercase, no spaces · unique in library · Enter/blur applies', deferred: true }));
+    if (_idRenameNotice) {
+      const notice = document.createElement('div');
+      notice.className = 'field-hint id-rename-notice';
+      notice.style.cssText = 'display:block;color:var(--danger,#e5534b);margin:-2px 0 8px';
+      notice.textContent = _idRenameNotice;
+      sMeta.appendChild(notice);
+      _idRenameNotice = null;
+    }
     sMeta.appendChild(field('Title', wm.title || '', v => {
       wm.title = v;
       refreshLibraryUI();
@@ -7949,6 +7958,19 @@ async function saveToProject() {
       alert('To save to the project, the map ID must be lowercase letters, numbers, "-" or "_" (no spaces). Edit the ID field first.');
       return;
     }
+    // T-264: load-source mismatch guard. Save target is workflowMeta.id by design
+    // (T-263 ruling — no second identity authority), but when this document came in
+    // via ?load and still IS that map (activeKey === _loadSrcKey), a differing id
+    // means the POST will land somewhere other than where the operator loaded from
+    // (the rail-225 scratch-copy overwrite). One confirm; same-stem and non-deep-link
+    // documents never see it.
+    const _mismatchSrc = (_loadSrcKey != null && activeKey === _loadSrcKey) ? currentLoadSrc() : null;
+    const _mismatchStem = _loadSrcStem(_mismatchSrc);
+    if (_mismatchStem && _mismatchStem !== id.toLowerCase() &&
+        !confirm(`Loaded from "${_mismatchSrc}" but will save as "${id}" — proceed?`)) {
+      if (btn) btn.textContent = label || '⤓ Save to project';
+      return;
+    }
     const bpmn = buildBpmnXml(state);
     // T-141: guard an accidental save of the pristine, unedited starter seed. `_seedBpmn`
     // is the processed seed captured at the end of Init. If the bytes we are about to POST
@@ -9430,6 +9452,18 @@ try { _autosaveRestore = JSON.parse(localStorage.getItem(AUTOSAVE_KEY) || 'null'
 // in-progress edits, while a deep-link to a DIFFERENT map is respected instead.
 function currentLoadSrc() {
   try { return new URLSearchParams(location.search).get('load') || null; } catch (_) { return null; }
+}
+
+// T-264: canonical map-name stem of a ?load src path, for comparing the load source
+// against workflowMeta.id at save time. "rendered/task-lifecycle.v3.bpmn?x=1" →
+// "task-lifecycle". Empty string when src is null/unparseable (callers treat empty
+// as "no comparison possible" — never as a mismatch).
+function _loadSrcStem(src) {
+  if (!src) return '';
+  let s = String(src).split(/[?#]/)[0];
+  s = s.substring(s.lastIndexOf('/') + 1);
+  s = s.replace(/\.(bpmn|xml)$/i, '').replace(/\.v\d+$/i, '');
+  return s.toLowerCase();
 }
 
 function autosaveNow() {
