@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-268: Backfill missing episodic summaries for 5 completed tasks
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-27T22:54:06Z
+# ============================================================================
+
+task_id: T-268
+task_name: "Backfill missing episodic summaries for 5 completed tasks"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-27T22:48:04Z
+completed: 2026-07-27T22:54:05Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-07-28T00:54:04+02:00
+last_commit: 2026-07-28T00:54:04+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  backfill episodic summaries for T-173/T-175/T-190/T-201/T-252 (audit episodic warns 5→0; all parse clean)
+
+# Key outcomes
+outcomes:
+  - '`.context/episodic/` contains a summary file for each of T-173, T-175, T-190, T-201, T-252'
+  - '`fw audit` no longer warns "has no episodic summary" for any of the five (0 matches; overall 150 pass / 25 warn / 0 fail)'
+  - 'Each generated episodic parses as YAML (5/5 yaml.safe_load OK)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-173.yaml'
+  - '.context/episodic/T-175.yaml'
+  - '.context/episodic/T-190.yaml'
+  - '.context/episodic/T-201.yaml'
+  - '.context/episodic/T-252.yaml'
+  - '.tasks/active/T-155-hierarchical-tree-grouping-for-open-proj.md'
+  - '.tasks/active/T-268-backfill-missing-episodic-summaries-for-.md'
+  - '.tasks/completed/T-267-ctl-030-legacy-cleanup-null-stored-horiz.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-28T00:54:04"
+    action: "T-268: backfill episodic summaries for T-173/T-175/T-190/T-201/T-252 (audit episodic warns 5→0; all parse clean)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 8
+  lines_added: 680
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-268-backfill-missing-episodic-summaries-for-.md
+generated_by: context-agent-hybrid
