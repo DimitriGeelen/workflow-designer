@@ -1,0 +1,24 @@
+id: lib/dispatch_pause.py
+name: dispatch_pause
+type: script
+subsystem: framework-core
+location: lib/dispatch_pause.py
+tags: [shim, watchtower, shared-tooling, g-004]
+
+purpose: >
+  Shim (T-090 / gap G-004): the vendored Watchtower review blueprint inserts
+  PROJECT_ROOT/lib on sys.path and imports dispatch_pause, but in shared-tooling
+  mode the real module lives at FRAMEWORK_ROOT/lib. This file sits at the path
+  the buggy import adds and re-exports the real module's public names so
+  /review/T-XXX pages don't 500. Remove when upstream fixes review.py to use
+  FRAMEWORK_ROOT (and close G-004 with it). Both its dependency (reads
+  .agentic-framework/lib/dispatch_pause.py) and its dependent (imported by
+  .agentic-framework/web/blueprints/review.py) live in the vendored tree,
+  which is not fabric-tracked — so no structured edges here by design.
+
+depends_on: []
+
+depended_by: []
+
+last_verified: 2026-07-27
+created_by: T-269
