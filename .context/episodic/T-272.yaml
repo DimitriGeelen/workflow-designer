@@ -1,0 +1,322 @@
+# ============================================================================
+# EPISODIC MEMORY - T-272: Audit warning remediation sweep (agent-actionable classes)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-27T23:17:48Z
+# ============================================================================
+
+task_id: T-272
+task_name: "Audit warning remediation sweep (agent-actionable classes)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-27T23:13:18Z
+completed: 2026-07-27T23:17:46Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-07-28T01:16:11+02:00
+last_commit: 2026-07-28T01:17:46+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  audit-warn remediation — T-136 Updates section restored (entry was stranded in Decisions), T-244 real DEFER Recommendation (rail-176 lean), MCP baseline 269→272 (3 read-shaped tools classified, drift clear), routine .context churn committed. ACs verified — audit 151/23/0 → 154/20/0, zero fails held
+
+# Key outcomes
+outcomes:
+  - 'T-136 completed file has an `## Updates` section — the status-update entry was stranded in ## Decisions; header inserted at its true position + commit-trail backfill, marked as backfill — warn gone'
+  - 'T-244 has a real `**Recommendation:** DEFER` block reflecting the rail-176 lean (neutral glyph; zero live exposure since AEF''s corpus fix) — C-006 + D14 warns gone'
+  - 'MCP drift resolved: termlink_fleet_governor_history / termlink_substrate_history / termlink_substrate_status all read-shaped introspection (same class as T-014''s governor_status pair), classified readonly_exempt with provenance, baseline 269→272 (+6 via scan --apply) — unclassified-tools warn gone; residual tag-format sub-warn is another project''s live session (respawn= tag on 050-email-archive''s session), not remediable from this repo'
+  - 'Routine .context audit churn committed (245 files); remaining uncommitted = T-265-scoped corpus files + the operator-flagged pre-existing .mcp.json/.framework.yaml drift (2026-07-23 note) — both deliberately untouched'
+  - 'fw audit: 154 pass / 20 warn / 0 fail (was 151/23/0) — 3 warns cleared, none traded for fails'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-26.yaml'
+  - '.context/audits/2026-07-27.yaml'
+  - '.context/audits/2026-07-28.yaml'
+  - '.context/audits/cron/2026-07-19-0030.yaml'
+  - '.context/audits/cron/2026-07-19-0100.yaml'
+  - '.context/audits/cron/2026-07-19-0130.yaml'
+  - '.context/audits/cron/2026-07-19-0200.yaml'
+  - '.context/audits/cron/2026-07-19-0230.yaml'
+  - '.context/audits/cron/2026-07-19-0300.yaml'
+  - '.context/audits/cron/2026-07-19-0330.yaml'
+  - '.context/audits/cron/2026-07-19-0345.yaml'
+  - '.context/audits/cron/2026-07-19-0400.yaml'
+  - '.context/audits/cron/2026-07-19-0415.yaml'
+  - '.context/audits/cron/2026-07-19-0445.yaml'
+  - '.context/audits/cron/2026-07-19-0500.yaml'
+  - '.context/audits/cron/2026-07-19-0515.yaml'
+  - '.context/audits/cron/2026-07-19-0530.yaml'
+  - '.context/audits/cron/2026-07-19-0545.yaml'
+  - '.context/audits/cron/2026-07-19-0600.yaml'
+  - '.context/audits/cron/2026-07-19-0615.yaml'
+  - '.context/audits/cron/2026-07-19-0630.yaml'
+  - '.context/audits/cron/2026-07-19-0645.yaml'
+  - '.context/audits/cron/2026-07-19-0700.yaml'
+  - '.context/audits/cron/2026-07-19-0715.yaml'
+  - '.context/audits/cron/2026-07-19-0745.yaml'
+  - '.context/audits/cron/2026-07-19-0800.yaml'
+  - '.context/audits/cron/2026-07-19-0815.yaml'
+  - '.context/audits/cron/2026-07-19-0845.yaml'
+  - '.context/audits/cron/2026-07-19-0900.yaml'
+  - '.context/audits/cron/2026-07-19-1000.yaml'
+  - '.context/audits/cron/2026-07-19-1030.yaml'
+  - '.context/audits/cron/2026-07-19-1045.yaml'
+  - '.context/audits/cron/2026-07-19-1100.yaml'
+  - '.context/audits/cron/2026-07-19-1200.yaml'
+  - '.context/audits/cron/2026-07-19-1215.yaml'
+  - '.context/audits/cron/2026-07-19-1230.yaml'
+  - '.context/audits/cron/2026-07-19-1300.yaml'
+  - '.context/audits/cron/2026-07-19-1330.yaml'
+  - '.context/audits/cron/2026-07-19-1400.yaml'
+  - '.context/audits/cron/2026-07-19-1430.yaml'
+  - '.context/audits/cron/2026-07-19-1500.yaml'
+  - '.context/audits/cron/2026-07-19-1515.yaml'
+  - '.context/audits/cron/2026-07-19-1600.yaml'
+  - '.context/audits/cron/2026-07-19-1630.yaml'
+  - '.context/audits/cron/2026-07-19-1700.yaml'
+  - '.context/audits/cron/2026-07-19-1730.yaml'
+  - '.context/audits/cron/2026-07-19-1800.yaml'
+  - '.context/audits/cron/2026-07-19-1815.yaml'
+  - '.context/audits/cron/2026-07-19-1845.yaml'
+  - '.context/audits/cron/2026-07-19-1915.yaml'
+  - '.context/audits/cron/2026-07-19-1945.yaml'
+  - '.context/audits/cron/2026-07-19-2000.yaml'
+  - '.context/audits/cron/2026-07-19-2030.yaml'
+  - '.context/audits/cron/2026-07-19-2045.yaml'
+  - '.context/audits/cron/2026-07-19-2100.yaml'
+  - '.context/audits/cron/2026-07-19-2130.yaml'
+  - '.context/audits/cron/2026-07-19-2200.yaml'
+  - '.context/audits/cron/2026-07-19-2215.yaml'
+  - '.context/audits/cron/2026-07-19-2230.yaml'
+  - '.context/audits/cron/2026-07-19-2315.yaml'
+  - '.context/audits/cron/2026-07-19-2330.yaml'
+  - '.context/audits/cron/2026-07-20-0000.yaml'
+  - '.context/audits/cron/2026-07-20-0015.yaml'
+  - '.context/audits/cron/2026-07-20-0030.yaml'
+  - '.context/audits/cron/2026-07-20-0045.yaml'
+  - '.context/audits/cron/2026-07-20-0100.yaml'
+  - '.context/audits/cron/2026-07-26-1715.yaml'
+  - '.context/audits/cron/2026-07-26-1730.yaml'
+  - '.context/audits/cron/2026-07-26-1745.yaml'
+  - '.context/audits/cron/2026-07-26-1800.yaml'
+  - '.context/audits/cron/2026-07-26-1815.yaml'
+  - '.context/audits/cron/2026-07-26-1830.yaml'
+  - '.context/audits/cron/2026-07-26-1845.yaml'
+  - '.context/audits/cron/2026-07-26-1900.yaml'
+  - '.context/audits/cron/2026-07-26-1915.yaml'
+  - '.context/audits/cron/2026-07-26-1930.yaml'
+  - '.context/audits/cron/2026-07-26-1945.yaml'
+  - '.context/audits/cron/2026-07-26-2000.yaml'
+  - '.context/audits/cron/2026-07-26-2015.yaml'
+  - '.context/audits/cron/2026-07-26-2030.yaml'
+  - '.context/audits/cron/2026-07-26-2045.yaml'
+  - '.context/audits/cron/2026-07-26-2100.yaml'
+  - '.context/audits/cron/2026-07-26-2115.yaml'
+  - '.context/audits/cron/2026-07-26-2130.yaml'
+  - '.context/audits/cron/2026-07-26-2145.yaml'
+  - '.context/audits/cron/2026-07-26-2200.yaml'
+  - '.context/audits/cron/2026-07-26-2215.yaml'
+  - '.context/audits/cron/2026-07-26-2230.yaml'
+  - '.context/audits/cron/2026-07-26-2245.yaml'
+  - '.context/audits/cron/2026-07-26-2300.yaml'
+  - '.context/audits/cron/2026-07-26-2315.yaml'
+  - '.context/audits/cron/2026-07-26-2330.yaml'
+  - '.context/audits/cron/2026-07-26-2345.yaml'
+  - '.context/audits/cron/2026-07-27-0000.yaml'
+  - '.context/audits/cron/2026-07-27-0015.yaml'
+  - '.context/audits/cron/2026-07-27-0030.yaml'
+  - '.context/audits/cron/2026-07-27-0045.yaml'
+  - '.context/audits/cron/2026-07-27-0100.yaml'
+  - '.context/audits/cron/2026-07-27-0115.yaml'
+  - '.context/audits/cron/2026-07-27-0130.yaml'
+  - '.context/audits/cron/2026-07-27-0145.yaml'
+  - '.context/audits/cron/2026-07-27-0200.yaml'
+  - '.context/audits/cron/2026-07-27-0215.yaml'
+  - '.context/audits/cron/2026-07-27-0230.yaml'
+  - '.context/audits/cron/2026-07-27-0245.yaml'
+  - '.context/audits/cron/2026-07-27-0300.yaml'
+  - '.context/audits/cron/2026-07-27-0315.yaml'
+  - '.context/audits/cron/2026-07-27-0330.yaml'
+  - '.context/audits/cron/2026-07-27-0345.yaml'
+  - '.context/audits/cron/2026-07-27-0400.yaml'
+  - '.context/audits/cron/2026-07-27-0415.yaml'
+  - '.context/audits/cron/2026-07-27-0430.yaml'
+  - '.context/audits/cron/2026-07-27-0445.yaml'
+  - '.context/audits/cron/2026-07-27-0500.yaml'
+  - '.context/audits/cron/2026-07-27-0515.yaml'
+  - '.context/audits/cron/2026-07-27-0530.yaml'
+  - '.context/audits/cron/2026-07-27-0545.yaml'
+  - '.context/audits/cron/2026-07-27-0600.yaml'
+  - '.context/audits/cron/2026-07-27-0615.yaml'
+  - '.context/audits/cron/2026-07-27-0630.yaml'
+  - '.context/audits/cron/2026-07-27-0645.yaml'
+  - '.context/audits/cron/2026-07-27-0700.yaml'
+  - '.context/audits/cron/2026-07-27-0715.yaml'
+  - '.context/audits/cron/2026-07-27-0730.yaml'
+  - '.context/audits/cron/2026-07-27-0745.yaml'
+  - '.context/audits/cron/2026-07-27-0800.yaml'
+  - '.context/audits/cron/2026-07-27-0815.yaml'
+  - '.context/audits/cron/2026-07-27-0830.yaml'
+  - '.context/audits/cron/2026-07-27-0845.yaml'
+  - '.context/audits/cron/2026-07-27-0900.yaml'
+  - '.context/audits/cron/2026-07-27-0915.yaml'
+  - '.context/audits/cron/2026-07-27-0930.yaml'
+  - '.context/audits/cron/2026-07-27-0945.yaml'
+  - '.context/audits/cron/2026-07-27-1000.yaml'
+  - '.context/audits/cron/2026-07-27-1015.yaml'
+  - '.context/audits/cron/2026-07-27-1030.yaml'
+  - '.context/audits/cron/2026-07-27-1045.yaml'
+  - '.context/audits/cron/2026-07-27-1100.yaml'
+  - '.context/audits/cron/2026-07-27-1115.yaml'
+  - '.context/audits/cron/2026-07-27-1130.yaml'
+  - '.context/audits/cron/2026-07-27-1145.yaml'
+  - '.context/audits/cron/2026-07-27-1200.yaml'
+  - '.context/audits/cron/2026-07-27-1215.yaml'
+  - '.context/audits/cron/2026-07-27-1230.yaml'
+  - '.context/audits/cron/2026-07-27-1245.yaml'
+  - '.context/audits/cron/2026-07-27-1300.yaml'
+  - '.context/audits/cron/2026-07-27-1315.yaml'
+  - '.context/audits/cron/2026-07-27-1330.yaml'
+  - '.context/audits/cron/2026-07-27-1345.yaml'
+  - '.context/audits/cron/2026-07-27-1400.yaml'
+  - '.context/audits/cron/2026-07-27-1415.yaml'
+  - '.context/audits/cron/2026-07-27-1430.yaml'
+  - '.context/audits/cron/2026-07-27-1445.yaml'
+  - '.context/audits/cron/2026-07-27-1500.yaml'
+  - '.context/audits/cron/2026-07-27-1515.yaml'
+  - '.context/audits/cron/2026-07-27-1530.yaml'
+  - '.context/audits/cron/2026-07-27-1545.yaml'
+  - '.context/audits/cron/2026-07-27-1600.yaml'
+  - '.context/audits/cron/2026-07-27-1615.yaml'
+  - '.context/audits/cron/2026-07-27-1630.yaml'
+  - '.context/audits/cron/2026-07-27-1645.yaml'
+  - '.context/audits/cron/2026-07-27-1700.yaml'
+  - '.context/audits/cron/2026-07-27-1715.yaml'
+  - '.context/audits/cron/2026-07-27-1730.yaml'
+  - '.context/audits/cron/2026-07-27-1745.yaml'
+  - '.context/audits/cron/2026-07-27-1800.yaml'
+  - '.context/audits/cron/2026-07-27-1815.yaml'
+  - '.context/audits/cron/2026-07-27-1830.yaml'
+  - '.context/audits/cron/2026-07-27-1845.yaml'
+  - '.context/audits/cron/2026-07-27-1900.yaml'
+  - '.context/audits/cron/2026-07-27-1915.yaml'
+  - '.context/audits/cron/2026-07-27-1930.yaml'
+  - '.context/audits/cron/2026-07-27-1945.yaml'
+  - '.context/audits/cron/2026-07-27-2000.yaml'
+  - '.context/audits/cron/2026-07-27-2015.yaml'
+  - '.context/audits/cron/2026-07-27-2030.yaml'
+  - '.context/audits/cron/2026-07-27-2045.yaml'
+  - '.context/audits/cron/2026-07-27-2100.yaml'
+  - '.context/audits/cron/2026-07-27-2115.yaml'
+  - '.context/audits/cron/2026-07-27-2130.yaml'
+  - '.context/audits/cron/2026-07-27-2145.yaml'
+  - '.context/audits/cron/2026-07-27-2200.yaml'
+  - '.context/audits/cron/2026-07-27-2215.yaml'
+  - '.context/audits/cron/2026-07-27-2230.yaml'
+  - '.context/audits/cron/2026-07-27-2300.yaml'
+  - '.context/audits/cron/2026-07-27-2315.yaml'
+  - '.context/audits/cron/2026-07-27-2345.yaml'
+  - '.context/audits/cron/2026-07-28-0000.yaml'
+  - '.context/audits/cron/2026-07-28-0015.yaml'
+  - '.context/audits/cron/2026-07-28-0030.yaml'
+  - '.context/audits/cron/2026-07-28-0100.yaml'
+  - '.context/audits/cron/2026-07-28-0115.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/audits/orchestrator-LATEST.yaml'
+  - '.context/audits/orchestrator-mcp-baseline.yaml'
+  - '.context/audits/orchestrator-mcp-baseline.yaml.bak'
+  - '.context/handovers/S-2026-0727-2332.md'
+  - '.context/locks/T-125.lock'
+  - '.context/locks/T-195.lock'
+  - '.context/locks/T-209.lock'
+  - '.context/locks/T-258.lock'
+  - '.context/locks/T-259.lock'
+  - '.context/locks/T-260.lock'
+  - '.context/locks/T-261.lock'
+  - '.context/locks/T-262.lock'
+  - '.context/locks/T-263.lock'
+  - '.context/locks/T-264.lock'
+  - '.context/locks/T-266.lock'
+  - '.context/locks/T-267.lock'
+  - '.context/locks/T-268.lock'
+  - '.context/locks/T-269.lock'
+  - '.context/locks/T-270.lock'
+  - '.context/locks/T-271.lock'
+  - '.context/project/metrics-history.yaml'
+  - '.context/project/patterns.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/episodic-gen/T-262.log'
+  - '.context/working/episodic-gen/T-263.log'
+  - '.context/working/episodic-gen/T-266.log'
+  - '.context/working/episodic-gen/T-267.log'
+  - '.context/working/episodic-gen/T-268.log'
+  - '.context/working/episodic-gen/T-269.log'
+  - '.context/working/episodic-gen/T-270.log'
+  - '.context/working/episodic-gen/T-271.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/gallery-8834.log'
+  - '.context/working/.gate-bypass-log.yaml'
+  - '.context/working/.handover-cooldown'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.restart-requested'
+  - '.context/working/.reviewed-T-263'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-136-endpoint-overlap-selection-blocked-at-convergence.md'
+  - '.tasks/active/T-244-bare-catch-event-rendering-neutral-untyp.md'
+  - '.tasks/active/T-272-audit-warning-remediation-sweep-agent-ac.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-28T01:16:11"
+    action: "T-272: audit-warn remediation — T-136 Updates section restored (entry was stranded in Decisions), T-244 real DEFER Recommendation (rail-176 lean), MCP baseline 269→272 (3 read-shaped tools classified, drift clear), routine .context churn committed"
+  - time: "2026-07-28T01:17:46"
+    action: "T-272: ACs verified — audit 151/23/0 → 154/20/0, zero fails held"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 2
+  files_changed: 244
+  lines_added: 9468
+  lines_removed: 5497
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-272-audit-warning-remediation-sweep-agent-ac.md
+generated_by: context-agent-hybrid
