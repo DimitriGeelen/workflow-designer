@@ -1,0 +1,142 @@
+# ============================================================================
+# EPISODIC MEMORY - T-262: Reviewer-agent sweep over the partial-complete review queue: evidence verdicts for operator
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-27T21:23:10Z
+# ============================================================================
+
+task_id: T-262
+task_name: "Reviewer-agent sweep over the partial-complete review queue: evidence verdicts for operator"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-27T19:23:06Z
+completed: 2026-07-27T21:23:08Z
+duration_days: 0
+updates_count: 5
+first_commit: 2026-07-27T21:23:51+02:00
+last_commit: 2026-07-27T23:22:59+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file reviewer-sweep task (operator directive 3) — scoped ACs ready, sweep itself deferred to next session (budget gate at 296k). sweep blocked — G-011 registered (vendored framework ships reviewer code without policy/ catalogue; fw reviewer never runnable here); catalogue requested from AEF at rail 229; T-263 filed (save-to-project workflowMeta-id binding, AEF observation rail 225); rail: 0.7.0+0.7.1 both ADOPTED, seam live end-to-end first try, shape convergence agreed (they revert to wire-canonical nodes/severity/text). reviewer sweep COMPLETE — 57/57 partial-completes scanned (38 PASS / 19 CONCERN / 0 FAIL); policy catalogues installed from AEF file_send (shas verified exact: anti-patterns 04f89678, escalation-patterns 7ebf939d); digest at docs/reports/T-262-reviewer-sweep.md with per-pattern FP read (3/23 FP: T-258 mock-only misread, T-100 substring collision, T-115 'all nodes' domain collision); G-011 prevention-in-place; per-task verdicts written into all 57 task bodies by the reviewer
+
+# Key outcomes
+outcomes:
+  - '`fw reviewer T-XXX` run on every partial-complete task in .tasks/active/'
+  - 'Digest report at docs/reports/T-262-reviewer-sweep.md: per-task verdict table'
+  - 'Summary to operator with counts + the flagged subset called out; zero Human'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'sweep blocked — G-011 registered (vendored framework ships reviewer code without policy/ catalogue; fw reviewer never runnable here); catalogue requested from AEF at rail 229; T-263 filed (save-to-project workflowMeta-id binding, AEF observation rail 225); rail: 0.7.0+0.7.1 both ADOPTED, seam live end-to-end first try, shape convergence agreed (they revert to wire-canonical nodes/severity/text)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - 'docs/reports/T-262-reviewer-sweep.md'
+  - 'policy/anti-patterns.yaml'
+  - 'policy/escalation-patterns.yaml'
+  - '.tasks/active/T-073-router-straightening-tolerance--near-ali.md'
+  - '.tasks/active/T-074-magnetic-drag-snapping--lane-centre-neig.md'
+  - '.tasks/active/T-075-editor-settings-page--consolidate-routin.md'
+  - '.tasks/active/T-076-routing-survey-r-2-loop-back-edges-shoul.md'
+  - '.tasks/active/T-077-routing-survey-r-5-keep-badges-and-edge-.md'
+  - '.tasks/active/T-079-adaptive-alignment-rows-sub-row-snap-lin.md'
+  - '.tasks/active/T-081-subprocess-node-type-phase-1-collapsed-o.md'
+  - '.tasks/active/T-082-edge-label-placement-pass-measure-after-.md'
+  - '.tasks/active/T-083-label-halo-theme-background-rect-behind-.md'
+  - '.tasks/active/T-084-lane-header-ellipsis-truncate-vertical-l.md'
+  - '.tasks/active/T-085-view-density--label-visibilitysize-contr.md'
+  - '.tasks/active/T-087-node-label-fit-ladder-long-task-names-mu.md'
+  - '.tasks/active/T-089-edge-label-wrap-multi-line-edge-labels-s.md'
+  - '.tasks/active/T-090-watchtower-review-pages-all-500---dispat.md'
+  - '.tasks/active/T-093-branch-pitch-setting-parallel-block-stac.md'
+  - '.tasks/active/T-094-align-rows-one-shot-action-snap-lane-row.md'
+  - '.tasks/active/T-095-clean-layout-composite-action-tidy--bran.md'
+  - '.tasks/active/T-096-density-setting-has-no-visible-effect---.md'
+  - '.tasks/active/T-097-crossing-aware-branch-ordering-order-fan.md'
+  - '.tasks/active/T-098-edge-channel-separation-setting-corridor.md'
+  - '.tasks/active/T-099-clean-layout-on-import-opt-in-setting-ap.md'
+  - '.tasks/active/T-100-clean-layout-nudge-offer-one-click-clean.md'
+  - '.tasks/active/T-104-density-and-branch-pitch-view-settings-a.md'
+  - '.tasks/active/T-106-routing-margin-setting-reserved-peripher.md'
+  - '.tasks/active/T-107-align-columns-one-shot-action-snap-near-.md'
+  - '.tasks/active/T-108-vertical-spacing-control-and-density-bra.md'
+  - '.tasks/active/T-109-distribute-evenly-action-equalise-horizo.md'
+  - '.tasks/active/T-114-obstacle-avoiding-orthogonal-edge-routin.md'
+  - '.tasks/active/T-115-horizontal-spacing-control-mirror-of-ver.md'
+  - '.tasks/active/T-116-align-in-middle-wire-align-columns-centr.md'
+  - '.tasks/active/T-117-de-jog-routed-edges-collapse-tiny-interi.md'
+  - '.tasks/active/T-118-endpoint-straight-snap-collapse-endpoint.md'
+  - '.tasks/active/T-119-consolidate-split-migrations-two-step-st.md'
+  - '.tasks/active/T-127-editor-repo-save-versioning-revert-autoreload.md'
+  - '.tasks/active/T-132-b5-general-undo-redo-history-stack.md'
+  - '.tasks/active/T-134-selection-scoped-align-and-distribute-fo.md'
+  - '.tasks/active/T-136-endpoint-overlap-selection-blocked-at-convergence.md'
+  - '.tasks/active/T-137-loop-back-edges-with-persisted-detoury-c.md'
+  - '.tasks/active/T-139-retire-align-columns-and-distribute-even.md'
+  - '.tasks/active/T-141-guard-save-to-project-against-the-pristi.md'
+  - '.tasks/active/T-144-in-editor-open-from-project-modal-uses-a.md'
+  - '.tasks/active/T-164-consistent-tile-hover-zoom-in-the-versio.md'
+  - '.tasks/active/T-165-open-this-version-action-in-the-versions.md'
+  - '.tasks/active/T-166-delete-a-workflow-from-the-project-archi.md'
+  - '.tasks/active/T-167-version-level-delete-and-keep-only-lates.md'
+  - '.tasks/active/T-168-connection-point-anchoring-attach-edges-.md'
+  - '.tasks/active/T-172-drag-to-place-nodes-from-the-palette-ont.md'
+  - '.tasks/active/T-176-offline-harden-the-designer-inline-or-se.md'
+  - '.tasks/active/T-178-cut-designer-release-020-with-t-177-gove.md'
+  - '.tasks/active/T-197-iw-9-editor-ui-retire-node-owner-overrid.md'
+  - '.tasks/active/T-204-typed-bpmn-event-palette-errortimermessa.md'
+  - '.tasks/active/T-214-pair-draft-sessionhandover-corpus-diagra.md'
+  - '.tasks/active/T-215-pair-draft-dispatch-loop-corpus-diagram-.md'
+  - '.tasks/active/T-240-uuid-workflowref-auto-resolve-jump-targe.md'
+  - '.tasks/active/T-245-canvas-view-chrome-controls-paletteprope.md'
+  - '.tasks/active/T-255-pool-right-edge-resize-handle-authored-p.md'
+  - '.tasks/active/T-258-annotation-seam-v0-postmessage-aefreadya.md'
+  - '.tasks/active/T-262-reviewer-agent-sweep-over-the-partial-co.md'
+  - '.tasks/active/T-263-save-to-project-target-binding-workflowm.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-27T21:23:51"
+    action: "T-262: file reviewer-sweep task (operator directive 3) — scoped ACs ready, sweep itself deferred to next session (budget gate at 296k)"
+  - time: "2026-07-27T22:29:20"
+    action: "T-262: sweep blocked — G-011 registered (vendored framework ships reviewer code without policy/ catalogue; fw reviewer never runnable here); catalogue requested from AEF at rail 229; T-263 filed (save-to-project workflowMeta-id binding, AEF observation rail 225); rail: 0.7.0+0.7.1 both ADOPTED, seam live end-to-end first try, shape convergence agreed (they revert to wire-canonical nodes/severity/text)"
+  - time: "2026-07-27T23:22:59"
+    action: "T-262: reviewer sweep COMPLETE — 57/57 partial-completes scanned (38 PASS / 19 CONCERN / 0 FAIL); policy catalogues installed from AEF file_send (shas verified exact: anti-patterns 04f89678, escalation-patterns 7ebf939d); digest at docs/reports/T-262-reviewer-sweep.md with per-pattern FP read (3/23 FP: T-258 mock-only misread, T-100 substring collision, T-115 'all nodes' domain collision); G-011 prevention-in-place; per-task verdicts written into all 57 task bodies by the reviewer"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 120 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 120
+  commits: 3
+  files_changed: 63
+  lines_added: 1726
+  lines_removed: 13
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-262-reviewer-agent-sweep-over-the-partial-co.md
+generated_by: context-agent-hybrid
