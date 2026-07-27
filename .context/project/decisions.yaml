@@ -941,3 +941,10 @@ decisions:
     date: 2026-07-26
     task: T-255
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-114
+    decision: "Re-emit passthrough eventDefs in the exporter's canonical form"
+    scope: project
+    date: 2026-07-27
+    task: T-257
+    rationale: "Auto-captured from task file on completion"

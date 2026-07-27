@@ -4,10 +4,10 @@ name: "eventDef preservation passthrough: start/throw hosts survive open-save ro
 description: >
   T-257 GO build (operator-ratified 2026-07-27): cure the save-path drop of aef:eventDef on startEvent + intermediateThrowEvent carriers (AEF field defect rail 201, their T-2620). Scope per T-257 scope fence: (1) import passthrough — adoptImportedXml captures kind/binding as inert aef fields on hosts the typed-catch override skips (no node-type change, no UI); (2) export re-emit — aefExtensionXml emits the passthrough aef:eventDef canonically (binding='' when absent, matching the accepted v2 catch normalization); (3) regression leg — open fixture v1 (tests/fixtures/aef-bpmn/t257-eventdef-roundtrip) then save must keep all 3 eventDefs with kinds intact (timer/message/message on th_obs_fire/th_signal/th_pickup). OUT: typed start/throw palette/glyphs/UI (future contract round), any change to the typed-CATCH override path (T-204/T-237 unchanged). Peer intake pre-cleared at rail 215 (host-agnostic accept); restoring throw eventDefs also cures the emitterless-typed-catch lint class (T-2551).
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T18:26:34Z
-last_update: 2026-07-27T18:26:39Z
-date_finished: null
+last_update: 2026-07-27T18:34:28Z
+date_finished: 2026-07-27T18:34:28Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -220,3 +220,6 @@ so a regression to dropping fails two independent harnesses.
 
 ### 2026-07-27T18:26:39Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-27T18:34:28Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
