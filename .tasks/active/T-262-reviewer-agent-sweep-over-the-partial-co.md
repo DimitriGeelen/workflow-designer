@@ -4,7 +4,7 @@ name: "Reviewer-agent sweep over the partial-complete review queue: evidence ver
 description: >
   Operator directive 2026-07-27 ('for the 3 consider using our reviewer agent'): run fw reviewer across the ~54 partial-complete tasks awaiting Human [REVIEW] ticks, collect per-task verdicts (PASS/findings), and produce a digest the operator can rule from — evidence per task, never ticking Human ACs (T-372/T-373: suggest-with-evidence only). Output: digest report in docs/reports/ + summary to operator with per-task citations.
 
-status: started-work
+status: issues
 workflow_type: test
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T19:23:06Z
-last_update: 2026-07-27T19:23:07Z
+last_update: 2026-07-27T20:28:57Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -185,3 +185,7 @@ can rule from evidence. Human ACs are NEVER ticked by this task (T-372/T-373).
 
 ### 2026-07-27T19:23:07Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-27T20:28:57Z — status-update [task-update-agent]
+- **Change:** status: started-work → issues
+- **Reason:** fw reviewer structurally unrunnable: vendored .agentic-framework/ ships reviewer code without policy/anti-patterns.yaml catalogue (no policy/ dir framework- or project-side). G-011 registered; catalogue requested from AEF at rail 229 (file_send ask). Sweep resumes on receipt.

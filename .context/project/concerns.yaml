@@ -2,6 +2,42 @@
 # Type: gap (spec-reality) | risk (forward-looking)
 # Status: watching | decided-build | decided-simplify | decided-defer | closed
 concerns:
+  - id: G-011
+    type: gap
+    status: watching
+    severity: medium
+    title: "Vendored framework ships reviewer code without its policy/ catalogue — fw reviewer structurally unrunnable since initial vendoring"
+    detected: 2026-07-27
+    origin_task: T-262
+    decision_trigger: >
+      policy/anti-patterns.yaml (and companions escalation-patterns.yaml,
+      action-matrix.yaml, escalation-overrides.yaml where applicable) present
+      in this project (project-local fallback path) or in .agentic-framework/,
+      AND `fw reviewer T-XXX` completes a scan on a real task. Then close G-011.
+    description: |
+      T-262 (operator-directed reviewer sweep over the 57-task partial-complete
+      queue) hit `ERROR: catalogue not found at
+      /opt/832-Workflow-designer/policy/anti-patterns.yaml` on the first-ever
+      `fw reviewer` invocation in this project. Root cause: the vendored
+      .agentic-framework/ contains the full reviewer subsystem
+      (lib/reviewer/*.py, fw routing, help text) but no policy/ directory at
+      all — the catalogue data files that static_scan.py requires (its AEF
+      T-1443 design names four policy files) were never vendored. The code
+      falls back to a project-local policy/ which also does not exist. Net:
+      an advertised fw subsystem was structurally dead in this project since
+      initial vendoring (2026-06-04), undetected for >7 weeks because nothing
+      exercised it — same blindness class as "code present, data absent"
+      partial vendoring. Remedy path: request the policy files from AEF over
+      the integration rail (vendored-framework sync, G-008 pattern), install
+      project-local, re-run.
+    evidence:
+      - ".agentic-framework/lib/reviewer/static_scan.py:2452-2458 — framework_root/policy/anti-patterns.yaml then project_root/policy/anti-patterns.yaml, both absent (ls: no policy/ dir either place)."
+      - "First invocation ever: no prior 'fw reviewer' in any task Verification block or session log in this repo."
+      - ".agentic-framework/docs/reports/T-1443-independent-reviewer-agent.md names the four policy files as AEF-authored artifacts."
+    related:
+      - T-262
+      - G-008
+
   - id: G-005
     type: gap
     status: watching
