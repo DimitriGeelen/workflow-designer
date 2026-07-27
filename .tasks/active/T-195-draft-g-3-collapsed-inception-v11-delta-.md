@@ -6,7 +6,7 @@ description: >
 
 status: started-work
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-12T19:38:17Z
-last_update: 2026-07-12T20:19:32Z
+last_update: 2026-07-27T22:14:13Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -177,3 +177,6 @@ python3 tests/test_forward_fixtures.py
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-195-draft-g-3-collapsed-inception-v11-delta-.md
 - **Context:** Initial task creation
+
+### 2026-07-27T22:14:13Z — status-update [task-update-agent]
+- **Change:** owner: agent → human
