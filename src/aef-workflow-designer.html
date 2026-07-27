@@ -8736,6 +8736,14 @@ function aefExtensionXml(node) {
     const bindField = EVENT_BINDING_FIELD[node.type];
     const binding = bindField ? (aef[bindField] || '') : '';
     out += `        <aef:eventDef kind="${escAttr(EVENT_KIND[node.type])}" binding="${escAttr(binding)}"/>\n`;
+  } else if (aef.eventDefKind) {
+    // T-259 (T-257 GO): re-emit the preservation passthrough captured at import
+    // for hosts the typed-catch override skips (start/throw carriers). Canonical
+    // form — binding="" when the source had none — matching the normalization
+    // AEF's intake already accepted on the surviving catch (fixture v2:238).
+    // else-if: a typed-catch node always emits via EVENT_KIND above, so a stale
+    // passthrough can never produce a duplicate eventDef.
+    out += `        <aef:eventDef kind="${escAttr(aef.eventDefKind)}" binding="${escAttr(aef.eventDefBinding || '')}"/>\n`;
   }
   // T-204 Slice 2: boundary perimeter position — presentational layout hint (v1 §1
   // presentational class, like aef:position). The host attachment + interrupting flag
@@ -9088,6 +9096,7 @@ function parseBpmnXml(text) {
       const eventDefEl = byAef(el, 'eventDef')[0];
       const _catchHost = tag === 'intermediateCatchEvent' || tag === 'linkEventCatch' || tag === 'boundaryEvent';
       const _linkHasTarget = !!(linkEl && ((linkEl.getAttribute('workflowRef') || '') || (linkEl.getAttribute('targetWorkflow') || '')));
+      let _eventDefConsumed = false;
       if (eventDefEl && _catchHost && !_linkHasTarget) {
         const kind = eventDefEl.getAttribute('kind') || '';
         const mapped = EVENT_KIND_TYPE[kind];
@@ -9095,7 +9104,19 @@ function parseBpmnXml(text) {
           type = mapped;
           const bindField = EVENT_BINDING_FIELD[mapped];
           if (bindField) aef[bindField] = eventDefEl.getAttribute('binding') || '';
+          _eventDefConsumed = true;
         }
+      }
+      // T-259 (T-257 GO): preservation passthrough. Any <aef:eventDef> the
+      // typed-catch override did NOT consume (startEvent / intermediateThrowEvent
+      // hosts, link-with-target nodes, unknown kinds) is captured as inert aef
+      // fields so export can re-emit it — node type and host tag stay untouched
+      // (the T-237 hybrid concern only applies to type-override, never to
+      // preservation). Cures the rail-201 field defect: layout-only open→save
+      // silently destroyed start/throw typed-event semantics.
+      if (eventDefEl && !_eventDefConsumed) {
+        aef.eventDefKind = eventDefEl.getAttribute('kind') || '';
+        aef.eventDefBinding = eventDefEl.getAttribute('binding') || '';
       }
       // T-204 Slice 2: boundary event — the native attachedToRef (host displayId) is
       // resolved to a host uid in a post-pass below (the host may appear after its

@@ -17,10 +17,12 @@
 //   T-237 legs (in-page parseBpmnXml → buildBpmnXml, uid-keyed):
 //     3. throw+eventDef — intermediateThrowEvent carrying <aef:eventDef> must NOT
 //        mutate to a catch tag on re-export (pre-fix: unscoped override rewrote it);
-//        the eventDef payload is DROPPED on re-export (recorded T-237 decision:
-//        invalid hybrid, tag preservation wins) — asserted to lock the decision in.
+//        the eventDef payload is PRESERVED on re-export (T-259 / T-257 GO
+//        preservation passthrough — supersedes the original T-237 drop, which the
+//        rail-201 field defect proved harmful) — asserted to lock the NEW contract in.
 //     4. link-wins — catch + aef:link workflowRef + eventDef ⇒ linkEventCatch with
-//        the ref preserved (jump affordance must not hide).
+//        the ref preserved (jump affordance must not hide) AND the eventDef payload
+//        preserved (T-259 passthrough applies here too).
 //     5. bare-catch — no extensions ⇒ linkEventCatch (ratified default, 832's call).
 //     6. typed-catch — catch + eventDef kind=message, no link target ⇒ eventMessage
 //        with busTopic binding, re-export carries <aef:eventDef kind="message">.
@@ -151,8 +153,12 @@ const T237_ASSERT = `(function(){
     var emit = buildBpmnXml(state);
     var throws = (emit.match(/<bpmn:intermediateThrowEvent /g) || []).length;
     if (throws !== 1) errs.push('emit has '+throws+' intermediateThrowEvent tags, want exactly 1 (n_thr must stay a throw)');
-    // recorded T-237 decision: throw+eventDef is an invalid hybrid — payload drops on re-export
-    if (emit.indexOf('bus:throw-probe') >= 0) errs.push('emit still carries the throw-side eventDef payload (decision: dropped)');
+    // T-259 (T-257 GO, supersedes the T-237 drop): throw+eventDef is PRESERVED as a
+    // passthrough — the payload must survive re-export on the unmutated throw tag.
+    if (emit.indexOf('<aef:eventDef kind="message" binding="bus:throw-probe"/>') < 0) errs.push('emit lost the throw-side eventDef payload (T-259 preservation regressed)');
+    // Same preservation applies when the link wins classification: n_cl stays a
+    // linkEventCatch AND keeps its eventDef payload.
+    if (emit.indexOf('<aef:eventDef kind="message" binding="bus:link-probe"/>') < 0) errs.push('emit lost the link-catch eventDef payload (T-259 preservation regressed)');
     if (emit.indexOf('<aef:eventDef kind="message" binding="bus:typed-probe"/>') < 0) errs.push('emit lost the typed-catch <aef:eventDef>');
     if (emit.indexOf('workflowRef="1f9b5f0c-0be4-4cfe-9158-d9e6f0c1d4c7"') < 0) errs.push('emit lost the link workflowRef');
     return { ok: errs.length===0, errs: errs };
