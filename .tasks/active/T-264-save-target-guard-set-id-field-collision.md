@@ -6,7 +6,7 @@ description: >
 
 status: started-work
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T21:23:22Z
-last_update: 2026-07-27T21:29:06Z
+last_update: 2026-07-27T21:46:24Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -262,3 +262,6 @@ python3 tests/test_t264_save_target_guards.py
 - **Overall:** PASS
 - **Needs Human:** no
 - **Findings:** none
+
+### 2026-07-27T21:46:24Z — status-update [task-update-agent]
+- **Change:** owner: agent → human
