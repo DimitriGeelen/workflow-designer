@@ -4,16 +4,16 @@ name: "Save-to-project target binding: workflowMeta id wins over dialog project-
 description: >
   AEF rail 225 observation during 0.7.0 eventDef verify: they loaded a scratch COPY of a map whose workflowMeta id still named the original; Save-to-project bound the write target from workflowMeta id and wrote onto the ORIGINAL project. Editing the dialog's project-id input (synthetically) did not rebind — may be synthetic-event artifact (real keystroke might work) or may be workflowMeta-id-wins by design. One question: which field is authoritative for the save target, and does the dialog input actually rebind on real input? Go/no-go on a fix.
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-27T20:22:54Z
-last_update: 2026-07-27T20:36:27Z
-date_finished: null
+last_update: 2026-07-27T20:45:33Z
+date_finished: 2026-07-27T20:45:33Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -125,15 +125,15 @@ when the load source names a different map than workflowMeta.id.
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -188,7 +188,30 @@ when the load source names a different map than workflowMeta.id.
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Recommendation: GO
+
+Rationale: The peer's overwrite incident is real and fully explained:
+workflowMeta-id-wins IS the design (the meta id is the document identity per the
+T-224 slug/uuid model, and no save dialog carries a target input), but the one field
+that redirects the save target fails silently in three ways, and saveToProject never
+warns when the target differs from where the document was loaded. A small,
+zero-seam-surface UX-guard build task converts the silent overwrite into an informed
+choice without introducing a second identity authority.
+
+Evidence:
+- saveToProject POSTs `id = state.workflowMeta.id` unconditionally (src :7930/:7954); the save modal is note-only — confirmed end-to-end vs a stubbed /api/save (probe leg4, postedId === metaIdAtSave).
+- The props ID field rebinds state for BOTH synthetic (value+input event) and real (CDP insertText) edits — probe legs 1+2; the peer's H1 (synthetic-events artifact) and H2 (dead UI) are both refuted as stated.
+- Collision with an existing library key → silent no-op: 0 alerts, 0 toasts, field reverts on re-render (probe leg3; renameActiveWorkflow :2588 returns false, caller :5043 just re-renders).
+- Successful rename re-renders the props panel and destroys the focused input mid-typing (probe leg2, sameElementFocused=false; field() commits on every input event :5645).
+- Probe harness: tools/_t263-save-target-cdp.mjs (5 legs, isolated chromium vs served editor); full findings: docs/reports/T-263-save-target-binding.md.
+
+Fix shape on GO (one build task): (1) visible collision feedback at the ID field;
+(2) ID-field commit-on-blur/Enter instead of per-keystroke; (3) saveToProject confirm
+when the load source names a different map than workflowMeta.id.
+
+**Date**: 2026-07-27T20:45:33Z
 
 ## Updates
 
@@ -198,3 +221,31 @@ when the load source names a different map than workflowMeta.id.
 ### 2026-07-27T20:30:27Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+### 2026-07-27T20:45:33Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Recommendation: GO
+
+Rationale: The peer's overwrite incident is real and fully explained:
+workflowMeta-id-wins IS the design (the meta id is the document identity per the
+T-224 slug/uuid model, and no save dialog carries a target input), but the one field
+that redirects the save target fails silently in three ways, and saveToProject never
+warns when the target differs from where the document was loaded. A small,
+zero-seam-surface UX-guard build task converts the silent overwrite into an informed
+choice without introducing a second identity authority.
+
+Evidence:
+- saveToProject POSTs `id = state.workflowMeta.id` unconditionally (src :7930/:7954); the save modal is note-only — confirmed end-to-end vs a stubbed /api/save (probe leg4, postedId === metaIdAtSave).
+- The props ID field rebinds state for BOTH synthetic (value+input event) and real (CDP insertText) edits — probe legs 1+2; the peer's H1 (synthetic-events artifact) and H2 (dead UI) are both refuted as stated.
+- Collision with an existing library key → silent no-op: 0 alerts, 0 toasts, field reverts on re-render (probe leg3; renameActiveWorkflow :2588 returns false, caller :5043 just re-renders).
+- Successful rename re-renders the props panel and destroys the focused input mid-typing (probe leg2, sameElementFocused=false; field() commits on every input event :5645).
+- Probe harness: tools/_t263-save-target-cdp.mjs (5 legs, isolated chromium vs served editor); full findings: docs/reports/T-263-save-target-binding.md.
+
+Fix shape on GO (one build task): (1) visible collision feedback at the ID field;
+(2) ID-field commit-on-blur/Enter instead of per-keystroke; (3) saveToProject confirm
+when the load source names a different map than workflowMeta.id.
+
+### 2026-07-27T20:45:33Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
