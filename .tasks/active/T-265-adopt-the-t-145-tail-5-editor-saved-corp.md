@@ -4,7 +4,7 @@ name: "Adopt the T-145 tail: 5 editor-saved corpus maps dirty in working tree si
 description: >
   Working tree has carried uncommitted editor re-saves of 5 rendered corpus maps since 2026-07-09 16:37 (audit-process, harvest-pipeline, review-emission, task-lifecycle, verification-gate) — the unfinished tail of T-145 "Adopt 11 editor-saved layouts as canonical corpus" (2d33b2b): 4 were re-saved but never adopted, harvest-pipeline was re-saved again after adoption. Operator confirmed the discard-and-recreate intent. Decide: adopt (commit under this task, re-verify fixture pins + geometry sweep) or discard. Interacts with T-101 baking (T-125 compaction would re-derive geometry on bake anyway).
 
-status: captured
+status: started-work
 workflow_type: build
 owner: human
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T22:20:48Z
-last_update: 2026-07-27T22:20:48Z
+last_update: 2026-07-28T17:54:14Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -174,3 +174,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-265-adopt-the-t-145-tail-5-editor-saved-corp.md
 - **Context:** Initial task creation
+
+### 2026-07-28T17:54:14Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

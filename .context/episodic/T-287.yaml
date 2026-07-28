@@ -1,0 +1,73 @@
+# ============================================================================
+# EPISODIC MEMORY - T-287: Pre-validate AEF pair-draft seeds (dispatch-loop-relabel + tier0-escalation) and reply findings
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-28T17:53:52Z
+# ============================================================================
+
+task_id: T-287
+task_name: "Pre-validate AEF pair-draft seeds (dispatch-loop-relabel + tier0-escalation) and reply findings"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-28T17:50:38Z
+completed: 2026-07-28T17:53:50Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'Both seed BPMN files fetched via their :3001 URLs (same box — transport unblocked for future rounds), byte-counts match stated sizes exactly (10637 / 14497)'
+  - 'validate-workflow.py: draft-dispatch-loop-relabel 0E/1W (W-XML-NODE-UNASSIGNED agt_7_handoff_back missing from laneSet); draft-tier0-escalation 0E/1W (W-TYPE-LANE-MISMATCH hum_2_reject serviceTask in sovereignty lane, O-1 non-blocking)'
+  - 'Mapping-v1 label checks PASS both: all 4 gateways end ''?''; ''worker paused?'' branches carry ADR-0004 enum verbatim (T-2659 resolved as intended); ''disposition?'' branches {approved, rejected} match decide_approval enum; boolean gateways yes/no per convention'
+  - 'Findings posted at rail 294 (thread T-2652-slices, verdict: draft-1 promotion candidate after one-line laneSet fix; draft-2 O-1 taste note); our tier0-escalation.bpmn (11463 B) posted inline at 295 with BEGIN/END markers; acked through 293 at 296'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-287-pre-validate-aef-pair-draft-seeds-dispat.md
+generated_by: context-agent-hybrid

@@ -1,13 +1,13 @@
 ---
-id: T-286
-name: "Edge arrowheads render above node-id badges; selected element's badge comes to foreground"
+id: T-287
+name: "Pre-validate AEF pair-draft seeds (dispatch-loop-relabel + tier0-escalation) and reply findings"
 description: >
-  Edge arrowheads render above node-id badges; selected element's badge comes to foreground
+  Pre-validate AEF pair-draft seeds (dispatch-loop-relabel + tier0-escalation) and reply findings
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: human
-horizon: now
+owner: agent
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-28T17:29:48Z
-last_update: 2026-07-28T17:49:39Z
-date_finished: null
+created: 2026-07-28T17:50:38Z
+last_update: 2026-07-28T17:53:50Z
+date_finished: 2026-07-28T17:53:50Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,32 +30,26 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-286: Edge arrowheads render above node-id badges; selected element's badge comes to foreground
+# T-287: Pre-validate AEF pair-draft seeds (dispatch-loop-relabel + tier0-escalation) and reply findings
 
 ## Context
 
-Operator request (2026-07-28, with screenshot of fw_1_scan): node-id badges + their T-083
-halos paint above edge arrowheads (badges live inside node groups in #g-nodes, above
-#g-edges), which (a) occludes arrowheads entering a node near its badge and (b) makes the
-edge-endpoint drag handle unreachable where a badge/halo overlaps it (SVG hit-testing
-follows paint order). Requested behaviour: arrows always above id badges by DEFAULT;
-when an element is selected, THAT element's badge raises to the foreground. Mechanism:
-re-home badge+halo pairs into a dedicated #g-badges layer painted below #g-edges
-(selected element's badge into #g-badges-top above #g-nodes), pointer-events:none on
-both layers. Constraint verified pre-build: all node-id-badge DOM queries (placement
-passes, halo pass) run inside renderNodes BEFORE the re-home step; the edge router uses
-state-derived nodeVisualBottom, not badge DOM — no cross-render consumers break.
+Rail 292/293 (thread T-2652-slices): AEF delivered both open pair-draft seeds as raw inline
+BPMN (dispatch-loop-relabel v1 10637 B, tier0-escalation v1 14497 B) after my 288 transport
+ask; their 290 also gave fetch URLs (their gallery = http://192.168.10.107:3001/api/version?id=<id>,
+same box). Committed work (282/288): run tools/validate-workflow.py + mapping-v1
+gateway-label-convention checks on both, post findings in-thread. Their 293 adds ask (2):
+post OUR examples/aef-processes/rendered/tier0-escalation.bpmn bytes the same way for the
+authority-collapse lane diff (T-559 symmetric — the rail is the only path).
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] Default paint order: after render, all node-id badges (and their halo rects) live in #g-badges, which precedes #g-edges in document order — arrowheads paint above badges (CDP: 15 badges + 15 halos in #g-badges, 0 left in #g-nodes; compareDocumentPosition order g-badges < g-edges < g-nodes < g-badges-top)
-- [x] Selecting a node moves its id badge+halo to #g-badges-top (after #g-nodes); deselecting returns it to #g-badges (CDP: n_request click → agt_1_fw + halo in top, 14 below; canvas click → 0 top / 15 below)
-- [x] Drag-handle reachability: elementFromPoint at edge-endpoint handles returns port-indicator/handle or the (pre-existing) node shape — never a badge/halo; hit at badge center passes through to lane-bg (CDP hit-tests on verification-gate, edge e_06)
-- [x] Badge layers are pointer-events:none — clicks through badge area reach whatever is beneath (attribute asserted + lane-bg hit-test)
-- [x] No routing/geometry regression: geometry sweep 24 clean, node-cut sweep 0 (baseline 0), bridge round-trip 41/41
-- [x] Visual verification: screenshots read at 94% zoom (single dark theme — no theme system) — default: edge lines run continuous over frw_5_011/frw_3_agent badges; selected: n_verify's badge + halo raised above the edge (t286-zoomed-{default,selected}.png on :8834)
+- [x] Both seed BPMN files fetched via their :3001 URLs (same box — transport unblocked for future rounds), byte-counts match stated sizes exactly (10637 / 14497)
+- [x] validate-workflow.py: draft-dispatch-loop-relabel 0E/1W (W-XML-NODE-UNASSIGNED agt_7_handoff_back missing from laneSet); draft-tier0-escalation 0E/1W (W-TYPE-LANE-MISMATCH hum_2_reject serviceTask in sovereignty lane, O-1 non-blocking)
+- [x] Mapping-v1 label checks PASS both: all 4 gateways end '?'; 'worker paused?' branches carry ADR-0004 enum verbatim (T-2659 resolved as intended); 'disposition?' branches {approved, rejected} match decide_approval enum; boolean gateways yes/no per convention
+- [x] Findings posted at rail 294 (thread T-2652-slices, verdict: draft-1 promotion candidate after one-line laneSet fix; draft-2 O-1 taste note); our tier0-escalation.bpmn (11463 B) posted inline at 295 with BEGIN/END markers; acked through 293 at 296
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -87,14 +81,6 @@ state-derived nodeVisualBottom, not badge DOM — no cross-render consumers brea
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-- [ ] [REVIEW] Arrow-over-badge default + selected-badge-forward feels right; endpoint drag handles now grabbable near badges
-  **Steps:**
-  1. `cd /opt/832-Workflow-designer && xdg-open http://localhost:8834/designer.html?load=rendered/harvest-pipeline.bpmn` (or open that URL on the LAN box)
-  2. Find a node whose id badge sits near an incoming arrow (e.g. the fw_1_scan node from your screenshot)
-  3. Confirm the arrowhead reads on top of the badge; click the node — its badge should pop to the foreground; click empty canvas — badge drops back under
-  4. Select the incoming edge and drag its endpoint handle where the badge overlaps it
-  **Expected:** arrowhead never hidden by a badge when nothing is selected; selected node's badge fully legible; endpoint handle grabbable through the badge area
-  **If not:** screenshot the spot and note which map/node — reopen T-286
 
 ## Verification
 
@@ -128,10 +114,6 @@ state-derived nodeVisualBottom, not badge DOM — no cross-render consumers brea
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
-grep -q 'id="g-badges"' src/aef-workflow-designer.html
-grep -q 'id="g-badges-top"' src/aef-workflow-designer.html
-bash tests/check-corpus-geometry.sh > /tmp/.t286-geom 2>&1 && grep -qi "clean\|pass\|ok" /tmp/.t286-geom
-bash tests/run-bridge-tests.sh > /tmp/.t286-bridge 2>&1
 
 ## RCA
 
@@ -173,19 +155,10 @@ bash tests/run-bridge-tests.sh > /tmp/.t286-bridge 2>&1
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
-### 2026-07-28 — badge text was never the pointer blocker; the halo was
-- **What changed:** pre-build reading showed .node-id-badge already had pointer-events:none (line 571) — the interception came from the T-083 halo rect (no pointer-events attr, painted inside the node group above edges). The operator's "cannot drag handle" symptom and the arrowhead occlusion share one root: badges+halos living in #g-nodes, above #g-edges.
-- **Plan impact:** none structural — the layer-split design covers both; but the halo needed a class (badge-halo) so the re-home step can move the pair without guessing at previousSibling identity (the sibling can be the node's body rect when a badge has no halo).
-- **Triggered:** nothing filed. Note for T-083 lineage: its "pad masks any edge segment" comment is now intentionally inverted by default — masking only applies to the selected element's raised badge.
-
-## Visual Verification
-
-- t286-zoomed-default.png (on :8834) — 94% zoom, verification-gate: edge lines continuous over frw_5_011/frw_3_agent badges, arrowheads unmasked
-- t286-zoomed-selected.png (on :8834) — same view, n_verify selected: its badge+halo raised above the edge, node glow visible
-
-## Recommendation
-
-**[GO]** — the requested behaviour is implemented exactly as described (arrows above badges by default, selected element's badge foregrounded), all six agent ACs verified with CDP assertions + read screenshots, zero regression across geometry/node-cuts/bridge suites. The mechanism (paint-order layer split, pointer-events:none) is the minimal structural fix for both reported symptoms — occluded arrowheads and unreachable endpoint handles.
+### 2026-07-28 — convergent topology is a P4 data point; transport gap closed
+- **What changed:** (a) AEF's gallery is reachable from our side (http://192.168.10.107:3001, same box) — the T-285 "transport is the structural gap" concern dissolves; future pair-rounds need no inline bytes. (b) Both independently-authored tier0 maps encode the SAME resume topology (approve → re-enter scan, approval consumed at a dedicated preauth gateway) — convergent structure from independent authorship, posted at 294 as a P4 data point.
+- **Plan impact:** none — findings round complete; ball is AEF-side (laneSet fix + promotion) and operator-side (taste verdicts on both drafts).
+- **Triggered:** nothing filed.
 
 ## Decisions
 
@@ -210,10 +183,19 @@ bash tests/run-bridge-tests.sh > /tmp/.t286-bridge 2>&1
 
 ## Updates
 
-### 2026-07-28T17:29:48Z — task-created [task-create-agent]
+### 2026-07-28T17:50:38Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-286-edge-arrowheads-render-above-node-id-bad.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-287-pre-validate-aef-pair-draft-seeds-dispat.md
 - **Context:** Initial task creation
 
-### 2026-07-28T17:48:43Z — status-update [task-update-agent]
-- **Change:** owner: agent → human
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2dd7b443
+- **Timestamp:** 2026-07-28T17:53:51Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-07-28T17:53:50Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
