@@ -1,0 +1,72 @@
+# ============================================================================
+# EPISODIC MEMORY - T-273: Rail drain: AEF T-270 triage receipt, IW-marker grammar sweep, concern evidence
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-28T08:11:27Z
+# ============================================================================
+
+task_id: T-273
+task_name: "Rail drain: AEF T-270 triage receipt, IW-marker grammar sweep, concern evidence"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-28T08:06:50Z
+completed: 2026-07-28T08:11:24Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'IW-marker grammar sweep: whole-tree grep over .tasks/ (active + completed) for `* IW-N` / `# IW-N`'
+  - 'concerns.yaml G-004, G-008, G-001 updated with AEF triage evidence (rail 258/259, their'
+  - 'Rail hygiene: receipt reply posted in thread T-270 (incl. IW-sweep result), acked through 259;'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-28 — dash+bold IW markers: ask, don''t mass-edit'
+    chose: 'Leave the pervasive `- **IW-N: …**` dash+bold markers untouched (17 tasks, ~60 questions;'
+    rationale: 'The dash+bold shape is prescribed by AEF''s OWN vendored inception-template comment (T-2190'
+    alternatives_rejected: ['Preemptive mass-reformat to plain `- IW-N` — edits archived history on a speculative']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-273-rail-drain-aef-t-270-triage-receipt-iw-m.md
+generated_by: context-agent-hybrid
