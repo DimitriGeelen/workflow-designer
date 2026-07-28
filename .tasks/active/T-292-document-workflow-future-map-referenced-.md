@@ -1,11 +1,11 @@
 ---
-id: T-289
-name: "Mapping-v1 alignment note: framework-node typing vocab (our scriptTask vs AEF serviceTask)"
+id: T-292
+name: "Document workflow 'future-map' (referenced, not yet created)"
 description: >
-  Rail 297 item 5 / our 298 reply (T-288 round): the two sides type framework-lane automation nodes differently — our tier0-escalation uses scriptTask (hook/CLI scripts), AEF's draft uses serviceTask. Both validate; mapping-v1 does not constrain the choice. Standard-alignment question for a future v1.x delta: prescribe one, or document both as acceptable with semantics (script = framework-owned shell hook, service = long-running service endpoint). No urgency — agreed 'no action now' on the rail.
+  Off-page connector(s) reference a workflow that does not exist yet (T-2571 ghost). uuid: 4300eae7-f2b4-4a1f-abcf-a2812a882a5e. Referenced by: claim-smoke-legacy:frw_2_handoff-2. Create/document the workflow in the designer, then bind the identity: fw bpmn claim 4300eae7-f2b4-4a1f-abcf-a2812a882a5e <project>
 
 status: captured
-workflow_type: specification
+workflow_type: build
 owner: human
 horizon: later
 tags: []
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-28T18:12:30Z
-last_update: 2026-07-28T18:12:37Z
+created: 2026-07-28T20:02:13Z
+last_update: 2026-07-28T20:02:13Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,11 +30,13 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-289: Mapping-v1 alignment note: framework-node typing vocab (our scriptTask vs AEF serviceTask)
+# T-292: Document workflow 'future-map' (referenced, not yet created)
 
 ## Context
 
 <!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+
+Provenance note (T-290): this ghost ('future-map', uuid-pinned) is SYNTHETIC — it is the deliberate ghost leg of the T-235 S4 picker exemplar (claim-smoke-legacy v1 note: 'resolved 1f9b5f0c / ghost 4300eae7 / legacy review-map'). Minting was retroactive (T-290): the mint capability arrived with the v1.6.763 re-vendor (T-276) after the ghost was born. Valid resolutions: author the map for real, OR close this task and retire the exemplar store once T-228's human review is done — the ghost leg exists to demo the claim flow, not to promise a workflow.
 
 ## Acceptance Criteria
 
@@ -170,7 +172,7 @@ date_finished: null
 
 ## Updates
 
-### 2026-07-28T18:12:30Z — task-created [task-create-agent]
+### 2026-07-28T20:02:13Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-289-mapping-v1-alignment-note-framework-node.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-292-document-workflow-future-map-referenced-.md
 - **Context:** Initial task creation

@@ -408,3 +408,10 @@ learnings:
   date: 2026-07-27
   context: "Resolved issue in T-262"
   application: "Apply when encountering similar vendored-code-without-data issues"
+- id: PL-058
+  learning: "Vendor-lag audit warns: a newly vendored check can flag pre-existing state as a failure of a capability that did not exist when the state was created (T-290: ghosts born Jul 22, mint+check arrived with v1.6.763 re-vendor Jul 28). Remediate by firing the new capability retroactively through its real code path — do not hunt a phantom runtime failure, and do not hand-edit registers to silence the warn"
+  source: T-276
+  task: T-290
+  date: 2026-07-28
+  context: Added via context agent
+  application: TBD
