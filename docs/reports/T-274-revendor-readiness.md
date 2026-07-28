@@ -1,8 +1,26 @@
 # T-274: Re-vendor Readiness — the Four-Concern Closure Path
 
-**Status:** WAITING ON AEF (upstream coordinates requested on the rail at offset 262, thread T-274).
-**Date:** 2026-07-28
+**Status:** READY FOR OPERATOR — coordinates received (rail 264/265, T-275); every command below is
+copy-pasteable as-is.
+**Date:** 2026-07-28 (coordinates same day)
 **Owner of the re-vendor action:** operator (rewrites the vendored tree — sovereignty-gated).
+
+## Pinned coordinates (AEF, rail 264/265)
+
+- **upstream_repo:** `https://github.com/DimitriGeelen/agentic-engineering-framework.git`
+  (public GitHub mirror; auth-free; auto-mirrored from AEF's token-authed OneDev origin on every
+  push — PushRepository + 15-min auto-recover cron, their T-1594; verified in sync at answer time.
+  The .201:6611 LAN git hosts only the designer origin — the framework is NOT there.)
+- **Pull point:** annotated tag **`v1.6.763`** = commit `28c7a1bd3f070bb090f6890fb0a20081afe4c3e8`
+  (verified present on the mirror by AEF).
+- **Tag contents:** the full T-270 fix set (T-2645/T-2646/T-2647) + T-2637 sim + T-2640/41/42
+  reviewer fixes + v1.4 catalogues + **T-2648** (OBS-097 Python grep-lint + 4 more FRAMEWORK_ROOT
+  fixes found by its calibration — designer pin/draft-new fw path, approvals batch-complete fw path,
+  cron FW_BIN; without these our `/cron` generate and approvals batch-complete would invoke
+  `PROJECT_ROOT/bin/fw`, which doesn't exist here) + **T-2649** (shell half: fw policy emit/status
+  interpreter, fw mcp check/wire-fragment reads, fw designer status pin read, liveness/notify lib
+  sourcing). Fallbacks if ever needed: `v1.6.762` (pre-T-2649), `v1.6.761` (pre-T-2648 minimal set) —
+  `.763` is AEF's recommendation and ours.
 
 ## Why this matters
 
@@ -17,7 +35,7 @@ T-2645/T-2646/T-2647; earlier T-2637/T-2640/T-2641):
 | G-001 | secret-scan.sh in payload (vintage since 2026-05-15) + loud-fail pre-commit v1.2 + mcp-baseline exit-3/INFO first-run handling (their T-2647) | verify secret scan runs on next commit, flip |
 | G-011 | policy/ reviewer catalogues vendored with code (their T-2637), v1.4 header + T-2640/T-2641 reviewer-code fixes | delete local `policy/` shadows (escalation-patterns.yaml, anti-patterns.yaml), flip |
 
-## Current blocker
+## Original blocker (resolved by the coordinates above)
 
 `fw update` (the vendored-tree re-vendor command) requires `upstream_repo:` in `.framework.yaml`.
 That key was never configured: the original vendoring (T-001, 2026-06-04) recorded no provenance,
@@ -28,26 +46,30 @@ $ .agentic-framework/bin/fw update --check
 ERROR: No upstream_repo in .framework.yaml
 ```
 
-The upstream coordinates must come from AEF (asked at rail offset 262):
-1. What `upstream_repo` consumers should pin (LAN git server repo name, or URL).
-2. Whether a tagged/branch pull point carries the fix set (pull-at-tag preferred — sha-verifiable).
-3. Or whether AEF prefers the push direction (`fw upgrade <consumer-path>` from their side).
+RESOLVED (rail 264/265): coordinates pinned above. Direction confirmed pull-our-side, operator-gated
+(matches AEF's standing no-cross-repo-writes boundary — they don't push into /opt/832).
 
-## Operator procedure (fill in coordinates when AEF answers)
+## Operator procedure (copy-pasteable as-is)
 
 ```bash
-# 1. Pin the upstream (one-time). Replace <UPSTREAM> with AEF's answer:
-cd /opt/832-Workflow-designer && echo "upstream_repo: <UPSTREAM>" >> .framework.yaml
+# 0. Optional pre-verify — the ^{} line must show 28c7a1bd3f070bb090f6890fb0a20081afe4c3e8:
+cd /opt/832-Workflow-designer && git ls-remote https://github.com/DimitriGeelen/agentic-engineering-framework.git 'refs/tags/v1.6.763*'
+
+# 1. Pin the upstream (one-time):
+cd /opt/832-Workflow-designer && echo "upstream_repo: https://github.com/DimitriGeelen/agentic-engineering-framework.git" >> .framework.yaml
 
 # 2. Preview (no changes applied):
-cd /opt/832-Workflow-designer && .agentic-framework/bin/fw update --check
+cd /opt/832-Workflow-designer && .agentic-framework/bin/fw update --check --branch v1.6.763
 
-# 3. Re-vendor (saves a rollback backup automatically; add --branch <NAME> if AEF names a release branch/tag):
-cd /opt/832-Workflow-designer && .agentic-framework/bin/fw update
+# 3. Re-vendor at the tag (saves a rollback backup automatically):
+cd /opt/832-Workflow-designer && .agentic-framework/bin/fw update --branch v1.6.763
 
 # 4. Rollback if anything breaks:
 cd /opt/832-Workflow-designer && .agentic-framework/bin/fw update --rollback
 ```
+
+(`fw update --branch` feeds `git clone --depth 1 --branch`, which accepts annotated tags —
+verified in `.agentic-framework/lib/update.sh:123`.)
 
 ## Post-vendor checklist (agent-assisted, operator-approved)
 
@@ -59,8 +81,10 @@ cd /opt/832-Workflow-designer && .agentic-framework/bin/fw update --rollback
    confirming the vendored versions exist and `fw reviewer` still passes a smoke run.
 4. Confirm the disposition gate still passes on T-190 (the G-008 regression case):
    canonical grammar rejects `* IW-N` / `# IW-N` forms — T-273 swept the tree: zero such markers.
-   OPEN ITEM: AEF to confirm canonical tolerates the dash+bold `- **IW-N:` template shape
-   (asked rail 260); if NOT tolerated, reformat T-155's 3 markers + the inception template first.
+   RESOLVED (rail 263): canonical regex carries `\*?\*?` — the dash+bold `- **IW-N:` template
+   shape is CONFIRMED matching (AEF verified empirically against the live regex: bold, plain,
+   `###`, and indented forms all MATCH; `* IW-N` and prose mentions correctly no-match).
+   Zero task edits needed; our 17-task/60-question population migrates as-is.
 5. Make one commit and verify the secret scan RUNS (G-001 F4): expect scan output, not
    "scanner not found (skipping)".
 6. Run `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw audit` — expect the

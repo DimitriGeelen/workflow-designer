@@ -1279,3 +1279,21 @@ scan_id: R-45e25e61
 task_id: T-274
 payload:
   task_file: .tasks/active/T-274-re-vendor-readiness-unblock-the-four-con.md
+---
+kind: scan_emitted
+timestamp: '2026-07-28T09:15:40Z'
+scan_id: R-40fd5cc0
+task_id: T-275
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-28T09:15:40Z'
+scan_id: R-40fd5cc0
+task_id: T-275
+payload:
+  task_file: .tasks/active/T-275-finalize-re-vendor-procedure-pin-coordin.md

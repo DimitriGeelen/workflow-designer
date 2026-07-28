@@ -34,7 +34,7 @@ concerns:
       - ".agentic-framework/lib/reviewer/static_scan.py:2452-2458 — framework_root/policy/anti-patterns.yaml then project_root/policy/anti-patterns.yaml, both absent (ls: no policy/ dir either place)."
       - "First invocation ever: no prior 'fw reviewer' in any task Verification block or session log in this repo."
       - ".agentic-framework/docs/reports/T-1443-independent-reviewer-agent.md names the four policy files as AEF-authored artifacts."
-      - "Re-vendor procedure + post-vendor checklist (incl. policy/ shadow deletion): docs/reports/T-274-revendor-readiness.md — blocker: upstream_repo never configured (asked AEF at rail 262)."
+      - "Re-vendor READY FOR OPERATOR (T-275, rail 264/265): pin GitHub mirror DimitriGeelen/agentic-engineering-framework at tag v1.6.763 (sha 28c7a1bd3f07...c3e8); full procedure + post-vendor checklist (incl. policy/ shadow deletion) in docs/reports/T-274-revendor-readiness.md."
     related:
       - T-262
       - G-008
@@ -139,7 +139,7 @@ concerns:
       - "T-091 (2026-07-05): upstream patch STAGED at docs/patches/T-091-0001-review-py-lib-path-framework-root.patch (git apply --check verified against vendored copy) + maintainer report docs/reports/T-091-upstream-shared-mode-fixes.md incl. shared-mode smoke test proposal; awaiting ring20 cascade (T-016) for delivery."
       - "DELIVERED to AEF 2026-07-28 over the DM rail at offset 253 (T-270): patch inline + split-root CI smoke proposal + T-015 env-leak pointer. Awaiting their fix + our re-vendor; then delete lib/dispatch_pause.py shim and close."
       - "AEF CONFIRMED + SHIPPED 2026-07-28 (rail offset 258, their T-2645, pushed): exact fix shape applied at review.py, PLUS two sibling sites our report missed — approvals.py:23 (masked by try/except; paused-dispatch surface silently dead in split-root) and orchestrator.py:434 (coverage panel silently 'unavailable'). Repo-wide sweep clean, live-verified 200 on /review + /approvals + /orchestrator, tests/web 7/7. Registered their side as OBS-097 with our split-root-CI + grep-lint prevention proposal captured verbatim as class-level follow-up. CLOSES ON RE-VENDOR: delete lib/dispatch_pause.py shim, then operator flips watching→resolved."
-      - "Re-vendor procedure + post-vendor checklist: docs/reports/T-274-revendor-readiness.md — blocker: upstream_repo never configured (asked AEF at rail 262)."
+      - "Re-vendor READY FOR OPERATOR (T-275, rail 264/265): pin GitHub mirror DimitriGeelen/agentic-engineering-framework at tag v1.6.763 (sha 28c7a1bd3f07...c3e8); full copy-pasteable procedure + post-vendor checklist in docs/reports/T-274-revendor-readiness.md."
     related:
       - T-090
       - T-015
@@ -179,7 +179,7 @@ concerns:
       - "Pickup delivered to framework agent 9219671e28054458 (DM + chat-arc) 2026-06-05T10:32Z; no response yet (agent offline)."
       - "RE-DELIVERED to AEF 2026-07-28 over the live DM rail at offset 256 (T-270): both instances (F2 baseline yaml, F4 secret-scan) + fresh same-day evidence (secret-scan 'scanner not found (skipping)' on every 2026-07-27/28 commit) + proposal to extend their T-2637 fresh-machine consumer sim with a payload-completeness assert / no-silent-skip policy. Awaiting their fix + our re-vendor to close."
       - "AEF ANSWERED 2026-07-28 (rail offset 259, their T-2647 complete): F4 secret-scan payload half is VINTAGE (secret-scan.sh in do_vendor's agents/ include since 2026-05-15 commit 850130094, predating our 2026-06-05 detection — our re-vendor delivers it); the silent-no-op defect is FIXED — pre-commit template v1.2 prints an unmissable multi-line 'SECRET SCAN IS NOT RUNNING' warning with fix command, FW_SECRET_SCAN_STRICT=1 upgrades to hard block (default deliberately fail-open, but never again quiet). F2 mcp-baseline CONFIRMED REAL by code-read (baselines are per-install state under .context/, vendor excludes by design, yet scan hard-exit-2'd → audit FAIL with misleading 'regression' message) — FIXED: missing baseline → distinct exit 3 (first-run) with seed guidance, audit maps 3 → INFO; our first-audit-FAILs repro is dead. Sim teeth per our proposal landed as fresh-machine tests 6+7 (payload-completeness assert for runtime-referenced scripts + no-silent-skip contract pinned against the INSTALLED hook, scanner-deleted case asserting loud-warn AND strict-block); 7/7 green. CLOSES ON RE-VENDOR, zero items owed either direction."
-      - "Re-vendor procedure + post-vendor checklist: docs/reports/T-274-revendor-readiness.md — blocker: upstream_repo never configured (asked AEF at rail 262)."
+      - "Re-vendor READY FOR OPERATOR (T-275, rail 264/265): pin GitHub mirror DimitriGeelen/agentic-engineering-framework at tag v1.6.763 (sha 28c7a1bd3f07...c3e8); full copy-pasteable procedure + post-vendor checklist in docs/reports/T-274-revendor-readiness.md."
     related:
       - T-006
       - T-007
@@ -412,7 +412,7 @@ concerns:
       - "Gate verified over the real unchanged T-190 file: 'all Open Questions disposed ✓' (exit 0)."
       - "DELIVERED to AEF 2026-07-28 over the DM rail at offset 254 (T-270): anchored regex + function-extraction regression-test description inline. Awaiting their merge + our re-vendor to close."
       - "AEF CONFIRMED 2026-07-28 (rail offset 258, their T-2646 verify-complete): fix ALREADY CANONICAL their side — T-2218 RC5 anchored the marker regex (update-task.sh:792, forms '- IW-N' / '### IW-N' / '- Q-N') with regression test at tests/unit/disposition_gate.bats test 7 (prose cross-ref no-FP) + tests 2-4 (under-disposed still blocks); suite 8/8 green. Our snapshot predates it (vintage pattern, same as G-011). CLOSES ON RE-VENDOR, nothing owed either side. Migration caveat: canonical grammar rejects '* IW-N' / '# IW-N' forms (fail OPEN, question unseen) — T-273 sweep found ZERO such markers in .tasks/; live form is the template's own '- **IW-N:' dash+bold shape (precision question re bold tolerance posed on-rail)."
-      - "Re-vendor procedure + post-vendor checklist: docs/reports/T-274-revendor-readiness.md — blocker: upstream_repo never configured (asked AEF at rail 262)."
+      - "Re-vendor READY FOR OPERATOR (T-275, rail 264/265): pin GitHub mirror DimitriGeelen/agentic-engineering-framework at tag v1.6.763 (sha 28c7a1bd3f07...c3e8); full copy-pasteable procedure + post-vendor checklist in docs/reports/T-274-revendor-readiness.md."
     related:
       - T-203
       - T-190
