@@ -16,6 +16,11 @@ rm -rf "$OUT"
 mkdir -p "$OUT/rendered"
 cp "$ROOT/src/aef-workflow-designer.html" "$OUT/designer.html"
 cp "$ROOT"/examples/aef-processes/rendered/*.bpmn "$OUT/rendered/"
+# Second-tenant corpus (T-283/T-284): include app-flavored maps when present.
+# Guarded glob — an absent/empty dir must not fail the build under `set -e`.
+for f in "$ROOT"/examples/app-processes/rendered/*.bpmn; do
+  [ -e "$f" ] && cp "$f" "$OUT/rendered/"
+done
 
 {
   cat <<'HTML'
@@ -30,7 +35,8 @@ cp "$ROOT"/examples/aef-processes/rendered/*.bpmn "$OUT/rendered/"
  .n{color:#6b7280;font-size:.85em}
 </style></head><body>
 <h1>AEF Workflow Corpus &mdash; rendered maps</h1>
-<p class="n">Generated from examples/aef-processes/*.workflow.yaml via tools/yaml-to-bpmn.py.
+<p class="n">Generated from examples/aef-processes/*.workflow.yaml and examples/app-processes/*.workflow.yaml
+(second-tenant corpus) via tools/yaml-to-bpmn.py.
 Click a map to open it in the designer (editable; changes stay in your browser).</p>
 <ol>
 HTML

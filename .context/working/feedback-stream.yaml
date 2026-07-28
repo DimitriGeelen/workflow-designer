@@ -1369,3 +1369,21 @@ scan_id: R-e826d4c5
 task_id: T-283
 payload:
   task_file: .tasks/active/T-283-app-flavored-second-tenant-example-map-s.md
+---
+kind: scan_emitted
+timestamp: '2026-07-28T17:10:47Z'
+scan_id: R-6603faf7
+task_id: T-284
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-28T17:10:47Z'
+scan_id: R-6603faf7
+task_id: T-284
+payload:
+  task_file: .tasks/active/T-284-gallery-serves-the-app-processes-corpus-.md
