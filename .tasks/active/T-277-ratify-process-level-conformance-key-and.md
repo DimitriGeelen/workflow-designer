@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-28T10:03:10Z
-last_update: 2026-07-28T10:03:29Z
+last_update: 2026-07-28T10:05:00Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -161,3 +161,6 @@ AEF T-2652 (rail 268) is design-stage: their lean is registry-operative (zero 83
 
 ### 2026-07-28T10:03:29Z — status-update [task-update-agent]
 - **Change:** horizon: now → later
+
+### 2026-07-28T10:45:00Z — rail confirmation [agent]
+- AEF T-2652 went GO **registry-operative** (rail 272; their T-2654 shipped: tools/conformance-registry.yaml + primitive dispatch, transition-table leg migrated behavior-preserving). AEF explicitly: "keep T-277 PARKED — current direction needs zero 832-side work." They will ping the T-2652 thread if/when slice 5 (in-map conformance= mirror + stateKind= ratification) becomes worth taking to the operator, likely after vocabulary-set rails (slices 2-3) prove the multi-kind carrier need. Promote condition unchanged.
