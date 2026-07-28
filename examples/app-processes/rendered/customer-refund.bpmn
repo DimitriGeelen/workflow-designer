@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from customer-refund by tools/yaml-to-bpmn.py. Do not edit by hand. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_customer_refund" name="customer-refund">
+
+    <bpmn:laneSet id="LaneSet_customer-refund">
+      <bpmn:lane id="customer" name="Customer · External">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="cst" authority="external" height="130"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_request</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_refunded</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_declined</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="support" name="Support Staff · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="sup" authority="sovereignty" height="140"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_review</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="assistant" name="Support Assistant (AI) · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="ast" authority="initiative" height="140"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_classify</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_draftdecline</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="billing" name="Billing Platform · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="bil" authority="authority" height="240"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>g_policy</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_execute</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_request" name="Refund requested (web form)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_request"/>
+        <aef:position x="120" y="58"/>
+        <aef:meta determinism="deterministic" triggeredBy="support-portal:POST /refunds (order_id, reason, amount)"/>
+        <aef:io>
+          <aef:output name="order_id" type="string"/>
+          <aef:output name="claim_reason" type="string"/>
+          <aef:output name="amount" type="number"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>e_01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="n_classify" name="Classify claim + assemble order context">
+      <bpmn:extensionElements>
+        <aef:uid value="n_classify"/>
+        <aef:position x="240" y="322"/>
+        <aef:meta determinism="stochastic" tier="2" endpoint="assistant: summarise order history, damage photos, prior refunds; tag claim class" agentType="support-assistant"/>
+        <aef:contextReads paths="orders-api:GET /orders/${order_id}"/>
+        <aef:io>
+          <aef:input name="order_id" type="string" required="true"/>
+          <aef:output name="claim_class" type="string"/>
+          <aef:output name="context_bundle" type="ref"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_01</bpmn:incoming>
+      <bpmn:outgoing>e_02</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="g_policy" name="Within auto-refund policy?">
+      <bpmn:extensionElements>
+        <aef:uid value="g_policy"/>
+        <aef:position x="410" y="496"/>
+        <aef:meta determinism="deterministic" endpoint="billing-rules: amount &lt;= 50 AND order age &lt;= 30d AND no prior refund on order" decisionOwner="framework"/>
+        <aef:decisionInput>${amount &lt;= policy.auto_limit &amp;&amp; order.age_days &lt;= 30 &amp;&amp; order.refund_count == 0}</aef:decisionInput>
+        <aef:decisionOutputs>auto-approve, needs-review</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_02</bpmn:incoming>
+      <bpmn:outgoing>e_03</bpmn:outgoing>
+      <bpmn:outgoing>e_04</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="n_review" name="Support reviews claim &amp; decides">
+      <bpmn:extensionElements>
+        <aef:uid value="n_review"/>
+        <aef:position x="560" y="180"/>
+        <aef:meta determinism="stochastic" endpoint="support-console: claim view with assistant context bundle" decisionOwner="human"/>
+        <aef:decisionOutputs>approve, decline</aef:decisionOutputs>
+        <aef:io>
+          <aef:input name="context_bundle" type="ref" required="true"/>
+          <aef:input name="claim_class" type="string" required="true"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_04</bpmn:incoming>
+      <bpmn:outgoing>e_05</bpmn:outgoing>
+      <bpmn:outgoing>e_06</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:subProcess id="n_execute" name="Execute refund">
+      <bpmn:extensionElements>
+        <aef:uid value="n_execute"/>
+        <aef:position x="730" y="480"/>
+        <aef:meta determinism="deterministic" tier="1" endpoint="billing-api:POST /refunds/${order_id}/execute" sideEffect="charge reversed on payment provider; ledger entry written; receipt emailed"/>
+        <aef:io>
+          <aef:input name="order_id" type="string" required="true"/>
+          <aef:input name="amount" type="number" required="true"/>
+          <aef:output name="refund_id" type="string"/>
+        </aef:io>
+        <aef:constituents>
+          <aef:constituent id="c_validate" name="validate payment reference still reversible"/>
+          <aef:constituent id="c_reverse" name="reverse charge via payment provider API"/>
+          <aef:constituent id="c_ledger" name="write double-entry ledger record"/>
+          <aef:constituent id="c_receipt" name="send refund receipt email"/>
+        </aef:constituents>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_03</bpmn:incoming>
+      <bpmn:incoming>e_05</bpmn:incoming>
+      <bpmn:outgoing>e_07</bpmn:outgoing>
+    </bpmn:subProcess>
+    <bpmn:serviceTask id="n_draftdecline" name="Draft decline explanation for customer">
+      <bpmn:extensionElements>
+        <aef:uid value="n_draftdecline"/>
+        <aef:position x="730" y="322"/>
+        <aef:meta determinism="stochastic" tier="2" endpoint="assistant: personalised decline referencing policy clause; support-approved template" agentType="support-assistant"/>
+        <aef:io>
+          <aef:input name="claim_class" type="string" required="true"/>
+        </aef:io>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_06</bpmn:incoming>
+      <bpmn:outgoing>e_08</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="n_refunded" name="Refunded — receipt delivered">
+      <bpmn:extensionElements>
+        <aef:uid value="n_refunded"/>
+        <aef:position x="960" y="64"/>
+        <aef:meta determinism="deterministic"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_07</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="n_declined" name="Declined — explanation sent">
+      <bpmn:extensionElements>
+        <aef:uid value="n_declined"/>
+        <aef:position x="880" y="64"/>
+        <aef:meta determinism="deterministic"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>e_08</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="e_01" sourceRef="n_request" targetRef="n_classify">
+      <bpmn:extensionElements><aef:uid value="e_01"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_02" sourceRef="n_classify" targetRef="g_policy">
+      <bpmn:extensionElements><aef:uid value="e_02"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_03" name="auto-approve" sourceRef="g_policy" targetRef="n_execute">
+      <bpmn:extensionElements><aef:uid value="e_03"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${within_policy == true}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_04" name="needs-review" sourceRef="g_policy" targetRef="n_review">
+      <bpmn:extensionElements><aef:uid value="e_04"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${within_policy == false}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_05" name="approve" sourceRef="n_review" targetRef="n_execute">
+      <bpmn:extensionElements><aef:uid value="e_05"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${decision == 'approve'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_06" name="decline" sourceRef="n_review" targetRef="n_draftdecline">
+      <bpmn:extensionElements><aef:uid value="e_06"/></bpmn:extensionElements>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${decision == 'decline'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_07" sourceRef="n_execute" targetRef="n_refunded">
+      <bpmn:extensionElements><aef:uid value="e_07"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="e_08" sourceRef="n_draftdecline" targetRef="n_declined">
+      <bpmn:extensionElements><aef:uid value="e_08"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+  </bpmn:process>
+</bpmn:definitions>

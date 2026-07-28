@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-283: App-flavored second-tenant example map (SD-12): business+technical layering
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-28T16:23:35Z
+# ============================================================================
+
+task_id: T-283
+task_name: "App-flavored second-tenant example map (SD-12): business+technical layering"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-28T14:53:02Z
+completed: 2026-07-28T16:23:32Z
+duration_days: 0
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '`examples/app-processes/customer-refund.workflow.yaml` exists, models a non-AEF tenant (no AEF concepts in lanes/nodes), and includes an `external`-authority lane plus all four authority values across lanes'
+  - 'Business+technical layering demonstrated: the refund-execution node carries >=3 aef.constituents (technical refinement declared first-class, not a parallel document)'
+  - '`tools/validate-workflow.py` passes on the YAML with zero findings'
+  - 'Rendered BPMN generated via `tools/yaml-to-bpmn.py` into `examples/app-processes/rendered/` and validates as BPMN form too'
+  - 'Determinism markers on every node (P4 frontier convention) and userTask decisionOutputs match its outgoing edge names'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 90 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 90
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-283-app-flavored-second-tenant-example-map-s.md
+generated_by: context-agent-hybrid

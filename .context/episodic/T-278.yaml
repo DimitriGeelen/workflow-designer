@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-278: Process-layer package disposition note: map SD-1..15 to superseded/delivered/open
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-28T14:59:22Z
+# ============================================================================
+
+task_id: T-278
+task_name: "Process-layer package disposition note: map SD-1..15 to superseded/delivered/open"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-28T14:52:17Z
+completed: 2026-07-28T14:59:20Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-28T16:53:14+02:00
+last_commit: 2026-07-28T16:53:14+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  create arc gap tasks from process-layer package review — T-278 disposition note (now), T-279 P3 guided-mode revive/retire, T-280 Workflow Fabric SD-15, T-281 render lenses SD-14, T-282 callActivity SD-9 (inceptions, DEFER/later), T-283 SD-12 second-tenant example (build/later)
+
+# Key outcomes
+outcomes:
+  - 'Disposition note exists in docs/proposals/aef-workflow-process-layer-2026-07-02/ and disposes ALL of SD-1..SD-15 plus WF-A..E, each with one status (superseded / delivered-as / partial / still-open) and an evidence pointer'
+  - 'Every still-open disposition cross-links its gap task (T-279..T-283)'
+  - 'Step 0 (Q1-Q10) and Step 0.5 status recorded (obsolete under pivot / analog delivered via 24 friction notes)'
+  - 'V1-V9 success-criteria status table included'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-278-process-layer-package-disposition-note-m.md'
+  - '.tasks/active/T-279-guided-mode-procedural-guardrail-package.md'
+  - '.tasks/active/T-280-workflow-fabric-sd-15-process-dependency.md'
+  - '.tasks/active/T-281-audience-render-lenses-sd-1422-businessl.md'
+  - '.tasks/active/T-282-callactivity-node-type-sd-9-sync-sub-wor.md'
+  - '.tasks/active/T-283-app-flavored-second-tenant-example-map-s.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-28T16:53:14"
+    action: "T-278: create arc gap tasks from process-layer package review — T-278 disposition note (now), T-279 P3 guided-mode revive/retire, T-280 Workflow Fabric SD-15, T-281 render lenses SD-14, T-282 callActivity SD-9 (inceptions, DEFER/later), T-283 SD-12 second-tenant example (build/later)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 7
+  commits: 1
+  files_changed: 6
+  lines_added: 900
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-278-process-layer-package-disposition-note-m.md
+generated_by: context-agent-hybrid

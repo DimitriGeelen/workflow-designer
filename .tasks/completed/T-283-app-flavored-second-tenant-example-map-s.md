@@ -4,10 +4,10 @@ name: "App-flavored second-tenant example map (SD-12): business+technical layeri
 description: >
   Package SD-12/Lock 5: one application-flavored (non-AEF-internal) example workflow demonstrating business-lens + technical refinement, validating the tenant-neutral claim (IW-6). All 24 corpus maps are AEF processes today — no second-tenant article exists. Author one realistic business process map conformant to mapping-v1, validate with tools/validate-workflow.py, add to examples/. Refinement mechanism: link events or collapsed subProcess as shipped; callActivity only if T-282 lands first.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: later
+horizon: null
 tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-28T14:53:02Z
-last_update: 2026-07-28T14:53:02Z
-date_finished: null
+last_update: 2026-07-28T16:23:32Z
+date_finished: 2026-07-28T16:23:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,14 +34,26 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+SD-12 gap from the package disposition (T-278): all 24 corpus maps are AEF-internal; tenant-neutrality
+(IW-6) has no second-tenant test article. Author one app-flavored map (generic e-commerce customer-refund
+tenant) using only shipped mechanisms: `external` lane authority for the customer, business+technical
+layering via aef.constituents on the executing node (T-081 pattern, no callActivity dependency).
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `examples/app-processes/customer-refund.workflow.yaml` exists, models a non-AEF tenant (no AEF concepts in lanes/nodes), and includes an `external`-authority lane plus all four authority values across lanes
+- [x] Business+technical layering demonstrated: the refund-execution node carries >=3 aef.constituents (technical refinement declared first-class, not a parallel document)
+- [x] `tools/validate-workflow.py` passes on the YAML with zero findings
+- [x] Rendered BPMN generated via `tools/yaml-to-bpmn.py` into `examples/app-processes/rendered/` and validates as BPMN form too
+- [x] Determinism markers on every node (P4 frontier convention) and userTask decisionOutputs match its outgoing edge names
+
+## Evolution
+
+### 2026-07-28 — promoted from later and executed same-day
+- **Observed:** Filed hours earlier as horizon later; promoted under the operator's arc directive because it is the only agent-owned actionable arc task (all else is human review-wait). Built exactly to plan: no callActivity dependency needed — aef.constituents (T-081) carried the business+technical layering cleanly; `external` lane authority (validator AUTHORITIES set) carried the customer actor. Both YAML and rendered BPMN validated zero-findings on first pass — a concrete V1 (agent-generation) data point for the package scorecard.
+- **Plan impact:** none; scope held (one map, examples-only). New examples/app-processes/ directory establishes the second-tenant corpus home.
+- **Triggered:** nothing; T-281 (lenses) would use this map as its business-lens test article if ever GO'd.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -78,6 +90,13 @@ date_finished: null
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
+test -f examples/app-processes/customer-refund.workflow.yaml
+python3 tools/validate-workflow.py examples/app-processes/customer-refund.workflow.yaml
+test -f examples/app-processes/rendered/customer-refund.bpmn
+python3 tools/validate-workflow.py examples/app-processes/rendered/customer-refund.bpmn
+grep -q 'authority: external' examples/app-processes/customer-refund.workflow.yaml
+test $(grep -c 'id: c_' examples/app-processes/customer-refund.workflow.yaml) -ge 3
+out=$(grep -c 'determinism:' examples/app-processes/customer-refund.workflow.yaml); test "$out" -ge 8
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
@@ -174,3 +193,27 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-283-app-flavored-second-tenant-example-map-s.md
 - **Context:** Initial task creation
+
+### 2026-07-28T16:20:32Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
+
+### 2026-07-28T16:20:33Z — status-update [task-update-agent]
+- **Change:** horizon: now → now
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e826d4c5
+- **Timestamp:** 2026-07-28T16:23:33Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#4 (Agent)** — Rendered BPMN generated via `tools/yaml-to-bpmn.py` into `examples/app-processes/rendered/` and validates as BPMN form too
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/yaml-to-bpmn.py in: Rendered BPMN generated via `tools/yaml-to-bpmn.py` into `examples/app-processes/rendered/` and validates as BPMN form too`
+
+### 2026-07-28T16:23:32Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

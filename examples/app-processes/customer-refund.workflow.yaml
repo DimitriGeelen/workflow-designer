@@ -1,0 +1,213 @@
+# customer-refund — application-flavored SECOND-TENANT example (T-283, SD-12).
+#
+# Purpose: the tenant-neutrality proof article (IW-6). Every other corpus map
+# (examples/aef-processes/) documents an AEF-internal process; this one models a
+# generic e-commerce support tenant ("acme-style") with its OWN actors — no AEF
+# concept appears anywhere in the flow. It demonstrates the two claims the
+# package (docs/proposals/aef-workflow-process-layer-2026-07-02/, INSTRUCTIONS
+# §5 item 7 / SD-12) wanted proven:
+#   1. Business+technical layering with SHIPPED mechanisms: business-level nodes
+#      at top grain; technical refinement declared first-class on the executing
+#      node via aef.constituents (T-081 pattern) — not a parallel document.
+#   2. The lane model carries a non-AEF authority mix, incl. `external`
+#      (customer lane compiles to no task — mapping-v1 §3 collapse map).
+#
+# Ground truth: none (illustrative tenant). Determinism markers follow the
+# corpus convention (P4 frontier snapshot): the assistant lane is stochastic
+# (LLM-drafted), the billing platform is deterministic, support is human.
+workflowMeta:
+  id: customer-refund
+  version: 1
+  schemaVersion: 2
+  source: docs/proposals/aef-workflow-process-layer-2026-07-02/INSTRUCTIONS-workflow-process-layer-2026-07-02.md
+  tier_default: 2
+
+pool:
+  id: Pool_customer_refund
+  name: customer-refund
+
+lanes:
+  - id: customer
+    name: "Customer · External"
+    abbr: cst
+    authority: external
+    height: 130
+  - id: support
+    name: "Support Staff · Sovereignty"
+    abbr: sup
+    authority: sovereignty
+    height: 140
+  - id: assistant
+    name: "Support Assistant (AI) · Initiative"
+    abbr: ast
+    authority: initiative
+    height: 140
+  - id: billing
+    name: "Billing Platform · Authority"
+    abbr: bil
+    authority: authority
+    height: 240
+
+nodes:
+  - uid: n_request
+    type: startEvent
+    name: "Refund requested (web form)"
+    slug: request
+    lane: customer
+    x: 120
+    y: 58
+    aef:
+      determinism: deterministic
+      triggeredBy: "support-portal:POST /refunds (order_id, reason, amount)"
+    io:
+      outputs:
+        - { name: order_id, type: string }
+        - { name: claim_reason, type: string }
+        - { name: amount, type: number }
+
+  - uid: n_classify
+    type: serviceTask
+    name: "Classify claim + assemble order context"
+    slug: classify
+    lane: assistant
+    x: 240
+    y: 322
+    aef:
+      tier: 2
+      determinism: stochastic
+      agentType: support-assistant
+      endpoint: "assistant: summarise order history, damage photos, prior refunds; tag claim class"
+      contextReads: "orders-api:GET /orders/${order_id}"
+    io:
+      inputs:
+        - { name: order_id, type: string, required: true }
+      outputs:
+        - { name: claim_class, type: string }
+        - { name: context_bundle, type: ref }
+
+  - uid: g_policy
+    type: exclusiveGateway
+    name: "Within auto-refund policy?"
+    slug: policy
+    lane: billing
+    x: 410
+    y: 496
+    aef:
+      determinism: deterministic
+      endpoint: "billing-rules: amount <= 50 AND order age <= 30d AND no prior refund on order"
+      decisionInput: ${amount <= policy.auto_limit && order.age_days <= 30 && order.refund_count == 0}
+      decisionOwner: framework
+      decisionOutputs: auto-approve, needs-review
+
+  - uid: n_review
+    type: userTask
+    name: "Support reviews claim & decides"
+    slug: review
+    lane: support
+    x: 560
+    y: 180
+    aef:
+      determinism: stochastic
+      decisionOwner: human
+      endpoint: "support-console: claim view with assistant context bundle"
+      decisionOutputs: approve, decline
+    io:
+      inputs:
+        - { name: context_bundle, type: ref, required: true }
+        - { name: claim_class, type: string, required: true }
+
+  - uid: n_execute
+    type: subProcess
+    name: "Execute refund"
+    slug: execute
+    lane: billing
+    x: 730
+    y: 480
+    aef:
+      tier: 1
+      determinism: deterministic
+      endpoint: "billing-api:POST /refunds/${order_id}/execute"
+      sideEffect: "charge reversed on payment provider; ledger entry written; receipt emailed"
+      constituents:
+        - { id: c_validate, name: "validate payment reference still reversible" }
+        - { id: c_reverse,  name: "reverse charge via payment provider API" }
+        - { id: c_ledger,   name: "write double-entry ledger record" }
+        - { id: c_receipt,  name: "send refund receipt email" }
+    io:
+      inputs:
+        - { name: order_id, type: string, required: true }
+        - { name: amount, type: number, required: true }
+      outputs:
+        - { name: refund_id, type: string }
+
+  - uid: n_draftdecline
+    type: serviceTask
+    name: "Draft decline explanation for customer"
+    slug: draftdecline
+    lane: assistant
+    x: 730
+    y: 322
+    aef:
+      tier: 2
+      determinism: stochastic
+      agentType: support-assistant
+      endpoint: "assistant: personalised decline referencing policy clause; support-approved template"
+    io:
+      inputs:
+        - { name: claim_class, type: string, required: true }
+
+  - uid: n_refunded
+    type: endEvent
+    name: "Refunded — receipt delivered"
+    slug: refunded
+    lane: customer
+    x: 960
+    y: 64
+    aef:
+      determinism: deterministic
+      emits: "refund_id to customer; case closed"
+
+  - uid: n_declined
+    type: endEvent
+    name: "Declined — explanation sent"
+    slug: declined
+    lane: customer
+    x: 880
+    y: 64
+    aef:
+      determinism: deterministic
+      emits: "decline explanation to customer; case closed"
+
+edges:
+  - uid: e_01
+    source: n_request
+    target: n_classify
+  - uid: e_02
+    source: n_classify
+    target: g_policy
+  - uid: e_03
+    source: g_policy
+    target: n_execute
+    name: auto-approve
+    condition: ${within_policy == true}
+  - uid: e_04
+    source: g_policy
+    target: n_review
+    name: needs-review
+    condition: ${within_policy == false}
+  - uid: e_05
+    source: n_review
+    target: n_execute
+    name: approve
+    condition: ${decision == 'approve'}
+  - uid: e_06
+    source: n_review
+    target: n_draftdecline
+    name: decline
+    condition: ${decision == 'decline'}
+  - uid: e_07
+    source: n_execute
+    target: n_refunded
+  - uid: e_08
+    source: n_draftdecline
+    target: n_declined
