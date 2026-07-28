@@ -1,8 +1,8 @@
-timestamp: 2026-07-28T20:04:26Z
+timestamp: 2026-07-28T21:00:02Z
 findings:
   - id: D1
     level: PASS
-    check: "D1: Episodic quality — 0% [TODO] (0/205)"
+    check: "D1: Episodic quality — 0% [TODO] (0/206)"
   - id: D2
     level: WARN
     check: "D2: Human review queue — 48 task(s) waiting >14d: T-073(24d) T-074(24d) T-075(24d) T-076(24d) T-077(24d) T-079(24d) T-081(24d) T-082(24d) T-083(24d) T-084(24d) T-085(23d) T-087(23d) T-089(23d) T-090(23d) T-093(23d) T-094(23d) T-095(23d) T-096(23d) T-097(23d) T-098(23d) T-099(23d) T-100(23d) T-104(23d) T-106(23d) T-107(23d) T-108(23d) T-109(23d) T-114(22d) T-115(22d) T-116(21d) T-117(22d) T-118(21d) T-119(21d) T-127(22d) T-132(22d) T-134(22d) T-136(22d) T-137(22d) T-139(21d) T-141(21d) T-144(19d) T-164(18d) T-165(18d) T-166(18d) T-167(18d) T-168(18d) T-172(18d) T-178(17d)"
@@ -16,40 +16,9 @@ findings:
   - id: D11
     level: PASS
     check: "D11: Gap register staleness — all gaps fresh"
-  - id: D4
-    level: PASS
-    check: "D4: Audit trend — insufficient history (<3 entries)"
-  - id: D5
-    level: WARN
-    check: "D5: Task lifecycle — 2 anomaly(s): T-189(17d-active) T-155(19d-active)"
-    mitigation: "Review flagged tasks for process issues"
-  - id: D13
-    level: PASS
-    check: "D13: Inception limbo — no stuck inceptions"
-  - id: D3
-    level: PASS
-    check: "D3: Commit velocity — normal (PASS today=49 avg=25 ratio=2.0x)"
-  - id: D7
-    level: PASS
-    check: "D7: Commit bunching — detected (INFO 1_bunch(es) 64_commits_24h)"
-  - id: D6
-    level: PASS
-    check: "D6: Completion velocity — normal (PASS recent=9.0 earlier=5.0)"
-  - id: D12
-    level: PASS
-    check: "D12: Bypass log — no log file"
-  - id: D9
-    level: PASS
-    check: "D9: Control drift — normal (PASS 10_audits_checked)"
-  - id: D14
-    level: PASS
-    check: "D14: Empty inception Recommendation — none (PASS no_empty_recommendations)"
-  - id: D15
-    level: PASS
-    check: "D15: Inception limbo state — none (PASS no_limbo)"
 
 summary:
-  pass: 13
-  warn: 2
+  pass: 4
+  warn: 1
   fail: 0
-  total: 15
+  total: 5

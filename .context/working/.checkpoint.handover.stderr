@@ -1,0 +1,76 @@
+=== Handover Agent ===
+Session: S-2026-0728-2318
+Timestamp: 2026-07-28T21:18:32Z
+
+Gathering state...
+
+Checking episodic completeness...
+✓ All recent completed tasks have enriched episodics
+✓ Observation inbox clean
+Concerns register: 7 watching
+Session metrics extracted: 24991 turns, 690 commits, 684 errors, 582 edit bursts
+  Cumulative — CPT: 0.0276 | FTC rate: 0.0591 | PTR: 0.2809
+  Per-session (24991 turns) — CPT: 0.0276 | FTC rate: 0.0591 | PTR: 0.2809
+  Output: /opt/832-Workflow-designer/.context/working/.session-metrics.yaml
+Creating handover document...
+
+=== Handover Created ===
+File: /opt/832-Workflow-designer/.context/handovers/S-2026-0728-2318.md
+Latest: /opt/832-Workflow-designer/.context/handovers/LATEST.md
+
+Auto-committing handover...
+[master 9087b91] T-214: Session handover S-2026-0728-2318
+ 2 files changed, 533 insertions(+), 1 deletion(-)
+ create mode 100644 .context/handovers/S-2026-0728-2318.md
+
+Task T-214 updated (Pair-draft session/handover corpus diagram in canonical dialect (AEF arc-014))
+
+Pushing to remotes...
+  Skipping github (mirrored from origin via PushRepository)
+
+=== Pre-Push Audit Check ===
+
+=== AUDIT REPORT ===
+Timestamp: 2026-07-28T23:18:41+02:00
+Project: /opt/832-Workflow-designer
+Sections: structure
+
+=== STRUCTURE CHECKS ===
+[PASS] Tasks directory exists
+[PASS] Tasks/active directory exists
+[PASS] Tasks/completed directory exists
+[PASS] Tasks/templates directory exists
+[PASS] Task template exists
+[PASS] No duplicate task IDs across active/ and completed/
+[PASS] All 9 project YAML files parse correctly
+[PASS] All 1 arc anchor_task references resolve to existing tasks
+[PASS] All 1 in-progress arc(s) had task commits within 30 days
+[PASS] No inline arc:<slug> tag-only scans outside canonical lib (T-1881)
+[PASS] No PROJECT_ROOT resolution of framework-owned assets in web/ + lib/ Python (T-2648, OBS-097)
+[PASS] No stale-slice-references (L-417)
+[PASS] No GO-scope-not-propagated inception(s) (sibling to L-417)
+[PASS] Fabric: 6 registered, 0 unregistered
+[PASS] Fabric edges: 0/6 cards enriched (6 without edges)
+[PASS] Fabric drift: All watched source files registered (6 cards)
+[PASS] Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer
+[PASS] Hook threshold: no hooks failing over threshold
+[PASS] Secret scan: tracked tree clean
+[PASS] Designer ghost registry: ghost↔task joins clean
+
+=== SUMMARY ===
+Pass: 20
+Warn: 0
+Fail: 0
+
+
+=== TREND ANALYSIS ===
+No repeated issues in last 14 days (across 11 audits).
+
+Audit history: 11 audit(s) in last 14 days + today
+
+Audit saved to: /opt/832-Workflow-designer/.context/audits/2026-07-28.yaml
+
+=== END AUDIT ===
+To ssh://192.168.10.201:6611/workflow-designer
+   dab0b9f..9087b91  HEAD -> master
+  Pushed to origin ✓
