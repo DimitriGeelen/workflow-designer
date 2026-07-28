@@ -12,9 +12,13 @@
 # friction (F11). Full catalogue [F1,F3,F4,F8,F11,F12] in
 # docs/reports/T-025-tier0-escalation-friction.md — F11/F12 new; F1/F3/F4/F8
 # recur (F3 and F1 now 4/4 across all slices).
+# v2 (T-288, rail 297): AEF's T-2664 diff found the abandon leg omitted the
+# rejection-side write — decide_approval (approvals.py) moves pending→resolved
+# with decision+feedback for BOTH outcomes, and check-tier0.sh reads the
+# rejected record back on retry (T-641). Added n_record_reject (framework lane).
 workflowMeta:
   id: tier0-escalation
-  version: 1
+  version: 2
   schemaVersion: 2
   source: agents/context/check-tier0.sh
   tier_default: 0
@@ -173,6 +177,25 @@ nodes:
     aef:
       emits: event:tier0.executed
 
+  - uid: n_record_reject
+    type: scriptTask
+    name: Record rejection — resolved(rejected) + feedback
+    slug: record-reject
+    lane: framework
+    x: 1180
+    y: 248
+    aef:
+      tier: 0
+      determinism: deterministic
+      # decide_approval moves pending→resolved unconditionally (approvals.py,
+      # decision+feedback for BOTH outcomes); check-tier0.sh reads the rejected
+      # record back on a later retry and surfaces the feedback (T-641) — the
+      # write is load-bearing in the guard loop, not bookkeeping.
+      # Honest asymmetry: only the Watchtower reject path writes this record;
+      # CLI abandonment is silence (no write).
+      endpoint: "POST /api/approvals/decide (Watchtower)"
+      sideEffect: "write .context/approvals/resolved-<hash>.yaml (rejected + feedback)"
+
   - uid: n_end_abandoned
     type: endEvent
     name: Abandoned (not executed)
@@ -223,9 +246,12 @@ edges:
     condition: ${decision == 'approve'}
   - uid: e_10
     source: n_route
-    target: n_end_abandoned
+    target: n_record_reject
     name: abandon
     condition: ${decision == 'abandon'}
+  - uid: e_13
+    source: n_record_reject
+    target: n_end_abandoned
   - uid: e_11
     source: n_consume
     target: n_run

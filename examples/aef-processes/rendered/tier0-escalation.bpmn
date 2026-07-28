@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_tier0-escalation" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="tier0-escalation" version="1" schemaVersion="2" title="tier0-escalation" tier_default="2"/>
+      <aef:workflowMeta id="tier0-escalation" version="2" schemaVersion="2" title="tier0-escalation" tier_default="2"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="human" name="Human · Sovereignty">
@@ -34,6 +34,7 @@
         <bpmn:flowNodeRef>frw_5_consume</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_2_matches</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>frw_3_valid</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_7_record</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="agent" name="Agent · Initiative">
         <bpmn:extensionElements>
@@ -68,7 +69,7 @@
         <aef:uid value="n_end_abandoned"/>
         <aef:position x="1402.0" y="130.0"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>flow_10</bpmn:incoming>
+      <bpmn:incoming>flow_13</bpmn:incoming>
     </bpmn:endEvent>
 
     <bpmn:serviceTask id="agt_2_command" name="Command executes">
@@ -127,6 +128,17 @@
       </bpmn:extensionElements>
       <bpmn:incoming>flow_5</bpmn:incoming>
       <bpmn:outgoing>flow_11</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_7_record" name="Record rejection — resolved(rejected) + feedback">
+      <bpmn:extensionElements>
+        <aef:uid value="n_record_reject"/>
+        <aef:position x="1220.0" y="248.0"/>
+        <aef:meta tier="0" note="decide_approval moves pending→resolved for BOTH outcomes; check-tier0.sh reads the rejected record back on retry (T-641). Watchtower reject path only — CLI abandonment writes nothing"/>
+        <aef:endpoint>POST /api/approvals/decide (Watchtower)</aef:endpoint>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_10</bpmn:incoming>
+      <bpmn:outgoing>flow_13</bpmn:outgoing>
     </bpmn:scriptTask>
 
     <bpmn:exclusiveGateway id="frw_2_matches" name="Matches a destructive pattern?">
@@ -232,7 +244,7 @@
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
-    <bpmn:sequenceFlow id="flow_10" name="abandon" sourceRef="hum_2_approve" targetRef="hum_3_abandoned">
+    <bpmn:sequenceFlow id="flow_10" name="abandon" sourceRef="hum_2_approve" targetRef="frw_7_record">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${decision == 'abandon'}</bpmn:conditionExpression>
       <bpmn:extensionElements>
         <aef:uid value="e_10"/>
@@ -249,6 +261,12 @@
     <bpmn:sequenceFlow id="flow_12" sourceRef="agt_2_command" targetRef="frw_6_executed">
       <bpmn:extensionElements>
         <aef:uid value="e_12"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_7_record" targetRef="hum_3_abandoned">
+      <bpmn:extensionElements>
+        <aef:uid value="e_13"/>
       </bpmn:extensionElements>
     </bpmn:sequenceFlow>
   </bpmn:process>

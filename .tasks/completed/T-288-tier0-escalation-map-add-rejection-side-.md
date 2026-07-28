@@ -1,13 +1,13 @@
 ---
-id: T-214
-name: "Pair-draft session/handover corpus diagram in canonical dialect (AEF arc-014)"
+id: T-288
+name: "tier0-escalation map: add rejection-side resolved-write (rail 297 finding)"
 description: >
-  Pair-draft session/handover corpus diagram in canonical dialect (AEF arc-014)
+  tier0-escalation map: add rejection-side resolved-write (rail 297 finding)
 
 status: work-completed
 workflow_type: build
-owner: human
-horizon: now
+owner: agent
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-19T20:51:06Z
-last_update: 2026-07-28T17:58:37Z
-date_finished: 2026-07-19T21:00:33Z
+created: 2026-07-28T18:04:04Z
+last_update: 2026-07-28T18:11:31Z
+date_finished: 2026-07-28T18:11:31Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,33 +30,39 @@ date_finished: 2026-07-19T21:00:33Z
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-214: Pair-draft session/handover corpus diagram in canonical dialect (AEF arc-014)
+# T-288: tier0-escalation map: add rejection-side resolved-write (rail 297 finding)
 
 ## Context
 
-Arc: designer-authoring-surface (↔ AEF corpus arc-014). Taking up AEF's standing pair-draft
-invitation (rail offsets 84/87): 832 authors a REAL (non-fixture) framework process as a
-BPMN diagram in the designer's canonical dialect, the operator reviews/corrects it in the
-designer UI, then AEF compiles it through `fw bpmn`. AEF drafted D1 (`aef-task-lifecycle`);
-832 drafts the **session/handover lifecycle** — Session Start Protocol → work + commit
-cadence → budget-gate loop → Session Capture → handover → persist. This dogfoods the 832
-designer's client contract with real content and gives AEF's arc-014 a second corpus
-constituent. The diagram deliberately includes ONE exclusiveGateway (budget critical?) and
-ONE back-edge (work loop) — both realistic AND the exact constructs AEF flagged (their
-T-2557 gateway/branch-label silent-loss) so it doubles as a cross-validation case.
-
-Model dialect on `tests/fixtures/aef-bpmn/arc-lifecycle.bpmn`: three lanes
-(human·sovereignty / framework·authority / agent·initiative) with `aef:laneMeta`, every flow
-node carrying `aef:uid` + `aef:position`, typed nodes (startEvent/endEvent/scriptTask/
-serviceTask/userTask/exclusiveGateway), and `aef:uid` on every sequenceFlow.
+AEF's T-2664 authority-collapse diff (rail 297) found a code-truth gap in our pairing
+article `examples/aef-processes/tier0-escalation.workflow.yaml`: the abandon leg goes
+straight from the route gateway to the abandoned end event, but the machine writes a
+`resolved(rejected)+feedback` record for BOTH outcomes — the pending→resolved move in
+`decide_approval` (`.agentic-framework/web/blueprints/approvals.py:583-600`) is
+unconditional; only the approval-token write is approved-only. The record is also
+load-bearing, not bookkeeping: `check-tier0.sh:374-415` reads it back on a later
+retry and surfaces the rejection feedback to the agent (T-641). Fix: add a
+framework-lane scriptTask on the abandon leg (per our own rail-294 taste note — the
+write mechanically executes framework-side), re-render, validate, reply on the rail.
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] New fixture `tests/fixtures/aef-bpmn/session-handover.bpmn` authored in the canonical dialect (3 authority-typed lanes; every flow node has `aef:uid` + `aef:position`; every sequenceFlow has `aef:uid`)
-- [x] It validates CLEAN under `tools/validate-workflow.py` (exit 0, no findings) — including the sovereignty O-3 rule (the human-only pickup node sits in the sovereignty lane)
-- [x] It faithfully models the session lifecycle: Session Start (context inject) → focus → work → commit → gate → **budget exclusiveGateway** (continue back-edge vs wrap) → capture → handover → persist → end; with one human·sovereignty node (next-session pickup)
-- [x] Fixture is well-formed XML and byte-stable (sha `d971a2fc…` recorded in the delivery); delivered to AEF rail-inline with its sha for their `fw bpmn` compile (rail offset 92)
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [x] `n_record_reject` scriptTask exists in the framework lane on the abandon leg
+      (`n_route` → `n_record_reject` → `n_end_abandoned`), encoding the
+      resolved(rejected)+feedback write with a code-truth anchor to
+      approvals.py decide_approval and the T-641 read-back in its `aef:` notes
+- [x] The Watchtower/CLI asymmetry is honestly encoded: the node notes that only the
+      Watchtower reject path writes the record (CLI abandon = silence, no write)
+- [x] `workflowMeta.version` bumped 1 → 2; header comment carries rail-297 provenance
+- [x] `tools/validate-workflow.py` reports 0 errors on the YAML (`VALID … no findings`)
+- [x] `examples/aef-processes/rendered/tier0-escalation.bpmn` updated in the
+      editor-saved dialect (hand-edit mirroring T-145 adoption conventions —
+      `frw_7_record` displayId, `flow_13`; NOT via yaml-to-bpmn.py, see Evolution);
+      validator clean on the XML; bridge 41/41, geometry 24 clean, node-cuts 0
+- [x] Rail: reply to 297 with the shipped fix at 298, v2 bytes (12392, sha
+      93789349f526) at 299, acked through 297 (receipt 300)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -88,40 +94,8 @@ serviceTask/userTask/exclusiveGateway), and `aef:uid` on every sequenceFlow.
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-- [ ] [REVIEW] The session/handover diagram reads faithfully in the designer UI (the pair-draft review step)
-  **Steps:**
-  1. Open the designer at the served URL (see `.context/working/watchtower.url`), use in-editor Open-from-project (or load `tests/fixtures/aef-bpmn/session-handover.bpmn`).
-  2. Trace the flow: Session begins → context injected → pickup (human) → focus → work → commit → gate → budget gateway → (continue loops back to work) / (critical wraps) → capture → handover → persist → end.
-  3. Check the three lanes read correctly (human·sovereignty top, framework·authority middle, agent·initiative bottom) and node labels match the real framework steps.
-  **Expected:** The diagram is a recognisable, correct depiction of the session lifecycle; lanes/owners are right; the budget gateway + work back-edge render legibly.
-  **If not:** Note the step that is wrong/missing or mis-laned; correct it in the UI (or tell me) and re-save.
-
-## Recommendation
-
-**Recommendation:** GO
-
-**GO — accept the pair-draft, pending your UI read.** All agent-verifiable criteria pass: the
-diagram validates CLEAN under the canonical validator (exit 0, no findings, incl. O-3
-sovereignty), is well-formed and byte-stable (sha `d971a2fc…`), and was delivered to AEF
-rail-inline (offset 92) for their `fw bpmn` compile. It faithfully models the real session
-lifecycle across the three authority lanes with the budget gateway + work back-edge.
-
-The one remaining step is the pair-draft's whole point: **your eyes on the rendered diagram**
-in the designer (the `[REVIEW]` Human AC) — confirm it reads as a correct, legible depiction
-of the session lifecycle. Evidence it's ready: `tools/validate-workflow.py` clean; the
-designer is served (see `.context/working/watchtower.url`). If it reads right, check the AC
-and run `fw task update T-214 --status work-completed`. Not recommending closure without your
-UI read — DOM/validator correctness ≠ a faithful diagram (that's a human judgment).
 
 ## Verification
-
-# The authored diagram validates CLEAN under the canonical validator (exit 0, no findings):
-python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/session-handover.bpmn
-# It is well-formed XML:
-python3 -c "import xml.etree.ElementTree as ET; ET.parse('tests/fixtures/aef-bpmn/session-handover.bpmn')"
-# It carries the required dialect markers (workflowMeta, 3 lanes, a budget gateway, a human pickup):
-grep -q "aef:workflowMeta" tests/fixtures/aef-bpmn/session-handover.bpmn
-grep -q "exclusiveGateway" tests/fixtures/aef-bpmn/session-handover.bpmn
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -153,6 +127,12 @@ grep -q "exclusiveGateway" tests/fixtures/aef-bpmn/session-handover.bpmn
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+grep -q "n_record_reject" examples/aef-processes/tier0-escalation.workflow.yaml
+grep -q "n_record_reject" examples/aef-processes/rendered/tier0-escalation.bpmn
+grep -q "version: 2" examples/aef-processes/tier0-escalation.workflow.yaml
+out=$(python3 tools/validate-workflow.py examples/aef-processes/tier0-escalation.workflow.yaml 2>&1); echo "$out" | grep -q "VALID"
+out=$(python3 tools/validate-workflow.py examples/aef-processes/rendered/tier0-escalation.bpmn 2>&1); echo "$out" | grep -q "VALID"
 
 ## RCA
 
@@ -194,6 +174,19 @@ grep -q "exclusiveGateway" tests/fixtures/aef-bpmn/session-handover.bpmn
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-07-28 — rendered corpus is editor-saved dialect, not yaml-to-bpmn output
+- **What changed:** Planned to regenerate the BPMN via `tools/yaml-to-bpmn.py`, but
+  its output (raw uids, no collaboration element, different header) does not match
+  the committed rendered corpus — those files are **editor-saved** artifacts adopted
+  at T-145, with mapping-v1 displayIds (`frw_N_word`) the bridge tool never emits.
+  A naive regen would have rewritten 183 lines of a 1-node change.
+- **Plan impact:** Hand-edited the rendered BPMN in the editor's exact conventions
+  instead (new displayId `frw_7_record` follows the abbr_index_firstword pattern);
+  validator + bridge round-trip + geometry/cut sweeps confirm it's indistinguishable
+  from an editor save. The AC referencing yaml-to-bpmn.py was corrected accordingly.
+- **Triggered:** Nothing filed — T-265 (parked, owner human) already owns the wider
+  YAML↔rendered coordinate/pipeline divergence this surfaced again.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -217,19 +210,19 @@ grep -q "exclusiveGateway" tests/fixtures/aef-bpmn/session-handover.bpmn
 
 ## Updates
 
-### 2026-07-19T20:51:06Z — task-created [task-create-agent]
+### 2026-07-28T18:04:04Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-214-pair-draft-sessionhandover-corpus-diagra.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-288-tier0-escalation-map-add-rejection-side-.md
 - **Context:** Initial task creation
-
-### 2026-07-19T21:00:33Z — status-update [task-update-agent]
-- **Change:** status: started-work → work-completed
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-59923117
-- **Timestamp:** 2026-07-27T21:20:20Z
+- **Scan ID:** R-6782e58d
+- **Timestamp:** 2026-07-28T18:11:32Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no
 - **Findings:** none
+
+### 2026-07-28T18:11:31Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
