@@ -6,7 +6,7 @@ description: >
 
 status: started-work
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-28T17:29:48Z
-last_update: 2026-07-28T17:29:48Z
+last_update: 2026-07-28T17:48:43Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,28 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Operator request (2026-07-28, with screenshot of fw_1_scan): node-id badges + their T-083
+halos paint above edge arrowheads (badges live inside node groups in #g-nodes, above
+#g-edges), which (a) occludes arrowheads entering a node near its badge and (b) makes the
+edge-endpoint drag handle unreachable where a badge/halo overlaps it (SVG hit-testing
+follows paint order). Requested behaviour: arrows always above id badges by DEFAULT;
+when an element is selected, THAT element's badge raises to the foreground. Mechanism:
+re-home badge+halo pairs into a dedicated #g-badges layer painted below #g-edges
+(selected element's badge into #g-badges-top above #g-nodes), pointer-events:none on
+both layers. Constraint verified pre-build: all node-id-badge DOM queries (placement
+passes, halo pass) run inside renderNodes BEFORE the re-home step; the edge router uses
+state-derived nodeVisualBottom, not badge DOM — no cross-render consumers break.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Default paint order: after render, all node-id badges (and their halo rects) live in #g-badges, which precedes #g-edges in document order — arrowheads paint above badges (CDP: 15 badges + 15 halos in #g-badges, 0 left in #g-nodes; compareDocumentPosition order g-badges < g-edges < g-nodes < g-badges-top)
+- [x] Selecting a node moves its id badge+halo to #g-badges-top (after #g-nodes); deselecting returns it to #g-badges (CDP: n_request click → agt_1_fw + halo in top, 14 below; canvas click → 0 top / 15 below)
+- [x] Drag-handle reachability: elementFromPoint at edge-endpoint handles returns port-indicator/handle or the (pre-existing) node shape — never a badge/halo; hit at badge center passes through to lane-bg (CDP hit-tests on verification-gate, edge e_06)
+- [x] Badge layers are pointer-events:none — clicks through badge area reach whatever is beneath (attribute asserted + lane-bg hit-test)
+- [x] No routing/geometry regression: geometry sweep 24 clean, node-cut sweep 0 (baseline 0), bridge round-trip 41/41
+- [x] Visual verification: screenshots read at 94% zoom (single dark theme — no theme system) — default: edge lines run continuous over frw_5_011/frw_3_agent badges; selected: n_verify's badge + halo raised above the edge (t286-zoomed-{default,selected}.png on :8834)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -73,6 +87,14 @@ date_finished: null
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+- [ ] [REVIEW] Arrow-over-badge default + selected-badge-forward feels right; endpoint drag handles now grabbable near badges
+  **Steps:**
+  1. `cd /opt/832-Workflow-designer && xdg-open http://localhost:8834/designer.html?load=rendered/harvest-pipeline.bpmn` (or open that URL on the LAN box)
+  2. Find a node whose id badge sits near an incoming arrow (e.g. the fw_1_scan node from your screenshot)
+  3. Confirm the arrowhead reads on top of the badge; click the node — its badge should pop to the foreground; click empty canvas — badge drops back under
+  4. Select the incoming edge and drag its endpoint handle where the badge overlaps it
+  **Expected:** arrowhead never hidden by a badge when nothing is selected; selected node's badge fully legible; endpoint handle grabbable through the badge area
+  **If not:** screenshot the spot and note which map/node — reopen T-286
 
 ## Verification
 
@@ -106,6 +128,10 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+grep -q 'id="g-badges"' src/aef-workflow-designer.html
+grep -q 'id="g-badges-top"' src/aef-workflow-designer.html
+bash tests/check-corpus-geometry.sh > /tmp/.t286-geom 2>&1 && grep -qi "clean\|pass\|ok" /tmp/.t286-geom
+bash tests/run-bridge-tests.sh > /tmp/.t286-bridge 2>&1
 
 ## RCA
 
@@ -147,6 +173,20 @@ date_finished: null
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-07-28 — badge text was never the pointer blocker; the halo was
+- **What changed:** pre-build reading showed .node-id-badge already had pointer-events:none (line 571) — the interception came from the T-083 halo rect (no pointer-events attr, painted inside the node group above edges). The operator's "cannot drag handle" symptom and the arrowhead occlusion share one root: badges+halos living in #g-nodes, above #g-edges.
+- **Plan impact:** none structural — the layer-split design covers both; but the halo needed a class (badge-halo) so the re-home step can move the pair without guessing at previousSibling identity (the sibling can be the node's body rect when a badge has no halo).
+- **Triggered:** nothing filed. Note for T-083 lineage: its "pad masks any edge segment" comment is now intentionally inverted by default — masking only applies to the selected element's raised badge.
+
+## Visual Verification
+
+- t286-zoomed-default.png (on :8834) — 94% zoom, verification-gate: edge lines continuous over frw_5_011/frw_3_agent badges, arrowheads unmasked
+- t286-zoomed-selected.png (on :8834) — same view, n_verify selected: its badge+halo raised above the edge, node glow visible
+
+## Recommendation
+
+**[GO]** — the requested behaviour is implemented exactly as described (arrows above badges by default, selected element's badge foregrounded), all six agent ACs verified with CDP assertions + read screenshots, zero regression across geometry/node-cuts/bridge suites. The mechanism (paint-order layer split, pointer-events:none) is the minimal structural fix for both reported symptoms — occluded arrowheads and unreachable endpoint handles.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -174,3 +214,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-286-edge-arrowheads-render-above-node-id-bad.md
 - **Context:** Initial task creation
+
+### 2026-07-28T17:48:43Z — status-update [task-update-agent]
+- **Change:** owner: agent → human

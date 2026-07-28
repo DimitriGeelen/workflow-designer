@@ -1374,8 +1374,14 @@ font-family: 'Outfit';
           </marker>
         </defs>
         <g id="g-pool"></g>
+        <!-- T-286: id badges paint BELOW edges by default (arrows carry flow semantics;
+             badges are secondary metadata) — the selected element's badge raises into
+             g-badges-top. Both layers are pointer-events:none so badges never swallow
+             clicks meant for edge endpoint handles beneath/above them. -->
+        <g id="g-badges" pointer-events="none"></g>
         <g id="g-edges"></g>
         <g id="g-nodes"></g>
+        <g id="g-badges-top" pointer-events="none"></g>
         <g id="g-preview"></g>
       </svg>
       <div class="canvas-overlay" id="status">
@@ -2266,6 +2272,8 @@ const svg = $('canvas');
 const gPool = $('g-pool');
 const gEdges = $('g-edges');
 const gNodes = $('g-nodes');
+const gBadges = $('g-badges');        // T-286: id badges below edges (default)
+const gBadgesTop = $('g-badges-top'); // T-286: selected element's badge, above nodes
 const gPreview = $('g-preview');
 
 // ============================================================================
@@ -3016,6 +3024,7 @@ function renderNodes() {
   adjustLabelPlacements();
   adjustEdgeLabelPlacements();
   addIdBadgeHalos();
+  layerIdBadges();
 }
 
 // Below-label de-collision (T-105): gateway/event names render single-line below the
@@ -3348,8 +3357,30 @@ function addIdBadgeHalos() {
   for (const t of gNodes.querySelectorAll('text.node-id-badge')) {
     const bb = t.getBBox();
     if (!bb.width) continue;
-    const halo = el('rect', { x: bb.x - 2, y: bb.y - 1, width: bb.width + 4, height: bb.height + 2, rx: 2, fill: 'var(--bg)' });
+    const halo = el('rect', { class: 'badge-halo', x: bb.x - 2, y: bb.y - 1, width: bb.width + 4, height: bb.height + 2, rx: 2, fill: 'var(--bg)' });
     t.parentNode.insertBefore(halo, t);
+  }
+}
+
+// Badge layering (T-286): id badges are secondary metadata — flow arrows must win
+// the paint order by default, so a badge (and its T-083 halo) can never occlude an
+// arrowhead or sit over an edge-endpoint drag handle in hit-test order. The
+// selected element's badge is the exception: identity is the focus, so it raises
+// above everything. Runs LAST in renderNodes — every pass that queries
+// text.node-id-badge inside gNodes (placement, halo) has already run, and
+// renderEdges reads only state-derived geometry (nodeVisualBottom), never badge DOM.
+function layerIdBadges() {
+  gBadges.innerHTML = '';
+  gBadgesTop.innerHTML = '';
+  for (const t of Array.from(gNodes.querySelectorAll('text.node-id-badge'))) {
+    const owner = t.closest('g[data-id]');
+    const uid = owner ? owner.getAttribute('data-id') : null;
+    const raised = uid != null &&
+      ((selection?.kind === 'node' && selection.id === uid) || multiSelect.has(uid));
+    const dest = raised ? gBadgesTop : gBadges;
+    const halo = t.previousElementSibling;
+    if (halo && halo.classList && halo.classList.contains('badge-halo')) dest.appendChild(halo);
+    dest.appendChild(t);
   }
 }
 
