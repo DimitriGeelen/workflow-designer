@@ -1315,3 +1315,21 @@ scan_id: R-f8b854c7
 task_id: T-264
 payload:
   task_file: .tasks/active/T-264-save-target-guard-set-id-field-collision.md
+---
+kind: scan_emitted
+timestamp: '2026-07-28T10:00:25Z'
+scan_id: R-89b2d9b2
+task_id: T-276
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-28T10:00:25Z'
+scan_id: R-89b2d9b2
+task_id: T-276
+payload:
+  task_file: .tasks/active/T-276-execute-framework-re-vendor-to-v16763--p.md
