@@ -76,3 +76,25 @@ through the pivot, its P3/P4 enforcement half remains genuinely open (gap tasks 
 
 All four inceptions filed DEFER, owner human — decision placeholders, not scheduled work.
 T-279/T-280 are predominantly AEF-side surface; their GO begins with a rail conversation.
+
+## Addendum (2026-07-28 evening, rail 284) — register convergence with AEF
+
+AEF ran the same review (their T-2662, report `docs/reports/T-2662-workflow-process-layer-package-review.md`
+their side) and filed a mirror gap backlog in their arc-014. Cross-links:
+
+- **T-283 is now DELIVERED** (same day): `examples/app-processes/customer-refund.workflow.yaml` + rendered
+  BPMN, both zero-findings — SD-12 closes; the SD table's still-open row is superseded by this addendum.
+- **T-279 (guided mode) ↔ their T-2668** (inception, DEFER their rec too) — same question both registers;
+  ownership per the proposed split: theirs. Our T-279 stays as the 832 ratification touchpoint only.
+- **T-280 (Workflow Fabric) ↔ their T-2670** (DEFER) — same; theirs.
+- **T-281 (lenses) ↔ their T-2669** — **recommendations diverge**: ours DEFER, theirs NO-GO
+  ("write-mostly corpus, no read-pull yet"). Operator sees both framings at decision time.
+- **Their T-2663** (rec-GO): operator ratifies mirror+rails AS the Process layer — the SD-1 keystone
+  decision, settling canonical-format authority per side (their single-stored-representation their side;
+  our .workflow.yaml-canonical corpus this side; both coexist across the seam).
+- **Their T-2664** (next): tier0-escalation map+rail as the P4 falsifiability experiment — arrives on the
+  rail as a pair-draft round; our corpus already holds `tier0-escalation.workflow.yaml` (T-025 friction
+  note) as the 832-side pairing article. T-2665/66/67 (more P4 maps) gate on its outcome.
+- Their review also credits the pair with the package's Lock 2 (interchange) and Lock 5 (dogfood), and
+  scores the conformance rails as EXCEEDING V9 (daily map-vs-code audit vs the package's component-ref
+  drift reports only) — consistent with our scorecard, stronger on V9.
