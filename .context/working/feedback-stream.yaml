@@ -1261,3 +1261,21 @@ scan_id: R-e16eae39
 task_id: T-273
 payload:
   task_file: .tasks/active/T-273-rail-drain-aef-t-270-triage-receipt-iw-m.md
+---
+kind: scan_emitted
+timestamp: '2026-07-28T08:18:46Z'
+scan_id: R-45e25e61
+task_id: T-274
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-28T08:18:46Z'
+scan_id: R-45e25e61
+task_id: T-274
+payload:
+  task_file: .tasks/active/T-274-re-vendor-readiness-unblock-the-four-con.md
