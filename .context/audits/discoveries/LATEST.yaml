@@ -1,11 +1,11 @@
-timestamp: 2026-07-28T10:00:02Z
+timestamp: 2026-07-28T14:30:01Z
 findings:
   - id: D1
     level: PASS
-    check: "D1: Episodic quality — 0% [TODO] (0/198)"
+    check: "D1: Episodic quality — 0% [TODO] (0/199)"
   - id: D2
     level: WARN
-    check: "D2: Human review queue — 48 task(s) waiting >14d: T-073(23d) T-074(23d) T-075(23d) T-076(23d) T-077(23d) T-079(23d) T-081(23d) T-082(23d) T-083(23d) T-084(23d) T-085(23d) T-087(23d) T-089(23d) T-090(23d) T-093(23d) T-094(23d) T-095(23d) T-096(23d) T-097(23d) T-098(22d) T-099(22d) T-100(22d) T-104(22d) T-106(22d) T-107(22d) T-108(22d) T-109(22d) T-114(22d) T-115(21d) T-116(20d) T-117(21d) T-118(20d) T-119(20d) T-127(21d) T-132(21d) T-134(21d) T-136(21d) T-137(21d) T-139(20d) T-141(20d) T-144(19d) T-164(18d) T-165(18d) T-166(18d) T-167(18d) T-168(18d) T-172(18d) T-178(17d)"
+    check: "D2: Human review queue — 48 task(s) waiting >14d: T-073(24d) T-074(24d) T-075(24d) T-076(24d) T-077(24d) T-079(24d) T-081(23d) T-082(23d) T-083(23d) T-084(23d) T-085(23d) T-087(23d) T-089(23d) T-090(23d) T-093(23d) T-094(23d) T-095(23d) T-096(23d) T-097(23d) T-098(23d) T-099(23d) T-100(23d) T-104(22d) T-106(22d) T-107(22d) T-108(22d) T-109(22d) T-114(22d) T-115(21d) T-116(21d) T-117(21d) T-118(21d) T-119(21d) T-127(22d) T-132(22d) T-134(21d) T-136(21d) T-137(21d) T-139(20d) T-141(20d) T-144(19d) T-164(18d) T-165(18d) T-166(18d) T-167(18d) T-168(18d) T-172(18d) T-178(17d)"
     mitigation: "Review with: fw task verify"
   - id: D8
     level: PASS

@@ -4,10 +4,10 @@ name: "Process-layer package disposition note: map SD-1..15 to superseded/delive
 description: >
   The 2026-07-02 AEF process-layer package (docs/proposals/aef-workflow-process-layer-2026-07-02/) was superseded by the T-175 framing (tasks-canonical, mapping standard as contract) but its SD-1..SD-15 decision register was never disposed and T-175 artifacts do not cite the package. Write a one-page disposition note in the proposal directory mapping each SD to superseded-by-T-175 / delivered-as-X / still-open, so deliberate deferrals (guided mode, Workflow Fabric, lenses) stay visible. Also record that Step 0 discovery (Q1-Q10) is obsolete under the pivot.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-28T14:52:17Z
-last_update: 2026-07-28T14:52:17Z
-date_finished: null
+last_update: 2026-07-28T14:59:20Z
+date_finished: 2026-07-28T14:59:20Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,14 +34,18 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The 2026-07-28 package review (this session) reconstructed the supersession chain: package (2026-07-02, T-019 ingest)
+→ T-175 framing pivot (2026-07-10, tasks-canonical + mapping standard) → arc-001 delivery. The SD register was never
+disposed; this note records it in the proposal directory so the package stops reading as un-dispatched. Gap tasks
+T-279..T-283 carry the still-open items.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Disposition note exists in docs/proposals/aef-workflow-process-layer-2026-07-02/ and disposes ALL of SD-1..SD-15 plus WF-A..E, each with one status (superseded / delivered-as / partial / still-open) and an evidence pointer
+- [x] Every still-open disposition cross-links its gap task (T-279..T-283)
+- [x] Step 0 (Q1-Q10) and Step 0.5 status recorded (obsolete under pivot / analog delivered via 24 friction notes)
+- [x] V1-V9 success-criteria status table included
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -74,10 +78,23 @@ date_finished: null
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Evolution
+
+### 2026-07-28 — operator extended scope mid-task: coordinate with AEF
+- **Observed:** Operator added a rail-coordination requirement mid-execution ("AEF got the same assignment"). Coordination posted at rail 278 (thread T-278-package-disposition): our verdict + disposition-note path + gap tasks T-279..T-283, with dedupe/ownership asks (T-279/T-280 proposed AEF-owned if revived). Separately, AEF inbound 276 corrected our T-276 finding-1 root cause (stale pre-T-2061 installed hook, not payload modes) — verified against the installed hook and confirmed at rail 277.
+- **Plan impact:** none on the note's content this round; AEF's reply (their gap-task IDs, divergent dispositions) may warrant a small amendment to DISPOSITION-2026-07-28.md later.
+- **Triggered:** watch rail thread T-278-package-disposition; amend note on their reply if dispositions diverge (no new task — amendment is a minor edit).
+
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
+test -f docs/proposals/aef-workflow-process-layer-2026-07-02/DISPOSITION-2026-07-28.md
+test $(grep -oE 'SD-[0-9]+' docs/proposals/aef-workflow-process-layer-2026-07-02/DISPOSITION-2026-07-28.md | sort -u | wc -l) -ge 15
+grep -q 'WF-A' docs/proposals/aef-workflow-process-layer-2026-07-02/DISPOSITION-2026-07-28.md
+grep -q 'T-279' docs/proposals/aef-workflow-process-layer-2026-07-02/DISPOSITION-2026-07-28.md
+grep -q 'T-283' docs/proposals/aef-workflow-process-layer-2026-07-02/DISPOSITION-2026-07-28.md
+grep -qE 'V9' docs/proposals/aef-workflow-process-layer-2026-07-02/DISPOSITION-2026-07-28.md
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
 #
 # Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
@@ -174,3 +191,18 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-278-process-layer-package-disposition-note-m.md
 - **Context:** Initial task creation
+
+### 2026-07-28T14:55:22Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4472eda9
+- **Timestamp:** 2026-07-28T14:59:21Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-07-28T14:59:20Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
