@@ -8,27 +8,21 @@
 
 ### Framework Reference
 
-**Before beginning any work:**
-1. Initialize context: `fw context init`
-2. Read `.context/handovers/LATEST.md` to understand current state
-3. Review the "Suggested First Action" section
-4. Set focus: `fw context focus T-XXX`
-5. Run `fw metrics` to see project status
-6. If handover feedback section exists, fill it in
+When you need to propose a new free driver, an arc-scoped driver, or sharpen an existing one, the canonical workflow lives in **`policy/prompts/`** — NOT inlined into this CLAUDE.md.
 
-**Before ANY implementation (even if a skill says "start now"):**
-1. Verify a task exists for the work: `fw work-on "name" --type build` or `fw work-on T-XXX`
-2. Confirm focus is set in `.context/working/focus.yaml`
-3. THEN proceed with implementation
+| Bundle file | When to reach for it |
+|-------------|----------------------|
+| `policy/prompts/bvp-driver-session.md` | **Always start here.** Keystone. Three workflows (A=batch-propose, B=discover+sharpen, C=sharpen named topic). Entry/exit conditions, outputs, init refusal, degraded mode. |
+| `policy/prompts/artefact-template.md` | When writing the research artefact (`docs/reports/T-XXXX-bvp-driver-*.md`). YAM
 
 *(truncated — see CLAUDE.md for full section)*
 
 ## Used By (2)
 
-| Component | Relationship |
-|-----------|-------------|
-| `web/blueprints/terminal.py` | called_by |
-| `web/terminal/registry.py` | called_by |
+| Component | Relationship | Description |
+|-----------|--------------|-------------|
+| [terminal](/docs/generated/web-blueprints-terminal) | called_by | Flask blueprint providing the interactive web terminal API with session creation, I/O, resize, and profile-based configuration |
+| [registry](/docs/generated/web-terminal-registry) | called_by | Provides CRUD operations and YAML file persistence for terminal session records stored in .context/sessions/ |
 
 ## Related
 

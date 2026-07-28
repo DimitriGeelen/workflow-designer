@@ -5,7 +5,9 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 FRAMEWORK_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$FRAMEWORK_ROOT/lib/paths.sh"
-HANDOVER_DIR="$CONTEXT_DIR/handovers"
+# HANDOVER_DIR is overridable via env for hermetic testing (T-2366); in
+# production it is unset, so the default below is used unchanged.
+HANDOVER_DIR="${HANDOVER_DIR:-$CONTEXT_DIR/handovers}"
 
 # T-1461: Resolve Watchtower URL once for inline link rendering.
 # Falls back to the literal port file or 3000 if `fw watchtower url` fails — the
@@ -53,6 +55,53 @@ _resolve_commit_task() {
     # Note: focused task fallback was removed (T-556) — handover commits
     # are session-level and must never borrow a work task's ID.
     COMMIT_TASK="T-000"
+}
+
+# T-2588: Shared push leg for both normal handovers and --checkpoint commits.
+# Checkpoint commits previously accumulated locally with no push — exactly the
+# state a checkpoint exists to protect gets stranded if the session dies or
+# the budget gate blocks a later push (T-2587). Push failures are warnings,
+# never a silent skip: the caller sees explicit WARNING lines either way.
+_push_to_remotes() {
+    echo ""
+    echo -e "${CYAN}Pushing to remotes...${NC}"
+    _push_failed=false
+    _push_timeout="${FW_HANDOVER_PUSH_TIMEOUT:-60}"
+    # T-1255 (G-007): When >1 remote is configured AND `origin` is one of them,
+    # push ONLY to origin. Mirroring (e.g. github) is OneDev's job via
+    # .onedev-buildspec.yml's PushRepository job. Pushing directly to mirror
+    # remotes caused github-ahead-of-onedev divergence whenever onedev briefly
+    # 502'd at handover time (T-1253 inception, PL-036).
+    # T-1474: Guard against the no-origin case. If no remote is named `origin`,
+    # there is no canonical source for OneDev to mirror from, so the assumption
+    # that other remotes are "mirrors" is invalid — push to all of them.
+    _remote_count=$(git -C "$PROJECT_ROOT" remote 2>/dev/null | wc -l)
+    if git -C "$PROJECT_ROOT" remote 2>/dev/null | grep -qx 'origin'; then
+        _has_origin=true
+    else
+        _has_origin=false
+    fi
+    while IFS= read -r remote_name; do
+        [ -z "$remote_name" ] && continue
+        if [ "$_has_origin" = true ] && [ "$_remote_count" -gt 1 ] && [ "$remote_name" != "origin" ]; then
+            echo -e "  ${CYAN}Skipping $remote_name (mirrored from origin via PushRepository)${NC}"
+            continue
+        fi
+        if timeout "$_push_timeout" git -C "$PROJECT_ROOT" push --follow-tags "$remote_name" HEAD 2>&1; then
+            echo -e "  ${GREEN}Pushed to $remote_name ✓${NC}"
+        else
+            _exit=$?
+            if [ "$_exit" -eq 124 ]; then
+                echo -e "  ${YELLOW}WARNING: Push to $remote_name timed out after ${_push_timeout}s (non-blocking, T-1277)${NC}" >&2
+            else
+                echo -e "  ${YELLOW}WARNING: Push to $remote_name failed (non-blocking)${NC}" >&2
+            fi
+            _push_failed=true
+        fi
+    done < <(git -C "$PROJECT_ROOT" remote 2>/dev/null)
+    if [ "$_push_failed" = true ]; then
+        echo -e "${YELLOW}Some pushes failed. Run 'git push' manually after resolving.${NC}"
+    fi
 }
 
 # Parse arguments
@@ -170,6 +219,9 @@ CHECKPOINT_EOF
         if [ -n "$GIT_AGENT" ]; then
             git -C "$PROJECT_ROOT" add "$HANDOVER_FILE"
             PROJECT_ROOT="$PROJECT_ROOT" "$GIT_AGENT" commit -m "$COMMIT_TASK: Checkpoint handover $SESSION_ID"
+            # T-2588: push immediately — checkpoints exist to survive session
+            # death, so a checkpoint commit stranded locally defeats the point.
+            _push_to_remotes
         fi
     fi
     exit 0
@@ -223,6 +275,35 @@ ACTIVE_TASKS="${ACTIVE_TASKS%, }"  # Remove trailing comma
 # Get git info
 UNCOMMITTED=$(git -C "$PROJECT_ROOT" status --porcelain 2>/dev/null | wc -l | tr -d ' ')
 RECENT_COMMITS=$(git -C "$PROJECT_ROOT" log -5 --pretty=format:"- %h %s" 2>/dev/null)
+
+# T-100144 (C3 of T-100139): branch divergence vs origin/master. Strand
+# divergence is invisible at session boundaries (live strands were 215-248
+# commits behind master before the inception measured them) — surface it in
+# every handover, and nudge toward `fw integrate run` when merge-back is
+# overdue (behind > FW_BRANCH_BEHIND_WARN, default 50, shared with the
+# T-100143 doctor scan). Silent on master / detached / no origin/master.
+BRANCH_DIVERGENCE=""
+MERGEBACK_NUDGE=""
+if [ -f "$FRAMEWORK_ROOT/lib/branch-hygiene.sh" ]; then
+    . "$FRAMEWORK_ROOT/lib/branch-hygiene.sh"
+    _bd_out=$(fw_branch_divergence "$PROJECT_ROOT" 2>/dev/null || true)
+    _bd_line=$(printf '%s\n' "$_bd_out" | grep '^divergence ' || true)
+    if [ -n "$_bd_line" ]; then
+        _bd_branch=$(echo "$_bd_line" | awk '{print $2}')
+        _bd_ahead=$(echo "$_bd_line" | awk '{print $3}' | cut -d= -f2)
+        _bd_behind=$(echo "$_bd_line" | awk '{print $4}' | cut -d= -f2)
+        BRANCH_DIVERGENCE="**Branch:** \`$_bd_branch\` +${_bd_ahead} / −${_bd_behind} vs origin/master"
+        if printf '%s\n' "$_bd_out" | grep -q '^fork '; then
+            # T-100195: bidirectional fork — a bare `git merge origin/master`
+            # conflicts (T-100194 origin: 100+ conflicts). Reconcile while small,
+            # do NOT recommend a one-way `fw integrate` (it cannot absorb the
+            # ${_bd_behind} commits master has that this branch lacks).
+            MERGEBACK_NUDGE="**⚠ Branch has FORKED from origin/master:** \`$_bd_branch\` is +${_bd_ahead} ahead AND −${_bd_behind} behind (threshold ${FW_BRANCH_BEHIND_WARN:-50}). This is a bidirectional fork, not a lag — a go-live \`git merge origin/master\` will conflict. Reconcile now while the fork is small: merge origin/master INTO this branch and resolve, or reset to origin/master if the unique commits are already landed. (RCA T-100194; safe go-live path: T-100195 Leg 2.)"
+        elif printf '%s\n' "$_bd_out" | grep -q '^nudge '; then
+            MERGEBACK_NUDGE="**Merge-back overdue:** \`$_bd_branch\` is ${_bd_behind} commits behind origin/master (threshold ${FW_BRANCH_BEHIND_WARN:-50}) — land the strand with \`fw integrate run master --push\` before starting new work."
+        fi
+    fi
+fi
 
 # Get tasks touched recently (modified in last day)
 TASKS_TOUCHED=""
@@ -392,6 +473,24 @@ if [ -f "$FRAMEWORK_ROOT/agents/context/session-metrics.sh" ]; then
     fi
 fi
 
+# Step 1.10: Discard manifest (T-2366, arc-012 S4)
+# Write a category-level record of what compaction sheds (tool-results, model
+# turns, working-set files) alongside the handover, so the operator can review
+# post-hoc what the self-compacting model discarded. The continuous-run loop
+# (pre-compact.sh / checkpoint.sh → handover.sh, unified under D-028) and the
+# deprecated `--emergency` alias both route through this normal path. Best-effort:
+# the helper never fails the handover (graceful degradation to a placeholder).
+DISCARD_MANIFEST_LINE=""
+if [ -x "$FRAMEWORK_ROOT/agents/handover/discard-manifest.sh" ]; then
+    if SESSION_ID="$SESSION_ID" HANDOVER_DIR="$HANDOVER_DIR" PROJECT_ROOT="$PROJECT_ROOT" \
+        CONTEXT_DIR="$CONTEXT_DIR" "$FRAMEWORK_ROOT/agents/handover/discard-manifest.sh" \
+        "$SESSION_ID" >/dev/null 2>&1; then
+        DISCARD_MANIFEST_LINE="**Discard Manifest:** \`$SESSION_ID.discard-manifest.yaml\` (category-level compaction discards — T-2366)
+
+"
+    fi
+fi
+
 # Step 2: Create handover template
 echo -e "${YELLOW}Creating handover document...${NC}"
 
@@ -446,7 +545,9 @@ session_narrative: ""
 
 # Session Handover: $SESSION_ID
 
-${RECOVERED_BANNER}## Where We Are
+${DISCARD_MANIFEST_LINE}${RECOVERED_BANNER}## Where We Are
+
+${BRANCH_DIVERGENCE}
 
 $(python3 -c "
 import subprocess, re, collections
@@ -875,6 +976,8 @@ See gaps register above.
 
 ## Suggested First Action
 
+${MERGEBACK_NUDGE}
+
 $(python3 -c "
 import glob, re, os
 tasks_dir = '$TASKS_DIR/active'
@@ -946,6 +1049,17 @@ if [ "${ORPHAN_COUNT:-0}" -gt 0 ]; then
 fi
 
 # Step 3: Update LATEST.md (symlink so edits to session file auto-reflect)
+# T-2374: only repoint LATEST after confirming the body file was actually written
+# and is non-empty. Updating the symlink unconditionally (the old behavior) left
+# LATEST dangling whenever generation failed/partial — a silent break that
+# degrades /resume and SessionStart:compact reinjection (Directive-2). On failure,
+# leave the previous (valid) LATEST untouched and exit non-zero so callers (e.g.
+# pre-compact.sh) can detect it.
+if [ ! -s "$HANDOVER_FILE" ]; then
+    echo -e "${RED:-}ERROR: handover body not written or empty: $HANDOVER_FILE${NC:-}" >&2
+    echo "  LATEST.md left untouched (still points to the last valid handover)." >&2
+    exit 1
+fi
 ln -sf "$(basename "$HANDOVER_FILE")" "$HANDOVER_DIR/LATEST.md"
 
 echo ""
@@ -988,45 +1102,7 @@ if [ "$AUTO_COMMIT" = true ]; then
         # T-1341 (L-019): default raised 15s → 60s because pre-push hook runs
         # fw audit (~10s), leaving too little headroom for the actual push at 15s.
         # Override via FW_HANDOVER_PUSH_TIMEOUT.
-        echo ""
-        echo -e "${CYAN}Pushing to remotes...${NC}"
-        _push_failed=false
-        _push_timeout="${FW_HANDOVER_PUSH_TIMEOUT:-60}"
-        # T-1255 (G-007): When >1 remote is configured AND `origin` is one of them,
-        # push ONLY to origin. Mirroring (e.g. github) is OneDev's job via
-        # .onedev-buildspec.yml's PushRepository job. Pushing directly to mirror
-        # remotes caused github-ahead-of-onedev divergence whenever onedev briefly
-        # 502'd at handover time (T-1253 inception, PL-036).
-        # T-1474: Guard against the no-origin case. If no remote is named `origin`,
-        # there is no canonical source for OneDev to mirror from, so the assumption
-        # that other remotes are "mirrors" is invalid — push to all of them.
-        _remote_count=$(git -C "$PROJECT_ROOT" remote 2>/dev/null | wc -l)
-        if git -C "$PROJECT_ROOT" remote 2>/dev/null | grep -qx 'origin'; then
-            _has_origin=true
-        else
-            _has_origin=false
-        fi
-        while IFS= read -r remote_name; do
-            [ -z "$remote_name" ] && continue
-            if [ "$_has_origin" = true ] && [ "$_remote_count" -gt 1 ] && [ "$remote_name" != "origin" ]; then
-                echo -e "  ${CYAN}Skipping $remote_name (mirrored from origin via PushRepository)${NC}"
-                continue
-            fi
-            if timeout "$_push_timeout" git -C "$PROJECT_ROOT" push --follow-tags "$remote_name" HEAD 2>&1; then
-                echo -e "  ${GREEN}Pushed to $remote_name ✓${NC}"
-            else
-                _exit=$?
-                if [ "$_exit" -eq 124 ]; then
-                    echo -e "  ${YELLOW}WARNING: Push to $remote_name timed out after ${_push_timeout}s (non-blocking, T-1277)${NC}" >&2
-                else
-                    echo -e "  ${YELLOW}WARNING: Push to $remote_name failed (non-blocking)${NC}" >&2
-                fi
-                _push_failed=true
-            fi
-        done < <(git -C "$PROJECT_ROOT" remote 2>/dev/null)
-        if [ "$_push_failed" = true ]; then
-            echo -e "${YELLOW}Some pushes failed. Run 'git push' manually after resolving.${NC}"
-        fi
+        _push_to_remotes
     else
         error "Git agent not found. Manual commit required."
         echo "Run: git commit -m \"$COMMIT_TASK: Session handover $SESSION_ID\""

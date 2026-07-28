@@ -22,6 +22,34 @@ APP_DIR = Path(__file__).resolve().parent
 FRAMEWORK_ROOT = APP_DIR.parent
 
 
+# ---------------------------------------------------------------------------
+# Test-sentinel filter (T-2228 / T-2225 Slice 3)
+# ---------------------------------------------------------------------------
+# Tests use the `T-Test-NNN` sentinel namespace (T-2226 convention) instead of
+# numeric `T-NNNN` ids to keep test fixtures from colliding with real tasks.
+# Slice 1 (T-2226) introduced `tmp_project_root` to isolate writes to tmp_path.
+# This Layer 3 filter is defense-in-depth: if a test ever leaks a real
+# `.tasks/active/T-Test-001.md` file into PROJECT_ROOT (helper bypassed, future
+# author skips the fixture), production scanners — audit / fabric / episodic /
+# task-list — silently skip it instead of presenting it as a real task.
+#
+# Risk-free: real tasks are filed via `fw work-on` / `fw task create` which
+# emit numeric `T-NNNN` ids; the `T-Test-` prefix is reserved for fixtures.
+def is_test_sentinel(name) -> bool:
+    """True if `name` (path or basename or task-id) is a T-Test-NNN sentinel.
+
+    Matches `T-Test-001`, `T-Test-foo.md`, `T-Test-bar.yaml`, and full paths
+    ending in any of those. Used by production scanners to filter test fixtures
+    that may have leaked into a real `.tasks/active/` or `.context/episodic/`
+    directory. See T-2225 / T-2228, docstring at top of section.
+    """
+    try:
+        basename = Path(str(name)).name
+    except (TypeError, ValueError):
+        return False
+    return basename.startswith("T-Test-")
+
+
 def _discover_project_root(start: Path) -> Path | None:
     """Walk up from `start` looking for `.framework.yaml` (consumer marker).
 
@@ -124,6 +152,7 @@ NAV_GROUPS = [
     ("Architecture", [
         ("Fabric",      "fabric.fabric_overview",   None),
         ("Explorer",    "fabric.fabric_graph",      None),
+        ("Designer",    "designer.designer",         None),
         ("Terminal",    "terminal.terminal_page",    None),
         ("Sessions",    "sessions_page.sessions_page", None),
     ]),
@@ -294,7 +323,11 @@ def build_ambient():
     if current and re_mod.match(r"^T-\d{3,}$", str(current)):
         ambient["focus_task"] = str(current)
     if active_dir.exists():
-        active_tasks = sorted(active_dir.glob("T-*.md"), key=task_id_sort_key)
+        # T-2228: skip T-Test-NNN sentinels (test fixtures leaked into PROJECT_ROOT).
+        active_tasks = sorted(
+            (p for p in active_dir.glob("T-*.md") if not is_test_sentinel(p)),
+            key=task_id_sort_key,
+        )
         if active_tasks:
             if not ambient["focus_task"]:
                 # Fallback: first active task alphabetically.
@@ -485,6 +518,9 @@ _CODE_URL_HTML_RE_SHARED = re_mod.compile(r"<code>(https?://[^<\s]+?)</code>")
 
 VIEWABLE_DIR_PREFIXES = (
     "docs/reports/",
+    "docs/articles/",
+    "docs/plans/",
+    "docs/dispatch-templates/",
     ".tasks/active/",
     ".tasks/completed/",
     ".context/handovers/",
@@ -507,6 +543,22 @@ VIEWABLE_DIR_PREFIXES = (
 
 VIEWABLE_EXTENSIONS = ("md", "yaml", "yml", "py", "sh", "bats", "json", "toml")
 
+# T-2281 (T-2275 prong B): depth-0 root files cannot match a directory prefix
+# by definition. Adding them to the prefix tuple would mis-scope `README.md`
+# as a directory. The explicit allowlist bypasses the prefix + extension
+# checks so these specific filenames are linkable in rendered task content.
+# Extensionless entries (VERSION, LICENSE, CHANGELOG) are intentionally
+# included even though they don't satisfy VIEWABLE_EXTENSIONS — root files
+# are an allowlist, not a generic depth-0 rule.
+ROOT_FILES = frozenset({
+    "README.md",
+    "CLAUDE.md",
+    "FRAMEWORK.md",
+    "VERSION",
+    "LICENSE",
+    "CHANGELOG",
+})
+
 
 def is_viewable_path(filepath: str) -> bool:
     """Return True iff `filepath` (relative to PROJECT_ROOT) is servable by /file/.
@@ -517,11 +569,17 @@ def is_viewable_path(filepath: str) -> bool:
 
     Path-traversal guards live HERE, not in the route — so any caller (linker,
     route, future surfaces) gets the same enforcement.
+
+    T-2281 (T-2275): depth-0 root files in ROOT_FILES bypass the prefix +
+    extension checks (e.g. README.md, VERSION). Allowlist, not generic
+    depth-0.
     """
     if not filepath:
         return False
     if ".." in filepath:
         return False
+    if filepath in ROOT_FILES:
+        return True
     if not any(filepath.startswith(d) for d in VIEWABLE_DIR_PREFIXES):
         return False
     ext = filepath.rsplit(".", 1)[-1] if "." in filepath else ""
@@ -542,6 +600,12 @@ def _build_artefact_path_re():
     # escape regex metachars (the leading `.` in `.tasks/`, `.context/`, etc.)
     dirs = "|".join(re_mod.escape(d) for d in VIEWABLE_DIR_PREFIXES)
     exts = "|".join(re_mod.escape(e) for e in VIEWABLE_EXTENSIONS)
+    # T-2281 (T-2275): root-files alternative. Sorted for deterministic regex.
+    # The lookbehind on the root-file branch refuses matches when the filename
+    # is preceded by a path-body character — e.g. "foo/README.md" must NOT match
+    # the standalone "README.md" sub-tail (a directory-prefixed README.md is
+    # handled by the dir-branch above; "myREADME.md" must not match at all).
+    root_files = "|".join(re_mod.escape(f) for f in sorted(ROOT_FILES))
     pattern = (
         # Three guards to keep idempotent and avoid wrapping an already-linked path:
         #   (?<!href=")  — path is not the href target of an existing <a>
@@ -551,8 +615,14 @@ def _build_artefact_path_re():
         r'(?<!/file/)'
         r'(?<!">)'
         r'(`?)'
-        r'((?:' + dirs + r')'
-        r'[A-Za-z0-9_/.-]+\.(?:' + exts + r'))'
+        r'('
+            # Branch 1: prefix + path-body + extension (existing T-1722 shape).
+            r'(?:(?:' + dirs + r')'
+            r'[A-Za-z0-9_/.-]+\.(?:' + exts + r'))'
+            r'|'
+            # Branch 2: root-file allowlist, word-boundary-guarded.
+            r'(?<![A-Za-z0-9_/.-])(?:' + root_files + r')'
+        r')'
         r'(`?)'
     )
     return re_mod.compile(pattern)
@@ -694,9 +764,11 @@ def extract_recommendation(body: str) -> dict:
         end = matches[idx + 1].start() if idx + 1 < len(matches) else len(section)
         body_span = section[start:end].strip()
         if bucket == "recommendation":
-            v = re_mod.match(r"\s*(KEEP-OPEN|NO-GO|CLOSE|GO|DEFER)\b", body_span, re_mod.IGNORECASE)
+            # NO_GO underscore form tolerated and normalized to NO-GO (T-1391
+            # contract; T-1575's alternation dropped it — T-2581 regression fix).
+            v = re_mod.match(r"\s*(KEEP-OPEN|NO[-_]GO|CLOSE|GO|DEFER)\b", body_span, re_mod.IGNORECASE)
             if v:
-                out["verdict"] = v.group(1).upper()
+                out["verdict"] = v.group(1).upper().replace("_", "-")
         elif bucket == "rationale":
             buckets["rationale"].append(body_span)
         elif bucket == "evidence":
@@ -837,6 +909,47 @@ def extract_reviewer_verdict(body: str) -> dict:
     return out
 
 
+def extract_recommendation_claims_verdict(body: str) -> dict:
+    """Extract the claims-validator verdict from `## Recommendation Verdict (vX.Y)`.
+
+    Returns dict with `overall` (str|None — CONFIRMED/CONTRADICTED/UNVERIFIED),
+    `claims` (list of {raw, kind, status, detail}), `total` (int) and
+    `passed` (int). `overall is None` means no verdict block exists.
+
+    Origin: T-100188 (T-100186 GO slice B). The block is written by
+    lib/reviewer/recommendation_claims.py (T-100187) when `fw reviewer` runs
+    on an inception task.
+    """
+    out = {"overall": None, "claims": [], "total": 0, "passed": 0}
+    if not body:
+        return out
+    m = re_mod.search(
+        r"^## Recommendation Verdict \(v[0-9.]+\)[^\n]*\n(.*?)(?=^#{2,} |\Z)",
+        body, re_mod.MULTILINE | re_mod.DOTALL,
+    )
+    if not m:
+        return out
+    section = m.group(1)
+    overall_m = re_mod.search(r"^- \*\*Overall:\*\*\s*([A-Z]+)", section, re_mod.MULTILINE)
+    if overall_m:
+        out["overall"] = overall_m.group(1).strip()
+    for row in re_mod.finditer(r"^\| `([^`|]+)` \| (\w+) \| ([^|]+) \|", section, re_mod.MULTILINE):
+        cell = row.group(3).strip()
+        if "pass" in cell:
+            status = "pass"
+        elif "fail" in cell:
+            status = "fail"
+        else:
+            status = "unverifiable"
+        detail = cell.split("—", 1)[1].strip() if "—" in cell else ""
+        out["claims"].append(
+            {"raw": row.group(1), "kind": row.group(2), "status": status, "detail": detail}
+        )
+    out["total"] = len(out["claims"])
+    out["passed"] = sum(1 for c in out["claims"] if c["status"] == "pass")
+    return out
+
+
 # ---------------------------------------------------------------------------
 # Task metadata cache (T-1233: avoid re-reading 1200+ files on every request)
 # ---------------------------------------------------------------------------
@@ -863,6 +976,8 @@ def get_all_task_metadata():
         if not task_dir.exists():
             continue
         for f in sorted(task_dir.glob("T-*.md"), key=task_id_sort_key):
+            if is_test_sentinel(f):  # T-2228: skip T-Test-NNN sentinels
+                continue
             fm, _ = parse_frontmatter(f.read_text())
             if fm:
                 fm["_location"] = location
@@ -898,6 +1013,8 @@ def get_episodic_tags():
     episodic_dir = PROJECT_ROOT / ".context" / "episodic"
     if episodic_dir.exists():
         for f in episodic_dir.glob("T-*.yaml"):
+            if is_test_sentinel(f):  # T-2228: skip T-Test-NNN sentinels
+                continue
             try:
                 with open(f) as fh:
                     edata = yaml.safe_load(fh)

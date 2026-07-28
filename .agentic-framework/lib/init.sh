@@ -295,6 +295,27 @@ learnings:
 LYAML
     fi
 
+    # T-2261 / arc-006 (T-2229 Slice 2A): bootstrap BVP policy files from
+    # framework templates. Mirror of the practices/decisions/patterns cp pattern
+    # above. Per-file idempotent — pre-existing consumer customisation survives.
+    # Skipped silently when --force re-runs: the destination existence check
+    # handles re-init without trampling customisations.
+    mkdir -p "$target_dir/policy"
+    #@init: yaml-2bv policy/value-drivers.yaml protected_drivers
+    # BVP value-drivers definitions (T-2229)
+    if [ ! -f "$target_dir/policy/value-drivers.yaml" ]; then
+        if [ -f "$FRAMEWORK_ROOT/policy/value-drivers.yaml" ]; then
+            cp "$FRAMEWORK_ROOT/policy/value-drivers.yaml" "$target_dir/policy/value-drivers.yaml"
+        fi
+    fi
+    #@init: md-3bv policy/bvp-scoring-rubric.md
+    # BVP scoring rubric (T-1921/T-2259)
+    if [ ! -f "$target_dir/policy/bvp-scoring-rubric.md" ]; then
+        if [ -f "$FRAMEWORK_ROOT/policy/bvp-scoring-rubric.md" ]; then
+            cp "$FRAMEWORK_ROOT/policy/bvp-scoring-rubric.md" "$target_dir/policy/bvp-scoring-rubric.md"
+        fi
+    fi
+
     #@init: yaml-9he .context/project/assumptions.yaml assumptions
     # Tracked assumptions
     if [ ! -f "$target_dir/.context/project/assumptions.yaml" ] || [ "${force:-false}" = true ]; then
@@ -419,13 +440,25 @@ CYAML
     fi
 
     # --- Activate governance: initialize session context (T-002) ---
+    # F5 (T-2444): route through the project's vendored fw — the SAME entry
+    # point as the `fw context init` recovery — so context.sh runs with the
+    # full env bin/fw exports. The earlier direct `context.sh init` call set
+    # only PROJECT_ROOT, so context.sh's `set -euo pipefail` aborted on env
+    # bin/fw would have provided, while the recovery (same script via bin/fw)
+    # succeeded. The old `2>/dev/null` masked the real error (Directive-2) —
+    # capture stderr and surface it on failure instead of discarding it.
     echo ""
     echo -e "Activating governance..."
-    local context_init_script="$FRAMEWORK_ROOT/agents/context/context.sh"
-    if [ -x "$context_init_script" ]; then
-        PROJECT_ROOT="$target_dir" "$context_init_script" init 2>/dev/null && \
-            echo -e "  ${GREEN}✓${NC}  Session initialized (governance active)" || \
+    local si_fw="$target_dir/.agentic-framework/bin/fw"
+    [ -x "$si_fw" ] || si_fw="$FRAMEWORK_ROOT/bin/fw"
+    if [ -x "$si_fw" ]; then
+        local si_err
+        if si_err="$(PROJECT_ROOT="$target_dir" "$si_fw" context init 2>&1 >/dev/null)"; then
+            echo -e "  ${GREEN}✓${NC}  Session initialized (governance active)"
+        else
             echo -e "  ${YELLOW}⚠${NC}  Session init failed — run 'fw context init' manually"
+            [ -n "$si_err" ] && echo "$si_err" | sed 's/^/      /' >&2
+        fi
     fi
 
     # --- Copy onboarding task templates (T-460) ---
@@ -620,6 +653,15 @@ generate_claude_code_config() {
             "command": "$fw_prefix hook post-compact-resume"
           }
         ]
+      },
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$fw_prefix hook post-compact-resume"
+          }
+        ]
       }
     ],
     "PreToolUse": [
@@ -793,11 +835,15 @@ SJSON
     "termlink": {
       "command": "termlink",
       "args": ["mcp", "serve"]
+    },
+    "fw": {
+      "command": "python3",
+      "args": [".agentic-framework/agents/mcp/framework_mcp_server.py"]
     }
   }
 }
 MCPJSON
-        echo -e "  ${GREEN}OK${NC}  .mcp.json (MCP servers: context7, playwright, termlink)"
+        echo -e "  ${GREEN}OK${NC}  .mcp.json (MCP servers: context7, playwright, termlink, fw)"
     else
         echo -e "  ${YELLOW}SKIP${NC}  .mcp.json already exists"
     fi

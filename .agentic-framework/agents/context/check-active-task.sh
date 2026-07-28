@@ -46,6 +46,16 @@ except:
     print('')
 " 2>/dev/null)
 
+# T-2463/T-2465 (OBS-080): re-anchor PROJECT_ROOT to the per-call stdin `cwd` so a
+# worktree session reads the worktree's focus, not main's. In a worktree session
+# this gate is invoked as <main>/bin/fw hook and bin/fw resolves PROJECT_ROOT to
+# the MAIN repo; the shared resolver re-anchors to the project the tool actually
+# ran in. Logic now lives in lib/paths.sh:fw_reanchor_from_cwd (generalized from
+# the original inline block so every hook shares one implementation). No-op for
+# non-worktree sessions. Recompute FOCUS_FILE after, since it caches PROJECT_ROOT.
+fw_reanchor_from_hook_stdin "$INPUT"
+FOCUS_FILE="$PROJECT_ROOT/.context/working/focus.yaml"
+
 # --- Bash tool: safe-command fast path (T-650) ---
 if [ "$TOOL_NAME" = "Bash" ]; then
     BASH_CMD=$(echo "$INPUT" | python3 -c "
@@ -63,6 +73,17 @@ except:
             exit 0
             ;;
     esac
+
+    # T-2410 case 2: universal --help / --version exemption.
+    # Any command with --help or --version is read-only by convention (the flag
+    # short-circuits all real work in every fw subcommand and 99% of other
+    # tools). Without this, `fw upstream --help` blocked at the work-completed
+    # focus gate purely because `upstream` is not in the safe-list — but the
+    # user just wanted to read help. Matches at any position so `cd … && fw
+    # upstream --help` is also exempt.
+    if [[ "$BASH_CMD" =~ (^|[[:space:]])(--help|--version)([[:space:]]|$) ]]; then
+        exit 0
+    fi
 
     # Source safe-command allowlist
     source "$SCRIPT_DIR/lib/safe-commands.sh" 2>/dev/null || true
@@ -487,10 +508,7 @@ if [ -n "$ACTIVE_FILE" ] && grep -q "^workflow_type: inception" "$ACTIVE_FILE" 2
         # Extract Open Questions section content (between header and next ## heading)
         OQ_SECTION=$(awk '/^## Open Questions/{f=1; next} /^## /{f=0} f' "$ACTIVE_FILE" 2>/dev/null)
         # Strip HTML comments so the template guidance does not count.
-        # G-009 (T-211): the one-line strip must tolerate '>' inside comments
-        # (OQ guidance cites <tag>s). `[^>]*` stops at the first '>', leaving the
-        # comment, and the range strip then swallows real IW-N entries → mis-count.
-        # `([^-]|-[^-]|--[^>])*` matches any char except a literal '-->' terminator.
+        # T-2554: minimal match to first '-->' — tolerates '>' inside the comment.
         OQ_STRIPPED=$(echo "$OQ_SECTION" | sed -E 's/<!--([^-]|-[^-]|--[^>])*-->//g' | sed '/<!--/,/-->/d')
         # Count real IW-N entries
         HAS_IW=$(echo "$OQ_STRIPPED" | grep -cE '^\s*-\s*\*\*IW-[0-9]+:' 2>/dev/null || true)
@@ -543,24 +561,12 @@ fi
 # Inception tasks have their own gate above; skip them here.
 if [ -n "$ACTIVE_FILE" ]; then
     WORKFLOW_TYPE=$({ grep "^workflow_type:" "$ACTIVE_FILE" 2>/dev/null || true; } | head -1 | sed 's/workflow_type:[[:space:]]*//')
-    # T-169: self-unblock exemption. This gate governs SOURCE-FILE edits, but it also
-    # sees Bash commands (FILE_PATH empty). `fw task update <CURRENT_TASK> … --type …`
-    # is a metadata change — and is the exact remediation this gate prints at the
-    # "Or change to inception" line below. Without this exemption the gate blocks its
-    # own fix (circular). Scope it narrowly: only the type-conversion of the FOCUSED
-    # task is exempt; general source edits under a placeholder build task stay blocked.
-    TYPE_CONVERT_EXEMPT=0
-    if [ "$TOOL_NAME" = "Bash" ] && [ -n "${BASH_CMD:-}" ] \
-       && [[ "$BASH_CMD" =~ (^|[[:space:]]|/)fw[[:space:]]+task[[:space:]]+update[[:space:]]+${CURRENT_TASK}([[:space:]]|$) ]] \
-       && [[ "$BASH_CMD" =~ (^|[[:space:]])--type([[:space:]]|=) ]]; then
-        TYPE_CONVERT_EXEMPT=1
-    fi
     case "$WORKFLOW_TYPE" in
         build|refactor|test|decommission)
             AC_SECTION=$(sed -n '/^## Acceptance Criteria/,/^## [^A]/p' "$ACTIVE_FILE" 2>/dev/null | sed '$d')
             HAS_PLACEHOLDER=$(echo "$AC_SECTION" | grep -ciE '\[(First|Second|Third|Fourth|Fifth) criterion\]' 2>/dev/null || true)
             REAL_AC_COUNT=$(echo "$AC_SECTION" | grep -cE '^\s*-\s*\[[ x]\]' 2>/dev/null || true)
-            if [ "$TYPE_CONVERT_EXEMPT" = "0" ] && { [ "${HAS_PLACEHOLDER:-0}" -gt 0 ] || [ "${REAL_AC_COUNT:-0}" -eq 0 ]; }; then
+            if [ "${HAS_PLACEHOLDER:-0}" -gt 0 ] || [ "${REAL_AC_COUNT:-0}" -eq 0 ]; then
                 echo "" >&2
                 echo "BLOCKED: Task $CURRENT_TASK is a $WORKFLOW_TYPE task with placeholder/missing ACs." >&2
                 echo "" >&2

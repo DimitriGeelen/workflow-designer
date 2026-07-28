@@ -23,6 +23,7 @@ NOT in v1.0 (deferred):
 
 from __future__ import annotations
 
+import fnmatch
 import hashlib
 import json
 import os
@@ -636,6 +637,19 @@ _SKIP_AS_PASS_RE = re.compile(
 # than a lookbehind in `_SKIP_AS_PASS_RE` and survives nesting better.
 _QUOTED_SUBSTR_RE = re.compile(r"'[^']*'|\"[^\"]*\"")
 
+# T-2583 (OBS-091): template boilerplate lives in HTML comments — e.g. a task
+# that deleted the `## RCA` heading but kept the template's guidance comment
+# leaves `...Use --skip-rca to bypass (logged).` inside the Verification
+# section (which runs to the next `## `). HTML comments are never executed by
+# the P-011 gate, so they can't skip anything — blank them (newline-preserving,
+# so finding line numbers stay stable) before scanning. Sibling to L-488
+# (disposition comment-strip). Empirical FP: T-100142.
+_HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
+
+
+def _blank_html_comments(text: str) -> str:
+    return _HTML_COMMENT_RE.sub(lambda m: "\n" * m.group(0).count("\n"), text)
+
 # T-2177: suppress when the line carries a real output assertion on the same
 # logical command. A `--dry-run` followed by `| grep -q PAT` or `&& test -f X`
 # is simulation-with-check, not skip-as-pass. Empirical FP: T-2072 line 9
@@ -660,6 +674,10 @@ def detect_skip_as_pass(verification_section: str) -> list[Finding]:
     findings: list[Finding] = []
     if not verification_section:
         return findings
+    # T-2583 (OBS-091): template guidance in HTML comments is not executable —
+    # strip it (newline-preserving) so boilerplate like "Use --skip-rca to
+    # bypass (logged)" never fires.
+    verification_section = _blank_html_comments(verification_section)
     for lineno, raw in enumerate(verification_section.splitlines(), start=1):
         line = raw.strip()
         if not line or line.startswith("#"):
@@ -693,13 +711,61 @@ _INTEGRATION_AC_RE = re.compile(
 )
 _UNIT_PATH_RE = re.compile(r"\btests?/unit\b|\bspec/unit\b|_unit_test|test_unit_")
 
+# T-2640: runtime-nature spawn signals. A test file that spawns a subprocess,
+# browser, or PTY is integration REGARDLESS of its directory name — the path
+# heuristic cannot see runtime nature (832 foreign-corpus FP: their
+# tests/test_t258_annotation_seam.py drives the real editor in a real iframe
+# via a Playwright-CDP node harness, spawned with subprocess.run; rail 240
+# fixture). Content check, capped read, suppresses the finding.
+_SPAWN_SIGNAL_RE = re.compile(
+    r"""(?x)
+    \bsubprocess\.(?:run|Popen|check_output|check_call|call)\b |
+    \bos\.system\b            |
+    \bpexpect\.               |
+    \bpty\.spawn\b            |
+    \bplaywright\b            |
+    \bchromium\b              |
+    \bpuppeteer\b             |
+    \bCDP\b                   |
+    chrome-remote-interface   |
+    \btermlink\s+(?:spawn|dispatch|exec|interact)\b
+    """
+)
+_TEST_FILE_IN_LINE_RE = re.compile(r"\btests?/[\w./-]+\.(?:py|sh|bats|js|mjs|ts)\b")
 
-def detect_mock_only_integration(ac_section: str, verification_section: str) -> list[Finding]:
+
+def _spawn_signal_in_referenced_tests(lines: list[str], task_path) -> bool:
+    """True when any test file referenced on the given verification lines
+    exists on disk and contains a spawn signal (subprocess/browser/CDP/PTY).
+    Repo root derived from task_path by the same policy/-walk-up used in
+    detect_ac_evidence_untick; unreadable/missing files contribute nothing."""
+    if task_path is None:
+        return False
+    repo_root = task_path.parent
+    while repo_root != repo_root.parent and not (repo_root / "policy").is_dir():
+        repo_root = repo_root.parent
+    for line in lines:
+        for rel in _TEST_FILE_IN_LINE_RE.findall(line):
+            f = repo_root / rel
+            try:
+                content = f.read_text(errors="replace")[:262144]
+            except OSError:
+                continue
+            if _SPAWN_SIGNAL_RE.search(content):
+                return True
+    return False
+
+
+def detect_mock_only_integration(
+    ac_section: str, verification_section: str, task_path=None
+) -> list[Finding]:
     """AC promises integration but verification only exercises tests/unit/.
 
     Heuristic — fires when:
       - any AC mentions integration / e2e / cross-process, AND
-      - verification commands only reference tests/unit/ paths (no integration).
+      - verification commands only reference tests/unit/ paths (no integration), AND
+      - (T-2640) no referenced test file contains a spawn signal — runtime
+        nature (subprocess/browser/CDP) counts as integration regardless of path.
     """
     findings: list[Finding] = []
     if not ac_section or not verification_section:
@@ -721,6 +787,8 @@ def detect_mock_only_integration(ac_section: str, verification_section: str) -> 
         return findings  # no test paths referenced at all → not this pattern
     if has_integration_path:
         return findings  # actually runs integration tests
+    if _spawn_signal_in_referenced_tests(test_path_lines, task_path):
+        return findings  # T-2640: spawns a process/browser → integration by nature
     # Only unit-test paths but AC promises integration
     findings.append(
         Finding(
@@ -826,8 +894,11 @@ _HUMAN_AC_MECHANICAL_RE = re.compile(
         # "block message names X / names the X / names current focus"
         \bnames?\s+(the\s+|current\s+|missing\s+)?\S |
         # "shows X / shows the Y / shows current Z"  (NB: taste gate suppresses
-        # "shows good", "shows rhythm" via _HUMAN_AC_TASTE_RE)
-        \bshows?\s+(the\s+|current\s+|missing\s+)?\S |
+        # "shows good", "shows rhythm" via _HUMAN_AC_TASTE_RE).
+        # Negation objects excluded (T-2641): "maps show no prompt" is a
+        # UI-absence assertion, not grep-able conformance — 832 foreign-corpus
+        # FP on their T-100 (rail 240 fixture).
+        \bshows?\s+(?!no\b)(the\s+|current\s+|missing\s+)?\S |
         # "points at X / points to X"
         \bpoints?\s+(at|to)\b |
         # "contains the override flag / contains the focus name"
@@ -863,7 +934,19 @@ _HUMAN_AC_TASTE_RE = re.compile(
         acceptable\s+feel    |
         looks?\s+good   |
         UX              |
-        cohesive
+        cohesive        |
+        # T-2641: nuisance/salience taste vocabulary — 832 foreign-corpus FP:
+        # AC line "Nudge is helpful, not naggy" carried no recognised taste
+        # token, so the Gate-2b suppression that should have saved it never
+        # fired (their T-100, rail 240 fixture).
+        naggy           |
+        \bnag(?:s|ged|ging)?\b |
+        \bsubtle\b      |
+        unobtrusive     |
+        intrusive       |
+        \bnoisy\b       |
+        distracting     |
+        jarring
     )
     """
 )
@@ -1530,6 +1613,34 @@ def _has_citation(text: str) -> bool:
     return any(p.search(text) for p in _CITATION_PATTERNS)
 
 
+def _extract_rationale(entry_text: str) -> str | None:
+    """Rationale text of one IW-N entry, including wrapped continuation lines.
+
+    T-100159 (pickup 074 defect 2): the old single-line regex truncated a
+    rationale that wraps onto continuation lines, so a citation on line 2+
+    was invisible to _has_citation → false answered-without-citation CONCERN.
+    Accumulate from the `rationale:` line until the next field (`key: …`),
+    the next list bullet, or a blank line. Returns None when no `rationale:`
+    line exists (Check C distinguishes missing from empty).
+    """
+    lines = entry_text.splitlines()
+    for i, ln in enumerate(lines):
+        m = re.match(r"^\s*rationale:\s*(.*)$", ln)
+        if not m:
+            continue
+        parts = [m.group(1).strip()]
+        for cont in lines[i + 1:]:
+            if not cont.strip():
+                break
+            if re.match(r"^\s*[A-Za-z_][\w-]*:\s", cont):  # next field
+                break
+            if re.match(r"^\s*-\s", cont):  # next bullet
+                break
+            parts.append(cont.strip())
+        return " ".join(p for p in parts if p)
+    return None
+
+
 def detect_disposition_completeness(
     meta: dict | None,
     body: str,
@@ -1558,6 +1669,15 @@ def detect_disposition_completeness(
     oq_section = extract_section(body, "Open Questions")
     if not oq_section:
         return findings
+
+    # T-2449/OBS-081: strip `<!-- … -->` before slicing IW-N entries. The Open
+    # Questions template (.tasks/templates/inception.md) ships a documentation
+    # example `- **IW-1: <question text>** … disposition: … rationale: <one-line>`
+    # inside an HTML comment. Without stripping, the slicer parses that placeholder
+    # as a real entry and emits a spurious answered-without-citation CONCERN
+    # (origin T-2447). Sibling-parity with the AC parser, which already strips via
+    # the same helper (L-414).
+    oq_section = _strip_html_comments(oq_section)
 
     # Find IW-N entries and slice each entry's lines
     entries: list[tuple[int, str, int]] = []  # (iw_n, entry_text, start_line)
@@ -1591,7 +1711,7 @@ def detect_disposition_completeness(
     for iw_n, entry_text, _start in entries:
         # Check A/B: disposition line
         disp_match = re.search(r"^\s*disposition:\s*(\S+)", entry_text, re.MULTILINE)
-        rat_match = re.search(r"^\s*rationale:\s*(.+?)$", entry_text, re.MULTILINE)
+        rationale = _extract_rationale(entry_text)
 
         if not disp_match:
             findings.append(
@@ -1626,7 +1746,7 @@ def detect_disposition_completeness(
             continue
 
         # Check C: rationale present + non-empty
-        if not rat_match or not rat_match.group(1).strip():
+        if not rationale:
             findings.append(
                 Finding(
                     pattern_id="disposition-incomplete",
@@ -1641,7 +1761,6 @@ def detect_disposition_completeness(
             continue
 
         # Check D: answered without citation (sibling to T-2145 decision-without-evidence)
-        rationale = rat_match.group(1).strip()
         if disp_value == "answered" and not _has_citation(rationale):
             findings.append(
                 Finding(
@@ -2123,6 +2242,188 @@ def detect_ac_evidence_untick(
     return findings
 
 
+# ───────── write-set-underdeclared detector (T-2504, T-2324 IW-4) ─────────
+#
+# Catches tasks that declare `write_set:` but whose body references file paths
+# in known source/governance dirs that are not covered by any declared glob.
+# Under-declaration is the dangerous error for parallel dispatch: two workers
+# dispatched on "disjoint" write-sets may collide if the sets are incomplete.
+# Over-declaration is safe — do NOT flag it.
+#
+# Conservative gates (all must hold before flagging a path):
+#   1. write_set: present and non-empty in frontmatter
+#   2. Path appears in body with write-indicating context (near write verb OR
+#      inside a code-fence block, OR in an AC line that names it directly)
+#   3. Path sits under a known source/governance directory prefix
+#   4. No declared write_set glob covers the path (fnmatch check)
+#
+# Heuristic, partial lie-severity → CONCERN, needs_human=no.
+# False negatives preferred over false positives at v1 — body text is advisory
+# evidence, not an exhaustive write-set; the orchestrator's blast-radius check
+# (v2) is the authoritative gate.
+#
+# Origin: T-2324 GO (2026-06-26) named IW-4 as the single forward gap.
+
+# Known source/governance directory prefixes — paths under these dirs should
+# be declared in write_set: if the task edits them.
+_WRITE_SET_SOURCE_PREFIXES = (
+    "lib/", "agents/", "bin/", "tests/", "web/", "policy/",
+    ".tasks/", ".context/", "scripts/", "deploy/", "tools/", "prompts/",
+    "docs/reports/",
+)
+
+# Glob-extended for write_set: patterns that refer to governance-plane paths.
+# (Tasks can legitimately declare governance-plane paths.)
+
+# Inline path pattern — matches relative file paths containing at least one `/`.
+# Intentionally broad; source-dir and write-context gates narrow the signal.
+_BODY_PATH_RE = re.compile(
+    r"\b((?:[a-zA-Z0-9_.@-]+/)+[a-zA-Z0-9_.-]+\.[a-zA-Z]{1,8})\b"
+)
+
+# Write-indicating verbs. Conservative set — only clear mutation verbs.
+_WRITE_VERB_RE = re.compile(
+    r"\b(writes?|edits?|creates?|updates?|modif(?:y|ies)|implements?|"
+    r"adds?|generates?|emits?|registers?|appends?|inserts?|extends?|"
+    r"replaces?|overwrites?)\b",
+    re.IGNORECASE,
+)
+
+# Sections whose paths are NOT write targets (read-only / query / nav context).
+_READ_ONLY_SECTION_NAMES = {"Verification", "Reviewer Verdict"}
+
+
+def _body_without_read_only_sections(body: str) -> str:
+    """Strip Verification and Reviewer Verdict sections from body.
+
+    Verification lines are shell commands that READ to verify, not writes.
+    Reviewer Verdict is auto-generated and never declared in write_set:.
+    """
+    result_parts: list[str] = []
+    skip = False
+    for line in body.splitlines(keepends=True):
+        if re.match(r"^## ", line):
+            section_name = line.strip().lstrip("# ").strip()
+            # Strip version suffix from Reviewer Verdict heading
+            section_name = re.sub(r"\s*\(v[\d.]+\)\s*$", "", section_name)
+            skip = section_name in _READ_ONLY_SECTION_NAMES
+        if not skip:
+            result_parts.append(line)
+    return "".join(result_parts)
+
+
+def _is_in_source_dir(path: str) -> bool:
+    """Return True if path sits under a known source/governance directory."""
+    return any(path.startswith(prefix) for prefix in _WRITE_SET_SOURCE_PREFIXES)
+
+
+def _covered_by_write_set(path: str, write_set: list[str]) -> bool:
+    """Return True if any write_set glob covers this path.
+
+    Uses fnmatch semantics (not glob): `*` matches any characters including `/`,
+    so `lib/*.py` covers `lib/reviewer/static_scan.py`. This is intentionally
+    permissive — over-coverage is safe.
+    """
+    for pattern in write_set:
+        if fnmatch.fnmatch(path, pattern):
+            return True
+        # Also check if the path is a prefix match for directory globs
+        # e.g. write_set: ["lib/**"] covers "lib/reviewer/foo.py"
+        if pattern.endswith("/**") or pattern.endswith("/*"):
+            prefix = pattern.rstrip("*").rstrip("/")
+            if path.startswith(prefix + "/") or path.startswith(prefix):
+                return True
+    return False
+
+
+def detect_write_set_underdeclared(meta: dict | None, body: str) -> list[Finding]:
+    """write_set: declared but body references paths not covered by any declared glob.
+
+    Fires only when write_set: is present and non-empty in the task frontmatter.
+    A missing or empty write_set: is not flagged — no claim made, no claim to
+    under-declare against.
+
+    Conservative: flags only paths that appear with write-indicating context
+    (on a line with a write verb, or inside a code-fence block) under known
+    source/governance directories. One finding per uncovered path.
+
+    Heuristic, partial lie-severity → CONCERN, needs_human=no.
+    Origin: T-2324 IW-4 (T-2504 build).
+    """
+    findings: list[Finding] = []
+    if not meta:
+        return findings
+
+    write_set = meta.get("write_set")
+    if not write_set or not isinstance(write_set, list):
+        return findings  # Gate 1: must be declared and non-empty
+
+    # Normalise: ensure all entries are strings
+    write_set = [str(p) for p in write_set if isinstance(p, str)]
+    if not write_set:
+        return findings
+
+    # Strip read-only sections to avoid flagging command paths in Verification
+    scan_body = _body_without_read_only_sections(body)
+
+    # Extract candidate write-target paths from body
+    # Strategy: collect paths from (a) lines with write verbs, (b) code-fence blocks
+    candidate_paths: dict[str, str] = {}  # path → evidence snippet
+
+    lines = scan_body.splitlines()
+    in_code_fence = False
+    fence_marker = ""
+
+    for lineno, raw_line in enumerate(lines, start=1):
+        stripped = raw_line.strip()
+
+        # Track code fences
+        if re.match(r"^(`{3,}|~{3,})", stripped):
+            marker = re.match(r"^(`{3,}|~{3,})", stripped).group(0)
+            if not in_code_fence:
+                in_code_fence = True
+                fence_marker = marker
+            elif stripped.startswith(fence_marker):
+                in_code_fence = False
+            continue
+
+        # Gate: only flag paths with write-indicating context
+        has_write_verb = bool(_WRITE_VERB_RE.search(raw_line))
+
+        if not in_code_fence and not has_write_verb:
+            continue  # no write context on this line
+
+        for m in _BODY_PATH_RE.finditer(raw_line):
+            path = m.group(1)
+            # Gate 3: must be under a known source/governance dir
+            if not _is_in_source_dir(path):
+                continue
+            # Deduplicate: first mention wins for evidence
+            if path not in candidate_paths:
+                candidate_paths[path] = raw_line.strip()[:120]
+
+    # For each candidate, check gate 4: covered by any write_set glob
+    seen_paths: set[str] = set()
+    for path, evidence in candidate_paths.items():
+        if path in seen_paths:
+            continue
+        seen_paths.add(path)
+        if _covered_by_write_set(path, write_set):
+            continue  # covered — safe
+        findings.append(
+            Finding(
+                pattern_id="write-set-underdeclared",
+                pattern_name="write_set: declared but body references path not covered by any glob",
+                detection_confidence="heuristic",
+                lie_severity="partial",
+                location="write_set: vs body cross-check",
+                evidence=f"path={path!r} not in write_set={write_set!r}; context={evidence!r}",
+            )
+        )
+
+    return findings
+
+
 # ───────────────────────── Orchestration ─────────────────────────
 
 
@@ -2200,7 +2501,7 @@ def scan_task(
     # v1.1 detectors
     findings.extend(detect_empty_output_success(verif_section))
     findings.extend(detect_skip_as_pass(verif_section))
-    findings.extend(detect_mock_only_integration(ac_section, verif_section))
+    findings.extend(detect_mock_only_integration(ac_section, verif_section, task_path))
     findings.extend(detect_ac_verify_mismatch(ac_section, verif_section))
     # v1.3-seed +1: T-1896 — [REVIEW] mechanical-Expected catch (T-1878 B)
     findings.extend(detect_human_ac_mechanical_signal(ac_section))
@@ -2224,6 +2525,9 @@ def scan_task(
     # v1.6 +4: T-2155 — ac-evidence-untick (T-1761 prevention); Agent AC
     # plainly references an existing artifact but the checkbox is still `[ ]`.
     findings.extend(detect_ac_evidence_untick(ac_section, task_path))
+    # v1.7 +1: T-2504 — write-set-underdeclared (T-2324 IW-4); write_set:
+    # declared but body references source-dir paths not covered by any glob.
+    findings.extend(detect_write_set_underdeclared(meta, body))
 
     task_id = task_path.stem.split("-")[0] + "-" + task_path.stem.split("-")[1]
 
@@ -2558,10 +2862,43 @@ def main(argv: list[str] | None = None) -> int:
                 },
             )
 
+    # T-100187 (T-100186 GO slice A): recommendation-claims validation on
+    # inception tasks — extract evidence claims from ## Recommendation, verify
+    # read-only, write ## Recommendation Verdict. Advisory; never blocks.
+    claims_verdict = None
+    task_meta, _ = parse_task_file(task_file)
+    if (task_meta or {}).get("workflow_type") == "inception":
+        from lib.reviewer.recommendation_claims import (
+            render_claims_verdict_md,
+            validate_task as validate_recommendation_claims,
+            write_claims_verdict_to_task,
+        )
+        claims_verdict = validate_recommendation_claims(task_file, project_root)
+        if not no_write and task_file.parent.name != "completed":
+            write_claims_verdict_to_task(task_file, claims_verdict)
+            append_feedback_event(
+                stream,
+                {
+                    "kind": "recommendation_claims_verdict",
+                    "timestamp": claims_verdict.timestamp,
+                    "scan_id": claims_verdict.scan_id,
+                    "task_id": claims_verdict.task_id,
+                    "payload": {
+                        "overall": claims_verdict.overall,
+                        "claim_count": len(claims_verdict.claims),
+                    },
+                },
+            )
+
     if emit_json:
-        print(json.dumps(verdict.to_dict(), indent=2))
+        payload = verdict.to_dict()
+        if claims_verdict is not None:
+            payload["recommendation_claims"] = claims_verdict.to_dict()
+        print(json.dumps(payload, indent=2))
     else:
         print(render_verdict_md(verdict))
+        if claims_verdict is not None:
+            print(render_claims_verdict_md(claims_verdict))
 
     # exit code semantics: 0 PASS/CONCERN, 1 FAIL (informational; v1.0 is non-blocking)
     return 0 if verdict.overall != "FAIL" else 1

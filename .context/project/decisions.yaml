@@ -962,3 +962,10 @@ decisions:
     date: 2026-07-27
     task: T-258
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-117
+    decision: "Leave the pervasive `- **IW-N: …**` dash+bold markers untouched (17 tasks, ~60 questions;"
+    scope: project
+    date: 2026-07-28
+    task: T-273
+    rationale: "Auto-captured from task file on completion"

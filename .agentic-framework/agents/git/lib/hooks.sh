@@ -55,7 +55,7 @@ do_install_hooks() {
 # commit-msg hook - Task Reference Enforcement
 # Installed by: ./agents/git/git.sh install-hooks
 # Part of: Agentic Engineering Framework
-# VERSION=1.9
+# VERSION=1.10
 
 COMMIT_MSG_FILE="$1"
 COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
@@ -268,10 +268,10 @@ HOOK_EOF
     # scanning to agents/git/lib/secret-scan.sh and fails the commit on hit.
     cat > "$pre_commit_hook" << 'HOOK_EOF'
 #!/bin/bash
-# pre-commit hook - Secret Scan (T-1844)
+# pre-commit hook - Master-merge-only guard (T-2396) + Secret Scan (T-1844)
 # Installed by: ./agents/git/git.sh install-hooks
 # Part of: Agentic Engineering Framework
-# VERSION=1.0
+# VERSION=1.2
 
 PROJECT_ROOT="$(git rev-parse --show-toplevel)"
 
@@ -285,15 +285,49 @@ fi
     && [ -f "$PROJECT_ROOT/.agentic-framework/agents/git/lib/secret-scan.sh" ] \
     && FRAMEWORK_ROOT="$PROJECT_ROOT/.agentic-framework"
 
+# T-2396 (inception T-2394 G1): Master-as-merge-only guard. Runs FIRST so a
+# direct authored commit on a protected branch is refused before any scan work.
+# Default-off (config PROTECT_MASTER) → consumer-safe; opt-in per project.
+# Allows merges/rebases/fast-forwards/feature-branches. Bypass: FW_ALLOW_MASTER_COMMIT=1
+# (Tier-2) or git commit --no-verify (Tier-0). See agents/git/lib/master-guard.sh.
+# T-2061: bash-invoke + gate on -f (exec bit irrelevant for vendored copies).
+MASTER_GUARD="$FRAMEWORK_ROOT/agents/git/lib/master-guard.sh"
+if [ -f "$MASTER_GUARD" ]; then
+    PROJECT_ROOT="$PROJECT_ROOT" bash "$MASTER_GUARD" check || exit 1
+fi
+
 SCANNER="$FRAMEWORK_ROOT/agents/git/lib/secret-scan.sh"
-if [ ! -x "$SCANNER" ]; then
-    # Scanner missing — fail open with a clear message, don't block legitimate work.
-    echo "secret-scan: scanner not found at $SCANNER (skipping)" >&2
+# T-2061: gate on -f not -x. We invoke via `bash "$SCANNER"` below, so the
+# exec bit is irrelevant — gating on -x silently disabled the scanner when
+# vendor copies landed without the exec bit (T-2052 found this hot, 2026-06-08).
+# -f catches the only failure that actually matters here: file missing.
+if [ ! -f "$SCANNER" ]; then
+    # T-2647 (832 G-001/F4): a security control that silently no-ops is worse
+    # than one that is absent — the old one-line "(skipping)" note was ignorable
+    # and consumers committed for weeks with no secret scanning. Default stays
+    # fail-open (a missing scanner usually means a stale vendored payload, and
+    # blocking every commit on it would be hostile), but the warning is now
+    # unmissable and names the fix. FW_SECRET_SCAN_STRICT=1 opts into blocking.
+    echo "" >&2
+    echo "WARNING: SECRET SCAN IS NOT RUNNING — scanner missing:" >&2
+    echo "  $SCANNER" >&2
+    echo "Every commit is going through WITHOUT secret scanning." >&2
+    echo "Fix: refresh the vendored framework payload:" >&2
+    echo "  cd $PROJECT_ROOT && .agentic-framework/bin/fw upgrade" >&2
+    echo "  (framework repo: bin/fw vendor self)" >&2
+    echo "Strict mode: set FW_SECRET_SCAN_STRICT=1 to make this block commits." >&2
+    echo "" >&2
+    if [ "${FW_SECRET_SCAN_STRICT:-0}" = "1" ]; then
+        echo "ERROR: Commit blocked — FW_SECRET_SCAN_STRICT=1 and scanner missing." >&2
+        exit 1
+    fi
     exit 0
 fi
 
 # Run the scanner against the staged diff.
-_hits=$(PROJECT_ROOT="$PROJECT_ROOT" "$SCANNER" scan-staged 2>&1)
+# T-2061: invoke via `bash` so the exec bit is irrelevant (vendor copies
+# historically landed without +x and silently fail-open under the older -x gate).
+_hits=$(PROJECT_ROOT="$PROJECT_ROOT" bash "$SCANNER" scan-staged 2>&1)
 _rc=$?
 
 if [ "$_rc" -ne 0 ]; then
@@ -316,8 +350,10 @@ fi
 # Catches active/T-NNNN + completed/T-NNNN orphans before they land in git
 # (was previously only caught at audit time, often days after the leak).
 DUP_TASK_SCANNER="$FRAMEWORK_ROOT/agents/git/lib/dup-task-scan.sh"
-if [ -x "$DUP_TASK_SCANNER" ]; then
-    _dt_hits=$(PROJECT_ROOT="$PROJECT_ROOT" "$DUP_TASK_SCANNER" scan-staged 2>&1)
+# T-2061: see secret-scan note above — gate on -f, not -x.
+if [ -f "$DUP_TASK_SCANNER" ]; then
+    # T-2061: bash-invoke pattern — see secret-scan note above.
+    _dt_hits=$(PROJECT_ROOT="$PROJECT_ROOT" bash "$DUP_TASK_SCANNER" scan-staged 2>&1)
     _dt_rc=$?
     if [ "$_dt_rc" -ne 0 ]; then
         echo "" >&2
@@ -339,8 +375,10 @@ fi
 # T-1845: Large-file gate — sibling prevention to secret-scan. Blocks staged
 # files >10MiB by default; allowlist exempts deliberate vendored cases.
 LARGE_FILE_SCANNER="$FRAMEWORK_ROOT/agents/git/lib/large-file-scan.sh"
-if [ -x "$LARGE_FILE_SCANNER" ]; then
-    _lf_hits=$(PROJECT_ROOT="$PROJECT_ROOT" "$LARGE_FILE_SCANNER" scan-staged 2>&1)
+# T-2061: see secret-scan note above — gate on -f, not -x.
+if [ -f "$LARGE_FILE_SCANNER" ]; then
+    # T-2061: bash-invoke pattern — see secret-scan note above.
+    _lf_hits=$(PROJECT_ROOT="$PROJECT_ROOT" bash "$LARGE_FILE_SCANNER" scan-staged 2>&1)
     _lf_rc=$?
     if [ "$_lf_rc" -ne 0 ]; then
         echo ""
@@ -496,10 +534,10 @@ HOOK_EOF
     # Create pre-push hook for audit enforcement
     cat > "$pre_push_hook" << 'HOOK_EOF'
 #!/bin/bash
-# pre-push hook - Audit Enforcement + lightweight-tag rejection + VERSION monotonicity (T-1593, T-1603, T-1829)
+# pre-push hook - Audit Enforcement + lightweight-tag rejection + VERSION monotonicity + self-vendor drift (T-1593, T-1603, T-1829, T-2240)
 # Installed by: ./agents/git/git.sh install-hooks
 # Part of: Agentic Engineering Framework
-# VERSION=1.4
+# VERSION=1.5
 
 # T-1603: VERSION monotonicity check.
 # Origin: T-1602 surfaced silent VERSION rollback in cc38e98f5 (1.5.463 → 1.5.19,
@@ -651,6 +689,96 @@ if [ -n "$_yaml_failures" ]; then
     echo "Fix the YAML, then push again." >&2
     echo "Bypass: git push --no-verify (Tier 0 protected, logged)" >&2
     exit 1
+fi
+
+# T-2240: Self-vendor drift gate (F2 N×M closure).
+# Origin: T-2095 extracted _self_vendor_libs() into `fw vendor self`; T-2232 made
+# the in-consumer upgrade path durable via .upstream sentinel; T-2239 split the
+# dry-run wording ("would sync" vs "synced"). The gap T-2240 closes: editing
+# lib/*.sh without running `fw vendor self` leaves the vendored copy at
+# .agentic-framework/lib/ stale. `fw upgrade` is the only flow that catches it,
+# and upgrade is not part of the push flow — so consumers that vendor from
+# origin/master inherit the stale lib/ silently.
+#
+# Guard 1: only run in the framework repo (consumers have no root-level bin/fw —
+# their fw lives at .agentic-framework/bin/fw and they don't have a vendored
+# .agentic-framework/lib/ to drift). Consumer-safe by construction.
+# Guard 2: FW_SKIP_SELF_VENDOR_CHECK=1 bypass for legitimate skip scenarios
+# (e.g. release prep where vendor refresh is the next commit). Tier-2 visibility
+# via stderr WARN — matches existing hook pattern (no separate log writes).
+if [ -x "$PROJECT_ROOT/bin/fw" ] && [ -d "$PROJECT_ROOT/.agentic-framework/lib" ]; then
+    if [ "${FW_SKIP_SELF_VENDOR_CHECK:-0}" = "1" ]; then
+        echo "" >&2
+        echo "WARN: Self-vendor drift check skipped (FW_SKIP_SELF_VENDOR_CHECK=1)" >&2
+        echo "  Class: T-2240/T-2241 — vendored .agentic-framework/ may diverge from source" >&2
+        echo "" >&2
+    else
+        _sv_out=$("$PROJECT_ROOT/bin/fw" vendor self --dry-run 2>&1 || true)
+        if echo "$_sv_out" | grep -q "would sync"; then
+            echo "" >&2
+            echo "ERROR: Push blocked — self-vendor drift detected (T-2240):" >&2
+            echo "" >&2
+            echo "$_sv_out" | grep "would sync" | head -3 >&2
+            echo "" >&2
+            echo "Vendored .agentic-framework/ is stale; see the 'would sync' line(s)" >&2
+            echo "above for the affected class(es). Consumers that vendor from origin" >&2
+            echo "would inherit the divergence silently." >&2
+            echo "" >&2
+            echo "Fix:" >&2
+            echo "  cd $PROJECT_ROOT && bin/fw vendor self && git add .agentic-framework/ && git commit -m 'T-XXX: refresh vendored copies'" >&2
+            echo "" >&2
+            echo "Bypass (logged Tier-2):" >&2
+            echo "  FW_SKIP_SELF_VENDOR_CHECK=1 git push" >&2
+            echo "Bypass (Tier 0):" >&2
+            echo "  git push --no-verify" >&2
+            echo "" >&2
+            exit 1
+        fi
+    fi
+fi
+
+# T-2294: MCP manifest drift gate (arc-010 sibling to T-2240).
+# Origin: T-2293 commit 7e647bd1e leaked a bats artefact (fake_drift_tool_t2290)
+# into agents/mcp/framework-mcp-manifest.json because the test's prior crash had
+# polluted tool-set.yaml. The push went through clean — no manifest drift gate
+# existed. This block runs `fw mcp check` (T-2293) and refuses push on non-zero
+# exit. Catches both real edit-drift (developer forgot `fw mcp emit-manifest`)
+# and test-artefact leaks.
+#
+# Guard: framework repo only (consumers have no agents/mcp/manifest.py source).
+# Bypass: FW_SKIP_MCP_DRIFT_CHECK=1 (sibling to FW_SKIP_SELF_VENDOR_CHECK) and
+# --no-verify per L-399 producer/consumer-parity discipline. Block message
+# names both mechanisms (T-1890).
+if [ -x "$PROJECT_ROOT/bin/fw" ] && [ -f "$PROJECT_ROOT/agents/mcp/manifest.py" ]; then
+    if [ "${FW_SKIP_MCP_DRIFT_CHECK:-0}" = "1" ]; then
+        echo "" >&2
+        echo "WARN: MCP manifest drift check skipped (FW_SKIP_MCP_DRIFT_CHECK=1)" >&2
+        echo "  Class: T-2294 — agents/mcp/framework-mcp-manifest.json may diverge from tool-set.yaml" >&2
+        echo "" >&2
+    else
+        _mcp_out=$("$PROJECT_ROOT/bin/fw" mcp check 2>&1 || true)
+        _mcp_exit=$("$PROJECT_ROOT/bin/fw" mcp check >/dev/null 2>&1; echo $?)
+        if [ "$_mcp_exit" != "0" ]; then
+            echo "" >&2
+            echo "ERROR: Push blocked — MCP manifest drift detected (T-2294):" >&2
+            echo "" >&2
+            echo "$_mcp_out" | head -3 >&2
+            echo "" >&2
+            echo "agents/mcp/framework-mcp-manifest.json is out of sync with" >&2
+            echo "policy/capability-overlay/tool-set.yaml. Consumers reading the" >&2
+            echo "manifest as a capability gate would see the stale tool catalogue." >&2
+            echo "" >&2
+            echo "Fix:" >&2
+            echo "  cd $PROJECT_ROOT && bin/fw mcp emit-manifest && git add agents/mcp/framework-mcp-manifest.json && git commit -m 'T-XXX: refresh MCP manifest'" >&2
+            echo "" >&2
+            echo "Bypass (logged Tier-2):" >&2
+            echo "  FW_SKIP_MCP_DRIFT_CHECK=1 git push" >&2
+            echo "Bypass (Tier 0):" >&2
+            echo "  git push --no-verify" >&2
+            echo "" >&2
+            exit 1
+        fi
+    fi
 fi
 
 # Resolve audit script. Priority (T-1396):

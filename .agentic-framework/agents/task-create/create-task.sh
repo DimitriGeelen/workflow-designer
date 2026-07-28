@@ -36,6 +36,11 @@ TAGS=""
 RELATED=""
 HORIZON="now"
 START_WORK=false
+# T-2207 (T-2204 Slice B'): filing-time recommendation gate for inception
+# tasks — CLI mirror of T-1716's contract on do_inception_start.
+RECOMMENDATION=""
+RATIONALE=""
+I_AM_HUMAN=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -47,26 +52,84 @@ while [[ $# -gt 0 ]]; do
         --related) RELATED="$2"; shift 2 ;;
         --horizon) HORIZON="$2"; shift 2 ;;
         --start) START_WORK=true; shift ;;
+        --recommendation) RECOMMENDATION="$2"; shift 2 ;;
+        --rationale) RATIONALE="$2"; shift 2 ;;
+        --i-am-human) I_AM_HUMAN=true; shift ;;
         -h|--help)
             echo "Usage: create-task.sh [options]"
             echo ""
             echo "Options:"
-            echo "  --name        Task name (required)"
-            echo "  --description Task description (required)"
-            echo "  --type        Workflow type: $VALID_TYPES"
-            echo "  --owner       Task owner (required)"
-            echo "  --tags        Comma-separated tags (e.g. \"watchtower,ui,inception\")"
-            echo "  --related     Comma-separated related task IDs (e.g. \"T-084,T-085\")"
-            echo "  --horizon     Priority horizon: now (default), next, later"
-            echo "  --start       Set status to started-work instead of captured"
-            echo "  -h, --help    Show this help"
+            echo "  --name             Task name (required)"
+            echo "  --description      Task description (required)"
+            echo "  --type             Workflow type: $VALID_TYPES"
+            echo "  --owner            Task owner (required)"
+            echo "  --tags             Comma-separated tags (e.g. \"watchtower,ui,inception\")"
+            echo "  --related          Comma-separated related task IDs (e.g. \"T-084,T-085\")"
+            echo "  --horizon          Priority horizon: now (default), next, later"
+            echo "  --start            Set status to started-work instead of captured"
+            echo "  --recommendation   GO|NO-GO|DEFER — required for inception under \$CLAUDECODE=1 (T-1716, T-2207)"
+            echo "  --rationale        Evidence-cited reason — required for inception under \$CLAUDECODE=1"
+            echo "  --i-am-human       Bypass agent gate (scripts/tests/Watchtower) — logged Tier-2"
+            echo "  -h, --help         Show this help"
             exit 0
             ;;
         *) echo "Unknown option: $1"; exit 1 ;;
     esac
 done
 
-# Interactive mode if required fields missing
+# T-2207: validate --recommendation value if provided (parity with do_inception_start)
+if [ -n "$RECOMMENDATION" ]; then
+    case "$RECOMMENDATION" in
+        GO|NO-GO|DEFER) ;;
+        *)
+            echo -e "${RED}Invalid --recommendation: '$RECOMMENDATION' (must be GO, NO-GO, or DEFER)${NC}" >&2
+            exit 1
+            ;;
+    esac
+fi
+
+# T-2543: gate-level enforcement for promote-origin creates (Dimitri sovereignty bar,
+# rail offset 60). When a caller marks a create as originating from `fw bpmn promote`
+# (FW_TASK_ORIGIN=bpmn-promote), the GATE — not the caller — refuses anything but
+# owner:human + captured. This closes the hole a future promote-caller bug could open:
+# an owner:agent or --start promote-origin create is refused HERE, never silently
+# written. Non-promote-origin creates are wholly unaffected (keyed off the marker).
+# T-2577 extends the same gate to designer-ghost origin (T-2571 S4): save-time
+# documentation-task minting for off-page ghost refs must land owner:human +
+# captured — enforced HERE, caller-irrelevant, exactly like promote-origin.
+case "${FW_TASK_ORIGIN:-}" in
+  bpmn-promote|designer-ghost)
+    if [ "$OWNER" != "human" ]; then
+        echo -e "${RED}BLOCKED: ${FW_TASK_ORIGIN}-origin create must be owner:human (got '${OWNER:-<empty>}').${NC}" >&2
+        echo "  Gated writers (fw bpmn promote / designer ghost minting) materialize human-owned tasks; the gate refuses otherwise." >&2
+        echo "  Policy: T-2543 gate-level enforcement (Dimitri sovereignty bar, rail offset 60); T-2577 designer-ghost leg." >&2
+        exit 1
+    fi
+    if [ "$START_WORK" = true ]; then
+        echo -e "${RED}BLOCKED: ${FW_TASK_ORIGIN}-origin create must be captured (no --start).${NC}" >&2
+        echo "  Gated-writer creates land captured for human review before work-start (G-020)." >&2
+        echo "  Policy: T-2543 gate-level enforcement (Dimitri sovereignty bar, rail offset 60); T-2577 designer-ghost leg." >&2
+        exit 1
+    fi
+    ;;
+esac
+
+# Interactive mode if required fields missing.
+# T-100160 (OBS-086): prompt ONLY when stdin is a tty. In no-tty contexts
+# (background dispatch, cron, TermLink workers) stdin is a socket/pipe that
+# never delivers — `read -r` blocks forever (two >1h hangs, 2026-07-04).
+# Non-interactive callers get a fail-fast error naming the missing flags.
+if [ ! -t 0 ]; then
+    _missing=""
+    [ -z "$NAME" ] && _missing="$_missing --name"
+    [ -z "$DESCRIPTION" ] && _missing="$_missing --description"
+    [ -z "$WORKFLOW_TYPE" ] && _missing="$_missing --type"
+    [ -z "$OWNER" ] && _missing="$_missing --owner"
+    if [ -n "$_missing" ]; then
+        die "Missing required flag(s):$_missing (stdin is not a tty — interactive prompts disabled; pass all required flags)"
+    fi
+fi
+
 if [ -z "$NAME" ]; then
     echo -e "${YELLOW}Task name:${NC}"
     read -r NAME
@@ -127,21 +190,89 @@ if ! is_valid_horizon "$HORIZON"; then
     die "Valid horizons: $VALID_HORIZONS"
 fi
 
-# Generate next task ID
+# T-100202 AC4 (recursion guard): refuse names carrying the self-feeding
+# audit-emitter signature — a WARN task named after another WARN task, e.g.
+# "Audit WARN — Task T-2488-audit-warn--task-t-2462-…". The emitter itself is
+# removed from HEAD (audit emits observations via `fw note`, hash-deduped),
+# but this gate makes the recursion class structurally impossible for ANY
+# future emitter path, not just the removed one.
+if printf '%s' "$NAME" | grep -qiE 'audit[ -]?warn.*audit[ -]?warn'; then
+    error "Recursive audit-warn task name refused (T-100202)"
+    error "  A task about an audit-warn task re-audits its own emission and inflates"
+    error "  the ID space unboundedly (origin: T-99971 seed, 2026-07-03)."
+    die   "  Capture the finding as an observation instead: fw note \"<finding>\" (hash-deduped, no ID minted)"
+fi
+
+# Generate next task ID.
+#
+# T-100202: the allocator is "MAIN-CLUSTER max + 1", not "global max + 1".
+# A block of IDs separated from the rest by a gap larger than
+# FW_ID_QUARANTINE_GAP (default 1000) is treated as a quarantined outlier band
+# and excluded from the ceiling. Rationale: a removed self-feeding audit-finding
+# emitter inflated one ID to T-99971 in a single leap (2026-07-03), and the old
+# "global max + 1" then chained every new task into the T-100xxx band while real
+# work sat at ~T-2524. Quarantining lets new tasks resume at sane numbers
+# (T-2525…) WITHOUT renumbering the existing band (zero blast radius — those
+# files keep their IDs and all cross-references). Collision-safe: normal work
+# only ever increments by 1, so a >1000 gap always signals inflation, never
+# legitimate spacing; and the ~97k gap means the main sequence can never climb
+# into the band in any realistic lifetime. Backward-compatible: with no outlier
+# band, the main-cluster max == the global max (original behaviour).
+#
+# Hardening: the id is parsed from the LEADING `^T-<n>` only — never from an
+# embedded T-NNNN inside a recursive inflation-era slug.
+#
+# T-100202 AC3 (cross-view guard): a linked git worktree checks out its own
+# snapshot of .tasks/ — possibly behind the main checkout — so scanning ONE
+# view computes a stale max and mints a duplicate ID (the T-100200 dup class).
+# generate_id therefore union-scans the .tasks/ of EVERY worktree of the repo
+# that owns TASKS_DIR. Falls back to the local view alone when TASKS_DIR is
+# not inside a git repo (test harness, non-git consumers).
+_task_view_dirs() {
+    local base wt
+    base="$(cd "$(dirname "$TASKS_DIR")" 2>/dev/null && pwd)"
+    if [ -n "$base" ] && git -C "$base" rev-parse --git-dir >/dev/null 2>&1; then
+        while IFS= read -r wt; do
+            [ -d "$wt/.tasks" ] && printf '%s\n' "$wt/.tasks"
+        done < <(git -C "$base" worktree list --porcelain 2>/dev/null | sed -n 's/^worktree //p')
+    fi
+    printf '%s\n' "$TASKS_DIR"
+}
+
 generate_id() {
-    local max_id=0
+    local gap_threshold="${FW_ID_QUARANTINE_GAP:-1000}"
+    local ids=() f id d
     shopt -s nullglob
-    for f in "$TASKS_DIR"/active/T-*.md "$TASKS_DIR"/completed/T-*.md; do
-        [ -f "$f" ] || continue
-        local id
-        id=$(basename "$f" | grep -oE 'T-[0-9]+' | grep -oE '[0-9]+')
-        # Use 10# to force base-10 interpretation (avoids octal issues with 008, 009)
-        if [ -n "$id" ] && [ "$((10#$id))" -gt "$max_id" ]; then
-            max_id=$((10#$id))
-        fi
-    done
+    while IFS= read -r d; do
+        for f in "$d"/active/T-*.md "$d"/completed/T-*.md; do
+            [ -f "$f" ] || continue
+            id=$(basename "$f" | grep -oE '^T-[0-9]+' | grep -oE '[0-9]+')
+            # Use 10# to force base-10 interpretation (avoids octal issues with 008, 009)
+            [ -n "$id" ] && ids+=("$((10#$id))")
+        done
+    done < <(_task_view_dirs | sort -u)
     shopt -u nullglob
-    printf "T-%03d" $((max_id + 1))
+
+    if [ "${#ids[@]}" -eq 0 ]; then
+        printf "T-%03d" 1
+        return
+    fi
+
+    # Ascending unique; walk up from the bottom and stop at the first gap larger
+    # than the threshold — everything above that cliff is a quarantined band.
+    local n prev="" main_max=0
+    while IFS= read -r n; do
+        if [ -z "$prev" ]; then
+            main_max=$n
+        elif [ $((n - prev)) -gt "$gap_threshold" ]; then
+            break
+        else
+            main_max=$n
+        fi
+        prev=$n
+    done < <(printf '%s\n' "${ids[@]}" | sort -n -u)
+
+    printf "T-%03d" $((main_max + 1))
 }
 
 # Generate slug from name
@@ -155,8 +286,96 @@ TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 # T-1279/T-1424: Acquire lock BEFORE reading max_id; release AFTER file write.
 # Without this, concurrent calls all observe the same max_id and collide.
 # T-1424: unconditional — the source above already guaranteed the primitive is loaded.
+#
+# T-100202 AC3: anchor the allocation lock at the repo's MAIN worktree so that
+# concurrent minting from different worktrees serializes on ONE lock. The
+# per-view default (KEYLOCK_DIR under each checkout's .context/locks) silos the
+# lock per worktree and lets two views race to the same ID even with the
+# cross-view scan above. `git worktree list` emits the main worktree first.
+_main_wt="$(git -C "$(dirname "$TASKS_DIR")" worktree list --porcelain 2>/dev/null | sed -n 's/^worktree //p' | head -1)"
+if [ -n "$_main_wt" ] && [ -d "$_main_wt/.context/locks" ]; then
+    KEYLOCK_DIR="$_main_wt/.context/locks"
+fi
 keylock_acquire "task-id-allocation"
 trap 'keylock_release "task-id-allocation" 2>/dev/null' EXIT
+
+# T-2207 (T-2204 Slice B'): filing-time recommendation gate — CLI mirror of
+# T-1716. Fires before ID allocation so a blocked filing leaves no orphan
+# T-NNNN reserved. Producer/consumer parity with T-2205 (Write/Edit hook)
+# and T-2206 (emit_review/batch) via shared env-var bypass name.
+#
+# Triggers: workflow_type=inception AND $CLAUDECODE=1 AND no --i-am-human
+# AND no FW_ALLOW_EMPTY_RECOMMENDATION=1 AND no FW_INCEPTION_PRE_GATED=1
+# (the trusted-caller signal from do_inception_start) AND missing rec/rationale.
+#
+# Bypass mechanisms (all logged Tier-2 except the trusted-caller env signal):
+#   --i-am-human                          → scripts/tests/Watchtower
+#   FW_ALLOW_EMPTY_RECOMMENDATION=1       → agent override (parity w/ T-2205/T-2206)
+#   FW_INCEPTION_PRE_GATED=1              → do_inception_start trusted caller (silent)
+_log_recommendation_bypass() {
+    local _flag="${1:-unknown}"
+    local _reason="${2:-filing-time recommendation gate (T-2207)}"
+    local _log_dir="${PROJECT_ROOT:-.}/.context/working"
+    mkdir -p "$_log_dir" 2>/dev/null || return 0
+    local _log_file="$_log_dir/.gate-bypass-log.yaml"
+    local _ts
+    _ts=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    {
+        echo "- timestamp: '$_ts'"
+        echo "  task: '<filing: ${NAME}>'"
+        echo "  flag: '$_flag'"
+        echo "  caller: 'create-task.sh'"
+        echo "  reason: '$_reason'"
+    } >> "$_log_file" 2>/dev/null || true
+}
+
+if [ "$WORKFLOW_TYPE" = "inception" ] \
+   && [ "${CLAUDECODE:-}" = "1" ] \
+   && [ "$I_AM_HUMAN" != "true" ] \
+   && [ "${FW_INCEPTION_PRE_GATED:-}" != "1" ]; then
+    if [ -z "$RECOMMENDATION" ] || [ -z "$RATIONALE" ]; then
+        if [ "${FW_ALLOW_EMPTY_RECOMMENDATION:-}" = "1" ]; then
+            _log_recommendation_bypass "FW_ALLOW_EMPTY_RECOMMENDATION" \
+                "empty-recommendation bypass (create-task.sh inception filing)"
+            echo "" >&2
+            echo -e "  ${YELLOW}NOTE: filing inception '$NAME' without --recommendation —${NC}" >&2
+            echo -e "  ${YELLOW}allowed via FW_ALLOW_EMPTY_RECOMMENDATION=1 (logged).${NC}" >&2
+            echo "" >&2
+        else
+            echo "" >&2
+            echo -e "  ${RED}══════════════════════════════════════════${NC}" >&2
+            echo -e "  ${RED}BLOCKED: filing inception under \$CLAUDECODE=1 requires${NC}" >&2
+            echo -e "  ${RED}         --recommendation GO|NO-GO|DEFER + --rationale${NC}" >&2
+            echo -e "  ${RED}══════════════════════════════════════════${NC}" >&2
+            echo "" >&2
+            echo -e "  Origin: T-679 (governance rule — agent advisory at filing time)," >&2
+            echo -e "  T-1715/T-1716 (filing-time gate on fw inception start)," >&2
+            echo -e "  T-2204/T-2205/T-2206/T-2207 (producer/consumer parity)." >&2
+            echo "" >&2
+            echo -e "  To proceed, choose ONE:" >&2
+            echo "" >&2
+            echo -e "    1. Refile with the recommendation flags:" >&2
+            echo -e "         fw task create --type inception --name '$NAME' \\" >&2
+            echo -e "           --recommendation GO|NO-GO|DEFER \\" >&2
+            echo -e "           --rationale '<one-paragraph reason citing evidence>'" >&2
+            echo -e "       (or use the canonical: fw inception start '$NAME' --recommendation ... --rationale ...)" >&2
+            echo "" >&2
+            echo -e "    2. Override for scripts/tests/Watchtower:" >&2
+            echo -e "         --i-am-human   (logged Tier 2)" >&2
+            echo "" >&2
+            echo -e "    3. Agent override (logged Tier 2):" >&2
+            echo -e "         FW_ALLOW_EMPTY_RECOMMENDATION=1 fw task create --type inception ..." >&2
+            echo "" >&2
+            exit 1
+        fi
+    fi
+fi
+
+# Log --i-am-human bypass (parity with do_inception_start lines 124-136)
+if [ "$WORKFLOW_TYPE" = "inception" ] && [ "$I_AM_HUMAN" = "true" ]; then
+    _log_recommendation_bypass "--i-am-human" \
+        "filing-time recommendation gate (T-2207, CLI parity)"
+fi
 
 # Generate ID and filename
 TASK_ID=$(generate_id)
@@ -309,6 +528,31 @@ if [ "$WORKFLOW_TYPE" = "inception" ]; then
         rm -f "$FILEPATH"
         exit 1
     fi
+fi
+
+# T-2207 (T-2204 Slice B'): when --recommendation + --rationale were provided
+# at filing time, populate the ## Recommendation block of the just-created
+# task file. Mirrors lib/inception.sh:_inject_recommendation_block — same shape
+# so the populated block is byte-identical regardless of producer path.
+if [ "$WORKFLOW_TYPE" = "inception" ] && [ -n "$RECOMMENDATION" ] && [ -n "$RATIONALE" ]; then
+    python3 - "$FILEPATH" "$RECOMMENDATION" "$RATIONALE" <<'PYEOF'
+import re, sys
+path, rec, rationale = sys.argv[1], sys.argv[2], sys.argv[3]
+with open(path, 'r') as f:
+    text = f.read()
+# Strategy: locate the ## Recommendation heading, replace everything between
+# it and the next ## heading with our populated block. Idempotent: re-running
+# with the same values produces the same body.
+new_block = f"## Recommendation\n\n**Recommendation:** {rec}\n\n**Rationale:** {rationale}\n\n"
+pattern = re.compile(r'^## Recommendation[ \t]*\n.*?(?=^## )', re.MULTILINE | re.DOTALL)
+if pattern.search(text):
+    text = pattern.sub(new_block, text, count=1)
+else:
+    # No Recommendation block — append before ## Decision (T-1263 guarantees it exists)
+    text = re.sub(r'(^## Decision)', new_block + r'\1', text, count=1, flags=re.MULTILINE)
+with open(path, 'w') as f:
+    f.write(text)
+PYEOF
 fi
 
 # Success output

@@ -88,13 +88,9 @@ check_acceptance_criteria() {
     # it opens — `/<!--/,/-->/d` on a one-line `<!-- ... -->` enters delete-mode at that
     # line and stays there until the NEXT `-->` later in the file, swallowing Agent ACs.
     # Fix: strip one-line comments first, then run the range strip for genuine multi-line.
-    # G-009 (T-210): the one-line strip must tolerate '>' INSIDE the comment (AC comments
-    # cite BPMN/XML tags like a bpmn element). The old `[^>]*` stopped at the first '>',
-    # left the comment un-stripped, and the range strip then swallowed the `### Human`
-    # header — mis-attributing Human ACs as unchecked agent ACs. `([^-]|-[^-]|--[^>])*`
-    # matches comment content up to the FIRST literal `-->` (minimal, no lazy quantifier
-    # which POSIX/GNU sed lack), so '>' inside the comment is fine and multi-line comments
-    # still fall through to the range strip.
+    # T-2554 (832 G-009): [^>]* stopped at the first '>' INSIDE a comment (e.g. a
+    # cited <tag>), so the range strip swallowed down to a later '-->'. Minimal
+    # POSIX match to the first '-->' instead — tolerates '>' in comment text.
     ac_section=$(echo "$ac_section" | sed -E 's/<!--([^-]|-[^-]|--[^>])*-->//g' | sed '/<!--/,/-->/d')
     [ -z "$ac_section" ] && return 0
 
@@ -162,6 +158,11 @@ check_acceptance_criteria() {
             echo "Options:" >&2
             echo "  1. Check the criteria in the task file, then retry" >&2
             echo "  2. Use --skip-acceptance-criteria to bypass (logged)" >&2
+            # T-2624 read-value wiring: this gate IS the tl_archive edge of the
+            # task-lifecycle map — point the tripping agent at the process picture.
+            if [ -f "$PROJECT_ROOT/.context/designer/projects/aef-task-lifecycle/meta.json" ]; then
+                echo "Map: aef-task-lifecycle node tl_archive enforces this — bin/fw corpus explain aef-task-lifecycle" >&2
+            fi
             exit 1
         fi
     elif [ "$ac_total" -gt 0 ]; then
@@ -280,6 +281,13 @@ PYREC
                 log_gate_bypass "--skip-recommendation" "check_recommendation_for_review"
                 return 0
             fi
+            # T-2421 (T-2419 GO, sibling of T-2204): unified env-var bypass
+            # FW_ALLOW_EMPTY_RECOMMENDATION=1 per T-1890 producer/consumer parity.
+            if [ "${FW_ALLOW_EMPTY_RECOMMENDATION:-}" = "1" ]; then
+                echo -e "${YELLOW}WARNING: Recommendation $rec_state (FW_ALLOW_EMPTY_RECOMMENDATION=1 bypass)${NC}"
+                log_gate_bypass "FW_ALLOW_EMPTY_RECOMMENDATION" "check_recommendation_for_review"
+                return 0
+            fi
             echo -e "${RED}ERROR: Cannot complete — task needs human review but ## Recommendation is $rec_state.${NC}" >&2
             echo "" >&2
             echo "T-679 (CLAUDE.md): never present a blank decision to the human." >&2
@@ -292,7 +300,9 @@ PYREC
             echo "" >&2
             echo "Options:" >&2
             echo "  1. Add the Recommendation block, then retry" >&2
-            echo "  2. Use --skip-recommendation to bypass (logged)" >&2
+            echo "  2. Bypass via flag (logged Tier 2): --skip-recommendation" >&2
+            echo "  3. Bypass via env var (logged Tier 2, T-1890 parity):" >&2
+            echo "       FW_ALLOW_EMPTY_RECOMMENDATION=1 fw task update T-XXX --status work-completed" >&2
             exit 1
             ;;
     esac
@@ -773,13 +783,13 @@ check_disposition_gate() {
     local current_q="" has_disposition=false has_rationale=false
 
     while IFS= read -r line; do
-        # Match question markers: "- IW-1: ..." or "### IW-1 ..." or "**IW-1**:".
-        # ANCHORED to a block-start (leading -, #, or * run) so an IW-N/Q-N that
-        # appears inside rationale PROSE — a legitimate cross-reference to another
-        # question — is NOT mistaken for a new question marker (T-203). An
-        # unanchored IW-N match here flushed the real question with rationale=false
-        # AND spawned a phantom empty question → false "under-disposed" blocks.
-        if echo "$line" | grep -qE "^[[:space:]]*([-#*]+[[:space:]]*)+(IW-[0-9]+|Q-?[0-9]+)"; then
+        # Match question markers (T-2218 RC5 fix): anchored to start-of-line marker
+        # forms only. The previous unanchored `IW-[0-9]+` branch matched IW-N
+        # mentions in prose (e.g. rationale text "depends on IW-1's answer"),
+        # causing a false flush of the prior question's disposition/rationale.
+        #   Valid: "- **IW-1: text**", "- IW-1: text", "### IW-1 title"
+        #   Plus the legacy Q-N list-item form (unchanged).
+        if echo "$line" | grep -qE "(^[[:space:]]*-[[:space:]]*\*?\*?IW-[0-9]+|^###[[:space:]]+IW-[0-9]+|^[[:space:]]*-[[:space:]]*Q-?[0-9]+)"; then
             # Flush previous question's verdict
             if [ -n "$current_q" ] && { [ "$has_disposition" = false ] || [ "$has_rationale" = false ]; }; then
                 missing=$((missing + 1))
@@ -1214,10 +1224,6 @@ if [ -n "$NEW_STATUS" ]; then
             AC_SECTION=$(sed -n '/^## Acceptance Criteria/,/^## /p' "$TASK_FILE" 2>/dev/null | sed '$d')
             # Strip HTML comments — template examples contain checkbox patterns.
             # T-1967: two-step strip (one-line first, then range) — see line ~87.
-            # G-009 (T-211): `>`-tolerant one-line strip — `[^>]*` mis-parsed AC
-            # comments citing <tag>s, folding the ### Human header into the Agent
-            # count and blocking partial-complete re-archival. Matches the fix at
-            # check_acceptance_criteria (line ~98).
             AC_SECTION=$(echo "$AC_SECTION" | sed -E 's/<!--([^-]|-[^-]|--[^>])*-->//g' | sed '/<!--/,/-->/d')
             ALL_TOTAL=$(echo "$AC_SECTION" | grep -cE '^\s*-\s*\[[ x]\]' || true)
             ALL_CHECKED=$(echo "$AC_SECTION" | grep -cE '^\s*-\s*\[x\]' || true)
@@ -1260,6 +1266,11 @@ if [ -n "$NEW_STATUS" ]; then
                     exit 1
                 fi
                 echo -e "${GREEN}Moved to completed/${NC}"
+
+                # T-2345: clean orphan review marker — marker exists to unblock
+                # fw inception decide (T-973), moot once task is in completed/.
+                # Idempotent; sibling cleanup at lib/inception.sh:731.
+                rm -f "$PROJECT_ROOT/.context/working/.reviewed-$TASK_ID" 2>/dev/null || true
 
                 # Generate episodic if not already present
                 if [ ! -f "$CONTEXT_DIR/episodic/$TASK_ID.yaml" ]; then
@@ -1739,9 +1750,14 @@ if [ -n "$NEW_STATUS" ] && [ "$NEW_STATUS" = "work-completed" ] && [ "$OLD_STATU
         fi
 
         # T-709: Push notification — human review needed
+        # T-2438: carry the class-correct Watchtower deep-link so the push is
+        # one-tap-to-the-review-page. fw_task_review_url is in scope via review.sh
+        # (sourced above), which sources watchtower.sh. Empty when Watchtower is
+        # down → fw_notify falls back to a link-less body (prior behaviour).
         if [ -f "$FRAMEWORK_ROOT/lib/notify.sh" ]; then
             source "$FRAMEWORK_ROOT/lib/notify.sh"
-            fw_notify "Review Needed: $TASK_ID" "$TASK_NAME" "manual" "framework"
+            _review_url=$(fw_task_review_url "$TASK_ID" "$TASK_FILE" 2>/dev/null || true)
+            fw_notify "Review Needed: $TASK_ID" "$TASK_NAME" "manual" "framework" "$_review_url"
         fi
 
         # T-325: Check human AC quality — warn if Steps blocks are missing
@@ -1778,22 +1794,31 @@ if [ -n "$NEW_STATUS" ] && [ "$NEW_STATUS" = "work-completed" ] && [ "$OLD_STATU
                 exit 1
             fi
             echo -e "${GREEN}Moved to completed/${NC}"
+            # T-2345: clean orphan review marker — marker exists to unblock
+            # fw inception decide (T-973), moot once task is in completed/.
+            # Idempotent; sibling cleanup at lib/inception.sh:731.
+            rm -f "$PROJECT_ROOT/.context/working/.reviewed-$TASK_ID" 2>/dev/null || true
+        fi
 
-            # T-2163 (arc-009 horizon-axis-hardening, Slice 4): null the stored
-            # horizon now that the file is in .tasks/completed/. Render derives
-            # `past` from _location (T-2160 Q1=(b)) so the stored value is
-            # behaviorally irrelevant — but a non-null value here is a YAML lie
-            # that CTL-030 (T-2162) would catch. Plug the source: write `null`
-            # in the same atomic move so no drift is ever introduced.
-            # Partial-complete branch does NOT touch this — that file stays in
-            # active/ and renders via the stored horizon.
-            _sed_i "s/^horizon:.*/horizon: null/" "$TASK_FILE"
+        # T-2163 (arc-009 horizon-axis-hardening, Slice 4): null the stored
+        # horizon now that the file is in .tasks/completed/. Render derives
+        # `past` from _location (T-2160 Q1=(b)) so the stored value is
+        # behaviorally irrelevant — but a non-null value here is a YAML lie
+        # that CTL-030 (T-2162) would catch. Plug the source: write `null`.
+        # T-2300 (leg-gap): runs OUTSIDE the move-conditional so the re-close
+        # path (file already in completed/, status flip only) also nulls the
+        # horizon — was 8-instance CTL-030 class (T-2168/T-2180/T-2182/T-2196/
+        # T-2201/T-2203/T-2204/T-2248). Partial-complete branch does NOT touch
+        # this — that file stays in active/ and renders via the stored horizon.
+        _sed_i "s/^horizon:.*/horizon: null/" "$TASK_FILE"
 
-            # T-709: Push notification — task completed
-            if [ -f "$FRAMEWORK_ROOT/lib/notify.sh" ]; then
-                source "$FRAMEWORK_ROOT/lib/notify.sh"
-                fw_notify "Task Complete: $TASK_ID" "$TASK_NAME" "manual" "framework"
-            fi
+        # T-709: Push notification — task completed
+        # T-2300: lifted out of move-conditional so re-close fires once too.
+        # Outer trigger gate `[ "$OLD_STATUS" != "work-completed" ]` (line ~1709)
+        # already prevents double-notify on genuine re-closes.
+        if [ -f "$FRAMEWORK_ROOT/lib/notify.sh" ]; then
+            source "$FRAMEWORK_ROOT/lib/notify.sh"
+            fw_notify "Task Complete: $TASK_ID" "$TASK_NAME" "manual" "framework"
         fi
     fi
 

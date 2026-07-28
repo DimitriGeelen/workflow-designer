@@ -83,17 +83,30 @@ do_capture() {
 
     local urgent_field=""
     if [ "$urgent" = true ]; then
-        urgent_field="    urgent: true"
+        urgent_field="  urgent: true"
     fi
 
+    # T-2456 (OBS-084): escape $text for a YAML double-quoted scalar before
+    # writing. A raw backslash in the note body (e.g. a regex like '\d+') or an
+    # embedded double-quote would otherwise corrupt inbox.yaml: YAML double-quotes
+    # process backslash escapes, so an unescaped '\d' is an "unknown escape"
+    # ScannerError that crashes EVERY `fw note list/triage` (yaml.safe_load) — the
+    # whole inbox goes unreadable. Order matters: backslashes first, then quotes.
+    # Origin: OBS-081's '- **IW-(\d+):' (filed via `fw note`) broke the inbox for
+    # ~a day. Both readers stay happy — yaml.safe_load unescapes correctly, and the
+    # sed reader (do_resolve) still strips the surrounding quotes.
+    local text_yaml
+    text_yaml=${text//\\/\\\\}        # \  -> \\
+    text_yaml=${text_yaml//\"/\\\"}   # "  -> \"
+
     cat >> "$INBOX_FILE" << EOF
-  - id: $id
-    text: "$text"
-    captured: $ts
-    context_task: ${task:-null}
-    tags: [${tags}]
-    status: pending
-    promoted_to: null
+- id: $id
+  text: "$text_yaml"
+  captured: $ts
+  context_task: ${task:-null}
+  tags: [${tags}]
+  status: pending
+  promoted_to: null
 EOF
 
     if [ -n "$urgent_field" ]; then
@@ -121,29 +134,27 @@ do_list() {
     echo -e "${BOLD}Observation Inbox${NC} ($pending pending)"
     echo ""
 
-    # Parse and display pending observations
+    # Parse and display pending observations (T-2317: yaml.safe_load — was re.split which
+    # drifted from the heredoc format and matched tag boundaries as OBS boundaries).
     python3 << PYEOF
-import re
+import yaml
 
 with open("$INBOX_FILE", "r") as f:
-    content = f.read()
+    data = yaml.safe_load(f) or {}
 
-# Split into observation blocks
-blocks = re.split(r'\n  - ', content)
-for block in blocks[1:]:  # skip header
-    if 'status: pending' not in block:
+for obs in data.get('observations', []) or []:
+    if obs.get('status') != 'pending':
         continue
-    obs_id = re.search(r'id: (OBS-\d+)', block)
-    text = re.search(r'text: "(.*?)"', block)
-    task = re.search(r'context_task: (\S+)', block)
-    tags = re.search(r'tags: \[(.*?)\]', block)
-    urgent = 'urgent: true' in block
+    obs_id = obs.get('id', '')
+    text = obs.get('text', '')
+    task = obs.get('context_task')
+    tags = obs.get('tags') or []
+    urgent = obs.get('urgent') is True
 
-    if obs_id and text:
-        prefix = "  \033[0;31m[URGENT]\033[0m " if urgent else "  "
-        tag_str = f" [{tags.group(1)}]" if tags and tags.group(1) else ""
-        task_str = f" ({task.group(1)})" if task and task.group(1) != "null" else ""
-        print(f"{prefix}\033[0;36m{obs_id.group(1)}\033[0m{tag_str}  {text.group(1)}{task_str}")
+    prefix = "  \033[0;31m[URGENT]\033[0m " if urgent else "  "
+    tag_str = f" [{', '.join(tags)}]" if tags else ""
+    task_str = f" ({task})" if task and task != "null" else ""
+    print(f"{prefix}\033[0;36m{obs_id}\033[0m{tag_str}  {text}{task_str}")
 PYEOF
 }
 

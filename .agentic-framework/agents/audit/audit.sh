@@ -435,6 +435,18 @@ grace_fail() {
     fi
 }
 
+# T-2228 (T-2225 Slice 3): test-sentinel filter — skip T-Test-NNN files that
+# may have leaked from tests into PROJECT_ROOT (tmp_project_root helper bypass).
+# Real tasks are filed via `fw work-on` / `fw task create` which emit numeric
+# T-NNNN ids; the `T-Test-` prefix is reserved for test fixtures.
+_is_test_sentinel() {
+    local name="${1##*/}"
+    case "$name" in
+        T-Test-*) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
 # Quiet mode: suppress terminal output (findings still collected for YAML)
 if [ "$QUIET" = true ]; then
     exec 3>&1 1>/dev/null
@@ -584,6 +596,37 @@ except yaml.YAMLError as e:
         fi
     done
 done
+# T-2456 (OBS-084): .context/inbox.yaml is a single top-level file (not under
+# .context/project or .context/arcs), so the per-dir loop above never validated
+# it. A note body with a backslash (e.g. a regex '\d+') written via `fw note`
+# corrupted it as a YAML double-quoted-scalar escape error — and it sat unreadable
+# for ~a day because no gate parsed it (`fw note list/triage` crashed, the audit
+# was blind). Validate it explicitly with the same logic + counters so the
+# pass-count message covers it and a future corruption FAILs the audit.
+inbox_yaml="$PROJECT_ROOT/.context/inbox.yaml"
+if [ -f "$inbox_yaml" ]; then
+    parse_err=$(python3 -c "
+import yaml, sys
+try:
+    with open('$inbox_yaml') as f:
+        data = yaml.safe_load(f)
+    if data is None:
+        print('empty-file'); sys.exit(1)
+    elif not isinstance(data, dict):
+        print('not-a-mapping'); sys.exit(1)
+except yaml.YAMLError as e:
+    print(str(e).split(chr(10))[0]); sys.exit(1)
+" 2>&1)
+    # shellcheck disable=SC2181 # $? needed: parse_err captures output, exit code checked separately
+    if [ $? -eq 0 ]; then
+        yaml_pass_count=$((yaml_pass_count + 1))
+    else
+        yaml_fail_count=$((yaml_fail_count + 1))
+        fail "YAML parse error: inbox.yaml" \
+             "$parse_err" \
+             "Fix .context/inbox.yaml — a note body with a backslash/quote corrupts it (T-2456); fw note now escapes new entries"
+    fi
+fi
 if [ "$yaml_fail_count" -eq 0 ] && [ "$yaml_pass_count" -gt 0 ]; then
     pass "All $yaml_pass_count project YAML files parse correctly"
 fi
@@ -604,41 +647,54 @@ fi
 #     empty-dict and mention both origin classes.
 fm_fail_count=0
 fm_fail_list=""
-for tdir in "$PROJECT_ROOT/.tasks/active" "$PROJECT_ROOT/.tasks/completed"; do
-    [ -d "$tdir" ] || continue
-    while IFS= read -r tf; do
-        [ -f "$tf" ] || continue
-        # Exit codes: 0=ok, 2=fm is False/None (no frontmatter delimiters),
-        # 3=fm is empty dict (YAML parse error caught by parse_frontmatter)
-        rc=0
-        python3 -c "
-import sys, os
+# T-2297: single batched python3 invocation (was per-file fork — 1 process per
+# task file, ~178ms python+yaml startup × 2,261 files = 6.7 min on the audit's
+# pre-push --section structure path). One fork now: file paths stream via stdin,
+# python emits per-file rc<TAB>path lines; bash aggregates. Per-file rc semantics
+# preserved exactly (0=ok, 2=False/None, 3=empty-dict yaml.ScannerError).
+fm_parse_out=$(
+    {
+        for tdir in "$PROJECT_ROOT/.tasks/active" "$PROJECT_ROOT/.tasks/completed"; do
+            [ -d "$tdir" ] || continue
+            find "$tdir" -maxdepth 1 -name 'T-*.md' -not -name 'T-Test-*' -type f
+        done
+    } | python3 -c "
+import sys
 sys.path.insert(0, '$PROJECT_ROOT')
 try:
     from web.shared import parse_frontmatter
 except ImportError:
     sys.exit(0)  # web/ not present (consumer project) — skip silently
-with open(sys.argv[1]) as f:
-    content = f.read()
-fm, _ = parse_frontmatter(content)
-if fm is False or fm is None:
-    sys.exit(2)
-if isinstance(fm, dict) and len(fm) == 0:
-    sys.exit(3)
-sys.exit(0)
-" "$tf" 2>/dev/null
-        rc=$?
-        if [ "$rc" -ne 0 ]; then
-            fm_fail_count=$((fm_fail_count + 1))
-            tf_rel="${tf#$PROJECT_ROOT/}"
-            if [ "$rc" -eq 3 ]; then
-                fm_fail_list="$fm_fail_list\n  $tf_rel  (empty-dict / yaml.ScannerError — T-2069 class: folded scalar or quoting break)"
-            else
-                fm_fail_list="$fm_fail_list\n  $tf_rel  (no/invalid frontmatter delimiters — T-2067 class: components regex mangle)"
-            fi
-        fi
-    done < <(find "$tdir" -maxdepth 1 -name 'T-*.md' -type f)
-done
+for line in sys.stdin:
+    tf = line.rstrip('\n')
+    if not tf:
+        continue
+    try:
+        with open(tf) as f:
+            content = f.read()
+        fm, _ = parse_frontmatter(content)
+        if fm is False or fm is None:
+            rc = 2
+        elif isinstance(fm, dict) and len(fm) == 0:
+            rc = 3
+        else:
+            rc = 0
+    except Exception:
+        rc = 2
+    print(f'{rc}\t{tf}')
+" 2>/dev/null
+)
+while IFS=$'\t' read -r rc tf; do
+    [ -z "$rc" ] && continue
+    [ "$rc" = "0" ] && continue
+    fm_fail_count=$((fm_fail_count + 1))
+    tf_rel="${tf#$PROJECT_ROOT/}"
+    if [ "$rc" = "3" ]; then
+        fm_fail_list="$fm_fail_list\n  $tf_rel  (empty-dict / yaml.ScannerError — T-2069 class: folded scalar or quoting break)"
+    else
+        fm_fail_list="$fm_fail_list\n  $tf_rel  (no/invalid frontmatter delimiters — T-2067 class: components regex mangle)"
+    fi
+done <<< "$fm_parse_out"
 if [ "$fm_fail_count" -gt 0 ]; then
     warn "Task frontmatter: $fm_fail_count task(s) have unparseable YAML" \
          "Files: $(printf '%b' "$fm_fail_list")" \
@@ -688,6 +744,41 @@ stale_arc_count=0
 arcs_checked_for_staleness=0
 if [ -d "$PROJECT_ROOT/.context/arcs" ] && command -v git >/dev/null 2>&1 \
     && git -C "$PROJECT_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    # T-2298: pre-compute task→arc_id map in ONE python3 pass (was per-task awk
+    # fork inside per-arc loop — 8 arcs × 2,261 tasks = ~18K awk subprocesses,
+    # ~90-100s wall-clock). Now: 1 python3 read of all task heads, in-memory
+    # filter per arc. Skips T-Test-* sentinels (T-2228 parity with _is_test_sentinel).
+    task_arc_map=$(python3 -c "
+import os, re
+project_root = '$PROJECT_ROOT'
+arc_id_re = re.compile(r'^arc_id:\s*([^\s#]+)', re.M)
+for d in ('active', 'completed'):
+    tdir = os.path.join(project_root, '.tasks', d)
+    if not os.path.isdir(tdir):
+        continue
+    try:
+        names = os.listdir(tdir)
+    except OSError:
+        continue
+    for fn in names:
+        if not (fn.startswith('T-') and fn.endswith('.md')):
+            continue
+        if fn.startswith('T-Test-'):
+            continue
+        path = os.path.join(tdir, fn)
+        try:
+            with open(path) as f:
+                head = f.read(4096)
+        except Exception:
+            continue
+        m = arc_id_re.search(head)
+        if not m:
+            continue
+        tag = m.group(1).strip().strip('\"').strip(chr(39))
+        if tag and tag != 'null':
+            print(f'{path}\t{tag}')
+" 2>/dev/null)
+
     for af in "$PROJECT_ROOT/.context/arcs"/*.yaml; do
         [ -f "$af" ] || continue
 
@@ -701,20 +792,15 @@ if [ -d "$PROJECT_ROOT/.context/arcs" ] && command -v git >/dev/null 2>&1 \
                    | tr -d ' "' | head -c 64)
         [ -z "$arc_slug" ] && arc_slug=$(basename "$af" .yaml)
 
-        # Collect task files whose arc_id: matches slug OR arc-NNN form.
+        # T-2298: filter pre-computed map by this arc's slug or arc-NNN id —
+        # was per-task awk fork (one awk per task per arc). Now in-memory only.
         matching_tasks=()
-        for d in active completed; do
-            tdir="$PROJECT_ROOT/.tasks/$d"
-            [ -d "$tdir" ] || continue
-            for tf in "$tdir"/T-*.md; do
-                [ -f "$tf" ] || continue
-                ttag=$(awk '/^arc_id:/ {sub(/^arc_id:[[:space:]]*/, ""); gsub(/["\x27]/, ""); print; exit}' "$tf" \
-                       | tr -d ' ' | head -c 64)
-                if [ -n "$ttag" ] && { [ "$ttag" = "$arc_slug" ] || [ "$ttag" = "$arc_numeric" ]; }; then
-                    matching_tasks+=("$tf")
-                fi
-            done
-        done
+        while IFS=$'\t' read -r tp ttag; do
+            [ -z "$tp" ] && continue
+            if [ "$ttag" = "$arc_slug" ] || [ "$ttag" = "$arc_numeric" ]; then
+                matching_tasks+=("$tp")
+            fi
+        done <<< "$task_arc_map"
 
         # Zero-population arcs can't be assessed for staleness — skip.
         [ "${#matching_tasks[@]}" -eq 0 ] && continue
@@ -946,6 +1032,8 @@ if not arcs_dir.is_dir():
 tasks_by_arc = {}
 for sub in ('active', 'completed'):
     for p in (PROJECT_ROOT / '.tasks' / sub).glob('T-*.md'):
+        if p.name.startswith('T-Test-'):  # T-2228 (T-2225 Slice 3): skip test sentinels
+            continue
         try:
             text = p.read_text()
         except Exception:
@@ -1073,6 +1161,55 @@ else
          "Migrate to lib/arc_membership.{sh,py} (arc_tasks_for / scan_tasks_by_arc_membership). See T-1880 for pattern. Silent-corpus risk class L-397."
 fi
 
+# T-2648 (OBS-097, 832's G-004 class): split-root asset-resolution lint.
+# Framework-owned dirs (lib/ agents/ policy/ bin/ web/) resolved via
+# PROJECT_ROOT are invisible bugs in this repo (roots coincide) but break
+# every split-root consumer — the failing path structurally cannot fire
+# where the code is developed (same class as OBS-096 / T-1633). Origin:
+# T-2645 fixed 3 sys.path sites 832 reported; T-2648 calibration found 5
+# more live (designer pin, 3× bin/fw subprocess paths, agents/ dir read).
+# Scope: Python under web/ and lib/ (shell uses different resolution
+# idioms — follow-up scope, see OBS-097). Correct resolution is
+# FRAMEWORK_ROOT (web/shared.py) or Path(__file__)-derived in lib/.
+#
+# Semantic allowlist (NOT path-prefix): lines referencing the two
+# per-project policy INSTANCE files (value-drivers.yaml,
+# bvp-scoring-rubric.md — seeded from the framework template by
+# `fw bvp driver --init`, T-2229) are legitimate PROJECT_ROOT reads;
+# parity with lib/bvp.sh's own PROJECT_ROOT resolution. A site may also
+# carry an inline `OBS-097-allow:` annotation WITH a stated reason —
+# for surfaces that are PROJECT_ROOT-relative end-to-end where a lone
+# resolution flip would make things worse (e.g. core.py /project listing,
+# whose relative_to+serving pair both assume PROJECT_ROOT).
+# Failure mode: FAIL — this exact class shipped a dead /review queue to
+# a consumer (832 rail 253) and two silently-dead surfaces.
+splitroot_violations=0
+splitroot_evidence=""
+splitroot_pattern='PROJECT_ROOT[[:space:]]*/[[:space:]]*["'\''](lib|agents|policy|bin|web)["'\'']'
+for scan_dir in web lib; do
+    [ -d "$PROJECT_ROOT/$scan_dir" ] || continue
+    while IFS= read -r hit; do
+        [ -z "$hit" ] && continue
+        case "$hit" in
+            # Per-project policy instances (T-2229 --init model).
+            *value-drivers.yaml*|*bvp-scoring-rubric.md*) continue ;;
+            # Explicit annotated exemption (must carry a reason in-source).
+            *OBS-097-allow:*) continue ;;
+            *tests/*|*docs/*) continue ;;
+        esac
+        splitroot_violations=$((splitroot_violations + 1))
+        splitroot_evidence="$splitroot_evidence$hit\n"
+    done < <(grep -RnE "$splitroot_pattern" --include='*.py' \
+                   "$PROJECT_ROOT/$scan_dir" 2>/dev/null || true)
+done
+if [ "$splitroot_violations" -eq 0 ]; then
+    pass "No PROJECT_ROOT resolution of framework-owned assets in web/ + lib/ Python (T-2648, OBS-097)"
+else
+    fail "Found $splitroot_violations PROJECT_ROOT resolution(s) of framework-owned assets (breaks split-root consumers)" \
+         "$(printf '%b' "$splitroot_evidence" | head -5)" \
+         "Resolve via FRAMEWORK_ROOT (web/shared.py) or Path(__file__)-derived root in lib/. If the file is genuinely per-project state, extend the allowlist in this check WITH a stated reason. See OBS-097 / T-2645 / T-2648."
+fi
+
 # T-1975 (L-417 prevention): stale-slice-reference scan.
 # When a slice ships, satellite text/tests referencing "ship in T-NNNN"
 # become stale and contradict reality. Origin: T-1971/T-1972/T-1973/T-1974
@@ -1140,35 +1277,95 @@ fi
 # FP rate is measured.
 go_scope_unprop_count=0
 go_scope_unprop_evidence=""
-for task_file in "$PROJECT_ROOT"/.tasks/completed/T-*.md; do
-    [ -f "$task_file" ] || continue
-    # Filter: must be inception
-    grep -qE "^workflow_type: inception$" "$task_file" || continue
-    # Body must contain a propagation-claim phrase
-    grep -qiE "filed on GO|sub-tasks (filed|created)|build slices (filed|created)|child tasks (filed|spun off)" \
-         "$task_file" || continue
-    # related_tasks must be empty (`[]`) or absent
-    if grep -qE "^related_tasks: \[\]" "$task_file"; then
-        :
-    elif ! grep -qE "^related_tasks:" "$task_file"; then
-        :
-    else
+# T-2298: single python3 pre-scan (was per-completed-task grep fan-out — ~1500
+# completed tasks × 3-4 greps + cross-file grep per survivor = 30-60s wall-clock).
+# Pass 1: find candidate inceptions (workflow_type=inception + claim phrase +
+# empty/absent related_tasks). Pass 2: build set of ALL t_ids referenced inline
+# in any task's related_tasks: line — O(M+N) instead of original O(M*N) per-
+# candidate cross-file scan. Skips T-Test-* sentinels (T-2228 parity).
+go_scope_unprop_list=$(python3 -c "
+import os, re
+project_root = '$PROJECT_ROOT'
+completed_dir = os.path.join(project_root, '.tasks', 'completed')
+active_dir = os.path.join(project_root, '.tasks', 'active')
+
+WORKFLOW_RE = re.compile(r'^workflow_type: inception\$', re.M)
+CLAIM_RE = re.compile(r'filed on GO|sub-tasks (filed|created)|build slices (filed|created)|child tasks (filed|spun off)', re.I)
+EMPTY_RT_RE = re.compile(r'^related_tasks: \[\]', re.M)
+HAS_RT_RE = re.compile(r'^related_tasks:', re.M)
+ID_RE = re.compile(r'^(T-\d+)')
+INLINE_RT_LINE_RE = re.compile(r'^related_tasks:.*\bT-\d+\b.*\$', re.M)
+TID_RE = re.compile(r'\bT-\d+\b')
+
+# Pass 1: candidate inceptions
+candidates = []  # (path, t_id)
+if os.path.isdir(completed_dir):
+    try:
+        names = os.listdir(completed_dir)
+    except OSError:
+        names = []
+    for fn in names:
+        if not (fn.startswith('T-') and fn.endswith('.md')):
+            continue
+        if fn.startswith('T-Test-'):
+            continue
+        path = os.path.join(completed_dir, fn)
+        try:
+            with open(path) as f:
+                content = f.read()
+        except Exception:
+            continue
+        if not WORKFLOW_RE.search(content):
+            continue
+        if not CLAIM_RE.search(content):
+            continue
+        # related_tasks: must be empty (\`[]\`) OR absent
+        if EMPTY_RT_RE.search(content):
+            pass
+        elif not HAS_RT_RE.search(content):
+            pass
+        else:
+            continue
+        m = ID_RE.match(fn)
+        if not m:
+            continue
+        candidates.append((path, m.group(1)))
+
+# Pass 2: collect ALL t_ids appearing inline in any task's related_tasks: line.
+referenced_ids = set()
+for tdir in (active_dir, completed_dir):
+    if not os.path.isdir(tdir):
         continue
-    fi
-    # Reverse check: if any other task back-references this inception's id
-    # in its own related_tasks:, propagation happened despite the empty
-    # inception-side field. Skip.
-    t_id=$(basename "$task_file" | grep -oE '^T-[0-9]+')
-    [ -z "$t_id" ] && continue
-    back_refs=$(grep -lE "related_tasks:.*\b${t_id}\b" \
-                     "$PROJECT_ROOT"/.tasks/active/T-*.md \
-                     "$PROJECT_ROOT"/.tasks/completed/T-*.md 2>/dev/null | wc -l)
-    if [ "$back_refs" -gt 0 ]; then
+    try:
+        names = os.listdir(tdir)
+    except OSError:
         continue
-    fi
+    for fn in names:
+        if not (fn.startswith('T-') and fn.endswith('.md')):
+            continue
+        if fn.startswith('T-Test-'):
+            continue
+        path = os.path.join(tdir, fn)
+        try:
+            with open(path) as f:
+                content = f.read()
+        except Exception:
+            continue
+        for m in INLINE_RT_LINE_RE.finditer(content):
+            for tid_match in TID_RE.finditer(m.group(0)):
+                referenced_ids.add(tid_match.group(0))
+
+# Emit candidates that are NOT back-referenced
+for path, t_id in candidates:
+    if t_id not in referenced_ids:
+        print(path)
+" 2>/dev/null)
+
+while IFS= read -r task_file; do
+    [ -z "$task_file" ] && continue
     go_scope_unprop_count=$((go_scope_unprop_count + 1))
     go_scope_unprop_evidence="$go_scope_unprop_evidence$task_file\n"
-done
+done <<< "$go_scope_unprop_list"
 if [ "$go_scope_unprop_count" -eq 0 ]; then
     pass "No GO-scope-not-propagated inception(s) (sibling to L-417)"
 else
@@ -1328,7 +1525,14 @@ fi
 # task closed work-completed while drift made the new job a no-op for
 # 3 days). G-064 closure path.
 _cron_registry="$PROJECT_ROOT/.context/cron-registry.yaml"
-if [ -f "$_cron_registry" ]; then
+if [ -f "$_cron_registry" ] && fw_is_linked_worktree "$PROJECT_ROOT"; then
+    # T-2435 (OBS-077): cron is a HOST-level concern installed once from the canonical
+    # main checkout. A linked worktree derives a worktree-named target that is never
+    # generated/installed (and must not be), so every cron drift check below is a pure
+    # worktree artifact, not content drift. Skip with INFO (counts as PASS; never blocks
+    # a worktree push). The real registry→generated→deployed chain is gated on main.
+    info "Cron drift checks skipped — linked worktree (cron is host-level, managed from the main checkout)"
+elif [ -f "$_cron_registry" ]; then
     _cron_source="$PROJECT_ROOT/.context/cron/agentic-audit.crontab"
     _cron_target_dir="${FW_CRON_INSTALL_DIR:-/etc/cron.d}"
     _cron_slug=$(basename "$PROJECT_ROOT" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9_-]/-/g')
@@ -1383,7 +1587,23 @@ fi
 # agentic-audit.crontab; this loop covers every other .context/cron/*.crontab
 # (release-mirror-canary, heartbeat, project-specific ad-hoc files, ...).
 _cron_lint_dir="$PROJECT_ROOT/.context/cron"
-if [ -d "$_cron_lint_dir" ]; then
+if [ -d "$_cron_lint_dir" ] && fw_is_linked_worktree "$PROJECT_ROOT"; then
+    # T-2437 (OBS-077 keystone): sibling of the registry-block worktree-skip
+    # (T-2435). This lint reads /etc/cron.d/ for an install under the WORKTREE
+    # slug that never exists — cron is installed once from the main checkout
+    # under the MAIN slug — so every dormant-crontab FAIL here is a pure worktree
+    # artifact. Cron install state is HOST-ENVIRONMENT, not content, so it is
+    # owned by the main checkout and skipped in a linked worktree.
+    #
+    # The content-vs-environment classification (the keystone): a pre-push /
+    # audit check may FAIL in a linked worktree ONLY when it measures committed
+    # CONTENT drift (self-vendor T-2436, fabric, task YAML, secrets, hook
+    # threshold). Checks that measure HOST/working-copy ENVIRONMENT state
+    # (cron install at /etc/cron.d/, both legs here and at the registry block)
+    # are INFO-skipped — they are managed from main and their absence in a
+    # transient worktree is expected, not a regression. See L-486.
+    info "Cron-misload lint skipped — linked worktree (cron install is host-level, managed from the main checkout)"
+elif [ -d "$_cron_lint_dir" ]; then
     _cron_lint_target_dir="${FW_CRON_INSTALL_DIR:-/etc/cron.d}"
     _cron_lint_slug=$(basename "$PROJECT_ROOT" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9_-]/-/g')
     for _cf in "$_cron_lint_dir"/*.crontab; do
@@ -1483,6 +1703,222 @@ if [ -x "$LARGE_FILE_SCANNER" ]; then
         pass "Large-file gate: tracked tree clean"
     fi
 fi
+
+# T-2244: Self-vendor drift FAIL (F2 N×M daily-cron backstop). Mirrors
+# `bin/fw doctor` Check 2b (T-1434 + T-2243) and the pre-push gate
+# (T-2240/T-2241). Audit is the third surface — daily cron catches any
+# drift that slipped past the developer-facing gates (e.g.
+# FW_SKIP_SELF_VENDOR_CHECK=1 push followed by forgotten follow-up).
+#
+# Only runs when PROJECT_ROOT == FRAMEWORK_ROOT (framework-repo audit).
+# On consumer projects, .agentic-framework/ IS the source, not vendored.
+# Per-class counters (libs + templates) so neither class can bury the
+# other in the FAIL report — same pattern as T-2243 doctor leg.
+check_self_vendor_drift() {
+    if [ "$PROJECT_ROOT" != "$FRAMEWORK_ROOT" ]; then
+        return 0
+    fi
+    if [ ! -d "$FRAMEWORK_ROOT/.agentic-framework" ]; then
+        return 0
+    fi
+
+    local _sv_libs=0 _sv_tpl=0
+    local _sv_libs_list="" _sv_tpl_list=""
+
+    # libs class: .agentic-framework/{bin,lib,agents,web}/* vs source
+    while IFS= read -r _vf; do
+        [ -f "$_vf" ] || continue
+        local _rel="${_vf#$FRAMEWORK_ROOT/.agentic-framework/}"
+        local _src="$FRAMEWORK_ROOT/$_rel"
+        if [ -f "$_src" ] && ! cmp -s "$_vf" "$_src" 2>/dev/null; then
+            _sv_libs=$((_sv_libs + 1))
+            if [ "$_sv_libs" -le 5 ]; then
+                _sv_libs_list="$_sv_libs_list $_rel"
+            fi
+        fi
+    # T-2304 (OBS-068) + T-2307 (follow-on): `*.md` is in scope for parity with
+    # `_self_vendor_agents` (T-2266+T-2304) and `_self_vendor_libs` (T-2307).
+    # AGENT.md intelligence files + lib/templates/*.md siblings drift silently
+    # between source and vendored copies. Audit scans bin/lib/agents/web with
+    # the same filter; bin has no tracked .md content (no-op there); lib/agents
+    # both have tracked .md siblings and both helpers now sync them recursively
+    # via `bin/fw vendor self`. Net: audit FAIL → helper SYNC closure, no
+    # `fw vendor` full-mode fallback needed.
+    # T-2502: `-name "claude-fw"` added — the extensionless operator auto-restart
+    # wrapper (bin/claude-fw) matches neither `*.sh`/`*.py`/`*.md` nor `fw`, so the
+    # vendored copy drifted undetected (sibling of T-2501's on-PATH drift). Parity:
+    # `_self_vendor_shim` (lib/upgrade.sh) now syncs claude-fw too, so this FAIL is
+    # clearable via `fw vendor self` (L-399 producer/consumer parity).
+    done < <(find "$FRAMEWORK_ROOT/.agentic-framework/bin" "$FRAMEWORK_ROOT/.agentic-framework/lib" "$FRAMEWORK_ROOT/.agentic-framework/agents" "$FRAMEWORK_ROOT/.agentic-framework/web" -type f \( -name "*.sh" -o -name "*.py" -o -name "fw" -o -name "claude-fw" -o -name "*.md" \) 2>/dev/null)
+
+    # templates class: .agentic-framework/.tasks/templates/*.md vs source
+    if [ -d "$FRAMEWORK_ROOT/.agentic-framework/.tasks/templates" ]; then
+        while IFS= read -r _vf; do
+            [ -f "$_vf" ] || continue
+            local _rel="${_vf#$FRAMEWORK_ROOT/.agentic-framework/}"
+            local _src="$FRAMEWORK_ROOT/$_rel"
+            if [ -f "$_src" ] && ! cmp -s "$_vf" "$_src" 2>/dev/null; then
+                _sv_tpl=$((_sv_tpl + 1))
+                if [ "$_sv_tpl" -le 5 ]; then
+                    _sv_tpl_list="$_sv_tpl_list $_rel"
+                fi
+            fi
+        done < <(find "$FRAMEWORK_ROOT/.agentic-framework/.tasks/templates" -type f -name "*.md" 2>/dev/null)
+    fi
+
+    if [ "$_sv_libs" -eq 0 ] && [ "$_sv_tpl" -eq 0 ]; then
+        pass "Self-vendor drift: vendored .agentic-framework/ in sync with source (libs + templates)"
+        return 0
+    fi
+
+    if [ "$_sv_libs" -gt 0 ]; then
+        # T-2436 (OBS-076): the T-2247 comment claimed `fw vendor self` only syncs
+        # .agentic-framework/lib/, so this recommended full `fw vendor`. That is
+        # STALE — since T-2264/T-2266/T-2267 `fw vendor self` runs all six helpers
+        # (libs+templates+policy+shim+agents+web) = bin+lib+agents+web, the exact
+        # scope this libs-class check scans. Recommend `fw vendor self` so the
+        # FAIL's fix command AGREES with the canonical sync verb (and with
+        # `fw vendor self --check`, the read-only verifier added in T-2436).
+        fail "Self-vendor drift: libs class — $_sv_libs file(s) out of sync (T-2244)" \
+             "First $([ $_sv_libs -gt 5 ] && echo 5 || echo $_sv_libs):$_sv_libs_list" \
+             "Run: fw vendor self  (syncs all vendored .agentic-framework/ classes — verify with: fw vendor self --check)"
+    fi
+    if [ "$_sv_tpl" -gt 0 ]; then
+        # Templates class is correctly scoped to 'fw vendor self' — it syncs
+        # .tasks/templates as a sibling of lib/ (lib/upgrade.sh _self_vendor_templates).
+        fail "Self-vendor drift: templates class — $_sv_tpl file(s) out of sync (T-2244)" \
+             "First $([ $_sv_tpl -gt 5 ] && echo 5 || echo $_sv_tpl):$_sv_tpl_list" \
+             "Run: fw vendor self  (sync .agentic-framework/ templates with source)"
+    fi
+}
+check_self_vendor_drift
+
+# T-2577 (T-2571 S4): designer ghost↔task drift sweep, both directions.
+# The save-time mint is non-fatal by contract (a failed mint must never break
+# /api/save), so this sweep is the backstop that keeps the failure visible:
+#   A: ghost with task:null older than the grace window — the mint failed (or
+#      was skipped, e.g. no fw shim) and the documentation debt is invisible.
+#   B: ghost task: T-ID resolving to no task file — the task was deleted or
+#      renamed out from under the registry (dangling uuid↔task join).
+# Silent when no registry exists (project has no designer store yet).
+check_designer_ghost_drift() {
+    local _reg="$PROJECT_ROOT/.context/designer/registry.yaml"
+    [ -f "$_reg" ] || return 0
+    local _out
+    _out=$(python3 - "$_reg" "$PROJECT_ROOT" "${FW_GHOST_TASK_GRACE_HOURS:-24}" <<'PYEOF'
+import glob, os, sys, time
+import yaml
+reg_p, root, grace_h = sys.argv[1], sys.argv[2], float(sys.argv[3])
+try:
+    reg = yaml.safe_load(open(reg_p)) or {}
+except Exception:
+    print("parse-error|||")
+    raise SystemExit(0)
+ghosts = reg.get("ghosts") or []
+task_ids = set()
+for f in glob.glob(os.path.join(root, ".tasks", "active", "T-*.md")) + glob.glob(
+    os.path.join(root, ".tasks", "completed", "T-*.md")
+):
+    parts = os.path.basename(f).split("-")
+    if len(parts) >= 2:
+        task_ids.add(parts[0] + "-" + parts[1])
+now = time.time()
+unminted = [
+    g.get("uuid", "?")
+    for g in ghosts
+    if not g.get("task") and (now - (g.get("first_seen") or 0)) > grace_h * 3600
+]
+dangling = [
+    f"{g['task']}({g.get('uuid', '?')[:8]})"
+    for g in ghosts
+    if g.get("task") and g["task"] not in task_ids
+]
+print(f"{len(unminted)}|{' '.join(unminted[:5])}|{len(dangling)}|{' '.join(dangling[:5])}")
+PYEOF
+    )
+    if [ "${_out%%|*}" = "parse-error" ]; then
+        warn "Designer ghost registry unparseable: $_reg" \
+             "yaml.safe_load failed — registry writes are atomic, so this suggests manual edit damage" \
+             "Inspect the file; registry regenerates entries on next designer save"
+        return 0
+    fi
+    local _unminted _unminted_list _dangling _dangling_list
+    IFS='|' read -r _unminted _unminted_list _dangling _dangling_list <<< "$_out"
+    if [ "${_unminted:-0}" -eq 0 ] && [ "${_dangling:-0}" -eq 0 ]; then
+        pass "Designer ghost registry: ghost↔task joins clean"
+        return 0
+    fi
+    if [ "${_unminted:-0}" -gt 0 ]; then
+        warn "Designer ghosts without documentation task: $_unminted past grace window (T-2577)" \
+             "uuids:$_unminted_list — save-time mint failed or was skipped; debt is invisible until minted" \
+             "Re-save the referring diagram (re-triggers minting) or check the Watchtower stderr log for mint failures. Grace window: FW_GHOST_TASK_GRACE_HOURS (default 24)."
+    fi
+    if [ "${_dangling:-0}" -gt 0 ]; then
+        warn "Designer ghost task joins dangling: $_dangling T-ID(s) resolve to no task file (T-2577)" \
+             "entries:$_dangling_list — task deleted/renamed out from under the registry" \
+             "Restore the task or clear the ghost's task: field so the next save re-mints"
+    fi
+}
+check_designer_ghost_drift
+
+# T-2621: map-conformance rail — task-lifecycle corpus map vs enforced transitions.
+# First selective spec-conformance leg (T-2619 GO). The checker collapses the
+# map's state-carrier nodes (aef:meta state=) to transition pairs and compares
+# against status-transitions.yaml (legacy entries excluded). Divergence is the
+# finding, not a failure of the rail — the map graduates to detail-authority
+# only when this stays green (T-2619 cascading-detail model).
+check_map_conformance() {
+    local _tool="$PROJECT_ROOT/tools/corpus_conformance.py"
+    local _store="$PROJECT_ROOT/.context/designer/projects/aef-task-lifecycle"
+    if [ ! -f "$_tool" ] || [ ! -d "$_store" ]; then
+        return 0  # rail not applicable (consumer project / no corpus)
+    fi
+    local _out _rc
+    _out=$(python3 "$_tool" --map aef-task-lifecycle --root "$PROJECT_ROOT" 2>&1)
+    _rc=$?
+    case "$_rc" in
+        0)
+            if echo "$_out" | grep -q "SKIP"; then
+                info "Map conformance: aef-task-lifecycle has no state-carrier annotations yet (rail dormant)"
+            else
+                pass "Map conformance: aef-task-lifecycle matches enforced transitions"
+            fi
+            ;;
+        1)
+            warn "Map conformance: aef-task-lifecycle diverges from enforced transitions (T-2621)" \
+                 "$(echo "$_out" | grep -E 'map-asserts|code-allows' | tr '\n' '; ')" \
+                 "Update the map (pair-draft round adding the missing edges) or fix status-transitions.yaml if the map is right — the rail must be green before the map graduates to detail-authority (T-2619)"
+            ;;
+        *)
+            warn "Map conformance: checker failed to load aef-task-lifecycle (T-2621)" \
+                 "$_out" \
+                 "Inspect .context/designer/projects/aef-task-lifecycle/ and tools/corpus_conformance.py"
+            ;;
+    esac
+}
+check_map_conformance
+
+# T-2623: draft hygiene — drafts (id prefix draft-) untouched >30 days surface
+# as INFO (never WARN: drafts are the cheap tier; staleness is a nudge, not drift).
+check_stale_drafts() {
+    local _store="$PROJECT_ROOT/.context/designer/projects"
+    [ -d "$_store" ] || return 0
+    local _now _stale="" _d _mp _upd
+    _now=$(date +%s)
+    for _d in "$_store"/draft-*/; do
+        [ -d "$_d" ] || continue
+        _mp="$_d/meta.json"
+        [ -f "$_mp" ] || continue
+        _upd=$(python3 -c "import json,sys; print(int(json.load(open(sys.argv[1])).get('updated') or 0))" "$_mp" 2>/dev/null || echo 0)
+        if [ "${_upd:-0}" -gt 0 ] && [ $(( _now - _upd )) -gt $(( 30 * 86400 )) ]; then
+            _stale="$_stale $(basename "$_d")"
+        fi
+    done
+    if [ -n "$_stale" ]; then
+        info "Stale draft(s), 30d+ untouched:$_stale — promote via the ceremony or delete from the gallery (T-2623)"
+    fi
+}
+check_stale_drafts
 
 echo ""
 fi # end structure
@@ -2029,35 +2465,47 @@ if [ -f "$INBOX_FILE" ]; then
     if [ "$pending_obs" -gt 0 ]; then
         # Check for urgent pending observations
         # Count blocks that have both status: pending and urgent: true
+        # T-2514: parse YAML properly. The prior regex block-split
+        # `re.split(r'\n  - ', content)` did NOT match the real inbox format
+        # (observations are `- id:` at column 0, not `  - `), producing one
+        # mega-block whose first `captured:` (oldest obs) got mis-associated
+        # with a `status: pending` bleeding in from a recent obs → phantom
+        # "stale"/"urgent" counts. YAML parse is per-observation and exact.
         urgent_obs=$(python3 -c "
-import re
-with open('$INBOX_FILE') as f:
-    content = f.read()
-blocks = re.split(r'\n  - ', content)
-urgent = sum(1 for b in blocks[1:] if 'status: pending' in b and 'urgent: true' in b)
-print(urgent)
+import yaml
+try:
+    d = yaml.safe_load(open('$INBOX_FILE')) or {}
+    obs = d.get('observations', []) if isinstance(d, dict) else []
+except Exception:
+    obs = []
+print(sum(1 for o in obs if isinstance(o, dict) and o.get('status') == 'pending' and o.get('urgent') is True))
 " 2>/dev/null || true)
 
         # Check for stale observations (>7 days old)
         stale_obs=$(python3 -c "
-import re
-from datetime import datetime, timedelta
-with open('$INBOX_FILE') as f:
-    content = f.read()
-blocks = re.split(r'\n  - ', content)
-cutoff = datetime.utcnow() - timedelta(days=7)
+import yaml
+from datetime import datetime, timedelta, timezone
+try:
+    d = yaml.safe_load(open('$INBOX_FILE')) or {}
+    obs = d.get('observations', []) if isinstance(d, dict) else []
+except Exception:
+    obs = []
+cutoff = datetime.now(timezone.utc) - timedelta(days=7)
 stale = 0
-for b in blocks[1:]:
-    if 'status: pending' not in b:
+for o in obs:
+    if not isinstance(o, dict) or o.get('status') != 'pending':
         continue
-    m = re.search(r'captured: (\S+)', b)
-    if m:
-        try:
-            ts = datetime.fromisoformat(m.group(1).replace('Z', '+00:00')).replace(tzinfo=None)
-            if ts < cutoff:
-                stale += 1
-        except:
-            pass
+    c = o.get('captured')
+    if c is None:
+        continue
+    try:
+        ts = c if isinstance(c, datetime) else datetime.fromisoformat(str(c).replace('Z', '+00:00'))
+        if ts.tzinfo is None:
+            ts = ts.replace(tzinfo=timezone.utc)
+        if ts < cutoff:
+            stale += 1
+    except Exception:
+        pass
 print(stale)
 " 2>/dev/null || true)
 
@@ -3121,17 +3569,33 @@ fi
 if should_run_section "compliance" || should_run_section "oe-daily"; then
     ac_fail=0
     if [ -n "$COMPLETED_SCAN" ]; then
-        while IFS='|' read -r task_id ac_line; do
+        # T-2202: 3-class taxonomy.
+        # - class=drift           → genuine CTL-012 (real outstanding AC)
+        # - class=missing-decide  → CTL-012-MISSING-DECIDE (inception task flipped
+        #                            to work-completed without running
+        #                            `fw inception decide`; auto-tick never ran)
+        # Prose-DEFERRED scope-cut markers are filtered upstream in the scanner.
+        while IFS='|' read -r ac_class task_id ac_line; do
             [ -z "$task_id" ] && continue
-            warn "CTL-012: Completed task $task_id has unchecked AC" \
-                 "$ac_line" \
-                 "Review task completion — AC gate may have been bypassed"
+            case "$ac_class" in
+                missing-decide)
+                    warn "CTL-012-MISSING-DECIDE: Inception task $task_id flipped without decide ceremony" \
+                         "$ac_line" \
+                         "Auto-tick markers present but ## Decision section empty — run: fw inception decide $task_id go|no-go|defer --rationale '...' OR backfill the Decision section manually then tick the auto-tick ACs"
+                    ;;
+                *)
+                    warn "CTL-012: Completed task $task_id has unchecked AC" \
+                         "$ac_line" \
+                         "Review task completion — AC gate may have been bypassed"
+                    ;;
+            esac
             ac_fail=$((ac_fail + 1))
         done < <(echo "$COMPLETED_SCAN" | python3 -c "
 import sys, json
 data = json.load(sys.stdin)
 for item in data.get('unchecked_ac', []):
-    print(f\"{item['id']}|{item['line']}\")
+    cls = item.get('class', 'drift')
+    print(f\"{cls}|{item['id']}|{item['line']}\")
 " 2>/dev/null)
     fi
     if [ "$ac_fail" -eq 0 ]; then
@@ -3598,6 +4062,34 @@ for f in glob.glob(os.path.join(TASKS_DIR, "completed", "T-*.md")):
     # Remaining: human task, fast, 0-1 commits, non-trivial type — flag it
     anomalies.append(f"{tid}({cycle_min:.0f}min,{owner})")
 
+def is_partial_complete(path, fm):
+    """T-100122: partial-complete (T-193) is a VALID long-lived state — a
+    human-owned task whose Agent ACs are all ticked and >=1 Human AC is
+    unticked is awaiting operator review (surfaced via /approvals and
+    fw review-queue), not stuck. Excluding it stops D5 re-flagging the
+    whole review backlog as lifecycle anomalies every day (22 of the 29
+    anomalies in the origin WARN were review-queue entries)."""
+    if fm.get("owner") != "human":
+        return False
+    try:
+        content = open(path).read()
+    except Exception:
+        return False
+    body = re.sub(r'^---\n.*?\n---', '', content, count=1, flags=re.DOTALL)
+    # T-100189: headings may carry suffixes ("### Human (T-1679 split — ...)")
+    # and tasks may hold multiple ### Agent sections — findall + merge, else
+    # partial-completes with annotated headings re-flag as anomalies (T-1062).
+    agent_blocks = re.findall(r'### Agent[^\n]*\n(.*?)(?=\n### |\n## |\Z)', body, re.DOTALL)
+    human_blocks = re.findall(r'### Human[^\n]*\n(.*?)(?=\n### |\n## |\Z)', body, re.DOTALL)
+    if not agent_blocks or not human_blocks:
+        return False
+    agent_text = "\n".join(agent_blocks)
+    human_text = "\n".join(human_blocks)
+    agent_ticked = len(re.findall(r'- \[x\]', agent_text, re.IGNORECASE))
+    agent_unticked = len(re.findall(r'- \[ \]', agent_text))
+    human_unticked = len(re.findall(r'- \[ \]', human_text))
+    return agent_ticked > 0 and agent_unticked == 0 and human_unticked > 0
+
 # Check active tasks stuck >7 days in started-work (not captured or work-completed)
 for f in glob.glob(os.path.join(TASKS_DIR, "active", "T-*.md")):
     fm = parse_frontmatter(f)
@@ -3609,6 +4101,8 @@ for f in glob.glob(os.path.join(TASKS_DIR, "active", "T-*.md")):
         continue
     age_days = (datetime.now(timezone.utc) - created).days
     if age_days > 7:
+        if is_partial_complete(f, fm):
+            continue  # awaiting human review — tracked on /approvals, not an anomaly
         tid = fm.get("id", "?")
         anomalies.append(f"{tid}({age_days}d-active)")
 
@@ -3762,10 +4256,20 @@ try:
 
     if avg > 0:
         ratio = today_count / avg
+        # T-100123: "today" is a partial day — compare the drop side against
+        # the prorated expectation (avg * fraction-of-day-elapsed), not the
+        # full-day average. An audit run at 01:02 with avg=55 fired WARN on
+        # 5 commits (ratio 0.09) despite being ~2x ahead of pace. Spike side
+        # keeps the full-day average (a spike only grows as the day goes on).
+        # Skip the drop check in the first 6h — even prorated, commit
+        # patterns are too lumpy for a meaningful drop signal that early.
+        now = datetime.now()
+        day_frac = (now.hour * 3600 + now.minute * 60 + now.second) / 86400.0
+        expected = avg * day_frac
         if ratio > 2:
             print(f"WARN spike today={today_count} avg={avg:.0f} ratio={ratio:.1f}x")
-        elif ratio < 0.3 and today_count > 0:
-            print(f"WARN drop today={today_count} avg={avg:.0f} ratio={ratio:.1f}x")
+        elif day_frac >= 0.25 and expected > 0 and today_count > 0 and (today_count / expected) < 0.3:
+            print(f"WARN drop today={today_count} expected_by_now={expected:.0f} avg={avg:.0f} ratio={today_count / expected:.1f}x")
         else:
             print(f"PASS today={today_count} avg={avg:.0f} ratio={ratio:.1f}x")
     else:
@@ -4260,9 +4764,15 @@ for deploy_file in Dockerfile deploy/docker-compose.swarm.yml deploy/traefik-rou
 done
 
 # Check health endpoint responds (if server is running)
-_wt_url=$(_watchtower_url 2>/dev/null || echo "http://localhost:$(fw_config "PORT" 3000)")
+# F9 (T-2445): gate the health pass on the identity-verified resolver. A bare
+# `|| echo http://localhost:PORT` fallback re-points at a FOREIGN service holding
+# the default port and curls its /health (any server answers 200) → false pass.
+# _watchtower_url returns non-zero when no Watchtower of OURS is reachable (T-1803).
+if ! _wt_url=$(_watchtower_url 2>/dev/null); then
+    _wt_url=""
+fi
 _wt_port=$(echo "$_wt_url" | grep -oP ':\K\d+$' || echo "3000")
-if curl -sf --max-time 3 "${_wt_url}/health" >/dev/null 2>&1; then
+if [ -n "$_wt_url" ] && curl -sf --max-time 3 "${_wt_url}/health" >/dev/null 2>&1; then
     pass "Deploy gate: Health endpoint responds on :${_wt_port}"
 elif curl -sf --max-time 3 http://localhost:5050/health >/dev/null 2>&1; then
     pass "Deploy gate: Health endpoint responds on :5050"
@@ -4285,21 +4795,33 @@ echo "=== ORCHESTRATOR ARC CHECKS ==="
 ORCH_SCRIPT="$FRAMEWORK_ROOT/agents/audit/orchestrator-mcp-scan.sh"
 ORCH_LATEST="$CONTEXT_DIR/audits/orchestrator-LATEST.yaml"
 
-if [ ! -x "$ORCH_SCRIPT" ]; then
-    warn "Orchestrator scan: $ORCH_SCRIPT not executable" \
-         "$ORCH_SCRIPT missing or not +x" \
-         "chmod +x $ORCH_SCRIPT"
+# T-2384: precondition is existence, not +x. The script is invoked via `bash`
+# (line ~4511 below), so the executable bit is never required at runtime — the
+# repo convention is non-+x agent scripts run via `bash`/sourced (30+ siblings),
+# and the test (test_orchestrator_mcp_classify.py) only read_text()s it. The
+# prior `[ ! -x ]` check was stricter than the invocation, so it WARNed on a
+# git mode of 100644 that nothing actually breaks on. Relaxing to `[ ! -f ]`
+# fixes the check/invocation mismatch at the root and is recurrence-proof
+# (a `chmod +x` would re-fire this WARN on the next mode-strip).
+if [ ! -f "$ORCH_SCRIPT" ]; then
+    warn "Orchestrator scan: $ORCH_SCRIPT not found" \
+         "$ORCH_SCRIPT missing" \
+         "Restore the file (invoked via 'bash', +x not required)"
 elif ! [ -d "${FW_TERMLINK_REPO:-/opt/termlink}/crates/termlink-mcp/src" ] && ! command -v termlink >/dev/null 2>&1; then
     info "Orchestrator scan: skipped — TermLink repo unreachable on this host"
 else
-    if bash "$ORCH_SCRIPT" >/dev/null 2>&1; then
+    # T-2260 / arc-010 Slice 1B: capture orchestrator exit but always continue
+    # to the framework-mcp summary block below — both legs share one scan but
+    # each leg has its own pass/warn/fail surface line.
+    bash "$ORCH_SCRIPT" >/dev/null 2>&1
+    ORCH_EXIT_CAPTURED=$?
+    if [ "$ORCH_EXIT_CAPTURED" = "0" ]; then
         ORCH_STATUS=$(grep -oE '^status: [a-z]+' "$ORCH_LATEST" 2>/dev/null | awk '{print $2}')
         ORCH_GATED=$(grep -oE '^gated_current: [0-9]+' "$ORCH_LATEST" 2>/dev/null | awk '{print $2}')
         ORCH_TOTAL=$(grep -oE '^current_count: [0-9]+' "$ORCH_LATEST" 2>/dev/null | awk '{print $2}')
         pass "Orchestrator-arc MCP scan: $ORCH_STATUS — $ORCH_GATED/$ORCH_TOTAL tools gated"
     else
-        ORCH_EXIT=$?
-        if [ "$ORCH_EXIT" = "1" ]; then
+        if [ "$ORCH_EXIT_CAPTURED" = "1" ]; then
             ORCH_WARNS=$(awk '/^warnings:/{flag=1; next} /^errors:/{flag=0} flag' "$ORCH_LATEST" 2>/dev/null | head -1 | sed 's/^- //')
             # T-1649: tag-format drift uses a different remediation path than baseline drift.
             if echo "$ORCH_WARNS" | grep -q "TAG-FORMAT-DRIFT"; then
@@ -4311,17 +4833,75 @@ else
                      "${ORCH_WARNS:-see $ORCH_LATEST}" \
                      "Update .context/audits/orchestrator-mcp-baseline.yaml or investigate ratchet/new-tool"
             fi
-        elif [ "$ORCH_EXIT" = "2" ]; then
+        elif [ "$ORCH_EXIT_CAPTURED" = "2" ]; then
             ORCH_ERRS=$(awk '/^errors:/{flag=1; next} /^[a-z]/{flag=0} flag' "$ORCH_LATEST" 2>/dev/null | head -1 | sed 's/^- //')
             fail "Orchestrator-arc MCP scan: regression — gated tool lost its check_task_governance" \
                  "${ORCH_ERRS:-see $ORCH_LATEST}" \
                  "Restore the gate or update baseline if removal was intentional (commit body must explain)"
+        elif [ "$ORCH_EXIT_CAPTURED" = "3" ]; then
+            # T-2647 (832 G-001/F2): first-run condition — baseline state never
+            # established on this install (fresh consumer; .context is excluded
+            # from the vendor payload by design). INFO, not FAIL: nothing to
+            # diff against is not a regression.
+            info "Orchestrator-arc MCP scan: no baseline on this install yet — drift scan skipped (seed from a framework checkout's .context/audits/ to enable)"
         else
-            warn "Orchestrator-arc MCP scan: probe failed (exit $ORCH_EXIT)" \
+            warn "Orchestrator-arc MCP scan: probe failed (exit $ORCH_EXIT_CAPTURED)" \
                  "Cannot reach /opt/termlink via direct read or termlink interact" \
                  "Check FW_TERMLINK_REPO and TermLink session availability"
         fi
     fi
+
+    # T-2260 / arc-010 Slice 1B (OR-2): surface the parallel framework-mcp leg
+    # status. Always emitted (independent of orchestrator-leg exit code) — both
+    # legs share one scan but each has its own pass/warn/fail surface line.
+    if [ -f "$ORCH_LATEST" ]; then
+        FW_MCP_LINE=$(python3 -c "
+import yaml
+d = yaml.safe_load(open('$ORCH_LATEST'))
+ff = d.get('framework_findings') or {}
+s = ff.get('status', 'missing')
+gc = ff.get('gated_current', 0)
+cc = ff.get('current_count', 0)
+mp = 'present' if ff.get('manifest_present') else 'absent'
+print(f'{s}|{gc}|{cc}|{mp}')
+" 2>/dev/null)
+        if [ -n "$FW_MCP_LINE" ]; then
+            FW_MCP_STATUS=$(echo "$FW_MCP_LINE" | awk -F'|' '{print $1}')
+            FW_MCP_GATED=$(echo "$FW_MCP_LINE" | awk -F'|' '{print $2}')
+            FW_MCP_TOTAL=$(echo "$FW_MCP_LINE" | awk -F'|' '{print $3}')
+            FW_MCP_MANIFEST_STATE=$(echo "$FW_MCP_LINE" | awk -F'|' '{print $4}')
+            case "$FW_MCP_STATUS" in
+                pass) pass "framework-mcp scan: PASS — $FW_MCP_GATED/$FW_MCP_TOTAL tools gated (manifest $FW_MCP_MANIFEST_STATE)" ;;
+                warn) warn "framework-mcp scan: WARN — $FW_MCP_GATED/$FW_MCP_TOTAL tools gated (manifest $FW_MCP_MANIFEST_STATE)" \
+                          "see framework_findings.warnings in $ORCH_LATEST" \
+                          "Update .context/audits/framework-mcp-baseline.yaml or classify the new tool" ;;
+                fail) fail "framework-mcp scan: FAIL — gated tool lost its governance call" \
+                          "see framework_findings.errors in $ORCH_LATEST" \
+                          "Restore the gate or update baseline if removal was intentional" ;;
+                *)    info "framework-mcp scan: status=$FW_MCP_STATUS (unexpected)" ;;
+            esac
+        fi
+    fi
+fi
+
+# T-2296 / arc-010: MCP manifest drift FAIL (daily-cron backstop to T-2294 pre-push gate).
+# Routes `fw mcp check` exit codes into audit verdict:
+#   0 → pass  (manifest in sync with tool-set.yaml)
+#   1 → fail  (drift — operator/agent forgot `fw mcp emit-manifest` after edit)
+#   2 → info  (absent — fresh project hasn't emitted yet; not a failure)
+# Sibling to the existing framework-mcp scan block above; that one surfaces
+# scan-vs-baseline drift, this one surfaces emitter-vs-source drift.
+if [ -x "$PROJECT_ROOT/bin/fw" ] && [ -f "$PROJECT_ROOT/agents/mcp/manifest.py" ]; then
+    MCP_DRIFT_OUT=$("$PROJECT_ROOT/bin/fw" mcp check 2>&1)
+    MCP_DRIFT_EXIT=$?
+    case "$MCP_DRIFT_EXIT" in
+        0) pass "framework-mcp manifest: PASS — in sync with tool-set.yaml" ;;
+        1) fail "framework-mcp manifest: FAIL — framework-mcp-manifest.json out of sync with tool-set.yaml" \
+                "$(echo "$MCP_DRIFT_OUT" | head -1)" \
+                "Run: bin/fw mcp emit-manifest && git add agents/mcp/framework-mcp-manifest.json && commit" ;;
+        2) info "framework-mcp manifest: ABSENT — run \`bin/fw mcp emit-manifest\` (fresh project)" ;;
+        *) info "framework-mcp manifest: status=$MCP_DRIFT_EXIT (unexpected)" ;;
+    esac
 fi
 
 # T-1798: Workflow → dispatcher coverage check.
@@ -4809,28 +5389,17 @@ pruned = sorted(old_by_day.values(), key=lambda x: x.get("timestamp") or "") + r
 
 data["entries"] = pruned
 
-# T-171: atomic write — a truncate-in-place open() leaves the file empty/partial
-# during the write, which a concurrent reader (T-1610 pre-push YAML gate, another
-# cron audit, `fw metrics`) can catch mid-write and mis-parse. Write to a temp file
-# in the same directory, then os.replace() — an atomic rename on POSIX — so readers
-# always see either the complete old file or the complete new file.
-import tempfile
-_dir = os.path.dirname(METRICS_FILE)
-_fd, _tmp = tempfile.mkstemp(dir=_dir, prefix=".metrics-history.", suffix=".tmp")
-try:
-    with os.fdopen(_fd, "w") as f:
-        # Preserve header comment
-        f.write("# Time-series metrics history\n")
-        f.write("# Auto-appended by audit.sh on each run\n")
-        f.write("# 30-day rolling retention\n")
-        yaml.dump({"entries": pruned}, f, default_flow_style=False, sort_keys=False)
-    os.replace(_tmp, METRICS_FILE)
-except Exception:
-    try:
-        os.unlink(_tmp)
-    except OSError:
-        pass
-    raise
+# T-100190: same-dir temp + os.replace — a kill mid-dump must not truncate the
+# live file (L-493 class; a cron audit killed mid-write corrupted this YAML and
+# the pre-push gate then blocked all pushes until manual recovery).
+tmp_path = METRICS_FILE + ".tmp"
+with open(tmp_path, "w") as f:
+    # Preserve header comment
+    f.write("# Time-series metrics history\n")
+    f.write("# Auto-appended by audit.sh on each run\n")
+    f.write("# 30-day rolling retention\n")
+    yaml.dump({"entries": pruned}, f, default_flow_style=False, sort_keys=False)
+os.replace(tmp_path, METRICS_FILE)
 METRICS_EOF
 fi
 

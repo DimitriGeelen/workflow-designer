@@ -57,21 +57,36 @@ increment_counter() {
     echo "$count"
 }
 
-# Find current session JSONL transcript — scoped to THIS project.
-# Uses PROJECT_ROOT to derive the Claude Code project directory name,
-# matching the pattern in budget-gate.sh. Without project scoping,
-# find_transcript picks up transcripts from other projects (T-791).
+# Find current session JSONL transcript.
+# T-2377: prefer the authoritative transcript_path that Claude Code passes to
+# hooks on stdin (first arg here). Reconstructing the dir from PROJECT_ROOT is
+# WRONG in git worktrees / background jobs — Claude Code keys the transcript dir
+# on the session's LAUNCH cwd (the main repo), not the worktree's PROJECT_ROOT,
+# so the gauge searched an empty/stale sibling dir and went blind (the loop never
+# armed). Sibling hooks (subagent-stop.sh, chat-bare-path-scan.sh, session-end.sh)
+# already consume stdin transcript_path; this brings the gauge into line.
+# Reconstruction (T-2375 encoding fix + T-791 project scoping) remains the
+# fallback for manual `status` invocation where no stdin path is available.
 find_transcript() {
-    local project_dir_name
-    project_dir_name="${PROJECT_ROOT:-$FRAMEWORK_ROOT}"
-    project_dir_name="${project_dir_name//\//-}"
-    local project_jsonl_dir="$HOME/.claude/projects/${project_dir_name}"
-    if [ -d "$project_jsonl_dir" ]; then
-        local transcript
-        transcript=$(find "$project_jsonl_dir" -maxdepth 1 -name "*.jsonl" -type f ! -name "agent-*" -print0 2>/dev/null | xargs -r -0 ls -t 2>/dev/null | head -1)
-        if [ -n "$transcript" ]; then
-            echo "$transcript"
-        fi
+    local explicit="${1:-}"
+    if [ -n "$explicit" ] && [ -f "$explicit" ]; then
+        echo "$explicit"
+        return 0
+    fi
+    # T-2375: match Claude Code's dir encoding (every non-alnum → '-', incl. '.').
+    # T-2392: search ALL candidate project dirs — the PROJECT_ROOT-keyed dir AND
+    # the primary-worktree (main-repo) dir Claude Code actually launched from —
+    # then pick the GLOBALLY-newest transcript across them. Reconstructing from
+    # PROJECT_ROOT alone is blind in worktree sessions (the live transcript lives
+    # in the main-repo-keyed dir).
+    local transcript
+    transcript=$(
+        while IFS= read -r d; do
+            find "$d" -maxdepth 1 -name "*.jsonl" -type f ! -name "agent-*" -print0 2>/dev/null
+        done < <(fw_claude_project_dirs) | xargs -r -0 ls -t 2>/dev/null | head -1
+    )
+    if [ -n "$transcript" ]; then
+        echo "$transcript"
     fi
 }
 
@@ -164,7 +179,23 @@ warn_by_tokens() {
             # cannot stall the Claude Code session for hours on slow networks.
             # Default 60s (push×N + commit + audit + handover write).
             _ah_total_timeout="${FW_HANDOVER_TOTAL_TIMEOUT:-60}"
-            if timeout "$_ah_total_timeout" "$FRAMEWORK_ROOT/agents/handover/handover.sh" --commit 2>&1 | tail -5 >&2; then
+            # T-2506: `bash <script>`, not bare exec — the budget-critical auto-handover
+            # is the OTHER silent memory-capture path (T-179). A missing exec bit on the
+            # vendored handover.sh would drop it exactly like pre-compact did. Interpreter
+            # invocation makes it exec-bit-immune. Same class as pre-compact.sh fix.
+            # T-2507: capture output to a durable file and branch on the handover's
+            # TRUE exit code, then RECORD success/FAILED to the same .compact-log fw
+            # doctor Check 5d reads. The budget-critical auto-handover failure was
+            # echo-to-stderr ONLY (not-even-recorded) — the most catastrophic
+            # memory-loss path, since the session is about to auto-restart. Now a
+            # failed budget-critical handover surfaces exactly like a failed
+            # pre-compact one. Sibling to T-2506 (pre-compact) / T-2374 (honest log).
+            _ah_capture="$CONTEXT_DIR/working/.checkpoint.handover.stderr"
+            _ah_log="$CONTEXT_DIR/working/.compact-log"
+            _ah_ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            if timeout "$_ah_total_timeout" bash "$FRAMEWORK_ROOT/agents/handover/handover.sh" --commit >"$_ah_capture" 2>&1; then
+                tail -5 "$_ah_capture" >&2 2>/dev/null || true
+                echo "[checkpoint] [auto] Handover generated at $_ah_ts" >> "$_ah_log" 2>/dev/null || true
                 echo "AUTO-HANDOVER: Handover committed. Fill [TODO] sections, then re-commit." >&2
                 # T-186: Write restart signal for wrapper script (T-179 auto-restart)
                 local restart_signal="$CONTEXT_DIR/working/.restart-requested"
@@ -172,11 +203,33 @@ warn_by_tokens() {
                 if [ -f "$CONTEXT_DIR/working/session.yaml" ]; then
                     session_id=$(grep "^session_id:" "$CONTEXT_DIR/working/session.yaml" 2>/dev/null | cut -d: -f2 | tr -d ' ') || true
                 fi
+                # T-2363 (T-2158 S1): if .next-directive.yaml exists, fold its
+                # `directive:` value into the restart signal so the resumed
+                # session can pick it up. Absent file → JSON shape unchanged
+                # (backward-compat with all pre-T-2363 sessions and old
+                # claude-fw wrapper versions, which ignore unknown JSON keys).
+                local _directive_file="$CONTEXT_DIR/working/.next-directive.yaml"
+                local _directive_json=""
+                if [ -f "$_directive_file" ]; then
+                    _directive_json=$(python3 -c "
+import yaml, json, sys
+try:
+    with open('$_directive_file') as f:
+        d = yaml.safe_load(f) or {}
+    v = d.get('directive')
+    if isinstance(v, str) and v.strip():
+        print(',\"directive\":' + json.dumps(v.strip()))
+except Exception:
+    pass
+" 2>/dev/null) || _directive_json=""
+                fi
                 cat > "$restart_signal" << SIGNAL_EOF
-{"timestamp":"$(date -u +%Y-%m-%dT%H:%M:%SZ)","session_id":"${session_id:-unknown}","reason":"critical_budget_auto_handover","tokens":${tokens:-0}}
+{"timestamp":"$(date -u +%Y-%m-%dT%H:%M:%SZ)","session_id":"${session_id:-unknown}","reason":"critical_budget_auto_handover","tokens":${tokens:-0}${_directive_json}}
 SIGNAL_EOF
                 echo "AUTO-RESTART: Signal written — wrapper will auto-restart on exit." >&2
             else
+                tail -5 "$_ah_capture" >&2 2>/dev/null || true
+                echo "[checkpoint] [auto] Handover FAILED at $_ah_ts — see $_ah_capture" >> "$_ah_log" 2>/dev/null || true
                 echo "AUTO-HANDOVER: Failed — run '$(_fw_cmd) handover' manually." >&2
             fi
             rm -f "$handover_lock"
@@ -241,12 +294,24 @@ warn_by_calls() {
 
 case "${1:-}" in
     post-tool)
+        # T-2377: capture the hook stdin JSON so we can use the authoritative
+        # transcript_path. Correct in worktrees / bg jobs where PROJECT_ROOT-based
+        # reconstruction points at the wrong (launch-cwd) project dir. FW_TRANSCRIPT_PATH
+        # is an explicit override for tests / manual runs.
+        HOOK_INPUT=$(cat 2>/dev/null || true)
+        HOOK_TRANSCRIPT=$(printf '%s' "$HOOK_INPUT" | python3 -c "
+import sys, json
+try: print(json.load(sys.stdin).get('transcript_path') or '')
+except Exception: print('')
+" 2>/dev/null) || HOOK_TRANSCRIPT=""
+        HOOK_TRANSCRIPT="${HOOK_TRANSCRIPT:-${FW_TRANSCRIPT_PATH:-}}"
+
         count=$(increment_counter)
 
         # Only check tokens every N calls (23ms per check is fine, but no need every call)
         if [ $((count % TOKEN_CHECK_INTERVAL)) -eq 0 ] || [ "$count" -eq 1 ]; then
             have_tokens=false
-            transcript=$(find_transcript 2>/dev/null) || true
+            transcript=$(find_transcript "$HOOK_TRANSCRIPT" 2>/dev/null) || true
             if [ -n "${transcript:-}" ]; then
                 tokens=$(get_context_tokens "$transcript") || true
                 if [ "${tokens:-0}" -gt 0 ]; then
@@ -393,7 +458,9 @@ case "${1:-}" in
     status)
         ensure_counter
         echo "Tool calls since last commit: $(tr -d '[:space:]' < "$COUNTER_FILE")"
-        transcript=$(find_transcript 2>/dev/null) || true
+        # T-2377: honor an explicit transcript path (FW_TRANSCRIPT_PATH) for manual
+        # runs; falls back to reconstruction when unset.
+        transcript=$(find_transcript "${FW_TRANSCRIPT_PATH:-}" 2>/dev/null) || true
         if [ -n "${transcript:-}" ]; then
             tokens=$(get_context_tokens "$transcript") || true
             if [ "${tokens:-0}" -gt 0 ]; then

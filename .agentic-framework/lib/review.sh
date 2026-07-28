@@ -105,58 +105,136 @@ emit_review() {
     # Determine Watchtower URL via shared helper (T-1154: single chokepoint)
     local base_url
     base_url=$(_watchtower_url "$task_id")
-    # Detect workflow type for URL routing (T-642)
+    # Detect workflow type for URL routing (T-642) — also drives the label below
     local workflow_type=""
     workflow_type=$(grep -m1 'workflow_type:' "$task_file" 2>/dev/null | sed 's/.*workflow_type:[[:space:]]*//' | tr -d '[:space:]')
+    # T-2438: route the URL through the shared class-correct helper so emit_review
+    # and the notify deep-link (lib/notify.sh) can't diverge. Falls back to the
+    # inline form when the helper can't resolve a base — preserves prior behaviour.
     local review_url
+    review_url=$(fw_task_review_url "$task_id" "$task_file" 2>/dev/null) || review_url=""
     local review_label
     if [ "$workflow_type" = "inception" ]; then
-        review_url="${base_url}/inception/${task_id}"
+        [ -n "$review_url" ] || review_url="${base_url}/inception/${task_id}"
         review_label="Inception Review"
     else
-        review_url="${base_url}/review/${task_id}"
+        [ -n "$review_url" ] || review_url="${base_url}/review/${task_id}"
         review_label="Human AC Review"
     fi
 
     # Count Human ACs
-    local human_total=0 human_checked=0 in_human=false
+    #
+    # T-2422 (OBS-079): anchor the counter on `^## Acceptance Criteria` first,
+    # then look for `^### Human` start-of-line WITHIN that AC block. The prior
+    # form (`grep -q '### Human'`) matched the literal substring anywhere in
+    # the file — including the frontmatter `name:`/`description:` fields. Tasks
+    # whose title contains the literal string `### Human` (T-2420's name:
+    # "PreToolUse hook: detect ### Human outside ## Acceptance Criteria") flipped
+    # `in_human=true` while still on frontmatter line 3, then broke at the very
+    # next `## ` heading (`## Context`), so the counter never reached the real
+    # AC block and Watchtower rendered `Human ACs: 0/0`. Mirror update-task.sh's
+    # `sed -n '/^## Acceptance Criteria/,/^## /p'` anchoring discipline.
+    local human_total=0 human_checked=0 in_ac=false in_human=false
     while IFS= read -r line; do
-        if echo "$line" | grep -q '### Human'; then
-            in_human=true; continue
-        fi
-        if $in_human && echo "$line" | grep -qE '^### |^## '; then
-            break
-        fi
-        if $in_human && echo "$line" | grep -qE '^\- \[[ xX]\]'; then
-            human_total=$((human_total + 1))
-            if echo "$line" | grep -qE '^\- \[[xX]\]'; then
-                human_checked=$((human_checked + 1))
-            fi
+        case "$line" in
+            "## Acceptance Criteria"*)
+                in_ac=true
+                in_human=false
+                continue
+                ;;
+            "## "*)
+                # Any other `## ` heading closes the AC block.
+                if $in_ac; then break; fi
+                ;;
+            "### Human"*)
+                if $in_ac; then in_human=true; continue; fi
+                ;;
+            "### "*)
+                # Any other `### ` heading inside the AC block exits human-mode
+                # (e.g. another sub-section after Human, defensive — current
+                # template has Agent then Human).
+                if $in_human; then in_human=false; fi
+                ;;
+        esac
+        if $in_human; then
+            case "$line" in
+                "- [ ]"*|"- [x]"*|"- [X]"*)
+                    human_total=$((human_total + 1))
+                    case "$line" in
+                        "- [x]"*|"- [X]"*) human_checked=$((human_checked + 1)) ;;
+                    esac
+                    ;;
+            esac
         fi
     done < "$task_file"
 
-    # T-1215 / T-1545: Warn if inception task has no substantive ## Recommendation.
+    # T-1215 / T-1545 / T-2206 (Slice C): Block emission when inception has no
+    # substantive ## Recommendation block — was a WARNING (T-1215/T-1545), now
+    # a BLOCK (T-2206) per T-2204 GO. The producer-side hook (T-2205) closes the
+    # Write/Edit leaf; this consumer-side gate closes the handoff-emission leaf
+    # so the operator never sees a /inception/<id> link pointing at a blank
+    # Recommendation card.
     #
-    # T-1545 origin: prior implementation used sed|grep -v|...|head -1 which,
-    # on a fully-empty Recommendation section, exited non-zero (every grep -v
-    # filtered every line). Under `set -e -o pipefail` (set in bin/fw) the
-    # regular variable assignment propagated that failure and aborted
-    # emit_review silently — exit 1, empty stdout/stderr, no review marker.
+    # T-2421 (T-2419 GO): extend the same gate to partial-complete BUILD-class
+    # tasks (workflow_type ∈ {build, refactor, test, decommission} with
+    # human_total > 0 AND human_checked < human_total). T-2417 surfaced the
+    # gap: 10/10 Agent ACs ticked, reviewer PASS, but operator opened
+    # /review/T-2417 to "NO-REC" because no Recommendation block was written.
     #
-    # Fix: delegate to audit_inception_recommendation (awk-based, pipefail-safe,
-    # handles multi-line HTML-comment placeholders that the old line-anchored
-    # `^<!--` detector missed in pickup-template skeletons).
+    # Bypass: FW_ALLOW_EMPTY_RECOMMENDATION=1 (env var, T-1890 producer/consumer
+    # parity — same env var name as T-2205's Write/Edit hook). Tier-2 logged.
+    local _rec_gate_class=""
+    local _rec_review_path=""
     if [ "$workflow_type" = "inception" ]; then
+        _rec_gate_class="Inception"
+        _rec_review_path="/inception/${task_id}"
+    elif [ "$human_total" -gt 0 ] && [ "$human_checked" -lt "$human_total" ]; then
+        case "$workflow_type" in
+            build|refactor|test|decommission)
+                _rec_gate_class="Partial-complete ${workflow_type} task"
+                _rec_review_path="/review/${task_id}"
+                ;;
+        esac
+    fi
+
+    if [ -n "$_rec_gate_class" ]; then
         if ! declare -F audit_inception_recommendation >/dev/null 2>&1; then
             source "${FRAMEWORK_ROOT:-.}/lib/task-audit.sh" 2>/dev/null || true
         fi
         if declare -F audit_inception_recommendation >/dev/null 2>&1; then
             if ! audit_inception_recommendation "$task_file" 2>/dev/null; then
-                echo "" >&2
-                echo -e "  ${YELLOW}WARNING: No substantive ## Recommendation written yet${NC}" >&2
-                echo -e "  ${YELLOW}The human will see a bare decision card on /approvals.${NC}" >&2
-                echo -e "  ${YELLOW}Write a recommendation before presenting for review.${NC}" >&2
-                echo "" >&2
+                if [ "${FW_ALLOW_EMPTY_RECOMMENDATION:-}" = "1" ]; then
+                    # Bypass: log Tier-2, emit NOTE, continue.
+                    _log_empty_recommendation_bypass "$task_id" "emit_review" "$task_file"
+                    echo "" >&2
+                    echo -e "  ${YELLOW}NOTE: ${_rec_gate_class} ${task_id} has empty ## Recommendation —${NC}" >&2
+                    echo -e "  ${YELLOW}emission allowed via FW_ALLOW_EMPTY_RECOMMENDATION=1 (logged).${NC}" >&2
+                    echo "" >&2
+                else
+                    echo "" >&2
+                    echo -e "  ${RED}══════════════════════════════════════════${NC}" >&2
+                    echo -e "  ${RED}BLOCKED: ${_rec_gate_class} ${task_id} has empty ## Recommendation${NC}" >&2
+                    echo -e "  ${RED}══════════════════════════════════════════${NC}" >&2
+                    echo "" >&2
+                    echo -e "  Handoff URL refuses emission — operator would see a blank" >&2
+                    echo -e "  Recommendation card on ${_rec_review_path}." >&2
+                    echo "" >&2
+                    echo -e "  Origin: T-679 (governance rule), T-1715/T-1716 (filing-time" >&2
+                    echo -e "  gate on fw inception start), T-2204/T-2205/T-2206 (inception" >&2
+                    echo -e "  consumer gate), T-2419/T-2421 (partial-complete build leg)." >&2
+                    echo "" >&2
+                    echo -e "  To proceed, choose ONE:" >&2
+                    echo "" >&2
+                    echo -e "    1. Edit ${task_file}:" >&2
+                    echo -e "       Replace template comment under ## Recommendation with:" >&2
+                    echo -e "         **Recommendation:** GO | NO-GO | DEFER" >&2
+                    echo -e "         **Rationale:** <evidence-cited reasoning>" >&2
+                    echo "" >&2
+                    echo -e "    2. Override (logged Tier 2):" >&2
+                    echo -e "         FW_ALLOW_EMPTY_RECOMMENDATION=1 fw task review ${task_id}" >&2
+                    echo "" >&2
+                    return 1
+                fi
             fi
         fi
     fi
@@ -295,6 +373,69 @@ emit_review_batch() {
         return 1
     fi
 
+    # T-2206 (Slice C): pre-pass — refuse the entire batch when any inception
+    # task in it has an empty ## Recommendation block, unless
+    # FW_ALLOW_EMPTY_RECOMMENDATION=1. Producer/consumer parity with T-2205
+    # Write/Edit hook (same env var, same intent: don't hand off blank pages).
+    if ! declare -F audit_inception_recommendation >/dev/null 2>&1; then
+        source "${FRAMEWORK_ROOT:-.}/lib/task-audit.sh" 2>/dev/null || true
+    fi
+    if declare -F audit_inception_recommendation >/dev/null 2>&1; then
+        local empty_recs=""
+        local tid_check
+        for tid_check in "$@"; do
+            local tf=""
+            for f in "$PROJECT_ROOT/.tasks/active/$tid_check"*.md "$PROJECT_ROOT/.tasks/completed/$tid_check"*.md; do
+                if [ -f "$f" ]; then
+                    tf="$f"
+                    break
+                fi
+            done
+            [ -z "$tf" ] && continue  # NOT-FOUND handled in main loop
+            local wt
+            wt=$(grep -m1 'workflow_type:' "$tf" 2>/dev/null | sed 's/.*workflow_type:[[:space:]]*//' | tr -d '[:space:]')
+            if [ "$wt" = "inception" ]; then
+                if ! audit_inception_recommendation "$tf" 2>/dev/null; then
+                    empty_recs="${empty_recs} ${tid_check}"
+                fi
+            fi
+        done
+        if [ -n "$empty_recs" ]; then
+            if [ "${FW_ALLOW_EMPTY_RECOMMENDATION:-}" = "1" ]; then
+                local t
+                for t in $empty_recs; do
+                    _log_empty_recommendation_bypass "$t" "emit_review_batch" "(batch)"
+                done
+                echo -e "  ${YELLOW}NOTE: batch contains inceptions with empty ## Recommendation:${empty_recs}${NC}" >&2
+                echo -e "  ${YELLOW}emission allowed via FW_ALLOW_EMPTY_RECOMMENDATION=1 (logged).${NC}" >&2
+            else
+                echo "" >&2
+                echo -e "  ${RED}══════════════════════════════════════════${NC}" >&2
+                echo -e "  ${RED}BLOCKED: batch contains inceptions with empty ## Recommendation${NC}" >&2
+                echo -e "  ${RED}══════════════════════════════════════════${NC}" >&2
+                echo "" >&2
+                echo -e "  Task(s) with empty Recommendation:${empty_recs}" >&2
+                echo "" >&2
+                echo -e "  Handoff table refuses emission — operator would see blank" >&2
+                echo -e "  decision forms on /inception/<id> for those tasks." >&2
+                echo "" >&2
+                echo -e "  To proceed, choose ONE:" >&2
+                echo "" >&2
+                echo -e "    1. Edit each listed task's ## Recommendation block:" >&2
+                echo -e "         **Recommendation:** GO | NO-GO | DEFER" >&2
+                echo -e "         **Rationale:** <evidence-cited reasoning>" >&2
+                echo "" >&2
+                echo -e "    2. Override (logged Tier 2):" >&2
+                echo -e "         FW_ALLOW_EMPTY_RECOMMENDATION=1 fw task review-batch$* " >&2
+                echo "" >&2
+                echo -e "  Origin: T-2204 (recommendation-completeness gate has bypass paths)," >&2
+                echo -e "  T-2205 (Slice B, Write/Edit hook), T-2206 (this Slice C)." >&2
+                echo "" >&2
+                return 1
+            fi
+        fi
+    fi
+
     local base_url
     base_url=$(_watchtower_url "$1")
 
@@ -325,4 +466,25 @@ emit_review_batch() {
         fi
         echo "| $tid | ${wtype:-build} | $url |"
     done
+}
+
+# T-2206: log FW_ALLOW_EMPTY_RECOMMENDATION=1 bypass usage to gate-bypass-log
+# (mirrors check-inception-recommendation.py log_bypass shape for parity).
+_log_empty_recommendation_bypass() {
+    local task_id="${1:-unknown}"
+    local caller="${2:-emit_review}"
+    local file_path="${3:-}"
+    local log_dir="${PROJECT_ROOT:-.}/.context/working"
+    mkdir -p "$log_dir" 2>/dev/null || return 0
+    local log_file="$log_dir/.gate-bypass-log.yaml"
+    local ts
+    ts=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+    {
+        echo "- timestamp: '${ts}'"
+        echo "  task: '${task_id}'"
+        echo "  flag: 'FW_ALLOW_EMPTY_RECOMMENDATION'"
+        echo "  caller: '${caller}'"
+        echo "  file: '${file_path}'"
+        echo "  reason: 'empty-recommendation bypass'"
+    } >> "$log_file" 2>/dev/null || true
 }

@@ -138,8 +138,13 @@ do_inception_start() {
     # Create inception task using create-task.sh
     # T-554: Inception tasks start as captured (not started-work).
     # Use fw work-on T-XXX to explicitly start work when ready.
+    #
+    # T-2207 (T-2204 Slice B'): signal "upstream trusted caller — already gated"
+    # to create-task.sh so the CLI-mirror filing gate doesn't double-fire on this
+    # path. The recommendation has already been validated above and will be
+    # injected via _inject_recommendation_block after creation.
     local output
-    output=$("$AGENTS_DIR/task-create/create-task.sh" \
+    output=$(FW_INCEPTION_PRE_GATED=1 "$AGENTS_DIR/task-create/create-task.sh" \
         --name "$name" \
         --description "Inception: $name" \
         --type inception \
@@ -976,13 +981,21 @@ new_block = (
 m = template_pat.search(content)
 if not m:
     m = empty_pat.search(content)
-if not m:
-    print(f"  SKIP: Recommendation block not found in template/empty form", file=sys.stderr)
-    sys.exit(0)
-new_content = content[:m.start()] + "## Recommendation\n" + new_block + content[m.end():]
+if m:
+    # Template-present or empty-present: replace in place
+    new_content = content[:m.start()] + "## Recommendation\n" + new_block + content[m.end():]
+    action = "REPLACED template/empty"
+else:
+    # T-2318: section missing entirely (pre-T-1716 backlog). Append a
+    # ## Recommendation section to the end of the file. Strip trailing
+    # whitespace first to avoid stacked blank lines, then ensure exactly
+    # one blank line before the new heading.
+    stripped = content.rstrip() + "\n\n"
+    new_content = stripped + "## Recommendation\n" + new_block
+    action = "APPENDED missing section"
 with open(fp, 'w') as f:
     f.write(new_content)
-print(f"  WROTE: DEFER stub")
+print(f"  WROTE: DEFER stub ({action})")
 PYRETROFIT
         else
             echo "  (read-only — pass --apply to mutate)"

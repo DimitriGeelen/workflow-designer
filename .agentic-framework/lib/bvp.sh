@@ -39,6 +39,10 @@ import statistics
 from pathlib import Path
 
 PROJECT_ROOT = Path(os.environ['PROJECT_ROOT'])
+# T-2230 (T-2229 Slice 1): FRAMEWORK_ROOT exposed so `fw bvp driver --init` can
+# locate the canonical template `<FRAMEWORK_ROOT>/policy/value-drivers.yaml`
+# when bootstrapping the consumer's own copy at PROJECT_ROOT.
+FRAMEWORK_ROOT = Path(os.environ.get('FRAMEWORK_ROOT', os.environ.get('PROJECT_ROOT', '.')))
 
 try:
     import yaml
@@ -56,6 +60,30 @@ try:
     _HAS_RUAMEL = True
 except ImportError:
     _HAS_RUAMEL = False
+
+
+def _atomic_write_text(path, text):
+    """T-100191: same-dir temp + os.replace — a kill mid-write must not truncate
+    durable state (L-493 non-atomic-YAML-write class)."""
+    tmp = Path(str(path) + '.tmp')
+    tmp.write_text(text)
+    os.replace(tmp, path)
+
+
+def _str_safe_load(text):
+    """PyYAML safe_load with the implicit timestamp resolver removed, so unquoted
+    ISO `2026-06-02T00:00:00Z` datetimes round-trip as strings instead of being
+    parsed to a datetime and re-emitted as `2026-06-02 00:00:00+00:00` (which
+    churns task frontmatter and breaks `...Z`-expecting readers). Used ONLY on the
+    no-ruamel fallback path — ruamel round-trip already preserves them.
+    Origin: OBS-085 / L-495 (the integrate.py:_str_loader fix, shared here)."""
+    class _L(yaml.SafeLoader):
+        pass
+    _L.yaml_implicit_resolvers = {
+        ch: [(t, rx) for t, rx in res if t != 'tag:yaml.org,2002:timestamp']
+        for ch, res in yaml.SafeLoader.yaml_implicit_resolvers.items()
+    }
+    return yaml.load(text, Loader=_L)
 
 
 # ----------------------------------------------------------- §ACD agent gate
@@ -105,6 +133,7 @@ def require_rationale(args, min_chars=30):
 # ------------------------------------------------------ append-only history
 HISTORY_PATH = PROJECT_ROOT / '.context' / 'bvp-weight-history.yaml'
 AUTO_PROMOTE_LOG = PROJECT_ROOT / '.context' / 'bvp-auto-promote-log.yaml'
+PROPOSALS_PATH = PROJECT_ROOT / '.context' / 'bvp-driver-proposals.jsonl'
 
 
 def _utc_now():
@@ -122,7 +151,7 @@ def history_append(entry):
     if 'entries' not in data:
         data['entries'] = []
     data['entries'].append(entry)
-    HISTORY_PATH.write_text(yaml.safe_dump(data, sort_keys=False, default_flow_style=False))
+    _atomic_write_text(HISTORY_PATH, yaml.safe_dump(data, sort_keys=False, default_flow_style=False))
 
 
 # ---------------------------------------------------------------- policy load
@@ -130,7 +159,8 @@ def load_policy():
     policy_path = PROJECT_ROOT / 'policy' / 'value-drivers.yaml'
     if not policy_path.is_file():
         print(f"ERROR: policy file not found: {policy_path}", file=sys.stderr)
-        print("       Run T-1917 first (or `fw bvp driver --init` once T-1920 ships).", file=sys.stderr)
+        print("       Bootstrap with: fw bvp driver --init", file=sys.stderr)
+        print("       (idempotent; copies the framework template into this project)", file=sys.stderr)
         sys.exit(2)
     return yaml.safe_load(policy_path.read_text()) or {}
 
@@ -242,14 +272,37 @@ def quadrant(bvp_norm, cost, bvp_median, cost_median):
 
 
 # --------------------------------------------------------------------- verbs
-def cmd_rank(filter_quadrant=None, include_proposed=False):
+def cmd_rank(filter_quadrant=None, include_proposed=False, include_completed=False):
     """T-1938: --include-proposed opt-in falls back to bvp_scores_proposed:
     for tasks lacking confirmed scores. Sovereignty default is confirmed-only;
-    explicit consent is required to fold in advisory inputs."""
+    explicit consent is required to fold in advisory inputs.
+
+    T-2223: --include-completed opt-in folds work-completed tasks back into the
+    rank. Actionable-only is the default — the surface answers "what should I
+    work on next" by default, not "rank everything we have data for". Set the
+    flag when running an archival/historical sweep.
+
+    T-2224: the --include-completed gate covers both legs — status-field
+    work-completed AND directory-drift (path under .tasks/completed/ with
+    stale frontmatter). L-390 cases (tasks moved via `git mv` without status
+    update) bypass the status check; the path check catches them. T-2196 was
+    the canonical evidence: in completed/, status:started-work, sitting at
+    HV-LC #2 one session after T-2223 shipped."""
     policy = load_policy()
     weights = driver_weights(policy)
     rows = []
     for path, fm in collect_tasks():
+        # T-2223 + T-2224: skip work-completed rows by default so the rank lists
+        # actionable tasks only. Two legs:
+        #   - status field == 'work-completed' (T-2223): canonical case
+        #   - path under .tasks/completed/ (T-2224): L-390 drift case where
+        #     status field was not updated when the file was moved
+        # Either condition triggers the skip when --include-completed is unset.
+        if not include_completed and (
+            fm.get('status') == 'work-completed'
+            or path.parent.name == 'completed'
+        ):
+            continue
         scores = fm.get('bvp_scores') or {}
         source = 'confirmed'
         if not scores:
@@ -525,10 +578,12 @@ def cmd_arcs():
 def _save_policy_preserving(policy_path, data):
     """Write policy YAML back to disk, preserving comments if ruamel available."""
     if _HAS_RUAMEL:
-        with open(policy_path, 'w') as f:
-            _ruamel_yaml.dump(data, f)
+        from io import StringIO
+        buf = StringIO()
+        _ruamel_yaml.dump(data, buf)
+        _atomic_write_text(policy_path, buf.getvalue())
     else:
-        policy_path.write_text(yaml.safe_dump(data, sort_keys=False, default_flow_style=False))
+        _atomic_write_text(policy_path, yaml.safe_dump(data, sort_keys=False, default_flow_style=False))
 
 
 def _load_policy_preserving():
@@ -613,13 +668,94 @@ def cmd_weight(args):
 
 
 def cmd_driver(args):
+    # T-2230 (T-2229 Slice 1): --init is the bootstrap path. It does not
+    # change policy meaning (just first-writes the template), so it is NOT
+    # §ACD-gated — agents bootstrapping a consumer is sovereignty-neutral.
+    # Subsequent customisation (weight, --add, --remove) IS sovereignty-bearing
+    # and gates appropriately.
+    if '--init' in args:
+        return _driver_init(args)
+    # T-2331 (T-2330 S1): --propose is the NON-Sovereign sibling of --add.
+    # Writes a pending row to .context/bvp-driver-proposals.jsonl; the
+    # Watchtower /bvp/proposed queue (T-2330 S2) approves via --from-watchtower.
+    # Must route before --add — propose has no acd_gate; add does.
+    if '--propose' in args:
+        return _driver_propose(args)
     if '--add' in args:
         return _driver_add(args)
     if '--remove' in args:
         return _driver_remove(args)
-    print("Usage: fw bvp driver --add \"name\" --weight N --rationale \"...\"", file=sys.stderr)
+    print("Usage: fw bvp driver --init [--force]", file=sys.stderr)
+    print("       fw bvp driver --add \"name\" --weight N --rationale \"...\"", file=sys.stderr)
     print("       fw bvp driver --remove Dn --rationale \"...\" [--drop Dn]", file=sys.stderr)
+    print("       fw bvp driver --propose \"name\" --weight N --rationale \"...\" [--drop Dn] [--task T-XXX]", file=sys.stderr)
     return 2
+
+
+def _driver_init(args):
+    """Bootstrap consumer's BVP policy files from the framework templates.
+
+    Copies BOTH `policy/value-drivers.yaml` (driver definitions, T-2229) and
+    `policy/bvp-scoring-rubric.md` (estimator's scoring source of truth,
+    T-1921). The BVP driver-session bundle (policy/prompts/bvp-driver-session.md
+    line 146) refuses to run without BOTH files; T-2259 closes the asymmetric
+    leg from T-2252's GO decision.
+
+    Idempotent per-file: each existing target survives unless `--force` is
+    given (in which case BOTH are overwritten). NOT §ACD-gated — first-write
+    of starter files is not a policy decision; subsequent weight/driver
+    mutations are gated separately.
+
+    T-2229 Slice 1 (value-drivers.yaml leg) + T-2259 (rubric.md leg, this
+    function). Slice 2 (separate task) wires this into fw init/upgrade/vendor.
+    """
+    force = '--force' in args
+    files = [
+        ('policy/value-drivers.yaml',
+         FRAMEWORK_ROOT / 'policy' / 'value-drivers.yaml',
+         PROJECT_ROOT / 'policy' / 'value-drivers.yaml'),
+        ('policy/bvp-scoring-rubric.md',
+         FRAMEWORK_ROOT / 'policy' / 'bvp-scoring-rubric.md',
+         PROJECT_ROOT / 'policy' / 'bvp-scoring-rubric.md'),
+    ]
+
+    # Both templates must exist or the install is broken.
+    for label, template, _ in files:
+        if not template.is_file():
+            print(f"ERROR: framework template not found at {template}", file=sys.stderr)
+            print(f"       This indicates a broken framework install (vendored copy", file=sys.stderr)
+            print(f"       is missing {label}). Run `fw vendor` or", file=sys.stderr)
+            print(f"       reinstall the framework.", file=sys.stderr)
+            return 2
+
+    actions = []  # list of (label, "created"|"overwritten"|"already-exists", target)
+    for label, template, target in files:
+        if target.exists() and not force:
+            actions.append((label, 'already-exists', target))
+            continue
+        target.parent.mkdir(parents=True, exist_ok=True)
+        action = 'overwritten' if (force and target.exists()) else 'created'
+        target.write_bytes(template.read_bytes())
+        actions.append((label, action, target))
+
+    for label, action, target in actions:
+        if action == 'already-exists':
+            print(f"OK: {label} already exists at {target}")
+        else:
+            print(f"OK: {label} {action} from framework template")
+            print(f"  Source: {FRAMEWORK_ROOT / label}")
+            print(f"  Target: {target}")
+
+    if any(a == 'already-exists' for _, a, _ in actions):
+        print("    (idempotent — use `fw bvp driver --init --force` to overwrite from framework template)")
+
+    print("")
+    print("  These are the framework's default BVP drivers (D1-D4 + free drivers)")
+    print("  and the scoring rubric. Customise via sovereignty-gated verbs:")
+    print("    fw bvp                                    # see current ranking")
+    print("    fw bvp weight --set Dn=N --rationale ...  # tune driver weights")
+    print("    fw bvp driver --add ... | --remove ...    # add/drop free drivers")
+    return 0
 
 
 # ---------------------------------------------------------- confirm (T-1924)
@@ -723,7 +859,7 @@ def cmd_confirm(args):
         from io import StringIO
         fm = _ruamel_yaml.load(fm_text)
     else:
-        fm = yaml.safe_load(fm_text)
+        fm = _str_safe_load(fm_text)
 
     proposed = fm.get('bvp_scores_proposed') if fm else None
     if not proposed and not overrides:
@@ -762,7 +898,7 @@ def cmd_confirm(args):
         new_fm_text = yaml.safe_dump(fm, sort_keys=False, default_flow_style=False).rstrip()
 
     new_body = raw[:m.start(1)] + new_fm_text + raw[m.end(1):]
-    task_path.write_text(new_body)
+    _atomic_write_text(task_path, new_body)
 
     print(f"OK: confirmed bvp_scores for {task_id}")
     print(f"  Scores: {confirmed}")
@@ -858,6 +994,87 @@ def _driver_add(args):
     return 0
 
 
+def _driver_propose(args):
+    """T-2331 (T-2330 S1): non-Sovereign propose-queue write.
+
+    Appends a `state: pending` row to .context/bvp-driver-proposals.jsonl.
+    NOT §ACD-gated — proposing is the agent's job; the Sovereign click stays
+    on the operator's Approve action (T-2330 S2 wires Watchtower /bvp/proposed
+    → `fw bvp driver --add --from-watchtower`). Storage is JSONL for
+    race-free append (IW-3 dissolved): two agents proposing the same name
+    produce two rows, both surface in the queue, operator picks one.
+
+    Storage location (.context/, not policy/) chosen because proposals are
+    working state, not live policy — mirrors .context/bvp-weight-history.yaml,
+    .context/dispatches.jsonl convention.
+    """
+    if '--propose' not in args:
+        return 2
+    idx = args.index('--propose')
+    if idx + 1 >= len(args):
+        print("Error: --propose needs a driver name", file=sys.stderr)
+        return 2
+    name = args[idx + 1]
+
+    # Slug shape mirrors the form validator (web/templates/bvp.html: pattern
+    # [A-Za-z][A-Za-z0-9_-]*) so propose↔add round-trip is identical.
+    if not re.fullmatch(r'[A-Za-z][A-Za-z0-9_-]*', name):
+        print(f"Error: invalid name {name!r}; must start with letter, then letters/digits/_/-", file=sys.stderr)
+        return 2
+
+    if '--weight' not in args:
+        print("Error: --weight is required", file=sys.stderr)
+        return 2
+    widx = args.index('--weight')
+    try:
+        weight = int(args[widx + 1])
+    except (IndexError, ValueError):
+        print("Error: --weight needs an integer", file=sys.stderr)
+        return 2
+    if not 0 <= weight <= 9:
+        print(f"Error: weight {weight} out of range (0-9)", file=sys.stderr)
+        return 2
+
+    rationale, ok = require_rationale(args)
+    if not ok:
+        return 2
+
+    drop_id = None
+    if '--drop' in args:
+        didx = args.index('--drop')
+        if didx + 1 < len(args):
+            drop_id = args[didx + 1]
+
+    task_id = None
+    if '--task' in args:
+        tidx = args.index('--task')
+        if tidx + 1 < len(args):
+            task_id = args[tidx + 1]
+
+    import json, uuid
+    actor_prefix = 'agent' if os.environ.get('CLAUDECODE') == '1' else 'human'
+    entry = {
+        'id': f'P-{uuid.uuid4().hex[:8]}',
+        'ts': _utc_now(),
+        'state': 'pending',
+        'name': name,
+        'weight': weight,
+        'rationale': rationale,
+        'drop': drop_id,
+        'task': task_id,
+        'author': f"{actor_prefix}:{os.environ.get('USER', 'unknown')}",
+    }
+
+    PROPOSALS_PATH.parent.mkdir(exist_ok=True)
+    with open(PROPOSALS_PATH, 'a') as f:
+        f.write(json.dumps(entry) + '\n')
+
+    print(f"OK: proposal {entry['id']} filed — name='{name}' weight={weight} (state: pending)")
+    print(f"  Storage: {PROPOSALS_PATH.relative_to(PROJECT_ROOT)}")
+    print(f"  Operator approves via Watchtower /approvals (BVP Driver Proposals section, T-2335) or /bvp (T-2332).")
+    return 0
+
+
 def _driver_remove(args):
     # Form validation (protected check + rationale) before §ACD authority gate
     # so verification tests can prove the protected refusal from agent session.
@@ -909,7 +1126,7 @@ def _auto_promote_log_event(event):
     if 'entries' not in data:
         data['entries'] = []
     data['entries'].append(event)
-    AUTO_PROMOTE_LOG.write_text(yaml.safe_dump(data, sort_keys=False, default_flow_style=False))
+    _atomic_write_text(AUTO_PROMOTE_LOG, yaml.safe_dump(data, sort_keys=False, default_flow_style=False))
 
 
 def _auto_promote_set_enabled(value, rationale, mechanism_args):
@@ -921,11 +1138,11 @@ def _auto_promote_set_enabled(value, rationale, mechanism_args):
         from io import StringIO
         buf = StringIO()
         _ruamel_yaml.dump(data, buf)
-        policy_path.write_text(buf.getvalue())
+        _atomic_write_text(policy_path, buf.getvalue())
     else:
         data = yaml.safe_load(policy_path.read_text())
         data['auto_promote']['enabled'] = value
-        policy_path.write_text(yaml.safe_dump(data, sort_keys=False, default_flow_style=False))
+        _atomic_write_text(policy_path, yaml.safe_dump(data, sort_keys=False, default_flow_style=False))
 
 
 def _auto_promote_file_review_reminder():
@@ -1066,6 +1283,11 @@ def cmd_auto_promote(args):
         fm = parse_frontmatter(path)
         if not fm or fm.get('status') != 'captured':
             continue
+        if fm.get('owner') == 'human':
+            continue  # PL-037 (T-2544): owner:human never auto-starts — the human
+                      # decides when. Belt-and-suspenders for G2 (T-2541 IW-3): confirming
+                      # bvp_scores for ranking must not imply consent to auto-start a
+                      # human-owned task (e.g. a BPMN-promoted task, T-2542/T-2543).
         scores = fm.get('bvp_scores') or {}
         if not scores:
             continue  # M3 sovereignty boundary: only confirmed scores promote.
@@ -1155,10 +1377,14 @@ def usage():
     print("""fw bvp — Business Value Points (read-only)
 
 USAGE:
-  fw bvp                          rank all confirmed-scored tasks by BVP (desc)
+  fw bvp                          rank actionable confirmed-scored tasks by BVP (desc)
+                                  (T-2223: work-completed tasks excluded by default —
+                                  the rank answers "what should I work on next")
   fw bvp --include-proposed       also rank tasks with estimator-proposed scores
                                   (T-1938; SOURCE column distinguishes confirmed/proposed;
                                   cost falls back to cost_estimate_proposed: too)
+  fw bvp --include-completed      also rank work-completed tasks (T-2223; archival
+                                  sweep semantic — opt-in for historical analysis)
   fw bvp T-<id>                   per-driver detail for one task; cost section
                                   falls back to cost_estimate_proposed: when
                                   cost_estimate: is absent (T-1938)
@@ -1170,6 +1396,10 @@ USAGE:
                                   combine with --include-proposed
   fw bvp weight --set Dn=N --rationale "..." [--i-am-human|--from-watchtower]
                                   change driver weight (§ACD-gated, M6)
+  fw bvp driver --init [--force]
+                                  bootstrap policy/value-drivers.yaml from the framework
+                                  template (T-2230, T-2229 Slice 1). Idempotent; --force
+                                  overwrites. NOT §ACD-gated (first-write, not policy edit).
   fw bvp driver --add "name" --weight N --rationale "..." [--drop Dn]
                                   add free driver; --drop required when at cap=9 (M1)
   fw bvp driver --remove Dn --rationale "..."
@@ -1206,6 +1436,23 @@ NOTES:
   - Cost composite (F8): 0.6×blast_radius + 0.3×tier + 0.1×effort.
     T-shirt fallback (Q2): S/M/L/XL → 2/4/6/8 when 3-component values absent.
   - Source: docs/reports/T-1915-bvp-inception.md (arc-006).
+
+SEE ALSO (driver-session workflow, T-2245/T-2246/T-2250):
+  policy/prompts/bvp-driver-session.md
+    Keystone prompt for proposing or sharpening a value driver. Three
+    workflows: A (batch-propose at arc-draft), B (discover+sharpen),
+    C (sharpen named topic). Loaded manually today; CLI loader verbs
+    (`fw bvp driver suggest|create|recompute|edit|retire`) are deferred
+    per T-2245 IW-3 (operator-only territory until v2 handoff lands).
+  policy/prompts/artefact-template.md
+    Output shape for the research artefact written to
+    docs/reports/T-XXXX-bvp-driver-<slug>.md.
+  policy/prompts/bvp-references/
+    Sharpening subroutine (R1/R2/O1-O4), tactical conversation moves,
+    worked examples (global + arc-scoped), and anti-patterns to avoid.
+  CLAUDE.md §Driver Session Prompt Bundle and 040-ValueDrivers.md
+    Routing context — when to enter a session and how to navigate
+    the bundle.
 """)
     return 0
 
@@ -1218,8 +1465,15 @@ def main(argv):
     if '--include-proposed' in args:
         include_proposed = True
         args = [a for a in args if a != '--include-proposed']
+    # T-2223: --include-completed is a positional flag valid for rank surfaces.
+    # Default (False) skips work-completed tasks — actionable-only rank.
+    include_completed = False
+    if '--include-completed' in args:
+        include_completed = True
+        args = [a for a in args if a != '--include-completed']
     if not args:
-        return cmd_rank(include_proposed=include_proposed)
+        return cmd_rank(include_proposed=include_proposed,
+                        include_completed=include_completed)
     if args[0] in ('--help', '-h', 'help'):
         return usage()
     if args[0] == '--quadrant':
@@ -1230,7 +1484,8 @@ def main(argv):
         if q not in ('hv-lc', 'hv-hc', 'lv-lc', 'lv-hc'):
             print(f"ERROR: invalid quadrant '{q}'", file=sys.stderr)
             return 2
-        return cmd_rank(filter_quadrant=q, include_proposed=include_proposed)
+        return cmd_rank(filter_quadrant=q, include_proposed=include_proposed,
+                        include_completed=include_completed)
     if args[0] == 'arcs':
         return cmd_arcs()
     if args[0] == 'weight':
@@ -1348,6 +1603,46 @@ EOF
         echo "ERROR: unknown estimate-cost subverb: $sub" >&2
         echo "Try: fw bvp estimate-cost --help" >&2
         return 2
+    fi
+    # T-2335: `driver --propose` fires a push notification on success so the
+    # operator's channel surfaces the pending Sovereign decision. Bash-layer
+    # wrap (not in the Python engine) because fw_notify lives in lib/notify.sh;
+    # notify stays fire-and-forget and never affects the propose exit code.
+    if [ "${1:-}" = "driver" ]; then
+        local _has_propose=0 _a
+        for _a in "$@"; do [ "$_a" = "--propose" ] && _has_propose=1; done
+        if [ "$_has_propose" -eq 1 ]; then
+            local _out _rc
+            _out=$(_bvp_python_engine "$@")
+            _rc=$?
+            [ -n "$_out" ] && printf '%s\n' "$_out"
+            if [ "$_rc" -eq 0 ]; then
+                if ! type fw_notify >/dev/null 2>&1 && [ -f "$FRAMEWORK_ROOT/lib/notify.sh" ]; then
+                    # shellcheck disable=SC1091
+                    source "$FRAMEWORK_ROOT/lib/notify.sh"
+                fi
+                if type fw_notify >/dev/null 2>&1; then
+                    # Parse the OK line: OK: proposal P-xxx filed — name='X' weight=N (state: pending)
+                    local _pid _pname _pweight _ptask="" _wturl
+                    _pid=$(printf '%s\n' "$_out" | sed -n "s/^OK: proposal \(P-[a-f0-9]*\) filed.*/\1/p" | head -1)
+                    _pname=$(printf '%s\n' "$_out" | sed -n "s/^OK: proposal .*name='\([^']*\)'.*/\1/p" | head -1)
+                    _pweight=$(printf '%s\n' "$_out" | sed -n "s/^OK: proposal .*weight=\([0-9]*\).*/\1/p" | head -1)
+                    local _seen_task=0
+                    for _a in "$@"; do
+                        if [ "$_seen_task" -eq 1 ]; then _ptask="$_a"; _seen_task=0; fi
+                        [ "$_a" = "--task" ] && _seen_task=1
+                    done
+                    _wturl=$(type _watchtower_url >/dev/null 2>&1 && _watchtower_url 2>/dev/null || echo "")
+                    fw_notify \
+                        "BVP driver proposal pending: ${_pname:-?}" \
+                        "{type: bvp_proposal_pending, id: ${_pid:-?}, name: ${_pname:-?}, weight: ${_pweight:-?}, task: ${_ptask:-none}}" \
+                        "manual" "framework" \
+                        "${_wturl:+${_wturl}/approvals#section-bvp-proposals}" \
+                        2>/dev/null || true
+                fi
+            fi
+            return $_rc
+        fi
     fi
     _bvp_python_engine "$@"
 }

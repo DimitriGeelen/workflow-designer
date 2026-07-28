@@ -54,6 +54,26 @@ is_bash_safe_command() {
                 add)
                     return 0
                     ;;
+                # T-2462: `git push` / `git fetch` are task-agnostic. Push only
+                # PUBLISHES commits that already passed the commit-msg T-XXX gate
+                # (P-002) — it creates no work artifact, mutates no working tree,
+                # and is not inspected by the focus-drift detector (T-1730 only
+                # looks at fw task update / fw context add / git commit -m T-X:).
+                # Fetch is pure network read. Gating either on an active task adds
+                # zero governance and manufactures a deadlock that fires whenever
+                # focus is null: (1) post-completion — `--status work-completed`
+                # nulls focus, but "never end a session with unpushed commits"
+                # still requires the push (T-2054 exempted commit+add but stopped
+                # before push — this closes that 3rd leg of the commit→push
+                # pipeline, L-399 producer/consumer parity); (2) worktree sessions
+                # where the Bash hook resolves PROJECT_ROOT to the main repo (null
+                # focus). This does NOT weaken the pre-push hooks (self-vendor
+                # drift, secret scan) — those run inside git, independently of this
+                # active-task gate. `pull` is deliberately EXCLUDED: it merges into
+                # the working tree (a write), so it stays gated.
+                push|fetch)
+                    return 0
+                    ;;
             esac
             ;;
 
@@ -100,8 +120,39 @@ is_bash_safe_command() {
                     # work-on and inception commands are task bootstrap — always allowed
                     return 0
                     ;;
+                upstream)
+                    # T-2410 case 2: `fw upstream` has read-only sub-verbs
+                    # (status, list, info) — exempt these from the active-task
+                    # gate so consumers can inspect upstream pin state under
+                    # any focus condition. Mutating sub-verbs (pin, set, sync)
+                    # are NOT exempt; they fall through to the task check.
+                    local ups_sub
+                    ups_sub=$(echo "$cmd" | awk '{print $3}')
+                    case "$ups_sub" in
+                        status|list|info|show|help|--help|-h|--version|"")
+                            return 0
+                            ;;
+                    esac
+                    ;;
                 hook)
                     # fw hook * — hooks calling hooks, always allowed
+                    return 0
+                    ;;
+                integrate)
+                    # T-2471: `fw integrate {check,classify}` are read-only; `fw
+                    # integrate run` is the mutating merge-back verb. All three are
+                    # task-agnostic meta-operations on git history: the merge
+                    # commits run creates are --no-ff --no-edit (no T-XXX work
+                    # artifact — the commit-msg hook already exempts MERGE_HEAD),
+                    # and gating them on an active task manufactures a deadlock —
+                    # integration runs from a worktree whose Bash-hook PROJECT_ROOT
+                    # resolves to the main repo (null focus). This verb-scoped
+                    # exemption is the EFFECTIVE focus-gate bypass; it deliberately
+                    # does NOT use an FW_INTEGRATION_IN_PROGRESS env honor, which
+                    # would reintroduce the T-2446 inherited-env poison class this
+                    # arc exists to eliminate. Same category as git push/add/commit
+                    # (T-2054/T-2462). run sets FW_INTEGRATION_IN_PROGRESS=1 only
+                    # for the python subprocess's own internal git calls.
                     return 0
                     ;;
             esac
@@ -162,19 +213,8 @@ is_bash_safe_command() {
 has_bash_write_pattern() {
     local cmd="$1"
 
-    # Redirect operators (but not comparison operators like 2>&1).
-    # T-170: reason about shell semantics, not raw characters. A redirect only
-    # acts OUTSIDE quotes, and a redirect to a /dev sink is a discard, not a
-    # source-file write. Strip quoted spans and /dev redirects before the test so
-    # `fw … >/dev/null 2>&1` and quoted angle-bracket text like --description
-    # "…<T>…" are not mistaken for writes. (sh/bash/eval are not in the safe-command
-    # allowlist, so a redirect hidden inside `sh -c "…"` never gets a fast-pass —
-    # stripping quotes here introduces no evasion for an allowlisted command.)
-    local _redir_scan
-    _redir_scan=$(printf '%s' "$cmd" \
-        | sed -E "s/\"[^\"]*\"//g; s/'[^']*'//g" \
-        | sed -E 's#[0-9]*>>?[[:space:]]*/dev/(null|stderr|stdout)\b##g; s#&>>?[[:space:]]*/dev/(null|stderr|stdout)\b##g')
-    if echo "$_redir_scan" | grep -qE '[^2>&]>[^>&]|>>'; then
+    # Redirect operators (but not comparison operators like 2>&1)
+    if echo "$cmd" | grep -qE '[^2>&]>[^>&]|>>'; then
         return 0
     fi
 
