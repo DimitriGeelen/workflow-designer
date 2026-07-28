@@ -191,6 +191,18 @@ else
 fi
 
 echo
+echo "== endpoint reconnect reachability: handles above node bodies, real-input drag (T-293, G-003) =="
+# The field-found frw_11_harvest case — endpoint grab halos must win the hit-test
+# on the node border (isolated chromium, real Input.dispatchMouseEvent; also
+# guards the T-286+T-293 canvas layer order).
+if python3 "$ROOT/tests/test_t293_endpoint_reach.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "endpoint reconnect reachability regressed — handle shadowed by node body/port dot or layer order broken (T-293/G-003 class)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== save-target guard set: collision notice + blur/Enter commit + mismatch confirm (T-264, T-263 GO) =="
 # The three guards from the rail-225 scratch-copy overwrite incident — hermetic
 # sidecar + isolated chromium (tools/_t264-save-target-guards-cdp.mjs), 8 legs

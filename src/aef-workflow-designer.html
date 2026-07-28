@@ -1382,6 +1382,13 @@ font-family: 'Outfit';
         <g id="g-edges"></g>
         <g id="g-nodes"></g>
         <g id="g-badges-top" pointer-events="none"></g>
+        <!-- T-293: the selected edge's reconnect chrome (endpoint grab halos/dots,
+             port indicators) must paint AND hit-test above node bodies — endpoints
+             anchor on the node border (T-168), so inside #g-edges half of every
+             endpoint handle is shadowed by #g-nodes and mousedown starts a node
+             drag instead of the reconnect. Interactive layer — no pointer-events
+             suppression here, unlike the badge layers. -->
+        <g id="g-handles"></g>
         <g id="g-preview"></g>
       </svg>
       <div class="canvas-overlay" id="status">
@@ -2274,6 +2281,7 @@ const gEdges = $('g-edges');
 const gNodes = $('g-nodes');
 const gBadges = $('g-badges');        // T-286: id badges below edges (default)
 const gBadgesTop = $('g-badges-top'); // T-286: selected element's badge, above nodes
+const gHandles = $('g-handles');      // T-293: selected edge's reconnect chrome, above nodes
 const gPreview = $('g-preview');
 
 // ============================================================================
@@ -3402,6 +3410,7 @@ function wrapText(s, max) {
 
 function renderEdges() {
   gEdges.innerHTML = '';
+  gHandles.innerHTML = '';
   for (const e of state.edges) {
     const src = findNode(e.source);
     const tgt = findNode(e.target);
@@ -3521,16 +3530,19 @@ function renderEdges() {
       // A transparent hit halo (r11) carries the drag so the grab/hover target isn't limited
       // to the tiny visible dot (T-133); the dot itself is pointer-events:none and the halo's
       // :hover highlights the adjacent dot. Order matters: halo THEN dot (adjacent-sibling CSS).
+      // T-293: endpoint handles go to #g-handles (above node bodies) — inside this
+      // group they'd be shadowed by #g-nodes exactly where they matter, on the node
+      // border. Halo THEN dot order still required (adjacent-sibling hover CSS).
       const srcHit = el('circle', { cx: sp.x, cy: sp.y, r: 11, class: 'edge-handle edge-handle-endpoint-hit', 'data-role': 'src' });
       srcHit.addEventListener('mousedown', ev => onEndpointMouseDown(ev, e, 'source'));
-      g.appendChild(srcHit);
-      g.appendChild(el('circle', { cx: sp.x, cy: sp.y, r: 6, class: 'edge-handle-endpoint' }));
+      gHandles.appendChild(srcHit);
+      gHandles.appendChild(el('circle', { cx: sp.x, cy: sp.y, r: 6, class: 'edge-handle-endpoint' }));
 
       // Target endpoint handle
       const tgtHit = el('circle', { cx: tp.x, cy: tp.y, r: 11, class: 'edge-handle edge-handle-endpoint-hit', 'data-role': 'tgt' });
       tgtHit.addEventListener('mousedown', ev => onEndpointMouseDown(ev, e, 'target'));
-      g.appendChild(tgtHit);
-      g.appendChild(el('circle', { cx: tp.x, cy: tp.y, r: 6, class: 'edge-handle-endpoint' }));
+      gHandles.appendChild(tgtHit);
+      gHandles.appendChild(el('circle', { cx: tp.x, cy: tp.y, r: 6, class: 'edge-handle-endpoint' }));
 
       // Waypoint handles
       wps.forEach((wp, idx) => {
@@ -3641,7 +3653,10 @@ function renderPortIndicators(node, role, edge) {
       edge.waypoints = [];
       renderAll();
     });
-    gEdges.appendChild(dot);
+    // T-293: above node bodies, but BELOW the endpoint grab halos — prepend, so the
+    // active-port dot (which sits exactly at the anchored endpoint) can never shadow
+    // the reconnect handle. Re-clicking the active port is a no-op anyway.
+    gHandles.insertBefore(dot, gHandles.firstChild);
   }
   // Also render an "auto" indicator at the node center — click to clear the port pin.
   const c = centerOf(node);
@@ -3660,7 +3675,7 @@ function renderPortIndicators(node, role, edge) {
     edge.waypoints = [];
     renderAll();
   });
-  gEdges.appendChild(autoDot);
+  gHandles.insertBefore(autoDot, gHandles.firstChild); // T-293: below grab halos
 }
 function estLabelWidth(s) { return s.length * 5.2; }
 
