@@ -1387,3 +1387,21 @@ scan_id: R-6603faf7
 task_id: T-284
 payload:
   task_file: .tasks/active/T-284-gallery-serves-the-app-processes-corpus-.md
+---
+kind: scan_emitted
+timestamp: '2026-07-28T17:29:37Z'
+scan_id: R-91aedc18
+task_id: T-285
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-28T17:29:37Z'
+scan_id: R-91aedc18
+task_id: T-285
+payload:
+  task_file: .tasks/active/T-285-record-sd-1-ratification-aef-t-2663-go-i.md

@@ -89,9 +89,14 @@ their side) and filed a mirror gap backlog in their arc-014. Cross-links:
 - **T-280 (Workflow Fabric) ↔ their T-2670** (DEFER) — same; theirs.
 - **T-281 (lenses) ↔ their T-2669** — **recommendations diverge**: ours DEFER, theirs NO-GO
   ("write-mostly corpus, no read-pull yet"). Operator sees both framings at decision time.
-- **Their T-2663** (rec-GO): operator ratifies mirror+rails AS the Process layer — the SD-1 keystone
-  decision, settling canonical-format authority per side (their single-stored-representation their side;
-  our .workflow.yaml-canonical corpus this side; both coexist across the seam).
+- **Their T-2663 — SD-1 RATIFIED** (AEF operator via Watchtower, T-2663 GO, 2026-07-28T17:10Z; rail
+  offset 287): corpus + conformance rails + overlay ARE the AEF Process layer; code is the enforced
+  machine, maps conform. The SD-1 keystone decision is settled — canonical-format authority is formal
+  per side (their single-stored-representation their side; our .workflow.yaml-canonical corpus this
+  side; both coexist across the seam). The package's guided-mode/YAML-canonical shape is
+  retired-or-parked (guided mode = their T-2668, DEFER). Zero 832-side work implied. This supersedes
+  the SD-1 "Superseded" row's framing note above: the operative framing is now *ratified*, not merely
+  operative-by-convention.
 - **Their T-2664** (next): tier0-escalation map+rail as the P4 falsifiability experiment — arrives on the
   rail as a pair-draft round; our corpus already holds `tier0-escalation.workflow.yaml` (T-025 friction
   note) as the 832-side pairing article. T-2665/66/67 (more P4 maps) gate on its outcome.

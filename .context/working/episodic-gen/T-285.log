@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-07-28T17:29:38Z ===
+task_id: T-285
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-285.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Record SD-1 ratification (AEF T-2663 GO) in package disposition register
+  Duration: 0 days (2 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 2 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-285-record-sd-1-ratification-aef-t-2663-go-i.md
+--- exit code: 0 ---

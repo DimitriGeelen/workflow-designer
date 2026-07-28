@@ -1,13 +1,13 @@
 ---
-id: T-214
-name: "Pair-draft session/handover corpus diagram in canonical dialect (AEF arc-014)"
+id: T-285
+name: "Record SD-1 ratification (AEF T-2663 GO) in package disposition register"
 description: >
-  Pair-draft session/handover corpus diagram in canonical dialect (AEF arc-014)
+  Record SD-1 ratification (AEF T-2663 GO) in package disposition register
 
 status: work-completed
 workflow_type: build
-owner: human
-horizon: now
+owner: agent
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-19T20:51:06Z
-last_update: 2026-07-28T17:26:13Z
-date_finished: 2026-07-19T21:00:33Z
+created: 2026-07-28T17:27:37Z
+last_update: 2026-07-28T17:29:37Z
+date_finished: 2026-07-28T17:29:37Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,33 +30,23 @@ date_finished: 2026-07-19T21:00:33Z
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-214: Pair-draft session/handover corpus diagram in canonical dialect (AEF arc-014)
+# T-285: Record SD-1 ratification (AEF T-2663 GO) in package disposition register
 
 ## Context
 
-Arc: designer-authoring-surface (↔ AEF corpus arc-014). Taking up AEF's standing pair-draft
-invitation (rail offsets 84/87): 832 authors a REAL (non-fixture) framework process as a
-BPMN diagram in the designer's canonical dialect, the operator reviews/corrects it in the
-designer UI, then AEF compiles it through `fw bpmn`. AEF drafted D1 (`aef-task-lifecycle`);
-832 drafts the **session/handover lifecycle** — Session Start Protocol → work + commit
-cadence → budget-gate loop → Session Capture → handover → persist. This dogfoods the 832
-designer's client contract with real content and gives AEF's arc-014 a second corpus
-constituent. The diagram deliberately includes ONE exclusiveGateway (budget critical?) and
-ONE back-edge (work loop) — both realistic AND the exact constructs AEF flagged (their
-T-2557 gateway/branch-label silent-loss) so it doubles as a cross-validation case.
-
-Model dialect on `tests/fixtures/aef-bpmn/arc-lifecycle.bpmn`: three lanes
-(human·sovereignty / framework·authority / agent·initiative) with `aef:laneMeta`, every flow
-node carrying `aef:uid` + `aef:position`, typed nodes (startEvent/endEvent/scriptTask/
-serviceTask/userTask/exclusiveGateway), and `aef:uid` on every sequenceFlow.
+AEF's operator ratified SD-1 via Watchtower (their T-2663, GO, 2026-07-28T17:10Z): corpus +
+conformance rails + overlay ARE the AEF Process layer (rail offset 287). Our disposition
+register (docs/proposals/aef-workflow-process-layer-2026-07-02/DISPOSITION-2026-07-28.md)
+still shows SD-1 as "rec-GO pending operator" in the addendum — the keystone decision must be
+recorded, and the rail reply must renew the unanswered seed-bytes ask (rail 282) now covering
+BOTH open pair-drafts (dispatch-loop-relabel at 275, tier0-escalation per 287).
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] New fixture `tests/fixtures/aef-bpmn/session-handover.bpmn` authored in the canonical dialect (3 authority-typed lanes; every flow node has `aef:uid` + `aef:position`; every sequenceFlow has `aef:uid`)
-- [x] It validates CLEAN under `tools/validate-workflow.py` (exit 0, no findings) — including the sovereignty O-3 rule (the human-only pickup node sits in the sovereignty lane)
-- [x] It faithfully models the session lifecycle: Session Start (context inject) → focus → work → commit → gate → **budget exclusiveGateway** (continue back-edge vs wrap) → capture → handover → persist → end; with one human·sovereignty node (next-session pickup)
-- [x] Fixture is well-formed XML and byte-stable (sha `d971a2fc…` recorded in the delivery); delivered to AEF rail-inline with its sha for their `fw bpmn` compile (rail offset 92)
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [x] DISPOSITION-2026-07-28.md addendum records SD-1 as RATIFIED (AEF T-2663 GO, 2026-07-28T17:10Z) — not "rec-GO"
+- [x] Rail reply posted to offset 287 acknowledging SD-1 GO + renewing the seed-bytes ask for both open pair-drafts; rail acked through 287 (reply at 288, ack at 289)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -88,40 +78,8 @@ serviceTask/userTask/exclusiveGateway), and `aef:uid` on every sequenceFlow.
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-- [ ] [REVIEW] The session/handover diagram reads faithfully in the designer UI (the pair-draft review step)
-  **Steps:**
-  1. Open the designer at the served URL (see `.context/working/watchtower.url`), use in-editor Open-from-project (or load `tests/fixtures/aef-bpmn/session-handover.bpmn`).
-  2. Trace the flow: Session begins → context injected → pickup (human) → focus → work → commit → gate → budget gateway → (continue loops back to work) / (critical wraps) → capture → handover → persist → end.
-  3. Check the three lanes read correctly (human·sovereignty top, framework·authority middle, agent·initiative bottom) and node labels match the real framework steps.
-  **Expected:** The diagram is a recognisable, correct depiction of the session lifecycle; lanes/owners are right; the budget gateway + work back-edge render legibly.
-  **If not:** Note the step that is wrong/missing or mis-laned; correct it in the UI (or tell me) and re-save.
-
-## Recommendation
-
-**Recommendation:** GO
-
-**GO — accept the pair-draft, pending your UI read.** All agent-verifiable criteria pass: the
-diagram validates CLEAN under the canonical validator (exit 0, no findings, incl. O-3
-sovereignty), is well-formed and byte-stable (sha `d971a2fc…`), and was delivered to AEF
-rail-inline (offset 92) for their `fw bpmn` compile. It faithfully models the real session
-lifecycle across the three authority lanes with the budget gateway + work back-edge.
-
-The one remaining step is the pair-draft's whole point: **your eyes on the rendered diagram**
-in the designer (the `[REVIEW]` Human AC) — confirm it reads as a correct, legible depiction
-of the session lifecycle. Evidence it's ready: `tools/validate-workflow.py` clean; the
-designer is served (see `.context/working/watchtower.url`). If it reads right, check the AC
-and run `fw task update T-214 --status work-completed`. Not recommending closure without your
-UI read — DOM/validator correctness ≠ a faithful diagram (that's a human judgment).
 
 ## Verification
-
-# The authored diagram validates CLEAN under the canonical validator (exit 0, no findings):
-python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/session-handover.bpmn
-# It is well-formed XML:
-python3 -c "import xml.etree.ElementTree as ET; ET.parse('tests/fixtures/aef-bpmn/session-handover.bpmn')"
-# It carries the required dialect markers (workflowMeta, 3 lanes, a budget gateway, a human pickup):
-grep -q "aef:workflowMeta" tests/fixtures/aef-bpmn/session-handover.bpmn
-grep -q "exclusiveGateway" tests/fixtures/aef-bpmn/session-handover.bpmn
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -153,6 +111,8 @@ grep -q "exclusiveGateway" tests/fixtures/aef-bpmn/session-handover.bpmn
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+grep -q "RATIFIED" docs/proposals/aef-workflow-process-layer-2026-07-02/DISPOSITION-2026-07-28.md
+grep -q "T-2663 GO, 2026-07-28T17:10Z" docs/proposals/aef-workflow-process-layer-2026-07-02/DISPOSITION-2026-07-28.md
 
 ## RCA
 
@@ -194,6 +154,11 @@ grep -q "exclusiveGateway" tests/fixtures/aef-bpmn/session-handover.bpmn
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-07-28 — pair-round transport gap surfaced
+- **What changed:** rail 287 opened a SECOND pair-draft (tier0-escalation) while the 282 seed-bytes ask for the first (dispatch-loop-relabel) was still unanswered — the ritual assumes a fetchable gallery, but our :8834 is ufw-blocked inbound and their gallery URL was never shared; transport is the structural gap, not either draft.
+- **Plan impact:** reply scope extended beyond "record SD-1": renewed the ask covering both drafts and proposed two concrete transports (raw BPMN as rail payload ~20KB, or termlink file_send).
+- **Triggered:** none — if the transport ask goes unanswered a second time, consider a gap entry for the pair-draft ritual.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -217,19 +182,19 @@ grep -q "exclusiveGateway" tests/fixtures/aef-bpmn/session-handover.bpmn
 
 ## Updates
 
-### 2026-07-19T20:51:06Z — task-created [task-create-agent]
+### 2026-07-28T17:27:37Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-214-pair-draft-sessionhandover-corpus-diagra.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-285-record-sd-1-ratification-aef-t-2663-go-i.md
 - **Context:** Initial task creation
-
-### 2026-07-19T21:00:33Z — status-update [task-update-agent]
-- **Change:** status: started-work → work-completed
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-59923117
-- **Timestamp:** 2026-07-27T21:20:20Z
+- **Scan ID:** R-91aedc18
+- **Timestamp:** 2026-07-28T17:29:37Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no
 - **Findings:** none
+
+### 2026-07-28T17:29:37Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
