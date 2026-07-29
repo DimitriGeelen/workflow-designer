@@ -415,3 +415,11 @@ learnings:
   date: 2026-07-28
   context: Added via context agent
   application: TBD
+
+  - id: L-001
+    learning: "Field failure was environmental: operator-reachable designers all serve pinned 0.7.1 (predates fix) and :8834 has no ufw allow rule (T-253 class). Code fix verified 12/12 zoom legs + 8/8 served real-click legs. Remedy: cut 0.8.0 + rail announce for re-pin; ufw allow is operator-only."
+    source: healing-loop
+    task: T-293
+    date: 2026-07-29
+    context: "Resolved issue in T-293"
+    application: "Apply when encountering similar retest-link-unreachable-pinned-old-code issues"

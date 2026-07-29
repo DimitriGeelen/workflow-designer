@@ -62,6 +62,13 @@ failure_patterns:
     date_learned: 2026-07-27
     mitigation: "AEF delivered both reviewer policy files via file_send (rail 234, their T-2636): anti-patterns.yaml sha 04f89678 + escalation-patterns.yaml sha 7ebf939d; installed project-local per the code's vendored-consumer fallback path"
 
+  - id: FP-009
+    pattern: "retest-link-unreachable-pinned-old-code"
+    description: "Issue resolved in T-293"
+    learned_from: T-293
+    date_learned: 2026-07-29
+    mitigation: "Field failure was environmental: operator-reachable designers all serve pinned 0.7.1 (predates fix) and :8834 has no ufw allow rule (T-253 class). Code fix verified 12/12 zoom legs + 8/8 served real-click legs. Remedy: cut 0.8.0 + rail announce for re-pin; ufw allow is operator-only."
+
 success_patterns:
   - id: SP-001
     pattern: "Phased implementation"

@@ -4,7 +4,7 @@ name: "Endpoint reconnect drag (hand) often fails after T-286, worst at frw_11_h
 description: >
   Endpoint reconnect drag (hand) often fails after T-286, worst at frw_11_harvest
 
-status: issues
+status: started-work
 workflow_type: build
 owner: human
 horizon: now
@@ -257,6 +257,32 @@ already approved in T-286, extended to the interactive chrome.
 
 ## Updates
 
+### 2026-07-29 (later) — FIELD FAILURE ROOT-CAUSED: environmental, not a code defect [status → started-work]
+- **Hypothesis 2 (zoom) DISPROVED:** scratchpad/t293-zoom.mjs — at zoom 1.0/1.4/0.75
+  both e_16 endpoint halos win the hit-test and endpoint drag starts (6/6, real
+  CDP mouse input, node never moves).
+- **Hypothesis 3 (selection path) DISPROVED:** scratchpad/t293-served-click.mjs —
+  the EXACT operator path (served http://127.0.0.1:8834/designer.html?load=
+  rendered/harvest-pipeline.bpmn, REAL click on the edge line to select, real
+  mousedown on the green dots, scrolled + unscrolled): 8/8 drag-start, e_16 + e_22.
+- **ACTUAL ROOT CAUSE (T-253 class):** the operator cannot reach the fixed code
+  at all. Two converging facts:
+  1. `ufw status` has NO allow rule for 8834 (default-deny inbound) — the :8834
+     retest link is dead from the LAN, as it has been since day one (T-253).
+  2. Every designer the operator CAN reach serves the pinned **0.7.1 release**
+     (our Watchtower :3000/designer → vendor/designer/aef-workflow-designer-0.7.1.html,
+     0 g-handles refs; AEF's :3001/designer same pin) — 0.7.1 was cut BEFORE
+     T-286 and T-293 landed. On 0.7.1 the endpoint-drag defect reproduces
+     exactly as reported. The "field failure" was a faithful test of old code.
+- **Remedy (two rails):**
+  1. Release 0.8.0 bundling T-286 + T-293 → rail announce → AEF re-pins →
+     :3000/:3001 designer serve the fix on ufw-allowed ports (follow-up task).
+  2. Operator option for direct src retest: single ufw allow for 8834
+     (operator-only — agent must not modify ufw).
+- **G-019 note:** framework blindness = a Human-AC retest link on a NEW port has
+  no reachability check from the tester's vantage; T-253 already registered this
+  class (agent-side probes bypass inbound filtering).
+
 ### 2026-07-29 — FIELD FAILURE REPORT: fix does not work for the operator [status → issues]
 - **Report:** Operator retested on :8834 harvest-pipeline per the Human AC steps —
   "not working". No further detail yet (unknown whether node moves, nothing
@@ -283,3 +309,9 @@ already approved in T-286, extended to the interactive chrome.
 
 ### 2026-07-28T21:17:34Z — status-update [task-update-agent]
 - **Change:** owner: agent → human
+
+### 2026-07-29T06:09:00Z — issue-resolved [healing-agent]
+- **Action:** Issue resolved via healing loop
+- **Output:** Pattern FP-009 recorded
+- **Mitigation:** Field failure was environmental: operator-reachable designers all serve pinned 0.7.1 (predates fix) and :8834 has no ufw allow rule (T-253 class). Code fix verified 12/12 zoom legs + 8/8 served real-click legs. Remedy: cut 0.8.0 + rail announce for re-pin; ufw allow is operator-only.
+- **Context:** Resolution logged for future reference
