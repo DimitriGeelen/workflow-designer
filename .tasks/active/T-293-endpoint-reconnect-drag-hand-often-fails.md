@@ -4,7 +4,7 @@ name: "Endpoint reconnect drag (hand) often fails after T-286, worst at frw_11_h
 description: >
   Endpoint reconnect drag (hand) often fails after T-286, worst at frw_11_harvest
 
-status: started-work
+status: issues
 workflow_type: build
 owner: human
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-28T21:00:16Z
-last_update: 2026-07-28T21:17:34Z
+last_update: 2026-07-28T21:17:47Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -256,6 +256,25 @@ already approved in T-286, extended to the interactive chrome.
      legacy tasks lacking this section. -->
 
 ## Updates
+
+### 2026-07-29 — FIELD FAILURE REPORT: fix does not work for the operator [status → issues]
+- **Report:** Operator retested on :8834 harvest-pipeline per the Human AC steps —
+  "not working". No further detail yet (unknown whether node moves, nothing
+  happens, or dots are not visible).
+- **Verified so far this morning:** :8834 serves the CURRENT code (3 g-handles
+  refs, matches src) — not a stale-serve problem server-side.
+- **Open hypotheses (in order):**
+  1. STALE TAB / browser cache — a tab opened before last night's relaunch still
+     runs pre-T-293 JS. Operator should hard-reload (Ctrl+Shift+R) and retry.
+  2. ZOOM state — agent verification ran ONLY at 100% zoom; T-249 zoom (setZoom,
+     src line ~2321) may break handle hit/drag coordinates at zoom != 1.
+     READY TO RUN: scratchpad/t293-zoom.mjs (tests reach at 1.0/1.4/0.75) —
+     blocked by context-budget gate at 293K; run first thing next session.
+  3. Interaction-path difference — operator may fail at edge SELECTION near the
+     node (edge line also below node body — pre-existing), not at handle grab;
+     or uses a pointer path the CDP repro doesn't model.
+- **Next session:** run t293-zoom.mjs; ask operator: does the NODE move, does
+  NOTHING happen, or are the green dots absent? Hard-reload result?
 
 ### 2026-07-28T21:00:16Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
