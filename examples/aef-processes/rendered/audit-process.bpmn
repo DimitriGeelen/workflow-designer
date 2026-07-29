@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated from audit-process by tools/yaml-to-bpmn.py. Do not edit by hand. -->
-<bpmn:definitions
-    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
-    xmlns:aef="http://anchorpoint.framework/aef/extensions"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <bpmn:process id="Pool_audit_process" name="audit-process">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_audit-process"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
 
-    <bpmn:laneSet id="LaneSet_audit-process">
+  <bpmn:collaboration id="Collaboration_audit-process">
+    <bpmn:participant id="Pool_audit_process" name="audit-process" processRef="Process_audit-process"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_audit-process" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="audit-process" version="1" schemaVersion="2" title="audit-process" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="human" name="Human · Sovereignty">
         <bpmn:extensionElements>
           <aef:laneMeta abbr="hum" authority="sovereignty" height="120"/>
@@ -16,243 +25,306 @@
         <bpmn:extensionElements>
           <aef:laneMeta abbr="frw" authority="authority" height="420"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_fork</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_compliance</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_traceability</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_enforcement</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_learning</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_discovery</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_join</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_aggregate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_verdict</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_notify</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_end_fail</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_end_warn</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_end_pass</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_13_audit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_11_audit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_10_audit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_compliance</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_6_traceability</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_enforcement</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_5_learning</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_discovery</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_8_aggregate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_12_push</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_9_worst</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_1_fan</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_7_join</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="agent" name="Agent · Initiative">
         <bpmn:extensionElements>
           <aef:laneMeta abbr="agt" authority="initiative" height="120"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_trigger</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_1_audit</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="n_trigger" name="Audit requested">
+    <bpmn:startEvent id="agt_1_audit" name="Audit requested">
       <bpmn:extensionElements>
         <aef:uid value="n_trigger"/>
-        <aef:position x="120" y="644"/>
+        <aef:position x="120.0" y="644.0"/>
         <aef:meta triggeredBy="fw audit [--sections ...] | cron"/>
       </bpmn:extensionElements>
-      <bpmn:outgoing>e_trigger_fork</bpmn:outgoing>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:parallelGateway id="n_fork" name="Fan out to check sections">
+
+    <bpmn:endEvent id="frw_13_audit" name="Audit FAIL (exit 2)">
       <bpmn:extensionElements>
-        <aef:uid value="n_fork"/>
-        <aef:position x="320" y="315.5"/>
-        <aef:meta gatewayKind="fork" x-branchesModeledOf="5 of ~20 real sections"/>
+        <aef:uid value="n_end_fail"/>
+        <aef:position x="1620.0" y="216.5"/>
+        <aef:meta exitCode="2"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_trigger_fork</bpmn:incoming>
-      <bpmn:outgoing>e_fork_compliance</bpmn:outgoing>
-      <bpmn:outgoing>e_fork_traceability</bpmn:outgoing>
-      <bpmn:outgoing>e_fork_enforcement</bpmn:outgoing>
-      <bpmn:outgoing>e_fork_learning</bpmn:outgoing>
-      <bpmn:outgoing>e_fork_discovery</bpmn:outgoing>
-    </bpmn:parallelGateway>
-    <bpmn:scriptTask id="n_compliance" name="Compliance checks (task refs, gates, structure)">
+      <bpmn:incoming>flow_17</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_11_audit" name="Audit WARN (exit 1)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_warn"/>
+        <aef:position x="1420.0" y="360.0"/>
+        <aef:meta exitCode="1"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_15</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_10_audit" name="Audit PASS (exit 0)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_pass"/>
+        <aef:position x="1420.0" y="566.0"/>
+        <aef:meta exitCode="0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_16</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:scriptTask id="frw_2_compliance" name="Compliance checks (task refs, gates, structure)">
       <bpmn:extensionElements>
         <aef:uid value="n_compliance"/>
-        <aef:position x="560" y="190"/>
-        <aef:meta determinism="deterministic" section="compliance"/>
+        <aef:position x="560.0" y="190.0"/>
+        <aef:meta section="compliance"/>
         <aef:emits>
           <aef:emit value="pass"/>
           <aef:emit value="warn"/>
           <aef:emit value="fail"/>
         </aef:emits>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_fork_compliance</bpmn:incoming>
-      <bpmn:outgoing>e_compliance_join</bpmn:outgoing>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_7</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_traceability" name="Traceability checks (commit ↔ task P-002)">
+
+    <bpmn:scriptTask id="frw_6_traceability" name="Traceability checks (commit ↔ task P-002)">
       <bpmn:extensionElements>
         <aef:uid value="n_traceability"/>
-        <aef:position x="560" y="266"/>
-        <aef:meta determinism="deterministic" section="traceability"/>
+        <aef:position x="560.0" y="266.0"/>
+        <aef:meta section="traceability"/>
         <aef:emits>
           <aef:emit value="pass"/>
           <aef:emit value="warn"/>
           <aef:emit value="fail"/>
         </aef:emits>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_fork_traceability</bpmn:incoming>
-      <bpmn:outgoing>e_traceability_join</bpmn:outgoing>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:outgoing>flow_8</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_enforcement" name="Enforcement checks (hooks, baseline, bypass log)">
+
+    <bpmn:scriptTask id="frw_4_enforcement" name="Enforcement checks (hooks, baseline, bypass log)">
       <bpmn:extensionElements>
         <aef:uid value="n_enforcement"/>
-        <aef:position x="560" y="418"/>
-        <aef:meta determinism="deterministic" section="enforcement"/>
+        <aef:position x="560.0" y="418.0"/>
+        <aef:meta section="enforcement"/>
         <aef:emits>
           <aef:emit value="pass"/>
           <aef:emit value="warn"/>
           <aef:emit value="fail"/>
         </aef:emits>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_fork_enforcement</bpmn:incoming>
-      <bpmn:outgoing>e_enforcement_join</bpmn:outgoing>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+      <bpmn:outgoing>flow_9</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_learning" name="Learning / episodic completeness checks">
+
+    <bpmn:scriptTask id="frw_5_learning" name="Learning / episodic completeness checks">
       <bpmn:extensionElements>
         <aef:uid value="n_learning"/>
-        <aef:position x="560" y="494"/>
-        <aef:meta determinism="deterministic" section="learning"/>
+        <aef:position x="560.0" y="494.0"/>
+        <aef:meta section="learning"/>
         <aef:emits>
           <aef:emit value="pass"/>
           <aef:emit value="warn"/>
           <aef:emit value="fail"/>
         </aef:emits>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_fork_learning</bpmn:incoming>
-      <bpmn:outgoing>e_learning_join</bpmn:outgoing>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+      <bpmn:outgoing>flow_10</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_discovery" name="Discovery checks (D1–D9 trend scans)">
+
+    <bpmn:scriptTask id="frw_3_discovery" name="Discovery checks (D1–D9 trend scans)">
       <bpmn:extensionElements>
         <aef:uid value="n_discovery"/>
-        <aef:position x="560" y="342"/>
-        <aef:meta determinism="deterministic" section="discovery"/>
+        <aef:position x="560.0" y="342.0"/>
+        <aef:meta section="discovery"/>
         <aef:emits>
           <aef:emit value="pass"/>
           <aef:emit value="warn"/>
           <aef:emit value="fail"/>
         </aef:emits>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_fork_discovery</bpmn:incoming>
-      <bpmn:outgoing>e_discovery_join</bpmn:outgoing>
+      <bpmn:incoming>flow_6</bpmn:incoming>
+      <bpmn:outgoing>flow_11</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:parallelGateway id="n_join" name="Join — all sections complete">
-      <bpmn:extensionElements>
-        <aef:uid value="n_join"/>
-        <aef:position x="820" y="315.5"/>
-        <aef:meta gatewayKind="join"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_compliance_join</bpmn:incoming>
-      <bpmn:incoming>e_traceability_join</bpmn:incoming>
-      <bpmn:incoming>e_enforcement_join</bpmn:incoming>
-      <bpmn:incoming>e_learning_join</bpmn:incoming>
-      <bpmn:incoming>e_discovery_join</bpmn:incoming>
-      <bpmn:outgoing>e_join_aggregate</bpmn:outgoing>
-    </bpmn:parallelGateway>
-    <bpmn:scriptTask id="n_aggregate" name="Aggregate findings → tally + audit record">
+
+    <bpmn:scriptTask id="frw_8_aggregate" name="Aggregate findings → tally + audit record">
       <bpmn:extensionElements>
         <aef:uid value="n_aggregate"/>
-        <aef:position x="1020" y="307.5"/>
-        <aef:meta determinism="deterministic"/>
+        <aef:position x="1020.0" y="307.5"/>
         <aef:artifactsWrites paths="['.context/audits/${date}.yaml', 'LATEST-CRON.yaml']"/>
         <aef:aggregation over="FINDINGS[]" reduce="severity-max" outputs="PASS_COUNT, WARN_COUNT, FAIL_COUNT"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_join_aggregate</bpmn:incoming>
-      <bpmn:outgoing>e_aggregate_verdict</bpmn:outgoing>
+      <bpmn:incoming>flow_12</bpmn:incoming>
+      <bpmn:outgoing>flow_13</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:exclusiveGateway id="n_verdict" name="Worst finding level?">
+
+    <bpmn:scriptTask id="frw_12_push" name="Push failure notification (T-709)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_notify"/>
+        <aef:position x="1420.0" y="182.0"/>
+        <aef:endpoint>lib/notify.sh:fw_notify</aef:endpoint>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_14</bpmn:incoming>
+      <bpmn:outgoing>flow_17</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:exclusiveGateway id="frw_9_worst" name="Worst finding level?">
       <bpmn:extensionElements>
         <aef:uid value="n_verdict"/>
-        <aef:position x="1220" y="315.5"/>
+        <aef:position x="1220.0" y="315.5"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${max_severity}</aef:decisionInput>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_aggregate_verdict</bpmn:incoming>
-      <bpmn:outgoing>e_verdict_fail</bpmn:outgoing>
-      <bpmn:outgoing>e_verdict_warn</bpmn:outgoing>
-      <bpmn:outgoing>e_verdict_pass</bpmn:outgoing>
+      <bpmn:incoming>flow_13</bpmn:incoming>
+      <bpmn:outgoing>flow_14</bpmn:outgoing>
+      <bpmn:outgoing>flow_15</bpmn:outgoing>
+      <bpmn:outgoing>flow_16</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:scriptTask id="n_notify" name="Push failure notification (T-709)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_notify"/>
-        <aef:position x="1420" y="182"/>
-        <aef:meta determinism="deterministic" endpoint="lib/notify.sh:fw_notify" autoTriggerKind="sub-process"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_verdict_fail</bpmn:incoming>
-      <bpmn:outgoing>e_notify_end</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:endEvent id="n_end_fail" name="Audit FAIL (exit 2)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_end_fail"/>
-        <aef:position x="1620" y="216.5"/>
-        <aef:meta exitCode="2"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_notify_end</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:endEvent id="n_end_warn" name="Audit WARN (exit 1)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_end_warn"/>
-        <aef:position x="1420" y="360"/>
-        <aef:meta exitCode="1"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_verdict_warn</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:endEvent id="n_end_pass" name="Audit PASS (exit 0)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_end_pass"/>
-        <aef:position x="1420" y="566"/>
-        <aef:meta exitCode="0"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_verdict_pass</bpmn:incoming>
-    </bpmn:endEvent>
 
-    <bpmn:sequenceFlow id="e_trigger_fork" sourceRef="n_trigger" targetRef="n_fork">
-      <bpmn:extensionElements><aef:uid value="e_trigger_fork"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_fork_compliance" sourceRef="n_fork" targetRef="n_compliance">
-      <bpmn:extensionElements><aef:uid value="e_fork_compliance"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_fork_traceability" sourceRef="n_fork" targetRef="n_traceability">
-      <bpmn:extensionElements><aef:uid value="e_fork_traceability"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_fork_enforcement" sourceRef="n_fork" targetRef="n_enforcement">
-      <bpmn:extensionElements><aef:uid value="e_fork_enforcement"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_fork_learning" sourceRef="n_fork" targetRef="n_learning">
-      <bpmn:extensionElements><aef:uid value="e_fork_learning"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_fork_discovery" sourceRef="n_fork" targetRef="n_discovery">
-      <bpmn:extensionElements><aef:uid value="e_fork_discovery"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_compliance_join" sourceRef="n_compliance" targetRef="n_join">
-      <bpmn:extensionElements><aef:uid value="e_compliance_join"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_traceability_join" sourceRef="n_traceability" targetRef="n_join">
-      <bpmn:extensionElements><aef:uid value="e_traceability_join"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_enforcement_join" sourceRef="n_enforcement" targetRef="n_join">
-      <bpmn:extensionElements><aef:uid value="e_enforcement_join"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_learning_join" sourceRef="n_learning" targetRef="n_join">
-      <bpmn:extensionElements><aef:uid value="e_learning_join"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_discovery_join" sourceRef="n_discovery" targetRef="n_join">
-      <bpmn:extensionElements><aef:uid value="e_discovery_join"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_join_aggregate" sourceRef="n_join" targetRef="n_aggregate">
-      <bpmn:extensionElements><aef:uid value="e_join_aggregate"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_aggregate_verdict" sourceRef="n_aggregate" targetRef="n_verdict">
-      <bpmn:extensionElements><aef:uid value="e_aggregate_verdict"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_verdict_fail" name="any FAIL" sourceRef="n_verdict" targetRef="n_notify">
-      <bpmn:extensionElements><aef:uid value="e_verdict_fail"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${fail_count &gt; 0}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_verdict_warn" name="any WARN (no FAIL)" sourceRef="n_verdict" targetRef="n_end_warn">
-      <bpmn:extensionElements><aef:uid value="e_verdict_warn"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${fail_count == 0 &amp;&amp; warn_count &gt; 0}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_verdict_pass" name="clean" sourceRef="n_verdict" targetRef="n_end_pass">
-      <bpmn:extensionElements><aef:uid value="e_verdict_pass"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${fail_count == 0 &amp;&amp; warn_count == 0}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_notify_end" sourceRef="n_notify" targetRef="n_end_fail">
-      <bpmn:extensionElements><aef:uid value="e_notify_end"/></bpmn:extensionElements>
+    <bpmn:parallelGateway id="frw_1_fan" name="Fan out to check sections">
+      <bpmn:extensionElements>
+        <aef:uid value="n_fork"/>
+        <aef:position x="320.0" y="315.5"/>
+        <aef:meta gatewayKind="fork"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
+      <bpmn:outgoing>flow_6</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <bpmn:parallelGateway id="frw_7_join" name="Join — all sections complete">
+      <bpmn:extensionElements>
+        <aef:uid value="n_join"/>
+        <aef:position x="820.0" y="315.5"/>
+        <aef:meta gatewayKind="join"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_7</bpmn:incoming>
+      <bpmn:incoming>flow_8</bpmn:incoming>
+      <bpmn:incoming>flow_9</bpmn:incoming>
+      <bpmn:incoming>flow_10</bpmn:incoming>
+      <bpmn:incoming>flow_11</bpmn:incoming>
+      <bpmn:outgoing>flow_12</bpmn:outgoing>
+    </bpmn:parallelGateway>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_audit" targetRef="frw_1_fan">
+      <bpmn:extensionElements>
+        <aef:uid value="e_trigger_fork"/>
+      </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_fan" targetRef="frw_2_compliance">
+      <bpmn:extensionElements>
+        <aef:uid value="e_fork_compliance"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_3" sourceRef="frw_1_fan" targetRef="frw_6_traceability">
+      <bpmn:extensionElements>
+        <aef:uid value="e_fork_traceability"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_4" sourceRef="frw_1_fan" targetRef="frw_4_enforcement">
+      <bpmn:extensionElements>
+        <aef:uid value="e_fork_enforcement"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_5" sourceRef="frw_1_fan" targetRef="frw_5_learning">
+      <bpmn:extensionElements>
+        <aef:uid value="e_fork_learning"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_6" sourceRef="frw_1_fan" targetRef="frw_3_discovery">
+      <bpmn:extensionElements>
+        <aef:uid value="e_fork_discovery"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_7" sourceRef="frw_2_compliance" targetRef="frw_7_join">
+      <bpmn:extensionElements>
+        <aef:uid value="e_compliance_join"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_8" sourceRef="frw_6_traceability" targetRef="frw_7_join">
+      <bpmn:extensionElements>
+        <aef:uid value="e_traceability_join"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_9" sourceRef="frw_4_enforcement" targetRef="frw_7_join">
+      <bpmn:extensionElements>
+        <aef:uid value="e_enforcement_join"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_10" sourceRef="frw_5_learning" targetRef="frw_7_join">
+      <bpmn:extensionElements>
+        <aef:uid value="e_learning_join"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_11" sourceRef="frw_3_discovery" targetRef="frw_7_join">
+      <bpmn:extensionElements>
+        <aef:uid value="e_discovery_join"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_12" sourceRef="frw_7_join" targetRef="frw_8_aggregate">
+      <bpmn:extensionElements>
+        <aef:uid value="e_join_aggregate"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_8_aggregate" targetRef="frw_9_worst">
+      <bpmn:extensionElements>
+        <aef:uid value="e_aggregate_verdict"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_14" name="any FAIL" sourceRef="frw_9_worst" targetRef="frw_12_push">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${fail_count &gt; 0}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_verdict_fail"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_15" name="any WARN (no FAIL)" sourceRef="frw_9_worst" targetRef="frw_11_audit">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${fail_count == 0 &amp;&amp; warn_count &gt; 0}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_verdict_warn"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_16" name="clean" sourceRef="frw_9_worst" targetRef="frw_10_audit">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${fail_count == 0 &amp;&amp; warn_count == 0}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_verdict_pass"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_17" sourceRef="frw_12_push" targetRef="frw_13_audit">
+      <bpmn:extensionElements>
+        <aef:uid value="e_notify_end"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
   </bpmn:process>
+
+  <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates -->
 </bpmn:definitions>

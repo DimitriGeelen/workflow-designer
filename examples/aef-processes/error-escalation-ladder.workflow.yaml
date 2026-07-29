@@ -5,10 +5,11 @@
 # T-055, verification-gate / T-056, context-memory / T-057) — closes the series.
 #
 # Ground truth — SPLIT between code and doctrine (marked per node [CODE]/[DOCTRINE]):
-#   CODE     : agents/healing/lib/diagnose.sh — classify_failure (L113),
-#              find_similar_patterns (L147), and the A/B/C/D suggestion MENU it
-#              prints (L156-204); lib/resolve.sh logs pattern+learning; lib/
-#              promote.sh + harvest.sh graduate a practice/directive.
+#   CODE     : agents/healing/lib/diagnose.sh — classify_failure (L23),
+#              find_similar_patterns (L55), and the A/B/C/D suggestion MENU it
+#              prints (L156-204); agents/healing/lib/resolve.sh logs
+#              pattern+learning; FRAMEWORK lib/promote.sh + lib/harvest.sh
+#              (not healing lib/) graduate a practice/directive at 3+ applications.
 #   DOCTRINE : CLAUDE.md §Error Escalation Ladder + §Proactive Level D. The
 #              ESCALATION DECISION (which rung, when to climb — "same class 2+
 #              times") and the ENTIRE proactive-D reflection are agent judgement;
@@ -22,10 +23,18 @@
 # = code-enforced, stochastic = agent judgement). Lanes = authority axis.
 workflowMeta:
   id: error-escalation-ladder
-  version: 1
+  version: 2
   schemaVersion: 2
   source: agents/healing/lib/diagnose.sh + CLAUDE.md
   tier_default: 1
+  # v2 (T-298, AEF T-2665 pair round, ladder leg): code-truth corrections against
+  # the vendored v1.6.763 framework — classify_failure L113→L23 and
+  # find_similar_patterns L147→L55 (older-vendor line drift; per-rung pointers
+  # 164-195/197-199/201-203 verified CORRECT); promote/harvest path disambiguated
+  # (framework lib/, not agents/healing/lib/); n_diagnose endpoint span 113-204→23-204;
+  # n_resolve gained x-advisory-reachability (agent-initiated, never auto-invoked —
+  # same G-016 leak class as healing-loop v2); n_done emits corrected: resume to
+  # started-work is a PRINTED next-step (resolve.sh:155), not an automatic transition.
 
 pool:
   id: Pool_error_escalation_ladder
@@ -134,6 +143,10 @@ nodes:
     aef:
       determinism: stochastic
       endpoint: fw healing resolve T-XXX --mitigation "what fixed it"
+      # v2 (T-298): same leak class as healing-loop v2 — nothing auto-invokes
+      # resolve after a rung is applied; diagnose only PRINTS "3. Run: healing.sh
+      # resolve" (diagnose.sh:209). AEF G-016: 72% of bugfix tasks record zero learnings.
+      x-advisory-reachability: "leaky — agent-initiated, not auto-invoked after rung applied (G-016 72%)"
 
   - uid: n_done
     type: endEvent
@@ -144,7 +157,10 @@ nodes:
     y: 186.5
     aef:
       determinism: deterministic
-      emits: task back to started-work; pattern+learning captured
+      # v2 (T-298): resume is NOT automatic — both the diagnose menu
+      # (diagnose.sh:208) and resolve.sh (:155) only PRINT the started-work
+      # step; the agent/human must run the transition themselves.
+      emits: pattern+learning captured on resolve; return to started-work is a printed next-step (diagnose.sh:208, resolve.sh:155), not an automatic transition
 
   - uid: n_reflect
     type: startEvent
@@ -192,7 +208,7 @@ nodes:
       tier: 1
       determinism: deterministic
       agentType: framework
-      endpoint: agents/healing/lib/diagnose.sh:113-204
+      endpoint: agents/healing/lib/diagnose.sh:23-204   # v2: classify L23 + lookup L55 + menu 156-204 (was 113-204, older-vendor drift)
       contextReads: .context/project/patterns.yaml
       emits: classification + similar patterns + A/B/C/D suggestion menu
 
@@ -207,7 +223,10 @@ nodes:
       tier: 1
       determinism: deterministic
       agentType: framework
-      endpoint: lib/resolve.sh (log) + lib/promote.sh / harvest.sh (graduate 3+ apps)
+      # v2 (T-298): paths disambiguated — resolve.sh lives in agents/healing/lib/,
+      # promote.sh + harvest.sh in the FRAMEWORK lib/ (threshold verified:
+      # learning → practice at 3+ applications, promote.sh:147; 3+ projects, harvest.sh:10)
+      endpoint: agents/healing/lib/resolve.sh (log) + lib/promote.sh / lib/harvest.sh (graduate 3+ apps)
       artifactsWrites: .context/project/patterns.yaml, .context/project/learnings.yaml
 
 edges:

@@ -1531,3 +1531,21 @@ scan_id: R-a9c69b35
 task_id: T-299
 payload:
   task_file: .tasks/active/T-299-task-creation-pair-round-leg-aef-t-2666-.md
+---
+kind: scan_emitted
+timestamp: '2026-07-29T07:49:56Z'
+scan_id: R-88f390de
+task_id: T-298
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-29T07:49:56Z'
+scan_id: R-88f390de
+task_id: T-298
+payload:
+  task_file: .tasks/active/T-298-error-escalation-ladder-pair-leg-aef-t-2.md

@@ -1,0 +1,73 @@
+# ============================================================================
+# EPISODIC MEMORY - T-298: Error-escalation-ladder pair leg (AEF T-2665 round): code-truth verify the ladder article, report on rail
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T07:49:58Z
+# ============================================================================
+
+task_id: T-298
+task_name: "Error-escalation-ladder pair leg (AEF T-2665 round): code-truth verify the ladder article, report on rail"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-29T06:31:57Z
+completed: 2026-07-29T07:49:55Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'Every node/edge of error-escalation-ladder.workflow.yaml traced to a code-truth source — verified correct: per-rung pointers 164-195/197-199/201-203, menu 156-204, promote 3+ threshold (promote.sh:147, harvest.sh:10), doctrine matches CLAUDE.md; stale: classify L113 (actual L23), lookup L147 (actual L55), diagnose span 113-204 (actual 23-204), lib/ path ambiguity, n_done automatic-resume claim'
+  - 'Mismatches found → article revved to v2 in BOTH forms (YAML + rendered hand-edited in-dialect, no regen); v2 provenance comment names all five corrections; n_resolve gained x-advisory-reachability (G-016 class, consistent with healing-loop v2)'
+  - 'Post-rev validation: validate-workflow.py VALID zero findings on rendered BPMN; YAML parses; pytest suite 11/11 green'
+  - 'Ladder-leg report posted at rail 317 (reply to their 313, T-2652-slices thread); memory rail frontier updated — T-2665 round now fully closed our side'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 77 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 77
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-298-error-escalation-ladder-pair-leg-aef-t-2.md
+generated_by: context-agent-hybrid

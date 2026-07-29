@@ -13,7 +13,7 @@
 
   <bpmn:process id="Process_error-escalation-ladder" isExecutable="true">
     <bpmn:extensionElements>
-      <aef:workflowMeta id="error-escalation-ladder" version="1" schemaVersion="2" title="error-escalation-ladder" tier_default="2"/>
+      <aef:workflowMeta id="error-escalation-ladder" version="2" schemaVersion="2" title="error-escalation-ladder" tier_default="2"/>
     </bpmn:extensionElements>
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="agent" name="Agent · Initiative (judgement + action)">
@@ -64,6 +64,7 @@
       <bpmn:extensionElements>
         <aef:uid value="n_done"/>
         <aef:position x="1382.0" y="502.0"/>
+        <aef:meta note="v2 (T-298): return to started-work is a PRINTED next-step (diagnose.sh:208, resolve.sh:155), not an automatic transition — pattern+learning capture is what resolve actually does"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_13</bpmn:incoming>
     </bpmn:endEvent>
@@ -132,6 +133,7 @@
         <aef:uid value="n_resolve"/>
         <aef:position x="1071.2" y="180.7"/>
         <aef:endpoint>fw healing resolve T-XXX --mitigation "what fixed it"</aef:endpoint>
+        <aef:meta note="v2 (T-298): reachability ADVISORY — nothing auto-invokes resolve after a rung is applied; diagnose only PRINTS the resolve step (diagnose.sh:209). Same leak class as healing-loop v2 (AEF G-016: 72% of bugfix tasks record zero learnings)"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_8</bpmn:incoming>
       <bpmn:incoming>flow_9</bpmn:incoming>
@@ -145,7 +147,7 @@
         <aef:uid value="n_diagnose"/>
         <aef:position x="425.0" y="82.5"/>
         <aef:meta tier="1" agentType="framework"/>
-        <aef:endpoint>agents/healing/lib/diagnose.sh:113-204</aef:endpoint>
+        <aef:endpoint>agents/healing/lib/diagnose.sh:23-204</aef:endpoint>
         <aef:contextReads paths=".context/project/patterns.yaml"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_2</bpmn:incoming>
@@ -157,7 +159,7 @@
         <aef:uid value="n_capture"/>
         <aef:position x="1151.2" y="632.9"/>
         <aef:meta tier="1" agentType="framework"/>
-        <aef:endpoint>lib/resolve.sh (log) + lib/promote.sh / harvest.sh (graduate 3+ apps)</aef:endpoint>
+        <aef:endpoint>agents/healing/lib/resolve.sh (log) + lib/promote.sh / lib/harvest.sh (graduate 3+ apps)</aef:endpoint>
         <aef:artifactsWrites paths=".context/project/patterns.yaml, .context/project/learnings.yaml"/>
       </bpmn:extensionElements>
       <bpmn:incoming>flow_12</bpmn:incoming>

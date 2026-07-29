@@ -1,216 +1,276 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated from review-emission by tools/yaml-to-bpmn.py. Do not edit by hand. -->
-<bpmn:definitions
-    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
-    xmlns:aef="http://anchorpoint.framework/aef/extensions"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <bpmn:process id="Pool_review_emission" name="review-emission">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_review-emission"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
 
-    <bpmn:laneSet id="LaneSet_review-emission">
+  <bpmn:collaboration id="Collaboration_review-emission">
+    <bpmn:participant id="Pool_review_emission" name="review-emission" processRef="Process_review-emission"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_review-emission" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="review-emission" version="1" schemaVersion="2" title="review-emission" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="agent" name="Agent · Initiative">
         <bpmn:extensionElements>
           <aef:laneMeta abbr="agt" authority="initiative" height="120"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_1_fw</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
           <aef:laneMeta abbr="frw" authority="authority" height="360"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_resolve</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_found_gate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_not_found</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_arc</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_type_gate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_rec</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_link_validate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_link_gate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_homework</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_card</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_qr</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_mark</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_done</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_return</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_9_blocked</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_13_handoff</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_1_resolve</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_arc</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_5_check</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_7_validate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_10_print</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_11_qr</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_12_mark</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_task</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_6_inception</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_8_links</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="n_start" name="`fw review` — emit_review(task)">
+    <bpmn:startEvent id="agt_1_fw" name="`fw review` — emit_review(task)">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
-        <aef:position x="100" y="104"/>
-        <aef:meta determinism="deterministic" endpoint="fw review"/>
+        <aef:position x="100.0" y="104.0"/>
+        <aef:endpoint>fw review</aef:endpoint>
       </bpmn:extensionElements>
-      <bpmn:outgoing>e_01</bpmn:outgoing>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:scriptTask id="n_resolve" name="Resolve task file (hint → discover)">
+
+    <bpmn:endEvent id="frw_3_return" name="return 1 — no task file">
+      <bpmn:extensionElements>
+        <aef:uid value="n_not_found"/>
+        <aef:position x="403.0" y="389.0"/>
+        <aef:meta terminalKind="error"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_9_blocked" name="BLOCKED — link homework (return 2)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_homework"/>
+        <aef:position x="1013.0" y="389.0"/>
+        <aef:meta terminalKind="error"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_10</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_13_handoff" name="Handoff emitted ✓">
+      <bpmn:extensionElements>
+        <aef:uid value="n_done"/>
+        <aef:position x="1600.0" y="299.0"/>
+        <aef:meta terminalKind="success"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_14</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:scriptTask id="frw_1_resolve" name="Resolve task file (hint → discover)">
       <bpmn:extensionElements>
         <aef:uid value="n_resolve"/>
-        <aef:position x="250" y="285"/>
-        <aef:meta determinism="deterministic"/>
+        <aef:position x="250.0" y="285.0"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_01</bpmn:incoming>
-      <bpmn:outgoing>e_02</bpmn:outgoing>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:exclusiveGateway id="n_found_gate" name="Task file found?">
+
+    <bpmn:scriptTask id="frw_4_arc" name="Arc-parent 3-question check">
+      <bpmn:extensionElements>
+        <aef:uid value="n_arc"/>
+        <aef:position x="540.0" y="285.0"/>
+        <aef:meta softFail="advisory"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_5_check" name="Check">
+      <bpmn:extensionElements>
+        <aef:uid value="n_rec"/>
+        <aef:position x="700.0" y="195.0"/>
+        <aef:meta softFail="advisory"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_6</bpmn:incoming>
+      <bpmn:outgoing>flow_8</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_7_validate" name="Validate review links (--enforce)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_link_validate"/>
+        <aef:position x="860.0" y="285.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_7</bpmn:incoming>
+      <bpmn:incoming>flow_8</bpmn:incoming>
+      <bpmn:outgoing>flow_9</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_10_print" name="Print review card + URL">
+      <bpmn:extensionElements>
+        <aef:uid value="n_card"/>
+        <aef:position x="1150.0" y="285.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_11</bpmn:incoming>
+      <bpmn:outgoing>flow_12</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_11_qr" name="QR + artifacts (best-effort)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_qr"/>
+        <aef:position x="1300.0" y="285.0"/>
+        <aef:meta softFail="advisory"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_12</bpmn:incoming>
+      <bpmn:outgoing>flow_13</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_12_mark" name="Mark reviewed — touch .reviewed-&lt;id&gt;">
+      <bpmn:extensionElements>
+        <aef:uid value="n_mark"/>
+        <aef:position x="1450.0" y="285.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_13</bpmn:incoming>
+      <bpmn:outgoing>flow_14</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:exclusiveGateway id="frw_2_task" name="Task file found?">
       <bpmn:extensionElements>
         <aef:uid value="n_found_gate"/>
-        <aef:position x="397" y="293"/>
+        <aef:position x="397.0" y="293.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${task_file != ""}</aef:decisionInput>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_02</bpmn:incoming>
-      <bpmn:outgoing>e_03</bpmn:outgoing>
-      <bpmn:outgoing>e_04</bpmn:outgoing>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:endEvent id="n_not_found" name="return 1 — no task file">
-      <bpmn:extensionElements>
-        <aef:uid value="n_not_found"/>
-        <aef:position x="403" y="389"/>
-        <aef:meta terminalKind="error"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_03</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:scriptTask id="n_arc" name="Arc-parent 3-question check">
-      <bpmn:extensionElements>
-        <aef:uid value="n_arc"/>
-        <aef:position x="540" y="285"/>
-        <aef:meta determinism="deterministic" softFail="advisory"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_04</bpmn:incoming>
-      <bpmn:outgoing>e_05</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:exclusiveGateway id="n_type_gate" name="inception?">
+
+    <bpmn:exclusiveGateway id="frw_6_inception" name="inception?">
       <bpmn:extensionElements>
         <aef:uid value="n_type_gate"/>
-        <aef:position x="700" y="293"/>
+        <aef:position x="700.0" y="293.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${workflow_type == inception}</aef:decisionInput>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_05</bpmn:incoming>
-      <bpmn:outgoing>e_06</bpmn:outgoing>
-      <bpmn:outgoing>e_07</bpmn:outgoing>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+      <bpmn:outgoing>flow_6</bpmn:outgoing>
+      <bpmn:outgoing>flow_7</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:scriptTask id="n_rec" name="Check">
-      <bpmn:extensionElements>
-        <aef:uid value="n_rec"/>
-        <aef:position x="700" y="195"/>
-        <aef:meta determinism="deterministic" softFail="advisory"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_06</bpmn:incoming>
-      <bpmn:outgoing>e_08</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_link_validate" name="Validate review links (--enforce)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_link_validate"/>
-        <aef:position x="860" y="285"/>
-        <aef:meta determinism="deterministic"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_07</bpmn:incoming>
-      <bpmn:incoming>e_08</bpmn:incoming>
-      <bpmn:outgoing>e_09</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:exclusiveGateway id="n_link_gate" name="Links resolve? (no homework)">
+
+    <bpmn:exclusiveGateway id="frw_8_links" name="Links resolve? (no homework)">
       <bpmn:extensionElements>
         <aef:uid value="n_link_gate"/>
-        <aef:position x="1007" y="293"/>
+        <aef:position x="1007.0" y="293.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${links_ok || FW_ALLOW_REVIEW_LINK_HOMEWORK}</aef:decisionInput>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_09</bpmn:incoming>
-      <bpmn:outgoing>e_10</bpmn:outgoing>
-      <bpmn:outgoing>e_11</bpmn:outgoing>
+      <bpmn:incoming>flow_9</bpmn:incoming>
+      <bpmn:outgoing>flow_10</bpmn:outgoing>
+      <bpmn:outgoing>flow_11</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:endEvent id="n_homework" name="BLOCKED — link homework (return 2)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_homework"/>
-        <aef:position x="1013" y="389"/>
-        <aef:meta terminalKind="error"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_10</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:scriptTask id="n_card" name="Print review card + URL">
-      <bpmn:extensionElements>
-        <aef:uid value="n_card"/>
-        <aef:position x="1150" y="285"/>
-        <aef:meta determinism="deterministic"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_11</bpmn:incoming>
-      <bpmn:outgoing>e_12</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_qr" name="QR + artifacts (best-effort)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_qr"/>
-        <aef:position x="1300" y="285"/>
-        <aef:meta determinism="deterministic" softFail="advisory"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_12</bpmn:incoming>
-      <bpmn:outgoing>e_13</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_mark" name="Mark reviewed — touch .reviewed-&lt;id&gt;">
-      <bpmn:extensionElements>
-        <aef:uid value="n_mark"/>
-        <aef:position x="1450" y="285"/>
-        <aef:meta determinism="deterministic" sideEffect="touch .context/working/.reviewed-&lt;id&gt; (unblocks fw inception decide, T-973)"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_13</bpmn:incoming>
-      <bpmn:outgoing>e_14</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:endEvent id="n_done" name="Handoff emitted ✓">
-      <bpmn:extensionElements>
-        <aef:uid value="n_done"/>
-        <aef:position x="1600" y="299"/>
-        <aef:meta terminalKind="success" x-handoffTo="human sovereignty (Watchtower, out-of-band — see FC-7)"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_14</bpmn:incoming>
-    </bpmn:endEvent>
 
-    <bpmn:sequenceFlow id="e_01" sourceRef="n_start" targetRef="n_resolve">
-      <bpmn:extensionElements><aef:uid value="e_01"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_02" sourceRef="n_resolve" targetRef="n_found_gate">
-      <bpmn:extensionElements><aef:uid value="e_02"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_03" name="not found" sourceRef="n_found_gate" targetRef="n_not_found">
-      <bpmn:extensionElements><aef:uid value="e_03"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${task_file == ""}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_04" name="found" sourceRef="n_found_gate" targetRef="n_arc">
-      <bpmn:extensionElements><aef:uid value="e_04"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${task_file != ""}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_05" sourceRef="n_arc" targetRef="n_type_gate">
-      <bpmn:extensionElements><aef:uid value="e_05"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_06" name="inception" sourceRef="n_type_gate" targetRef="n_rec">
-      <bpmn:extensionElements><aef:uid value="e_06"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${workflow_type == inception}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_07" name="standard" sourceRef="n_type_gate" targetRef="n_link_validate">
-      <bpmn:extensionElements><aef:uid value="e_07"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${workflow_type != inception}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_08" name="rejoin" sourceRef="n_rec" targetRef="n_link_validate">
-      <bpmn:extensionElements><aef:uid value="e_08"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_09" sourceRef="n_link_validate" targetRef="n_link_gate">
-      <bpmn:extensionElements><aef:uid value="e_09"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_10" name="homework" sourceRef="n_link_gate" targetRef="n_homework">
-      <bpmn:extensionElements><aef:uid value="e_10"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!links_ok &amp;&amp; !bypass}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_11" name="links ok" sourceRef="n_link_gate" targetRef="n_card">
-      <bpmn:extensionElements><aef:uid value="e_11"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${links_ok || bypass}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_12" sourceRef="n_card" targetRef="n_qr">
-      <bpmn:extensionElements><aef:uid value="e_12"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_13" sourceRef="n_qr" targetRef="n_mark">
-      <bpmn:extensionElements><aef:uid value="e_13"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_14" sourceRef="n_mark" targetRef="n_done">
-      <bpmn:extensionElements><aef:uid value="e_14"/></bpmn:extensionElements>
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_fw" targetRef="frw_1_resolve">
+      <bpmn:extensionElements>
+        <aef:uid value="e_01"/>
+      </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_resolve" targetRef="frw_2_task">
+      <bpmn:extensionElements>
+        <aef:uid value="e_02"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_3" name="not found" sourceRef="frw_2_task" targetRef="frw_3_return">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${task_file == ""}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_03"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_4" name="found" sourceRef="frw_2_task" targetRef="frw_4_arc">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${task_file != ""}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_04"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_5" sourceRef="frw_4_arc" targetRef="frw_6_inception">
+      <bpmn:extensionElements>
+        <aef:uid value="e_05"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_6" name="inception" sourceRef="frw_6_inception" targetRef="frw_5_check">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${workflow_type == inception}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_06"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_7" name="standard" sourceRef="frw_6_inception" targetRef="frw_7_validate">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${workflow_type != inception}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_07"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_8" name="rejoin" sourceRef="frw_5_check" targetRef="frw_7_validate">
+      <bpmn:extensionElements>
+        <aef:uid value="e_08"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_9" sourceRef="frw_7_validate" targetRef="frw_8_links">
+      <bpmn:extensionElements>
+        <aef:uid value="e_09"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_10" name="homework" sourceRef="frw_8_links" targetRef="frw_9_blocked">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!links_ok &amp;&amp; !bypass}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_10"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_11" name="links ok" sourceRef="frw_8_links" targetRef="frw_10_print">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${links_ok || bypass}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_11"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_12" sourceRef="frw_10_print" targetRef="frw_11_qr">
+      <bpmn:extensionElements>
+        <aef:uid value="e_12"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_11_qr" targetRef="frw_12_mark">
+      <bpmn:extensionElements>
+        <aef:uid value="e_13"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_14" sourceRef="frw_12_mark" targetRef="frw_13_handoff">
+      <bpmn:extensionElements>
+        <aef:uid value="e_14"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
   </bpmn:process>
+
+  <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates -->
 </bpmn:definitions>
