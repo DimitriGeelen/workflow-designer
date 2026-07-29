@@ -3159,3 +3159,29 @@ scan_id: R-ea440500
 task_id: T-307
 payload:
   task_file: .tasks/active/T-307-prepare-operator-decision-briefs-for-the.md
+---
+kind: scan_emitted
+timestamp: '2026-07-29T17:46:30Z'
+scan_id: R-2681b6e7
+task_id: T-244
+payload:
+  overall: CONCERN
+  finding_count: 3
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-29T17:46:30Z'
+scan_id: R-2681b6e7
+task_id: T-244
+payload:
+  task_file: .tasks/active/T-244-bare-catch-event-rendering-neutral-untyp.md
+---
+kind: recommendation_claims_verdict
+timestamp: '2026-07-29T17:46:30Z'
+scan_id: RC-d38ac272
+task_id: T-244
+payload:
+  overall: UNVERIFIED
+  claim_count: 0
