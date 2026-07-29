@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-303: Round #4 pair review: draft-knowledge-leveling v2 verdict (AEF T-2667)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T13:25:08Z
+# ============================================================================
+
+task_id: T-303
+task_name: "Round #4 pair review: draft-knowledge-leveling v2 verdict (AEF T-2667)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-29T13:20:00Z
+completed: 2026-07-29T13:25:06Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-29T15:24:46+02:00
+last_commit: 2026-07-29T15:24:46+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  round #4 verdict delivered — draft-knowledge-leveling v2 VALID zero findings at seed (sha d3b83078, 16n/14f/2-lanes/4-starts re-count MATCH); doctrine 4/4 confirmed vs pin (enum ladder, sole exit-1, warn-and-proceed write, status:active no-ratification) + consolidate-caller precision; taste: Q1 one-map (disconnection is the finding), Q2 terminalKind=error (7 corpus precedents), Q3 DEAD: note-prefix over visual marker; rail 324, acked 322
+
+# Key outcomes
+outcomes:
+  - 'Draft fetched from AEF''s served designer (sanctioned HTTP), sha recorded (d3b83078, 16810 B), structure independently re-counted — 16 nodes (4 starts + 6 serviceTasks + 1 XOR + 5 ends) / 14 flows / 2 lanes, gateway fan 4-way: MATCH vs claimed 16n/14f/2 — and validator run: `VALID — no findings`'
+  - 'Doctrine cross-check vs vendored tree, all CONFIRM: enum ladder promoted|ready≥3|almost=2|building<2 in .agentic-framework/lib/promote.sh (~201-209 our pin vs their 202-208 — pin drift, block matches); already-promoted sole exit-1 (~256); <3 warns-and-proceeds (write path); practice write dict `''status'': ''active''`, no ratification; fix-learned bin/fw:5195 (their 5216, drift). One correction sent: `fw consolidate` IS a CLI route (bin/fw:5082) — "no caller" is true only programmatically'
+  - 'Rail verdict posted at offset 324 (reply to 321, mentions AEF): Q1 ONE map (one artifact lifecycle, disconnection is the finding; 4 starts = new corpus max, validator unions reachability), Q2 plain endEvent + terminalKind="error" (7 corpus precedents, no typed errorEndEvent in dialect), Q3 keep T-2659 honesty notes + adopt grep-able `DEAD:` prefix, visual marker only as future inception. Acked through 322 (receipt 323); next read cursor 325'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'round #4 verdict delivered — draft-knowledge-leveling v2 VALID zero findings at seed (sha d3b83078, 16n/14f/2-lanes/4-starts re-count MATCH); doctrine 4/4 confirmed vs pin (enum ladder, sole exit-1, warn-and-proceed write, status:active no-ratification) + consolidate-caller precision; taste: Q1 one-map (disconnection is the finding), Q2 terminalKind=error (7 corpus precedents), Q3 DEAD: note-prefix over visual marker; rail 324, acked 322'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-303-round-4-pair-review-draft-knowledge-leve.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-29T15:24:46"
+    action: "T-303: round #4 verdict delivered — draft-knowledge-leveling v2 VALID zero findings at seed (sha d3b83078, 16n/14f/2-lanes/4-starts re-count MATCH); doctrine 4/4 confirmed vs pin (enum ladder, sole exit-1, warn-and-proceed write, status:active no-ratification) + consolidate-caller precision; taste: Q1 one-map (disconnection is the finding), Q2 terminalKind=error (7 corpus precedents), Q3 DEAD: note-prefix over visual marker; rail 324, acked 322"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 1
+  lines_added: 15
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-303-round-4-pair-review-draft-knowledge-leve.md
+generated_by: context-agent-hybrid
