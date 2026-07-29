@@ -227,6 +227,18 @@ else
 fi
 
 echo
+echo "== DEAD-leg census contract: aef:meta-note-attrs-only scan (T-304, rail 325) =="
+# Pins the pair-round-4 honesty convention before dead-leg maps get adopted at
+# promotion: census reads only aef:meta note attrs (raw grep over-counts — the
+# PL-060 phantom-census class), fixture sha-pinned to AEF's rail-325 announcement.
+if python3 "$ROOT/tests/test_dead_leg_census.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "DEAD-leg census contract broke — fixture drifted, census/owner mismatch, or corpus gained DEAD legs undeliberately (T-304, rail 325)"
+  fail=$((fail + 1))
+fi
+
+echo
 # Corpus geometry sweep (T-052): every authored map's nodes must sit inside their
 # lane bands, modulo the exact legacy allowlist. Guards against new maps silently
 # straddling bands — the G-019 blindness found in T-050.
