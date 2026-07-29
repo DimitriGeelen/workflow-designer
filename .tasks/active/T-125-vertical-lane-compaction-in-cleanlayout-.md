@@ -71,7 +71,7 @@ operator-sequenced.
       surface (no aef:* / BPMN-emit / MANIFEST changes).
 
 ### Human
-- [ ] [REVIEW] Compacted layouts match your correction taste (pairs 1–3)
+- [x] [REVIEW] Compacted layouts match your correction taste (pairs 1–3)
   **Steps:**
   1. Open http://192.168.10.107:8834/designer.html?load=rendered/task-lifecycle.bpmn
      and run Clean layout (toolbar) — compare against your hand-corrected version

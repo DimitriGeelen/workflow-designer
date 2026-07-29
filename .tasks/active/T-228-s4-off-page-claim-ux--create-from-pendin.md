@@ -66,7 +66,7 @@ S1→S2→**S4**. See `docs/plans/T-220-offpage-seam-editor-build-decomposition.
 - [x] No regression: S3a/S3b verifiers (`_gallery-list-verify.py` 22/22, `_gallery-registry-verify.py` 17/17), save-allowlist, corpus-adopt, byte-pins all still green; editor byte-diff vs deployed `designer.html` limited to this change
 
 ### Human
-- [ ] [REVIEW] The "create from pending ref" picker reads clearly and the suggest-only affordance is unambiguous
+- [x] [REVIEW] The "create from pending ref" picker reads clearly and the suggest-only affordance is unambiguous
   **Steps:**
   1. `cd /opt/832-Workflow-designer && nohup tools/serve-gallery.sh 8834 >/dev/null 2>&1 &` then open http://192.168.10.107:8834/designer.html
   2. Open the picker (control added by this task); with `s4-e2e-probe`'s pending refs in the store, review the ghost list (uuid, name, referrer count)

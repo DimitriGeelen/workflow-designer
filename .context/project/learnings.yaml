@@ -437,3 +437,10 @@ learnings:
   date: 2026-07-29
   context: Added via context agent
   application: TBD
+- id: PL-062
+  learning: "Generated sed one-liners that tick the 'first unchecked checkbox' silently tick the template-comment EXAMPLE line when the ### Human comment block precedes the real AC (mutation variant of PL-060's phantom class): update-task then reports 'stays in active' but exits 0, so the close chain records a false-positive OK. Tick checkboxes only via comment-masked parsing, and never trust update-task's exit code as a completion signal — verify the task file actually MOVED to completed/."
+  source: PL-060
+  task: T-306
+  date: 2026-07-29
+  context: Added via context agent
+  application: TBD

@@ -91,7 +91,7 @@ of the collision notice, READ it (visual verification); (g) full bridge suite gr
       or any AEF-facing contract (diff scoped to editor UI paths + tests).
 
 ### Human
-- [ ] [REVIEW] Guard prompts read right (wording + non-naggy feel)
+- [x] [REVIEW] Guard prompts read right (wording + non-naggy feel)
   **Steps:**
   1. Open the editor at http://192.168.10.107:8834/designer.html (gallery serve of
      current src; if 404, ask the agent to refresh the gallery docroot first)

@@ -52,7 +52,7 @@ call) and reconciles the §8 support-doc status. Frozen mapping-v1 is NOT edited
 - [x] `tests/test_forward_fixtures.py` green (`OK: 5 fixture(s) ... conformant`) — the form the delta proposes is exactly what `inception-gonogo.bpmn` already embodies (delta is implementation-consistent)
 
 ### Human
-- [ ] [REVIEW] Graduate (or rule on) the G-3 collapsed-inception v1.1 delta
+- [x] [REVIEW] Graduate (or rule on) the G-3 collapsed-inception v1.1 delta
   **Steps:**
   1. Read `docs/reports/T-195-g3-collapsed-inception-delta.md` (the before→after for both standards is in §3).
   2. Decide: GO to graduate the collapsed form into v1.1 of both standards (I then apply the frozen edits under your authorization), or NO-GO/amend.

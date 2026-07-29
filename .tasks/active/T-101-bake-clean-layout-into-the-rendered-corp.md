@@ -52,7 +52,7 @@ Operator decision (2026-07-05 dialogue on auto-tidy): option 1 of three (2 = T-0
 - [x] Before/after screenshots of 2–3 representative maps taken and READ — task-lifecycle + harvest-pipeline (`.playwright-mcp/t101-*-{before,after}.png`): main flow rows now snap to a common centre-line, branch stacks preserved, no visual regression
 
 ### Human
-- [ ] [REVIEW] Shipped corpus maps open tidy in the served designer, and the Clean nudge no longer fires on them
+- [x] [REVIEW] Shipped corpus maps open tidy in the served designer, and the Clean nudge no longer fires on them
   **Steps:**
   1. Open http://192.168.10.107:3000/designer (ufw-allowed; serves the 0.8.0 pin — the old :8834 gallery link is LAN-blocked, T-253 class, do NOT use it)
   2. Click the **t101-review-task-lifecycle**, **t101-review-audit-process**, **t101-review-harvest-pipeline**, **t101-review-verification-gate** cards (v2 = the T-300 re-baked corpus bytes)

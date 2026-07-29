@@ -58,7 +58,7 @@ member — only nudge about mess Clean can actually fix. Overlaps still always c
 - [x] No regression on real mess: a map with genuine non-stack waves/overlaps still scores ≥3 (nudge still fires when Clean would help) — task-lifecycle 9, verification-gate 11, session-handover 8 still fire
 
 ### Human
-- [ ] [REVIEW] Nudge stays quiet after Clean fully tidies a map, and still appears on a genuinely messy one
+- [x] [REVIEW] Nudge stays quiet after Clean fully tidies a map, and still appears on a genuinely messy one
   **Steps:**
   1. `cd /opt/832-Workflow-designer && bin/fw run tools/serve-gallery.sh 8834` (or `python3 -m http.server` per the script) — note the URL
   2. Open a genuinely messy map (e.g. `designer.html?load=rendered/task-lifecycle.bpmn`) → the "✨ This map could use Clean layout" nudge should appear

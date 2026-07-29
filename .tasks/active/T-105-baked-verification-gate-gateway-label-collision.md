@@ -66,7 +66,7 @@ real fix may belong there rather than in the bake.
       `t105-verifgate-after.png`, `t105-gitcommit-after.png`
 
 ### Human
-- [ ] [REVIEW] verification-gate (and neighbours) open with readable, non-overlapping
+- [x] [REVIEW] verification-gate (and neighbours) open with readable, non-overlapping
       gateway/event NAME labels and still-tidy rows
   **Steps:**
   1. Serve the gallery (`tools/serve-gallery.sh`, :8834); open verification-gate and

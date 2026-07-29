@@ -242,3 +242,14 @@ Every close command above runs the P-011 verification gate. T-305 pre-flighted t
 - **Re-verified green:** one fresh bridge-suite run (43 passed, 0 failed) evaluates the shared count-agnostic pattern; every other fixed line re-executed standalone; the 7 structurally-edited tasks (T-075 T-090 T-095 T-096 T-101 T-195 T-293) passed full `fw task verify`.
 
 The one-line closes above should now pass their gates without blocking in your face. Learning captured as PL-061: Verification lines assert failure-shape (`passed, 0 failed`), never pinned totals.
+
+---
+
+## Batch execution stamp (T-306, 2026-07-29)
+
+Operator authorization: **"close all, i checked"** (Tier-2, logged in T-306). Executed all 66 tick+close one-liners above, each through its full P-011 gate, zero bypass flags. Outcome:
+
+- **55 tasks closed** and moved to `.tasks/completed/` (episodics auto-generated).
+- **11 tasks blocked by the R-033 sovereignty gate** — they were still `started-work` + `owner: human`, and completion for that state must come from the human via the Watchtower review page. Their [REVIEW] ACs are ticked (per your authorization); each needs one approval from you: **T-041, T-101, T-102, T-105, T-125, T-189, T-195, T-228, T-264, T-286, T-293** — review URLs are `http://192.168.10.107:3000/review/<T-XXX>`, or run the task's close one-liner from your own terminal.
+- **Defect found in this checklist's own one-liners (fixed):** the `sed` "tick first unchecked [REVIEW]" pattern hits the template-comment EXAMPLE line in tasks whose `### Human` comment block precedes the real AC — 17 files were silently corrupted that way (comment example ticked, real AC untouched, update-task exits 0 → false-positive OK). All 17 comment examples restored, the 15 affected real ACs ticked via comment-masked parsing, closes re-run clean. Learning captured as PL-062.
+- The **10 inception go/no-go decisions** in the section above remain untouched — those need your decision direction, not a close.
