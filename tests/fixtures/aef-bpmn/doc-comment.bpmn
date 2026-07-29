@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_doc-comment"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <!-- T-311 fixture: the authored doc block.
+
+       AEF's corpus_spec treats the leading comment child of <bpmn:definitions> as
+       SEMANTIC — `fw corpus explain` prints this text as the map's rationale. Our
+       save path used to destroy it: no COMMENT_NODE handling existed anywhere in
+       the parse path, and buildBpmnXml re-synthesises the document from state.
+
+       This block is deliberately AWKWARD so the round-trip has something to get
+       wrong. It carries:
+         * multiple lines, with hanging indentation that must survive verbatim
+         * a blank line above and below this list
+         * angle brackets <like these> and an ampersand & which must NOT be escaped
+           (comment data is not parsed content — escaping it would be a silent edit)
+         * a single hyphen - mid-sentence, which is legal and must be left alone
+
+       What must NOT happen is the thing that poisoned 5 of AEF's 11 maps: our own
+       DI trailer being adopted as the rationale. That trailer is emitted LAST, so
+       position alone disqualifies it, and a prefix guard disqualifies it again even
+       if a hand-edit hoists it to the top.
+
+       Structurally this is the smallest valid map that carries a doc block, so no
+       validator rule has an opinion about it — a doc comment is not a schema
+       feature, and that is exactly why the class was invisible to both toolchains. -->
+
+  <bpmn:collaboration id="Collaboration_doc-comment">
+    <bpmn:participant id="Pool_doc_comment" name="doc comment round-trip" processRef="Process_doc-comment"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_doc-comment" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="doc-comment" version="1" schemaVersion="2" title="doc comment round-trip (T-311)" tier_default="1"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>frw_0_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_1_record</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_done</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="frw_0_start" name="rationale authored">
+      <bpmn:extensionElements>
+        <aef:uid value="n_start"/>
+        <aef:position x="180.0" y="110.0"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:scriptTask id="frw_1_record" name="doc block carried through the round-trip">
+      <bpmn:extensionElements>
+        <aef:uid value="n_record"/>
+        <aef:position x="320.0" y="110.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:endEvent id="frw_2_done" name="rationale preserved">
+      <bpmn:extensionElements>
+        <aef:uid value="n_done"/>
+        <aef:position x="500.0" y="110.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="frw_0_start" targetRef="frw_1_record">
+      <bpmn:extensionElements><aef:uid value="e_1"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_record" targetRef="frw_2_done">
+      <bpmn:extensionElements><aef:uid value="e_2"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>

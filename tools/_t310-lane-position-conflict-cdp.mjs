@@ -128,8 +128,13 @@ async function main() {
     // 6. below every band is "no lane", not silent adoption by lane[0]
     if (r.laneAtVoid !== null) errs.push(`laneAtY(below all bands) = ${r.laneAtVoid}, expected null`);
 
-    // 7. nothing about the reconciliation leaks into the document
-    if (/laneReconcile|_laneReconcileCount|laneFix/i.test(r.exported)) errs.push('reconciliation state leaked into exported bytes');
+    // 7. nothing about the reconciliation leaks into the document.
+    // T-311: assert against structure, not prose — authored doc blocks now survive
+    // the round-trip, so a fixture whose rationale discusses the reconciliation
+    // would otherwise trip the leak check (false red) or seed the uid table below
+    // with quoted element names (false green). Neither is a real export surface.
+    const exportedS = r.exported.replace(/<!--[\s\S]*?-->/g, '');
+    if (/laneReconcile|_laneReconcileCount|laneFix/i.test(exportedS)) errs.push('reconciliation state leaked into exported bytes');
     // displayIds are DERIVED (lane abbr + ordinal + slug) and are regenerated on
     // import, so they cannot be hardcoded here — resolve each flowNodeRef back to
     // its stable aef:uid before comparing membership.
@@ -138,9 +143,9 @@ async function main() {
     // <bpmn:lane>, which sits BEFORE the nodes and would swallow the first node's
     // uid — mapping lane ids into the table and shifting every lookup by one.
     const FLOW_TAGS = 'startEvent|endEvent|serviceTask|userTask|scriptTask|exclusiveGateway|parallelGateway|intermediateCatchEvent|intermediateThrowEvent|subProcess';
-    for (const m of r.exported.matchAll(new RegExp(`<bpmn:(?:${FLOW_TAGS}) id="([^"]+)"[\\s\\S]*?<aef:uid value="([^"]+)"`, 'g'))) dispToUid[m[1]] = m[2];
+    for (const m of exportedS.matchAll(new RegExp(`<bpmn:(?:${FLOW_TAGS}) id="([^"]+)"[\\s\\S]*?<aef:uid value="([^"]+)"`, 'g'))) dispToUid[m[1]] = m[2];
     const exportedLaneOf = {};
-    for (const m of r.exported.matchAll(/<bpmn:lane id="([^"]+)"([\s\S]*?)<\/bpmn:lane>/g)) {
+    for (const m of exportedS.matchAll(/<bpmn:lane id="([^"]+)"([\s\S]*?)<\/bpmn:lane>/g)) {
       for (const f of m[2].matchAll(/<bpmn:flowNodeRef>([^<]+)<\/bpmn:flowNodeRef>/g)) {
         exportedLaneOf[dispToUid[f[1]] || ('?' + f[1])] = m[1];
       }

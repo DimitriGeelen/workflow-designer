@@ -60,7 +60,9 @@ const ASSERT_EXPR = `(function(){
       if(got !== want[uid].val) errs.push(uid+' '+want[uid].field+'='+JSON.stringify(got)+' != '+JSON.stringify(want[uid].val));
     }
     state = m; refreshDisplayIds();
-    var emit = buildBpmnXml(state);
+    // T-311: same class as the boundary block below — assert on structure, not on
+    // the authored doc block that now legitimately rides along in the export.
+    var emit = buildBpmnXml(state).replace(/<!--[\\s\\S]*?-->/g, '');
     emitWant.forEach(function(s){ if(emit.indexOf('<aef:eventDef '+s) < 0) errs.push('emit missing <aef:eventDef '+s+'/>'); });
     // BITE: strip the eventDef markers — the SAME intermediateCatchEvent tag must
     // now decode to linkEventCatch, proving the typing is driven by the extension.
@@ -105,7 +107,12 @@ const BOUNDARY_ASSERT_EXPR = `(function(){
     }
     state = m; refreshDisplayIds();
     var hostDid = displayIdOf(host);
-    var emit = buildBpmnXml(state);
+    // T-311: strip comments before asserting on structure. Authored doc blocks now
+    // survive the round-trip, and this fixture's own block names <bpmn:boundaryEvent >
+    // in prose — which inflated the count below from 2 to 3. The presence checks that
+    // follow are the more dangerous half of the same class: a doc block quoting
+    // cancelActivity="true" would make one pass with no such attribute emitted.
+    var emit = buildBpmnXml(state).replace(/<!--[\\s\\S]*?-->/g, '');
     if(emit.indexOf('<bpmn:serviceTask id="'+hostDid+'"') < 0) errs.push('host not emitted as <bpmn:serviceTask id="'+hostDid+'">');
     var nb = (emit.match(/<bpmn:boundaryEvent /g)||[]).length;
     if(nb !== 2) errs.push('expected 2 <bpmn:boundaryEvent>, got '+nb);

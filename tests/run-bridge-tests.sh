@@ -198,6 +198,22 @@ else
 fi
 
 echo
+echo "== authored doc block survives the round-trip (T-311) =="
+# The leading comment child of <bpmn:definitions> carries the map's rationale and
+# AEF's corpus_spec treats it as SEMANTIC. We used to drop it at parse and never
+# re-emit, so the first UI save destroyed it — and the one comment we DID emit, our
+# own DI trailer, was then adopted as the rationale by their reader (5 of their 11
+# maps, 2 promoted). This leg pins capture, verbatim re-emission in LEADING position,
+# stability across re-import and undo, and the guard that keeps our boilerplate from
+# ever being mistaken for an authored doc.
+if python3 "$ROOT/tests/test_t311_doc_comment_roundtrip.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "authored doc block regressed — the rationale may again be destroyed on save (T-311 class)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== annotation seam v0: aef:ready/aef:annotate loop (T-258, T-250 GO) =="
 # Embeds the real editor in an iframe host (AEF Watchtower topology): ready
 # handshake per render, badge intake + unknown-uid/spoof rejection, display-only

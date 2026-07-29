@@ -9281,6 +9281,54 @@ function aefExtensionXml(node) {
   return out;
 }
 
+// ---------------------------------------------------------------------------
+// T-311: the authored doc block (leading comment child of <bpmn:definitions>).
+// ---------------------------------------------------------------------------
+// AEF's corpus_spec treats this comment as SEMANTIC — `fw corpus explain` prints
+// it as the map's rationale. We used to drop it at parse (there was no COMMENT_NODE
+// handling anywhere in this file) and re-synthesise the document on export, so the
+// first UI save destroyed it and every save after inherited the loss. Worse, the
+// one comment we DID emit was our own DI trailer, which their then-guardless reader
+// adopted AS the rationale: 5 of their 11 maps carried our boilerplate as their doc,
+// 2 of them already promoted. Their reader guard is fixed (T-2682) and the promoted
+// maps were restored from git history (T-2683); this is our half.
+//
+// The prefix is split out so the guard below and the emitter at the end of
+// buildBpmnXml share one source of truth — reword the tail and the guard still
+// holds, which is the same prefix-match discipline AEF adopted.
+const DI_TRAILER_PREFIX = 'BPMN DI (visual layout) omitted';
+const DI_TRAILER = `${DI_TRAILER_PREFIX} in this demo; AEF generates it from node coordinates`;
+
+// A comment is the document's doc block only if it LEADS the document — appears
+// before any element child — and is not our own trailer. Position is the rule AEF's
+// reader uses, so matching it keeps both sides reading the same string. The trailer
+// check is belt-and-braces for the case where a hand-edit hoists our boilerplate to
+// the top: promoting that to rationale is the exact defect that poisoned their
+// corpus, and it must not be reachable from our side either.
+function readDocComment(defsEl) {
+  if (!defsEl || !defsEl.childNodes) return null;
+  for (const c of Array.from(defsEl.childNodes)) {
+    if (c.nodeType === 1) return null;        // ELEMENT_NODE — the document body started, no doc block
+    if (c.nodeType !== 8) continue;           // whitespace/text between the tag and the comment
+    const data = c.data == null ? '' : String(c.data);
+    if (data.trim().startsWith(DI_TRAILER_PREFIX)) return null;
+    return data;
+  }
+  return null;
+}
+
+// XML forbids `--` inside a comment and a trailing `-` before the close (either
+// would corrupt or prematurely close it). Data captured from a SUCCESSFUL parse can
+// contain neither, so in the round-trip path this is a no-op — it exists for a
+// programmatically-set doc, where emitting an unparseable document would be a much
+// worse failure than spacing one character. Runs of hyphens are spaced rather than
+// deleted so nothing is silently lost.
+function safeCommentData(raw) {
+  let d = String(raw).replace(/-{2,}/g, m => m.split('').join(' '));
+  if (d.endsWith('-')) d += ' ';
+  return d;
+}
+
 function buildBpmnXml(s) {
   const lines = [];
   lines.push(`<?xml version="1.0" encoding="UTF-8"?>`);
@@ -9292,6 +9340,13 @@ function buildBpmnXml(s) {
   lines.push(`                  id="Definitions_${escAttr(s.workflowMeta.id)}"`);
   lines.push(`                  targetNamespace="https://aef.anchorpoint.dev/workflows">`);
   lines.push(``);
+  // T-311: the authored rationale leads the document, ahead of the collaboration —
+  // that position is what makes AEF's reader find the doc rather than our trailer.
+  // Absent docComment emits nothing, so maps that never had one stay byte-identical.
+  if (s.docComment != null && String(s.docComment).length) {
+    lines.push(`  <!--${safeCommentData(s.docComment)}-->`);
+    lines.push(``);
+  }
   lines.push(`  <bpmn:collaboration id="Collaboration_${escAttr(s.workflowMeta.id)}">`);
   lines.push(`    <bpmn:participant id="${escAttr(s.pool.id)}" name="${escAttr(s.pool.name)}" processRef="Process_${escAttr(s.workflowMeta.id)}"/>`);
   lines.push(`  </bpmn:collaboration>`);
@@ -9735,6 +9790,11 @@ function parseBpmnXml(text) {
     lanes,
     nodes,
     edges,
+    // T-311: the authored rationale. Unlike T-308's reconcile counter — which lives
+    // module-level precisely so it CANNOT reach the exporter — this value must reach
+    // it, so it belongs on state. Carried verbatim; buildBpmnXml re-emits it as the
+    // leading child. null for maps that never had one, which keeps their bytes exact.
+    docComment: readDocComment(doc.documentElement),
   };
   // Use a temporary state so laneCenterY() resolves correctly during patching
   const prev = state;

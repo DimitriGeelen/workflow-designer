@@ -68,7 +68,12 @@ const ASSERT_EXPR = `(function(){
     var m = checkModel(parseBpmnXml(text), 'parse1');
     if(errs.length) return { ok:false, errs:errs };
     state = parseBpmnXml(text); refreshDisplayIds();
-    var emit = buildBpmnXml(state);
+    // T-311: authored doc blocks now survive the round-trip, so exported bytes can
+    // contain prose that names elements. Every assertion below is structural, so it
+    // reads the document without its comments. This fixture's doc block happens not
+    // to quote <aef:eventDef> today — the strip is here so that stays irrelevant
+    // rather than becoming a silent false green when the fixture text is edited.
+    var emit = buildBpmnXml(state).replace(/<!--[\\s\\S]*?-->/g, '');
     var n = (emit.match(/<aef:eventDef /g)||[]).length;
     if(n !== 3) errs.push('emit: expected exactly 3 <aef:eventDef>, got '+n);
     if(emit.indexOf('<aef:eventDef kind="timer" binding=""/>') < 0) errs.push('emit: missing canonical timer eventDef');

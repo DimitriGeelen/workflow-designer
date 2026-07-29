@@ -123,11 +123,18 @@ const ASSERT_EXPR = `(function(){
     // ---- EXPORT (zero surface) -----------------------------------------
     state = parseBpmnXml(text); refreshDisplayIds();
     var emit = buildBpmnXml(state);
-    var nLinks = (emit.match(/<aef:link /g)||[]).length;
+    // T-311: authored doc blocks are now PRESERVED through the round-trip, so the
+    // exported bytes can legitimately contain prose that NAMES elements — this
+    // fixture's own doc block writes "<aef:link " twice while explaining the bare
+    // catch case, which inflated the count below from 2 to 4. Structural assertions
+    // must be made against structure, never against prose. emit itself stays raw so
+    // the byte-identity check further down still sees the comment.
+    var emitS = emit.replace(/<!--[\\s\\S]*?-->/g, '');
+    var nLinks = (emitS.match(/<aef:link /g)||[]).length;
     if(nLinks !== 2) errs.push('EXPORT: expected exactly 2 <aef:link> (n_bound + n_slug), got '+nLinks);
     function blockFor(uid){
       var re = /<bpmn:intermediateCatchEvent [^>]*>[\\s\\S]*?<\\/bpmn:intermediateCatchEvent>/g;
-      var b = emit.match(re)||[];
+      var b = emitS.match(re)||[];
       for (var i=0;i<b.length;i++) if(b[i].indexOf('<aef:uid value="'+uid+'"') >= 0) return b[i];
       return null;
     }
@@ -150,7 +157,7 @@ const ASSERT_EXPR = `(function(){
     var sFresh = shapeCounts(fresh.uid);
     if(sFresh && sFresh.paths < 1) errs.push('SESSION: palette-created handoff drew no chevron while live in the session');
     // it is unbound, so it must still export no <aef:link> — intent is NOT persisted
-    var emitFresh = buildBpmnXml(state);
+    var emitFresh = buildBpmnXml(state).replace(/<!--[\\s\\S]*?-->/g, '');   // T-311: prose is not structure
     var nLinksFresh = (emitFresh.match(/<aef:link /g)||[]).length;
     if(nLinksFresh !== 2) errs.push('SESSION: palette-created unbound handoff emitted an <aef:link> ('+nLinksFresh+' total, expected 2) — that would be a persisted intent marker, i.e. path (a)');
     // a reload drops the session Set; the same node must then read neutral
