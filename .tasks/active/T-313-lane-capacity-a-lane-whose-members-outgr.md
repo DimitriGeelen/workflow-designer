@@ -1,13 +1,13 @@
 ---
-id: T-312
-name: "Mirror AEF's lane/geometry agreement check as a validator rule"
+id: T-313
+name: "Lane capacity: a lane whose members outgrow its declared height renders nodes past the band edge"
 description: >
-  Promised to AEF at rail 335. Their fw corpus lint gained a check that needs neither band origin nor lane heights: for each map, the y-ranges of nodes grouped by DECLARED lane must not overlap, and must run in laneSet declaration order. Run over their 11 maps it found 4 failures (draft-exception-handling v3 12/13 nodes and draft-task-creation v3 14 nodes wholesale-inverted, aef-session-lifecycle v1 PROMOTED with 3 agent-declared nodes overflowing the human band, draft-knowledge-leveling v8 with the 2 nodes T-310 predicted). T-310 fixed the designer half by reconciling at import, but our VALIDATOR still cannot see this class - tools/validate-workflow.py is purely structural, which is why both toolchains passed every affected map. This is the second geometry-vs-structure finding in a row (T-310, T-311) and the strongest argument that geometry-vs-declaration wants to be a first-class rule rather than a rendering of the existing structural rule set. Note for T-309: surfacing the CURRENT validator in the designer would have shown a clean bill of health on maps misreporting authority on nearly every node.
+  AEF T-2687 (rail 338) found a defect class the lane ORDERING rule is structurally blind to: a lane whose own members span more than its declared height. Order correct, nothing crossing, band simply cannot contain its content. Live instance their side: draft-knowledge-leveling agent lane spans 513px inside height=260, overflow 253px - a SECOND independent defect on the v8 promotion candidate, separate from the two-node authority call. On OUR side this is not merely a lint finding but a VISIBLE RENDER DEFECT: poolHeight sums declared lane heights while nodes draw at their own y, so nodes spill past the band edge. This is a candidate mechanism for the operator screenshot that started T-310 - roughly 14 nodes rendered BELOW every lane band with long trunk edges on a 53-node 5-lane map, with the Clean nudge firing. T-310 explained the membership half but never explained why so many sat below ALL bands; capacity does, and Clean firing fits because cleanLayout (T-125) compacts lanes to exactly the fitting height. UNCONFIRMED against that map - pen_inbound_classifier bytes were never obtained. Measured our side: all 24 rendered corpus maps have ZERO overflowing lanes, because T-101 baked Clean layout in and Clean drives lanes to the fixpoint height == (max botOf - min topOf) + 2*LANE_FIT_MARGIN. So the class arrives via IMPORTED maps authored elsewhere, not from our own corpus. Occupancy is not node height: botOf = y + h(type) + (labelBelow(type) ? 18 : 0), LANE_FIT_MARGIN=12 at both edges. Effective occupancy events 54, gateways 66, tasks 64 - the smallest shapes are not the smallest occupants.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
-horizon: now
+horizon: next
 tags: []
 components: []
 related_tasks: []
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-29T22:05:10Z
-last_update: 2026-07-29T22:07:17Z
+created: 2026-07-29T22:44:43Z
+last_update: 2026-07-29T22:44:43Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,84 +30,18 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-312: Mirror AEF's lane/geometry agreement check as a validator rule
+# T-313: Lane capacity: a lane whose members outgrow its declared height renders nodes past the band edge
 
 ## Context
 
-T-310 fixed the DESIGNER half of the lane/geometry disagreement (reconcile at import
-in favour of the declared lane). This task fixes the VALIDATOR half: today
-`tools/validate-workflow.py` is purely structural and has no opinion about geometry,
-which is why every affected map passed both toolchains.
-
-**AEF's predicate** (rail 334), which needs neither band origin nor lane heights and
-is therefore portable across our two renderers: *for each map, the y-ranges of nodes
-grouped by DECLARED lane must not overlap, and must run in laneSet declaration order.*
-
-Run over their 11 maps it found 4 failures, in three distinct shapes:
-
-| Map | Shape |
-|---|---|
-| draft-exception-handling v3 | wholesale inversion, 12 of 13 nodes |
-| draft-task-creation v3 | wholesale inversion, 14 nodes |
-| aef-session-lifecycle v1 (**PROMOTED**) | partial overflow — 3 agent-declared nodes inside the human band, not a swap |
-| draft-knowledge-leveling v8 | two-node swap (exactly the pair T-310 predicted) |
-
-**Convergence, not reinvention — SETTLED WORDING RECEIVED (rail 339).** Adopt verbatim,
-do not paraphrase:
-
-> For lanes in laneSet DECLARATION order, the y-ranges of nodes grouped by DECLARED
-> lane must be strictly ordered and non-overlapping.
-> Evaluate only when: >=2 lanes, >=2 lanes populated, and EVERY node positioned.
-> Otherwise SKIP (do not pass) — an unevaluable map must not report clean.
-> Report per violating ADJACENT lane pair, naming the extremal witness pair:
-> the upper lane's lowest-drawn node and the lower lane's highest-drawn node.
-> Equal y counts as a crossing (two nodes on one row cannot be in two bands).
-> Distinguish repair shape by crossing counts: 100% of both sides => wholesale
-> inversion => laneSet reorder (zero-semantic). A subset => placement or stale
-> membership on the named nodes => authority call, not a layout call.
-
-**Reference implementation:** `tools/corpus_lint.py::lane_geometry`, with 16 both-ways
-tests in `tests/unit/test_corpus_lint_lane_geometry.py` (their tree), including a
-wide-gap case that pins bands-must-not-be-reconstructed.
-
-**The trap to avoid, learned from their failure not ours.** Do NOT reconstruct band
-boundaries from cumulative lane heights. It needs an origin the map does not store;
-AEF tried anchoring at the topmost node and produced **7 phantom mismatches** on
-draft-trigger-handling, which is clean under the predicate above. This is the obvious
-wrong move from where we sit, because our entire geometry stack (`laneTop`,
-`laneCenterY`, `laneAtY`, `poolHeight`) walks cumulative heights from
-`POOL_Y + POOL_HEADER`. The predicate is deliberately origin-free — keep it that way.
-
-**Also from their retraction (rail 338):** they built a containment/feasibility variant
-first and retracted it one message later. Closed bands (`O+top <= y <= O+top+h`) let a
-node sitting exactly on a shared boundary satisfy BOTH adjacent bands, waving through
-the precise defect the ordering rule catches. Half-open fixes it but then adds ZERO
-detection over ordering across all 11 of their maps, with strictly worse diagnostics
-(an interval instead of the witness pair). **Build the ordering rule, not the
-containment rule.** If containment is ever implemented, it must be half-open —
-`[top, top+h)` — which is what our own `laneAtY` already does.
-
-**Why this earns a rule rather than a designer-side check:** the designer already
-repairs this on import (T-310), but repair only happens where the designer is in the
-loop. Maps flow between us as bytes and get promoted without ever being opened. The
-validator is the surface both sides actually run over untouched files.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A new rule in `tools/validate-workflow.py` implements the predicate: per map, group nodes by DECLARED lane (`flowNodeRef`), compute each group's y-range from `<aef:position>`, and report when two groups' ranges overlap OR when the ranges do not run in laneSet declaration order
-- [ ] The rule degrades honestly rather than guessing: maps where nodes carry no `<aef:position>` (y absent, or the hand-authored `y=0` convention the designer treats as "unpositioned") are SKIPPED, not reported clean and not reported failing — geometry that does not exist cannot disagree with anything
-- [ ] Rule id and message text match AEF's `fw corpus lint::lane_geometry` — their settled wording arrived at rail 339 and is quoted verbatim in Context above, so there is no divergence left to record. Any deviation from it is a defect in this task, not a local choice
-- [ ] The report names the **extremal witness pair** (upper lane's lowest-drawn node, lower lane's highest-drawn node) per violating ADJACENT lane pair — not a count, not an interval. This is what resolved knowledge-leveling v8 to exactly `kl_dormant`/`kl_healing` from bytes alone, and it is why the ordering rule beat the containment variant AEF retracted
-- [ ] Crossing counts drive the repair-shape hint: 100% of both sides → wholesale inversion → "reorder the laneSet, zero-semantic"; a subset → "placement or stale membership on the named nodes — authority call, not a layout call". A rule that says *what to do* is the difference between this and a finding nobody actions
-- [ ] Equal y counts as a crossing (two nodes on one row cannot be in two bands)
-- [ ] Band boundaries are NOT reconstructed from cumulative heights anywhere in the implementation — the predicate is origin-free by design, and reconstructing produced 7 phantom mismatches on AEF's side
-- [ ] Positive fixture: `tests/fixtures/aef-bpmn/lane-position-conflict.bpmn` (already in-tree from T-310, and the canonical instance of this class) is reported FAILING by the new rule
-- [ ] All three of AEF's observed shapes are covered by fixtures, not just the swap: wholesale inversion, partial overflow (the promoted-map shape), and the two-node swap. Partial overflow is the one a naive "are the lanes in the right order" check misses
-- [ ] Zero false positives on the clean corpus: all 24 maps in `examples/aef-processes/rendered/` pass the new rule (they were verified lane/geometry-consistent as part of T-310's byte-identity work)
-- [ ] Teeth (PL-061): the rule is proven to go RED by running it against the positive fixtures, and the negative case is proven by the 24-map sweep — a rule that only ever passes is not evidence
-- [ ] Validator suite gains a leg for the new rule and stays green (currently 34/0); bridge suite unaffected (currently 46/0)
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -236,11 +170,7 @@ validator is the surface both sides actually run over untouched files.
 
 ## Updates
 
-### 2026-07-29T22:05:10Z — task-created [task-create-agent]
+### 2026-07-29T22:44:43Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-312-mirror-aefs-lanegeometry-agreement-check.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-313-lane-capacity-a-lane-whose-members-outgr.md
 - **Context:** Initial task creation
-
-### 2026-07-29T22:07:17Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
-- **Change:** horizon: next → now (auto-sync)
