@@ -4,10 +4,10 @@ name: "Pre-flight the operator close path: verify-gate sweep of the 66 close-rea
 description: >
   Pre-flight the operator close path: verify-gate sweep of the 66 close-ready tasks, fix rotted Verification lines
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-29T14:48:14Z
-last_update: 2026-07-29T14:48:14Z
-date_finished: null
+last_update: 2026-07-29T15:04:48Z
+date_finished: 2026-07-29T15:04:48Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -81,8 +81,8 @@ T-302 handed the operator 66 one-line close commands; each close runs P-011 veri
 
 # Shared suite pattern (count-agnostic, failure-shape preserved)
 out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"
-# No active task still pins the rotted suite total (self-excluded: this file quotes the literal as a negative probe)
-out=$(grep -rl "31 passed, 0 failed" .tasks/active/ | grep -v "T-305" || true); test -z "$out"
+# No active task's ## Verification SECTION still pins the rotted suite total (prose/AC mentions are historical record and stay; self-excluded: this file quotes the literal as a negative probe)
+out=$(python3 -c "import glob,re; print(sum(1 for f in glob.glob('.tasks/active/*.md') if 'T-305' not in f and '31 passed, 0 failed' in ((re.search(r'## Verification\n(.*?)(\n## |\Z)', open(f).read(), re.S) or type('m',(),{'group':lambda s,i:''})()).group(1))))"); test "$out" = "0"
 # Operator checklist carries the pre-flight stamp
 grep -q "Pre-flight stamp (T-305" docs/reports/T-302-reviewer-sweep.md
 # PL-061 captured
@@ -166,3 +166,15 @@ grep -q "PL-061" .context/project/learnings.yaml
 - **Action:** Extracted 330 Verification lines from the 66 close-ready tasks (comment-stripped, gate-identical parser), deduped to 213 unique commands, ran each once. 10 failing lines traced to 6 root classes: (A) count-pinned suite totals `31 passed` vs today's 43 (~24 tasks shared the line); (B) `grep -c` exits 1 on zero matches under `set -e` (T-075, T-195 — passing intent, failing implementation); (C) exact-count source greps outgrown by legitimate call sites (T-095/T-096 cleanLayout =2/=3 vs 9 today → `-ge` floors); (D) T-090 checks on shim `lib/dispatch_pause.py` deleted at the T-276 re-vendor; (E) T-101 forbidden yaml-to-bpmn regen-diff (G-012 destructive path vs editor-saved dialect, T-288/T-300) → `tools/_corpus-adopt-verify.py`, plus geometry tail-pipe → capture-first count-agnostic; (F) T-293 curl at retired :8834 (T-253 ufw RCA) → watchtower triple-file URL.
 - **Output:** 26 task files fixed (Verification sections only, inline reason comments citing T-305). Re-verify: fresh suite 43 passed 0 failed on the count-agnostic pattern; all standalone fixed lines pass (one transient curl blip on T-293 re-ran clean and its full gate passed); 7/7 full `fw task verify` GATE-PASS (T-075 T-090 T-095 T-096 T-101 T-195 T-293). Pre-flight stamp appended to docs/reports/T-302-reviewer-sweep.md. PL-061 captured.
 - **Context:** T-302's 66 one-line closes now pass their P-011 gates instead of blocking in the operator's face.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6a6427ad
+- **Timestamp:** 2026-07-29T15:05:29Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-07-29T15:04:48Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

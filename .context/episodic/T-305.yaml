@@ -1,0 +1,106 @@
+# ============================================================================
+# EPISODIC MEMORY - T-305: Pre-flight the operator close path: verify-gate sweep of the 66 close-ready tasks, fix rotted Verification lines
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:05:30Z
+# ============================================================================
+
+task_id: T-305
+task_name: "Pre-flight the operator close path: verify-gate sweep of the 66 close-ready tasks, fix rotted Verification lines"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-29T14:48:14Z
+completed: 2026-07-29T15:04:48Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-29T17:03:26+02:00
+last_commit: 2026-07-29T17:03:26+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  pre-flight the operator close path — 330 verification lines swept (213 unique), 10 rotted lines in 6 classes fixed across 26 tasks, re-verified green (suite 43/0, 7/7 full gates); pre-flight stamp on T-302 checklist; PL-061 (failure-shape, never pinned totals)
+
+# Key outcomes
+outcomes:
+  - 'All Verification commands across the 66 close-ready tasks extracted (same comment-stripped parser as the gate), deduped; unique heavy commands (suite runs) executed once each with expectations evaluated against the captured output — no 66x suite re-runs (330 lines → 213 unique, sweep runner t305-run.py; 10 failing)'
+  - 'Every failing line diagnosed: count-pinned rot rewritten count-agnostic (e.g. `grep -q "passed, 0 failed"`), genuinely-broken lines fixed or corrected with the reason in that task''s file; zero expectations weakened beyond count-agnosticism (failure detection must survive: pattern still requires 0 failed) (10 failures → 6 root classes → 26 task files fixed, each rewrite carries an inline reason comment citing T-305)'
+  - 'Post-fix re-verify green with deduped coverage (equivalent to per-task re-runs without ~24 redundant executions of the identical suite line): one fresh bridge-suite run evaluates the shared count-agnostic pattern, every other fixed line re-executes standalone, and the 7 structurally-edited tasks (T-075 T-090 T-095 T-096 T-101 T-195 T-293) get full `fw task verify`; sweep tally recorded in Updates and appended to docs/reports/T-302-reviewer-sweep.md so the operator checklist carries the pre-flight stamp (suite 43 passed 0 failed; 7/7 GATE-PASS; one transient curl blip on the T-293 standalone re-ran clean in isolation and its full gate passed)'
+  - 'Learning captured: Verification lines must assert failure-shape ("passed, 0 failed"), never pin suite totals (PL-class; cites T-073 31-vs-43 rot) (PL-061)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'pre-flight the operator close path — 330 verification lines swept (213 unique), 10 rotted lines in 6 classes fixed across 26 tasks, re-verified green (suite 43/0, 7/7 full gates); pre-flight stamp on T-302 checklist; PL-061 (failure-shape, never pinned totals)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - 'docs/reports/T-302-reviewer-sweep.md'
+  - '.tasks/active/T-041-render-inception-review-and-run-operator.md'
+  - '.tasks/active/T-073-router-straightening-tolerance--near-ali.md'
+  - '.tasks/active/T-074-magnetic-drag-snapping--lane-centre-neig.md'
+  - '.tasks/active/T-075-editor-settings-page--consolidate-routin.md'
+  - '.tasks/active/T-076-routing-survey-r-2-loop-back-edges-shoul.md'
+  - '.tasks/active/T-077-routing-survey-r-5-keep-badges-and-edge-.md'
+  - '.tasks/active/T-079-adaptive-alignment-rows-sub-row-snap-lin.md'
+  - '.tasks/active/T-081-subprocess-node-type-phase-1-collapsed-o.md'
+  - '.tasks/active/T-082-edge-label-placement-pass-measure-after-.md'
+  - '.tasks/active/T-083-label-halo-theme-background-rect-behind-.md'
+  - '.tasks/active/T-084-lane-header-ellipsis-truncate-vertical-l.md'
+  - '.tasks/active/T-085-view-density--label-visibilitysize-contr.md'
+  - '.tasks/active/T-087-node-label-fit-ladder-long-task-names-mu.md'
+  - '.tasks/active/T-089-edge-label-wrap-multi-line-edge-labels-s.md'
+  - '.tasks/active/T-090-watchtower-review-pages-all-500---dispat.md'
+  - '.tasks/active/T-093-branch-pitch-setting-parallel-block-stac.md'
+  - '.tasks/active/T-094-align-rows-one-shot-action-snap-lane-row.md'
+  - '.tasks/active/T-095-clean-layout-composite-action-tidy--bran.md'
+  - '.tasks/active/T-096-density-setting-has-no-visible-effect---.md'
+  - '.tasks/active/T-097-crossing-aware-branch-ordering-order-fan.md'
+  - '.tasks/active/T-098-edge-channel-separation-setting-corridor.md'
+  - '.tasks/active/T-099-clean-layout-on-import-opt-in-setting-ap.md'
+  - '.tasks/active/T-100-clean-layout-nudge-offer-one-click-clean.md'
+  - '.tasks/active/T-101-bake-clean-layout-into-the-rendered-corp.md'
+  - '.tasks/active/T-195-draft-g-3-collapsed-inception-v11-delta-.md'
+  - '.tasks/active/T-214-pair-draft-sessionhandover-corpus-diagra.md'
+  - '.tasks/active/T-293-endpoint-reconnect-drag-hand-often-fails.md'
+  - '.tasks/active/T-305-pre-flight-the-operator-close-path-verif.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-29T17:03:26"
+    action: "T-305: pre-flight the operator close path — 330 verification lines swept (213 unique), 10 rotted lines in 6 classes fixed across 26 tasks, re-verified green (suite 43/0, 7/7 full gates); pre-flight stamp on T-302 checklist; PL-061 (failure-shape, never pinned totals)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 16 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 16
+  commits: 1
+  files_changed: 30
+  lines_added: 240
+  lines_removed: 50
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-305-pre-flight-the-operator-close-path-verif.md
+generated_by: context-agent-hybrid
