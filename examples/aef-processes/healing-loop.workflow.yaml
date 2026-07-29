@@ -16,12 +16,19 @@
 # new; F1/F3/F5/F7 recur (F3/F5 now 3/3 = strongly systemic).
 workflowMeta:
   id: healing-loop
-  version: 1
+  version: 2
   schemaVersion: 2
   source: agents/healing/healing.sh
   tier_default: 2
   # advisory best-effort sub-process; entry is non-blocking (|| true). v2 has no
   # workflow-level advisory/enforced mode (relates F9 / T-021 F2).
+  # v2 (T-297, AEF T-2665 pair round): code-truth corrections against the
+  # vendored v1.6.763 healing agent — classify is DETERMINISTIC (pure bash
+  # keyword-regex, CLASSIFY_ORDER most-specific-first; was tagged stochastic);
+  # resolve-leg reachability marked advisory (nothing auto-invokes resolve
+  # after apply — resolve.sh only prints next-steps; AEF G-016 measured 72%
+  # of bugfix tasks recording zero learnings on this leg); trigger line
+  # pointer refreshed (update-task.sh:1687 → :1714).
 
 pool:
   id: Pool_healing_loop
@@ -53,7 +60,7 @@ nodes:
     x: 120
     y: 369
     aef:
-      triggeredBy: task status -> issues|blocked (update-task.sh:1687)
+      triggeredBy: task status -> issues|blocked (update-task.sh:1714)
       advisory: true          # best-effort, wrapped in `|| true`; non-blocking (F9)
     io:
       outputs:
@@ -70,7 +77,9 @@ nodes:
     aef:
       tier: 2
       agentType: primary
-      determinism: stochastic        # keyword-scoring classifier (F3)
+      determinism: deterministic     # pure bash keyword-regex scoring, CLASSIFY_ORDER
+                                     # most-specific-first (dependency external environment
+                                     # design code) + unknown fallback — no model call (v2 fix)
       advisory: true                 # emits a type, binds nothing (F9)
       endpoint: lib/diagnose.sh:classify_failure
     io:
@@ -193,6 +202,11 @@ nodes:
     aef:
       tier: 1
       determinism: deterministic
+      # v2 (T-297): reachability is ADVISORY — nothing auto-invokes resolve
+      # after apply (resolve.sh only prints "next steps"); the FP+L capture
+      # leg leaks by design (AEF G-016: 72% of bugfix tasks record zero
+      # learnings). The e_08 edge is the intended path, not an enforced one.
+      x-advisory-reachability: "leaky — not auto-invoked after apply (G-016 72%)"
       endpoint: fw healing resolve ${task_id} --mitigation "..."
       # WRITES the knowledge base — the antifragile "strengthen from failure"
       # step; no first-class datastore/knowledge resource in v2 (F10)
