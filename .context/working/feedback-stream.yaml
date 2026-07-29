@@ -1567,3 +1567,21 @@ scan_id: R-f143517e
 task_id: T-300
 payload:
   task_file: .tasks/active/T-300-make-bake-clean-layout-dialect-preservin.md
+---
+kind: scan_emitted
+timestamp: '2026-07-29T11:28:08Z'
+scan_id: R-ebd2a2ab
+task_id: T-041
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-29T11:28:08Z'
+scan_id: R-ebd2a2ab
+task_id: T-041
+payload:
+  task_file: .tasks/active/T-041-render-inception-review-and-run-operator.md
