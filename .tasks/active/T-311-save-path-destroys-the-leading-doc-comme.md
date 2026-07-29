@@ -1,22 +1,22 @@
 ---
-id: T-310
-name: "Nodes render outside every lane band (pen_inbound_classifier): long trunk edges are the symptom, lane membership/height the cause"
+id: T-311
+name: "Save path destroys the leading doc comment: agent-authored rationale block lost on first UI save"
 description: >
-  Operator field report (2026-07-29 screenshot, map pen_inbound_classifier, ~53 nodes / 5 lanes): roughly 14 nodes render below every lane band, in unlaned space past the 'Add another lane' strip. Long trunk edges spanning the full canvas width are the visible symptom, not the cause. Two candidate causes: (a) nodes absent from any lane's flowNodeRef, which tools/validate-workflow.py already detects as W-XML-NODE-UNASSIGNED; (b) nodes assigned to a lane but positioned outside its y-band because lane height is not grown to fit content, which no rule covers. Map bytes not reachable from the agent side - absent from our corpus, our gallery /api/list and AEF's - so the discriminating test needs the operator to supply the map.
+  AEF field report (rail 332), confirmed against our source. The leading XML comment child of <bpmn:definitions> - which their corpus_spec treats as SEMANTIC and carries into the promoted spec - is dropped on the first UI save and every save after inherits the loss. Two independent confirmations their side: draft-knowledge-leveling v5 -> v6/v7, and draft-trigger-handling v1 -> v2..v6. Verified our side: src/aef-workflow-designer.html has no COMMENT_NODE handling anywhere in the parse path, and buildBpmnXml unconditionally emits one hardcoded comment at :9363 ('BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates'). So the doc comment is dropped at parse and never re-emitted; the only comment on output is our own boilerplate. Nothing else is harmed - AEF reports uid set, flow topology, names and aef:meta notes all round-trip byte-faithfully. Compounding effect their side (already owned there): their parse_map takes the FIRST comment child as 'doc' with no guard, so it silently adopts our boilerplate as the rationale - the field never reads empty, it reads plausible-and-wrong; 5 of their 11 maps carry our boilerplate as their doc and 2 are PROMOTED corpus maps. Open decision AEF raised: preserve comment children through the round-trip, or carry the doc as an aef: extension attr on workflowMeta instead - the latter survives any DOM round-trip but is a schema question to settle before more maps are promoted.
 
 status: captured
 workflow_type: build
 owner: agent
 horizon: now
-tags: [designer, layout, lanes, routing]
+tags: [designer, fidelity, data-loss, aef-seam]
 components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-29T20:38:03Z
-last_update: 2026-07-29T20:39:20Z
+created: 2026-07-29T20:46:02Z
+last_update: 2026-07-29T20:46:02Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,75 +30,11 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-310: Nodes render outside every lane band (pen_inbound_classifier): long trunk edges are the symptom, lane membership/height the cause
+# T-311: Save path destroys the leading doc comment: agent-authored rationale block lost on first UI save
 
 ## Context
 
-Root cause **identified and independently corroborated** the same day this was filed — the two
-candidate causes in the description have collapsed into one mechanism, and it is worse than the
-rendering glitch it looks like.
-
-### The mechanism
-
-Three code facts in `src/aef-workflow-designer.html`:
-
-1. **Import keeps two contradictory truths** (`:9607`). A node is pushed as
-   `{ ..., lane: laneId, x, y }` — `laneId` from the `<bpmn:laneSet>` membership, `x`/`y` from
-   `<aef:position>`. **Nothing reconciles them.** A node declared in lane A whose stored `y` falls
-   inside lane B's band is imported as "in lane A, drawn in lane B", and renders where the geometry
-   says.
-2. **The first interaction silently rewrites the semantic** (`:6250`, `:6271`, `:6624`, `:7835`).
-   `laneAtY(centerY)` derives lane from position, and callers assign it to `n.lane`. So the first
-   drag of a mispositioned node changes *who is responsible for that step* — no prompt, no notice.
-3. **Export believes `n.lane`** (`:9276`) — `flowNodeRef` is written from the rewritten value, so
-   the change is durable on the next save.
-
-`laneAtY` (`:2117`) also has a sharp edge of its own: a node below **every** band falls out of the
-loop and returns `getLanes()[0]?.id` — the *first* lane. A node dragged into the void under the
-pool is silently adopted by the top lane rather than left unassigned.
-
-### Independent corroboration (AEF rail 331, observation (a))
-
-AEF reported that a UI save "flipped lane MEMBERSHIP on 10/12 nodes while only kl_dormant and
-kl_healing kept theirs", and asked whether membership is position-derived and whether the 2-node
-exception is intent-pinning or a bug. Reproduced here from their served bytes
-(`:3001/api/version?id=draft-knowledge-leveling&v=5` and `v=7`), matching nodes on `name` because
-their generator emits no `aef:uid`:
-
-| | v5 (agent-authored) | v7 (after UI saves) |
-|---|---|---|
-| `framework` members | 7 nodes, y 60–240 (**top**) | 5 nodes, y 140–502 |
-| `agent` members | 5 nodes, y 440–600 (**bottom**) | 7 nodes, y 87–600 |
-| lane order in `laneSet` | agent, then framework | agent, then framework |
-
-Node positions barely moved (60→87, 440→402, 600→600) while membership inverted. **The source map
-is internally inconsistent**: it declares `agent` as the first lane — so the designer draws the
-agent band on top — while placing the framework-declared nodes at the top y-values. The designer
-honours geometry, and the contradiction cashes out as a wholesale membership flip.
-
-**Answer to AEF's question:** the 2-node exception is neither intent-pinning nor a separate bug.
-Reassignment fires per-node on drag, not globally at save, so `kl_dormant` and `kl_healing` are
-simply the two nodes the operator never dragged. They kept their imported membership; the other
-ten did not.
-
-### Relationship to `pen_inbound_classifier`
-
-Same class. Nodes drawn outside every lane band are nodes whose stored position disagrees with
-their declared membership — cause (a) and cause (b) from the filing description are the same
-defect seen from two ends. The unlaned block in the screenshot is the rendering; the membership
-rewrite on the next drag is the damage.
-
-### Why this is ours to fix even though the input is malformed
-
-Accepting a contradictory map is defensible. Silently resolving the contradiction *in favour of
-pixels* and then writing the result back as authority is not — lane membership is the `who` in
-this dialect (see T-189 on Lane=who). The fix is to detect the disagreement at import and make it
-visible or reconcile it deliberately, rather than letting the first mouse gesture decide it.
-
-Note the overlap with T-309: `W-XML-NODE-UNASSIGNED` already exists and would catch the *fully*
-unassigned case, but no rule catches "declared in lane A, positioned in lane B" — that needs
-geometry, which the structural validator does not see. This defect is not covered by surfacing
-the validator.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
@@ -234,7 +170,7 @@ the validator.
 
 ## Updates
 
-### 2026-07-29T20:38:03Z — task-created [task-create-agent]
+### 2026-07-29T20:46:02Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-310-nodes-render-outside-every-lane-band-pen.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-311-save-path-destroys-the-leading-doc-comme.md
 - **Context:** Initial task creation
