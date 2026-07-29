@@ -110,8 +110,9 @@ Discovered while probing for a review index: EVERY /review/T-XXX on Watchtower (
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 # Shim parses and points at the real framework module
-python3 -c "import ast; ast.parse(open('lib/dispatch_pause.py').read())"
-out=$(grep -c "agentic-framework" lib/dispatch_pause.py); test "$out" -ge 1
+# T-305: shim lib/dispatch_pause.py deliberately DELETED at T-276 re-vendor (upstream fix landed); framework module is the live path
+test -f .agentic-framework/lib/dispatch_pause.py
+# T-305: shim gone (see above); review pages 200 via the curl lines below
 # Review pages live again (spot: first and last of the queue + newest)
 out=$(curl -s -o /dev/null -w "%{http_code}" "$(cat .context/working/watchtower.url)/review/T-073"); test "$out" = "200"
 out=$(curl -s -o /dev/null -w "%{http_code}" "$(cat .context/working/watchtower.url)/review/T-089"); test "$out" = "200"

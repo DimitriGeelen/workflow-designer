@@ -94,8 +94,8 @@ T-082 gave edge labels a measured, bbox-hugging theme-background halo. Node id b
 grep -q "function addIdBadgeHalos" src/aef-workflow-designer.html
 grep -q "addIdBadgeHalos();" src/aef-workflow-designer.html
 diff -q src/aef-workflow-designer.html build/gallery/designer.html
-out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
-out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "34 passed, 0 failed"
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"  # count-agnostic (T-305: suite grew 31->43; totals rot)
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"  # count-agnostic (T-305)
 python3 tests/test_editor_bridge_structured_parity.py
 out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "24 clean, 0 known-legacy, 0 new-fail"
 test -f .playwright-mcp/t083-badge-halo-zoom.png

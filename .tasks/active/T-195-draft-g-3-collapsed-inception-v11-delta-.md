@@ -70,7 +70,7 @@ grep -qiE "before|after" docs/reports/T-195-g3-collapsed-inception-delta.md
 # Frozen mapping standard NOT edited under agent control (must be unchanged vs HEAD).
 git diff --exit-code docs/standards/aef-bpmn-mapping-v1.md
 # forward-compile §8 reconciled: the stale open-question phrasing is gone.
-out=$(grep -c "subProcess-with-decision vs. single-node-with-marker" docs/standards/aef-bpmn-forward-compile-v1.md); test "$out" = "0"
+out=$(grep -c "subProcess-with-decision vs. single-node-with-marker" docs/standards/aef-bpmn-forward-compile-v1.md || true); test "$out" = "0"
 # Fixture the delta describes is still conformant.
 python3 tests/test_forward_fixtures.py
 

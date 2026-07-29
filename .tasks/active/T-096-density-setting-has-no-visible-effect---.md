@@ -111,12 +111,12 @@ Operator report 2026-07-05 (screenshot): setting Density to "tight" "does not ha
 
 ## Verification
 
-out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
-out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "34 passed, 0 failed"
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"  # count-agnostic (T-305: suite grew 31->43; totals rot)
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"  # count-agnostic (T-305)
 out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "24 clean"
 grep -q "view-apply-row" src/aef-workflow-designer.html
 grep -q "btn-apply-clean" src/aef-workflow-designer.html
-test "$(grep -c 'cleanLayout()' src/aef-workflow-designer.html)" = "3"
+test "$(grep -c 'cleanLayout()' src/aef-workflow-designer.html)" -ge 3  # was =3; call sites grew legitimately (T-099/T-100/T-125), T-305
 diff -q src/aef-workflow-designer.html build/gallery/designer.html
 test -f .playwright-mcp/t096-apply-affordance.png
 

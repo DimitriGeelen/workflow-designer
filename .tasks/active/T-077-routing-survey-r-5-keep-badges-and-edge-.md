@@ -93,7 +93,7 @@ date_finished: 2026-07-04T11:09:02Z
 
 grep -q "adjustLabelPlacements" src/aef-workflow-designer.html
 awk '/<script>/{f=1;next}/<\/script>/{f=0}f' src/aef-workflow-designer.html > /tmp/.t077-check.js && node --check /tmp/.t077-check.js
-out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "bridge round-trip: 31 passed, 0 failed"
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"  # count-agnostic (T-305: suite grew 31->43; totals rot)
 diff -q src/aef-workflow-designer.html build/gallery/designer.html
 
 ## RCA

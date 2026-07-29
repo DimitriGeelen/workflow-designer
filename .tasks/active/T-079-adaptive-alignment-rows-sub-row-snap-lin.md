@@ -125,7 +125,7 @@ grep -q "function laneRowYs" src/aef-workflow-designer.html
 grep -q "function tidyLane" src/aef-workflow-designer.html
 grep -q "function undoTidy" src/aef-workflow-designer.html
 awk '/<script>/{f=1;next}/<\/script>/{f=0}f' src/aef-workflow-designer.html > /tmp/.t079-check.js && node --check /tmp/.t079-check.js
-out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"  # count-agnostic (T-305: suite grew 31->43; totals rot)
 diff -q src/aef-workflow-designer.html build/gallery/designer.html
 
 ## Visual Verification

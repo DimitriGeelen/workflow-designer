@@ -62,8 +62,8 @@ grep -q "STRUCTURED_ITEMLIST_KEYS" tools/yaml-to-bpmn.py
 grep -q "structItemList" src/aef-workflow-designer.html
 grep -q "subProcess:        { w: 120" src/aef-workflow-designer.html
 out=$(python3 tests/test_editor_bridge_structured_parity.py 2>&1); echo "$out" | grep -q "itemlist: constituents"
-out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
-out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "34 passed, 0 failed"
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"  # count-agnostic (T-305: suite grew 31->43; totals rot)
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"  # count-agnostic (T-305)
 out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "24 clean, 0 known-legacy, 0 new-fail"
 python3 tools/validate-workflow.py examples/aef-processes/session-capture.workflow.yaml --quiet
 python3 tools/validate-workflow.py examples/aef-processes/verification-gate.workflow.yaml --quiet

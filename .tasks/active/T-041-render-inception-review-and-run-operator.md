@@ -126,7 +126,7 @@ missed? Agent-side is producing the viewable artifact + steps; the verdict is th
 test "$(ls examples/aef-processes/rendered/*.bpmn | wc -l)" -eq 24
 grep -q "URLSearchParams(location.search).get('load')" src/aef-workflow-designer.html
 test -x tools/serve-gallery.sh
-out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"  # count-agnostic (T-305: suite grew 31->43; totals rot)
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 

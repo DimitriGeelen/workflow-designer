@@ -141,13 +141,13 @@ T-092 GO, Phase A option 9. Building blocks already shipped: `tidyLane` (row sna
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
-out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "34 passed, 0 failed"
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"  # count-agnostic (T-305: suite grew 31->43; totals rot)
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"  # count-agnostic (T-305)
 out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "24 clean"
 out=$(python3 tests/test_editor_bridge_structured_parity.py 2>&1); echo "$out" | grep -q "OK:"
 grep -q "btn-clean" src/aef-workflow-designer.html
 grep -q "function cleanLayout" src/aef-workflow-designer.html
-test "$(grep -c 'cleanLayout()' src/aef-workflow-designer.html)" = "2"
+test "$(grep -c 'cleanLayout()' src/aef-workflow-designer.html)" -ge 2  # was =2; call sites grew legitimately (T-099/T-100/T-125), T-305
 diff -q src/aef-workflow-designer.html build/gallery/designer.html
 test -f .playwright-mcp/t095-clean-click-audit.png
 

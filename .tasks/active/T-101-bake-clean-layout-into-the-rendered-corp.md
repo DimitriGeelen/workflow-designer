@@ -123,12 +123,13 @@ Operator decision (2026-07-05 dialogue on auto-tidy): option 1 of three (2 = T-0
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
-bash tests/check-corpus-geometry.sh 2>&1 | tail -1 | grep -q "24 clean, 0 known-legacy, 0 new-fail"
-out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"
-out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "34 passed, 0 failed"
+out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "0 known-legacy, 0 new-fail"  # capture-first (L-387) + count-agnostic, T-305
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"  # count-agnostic (T-305: suite grew 31->43; totals rot)
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"  # count-agnostic (T-305)
 python3 tests/test_editor_bridge_structured_parity.py 2>&1 | grep -q "OK:"
 # Naive regen reproduces the tidied bpmn byte-identically (generator emits tidy output).
-for y in examples/aef-processes/*.workflow.yaml; do b=$(basename "$y" .workflow.yaml); python3 tools/yaml-to-bpmn.py "$y" --out /tmp/_rv.bpmn 2>/dev/null; diff -q /tmp/_rv.bpmn "examples/aef-processes/rendered/$b.bpmn" >/dev/null || exit 1; done
+# T-305: regen-diff removed — rendered corpus is EDITOR-SAVED dialect (T-288/T-300); regen via yaml-to-bpmn is the G-012 destructive path
+python3 tools/_corpus-adopt-verify.py
 
 ## RCA
 
@@ -260,6 +261,6 @@ parity OK, 24 clean; regen 0/24 drift; screenshots `.playwright-mcp/t101-*`.
 **Verification-level findings:**
 
   1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 31
-     - evidence: `bash tests/check-corpus-geometry.sh 2>&1 | tail -1 | grep -q "24 clean, 0 known-legacy, 0 new-fail"`
+     - evidence: `out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "0 known-legacy, 0 new-fail"  # capture-first (L-387) + count-agnostic, T-305`
   2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 34
      - evidence: `python3 tests/test_editor_bridge_structured_parity.py 2>&1 | grep -q "OK:"`

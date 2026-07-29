@@ -430,3 +430,10 @@ learnings:
   date: 2026-07-29
   context: Added via context agent
   application: TBD
+- id: PL-061
+  learning: "Verification lines must assert failure-SHAPE, never pin suite totals: 'grep -q \"31 passed, 0 failed\"' rotted in 24 task files when the bridge suite grew 31->43 (every close would block at P-011). Count-agnostic form 'grep -q \"passed, 0 failed\"' keeps failure detection and survives suite growth. Sibling classes fixed in the same T-305 sweep: grep -c exits 1 on zero matches under set -e (guard with || true), exact-count source greps (use -ge floor), hard-coded ports (read the watchtower triple file)."
+  source: P-011
+  task: T-305
+  date: 2026-07-29
+  context: Added via context agent
+  application: TBD

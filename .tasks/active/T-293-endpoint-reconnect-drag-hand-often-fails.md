@@ -148,7 +148,7 @@ coordinate transforms, capture-phase preempt). Hypothesis-driven debugging, max
 grep -q 'id="g-handles"' src/aef-workflow-designer.html
 grep -q "test_t293_endpoint_reach" tests/run-bridge-tests.sh
 python3 tests/test_t293_endpoint_reach.py
-out=$(curl -sf http://localhost:8834/designer.html); echo "$out" | grep -q "g-handles"
+out=$(curl -sf "$(cat .context/working/watchtower.url)/designer/app"); echo "$out" | grep -q "g-handles"  # :8834 retired (T-253 ufw RCA); triple file is source of truth, T-305
 ls build/gallery/t293-handles-selected.png
 
 ## RCA
