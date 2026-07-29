@@ -4,10 +4,10 @@ name: "Hierarchical tree grouping for Open-project map browser"
 description: >
   Operator floated (tentative) reorganizing the flat Open-project grid into a hierarchical tree-style grouping. Larger redesign of openProjectModal. Backlog until prioritized.
 
-status: started-work
+status: captured
 workflow_type: inception
 owner: agent
-horizon: now
+horizon: later
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T15:01:59Z
-last_update: 2026-07-10T04:43:53Z
+last_update: 2026-07-29T05:31:28Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -214,13 +214,24 @@ as a second level, rendered as B1 (grouped collapsible sections over the existin
 
 ## Decision
 
-<!-- Filled at completion of inception tasks via:
-     fw inception decide T-XXX go|no-go|defer --rationale "..."
+**Decision**: DEFER
 
-     For non-inception tasks this section is ignored. Kept in template
-     so `fw inception decide` (lib/inception.sh) finds the anchor heading
-     without auto-creating; T-1832 added auto-create as fallback for
-     legacy tasks lacking this section. -->
+**Rationale**: Recommendation: DEFER — pending operator input on IW-1/IW-2 (full survey in `docs/reports/T-155-tree-grouping-inception.md`).
+
+Recommended shape once confirmed: A1 (source class: corpus vs saved) + optionally A2 (id prefix)
+as a second level, rendered as B1 (grouped collapsible sections over the existing card grid), C1
+(derive-only — zero storage/schema change).
+
+- Delivers the scannability win at a fraction of the cost of a full tree; purely additive to
+  `openProjectModal`, reuses the existing card renderer/hover-zoom/delete.
+- No serialization/server changes → no round-trip risk, no new failure surface (Reliability).
+- Explicitly NOT recommended now: A4+B2+C2 (user-defined nested folders with persisted
+  metadata) — subsystem-scale change for a tentatively-floated feature; let real use of B1 tell us
+  whether explicit folders are worth the storage complexity.
+- On operator confirmation (expected A1+B1+C1): file ONE bounded build task ("grouped sections in
+  openProjectModal, derived from source class") — not a subsystem redesign.
+
+**Date**: 2026-07-29T05:31:27Z
 
 ## Updates
 
@@ -235,3 +246,26 @@ as a second level, rendered as B1 (grouped collapsible sections over the existin
 
 ### 2026-07-10T04:41:16Z — status-update [task-update-agent]
 - **Change:** workflow_type: build → inception
+
+### 2026-07-29T05:31:27Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** DEFER
+- **Rationale:** Recommendation: DEFER — pending operator input on IW-1/IW-2 (full survey in `docs/reports/T-155-tree-grouping-inception.md`).
+
+Recommended shape once confirmed: A1 (source class: corpus vs saved) + optionally A2 (id prefix)
+as a second level, rendered as B1 (grouped collapsible sections over the existing card grid), C1
+(derive-only — zero storage/schema change).
+
+- Delivers the scannability win at a fraction of the cost of a full tree; purely additive to
+  `openProjectModal`, reuses the existing card renderer/hover-zoom/delete.
+- No serialization/server changes → no round-trip risk, no new failure surface (Reliability).
+- Explicitly NOT recommended now: A4+B2+C2 (user-defined nested folders with persisted
+  metadata) — subsystem-scale change for a tentatively-floated feature; let real use of B1 tell us
+  whether explicit folders are worth the storage complexity.
+- On operator confirmation (expected A1+B1+C1): file ONE bounded build task ("grouped sections in
+  openProjectModal, derived from source class") — not a subsystem redesign.
+
+### 2026-07-29T05:31:28Z — status-update [task-update-agent]
+- **Change:** horizon: now → later
+- **Change:** status: started-work → captured (auto-sync)
+- **Reason:** Inception decision: DEFER — parking task
