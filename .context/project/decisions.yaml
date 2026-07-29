@@ -1011,3 +1011,17 @@ decisions:
     date: 2026-07-29
     task: T-308
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-124
+    decision: "leave the hardcoded trailer at the end of the document exactly as it is,"
+    scope: project
+    date: 2026-07-29
+    task: T-311
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-125
+    decision: "make the four affected harnesses assert against a comment-stripped copy"
+    scope: project
+    date: 2026-07-29
+    task: T-311
+    rationale: "Auto-captured from task file on completion"

@@ -1,0 +1,95 @@
+# ============================================================================
+# EPISODIC MEMORY - T-311: Save path destroys the leading doc comment: agent-authored rationale block lost on first UI save
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T22:03:54Z
+# ============================================================================
+
+task_id: T-311
+task_name: "Save path destroys the leading doc comment: agent-authored rationale block lost on first UI save"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-29T20:46:02Z
+completed: 2026-07-29T22:02:59Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-30T00:02:37+02:00
+last_commit: 2026-07-30T00:02:37+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the authored doc block survives the round-trip — our half of the rationale-destruction defect
+
+# Key outcomes
+outcomes:
+  - '`parseBpmnXml` captures the leading comment child of `<bpmn:definitions>` onto the returned state as `docComment` — leading meaning it precedes the first ELEMENT child, matching AEF''s guard semantics'
+  - 'Our own DI trailer is never adopted as a doc, even if a hand-edit moves it to leading position: a prefix guard rejects it, so re-importing our own output yields `docComment === null` and cannot promote boilerplate to rationale (the exact defect that poisoned 5 of their maps)'
+  - '`buildBpmnXml` re-emits a captured `docComment` as the FIRST child of `<bpmn:definitions>`, ahead of `<bpmn:collaboration>`, so their leading-position reader finds the rationale and not our trailer'
+  - 'Round-trip is byte-exact for the comment: import → export reproduces the original comment verbatim, including internal newlines and indentation'
+  - 'The undo/redo path preserves it — history snapshots serialise through `buildBpmnXml` (src:6895) and restore through `parseBpmnXml` (src:6900), so a doc comment must survive an edit→Ctrl+Z cycle rather than being silently dropped at the first undo'
+  - 'Zero export surface for maps that have no leading doc comment: full-corpus export sweep against the pre-change sha `b78fea6` shows every such map byte-identical; any map that DOES carry one is enumerated and its diff is exactly the gained comment, nothing else'
+  - 'A comment whose data would produce invalid XML on re-emit (trailing `-`, which yields the illegal `--->`) is emitted safely rather than corrupting the document'
+  - 'New CDP harness drives the REAL editor runtime against a fixture carrying a doc comment, and is TEETH-PROVEN (PL-061): run against the pre-fix build it goes red on the preservation assertions rather than erroring out'
+  - 'Bridge suite green with the new leg added; validator suite unchanged'
+  - '**Not in the original scope — found by running the suite.** Preserving comments made exported bytes carry prose for the first time, which broke two harnesses that assert structure by regexing the whole document. Swept the class rather than the two failures.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-30 — keep emitting the DI trailer'
+    chose: 'leave the hardcoded trailer at the end of the document exactly as it is,'
+    rationale: 'it is the string that poisoned AEF''s corpus, so removing it is tempting —'
+    alternatives_rejected: ['deleting the trailer (churn without benefit); rewording it to something']
+  - decision: '2026-07-30 — strip comments in harnesses rather than narrow the fix'
+    chose: 'make the four affected harnesses assert against a comment-stripped copy'
+    rationale: 'the product behaviour is right — the doc block belongs in the output. The'
+    alternatives_rejected: ['emitting the doc only on explicit save rather than on every export']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-311-save-path-destroys-the-leading-doc-comme.md'
+  - 'tests/fixtures/aef-bpmn/doc-comment.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t311_doc_comment_roundtrip.py'
+  - 'tools/_t259-eventdef-preservation-cdp.mjs'
+  - 'tools/_t308-bare-catch-render-cdp.mjs'
+  - 'tools/_t310-lane-position-conflict-cdp.mjs'
+  - 'tools/_t311-doc-comment-roundtrip-cdp.mjs'
+  - 'tools/_typed-events-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-30T00:02:37"
+    action: "T-311: the authored doc block survives the round-trip — our half of the rationale-destruction defect"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 76 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [designer, fidelity, data-loss, aef-seam]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 76
+  commits: 1
+  files_changed: 10
+  lines_added: 724
+  lines_removed: 16
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-311-save-path-destroys-the-leading-doc-comme.md
+generated_by: context-agent-hybrid

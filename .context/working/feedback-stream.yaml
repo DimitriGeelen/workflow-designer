@@ -3221,3 +3221,21 @@ scan_id: R-4d639d42
 task_id: T-310
 payload:
   task_file: .tasks/active/T-310-nodes-render-outside-every-lane-band-pen.md
+---
+kind: scan_emitted
+timestamp: '2026-07-29T22:03:52Z'
+scan_id: R-60377b81
+task_id: T-311
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-29T22:03:52Z'
+scan_id: R-60377b81
+task_id: T-311
+payload:
+  task_file: .tasks/active/T-311-save-path-destroys-the-leading-doc-comme.md
