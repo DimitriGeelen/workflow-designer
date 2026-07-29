@@ -1,0 +1,104 @@
+# ============================================================================
+# EPISODIC MEMORY - T-081: subProcess node type phase 1: collapsed-only node + aef:constituents + scopeOf marker
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:08Z
+# ============================================================================
+
+task_id: T-081
+task_name: "subProcess node type phase 1: collapsed-only node + aef:constituents + scopeOf marker"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T13:34:26Z
+completed: 2026-07-04T14:32:40Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-04T16:30:46+02:00
+last_commit: 2026-07-04T16:32:39+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  subProcess phase 1 — collapsed composite node, aef:constituents itemlist channel, scopeOf marker; migrate 4 FC-11 sites off x-*. Complete phase-1 build — partial-complete awaiting operator review; file T-086 (remaining x-* sites found by completion gate)
+
+# Key outcomes
+outcomes:
+  - 'Schema doc (`docs/designer/schema.md`) documents the `subProcess` node type, the `constituents:` list (`{id, name, ref?}` entries), and the optional `scopeOf:` back-reference, including the phase-1 fence (no child nesting) — new §4.4, type-table row, §7.2 elements, §8.1 history entry'
+  - 'Validator (`tools/validate-workflow.py`) accepts `subProcess` in NODE_TYPES and enforces constituents shape rules — `_check_constituents`: E-CONST-SHAPE, E-CONST-DUP, W-CONST-FIELD, E-SCOPEOF-SELF, E-SCOPEOF-DANGLING, W-SCOPEOF-TYPE; validator suite 34/34, full corpus exit 0'
+  - 'Bridge (`tools/yaml-to-bpmn.py`) emits `<bpmn:subProcess>` (TYPE_MAP passthrough) and `<aef:constituents>` via new STRUCTURED_ITEMLIST_KEYS channel; regenerated rendered/*.bpmn — 4 migrated maps carry both (grep-verified), bridge suite 31/31'
+  - 'Editor: `subProcess` in NODE_DEFAULTS/palette/glyph ([+] bottom-right, ▣N count badge on any constituents-bearing node), props Constituents editor, parse/build itemlist channel; in-browser round-trip byte-identical on all 4 migrated maps + 2 controls; parity test extended to guard the itemlist channel incl. field tuples (G-002)'
+  - 'The 4 x-* sites migrated: verification-gate `g_gates` (8 gates), git-commit-flow `g_hooks` (4 checks), resume-status `n_intel` (3 sources, → subProcess), session-capture `n_capture` (4 actions, → subProcess); x-checks/x-sources/x-captures removed, header comments updated'
+  - 'Corpus regression: geometry-signature sweep HEAD vs working tree — only n_capture/n_intel type strings differ, positions and all other 20+ maps byte-identical; lane-band sweep 24 clean; gallery designer.html + rendered copies in sync'
+  - '[REVIEW] Collapsed subProcess glyph reads clearly'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-04 — constituents legal on any node type, not only subProcess'
+    chose: '`aef.constituents` validates on ANY flow node; `subProcess` is the task-like composite host, not a prerequisite.'
+    rationale: '2 of the 4 real FC-11 sites are exclusiveGateways (verification-gate g_gates, git-commit-flow g_hooks). Forcing them to subProcess would change flow semantics (gateway routing rules, ≥2 outgoing) to satisfy a metadata need.'
+    alternatives_rejected: ['constituents-only-on-subProcess (breaks the gateway sites); converting gateways to subProcess (semantic distortion).']
+  - decision: '2026-07-04 — wire format: new list-of-dicts channel + scopeOf on the meta channel'
+    chose: '`<aef:constituents><aef:constituent id name ref?/></aef:constituents>` via a third structured channel (STRUCTURED_ITEMLIST_KEYS), parity-guarded incl. per-field tuples; `scopeOf` rides the existing `<aef:meta>` scalar channel (META_KEYS/metaKeys both sides).'
+    rationale: 'entries have 3 fields — neither the scalar-list nor the dict channel fits; the meta channel is the cheapest lossless path for a scalar and the meta-parity test guards it for free.'
+    alternatives_rejected: ['flattening entries to scalars (loses ref); a dedicated `<aef:scopeOf>` element (more seam surface for zero gain).']
+  - decision: '2026-07-04 — [+] marker bottom-right, not BPMN''s bottom-centre'
+    chose: 'collapsed-marker in the bottom-right corner of the rect; count badge (▣N) bottom-left.'
+    rationale: 'node names wrap centre-aligned; 5-line names (session-capture n_capture) collide with a bottom-centre marker — verified via rendered screenshot, the first placement was visibly broken.'
+    alternatives_rejected: ['bottom-centre (text collision); taller subProcess box (breaks shared 64px alignment rows from T-079).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - 'docs/designer/schema.md'
+  - 'examples/aef-processes/git-commit-flow.workflow.yaml'
+  - 'examples/aef-processes/rendered/git-commit-flow.bpmn'
+  - 'examples/aef-processes/rendered/resume-status.bpmn'
+  - 'examples/aef-processes/rendered/session-capture.bpmn'
+  - 'examples/aef-processes/rendered/verification-gate.bpmn'
+  - 'examples/aef-processes/resume-status.workflow.yaml'
+  - 'examples/aef-processes/session-capture.workflow.yaml'
+  - 'examples/aef-processes/verification-gate.workflow.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-081-subprocess-node-type-phase-1-collapsed-o.md'
+  - '.tasks/active/T-086-migrate-remaining-constituents-like-x--s.md'
+  - 'tests/test_editor_bridge_structured_parity.py'
+  - 'tools/validate-workflow.py'
+  - 'tools/yaml-to-bpmn.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T16:30:46"
+    action: "T-081: subProcess phase 1 — collapsed composite node, aef:constituents itemlist channel, scopeOf marker; migrate 4 FC-11 sites off x-*"
+  - time: "2026-07-04T16:32:39"
+    action: "T-081: Complete phase-1 build — partial-complete awaiting operator review; file T-086 (remaining x-* sites found by completion gate)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 58 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 58
+  commits: 2
+  files_changed: 16
+  lines_added: 671
+  lines_removed: 79
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-081-subprocess-node-type-phase-1-collapsed-o.md
+generated_by: context-agent-hybrid

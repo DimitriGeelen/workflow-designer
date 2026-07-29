@@ -1,0 +1,143 @@
+# ============================================================================
+# EPISODIC MEMORY - T-306: Execute operator-authorized batch close of the 66 review-verdict tasks
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:44:35Z
+# ============================================================================
+
+task_id: T-306
+task_name: "Execute operator-authorized batch close of the 66 review-verdict tasks"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-29T15:37:53Z
+completed: 2026-07-29T15:44:33Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-29T17:44:28+02:00
+last_commit: 2026-07-29T17:44:28+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  operator-authorized batch close ('close all, i checked', Tier-2 logged) — 55/66 closed through P-011, 11 R-033 sovereignty blocks left for operator; checklist sed defect found+fixed (comment-example tick, 17 files restored, PL-062); zero bypasses
+
+# Key outcomes
+outcomes:
+  - 'All 66 tick+close commands from docs/reports/T-302-reviewer-sweep.md executed verbatim (sed tick of the operator-verified [REVIEW] AC + `fw task update --status work-completed` through the P-011 gate); per-task PASS/FAIL captured to a log (scratchpad t306-batch.log + t306-retry.log; 55 closed, 11 R-033-blocked; 15 needed a comment-masked re-tick after the checklist''s own sed defect — see Updates)'
+  - 'Zero gate bypasses: no `--force` / `--skip-*` used; any close that blocks is reported as-is, not forced (the 11 R-033 sovereignty blocks stand and are listed in the report stamp for operator action)'
+  - 'The 10 inception-decision tasks NOT touched (remain in active/, decision templates intact in the report) (11 inception task files in active/ = 10 decisions + T-301 DEFER)'
+  - 'Execution stamp appended to docs/reports/T-302-reviewer-sweep.md recording the authorization and the close tally (§Batch execution stamp (T-306, 2026-07-29))'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'operator-authorized batch close (''close all, i checked'', Tier-2 logged) — 55/66 closed through P-011, 11 R-033 sovereignty blocks left for operator; checklist sed defect found+fixed (comment-example tick, 17 files restored, PL-062); zero bypasses'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - 'docs/reports/T-302-reviewer-sweep.md'
+  - '.tasks/active/T-041-render-inception-review-and-run-operator.md'
+  - '.tasks/active/T-101-bake-clean-layout-into-the-rendered-corp.md'
+  - '.tasks/active/T-102-mapmessiness-false-positive-branch-stack.md'
+  - '.tasks/active/T-105-baked-verification-gate-gateway-label-collision.md'
+  - '.tasks/active/T-125-vertical-lane-compaction-in-cleanlayout-.md'
+  - '.tasks/active/T-195-draft-g-3-collapsed-inception-v11-delta-.md'
+  - '.tasks/active/T-228-s4-off-page-claim-ux--create-from-pendin.md'
+  - '.tasks/active/T-264-save-target-guard-set-id-field-collision.md'
+  - '.tasks/active/T-293-endpoint-reconnect-drag-hand-often-fails.md'
+  - '.tasks/active/T-306-execute-operator-authorized-batch-close-.md'
+  - '.tasks/completed/T-073-router-straightening-tolerance--near-ali.md'
+  - '.tasks/completed/T-074-magnetic-drag-snapping--lane-centre-neig.md'
+  - '.tasks/completed/T-075-editor-settings-page--consolidate-routin.md'
+  - '.tasks/completed/T-076-routing-survey-r-2-loop-back-edges-shoul.md'
+  - '.tasks/completed/T-077-routing-survey-r-5-keep-badges-and-edge-.md'
+  - '.tasks/completed/T-079-adaptive-alignment-rows-sub-row-snap-lin.md'
+  - '.tasks/completed/T-081-subprocess-node-type-phase-1-collapsed-o.md'
+  - '.tasks/completed/T-082-edge-label-placement-pass-measure-after-.md'
+  - '.tasks/completed/T-083-label-halo-theme-background-rect-behind-.md'
+  - '.tasks/completed/T-084-lane-header-ellipsis-truncate-vertical-l.md'
+  - '.tasks/completed/T-085-view-density--label-visibilitysize-contr.md'
+  - '.tasks/completed/T-087-node-label-fit-ladder-long-task-names-mu.md'
+  - '.tasks/completed/T-089-edge-label-wrap-multi-line-edge-labels-s.md'
+  - '.tasks/completed/T-090-watchtower-review-pages-all-500---dispat.md'
+  - '.tasks/completed/T-094-align-rows-one-shot-action-snap-lane-row.md'
+  - '.tasks/completed/T-095-clean-layout-composite-action-tidy--bran.md'
+  - '.tasks/completed/T-096-density-setting-has-no-visible-effect---.md'
+  - '.tasks/completed/T-097-crossing-aware-branch-ordering-order-fan.md'
+  - '.tasks/completed/T-098-edge-channel-separation-setting-corridor.md'
+  - '.tasks/completed/T-099-clean-layout-on-import-opt-in-setting-ap.md'
+  - '.tasks/completed/T-100-clean-layout-nudge-offer-one-click-clean.md'
+  - '.tasks/completed/T-104-density-and-branch-pitch-view-settings-a.md'
+  - '.tasks/completed/T-106-routing-margin-setting-reserved-peripher.md'
+  - '.tasks/completed/T-107-align-columns-one-shot-action-snap-near-.md'
+  - '.tasks/completed/T-108-vertical-spacing-control-and-density-bra.md'
+  - '.tasks/completed/T-109-distribute-evenly-action-equalise-horizo.md'
+  - '.tasks/completed/T-114-obstacle-avoiding-orthogonal-edge-routin.md'
+  - '.tasks/completed/T-115-horizontal-spacing-control-mirror-of-ver.md'
+  - '.tasks/completed/T-116-align-in-middle-wire-align-columns-centr.md'
+  - '.tasks/completed/T-117-de-jog-routed-edges-collapse-tiny-interi.md'
+  - '.tasks/completed/T-118-endpoint-straight-snap-collapse-endpoint.md'
+  - '.tasks/completed/T-119-consolidate-split-migrations-two-step-st.md'
+  - '.tasks/completed/T-127-editor-repo-save-versioning-revert-autoreload.md'
+  - '.tasks/completed/T-132-b5-general-undo-redo-history-stack.md'
+  - '.tasks/completed/T-134-selection-scoped-align-and-distribute-fo.md'
+  - '.tasks/completed/T-136-endpoint-overlap-selection-blocked-at-convergence.md'
+  - '.tasks/completed/T-137-loop-back-edges-with-persisted-detoury-c.md'
+  - '.tasks/completed/T-139-retire-align-columns-and-distribute-even.md'
+  - '.tasks/completed/T-141-guard-save-to-project-against-the-pristi.md'
+  - '.tasks/completed/T-144-in-editor-open-from-project-modal-uses-a.md'
+  - '.tasks/completed/T-164-consistent-tile-hover-zoom-in-the-versio.md'
+  - '.tasks/completed/T-165-open-this-version-action-in-the-versions.md'
+  - '.tasks/completed/T-166-delete-a-workflow-from-the-project-archi.md'
+  - '.tasks/completed/T-167-version-level-delete-and-keep-only-lates.md'
+  - '.tasks/completed/T-168-connection-point-anchoring-attach-edges-.md'
+  - '.tasks/completed/T-172-drag-to-place-nodes-from-the-palette-ont.md'
+  - '.tasks/completed/T-176-offline-harden-the-designer-inline-or-se.md'
+  - '.tasks/completed/T-197-iw-9-editor-ui-retire-node-owner-overrid.md'
+  - '.tasks/completed/T-204-typed-bpmn-event-palette-errortimermessa.md'
+  - '.tasks/completed/T-214-pair-draft-sessionhandover-corpus-diagra.md'
+  - '.tasks/completed/T-215-pair-draft-dispatch-loop-corpus-diagram-.md'
+  - '.tasks/completed/T-240-uuid-workflowref-auto-resolve-jump-targe.md'
+  - '.tasks/completed/T-245-canvas-view-chrome-controls-paletteprope.md'
+  - '.tasks/completed/T-255-pool-right-edge-resize-handle-authored-p.md'
+  - '.tasks/completed/T-258-annotation-seam-v0-postmessage-aefreadya.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-29T17:44:28"
+    action: "T-306: operator-authorized batch close ('close all, i checked', Tier-2 logged) — 55/66 closed through P-011, 11 R-033 sovereignty blocks left for operator; checklist sed defect found+fixed (comment-example tick, 17 files restored, PL-062); zero bypasses"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 13
+  lines_added: 300
+  lines_removed: 118
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-306-execute-operator-authorized-batch-close-.md
+generated_by: context-agent-hybrid

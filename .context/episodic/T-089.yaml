@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-089: Edge-label wrap: multi-line edge labels shrink collision footprint
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:11Z
+# ============================================================================
+
+task_id: T-089
+task_name: "Edge-label wrap: multi-line edge labels shrink collision footprint"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T22:19:37Z
+completed: 2026-07-04T22:29:35Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-05T00:27:20+02:00
+last_commit: 2026-07-05T00:29:35+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Wrap-on-contest edge labels — contested long labels re-search wrapped to 2 lines, kept only when strictly better (28->25 corpus collisions, 3 wraps, 0 regressions; global wrap measured worse 28->32 and was rejected). Complete — partial-complete awaiting operator review; PD-048 wrap-on-contest captured
+
+# Key outcomes
+outcomes:
+  - 'Wrap-on-contest: labels render single-line by default; only when the placement pass finds no clean spot AND the name is long (>20 chars) and breakable does it retry with a 2-balanced-line wrap (tspans under one `text[data-el]`), keeping the wrap only when it scores STRICTLY better'
+  - '`adjustEdgeLabelPlacements()` moves multi-line labels as a unit: tspan `x` synced with the text `x` on every candidate application and final placement; measured bbox covers both lines (halo hugs the full 2-line block)'
+  - 'Corpus collision sweep (same browser-side measure as T-082) run before and after: total corpus-wide edge-label collisions strictly decreases from the re-measured baseline'
+  - 'No wrapped label overflows: sweep confirms every wrapped edge label''s lines are non-empty and no phantom empty tspans exist (T-087''s empty-line bug class)'
+  - 'Serialization untouched: editor XML round-trip STABLE on context-memory + control maps; `git diff src/` touches no buildBpmnXml/parseBpmnXml/aefExtensionXml paths'
+  - 'All suites green: bridge tests, validator tests, editor-bridge parity, corpus geometry sweep; gallery copy synced (`diff -q` clean)'
+  - '[REVIEW] The 3 wrapped edge labels read cleanly on the live gallery and nothing else regressed'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-05 — Wrap-on-contest, not global wrap-at-threshold'
+    chose: 'Wrap an edge label to 2 lines only inside the placement pass, only when the single-line candidate search still has collisions, and keep the wrap only when it scores strictly better. Ties and losses undo the wrap.'
+    rationale: 'Measured, not assumed: a global wrap of all 24 labels >20 chars moved corpus collisions 28 -> 32 (verification-gate 9 -> 14) — the 2-line block''s extra 11px height crosses more segments/labels in tight corridors than its halved width saves. Wrap-on-contest wraps only 3 labels and lands 28 -> 25 with zero regressions on previously-clean labels.'
+    alternatives_rejected: ['(a) Global wrap at threshold — measured worse, above. (b) Wrapping in renderEdges with the pass just measuring — same thing structurally; the decision belongs where the contest evidence lives. (c) 3-line wraps — no remaining hit would benefit; the residue is short labels ("defer", "1st occurrence") in intrinsically dense corridors.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-089-edge-label-wrap-multi-line-edge-labels-s.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T00:27:20"
+    action: "T-089: Wrap-on-contest edge labels — contested long labels re-search wrapped to 2 lines, kept only when strictly better (28->25 corpus collisions, 3 wraps, 0 regressions; global wrap measured worse 28->32 and was rejected)"
+  - time: "2026-07-05T00:29:35"
+    action: "T-089: Complete — partial-complete awaiting operator review; PD-048 wrap-on-contest captured"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 2
+  files_changed: 3
+  lines_added: 296
+  lines_removed: 31
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-089-edge-label-wrap-multi-line-edge-labels-s.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-094: Align rows one-shot action: snap lane row-mates to median centre-y
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:42:30Z
+# ============================================================================
+
+task_id: T-094
+task_name: "Align rows one-shot action: snap lane row-mates to median centre-y"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T23:21:34Z
+completed: 2026-07-29T15:39:12Z
+duration_days: 25
+updates_count: 3
+first_commit: 2026-07-05T01:41:13+02:00
+last_commit: 2026-07-05T01:41:13+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Align rows one-shot action — non-stack row near-misses 168->0 corpus-wide (26 residual = branch-stack pairs by design), shares Tidy undo
+
+# Key outcomes
+outcomes:
+  - 'An explicit "⇥ Align rows" button sits in the lane properties panel alongside "⇤ Tidy rows" — one click; geometry is mutated ONLY by this explicit action (`alignRowsLane` has a single caller: the button''s onclick; PD-044 holds)'
+  - 'Action semantics implemented as specified: per lane, chain-cluster nodes whose sorted centre-y neighbours sit <=14px apart; clusters of >=2 snap to the cluster median centre-y; branch-stack members (T-093 `branchStacksInLane`) excluded — their y belongs to the pitch logic'
+  - 'Single-step undo: shares `lastTidy`/`undoTidy` with Tidy; Playwright-verified on task-lifecycle (framework lane, 5 moved, restored=true byte-compare of all node ys)'
+  - 'Measured (24-map Playwright sweep): row near-miss pairs 168 → 26, with ALL 26 residuals being pairs involving branch-stack members (excluded by design; non-stack near-misses = 0). 63 nodes moved corpus-wide; rect-overlap count unchanged on every map (0→0; measure-after-move guard reverts any cluster whose flattening would pile nodes up)'
+  - 'Suites green: bridge "31 passed, 0 failed", validator "34 passed, 0 failed", parity "OK:", geometry "24 clean"; export untouched unless the button is clicked'
+  - 'Gallery synced: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`'
+  - '[REVIEW] Aligned chains read straight, nothing looks displaced'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+  - decision: '2026-07-05 — Per-lane button beside Tidy, not a global Clean menu'
+    chose: '"⇥ Align rows" lives in the lane properties panel next to "⇤ Tidy rows", sharing lastTidy/undoTidy.'
+    rationale: 'Same interaction contract as the existing document-mutating action (explicit, per-lane, Ctrl+Z single-step revert) — no new undo machinery; the one-click-everything surface is exactly T-095 (Clean composite), which iterates lanes.'
+    alternatives_rejected: ['New global toolbar menu now (duplicates T-095''s scope); auto-align on load/render (violates PD-044 — render passes never mutate stored geometry).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - '.playwright-mcp/t094-lane-panel-align-btn.png'
+  - '.playwright-mcp/t094-tasklifecycle-aligned.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-094-align-rows-one-shot-action-snap-lane-row.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T01:41:13"
+    action: "T-094: Align rows one-shot action — non-stack row near-misses 168->0 corpus-wide (26 residual = branch-stack pairs by design), shares Tidy undo"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 35537 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 35537
+  commits: 1
+  files_changed: 5
+  lines_added: 125
+  lines_removed: 14
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-094-align-rows-one-shot-action-snap-lane-row.md
+generated_by: context-agent-hybrid

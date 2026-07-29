@@ -1,0 +1,96 @@
+# ============================================================================
+# EPISODIC MEMORY - T-245: Canvas view-chrome controls: palette/properties hide-show toggles + fullscreen focus mode
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:39Z
+# ============================================================================
+
+task_id: T-245
+task_name: "Canvas view-chrome controls: palette/properties hide-show toggles + fullscreen focus mode"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-23T09:41:04Z
+completed: 2026-07-23T09:51:35Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-23T11:49:55+02:00
+last_commit: 2026-07-23T11:51:35+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  canvas view-chrome controls — ◧/◨ per-panel hide-show toggles (persisted in aefViewPrefs, grid track dropped so canvas reflows) + ⛶ focus mode (hides header/palette/properties, requestFullscreen best-effort, floating Exit + Esc + fullscreenchange restore, transient by design); hidden properties panel auto-reveals on explicit selection (dead-affordance guard); G-010 suite +t245-view-chrome leg (8 probe states, real-affordance clicks) — 5/5 legs, bridge 37/37, geometry 24 clean. finalize — 6/6 agent ACs verified (5/5 suite legs, bridge 37/37, 4 visual states read), P-011 5/5, GO recommendation; partial-complete awaiting human [REVIEW] (control feel), decisions PD-109 (focus transient) + PD-110 (auto-reveal on selection) captured
+
+# Key outcomes
+outcomes:
+  - 'Toggle buttons exist for the left palette and the right properties panel; each click hides/shows only its own panel and the canvas reflows to use the freed width (no dead whitespace band where the panel was) — *suite leg t245-view-chrome probes vc1 (canvasW 660→880) and vc3 (→980); grid track dropped via body.vc-no-* main rules, not just display:none*'
+  - 'Panel visibility persists across reload via the existing editor-settings persistence mechanism (same store the ⚙ Settings page uses) — *paletteHidden/propsHidden added to aefViewPrefs with typeof-boolean validation; probe vc2 = still hidden after nav*'
+  - 'A focus-mode button hides header + palette + properties in one click and attempts `requestFullscreen` (failure tolerated — chrome-hiding still applies); a floating exit affordance is visible in focus mode and restores all chrome; Esc also exits (native fullscreen exit is detected and restores chrome) — *probe vc5/vc6; suite runs headless where requestFullscreen is DENIED (no user activation) — leg passing proves the graceful-degradation path; fullscreenchange listener restores chrome on browser-native exit*'
+  - 'Focus mode is transient: after exit + reload, chrome is back (focus state NOT persisted); per-panel hidden states ARE respected independently of focus mode — *probe vc7 (focus → reload → header/palette back); focusMode is a plain let, never written to localStorage*'
+  - 'With the properties panel hidden, selecting a node does not silently strand the operator: the properties panel auto-reveals (or an equivalent explicit affordance) so node editing remains reachable — *revealPropsForSelection() at onNodeClick plain-click, onEdgeClick, and palette-create; probe vc4 = real MouseEvent click on #g-nodes g reveals props and clears the pref*'
+  - 'G-010 standing suite extended with a view-chrome leg (toggle hides panel / focus hides all three / exit restores / persistence round-trip) and the full suite passes; full bridge test suite still green — *suite 5/5 legs PASS incl. new t245-view-chrome (8 probe states); bridge round-trip 37/37, geometry sweep 24 clean*'
+  - '[REVIEW] The view-chrome controls feel right'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-23 — Focus mode transience'
+    chose: 'Focus mode is a transient presentation state (plain runtime flag), never persisted; per-panel hidden states ARE persisted (aefViewPrefs).'
+    rationale: 'Reloading into a chrome-less editor with no visible way back is a stranding hazard; a presentation state is an intent for *this* viewing, not a preference. Panel visibility, by contrast, is a genuine workspace preference.'
+    alternatives_rejected: ['Persisting focus mode (stranding risk outweighs convenience); persisting nothing (operator would re-hide panels every session).']
+  - decision: '2026-07-23 — Auto-reveal semantics for hidden properties panel'
+    chose: 'An explicit click-selection (node, edge, palette-create) un-hides the properties panel by clearing the pref (persisted); auto-reveal is suppressed in focus mode.'
+    rationale: 'Selecting something is an unambiguous "I want to edit this" signal — the panel hidden at that moment is a dead end (same dead-affordance class as AEF''s T-2613 bare-catch observation). Suppressed in focus mode because presentation intent wins there and exit restores everything anyway.'
+    alternatives_rejected: ['One-shot reveal without clearing the pref (panel would vanish again on next reload mid-editing — surprising); reveal keyed inside renderProperties() (fires on every render, would make hiding impossible while anything is selected).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.playwright-mcp/t245-all-visible.png'
+  - '.playwright-mcp/t245-focus-mode.png'
+  - '.playwright-mcp/t245-palette-hidden.png'
+  - '.playwright-mcp/t245-props-hidden.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-214-pair-draft-sessionhandover-corpus-diagra.md'
+  - '.tasks/active/T-244-bare-catch-event-rendering-neutral-untyp.md'
+  - '.tasks/active/T-245-canvas-view-chrome-controls-paletteprope.md'
+  - 'tools/_editor-behavior-verify-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-23T11:49:55"
+    action: "T-245: canvas view-chrome controls — ◧/◨ per-panel hide-show toggles (persisted in aefViewPrefs, grid track dropped so canvas reflows) + ⛶ focus mode (hides header/palette/properties, requestFullscreen best-effort, floating Exit + Esc + fullscreenchange restore, transient by design); hidden properties panel auto-reveals on explicit selection (dead-affordance guard); G-010 suite +t245-view-chrome leg (8 probe states, real-affordance clicks) — 5/5 legs, bridge 37/37, geometry 24 clean"
+  - time: "2026-07-23T11:51:35"
+    action: "T-245: finalize — 6/6 agent ACs verified (5/5 suite legs, bridge 37/37, 4 visual states read), P-011 5/5, GO recommendation; partial-complete awaiting human [REVIEW] (control feel), decisions PD-109 (focus transient) + PD-110 (auto-reveal on selection) captured"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 10 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 10
+  commits: 2
+  files_changed: 12
+  lines_added: 513
+  lines_removed: 98
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-245-canvas-view-chrome-controls-paletteprope.md
+generated_by: context-agent-hybrid

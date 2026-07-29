@@ -1,0 +1,124 @@
+# ============================================================================
+# EPISODIC MEMORY - T-204: Typed BPMN event palette: error/timer/message + boundary events (two-slice build)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:42:36Z
+# ============================================================================
+
+task_id: T-204
+task_name: "Typed BPMN event palette: error/timer/message + boundary events (two-slice build)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-18T19:42:25Z
+completed: 2026-07-29T15:39:36Z
+duration_days: 11
+updates_count: 3
+first_commit: 2026-07-18T21:44:05+02:00
+last_commit: 2026-07-19T21:18:52+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  open typed-event palette build (two-slice) — authorized by T-190 GO. bank Slice 1 anchor map + design decisions (pre-edit research, C-001). Slice 1 step 1 evolution note (data path done; steps 2-4 remain). Slice 1 step 2 — typed-event visual surface (palette + glyphs + inspector). Slice 1 step 3 — bridge parity + mapping-standard rows (Slice 1 agent-complete). Slice 2 step 1 — boundary-event data path (attach + serialize + round-trip). Slice 2 step 2 — host-relative boundary render (perimeter + double ring). Slice 2 — host-follow confirmed free (render-sync); only T-168 ports remain. Slice 2 step 3 — boundary-origin edges exit host perimeter via T-168 ports. register G-009 — completion-gate AC counter mis-parses '>'-bearing inline comments (incomplete T-1967 fix), hard-blocks Human-AC review handoff
+
+# Key outcomes
+outcomes:
+  - 'Palette gains three typed-event entries (error / timer / message). Placing one creates a BPMN event node carrying an `aef:eventDef` extension marker (`kind` ∈ `error|timer|message`) plus its AEF binding (error→`status:issues`, timer→cron/`horizon`, message→bus topic). No native `bpmn:*EventDefinition` is emitted as the primary encoding (IW-1: aef:-extension shape). <!-- step 2: palette section + dims/fields/ports/render/icons/defaultName; placement verified via Playwright (docs/reports/T-204-slice1-visual/) -->'
+  - '`buildBpmnXml(state)` serializes each typed event as `<bpmn:*Event>` + `<extensionElements><aef:eventDef …/></>`; the editor re-imports losslessly (export→import→export is stable for the eventDef fields). <!-- step 1 data path; proven by tests/test_typed_events.py (correctness+BITE) + round-trip fixed point -->'
+  - '`tools/yaml-to-bpmn.py` bridge parity: `aef:eventDef` fields ride the `aef:`/`x-` passthrough channel per the T-061 contract (bare unknown still drops loudly). Existing `tests/test_bridge_aef_passthrough.py` stays green + a new assertion covers `eventDef`. <!-- step 3: TYPE_MAP + EVENT_KIND/EVENT_BINDING_FIELD + <aef:eventDef> emit branch (keyed on node type) + binding scalars in KNOWN_AEF_KEYS; new check_eventdef() asserts all 3 kinds; full bridge suite 34/0 -->'
+  - 'One mapping-standard row per typed event added on the T-081 collapsed-subProcess carrier (editor and forward-compiler agree). <!-- step 3: row added to BOTH docs/standards/aef-bpmn-mapping-v1.md §3 (editor-side) AND docs/standards/aef-bpmn-forward-compile-v1.md §3.1 (compiler-side), each enumerating error/timer/message + bindings; conformance test green. See Evolution for the "one family row" interpretation. -->'
+  - 'A typed event attaches to a host node''s boundary via an additive `aef` field set (`hostRef` uid + `boundaryPos` + `interrupting`), serialized as `<bpmn:boundaryEvent attachedToRef=…>` + `aef:eventDef`, round-tripping losslessly (reuses the `aef:scopeOf`/`aef:constituents` node→node ref precedent, T-081). <!-- step 1 data path: export tag/attrs (boundaryEvent + attachedToRef + cancelActivity) + boundaryPos presentational element + inspector fields (hostRef/boundaryPos/interrupting) + import (nodeTags + attachedToRef→hostRef post-pass resolution). Proven by boundary-events.bpmn round-trip (7 nodes, byte-idempotent, hostRef/interrupting teeth in proj) + boundary correctness+BITE in _typed-events-cdp.mjs (real boundaryEvent tag + both cancelActivity values). -->'
+  - 'Host-follow: moving a host moves its boundary events (reuses `groupDrag` ~5493); a boundary-origin edge anchors via the T-168 port machinery. <!-- DONE (both halves). Host-follow ✓ — delivered for FREE by the step-2 render-sync: both the single-node drag (renderNodes at ~5639) and groupDrag (~5662) call renderNodes() every frame, and renderNodes()→syncBoundaryPositions() re-derives each boundary event''s x/y from host.x. Confirmed via Playwright: shifting the host by (+180,+40) moved BOTH boundary events by exactly (+180,+40). PORT HALF ✓ (step 3) — boundaryOutwardPort(node,host) returns the host-edge outward NORMAL (N/E/S/W) derived from the SAME boundaryPos perimeter walk as boundaryPerimeterPoint (deterministic; a centre-to-centre heuristic ties and picks the wrong axis at corners). renderEdges pins a boundary-origin edge''s source anchor to that port (auto source only — an explicit pin still wins) via a local srcPortEff, threaded through anchor + exitDirection + straighten-skip. So the edge EXITS the perimeter away from the host body instead of the default centre-toward-target anchor that can cross the host — proven on the hard case (n_btmr, a TOP-edge boundary whose handler is BELOW: exits N and routes AROUND, not down through the host). Also fixed a latent one-frame bug: renderAll runs renderEdges BEFORE renderNodes, so syncBoundaryPositions was hoisted to renderAll ahead of renderEdges (kept in renderNodes too for the drag path). Teeth: new PORT_ASSERT_EXPR in _typed-events-cdp.mjs asserts source-anchor==outward-port AND polyline-never-crosses-host for both boundary edges. Visual: docs/reports/T-204-slice2-visual/boundary-ports.png. Optional refinement NOT done: drag-a-boundary-event-along-the-perimeter to set boundaryPos (still a text field) + boundary-label placement polish — de-scoped to follow-ups (see Evolution). -->'
+  - 'Boundary event renders at a host-relative perimeter point (contained new branch in `renderNodes` ~2354), not at free `x/y`. <!-- step 2: syncBoundaryPositions() derives each attached event''s x/y from boundaryPerimeterPoint(host, boundaryPos) at the top of renderNodes (default bottom-centre); the typed-event render branch adds the BPMN double ring (dashed outer ring = non-interrupting). Visually verified — docs/reports/T-204-slice2-visual/boundary-on-host.png: error event straddles the host bottom edge (solid double ring), timer straddles the top edge (dashed outer ring); both host-relative. Known cosmetic follow-up: boundary-event LABELS can overlap the host label (intrinsic to boundary/host overlap) — placement polish, not a functional defect. -->'
+  - 'Round-trip guards T-187/T-188, export-contract T-202, and render gate `tests/test_designer_render.py` all stay green; a new test asserts the typed-event export→import→export round-trip and the `aef:eventDef` serialization. <!-- verified post step-2: render gate PASS, export-contract PASS, round-trip fixed point PASS, full bridge suite 34/0, test_typed_events.py PASS -->'
+  - '[REVIEW] Typed-event nodes render correctly in the served designer across visual modes.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'register G-009 — completion-gate AC counter mis-parses ''>''-bearing inline comments (incomplete T-1967 fix), hard-blocks Human-AC review handoff'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+  - decision: '2026-07-19 — NODE_IO for typed events'
+    chose: '`eventError/eventTimer/eventMessage` → `{ in: false, out: false }` (no typed-data I/O panel in the inspector).'
+    rationale: 'typed intermediate events are trigger/signal nodes — their semantic content is the `aef:eventDef` binding (status:issues / cron / bus topic), not a typed data contract flowing between steps. Sequence-flow in/out is handled by the edge machinery independent of `NODE_IO` (which only gates the I/O panel, per its single consumer at renderProperties). Adding an I/O list would create untested round-trip surface for no modelling gain.'
+    alternatives_rejected: ['mirroring `linkEventCatch {in:false,out:true}` — would offer an Outputs list implying the event carries a typed payload into the flow; not true for these framework-trigger events, and would need its own round-trip coverage.']
+  - decision: '2026-07-19 — Palette section label "Typed events"'
+    chose: 'label the new palette section **"Typed events"** (not "Events").'
+    rationale: 'the palette already has an "Events" section (Start/End). Two sections both rendering as uppercased "EVENTS" is confusing (caught in visual verification). "Typed events" matches the task/feature vocabulary and disambiguates.'
+    alternatives_rejected: ['"Events" (collision); "Intermediate events" (accurate but longer and leaks BPMN jargon the rest of the palette avoids).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - 'docs/reports/T-204-slice1-visual/canvas-default.png'
+  - 'docs/reports/T-204-slice1-visual/canvas-labelsize-l.png'
+  - 'docs/reports/T-204-slice1-visual/canvas-labelsize-s.png'
+  - 'docs/reports/T-204-slice1-visual/full-palette-inspector.png'
+  - 'docs/reports/T-204-slice1-visual/palette-typed-events.png'
+  - 'docs/reports/T-204-slice2-visual/boundary-on-host.png'
+  - 'docs/reports/T-204-slice2-visual/boundary-ports.png'
+  - 'docs/standards/aef-bpmn-forward-compile-v1.md'
+  - 'docs/standards/aef-bpmn-mapping-v1.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-204-typed-bpmn-event-palette-errortimermessa.md'
+  - 'tests/fixtures/aef-bpmn/boundary-events.bpmn'
+  - 'tests/test_bridge_aef_passthrough.py'
+  - 'tools/_roundtrip-serialization-cdp.mjs'
+  - 'tools/_typed-events-cdp.mjs'
+  - 'tools/yaml-to-bpmn.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-18T21:44:05"
+    action: "T-204: open typed-event palette build (two-slice) — authorized by T-190 GO"
+  - time: "2026-07-18T21:49:48"
+    action: "T-204: bank Slice 1 anchor map + design decisions (pre-edit research, C-001)"
+  - time: "2026-07-19T10:11:45"
+    action: "T-204: Slice 1 step 1 evolution note (data path done; steps 2-4 remain)"
+  - time: "2026-07-19T16:15:50"
+    action: "T-204: Slice 1 step 2 — typed-event visual surface (palette + glyphs + inspector)"
+  - time: "2026-07-19T17:39:50"
+    action: "T-204: Slice 1 step 3 — bridge parity + mapping-standard rows (Slice 1 agent-complete)"
+  - time: "2026-07-19T20:24:01"
+    action: "T-204: Slice 2 step 1 — boundary-event data path (attach + serialize + round-trip)"
+  - time: "2026-07-19T20:29:28"
+    action: "T-204: Slice 2 step 2 — host-relative boundary render (perimeter + double ring)"
+  - time: "2026-07-19T20:32:00"
+    action: "T-204: Slice 2 — host-follow confirmed free (render-sync); only T-168 ports remain"
+  - time: "2026-07-19T21:12:50"
+    action: "T-204: Slice 2 step 3 — boundary-origin edges exit host perimeter via T-168 ports"
+  - time: "2026-07-19T21:18:52"
+    action: "T-204: register G-009 — completion-gate AC counter mis-parses '>'-bearing inline comments (incomplete T-1967 fix), hard-blocks Human-AC review handoff"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 10 commit(s), 15597 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [typed-events, editor, bridge, aef, arc, feature]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 15597
+  commits: 10
+  files_changed: 17
+  lines_added: 1120
+  lines_removed: 37
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-204-typed-bpmn-event-palette-errortimermessa.md
+generated_by: context-agent-hybrid

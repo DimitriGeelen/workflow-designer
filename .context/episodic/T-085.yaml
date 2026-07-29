@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-085: View density + label visibility/size controls in editor settings
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:11Z
+# ============================================================================
+
+task_id: T-085
+task_name: "View density + label visibility/size controls in editor settings"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T14:04:33Z
+completed: 2026-07-04T21:54:23Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-04T23:54:23+02:00
+last_commit: 2026-07-04T23:54:23+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  View density + label visibility/size controls — density scales tidy/snap row pitch (67/67 lanes), per-class label toggles, S/M/L label size, all measured and render-only
+
+# Key outcomes
+outcomes:
+  - 'Density pref (`viewPrefs.density`: tight/normal/wide, default normal, localStorage `aefViewPrefs`) scales the effective row pitch (~72/96/125 model px); `laneRowYs`, `tidyLane`, drag row-snap, and the lane inspector row count all follow the scaled pitch. Browser evidence: a tall lane reports more rows at tight than at wide; tidy of the same lane yields different row Ys per density. Stored node geometry is NOT mutated by changing the pref alone.'
+  - 'Per-class visibility toggles (default all shown, persisted): lane labels, node id badges, edge labels (text + data-elr halo), pool-header title. Toggling off removes only those text/halo elements on re-render — lane header band, pool band, and all geometry unchanged. Browser evidence: selector counts drop to 0 for the hidden class and return on re-enable; other classes unaffected.'
+  - 'Global label size S/M/L (default M, persisted) scales `.node-label` and lane-label font size via a root attribute + CSS; render passes re-run so lane-fit ladder, edge-label placement, and badge halos are re-measured at the new size (halos still contain their text bboxes at S and L).'
+  - 'Settings modal gains the new controls; `syncSettingsUI` syncs all of them; listeners apply immediately (re-render); Reset restores density normal, all classes shown, size M, laneFit on.'
+  - 'Rendering-only for visibility/size: editor XML build stability x1===x2 (with renderAll interleaved) with labels hidden and size L active; zero serialization-function lines in the diff.'
+  - 'All suites green (bridge 31, validator 34, parity x6, geometry sweep 24 clean); gallery copy synced (diff -q clean).'
+  - 'Visual verification: element screenshots — settings modal with new controls, a map with id badges + edge labels hidden, same map at size L, a tidied lane at tight vs wide — read and inspected; no clipped/overlapping artifacts introduced.'
+  - '[REVIEW] View controls feel right on real maps'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-04 — Density scales the row-pitch heuristic, never stored geometry'
+    chose: '`viewPrefs.density` scales `rowPitch()` consumed by laneRowYs (and thus tidy, drag row-snap, lane inspector). Changing the pref moves nothing; tidy remains the explicit, human-triggered mutation that adopts the new pitch.'
+    rationale: 'A view preference that silently re-layouts the document would violate the render-only seam (same discipline as T-084''s rejected lane auto-grow) and make the toggle destructive.'
+    alternatives_rejected: ['Re-layout on density change (mutates document from a settings toggle); scaling default lane heights (deferred later slice per operator scoping).']
+  - decision: '2026-07-04 — Visibility hides text, never bands'
+    chose: 'Toggles remove only text/halo elements (lane label text, id badge text, edge label + data-elr halo, pool title). Lane header band and pool band always render.'
+    rationale: 'The bands are interaction affordances (lane click target, resize grip anchor) and structural landmarks; hiding them would change hit-geometry, not just ink.'
+    alternatives_rejected: ['Collapsing the 60px lane header / 32px pool header when hidden — that is geometry, shifts every lane, and belongs to a layout feature, not a label toggle.']
+  - decision: '2026-07-04 — Label size via CSS keyed off svg[data-lsize]; ladder steps moved to inline style'
+    chose: 'S/M/L as CSS rules on a root data attribute; the lane-fit ladder''s explicit shrink steps switched from font-size ATTRIBUTE to inline STYLE so measured shrink always beats both `.lane-label` and the size rules.'
+    rationale: 'SVG presentation attributes lose to any CSS rule — probe confirmed a `font-size="8px"` attribute computes to 10px under `.lane-label` while `style="font-size:8px"` computes to 8px. This also uncovered that T-084''s shrink tier had been a silent no-op (registered as T-088).'
+    alternatives_rejected: ['Per-element font-size attributes for the size pref (defeated by class CSS); duplicating three sized class variants (rule explosion).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-085-view-density--label-visibilitysize-contr.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T23:54:23"
+    action: "T-085: View density + label visibility/size controls — density scales tidy/snap row pitch (67/67 lanes), per-class label toggles, S/M/L label size, all measured and render-only"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 469 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 469
+  commits: 1
+  files_changed: 3
+  lines_added: 204
+  lines_removed: 58
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-085-view-density--label-visibilitysize-contr.md
+generated_by: context-agent-hybrid

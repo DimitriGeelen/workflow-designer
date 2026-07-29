@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-099: Clean layout on import: opt-in setting applies Clean once when a file is opened
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:42:34Z
+# ============================================================================
+
+task_id: T-099
+task_name: "Clean layout on import: opt-in setting applies Clean once when a file is opened"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T10:16:49Z
+completed: 2026-07-29T15:39:12Z
+duration_days: 24
+updates_count: 2
+first_commit: 2026-07-05T12:30:12+02:00
+last_commit: 2026-07-05T12:30:12+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Clean-on-import setting — opt-in (off default) runs Clean once on user file-open/deep-link; programmatic adoption untouched (PD-044 verified 24/24), Ctrl+Z restores raw layout
+
+# Key outcomes
+outcomes:
+  - '`viewPrefs.cleanOnImport` (boolean, default false, localStorage-validated) + settings View row "Clean layout when opening a file" (checkbox + hint), synced in `syncSettingsUI()`, reset to false by Reset-to-defaults. Evidence: src/aef-workflow-designer.html (viewPrefs init, `set-clean-on-import` markup/handler/reset)'
+  - '`adoptImportedXml(text, opts)` gains `opts.userImport`; ONLY the file-picker (`btn-load`) and `?load=` call sites pass it; when set AND pref on, `cleanLayout()` runs once after adoption with shared `flashCleanFeedback()` ("Cleaned N nodes — Ctrl+Z reverts"); single Ctrl+Z restores raw layout (verified `undoTidy()` → geometry == raw file)'
+  - 'Programmatic adoption unaffected: `adoptImportedXml(xml)` without opts never cleans even with pref ON — verified across all 24 corpus maps, 0 nodes moved (programmaticMutated: [])'
+  - 'Live check: pref ON + `?load=rendered/task-lifecycle.bpmn` opens pre-cleaned (15 nodes moved, geometry byte-equal to manual load+Clean); pref OFF equals the raw file exactly (off_equals_raw: true, on_equals_manual_clean: true, undo_restores_raw: true)'
+  - 'Suites pass (bridge 31/31, validator 34/34, corpus 24 clean, parity OK); gallery copy identical'
+  - 'Screenshots READ: settings row (`.playwright-mcp/t099-settings-clean-on-import.png`), cleaned-on-load (`t099-tasklifecycle-cleaned-on-load.png`)'
+  - '[REVIEW] Clean-on-import feels right'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.playwright-mcp/t099-settings-clean-on-import.png'
+  - '.playwright-mcp/t099-tasklifecycle-cleaned-on-load.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-099-clean-layout-on-import-opt-in-setting-ap.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T12:30:12"
+    action: "T-099: Clean-on-import setting — opt-in (off default) runs Clean once on user file-open/deep-link; programmatic adoption untouched (PD-044 verified 24/24), Ctrl+Z restores raw layout"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 34882 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 34882
+  commits: 1
+  files_changed: 4
+  lines_added: 243
+  lines_removed: 6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-099-clean-layout-on-import-opt-in-setting-ap.md
+generated_by: context-agent-hybrid

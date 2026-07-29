@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-165: Open this version action in the Versions modal
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:31Z
+# ============================================================================
+
+task_id: T-165
+task_name: "Open this version action in the Versions modal"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-09T23:05:56Z
+completed: 2026-07-09T23:08:17Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-10T01:08:05+02:00
+last_commit: 2026-07-10T01:08:17+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Add '⤢ Open' action (non-destructive load-in-place) to the Versions modal. Finalize — agent ACs verified, partial-complete (human REVIEW), GO
+
+# Key outcomes
+outcomes:
+  - 'Each Versions-modal row has an **⤢ Open** button alongside **↩ Revert**; clicking Open loads that version''s XML into the editor in place, sets the loaded-version badge to vN, closes the modal, and shows an "Opened" toast (distinct wording from Revert). *(verified: 4 Open + 4 Revert buttons for arc-lifecycle v4–v1; Open v2 → badge "🕘 v2", modal closed)*'
+  - 'Revert behaviour is unchanged (still present, still loads + toasts "Reverted"). *(revertToVersion untouched; 4 Revert buttons still render)*'
+  - '`openVersionInPlace(id, v)` handles a failed `/api/version` fetch the same way revert does (alert, no crash). *(mirrors revert: `if (!res.ok) { alert(...); return; }` + try/catch)*'
+  - 'src↔build mirror invariant holds: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`. *(MIRROR-OK)*'
+  - 'Playwright: open the Versions modal → click ⤢ Open on a non-latest version → the editor loads that version (verified: loaded-version badge = vN, node count matches that version), modal closed; 0 console errors; element screenshot READ. *(Open v2 → badge "🕘 v2", 14 nodes, modal closed; .playwright-mcp/t165-open-revert.png read; 0 console errors)*'
+  - '[REVIEW] Open vs Revert reads clearly'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-165-open-this-version-action-in-the-versions.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-10T01:08:05"
+    action: "T-165: Add '⤢ Open' action (non-destructive load-in-place) to the Versions modal"
+  - time: "2026-07-10T01:08:17"
+    action: "T-165: Finalize — agent ACs verified, partial-complete (human REVIEW), GO"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 2
+  files_changed: 2
+  lines_added: 208
+  lines_removed: 6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-165-open-this-version-action-in-the-versions.md
+generated_by: context-agent-hybrid

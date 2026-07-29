@@ -1,0 +1,94 @@
+# ============================================================================
+# EPISODIC MEMORY - T-097: Crossing-aware branch ordering: order fan/join corridor edges by target-y
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:42:32Z
+# ============================================================================
+
+task_id: T-097
+task_name: "Crossing-aware branch ordering: order fan/join corridor edges by target-y"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T09:37:29Z
+completed: 2026-07-29T15:39:12Z
+duration_days: 24
+updates_count: 4
+first_commit: 2026-07-05T11:59:23+02:00
+last_commit: 2026-07-05T11:59:23+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Crossing-aware branch ordering — fan/join siblings get ordered anchor spread + per-rank corridor channels (effective-departure sort); ambiguous overlap bundles 104->7 corpus-wide, no map worse on combined badness, PD-044 byte-stable
+
+# Key outcomes
+outcomes:
+  - 'Render-time channel pass: sibling edges sharing a fan/join node side are ranked by effective departure (natural-route first turn, computed in `buildEdgeGroups()`) and separated via ordered anchor spread (middle mode, `CHANNEL_PITCH` 8px) plus per-rank stub-length channels (`channelExtra` → clamped stub extension in `routeOrthogonalSegment`) — same-block branch edges fan in parallel channels. Evidence: `channelExtra()`, `spreadOffset()` middle-mode spread, effective-key sort in `buildEdgeGroups()`, all in src/aef-workflow-designer.html'
+  - 'Corridor bundle overlap drops materially on the worst maps (metric correction: the T-092 "crossings" are collinear overlap pairs — different edges sharing a line ≥8px; proper intersections were only 21 corpus-wide). Result: corpus 104 → 7 pairs; harvest-pipeline 27 → 5, audit-process 22 → 1, error-escalation-ladder 10 → 0, task-lifecycle 7 → 0'
+  - 'No map gets worse on combined edge badness (overlap pairs + proper crossings) nor on node-cuts (PD-030). Result: every map improves or stays 0 on the combined metric (corpus 125 → 27); node-cuts per-map identical (25 → 25). Proper crossings alone rose on 2 maps (eel 2→4, task-lifecycle 2→3) because formerly-overlaid bundles became visible braids — see Decisions'
+  - 'PD-044 holds: loading each corpus map and rendering leaves `buildBpmnXml(state)` byte-identical — verified all 24 maps, mutated: []'
+  - 'Pass respects existing overrides: edges with manual waypoints, routing hints, or detourY are excluded from both channel extension (`hasRouteOverride` in the render loop) and middle-mode spread (guard in `spreadOffset`); ordering keys honour user detours (natural route computed with `routingHints`/`detourY`)'
+  - 'Existing test suites pass: bridge 31/31, validator 34/34, corpus geometry 24 clean, editor↔bridge parity OK; build/gallery/designer.html identical copy'
+  - 'Screenshots of audit-process, harvest-pipeline, error-escalation-ladder, task-lifecycle taken and READ (`.playwright-mcp/t097-*.png`): fan/join tangles resolved into ordered parallel bundles; converted braid crossings traceable; no new visual regression'
+  - '[REVIEW] Fan/join corridors read cleanly — branch edges fan out in parallel channels instead of a crossing tangle'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-05 — Stub-length channels alone don''t work; ordering + anchor spread are one mechanism'
+    chose: 'Combine per-rank stub extension with ordered anchor spread in middle-attach mode (8px pitch), instead of shipping stub channels alone.'
+    rationale: 'First iteration (stub channels only) left overlap pairs at 104/104 — the dominant overlap is the shared-anchor approach segment, which only anchor separation can fix. Survey options 2 and 10 are inseparable; T-098 will expose the pitch as the option-2 setting.'
+    alternatives_rejected: ['Anchor spread alone (leaves T2 legs collinear at the shared stub x).']
+  - decision: '2026-07-05 — Order by effective departure, not far-anchor position'
+    chose: 'Sort fan siblings by the natural route''s first turn (`polyline[2]`: mid-bar y for T2, detour y for loop-overs, anchor y for straight runs), computed once inside the cached `buildEdgeGroups()`.'
+    rationale: 'Far-anchor ordering fanned context-memory''s g_capture wrong (+2 crossings): two same-row targets route via loop-over (blocked corridor) while one goes straight — the effective departure differs from where the target sits. Effective-key ordering restored the baseline (4).'
+    alternatives_rejected: ['Two-pass rendering with previous-frame polylines (frame-order dependent); pre-computing loop decisions ad hoc (duplicates router logic).']
+  - decision: '2026-07-05 — Accept overlap→visible-crossing conversion; guard on combined metric'
+    chose: 'Amend the no-map-worse AC from per-metric to combined badness (overlap pairs + proper crossings) plus node-cuts.'
+    rationale: 'eel +2 and task-lifecycle +1 proper crossings are formerly-overlaid bundles becoming visible braids — e.g. task-lifecycle''s ready↔authoring bidirectional pair between diagonally-offset nodes must topologically cross once; the baseline hid it by drawing both arrows on the same line (unreadable, counted as overlap not crossing). Combined metric: every map improves or stays 0 (corpus 125 → 27); screenshots READ confirm the braids are traceable.'
+    alternatives_rejected: ['Loop-detour nesting and opposite-pair braiding heuristics to zero the 3 residual conversions — high complexity/regression risk for crossings that are topologically forced; remaining 7 overlap pairs are loop-overs sharing detour corridors = survey option 3 (routing margin, Phase C) scope.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - '.playwright-mcp/t097-audit-after.png'
+  - '.playwright-mcp/t097-eel-after.png'
+  - '.playwright-mcp/t097-harvest-after.png'
+  - '.playwright-mcp/t097-tasklifecycle-after.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-097-crossing-aware-branch-ordering-order-fan.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T11:59:23"
+    action: "T-097: Crossing-aware branch ordering — fan/join siblings get ordered anchor spread + per-rank corridor channels (effective-departure sort); ambiguous overlap bundles 104->7 corpus-wide, no map worse on combined badness, PD-044 byte-stable"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 34921 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 34921
+  commits: 1
+  files_changed: 7
+  lines_added: 341
+  lines_removed: 9
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-097-crossing-aware-branch-ordering-order-fan.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,314 @@
+# ============================================================================
+# EPISODIC MEMORY - T-214: Pair-draft session/handover corpus diagram in canonical dialect (AEF arc-014)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:42:37Z
+# ============================================================================
+
+task_id: T-214
+task_name: "Pair-draft session/handover corpus diagram in canonical dialect (AEF arc-014)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-19T20:51:06Z
+completed: 2026-07-29T15:39:36Z
+duration_days: 10
+updates_count: 2
+first_commit: 2026-07-19T23:01:12+02:00
+last_commit: 2026-07-29T17:08:26+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Pair-draft session/handover corpus diagram (AEF arc-014). Session handover S-2026-0719-2302. Session handover S-2026-0719-2314. Session handover S-2026-0719-2344. Session handover S-2026-0721-0947. Session handover S-2026-0721-0956. Session handover S-2026-0721-1034. Session handover S-2026-0721-1454. Session handover S-2026-0721-1525. Session handover S-2026-0721-1526. Session handover S-2026-0721-1954. Session handover S-2026-0721-1957. Session handover S-2026-0721-2011. Session handover S-2026-0721-2125. Session handover S-2026-0721-2129. Session handover S-2026-0721-2206. Session handover S-2026-0721-2249. Session handover S-2026-0721-2320. Session handover S-2026-0721-2351. Session handover S-2026-0722-0002. Session handover S-2026-0722-0013. Session handover S-2026-0722-0130. Session handover S-2026-0722-0701. Session handover S-2026-0722-0702. Session handover S-2026-0722-0708. Session handover S-2026-0722-0744. Session handover S-2026-0722-0848. enrich handover S-2026-0722-0848 — session decisions + arc-correct first action (T-234 root fix, then T-235 exemplar). Session handover S-2026-0722-1156. enrich handover — NO-REC sweep session note + arc-correct first action. Session handover S-2026-0722-1212. Session handover S-2026-0722-1304. enrich handover S-2026-0722-1304 — arc-correct first action (T-235 claim early, not T-125) + session note (T-234+T-237 landed, 0.3.1 content complete). Session handover S-2026-0722-1949. Session handover S-2026-0722-2028. enrich handover S-2026-0722-2028 — arc-correct first action (arc operator-gated: S4 loop closed at rail 160/161, do NOT pick T-125; operator queue = 0.3.1 tag / T-213 / T-228 REVIEW). Session handover S-2026-0722-2325. Session handover S-2026-0723-0905. Session handover S-2026-0723-1032. Session handover S-2026-0725-1647. Session handover S-2026-0725-1651. Session handover S-2026-0726-1707. Session handover S-2026-0726-1713. Session handover S-2026-0726-1715. Session handover S-2026-0726-2222. Session handover S-2026-0727-1805. Session handover S-2026-0727-2001. Session handover S-2026-0727-2119. Session handover S-2026-0727-2123. Session handover S-2026-0727-2210. Session handover S-2026-0727-2329. task-file last_update timestamp churn from update tooling (2-line, no content). Session handover S-2026-0728-0018. Session handover S-2026-0728-0019. Session handover S-2026-0728-0024. Session handover S-2026-0728-0057. Session handover S-2026-0728-0108. Session handover S-2026-0728-0953. Session handover S-2026-0728-1020. Session handover S-2026-0728-1233. Session handover S-2026-0728-1913. Session handover S-2026-0728-1915. Session handover S-2026-0728-1958. Session handover S-2026-0728-2318. Session handover S-2026-0728-2319. Session handover S-2026-0729-0731. Session handover S-2026-0729-0757. Session handover S-2026-0729-0834. Session handover S-2026-0729-1435. Session handover S-2026-0729-1658. Session handover S-2026-0729-1708
+
+# Key outcomes
+outcomes:
+  - 'New fixture `tests/fixtures/aef-bpmn/session-handover.bpmn` authored in the canonical dialect (3 authority-typed lanes; every flow node has `aef:uid` + `aef:position`; every sequenceFlow has `aef:uid`)'
+  - 'It validates CLEAN under `tools/validate-workflow.py` (exit 0, no findings) — including the sovereignty O-3 rule (the human-only pickup node sits in the sovereignty lane)'
+  - 'It faithfully models the session lifecycle: Session Start (context inject) → focus → work → commit → gate → **budget exclusiveGateway** (continue back-edge vs wrap) → capture → handover → persist → end; with one human·sovereignty node (next-session pickup)'
+  - 'Fixture is well-formed XML and byte-stable (sha `d971a2fc…` recorded in the delivery); delivered to AEF rail-inline with its sha for their `fw bpmn` compile (rail offset 92)'
+  - '[REVIEW] The session/handover diagram reads faithfully in the designer UI (the pair-draft review step)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'enrich handover S-2026-0722-0848 — session decisions + arc-correct first action (T-234 root fix, then T-235 exemplar)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-28.yaml'
+  - '.context/audits/cron/2026-07-28-1915.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/handovers/LATEST.md'
+  - '.context/handovers/S-2026-0719-2302.md'
+  - '.context/handovers/S-2026-0719-2314.md'
+  - '.context/handovers/S-2026-0719-2344.md'
+  - '.context/handovers/S-2026-0721-0947.md'
+  - '.context/handovers/S-2026-0721-0956.md'
+  - '.context/handovers/S-2026-0721-1034.md'
+  - '.context/handovers/S-2026-0721-1454.md'
+  - '.context/handovers/S-2026-0721-1525.md'
+  - '.context/handovers/S-2026-0721-1526.md'
+  - '.context/handovers/S-2026-0721-1954.md'
+  - '.context/handovers/S-2026-0721-1957.md'
+  - '.context/handovers/S-2026-0721-2011.md'
+  - '.context/handovers/S-2026-0721-2125.md'
+  - '.context/handovers/S-2026-0721-2129.md'
+  - '.context/handovers/S-2026-0721-2132.md'
+  - '.context/handovers/S-2026-0721-2206.md'
+  - '.context/handovers/S-2026-0721-2249.md'
+  - '.context/handovers/S-2026-0721-2320.md'
+  - '.context/handovers/S-2026-0721-2351.md'
+  - '.context/handovers/S-2026-0722-0002.md'
+  - '.context/handovers/S-2026-0722-0013.md'
+  - '.context/handovers/S-2026-0722-0130.md'
+  - '.context/handovers/S-2026-0722-0701.md'
+  - '.context/handovers/S-2026-0722-0702.md'
+  - '.context/handovers/S-2026-0722-0708.md'
+  - '.context/handovers/S-2026-0722-0744.md'
+  - '.context/handovers/S-2026-0722-0746.md'
+  - '.context/handovers/S-2026-0722-0848.md'
+  - '.context/handovers/S-2026-0722-1156.md'
+  - '.context/handovers/S-2026-0722-1212.md'
+  - '.context/handovers/S-2026-0722-1304.md'
+  - '.context/handovers/S-2026-0722-1949.md'
+  - '.context/handovers/S-2026-0722-2028.md'
+  - '.context/handovers/S-2026-0722-2325.md'
+  - '.context/handovers/S-2026-0723-0905.md'
+  - '.context/handovers/S-2026-0723-1032.md'
+  - '.context/handovers/S-2026-0725-1647.md'
+  - '.context/handovers/S-2026-0725-1651.md'
+  - '.context/handovers/S-2026-0726-1707.md'
+  - '.context/handovers/S-2026-0726-1713.md'
+  - '.context/handovers/S-2026-0726-1715.md'
+  - '.context/handovers/S-2026-0726-2222.md'
+  - '.context/handovers/S-2026-0727-1805.md'
+  - '.context/handovers/S-2026-0727-2001.md'
+  - '.context/handovers/S-2026-0727-2119.md'
+  - '.context/handovers/S-2026-0727-2123.md'
+  - '.context/handovers/S-2026-0727-2210.md'
+  - '.context/handovers/S-2026-0727-2329.md'
+  - '.context/handovers/S-2026-0728-0018.md'
+  - '.context/handovers/S-2026-0728-0019.md'
+  - '.context/handovers/S-2026-0728-0024.md'
+  - '.context/handovers/S-2026-0728-0057.md'
+  - '.context/handovers/S-2026-0728-0108.md'
+  - '.context/handovers/S-2026-0728-0953.md'
+  - '.context/handovers/S-2026-0728-1020.md'
+  - '.context/handovers/S-2026-0728-1233.md'
+  - '.context/handovers/S-2026-0728-1913.md'
+  - '.context/handovers/S-2026-0728-1915.md'
+  - '.context/handovers/S-2026-0728-1958.md'
+  - '.context/handovers/S-2026-0728-2318.md'
+  - '.context/handovers/S-2026-0728-2319.md'
+  - '.context/handovers/S-2026-0729-0731.md'
+  - '.context/handovers/S-2026-0729-0757.md'
+  - '.context/handovers/S-2026-0729-0834.md'
+  - '.context/handovers/S-2026-0729-1435.md'
+  - '.context/handovers/S-2026-0729-1658.md'
+  - '.context/handovers/S-2026-0729-1708.md'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/gallery-8834.log'
+  - '.context/working/.gate-bypass-log.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.reviewed-T-214'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-214-pair-draft-sessionhandover-corpus-diagra.md'
+  - '.tasks/active/T-234-030-jump-autosave-poisoning-bug--post-ju.md'
+  - '.tasks/active/T-237-eventdeflinkeventcatch-vocabulary-collis.md'
+  - '.tasks/active/T-264-save-target-guard-set-id-field-collision.md'
+  - '.tasks/completed/T-216-byte-pin-guard-for-delivered-corpus-fixt.md'
+  - '.tasks/completed/T-251-canvas-navigation-build-zoom-controls--c.md'
+  - '.tasks/completed/T-260-cut-designer-release-070-t-259-eventdef-.md'
+  - 'tests/fixtures/aef-bpmn/session-handover.bpmn'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-19T23:01:12"
+    action: "T-214: Pair-draft session/handover corpus diagram (AEF arc-014)"
+  - time: "2026-07-19T23:02:06"
+    action: "T-214: Session handover S-2026-0719-2302"
+  - time: "2026-07-19T23:14:38"
+    action: "T-214: Session handover S-2026-0719-2314"
+  - time: "2026-07-19T23:44:46"
+    action: "T-214: Session handover S-2026-0719-2344"
+  - time: "2026-07-21T09:47:21"
+    action: "T-214: Session handover S-2026-0721-0947"
+  - time: "2026-07-21T09:56:51"
+    action: "T-214: Session handover S-2026-0721-0956"
+  - time: "2026-07-21T10:34:45"
+    action: "T-214: Session handover S-2026-0721-1034"
+  - time: "2026-07-21T14:55:04"
+    action: "T-214: Session handover S-2026-0721-1454"
+  - time: "2026-07-21T15:25:10"
+    action: "T-214: Session handover S-2026-0721-1525"
+  - time: "2026-07-21T15:26:27"
+    action: "T-214: Session handover S-2026-0721-1526"
+  - time: "2026-07-21T19:54:23"
+    action: "T-214: Session handover S-2026-0721-1954"
+  - time: "2026-07-21T19:57:48"
+    action: "T-214: Session handover S-2026-0721-1957"
+  - time: "2026-07-21T20:11:25"
+    action: "T-214: Session handover S-2026-0721-2011"
+  - time: "2026-07-21T21:25:12"
+    action: "T-214: Session handover S-2026-0721-2125"
+  - time: "2026-07-21T21:29:15"
+    action: "T-214: Session handover S-2026-0721-2129"
+  - time: "2026-07-21T22:07:01"
+    action: "T-214: Session handover S-2026-0721-2206"
+  - time: "2026-07-21T22:49:15"
+    action: "T-214: Session handover S-2026-0721-2249"
+  - time: "2026-07-21T23:20:08"
+    action: "T-214: Session handover S-2026-0721-2320"
+  - time: "2026-07-21T23:51:31"
+    action: "T-214: Session handover S-2026-0721-2351"
+  - time: "2026-07-22T00:02:37"
+    action: "T-214: Session handover S-2026-0722-0002"
+  - time: "2026-07-22T00:13:10"
+    action: "T-214: Session handover S-2026-0722-0013"
+  - time: "2026-07-22T01:30:13"
+    action: "T-214: Session handover S-2026-0722-0130"
+  - time: "2026-07-22T07:01:58"
+    action: "T-214: Session handover S-2026-0722-0701"
+  - time: "2026-07-22T07:02:28"
+    action: "T-214: Session handover S-2026-0722-0702"
+  - time: "2026-07-22T07:08:08"
+    action: "T-214: Session handover S-2026-0722-0708"
+  - time: "2026-07-22T07:44:39"
+    action: "T-214: Session handover S-2026-0722-0744"
+  - time: "2026-07-22T08:48:20"
+    action: "T-214: Session handover S-2026-0722-0848"
+  - time: "2026-07-22T08:50:02"
+    action: "T-214: enrich handover S-2026-0722-0848 — session decisions + arc-correct first action (T-234 root fix, then T-235 exemplar)"
+  - time: "2026-07-22T11:56:08"
+    action: "T-214: Session handover S-2026-0722-1156"
+  - time: "2026-07-22T11:57:09"
+    action: "T-214: enrich handover — NO-REC sweep session note + arc-correct first action"
+  - time: "2026-07-22T12:12:47"
+    action: "T-214: Session handover S-2026-0722-1212"
+  - time: "2026-07-22T13:04:38"
+    action: "T-214: Session handover S-2026-0722-1304"
+  - time: "2026-07-22T13:06:20"
+    action: "T-214: enrich handover S-2026-0722-1304 — arc-correct first action (T-235 claim early, not T-125) + session note (T-234+T-237 landed, 0.3.1 content complete)"
+  - time: "2026-07-22T19:49:23"
+    action: "T-214: Session handover S-2026-0722-1949"
+  - time: "2026-07-22T20:28:44"
+    action: "T-214: Session handover S-2026-0722-2028"
+  - time: "2026-07-22T20:30:06"
+    action: "T-214: enrich handover S-2026-0722-2028 — arc-correct first action (arc operator-gated: S4 loop closed at rail 160/161, do NOT pick T-125; operator queue = 0.3.1 tag / T-213 / T-228 REVIEW)"
+  - time: "2026-07-22T23:25:21"
+    action: "T-214: Session handover S-2026-0722-2325"
+  - time: "2026-07-23T09:06:05"
+    action: "T-214: Session handover S-2026-0723-0905"
+  - time: "2026-07-23T10:32:30"
+    action: "T-214: Session handover S-2026-0723-1032"
+  - time: "2026-07-25T16:47:20"
+    action: "T-214: Session handover S-2026-0725-1647"
+  - time: "2026-07-25T16:51:54"
+    action: "T-214: Session handover S-2026-0725-1651"
+  - time: "2026-07-26T17:07:56"
+    action: "T-214: Session handover S-2026-0726-1707"
+  - time: "2026-07-26T17:13:07"
+    action: "T-214: Session handover S-2026-0726-1713"
+  - time: "2026-07-26T17:15:46"
+    action: "T-214: Session handover S-2026-0726-1715"
+  - time: "2026-07-26T22:22:17"
+    action: "T-214: Session handover S-2026-0726-2222"
+  - time: "2026-07-27T18:05:59"
+    action: "T-214: Session handover S-2026-0727-1805"
+  - time: "2026-07-27T20:01:08"
+    action: "T-214: Session handover S-2026-0727-2001"
+  - time: "2026-07-27T21:20:00"
+    action: "T-214: Session handover S-2026-0727-2119"
+  - time: "2026-07-27T21:24:03"
+    action: "T-214: Session handover S-2026-0727-2123"
+  - time: "2026-07-27T22:10:58"
+    action: "T-214: Session handover S-2026-0727-2210"
+  - time: "2026-07-27T23:29:13"
+    action: "T-214: Session handover S-2026-0727-2329"
+  - time: "2026-07-27T23:29:51"
+    action: "T-214: Session handover S-2026-0727-2329"
+  - time: "2026-07-28T00:15:32"
+    action: "T-214: task-file last_update timestamp churn from update tooling (2-line, no content)"
+  - time: "2026-07-28T00:18:50"
+    action: "T-214: Session handover S-2026-0728-0018"
+  - time: "2026-07-28T00:20:02"
+    action: "T-214: Session handover S-2026-0728-0019"
+  - time: "2026-07-28T00:24:15"
+    action: "T-214: Session handover S-2026-0728-0024"
+  - time: "2026-07-28T00:57:53"
+    action: "T-214: Session handover S-2026-0728-0057"
+  - time: "2026-07-28T01:08:19"
+    action: "T-214: Session handover S-2026-0728-0108"
+  - time: "2026-07-28T09:53:53"
+    action: "T-214: Session handover S-2026-0728-0953"
+  - time: "2026-07-28T10:20:18"
+    action: "T-214: Session handover S-2026-0728-1020"
+  - time: "2026-07-28T12:33:11"
+    action: "T-214: Session handover S-2026-0728-1233"
+  - time: "2026-07-28T19:13:09"
+    action: "T-214: Session handover S-2026-0728-1913"
+  - time: "2026-07-28T19:26:13"
+    action: "T-214: Session handover S-2026-0728-1915"
+  - time: "2026-07-28T19:58:37"
+    action: "T-214: Session handover S-2026-0728-1958"
+  - time: "2026-07-28T23:18:38"
+    action: "T-214: Session handover S-2026-0728-2318"
+  - time: "2026-07-28T23:19:09"
+    action: "T-214: Session handover S-2026-0728-2319"
+  - time: "2026-07-29T07:31:48"
+    action: "T-214: Session handover S-2026-0729-0731"
+  - time: "2026-07-29T07:57:43"
+    action: "T-214: Session handover S-2026-0729-0757"
+  - time: "2026-07-29T08:34:36"
+    action: "T-214: Session handover S-2026-0729-0834"
+  - time: "2026-07-29T14:36:05"
+    action: "T-214: Session handover S-2026-0729-1435"
+  - time: "2026-07-29T16:58:30"
+    action: "T-214: Session handover S-2026-0729-1658"
+  - time: "2026-07-29T17:08:26"
+    action: "T-214: Session handover S-2026-0729-1708"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 72 commit(s), 14088 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 14088
+  commits: 72
+  files_changed: 93
+  lines_added: 29831
+  lines_removed: 709
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-214-pair-draft-sessionhandover-corpus-diagra.md
+generated_by: context-agent-hybrid

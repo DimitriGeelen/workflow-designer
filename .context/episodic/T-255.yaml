@@ -1,0 +1,97 @@
+# ============================================================================
+# EPISODIC MEMORY - T-255: Pool right-edge resize handle: authored page-width floor (mirror lane-height resize on the horizontal axis)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:42:40Z
+# ============================================================================
+
+task_id: T-255
+task_name: "Pool right-edge resize handle: authored page-width floor (mirror lane-height resize on the horizontal axis)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-26T19:49:17Z
+completed: 2026-07-29T15:39:39Z
+duration_days: 3
+updates_count: 2
+first_commit: 2026-07-26T22:05:05+02:00
+last_commit: 2026-07-26T22:08:37+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  pool right-edge resize — authored page-width floor (horizontal mirror of lane-height drag); pageWidth on aef:workflowMeta additive-only, floor inside contentRightEdge (T-043 preserved), window-level drag tracking w/ CTM-at-start mapping, T-132 undo; suite +t255-pool-width leg (real trusted input) 7/7, bridge 37/37, geometry 24, render gate PASS; 4 visual shots read. agent ACs 7/7 + P-011 6/6 green — partial-complete (human REVIEW: right-edge drag feel-check at /review/T-255); gallery :8834 serves this build sha-verified
+
+# Key outcomes
+outcomes:
+  - 'Dragging the new pool right-edge handle rightward grows the pool/page width; the authored width persists as `state.workflowMeta.pageWidth` and survives renderAll (same re-apply path as everything else: `contentRightEdge()` reads it) — Evidence: suite leg t255-pool-width probes w1 (real CDP drag +300px → pageWidth set, edge = POOL_X + pageWidth, nodes untouched) and w2 (renderAll → identical) PASS'
+  - 'Floor-not-replacement invariant: authored width can never crop content — with nodes past the authored edge, the pool still encloses rightmost node + margin (T-043 preserved); dragging the handle inward is clamped at the natural content edge and dragging to/inside it clears `pageWidth` (auto-fit restored, no attribute emitted) — Evidence: probe w4 (node pushed past authored edge → edge grew beyond it; restored after) and w5 (real inward drag → pageWidth null, edge back to natural, no attribute in export) PASS'
+  - 'Round-trip: `buildBpmnXml` emits `pageWidth` on `aef:workflowMeta` only when set (additive-only); import parses it back; export→import preserves the authored width; maps without the attribute behave byte-identically to today (no `pageWidth` in export of an untouched map) — Evidence: probe w0 (untouched map: no attribute) and w3 (attribute emitted when set; parseBpmnXml round-trip preserves value) PASS'
+  - 'One undo entry per resize gesture (T-132 pattern): Ctrl+Z after a resize restores the prior width — Evidence: probe w6 (undo() after the clearing drag restores the authored width) PASS'
+  - 'No regression to existing pointer interactions: rubber-band selection, node drag, lane-height resize, and T-251 zoom/pan legs all still green — full editor-behavior suite passes with a new t255-pool-width leg driving the handle via real CDP mouse events — Evidence: suite 7/7 legs PASS (jump-no-poison, same-map-edit-restore, t237-classification, t240-uuid-resolve, t245-view-chrome, t249-canvas-nav, t255-pool-width)'
+  - 'Standing gates green: bridge tests 37/37, corpus geometry 24 clean, render gate PASS — Evidence: bridge "37 passed, 0 failed" (one prior run had a chromium-startup flake in _typed-events-cdp.mjs — "webSocketDebuggerUrl of undefined" before page load; passed standalone and in full rerun, not a content failure); geometry "24 clean, 0 new-fail"; render gate "PASS: designer render-check (0.5.0)"'
+  - 'Visual verification: element-level screenshots of the handle (rest + during-drag highlight) and canvas before/after widen, read and confirmed (single dark theme — app is dark-only) — Evidence: see ## Visual Verification'
+  - '[REVIEW] Dragging the page''s right edge feels natural and useful'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-26 — resize tracking listener level'
+    chose: 'window-level mousemove (like the T-251 pan handlers), with client-px→svg-px conversion via the screen-CTM scale captured at drag START'
+    rationale: 'at fit zoom the pool''s right edge sits at the canvas-wrap boundary — any rightward drag leaves the svg immediately, so the svg-level mousemove (where lane resize lives) never fires; proven with an instrumented trusted-input probe (svg-mm absent, win-mm present). Live-CTM conversion would feed the drag''s own viewBox growth back into the mapping (accelerating resize); the captured scale keeps client↔svg mapping constant per gesture'
+    alternatives_rejected: ['svg-level mousemove (first implementation — failed the suite leg exactly this way); live clientToSvg per move (feedback loop)']
+  - decision: '2026-07-26 — persistence location and semantics'
+    chose: 'optional `pageWidth` attribute on `aef:workflowMeta` (pool-relative width, floor semantics inside contentRightEdge(), null = auto-fit, emitted only when set)'
+    rationale: 'mirrors the proven `aef:laneMeta height` round-trip and the `uuid` additive-only pattern — untouched maps export byte-identically, AEF''s parser ignores additions (zero seam surface); floor-not-replacement preserves the T-043 never-clip guarantee for every consumer of contentRightEdge()'
+    alternatives_rejected: ['BPMN DI bounds (the editor doesn''t emit a DI section at all today — inventing one for this is a far bigger contract change); a replacement width (could crop content, breaking T-043)']
+  - decision: '2026-07-26 — undo integration'
+    chose: 'pushHistory() at resize-gesture start (one undo entry per drag, T-132 pattern)'
+    rationale: 'node drags and Clean already do this; the XML snapshot now round-trips pageWidth so undo restores it structurally'
+    alternatives_rejected: ['strict parity with lane-height resize (which predates T-132 and records no history) — matching a known gap would spread it']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.playwright-mcp/t255-canvas-before.png'
+  - '.playwright-mcp/t255-canvas-cleared.png'
+  - '.playwright-mcp/t255-canvas-widened.png'
+  - '.playwright-mcp/t255-handle-active.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-255-pool-right-edge-resize-handle-authored-p.md'
+  - 'tools/_editor-behavior-verify-cdp.mjs'
+  - 'tools/_t255-visual-shots.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-26T22:05:05"
+    action: "T-255: pool right-edge resize — authored page-width floor (horizontal mirror of lane-height drag); pageWidth on aef:workflowMeta additive-only, floor inside contentRightEdge (T-043 preserved), window-level drag tracking w/ CTM-at-start mapping, T-132 undo; suite +t255-pool-width leg (real trusted input) 7/7, bridge 37/37, geometry 24, render gate PASS; 4 visual shots read"
+  - time: "2026-07-26T22:08:37"
+    action: "T-255: agent ACs 7/7 + P-011 6/6 green — partial-complete (human REVIEW: right-edge drag feel-check at /review/T-255); gallery :8834 serves this build sha-verified"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 4070 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4070
+  commits: 2
+  files_changed: 8
+  lines_added: 453
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-255-pool-right-edge-resize-handle-authored-p.md
+generated_by: context-agent-hybrid

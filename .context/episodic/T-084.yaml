@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-084: Lane-header ellipsis: truncate vertical lane names to lane height
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:10Z
+# ============================================================================
+
+task_id: T-084
+task_name: "Lane-header ellipsis: truncate vertical lane names to lane height"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T13:52:07Z
+completed: 2026-07-04T15:30:10Z
+duration_days: 0
+updates_count: 4
+first_commit: 2026-07-04T17:30:09+02:00
+last_commit: 2026-07-04T17:30:09+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Lane-header label-fit ladder (wrap -> shrink -> ellipsize+tooltip) — 25/67 overflowing lane labels now fit, settings toggle added
+
+# Key outcomes
+outcomes:
+  - 'A `fitLaneLabel()` ladder replaces the single rotated lane label: (1) wrap on ''·'' (fallback word) boundaries into two parallel vertical columns, balanced split; (2) shrink font 10 -> 9 -> 8px; (3) ellipsize at the 8px floor with the full name as an SVG <title> tooltip; lengths MEASURED via getComputedTextLength, never estimated'
+  - 'Corpus sweep: 0 lane labels overflow their lane (baseline 25 of 67); ladder tier usage recorded'
+  - 'Settings toggle: "Fit lane names" checkbox in the T-075 settings dialog (Labels section), persisted in localStorage (`aefLabelPrefs`), on by default, included in Reset-to-defaults; off restores the original single-line behaviour'
+  - 'Render-only: editor XML build STABLE (buildBpmnXml(parse(X)) === X) on context-memory + 2 controls with renderAll interleaved; lane geometry untouched'
+  - 'Suites green + gallery synced'
+  - 'Visual verification: lane-header screenshots read and inspected — two-column wraps sit inside their lanes, correct reading order (first column left), no bleed into neighbours'
+  - '[REVIEW] Lane names read naturally in the header strip across the corpus'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-04 — Ladder order: wrap before shrink before ellipsize'
+    chose: 'Try the balanced two-column wrap at full size first; only shrink (9 -> 8px) when wrapping alone cannot fit; ellipsize only at the floor, with the full name as <title> tooltip.'
+    rationale: 'Operator-specified priority (forwarded scoping message): keep text at readable size as long as possible; the corpus confirms it — 25 of 27 triggered lanes resolved by wrapping alone.'
+    alternatives_rejected: ['Auto-grow lane height (render pass mutating document geometry — breaks the render/document seam); bare ellipsis-first (destroys information the strip has room to show).']
+  - decision: '2026-07-04 — Column order for rotated text'
+    chose: 'First wrapped line in the LEFT column (cx-6), second in the RIGHT (cx+6).'
+    rationale: 'For rotate(-90) text the inter-line advance direction maps to +x, so left-column-first preserves natural reading order (verified by reading the rendered screenshot, not assumed).'
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-084-lane-header-ellipsis-truncate-vertical-l.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T17:30:09"
+    action: "T-084: Lane-header label-fit ladder (wrap -> shrink -> ellipsize+tooltip) — 25/67 overflowing lane labels now fit, settings toggle added"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 98 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 98
+  commits: 1
+  files_changed: 3
+  lines_added: 170
+  lines_removed: 16
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-084-lane-header-ellipsis-truncate-vertical-l.md
+generated_by: context-agent-hybrid

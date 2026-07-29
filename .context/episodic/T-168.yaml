@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-168: Connection-point anchoring: attach edges to a node's individual ports (default center)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:33Z
+# ============================================================================
+
+task_id: T-168
+task_name: "Connection-point anchoring: attach edges to a node's individual ports (default center)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-09T23:40:52Z
+completed: 2026-07-10T00:02:35Z
+duration_days: 1
+updates_count: 3
+first_commit: 2026-07-10T01:41:37+02:00
+last_commit: 2026-07-10T02:02:35+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Capture — connection-point anchoring (ports), design notes for next session. Connect-mode port targeting — attach a new edge to a specific connection point (default center). Finalize — connect-mode port targeting delivered, partial-complete (human REVIEW), GO
+
+# Key outcomes
+outcomes:
+  - 'Verified the pre-existing ports base works end-to-end: `anchorPoint` honours an explicit port exactly (pinned E→W edge renders `gapStart=0, gapEnd=0`), `<aef:anchors>` round-trips (E/W survives parse→serialize), and the selected-edge UI (port dots, Source/Target dropdowns, Clear ports, Reverse) is present. *(evidence: live Playwright + `.playwright-mcp/t168-existing-ports.png`)*'
+  - '`connect` mode: clicking a node''s **body** attaches the new edge end as `auto`/middle (unchanged default); clicking within the port snap radius of a specific perimeter port **pins that port** — `sourcePort` from the first (source) click, `targetPort` from the second (target) click. New edge carries the expected ports.'
+  - 'During the connect gesture, **aim-assist port dots** appear on nodes near the cursor and the preview line snaps its end to the nearest in-radius port (discoverability), reusing the endpoint-drag affordance; when `routingPrefs.attach === ''middle''` a body click stays auto (only an explicit near-port click pins), matching the endpoint-drag rule.'
+  - 'Backwards compatible: a body→body connect still yields an `auto` edge that emits **no** `<aef:anchors>` in serialization; `addEdge(a,b)` with no port opts is unchanged.'
+  - 'src↔build mirror invariant holds: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`, and `python3 -c "import ast; ast.parse(open(''tools/gallery-serve.py'').read())"` parses (no server change expected — kept as guard).'
+  - 'Playwright (throwaway scratch): body→body connect ⇒ edge with no ports; connect clicking near source **E** then target **W** ⇒ `sourcePort=''E''`, `targetPort=''W''` and the rendered polyline attaches at those ports; element/viewport screenshot READ; 0 non-benign console errors.'
+  - '[REVIEW] Connect-to-port feels natural and the default is unchanged'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-168-connection-point-anchoring-attach-edges-.md'
+  - '.tasks/completed/T-145-adopt-11-editor-saved-layouts-as-canonic.md'
+  - '.tasks/completed/T-146-evaluate-version-storage-browsing-retrie.md'
+  - '.tasks/completed/T-147-fix-open-project-misfire-when-autosave-r.md'
+  - '.tasks/completed/T-148-revert-shows-wrong-toast--reuses-autosav.md'
+  - '.tasks/completed/T-163-target-workflow-field-uses-open-project-browser.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-10T01:41:37"
+    action: "T-168: Capture — connection-point anchoring (ports), design notes for next session"
+  - time: "2026-07-10T02:01:56"
+    action: "T-168: Connect-mode port targeting — attach a new edge to a specific connection point (default center)"
+  - time: "2026-07-10T02:02:35"
+    action: "T-168: Finalize — connect-mode port targeting delivered, partial-complete (human REVIEW), GO"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 21 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 21
+  commits: 3
+  files_changed: 7
+  lines_added: 405
+  lines_removed: 38
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-168-connection-point-anchoring-attach-edges-.md
+generated_by: context-agent-hybrid

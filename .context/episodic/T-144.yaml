@@ -1,0 +1,97 @@
+# ============================================================================
+# EPISODIC MEMORY - T-144: In-editor Open-from-project modal (uses /api/list, opens latest version in-place)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:30Z
+# ============================================================================
+
+task_id: T-144
+task_name: "In-editor Open-from-project modal (uses /api/list, opens latest version in-place)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-08T12:19:53Z
+completed: 2026-07-09T06:44:40Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-07-08T14:23:45+02:00
+last_commit: 2026-07-09T08:44:40+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  WIP — in-editor Open-project modal (code complete, browser verification pending). Verify Open-project modal live + fix broken-thumb regression. Add structured GO recommendation for human review. Finalize completion — partial-complete (agent ACs done, human REVIEW pending); capture PD-078
+
+# Key outcomes
+outcomes:
+  - 'New `📂 Open project…` toolbar button (`btn-open-project`), shipped `display:none` and'
+  - 'Clicking it opens a modal built on the `openVersionsModal` pattern: fetches `/api/list`,'
+  - 'Clicking a map opens it IN-PLACE (no page reload) via `adoptImportedXml(text,'
+  - 'Modal closes on Escape / backdrop click; no leaked keydown listener (mirrors'
+  - 'Read-only: no writes; the T-138 save-gate verifier still passes 6/6; no change to'
+  - 'Editor JS synced byte-identical to `build/gallery/designer.html` (mirror invariant)'
+  - 'Headless proof: with the gallery running, `btn-open-project` is visible; clicking it'
+  - '[REVIEW] The Open-project browser feels right'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Verify Open-project modal live + fix broken-thumb regression'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-09 — Thumbnail placeholder for maps without a saved-version PNG'
+    chose: 'Build an `<img>` only when a saved-version thumb exists; rendered-only cards'
+    rationale: 'Visual verification caught that an img with no `src` never fires `onerror`, so the'
+    alternatives_rejected: ['(a) leaving the `visibility:hidden` onerror only — doesn''t fire without a src,']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/locks/T-143.lock'
+  - '.context/locks/T-144.lock'
+  - '.context/project/decisions.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/episodic-gen/T-143.log'
+  - '.context/working/.reviewed-T-144'
+  - '.playwright-mcp/t144-open-project-modal-fixed.png'
+  - '.playwright-mcp/t144-open-project-modal.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-041-render-inception-review-and-run-operator.md'
+  - '.tasks/active/T-144-in-editor-open-from-project-modal-uses-a.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-08T14:23:45"
+    action: "T-144: WIP — in-editor Open-project modal (code complete, browser verification pending)"
+  - time: "2026-07-09T08:43:01"
+    action: "T-144: Verify Open-project modal live + fix broken-thumb regression"
+  - time: "2026-07-09T08:43:32"
+    action: "T-144: Add structured GO recommendation for human review"
+  - time: "2026-07-09T08:44:40"
+    action: "T-144: Finalize completion — partial-complete (agent ACs done, human REVIEW pending); capture PD-078"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 1104 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1104
+  commits: 4
+  files_changed: 11
+  lines_added: 5296
+  lines_removed: 4850
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-144-in-editor-open-from-project-modal-uses-a.md
+generated_by: context-agent-hybrid

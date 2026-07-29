@@ -1,0 +1,91 @@
+# ============================================================================
+# EPISODIC MEMORY - T-108: Vertical spacing control and density-branch-pitch effectiveness
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:18Z
+# ============================================================================
+
+task_id: T-108
+task_name: "Vertical spacing control and density-branch-pitch effectiveness"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T19:13:16Z
+completed: 2026-07-05T19:38:01Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-05T21:19:08+02:00
+last_commit: 2026-07-05T21:38:01+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Full plan + ACs for working vertical-spacing control (operator-approved); T-107 completion residual. Vertical spacing control (absolute inter-row re-spacing + lane growth); retire Density; keep Branch-pitch. Complete — verification 4/4, Recommendation GO, owner→human for /review/T-108
+
+# Key outcomes
+outcomes:
+  - 'New "Vertical spacing" control (numeric/slider or presets) that sets an **absolute inter-row gap** and re-spaces every lane''s rows to it, growing each lane''s `height` so rows don''t clip — distinct from density''s row-snap-threshold behaviour'
+  - 'Applied live on change (re-render immediately, PL-012) and undoable in one Ctrl+Z (record moved node-y''s + changed lane heights into `lastTidy`; `undoTidy` already restores y and lane heights)'
+  - 'Explicit-action/pref only — NOT a render pass; never mutates `examples/**` (PD-044). Not wired into a corpus re-bake this task'
+  - 'Effect is **visibly and monotonically** correct: on a multi-row map (e.g. audit-process or error-escalation-ladder), larger spacing → provably larger row-to-row gaps and taller lanes; screenshots at min vs max spacing READ and clearly different (fixes the tight≈wide / inverted-spread defect)'
+  - 'Density decision executed: remove the Density preset control + its `viewPrefs.density` plumbing (or repoint density to the new logic) — no dead/ineffective control left in the settings modal'
+  - 'Branch-pitch verified on a fan-out map (audit-process/harvest-pipeline) with a screenshot: keep if it visibly changes stack spacing, else remove; record the decision'
+  - '`src/aef-workflow-designer.html` byte-identical to `build/gallery/designer.html`'
+  - 'Before/after screenshots READ for every claim (per operator''s standing "take more screenshots" guidance)'
+  - '[REVIEW] The vertical-spacing control visibly adjusts row spacing, and no ineffective control remains'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-05 — Retire Density, keep Branch-pitch'
+    chose: 'Remove the Density preset entirely; keep Branch-pitch.'
+    rationale: 'Density only scaled a snap *threshold* (`DENSITY_PITCH` × `ROW_PITCH`) that Tidy/drag consult — it never re-spaced existing rows nor grew lanes, so on an already-tidy baked map tight↔wide read as inert (the operator''s report; measured inverted spread tight 547 > wide 490). The new Vertical spacing control fully subsumes and surpasses its intent (absolute pitch + lane growth), so Density became redundant *and* misleading. Branch-pitch, by contrast, demonstrably works: harvest-pipeline''s 6-node fan-out stack widened auto 80px → roomy 92px, visible in screenshots. It is orthogonal to Vertical spacing (tunes the gap *within* fan-out stacks during Clean, not the global inter-row pitch), so both earn their place.'
+    alternatives_rejected: ['(a) Repointing Density to the new logic — would keep a second, weaker vertical-spacing control competing with the explicit one. (b) Removing Branch-pitch too — it is not inert; removing a working, distinct control on suspicion would lose real capability.']
+  - decision: '2026-07-05 — Rigid row-shift over snap-to-row-centre'
+    chose: 'Translate each detected row as a rigid group (`n.y += delta`) rather than snapping every node onto the row''s exact centre-y.'
+    rationale: 'Rigid translation preserves intra-row layout, so no *new* same-row overlap can be introduced; combined with the ≥72px clamp exceeding the tallest node (task 64px), inter-row folding is impossible either — the effect is monotonic by construction with no measure-after-move revert needed (unlike alignRows/alignColumns, which snap to a shared axis and must guard collisions).'
+    alternatives_rejected: ['Snap-to-centre (as alignRowsLane does) — would force intra-row nodes at differing y onto one line, risking overlaps and needing a revert path for no gain here.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-107-align-columns-one-shot-action-snap-near-.md'
+  - '.tasks/active/T-108-vertical-spacing-control-and-density-bra.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T21:19:08"
+    action: "T-108: Full plan + ACs for working vertical-spacing control (operator-approved); T-107 completion residual"
+  - time: "2026-07-05T21:36:20"
+    action: "T-108: Vertical spacing control (absolute inter-row re-spacing + lane growth); retire Density; keep Branch-pitch"
+  - time: "2026-07-05T21:38:01"
+    action: "T-108: Complete — verification 4/4, Recommendation GO, owner→human for /review/T-108"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 24 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 24
+  commits: 3
+  files_changed: 3
+  lines_added: 341
+  lines_removed: 46
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-108-vertical-spacing-control-and-density-bra.md
+generated_by: context-agent-hybrid

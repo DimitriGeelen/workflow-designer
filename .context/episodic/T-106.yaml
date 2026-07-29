@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-106: Routing margin setting: reserved periphery band for loop-back edges
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:17Z
+# ============================================================================
+
+task_id: T-106
+task_name: "Routing margin setting: reserved periphery band for loop-back edges"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T18:36:00Z
+completed: 2026-07-05T19:01:50Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-05T20:50:46+02:00
+last_commit: 2026-07-05T21:01:50+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Routing margin setting — reserved periphery band for loop-back edges (Phase C option 3). Check Agent ACs (all verified) + record additive-clearance decision & known scope limit. Add GO recommendation block (T-679) for operator review. Complete — routing margin, partial-complete awaiting operator [REVIEW]
+
+# Key outcomes
+outcomes:
+  - 'New editor-local pref `routingMargin` (none=0 / normal=8 / roomy=16px, default `normal`) added, persisted the same way as straightening-tolerance / channel-separation prefs; survives reload — verified: set 16 → reload → `routingPrefs.routingMargin === 16`, bar rendered at roomy position (702)'
+  - 'A "Routing margin" control is added to the Routing section of the settings modal, styled like the existing straightening/channel-sep controls — `syncSettingsUI()` sets it to "16" matching the pref (same pattern as `set-channel-sep`)'
+  - '`orthoLoopBack()` consumes the pref: the effective lane/periphery margin = baseline + `routingMargin`, so loop-back bars sit in a wider reserved band; `none` reproduces the current baseline (`LANE_MARGIN = 12`) exactly — pure additive, no behaviour change at `none` — verified: detour bar 686 (none, = baseline) → 694 (normal, +8) → 702 (roomy, +16)'
+  - 'Changing the setting re-renders immediately (live apply, PL-012) — no reload/re-import required — `setRoutingMargin()` calls `renderEdges()`; bar moved live in-browser'
+  - 'Render-only: `git diff --name-only` shows only `src/aef-workflow-designer.html` and its `build/gallery/designer.html` mirror — no `examples/**/*.workflow.yaml` or `rendered/*.bpmn` changed (PD-044) — verified clean'
+  - '`src/aef-workflow-designer.html` is byte-identical to `build/gallery/designer.html` — `diff -q` PASS'
+  - 'Element screenshots of a loop-back map (task-lifecycle `e_12` "gate failed — rework") at margin none / roomy taken AND READ, confirming the bar visibly moves outward with no regression to non-loop edges. NOTE: on this map the loop already routed below the node boxes at baseline (gap 22px), so the visible win is **clearance + label de-collision** (bar-to-content gap 22→30→38px; at roomy the "gate failed — rework" label separates cleanly from the `agt_3_request` badge) rather than de-overlap. De-overlap value would show on maps where the periphery candidate currently doesn''t fit — untested here (see Decisions)'
+  - '[REVIEW] Routing-margin setting visibly reserves a wider periphery band; loop-backs stop cutting through row-2 nodes at roomy, and non-loop edges are unaffected'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-05 — additive-clearance implementation over lane-growth'
+    chose: 'implement the routing margin as an additive bump to the three existing'
+    rationale: 'stays inside the render-only seam (PD-044) — zero risk to stored geometry,'
+    alternatives_rejected: ['growing lane height to *guarantee* a reserved band clear of a full row of']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-106-routing-margin-setting-reserved-peripher.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T20:50:46"
+    action: "T-106: Routing margin setting — reserved periphery band for loop-back edges (Phase C option 3)"
+  - time: "2026-07-05T20:51:59"
+    action: "T-106: Check Agent ACs (all verified) + record additive-clearance decision & known scope limit"
+  - time: "2026-07-05T20:52:23"
+    action: "T-106: Add GO recommendation block (T-679) for operator review"
+  - time: "2026-07-05T21:01:50"
+    action: "T-106: Complete — routing margin, partial-complete awaiting operator [REVIEW]"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 25 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 25
+  commits: 4
+  files_changed: 2
+  lines_added: 261
+  lines_removed: 17
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-106-routing-margin-setting-reserved-peripher.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-134: Selection-scoped align and distribute for multi-selected nodes
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:26Z
+# ============================================================================
+
+task_id: T-134
+task_name: "Selection-scoped align and distribute for multi-selected nodes"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-06T15:35:46Z
+completed: 2026-07-06T15:42:05Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-06T17:40:18+02:00
+last_commit: 2026-07-06T17:42:05+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  selection-scoped Align / Distribute for multi-selected nodes. work-completed state — selection align/distribute verified, Human REVIEW pending
+
+# Key outcomes
+outcomes:
+  - 'When `multiSelect.size >= 2`, the properties panel shows an "Align / Distribute" bar'
+  - 'Align acts on the selection regardless of distance: Left (shared min-x), Centre-X (shared'
+  - 'Distribute acts on the selection (needs >=3): Horizontal equalises centre-x spacing between'
+  - 'Each op captures one undo step (`pushHistory` before mutate) — Ctrl+Z restores prior'
+  - '`diff -q src/aef-workflow-designer.html build/gallery/designer.html` clean (mirror).'
+  - 'Element-level screenshot of the multi-select panel + an aligned selection READ — controls'
+  - '[REVIEW] This is the align/distribute behaviour you wanted. **Steps:** open the editor,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/working/.reviewed-T-134'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-134-selection-scoped-align-and-distribute-fo.md'
+  - 'tools/_align-distribute-diag.mjs'
+  - 'tools/_selection-align-verify-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-06T17:40:18"
+    action: "T-134: selection-scoped Align / Distribute for multi-selected nodes"
+  - time: "2026-07-06T17:42:05"
+    action: "T-134: work-completed state — selection align/distribute verified, Human REVIEW pending"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 2
+  files_changed: 5
+  lines_added: 537
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-134-selection-scoped-align-and-distribute-fo.md
+generated_by: context-agent-hybrid

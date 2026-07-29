@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-079: Adaptive alignment rows: sub-row snap lines in tall lanes + row-mate middle alignment
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:42:29Z
+# ============================================================================
+
+task_id: T-079
+task_name: "Adaptive alignment rows: sub-row snap lines in tall lanes + row-mate middle alignment"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T11:22:30Z
+completed: 2026-07-29T15:39:07Z
+duration_days: 25
+updates_count: 3
+first_commit: 2026-07-04T13:55:40+02:00
+last_commit: 2026-07-04T14:55:56+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Record operator design confirmation 1a/2b — even-division sub-rows, active tidy-lane action. Adaptive alignment rows — sub-row snap lines, whole-lane row-mate snap, tidy-lane action with Ctrl+Z revert; file T-080 (pool participant round-trip drift)
+
+# Key outcomes
+outcomes:
+  - '(1a) Sub-row snap lines: a lane tall enough for 2+ rows (N = max(1, round(laneHeight/96)), effective when N≥2) offers N evenly-spaced Y-snap candidates at laneTop + (i+0.5)*laneHeight/N; a short lane (N==1) keeps exactly the single centre line as today. — EVIDENCE: task-lifecycle framework lane (h=260) → 3 rows [265.3, 352, 438.7]; trusted page.mouse drag from cy=392 to proposed 434 snapped to 438.667 with dashed `snap-guide snap-guide-lane` line at that y mid-drag, 0 guides after drop. Corpus-wide invariant: all 21 short lanes (N==1) across 24 maps return exactly [laneCenterY], 0 violations; 46 tall lanes get sub-rows.'
+  - 'Row-mate Y-snap across the whole lane: the 400px horizontal limit is removed for same-lane node-centre Y-candidates — EVIDENCE: trusted drag with mate 2000px away horizontally, mate midline 356 vs theoretical row 352, proposed cy=353 (row delta 1 < mate delta 3): node snapped to 356 with node-kind guide — row-mate wins even when the row line is nearer (bestNodeY || bestLaneY priority).'
+  - '(2b) Tidy-lane action: explicit "⇤ Tidy rows" button in lane properties (never automatic) — EVIDENCE: real click on lane header + button; 11/11 scattered framework nodes moved onto rows (0 x-moves, 0 other-lane moves, offRow=[]); XML diff exactly 11 lines, all `aef:position` y-values (editor format carries geometry in aef:position; no DI section exists); real Ctrl+Z restored all positions, XML byte-identical to before; bridge suite on tidied doc: 31 passed 0 failed, geometry sweep 24 clean. In-browser parse→rebuild round-trip of tidied XML: y-values stable (single diff line is the PRE-EXISTING pool-participant drift, confirmed on fresh untidied doc — filed separately as T-080).'
+  - 'Corpus sweep: before/after render sweep over the gallery corpus — EVIDENCE: 24/24 maps geometry-identical (node positions + rendered polylines + label bboxes) between HEAD baseline and new build (static render path untouched by design); tidying ALL 3 lanes of pristine task-lifecycle (15 nodes moved) left collisions at 0 → 0.'
+  - 'JS syntax check passes (node --check on extracted script: SYNTAX-OK) and gallery copy refreshed (diff -q: GALLERY-IN-SYNC).'
+  - '[REVIEW] Sub-row snapping and tidy-lane feel right in tall lanes'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Adaptive alignment rows — sub-row snap lines, whole-lane row-mate snap, tidy-lane action with Ctrl+Z revert; file T-080 (pool participant round-trip drift)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-04 — Tidy-lane revert: scoped single-step Ctrl+Z, not a general undo stack'
+    chose: '`lastTidy` snapshot + Ctrl+Z single-step revert, invalidated by the next manual drag/tidy. Ctrl+Z is only claimed while a tidy is pending, so the shortcut stays free for a future general undo.'
+    rationale: 'Build discovery: the editor has NO undo system at all — no drag, delete, or edit is undoable. "Participates in undo like a drag" therefore has no existing mechanism to participate in. A bulk mutation still needs an escape hatch; a scoped revert delivers that without a new subsystem.'
+    alternatives_rejected: ['(a) General undo stack — a new editor subsystem, clear scope creep for this task; belongs in its own scoped task if wanted. (b) No revert at all — a one-click 11-node mutation without escape violates Usability.']
+  - decision: '2026-07-04 — Row-mate precedence via candidate-source split'
+    chose: 'Track `bestLaneY` (theoretical row lines) and `bestNodeY` (real node midlines) separately; final `bestY = bestNodeY || bestLaneY`.'
+    rationale: 'Operator design ("real rows outrank the theoretical lines"): with a single best-delta comparison, a nearer theoretical line would beat a real row-mate — exactly the wrong bias. Verified: mate at delta 3 beats row line at delta 1.'
+    alternatives_rejected: ['Weighting deltas (e.g. node delta × 0.5) — implicit, tunable-forever; the hard precedence matches the stated design and is explainable.']
+  - decision: '2026-07-04 — Lane-reassign drop point follows rows'
+    chose: 'The properties-panel lane selector now drops the node on the new lane''s row line nearest its current centre (was: always lane centre).'
+    rationale: 'With N≥2, the lane centre can sit BETWEEN rows — the old behaviour would park reassigned nodes exactly where nothing else aligns.'
+    alternatives_rejected: ['Keeping centre-drop — creates off-row nodes that the same feature''s tidy action would immediately want to move.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.context/project/decisions.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-079-adaptive-alignment-rows-sub-row-snap-lin.md'
+  - '.tasks/active/T-080-editor-import-drops-pool-participant-idn.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T13:55:40"
+    action: "T-079: Record operator design confirmation 1a/2b — even-division sub-rows, active tidy-lane action"
+  - time: "2026-07-04T14:55:56"
+    action: "T-079: Adaptive alignment rows — sub-row snap lines, whole-lane row-mate snap, tidy-lane action with Ctrl+Z revert; file T-080 (pool participant round-trip drift)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 36256 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 36256
+  commits: 2
+  files_changed: 5
+  lines_added: 411
+  lines_removed: 36
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-079-adaptive-alignment-rows-sub-row-snap-lin.md
+generated_by: context-agent-hybrid

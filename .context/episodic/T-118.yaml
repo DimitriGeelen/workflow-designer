@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-118: Endpoint straight-snap: collapse endpoint-adjacent micro-steps on axis-aligned edges
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:22Z
+# ============================================================================
+
+task_id: T-118
+task_name: "Endpoint straight-snap: collapse endpoint-adjacent micro-steps on axis-aligned edges"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T22:45:18Z
+completed: 2026-07-07T14:18:27Z
+duration_days: 2
+updates_count: 2
+first_commit: 2026-07-06T00:53:03+02:00
+last_commit: 2026-07-07T16:18:27+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Endpoint straight-snap — collapse endpoint-adjacent edge micro-steps. Finalize endpoint straight-snap — verified 3/3, partial-complete (human REVIEW pending)
+
+# Key outcomes
+outcomes:
+  - '`simplifyRoutedPolyline` extended with an endpoint straight-snap'
+  - 'Snap accepted ONLY if `polylineCrossesNodes` does not increase (reuse the'
+  - 'Genuine migrations excluded: release e_15 (endpoint dx=23px > tol) NOT snapped,'
+  - 'Wired into the same `buildOrthogonalPath` finalize path as T-117 (inside'
+  - 'Corpus-wide headless proof: the 5 pure-drift cases (harvest e_08/e_25,'
+  - 'Before/after element-level screenshots READ for 2 cases: cross-host e_10'
+  - 'Editor JS synced byte-identical to build/gallery/designer.html'
+  - '[REVIEW] Edges connect to node faces with a clean 90° corner, no tiny endpoint step'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-118-endpoint-straight-snap-collapse-endpoint.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-06T00:53:03"
+    action: "T-118: Endpoint straight-snap — collapse endpoint-adjacent edge micro-steps"
+  - time: "2026-07-07T16:18:27"
+    action: "T-118: Finalize endpoint straight-snap — verified 3/3, partial-complete (human REVIEW pending)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 2373 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [ui, editor, routing, layout]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2373
+  commits: 2
+  files_changed: 2
+  lines_added: 287
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-118-endpoint-straight-snap-collapse-endpoint.md
+generated_by: context-agent-hybrid

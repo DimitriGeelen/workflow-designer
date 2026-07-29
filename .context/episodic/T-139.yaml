@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-139: Retire Align-columns and Distribute-evenly toolbar buttons (keep Clean + all functions)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:28Z
+# ============================================================================
+
+task_id: T-139
+task_name: "Retire Align-columns and Distribute-evenly toolbar buttons (keep Clean + all functions)"
+workflow_type: refactor
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-07T14:39:26Z
+completed: 2026-07-07T14:43:19Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-07T16:42:50+02:00
+last_commit: 2026-07-07T16:43:19+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Retire Align-columns + Distribute-evenly toolbar buttons (keep Clean + all functions). Finalize toolbar-button retirement — verified 9/9, partial-complete (human REVIEW pending)
+
+# Key outcomes
+outcomes:
+  - '`btn-align-cols` button element AND its `$(''btn-align-cols'').onclick` binding removed from `src/aef-workflow-designer.html`'
+  - '`btn-distribute` button element AND its `$(''btn-distribute'').onclick` binding removed from `src/aef-workflow-designer.html`'
+  - '`✨ Clean layout` button (`btn-clean`) and its binding retained and unchanged'
+  - 'All three functions retained: `grep -q "function cleanLayout"`, `"function alignColumns"`, `"function alignColumnsMoves"`, `"function distributeEvenly"` all present (nudge/import/bake/verifiers still work)'
+  - 'Mirror invariant restored: `diff -q src/aef-workflow-designer.html build/gallery/designer.html` identical'
+  - 'Corpus node-cut gate stays green (0 cuts/24) — proves no routing/layout regression'
+  - '`_undo-verify-cdp.mjs` still passes (btn-clean retained; T-132 gate unaffected)'
+  - '[REVIEW] Toolbar reads clean with only Clean layout remaining; Clean still tidies + aligns columns'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-139-retire-align-columns-and-distribute-even.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-07T16:42:50"
+    action: "T-139: Retire Align-columns + Distribute-evenly toolbar buttons (keep Clean + all functions)"
+  - time: "2026-07-07T16:43:19"
+    action: "T-139: Finalize toolbar-button retirement — verified 9/9, partial-complete (human REVIEW pending)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 2
+  files_changed: 2
+  lines_added: 248
+  lines_removed: 26
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-139-retire-align-columns-and-distribute-even.md
+generated_by: context-agent-hybrid

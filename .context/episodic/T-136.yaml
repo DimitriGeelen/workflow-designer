@@ -1,0 +1,145 @@
+# ============================================================================
+# EPISODIC MEMORY - T-136: Overlapping arrow-ends: selected line unresponsive at convergence points
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:26Z
+# ============================================================================
+
+task_id: T-136
+task_name: "Overlapping arrow-ends: selected line unresponsive at convergence points"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-06T16:00:00Z
+completed: 2026-07-06T16:19:53Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-06T18:02:33+02:00
+last_commit: 2026-07-06T18:19:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture overlapping-endpoint selection bug + diagnosis (T-133 halo suspect). fix overlapping-endpoint selection at convergence points (click-fallthrough, keeps T-133 grab size). add Recommendation block (ready for human review). reformat Recommendation to T-679 GO/Rationale/Evidence format. finalize — agent ACs complete, verified 6/6, handed to human for live REVIEW
+
+# Key outcomes
+outcomes:
+  - 'Repro written & confirms cause: `tools/_endpoint-overlap-verify-cdp.mjs` reproduces the'
+  - 'Fix so a click that lands on an endpoint halo but does NOT become a drag falls through to'
+  - 'Verified headless (6/6): at the fork, with edge A (e_10) selected and its halo topmost, a'
+  - '`diff -q src/aef-workflow-designer.html build/gallery/designer.html` clean (mirror).'
+  - '[REVIEW] At a fork/join, clicking between the converging lines now reliably selects the one'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'fix overlapping-endpoint selection at convergence points (click-fallthrough, keeps T-133 grab size)'
+    source: git-mined
+  - description: 'capture overlapping-endpoint selection bug + diagnosis (T-133 halo suspect)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-06.yaml'
+  - '.context/audits/cron/2026-07-06-1400.yaml'
+  - '.context/audits/cron/2026-07-06-1415.yaml'
+  - '.context/audits/cron/2026-07-06-1430.yaml'
+  - '.context/audits/cron/2026-07-06-1445.yaml'
+  - '.context/audits/cron/2026-07-06-1515.yaml'
+  - '.context/audits/cron/2026-07-06-1530.yaml'
+  - '.context/audits/cron/2026-07-06-1545.yaml'
+  - '.context/audits/cron/2026-07-06-1600.yaml'
+  - '.context/audits/cron/2026-07-06-1615.yaml'
+  - '.context/audits/cron/2026-07-06-1630.yaml'
+  - '.context/audits/cron/2026-07-06-1645.yaml'
+  - '.context/audits/cron/2026-07-06-1700.yaml'
+  - '.context/audits/cron/2026-07-06-1715.yaml'
+  - '.context/audits/cron/2026-07-06-1730.yaml'
+  - '.context/audits/cron/2026-07-06-1745.yaml'
+  - '.context/audits/cron/2026-07-06-1800.yaml'
+  - '.context/audits/cron/2026-07-06-1815.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/episodic/T-129.yaml'
+  - '.context/episodic/T-130.yaml'
+  - '.context/episodic/T-131.yaml'
+  - '.context/episodic/T-135.yaml'
+  - '.context/locks/T-127.lock'
+  - '.context/locks/T-129.lock'
+  - '.context/locks/T-130.lock'
+  - '.context/locks/T-131.lock'
+  - '.context/locks/T-135.lock'
+  - '.context/locks/T-136.lock'
+  - '.context/project/decisions.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-128.log'
+  - '.context/working/episodic-gen/T-129.log'
+  - '.context/working/episodic-gen/T-130.log'
+  - '.context/working/episodic-gen/T-131.log'
+  - '.context/working/episodic-gen/T-133.log'
+  - '.context/working/episodic-gen/T-135.log'
+  - '.context/working/.gate-bypass-log.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.restart-requested'
+  - '.context/working/.reviewed-T-127'
+  - '.context/working/.reviewed-T-128'
+  - '.context/working/.reviewed-T-136'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/.tier0-approval.pending'
+  - '.context/working/watchtower.log'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-041-render-inception-review-and-run-operator.md'
+  - '.tasks/active/T-134-selection-scoped-align-and-distribute-fo.md'
+  - '.tasks/active/T-136-endpoint-overlap-selection-blocked-at-convergence.md'
+  - '.tasks/completed/T-135-gallery-server-sends-no-cache-headers-so.md'
+  - 'tools/_endpoint-overlap-verify-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-06T18:02:33"
+    action: "T-136: capture overlapping-endpoint selection bug + diagnosis (T-133 halo suspect)"
+  - time: "2026-07-06T18:18:12"
+    action: "T-136: fix overlapping-endpoint selection at convergence points (click-fallthrough, keeps T-133 grab size)"
+  - time: "2026-07-06T18:18:45"
+    action: "T-136: add Recommendation block (ready for human review)"
+  - time: "2026-07-06T18:19:11"
+    action: "T-136: reformat Recommendation to T-679 GO/Rationale/Evidence format"
+  - time: "2026-07-06T18:19:53"
+    action: "T-136: finalize — agent ACs complete, verified 6/6, handed to human for live REVIEW"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 19 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug, editor, regression-suspect]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 19
+  commits: 5
+  files_changed: 62
+  lines_added: 2027
+  lines_removed: 268
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-136-endpoint-overlap-selection-blocked-at-convergence.md
+generated_by: context-agent-hybrid

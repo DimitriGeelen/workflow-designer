@@ -1,0 +1,95 @@
+# ============================================================================
+# EPISODIC MEMORY - T-117: De-jog routed edges: collapse tiny interior staircase steps to clean 90 corners
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:22Z
+# ============================================================================
+
+task_id: T-117
+task_name: "De-jog routed edges: collapse tiny interior staircase steps to clean 90 corners"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T22:14:10Z
+completed: 2026-07-06T19:03:15Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-07-06T00:17:45+02:00
+last_commit: 2026-07-06T21:03:15+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  De-jog routed edges — collapse tiny interior staircase steps to clean 90. Finalize interior de-jog — verified via corpus gate (0 cuts/24)
+
+# Key outcomes
+outcomes:
+  - '`simplifyRoutedPolyline(pl, src, tgt)` + `collapseCollinearPoints` added:'
+  - 'Collapse accepted ONLY if `polylineCrossesNodes` does not increase (a jog that'
+  - 'Wired into buildOrthogonalPath''s finalize (applied to the transient polyline'
+  - 'Corpus-wide: node-cut gate 0/24 PASS; interior jog count 81→55 (−26 removed);'
+  - 'Endpoint-adjacent micro-steps (62 of 81, stub meets face off-centre) explicitly'
+  - 'Editor JS synced byte-identical to build/gallery/designer.html'
+  - '[REVIEW] Branch edges read as clean 90° corners, not staircases'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-07-06-2100.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/locks/T-117.lock'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.gate-bypass-log.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.reviewed-T-117'
+  - '.context/working/watchtower.log'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-117-de-jog-routed-edges-collapse-tiny-interi.md'
+  - '.tasks/active/T-137-loop-back-edges-with-persisted-detoury-c.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-06T00:17:45"
+    action: "T-117: De-jog routed edges — collapse tiny interior staircase steps to clean 90"
+  - time: "2026-07-06T21:03:15"
+    action: "T-117: Finalize interior de-jog — verified via corpus gate (0 cuts/24)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 1249 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [ui, editor, routing, layout]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1249
+  commits: 2
+  files_changed: 15
+  lines_added: 428
+  lines_removed: 36
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-117-de-jog-routed-edges-collapse-tiny-interi.md
+generated_by: context-agent-hybrid

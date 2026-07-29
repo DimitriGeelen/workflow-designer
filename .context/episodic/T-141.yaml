@@ -1,0 +1,122 @@
+# ============================================================================
+# EPISODIC MEMORY - T-141: Guard Save-to-project against the pristine unedited seed
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:29Z
+# ============================================================================
+
+task_id: T-141
+task_name: "Guard Save-to-project against the pristine unedited seed"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-07T18:08:12Z
+completed: 2026-07-07T18:17:38Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-07T20:17:38+02:00
+last_commit: 2026-07-07T20:17:38+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Guard Save-to-project against pristine seed (confirm before saving untouched starter)
+
+# Key outcomes
+outcomes:
+  - '`saveToProject()` compares the bytes it is about to POST against `_seedBpmn` — the'
+  - 'When the bytes match, the guard calls `confirm()`; on cancel it returns WITHOUT'
+  - 'Guard does not fire once the document is edited or a different map is loaded'
+  - 'No change to autosave / T-127 code paths (`grep` shows autosave still localStorage-only)'
+  - 'Editor loads with no new console error and Init completes (regression check — the'
+  - 'Editor JS synced byte-identical to build/gallery/designer.html (mirror invariant)'
+  - 'Functional proof via headless browser: click Save on fresh seed → guard confirm'
+  - '[REVIEW] The guard feels right — an unedited starter map warns before saving, a real'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-07 — confirm() (soft guard) rather than hard block'
+    chose: 'When the save bytes equal the pristine seed, ask via `confirm()` and honour'
+    rationale: 'Antifragility/usability — an accidental or automated click (the actual residue'
+    alternatives_rejected: ['(a) Hard block / disable the button on the seed — removes a capability and']
+  - decision: '2026-07-07 — capture the baseline at end-of-Init, compare exact BPMN bytes'
+    chose: '`const _seedBpmn = buildBpmnXml(state)` immediately after Init''s'
+    rationale: 'That is the only point where `state` is the fully-processed pristine seed AND'
+    alternatives_rejected: ['(a) capture at seed-creation — throws (TYPE_TAG TDZ, PL-022); (b) compare']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-07.yaml'
+  - '.context/audits/cron/2026-07-07-1615.yaml'
+  - '.context/audits/cron/2026-07-07-1630.yaml'
+  - '.context/audits/cron/2026-07-07-1645.yaml'
+  - '.context/audits/cron/2026-07-07-1700.yaml'
+  - '.context/audits/cron/2026-07-07-1715.yaml'
+  - '.context/audits/cron/2026-07-07-1730.yaml'
+  - '.context/audits/cron/2026-07-07-1745.yaml'
+  - '.context/audits/cron/2026-07-07-1800.yaml'
+  - '.context/audits/cron/2026-07-07-1815.yaml'
+  - '.context/audits/cron/2026-07-07-1830.yaml'
+  - '.context/audits/cron/2026-07-07-1845.yaml'
+  - '.context/audits/cron/2026-07-07-1900.yaml'
+  - '.context/audits/cron/2026-07-07-1915.yaml'
+  - '.context/audits/cron/2026-07-07-1930.yaml'
+  - '.context/audits/cron/2026-07-07-1945.yaml'
+  - '.context/audits/cron/2026-07-07-2000.yaml'
+  - '.context/audits/cron/2026-07-07-2015.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/locks/T-116.lock'
+  - '.context/locks/T-118.lock'
+  - '.context/locks/T-119.lock'
+  - '.context/locks/T-139.lock'
+  - '.context/locks/T-140.lock'
+  - '.context/locks/T-141.lock'
+  - '.context/project/decisions.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.gate-bypass-log.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.reviewed-T-141'
+  - '.context/working/watchtower.log'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-041-render-inception-review-and-run-operator.md'
+  - '.tasks/active/T-141-guard-save-to-project-against-the-pristi.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-07T20:17:38"
+    action: "T-141: Guard Save-to-project against pristine seed (confirm before saving untouched starter)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 1
+  files_changed: 39
+  lines_added: 1311
+  lines_removed: 193
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-141-guard-save-to-project-against-the-pristi.md
+generated_by: context-agent-hybrid

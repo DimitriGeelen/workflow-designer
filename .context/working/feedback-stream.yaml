@@ -3123,3 +3123,21 @@ scan_id: R-6a6427ad
 task_id: T-305
 payload:
   task_file: .tasks/active/T-305-pre-flight-the-operator-close-path-verif.md
+---
+kind: scan_emitted
+timestamp: '2026-07-29T15:44:34Z'
+scan_id: R-c037b322
+task_id: T-306
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-29T15:44:34Z'
+scan_id: R-c037b322
+task_id: T-306
+payload:
+  task_file: .tasks/active/T-306-execute-operator-authorized-batch-close-.md

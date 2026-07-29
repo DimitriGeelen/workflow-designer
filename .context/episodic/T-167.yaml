@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-167: Version-level delete and keep-only-latest in the Versions modal
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:32Z
+# ============================================================================
+
+task_id: T-167
+task_name: "Version-level delete and keep-only-latest in the Versions modal"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-09T23:29:05Z
+completed: 2026-07-09T23:37:04Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-10T01:36:41+02:00
+last_commit: 2026-07-10T01:37:04+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Version-level delete + keep-only-latest in the Versions modal (archive-based). Finalize — partial-complete (human REVIEW), GO
+
+# Key outcomes
+outcomes:
+  - '`POST /api/delete {id, scope:''version'', v}` archives that version''s `vN.bpmn`/`vN.png` to `_trash/<id>-<ts>/` and removes its `index.json` entry, leaving other versions intact; returns `{ok:true, archived:[...]}`. Rejects a missing/invalid v (400) and a non-existent v (404). *(curl: [1,2,3]→delete v2→[1,3], archived v2.bpmn; v9→404; missing v→400)*'
+  - '`POST /api/delete {id, scope:''prune-old''}` archives all snapshots except the highest `v` and rewrites `index.json` to just that latest entry; returns `{ok:true, kept:<v>, archived:[...]}`. A single-version map is a no-op success (nothing archived, `kept` = that v). *(curl: [1,3]→prune→kept:3,[3]; prune again→kept:3,archived:[])*'
+  - 'Each Versions-modal row has a 🗑 delete button (themed `confirmDialog` first) that removes just that version; after it the modal refreshes and the row is gone. *(UI: 3 rows→3 🗑; click v2 🗑→themed confirm→Delete→versions [1,3])*'
+  - 'The Versions modal header has a "Keep only latest" action (shown only when ≥2 versions), confirmed via `confirmDialog`; after it only the latest version remains. *(UI: header "Keep only latest" present with ≥2 versions; confirm→versions [3])*'
+  - 'src↔build mirror invariant holds (`diff -q src build/gallery/designer.html`) and `python3 -c "import ast; ast.parse(open(''tools/gallery-serve.py'').read())"` parses. *(MIRROR-OK; PARSE-OK)*'
+  - 'Playwright (throwaway scratch map with ≥3 versions): delete a middle version → it''s gone, others remain; then Keep-only-latest → only the newest remains; files archived under `_trash`; 0 console errors (beyond benign thumbnail 404s); element screenshot READ. *(ui-v167: delete v2→[1,3]→keep-only-latest→[3]; .playwright-mcp/t167-version-actions.png read; all 11 console msgs are scratch-fixture thumbnail 404s, no code errors)*'
+  - '[REVIEW] Version-level delete + keep-only-latest read clearly'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-167-version-level-delete-and-keep-only-lates.md'
+  - 'tools/gallery-serve.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-10T01:36:41"
+    action: "T-167: Version-level delete + keep-only-latest in the Versions modal (archive-based)"
+  - time: "2026-07-10T01:37:04"
+    action: "T-167: Finalize — partial-complete (human REVIEW), GO"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 7
+  commits: 2
+  files_changed: 3
+  lines_added: 297
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-167-version-level-delete-and-keep-only-lates.md
+generated_by: context-agent-hybrid

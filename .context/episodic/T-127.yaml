@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-127: B1: Editor reload auto-loads the stored (autosaved) version — no banner
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:25Z
+# ============================================================================
+
+task_id: T-127
+task_name: "B1: Editor reload auto-loads the stored (autosaved) version — no banner"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-06T09:40:00Z
+completed: 2026-07-06T12:34:59Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**Reload auto-loads** (operator''s #1): replace T-126''s `offerAutosaveRestore()` banner'
+  - '**Keyed so reloads never cross maps:** autosave records the current `?load` src; on load,'
+  - '**Clean replace, no `_v2`:** `adoptImportedXml` gains a `{replace:true}` path so restore'
+  - '**Non-modal affordance:** a small auto-dismissing toast confirms the restore and offers'
+  - '**Verified in ISOLATED headless** (`tools/_autoload-verify-cdp.mjs`, new — the T-126'
+  - '`diff -q src/aef-workflow-designer.html build/gallery/designer.html` clean (mirror).'
+  - '[REVIEW] I edit a map, reload the page, and my work is just there — no banner to click.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-06 — B1 auto-load precedence (per T-128 IW-3)'
+    chose: 'auto-adopt localStorage autosave keyed by `?load` src; no `?load` → restore last'
+    rationale: 'operator wants reload to just load their work; keying prevents cross-map clobber.'
+    alternatives_rejected: ['dismissible banner (operator rejected); unconditional auto-adopt (would clobber']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 174 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [ui, editor, persistence, autoload]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 174
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-127-editor-repo-save-versioning-revert-autoreload.md
+generated_by: context-agent-hybrid

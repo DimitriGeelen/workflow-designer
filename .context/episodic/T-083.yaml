@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-083: Label halo: theme-background rect behind edge labels and id badges
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:09Z
+# ============================================================================
+
+task_id: T-083
+task_name: "Label halo: theme-background rect behind edge labels and id badges"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T13:52:07Z
+completed: 2026-07-04T15:23:12Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-04T17:23:11+02:00
+last_commit: 2026-07-04T17:23:11+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Measured theme-background halos behind all node id badges — badges stay legible under crossing lines/labels
+
+# Key outcomes
+outcomes:
+  - 'Every rendered node id badge has a theme-background halo rect sized from its measured getBBox (+2px pad), inserted beneath the text in the same group, added AFTER the node-label and edge-label placement passes (so moved badges keep a correct halo)'
+  - 'Edge labels keep their T-082 measured halo (`data-elr` rect repositioned from final bbox, fill var(--bg)) — no regression'
+  - 'Rendering-only change: editor XML build stays STABLE (buildBpmnXml(parse(X)) === X) on context-memory + 2 control maps; zero serialization lines in the diff'
+  - 'All suites green (bridge, validator, parity x6, geometry sweep); gallery copy synced (diff -q clean)'
+  - 'Visual verification: element screenshots at spots where lines/labels pass under badges (context-memory prj_2_add residual, verification-gate mid-chain), read and inspected — badge text legible over the halo, no oversized rect artifacts'
+  - '[REVIEW] Badges and edge labels stay legible where lines must pass under them'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-04 — Badges win contested pixels (z-order by construction)'
+    chose: 'Badge halos live in gNodes (above gEdges), so where a residual edge label still touches a badge, the badge''s pad masks the label tail — one text fully legible instead of two texts mashed.'
+    rationale: 'Id badges are the anchor for referencing nodes in reviews/YAML; they must always be readable. The clipped edge-label tail is the strict-best residue T-082 documented; density work (T-084/T-085) is the real fix for those corridors.'
+    alternatives_rejected: ['SVG paint-order/stroke halos on the text itself — heavier visual noise in the mono theme and inconsistent rendering across font stacks; a second placement pass for badges — badges must stay glued to their node, they cannot move.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-083-label-halo-theme-background-rect-behind-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T17:23:11"
+    action: "T-083: Measured theme-background halos behind all node id badges — badges stay legible under crossing lines/labels"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 91 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 91
+  commits: 1
+  files_changed: 3
+  lines_added: 80
+  lines_removed: 46
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-083-label-halo-theme-background-rect-behind-.md
+generated_by: context-agent-hybrid

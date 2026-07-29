@@ -1,0 +1,113 @@
+# ============================================================================
+# EPISODIC MEMORY - T-115: Horizontal spacing control (mirror of Vertical spacing)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:20Z
+# ============================================================================
+
+task_id: T-115
+task_name: "Horizontal spacing control (mirror of Vertical spacing)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T21:53:54Z
+completed: 2026-07-06T18:42:43Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-07-05T23:55:03+02:00
+last_commit: 2026-07-06T20:42:43+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Horizontal spacing control (respaceColumns) — x-axis mirror of Vertical spacing. Horizontal spacing (respaceColumns) verified 6/6 headless + finalized
+
+# Key outcomes
+outcomes:
+  - '`respaceColumns(gap)` added: clusters all nodes into columns by centre-x'
+  - 'Global (pool-wide) clustering, NOT per-lane: a stage''s nodes span lanes and'
+  - 'Undoable via the shared axis-aware `lastTidy` (records moved node-xs; one'
+  - 'Settings UI row "Horizontal spacing" (number input 130–360 step 10) wired:'
+  - 'Verified headless (`tools/_horizontal-spacing-verify-cdp.mjs`, 6/6): on'
+  - 'Editor JS synced byte-identical to build/gallery/designer.html'
+  - '[REVIEW] Horizontal spacing control feels right and produces tidy layouts'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-06.yaml'
+  - '.context/audits/cron/2026-07-06-1830.yaml'
+  - '.context/audits/cron/2026-07-06-1845.yaml'
+  - '.context/audits/cron/2026-07-06-1900.yaml'
+  - '.context/audits/cron/2026-07-06-1915.yaml'
+  - '.context/audits/cron/2026-07-06-1930.yaml'
+  - '.context/audits/cron/2026-07-06-1945.yaml'
+  - '.context/audits/cron/2026-07-06-2000.yaml'
+  - '.context/audits/cron/2026-07-06-2015.yaml'
+  - '.context/audits/cron/2026-07-06-2030.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/locks/T-115.lock'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/.gate-bypass-log.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.reviewed-T-115'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-115-horizontal-spacing-control-mirror-of-ver.md'
+  - '.tasks/active/T-136-endpoint-overlap-selection-blocked-at-convergence.md'
+  - 'tools/_horizontal-spacing-verify-cdp.mjs'
+  - 'tools/_label-overlap-probe.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T23:55:03"
+    action: "T-115: Horizontal spacing control (respaceColumns) — x-axis mirror of Vertical spacing"
+  - time: "2026-07-06T20:42:43"
+    action: "T-115: Horizontal spacing (respaceColumns) verified 6/6 headless + finalized"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 1248 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [ui, editor, routing, layout]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1248
+  commits: 2
+  files_changed: 33
+  lines_added: 1190
+  lines_removed: 149
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-115-horizontal-spacing-control-mirror-of-ver.md
+generated_by: context-agent-hybrid

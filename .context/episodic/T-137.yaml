@@ -1,0 +1,99 @@
+# ============================================================================
+# EPISODIC MEMORY - T-137: Loop-back edges with persisted detourY cannot be straightened
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:27Z
+# ============================================================================
+
+task_id: T-137
+task_name: "Loop-back edges with persisted detourY cannot be straightened"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-06T18:44:54Z
+completed: 2026-07-06T19:00:18Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-06T21:00:18+02:00
+last_commit: 2026-07-06T21:00:18+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Add 'Straighten' edge action for un-straightenable loop-back paths
+
+# Key outcomes
+outcomes:
+  - 'Repro (headless): loading task-gate, e_09 has `detourY=405.1` set and renders as a'
+  - 'A dedicated selected-edge **"Straighten"** action clears the edge''s persisted routing'
+  - 'The straighten persists: `forceStraight` serialises as `<aef:forceStraight value="true"/>`'
+  - 'Verified headless (`tools/_edge-straighten-verify-cdp.mjs`, 8/8): on task-gate,'
+  - 'Corpus node-cut gate unaffected: `bash tests/check-corpus-node-cuts.sh` still passes'
+  - 'Editor JS synced byte-identical to build/gallery/designer.html.'
+  - '[REVIEW] At a gateway→node loop-back you couldn''t straighten before, selecting the edge'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-06 — Explicit "Straighten" action vs. changing the auto-routing heuristic'
+    chose: '(B) an explicit, opt-in per-edge "Straighten" action backed by a persisted'
+    rationale: 'it restores operator control precisely (the field report is "I *cannot* straighten"),'
+    alternatives_rejected: ['(A) relaxing the `isBackwardFlow` / `detourY` loop-back heuristic globally so']
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-07-06-2045.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/locks/T-137.lock'
+  - '.context/project/decisions.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.agent-dispatch-counter'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.reviewed-T-137'
+  - '.context/working/watchtower.log'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-115-horizontal-spacing-control-mirror-of-ver.md'
+  - '.tasks/active/T-137-loop-back-edges-with-persisted-detoury-c.md'
+  - 'tools/_edge-straighten-verify-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-06T21:00:18"
+    action: "T-137: Add 'Straighten' edge action for un-straightenable loop-back paths"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 15 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 15
+  commits: 1
+  files_changed: 17
+  lines_added: 583
+  lines_removed: 33
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-137-loop-back-edges-with-persisted-detoury-c.md
+generated_by: context-agent-hybrid

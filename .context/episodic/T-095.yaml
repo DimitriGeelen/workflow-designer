@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-095: Clean layout composite action: Tidy + branch pitch + align rows + reroute, one click, undoable
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:42:31Z
+# ============================================================================
+
+task_id: T-095
+task_name: "Clean layout composite action: Tidy + branch pitch + align rows + reroute, one click, undoable"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T23:21:34Z
+completed: 2026-07-29T15:39:12Z
+duration_days: 25
+updates_count: 3
+first_commit: 2026-07-05T01:42:12+02:00
+last_commit: 2026-07-05T11:09:29+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Write real ACs for Clean-layout composite (Phase A option 9) — ready for next session. Clean layout composite — one toolbar click (tidy + branch pitch + align rows, all lanes), single Ctrl+Z restore verified on all 24 maps; row snap gains measure-after-move guard (fixes latent T-079 pile-up)
+
+# Key outcomes
+outcomes:
+  - '"✨ Clean layout" toolbar button (between Reset and View XML) runs `tidyLane` + `alignRowsLane` on every lane; `cleanLayout()` records ONE composite `lastTidy` step (positions diff + `laneHeights` list; `undoTidy` extended to restore the list)'
+  - 'PD-044 holds: `cleanLayout()` has exactly one caller — the button''s onclick (grep count 2 = definition + caller); no render pass or pref change invokes it'
+  - 'Measured (24-map Playwright sweep, one Clean click per map): 254 nodes moved; non-stack row near-misses 0; no stack gap under the 6px compact floor; rect-overlap count not above pre-Clean on ANY map. Fixing that last item required a root-cause fix: the T-079 row snap itself could pile two same-x nodes onto one row line (inception-lifecycle''s two end events) — row snap now skips a node whose snap would create a new intersection (same measure-after-move discipline)'
+  - 'Single Ctrl+Z after Clean restores ALL node ys and lane heights byte-identically — verified on ALL 24 maps (undoFails empty), stronger than the 2-map requirement'
+  - 'Suites green: bridge "31 passed, 0 failed", validator "34 passed, 0 failed", parity "OK:", geometry "24 clean"'
+  - 'Gallery synced: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`'
+  - '[REVIEW] One Clean click reads well end-to-end'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Clean layout composite — one toolbar click (tidy + branch pitch + align rows, all lanes), single Ctrl+Z restore verified on all 24 maps; row snap gains measure-after-move guard (fixes latent T-079 pile-up)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-05 — Row snap gains its own measure-after-move guard'
+    chose: 'tidyLane''s row-snap now skips any node whose snap would create a new rect intersection.'
+    rationale: 'The composite AC (overlaps never above pre-Clean) exposed the latent T-079 defect — two same-x end events snapped onto one row line (inception-lifecycle). Guarding at the source fixes Tidy, Clean, and every future composite at once; skipping is visually conservative (node just stays put).'
+    alternatives_rejected: ['Special-casing the composite to tolerate "known" overlaps (hides the defect); moving colliding nodes to another row (invents placement the user didn''t ask for).']
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - '.playwright-mcp/t095-clean-click-audit.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-095-clean-layout-composite-action-tidy--bran.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T01:42:12"
+    action: "T-095: Write real ACs for Clean-layout composite (Phase A option 9) — ready for next session"
+  - time: "2026-07-05T11:09:29"
+    action: "T-095: Clean layout composite — one toolbar click (tidy + branch pitch + align rows, all lanes), single Ctrl+Z restore verified on all 24 maps; row snap gains measure-after-move guard (fixes latent T-079 pile-up)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 35537 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 35537
+  commits: 2
+  files_changed: 4
+  lines_added: 128
+  lines_removed: 14
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-095-clean-layout-composite-action-tidy--bran.md
+generated_by: context-agent-hybrid

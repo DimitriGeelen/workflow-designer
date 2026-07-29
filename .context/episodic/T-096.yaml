@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-096: Density setting has no visible effect - investigate and fix
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:42:32Z
+# ============================================================================
+
+task_id: T-096
+task_name: "Density setting has no visible effect - investigate and fix"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T09:11:00Z
+completed: 2026-07-29T15:39:12Z
+duration_days: 24
+updates_count: 2
+first_commit: 2026-07-05T11:15:10+02:00
+last_commit: 2026-07-05T11:15:10+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Density 'no effect' operator report — mechanism verified working; fix = apply-now affordance for deferred layout prefs (PD-044 intact) + learning
+
+# Key outcomes
+outcomes:
+  - 'Changing Density or Branch pitch reveals `#view-apply-row` in the View section: "✨ Apply now — Clean layout" button + hint ("they never move nodes by themselves"); hidden again on modal reopen (openSettings resets it; Playwright hiddenOnOpen=true, rowShown=true after change)'
+  - 'Apply button runs `cleanLayout()` (explicit click — PD-044 intact; grep count 3 = definition + toolbar button + settings apply button)'
+  - 'Playwright-verified on task-lifecycle: density→tight alone left all node ys byte-identical (prefAloneMoved=false); apply click moved 15 nodes with feedback text; undoTidy restored byte-identically'
+  - 'Suites green: bridge "31 passed, 0 failed", validator "34 passed, 0 failed", parity "OK:", geometry "24 clean"'
+  - 'Gallery synced: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`'
+  - '[REVIEW] Density now visibly does something'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Density ''no effect'' operator report — mechanism verified working; fix = apply-now affordance for deferred layout prefs (PD-044 intact) + learning'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - '.playwright-mcp/t096-apply-affordance.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-096-density-setting-has-no-visible-effect---.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T11:15:10"
+    action: "T-096: Density 'no effect' operator report — mechanism verified working; fix = apply-now affordance for deferred layout prefs (PD-044 intact) + learning"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 34948 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 34948
+  commits: 1
+  files_changed: 4
+  lines_added: 244
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-096-density-setting-has-no-visible-effect---.md
+generated_by: context-agent-hybrid

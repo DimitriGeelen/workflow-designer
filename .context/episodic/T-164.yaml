@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-164: Consistent-tile hover-zoom in the Versions modal
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:30Z
+# ============================================================================
+
+task_id: T-164
+task_name: "Consistent-tile hover-zoom in the Versions modal"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-09T22:57:45Z
+completed: 2026-07-09T23:01:23Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-10T01:00:51+02:00
+last_commit: 2026-07-10T01:01:23+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Consistent-tile hover-zoom in the Versions modal. Finalize — agent ACs verified, partial-complete (human REVIEW), GO recommendation
+
+# Key outcomes
+outcomes:
+  - '`showProjectPreview` resolves its anchor modal generically (works inside `#versions-modal` as well as `#project-modal`), so the hover-zoom preview positions correctly in the Versions modal. *(via `card.closest(''#project-modal, #versions-modal'')`; Open-project hover regression-checked OK)*'
+  - 'Each Versions-modal row''s thumbnail carries `_previewSrc`/`_previewMeta` and shows the enlarged floating preview on `mouseenter`/focus and hides it on `mouseleave`/blur — same behaviour as an Open-project card. *(verified: hover on v4 → preview visible with image + caption "v4 / arc-lifecycle · ts"; leave → hidden)*'
+  - '`closeVersionsModal` tears down the hover-preview element (`#project-hover-preview`) and clears the listener, exactly as `closeProjectModal` does — no orphaned preview after the modal closes. *(verified: modalGone + previewElementRemoved both true on close)*'
+  - 'src↔build mirror invariant holds: `diff -q src/aef-workflow-designer.html build/gallery/designer.html`. *(MIRROR-OK)*'
+  - 'Playwright: open the Versions modal for a map with ≥1 saved version → hover a version thumbnail → the enlarged preview appears (verified present + visible) → close the modal → the preview element is gone; 0 console errors; element screenshot READ. *(.playwright-mcp/t164-versions-hover-zoom.png — read: 4 versions + floating v4 preview; 0 console errors)*'
+  - '[REVIEW] Version-browsing hover-zoom feels consistent with Open-project'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-164-consistent-tile-hover-zoom-in-the-versio.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-10T01:00:51"
+    action: "T-164: Consistent-tile hover-zoom in the Versions modal"
+  - time: "2026-07-10T01:01:23"
+    action: "T-164: Finalize — agent ACs verified, partial-complete (human REVIEW), GO recommendation"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 2
+  files_changed: 2
+  lines_added: 206
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-164-consistent-tile-hover-zoom-in-the-versio.md
+generated_by: context-agent-hybrid

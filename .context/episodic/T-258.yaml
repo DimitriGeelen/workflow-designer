@@ -1,0 +1,129 @@
+# ============================================================================
+# EPISODIC MEMORY - T-258: Annotation seam v0: postMessage aef:ready/aef:annotate read-only badge layer + MANIFEST capabilities flag (T-250 GO)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:40Z
+# ============================================================================
+
+task_id: T-258
+task_name: "Annotation seam v0: postMessage aef:ready/aef:annotate read-only badge layer + MANIFEST capabilities flag (T-250 GO)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-27T17:54:59Z
+completed: 2026-07-27T20:45:35Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-27T19:56:29+02:00
+last_commit: 2026-07-27T22:45:35+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file annotation-seam v0 build task (T-250 GO shape A, operator-ratified) — ratification announced to AEF at rail 216 (overlay v0 unblocked); T-257 IW-3 seam-risk half closed w/ AEF rail-215 evidence (eventDef accepted host-agnostic, lint start=neutral); fixture byte-check confirmed exact both files. annotation seam v0 build — aef:ready re-handshake per renderAll + aef:annotate read-only badge layer (parent-source-gated, text-node-only, unknown-uid silent-ignore); thumbnails stripped via _stripAnnotationLayer; MANIFEST gains capabilities.annotation_seam (T-246 trigger); protocol doc §Annotation seam; iframe-host CDP harness (spoof probe via sibling frame) + suite legs registered (T-258+T-259) — 39/39; visual verification read: badges legible, tones distinct. Human AC steps fixed — badge screenshot now SERVED at http://192.168.10.107:8834/t258-annotation-badges.png (gallery docroot, sha-verified 4b617a51) instead of an unviewable repo path; review page has no image rendering and no repo-file route (operator-reported). Steps no longer circular; optional live-overlay check added. L-record — operator-reachability learning (Human AC artifacts must be browser-dereferenceable; T-253 port class, T-258 file class)
+
+# Key outcomes
+outcomes:
+  - '`aef:ready` handshake: when embedded (window.parent !== window), the designer'
+  - '`aef:annotate` intake: accepts `{type:''aef:annotate'', annotations:[{uid, badge,'
+  - 'Never serialized + lifecycle: annotations exist only in the DOM overlay'
+  - 'MANIFEST capabilities flag: release manifest gains a structured'
+  - 'Suite leg: new CDP harness embeds the real designer in an iframe host page and'
+  - 'Visual verification: element-level screenshot(s) of rendered badges READ and'
+  - '[REVIEW] Badge look-and-feel reads right'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Human AC steps fixed — badge screenshot now SERVED at http://192.168.10.107:8834/t258-annotation-badges.png (gallery docroot, sha-verified 4b617a51) instead of an unviewable repo path; review page has no image rendering and no repo-file route (operator-reported). Steps no longer circular; optional live-overlay check added'
+    source: git-mined
+  - description: 'file annotation-seam v0 build task (T-250 GO shape A, operator-ratified) — ratification announced to AEF at rail 216 (overlay v0 unblocked); T-257 IW-3 seam-risk half closed w/ AEF rail-215 evidence (eventDef accepted host-agnostic, lint start=neutral); fixture byte-check confirmed exact both files'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-27 — Origin policy v0 (T-250 IW-3, deferred to this build)'
+    chose: 'Emit `aef:ready` with targetOrigin `*`; accept `aef:annotate` only when'
+    rationale: 'The uid list is map structure, not a secret (LAN-scoped tool); the intake'
+    alternatives_rejected: ['(a) same-origin check — AEF serves the vendored copy from their own']
+  - decision: '2026-07-27 — Annotate payload shape (contract owner: 832)'
+    chose: '`{uid, badge (≤48 chars), tone: info|ok|warn|err (default info),'
+    rationale: 'Minimal display vocabulary covering AEF''s overlay v0 need (live state on'
+    alternatives_rejected: ['free-form styling fields (arbitrary color/size) — display-only seam']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/locks/T-250.lock'
+  - '.context/locks/T-254.lock'
+  - '.context/locks/T-255.lock'
+  - '.context/locks/T-256.lock'
+  - '.context/locks/T-257.lock'
+  - '.context/project/decisions.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-250.log'
+  - '.context/working/episodic-gen/T-254.log'
+  - '.context/working/episodic-gen/T-256.log'
+  - '.context/working/gallery-8834.log'
+  - '.context/working/.gate-bypass-log.yaml'
+  - '.context/working/.handover-cooldown'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.reviewed-T-250'
+  - '.context/working/.reviewed-T-255'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - 'docs/aef-designer-integration-protocol.md'
+  - '.playwright-mcp/t258-annotation-badges.png'
+  - 'scripts/release-designer.sh'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-257-typed-startthrow-eventdef-round-trip-sav.md'
+  - '.tasks/active/T-258-annotation-seam-v0-postmessage-aefreadya.md'
+  - '.tasks/completed/T-263-save-to-project-target-binding-workflowm.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t258_annotation_seam.py'
+  - 'tools/_t258-annotation-seam-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-27T19:56:29"
+    action: "T-258: file annotation-seam v0 build task (T-250 GO shape A, operator-ratified) — ratification announced to AEF at rail 216 (overlay v0 unblocked); T-257 IW-3 seam-risk half closed w/ AEF rail-215 evidence (eventDef accepted host-agnostic, lint start=neutral); fixture byte-check confirmed exact both files"
+  - time: "2026-07-27T21:10:26"
+    action: "T-258: annotation seam v0 build — aef:ready re-handshake per renderAll + aef:annotate read-only badge layer (parent-source-gated, text-node-only, unknown-uid silent-ignore); thumbnails stripped via _stripAnnotationLayer; MANIFEST gains capabilities.annotation_seam (T-246 trigger); protocol doc §Annotation seam; iframe-host CDP harness (spoof probe via sibling frame) + suite legs registered (T-258+T-259) — 39/39; visual verification read: badges legible, tones distinct"
+  - time: "2026-07-27T22:44:32"
+    action: "T-258: Human AC steps fixed — badge screenshot now SERVED at http://192.168.10.107:8834/t258-annotation-badges.png (gallery docroot, sha-verified 4b617a51) instead of an unviewable repo path; review page has no image rendering and no repo-file route (operator-reported). Steps no longer circular; optional live-overlay check added"
+  - time: "2026-07-27T22:45:35"
+    action: "T-258: L-record — operator-reachability learning (Human AC artifacts must be browser-dereferenceable; T-253 port class, T-258 file class)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 170 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 170
+  commits: 4
+  files_changed: 38
+  lines_added: 5284
+  lines_removed: 4040
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-258-annotation-seam-v0-postmessage-aefreadya.md
+generated_by: context-agent-hybrid

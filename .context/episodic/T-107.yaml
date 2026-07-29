@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-107: Align columns one-shot action: snap near-aligned connected nodes to shared centre-x
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:17Z
+# ============================================================================
+
+task_id: T-107
+task_name: "Align columns one-shot action: snap near-aligned connected nodes to shared centre-x"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T18:54:24Z
+completed: 2026-07-05T19:09:36Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-05T21:09:29+02:00
+last_commit: 2026-07-05T21:09:29+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Align columns one-shot action (Phase C option 7)
+
+# Key outcomes
+outcomes:
+  - 'New `alignColumns()` function: union-find builds connected components from edges whose endpoints are near-x-aligned (`|cx(src) − cx(tgt)| ≤ 14`), then snaps each ≥2-node component to its members'' median centre-x'
+  - 'Measure-after-move collision revert (mirror `alignRowsLane`): a component whose snap increases node-rect intersections reverts — verified: harvest-pipeline overlaps 0 before → 0 after'
+  - 'Undoable via the shared `lastTidy` — verified: harvest pair aligned (541,541) → Ctrl+Z → exact originals (544,538); `undoTidy` made axis-aware so x-records revert (y stays intact)'
+  - 'A one-shot "⁙ Align columns" toolbar button added beside "✨ Clean layout", reporting nodes moved'
+  - 'Horizontal-flow chains provably NOT collapsed: on session-handover (0 col near-misses, 0 near-x edges) `alignColumns()` moves **0** nodes. (Note: release-pipeline is NOT a pure-horizontal control — the T-092 table lists it with 3 col near-misses; it correctly moves 6 nodes fixing those, its horizontal flow having large-Δx edges that never union.)'
+  - 'Column near-misses measurably reduced: harvest-pipeline **5 → 0** pairs (`0 < |Δcx| ≤ 14`), moved 7 nodes'
+  - 'Render-only w.r.t. the shipped corpus: NOT wired into `cleanLayout`; `git diff` shows only `src/aef-workflow-designer.html` (+ gallery mirror); no `examples/**` changed'
+  - '`src/aef-workflow-designer.html` byte-identical to `build/gallery/designer.html` — `diff -q` PASS'
+  - 'Before/after screenshots READ (`.playwright-mcp/t107-pair-before.png` vs `t107-pair-after2.png`): the "Dir exists?"→"No such dir" edge goes from a 6px dogleg to dead-straight into the node centre; horizontal flow (Resolve→gate→exists) undisturbed; no new overlap'
+  - '[REVIEW] Align columns straightens vertical connected runs without disturbing horizontal flow'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-107-align-columns-one-shot-action-snap-near-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T21:09:29"
+    action: "T-107: Align columns one-shot action (Phase C option 7)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 15 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 15
+  commits: 1
+  files_changed: 2
+  lines_added: 278
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-107-align-columns-one-shot-action-snap-near-.md
+generated_by: context-agent-hybrid

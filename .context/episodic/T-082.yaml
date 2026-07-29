@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-082: Edge-label placement pass: measure-after-move for edge labels
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:09Z
+# ============================================================================
+
+task_id: T-082
+task_name: "Edge-label placement pass: measure-after-move for edge labels"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T13:52:06Z
+completed: 2026-07-04T15:17:42Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-04T17:17:42+02:00
+last_commit: 2026-07-04T17:17:42+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Measured edge-label placement pass — corpus collisions 141->28 (-80%), context-memory 14->2, label-over-label eliminated
+
+# Key outcomes
+outcomes:
+  - 'A measured edge-label post-pass exists (`adjustEdgeLabelPlacements()` or equivalent) that runs AFTER the node-label pass, generates candidate positions along each edge''s rendered polyline, scores each candidate by real getBBox against (a) all rendered edge segments, (b) node boxes, (c) node-label / id-badge / io-badge texts, (d) edge labels already placed this pass — first zero-score candidate wins, otherwise strictly-better-than-default minimum; ties keep the default placement'
+  - 'The label halo rect is repositioned from the MEASURED final text bbox (not the estimate), so rect and text never separate'
+  - 'Corpus sweep with one shared browser-side measurement function, run before and after the change: total measured edge-label collisions across all corpus maps strictly decreases, and context-memory''s edge-label-involved hits drop to <= 2 (from ~15); before/after counts recorded in this task''s Updates'
+  - 'Serialization untouched: editor XML round-trip stays byte-identical on context-memory plus 2 control maps (placement is render-only)'
+  - 'All existing suites green: bridge tests, validator selftest + corpus validate, editor-bridge structured parity, lane-band checks; gallery copy re-synced (diff -q clean)'
+  - '[REVIEW] Edge labels read cleanly on the live gallery — no label sitting on top of a line, badge, or another label at the hotspots from your 2026-07-04 evaluation'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-04 — Node obstacle boxes: shape-only, not nodeVisualBottom'
+    chose: 'Edge-label scorer blocks node SHAPE boxes (+2px) only; the text band below label-below nodes is covered by measured nodeTexts bboxes instead.'
+    rationale: 'nodeVisualBottom blocks a full-node-width band 16-30px deep under every node, but the id badge inside it is narrow and centred — measured text bboxes free the usable space beside it. Switching cut residual collisions 65 -> 28.'
+    alternatives_rejected: ['Reusing nodeVisualBottom (as the node-label pass does) — too conservative for this pass; left labels stuck on dense maps.']
+  - decision: '2026-07-04 — Strict-best fallback instead of forced relocation'
+    chose: 'When no zero-score candidate exists, keep the best-scoring one; keep the default when nothing beats it. Two distance tiers (hug the line / one label-height out) rather than unlimited drift.'
+    rationale: 'A label pushed far from its edge is worse than a label with one residual overlap — attribution beats purity. The remaining 28 corpus hits are all in intrinsically over-dense corridors (verification-gate mid-chain, error-escalation ladder) where the fix is density/halo work (T-083/T-085), not more drift.'
+    alternatives_rejected: ['Larger candidate radii and label wrapping — wrapping is out of T-082 scope and drift breaks edge attribution.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-082-edge-label-placement-pass-measure-after-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T17:17:42"
+    action: "T-082: Measured edge-label placement pass — corpus collisions 141->28 (-80%), context-memory 14->2, label-over-label eliminated"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 85 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 85
+  commits: 1
+  files_changed: 3
+  lines_added: 189
+  lines_removed: 47
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-082-edge-label-placement-pass-measure-after-.md
+generated_by: context-agent-hybrid

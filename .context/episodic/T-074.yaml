@@ -1,0 +1,92 @@
+# ============================================================================
+# EPISODIC MEMORY - T-074: Magnetic drag snapping — lane centre, neighbour centres, grid, with guide lines
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:05Z
+# ============================================================================
+
+task_id: T-074
+task_name: "Magnetic drag snapping — lane centre, neighbour centres, grid, with guide lines"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T09:43:58Z
+completed: 2026-07-04T10:13:48Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-04T12:13:16+02:00
+last_commit: 2026-07-04T12:13:48+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Magnetic drag snapping — lane/neighbour centres + grid, with guide lines. Complete (partial — Human REVIEW AC open); decisions PD-021..023
+
+# Key outcomes
+outcomes:
+  - 'While dragging a single node, its centre snaps to: lane centre-y (verified: n_classify dropped 5px off lane centre landed delta 0); centre-x/y of connected nodes (n_resume→n_resolve delta 0) and unconnected nodes within 400px; and grid multiples when enabled (landed exactly 560/440 from a 553/447 drop). Magnet candidates take priority over grid on the same axis.'
+  - 'Magnet engages within SNAP_TOL (7 model px) and releases beyond it — trusted-input drag to 30px off the candidate axis landed at 29.3px (un-snapped). Grid, by contrast, quantizes unconditionally while its toggle is on (see Decisions — toleranced grid leaves dead zones).'
+  - 'While a snap is engaged a guide line renders along the snapped axis (g-preview children=1 mid-drag, screenshot t074-guide-during-drag.png READ and confirmed); 0 children after mouseup — no guide artifacts survive the drag.'
+  - 'Snapping updates the stored position: dropped node''s centre-y equals the connected candidate''s exactly (deltaY=0) and e_09 renders straight by exact alignment, not via T-073 tolerance.'
+  - 'Prefs live in localStorage `aefSnapPrefs` ({"magnet":true,"grid":false,"gridSize":20} confirmed); exported BPMN XML matches /snap/i nowhere. Defaults: magnet on, grid off, size 20.'
+  - 'Group drags and edge-endpoint drags unaffected: magneticSnap is called only in the single-node `drag` branch of the mousemove handler; the groupDrag block and the endpoint SNAP_RADIUS logic (T-070) are untouched by this diff.'
+  - 'Editor JS passes `node --check`; bridge suite 31 passed 0 failed; gallery copy refreshed.'
+  - '[REVIEW] Snapping feels helpful, not sticky'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-04 — Grid quantizes unconditionally; magnet is toleranced'
+    chose: 'Magnet candidates (lane/node centres) engage within SNAP_TOL=7px and release beyond; the grid, while its toggle is on, rounds every unclaimed axis to the nearest multiple with no tolerance.'
+    rationale: 'Trusted-input testing exposed dead zones in a toleranced grid: with cell 20 and tol 7, proposals 7–10px from a multiple snapped to nothing — the grid felt "sometimes broken" (first implementation failed exactly this way at 553/447 → 7.02/7.54 from the nearest multiples). A grid is an explicit opt-in; escaping it means toggling it off, not out-dragging it.'
+    alternatives_rejected: ['Toleranced grid (dead zones); tolerance = gridSize/2 (that IS unconditional rounding, stated confusingly).']
+  - decision: '2026-07-04 — Snap in centre coordinates, single-node drags only'
+    chose: 'magneticSnap operates on the dragged node''s centre and is wired only into the single-node drag branch; group drags stay rigid, endpoint drags keep T-070''s port snapping.'
+    rationale: 'Centre alignment is what makes edges straight (the user''s stated goal); snapping individual members of a group drag would distort the group''s internal geometry mid-move.'
+    alternatives_rejected: ['Snapping group drags by leader node (surprising for the non-leader members); snapping node top-left (aligns nothing visible).']
+  - decision: '2026-07-04 — Candidate scope'
+    chose: 'Connected nodes attract at any distance; unconnected nodes only within 400px; guides drawn between the aligned centres (lane guides span the pool).'
+    rationale: 'Connected-node alignment is the high-value case regardless of distance (long straight flows); far-away unconnected nodes create invisible-cause snapping.'
+    alternatives_rejected: ['All nodes at any distance (mystery magnets); connected-only (misses row alignment of parallel branches).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-074-magnetic-drag-snapping--lane-centre-neig.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T12:13:16"
+    action: "T-074: Magnetic drag snapping — lane/neighbour centres + grid, with guide lines"
+  - time: "2026-07-04T12:13:48"
+    action: "T-074: Complete (partial — Human REVIEW AC open); decisions PD-021..023"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 29 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 29
+  commits: 2
+  files_changed: 3
+  lines_added: 203
+  lines_removed: 20
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-074-magnetic-drag-snapping--lane-centre-neig.md
+generated_by: context-agent-hybrid

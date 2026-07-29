@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-166: Delete a workflow from the project (archive-based, Open-project browser)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:32Z
+# ============================================================================
+
+task_id: T-166
+task_name: "Delete a workflow from the project (archive-based, Open-project browser)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-09T23:11:35Z
+completed: 2026-07-09T23:29:59Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-10T01:28:42+02:00
+last_commit: 2026-07-10T01:29:59+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Delete a workflow from the project (archive-based, 🗑 in Open-project browser). Finalize — partial-complete (human REVIEW), GO
+
+# Key outcomes
+outcomes:
+  - '`POST /api/delete {id, scope:''workflow''}` archives `.editor-versions/<id>/`, the corpus baseline `examples/aef-processes/rendered/<id>.bpmn`, and the thumbnail `.editor-versions/_rendered/<id>.png` into `.editor-versions/_trash/<id>-<ts>/`, drops the served copy, and returns `{ok:true, archived:[...], trash:...}`. After it, `/api/list` no longer lists the id and `/api/versions?id=` is empty. *(verified via curl: save test-del-tmp → {archived:[''.editor-versions/test-del-tmp''], trash:...}; list=False, versions=0, files under _trash/…/versions/)*'
+  - 'The endpoint rejects an invalid id (400) and returns 404 when there is nothing to delete; every source path is containment-checked against REPO before moving (no path traversal). *(verified: id `../../etc`→400, `no-such-map-xyz`→404, bad scope→400; `_within_repo` realpath guard in archive_move)*'
+  - 'Open-project cards show a 🗑 delete button (default mode only, not pick mode); clicking it opens a themed `confirmDialog()` (no native confirm), and only on confirm does it call `/api/delete` and refresh the browser list. *(verified: 27 cards→27 🗑 in default mode; 0 🗑 in pick mode; click → themed dialog; confirm → gone)*'
+  - '`confirmDialog()` is a reusable themed promise-returning dialog (Cancel/confirm, Esc=cancel via capture so it does not also close the underlying modal, danger styling), sitting above the project modal (z-index > 10001). *(z-index 10002, capture-phase Esc with stopImmediatePropagation, red Delete button — see screenshot)*'
+  - 'src↔build mirror invariant holds (`diff -q src build/gallery/designer.html`) and `python3 -c "import ast,sys; ast.parse(open(''tools/gallery-serve.py'').read())"` parses. *(MIRROR-OK; PARSE-OK)*'
+  - 'Playwright (against a throwaway temp store so no real map is harmed): save a scratch map → it appears in the browser → 🗑 → confirm → it disappears from the list and its files are archived under `_trash`; 0 console errors; element screenshot READ. *(ui-del-scratch: saved→visible→confirm→gone from modal+/api/list, versions=0; .playwright-mcp/t166-delete-confirm.png read. Only console msg is a benign 404 for the scratch fixture''s absent thumbnail — real editor-saved maps carry a PNG; not from the delete path)*'
+  - '[REVIEW] Deleting a workflow feels safe and clear'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-166-delete-a-workflow-from-the-project-archi.md'
+  - 'tools/gallery-serve.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-10T01:28:42"
+    action: "T-166: Delete a workflow from the project (archive-based, 🗑 in Open-project browser)"
+  - time: "2026-07-10T01:29:59"
+    action: "T-166: Finalize — partial-complete (human REVIEW), GO"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 18 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 18
+  commits: 2
+  files_changed: 3
+  lines_added: 351
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-166-delete-a-workflow-from-the-project-archi.md
+generated_by: context-agent-hybrid

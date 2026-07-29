@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-098: Edge channel separation setting: corridor channel pitch off/4/8px in settings
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:42:33Z
+# ============================================================================
+
+task_id: T-098
+task_name: "Edge channel separation setting: corridor channel pitch off/4/8px in settings"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T10:00:02Z
+completed: 2026-07-29T15:39:12Z
+duration_days: 24
+updates_count: 2
+first_commit: 2026-07-05T12:05:58+02:00
+last_commit: 2026-07-05T12:05:58+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Edge channel separation setting — corridor channel pitch off/tight/roomy in Routing settings (default 8px = T-097); off byte-restores pre-T-097 converging look; PD-044 stable across switches
+
+# Key outcomes
+outcomes:
+  - '`routingPrefs.channelSep` (validated 0/4/8, default 8) drives BOTH the middle-mode sibling anchor spread pitch and the `channelExtra` stub-rank pitch via `channelPitch()`; `setChannelSep()` persists to `aefRoutingPrefs` and re-renders edges. Evidence: src/aef-workflow-designer.html (`setChannelSep`, `channelPitch`, spreadOffset spacing, channelExtra)'
+  - 'Settings modal Routing section has the "Channel separation" select (off / tight 4px / roomy 8px) with hint; synced in `syncSettingsUI()` (`set-channel-sep`); Reset-to-defaults calls `setChannelSep(8)`'
+  - 'Live behaviour verified on audit-process, no reload between switches: sep 8 → 1 overlap pair (T-097 result), sep 0 → 22 pairs (exact pre-T-097 converging baseline), sep 4 → 0 pairs, back to 8 → 1; localStorage `aefRoutingPrefs.channelSep` persisted'
+  - 'PD-044 holds: `buildBpmnXml(state)` byte-identical across the 8→0→4→8 switch sequence on the loaded map (geomStable: true)'
+  - 'Suites pass: bridge 31/31, validator 34/34, corpus geometry 24 clean, parity OK; build/gallery/designer.html identical copy'
+  - 'Screenshots taken and READ: `.playwright-mcp/t098-settings-channel-sep.png` (control renders in Routing section, default roomy), `t098-audit-sep-off.png` (branches converge on one line), `t098-audit-sep-roomy.png` (parallel channel bundle) — both modes as described, no visual regression'
+  - '[REVIEW] Channel separation control feels right on real maps'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.playwright-mcp/t098-audit-sep-off.png'
+  - '.playwright-mcp/t098-audit-sep-roomy.png'
+  - '.playwright-mcp/t098-settings-channel-sep.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-098-edge-channel-separation-setting-corridor.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T12:05:58"
+    action: "T-098: Edge channel separation setting — corridor channel pitch off/tight/roomy in Routing settings (default 8px = T-097); off byte-restores pre-T-097 converging look; PD-044 stable across switches"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 34899 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 34899
+  commits: 1
+  files_changed: 5
+  lines_added: 241
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-098-edge-channel-separation-setting-corridor.md
+generated_by: context-agent-hybrid

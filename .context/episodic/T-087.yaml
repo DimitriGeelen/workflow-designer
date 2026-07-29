@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-087: Node-label fit ladder: long task names must fit their rect
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:42:30Z
+# ============================================================================
+
+task_id: T-087
+task_name: "Node-label fit ladder: long task names must fit their rect"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T21:40:52Z
+completed: 2026-07-29T15:39:11Z
+duration_days: 25
+updates_count: 3
+first_commit: 2026-07-04T23:54:33+02:00
+last_commit: 2026-07-05T00:11:16+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  File node-label fit ladder task — operator-raised: long task names overflow their rect (wrap has no vertical fit check). Node-label fit ladder — task names fit their rect by construction (18->0 overflow at M, 62->0 at L, 164 nodes x 24 maps); shrink via inline style, clamp+ellipsis+tooltip at floor. Dedupe Decisions heading (auto-capture read the empty template twin) + record PD via context agent
+
+# Key outcomes
+outcomes:
+  - 'Post-pass `fitNodeLabels()` runs after nodes are in the DOM and before the other label passes; it MEASURES rendered lines (getComputedTextLength, PL-008) and guarantees the label block fits the rect: line count within the vertical budget by construction, every line trimmed to the rect width. Corpus evidence: task-node label-overflow count (label text bbox outside rect ±2px) goes from >0 (incl. the operator-reported frw_5_write) to 0 across all 24 maps.'
+  - 'Ladder tiers verified reachable and honest: base wrap kept when it fits; shrink tier renders genuinely smaller text via inline style; floor tier clamps lines, ellipsizes with measured trim, and adds a `<title>` with the full name. Tier distribution reported.'
+  - 'Size-aware: at labelPrefs.size = L the fit invariant still holds (0 task-label overflow corpus-wide); ladder parameters follow the size pref.'
+  - 'Render-only: editor XML build stability x1===x2 (renderAll interleaved) on session-handover + 2 control maps; no serialization-function lines in the diff.'
+  - 'All suites green (bridge 31, validator 34, parity, geometry 24 clean); gallery copy synced.'
+  - 'Visual verification: element screenshots of the operator-reported node (session-handover frw_5_write) at size M and size L, read and inspected — text fully inside the rect, no top/bottom clipping, ellipsis only when clamped.'
+  - '[REVIEW] Long task names read well inside their boxes'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-05 — Fit post-pass over per-render fitting; one shrink step only'
+    chose: 'A single post-pass (fitNodeLabels) after nodes enter the DOM, before the other label passes; ladder = base wrap → ONE shrink step → clamp+ellipsis+tooltip.'
+    rationale: 'Measurement needs live DOM (getComputedTextLength); running before adjustLabelPlacements/adjustEdgeLabelPlacements means those passes measure the FINAL label geometry. One shrink step keeps the type scale readable — more steps would converge on unreadable text instead of admitting the name is too long (tooltip carries the truth).'
+    alternatives_rejected: ['Fitting inline during node render (elements not yet measurable in DOM); auto-growing rect height (document mutation from a render concern — same rejection as T-084 lane auto-grow); unlimited shrink (unreadable soup beats nothing but loses to ellipsis+tooltip).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-087-node-label-fit-ladder-long-task-names-mu.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T23:54:33"
+    action: "T-087: File node-label fit ladder task — operator-raised: long task names overflow their rect (wrap has no vertical fit check)"
+  - time: "2026-07-05T00:10:10"
+    action: "T-087: Node-label fit ladder — task names fit their rect by construction (18->0 overflow at M, 62->0 at L, 164 nodes x 24 maps); shrink via inline style, clamp+ellipsis+tooltip at floor"
+  - time: "2026-07-05T00:11:16"
+    action: "T-087: Dedupe Decisions heading (auto-capture read the empty template twin) + record PD via context agent"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 35638 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 35638
+  commits: 3
+  files_changed: 3
+  lines_added: 319
+  lines_removed: 21
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-087-node-label-fit-ladder-long-task-names-mu.md
+generated_by: context-agent-hybrid

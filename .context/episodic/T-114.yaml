@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-114: Obstacle-avoiding orthogonal edge routing for residual node-cuts
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:19Z
+# ============================================================================
+
+task_id: T-114
+task_name: "Obstacle-avoiding orthogonal edge routing for residual node-cuts"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T21:07:06Z
+completed: 2026-07-05T21:26:17Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-05T23:11:18+02:00
+last_commit: 2026-07-05T23:26:17+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Scaffold router build task — ACs + diagnosed failure mode. Obstacle-avoiding orthogonal router — clears ALL corpus node-cuts (27→0). Add Recommendation (GO) + Decisions for human review. Partial-complete — Agent ACs done, owner→human for /review/T-114 visual sign-off
+
+# Key outcomes
+outcomes:
+  - 'A grid-based orthogonal A* obstacle router exists in the editor (pure function:'
+  - 'It is invoked at the `needsLoop` branch **only when** `orthoLoopBack`''s result still'
+  - 'Corpus node-cuts drop materially: harvest-pipeline and error-escalation-ladder each'
+  - '**Zero regression:** no map''s cut count increases (T-113 harness), and `mapMessiness()`'
+  - 'No stored geometry mutated — router computes `_renderedPolyline` only, runs in render'
+  - 'T-113 baseline refreshed to the improved counts (the gate stays rot-proof) — all 0s'
+  - '[REVIEW] Rerouted fan/join edges look clean, not contorted'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-05 — Face-choosing router over targeted orthoLoopBack patch'
+    chose: 'a general obstacle-avoiding grid router free to pick the arrival/departure face.'
+    rationale: 'the diagnostic showed residual cuts were edges whose *pre-set* stub landed inside a'
+    alternatives_rejected: ['patching `orthoLoopBack`''s band selection (structurally can''t move the stub);']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-114-obstacle-avoiding-orthogonal-edge-routin.md'
+  - 'tests/fixtures/node-cuts-baseline.json'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T23:11:18"
+    action: "T-114: Scaffold router build task — ACs + diagnosed failure mode"
+  - time: "2026-07-05T23:24:54"
+    action: "T-114: Obstacle-avoiding orthogonal router — clears ALL corpus node-cuts (27→0)"
+  - time: "2026-07-05T23:25:55"
+    action: "T-114: Add Recommendation (GO) + Decisions for human review"
+  - time: "2026-07-05T23:26:17"
+    action: "T-114: Partial-complete — Agent ACs done, owner→human for /review/T-114 visual sign-off"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 19 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 19
+  commits: 4
+  files_changed: 4
+  lines_added: 542
+  lines_removed: 38
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-114-obstacle-avoiding-orthogonal-edge-routin.md
+generated_by: context-agent-hybrid

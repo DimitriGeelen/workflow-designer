@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-104: Density and Branch-pitch VIEW settings appear inert to operator - investigate and fix
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:15Z
+# ============================================================================
+
+task_id: T-104
+task_name: "Density and Branch-pitch VIEW settings appear inert to operator - investigate and fix"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T17:18:36Z
+completed: 2026-07-05T17:25:08Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-05T19:24:48+02:00
+last_commit: 2026-07-05T19:24:48+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Density/Branch-pitch VIEW settings apply live (fix inert-feeling controls)
+
+# Key outcomes
+outcomes:
+  - 'Root cause determined empirically: headless test shows `rowPitch()` = 72/96/124.8 for tight/normal/wide and the resulting node ys DIFFER across density and branchPitch on harvest-pipeline — the pref IS consumed; the mechanism works'
+  - 'Fix targets discoverability/feedback (pref was consumed, not broken): Density/Branch-pitch now **apply live** — changing the dropdown runs `cleanLayout()` immediately with feedback ("✨ Applied — N nodes moved (Ctrl+Z reverts)"), instead of silently storing the pref behind a separate Apply click'
+  - '(N/A — pref was consumed, so no `rowPitch()`/`BRANCH_GAP` wiring bug to fix)'
+  - 'Change synced byte-identical to `build/gallery/designer.html` (`diff -q` clean)'
+  - 'Verified: dispatching a real `change` event on `#set-density` moves 11 nodes (`changed:true`, feedback set); before/after screenshots (`.playwright-mcp/t104-density-{normal,wide}.png`) READ — the map visibly re-lays-out at wider row pitch'
+  - '[REVIEW] Density / Branch pitch now visibly do something'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Density/Branch-pitch VIEW settings apply live (fix inert-feeling controls)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-104-density-and-branch-pitch-view-settings-a.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T19:24:48"
+    action: "T-104: Density/Branch-pitch VIEW settings apply live (fix inert-feeling controls)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 2
+  lines_added: 253
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-104-density-and-branch-pitch-view-settings-a.md
+generated_by: context-agent-hybrid

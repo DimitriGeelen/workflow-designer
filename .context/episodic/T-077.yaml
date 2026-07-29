@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-077: Routing survey R-5: keep badges and edge labels out of edge channels
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:07Z
+# ============================================================================
+
+task_id: T-077
+task_name: "Routing survey R-5: keep badges and edge labels out of edge channels"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T10:20:20Z
+completed: 2026-07-04T11:09:39Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-04T13:09:39+02:00
+last_commit: 2026-07-04T13:09:39+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Side-relocate contested node labels — measure-after-move, zero-new-overlap invariant
+
+# Key outcomes
+outcomes:
+  - 'A post-routing label pass relocates the below-shape name+id block of label-below nodes to the side of the shape when a rendered edge segment crosses the text band — evidence: `adjustLabelPlacements()` runs at end of renderNodes; placement is SELF-VERIFYING: it applies a candidate side, measures the real getBBox against polylines and node boxes, and keeps a side only when perfectly clean, else restores the default (first estimated-width version moved labels onto other edges — caught by the sweep, replaced by measure-after-move)'
+  - 'The rescoped healing-loop symptom is gone: "Human acts on the advice?" + hum_1_human relocated left of the diamond (anchor ''end'' at x≈741), zero bbox/edge overlaps for that label; e_04/e_06 own-label hits eliminated (healing-loop 11→4 total, remaining 4 are pre-existing edge-label touches) — screenshot t077-hl-advice-after.png READ per visual protocol; bonus: "Advisory only" end-event label moved right of its circle'
+  - 'Corpus sweep (all 20 rendered maps, real getBBox vs segments, vs HEAD baseline): total overlaps 444 → 381 (−14%), **zero new hits** across all maps, every changed map strictly reduced (healing-loop 11→4, cross-host-dispatch 22→12, harvest 108→93, error-escalation 80→73), zero page errors'
+  - 'Render-only proven: `buildBpmnXml(state)` byte-identical before/after on healing-loop (10840 = 10840 bytes)'
+  - 'Bridge suite 31/31; geometry sweep 24 clean'
+  - '[REVIEW] Relocated labels read naturally on the live gallery'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-04 — measure-after-move instead of estimated-width scoring'
+    chose: 'The label pass applies a candidate placement, measures the REAL rendered getBBox against polylines/node boxes, and keeps the side only when perfectly clean; otherwise restores the default below placement.'
+    rationale: 'The first version scored candidates with estimated character widths (6px/char sans, 5.4 mono); real font metrics diverged enough that "better" sides landed labels on other edges — the bbox corpus sweep showed net +5 overlaps on context-memory and 0-new-hit violations on 6 maps. Measuring the actual rendered result makes the decision metric identical to the verification metric.'
+    alternatives_rejected: ['Tighter width estimation (still an approximation, same failure class); accepting net-better-but-nonzero moves (trades one collision for another — a moved label on an edge reads worse than the familiar below placement).']
+  - decision: '2026-07-04 — relocate only to perfectly clean sides; contested-everywhere labels stay put'
+    chose: 'If neither side of the shape is fully clear, keep the default below placement even though it is crossed.'
+    rationale: 'Status quo is the baseline the operator already reads; a sideways label that still collides adds novelty without removing the defect. Guarantees the sweep invariant "zero new overlaps".'
+    alternatives_rejected: ['Least-bad-side placement (violates the invariant); multi-position search above/corners (more novelty for marginal gain — revisit only if the operator flags residuals).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-077-routing-survey-r-5-keep-badges-and-edge-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T13:09:39"
+    action: "T-077: Side-relocate contested node labels — measure-after-move, zero-new-overlap invariant"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 49 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 49
+  commits: 1
+  files_changed: 2
+  lines_added: 131
+  lines_removed: 47
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-077-routing-survey-r-5-keep-badges-and-edge-.md
+generated_by: context-agent-hybrid

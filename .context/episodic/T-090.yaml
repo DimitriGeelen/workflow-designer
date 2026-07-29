@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-090: Watchtower review pages all 500 - dispatch_pause import broken in shared-tooling mode
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:03Z
+# ============================================================================
+
+task_id: T-090
+task_name: "Watchtower review pages all 500 - dispatch_pause import broken in shared-tooling mode"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T22:35:13Z
+completed: 2026-07-04T22:42:10Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-05T00:39:23+02:00
+last_commit: 2026-07-05T00:42:10+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Restore review queue — product-side dispatch_pause shim bridges vendored review.py's PROJECT_ROOT/lib vs FRAMEWORK_ROOT/lib bug (all 13 review pages 500 -> 200); gap G-004 registered with upstream one-liner. Capture shared-mode blindspot learning (PL) + clean audit 2026-07-05
+
+# Key outcomes
+outcomes:
+  - 'Root cause recorded in RCA with the traceback line and the exact buggy path expression'
+  - 'Product-side shim `lib/dispatch_pause.py` exists, loads the framework''s real module by file path (no copy of framework logic), re-exports its public names, and documents WHY it exists + when to remove it'
+  - 'Watchtower restarted; all 13 partial-complete review pages return HTTP 200 (T-073,T-074,T-075,T-076,T-077,T-079,T-081,T-082,T-083,T-084,T-085,T-087,T-089)'
+  - 'Gap registered in `.context/project/concerns.yaml` (framework blind >7 days? — review pages were last known-good when T-073 reviews were filed; register regardless: structural upstream flaw, shim is mitigation not prevention) with pointer to the upstream one-line fix'
+  - 'No vendored file modified: `git status .agentic-framework` clean / untouched'
+  - '[converted from Human RUBBER-STAMP per T-1811/T-1878, T-302 sweep] The review queue loads: /review/T-089 returns HTTP 200 and renders task name, ACs, recommendation (evidence: curl 200 + `<title>Review T-089</title>` on live Watchtower URL from `.context/working/watchtower.url`, 2026-07-29; `fw reviewer T-090` Overall PASS; the deterministic curl checks were already in ## Verification)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'Restore review queue — product-side dispatch_pause shim bridges vendored review.py''s PROJECT_ROOT/lib vs FRAMEWORK_ROOT/lib bug (all 13 review pages 500 -> 200); gap G-004 registered with upstream one-liner'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-05.yaml'
+  - '.context/project/concerns.yaml'
+  - '.context/project/learnings.yaml'
+  - 'lib/dispatch_pause.py'
+  - '.tasks/active/T-090-watchtower-review-pages-all-500---dispat.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T00:39:23"
+    action: "T-090: Restore review queue — product-side dispatch_pause shim bridges vendored review.py's PROJECT_ROOT/lib vs FRAMEWORK_ROOT/lib bug (all 13 review pages 500 -> 200); gap G-004 registered with upstream one-liner"
+  - time: "2026-07-05T00:42:10"
+    action: "T-090: Capture shared-mode blindspot learning (PL) + clean audit 2026-07-05"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 2
+  files_changed: 5
+  lines_added: 490
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-090-watchtower-review-pages-all-500---dispat.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,96 @@
+# ============================================================================
+# EPISODIC MEMORY - T-073: Router straightening tolerance — near-aligned ends render as one straight line
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:04Z
+# ============================================================================
+
+task_id: T-073
+task_name: "Router straightening tolerance — near-aligned ends render as one straight line"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T09:43:50Z
+completed: 2026-07-04T10:06:49Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-04T11:44:26+02:00
+last_commit: 2026-07-04T12:06:49+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  File routing calmness v3 trio — straightening tolerance (T-073), magnetic snap+grid (T-074), settings page (T-075). Router straightening tolerance — near-aligned auto anchors render as one straight line. Complete (partial — Human REVIEW AC open); decisions PD-018..020
+
+# Key outcomes
+outcomes:
+  - 'A straightening pass exists in the edge render path: when source and target anchors for an auto-anchored edge are within STRAIGHTEN_TOL (default 16px — see Decisions) of a shared axis, both anchors are slid along their node sides to the common axis and the edge renders as one straight segment (verified: healing-loop e_05 dy=12 and e_10 dy=14 both render with uniqueY=1).'
+  - 'The slide is clamped to the node side extents (sideBoundaryPointAt returns null → bail, never distort) and applies only when both anchor sides are parallel and facing (E↔W or N↔S) — perpendicular-side edges are untouched.'
+  - 'Render-only: no `state.nodes[*].x/y` mutation from the straightening pass; buildBpmnXml output byte-identical before/after a render pass (exportIdentical=true on task-lifecycle) and positions array unchanged on healing-loop.'
+  - 'Explicitly pinned ports (non-auto) are never overridden by straightening (e_02 with targetPort=N kept its corner; restored to auto → straight again).'
+  - 'Trusted-input regression (PL-006): real page.mouse drag of n_resume by ~14 model px — connected e_09 still renders straight through the straightener; e_10 (now 27.8px off-axis, beyond tol) correctly jogs. Both sides of the tolerance behave.'
+  - 'Visual verification: element/clipped screenshots of healing-loop (resume→resolved, gateway→choose regions) and task-lifecycle full canvas READ with the Read tool — jogs collapsed to straight lines, no new overlap regression.'
+  - 'Editor JS passes `node --check` after the change; gallery copy refreshed (build/gallery/designer.html).'
+  - '[REVIEW] Straightened routing reads calmer on the live gallery'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-04 — Straightening tolerance value'
+    chose: 'STRAIGHTEN_TOL = 16px (task description said ~8px).'
+    rationale: 'Measured the actual corpus misalignment class on healing-loop: nodes in the same lane row with different type heights have centre deltas of half the height difference — task↔gateway 12px (e_05), task↔event 14px (e_10). 8px would have missed BOTH operator-screenshot cases the task exists to fix. 16 covers the class; max slide per node side is 8px, well within all shape clamps.'
+    alternatives_rejected: ['8px (misses the real cases); 24px+ (risks straightening intentionally offset connections).']
+  - decision: '2026-07-04 — Common-axis choice'
+    chose: 'Midpoint of the two anchor coordinates — each anchor slides half the delta.'
+    rationale: 'Symmetric, minimal per-node displacement, no bias toward either shape; a clamp failure on either side bails to the normal jog rather than distorting.'
+    alternatives_rejected: ['Snapping to the source''s axis (asymmetric, source-biased); snapping to lane centre (that is T-074''s authoring-time job, not a render decision).']
+  - decision: '2026-07-04 — Eligibility guards'
+    chose: 'Straighten only when both ports are auto, spread offsets are 0, no manual waypoints, no routingHints, no detourY.'
+    rationale: 'Each of those signals an explicit user/router intent that a silent visual override would fight — pinned ports are user choices, spread separates siblings, hints/detours are user-dragged geometry.'
+    alternatives_rejected: ['Straightening spread siblings toward a shared axis (would re-collide the edges that spread exists to separate).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/decisions.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-073-router-straightening-tolerance--near-ali.md'
+  - '.tasks/active/T-074-magnetic-drag-snapping--lane-centre-neig.md'
+  - '.tasks/active/T-075-editor-settings-page--consolidate-routin.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T11:44:26"
+    action: "T-073: File routing calmness v3 trio — straightening tolerance (T-073), magnetic snap+grid (T-074), settings page (T-075)"
+  - time: "2026-07-04T12:05:24"
+    action: "T-073: Router straightening tolerance — near-aligned auto anchors render as one straight line"
+  - time: "2026-07-04T12:06:49"
+    action: "T-073: Complete (partial — Human REVIEW AC open); decisions PD-018..020"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 22 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 22
+  commits: 3
+  files_changed: 5
+  lines_added: 710
+  lines_removed: 18
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-073-router-straightening-tolerance--near-ali.md
+generated_by: context-agent-hybrid

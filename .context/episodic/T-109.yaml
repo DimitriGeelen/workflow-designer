@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-109: Distribute evenly action equalise horizontal row gaps
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:19Z
+# ============================================================================
+
+task_id: T-109
+task_name: "Distribute evenly action equalise horizontal row gaps"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-05T19:43:08Z
+completed: 2026-07-05T19:50:29Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-05T21:49:49+02:00
+last_commit: 2026-07-05T21:50:29+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Distribute evenly action — equalise horizontal row gaps (Phase C opt 8). Complete — verification 3/3, Recommendation GO, owner→human for /review/T-109
+
+# Key outcomes
+outcomes:
+  - 'New `distributeEvenly()` function + toolbar button that, per lane, clusters nodes into rows by centre-y (same band as align-rows) and for each row of ≥3 nodes equalises the horizontal edge-to-edge gaps, keeping the leftmost and rightmost node fixed (classic "distribute horizontal spacing")'
+  - 'Only redistributes rows whose gaps are currently **uneven** (gap spread beyond a small tolerance) and whose even-gap is ≥ 0 (nodes fit the span); rows already evenly spaced or too tight are left untouched'
+  - 'Collision-safe: measure-after-move — if the redistribution introduces a node overlap the row reverts (mirrors align-rows/align-columns)'
+  - 'Undoable in one Ctrl+Z: moved node-x''s recorded into `lastTidy` (`{laneId:null, positions:[{id,x}], laneHeight:null}`); `undoTidy` already restores x (axis-aware since T-107)'
+  - 'Explicit-action only — NOT invoked by any render pass or pref change; never mutates `examples/**` (PD-044); not wired into `cleanLayout` this task'
+  - 'Verified on a chain-bearing map: a row with uneven gaps becomes evenly spaced (gap variance → ~0), extremes unmoved, measured before/after; a control map with already-even rows moves 0 nodes'
+  - 'Before/after screenshots READ showing the row rhythm evened out, no overlaps introduced (operator''s standing "take more screenshots" guidance)'
+  - '`src/aef-workflow-designer.html` byte-identical to `build/gallery/designer.html`; extracted JS passes `node --check`'
+  - '[REVIEW] The Distribute evenly button visibly evens out uneven horizontal spacing without breaking layout'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-05 — Horizontal-only; opt 8 over opt 4/5'
+    chose: 'Implement option 8 (distribute evenly) as a standalone **horizontal** one-shot action; leave options 4 (row-alignment-mode) and 5 (structural-straightening) for later.'
+    rationale: 'Opts 4 and 5 both modify Tidy''s *core* behaviour (regression risk across the 24-map corpus, and functional overlap with the align-rows/align-columns actions already shipped as T-094/T-107). Opt 8 as a standalone action is self-contained, collision-safe by construction, and fully screenshot-verifiable — the best value/risk ratio of the remaining Phase C set. Horizontal-only because the *vertical* case (equalise a fan-out stack) is already served by Branch pitch (T-093) and Vertical spacing (T-108, `respaceRows`) — building it again would duplicate logic.'
+    alternatives_rejected: ['Opt 4/5 now (higher risk, deferred). A vertical distribute (redundant with T-093/T-108). A selection-based distribute (inconsistent with the global align-rows/-columns actions, which operate on all lanes).']
+  - decision: '2026-07-05 — Redistribute within the existing span (anchor extremes)'
+    chose: 'Keep the leftmost and rightmost node fixed; equalise only the interior gaps within the unchanged span.'
+    rationale: 'Anchoring the extremes means the row''s overall footprint never changes, so the action can''t push a row into its neighbours or grow the pool — and because interior nodes keep their left-to-right order inside a span that already held them at non-negative gaps, no *new* overlap can arise (the measure-after-move guard is then just insurance). This mirrors the classic "distribute horizontal spacing" of design tools and matches operator intuition.'
+    alternatives_rejected: ['Distributing to a fixed absolute gap (would change the span → risk collisions with neighbours, and is really a re-space, not a distribute).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-109-distribute-evenly-action-equalise-horizo.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-05T21:49:49"
+    action: "T-109: Distribute evenly action — equalise horizontal row gaps (Phase C opt 8)"
+  - time: "2026-07-05T21:50:29"
+    action: "T-109: Complete — verification 3/3, Recommendation GO, owner→human for /review/T-109"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 7
+  commits: 2
+  files_changed: 2
+  lines_added: 299
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-109-distribute-evenly-action-equalise-horizo.md
+generated_by: context-agent-hybrid

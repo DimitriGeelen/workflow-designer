@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-076: Routing survey R-2: loop-back edges should route around the periphery, not through the body corridor
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T15:39:06Z
+# ============================================================================
+
+task_id: T-076
+task_name: "Routing survey R-2: loop-back edges should route around the periphery, not through the body corridor"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-04T10:20:19Z
+completed: 2026-07-04T11:02:07Z
+duration_days: 0
+updates_count: 4
+first_commit: 2026-07-04T13:02:07+02:00
+last_commit: 2026-07-04T13:02:07+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Loop-back periphery routing — label-aware bands, whole-path scoring, long-backhaul trigger
+
+# Key outcomes
+outcomes:
+  - '`orthoLoopBack` computes detour bands from a type-aware visual bottom (`nodeVisualBottom`) that includes the label/badge zone (label-below types get a larger allowance than tasks), for source, target, AND path scoring — evidence: nodeVisualBottom() (tasks +16, events/gateways/links +30) feeds belowMin, loopPathCrossings, corridorSplit'
+  - 'Periphery candidates exist: a below-candidate clear of ALL nodes overlapping the corridor x-range and an above-candidate above them, clamped to the vertical union of the lanes the edge connects (lane-clamp respected; skipped when the band can''t fit) — evidence: pBelow/pAbove candidates + laneA/laneB union clamp in orthoLoopBack'
+  - 'The task-lifecycle R-2 symptom is gone: "gate failed — rework" (e_12) rerouted from a mid-body bar at y=488 to the content periphery at y=652, rising into the target''s E side — verified by element screenshots t076-before-tl-zoom.png / t076-after-tl-zoom.png, both READ per visual protocol. (healing-loop''s "advisory drop through the gateway''s own label" rescoped to T-077 — see Decisions: the drop and the label share the same centre-x by construction; no routing change can separate them, only label placement can)'
+  - 'Corpus regression sweep (all 20 rendered gallery maps, before/after vs HEAD baseline): git-commit-flow leg regression found and fixed via whole-path scoring; final state ≤ baseline everywhere (audit-process −1 label clash, others identical or equal-count reshuffles in the dense R-3 maps, confirmed visually neutral via t076-eel-*.png / t076-hp-*.png); zero page errors on all 20'
+  - 'Render-only proven: `buildBpmnXml(state)` byte-identical before/after on task-lifecycle (15126 = 15126 bytes), auto detourY never persisted'
+  - 'User-set `detourY` drag still honored and now clamps clear of source/target label text — trusted-input (real page.mouse) drag test: down-drag clamps at 670 (laneBot−12), up-drag clamps at 646 (label-aware belowMin; old code would have allowed 642, through the badge text); bridge suite 31/31'
+  - '[REVIEW] Loop-backs read as calm periphery detours on the live gallery'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-04 — healing-loop "advisory drop" symptom rescoped to T-077'
+    chose: 'Treat the survey''s second R-2 example (edge drop through "Human acts on the advice?" gateway''s own label) as a label-placement problem, not a routing problem; moved to T-077''s scope.'
+    rationale: 'The S-anchor and the below-label are both centred on the node''s centre-x by construction — every S-exit/S-entry on a label-below node crosses its own label. No detour choice can separate them; only moving the label (or a text halo) can.'
+    alternatives_rejected: ['Jogging the stub sideways around the label (ugly double-corner at every gateway exit); suppressing S anchors on label-below nodes (breaks topologically correct vertical flow).']
+  - decision: '2026-07-04 — whole-path scoring instead of bar-only corridor scoring'
+    chose: 'Score loop candidates by `loopPathCrossings` (both vertical legs + horizontal bar, label-aware) instead of the old bar-only `nodesIntersectingCorridor`.'
+    rationale: 'Bar-only scoring let candidates win whose legs plowed through boxes: first sweep showed git-commit-flow e13 flipping to an "empty" above-band whose legs crossed two tasks (0→2 box crossings). Whole-path scoring restored the tight below detour and also removed a pre-existing label clash on audit-process.'
+    alternatives_rejected: ['Post-hoc validation with polylineCrossesNodes + fallback (adds a second code path; scoring all three segments up front is one mechanism).']
+  - decision: '2026-07-04 — interior-band penalty + periphery candidates, long-backhaul trigger at 300px'
+    chose: 'Add periphery candidates (clear of ALL corridor nodes) and a +10 interior penalty when corridor content sits on both sides of a candidate bar; reroute backward edges (span > 300px) via loop-back only when their natural mid-bar is interior.'
+    rationale: 'R-2''s core: bars that touch nothing still read as body cuts when content flanks both sides. The 300px threshold plus interior check keeps short backhauls and already-peripheral bars on their natural direct routes (19 of 20 corpus maps unchanged).'
+    alternatives_rejected: ['Rerouting all backward edges unconditionally (would churn many fine renders); scoring edge-to-edge crossings (R-3 channel-separation territory, separate survey finding).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-076-routing-survey-r-2-loop-back-edges-shoul.md'
+  - '.tasks/active/T-077-routing-survey-r-5-keep-badges-and-edge-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-04T13:02:07"
+    action: "T-076: Loop-back periphery routing — label-aware bands, whole-path scoring, long-backhaul trigger"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 41 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 41
+  commits: 1
+  files_changed: 3
+  lines_added: 172
+  lines_removed: 82
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-076-routing-survey-r-2-loop-back-edges-shoul.md
+generated_by: context-agent-hybrid
