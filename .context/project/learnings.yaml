@@ -444,3 +444,10 @@ learnings:
   date: 2026-07-29
   context: Added via context agent
   application: TBD
+- id: PL-063
+  learning: "Operator-facing commands that write to a SOVEREIGNTY record (fw inception decide --rationale, tier0 approvals, decision forms) must never ship with a placeholder rationale: pasted verbatim it writes garbage into the permanent ## Decision section the framework mines for episodic memory, and a blank invites rubber-stamping the gate it exists to protect. Two further defects travel with it: pre-filling one verb (go) biases the decision, and requesting a decision without presenting the evidence inverts CLAUDE.md Inception Discipline step 2. Draft the rationale FROM the findings, present all verbs neutrally, and route via fw task review + Watchtower (the CLI decide is agent-blocked by T-679/T-1259). Origin: T-302 shipped 10 such templates; operator caught it."
+  source: P-001
+  task: T-307
+  date: 2026-07-29
+  context: Added via context agent
+  application: TBD
