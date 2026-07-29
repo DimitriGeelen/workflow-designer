@@ -225,6 +225,11 @@ parity OK, 24 clean; regen 0/24 drift; screenshots `.playwright-mcp/t101-*`.
 
 ## Updates
 
+### 2026-07-29 (later) — OPERATOR VERDICT: tidy. One field observation → T-301
+- **Action:** Operator performed the [REVIEW] AC via the :3000 cards: "looked, looks tidy" — the tidiness feel-check PASSES. Side observation: the Versions panel showed empty on a loaded review card and their "Save to project" created a NEW store project `audit-process` v1 (the editor keys identity to workflowMeta.id, not the loaded store id t101-review-audit-process). Their saved bytes verified byte-equal to the re-baked corpus modulo one editor-added `aef:anchors` line — no accidental edits, no data loss.
+- **Output:** Id-seam observation filed as T-301 (inception, later, DEFER-recommended). Task ready for human finalization: tick the [REVIEW] box and run work-completed.
+- **Context:** Verdict given in chat 2026-07-29; agent does not tick Human ACs.
+
 ### 2026-07-29 — corpus had drifted un-Clean; re-baked via T-300; Human AC repointed to :3000
 - **Action:** Pre-handover probe found the T-100 nudge FIRING on harvest-pipeline + verification-gate in the served 0.8.0 editor, and `bake-clean-layout.py --check` at 0/24 fixpoints — Clean logic evolved after the July-5 bake (T-125 lane compaction et al.). Running the documented re-bake then proved DESTRUCTIVE (regen step clobbered the T-288 editor-saved dialect corpus-wide; reverted pre-commit). Registered G-012, fixed the tool under T-300 (dialect-preserving editor-save write-back, byte-stability --check, store-version minting), re-baked all 24 maps: --check 24/24, bridge 42/42, sweep 24 clean, adopt-verify 11/11, nudge probe 4/4 quiet.
 - **Output:** Human AC steps repointed from the LAN-blocked :8834 gallery (T-253 class) + nonexistent `bin/fw` to the four t101-review-* v2 cards at http://192.168.10.107:3000/designer.
