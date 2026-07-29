@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-304: DEAD-leg census tool: pin the aef:meta-note-attrs-only scan contract (rail 325)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T14:46:16Z
+# ============================================================================
+
+task_id: T-304
+task_name: "DEAD-leg census tool: pin the aef:meta-note-attrs-only scan contract (rail 325)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-29T14:41:58Z
+completed: 2026-07-29T14:46:14Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-29T16:45:50+02:00
+last_commit: 2026-07-29T16:45:50+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  DEAD-leg census tool + seam fixture — pins the rail-325 scan contract (aef:meta note attrs only; raw grep reads 9 where truth is 4, PL-060 class) before promotion adopts dead-leg maps; fixture sha b82668c8 == AEF's announced sha8, census 4/4 on expected owners, corpus 0; suite leg wired, 43/43 green; field finding: convention is inline token not leading prefix (startswith found 0 of 4)
+
+# Key outcomes
+outcomes:
+  - '`tools/census-dead-legs.py` exists: parses BPMN via ElementTree, reads only `aef:meta` elements'' `note` attribute, counts notes containing `DEAD:` (their v3 uses the token inline — context first, then DEAD: <what>; startswith found 0 of 4); per-file counts + total; exit 0 (census, not gate); docstring states the scan contract and cites rail 325 + PL-060'
+  - 'Seam fixture `tests/fixtures/aef-overlay/draft-knowledge-leveling-v3.bpmn` captured from AEF''s served designer (sanctioned HTTP), sha recorded in the test'
+  - '`tests/test_dead_leg_census.py` asserts: fixture census == 4 (their live-verified count); naive raw-text token count on the fixture > 4 (proves the contract matters); current corpus census == 0 (no DEAD legs adopted yet); wired into tests/run-bridge-tests.sh as a suite leg'
+  - 'Full bridge suite green after wiring (43 passed, 0 failed) (no existing leg broken)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'DEAD-leg census tool + seam fixture — pins the rail-325 scan contract (aef:meta note attrs only; raw grep reads 9 where truth is 4, PL-060 class) before promotion adopts dead-leg maps; fixture sha b82668c8 == AEF''s announced sha8, census 4/4 on expected owners, corpus 0; suite leg wired, 43/43 green; field finding: convention is inline token not leading prefix (startswith found 0 of 4)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-304-dead-leg-census-tool-pin-the-aefmeta-not.md'
+  - 'tests/fixtures/aef-overlay/draft-knowledge-leveling-v3.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_dead_leg_census.py'
+  - 'tools/census-dead-legs.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-29T16:45:50"
+    action: "T-304: DEAD-leg census tool + seam fixture — pins the rail-325 scan contract (aef:meta note attrs only; raw grep reads 9 where truth is 4, PL-060 class) before promotion adopts dead-leg maps; fixture sha b82668c8 == AEF's announced sha8, census 4/4 on expected owners, corpus 0; suite leg wired, 43/43 green; field finding: convention is inline token not leading prefix (startswith found 0 of 4)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 5
+  lines_added: 607
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-304-dead-leg-census-tool-pin-the-aefmeta-not.md
+generated_by: context-agent-hybrid

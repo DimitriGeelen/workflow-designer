@@ -3087,3 +3087,21 @@ scan_id: R-57c6c1e1
 task_id: T-303
 payload:
   task_file: .tasks/active/T-303-round-4-pair-review-draft-knowledge-leve.md
+---
+kind: scan_emitted
+timestamp: '2026-07-29T14:46:15Z'
+scan_id: R-431a786e
+task_id: T-304
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-29T14:46:15Z'
+scan_id: R-431a786e
+task_id: T-304
+payload:
+  task_file: .tasks/active/T-304-dead-leg-census-tool-pin-the-aefmeta-not.md
