@@ -990,3 +990,24 @@ decisions:
     date: 2026-07-29
     task: T-302
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-121
+    decision: "neutralise the *glyph*, the *type badge* and the *property panel*, and leave `n.name`"
+    scope: project
+    date: 2026-07-29
+    task: T-308
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-122
+    decision: "a module-level `sessionAuthoredLinks = new Set()` holding uids, populated by"
+    scope: project
+    date: 2026-07-29
+    task: T-308
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-123
+    decision: "hide the dead link fields but offer \"← Make this a handoff\", which reveals them for the"
+    scope: project
+    date: 2026-07-29
+    task: T-308
+    rationale: "Auto-captured from task file on completion"

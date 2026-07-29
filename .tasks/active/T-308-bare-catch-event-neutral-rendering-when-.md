@@ -4,9 +4,9 @@ name: "Bare catch-event neutral rendering when unbound (T-244 GO, path b)"
 description: >
   Bare catch-event neutral rendering when unbound (T-244 GO, path b)
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-29T17:47:21Z
-last_update: 2026-07-29T17:48:33Z
-date_finished: null
+last_update: 2026-07-29T20:07:33Z
+date_finished: 2026-07-29T20:07:33Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -66,7 +66,7 @@ persisted "intended handoff" marker is out of scope — it would be a dialect ch
 - [x] A node that DOES carry a binding (`workflowRef`/`targetWorkflow`/`linkId`) is unaffected — glyph, label and property panel unchanged
       — uuid-bound and legacy-slug forms both verified; typed-catch (T-204 override) also unaffected. Screenshots `t308-node-bound-unchanged.png`, `t308-panel-bound-unchanged.png`.
 - [x] Zero exported-byte change: for every corpus map, `buildBpmnXml(state)` is byte-identical before and after this change (no schema surface, nothing for AEF to ratify)
-      — `tools/_t308-export-byte-identity-cdp.mjs HEAD`: **24 maps, 24 identical, 0 drifted, 0 errors**. Also holds after using the "Make this a handoff" affordance (declaring intent writes nothing).
+      — `tools/_t308-export-byte-identity-cdp.mjs fb4c21c` (the commit before T-308 touched `src/`): **24 maps, 24 identical, 0 drifted, 0 errors**. Also holds after using the "Make this a handoff" affordance (declaring intent writes nothing).
 - [x] Regression test added that imports a bare `intermediateCatchEvent` fixture and asserts the neutral presentation plus the unchanged export bytes; wired into the bridge suite
       — `tests/fixtures/aef-bpmn/bare-catch-event.bpmn` (bare / uuid-bound / legacy-slug / typed-catch), `tools/_t308-bare-catch-render-cdp.mjs`, `tests/test_t308_bare_catch_render.py`, wired into `tests/run-bridge-tests.sh`. Six legs: MODEL/RENDER/PANEL/EXPORT/SESSION/BITE.
 - [x] Bridge + validator + geometry suites green, failure-shape asserted not count-pinned (PL-061)
@@ -146,6 +146,36 @@ out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "0 failed"
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+## Recommendation
+
+**Recommendation:** GO
+
+**Rationale:** Every agent-verifiable claim in this task was measured rather than asserted, and the
+one property that would have made this a cross-project change — an export surface — was proven
+absent across the whole corpus, not argued from the code. What remains for you is genuinely a taste
+call the tooling cannot settle: whether the neutral ring *reads* as "unspecified kind" rather than
+"broken", and whether a palette handoff still feels discoverable. Two things deserve your attention
+rather than a rubber stamp: (1) an unbound node named "← Handoff" renders as a neutral ring **under
+that name**, because rewriting authored text would change exported bytes — I judged that the honest
+trade, but it is exactly the kind of call that should be yours; (2) the scope was held to the catch
+side, so a bare `intermediateThrowEvent` still has the identical misread and is deliberately not
+fixed here (see **Evolution**).
+
+**Evidence:**
+- Zero export surface: `tools/_t308-export-byte-identity-cdp.mjs fb4c21c` replays all corpus maps
+  through the pre-change designer and the working tree — **24 maps, 24 byte-identical, 0 drifted,
+  0 errors**. Using the "Make this a handoff" affordance also writes nothing (`<aef:link>` count
+  unchanged, node still unbound).
+- Regression leg wired into the bridge suite with six layers (MODEL/RENDER/PANEL/EXPORT/SESSION/
+  BITE); the BITE leg gives the bare node a target and requires the handoff presentation to return,
+  so the guard cannot pass on a hard-coded "always neutral".
+- Suites: bridge **44 passed, 0 failed** (including the new leg), validator **34 passed, 0 failed**.
+  P-011 gate: **11/11**.
+- Node type is unchanged (`linkEventCatch`), so T-204/T-237 classification and the dialect are
+  untouched — this is not the new-node-type path (a) that AEF would have to ratify.
+- 8 element screenshots taken **and read** — `docs/screenshots/t308-*.png`, itemised under
+  **Visual Verification**.
+
 ## Visual Verification
 
 Playwright against an isolated sidecar (`tools/gallery-serve.py`, temp docroot) serving the
@@ -191,6 +221,27 @@ below was READ, not merely captured:
 -->
 
 ## Evolution
+
+### 2026-07-29 — the throw side has the same defect and is deliberately out of scope
+
+- **What changed:** `REVERSE_TYPE['intermediateThrowEvent'] = 'linkEventThrow'` sits one line above
+  the catch fallback and has the identical shape — a bare `intermediateThrowEvent` becomes a
+  "Handoff →" node with target fields that can never bind. T-244 explored and priced the catch case
+  only, so the GO covers only that.
+- **Plan impact:** none for this task. `isBareCatchEvent` is deliberately catch-only rather than a
+  generic `isBareLinkEvent`, so widening later is an explicit change and not an accident.
+- **Triggered:** not filed. Widening the GO's scope is the operator's call, not mine — flagged in
+  **Recommendation** instead.
+
+### 2026-07-29 — the panel needed an escape hatch the exploration had not anticipated
+
+- **What changed:** hiding the dead link fields alone would have made an imported bare catch event
+  impossible to turn *into* a handoff — the fix for a misread would have created a dead end. Not
+  visible from the T-244 analysis, which reasoned about how the node reads, not how it is edited.
+- **Plan impact:** added the "← Make this a handoff" affordance, and with it a second entry point
+  into `sessionAuthoredLinks` beyond palette drops.
+- **Triggered:** an extra EXPORT assertion — declaring intent through the affordance must still
+  write nothing to the document, or the escape hatch would have quietly reintroduced path (a).
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
@@ -279,3 +330,15 @@ below was READ, not merely captured:
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-308-bare-catch-event-neutral-rendering-when-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-5caa1c1e
+- **Timestamp:** 2026-07-29T20:08:23Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-07-29T20:07:33Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
