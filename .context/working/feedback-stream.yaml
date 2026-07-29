@@ -3141,3 +3141,21 @@ scan_id: R-c037b322
 task_id: T-306
 payload:
   task_file: .tasks/active/T-306-execute-operator-authorized-batch-close-.md
+---
+kind: scan_emitted
+timestamp: '2026-07-29T16:20:53Z'
+scan_id: R-ea440500
+task_id: T-307
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-29T16:20:53Z'
+scan_id: R-ea440500
+task_id: T-307
+payload:
+  task_file: .tasks/active/T-307-prepare-operator-decision-briefs-for-the.md

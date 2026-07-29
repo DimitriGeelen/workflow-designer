@@ -1,0 +1,10 @@
+command_hash: a65a3d8d6e7f743fd6900c005b6c407088a288671a70d4e99cfcce4cfc419fb0
+command_preview: .agentic-framework/bin/fw inception decide --help 2>&1 | head -30;
+  echo "=== task update revisit flags ==="; .agentic-framework/bin/fw task update
+  --help 2>&1 | grep -i "revisit\|horizon" | head -6
+risk: 'INCEPTION DECISION: GO/NO-GO decisions require human authority. Present your
+  recommendation and rationale, then ask the human to run: fw inception decide T-XXX
+  go|no-go --rationale "..."'
+status: pending
+timestamp: '2026-07-29T16:14:13Z'
+type: tier0

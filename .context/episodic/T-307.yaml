@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-307: Prepare operator decision briefs for the 10 open inception tasks
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T16:20:54Z
+# ============================================================================
+
+task_id: T-307
+task_name: "Prepare operator decision briefs for the 10 open inception tasks"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-29T16:12:05Z
+completed: 2026-07-29T16:20:52Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-29T18:18:59+02:00
+last_commit: 2026-07-29T18:18:59+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  decision briefs for the 9 open inceptions (T-302's placeholder-rationale templates superseded) — evidence + reasoning + all 3 verbs drafted per task, proposed revisit_at/revisit_evidence_needed so a ratified DEFER cannot rot; PL-063
+
+# Key outcomes
+outcomes:
+  - 'Decision brief written for all 10 open inceptions (T-155 T-184 T-185 T-186 T-244 T-277 T-279 T-280 T-281 T-282) in docs/reports/T-307-inception-decision-briefs.md — each with: the one question, evidence from the task file / research artifact, assumption status, recommendation + reasoning, and consequences of each verb (9 briefs + T-155 documented as already-decided/needs-closing, not a decision)'
+  - 'Zero placeholder rationales: every `fw inception decide` command in the brief carries a substantive rationale drafted from that inception''s findings — no `"<why>"`, no `"your reasoning"`; a grep for placeholder markers in the decide lines returns nothing (0 executable lines with placeholders; the single `<why>` occurrence is prose quoting the defect being corrected)'
+  - 'All three verbs presented neutrally per task (go/no-go/defer each shown as a full paste-ready command, not `go` with alternatives in parentheses) (27 commands = 9 tasks × 3 verbs, each with a verb-appropriate rationale)'
+  - 'The defective templates in docs/reports/T-302-reviewer-sweep.md are corrected or superseded with a pointer to the briefs, so the placeholder version cannot be pasted by mistake (SUPERSEDED notice replaces the 10 defective command lines)'
+  - 'Learning captured: placeholder rationales in operator-facing sovereignty commands are a defect class (cites this T-302 instance) (PL-063)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - 'docs/reports/T-302-reviewer-sweep.md'
+  - 'docs/reports/T-307-inception-decision-briefs.md'
+  - '.tasks/active/T-307-prepare-operator-decision-briefs-for-the.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-29T18:18:59"
+    action: "T-307: decision briefs for the 9 open inceptions (T-302's placeholder-rationale templates superseded) — evidence + reasoning + all 3 verbs drafted per task, proposed revisit_at/revisit_evidence_needed so a ratified DEFER cannot rot; PL-063"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 8
+  commits: 1
+  files_changed: 4
+  lines_added: 606
+  lines_removed: 205
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-307-prepare-operator-decision-briefs-for-the.md
+generated_by: context-agent-hybrid

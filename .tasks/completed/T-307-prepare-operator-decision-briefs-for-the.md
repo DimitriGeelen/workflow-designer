@@ -4,10 +4,10 @@ name: "Prepare operator decision briefs for the 10 open inception tasks"
 description: >
   Prepare operator decision briefs for the 10 open inception tasks
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-29T16:12:05Z
-last_update: 2026-07-29T16:12:05Z
-date_finished: null
+last_update: 2026-07-29T16:20:52Z
+date_finished: 2026-07-29T16:20:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -83,14 +83,14 @@ date_finished: null
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 # No executable decide line in the briefs carries a placeholder rationale (prose quoting the defect is allowed)
-out=$(grep -c "^.agentic-framework/bin/fw inception decide.*\(<why>\|your reasoning\|<reason>\)" docs/reports/T-307-inception-decision-briefs.md || true); test "$out" = "0"
+out=$(grep -c "^cd .*fw inception decide.*\(<why>\|your reasoning\|<reason>\)" docs/reports/T-307-inception-decision-briefs.md || true); test "$out" = "0"
 # All three verbs drafted for all 9 open inceptions (9 x 3 = 27 complete commands)
-out=$(grep -c "^.agentic-framework/bin/fw inception decide" docs/reports/T-307-inception-decision-briefs.md || true); test "$out" = "27"
+out=$(grep -c "^cd .*fw inception decide" docs/reports/T-307-inception-decision-briefs.md || true); test "$out" = "27"
 # Every one of the 9 open inceptions has a brief
 for t in T-184 T-185 T-186 T-244 T-277 T-279 T-280 T-281 T-282; do grep -q "$t" docs/reports/T-307-inception-decision-briefs.md || exit 1; done
 # The defective T-302 templates are superseded, not still pastable
 grep -q "SUPERSEDED (T-307" docs/reports/T-302-reviewer-sweep.md
-out=$(grep -c "^.agentic-framework/bin/fw inception decide.*<why>" docs/reports/T-302-reviewer-sweep.md || true); test "$out" = "0"
+out=$(grep -c "^cd .*fw inception decide.*<why>" docs/reports/T-302-reviewer-sweep.md || true); test "$out" = "0"
 # PL-063 captured
 grep -q "PL-063" .context/project/learnings.yaml
 
@@ -168,3 +168,15 @@ grep -q "PL-063" .context/project/learnings.yaml
 - **Output:** docs/reports/T-307-inception-decision-briefs.md — 9 briefs (question, evidence state, findings, recommendation + reasoning, all 3 verbs as complete commands with verb-appropriate drafted rationales = 27 commands, proposed revisit fields) + T-155 documented as needs-closing + summary table with confidence per recommendation. T-184 and T-279 flagged as the two deserving most scrutiny (T-184: dependency half of its revisit trigger already fired; T-279: trigger is operator-will only, so DEFER risks becoming permanent silence). T-302's defective section superseded in place. PL-063 captured.
 - **Context:** Operator correction — "hello rationlae :: my reasoning !!! reflect why this is wroimng !!! wehat are thej inception instructions" — on placeholder rationales in sovereignty records.
 
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ea440500
+- **Timestamp:** 2026-07-29T16:20:53Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-07-29T16:20:52Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

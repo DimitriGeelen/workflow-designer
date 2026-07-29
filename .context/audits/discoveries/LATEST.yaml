@@ -1,11 +1,11 @@
-timestamp: 2026-07-29T15:00:02Z
+timestamp: 2026-07-29T16:00:01Z
 findings:
   - id: D1
     level: PASS
-    check: "D1: Episodic quality — 0% [TODO] (0/215)"
+    check: "D1: Episodic quality — 0% [TODO] (0/272)"
   - id: D2
     level: WARN
-    check: "D2: Human review queue — 48 task(s) waiting >14d: T-073(25d) T-074(25d) T-075(25d) T-076(25d) T-077(25d) T-079(25d) T-081(25d) T-082(24d) T-083(24d) T-084(24d) T-085(24d) T-087(24d) T-089(24d) T-090(24d) T-093(24d) T-094(24d) T-095(24d) T-096(24d) T-097(24d) T-098(24d) T-099(24d) T-100(24d) T-104(23d) T-106(23d) T-107(23d) T-108(23d) T-109(23d) T-114(23d) T-115(22d) T-116(22d) T-117(22d) T-118(22d) T-119(22d) T-127(23d) T-132(23d) T-134(22d) T-136(22d) T-137(22d) T-139(22d) T-141(21d) T-144(20d) T-164(19d) T-165(19d) T-166(19d) T-167(19d) T-168(19d) T-172(19d) T-178(18d)"
+    check: "D2: Human review queue — 2 task(s) waiting >14d: T-093(24d) T-178(18d)"
     mitigation: "Review with: fw task verify"
   - id: D8
     level: PASS
