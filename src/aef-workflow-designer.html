@@ -1793,6 +1793,46 @@ const AEF_FIELDS = {
   subProcess:   ['horizon', 'workflowType', 'tier', 'endpoint', 'contextReads', 'artifactsWrites', 'scopeOf'],
 };
 
+// T-308 (T-244 GO, path b): neutral presentation for a BARE catch event.
+//
+// A <bpmn:intermediateCatchEvent> carrying no <aef:link> and no recognised
+// <aef:eventDef> decodes to linkEventCatch through the REVERSE_TYPE fallback
+// (see the import block) — there is no neutral landing type. The node is
+// healthy, but it then wears the "← Handoff" glyph and the link property schema
+// whose target fields can never bind, because the source document has no
+// aef:link to bind them to. AEF's operator read exactly that as a broken
+// connector on a healthy map.
+//
+// This is PRESENTATION ONLY. Node type, export path and dialect are untouched:
+// aefExtensionXml emits <aef:link> solely when a binding field is non-empty and
+// linkEventCatch exports as intermediateCatchEvent, so a bare catch event
+// already round-trips byte-clean. Nothing here changes an exported byte, so
+// there is nothing for AEF to ratify.
+const LINK_BIND_FIELDS = ['workflowRef', 'targetWorkflow', 'linkId', 'name'];
+
+// Nodes the author declared as handoffs THIS SESSION — dropped from the palette,
+// or promoted via "Make this a handoff". They keep the handoff UI while live so
+// binding stays discoverable.
+//
+// IW-3 (confidence 3): a palette-created handoff is *equally* unbound, and the
+// distinction cannot survive a save — with no empty <aef:link> emitted, "author
+// placed a handoff, not yet bound" and "bare imported catch event" serialize to
+// an identical <intermediateCatchEvent>. The dialect has no carrier for
+// authorial intent, and no rendering cleverness recovers a distinction the file
+// does not record. So intent lives in SESSION state and dies with the session:
+// after a reload the node renders neutral, which is honest — at that point the
+// document genuinely says nothing about handoff intent. A persisted "intended
+// handoff" marker would be a dialect change, i.e. path (a), explicitly out of
+// scope. Deliberately not a field on `state`/`node`: it must never serialize.
+const sessionAuthoredLinks = new Set();
+
+function isBareCatchEvent(n) {
+  if (!n || n.type !== 'linkEventCatch') return false;
+  if (sessionAuthoredLinks.has(n.uid)) return false;
+  const aef = n.aef || {};
+  return !LINK_BIND_FIELDS.some(f => String(aef[f] || '').trim());
+}
+
 // T-197 (IW-9 v1.1): the authority→owner collapse map. owner is DERIVED from the
 // node's lane authority, never authored per-node. Mirror of the mapping-v1 §3
 // collapse (sovereignty→human, initiative/authority→agent, external→no task).
@@ -2926,6 +2966,15 @@ function renderNodes() {
       const cx = n.x + def.w / 2, cy = n.y + def.h / 2;
       g.appendChild(el('path', { d: `M${cx} ${n.y} L${n.x + def.w} ${cy} L${cx} ${n.y + def.h} L${n.x} ${cy} Z`, class: 'node-shape', fill: 'var(--surface-2)', stroke: 'var(--blue)', 'stroke-width': '1.5' }));
       g.appendChild(el('path', { d: `M${cx} ${cy - 10} V${cy + 10} M${cx - 10} ${cy} H${cx + 10}`, stroke: 'var(--blue)', 'stroke-width': '2', 'stroke-linecap': 'round' }));
+    } else if (isBareCatchEvent(n)) {
+      // T-308: bare catch event — BPMN's plain intermediate event (double ring,
+      // no kind marker) in the muted palette. Reads as "an event of unspecified
+      // kind", which is what the document actually says, instead of "a handoff
+      // whose target is missing". Ordered BEFORE the link-event branch below.
+      const cx = n.x + def.w / 2, cy = n.y + def.h / 2, r = def.w / 2;
+      const stroke = 'var(--text-faint)';
+      g.appendChild(el('circle', { cx, cy, r, class: 'node-shape', fill: 'var(--surface-2)', stroke, 'stroke-width': '1.5' }));
+      g.appendChild(el('circle', { cx, cy, r: r - 3.5, fill: 'none', stroke, 'stroke-width': '1.2' }));
     } else if (n.type === 'linkEventThrow' || n.type === 'linkEventCatch') {
       // Off-page connector: hollow circle with a chevron arrow inside.
       // Throw = chevron pointing right (data leaves); catch = chevron pointing left (data enters).
@@ -5420,7 +5469,10 @@ function renderProperties() {
   const n = findNode(selection.id);
   if (!n) { selection = null; renderProperties(); return; }
 
-  props.appendChild(propsHeader(n.type, displayIdOf(n), () => deleteNode(n.id)));
+  // T-308: a bare catch event is presented as the neutral intermediate event it
+  // actually is — the underlying n.type is unchanged and still exports as
+  // <bpmn:intermediateCatchEvent>.
+  props.appendChild(propsHeader(isBareCatchEvent(n) ? 'intermediateEvent' : n.type, displayIdOf(n), () => deleteNode(n.id)));
 
   // BPMN basics
   const sBpmn = section('BPMN');
@@ -5490,7 +5542,37 @@ function renderProperties() {
   props.appendChild(sBpmn);
 
   // AEF extensions
-  const aefFields = AEF_FIELDS[n.type];
+  // T-308: a bare catch event has no aef:link, so the link schema's target fields
+  // are dead on arrival — offering them is precisely what made a healthy node read
+  // as a broken connector. Hide them, say what the node actually is, and offer an
+  // explicit way to declare handoff intent (session-scoped — sessionAuthoredLinks).
+  const bareCatch = isBareCatchEvent(n);
+  const aefFields = bareCatch ? [] : AEF_FIELDS[n.type];
+  if (bareCatch) {
+    // Not an aef: field group — this node has no aef: extensions at all, which is
+    // the whole point. Passing isAef would badge it as one.
+    const sBare = section('Event kind', false);
+    const note = document.createElement('div');
+    note.className = 'field-hint';
+    note.style.cssText = 'display:block;margin:2px 0 8px;line-height:1.45';
+    note.textContent = 'This event carries no kind and no handoff target — the source says only '
+      + 'that something is awaited here. It is valid as it stands and exports unchanged.';
+    sBare.appendChild(note);
+    const mkBtn = document.createElement('button');
+    mkBtn.className = 'btn';
+    mkBtn.type = 'button';
+    mkBtn.textContent = '← Make this a handoff';
+    mkBtn.title = 'Show the handoff target fields. Setting a target makes it permanent; '
+      + 'left unbound, the node returns to neutral on reload.';
+    mkBtn.onclick = () => { sessionAuthoredLinks.add(n.uid); renderNodes(); renderProperties(); };
+    sBare.appendChild(mkBtn);
+    props.appendChild(sBare);
+  } else if (n.type === 'linkEventCatch') {
+    // Already presenting as a handoff — hold that reading for the rest of the
+    // session so clearing the target field mid-edit doesn't flip the panel out
+    // from under the author.
+    sessionAuthoredLinks.add(n.uid);
+  }
   if (aefFields && aefFields.length) {
     const sAef = section('Extensions', true);
     n.aef = n.aef || {};
@@ -5660,6 +5742,8 @@ function typeBadgeSvg(t) {
   if (t === 'subProcess') return '<svg viewBox="0 0 28 28"><rect x="2" y="6" width="24" height="16" rx="3" fill="var(--purple-soft)" stroke="var(--purple)" stroke-width="1.5"/><rect x="11" y="15" width="6" height="6" rx="1" fill="none" stroke="var(--purple)" stroke-width="1"/><path d="M14 16.5 V19.5 M12.5 18 H15.5" stroke="var(--purple)" stroke-width="1"/></svg>';
   if (t === 'linkEventThrow') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/><path d="M9 8 L17 14 L9 20" stroke="var(--accent)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   if (t === 'linkEventCatch') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/><path d="M19 8 L11 14 L19 20" stroke="var(--accent)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  // T-308: neutral badge for a bare catch event — matches the canvas double ring.
+  if (t === 'intermediateEvent') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--surface-2)" stroke="var(--text-faint)" stroke-width="1.5"/><circle cx="14" cy="14" r="7.5" fill="none" stroke="var(--text-faint)" stroke-width="1.2"/></svg>';
   if (t === 'eventError') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--red-soft)" stroke="var(--red)" stroke-width="1.5"/><path d="M15 7 L9 15 L13 15 L11 21 L18 12 L14 12 Z" fill="var(--red)" stroke="none"/></svg>';
   if (t === 'eventTimer') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--blue-soft)" stroke="var(--blue)" stroke-width="1.5"/><circle cx="14" cy="14" r="6" fill="none" stroke="var(--blue)" stroke-width="1.2"/><path d="M14 14 V9 M14 14 L17.5 16" stroke="var(--blue)" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>';
   if (t === 'eventMessage') return '<svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="var(--green-soft)" stroke="var(--green)" stroke-width="1.5"/><rect x="8" y="10" width="12" height="8" rx="1" fill="none" stroke="var(--green)" stroke-width="1.3"/><path d="M8 10.5 L14 15 L20 10.5" stroke="var(--green)" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -7403,6 +7487,9 @@ async function jumpToWorkflow(id) {
 function onNodeDblClick(n, e) {
   if (mode === 'connect') return;
   if (!HANDOFF_TYPES.has(n.type)) return;
+  // T-308: a bare catch event is not presented as a handoff, so double-click must
+  // not scold the author about a target field they are not being shown.
+  if (isBareCatchEvent(n)) return;
   // T-240: legacy slug if set, else the uuid workflowRef resolved to a live map.
   jumpToWorkflow(effectiveJumpTarget(n));
 }
@@ -7763,6 +7850,11 @@ function createNodeAt(type, x, y) {
     aef: {},
   };
   state.nodes.push(node);
+  // T-308: dropping a handoff from the palette IS the declaration of intent. Record
+  // it in session state so the node keeps its handoff UI — and stays bindable —
+  // while the author works, even though it is unbound and therefore
+  // indistinguishable from a bare catch event by document state alone (IW-3).
+  if (type === 'linkEventCatch') sessionAuthoredLinks.add(uid);
   // Now that the node is in state, derive a unique-within-lane slug.
   node.slug = deriveUniqueSlug(node, name);
   selection = { kind: 'node', id: uid };

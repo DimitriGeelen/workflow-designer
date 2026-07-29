@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_bare-catch-event"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <!-- T-308 (T-244 GO, path b) fixture: the four catch-side shapes that share the
+       <bpmn:intermediateCatchEvent> tag, so the neutral-rendering branch can be
+       proven to fire on exactly one of them.
+
+         ev_bare   no <aef:link>, no <aef:eventDef>   → BARE. Decodes to
+                   linkEventCatch via the REVERSE_TYPE fallback (there is no
+                   neutral landing type), and must PRESENT neutrally: plain
+                   double ring, neutral panel, no dead target fields. This is
+                   the node AEF's operator read as a broken connector.
+         ev_bound  <aef:link workflowRef=… name=…/>   → a real handoff, uuid form.
+                   Presentation must be untouched.
+         ev_slug   <aef:link targetWorkflow=…/>       → a real handoff, legacy slug
+                   leg. Presentation must be untouched.
+         ev_typed  <aef:eventDef kind="message"…/>    → T-204 typed-catch override
+                   wins (node type eventMessage). Untouched by T-308.
+
+       The load-bearing property this fixture pins is that ALL FOUR round-trip
+       byte-clean: aefExtensionXml emits <aef:link> only when a binding field is
+       non-empty, so the bare node acquires nothing on save. T-308 is a rendering
+       branch with zero export surface — nothing here for AEF to ratify. -->
+
+  <bpmn:collaboration id="Collaboration_bare-catch-event">
+    <bpmn:participant id="Pool_bare_catch_event" name="bare-catch-event" processRef="Process_bare-catch-event"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_bare-catch-event" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="bare-catch-event" version="1" schemaVersion="2" title="bare catch event vs bound handoff vs typed catch (T-308)" tier_default="1"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="200"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>agt_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>ev_bare</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>ev_bound</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>ev_slug</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>ev_typed</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_end</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="agt_start" name="begin">
+      <bpmn:extensionElements>
+        <aef:uid value="n_start"/>
+        <aef:position x="120.0" y="120.0"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:intermediateCatchEvent id="agt_2_await" name="awaiting upstream signal">
+      <bpmn:extensionElements>
+        <aef:uid value="n_bare"/>
+        <aef:position x="260.0" y="120.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:intermediateCatchEvent>
+
+    <bpmn:intermediateCatchEvent id="agt_3_uuid" name="&#8592; task-lifecycle (uuid)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_bound"/>
+        <aef:position x="400.0" y="120.0"/>
+        <aef:link workflowRef="1f9b5f0c-0be4-4cfe-9158-d9e6f0c1d4c7" name="aef-task-lifecycle"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+    </bpmn:intermediateCatchEvent>
+
+    <bpmn:intermediateCatchEvent id="agt_4_slug" name="&#8592; review-map (legacy slug)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_slug"/>
+        <aef:position x="540.0" y="120.0"/>
+        <aef:link targetWorkflow="review-map"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
+    </bpmn:intermediateCatchEvent>
+
+    <bpmn:intermediateCatchEvent id="agt_5_typed" name="bus message">
+      <bpmn:extensionElements>
+        <aef:uid value="n_typed"/>
+        <aef:position x="680.0" y="120.0"/>
+        <aef:eventDef kind="message" binding="designer.ready"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
+    </bpmn:intermediateCatchEvent>
+
+    <bpmn:endEvent id="agt_6_done" name="done">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end"/>
+        <aef:position x="820.0" y="120.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_start" targetRef="agt_2_await">
+      <bpmn:extensionElements><aef:uid value="e_1"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_2" sourceRef="agt_2_await" targetRef="agt_3_uuid">
+      <bpmn:extensionElements><aef:uid value="e_2"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_3" sourceRef="agt_3_uuid" targetRef="agt_4_slug">
+      <bpmn:extensionElements><aef:uid value="e_3"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_4" sourceRef="agt_4_slug" targetRef="agt_5_typed">
+      <bpmn:extensionElements><aef:uid value="e_4"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_5" sourceRef="agt_5_typed" targetRef="agt_6_done">
+      <bpmn:extensionElements><aef:uid value="e_5"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>

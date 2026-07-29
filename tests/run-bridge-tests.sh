@@ -167,6 +167,22 @@ else
 fi
 
 echo
+echo "== bare catch event renders neutrally when unbound (T-308, T-244 GO path b) =="
+# The AEF-operator misread: a bare <intermediateCatchEvent> decodes to
+# linkEventCatch via the REVERSE_TYPE fallback and wears handoff UI whose target
+# fields can never bind. Presentation-only fix — this leg pins BOTH halves: the
+# neutral presentation AND the zero export surface (node type unchanged, no
+# <aef:link> acquired, second save byte-identical), so a future "improvement"
+# that reaches for a new node type or a persisted intent marker (path (a), a
+# dialect change AEF would have to ratify) fails here first.
+if python3 "$ROOT/tests/test_t308_bare_catch_render.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "bare catch event stopped rendering neutrally, or the fix grew an export surface (T-308/T-244 class)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== annotation seam v0: aef:ready/aef:annotate loop (T-258, T-250 GO) =="
 # Embeds the real editor in an iframe host (AEF Watchtower topology): ready
 # handshake per render, badge intake + unknown-uid/spoof rejection, display-only

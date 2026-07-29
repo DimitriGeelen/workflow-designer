@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-29T17:47:21Z
-last_update: 2026-07-29T17:48:02Z
+last_update: 2026-07-29T17:48:33Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -59,12 +59,17 @@ persisted "intended handoff" marker is out of scope — it would be a dialect ch
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] An unbound, non-session-authored catch event renders a neutral glyph and neutral label (not "← Handoff"), and its property panel does not offer the dead link fields (workflowRef/name/targetWorkflow/linkId)
-- [ ] A palette-created `linkEventCatch` still shows the handoff UI for the duration of the authoring session, so binding stays discoverable; after reload it renders neutral (session-state intent, no persisted marker)
-- [ ] A node that DOES carry a binding (`workflowRef`/`targetWorkflow`/`linkId`) is unaffected — glyph, label and property panel unchanged
-- [ ] Zero exported-byte change: for every corpus map, `buildBpmnXml(state)` is byte-identical before and after this change (no schema surface, nothing for AEF to ratify)
-- [ ] Regression test added that imports a bare `intermediateCatchEvent` fixture and asserts the neutral presentation plus the unchanged export bytes; wired into the bridge suite
-- [ ] Bridge + validator + geometry suites green, failure-shape asserted not count-pinned (PL-061)
+- [x] An unbound, non-session-authored catch event renders a neutral glyph and neutral type label (not "← Handoff"), and its property panel does not offer the dead link fields (workflowRef/name/targetWorkflow/linkId)
+      — neutral BPMN double ring in `--text-faint` (src ~2969), panel type badge reads `intermediateEvent`, Extensions section replaced by an "Event kind" note + "← Make this a handoff" affordance. See **Decisions** for why the node's *own name* is not rewritten.
+- [x] A palette-created `linkEventCatch` still shows the handoff UI for the duration of the authoring session, so binding stays discoverable; after reload it renders neutral (session-state intent, no persisted marker)
+      — `sessionAuthoredLinks` Set, deliberately outside `state`; `createNodeAt` registers link-catch drops. Harness SESSION leg + screenshots `t308-palette-live.png` / `t308-palette-after-reload.png`.
+- [x] A node that DOES carry a binding (`workflowRef`/`targetWorkflow`/`linkId`) is unaffected — glyph, label and property panel unchanged
+      — uuid-bound and legacy-slug forms both verified; typed-catch (T-204 override) also unaffected. Screenshots `t308-node-bound-unchanged.png`, `t308-panel-bound-unchanged.png`.
+- [x] Zero exported-byte change: for every corpus map, `buildBpmnXml(state)` is byte-identical before and after this change (no schema surface, nothing for AEF to ratify)
+      — `tools/_t308-export-byte-identity-cdp.mjs HEAD`: **24 maps, 24 identical, 0 drifted, 0 errors**. Also holds after using the "Make this a handoff" affordance (declaring intent writes nothing).
+- [x] Regression test added that imports a bare `intermediateCatchEvent` fixture and asserts the neutral presentation plus the unchanged export bytes; wired into the bridge suite
+      — `tests/fixtures/aef-bpmn/bare-catch-event.bpmn` (bare / uuid-bound / legacy-slug / typed-catch), `tools/_t308-bare-catch-render-cdp.mjs`, `tests/test_t308_bare_catch_render.py`, wired into `tests/run-bridge-tests.sh`. Six legs: MODEL/RENDER/PANEL/EXPORT/SESSION/BITE.
+- [x] Bridge + validator + geometry suites green, failure-shape asserted not count-pinned (PL-061)
 
 ### Human
 - [ ] [REVIEW] The neutral glyph reads as "an event of unspecified kind", not as a broken or missing node
@@ -79,8 +84,8 @@ persisted "intended handoff" marker is out of scope — it would be a dialect ch
   1. In the same designer, drag `← Handoff` from the palette onto the canvas
   2. Without binding it, check the node and its property panel
   3. Reload the page and look at the same node again
-  **Expected:** while placing, the handoff affordance and target fields are present; after reload it renders neutral
-  **If not:** note which half feels wrong — the live affordance or the post-reload neutrality
+  **Expected:** while placing, the handoff affordance and target fields are present; after reload the *glyph* goes neutral **but the node keeps whatever name you gave it** — so a node you never renamed still reads "← Handoff" under a neutral ring. That is deliberate: the name is your text, and rewriting it would change exported bytes (see **Decisions**). Judge whether that combination reads as "meant to be a handoff, never bound" or just looks broken.
+  **If not:** note which half feels wrong — the live affordance, the post-reload neutrality, or the neutral-ring/"← Handoff"-name combination
 
 
 ## Verification
@@ -109,12 +114,65 @@ persisted "intended handoff" marker is out of scope — it would be a dialect ch
 # stdin on. `echo "$out"` is small and immediate; grep scans the whole captured
 # string anyway, so the tail-3 was cosmetic. Drop it: `echo "$out" | grep -q PAT`.
 #
+# --- T-308 checks ---
+# The neutral-rendering branch and its session-intent carrier exist.
+grep -q "function isBareCatchEvent" src/aef-workflow-designer.html
+grep -q "const sessionAuthoredLinks = new Set()" src/aef-workflow-designer.html
+# The intent Set must NEVER become document state — that would be path (a), a
+# dialect change AEF has to ratify. Assert it is not written onto a node/state.
+out=$(grep -c "aef\.sessionAuthored\|n\.sessionAuthored\|state\.sessionAuthoredLinks" src/aef-workflow-designer.html || true); test "$out" = "0"
+# The bare branch is ordered BEFORE the link-event branch (else it never fires).
+python3 -c "import sys; s=open('src/aef-workflow-designer.html').read(); a=s.index('} else if (isBareCatchEvent(n)) {'); b=s.index(\"} else if (n.type === 'linkEventThrow' || n.type === 'linkEventCatch') {\"); sys.exit(0 if a<b else 1)"
+# Fixture + harness + suite wiring are present.
+test -f tests/fixtures/aef-bpmn/bare-catch-event.bpmn
+test -f tools/_t308-bare-catch-render-cdp.mjs
+grep -q "test_t308_bare_catch_render.py" tests/run-bridge-tests.sh
+# The behaviour leg itself (skips LOUDLY without chromium — never a silent green).
+out=$(python3 tests/test_t308_bare_catch_render.py 2>&1); echo "$out" | grep -qE '"ok": true|^SKIP:'
+# Zero export surface vs the PRE-CHANGE tree. The ref is pinned to fb4c21c (the
+# commit before T-308 touched src/) on purpose: against HEAD this check compares
+# the change with itself once committed and becomes a green that cannot go red —
+# the PL-061 class defect found in T-307. Assert the SHAPE (no drift), not a map
+# count, so a growing corpus does not break it.
+out=$(node tools/_t308-export-byte-identity-cdp.mjs fb4c21c 2>&1); echo "$out" | grep -q '"drifted": 0'
+# Suites green. Failure-SHAPE asserted, never a pinned total (PL-061) — both
+# suites grow, and "44 passed" would go red on the next added leg.
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "0 failed"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "0 failed"
 # Enforcement-baseline hint (L-398, T-1886): if you edited `.claude/settings.json`
 # (added/removed/reorganised hooks), add `bin/fw enforcement baseline` to your
 # Verification block. Otherwise the canonical hash diverges and `fw doctor`
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+## Visual Verification
+
+Playwright against an isolated sidecar (`tools/gallery-serve.py`, temp docroot) serving the
+working-tree designer with `tests/fixtures/aef-bpmn/bare-catch-event.bpmn`. The designer has a
+**single theme** and no density/contrast modes (one `:root` block, no `prefers-color-scheme`, no
+`data-density`), so the mode matrix here is selection state and node class, not theme. Every file
+below was READ, not merely captured:
+
+- `t308-node-bare-neutral.png` — READ: the bare catch event draws BPMN's plain intermediate event
+  (muted double ring, no chevron, `--text-faint`). Reads as "event of unspecified kind"; not an
+  error state.
+- `t308-node-bare-selected.png` — READ: same node selected — the selection glow lands correctly on
+  the outer ring (the `.node-shape` class is on the outer circle), no double-halo artefact.
+- `t308-node-bound-unchanged.png` — READ: uuid-bound handoff keeps the accent circle + inward
+  chevron. Side-by-side with the neutral ring the two are unmistakably different objects.
+- `t308-panel-bare-header.png` — READ: inspector header badge is the neutral double ring and the
+  type name reads `intermediateEvent`; BPMN basics (Name/Slug/Display ID/UID/Lane) unchanged.
+- `t308-panel-bare-eventkind.png` — READ: the "Event kind" note plus the "← Make this a handoff"
+  affordance. No `AEF:` badge on this section — it is not an aef: field group, and the first cut
+  wrongly badged it as one.
+- `t308-panel-bound-unchanged.png` — READ: bound handoff still gets the full Extensions section —
+  Workflow ref (uuid), Ref display name, target picker, "Open target workflow", Link ID.
+- `t308-palette-live.png` — READ: a handoff dropped from the palette keeps the chevron and the
+  "← Handoff" name while live in the session, so binding stays discoverable.
+- `t308-palette-after-reload.png` — READ: the same node after the reload proxy
+  (`sessionAuthoredLinks.clear()`) — glyph goes neutral while the authored name stays. This is the
+  combination the second Human [REVIEW] AC asks about; see **Decisions**.
 
 ## RCA
 
@@ -157,6 +215,44 @@ persisted "intended handoff" marker is out of scope — it would be a dialect ch
 -->
 
 ## Decisions
+
+### 2026-07-29 — the node's own name is not rewritten
+
+- **Chose:** neutralise the *glyph*, the *type badge* and the *property panel*, and leave `n.name`
+  exactly as authored — so a node named "← Handoff" that is unbound renders as a neutral ring still
+  labelled "← Handoff".
+- **Why:** the name is authored content, and it is serialized. Rewriting it would change exported
+  bytes, breaking the zero-export-surface constraint that is the entire reason path (b) needs no
+  AEF ratification — and it would destroy the author's text to make a presentation point. The
+  combination is also arguably the honest reading: someone meant this to be a handoff and never
+  bound it, and the document says so in the only place it can. The original AC said "neutral
+  label"; the deliverable is a neutral **type** label, and the second Human [REVIEW] AC was
+  rewritten to describe what is actually on screen so the operator judges the real thing.
+- **Rejected:** (a) substituting a display-only name when unbound — the canvas label would then
+  disagree with the Name field in the inspector, trading one confusion for a worse one;
+  (b) rewriting `n.name` on import — mutates exported bytes and is destructive.
+
+### 2026-07-29 — session intent lives in a module Set, not on the node
+
+- **Chose:** a module-level `sessionAuthoredLinks = new Set()` holding uids, populated by
+  `createNodeAt` for palette drops and by the "← Make this a handoff" affordance.
+- **Why:** IW-3 established the dialect has no carrier for authorial intent. A field on the node or
+  on `state` would be reachable by every serializer and one future "persist the editor state"
+  change away from becoming a dialect change (path (a)) by accident. A Set outside `state` cannot
+  be serialized, and a reload empties it — which is exactly the intended lifetime. A Verification
+  line asserts no `sessionAuthored*` key is ever written onto a node or `state`.
+- **Rejected:** `node._sessionHandoff = true` — simpler to write, but it rides inside the object
+  the exporter walks, so the invariant would depend on the exporter's key allowlist staying correct
+  forever rather than on the data being unreachable.
+
+### 2026-07-29 — an explicit affordance instead of silently hiding the fields
+
+- **Chose:** hide the dead link fields but offer "← Make this a handoff", which reveals them for the
+  session.
+- **Why:** hiding alone would make an imported bare catch event impossible to *turn into* a handoff
+  — the fix for a misread would have created a dead end. Clicking it writes nothing to the document
+  (verified: `<aef:link>` count unchanged, node still unbound), so the zero-export-surface property
+  survives the affordance.
 
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
