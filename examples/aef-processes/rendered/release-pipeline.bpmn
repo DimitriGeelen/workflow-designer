@@ -1,263 +1,334 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated from release-pipeline by tools/yaml-to-bpmn.py. Do not edit by hand. -->
-<bpmn:definitions
-    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
-    xmlns:aef="http://anchorpoint.framework/aef/extensions"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <bpmn:process id="Pool_release_pipeline" name="release-pipeline">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_release-pipeline"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
 
-    <bpmn:laneSet id="LaneSet_release-pipeline">
+  <bpmn:collaboration id="Collaboration_release-pipeline">
+    <bpmn:participant id="Pool_release_pipeline" name="release-pipeline" processRef="Process_release-pipeline"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_release-pipeline" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="release-pipeline" uuid="c0c73e00-9c57-47f6-88a8-7f74e532b710" version="1" schemaVersion="2" title="release-pipeline" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="agent" name="Agent / cron · Initiative">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="agt" authority="initiative" height="120"/>
+          <aef:laneMeta abbr="agt" authority="initiative" height="96"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_1_trigger</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="frw" authority="authority" height="360"/>
+          <aef:laneMeta abbr="frw" authority="authority" height="192"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_parse</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_latest</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_tag_gate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_no_tag</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_count</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_commits_gate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_noop</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_bump</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_dry_gate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_dryrun</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_tag</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_push</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_gh_gate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_done</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_error</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_7_no</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_10_dry</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_14_released</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_1_parse</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_latest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_5_count</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_8_compute</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_11_create</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_12_push</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_any</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_6_commits</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_9_dry</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_13_gh</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="external" name="Remotes + GitHub · External">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="ext" authority="external" height="140"/>
+          <aef:laneMeta abbr="ext" authority="external" height="88"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_remote</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_gh</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>ext_1_remotes</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>ext_2_create</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="n_start" name="Trigger — `fw release` or weekly cron">
+    <bpmn:startEvent id="agt_1_trigger" name="Trigger — `fw release` or weekly cron">
       <bpmn:extensionElements>
         <aef:uid value="n_start"/>
-        <aef:position x="100" y="104"/>
-        <aef:meta determinism="deterministic" endpoint="fw release"/>
+        <aef:position x="100.0" y="92.0"/>
+        <aef:endpoint>fw release</aef:endpoint>
       </bpmn:extensionElements>
-      <bpmn:outgoing>e_01</bpmn:outgoing>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:scriptTask id="n_parse" name="Parse flags (--dry-run/--bump/--repo)">
+
+    <bpmn:endEvent id="frw_4_error" name="ERROR — no tags, bootstrap first">
+      <bpmn:extensionElements>
+        <aef:uid value="n_no_tag"/>
+        <aef:position x="553.0" y="284.0"/>
+        <aef:meta terminalKind="error"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_7_no" name="No-op — nothing to release (idempotent)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_noop"/>
+        <aef:position x="823.0" y="284.0"/>
+        <aef:meta terminalKind="success"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_7</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_10_dry" name="Dry-run — would tag, no side effects">
+      <bpmn:extensionElements>
+        <aef:uid value="n_dryrun"/>
+        <aef:position x="1113.0" y="284.0"/>
+        <aef:meta terminalKind="success"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_10</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_14_released" name="Released ✓ (exit = failed)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_done"/>
+        <aef:position x="1720.0" y="188.0"/>
+        <aef:meta terminalKind="success"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_16</bpmn:incoming>
+      <bpmn:incoming>flow_17</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:serviceTask id="ext_1_remotes" name="Remotes receive the pushed tag">
+      <bpmn:extensionElements>
+        <aef:uid value="n_remote"/>
+        <aef:position x="1400.0" y="362.0"/>
+        <aef:meta external="True"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_13</bpmn:incoming>
+      <bpmn:outgoing>flow_14</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="ext_2_create" name="Create GitHub Release (best-effort)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_gh"/>
+        <aef:position x="1560.0" y="362.0"/>
+        <aef:meta softFail="advisory" external="True"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_15</bpmn:incoming>
+      <bpmn:outgoing>flow_17</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:scriptTask id="frw_1_parse" name="Parse flags (--dry-run/--bump/--repo)">
       <bpmn:extensionElements>
         <aef:uid value="n_parse"/>
-        <aef:position x="250" y="285"/>
-        <aef:meta determinism="deterministic"/>
+        <aef:position x="250.0" y="174.0"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_01</bpmn:incoming>
-      <bpmn:outgoing>e_02</bpmn:outgoing>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_latest" name="Latest v* tag (git describe)">
+
+    <bpmn:scriptTask id="frw_2_latest" name="Latest v* tag (git describe)">
       <bpmn:extensionElements>
         <aef:uid value="n_latest"/>
-        <aef:position x="400" y="285"/>
-        <aef:meta determinism="deterministic"/>
+        <aef:position x="400.0" y="174.0"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_02</bpmn:incoming>
-      <bpmn:outgoing>e_03</bpmn:outgoing>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:exclusiveGateway id="n_tag_gate" name="Any v* tag?">
+
+    <bpmn:scriptTask id="frw_5_count" name="Count commits since tag">
+      <bpmn:extensionElements>
+        <aef:uid value="n_count"/>
+        <aef:position x="680.0" y="174.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+      <bpmn:outgoing>flow_6</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_8_compute" name="Compute next version (bump)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_bump"/>
+        <aef:position x="960.0" y="174.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_8</bpmn:incoming>
+      <bpmn:outgoing>flow_9</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_11_create" name="Create annotated tag">
+      <bpmn:extensionElements>
+        <aef:uid value="n_tag"/>
+        <aef:position x="1250.0" y="174.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_11</bpmn:incoming>
+      <bpmn:outgoing>flow_12</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_12_push" name="Push tag → every remote (loop)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_push"/>
+        <aef:position x="1400.0" y="174.0"/>
+        <aef:meta softFail="accumulating"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_12</bpmn:incoming>
+      <bpmn:outgoing>flow_13</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:exclusiveGateway id="frw_3_any" name="Any v* tag?">
       <bpmn:extensionElements>
         <aef:uid value="n_tag_gate"/>
-        <aef:position x="547" y="293"/>
+        <aef:position x="547.0" y="182.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${latest != ""}</aef:decisionInput>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_03</bpmn:incoming>
-      <bpmn:outgoing>e_04</bpmn:outgoing>
-      <bpmn:outgoing>e_05</bpmn:outgoing>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:endEvent id="n_no_tag" name="ERROR — no tags, bootstrap first">
-      <bpmn:extensionElements>
-        <aef:uid value="n_no_tag"/>
-        <aef:position x="553" y="389"/>
-        <aef:meta terminalKind="error"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_04</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:scriptTask id="n_count" name="Count commits since tag">
-      <bpmn:extensionElements>
-        <aef:uid value="n_count"/>
-        <aef:position x="680" y="285"/>
-        <aef:meta determinism="deterministic"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_05</bpmn:incoming>
-      <bpmn:outgoing>e_06</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:exclusiveGateway id="n_commits_gate" name="Commits since tag &gt; 0?">
+
+    <bpmn:exclusiveGateway id="frw_6_commits" name="Commits since tag &gt; 0?">
       <bpmn:extensionElements>
         <aef:uid value="n_commits_gate"/>
-        <aef:position x="817" y="293"/>
+        <aef:position x="817.0" y="182.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${commits &gt; 0}</aef:decisionInput>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_06</bpmn:incoming>
-      <bpmn:outgoing>e_07</bpmn:outgoing>
-      <bpmn:outgoing>e_08</bpmn:outgoing>
+      <bpmn:incoming>flow_6</bpmn:incoming>
+      <bpmn:outgoing>flow_7</bpmn:outgoing>
+      <bpmn:outgoing>flow_8</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:endEvent id="n_noop" name="No-op — nothing to release (idempotent)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_noop"/>
-        <aef:position x="823" y="389"/>
-        <aef:meta terminalKind="success"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_07</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:scriptTask id="n_bump" name="Compute next version (bump)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_bump"/>
-        <aef:position x="960" y="285"/>
-        <aef:meta determinism="deterministic"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_08</bpmn:incoming>
-      <bpmn:outgoing>e_09</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:exclusiveGateway id="n_dry_gate" name="--dry-run?">
+
+    <bpmn:exclusiveGateway id="frw_9_dry" name="--dry-run?">
       <bpmn:extensionElements>
         <aef:uid value="n_dry_gate"/>
-        <aef:position x="1107" y="293"/>
+        <aef:position x="1107.0" y="182.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${dry_run}</aef:decisionInput>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_09</bpmn:incoming>
-      <bpmn:outgoing>e_10</bpmn:outgoing>
-      <bpmn:outgoing>e_11</bpmn:outgoing>
+      <bpmn:incoming>flow_9</bpmn:incoming>
+      <bpmn:outgoing>flow_10</bpmn:outgoing>
+      <bpmn:outgoing>flow_11</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:endEvent id="n_dryrun" name="Dry-run — would tag, no side effects">
-      <bpmn:extensionElements>
-        <aef:uid value="n_dryrun"/>
-        <aef:position x="1113" y="389"/>
-        <aef:meta terminalKind="success"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_10</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:scriptTask id="n_tag" name="Create annotated tag">
-      <bpmn:extensionElements>
-        <aef:uid value="n_tag"/>
-        <aef:position x="1250" y="285"/>
-        <aef:meta determinism="deterministic" sideEffect="creates a local annotated git tag"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_11</bpmn:incoming>
-      <bpmn:outgoing>e_12</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_push" name="Push tag → every remote (loop)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_push"/>
-        <aef:position x="1400" y="285"/>
-        <aef:meta determinism="deterministic" sideEffect="pushes the tag across the host boundary to each remote" softFail="accumulating" x-collection="git remotes (runtime set)"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_12</bpmn:incoming>
-      <bpmn:outgoing>e_13</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:serviceTask id="n_remote" name="Remotes receive the pushed tag">
-      <bpmn:extensionElements>
-        <aef:uid value="n_remote"/>
-        <aef:position x="1400" y="580"/>
-        <aef:meta determinism="deterministic" sideEffect="remote ref updated on each push target" external="True"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_13</bpmn:incoming>
-      <bpmn:outgoing>e_14</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:exclusiveGateway id="n_gh_gate" name="gh CLI available?">
+
+    <bpmn:exclusiveGateway id="frw_13_gh" name="gh CLI available?">
       <bpmn:extensionElements>
         <aef:uid value="n_gh_gate"/>
-        <aef:position x="1560" y="293"/>
+        <aef:position x="1560.0" y="182.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${command -v gh}</aef:decisionInput>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_14</bpmn:incoming>
-      <bpmn:outgoing>e_15</bpmn:outgoing>
-      <bpmn:outgoing>e_16</bpmn:outgoing>
+      <bpmn:incoming>flow_14</bpmn:incoming>
+      <bpmn:outgoing>flow_15</bpmn:outgoing>
+      <bpmn:outgoing>flow_16</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:serviceTask id="n_gh" name="Create GitHub Release (best-effort)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_gh"/>
-        <aef:position x="1560" y="580"/>
-        <aef:meta determinism="deterministic" sideEffect="creates a GitHub Release (--generate-notes --latest)" softFail="advisory" external="True"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_15</bpmn:incoming>
-      <bpmn:outgoing>e_17</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:endEvent id="n_done" name="Released ✓ (exit = failed)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_done"/>
-        <aef:position x="1720" y="299"/>
-        <aef:meta terminalKind="success"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_16</bpmn:incoming>
-      <bpmn:incoming>e_17</bpmn:incoming>
-    </bpmn:endEvent>
 
-    <bpmn:sequenceFlow id="e_01" sourceRef="n_start" targetRef="n_parse">
-      <bpmn:extensionElements><aef:uid value="e_01"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_02" sourceRef="n_parse" targetRef="n_latest">
-      <bpmn:extensionElements><aef:uid value="e_02"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_03" sourceRef="n_latest" targetRef="n_tag_gate">
-      <bpmn:extensionElements><aef:uid value="e_03"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_04" name="no tags" sourceRef="n_tag_gate" targetRef="n_no_tag">
-      <bpmn:extensionElements><aef:uid value="e_04"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${latest == ""}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_05" name="has tag" sourceRef="n_tag_gate" targetRef="n_count">
-      <bpmn:extensionElements><aef:uid value="e_05"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${latest != ""}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_06" sourceRef="n_count" targetRef="n_commits_gate">
-      <bpmn:extensionElements><aef:uid value="e_06"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_07" name="0 commits" sourceRef="n_commits_gate" targetRef="n_noop">
-      <bpmn:extensionElements><aef:uid value="e_07"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${commits == 0}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_08" name="&gt; 0" sourceRef="n_commits_gate" targetRef="n_bump">
-      <bpmn:extensionElements><aef:uid value="e_08"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${commits &gt; 0}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_09" sourceRef="n_bump" targetRef="n_dry_gate">
-      <bpmn:extensionElements><aef:uid value="e_09"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_10" name="dry-run" sourceRef="n_dry_gate" targetRef="n_dryrun">
-      <bpmn:extensionElements><aef:uid value="e_10"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${dry_run}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_11" name="real run" sourceRef="n_dry_gate" targetRef="n_tag">
-      <bpmn:extensionElements><aef:uid value="e_11"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!dry_run}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_12" sourceRef="n_tag" targetRef="n_push">
-      <bpmn:extensionElements><aef:uid value="e_12"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_13" name="push (each remote)" sourceRef="n_push" targetRef="n_remote">
-      <bpmn:extensionElements><aef:uid value="e_13"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_14" sourceRef="n_remote" targetRef="n_gh_gate">
-      <bpmn:extensionElements><aef:uid value="e_14"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_15" name="gh present" sourceRef="n_gh_gate" targetRef="n_gh">
-      <bpmn:extensionElements><aef:uid value="e_15"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${gh_available}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_16" name="no gh (skip)" sourceRef="n_gh_gate" targetRef="n_done">
-      <bpmn:extensionElements><aef:uid value="e_16"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!gh_available}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_17" sourceRef="n_gh" targetRef="n_done">
-      <bpmn:extensionElements><aef:uid value="e_17"/></bpmn:extensionElements>
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_trigger" targetRef="frw_1_parse">
+      <bpmn:extensionElements>
+        <aef:uid value="e_01"/>
+      </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_parse" targetRef="frw_2_latest">
+      <bpmn:extensionElements>
+        <aef:uid value="e_02"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_3" sourceRef="frw_2_latest" targetRef="frw_3_any">
+      <bpmn:extensionElements>
+        <aef:uid value="e_03"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_4" name="no tags" sourceRef="frw_3_any" targetRef="frw_4_error">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${latest == ""}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_04"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_5" name="has tag" sourceRef="frw_3_any" targetRef="frw_5_count">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${latest != ""}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_05"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_6" sourceRef="frw_5_count" targetRef="frw_6_commits">
+      <bpmn:extensionElements>
+        <aef:uid value="e_06"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_7" name="0 commits" sourceRef="frw_6_commits" targetRef="frw_7_no">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${commits == 0}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_07"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_8" name="&gt; 0" sourceRef="frw_6_commits" targetRef="frw_8_compute">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${commits &gt; 0}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_08"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_9" sourceRef="frw_8_compute" targetRef="frw_9_dry">
+      <bpmn:extensionElements>
+        <aef:uid value="e_09"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_10" name="dry-run" sourceRef="frw_9_dry" targetRef="frw_10_dry">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${dry_run}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_10"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_11" name="real run" sourceRef="frw_9_dry" targetRef="frw_11_create">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!dry_run}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_11"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_12" sourceRef="frw_11_create" targetRef="frw_12_push">
+      <bpmn:extensionElements>
+        <aef:uid value="e_12"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_13" name="push (each remote)" sourceRef="frw_12_push" targetRef="ext_1_remotes">
+      <bpmn:extensionElements>
+        <aef:uid value="e_13"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_14" sourceRef="ext_1_remotes" targetRef="frw_13_gh">
+      <bpmn:extensionElements>
+        <aef:uid value="e_14"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_15" name="gh present" sourceRef="frw_13_gh" targetRef="ext_2_create">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${gh_available}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_15"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_16" name="no gh (skip)" sourceRef="frw_13_gh" targetRef="frw_14_released">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!gh_available}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_16"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_17" sourceRef="ext_2_create" targetRef="frw_14_released">
+      <bpmn:extensionElements>
+        <aef:uid value="e_17"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
   </bpmn:process>
+
+  <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates -->
 </bpmn:definitions>

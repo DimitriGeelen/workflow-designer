@@ -1549,3 +1549,21 @@ scan_id: R-88f390de
 task_id: T-298
 payload:
   task_file: .tasks/active/T-298-error-escalation-ladder-pair-leg-aef-t-2.md
+---
+kind: scan_emitted
+timestamp: '2026-07-29T08:21:06Z'
+scan_id: R-f143517e
+task_id: T-300
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-29T08:21:06Z'
+scan_id: R-f143517e
+task_id: T-300
+payload:
+  task_file: .tasks/active/T-300-make-bake-clean-layout-dialect-preservin.md

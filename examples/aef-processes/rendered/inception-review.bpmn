@@ -1,217 +1,277 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated from inception-review by tools/yaml-to-bpmn.py. Do not edit by hand. -->
-<bpmn:definitions
-    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
-    xmlns:aef="http://anchorpoint.framework/aef/extensions"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <bpmn:process id="Pool_inception_review" name="inception-review">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_inception-review"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
 
-    <bpmn:laneSet id="LaneSet_inception-review">
+  <bpmn:collaboration id="Collaboration_inception-review">
+    <bpmn:participant id="Pool_inception_review" name="inception-review" processRef="Process_inception-review"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_inception-review" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="inception-review" uuid="1ed80938-d9ed-4557-b4fa-ab3aa26a8e6f" version="1" schemaVersion="2" title="inception-review" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="agent" name="Agent · Initiative">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="agt" authority="initiative" height="200"/>
+          <aef:laneMeta abbr="agt" authority="initiative" height="96"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_request</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_fix</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_1_agent</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_2_agent</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="frw" authority="authority" height="260"/>
+          <aef:laneMeta abbr="frw" authority="authority" height="288"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_readiness</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_ready_gate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_linkcheck</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_emit</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_go</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_nogo</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_defer</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_end_go</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_end_nogo</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_end_defer</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_9_inception</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_10_inception</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_8_inception</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_1_audit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_validate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_emit</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_6_record</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_7_record</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_5_record</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_recommendation</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="human" name="Human · Sovereignty">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="hum" authority="sovereignty" height="200"/>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="108"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_review</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_decide</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_1_human</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_2_decision</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="n_request" name="Agent runs `fw task review`">
+    <bpmn:startEvent id="agt_1_agent" name="Agent runs `fw task review`">
       <bpmn:extensionElements>
         <aef:uid value="n_request"/>
-        <aef:position x="120" y="94"/>
-        <aef:meta determinism="deterministic" endpoint="fw task review T-XXX"/>
+        <aef:position x="120.0" y="92.0"/>
+        <aef:endpoint>fw task review T-XXX</aef:endpoint>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_05</bpmn:incoming>
-      <bpmn:outgoing>e_01</bpmn:outgoing>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:scriptTask id="n_readiness" name="Audit recommendation + go/no-go criteria (placeholder detector)">
+
+    <bpmn:endEvent id="frw_9_inception" name="Inception decided — build authorised">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_go"/>
+        <aef:position x="1860.0" y="188.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_12</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_10_inception" name="Inception closed — no build">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_nogo"/>
+        <aef:position x="1860.0" y="284.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_13</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_8_inception" name="Inception parked — revisit scheduled">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_defer"/>
+        <aef:position x="1860.0" y="380.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_14</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:userTask id="hum_1_human" name="Human opens link — reviews recommendation, artifacts, criteria">
+      <bpmn:extensionElements>
+        <aef:uid value="n_review"/>
+        <aef:position x="980.0" y="468.0"/>
+        <aef:endpoint>Watchtower /inception/T-XXX  |  fw inception decide</aef:endpoint>
+        <aef:decisionOutputs>go, no-go, defer</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_7</bpmn:incoming>
+      <bpmn:outgoing>flow_8</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:scriptTask id="frw_1_audit" name="Audit recommendation + go/no-go criteria (placeholder detector)">
       <bpmn:extensionElements>
         <aef:uid value="n_readiness"/>
-        <aef:position x="340" y="360"/>
-        <aef:meta determinism="deterministic" sideEffect="none (read-only gate)"/>
+        <aef:position x="340.0" y="270.0"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_01</bpmn:incoming>
-      <bpmn:outgoing>e_02</bpmn:outgoing>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:exclusiveGateway id="n_ready_gate" name="Recommendation ready?">
+
+    <bpmn:scriptTask id="agt_2_agent" name="Agent fills recommendation + go/no-go criteria">
+      <bpmn:extensionElements>
+        <aef:uid value="n_fix"/>
+        <aef:position x="340.0" y="78.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_3_validate" name="Validate review link resolves (review_link_validator --enforce)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_linkcheck"/>
+        <aef:position x="760.0" y="270.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+      <bpmn:outgoing>flow_6</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_4_emit" name="Emit Watchtower URL + QR + artifacts; write `.reviewed-` marker">
+      <bpmn:extensionElements>
+        <aef:uid value="n_emit"/>
+        <aef:position x="980.0" y="270.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_6</bpmn:incoming>
+      <bpmn:outgoing>flow_7</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_6_record" name="Record GO — complete inception, unlock build tasks">
+      <bpmn:extensionElements>
+        <aef:uid value="n_go"/>
+        <aef:position x="1640.0" y="178.0"/>
+        <aef:endpoint>fw inception decide T-XXX go</aef:endpoint>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_9</bpmn:incoming>
+      <bpmn:outgoing>flow_12</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_7_record" name="Record NO-GO — close inception, no build">
+      <bpmn:extensionElements>
+        <aef:uid value="n_nogo"/>
+        <aef:position x="1640.0" y="270.0"/>
+        <aef:endpoint>fw inception decide T-XXX no-go</aef:endpoint>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_10</bpmn:incoming>
+      <bpmn:outgoing>flow_13</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_5_record" name="Record DEFER — set revisit_at (G-053 daily scan)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_defer"/>
+        <aef:position x="1640.0" y="362.0"/>
+        <aef:endpoint>fw inception decide T-XXX defer</aef:endpoint>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_11</bpmn:incoming>
+      <bpmn:outgoing>flow_14</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:exclusiveGateway id="frw_2_recommendation" name="Recommendation ready?">
       <bpmn:extensionElements>
         <aef:uid value="n_ready_gate"/>
-        <aef:position x="560" y="368"/>
+        <aef:position x="560.0" y="278.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${ready}</aef:decisionInput>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_02</bpmn:incoming>
-      <bpmn:outgoing>e_03</bpmn:outgoing>
-      <bpmn:outgoing>e_04</bpmn:outgoing>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:scriptTask id="n_fix" name="Agent fills recommendation + go/no-go criteria">
-      <bpmn:extensionElements>
-        <aef:uid value="n_fix"/>
-        <aef:position x="340" y="80"/>
-        <aef:meta determinism="stochastic"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_03</bpmn:incoming>
-      <bpmn:outgoing>e_05</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_linkcheck" name="Validate review link resolves (review_link_validator --enforce)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_linkcheck"/>
-        <aef:position x="760" y="360"/>
-        <aef:meta determinism="deterministic"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_04</bpmn:incoming>
-      <bpmn:outgoing>e_06</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_emit" name="Emit Watchtower URL + QR + artifacts; write `.reviewed-` marker">
-      <bpmn:extensionElements>
-        <aef:uid value="n_emit"/>
-        <aef:position x="980" y="360"/>
-        <aef:meta determinism="deterministic" sideEffect="write .context/working/.reviewed-T-XXX"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_06</bpmn:incoming>
-      <bpmn:outgoing>e_07</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:userTask id="n_review" name="Human opens link — reviews recommendation, artifacts, criteria">
-      <bpmn:extensionElements>
-        <aef:uid value="n_review"/>
-        <aef:position x="980" y="540"/>
-        <aef:meta determinism="human" authority="sovereignty" endpoint="Watchtower /inception/T-XXX  |  fw inception decide"/>
-        <aef:decisionOutputs>go, no-go, defer</aef:decisionOutputs>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_07</bpmn:incoming>
-      <bpmn:outgoing>e_08</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:exclusiveGateway id="n_decide" name="Decision?">
+
+    <bpmn:exclusiveGateway id="hum_2_decision" name="Decision?">
       <bpmn:extensionElements>
         <aef:uid value="n_decide"/>
-        <aef:position x="1420" y="548"/>
+        <aef:position x="1420.0" y="476.0"/>
         <aef:meta decisionOwner="human"/>
         <aef:decisionInput>${decision}</aef:decisionInput>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_08</bpmn:incoming>
-      <bpmn:outgoing>e_09</bpmn:outgoing>
-      <bpmn:outgoing>e_10</bpmn:outgoing>
-      <bpmn:outgoing>e_11</bpmn:outgoing>
+      <bpmn:incoming>flow_8</bpmn:incoming>
+      <bpmn:outgoing>flow_9</bpmn:outgoing>
+      <bpmn:outgoing>flow_10</bpmn:outgoing>
+      <bpmn:outgoing>flow_11</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:scriptTask id="n_go" name="Record GO — complete inception, unlock build tasks">
-      <bpmn:extensionElements>
-        <aef:uid value="n_go"/>
-        <aef:position x="1640" y="268"/>
-        <aef:meta determinism="deterministic" endpoint="fw inception decide T-XXX go"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_09</bpmn:incoming>
-      <bpmn:outgoing>e_12</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_nogo" name="Record NO-GO — close inception, no build">
-      <bpmn:extensionElements>
-        <aef:uid value="n_nogo"/>
-        <aef:position x="1640" y="360"/>
-        <aef:meta determinism="deterministic" endpoint="fw inception decide T-XXX no-go"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_10</bpmn:incoming>
-      <bpmn:outgoing>e_13</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_defer" name="Record DEFER — set revisit_at (G-053 daily scan)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_defer"/>
-        <aef:position x="1640" y="452"/>
-        <aef:meta determinism="deterministic" endpoint="fw inception decide T-XXX defer"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_11</bpmn:incoming>
-      <bpmn:outgoing>e_14</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:endEvent id="n_end_go" name="Inception decided — build authorised">
-      <bpmn:extensionElements>
-        <aef:uid value="n_end_go"/>
-        <aef:position x="1860" y="282"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_12</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:endEvent id="n_end_nogo" name="Inception closed — no build">
-      <bpmn:extensionElements>
-        <aef:uid value="n_end_nogo"/>
-        <aef:position x="1860" y="374"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_13</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:endEvent id="n_end_defer" name="Inception parked — revisit scheduled">
-      <bpmn:extensionElements>
-        <aef:uid value="n_end_defer"/>
-        <aef:position x="1860" y="466"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_14</bpmn:incoming>
-    </bpmn:endEvent>
 
-    <bpmn:sequenceFlow id="e_01" sourceRef="n_request" targetRef="n_readiness">
-      <bpmn:extensionElements><aef:uid value="e_01"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_02" sourceRef="n_readiness" targetRef="n_ready_gate">
-      <bpmn:extensionElements><aef:uid value="e_02"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_03" name="placeholder / not ready" sourceRef="n_ready_gate" targetRef="n_fix">
-      <bpmn:extensionElements><aef:uid value="e_03"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ready == false}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_04" name="ready" sourceRef="n_ready_gate" targetRef="n_linkcheck">
-      <bpmn:extensionElements><aef:uid value="e_04"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ready == true}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_05" name="re-request review" sourceRef="n_fix" targetRef="n_request">
-      <bpmn:extensionElements><aef:uid value="e_05"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_06" sourceRef="n_linkcheck" targetRef="n_emit">
-      <bpmn:extensionElements><aef:uid value="e_06"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_07" sourceRef="n_emit" targetRef="n_review">
-      <bpmn:extensionElements><aef:uid value="e_07"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_08" sourceRef="n_review" targetRef="n_decide">
-      <bpmn:extensionElements><aef:uid value="e_08"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_09" name="go" sourceRef="n_decide" targetRef="n_go">
-      <bpmn:extensionElements><aef:uid value="e_09"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${decision == 'go'}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_10" name="no-go" sourceRef="n_decide" targetRef="n_nogo">
-      <bpmn:extensionElements><aef:uid value="e_10"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${decision == 'no-go'}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_11" name="defer" sourceRef="n_decide" targetRef="n_defer">
-      <bpmn:extensionElements><aef:uid value="e_11"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${decision == 'defer'}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_12" sourceRef="n_go" targetRef="n_end_go">
-      <bpmn:extensionElements><aef:uid value="e_12"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_13" sourceRef="n_nogo" targetRef="n_end_nogo">
-      <bpmn:extensionElements><aef:uid value="e_13"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_14" sourceRef="n_defer" targetRef="n_end_defer">
-      <bpmn:extensionElements><aef:uid value="e_14"/></bpmn:extensionElements>
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_agent" targetRef="frw_1_audit">
+      <bpmn:extensionElements>
+        <aef:uid value="e_01"/>
+      </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_audit" targetRef="frw_2_recommendation">
+      <bpmn:extensionElements>
+        <aef:uid value="e_02"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_3" name="placeholder / not ready" sourceRef="frw_2_recommendation" targetRef="agt_2_agent">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${ready == false}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_03"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_4" name="ready" sourceRef="frw_2_recommendation" targetRef="frw_3_validate">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${ready == true}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_04"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_5" name="re-request review" sourceRef="agt_2_agent" targetRef="agt_1_agent">
+      <bpmn:extensionElements>
+        <aef:uid value="e_05"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_6" sourceRef="frw_3_validate" targetRef="frw_4_emit">
+      <bpmn:extensionElements>
+        <aef:uid value="e_06"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_7" sourceRef="frw_4_emit" targetRef="hum_1_human">
+      <bpmn:extensionElements>
+        <aef:uid value="e_07"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_8" sourceRef="hum_1_human" targetRef="hum_2_decision">
+      <bpmn:extensionElements>
+        <aef:uid value="e_08"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_9" name="go" sourceRef="hum_2_decision" targetRef="frw_6_record">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${decision == 'go'}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_09"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_10" name="no-go" sourceRef="hum_2_decision" targetRef="frw_7_record">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${decision == 'no-go'}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_10"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_11" name="defer" sourceRef="hum_2_decision" targetRef="frw_5_record">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${decision == 'defer'}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_11"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_12" sourceRef="frw_6_record" targetRef="frw_9_inception">
+      <bpmn:extensionElements>
+        <aef:uid value="e_12"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_7_record" targetRef="frw_10_inception">
+      <bpmn:extensionElements>
+        <aef:uid value="e_13"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_14" sourceRef="frw_5_record" targetRef="frw_8_inception">
+      <bpmn:extensionElements>
+        <aef:uid value="e_14"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
   </bpmn:process>
+
+  <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates -->
 </bpmn:definitions>

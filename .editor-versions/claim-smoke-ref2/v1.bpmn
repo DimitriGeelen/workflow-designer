@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_claim-smoke-ref2"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <bpmn:collaboration id="Collaboration_claim-smoke-ref2">
+    <bpmn:participant id="Pool_claim-smoke-ref2" name="claim-smoke-ref2" processRef="Process_claim-smoke-ref2"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_claim-smoke-ref2" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="claim-smoke-ref2" version="1" schemaVersion="2" title="Untitled workflow" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="130"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>hum_1_ghost</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="130"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="320"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:intermediateThrowEvent id="hum_1_ghost" name="reverify ghost">
+      <bpmn:extensionElements>
+        <aef:uid value="n_reverify01"/>
+        <aef:position x="400" y="400"/>
+        <aef:link workflowRef="bb6ae088-7e5b-4776-bb51-f2449fbbc961" name="claim-smoke-target2"/>
+      </bpmn:extensionElements>
+    </bpmn:intermediateThrowEvent>
+  </bpmn:process>
+</bpmn:definitions>

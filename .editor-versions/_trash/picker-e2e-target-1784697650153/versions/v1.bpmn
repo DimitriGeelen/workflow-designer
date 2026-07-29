@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_picker-e2e-target"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <bpmn:collaboration id="Collaboration_picker-e2e-target">
+    <bpmn:participant id="Pool_picker-e2e-target" name="picker-e2e-target" processRef="Process_picker-e2e-target"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_picker-e2e-target" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="picker-e2e-target" uuid="77777777-7777-4777-8777-777777777777" version="1" schemaVersion="2" title="picker-e2e-target" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="130"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="130"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="320"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+    </bpmn:laneSet>
+  </bpmn:process>
+
+  <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates -->
+</bpmn:definitions>

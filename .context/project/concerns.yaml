@@ -2,7 +2,50 @@
 # Type: gap (spec-reality) | risk (forward-looking)
 # Status: watching | decided-build | decided-simplify | decided-defer | closed
 concerns:
-  - id: G-011
+  - id: G-012
+    type: gap
+    status: watching
+    severity: medium
+    title: "bake-clean-layout.py regen step is stale vs the T-288 editor-saved corpus dialect — running the committed re-bake tool clobbers all 24 rendered maps (dialect, DI, hand-carried aef:meta notes)"
+    detected: 2026-07-29
+    origin_task: T-101
+    decision_trigger: >
+      The re-bake pass writes rendered/*.bpmn in the SAME dialect the committed
+      corpus carries (editor-save round-trip, not yaml-to-bpmn regen), verified
+      by a dialect-preserving diff (only geometry attributes change, bpmndi and
+      node-id scheme untouched, T-297/T-298 v2 aef:meta notes survive), AND the
+      corpus is re-baked to a Clean fixpoint under current editor logic
+      (--check 24/24, nudge quiet on served copies). Then close G-012.
+    description: |
+      T-101 (2026-07-05) shipped tools/bake-clean-layout.py with the "generator
+      emits tidy output" design: patch YAML geometry, then re-render via
+      yaml-to-bpmn.py. Later, T-288 re-established the corpus as EDITOR-SAVED
+      dialect (never regen; hand-edit in-dialect) — but nobody updated the bake
+      tool. Two structural failures met on 2026-07-29:
+      (1) DRIFT: Clean logic evolved after the July-5 bake (T-125 lane
+      compaction et al.) — bake --check reports 0/24 Clean fixpoints and the
+      T-100 nudge fires on at least harvest-pipeline + verification-gate in the
+      served 0.8.0 editor. The exact regression T-101 exists to prevent,
+      invisible because nothing re-checks the fixpoint after editor layout
+      changes (no release-gate / audit hook runs bake --check).
+      (2) CLOBBER: running the documented remedy (re-run the bake) regenerated
+      all 24 maps in yaml-to-bpmn dialect — different id scheme, bpmndi DI
+      dropped, T-297/T-298 rendered-side v2 notes lost (2839+/3904- across 48
+      files for a "geometry-only" pass). Reverted same session before commit.
+      The committed remedy tool being destructive is the gap; the drift is what
+      it was supposed to fix.
+    evidence:
+      - "tools/bake-clean-layout.py --check (2026-07-29, post-0.8.0): 0/24 maps are a Clean fixpoint; verification-gate messinessBefore=8."
+      - "CDP nudge probe over :3000 store copies (t101-nudge-probe.mjs): harvest-pipeline + verification-gate show #clean-nudge on load; task-lifecycle + audit-process quiet — 2/4 FAIL."
+      - "Bake run diff before revert: 48 files, +2839/-3904; regenerated error-escalation-ladder.bpmn lost editor ids (agt_12_healing -> n_resolve), bpmndi namespaces, and the T-298 aef:meta notes."
+      - "git show HEAD confirms committed corpus carries bpmndi + editor id scheme (T-288 dialect); bake output carries the yaml-to-bpmn banner."
+      - "PREVENTION (T-300, 2026-07-29, same session): bake rewritten dialect-preserving — writes buildBpmnXml() byte-verbatim from the Clean session (regen + YAML patch removed; YAML patch was doubly broken post-T-125: editor y is lane-relative vs YAML absolute — broke check-lane-bands on 2 maps). --check redefined to the file-level contract (post-Clean serialization byte-equals committed file; state-level moved/netMoved is a false signal because adoptImportedXml normalizes on import). Corpus re-baked: --check 24/24, validator 24/24, bridge 42/42, geometry sweep 24 clean, adopt-verify 11/11 (bake mints .editor-versions store versions with honest thumbnails, idempotent), T-297/T-298 markers survive, nudge probe 4/4 PASS, 3 screenshots read. 9 generator-dialect laggard maps normalized to editor dialect."
+      - "TEETH: pre-fix tool demonstrated destructive (the reverted +2839/-3904 run); post-fix re-bake re-run is sha-identical."
+    related:
+      - T-101
+      - T-288
+      - T-100
+      - T-125
     type: gap
     status: prevention-in-place   # 2026-07-27: AEF file_send'd both policy files (rail 234, shas verified exact); installed project-local; fw reviewer live (T-255 trial + 57-task sweep). AEF filing an fw-upgrade fix that vendors policy/ data WITH lib/reviewer code (their T-2636 note) — close G-011 once a future framework re-vendor lands with policy/ included, proving recurrence is prevented.
     severity: medium

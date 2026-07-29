@@ -1,122 +1,152 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated from revisit-due-scan by tools/yaml-to-bpmn.py. Do not edit by hand. -->
-<bpmn:definitions
-    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
-    xmlns:aef="http://anchorpoint.framework/aef/extensions"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <bpmn:process id="Pool_revisit_due_scan" name="revisit-due-scan">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_revisit-due-scan"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
 
-    <bpmn:laneSet id="LaneSet_revisit-due-scan">
+  <bpmn:collaboration id="Collaboration_revisit-due-scan">
+    <bpmn:participant id="Pool_revisit_due_scan" name="revisit-due-scan" processRef="Process_revisit-due-scan"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_revisit-due-scan" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="revisit-due-scan" uuid="512cb756-2f01-4fb0-9d79-6015e6735c11" version="1" schemaVersion="2" title="revisit-due-scan" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="human" name="Human · Sovereignty">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="hum" authority="sovereignty" height="120"/>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="80"/>
         </bpmn:extensionElements>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="frw" authority="authority" height="320"/>
+          <aef:laneMeta abbr="frw" authority="authority" height="384"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_timer</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_resolve</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_scan</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_any</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_surface</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_end_surfaced</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_end_quiet</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_1_daily</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_7_ripe</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_5_nothing</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_resolve</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_for</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_6_write</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_any</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="agent" name="Agent · Initiative">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="agt" authority="initiative" height="120"/>
+          <aef:laneMeta abbr="agt" authority="initiative" height="80"/>
         </bpmn:extensionElements>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="n_timer" name="Daily revisit scan due (cron)">
+    <bpmn:startEvent id="frw_1_daily" name="Daily revisit scan due (cron)">
       <bpmn:extensionElements>
         <aef:uid value="n_timer"/>
-        <aef:position x="120" y="324"/>
+        <aef:position x="120.0" y="364.0"/>
         <aef:meta triggeredBy="cron (daily) — NOT an agent command"/>
         <aef:timer kind="cron" cycle="daily" anchor="G-053 / T-1452"/>
       </bpmn:extensionElements>
-      <bpmn:outgoing>e_timer_resolve</bpmn:outgoing>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:scriptTask id="n_resolve" name="Resolve PROJECT_ROOT + TASKS_DIR">
+
+    <bpmn:endEvent id="frw_7_ripe" name="Ripe revisits surfaced (agent picks up next session)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_surfaced"/>
+        <aef:position x="1200.0" y="268.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_6</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_5_nothing" name="Nothing due (no file / empty = same signal)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_quiet"/>
+        <aef:position x="980.0" y="460.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:scriptTask id="frw_2_resolve" name="Resolve PROJECT_ROOT + TASKS_DIR">
       <bpmn:extensionElements>
         <aef:uid value="n_resolve"/>
-        <aef:position x="320" y="310"/>
-        <aef:meta determinism="deterministic"/>
+        <aef:position x="320.0" y="350.0"/>
         <aef:contextReads paths=".framework.yaml, FRAMEWORK.md marker"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_timer_resolve</bpmn:incoming>
-      <bpmn:outgoing>e_resolve_scan</bpmn:outgoing>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_scan" name="For each active task — ripe if revisit_at ≤ today">
+
+    <bpmn:scriptTask id="frw_3_for" name="For each active task — ripe if revisit_at ≤ today">
       <bpmn:extensionElements>
         <aef:uid value="n_scan"/>
-        <aef:position x="540" y="310"/>
-        <aef:meta determinism="deterministic"/>
+        <aef:position x="540.0" y="350.0"/>
         <aef:contextReads paths=".tasks/active/*.md frontmatter"/>
         <aef:multiInstance over=".tasks/active/*.md" mode="sequential" predicate="revisit_at =~ /^\d{4}-\d{2}-\d{2}$/ &amp;&amp; revisit_at &lt;= today" collects="ripe[]"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_resolve_scan</bpmn:incoming>
-      <bpmn:outgoing>e_scan_any</bpmn:outgoing>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:exclusiveGateway id="n_any" name="Any ripe revisits?">
+
+    <bpmn:scriptTask id="frw_6_write" name="Write .revisits-due.txt (surface ripe tasks)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_surface"/>
+        <aef:position x="980.0" y="220.0"/>
+        <aef:artifactsWrites paths="['.context/working/.revisits-due.txt']"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+      <bpmn:outgoing>flow_6</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:exclusiveGateway id="frw_4_any" name="Any ripe revisits?">
       <bpmn:extensionElements>
         <aef:uid value="n_any"/>
-        <aef:position x="760" y="318"/>
+        <aef:position x="760.0" y="358.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${ripe_count}</aef:decisionInput>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_scan_any</bpmn:incoming>
-      <bpmn:outgoing>e_any_surface</bpmn:outgoing>
-      <bpmn:outgoing>e_any_quiet</bpmn:outgoing>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:scriptTask id="n_surface" name="Write .revisits-due.txt (surface ripe tasks)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_surface"/>
-        <aef:position x="980" y="180"/>
-        <aef:meta determinism="deterministic"/>
-        <aef:artifactsWrites paths="['.context/working/.revisits-due.txt']"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_any_surface</bpmn:incoming>
-      <bpmn:outgoing>e_surface_end</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:endEvent id="n_end_surfaced" name="Ripe revisits surfaced (agent picks up next session)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_end_surfaced"/>
-        <aef:position x="1200" y="217.333"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_surface_end</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:endEvent id="n_end_quiet" name="Nothing due (no file / empty = same signal)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_end_quiet"/>
-        <aef:position x="980" y="420"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_any_quiet</bpmn:incoming>
-    </bpmn:endEvent>
 
-    <bpmn:sequenceFlow id="e_timer_resolve" sourceRef="n_timer" targetRef="n_resolve">
-      <bpmn:extensionElements><aef:uid value="e_timer_resolve"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_resolve_scan" sourceRef="n_resolve" targetRef="n_scan">
-      <bpmn:extensionElements><aef:uid value="e_resolve_scan"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_scan_any" sourceRef="n_scan" targetRef="n_any">
-      <bpmn:extensionElements><aef:uid value="e_scan_any"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_any_surface" name="ripe found" sourceRef="n_any" targetRef="n_surface">
-      <bpmn:extensionElements><aef:uid value="e_any_surface"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ripe_count &gt; 0}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_any_quiet" name="none" sourceRef="n_any" targetRef="n_end_quiet">
-      <bpmn:extensionElements><aef:uid value="e_any_quiet"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ripe_count == 0}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_surface_end" sourceRef="n_surface" targetRef="n_end_surfaced">
-      <bpmn:extensionElements><aef:uid value="e_surface_end"/></bpmn:extensionElements>
+    <bpmn:sequenceFlow id="flow_1" sourceRef="frw_1_daily" targetRef="frw_2_resolve">
+      <bpmn:extensionElements>
+        <aef:uid value="e_timer_resolve"/>
+      </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_2_resolve" targetRef="frw_3_for">
+      <bpmn:extensionElements>
+        <aef:uid value="e_resolve_scan"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_3" sourceRef="frw_3_for" targetRef="frw_4_any">
+      <bpmn:extensionElements>
+        <aef:uid value="e_scan_any"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_4" name="ripe found" sourceRef="frw_4_any" targetRef="frw_6_write">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${ripe_count &gt; 0}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_any_surface"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_5" name="none" sourceRef="frw_4_any" targetRef="frw_5_nothing">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${ripe_count == 0}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_any_quiet"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_6" sourceRef="frw_6_write" targetRef="frw_7_ripe">
+      <bpmn:extensionElements>
+        <aef:uid value="e_surface_end"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
   </bpmn:process>
+
+  <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates -->
 </bpmn:definitions>

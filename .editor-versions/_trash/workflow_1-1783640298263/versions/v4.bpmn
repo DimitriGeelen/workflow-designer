@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_workflow_1"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <bpmn:collaboration id="Collaboration_workflow_1">
+    <bpmn:participant id="Pool_workflow_1" name="workflow_1" processRef="Process_workflow_1"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_workflow_1" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="workflow_1" version="1" schemaVersion="2" title="Untitled workflow" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="130"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="130"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="320"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>agt_1_handoff</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:intermediateThrowEvent id="agt_1_handoff" name="Handoff →">
+      <bpmn:extensionElements>
+        <aef:uid value="n_850bf463"/>
+        <aef:position x="1385.6" y="497.6"/>
+        <aef:link targetWorkflow="verification-gate" linkId=""/>
+      </bpmn:extensionElements>
+    </bpmn:intermediateThrowEvent>
+  </bpmn:process>
+
+  <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates -->
+</bpmn:definitions>

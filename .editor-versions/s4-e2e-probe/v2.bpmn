@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_s4-e2e-probe"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <bpmn:collaboration id="Collaboration_s4-e2e-probe">
+    <bpmn:participant id="Pool_s4-e2e-probe" name="s4-e2e-probe" processRef="Process_s4-e2e-probe"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_s4-e2e-probe" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="s4-e2e-probe" version="1" schemaVersion="2" title="Untitled workflow" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="130"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>hum_2_resolved</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_3_resolved-2</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_1_legacy</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="130"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="320"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:intermediateThrowEvent id="hum_2_resolved" name="resolved twin">
+      <bpmn:extensionElements>
+        <aef:uid value="n_d939c390"/>
+        <aef:position x="778.8" y="1095.6"/>
+        <aef:link workflowRef="df0b8c59-f44d-4f74-84fe-4a2ac52859f2" name="task-lifecycle"/>
+      </bpmn:extensionElements>
+    </bpmn:intermediateThrowEvent>
+
+    <bpmn:intermediateThrowEvent id="hum_3_resolved-2" name="resolved corpus AEF">
+      <bpmn:extensionElements>
+        <aef:uid value="n_40654667"/>
+        <aef:position x="1100.4" y="759.6"/>
+        <aef:link workflowRef="1f9b5f0c-0be4-4cfe-9158-d9e6f0c1d4c7" name="aef-task-lifecycle"/>
+      </bpmn:extensionElements>
+    </bpmn:intermediateThrowEvent>
+
+    <bpmn:intermediateThrowEvent id="hum_1_legacy" name="legacy review">
+      <bpmn:extensionElements>
+        <aef:uid value="n_38424e7e"/>
+        <aef:position x="380.4" y="1652.4"/>
+        <aef:link targetWorkflow="review-map"/>
+      </bpmn:extensionElements>
+    </bpmn:intermediateThrowEvent>
+  </bpmn:process>
+
+  <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates -->
+</bpmn:definitions>

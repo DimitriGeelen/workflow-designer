@@ -1,202 +1,256 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated from upgrade-process by tools/yaml-to-bpmn.py. Do not edit by hand. -->
-<bpmn:definitions
-    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
-    xmlns:aef="http://anchorpoint.framework/aef/extensions"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <bpmn:process id="Pool_upgrade_process" name="upgrade-process">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_upgrade-process"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
 
-    <bpmn:laneSet id="LaneSet_upgrade-process">
+  <bpmn:collaboration id="Collaboration_upgrade-process">
+    <bpmn:participant id="Pool_upgrade_process" name="upgrade-process" processRef="Process_upgrade-process"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_upgrade-process" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="upgrade-process" uuid="fa213bfe-8608-43b4-a29c-7926f22d053d" version="1" schemaVersion="2" title="upgrade-process" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="human" name="Human · Sovereignty">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="hum" authority="sovereignty" height="120"/>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="80"/>
         </bpmn:extensionElements>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="frw" authority="authority" height="440"/>
+          <aef:laneMeta abbr="frw" authority="authority" height="480"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_mode</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_preview</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_backup</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_apply_settings</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_apply_hooks</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_verify</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_ok</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_rollback</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_cleanup</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_end_done</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_end_rolledback</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_end_preview</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_11_upgrade</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_12_upgrade</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_5_preview</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_report</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_snapshot</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_apply</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_6_apply</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_7_verify</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_10_rollback</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_9_cleanup</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_1_dry</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_8_upgrade</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="agent" name="Agent · Initiative">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="agt" authority="initiative" height="120"/>
+          <aef:laneMeta abbr="agt" authority="initiative" height="96"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_trigger</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_1_upgrade</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="n_trigger" name="Upgrade requested">
+    <bpmn:startEvent id="agt_1_upgrade" name="Upgrade requested">
       <bpmn:extensionElements>
         <aef:uid value="n_trigger"/>
-        <aef:position x="120" y="664"/>
+        <aef:position x="120.0" y="652.0"/>
         <aef:meta triggeredBy="fw upgrade [--dry-run]"/>
       </bpmn:extensionElements>
-      <bpmn:outgoing>e_trigger_mode</bpmn:outgoing>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:exclusiveGateway id="n_mode" name="Dry-run mode?">
+
+    <bpmn:endEvent id="frw_11_upgrade" name="Upgrade applied">
       <bpmn:extensionElements>
-        <aef:uid value="n_mode"/>
-        <aef:position x="320" y="378"/>
-        <aef:meta decisionOwner="framework"/>
-        <aef:decisionInput>${dry_run}</aef:decisionInput>
+        <aef:uid value="n_end_done"/>
+        <aef:position x="1720.0" y="268.0"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_trigger_mode</bpmn:incoming>
-      <bpmn:outgoing>e_mode_preview</bpmn:outgoing>
-      <bpmn:outgoing>e_mode_apply</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:scriptTask id="n_preview" name="Report planned changes (no mutation)">
+      <bpmn:incoming>flow_11</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_12_upgrade" name="Upgrade rolled back (restored)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_rolledback"/>
+        <aef:position x="1720.0" y="460.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_12</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_5_preview" name="Preview reported (no changes)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_end_preview"/>
+        <aef:position x="720.0" y="172.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:scriptTask id="frw_3_report" name="Report planned changes (no mutation)">
       <bpmn:extensionElements>
         <aef:uid value="n_preview"/>
-        <aef:position x="520" y="182"/>
-        <aef:meta determinism="deterministic" sideEffect="none"/>
+        <aef:position x="520.0" y="154.0"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_mode_preview</bpmn:incoming>
-      <bpmn:outgoing>e_preview_end</bpmn:outgoing>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_backup" name="Snapshot — timestamped .bak of settings/CLAUDE.md/hooks">
+
+    <bpmn:scriptTask id="frw_2_snapshot" name="Snapshot — timestamped .bak of settings/CLAUDE.md/hooks">
       <bpmn:extensionElements>
         <aef:uid value="n_backup"/>
-        <aef:position x="520" y="400"/>
-        <aef:meta determinism="deterministic" endpoint="cp &lt;target&gt; &lt;target&gt;.bak-$(date +%s)" compensationSnapshot="True"/>
+        <aef:position x="520.0" y="372.0"/>
+        <aef:endpoint>cp &lt;target&gt; &lt;target&gt;.bak-$(date +%s)</aef:endpoint>
         <aef:artifactsWrites paths="['*.bak-&lt;ts&gt;']"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_mode_apply</bpmn:incoming>
-      <bpmn:outgoing>e_backup_settings</bpmn:outgoing>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_apply_settings" name="Apply — merge settings.json (drift-gated)">
+
+    <bpmn:scriptTask id="frw_4_apply" name="Apply — merge settings.json (drift-gated)">
       <bpmn:extensionElements>
         <aef:uid value="n_apply_settings"/>
-        <aef:position x="720" y="370"/>
-        <aef:meta determinism="deterministic" compensatedBy="n_rollback" guard="apply only on drift (per-file compare)"/>
+        <aef:position x="720.0" y="350.0"/>
+        <aef:meta guard="apply only on drift (per-file compare)"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_backup_settings</bpmn:incoming>
-      <bpmn:outgoing>e_settings_hooks</bpmn:outgoing>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+      <bpmn:outgoing>flow_6</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_apply_hooks" name="Apply — install git hooks + commands/scripts (drift-gated)">
+
+    <bpmn:scriptTask id="frw_6_apply" name="Apply — install git hooks + commands/scripts (drift-gated)">
       <bpmn:extensionElements>
         <aef:uid value="n_apply_hooks"/>
-        <aef:position x="920" y="370"/>
-        <aef:meta determinism="deterministic" compensatedBy="n_rollback" guard="apply only on drift (per-file compare)"/>
+        <aef:position x="920.0" y="350.0"/>
+        <aef:meta guard="apply only on drift (per-file compare)"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_settings_hooks</bpmn:incoming>
-      <bpmn:outgoing>e_hooks_verify</bpmn:outgoing>
+      <bpmn:incoming>flow_6</bpmn:incoming>
+      <bpmn:outgoing>flow_7</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_verify" name="Verify — version + drift check">
+
+    <bpmn:scriptTask id="frw_7_verify" name="Verify — version + drift check">
       <bpmn:extensionElements>
         <aef:uid value="n_verify"/>
-        <aef:position x="1120" y="370"/>
-        <aef:meta determinism="deterministic"/>
+        <aef:position x="1120.0" y="350.0"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_hooks_verify</bpmn:incoming>
-      <bpmn:outgoing>e_verify_ok</bpmn:outgoing>
+      <bpmn:incoming>flow_7</bpmn:incoming>
+      <bpmn:outgoing>flow_8</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:exclusiveGateway id="n_ok" name="Upgrade verified OK?">
-      <bpmn:extensionElements>
-        <aef:uid value="n_ok"/>
-        <aef:position x="1320" y="378"/>
-        <aef:meta decisionOwner="framework"/>
-        <aef:decisionInput>${verify_ok}</aef:decisionInput>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_verify_ok</bpmn:incoming>
-      <bpmn:outgoing>e_ok_cleanup</bpmn:outgoing>
-      <bpmn:outgoing>e_ok_rollback</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:scriptTask id="n_rollback" name="Rollback — restore from .bak snapshot">
+
+    <bpmn:scriptTask id="frw_10_rollback" name="Rollback — restore from .bak snapshot">
       <bpmn:extensionElements>
         <aef:uid value="n_rollback"/>
-        <aef:position x="1520" y="558"/>
-        <aef:meta determinism="deterministic" endpoint="restore &lt;target&gt; from &lt;target&gt;.bak-&lt;ts&gt;" restoresFrom="n_backup"/>
+        <aef:position x="1520.0" y="538.0"/>
+        <aef:endpoint>restore &lt;target&gt; from &lt;target&gt;.bak-&lt;ts&gt;</aef:endpoint>
         <aef:compensates>
           <aef:compensate ref="n_apply_settings"/>
           <aef:compensate ref="n_apply_hooks"/>
         </aef:compensates>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_ok_rollback</bpmn:incoming>
-      <bpmn:outgoing>e_rollback_end</bpmn:outgoing>
+      <bpmn:incoming>flow_10</bpmn:incoming>
+      <bpmn:outgoing>flow_12</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_cleanup" name="Cleanup — drop stale .bak, record new VERSION">
+
+    <bpmn:scriptTask id="frw_9_cleanup" name="Cleanup — drop stale .bak, record new VERSION">
       <bpmn:extensionElements>
         <aef:uid value="n_cleanup"/>
-        <aef:position x="1520" y="300"/>
-        <aef:meta determinism="deterministic"/>
+        <aef:position x="1520.0" y="280.0"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_ok_cleanup</bpmn:incoming>
-      <bpmn:outgoing>e_cleanup_end</bpmn:outgoing>
+      <bpmn:incoming>flow_9</bpmn:incoming>
+      <bpmn:outgoing>flow_11</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:endEvent id="n_end_done" name="Upgrade applied">
-      <bpmn:extensionElements>
-        <aef:uid value="n_end_done"/>
-        <aef:position x="1720" y="296"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_cleanup_end</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:endEvent id="n_end_rolledback" name="Upgrade rolled back (restored)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_end_rolledback"/>
-        <aef:position x="1720" y="560"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_rollback_end</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:endEvent id="n_end_preview" name="Preview reported (no changes)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_end_preview"/>
-        <aef:position x="720" y="208"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_preview_end</bpmn:incoming>
-    </bpmn:endEvent>
 
-    <bpmn:sequenceFlow id="e_trigger_mode" sourceRef="n_trigger" targetRef="n_mode">
-      <bpmn:extensionElements><aef:uid value="e_trigger_mode"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_mode_preview" name="dry-run" sourceRef="n_mode" targetRef="n_preview">
-      <bpmn:extensionElements><aef:uid value="e_mode_preview"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${dry_run == true}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_mode_apply" name="apply" sourceRef="n_mode" targetRef="n_backup">
-      <bpmn:extensionElements><aef:uid value="e_mode_apply"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${dry_run == false}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_preview_end" sourceRef="n_preview" targetRef="n_end_preview">
-      <bpmn:extensionElements><aef:uid value="e_preview_end"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_backup_settings" sourceRef="n_backup" targetRef="n_apply_settings">
-      <bpmn:extensionElements><aef:uid value="e_backup_settings"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_settings_hooks" sourceRef="n_apply_settings" targetRef="n_apply_hooks">
-      <bpmn:extensionElements><aef:uid value="e_settings_hooks"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_hooks_verify" sourceRef="n_apply_hooks" targetRef="n_verify">
-      <bpmn:extensionElements><aef:uid value="e_hooks_verify"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_verify_ok" sourceRef="n_verify" targetRef="n_ok">
-      <bpmn:extensionElements><aef:uid value="e_verify_ok"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_ok_cleanup" name="verified" sourceRef="n_ok" targetRef="n_cleanup">
-      <bpmn:extensionElements><aef:uid value="e_ok_cleanup"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${verify_ok == true}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_ok_rollback" name="failed → compensate" sourceRef="n_ok" targetRef="n_rollback">
-      <bpmn:extensionElements><aef:uid value="e_ok_rollback"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${verify_ok == false}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_cleanup_end" sourceRef="n_cleanup" targetRef="n_end_done">
-      <bpmn:extensionElements><aef:uid value="e_cleanup_end"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_rollback_end" sourceRef="n_rollback" targetRef="n_end_rolledback">
-      <bpmn:extensionElements><aef:uid value="e_rollback_end"/></bpmn:extensionElements>
+    <bpmn:exclusiveGateway id="frw_1_dry" name="Dry-run mode?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_mode"/>
+        <aef:position x="320.0" y="358.0"/>
+        <aef:meta decisionOwner="framework"/>
+        <aef:decisionInput>${dry_run}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="frw_8_upgrade" name="Upgrade verified OK?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_ok"/>
+        <aef:position x="1320.0" y="358.0"/>
+        <aef:meta decisionOwner="framework"/>
+        <aef:decisionInput>${verify_ok}</aef:decisionInput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_8</bpmn:incoming>
+      <bpmn:outgoing>flow_9</bpmn:outgoing>
+      <bpmn:outgoing>flow_10</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_upgrade" targetRef="frw_1_dry">
+      <bpmn:extensionElements>
+        <aef:uid value="e_trigger_mode"/>
+      </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
+    <bpmn:sequenceFlow id="flow_2" name="dry-run" sourceRef="frw_1_dry" targetRef="frw_3_report">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${dry_run == true}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_mode_preview"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_3" name="apply" sourceRef="frw_1_dry" targetRef="frw_2_snapshot">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${dry_run == false}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_mode_apply"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_4" sourceRef="frw_3_report" targetRef="frw_5_preview">
+      <bpmn:extensionElements>
+        <aef:uid value="e_preview_end"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_5" sourceRef="frw_2_snapshot" targetRef="frw_4_apply">
+      <bpmn:extensionElements>
+        <aef:uid value="e_backup_settings"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_6" sourceRef="frw_4_apply" targetRef="frw_6_apply">
+      <bpmn:extensionElements>
+        <aef:uid value="e_settings_hooks"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_7" sourceRef="frw_6_apply" targetRef="frw_7_verify">
+      <bpmn:extensionElements>
+        <aef:uid value="e_hooks_verify"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_8" sourceRef="frw_7_verify" targetRef="frw_8_upgrade">
+      <bpmn:extensionElements>
+        <aef:uid value="e_verify_ok"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_9" name="verified" sourceRef="frw_8_upgrade" targetRef="frw_9_cleanup">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${verify_ok == true}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_ok_cleanup"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_10" name="failed → compensate" sourceRef="frw_8_upgrade" targetRef="frw_10_rollback">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${verify_ok == false}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_ok_rollback"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_11" sourceRef="frw_9_cleanup" targetRef="frw_11_upgrade">
+      <bpmn:extensionElements>
+        <aef:uid value="e_cleanup_end"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_12" sourceRef="frw_10_rollback" targetRef="frw_12_upgrade">
+      <bpmn:extensionElements>
+        <aef:uid value="e_rollback_end"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
   </bpmn:process>
+
+  <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates -->
 </bpmn:definitions>

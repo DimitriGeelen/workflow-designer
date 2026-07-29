@@ -8,11 +8,19 @@ editor's Tidy/Clean standard finds most of them untidy (T-100 messiness). This
 tool bakes Clean in ONCE so the shipped corpus is already tidy.
 
 Design (why this shape):
-  * Geometry lives in the yaml (`x:`/`y:` per node, `height:` per lane); the .bpmn
-    is a pure projection of it (aef:position / aef:laneMeta). So we bake the tidied
-    geometry back into the YAML SOURCE, then re-render. This makes the generator
-    naturally emit tidy output — a naive `yaml-to-bpmn.py` regen can no longer
-    silently un-tidy the corpus (T-101 AC #3, "generator emits tidy output").
+  * The committed rendered/*.bpmn are EDITOR-SAVED dialect (T-288): editor node
+    ids, bpmndi DI, hand-carried aef:meta notes. The bake writes back the
+    editor's own buildBpmnXml() from the same session that ran Clean — it NEVER
+    regenerates via yaml-to-bpmn.py (T-300 / G-012: the regen emits a different
+    projection and clobbers ids, DI, and notes corpus-wide).
+  * The bake does NOT touch the *.workflow.yaml sources. Since T-125 lane
+    compaction, editor-state y is lane-relative — patching it into the YAML's
+    absolute-y fields breaks the lane-band convention (check-lane-bands.py).
+    And with regen forbidden (G-012), YAML geometry is no longer load-bearing:
+    the YAML is the SEMANTIC source, rendered/*.bpmn the visual truth.
+  * Maps tracked in .editor-versions/ (the T-145 adopt gate: rendered must equal
+    the latest store save) get a new store version minted on byte change, with
+    an honest post-Clean thumbnail from the same editor session.
   * Clean = cleanLayout(), which lives ONLY in the editor JS. We reuse it verbatim
     by running the real editor headless (tools/_clean-layout-cdp.mjs) — we never
     reimplement Tidy in Python (PL-005: editor/bridge drift on shared logic).
@@ -28,25 +36,20 @@ Usage:
   tools/bake-clean-layout.py [--check] [map ...]
     (no map args → all 24 rendered maps)
 """
+import base64
 import json
 import os
-import re
 import shutil
 import subprocess
 import sys
+import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CORPUS = os.path.join(ROOT, "examples", "aef-processes")
 RENDERED = os.path.join(CORPUS, "rendered")
 GALLERY = os.path.join(ROOT, "build", "gallery", "rendered")
 DRIVER = os.path.join(ROOT, "tools", "_clean-layout-cdp.mjs")
-GEN = os.path.join(ROOT, "tools", "yaml-to-bpmn.py")
 MESSINESS_MAX = 3  # T-100 CLEAN_NUDGE_MIN — a clean map scores < 3
-
-
-def fmtnum(v):
-    v = round(float(v), 3)
-    return str(int(v)) if v == int(v) else ("%g" % v)
 
 
 def run_driver(maps):
@@ -59,57 +62,52 @@ def run_driver(maps):
     return json.loads(proc.stdout)
 
 
-def patch_yaml(path, node_geom, lane_h):
-    """Line-surgically rewrite only changed x/y (nodes) and height (lanes).
+def mint_store_version(base, xml, thumb_data_url):
+    """Append a new .editor-versions/<base>/ version when the baked bytes differ.
 
-    node_geom: {uid: {'x': float, 'y': float}}   lane_h: {lane_id: float}
-    Returns number of lines rewritten.
+    Keeps the T-145 adopt gate true (rendered == latest store save) after a
+    re-bake, with the same provenance shape the editor's "Save to project"
+    writes: v<N>.bpmn + v<N>.png thumbnail + index.json entry. No-op for maps
+    without a store dir, and idempotent (byte-equal latest → nothing minted).
+    Returns the minted version number, or None.
     """
-    with open(path) as fh:
-        lines = fh.read().split("\n")
-    section = None
-    cur_uid = None
-    cur_lane = None
-    changed = 0
-    for i, line in enumerate(lines):
-        top = re.match(r"^([A-Za-z][A-Za-z0-9_-]*):", line)
-        if top:
-            key = top.group(1)
-            section = key if key in ("lanes", "nodes") else "other"
-            cur_uid = cur_lane = None
-            continue
-        if section == "nodes":
-            m = re.match(r"^  - uid:\s*(\S+)", line)
-            if m:
-                cur_uid = m.group(1)
-                continue
-            if cur_uid and cur_uid in node_geom:
-                m = re.match(r"^(    )(x|y):\s*(-?[0-9.]+)\s*$", line)
-                if m:
-                    newv = node_geom[cur_uid].get(m.group(2))
-                    if newv is not None and fmtnum(newv) != m.group(3):
-                        lines[i] = "    %s: %s" % (m.group(2), fmtnum(newv))
-                        changed += 1
-        elif section == "lanes":
-            m = re.match(r"^  - id:\s*(\S+)", line)
-            if m:
-                cur_lane = m.group(1)
-                continue
-            if cur_lane and cur_lane in lane_h:
-                m = re.match(r"^(    )height:\s*(-?[0-9.]+)\s*$", line)
-                if m and fmtnum(lane_h[cur_lane]) != m.group(2):
-                    lines[i] = "    height: %s" % fmtnum(lane_h[cur_lane])
-                    changed += 1
-    with open(path, "w") as fh:
-        fh.write("\n".join(lines))
-    return changed
+    store = os.path.join(ROOT, ".editor-versions", base)
+    idx_path = os.path.join(store, "index.json")
+    if not os.path.exists(idx_path):
+        return None
+    with open(idx_path) as fh:
+        idx = json.load(fh)
+    latest = max(e["v"] for e in idx)
+    with open(os.path.join(store, "v%d.bpmn" % latest), "rb") as fh:
+        if fh.read() == xml.encode():
+            return None
+    v = latest + 1
+    with open(os.path.join(store, "v%d.bpmn" % v), "w") as fh:
+        fh.write(xml)
+    entry = {"v": v, "ts": int(time.time() * 1000),
+             "note": "T-300 dialect-preserving Clean re-bake", "bytes": len(xml.encode())}
+    if thumb_data_url and thumb_data_url.startswith("data:image/png;base64,"):
+        with open(os.path.join(store, "v%d.png" % v), "wb") as fh:
+            fh.write(base64.b64decode(thumb_data_url.split(",", 1)[1]))
+        entry["thumb"] = "v%d.png" % v
+    idx.append(entry)
+    with open(idx_path, "w") as fh:
+        json.dump(idx, fh, indent=2)
+    return v
 
 
-def render(base):
-    """Re-render one map's yaml → rendered/<base>.bpmn, then mirror to gallery."""
-    src = os.path.join(CORPUS, base + ".workflow.yaml")
+def write_back(base, xml):
+    """Write the editor's own serialized XML → rendered/<base>.bpmn, mirror to gallery.
+
+    T-300 (G-012): the committed corpus is EDITOR-SAVED dialect (T-288) — editor
+    node ids, bpmndi DI, hand-carried aef:meta notes. The bake therefore writes
+    back buildBpmnXml() output from the same editor session that ran Clean,
+    NEVER a yaml-to-bpmn.py regen (which emits a different projection and
+    clobbers all of the above — the G-012 incident, 2026-07-29).
+    """
     out = os.path.join(RENDERED, base + ".bpmn")
-    subprocess.run(["python3", GEN, src, "--out", out], cwd=ROOT, check=True)
+    with open(out, "w") as fh:
+        fh.write(xml)  # byte-verbatim editor output (no trailing-newline massage)
     shutil.copyfile(out, os.path.join(GALLERY, base + ".bpmn"))
 
 
@@ -146,9 +144,19 @@ def main(argv):
             if not r.get("ok"):
                 fail += 1
                 continue
-            if r["moved"] != 0 or r["messinessBefore"] >= MESSINESS_MAX:
-                print("  NOT A FIXPOINT: %s (moved=%s messinessBefore=%s)"
-                      % (base, r["moved"], r["messinessBefore"]))
+            # The bake contract is FILE-LEVEL: re-running the bake must produce
+            # byte-identical output. In-state metrics (moved/netMoved) are
+            # unreliable proxies — adoptImportedXml normalizes coordinates on
+            # import, so transient/net movement can be nonzero while the
+            # serialization is byte-stable (T-300: audit-process +
+            # error-escalation-ladder). Compare the editor's post-Clean
+            # serialization against the committed bytes directly.
+            with open(os.path.join(RENDERED, base + ".bpmn")) as fh:
+                on_disk = fh.read()
+            byte_stable = r.get("xml") is not None and r["xml"] == on_disk
+            if not byte_stable or r["messinessBefore"] >= MESSINESS_MAX:
+                print("  NOT A FIXPOINT: %s (byte_stable=%s moved=%s messinessBefore=%s)"
+                      % (base, byte_stable, r["moved"], r["messinessBefore"]))
                 fail += 1
         print("\n--check: %d/%d maps are a Clean fixpoint"
               % (len(maps) - fail, len(maps)))
@@ -157,18 +165,18 @@ def main(argv):
     if bad:
         raise SystemExit("driver returned errors for %d map(s); aborting bake" % bad)
 
-    # Bake: patch yaml, re-render, mirror.
-    total_lines = 0
+    # Bake: write back editor-saved XML, mirror, mint store versions (T-145).
+    minted = 0
     for base in maps:
         r = results[base]
-        node_geom = {n["id"]: {"x": n["x"], "y": n["y"]} for n in r["nodes"]}
-        lane_h = {l["id"]: l["height"] for l in r["lanes"]}
-        n = patch_yaml(os.path.join(CORPUS, base + ".workflow.yaml"), node_geom, lane_h)
-        render(base)
-        total_lines += n
-        print("  baked %-24s (%d geometry lines rewritten)" % (base, n))
-    print("\nBaked Clean into %d maps; %d geometry lines rewritten; gallery mirror synced."
-          % (len(maps), total_lines))
+        if not r.get("xml"):
+            raise SystemExit("driver returned no xml for %s (buildBpmnXml missing?); aborting bake" % base)
+        write_back(base, r["xml"])
+        m = mint_store_version(base, r["xml"], r.get("thumb"))
+        minted += 1 if m else 0
+        print("  baked %-24s%s" % (base, "  (store v%d minted)" % m if m else ""))
+    print("\nBaked Clean into %d maps; %d store versions minted; gallery mirror synced."
+          % (len(maps), minted))
     return 0
 
 

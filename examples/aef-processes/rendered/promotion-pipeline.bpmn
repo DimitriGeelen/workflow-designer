@@ -1,232 +1,293 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated from promotion-pipeline by tools/yaml-to-bpmn.py. Do not edit by hand. -->
-<bpmn:definitions
-    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
-    xmlns:aef="http://anchorpoint.framework/aef/extensions"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <bpmn:process id="Pool_promotion_pipeline" name="promotion-pipeline">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_promotion-pipeline"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
 
-    <bpmn:laneSet id="LaneSet_promotion-pipeline">
+  <bpmn:collaboration id="Collaboration_promotion-pipeline">
+    <bpmn:participant id="Pool_promotion_pipeline" name="promotion-pipeline" processRef="Process_promotion-pipeline"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_promotion-pipeline" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="promotion-pipeline" uuid="be7afc47-7c51-41b5-87b5-df32ad682dc3" version="1" schemaVersion="2" title="promotion-pipeline" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="agent" name="Agent · Initiative">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="agt" authority="initiative" height="160"/>
+          <aef:laneMeta abbr="agt" authority="initiative" height="96"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_suggest</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_1_agent</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="frw" authority="authority" height="320"/>
+          <aef:laneMeta abbr="frw" authority="authority" height="192"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_load</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_count</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_ready_gate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_not_ready</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_present</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_locate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_dup_gate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_dup</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_apps_gate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_warn</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_genid</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_append</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_done</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_not</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_8_rejected</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_13_promoted</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_1_load</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_count</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_5_present</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_6_fw</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_10_warn</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_11_generate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_12_append</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_apps</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_7_already</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_9_applications</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="human" name="Human · Sovereignty">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="hum" authority="sovereignty" height="140"/>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="88"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_promote</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_1_human</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="n_suggest" name="Agent runs `fw promote suggest`">
+    <bpmn:startEvent id="agt_1_agent" name="Agent runs `fw promote suggest`">
       <bpmn:extensionElements>
         <aef:uid value="n_suggest"/>
-        <aef:position x="120" y="84"/>
-        <aef:meta determinism="deterministic" endpoint="fw promote suggest"/>
+        <aef:position x="120.0" y="92.0"/>
+        <aef:endpoint>fw promote suggest</aef:endpoint>
       </bpmn:extensionElements>
-      <bpmn:outgoing>e_01</bpmn:outgoing>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:scriptTask id="n_load" name="Load learnings.yaml + practices.yaml">
+
+    <bpmn:endEvent id="frw_4_not" name="Not ready — keep accruing evidence">
+      <bpmn:extensionElements>
+        <aef:uid value="n_not_ready"/>
+        <aef:position x="603.0" y="284.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_8_rejected" name="Rejected — duplicate practice avoided">
+      <bpmn:extensionElements>
+        <aef:uid value="n_dup"/>
+        <aef:position x="1243.0" y="284.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_9</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_13_promoted" name="Promoted — L-XXX → P-XXX">
+      <bpmn:extensionElements>
+        <aef:uid value="n_done"/>
+        <aef:position x="1880.0" y="188.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_15</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:userTask id="hum_1_human" name="Human promotes a learning — supplies --name + --directive">
+      <bpmn:extensionElements>
+        <aef:uid value="n_promote"/>
+        <aef:position x="900.0" y="362.0"/>
+        <aef:endpoint>fw promote L-XXX --name "..." --directive D1</aef:endpoint>
+        <aef:decisionOutputs>promote</aef:decisionOutputs>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_6</bpmn:incoming>
+      <bpmn:outgoing>flow_7</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:scriptTask id="frw_1_load" name="Load learnings.yaml + practices.yaml">
       <bpmn:extensionElements>
         <aef:uid value="n_load"/>
-        <aef:position x="280" y="350"/>
-        <aef:meta determinism="deterministic" sideEffect="none (read-only)"/>
+        <aef:position x="280.0" y="174.0"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_01</bpmn:incoming>
-      <bpmn:outgoing>e_02</bpmn:outgoing>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_count" name="Count applications per learning (scan episodics/tasks)">
+
+    <bpmn:scriptTask id="frw_2_count" name="Count applications per learning (scan episodics/tasks)">
       <bpmn:extensionElements>
         <aef:uid value="n_count"/>
-        <aef:position x="440" y="350"/>
-        <aef:meta determinism="deterministic"/>
+        <aef:position x="440.0" y="174.0"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_02</bpmn:incoming>
-      <bpmn:outgoing>e_03</bpmn:outgoing>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:exclusiveGateway id="n_ready_gate" name="≥3 apps &amp; not already promoted?">
+
+    <bpmn:scriptTask id="frw_5_present" name="Present promotion candidates (fw promote suggest output)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_present"/>
+        <aef:position x="760.0" y="174.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+      <bpmn:outgoing>flow_6</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_6_fw" name="`fw promote L-XXX` — locate learning">
+      <bpmn:extensionElements>
+        <aef:uid value="n_locate"/>
+        <aef:position x="1080.0" y="174.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_7</bpmn:incoming>
+      <bpmn:outgoing>flow_8</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_10_warn" name="Warn &quot;early promotion&quot; — proceed anyway">
+      <bpmn:extensionElements>
+        <aef:uid value="n_warn"/>
+        <aef:position x="1400.0" y="270.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_11</bpmn:incoming>
+      <bpmn:outgoing>flow_13</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_11_generate" name="Generate practice id (P-/PP-NNN); resolve name + directive">
+      <bpmn:extensionElements>
+        <aef:uid value="n_genid"/>
+        <aef:position x="1560.0" y="174.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_12</bpmn:incoming>
+      <bpmn:incoming>flow_13</bpmn:incoming>
+      <bpmn:outgoing>flow_14</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:scriptTask id="frw_12_append" name="Append new practice → practices.yaml">
+      <bpmn:extensionElements>
+        <aef:uid value="n_append"/>
+        <aef:position x="1720.0" y="174.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_14</bpmn:incoming>
+      <bpmn:outgoing>flow_15</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:exclusiveGateway id="frw_3_apps" name="≥3 apps &amp; not already promoted?">
       <bpmn:extensionElements>
         <aef:uid value="n_ready_gate"/>
-        <aef:position x="597" y="358"/>
+        <aef:position x="597.0" y="182.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${apps &gt;= 3 &amp;&amp; !promoted}</aef:decisionInput>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_03</bpmn:incoming>
-      <bpmn:outgoing>e_04</bpmn:outgoing>
-      <bpmn:outgoing>e_05</bpmn:outgoing>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:endEvent id="n_not_ready" name="Not ready — keep accruing evidence">
-      <bpmn:extensionElements>
-        <aef:uid value="n_not_ready"/>
-        <aef:position x="603" y="470.667"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_04</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:scriptTask id="n_present" name="Present promotion candidates (fw promote suggest output)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_present"/>
-        <aef:position x="760" y="350"/>
-        <aef:meta determinism="deterministic"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_05</bpmn:incoming>
-      <bpmn:outgoing>e_06</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:userTask id="n_promote" name="Human promotes a learning — supplies --name + --directive">
-      <bpmn:extensionElements>
-        <aef:uid value="n_promote"/>
-        <aef:position x="900" y="580"/>
-        <aef:meta determinism="human" authority="sovereignty" endpoint='fw promote L-XXX --name "..." --directive D1'/>
-        <aef:decisionOutputs>promote</aef:decisionOutputs>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_06</bpmn:incoming>
-      <bpmn:outgoing>e_07</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:scriptTask id="n_locate" name="`fw promote L-XXX` — locate learning">
-      <bpmn:extensionElements>
-        <aef:uid value="n_locate"/>
-        <aef:position x="1080" y="350"/>
-        <aef:meta determinism="deterministic"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_07</bpmn:incoming>
-      <bpmn:outgoing>e_08</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:exclusiveGateway id="n_dup_gate" name="Already promoted?">
+
+    <bpmn:exclusiveGateway id="frw_7_already" name="Already promoted?">
       <bpmn:extensionElements>
         <aef:uid value="n_dup_gate"/>
-        <aef:position x="1237" y="358"/>
+        <aef:position x="1237.0" y="182.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${learning_id in promoted_ids}</aef:decisionInput>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_08</bpmn:incoming>
-      <bpmn:outgoing>e_09</bpmn:outgoing>
-      <bpmn:outgoing>e_10</bpmn:outgoing>
+      <bpmn:incoming>flow_8</bpmn:incoming>
+      <bpmn:outgoing>flow_9</bpmn:outgoing>
+      <bpmn:outgoing>flow_10</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:endEvent id="n_dup" name="Rejected — duplicate practice avoided">
-      <bpmn:extensionElements>
-        <aef:uid value="n_dup"/>
-        <aef:position x="1243" y="470.667"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_09</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:exclusiveGateway id="n_apps_gate" name="≥3 applications?">
+
+    <bpmn:exclusiveGateway id="frw_9_applications" name="≥3 applications?">
       <bpmn:extensionElements>
         <aef:uid value="n_apps_gate"/>
-        <aef:position x="1400" y="358"/>
+        <aef:position x="1400.0" y="182.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${apps &gt;= 3}</aef:decisionInput>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_10</bpmn:incoming>
-      <bpmn:outgoing>e_11</bpmn:outgoing>
-      <bpmn:outgoing>e_12</bpmn:outgoing>
+      <bpmn:incoming>flow_10</bpmn:incoming>
+      <bpmn:outgoing>flow_11</bpmn:outgoing>
+      <bpmn:outgoing>flow_12</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:scriptTask id="n_warn" name='Warn "early promotion" — proceed anyway'>
-      <bpmn:extensionElements>
-        <aef:uid value="n_warn"/>
-        <aef:position x="1400" y="456.667"/>
-        <aef:meta determinism="deterministic" advisory="True"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_11</bpmn:incoming>
-      <bpmn:outgoing>e_13</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_genid" name="Generate practice id (P-/PP-NNN); resolve name + directive">
-      <bpmn:extensionElements>
-        <aef:uid value="n_genid"/>
-        <aef:position x="1560" y="350"/>
-        <aef:meta determinism="deterministic"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_12</bpmn:incoming>
-      <bpmn:incoming>e_13</bpmn:incoming>
-      <bpmn:outgoing>e_14</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:scriptTask id="n_append" name="Append new practice → practices.yaml">
-      <bpmn:extensionElements>
-        <aef:uid value="n_append"/>
-        <aef:position x="1720" y="350"/>
-        <aef:meta determinism="deterministic" sideEffect="write .context/project/practices.yaml"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_14</bpmn:incoming>
-      <bpmn:outgoing>e_15</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:endEvent id="n_done" name="Promoted — L-XXX → P-XXX">
-      <bpmn:extensionElements>
-        <aef:uid value="n_done"/>
-        <aef:position x="1880" y="364"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_15</bpmn:incoming>
-    </bpmn:endEvent>
 
-    <bpmn:sequenceFlow id="e_01" sourceRef="n_suggest" targetRef="n_load">
-      <bpmn:extensionElements><aef:uid value="e_01"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_02" sourceRef="n_load" targetRef="n_count">
-      <bpmn:extensionElements><aef:uid value="e_02"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_03" sourceRef="n_count" targetRef="n_ready_gate">
-      <bpmn:extensionElements><aef:uid value="e_03"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_04" name="not ready" sourceRef="n_ready_gate" targetRef="n_not_ready">
-      <bpmn:extensionElements><aef:uid value="e_04"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${apps &lt; 3 || promoted}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_05" name="ready" sourceRef="n_ready_gate" targetRef="n_present">
-      <bpmn:extensionElements><aef:uid value="e_05"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${apps &gt;= 3 &amp;&amp; !promoted}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_06" sourceRef="n_present" targetRef="n_promote">
-      <bpmn:extensionElements><aef:uid value="e_06"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_07" name="fw promote L-XXX" sourceRef="n_promote" targetRef="n_locate">
-      <bpmn:extensionElements><aef:uid value="e_07"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_08" sourceRef="n_locate" targetRef="n_dup_gate">
-      <bpmn:extensionElements><aef:uid value="e_08"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_09" name="already promoted" sourceRef="n_dup_gate" targetRef="n_dup">
-      <bpmn:extensionElements><aef:uid value="e_09"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${promoted}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_10" name="new" sourceRef="n_dup_gate" targetRef="n_apps_gate">
-      <bpmn:extensionElements><aef:uid value="e_10"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!promoted}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_11" name="&lt; 3 (early)" sourceRef="n_apps_gate" targetRef="n_warn">
-      <bpmn:extensionElements><aef:uid value="e_11"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${apps &lt; 3}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_12" name="≥ 3" sourceRef="n_apps_gate" targetRef="n_genid">
-      <bpmn:extensionElements><aef:uid value="e_12"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${apps &gt;= 3}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_13" sourceRef="n_warn" targetRef="n_genid">
-      <bpmn:extensionElements><aef:uid value="e_13"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_14" sourceRef="n_genid" targetRef="n_append">
-      <bpmn:extensionElements><aef:uid value="e_14"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_15" sourceRef="n_append" targetRef="n_done">
-      <bpmn:extensionElements><aef:uid value="e_15"/></bpmn:extensionElements>
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_agent" targetRef="frw_1_load">
+      <bpmn:extensionElements>
+        <aef:uid value="e_01"/>
+      </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_load" targetRef="frw_2_count">
+      <bpmn:extensionElements>
+        <aef:uid value="e_02"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_3" sourceRef="frw_2_count" targetRef="frw_3_apps">
+      <bpmn:extensionElements>
+        <aef:uid value="e_03"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_4" name="not ready" sourceRef="frw_3_apps" targetRef="frw_4_not">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${apps &lt; 3 || promoted}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_04"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_5" name="ready" sourceRef="frw_3_apps" targetRef="frw_5_present">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${apps &gt;= 3 &amp;&amp; !promoted}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_05"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_6" sourceRef="frw_5_present" targetRef="hum_1_human">
+      <bpmn:extensionElements>
+        <aef:uid value="e_06"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_7" name="fw promote L-XXX" sourceRef="hum_1_human" targetRef="frw_6_fw">
+      <bpmn:extensionElements>
+        <aef:uid value="e_07"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_8" sourceRef="frw_6_fw" targetRef="frw_7_already">
+      <bpmn:extensionElements>
+        <aef:uid value="e_08"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_9" name="already promoted" sourceRef="frw_7_already" targetRef="frw_8_rejected">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${promoted}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_09"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_10" name="new" sourceRef="frw_7_already" targetRef="frw_9_applications">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!promoted}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_10"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_11" name="&lt; 3 (early)" sourceRef="frw_9_applications" targetRef="frw_10_warn">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${apps &lt; 3}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_11"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_12" name="≥ 3" sourceRef="frw_9_applications" targetRef="frw_11_generate">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${apps &gt;= 3}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_12"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_13" sourceRef="frw_10_warn" targetRef="frw_11_generate">
+      <bpmn:extensionElements>
+        <aef:uid value="e_13"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_14" sourceRef="frw_11_generate" targetRef="frw_12_append">
+      <bpmn:extensionElements>
+        <aef:uid value="e_14"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_15" sourceRef="frw_12_append" targetRef="frw_13_promoted">
+      <bpmn:extensionElements>
+        <aef:uid value="e_15"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
   </bpmn:process>
+
+  <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates -->
 </bpmn:definitions>

@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-07-29T08:21:07Z ===
+task_id: T-300
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-300.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Make bake-clean-layout dialect-preserving (editor-save, not regen) and re-bake corpus
+  Duration: 0 days (15 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 6 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-300-make-bake-clean-layout-dialect-preservin.md
+--- exit code: 0 ---

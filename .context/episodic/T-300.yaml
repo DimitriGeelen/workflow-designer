@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-300: Make bake-clean-layout dialect-preserving (editor-save, not regen) and re-bake corpus
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T08:21:07Z
+# ============================================================================
+
+task_id: T-300
+task_name: "Make bake-clean-layout dialect-preserving (editor-save, not regen) and re-bake corpus"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-29T08:05:30Z
+completed: 2026-07-29T08:20:59Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'Driver (tools/_clean-layout-cdp.mjs) returns the editor''s own serialized XML (+post-Clean thumbnail) per map; bake writes THAT byte-verbatim to rendered/*.bpmn + gallery mirror — yaml-to-bpmn.py regen step removed. AMENDED during build: the YAML geometry patch was REMOVED, not retained — since T-125, editor-state y is lane-relative, and patching it into the YAML''s absolute-y fields broke check-lane-bands on 2 maps; with regen forbidden (G-012) the YAML patch is no longer load-bearing (see Decisions)'
+  - 'Re-bake all 24 maps: dialect preserved — bpmndi present, editor id scheme kept, T-297 note + T-298 markers grep-verified in healing-loop.bpmn / error-escalation-ladder.bpmn; 9 laggard maps still carrying the yaml-to-bpmn banner in HEAD normalized into editor dialect (T-288-consistent direction)'
+  - 'Post-bake: --check 24/24 Clean fixpoints — criterion redefined to the honest file-level contract (post-Clean serialization byte-equals the committed file); in-state moved/netMoved is unreliable because adoptImportedXml normalizes coordinates on import (audit-process + error-escalation-ladder show transient moved>0 with byte-stable output; bake re-run sha-verified identical)'
+  - 'Semantic parity: validator 24/24 VALID; bridge suite 42/42; corpus-geometry sweep 24 clean / 0 fail; adopt-verify (T-145) all 11 maps rendered == latest store save — bake now mints .editor-versions store versions (with honest thumbnails) on byte change, idempotent (second run mints 0)'
+  - 'Served-copy proof: t101-review-* store copies re-saved (v2) from re-baked maps; CDP nudge probe 4/4 PASS (nodes>0, #clean-nudge hidden — incl. formerly-failing harvest-pipeline + verification-gate); 3 full-page screenshots taken and READ (tidy rows, no nudge banner)'
+  - 'G-012 register updated with prevention evidence (status stays watching — operator flips)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-29 — YAML geometry patch: remove, don''t fix'
+    chose: 'The bake no longer touches *.workflow.yaml at all; rendered/*.bpmn (editor-saved) is the sole geometry authority.'
+    rationale: 'Since T-125 lane compaction, editor-state y is lane-relative; patching those values into the YAML''s absolute-y convention broke check-lane-bands on error-escalation-ladder + harvest-pipeline. And the patch''s only purpose — making a yaml-to-bpmn regen start tidy — is moot because regen is forbidden outright (G-012). YAML stays the semantic source; its geometry fields are historical.'
+    alternatives_rejected: ['(a) converting lane-relative→absolute in the patch — reimplements editor lane-layout math in Python, the exact PL-005 drift class the tool was built to avoid; (b) keeping a known-broken patch behind a flag — latent gate failures (PL-004 class).']
+  - decision: '2026-07-29 — --check criterion: byte-stability, not state movement'
+    chose: 'fixpoint ⟺ editor''s post-Clean serialization byte-equals the committed file (plus messiness < 3).'
+    rationale: 'adoptImportedXml normalizes coordinates on import, so in-state moved/netMoved can be nonzero while output bytes are stable (proven: sha-identical across repeated bakes of the two "failing" maps). The bake''s actual contract is "re-running produces zero diff" — measure that directly.'
+    alternatives_rejected: ['netMoved threshold (still a state-level proxy; false negatives on adopt-normalizing maps).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 15 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 15
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-300-make-bake-clean-layout-dialect-preservin.md
+generated_by: context-agent-hybrid

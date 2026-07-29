@@ -1,0 +1,16 @@
+[
+  {
+    "v": 1,
+    "ts": 1784671980429,
+    "note": "S4 e2e (AEF): 4-leg off-page probe \u2014 twin-resolved / AEF-corpus / ghost / legacy",
+    "thumb": "v1.png",
+    "bytes": 3378
+  },
+  {
+    "v": 2,
+    "ts": 1784672031356,
+    "note": "S4 e2e (AEF): drop-rule leg \u2014 ghost node removed",
+    "thumb": "v2.png",
+    "bytes": 2978
+  }
+]

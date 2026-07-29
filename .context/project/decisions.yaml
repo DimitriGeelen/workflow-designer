@@ -969,3 +969,17 @@ decisions:
     date: 2026-07-28
     task: T-273
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-118
+    decision: "The bake no longer touches *.workflow.yaml at all; rendered/*.bpmn (editor-saved) is the sole geometry authority."
+    scope: project
+    date: 2026-07-29
+    task: T-300
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-119
+    decision: "fixpoint ⟺ editor's post-Clean serialization byte-equals the committed file (plus messiness < 3)."
+    scope: project
+    date: 2026-07-29
+    task: T-300
+    rationale: "Auto-captured from task file on completion"

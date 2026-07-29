@@ -1,186 +1,236 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated from cross-host-dispatch by tools/yaml-to-bpmn.py. Do not edit by hand. -->
-<bpmn:definitions
-    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
-    xmlns:aef="http://anchorpoint.framework/aef/extensions"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <bpmn:process id="Pool_cross_host_dispatch" name="cross-host-dispatch">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_cross-host-dispatch"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
 
-    <bpmn:laneSet id="LaneSet_cross-host-dispatch">
+  <bpmn:collaboration id="Collaboration_cross-host-dispatch">
+    <bpmn:participant id="Pool_cross_host_dispatch" name="cross-host-dispatch" processRef="Process_cross-host-dispatch"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_cross-host-dispatch" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="cross-host-dispatch" uuid="628a00c7-1bff-496c-9dfd-7b5680f58b86" version="1" schemaVersion="2" title="cross-host-dispatch" tier_default="2"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="agent" name="Agent · Initiative">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="agt" authority="initiative" height="140"/>
+          <aef:laneMeta abbr="agt" authority="initiative" height="96"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_send</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_1_agent</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="framework" name="Framework · Authority">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="frw" authority="authority" height="340"/>
+          <aef:laneMeta abbr="frw" authority="authority" height="192"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_parse</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_valid_gate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_missing</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_envelope</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_conn_gate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_unreach</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_pipe</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_exit_gate</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_fail</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>n_done</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_error</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_6_error</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_9_error</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_10_dispatched</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_7_pipe</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_1_parse</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_build</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_2_all</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_5_ssh</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_8_remote</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="external" name="Remote host · External">
         <bpmn:extensionElements>
-          <aef:laneMeta abbr="ext" authority="external" height="140"/>
+          <aef:laneMeta abbr="ext" authority="external" height="88"/>
         </bpmn:extensionElements>
-        <bpmn:flowNodeRef>n_receive</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>ext_1_remote</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
 
-    <bpmn:startEvent id="n_send" name="Agent runs `fw dispatch send`">
+    <bpmn:startEvent id="agt_1_agent" name="Agent runs `fw dispatch send`">
       <bpmn:extensionElements>
         <aef:uid value="n_send"/>
-        <aef:position x="120" y="114"/>
-        <aef:meta determinism="deterministic" endpoint="fw dispatch send"/>
+        <aef:position x="120.0" y="92.0"/>
+        <aef:endpoint>fw dispatch send</aef:endpoint>
       </bpmn:extensionElements>
-      <bpmn:outgoing>e_01</bpmn:outgoing>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
     </bpmn:startEvent>
-    <bpmn:scriptTask id="n_parse" name="Parse flags (--host/--task/--agent/--summary/--result)">
+
+    <bpmn:endEvent id="frw_3_error" name="ERROR — missing required flag (exit 1)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_missing"/>
+        <aef:position x="463.0" y="284.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_6_error" name="ERROR — cannot connect to host (exit 1)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_unreach"/>
+        <aef:position x="803.0" y="284.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_6</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_9_error" name="ERROR — dispatch failed (propagate remote exit code)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_fail"/>
+        <aef:position x="1323.0" y="284.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_10</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="frw_10_dispatched" name="Dispatched ✓">
+      <bpmn:extensionElements>
+        <aef:uid value="n_done"/>
+        <aef:position x="1480.0" y="188.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_11</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:serviceTask id="frw_7_pipe" name="Pipe envelope over SSH → remote `fw bus receive`">
+      <bpmn:extensionElements>
+        <aef:uid value="n_pipe"/>
+        <aef:position x="960.0" y="174.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_7</bpmn:incoming>
+      <bpmn:outgoing>flow_8</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="ext_1_remote" name="Remote host: `fw bus receive` ingests the envelope">
+      <bpmn:extensionElements>
+        <aef:uid value="n_receive"/>
+        <aef:position x="1140.0" y="362.0"/>
+        <aef:meta external="True"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_8</bpmn:incoming>
+      <bpmn:outgoing>flow_9</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:scriptTask id="frw_1_parse" name="Parse flags (--host/--task/--agent/--summary/--result)">
       <bpmn:extensionElements>
         <aef:uid value="n_parse"/>
-        <aef:position x="280" y="297.5"/>
-        <aef:meta determinism="deterministic"/>
+        <aef:position x="280.0" y="174.0"/>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_01</bpmn:incoming>
-      <bpmn:outgoing>e_02</bpmn:outgoing>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
     </bpmn:scriptTask>
-    <bpmn:exclusiveGateway id="n_valid_gate" name="All required flags present? (host, task, agent, summary)">
+
+    <bpmn:scriptTask id="frw_4_build" name="Build JSON envelope (timestamp, source host, json-escaped summary + payload)">
+      <bpmn:extensionElements>
+        <aef:uid value="n_envelope"/>
+        <aef:position x="620.0" y="174.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:exclusiveGateway id="frw_2_all" name="All required flags present? (host, task, agent, summary)">
       <bpmn:extensionElements>
         <aef:uid value="n_valid_gate"/>
-        <aef:position x="457" y="305.5"/>
+        <aef:position x="457.0" y="182.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${host &amp;&amp; task &amp;&amp; agent &amp;&amp; summary}</aef:decisionInput>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_02</bpmn:incoming>
-      <bpmn:outgoing>e_03</bpmn:outgoing>
-      <bpmn:outgoing>e_04</bpmn:outgoing>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:endEvent id="n_missing" name="ERROR — missing required flag (exit 1)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_missing"/>
-        <aef:position x="463" y="396.5"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_03</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:scriptTask id="n_envelope" name="Build JSON envelope (timestamp, source host, json-escaped summary + payload)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_envelope"/>
-        <aef:position x="620" y="297.5"/>
-        <aef:meta determinism="deterministic" sideEffect="none (in-memory string)"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_04</bpmn:incoming>
-      <bpmn:outgoing>e_05</bpmn:outgoing>
-    </bpmn:scriptTask>
-    <bpmn:exclusiveGateway id="n_conn_gate" name="SSH reachable? (BatchMode, ConnectTimeout=5)">
+
+    <bpmn:exclusiveGateway id="frw_5_ssh" name="SSH reachable? (BatchMode, ConnectTimeout=5)">
       <bpmn:extensionElements>
         <aef:uid value="n_conn_gate"/>
-        <aef:position x="797" y="305.5"/>
+        <aef:position x="797.0" y="182.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${ssh -o BatchMode=yes -o ConnectTimeout=5 host 'echo ok'}</aef:decisionInput>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_05</bpmn:incoming>
-      <bpmn:outgoing>e_06</bpmn:outgoing>
-      <bpmn:outgoing>e_07</bpmn:outgoing>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+      <bpmn:outgoing>flow_6</bpmn:outgoing>
+      <bpmn:outgoing>flow_7</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:endEvent id="n_unreach" name="ERROR — cannot connect to host (exit 1)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_unreach"/>
-        <aef:position x="803" y="396.5"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_06</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:serviceTask id="n_pipe" name="Pipe envelope over SSH → remote `fw bus receive`">
-      <bpmn:extensionElements>
-        <aef:uid value="n_pipe"/>
-        <aef:position x="960" y="297.5"/>
-        <aef:meta determinism="deterministic" sideEffect="network — sends result envelope across host boundary"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_07</bpmn:incoming>
-      <bpmn:outgoing>e_08</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:serviceTask id="n_receive" name="Remote host: `fw bus receive` ingests the envelope">
-      <bpmn:extensionElements>
-        <aef:uid value="n_receive"/>
-        <aef:position x="1140" y="580"/>
-        <aef:meta determinism="deterministic" sideEffect="writes remote .context/bus/ on the target host" external="True"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_08</bpmn:incoming>
-      <bpmn:outgoing>e_09</bpmn:outgoing>
-    </bpmn:serviceTask>
-    <bpmn:exclusiveGateway id="n_exit_gate" name="Remote exit 0?">
+
+    <bpmn:exclusiveGateway id="frw_8_remote" name="Remote exit 0?">
       <bpmn:extensionElements>
         <aef:uid value="n_exit_gate"/>
-        <aef:position x="1317" y="305.5"/>
+        <aef:position x="1317.0" y="182.0"/>
         <aef:meta decisionOwner="framework"/>
         <aef:decisionInput>${remote_exit_code == 0}</aef:decisionInput>
       </bpmn:extensionElements>
-      <bpmn:incoming>e_09</bpmn:incoming>
-      <bpmn:outgoing>e_10</bpmn:outgoing>
-      <bpmn:outgoing>e_11</bpmn:outgoing>
+      <bpmn:incoming>flow_9</bpmn:incoming>
+      <bpmn:outgoing>flow_10</bpmn:outgoing>
+      <bpmn:outgoing>flow_11</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:endEvent id="n_fail" name="ERROR — dispatch failed (propagate remote exit code)">
-      <bpmn:extensionElements>
-        <aef:uid value="n_fail"/>
-        <aef:position x="1323" y="396.5"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_10</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:endEvent id="n_done" name="Dispatched ✓">
-      <bpmn:extensionElements>
-        <aef:uid value="n_done"/>
-        <aef:position x="1480" y="311.5"/>
-      </bpmn:extensionElements>
-      <bpmn:incoming>e_11</bpmn:incoming>
-    </bpmn:endEvent>
 
-    <bpmn:sequenceFlow id="e_01" sourceRef="n_send" targetRef="n_parse">
-      <bpmn:extensionElements><aef:uid value="e_01"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_02" sourceRef="n_parse" targetRef="n_valid_gate">
-      <bpmn:extensionElements><aef:uid value="e_02"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_03" name="missing flag" sourceRef="n_valid_gate" targetRef="n_missing">
-      <bpmn:extensionElements><aef:uid value="e_03"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!(host &amp;&amp; task &amp;&amp; agent &amp;&amp; summary)}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_04" name="all present" sourceRef="n_valid_gate" targetRef="n_envelope">
-      <bpmn:extensionElements><aef:uid value="e_04"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${host &amp;&amp; task &amp;&amp; agent &amp;&amp; summary}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_05" sourceRef="n_envelope" targetRef="n_conn_gate">
-      <bpmn:extensionElements><aef:uid value="e_05"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_06" name="unreachable" sourceRef="n_conn_gate" targetRef="n_unreach">
-      <bpmn:extensionElements><aef:uid value="e_06"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!ssh_ok}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_07" name="reachable" sourceRef="n_conn_gate" targetRef="n_pipe">
-      <bpmn:extensionElements><aef:uid value="e_07"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${ssh_ok}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_08" name="SSH pipe" sourceRef="n_pipe" targetRef="n_receive">
-      <bpmn:extensionElements><aef:uid value="e_08"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_09" name="exit code" sourceRef="n_receive" targetRef="n_exit_gate">
-      <bpmn:extensionElements><aef:uid value="e_09"/></bpmn:extensionElements>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_10" name="!= 0" sourceRef="n_exit_gate" targetRef="n_fail">
-      <bpmn:extensionElements><aef:uid value="e_10"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${remote_exit_code != 0}</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="e_11" name="== 0" sourceRef="n_exit_gate" targetRef="n_done">
-      <bpmn:extensionElements><aef:uid value="e_11"/></bpmn:extensionElements>
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${remote_exit_code == 0}</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_agent" targetRef="frw_1_parse">
+      <bpmn:extensionElements>
+        <aef:uid value="e_01"/>
+      </bpmn:extensionElements>
     </bpmn:sequenceFlow>
 
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_parse" targetRef="frw_2_all">
+      <bpmn:extensionElements>
+        <aef:uid value="e_02"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_3" name="missing flag" sourceRef="frw_2_all" targetRef="frw_3_error">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!(host &amp;&amp; task &amp;&amp; agent &amp;&amp; summary)}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_03"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_4" name="all present" sourceRef="frw_2_all" targetRef="frw_4_build">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${host &amp;&amp; task &amp;&amp; agent &amp;&amp; summary}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_04"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_5" sourceRef="frw_4_build" targetRef="frw_5_ssh">
+      <bpmn:extensionElements>
+        <aef:uid value="e_05"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_6" name="unreachable" sourceRef="frw_5_ssh" targetRef="frw_6_error">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${!ssh_ok}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_06"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_7" name="reachable" sourceRef="frw_5_ssh" targetRef="frw_7_pipe">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${ssh_ok}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_07"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_8" name="SSH pipe" sourceRef="frw_7_pipe" targetRef="ext_1_remote">
+      <bpmn:extensionElements>
+        <aef:uid value="e_08"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_9" name="exit code" sourceRef="ext_1_remote" targetRef="frw_8_remote">
+      <bpmn:extensionElements>
+        <aef:uid value="e_09"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_10" name="!= 0" sourceRef="frw_8_remote" targetRef="frw_9_error">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${remote_exit_code != 0}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_10"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="flow_11" name="== 0" sourceRef="frw_8_remote" targetRef="frw_10_dispatched">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${remote_exit_code == 0}</bpmn:conditionExpression>
+      <bpmn:extensionElements>
+        <aef:uid value="e_11"/>
+      </bpmn:extensionElements>
+    </bpmn:sequenceFlow>
   </bpmn:process>
+
+  <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates -->
 </bpmn:definitions>

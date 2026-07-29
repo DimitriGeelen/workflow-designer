@@ -1,0 +1,37 @@
+[
+  {
+    "v": 1,
+    "ts": 1784674640335,
+    "note": "AEF T-2594 S4a smoke: claim leg (own uuid == pending ghost G)",
+    "thumb": null,
+    "bytes": 15841
+  },
+  {
+    "v": 2,
+    "ts": 1784674660337,
+    "note": "AEF T-2594 smoke: idempotency re-save",
+    "thumb": null,
+    "bytes": 15841
+  },
+  {
+    "v": 3,
+    "ts": 1784674706716,
+    "note": "AEF T-2594 smoke: H3 ui-shaped payload",
+    "thumb": "v3.png",
+    "bytes": 15841
+  },
+  {
+    "v": 4,
+    "ts": 1784676439226,
+    "note": "",
+    "thumb": null,
+    "bytes": 15842
+  },
+  {
+    "v": 5,
+    "ts": 1784676592618,
+    "note": "AEF T-2594: idempotency re-save post-claim",
+    "thumb": null,
+    "bytes": 15841
+  }
+]

@@ -130,13 +130,28 @@ async function main() {
       // align-rows snapping can merge clusters (nodes that were >14px apart become
       // <=14px), so a second pass settles them a few px further. We bake the
       // fixpoint (the maximally-tidy result), so a later re-bake moves 0 nodes.
-      const expr = `(function(){ try{
+      const expr = `(async function(){ try{
         adoptImportedXml(${JSON.stringify(text)});
         var mb=(typeof mapMessiness==='function')?mapMessiness():null;
+        // Snapshot pre-Clean geometry: the fixpoint criterion is NET displacement
+        // (T-300): Clean can 2-cycle on some topologies (transient moved>0) while
+        // landing exactly where it started — that IS a bake fixpoint (bytes stable).
+        var init={}; state.nodes.forEach(function(n){ init[n.id]=[n.x,n.y]; });
+        var initH={}; state.lanes.forEach(function(l){ initH[l.id]=l.height; });
         var moved=0,last=0,iter=0;
         do { last=cleanLayout(); moved+=last; iter++; } while(last>0 && iter<12);
+        var netMoved=0;
+        state.nodes.forEach(function(n){ var p=init[n.id]; if(!p||Math.abs(n.x-p[0])>0.01||Math.abs(n.y-p[1])>0.01) netMoved++; });
+        state.lanes.forEach(function(l){ if(Math.abs(l.height-(initH[l.id]!=null?initH[l.id]:l.height))>0.01) netMoved++; });
         var ma=(typeof mapMessiness==='function')?mapMessiness():null;
-        return {ok:true,moved:moved,lastMoved:last,iters:iter,messinessBefore:mb,messinessAfter:ma,
+        // T-300 (G-012): return the editor's OWN serialization so the bake can
+        // write it back verbatim — the committed corpus is editor-saved dialect
+        // (T-288); regenerating via yaml-to-bpmn.py clobbers ids/DI/meta notes.
+        var xml=(typeof buildBpmnXml==='function')?buildBpmnXml(state):null;
+        // Thumbnail for the T-145 store append (bake mints a new .editor-versions
+        // entry when bytes change; an honest post-Clean thumb, not a stale copy).
+        var thumb=null; try{ if(typeof captureThumbnail==='function') thumb=await captureThumbnail(); }catch(e){}
+        return {ok:true,moved:moved,netMoved:netMoved,lastMoved:last,iters:iter,messinessBefore:mb,messinessAfter:ma,xml:xml,thumb:thumb,
           nodes:state.nodes.map(function(n){return {id:n.id,x:n.x,y:n.y,lane:n.lane};}),
           lanes:state.lanes.map(function(l){return {id:l.id,height:l.height};})};
       }catch(e){ return {ok:false,error:String(e&&e.stack||e)}; } })()`;

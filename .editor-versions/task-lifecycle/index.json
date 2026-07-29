@@ -1,0 +1,16 @@
+[
+  {
+    "v": 1,
+    "ts": 1784671639206,
+    "note": "S4 e2e (AEF): first save through S1 editor \u2014 uuid mint verify",
+    "thumb": "v1.png",
+    "bytes": 15833
+  },
+  {
+    "v": 2,
+    "ts": 1785312975001,
+    "note": "T-300 dialect-preserving Clean re-bake",
+    "bytes": 15831,
+    "thumb": "v2.png"
+  }
+]

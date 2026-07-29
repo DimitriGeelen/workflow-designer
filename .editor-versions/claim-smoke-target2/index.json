@@ -1,0 +1,16 @@
+[
+  {
+    "v": 1,
+    "ts": 1784676575221,
+    "note": "AEF T-2594 reverify: claim leg (own uuid == pending ghost H)",
+    "thumb": null,
+    "bytes": 2064
+  },
+  {
+    "v": 2,
+    "ts": 1784676585893,
+    "note": "AEF T-2594 reverify: idempotency re-save",
+    "thumb": null,
+    "bytes": 2064
+  }
+]
