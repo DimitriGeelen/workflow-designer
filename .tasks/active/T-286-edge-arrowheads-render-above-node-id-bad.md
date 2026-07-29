@@ -89,7 +89,8 @@ state-derived nodeVisualBottom, not badge DOM — no cross-render consumers brea
 -->
 - [ ] [REVIEW] Arrow-over-badge default + selected-badge-forward feels right; endpoint drag handles now grabbable near badges
   **Steps:**
-  1. `cd /opt/832-Workflow-designer && xdg-open http://localhost:8834/designer.html?load=rendered/harvest-pipeline.bpmn` (or open that URL on the LAN box)
+  1. Open http://192.168.10.107:3000/designer and click the **t293-retest-harvest** card
+     (:3000 serves the 0.8.0 bundle with this change; :8834 is LAN-blocked — no ufw rule, T-253 class)
   2. Find a node whose id badge sits near an incoming arrow (e.g. the fw_1_scan node from your screenshot)
   3. Confirm the arrowhead reads on top of the badge; click the node — its badge should pop to the foreground; click empty canvas — badge drops back under
   4. Select the incoming edge and drag its endpoint handle where the badge overlaps it

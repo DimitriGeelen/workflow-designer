@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-296: Cut designer release 0.8.0 (T-286 badge z-order + T-293 endpoint-handle layer) and announce for AEF re-pin — operator's only reachable designers serve pinned 0.7.1
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T06:24:19Z
+# ============================================================================
+
+task_id: T-296
+task_name: "Cut designer release 0.8.0 (T-286 badge z-order + T-293 endpoint-handle layer) and announce for AEF re-pin — operator's only reachable designers serve pinned 0.7.1"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-29T06:16:47Z
+completed: 2026-07-29T06:24:17Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-07-29T08:19:12+02:00
+last_commit: 2026-07-29T08:19:12+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release designer 0.8.0 — T-264 save-target guards + T-125 lane compaction + T-286 badge z-order + T-293 endpoint-handle layer (all zero seam surface; annotate-intake alias NOT retired); sha cab3c751, 903600 B; render gate PASS, immutability guard green, 0.7.1-and-earlier pins byte-untouched; suite 42/42 + geometry 24 clean pre-cut; motive: operator-reachable designers all serve pinned 0.7.1 — re-pin closes the T-293/T-286 retest gap (RCA in T-293)
+
+# Key outcomes
+outcomes:
+  - 'Full suite green before cutting: tests/run-bridge-tests.sh 42/42 + corpus'
+  - 'VERSION bumped 0.7.1 -> 0.8.0; scripts/release-designer.sh run: render'
+  - 'Annotated tag designer-v0.8.0 created carrying artifact sha256 + bytes;'
+  - 'Rail announce posted at offset 308 (version, sha256, bytes, tag — the'
+  - 'MANIFEST capabilities block still present (annotation_seam: 1) and'
+  - 'BONUS (operator-reachability, same task motive): our own vendored pin'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'dist/aef-workflow-designer-0.8.0.html'
+  - 'dist/MANIFEST.yaml'
+  - '.tasks/active/T-296-cut-designer-release-080-t-286-badge-z-o.md'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-29T08:19:12"
+    action: "T-296: release designer 0.8.0 — T-264 save-target guards + T-125 lane compaction + T-286 badge z-order + T-293 endpoint-handle layer (all zero seam surface; annotate-intake alias NOT retired); sha cab3c751, 903600 B; render gate PASS, immutability guard green, 0.7.1-and-earlier pins byte-untouched; suite 42/42 + geometry 24 clean pre-cut; motive: operator-reachable designers all serve pinned 0.7.1 — re-pin closes the T-293/T-286 retest gap (RCA in T-293)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 7
+  commits: 1
+  files_changed: 4
+  lines_added: 10009
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-296-cut-designer-release-080-t-286-badge-z-o.md
+generated_by: context-agent-hybrid

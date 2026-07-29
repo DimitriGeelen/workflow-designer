@@ -16,13 +16,13 @@
 # frozen annotated tag = published frozen bytes — 832's working tree stays
 # off-limits.
 
-version: "0.7.1"
-sha256: "d2bf0d633e9e347b3429f8c22f194d27d673d05e11650d32c1cb6a71359ca353"
-bytes: 890278
+version: "0.8.0"
+sha256: "cab3c75183979b0e15e23192518f9360ea12fe33b6a4f78641d7e264f6110935"
+bytes: 903600
 
 source_repo: "832-Workflow-designer"
-source_artifact: "dist/aef-workflow-designer-0.7.1.html"
-source_tag: "designer-v0.7.1"
+source_artifact: "dist/aef-workflow-designer-0.8.0.html"
+source_tag: "designer-v0.8.0"
 source_manifest: "dist/MANIFEST.yaml"                 # 832 side
 # Read-only LAN origin for pull-at-tag intake (T-247/D-335, tooling T-2616).
 # `fw designer sync --from-tag` fetches artifact + MANIFEST at the annotated tag
@@ -31,6 +31,16 @@ source_origin: "ssh://git@192.168.10.201:6611/workflow-designer"
 protocol: "docs/aef-designer-integration-protocol.md" # 832 side (pull → sha256-verify → pin → serve)
 
 # Where the verified build lands inside AEF (tracked, served by the blueprint).
+# 0.8.0 = 0.7.1 + four 832 editor-behavior changes, ALL zero seam surface (no
+#   BPMN serialization, aef:* vocabulary, or consumer-API change): (1) T-264
+#   save-target guard set (ID-collision notice, ID commit-on-blur/Enter,
+#   load-source mismatch confirm); (2) T-125 vertical lane compaction in Clean
+#   layout (lanes fit content height, empty inter-lane bands removed); (3) T-286
+#   badge z-order (id badges below edges, selected element's badge raises);
+#   (4) T-293 endpoint-handle layer (#g-handles above node bodies — endpoint
+#   reconnect grab wins the hit-test everywhere on the dot). The 0.7.0
+#   annotations/tone/title intake alias is NOT retired in 0.8.0 (832 release
+#   note; operator-sequenced retirement window stays open).
 # 0.7.1 = 0.7.0 + 832 T-261 wire-shape reconciliation (crossed-release fix):
 #   annotate intake accepts AEF's live wire shape as canonical —
 #   {nodes:[{uid,badge,text,severity:info|warn|alert}]} (severity→tone mapping,
@@ -92,7 +102,7 @@ protocol: "docs/aef-designer-integration-protocol.md" # 832 side (pull → sha25
 #   derived from lane authority (sovereignty→human, initiative/authority→agent);
 #   owner is still serialized in metaKeys for reverse-render laning (O-2), so the
 #   AEF import/reverse-render path is unaffected. (2) T-176 offline-hardening.
-vendored_path: "vendor/designer/aef-workflow-designer-0.7.1.html"
+vendored_path: "vendor/designer/aef-workflow-designer-0.8.0.html"
 
 # Offline-hardened (832 T-176): web fonts are embedded as base64 woff2 — ZERO network
 # on load (no fonts.googleapis.com / gstatic fetch). Fully self-contained for
