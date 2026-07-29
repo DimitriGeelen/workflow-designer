@@ -200,8 +200,8 @@ awk '/<script>/{f=1;next}/<\/script>/{f=0}f' src/aef-workflow-designer.html > /t
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-9778acd3
-- **Timestamp:** 2026-07-27T21:20:09Z
+- **Scan ID:** R-573ff7ca
+- **Timestamp:** 2026-07-29T13:13:32Z
 - **Catalogue:** v1.3-seed
 - **Overall:** CONCERN
 - **Needs Human:** no

@@ -44,13 +44,7 @@ Discovered while probing for a review index: EVERY /review/T-XXX on Watchtower (
 - [x] Watchtower restarted; all 13 partial-complete review pages return HTTP 200 (T-073,T-074,T-075,T-076,T-077,T-079,T-081,T-082,T-083,T-084,T-085,T-087,T-089)
 - [x] Gap registered in `.context/project/concerns.yaml` (framework blind >7 days? — review pages were last known-good when T-073 reviews were filed; register regardless: structural upstream flaw, shim is mitigation not prevention) with pointer to the upstream one-line fix
 - [x] No vendored file modified: `git status .agentic-framework` clean / untouched
-
-### Human
-- [ ] [REVIEW] [RUBBER-STAMP] The review queue loads again in your browser
-  **Steps:**
-  1. Open http://192.168.10.107:3005/review/T-089
-  **Expected:** The T-089 review page renders (task name, ACs, recommendation) — no "500 Internal Server Error"
-  **If not:** Run `cd /opt/832-Workflow-designer && tail -30 .context/working/watchtower.log` and share the traceback
+- [x] [converted from Human RUBBER-STAMP per T-1811/T-1878, T-302 sweep] The review queue loads: /review/T-089 returns HTTP 200 and renders task name, ACs, recommendation (evidence: curl 200 + `<title>Review T-089</title>` on live Watchtower URL from `.context/working/watchtower.url`, 2026-07-29; `fw reviewer T-090` Overall PASS; the deterministic curl checks were already in ## Verification)
 
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
@@ -215,10 +209,15 @@ out=$(git status --porcelain .agentic-framework | wc -l); test "$out" = "0"
 ### 2026-07-04T22:38:53Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
 
+### 2026-07-29T13:20:00Z — T-302 REVIEWER-conversion sweep [agent]
+- **Action:** Converted the sole Human AC ([RUBBER-STAMP], deterministic Expected) to a ticked Agent AC per T-1811/T-1878 — it was the PL-027 mis-prefix class (machine-checkable, labeled [REVIEW] before prefix routing existed)
+- **Evidence:** `curl` on `$(cat .context/working/watchtower.url)/review/T-089` → HTTP 200, page title `Review T-089`, 24 content hits for task name/recommendation; `fw reviewer T-090` → Overall PASS, 0 findings. The AC's old URL (:3005) was stale — Verification lines already use the watchtower.url triple file.
+- **Context:** No Human ACs remain; owner is human, so the agent does NOT finalize. Operator close command: `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw task update T-090 --status work-completed`
+
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-f44f03c8
-- **Timestamp:** 2026-07-27T21:20:11Z
+- **Scan ID:** R-cc4a826c
+- **Timestamp:** 2026-07-29T13:13:33Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

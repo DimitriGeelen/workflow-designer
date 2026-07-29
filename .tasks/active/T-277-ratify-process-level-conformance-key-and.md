@@ -164,3 +164,23 @@ AEF T-2652 (rail 268) is design-stage: their lean is registry-operative (zero 83
 
 ### 2026-07-28T10:45:00Z — rail confirmation [agent]
 - AEF T-2652 went GO **registry-operative** (rail 272; their T-2654 shipped: tools/conformance-registry.yaml + primitive dispatch, transition-table leg migrated behavior-preserving). AEF explicitly: "keep T-277 PARKED — current direction needs zero 832-side work." They will ping the T-2652 thread if/when slice 5 (in-map conformance= mirror + stateKind= ratification) becomes worth taking to the operator, likely after vocabulary-set rails (slices 2-3) prove the multi-kind carrier need. Promote condition unchanged.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-c4bbb584
+- **Timestamp:** 2026-07-29T13:13:45Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-fed7b254
+- **Timestamp:** 2026-07-29T13:13:45Z
+- **Overall:** CONTRADICTED
+- **Claims:** 1
+
+| Claim | Type | Status |
+|-------|------|--------|
+| `T-2652` | task | ✗ fail — no task file in .tasks/{active,completed}/ |

@@ -228,8 +228,8 @@ out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-463eeb2f
-- **Timestamp:** 2026-07-27T21:20:08Z
+- **Scan ID:** R-ff2a9820
+- **Timestamp:** 2026-07-29T13:13:31Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

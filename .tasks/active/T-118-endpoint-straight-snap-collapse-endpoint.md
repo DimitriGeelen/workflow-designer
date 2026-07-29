@@ -245,8 +245,8 @@ endpoint corner *reads* clean — subjective taste that needs the operator's eye
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-b18f5798
-- **Timestamp:** 2026-07-27T21:20:15Z
+- **Scan ID:** R-d2075aed
+- **Timestamp:** 2026-07-29T13:13:37Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

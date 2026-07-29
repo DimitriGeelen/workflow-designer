@@ -236,8 +236,8 @@ grep -q "exclusiveGateway" tests/fixtures/aef-bpmn/dispatch-loop.bpmn
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-4d7d29fa
-- **Timestamp:** 2026-07-27T21:20:20Z
+- **Scan ID:** R-d0370151
+- **Timestamp:** 2026-07-29T13:13:43Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

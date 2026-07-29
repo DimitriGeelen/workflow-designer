@@ -137,3 +137,20 @@ voi_score: 0.5                    # float 0..1. Value of Information — expecte
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4f025cf3
+- **Timestamp:** 2026-07-29T13:13:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+## Recommendation Verdict (v1.0)
+
+- **Scan ID:** RC-f8bb0731
+- **Timestamp:** 2026-07-29T13:13:42Z
+- **Overall:** UNVERIFIED
+- **Claims:** 0
+- No verifiable claims found in ## Recommendation

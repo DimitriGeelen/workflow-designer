@@ -213,8 +213,8 @@ remaining AC is a Human REVIEW of whether the guard *feels* right — subjective
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-15f46c79
-- **Timestamp:** 2026-07-27T21:20:17Z
+- **Scan ID:** R-38366e5a
+- **Timestamp:** 2026-07-29T13:13:39Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

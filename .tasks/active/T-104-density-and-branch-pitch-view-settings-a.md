@@ -237,8 +237,8 @@ map re-laying-out; gallery `diff -q` clean.
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-4d9e5b57
-- **Timestamp:** 2026-07-27T21:20:13Z
+- **Scan ID:** R-4518c573
+- **Timestamp:** 2026-07-29T13:13:35Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

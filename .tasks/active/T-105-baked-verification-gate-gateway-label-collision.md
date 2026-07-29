@@ -183,3 +183,17 @@ treat "re-bake" as fixing T-105.
   investigate/fix in-window (source edits gated). Next session: confirm the
   align-rows-vs-label hypothesis first, then choose fix locus (editor label
   placement vs label-aware Clean).
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-bcd43bfd
+- **Timestamp:** 2026-07-29T13:13:35Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Human)** — [REVIEW] verification-gate (and neighbours) open with readable, non-overlapping
+  - **human-ac-mechanical-signal** (partial, heuristic) — `matched='names l' in Expected: All gateway/event names legible and separated; rows still tidy; no name   runs into a neighbour`

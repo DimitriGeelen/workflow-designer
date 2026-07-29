@@ -246,8 +246,8 @@ cursor/feel is best judged with a real pointer, which synthetic events can't cap
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-0c052868
-- **Timestamp:** 2026-07-27T21:20:19Z
+- **Scan ID:** R-2b83ad19
+- **Timestamp:** 2026-07-29T13:13:41Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

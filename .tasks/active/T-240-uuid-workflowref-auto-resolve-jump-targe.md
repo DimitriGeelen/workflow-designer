@@ -242,8 +242,8 @@ test -s .playwright-mcp/t240-panel-ghost.png
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-5c31107b
-- **Timestamp:** 2026-07-27T21:20:20Z
+- **Scan ID:** R-91fa26f0
+- **Timestamp:** 2026-07-29T13:13:43Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

@@ -250,8 +250,8 @@ Human AC steps), check the `[REVIEW]` box, then
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-2e406094
-- **Timestamp:** 2026-07-27T21:20:19Z
+- **Scan ID:** R-16694a0e
+- **Timestamp:** 2026-07-29T13:13:41Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

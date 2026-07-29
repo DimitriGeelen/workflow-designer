@@ -231,8 +231,8 @@ Screenshots produced by `tools/_t255-visual-shots.mjs` (hermetic sidecar, dark-o
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-9b45cc36
-- **Timestamp:** 2026-07-27T21:20:21Z
+- **Scan ID:** R-6e0b6c3e
+- **Timestamp:** 2026-07-29T13:13:44Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

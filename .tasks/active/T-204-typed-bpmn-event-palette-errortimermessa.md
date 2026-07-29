@@ -527,8 +527,8 @@ python3 tests/test_typed_events.py
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-4d259533
-- **Timestamp:** 2026-07-27T21:20:20Z
+- **Scan ID:** R-b6d230db
+- **Timestamp:** 2026-07-29T13:13:42Z
 - **Catalogue:** v1.3-seed
 - **Overall:** CONCERN
 - **Needs Human:** no

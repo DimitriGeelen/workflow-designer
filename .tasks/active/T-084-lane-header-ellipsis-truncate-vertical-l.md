@@ -237,8 +237,8 @@ test -f .playwright-mcp/t084-lane-headers.png
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-d1a93b91
-- **Timestamp:** 2026-07-27T21:20:10Z
+- **Scan ID:** R-28b26cea
+- **Timestamp:** 2026-07-29T13:13:32Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

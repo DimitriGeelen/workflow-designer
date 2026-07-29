@@ -223,8 +223,8 @@ No CSS was changed — guides reuse the T-074 `.snap-guide`/`.snap-guide-lane` s
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-1e6c2d07
-- **Timestamp:** 2026-07-27T21:20:09Z
+- **Scan ID:** R-f39caf15
+- **Timestamp:** 2026-07-29T13:13:31Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

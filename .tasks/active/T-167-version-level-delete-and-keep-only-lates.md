@@ -188,8 +188,8 @@ the UI row 🗑 and header "Keep only latest" verified live. Remaining Human AC 
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-2ed4d58b
-- **Timestamp:** 2026-07-27T21:20:18Z
+- **Scan ID:** R-2bc05baf
+- **Timestamp:** 2026-07-29T13:13:40Z
 - **Catalogue:** v1.3-seed
 - **Overall:** CONCERN
 - **Needs Human:** no

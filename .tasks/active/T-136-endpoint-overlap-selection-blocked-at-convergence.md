@@ -148,8 +148,8 @@ edge, not the sibling.
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-2a078997
-- **Timestamp:** 2026-07-27T21:20:16Z
+- **Scan ID:** R-6d8ec577
+- **Timestamp:** 2026-07-29T13:13:39Z
 - **Catalogue:** v1.3-seed
 - **Overall:** CONCERN
 - **Needs Human:** no

@@ -263,8 +263,8 @@ Lane-change behaviour verified live (readout re-derives on Lane select change):
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-28a81980
-- **Timestamp:** 2026-07-27T21:20:19Z
+- **Scan ID:** R-894e3cec
+- **Timestamp:** 2026-07-29T13:13:42Z
 - **Catalogue:** v1.3-seed
 - **Overall:** CONCERN
 - **Needs Human:** no

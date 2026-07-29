@@ -104,8 +104,8 @@ remains (Human AC).
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-d19c7351
-- **Timestamp:** 2026-07-27T21:20:16Z
+- **Scan ID:** R-5c29bee6
+- **Timestamp:** 2026-07-29T13:13:38Z
 - **Catalogue:** v1.3-seed
 - **Overall:** CONCERN
 - **Needs Human:** no

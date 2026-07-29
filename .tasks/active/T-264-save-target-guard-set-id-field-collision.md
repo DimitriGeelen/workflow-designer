@@ -256,8 +256,8 @@ python3 tests/test_t264_save_target_guards.py
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-f8b854c7
-- **Timestamp:** 2026-07-28T09:52:06Z
+- **Scan ID:** R-9af09175
+- **Timestamp:** 2026-07-29T13:13:44Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

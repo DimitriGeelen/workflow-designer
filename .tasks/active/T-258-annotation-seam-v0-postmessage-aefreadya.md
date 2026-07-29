@@ -241,14 +241,9 @@ trivially adjustable.
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-5ab4807f
-- **Timestamp:** 2026-07-27T21:20:21Z
+- **Scan ID:** R-a598cc95
+- **Timestamp:** 2026-07-29T13:13:44Z
 - **Catalogue:** v1.3-seed
-- **Overall:** CONCERN
+- **Overall:** PASS
 - **Needs Human:** no
-- **Findings:** 1
-
-**Verification-level findings:**
-
-  1. **mock-only-integration** (partial, heuristic) @ AC vs Verification cross-check
-     - evidence: `python3 tests/test_t258_annotation_seam.py`
+- **Findings:** none

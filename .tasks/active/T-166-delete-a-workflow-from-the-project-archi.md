@@ -194,8 +194,8 @@ deletion feels safe.
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-e191ba9a
-- **Timestamp:** 2026-07-27T21:20:18Z
+- **Scan ID:** R-f96a872b
+- **Timestamp:** 2026-07-29T13:13:40Z
 - **Catalogue:** v1.3-seed
 - **Overall:** CONCERN
 - **Needs Human:** no

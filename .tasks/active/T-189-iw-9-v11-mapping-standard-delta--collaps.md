@@ -220,3 +220,17 @@ python3 tests/test_mapping_standard_conformance.py
 ### 2026-07-11T21:38:37Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-85f8e8ca
+- **Timestamp:** 2026-07-29T13:13:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — The proposal states the graduation blast-radius across both test paths (`tests/test_mapping_standard_conformance.py` and `tests/test_forward_fixtures.py`, plus editor/bridge `metaKeys`/`META_KEYS`) — 
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/test_forward_fixtures.py in: The proposal states the graduation blast-radius across both test paths (`tests/test_mapping_standard_conformance.py` and `tests/test_forward_fixtures.`

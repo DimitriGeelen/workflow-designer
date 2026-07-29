@@ -213,8 +213,8 @@ Screenshots taken via Playwright and READ:
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-4f0bbf9f
-- **Timestamp:** 2026-07-27T21:20:13Z
+- **Scan ID:** R-7251651a
+- **Timestamp:** 2026-07-29T13:13:34Z
 - **Catalogue:** v1.3-seed
 - **Overall:** CONCERN
 - **Needs Human:** no

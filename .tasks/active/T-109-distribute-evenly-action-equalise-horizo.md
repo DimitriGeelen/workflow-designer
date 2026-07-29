@@ -220,8 +220,8 @@ Numeric: spread 132→0; leftmost x 90→90, rightmost right-edge 550→550; 2nd
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-1e78122e
-- **Timestamp:** 2026-07-27T21:20:14Z
+- **Scan ID:** R-a6c7fec7
+- **Timestamp:** 2026-07-29T13:13:36Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

@@ -206,8 +206,8 @@ test -z "$(git diff --name-only -- 'examples/aef-processes/*.workflow.yaml' 'exa
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-40258ff6
-- **Timestamp:** 2026-07-27T21:20:14Z
+- **Scan ID:** R-1b0bed5d
+- **Timestamp:** 2026-07-29T13:13:36Z
 - **Catalogue:** v1.3-seed
 - **Overall:** CONCERN
 - **Needs Human:** no

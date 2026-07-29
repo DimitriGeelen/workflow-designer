@@ -285,8 +285,8 @@ unchanged (auto, no anchors). Remaining Human AC is a taste-check of the connect
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-04fc8d30
-- **Timestamp:** 2026-07-27T21:20:18Z
+- **Scan ID:** R-8f07a59c
+- **Timestamp:** 2026-07-29T13:13:41Z
 - **Catalogue:** v1.3-seed
 - **Overall:** CONCERN
 - **Needs Human:** no

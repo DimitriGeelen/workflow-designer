@@ -227,14 +227,9 @@ test -f .playwright-mcp/t095-clean-click-audit.png
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-7b2ea326
-- **Timestamp:** 2026-07-27T21:20:12Z
+- **Scan ID:** R-44f91533
+- **Timestamp:** 2026-07-29T13:13:34Z
 - **Catalogue:** v1.3-seed
-- **Overall:** CONCERN
+- **Overall:** PASS
 - **Needs Human:** no
-- **Findings:** 1
-
-**Verification-level findings:**
-
-  1. **mock-only-integration** (partial, heuristic) @ AC vs Verification cross-check
-     - evidence: `out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "31 passed, 0 failed"`
+- **Findings:** none

@@ -221,8 +221,8 @@ Element/viewport screenshots taken via the hermetic sidecar+CDP harness (isolate
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-161275f0
-- **Timestamp:** 2026-07-27T21:20:21Z
+- **Scan ID:** R-0991115f
+- **Timestamp:** 2026-07-29T13:13:44Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

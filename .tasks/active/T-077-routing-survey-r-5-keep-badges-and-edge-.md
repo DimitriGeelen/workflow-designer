@@ -187,8 +187,8 @@ diff -q src/aef-workflow-designer.html build/gallery/designer.html
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-630b3105
-- **Timestamp:** 2026-07-27T21:20:09Z
+- **Scan ID:** R-761c49fd
+- **Timestamp:** 2026-07-29T13:13:31Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

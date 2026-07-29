@@ -238,8 +238,8 @@ node tools/_selection-align-verify-cdp.mjs
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-ae94c38f
-- **Timestamp:** 2026-07-27T21:20:16Z
+- **Scan ID:** R-b82fe886
+- **Timestamp:** 2026-07-29T13:13:38Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no

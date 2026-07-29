@@ -423,3 +423,10 @@ learnings:
   date: 2026-07-29
   context: "Resolved issue in T-293"
   application: "Apply when encountering similar retest-link-unreachable-pinned-old-code issues"
+- id: PL-060
+  learning: "AC censuses must strip HTML comments before grepping task files: the task template embeds a literal '- [ ] [REVIEWER]' example line inside its Human-section comment, so raw grep counts one phantom convertible AC per task (T-302 filing counted 53 that did not exist). Use re.sub(r'<!--.*?-->','',text,flags=re.S) first."
+  source: P-001
+  task: T-302
+  date: 2026-07-29
+  context: Added via context agent
+  application: TBD

@@ -205,18 +205,14 @@ refresh (Ctrl+Shift+R) to pick up the build.
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-f22e5827
-- **Timestamp:** 2026-07-27T21:20:15Z
+- **Scan ID:** R-db5ad7b8
+- **Timestamp:** 2026-07-29T13:13:37Z
 - **Catalogue:** v1.3-seed
 - **Overall:** CONCERN
-- **Needs Human:** yes
+- **Needs Human:** no
 - **Findings:** 1
 
 **Per-AC findings:**
 
 - **AC#5 (Agent)** — Verified headless (`tools/_horizontal-spacing-verify-cdp.mjs`, 6/6): on
   - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_horizontal-spacing-verify-cdp.mjs in: Verified headless (`tools/_horizontal-spacing-verify-cdp.mjs`, 6/6): on`
-
-- **Layer-1 escalations:** 1
-  1. **cross-project-blast** (medium) — Cross-project or cross-repo change
-     - matched: `all nodes`

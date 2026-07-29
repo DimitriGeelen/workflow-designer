@@ -242,3 +242,24 @@ parity OK, 24 clean; regen 0/24 drift; screenshots `.playwright-mcp/t101-*`.
 
 ### 2026-07-05T16:26:28Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ea1c1d4a
+- **Timestamp:** 2026-07-29T13:13:35Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 3
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — A committed, re-runnable pass (script/tool, not manual edits) applies `cleanLayout()` to each of the 24 `examples/aef-processes/rendered/*.bpmn` and writes the cleaned geometry back; documented how to
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/bake-clean-layout.py in: A committed, re-runnable pass (script/tool, not manual edits) applies `cleanLayout()` to each of the 24 `examples/aef-processes/rendered/*.bpmn` and w`
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 31
+     - evidence: `bash tests/check-corpus-geometry.sh 2>&1 | tail -1 | grep -q "24 clean, 0 known-legacy, 0 new-fail"`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 34
+     - evidence: `python3 tests/test_editor_bridge_structured_parity.py 2>&1 | grep -q "OK:"`

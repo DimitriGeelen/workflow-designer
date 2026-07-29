@@ -185,8 +185,8 @@ The remaining Human AC is a quick visual taste-check.
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-9706d264
-- **Timestamp:** 2026-07-27T21:20:18Z
+- **Scan ID:** R-1c896a33
+- **Timestamp:** 2026-07-29T13:13:40Z
 - **Catalogue:** v1.3-seed
 - **Overall:** CONCERN
 - **Needs Human:** no
