@@ -40,9 +40,9 @@ Dogfood round #4 of 4 (AEF T-2667, rail 321/322): AEF seeded draft-knowledge-lev
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Draft fetched from AEF's served designer (sanctioned HTTP), sha recorded, structure independently re-counted (nodes/flows/lanes/gateways vs their claimed 16n/14f/2 lanes) and validator run (tools/validate-workflow.py) with findings quoted verbatim
-- [ ] Doctrine cross-check against framework reality: promote.sh gateway enum {promoted|ready|almost|building} at the cited lines, capture paths (add-learning/fix-learned), harvest+consolidate strands, no-ratification claim — each confirmed or corrected with file:line evidence from the vendored tree
-- [ ] Rail verdict posted answering Q1 (strand cohesion), Q2 (refusal end), Q3 (dead-leg convention), each grounded in corpus precedent or validator behavior (not preference); offsets recorded in the task Updates and rail acked
+- [x] Draft fetched from AEF's served designer (sanctioned HTTP), sha recorded (d3b83078, 16810 B), structure independently re-counted — 16 nodes (4 starts + 6 serviceTasks + 1 XOR + 5 ends) / 14 flows / 2 lanes, gateway fan 4-way: MATCH vs claimed 16n/14f/2 — and validator run: `VALID — no findings`
+- [x] Doctrine cross-check vs vendored tree, all CONFIRM: enum ladder promoted|ready≥3|almost=2|building<2 in .agentic-framework/lib/promote.sh (~201-209 our pin vs their 202-208 — pin drift, block matches); already-promoted sole exit-1 (~256); <3 warns-and-proceeds (write path); practice write dict `'status': 'active'`, no ratification; fix-learned bin/fw:5195 (their 5216, drift). One correction sent: `fw consolidate` IS a CLI route (bin/fw:5082) — "no caller" is true only programmatically
+- [x] Rail verdict posted at offset 324 (reply to 321, mentions AEF): Q1 ONE map (one artifact lifecycle, disconnection is the finding; 4 starts = new corpus max, validator unions reachability), Q2 plain endEvent + terminalKind="error" (7 corpus precedents, no typed errorEndEvent in dialect), Q3 keep T-2659 honesty notes + adopt grep-able `DEAD:` prefix, visual marker only as future inception. Acked through 322 (receipt 323); next read cursor 325
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -108,6 +108,12 @@ Dogfood round #4 of 4 (AEF T-2667, rail 321/322): AEF seeded draft-knowledge-lev
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# Round-4 doctrine anchors hold in the vendored tree
+out=$(grep -c "'status': 'active'" .agentic-framework/lib/promote.sh); test "$out" -ge 1
+out=$(grep -c 'consolidate.py' .agentic-framework/bin/fw); test "$out" -ge 1
+# Fetched draft still validates (session artifact)
+python3 tools/validate-workflow.py /tmp/claude-0/-opt-832-Workflow-designer/500d44d9-1e04-4f5a-b40e-f29988622253/scratchpad/draft-knowledge-leveling-v2.bpmn
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -170,6 +176,12 @@ Dogfood round #4 of 4 (AEF T-2667, rail 321/322): AEF seeded draft-knowledge-lev
      legacy tasks lacking this section. -->
 
 ## Updates
+
+
+### 2026-07-29T13:50:00Z — round #4 verdict delivered [agent]
+- **Action:** Fetched draft-knowledge-leveling v2 from AEF :3001 (sha d3b83078), validator VALID zero findings (second clean-at-seed draft in a row), structure re-count MATCH, four doctrine claims confirmed against our vendored pin, one precision correction (consolidate has a CLI caller, no programmatic one).
+- **Rail:** verdict at offset 324 (reply to 321); their 318-322 read and acked through 322 (receipt 323). Q1: one map. Q2: terminalKind="error" refusal end. Q3: DEAD: note-prefix convention, no visual marker yet.
+- **Watch:** their v3 will flip the two upstream-fixed dead-leg notes (T-2676/T-2677); still-dead count then 4. Next read cursor 325.
 
 ### 2026-07-29T13:20:00Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
