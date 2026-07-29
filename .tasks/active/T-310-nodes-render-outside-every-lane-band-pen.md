@@ -4,9 +4,9 @@ name: "Nodes render outside every lane band (pen_inbound_classifier): long trunk
 description: >
   Operator field report (2026-07-29 screenshot, map pen_inbound_classifier, ~53 nodes / 5 lanes): roughly 14 nodes render below every lane band, in unlaned space past the 'Add another lane' strip. Long trunk edges spanning the full canvas width are the visible symptom, not the cause. Two candidate causes: (a) nodes absent from any lane's flowNodeRef, which tools/validate-workflow.py already detects as W-XML-NODE-UNASSIGNED; (b) nodes assigned to a lane but positioned outside its y-band because lane height is not grown to fit content, which no rule covers. Map bytes not reachable from the agent side - absent from our corpus, our gallery /api/list and AEF's - so the discriminating test needs the operator to supply the map.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: [designer, layout, lanes, routing]
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-29T20:38:03Z
-last_update: 2026-07-29T20:51:48Z
-date_finished: null
+last_update: 2026-07-29T21:10:26Z
+date_finished: 2026-07-29T21:10:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -362,6 +362,65 @@ forced to be revisited rather than quietly going stale.
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-07-29 — the filed cause was two causes, and they turned out to be one
+
+- **What changed:** filed with two competing hypotheses — (a) nodes in no lane's `flowNodeRef`,
+  (b) nodes in a lane but positioned outside its band because lane height doesn't grow. Both were
+  wrong as stated. The real mechanism is a *disagreement* between declared membership and stored
+  position that the importer never reconciled, which presents as (a) or (b) depending on which end
+  you look from. Lane height was never involved.
+- **Plan impact:** the discriminating test in the filing description — "needs the operator to
+  supply the map" — became unnecessary. AEF's rail-331 report gave a reachable reproduction
+  (`draft-knowledge-leveling` v5/v7 on `:3001`) of the same class, so the root cause was pinned
+  without `pen_inbound_classifier` ever being fetched. The operator's map is still unconfirmed as
+  this exact class — stated plainly rather than assumed.
+- **Triggered:** T-311 (doc-comment data loss, from the same rail pull); rail post 333 answering
+  AEF's open question on lane membership; a note carried into T-309 that surfacing the validator
+  would NOT have caught this, which narrows what that inception can claim.
+
+### 2026-07-29 — a defect class both toolchains were blind to at once
+
+- **What changed:** the conflict fixture validates **clean** on both validator paths. This is not
+  a missing rule, it is a missing *model*: geometry is not represented in either checker, so the
+  class is unreachable by rule-adding on the current architecture. AEF independently reported
+  their lint was blind to the doc-comment loss for the structurally identical reason.
+- **Plan impact:** the guard had to be a browser-level test rather than a validator rule — which
+  is why this task carries a CDP harness rather than a `W-` rule.
+- **Triggered:** a Verification line asserting the fixture stays structurally valid, so the
+  "geometry-only" claim is forced to be re-examined if a future rule ever does catch it.
+
+## Recommendation
+
+**Recommendation:** GO — release-eligible; the three open items are human taste, not defects.
+
+**Rationale:**
+
+The data-loss half is closed and closed structurally: the contradiction is reconciled at parse, so
+no contradictory state exists for a later gesture to resolve. That is stronger than guarding the
+gesture, because it removes the thing being guarded rather than adding a rule that a future edit
+could forget. The `laneAtY` orphan-adoption edge is closed alongside it.
+
+Risk to existing work is measured rather than argued: byte-identity against the pre-change ref
+shows all 24 corpus maps export identically, so nothing well-formed moves. The only maps this
+touches are ones that were already internally inconsistent — which is the entire point.
+
+What is genuinely open is taste, and it is deliberately left to the operator: whether "declared
+membership wins" is the right default (the opposite policy, flag-don't-move, is one `if` away),
+and whether the stacked-advisory overlap needs solving. Neither blocks release.
+
+**Evidence:**
+
+- P-011 verification gate: **8/8 PASS**.
+- Byte-identity vs `df5f5b6`: **24 maps, 24 identical, 0 drifted, 0 errors**.
+- `tools/_t310-lane-position-conflict-cdp.mjs`: 8/8 legs green; **teeth-proven** — the same
+  harness against the pre-fix source goes red on 6 real assertions, including the exact AEF
+  inversion and the orphan adoption.
+- Bridge suite **45 passed / 0 failed** (44 before this leg); validator **34 / 0**.
+- Independent reproduction of the mechanism from AEF's served bytes: 10/12 nodes inverted v5→v7
+  with positions barely moved (recorded in `## Context`).
+- 3 screenshots captured **and read**; the one regression they exposed (stacked nudge overlapping
+  a top-lane node) is written up rather than omitted.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -392,3 +451,25 @@ forced to be revisited rather than quietly going stale.
 
 ### 2026-07-29T20:51:48Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4d639d42
+- **Timestamp:** 2026-07-29T21:11:17Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#5 (Agent)** — A fixture reproducing the defect exists (`tests/fixtures/.../lane-position-conflict.bpmn`:
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/fixtures/.../lane-position-conflict.bpmn in: A fixture reproducing the defect exists (`tests/fixtures/.../lane-position-conflict.bpmn`:`
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 47
+     - evidence: `python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/lane-position-conflict.bpmn --format xml > /dev/null`
+
+### 2026-07-29T21:10:26Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

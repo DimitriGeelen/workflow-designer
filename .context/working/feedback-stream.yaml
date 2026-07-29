@@ -3185,3 +3185,39 @@ task_id: T-244
 payload:
   overall: UNVERIFIED
   claim_count: 0
+---
+kind: scan_emitted
+timestamp: '2026-07-29T20:08:23Z'
+scan_id: R-5caa1c1e
+task_id: T-308
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-29T20:08:23Z'
+scan_id: R-5caa1c1e
+task_id: T-308
+payload:
+  task_file: .tasks/active/T-308-bare-catch-event-neutral-rendering-when-.md
+---
+kind: scan_emitted
+timestamp: '2026-07-29T21:11:17Z'
+scan_id: R-4d639d42
+task_id: T-310
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-29T21:11:17Z'
+scan_id: R-4d639d42
+task_id: T-310
+payload:
+  task_file: .tasks/active/T-310-nodes-render-outside-every-lane-band-pen.md
