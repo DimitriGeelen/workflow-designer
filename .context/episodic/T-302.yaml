@@ -1,0 +1,181 @@
+# ============================================================================
+# EPISODIC MEMORY - T-302: REVIEWER-AC conversion sweep: automate the deterministic half of the approvals queue
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T13:19:40Z
+# ============================================================================
+
+task_id: T-302
+task_name: "REVIEWER-AC conversion sweep: automate the deterministic half of the approvals queue"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-29T11:28:25Z
+completed: 2026-07-29T13:19:38Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-07-29T13:29:02+02:00
+last_commit: 2026-07-29T15:18:25+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  filed REVIEWER-AC conversion sweep (operator directive: mass-automate approvals queue via reviewer agent) — census 53 [REVIEWER] deterministic ACs convertible per T-1811/T-1878 vs 128 [REVIEW] taste ACs that stay human; reviewer trial on T-041 returns CONCERN w/ findings (tool is strict, not rubber-stamp); guardrails encoded in ACs: no [REVIEW] conversion, no agent-ticked Human ACs, no batch-close, per-task evidence mandatory; sweep executes next window (budget 270K/293K). reviewer sweep executed — census corrected (0 real [REVIEWER] ACs; filing count of 53 was template-comment pollution, PL-060), fw reviewer run on all 76 queue tasks (56 PASS / 20 CONCERN advisory), T-090 RUBBER-STAMP AC converted per T-1811/T-1878 (PL-027 mis-prefix; curl 200 evidence), 65 taste + 10 decision ACs stay human by rule; operator batch checklist at docs/reports/T-302-reviewer-sweep.md (66 close-ready one-liners, surface-grouped)
+
+# Key outcomes
+outcomes:
+  - 'Sweep inventory built comment-stripped: all 76 active tasks with unchecked Human `[REVIEW]`/`[REVIEWER]` ACs listed with Steps/Expected extracted (scratchpad t302-review-acs.json; classification in docs/reports/T-302-reviewer-sweep.md). Census defect documented: 0 real [REVIEWER] ACs — filing count of 53 was HTML-comment pollution'
+  - 'Per queue task: `fw reviewer T-XXX` run on all 76 (verdict section written into each task file by the tool: 56 PASS / 20 CONCERN, all CONCERN findings advisory hygiene lints); the one deterministic AC''s own Expected check executed (T-090: curl → HTTP 200 + title, evidence in T-090 Updates)'
+  - 'Deterministic mis-prefixed ACs converted per T-1811/T-1878: T-090''s [RUBBER-STAMP] AC moved to `### Agent` ticked with evidence (its curl checks already lived in ## Verification); no other AC qualified (65 taste, 10 decision gates — listed as exceptions with reason in the report)'
+  - 'Zero taste `[REVIEW]` ACs converted, zero Human ACs ticked by the agent, zero batch-closes: T-090 (Human section emptied, owner human) listed for the operator with a one-line close command, not auto-completed'
+  - 'Sweep summary posted: converted/exception counts + residual human queue (65 taste + 10 decisions) in docs/reports/T-302-reviewer-sweep.md with a surface-grouped batch checklist and per-task close commands, and in this task''s Updates'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'reviewer sweep executed — census corrected (0 real [REVIEWER] ACs; filing count of 53 was template-comment pollution, PL-060), fw reviewer run on all 76 queue tasks (56 PASS / 20 CONCERN advisory), T-090 RUBBER-STAMP AC converted per T-1811/T-1878 (PL-027 mis-prefix; curl 200 evidence), 65 taste + 10 decision ACs stay human by rule; operator batch checklist at docs/reports/T-302-reviewer-sweep.md (66 close-ready one-liners, surface-grouped)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+  - decision: '2026-07-29 — Scope after census correction (0 real [REVIEWER] ACs)'
+    chose: 'Amend the task ACs to the corrected reality; convert only the PL-027 deterministic mis-prefix (T-090); leave all 65 taste [REVIEW] ACs and all 10 decision gates human; deliver the automation value as (a) reviewer verdicts recorded across the whole queue and (b) a surface-grouped batch checklist so the operator can clear the queue in one gallery pass.'
+    rationale: 'The operator''s directive targets the queue''s overhead, not its sovereignty. Taste verdicts and go/no-go decisions are exactly what the Human AC mechanism exists for (PL-027 inverse; Autonomous Mode Boundaries). Reclassifying them would be automating away the human, not the toil.'
+    alternatives_rejected: ['(a) Declaring the sweep vacuously complete against the literal "[REVIEWER]" wording — dishonest no-op; (b) converting taste ACs whose Steps merely contain URLs/commands — Steps being copy-pasteable doesn''t make the Expected clause deterministic; (c) silently keeping the false "53 convertible" premise.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-29.yaml'
+  - '.context/audits/cron/2026-07-29-1100.yaml'
+  - '.context/audits/cron/2026-07-29-1115.yaml'
+  - '.context/audits/cron/2026-07-29-1130.yaml'
+  - '.context/audits/cron/2026-07-29-1145.yaml'
+  - '.context/audits/cron/2026-07-29-1200.yaml'
+  - '.context/audits/cron/2026-07-29-1215.yaml'
+  - '.context/audits/cron/2026-07-29-1230.yaml'
+  - '.context/audits/cron/2026-07-29-1245.yaml'
+  - '.context/audits/cron/2026-07-29-1300.yaml'
+  - '.context/audits/cron/2026-07-29-1315.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/watchtower.log'
+  - 'docs/reports/T-302-reviewer-sweep.md'
+  - '.tasks/active/T-041-render-inception-review-and-run-operator.md'
+  - '.tasks/active/T-073-router-straightening-tolerance--near-ali.md'
+  - '.tasks/active/T-074-magnetic-drag-snapping--lane-centre-neig.md'
+  - '.tasks/active/T-075-editor-settings-page--consolidate-routin.md'
+  - '.tasks/active/T-076-routing-survey-r-2-loop-back-edges-shoul.md'
+  - '.tasks/active/T-077-routing-survey-r-5-keep-badges-and-edge-.md'
+  - '.tasks/active/T-079-adaptive-alignment-rows-sub-row-snap-lin.md'
+  - '.tasks/active/T-081-subprocess-node-type-phase-1-collapsed-o.md'
+  - '.tasks/active/T-082-edge-label-placement-pass-measure-after-.md'
+  - '.tasks/active/T-083-label-halo-theme-background-rect-behind-.md'
+  - '.tasks/active/T-084-lane-header-ellipsis-truncate-vertical-l.md'
+  - '.tasks/active/T-085-view-density--label-visibilitysize-contr.md'
+  - '.tasks/active/T-087-node-label-fit-ladder-long-task-names-mu.md'
+  - '.tasks/active/T-089-edge-label-wrap-multi-line-edge-labels-s.md'
+  - '.tasks/active/T-090-watchtower-review-pages-all-500---dispat.md'
+  - '.tasks/active/T-094-align-rows-one-shot-action-snap-lane-row.md'
+  - '.tasks/active/T-095-clean-layout-composite-action-tidy--bran.md'
+  - '.tasks/active/T-096-density-setting-has-no-visible-effect---.md'
+  - '.tasks/active/T-097-crossing-aware-branch-ordering-order-fan.md'
+  - '.tasks/active/T-098-edge-channel-separation-setting-corridor.md'
+  - '.tasks/active/T-099-clean-layout-on-import-opt-in-setting-ap.md'
+  - '.tasks/active/T-100-clean-layout-nudge-offer-one-click-clean.md'
+  - '.tasks/active/T-101-bake-clean-layout-into-the-rendered-corp.md'
+  - '.tasks/active/T-102-mapmessiness-false-positive-branch-stack.md'
+  - '.tasks/active/T-104-density-and-branch-pitch-view-settings-a.md'
+  - '.tasks/active/T-105-baked-verification-gate-gateway-label-collision.md'
+  - '.tasks/active/T-106-routing-margin-setting-reserved-peripher.md'
+  - '.tasks/active/T-107-align-columns-one-shot-action-snap-near-.md'
+  - '.tasks/active/T-108-vertical-spacing-control-and-density-bra.md'
+  - '.tasks/active/T-109-distribute-evenly-action-equalise-horizo.md'
+  - '.tasks/active/T-114-obstacle-avoiding-orthogonal-edge-routin.md'
+  - '.tasks/active/T-115-horizontal-spacing-control-mirror-of-ver.md'
+  - '.tasks/active/T-116-align-in-middle-wire-align-columns-centr.md'
+  - '.tasks/active/T-117-de-jog-routed-edges-collapse-tiny-interi.md'
+  - '.tasks/active/T-118-endpoint-straight-snap-collapse-endpoint.md'
+  - '.tasks/active/T-119-consolidate-split-migrations-two-step-st.md'
+  - '.tasks/active/T-125-vertical-lane-compaction-in-cleanlayout-.md'
+  - '.tasks/active/T-127-editor-repo-save-versioning-revert-autoreload.md'
+  - '.tasks/active/T-132-b5-general-undo-redo-history-stack.md'
+  - '.tasks/active/T-134-selection-scoped-align-and-distribute-fo.md'
+  - '.tasks/active/T-136-endpoint-overlap-selection-blocked-at-convergence.md'
+  - '.tasks/active/T-137-loop-back-edges-with-persisted-detoury-c.md'
+  - '.tasks/active/T-139-retire-align-columns-and-distribute-even.md'
+  - '.tasks/active/T-141-guard-save-to-project-against-the-pristi.md'
+  - '.tasks/active/T-144-in-editor-open-from-project-modal-uses-a.md'
+  - '.tasks/active/T-164-consistent-tile-hover-zoom-in-the-versio.md'
+  - '.tasks/active/T-165-open-this-version-action-in-the-versions.md'
+  - '.tasks/active/T-166-delete-a-workflow-from-the-project-archi.md'
+  - '.tasks/active/T-167-version-level-delete-and-keep-only-lates.md'
+  - '.tasks/active/T-168-connection-point-anchoring-attach-edges-.md'
+  - '.tasks/active/T-172-drag-to-place-nodes-from-the-palette-ont.md'
+  - '.tasks/active/T-176-offline-harden-the-designer-inline-or-se.md'
+  - '.tasks/active/T-184-child-3-reverse-discovery-aef-record---e.md'
+  - '.tasks/active/T-185-child-4-collaboration-and-concurrency-pe.md'
+  - '.tasks/active/T-186-child-5-hosting-and-tenancy-tenant-neutr.md'
+  - '.tasks/active/T-189-iw-9-v11-mapping-standard-delta--collaps.md'
+  - '.tasks/active/T-195-draft-g-3-collapsed-inception-v11-delta-.md'
+  - '.tasks/active/T-197-iw-9-editor-ui-retire-node-owner-overrid.md'
+  - '.tasks/active/T-204-typed-bpmn-event-palette-errortimermessa.md'
+  - '.tasks/active/T-214-pair-draft-sessionhandover-corpus-diagra.md'
+  - '.tasks/active/T-215-pair-draft-dispatch-loop-corpus-diagram-.md'
+  - '.tasks/active/T-228-s4-off-page-claim-ux--create-from-pendin.md'
+  - '.tasks/active/T-240-uuid-workflowref-auto-resolve-jump-targe.md'
+  - '.tasks/active/T-244-bare-catch-event-rendering-neutral-untyp.md'
+  - '.tasks/active/T-245-canvas-view-chrome-controls-paletteprope.md'
+  - '.tasks/active/T-255-pool-right-edge-resize-handle-authored-p.md'
+  - '.tasks/active/T-258-annotation-seam-v0-postmessage-aefreadya.md'
+  - '.tasks/active/T-264-save-target-guard-set-id-field-collision.md'
+  - '.tasks/active/T-277-ratify-process-level-conformance-key-and.md'
+  - '.tasks/active/T-279-guided-mode-procedural-guardrail-package.md'
+  - '.tasks/active/T-280-workflow-fabric-sd-15-process-dependency.md'
+  - '.tasks/active/T-281-audience-render-lenses-sd-1422-businessl.md'
+  - '.tasks/active/T-282-callactivity-node-type-sd-9-sync-sub-wor.md'
+  - '.tasks/active/T-286-edge-arrowheads-render-above-node-id-bad.md'
+  - '.tasks/active/T-293-endpoint-reconnect-drag-hand-often-fails.md'
+  - '.tasks/active/T-301-store-card-id-vs-workflowmeta-id-seam-ve.md'
+  - '.tasks/active/T-302-reviewer-ac-conversion-sweep-automate-th.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-29T13:29:02"
+    action: "T-302: filed REVIEWER-AC conversion sweep (operator directive: mass-automate approvals queue via reviewer agent) — census 53 [REVIEWER] deterministic ACs convertible per T-1811/T-1878 vs 128 [REVIEW] taste ACs that stay human; reviewer trial on T-041 returns CONCERN w/ findings (tool is strict, not rubber-stamp); guardrails encoded in ACs: no [REVIEW] conversion, no agent-ticked Human ACs, no batch-close, per-task evidence mandatory; sweep executes next window (budget 270K/293K)"
+  - time: "2026-07-29T15:18:25"
+    action: "T-302: reviewer sweep executed — census corrected (0 real [REVIEWER] ACs; filing count of 53 was template-comment pollution, PL-060), fw reviewer run on all 76 queue tasks (56 PASS / 20 CONCERN advisory), T-090 RUBBER-STAMP AC converted per T-1811/T-1878 (PL-027 mis-prefix; curl 200 evidence), 65 taste + 10 decision ACs stay human by rule; operator batch checklist at docs/reports/T-302-reviewer-sweep.md (66 close-ready one-liners, surface-grouped)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 111 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 111
+  commits: 2
+  files_changed: 98
+  lines_added: 1927
+  lines_removed: 448
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-302-reviewer-ac-conversion-sweep-automate-th.md
+generated_by: context-agent-hybrid

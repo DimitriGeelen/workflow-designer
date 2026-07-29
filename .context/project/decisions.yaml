@@ -983,3 +983,10 @@ decisions:
     date: 2026-07-29
     task: T-300
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-120
+    decision: "Amend the task ACs to the corrected reality; convert only the PL-027 deterministic mis-prefix (T-090); leave all 65 taste [REVIEW] ACs and all 10 decision gates human; deliver the automation value as (a) reviewer verdicts recorded across the whole queue and (b) a surface-grouped batch checklist so the operator can clear the queue in one gallery pass."
+    scope: project
+    date: 2026-07-29
+    task: T-302
+    rationale: "Auto-captured from task file on completion"

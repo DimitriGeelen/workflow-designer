@@ -4,10 +4,10 @@ name: "REVIEWER-AC conversion sweep: automate the deterministic half of the appr
 description: >
   Operator directive (2026-07-29): mass-automate the verifications queue via the reviewer agent. Census: 53 [REVIEWER] Human ACs (deterministic, convertible per T-1811/T-1878) vs 128 [REVIEW] (taste - stay human). Sweep: per task run fw reviewer + the AC's own Steps commands; convert passing [REVIEWER] ACs to Agent ACs with the command in ## Verification; record per-task evidence; suggest completion only where no Human ACs remain. NO batch-closing, NO [REVIEW] conversion, NO Human-AC ticking by agent.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-29T11:28:25Z
-last_update: 2026-07-29T13:09:47Z
-date_finished: null
+last_update: 2026-07-29T13:19:38Z
+date_finished: 2026-07-29T13:19:38Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -110,8 +110,11 @@ Operator directive (2026-07-29): mass-automate the approvals/verifications queue
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-# Census is honest: zero unchecked [REVIEWER] ACs outside HTML comments in active tasks
-out=$(python3 -c "import glob,re; print(sum(len(re.findall(r'^\s*- \[ \] \[REVIEWER\]', re.sub(r'<!--.*?-->','',open(f).read(),flags=re.S), re.M)) for f in glob.glob('.tasks/active/*.md')))"); test "$out" = "0"
+# Census is honest: zero unchecked [REVIEWER] ACs outside HTML comments in active tasks.
+# NB: the comment-stripping pattern is assembled at runtime ('<'+'!--...') because the
+# P-011 extractor strips HTML comments from this section — a literal comment-shaped
+# regex here gets eaten by the gate itself before eval (discovered completing T-302).
+out=$(python3 -c "import glob,re; pat='<'+'!--.*?--'+'>'; print(sum(len(re.findall(r'^\s*- \[ \] \[REVIEWER\]', re.sub(pat,'',open(f).read(),flags=re.S), re.M)) for f in glob.glob('.tasks/active/*.md')))"); test "$out" = "0"
 # Sweep report exists with the classification and checklist
 out=$(grep -c "batch checklist" docs/reports/T-302-reviewer-sweep.md); test "$out" -ge 1
 # Reviewer verdict recorded in the full queue (76 files carry a verdict section)
@@ -200,3 +203,15 @@ out=$(grep -c "^- \[ \] \[REVIEW\]" .tasks/active/T-090-watchtower-review-pages-
 
 ### 2026-07-29T13:09:47Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-83807d2a
+- **Timestamp:** 2026-07-29T13:19:39Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-07-29T13:19:38Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
