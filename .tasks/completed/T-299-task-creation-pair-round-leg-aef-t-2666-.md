@@ -1,13 +1,13 @@
 ---
-id: T-298
-name: "Error-escalation-ladder pair leg (AEF T-2665 round): code-truth verify the ladder article, report on rail"
+id: T-299
+name: "Task-creation pair round leg (AEF T-2666 dogfood 3)"
 description: >
-  Second pairing leg promised at rail 306/311: trace error-escalation-ladder.workflow.yaml against diagnose.sh ladder block + CLAUDE.md ladder definition, rev if code-truth mismatch, report on rail (healing-loop leg done in T-297 at rail 310)
+  Pair round #3: validate AEF draft-task-creation v2 bytes with our validator, answer mapping-v1 taste questions (multiple start events, activation gateway, owner-validation conformance hole), pair against our task-lifecycle/task-gate articles, report on rail
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-29T06:31:57Z
-last_update: 2026-07-29T07:43:14Z
-date_finished: null
+created: 2026-07-29T07:38:22Z
+last_update: 2026-07-29T07:42:33Z
+date_finished: 2026-07-29T07:42:33Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,49 +30,29 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-298: Error-escalation-ladder pair leg (AEF T-2665 round): code-truth verify the ladder article, report on rail
+# T-299: Task-creation pair round leg (AEF T-2666 dogfood 3)
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+AEF opened pair round #3 (rail 314, their T-2666, dogfood #3 of 4): draft-task-creation v2
+at http://192.168.10.107:3001/api/version?id=draft-task-creation (14 nodes / 20 flows / 3 lanes),
+modelling the task-creation ceremony (fw work-on → create-task.sh path, T-555 validation,
+ID keylock, 7-way workflow-type gateway, G-020 readiness gate). They applied the T-2665-round
+dialect teaching at seed. Asks: (1) validator over the draft bytes; (2) pair against our
+catalog's task-creation article (closest: task-lifecycle / task-gate); (3) three taste
+questions — multiple start events in mapping-v1, activation gateway vs aef:meta note for
+the bare `fw task create` path, and a live conformance hole (is_valid_owner never called
+at creation; no status predicate) → wire-the-predicates vs pin-the-hole.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
-
-### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+- [x] AEF draft v2 bytes fetched (sanctioned HTTP) and run through tools/validate-workflow.py; full findings list reported verbatim on the rail — VALID, zero findings (sha 15565384…, 16765 B); structure independently re-counted 14n/20f/2 starts/1 end/7-way fw_gw_type, matches their manifest
+- [x] Taste question 1 answered from spec+code evidence: YES — mapping-v1 §5 table has no start-cardinality rule; validator unions reachability from all startEvents (validate-workflow.py:554-566); 2 of our 24 shipped maps are dual-start (context-memory, error-escalation-ladder)
+- [x] Taste question 2 answered: FORK the activation gateway — real divergent code path (bare `fw task create`, no --start) is control flow not annotation; the captured/no-focus end is the exact startEvent of our task-lifecycle article ("Task captured (filed)"), making it a documented F5-class cross-article seam
+- [x] Taste question 3 answered: BOTH in sequence — pin-the-hole in the article (their fw_4_write note = our healing-loop v2 honesty class), wire-the-predicates as its own Level-C bug task (one bug = one task; owner + status predicates are two independent holes), rev article when fix lands; G-019: concerns:1151 open until predicate is CALLED
+- [x] Pairing check done: no task-creation article in our catalog — their draft fills the hole upstream; seams: both their ends feed task-lifecycle's start, their G-020 node overlaps task-gate (creation-time readiness vs tool-call-time enforcement); cross-reference, no competing article
+- [x] Rail reply posted to offset 314 (landed at 316); memory file rail frontier updated
 
 ## Verification
 
@@ -106,6 +86,10 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+out=$(python3 tools/validate-workflow.py /tmp/claude-0/-opt-832-Workflow-designer/500d44d9-1e04-4f5a-b40e-f29988622253/scratchpad/draft-task-creation-v2.bpmn 2>&1); echo "$out" | grep -q "VALID"
+[ $(grep -c "<bpmn:startEvent" examples/aef-processes/rendered/context-memory.bpmn) -eq 2 ]
+[ $(grep -c "<bpmn:startEvent" examples/aef-processes/rendered/error-escalation-ladder.bpmn) -eq 2 ]
 
 ## RCA
 
@@ -170,11 +154,24 @@ date_finished: null
 
 ## Updates
 
-### 2026-07-29T06:31:57Z — task-created [task-create-agent]
+### 2026-07-29T07:38:22Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-298-error-escalation-ladder-pair-leg-aef-t-2.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-299-task-creation-pair-round-leg-aef-t-2666-.md
 - **Context:** Initial task creation
 
-### 2026-07-29T07:43:14Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
-- **Change:** horizon: later → now (auto-sync)
+### 2026-07-29 — round #3 verdict delivered (same session)
+- **Action:** Fetched draft v2 (raw BPMN, 16765 B, sha 15565384…), validator VALID zero findings — first AEF draft of the four to seed clean (round-#2 teaching applied at seed). Answered all three taste questions with cited evidence (Q1 multi-start YES: spec silence + validator union-reachability + 2 in-corpus precedents; Q2 fork the activation gateway: control flow + task-lifecycle seam; Q3 pin-in-article AND wire-as-own-task: healing-loop v2 + T-295 + G-019 precedents). Pairing: no catalog duplication, two seams documented (task-lifecycle start, task-gate overlap).
+- **Output:** Rail reply at offset 316 (reply to 314); acked through 314 at 315.
+- **Context:** Also received at 313: AEF 0.8.0 re-pin PASS (their T-2673) — :3001 now serves the T-293 fix; healing-loop pair leg confirmed closed both sides.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a9c69b35
+- **Timestamp:** 2026-07-29T07:42:34Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-07-29T07:42:33Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

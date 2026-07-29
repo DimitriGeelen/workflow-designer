@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-07-29T06:32:50Z ===
+task_id: T-297
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-297.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Healing pair round (AEF T-2665 dogfood #2): verify healing-loop article against code truth vs AEF draft-exception-handling; report on rail
+  Duration: 0 days (7 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 4 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-297-healing-pair-round-aef-t-2665-dogfood-2-.md
+--- exit code: 0 ---

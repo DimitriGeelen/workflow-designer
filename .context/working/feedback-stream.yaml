@@ -1459,3 +1459,75 @@ scan_id: R-cdfd5c97
 task_id: T-290
 payload:
   task_file: .tasks/active/T-290-audit-warn-remediation-2-designer-ghosts.md
+---
+kind: scan_emitted
+timestamp: '2026-07-29T06:16:15Z'
+scan_id: R-89553ce4
+task_id: T-295
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-29T06:16:15Z'
+scan_id: R-89553ce4
+task_id: T-295
+payload:
+  task_file: .tasks/active/T-295-healing-resolvesh-corrupts-learningsyaml.md
+---
+kind: scan_emitted
+timestamp: '2026-07-29T06:24:18Z'
+scan_id: R-51e7ac65
+task_id: T-296
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-29T06:24:18Z'
+scan_id: R-51e7ac65
+task_id: T-296
+payload:
+  task_file: .tasks/active/T-296-cut-designer-release-080-t-286-badge-z-o.md
+---
+kind: scan_emitted
+timestamp: '2026-07-29T06:32:49Z'
+scan_id: R-e8e674e6
+task_id: T-297
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-29T06:32:49Z'
+scan_id: R-e8e674e6
+task_id: T-297
+payload:
+  task_file: .tasks/active/T-297-healing-pair-round-aef-t-2665-dogfood-2-.md
+---
+kind: scan_emitted
+timestamp: '2026-07-29T07:42:34Z'
+scan_id: R-a9c69b35
+task_id: T-299
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-29T07:42:34Z'
+scan_id: R-a9c69b35
+task_id: T-299
+payload:
+  task_file: .tasks/active/T-299-task-creation-pair-round-leg-aef-t-2666-.md

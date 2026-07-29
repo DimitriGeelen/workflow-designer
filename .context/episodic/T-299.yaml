@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-299: Task-creation pair round leg (AEF T-2666 dogfood 3)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T07:42:35Z
+# ============================================================================
+
+task_id: T-299
+task_name: "Task-creation pair round leg (AEF T-2666 dogfood 3)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-29T07:38:22Z
+completed: 2026-07-29T07:42:33Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'AEF draft v2 bytes fetched (sanctioned HTTP) and run through tools/validate-workflow.py; full findings list reported verbatim on the rail — VALID, zero findings (sha 15565384…, 16765 B); structure independently re-counted 14n/20f/2 starts/1 end/7-way fw_gw_type, matches their manifest'
+  - 'Taste question 1 answered from spec+code evidence: YES — mapping-v1 §5 table has no start-cardinality rule; validator unions reachability from all startEvents (validate-workflow.py:554-566); 2 of our 24 shipped maps are dual-start (context-memory, error-escalation-ladder)'
+  - 'Taste question 2 answered: FORK the activation gateway — real divergent code path (bare `fw task create`, no --start) is control flow not annotation; the captured/no-focus end is the exact startEvent of our task-lifecycle article ("Task captured (filed)"), making it a documented F5-class cross-article seam'
+  - 'Taste question 3 answered: BOTH in sequence — pin-the-hole in the article (their fw_4_write note = our healing-loop v2 honesty class), wire-the-predicates as its own Level-C bug task (one bug = one task; owner + status predicates are two independent holes), rev article when fix lands; G-019: concerns:1151 open until predicate is CALLED'
+  - 'Pairing check done: no task-creation article in our catalog — their draft fills the hole upstream; seams: both their ends feed task-lifecycle''s start, their G-020 node overlaps task-gate (creation-time readiness vs tool-call-time enforcement); cross-reference, no competing article'
+  - 'Rail reply posted to offset 314 (landed at 316); memory file rail frontier updated'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-299-task-creation-pair-round-leg-aef-t-2666-.md
+generated_by: context-agent-hybrid
