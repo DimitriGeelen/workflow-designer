@@ -1,10 +1,10 @@
 # AEF Workflow Designer — release manifest. Content-derived, deterministic.
 # AEF vendors a pinned copy of the artifact named below and verifies its sha256.
 # Protocol: docs/aef-designer-integration-protocol.md
-latest: "0.7.1"
-artifact: "dist/aef-workflow-designer-0.7.1.html"
-sha256: "d2bf0d633e9e347b3429f8c22f194d27d673d05e11650d32c1cb6a71359ca353"
-bytes: 890278
+latest: "0.8.0"
+artifact: "dist/aef-workflow-designer-0.8.0.html"
+sha256: "cab3c75183979b0e15e23192518f9360ea12fe33b6a4f78641d7e264f6110935"
+bytes: 903600
 source: "src/aef-workflow-designer.html"
 # T-258/T-246: structured capability flags — a consumer (AEF) self-configures
 # conditional behaviour at re-pin by reading these instead of sniffing bytes.
