@@ -107,21 +107,30 @@ do_resolve() {
     # Add learning to learnings.yaml
     local learnings_file="$CONTEXT_DIR/project/learnings.yaml"
     if [ -f "$learnings_file" ]; then
-        local max_lid=$(grep "^  - id: L-" "$learnings_file" | sed 's/.*L-0*//' | sort -n | tail -1)
+        # T-295: match ids at ANY indent (column-0 files were invisible to the
+        # old '^  - id: L-' scan, so every run re-minted L-001), and consider
+        # numeric suffixes only.
+        local max_lid=$(grep -E "^[[:space:]]*- id: L-[0-9]+" "$learnings_file" | sed 's/.*L-0*//' | sort -n | tail -1)
         local next_lid=$((${max_lid:-0} + 1))
         local l_id=$(printf "L-%03d" $next_lid)
         local date=$(date -u +"%Y-%m-%d")
 
+        # T-295: append at the file's ACTUAL list indent — a hard-coded 2-space
+        # block under a column-0 top-level sequence is invalid YAML (the T-1599
+        # pre-push gate caught exactly that on 2026-07-29). Detect the indent of
+        # the last existing entry; default to none.
+        local indent=$(grep -E "^[[:space:]]*- id: " "$learnings_file" | tail -1 | sed 's/- id: .*//')
+
         # Append learning
         cat >> "$learnings_file" << EOF
 
-  - id: $l_id
-    learning: "$mitigation"
-    source: healing-loop
-    task: $task_id
-    date: $date
-    context: "Resolved issue in $task_id"
-    application: "Apply when encountering similar $pattern_name issues"
+${indent}- id: $l_id
+${indent}  learning: "$mitigation"
+${indent}  source: healing-loop
+${indent}  task: $task_id
+${indent}  date: $date
+${indent}  context: "Resolved issue in $task_id"
+${indent}  application: "Apply when encountering similar $pattern_name issues"
 EOF
 
         echo -e "${GREEN}Learning recorded: $l_id${NC}"
