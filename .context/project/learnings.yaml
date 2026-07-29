@@ -451,3 +451,10 @@ learnings:
   date: 2026-07-29
   context: Added via context agent
   application: TBD
+- id: PL-064
+  learning: "Absence of a feature's structural usage in a corpus is NOT absence of demand — check whether authors are expressing the need in an unqueryable form. The 24-map corpus has zero structural cross-process links, which reads as 'composition unused'; inspection showed 4 maps where authors reached for cross-process semantics and, finding no vocabulary, wrote an English comment instead (x-handoffTo, 'cross-process handoff'). Demand absorbed by a workaround does not appear in usage counts and is the harder signal to see. Grep for the CONCEPT in prose, not just the tag in markup, before concluding a capability is unwanted."
+  source: P-001
+  task: T-307
+  date: 2026-07-29
+  context: Added via context agent
+  application: TBD
