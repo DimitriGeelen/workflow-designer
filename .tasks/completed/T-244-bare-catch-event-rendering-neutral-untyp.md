@@ -4,16 +4,16 @@ name: "Bare catch-event rendering: neutral untyped glyph instead of dead link-ca
 description: >
   AEF rail 174 (their T-2613, operator-reported): a bare intermediateCatchEvent (no aef:link, no aef:eventDef) renders the link-catch UI with an empty target that can never bind — operator read it as a broken connector. Open question: should a bare catch render the link-catch UI with an empty disabled target, or a neutral untyped glyph? Low priority — AEF corpus no longer exercises the case (they typed all bare catches). One question, one go/no-go.
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-23T09:15:35Z
-last_update: 2026-07-29T16:33:28Z
-date_finished: null
+last_update: 2026-07-29T17:46:29Z
+date_finished: 2026-07-29T17:46:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -113,15 +113,15 @@ events; AEF's corpus (they fixed their instance upstream and own that side).
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -179,7 +179,11 @@ events; AEF's corpus (they fixed their instance upstream and own that side).
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: The filing stub deferred against an unmeasured cost. Exploration priced it: root cause is a single fallback line (REVERSE_TYPE['intermediateCatchEvent'] = 'linkEventCatch', src:9347), the consequences are purely presentational (label src:7783, glyph src:5662, dead link property schema src:1784), and round-trip is byte-clean today because aefExtensionXml emits <aef:link> only when a binding field is non-empty. So the fix needs no schema change, no export change and no AEF ratification — an order of magnitude cheaper than the new-node-type shape the stub implicitly priced. Exploration also surfaced a wrinkle the stub could not see: palette-created handoff nodes are equally unbound, and the distinction does not survive a save because the dialect carries no authorial intent — resolved by holding intent in session state (handoff UI while live, neutral after reload), since a persisted marker would itself be a dialect change.
+
+**Date**: 2026-07-29T17:46:29Z
 
 ## Updates
 
@@ -188,24 +192,37 @@ events; AEF's corpus (they fixed their instance upstream and own that side).
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-089f7d3f
-- **Timestamp:** 2026-07-29T13:13:43Z
+- **Scan ID:** R-2681b6e7
+- **Timestamp:** 2026-07-29T17:46:30Z
 - **Catalogue:** v1.3-seed
-- **Overall:** PASS
+- **Overall:** CONCERN
 - **Needs Human:** no
-- **Findings:** none
+- **Findings:** 3
 
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-1
+     - evidence: `IW-1 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  3. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-3
+     - evidence: `IW-3 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
 ## Recommendation Verdict (v1.0)
 
-- **Scan ID:** RC-2b713a48
-- **Timestamp:** 2026-07-29T13:13:44Z
-- **Overall:** CONTRADICTED
-- **Claims:** 1
-
-| Claim | Type | Status |
-|-------|------|--------|
-| `T-2613` | task | ✗ fail — no task file in .tasks/{active,completed}/ |
-
+- **Scan ID:** RC-d38ac272
+- **Timestamp:** 2026-07-29T17:46:30Z
+- **Overall:** UNVERIFIED
+- **Claims:** 0
+- No verifiable claims found in ## Recommendation
 ### 2026-07-29T16:33:28Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
+
+### 2026-07-29T17:46:29Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** The filing stub deferred against an unmeasured cost. Exploration priced it: root cause is a single fallback line (REVERSE_TYPE['intermediateCatchEvent'] = 'linkEventCatch', src:9347), the consequences are purely presentational (label src:7783, glyph src:5662, dead link property schema src:1784), and round-trip is byte-clean today because aefExtensionXml emits <aef:link> only when a binding field is non-empty. So the fix needs no schema change, no export change and no AEF ratification — an order of magnitude cheaper than the new-node-type shape the stub implicitly priced. Exploration also surfaced a wrinkle the stub could not see: palette-created handoff nodes are equally unbound, and the distinction does not survive a save because the dialect carries no authorial intent — resolved by holding intent in session state (handoff UI while live, neutral after reload), since a persisted marker would itself be a dialect change.
+
+### 2026-07-29T17:46:29Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
