@@ -183,6 +183,21 @@ else
 fi
 
 echo
+echo "== declared lane beats conflicting geometry (T-310) =="
+# A map can declare a node in lane A while its <aef:position> draws it in lane B's
+# band (AEF's generator emitted exactly this). Both truths used to survive import,
+# and the first drag resolved the contradiction in favour of PIXELS — silently
+# rewriting WHO owns the step. This leg pins the reconciliation (declared lane
+# wins, agreeing nodes untouched, idempotent), the notice that makes it non-silent,
+# and the laneAtY null contract that stops the void adopting nodes into lane[0].
+if python3 "$ROOT/tests/test_t310_lane_position_conflict.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "lane/position conflict handling regressed — membership may again be decided by pixels (T-310 class)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== annotation seam v0: aef:ready/aef:annotate loop (T-258, T-250 GO) =="
 # Embeds the real editor in an iframe host (AEF Watchtower topology): ready
 # handshake per render, badge intake + unknown-uid/spoof rejection, display-only

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_lane-position-conflict"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <!-- T-310 fixture: a map whose DECLARED lane membership disagrees with its own
+       <aef:position> geometry — the shape AEF's generator emitted in
+       draft-knowledge-leveling v5, where the laneSet ordered agent-then-framework
+       while the framework-declared nodes carried the TOP y-values.
+
+       Band arithmetic (POOL_Y 30 + POOL_HEADER 32 = 62, lane heights 160):
+         agent      band  62 .. 222   (declared FIRST, so drawn on top)
+         framework  band 222 .. 382
+
+       Four nodes, two of each disposition, so the fixture proves BOTH halves —
+       that conflicts are corrected and that agreements are left alone:
+
+         agt_0_start   agent      y=110  centre 128  -> agent band      AGREES, must not move
+         frw_1_check   framework  y=100  centre 132  -> agent band      CONFLICTS, must move
+         agt_2_act     agent      y=300  centre 332  -> framework band  CONFLICTS, must move
+         frw_3_done    framework  y=310  centre 328  -> framework band  AGREES, must not move
+
+       Expected reconcile count on import: exactly 2.
+
+       Deliberately structurally VALID — start reaches end, every node is in a lane,
+       both gateways-free branches wired — so tools/validate-workflow.py passes it.
+       That is the point: this defect class is invisible to a structural checker
+       because it needs geometry, which the validator does not see. -->
+
+  <bpmn:collaboration id="Collaboration_lane-position-conflict">
+    <bpmn:participant id="Pool_lane_position_conflict" name="lane/position conflict" processRef="Process_lane-position-conflict"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_lane-position-conflict" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="lane-position-conflict" version="1" schemaVersion="2" title="lane membership vs position conflict (T-310)" tier_default="1"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>agt_0_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_2_act</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>frw_1_check</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_3_done</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="agt_0_start" name="request arrives">
+      <bpmn:extensionElements>
+        <aef:uid value="n_start"/>
+        <aef:position x="180.0" y="110.0"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:scriptTask id="frw_1_check" name="framework validates the request">
+      <bpmn:extensionElements>
+        <aef:uid value="n_check"/>
+        <aef:position x="300.0" y="100.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:scriptTask>
+
+    <bpmn:serviceTask id="agt_2_act" name="agent carries out the work">
+      <bpmn:extensionElements>
+        <aef:uid value="n_act"/>
+        <aef:position x="470.0" y="300.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:endEvent id="frw_3_done" name="recorded">
+      <bpmn:extensionElements>
+        <aef:uid value="n_done"/>
+        <aef:position x="640.0" y="310.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_0_start" targetRef="frw_1_check">
+      <bpmn:extensionElements><aef:uid value="e_1"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_1_check" targetRef="agt_2_act">
+      <bpmn:extensionElements><aef:uid value="e_2"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_3" sourceRef="agt_2_act" targetRef="frw_3_done">
+      <bpmn:extensionElements><aef:uid value="e_3"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>

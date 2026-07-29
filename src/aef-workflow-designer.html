@@ -469,6 +469,10 @@ font-family: 'Outfit';
     z-index: 5;
   }
   .clean-nudge .clean-nudge-msg { white-space: nowrap; }
+  /* T-310: a malformed map can trigger BOTH advisories at once — the lane-fix
+     notice takes the top slot (it reports a change already made to the document's
+     appearance) and pushes the Clean nudge (an offer) below it. */
+  .clean-nudge.stacked { top: 52px; }
   .clean-nudge-x {
     background: transparent;
     border: none;
@@ -1394,6 +1398,14 @@ font-family: 'Outfit';
       <div class="canvas-overlay" id="status">
         Mode: <span class="status-mode" id="status-mode">select</span><span id="status-selection"></span>
       </div>
+      <!-- T-310: shown when the imported map drew nodes outside their DECLARED lane
+           and they were moved back into it. Reuses the clean-nudge chrome so advisory
+           feedback keeps one house style; distinct id so the two can never clobber
+           each other. -->
+      <div class="clean-nudge" id="lane-fix-notice" style="display:none">
+        <span class="clean-nudge-msg" id="lane-fix-msg"></span>
+        <button class="clean-nudge-x" id="lane-fix-dismiss" type="button" title="Dismiss">✕</button>
+      </div>
       <div class="clean-nudge" id="clean-nudge" style="display:none">
         <span class="clean-nudge-msg">✨ This map could use Clean layout</span>
         <button class="btn" id="clean-nudge-apply" type="button">Clean layout</button>
@@ -2113,15 +2125,31 @@ function contentRightEdge() {
   const authored = state?.workflowMeta?.pageWidth;
   return Math.max(contentRightEdgeNatural(), authored ? POOL_X + authored : 0);
 }
-// Locate which lane a given y-coordinate falls into; returns lane id or first lane id as fallback.
+// Locate which lane a given y-coordinate falls into; returns the lane id, or null
+// when y falls outside every band.
+//
+// T-310: this used to fall back to getLanes()[0]?.id, which meant a node dragged
+// into the void below the pool was silently ADOPTED by the top lane. Lane membership
+// is the `who` in this dialect (T-189), so an accidental gesture must never be able
+// to reassign authority — "outside every lane" is a real answer and callers are
+// expected to handle it. Callers that need a lane for GEOMETRY (snap rows) get []
+// from laneRowYs(null); callers that need one for IDENTITY (createNodeAt) carry
+// their own explicit fallback; callers that reassign membership (drag) leave it
+// unchanged.
 function laneAtY(y) {
   let top = POOL_Y + POOL_HEADER;
   for (const l of getLanes()) {
     if (y >= top && y < top + l.height) return l.id;
     top += l.height;
   }
-  return getLanes()[0]?.id;
+  return null;
 }
+
+// T-310: how many nodes the last parse had to move back into their declared lane.
+// Deliberately module-level and OUTSIDE `state` — it is a report about the import,
+// not a property of the document, and keeping it out of state makes it structurally
+// incapable of reaching the exporter (same discipline as T-308's session-intent Set).
+let _laneReconcileCount = 0;
 
 // ============================================================================
 //  State
@@ -2380,8 +2408,10 @@ function syncOverlayPin() {
   const dx = canvasWrap.scrollLeft, dy = canvasWrap.scrollTop;
   const o = document.querySelector('.canvas-overlay');
   if (o) o.style.transform = (dx || dy) ? `translate(${dx}px, ${dy}px)` : '';
-  const n = $('clean-nudge');
-  if (n) n.style.transform = (dx || dy) ? `translate(calc(-50% + ${dx}px), ${dy}px)` : '';
+  for (const id of ['clean-nudge', 'lane-fix-notice']) {   // T-310: both advisories pin
+    const n = $(id);
+    if (n) n.style.transform = (dx || dy) ? `translate(calc(-50% + ${dx}px), ${dy}px)` : '';
+  }
 }
 // Drag-to-pan: middle-mouse always, or left-drag while Space is held. CAPTURE
 // phase on the wrap + stopPropagation preempts the svg-level rubber-band
@@ -7120,6 +7150,22 @@ function maybeShowCleanNudge() {
   el.style.display = (viewPrefs.cleanOnImport || mapMessiness() < CLEAN_NUDGE_MIN) ? 'none' : '';
 }
 
+// T-310: report the import-time lane reconciliation. Unlike the Clean nudge this is
+// not an offer — the move has already happened — so it states what changed rather
+// than asking. Threshold is 1: moving even a single node changes where the reader
+// believes responsibility sits, which is never too small to mention.
+function maybeShowLaneFixNotice() {
+  const el = $('lane-fix-notice'), msg = $('lane-fix-msg'), nudge = $('clean-nudge');
+  if (!el) return;
+  const n = _laneReconcileCount;
+  if (n > 0 && msg) {
+    msg.textContent = `⚠ ${n} node${n === 1 ? ' was' : 's were'} drawn outside ` +
+                      `${n === 1 ? 'its' : 'their'} declared lane — moved back into place`;
+  }
+  el.style.display = n > 0 ? '' : 'none';
+  if (nudge) nudge.classList.toggle('stacked', n > 0);
+}
+
 // ── Align rows (T-094) ──────────────────────────────────────────────────────
 // Explicit one-shot action: snap each cluster of near-aligned row-mates (chains
 // of centre-y neighbours <=14px apart — the T-092 near-miss metric) to the
@@ -7993,6 +8039,11 @@ $('clean-nudge-apply').onclick = () => {
   $('clean-nudge').style.display = 'none';
 };
 $('clean-nudge-dismiss').onclick = () => { $('clean-nudge').style.display = 'none'; };
+// T-310: dismissing the lane-fix notice returns the Clean nudge to the top slot.
+$('lane-fix-dismiss').onclick = () => {
+  $('lane-fix-notice').style.display = 'none';
+  const nudge = $('clean-nudge'); if (nudge) nudge.classList.remove('stacked');
+};
 $('btn-reset').onclick = () => {
   // Reset: blow away library and start over with seed
   library.clear();
@@ -8980,8 +9031,11 @@ function adoptImportedXml(text, opts) {
   }
   // Clean nudge (T-100): offer one-click Clean when a user opens a messy map
   // and clean-on-import is off. Programmatic adoption never nudges.
-  if (opts && opts.userImport) { maybeShowCleanNudge(); }
-  else { const nudge = $('clean-nudge'); if (nudge) nudge.style.display = 'none'; }
+  if (opts && opts.userImport) { maybeShowCleanNudge(); maybeShowLaneFixNotice(); }
+  else {
+    const nudge = $('clean-nudge'); if (nudge) { nudge.style.display = 'none'; nudge.classList.remove('stacked'); }
+    const lf = $('lane-fix-notice'); if (lf) lf.style.display = 'none';   // T-310
+  }
   // T-157: any adoption clears the loaded-snapshot badge; the specific callers that DO
   // load a known snapshot (openProjectMap version, revertToVersion) re-set it afterwards.
   setLoadedSavedVersion(null);
@@ -9685,10 +9739,30 @@ function parseBpmnXml(text) {
   // Use a temporary state so laneCenterY() resolves correctly during patching
   const prev = state;
   state = { lanes };
+  _laneReconcileCount = 0;
   for (const n of nodes) {
+    const def = NODE_DEFAULTS[n.type] || NODE_DEFAULTS.serviceTask;
     if (n.y === 0) {
-      const def = NODE_DEFAULTS[n.type] || NODE_DEFAULTS.serviceTask;
       n.y = laneCenterY(n.lane) - def.h / 2;
+      continue;
+    }
+    // T-310: a map can arrive declaring a node in lane A while its <aef:position>
+    // draws it inside lane B's band (AEF's generator emitted exactly this — laneSet
+    // order agent-then-framework, with the framework nodes at the TOP y-values).
+    // Both truths used to survive into state, and the first drag then resolved the
+    // contradiction in favour of PIXELS via laneAtY, silently rewriting membership
+    // — i.e. rewriting who is responsible for the step. Membership is authoritative
+    // (T-189, Lane=who); position is view-layer. So the declared lane wins and the
+    // geometry is corrected to match, which also removes the contradiction from
+    // state entirely — the silent-rewrite path becomes unreachable rather than
+    // merely discouraged.
+    //
+    // Deliberately NOT silent: the count drives a dismissible notice on user import.
+    // Rewriting the operator's geometry without saying so is the same sin as
+    // rewriting their membership without saying so.
+    if (findLane(n.lane) && laneAtY(n.y + def.h / 2) !== n.lane) {
+      n.y = laneCenterY(n.lane) - def.h / 2;
+      _laneReconcileCount++;
     }
   }
   state = prev;
