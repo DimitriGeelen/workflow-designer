@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-295: healing resolve.sh corrupts learnings.yaml: indented append into column-0 list + max-id grep misses column-0 ids (always mints L-001)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-29T06:16:17Z
+# ============================================================================
+
+task_id: T-295
+task_name: "healing resolve.sh corrupts learnings.yaml: indented append into column-0 list + max-id grep misses column-0 ids (always mints L-001)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-29T06:10:59Z
+completed: 2026-07-29T06:16:14Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-07-29T08:15:33+02:00
+last_commit: 2026-07-29T08:15:33+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  fix healing resolve.sh learnings append — emit at the file's ACTUAL list indent (detected from last entry; was hard-coded 2-space under a column-0 list = invalid YAML, T-1599 gate catch) + max-id scan now matches ids at any indent (was ^'  - id: L-' only, so column-0 files always re-minted L-001; T-262 and T-293 both hit it); scratch-verified both shapes (column-0 mints L-002 col-0, indented file mints L-006 at 2-space; both parse VALID); vendored fix, upstream to AEF queued (G-008)
+
+# Key outcomes
+outcomes:
+  - 'resolve.sh appends the learnings entry at the file''s actual list indent'
+  - 'The max-id scan sees existing ids regardless of indent (both `- id: L-`'
+  - 'No duplicate learning ids remain in learnings.yaml (today''s mis-minted'
+  - 'Fix verified by running `fw healing resolve` against a scratch copy:'
+  - 'Upstream report queued to AEF on the rail (G-008 — vendored fix must not'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'fix healing resolve.sh learnings append — emit at the file''s ACTUAL list indent (detected from last entry; was hard-coded 2-space under a column-0 list = invalid YAML, T-1599 gate catch) + max-id scan now matches ids at any indent (was ^''  - id: L-'' only, so column-0 files always re-minted L-001; T-262 and T-293 both hit it); scratch-verified both shapes (column-0 mints L-002 col-0, indented file mints L-006 at 2-space; both parse VALID); vendored fix, upstream to AEF queued (G-008)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/healing/lib/resolve.sh'
+  - '.tasks/active/T-295-healing-resolvesh-corrupts-learningsyaml.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-29T08:15:33"
+    action: "T-295: fix healing resolve.sh learnings append — emit at the file's ACTUAL list indent (detected from last entry; was hard-coded 2-space under a column-0 list = invalid YAML, T-1599 gate catch) + max-id scan now matches ids at any indent (was ^'  - id: L-' only, so column-0 files always re-minted L-001; T-262 and T-293 both hit it); scratch-verified both shapes (column-0 mints L-002 col-0, indented file mints L-006 at 2-space; both parse VALID); vendored fix, upstream to AEF queued (G-008)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 2
+  lines_added: 236
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-295-healing-resolvesh-corrupts-learningsyaml.md
+generated_by: context-agent-hybrid

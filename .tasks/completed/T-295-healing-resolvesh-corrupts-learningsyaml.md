@@ -4,10 +4,10 @@ name: "healing resolve.sh corrupts learnings.yaml: indented append into column-0
 description: >
   healing resolve.sh corrupts learnings.yaml: indented append into column-0 list + max-id grep misses column-0 ids (always mints L-001)
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-29T06:10:59Z
-last_update: 2026-07-29T06:10:59Z
-date_finished: null
+last_update: 2026-07-29T06:16:14Z
+date_finished: 2026-07-29T06:16:14Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -56,8 +56,9 @@ AEF per G-008.
       L-001 was renamed PL-059 in 792ad87; T-262's L-001 is thereby unique)
 - [x] Fix verified by running `fw healing resolve` against a scratch copy:
       output parses as valid YAML and the new id is max+1
-- [ ] Upstream report queued to AEF on the rail (G-008 — vendored fix must not
-      be lost on next re-vendor)
+- [x] Upstream report queued to AEF on the rail (G-008 — vendored fix must not
+      be lost on next re-vendor): posted at rail offset 306 (reply to their 305
+      T-2665 exception-handling seed — defect + fix recipe + scratch evidence)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -217,3 +218,15 @@ indent forms. Upstream report to AEF so the fix survives re-vendor (G-008).
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-295-healing-resolvesh-corrupts-learningsyaml.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-89553ce4
+- **Timestamp:** 2026-07-29T06:16:15Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-07-29T06:16:14Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
