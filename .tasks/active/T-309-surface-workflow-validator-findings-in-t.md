@@ -183,15 +183,15 @@ triggering example exposed (XOR with identical targets).
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -293,7 +293,60 @@ established the value and left the cost open.
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Recommendation: GO
+
+Rationale:
+
+The rules already exist and are already trusted — tools/validate-workflow.py carries ~12 semantic rules across both a YAML Validator and an XmlValidator (E-GW-OUTGOING, W-GW-AMBIGUOUS, W-PGW-CONDITION/NOOP/UNBALANCED, W-UNREACHABLE, W-DEADEND, constituents, required-inputs) and its own suite is green at 34 passed, 0 failed. What is missing is reach: a grep of src/aef-workflow-designer.html finds no validation surface at all, so the checks run only in the bridge suite and from the CLI and never reach the person drawing the map, which is where the mistake is actually made. Operator evidence arrived this session as four screenshots of AEF-authored maps; the modelling smell in one of them (an exclusiveGateway fanning six labelled branches into a single shared target) is real but slips through today because no rule covers XOR-with-identical-targets. This is plumbing an existing, tested capability to an existing UI rather than new intelligence, so the cost is bounded; the exploration should price WHERE findings surface (live gutter markers vs an on-demand panel vs save-time gate) and settle the sovereignty question of advisory-vs-blocking, not whether the rules are worth having.
+
+Revision after spike 1 (2026-07-29) — recommendation stands at GO, but the SHAPE changed.
+
+The exploration ran one of four spikes before the inception commit gate required convergence
+(2 exploration commits, no decision). IW-5 was sequenced first precisely because it could kill
+the idea; it did not, but it moved a prerequisite into the critical path that the filing-time
+recommendation above did not know about.
+
+The filing-time rationale says the rules "carry ~12 semantic rules across both a YAML Validator
+and an XmlValidator" and that "what is missing is reach". Counted rather than inferred, that is
+too generous: only 7 rule ids are shared between the two classes, and `W-GW-AMBIGUOUS` —
+exclusive gateway with more than one unconditioned outgoing edge — exists on the YAML path
+only. Confirmed empirically: stripping every `conditionExpression` out of a corpus BPMN map
+fires nothing (exit 0). The designer speaks BPMN. So surfacing "the validator" in the editor
+today would surface the weaker rule set, and would specifically NOT answer the gateway question
+that prompted this inception.
+
+That makes rule parity a prerequisite of the first slice, not a follow-up. It also makes the
+first slice smaller and more certain than the filing-time framing implied: port/expose the XML
+rule set, close the `W-GW-AMBIGUOUS` gap, and surface the result — with `W-XML-NODE-UNASSIGNED`
+as the lead-value rule, because it is the one with a live operator defect behind it.
+
+Evidence:
+
+- Baseline: 24 rendered BPMN + 25 YAML + 63 editor snapshots = 112 maps, 0 findings, both paths.
+- Falsifiability control: drop a `sequenceFlow` → `W-XML-DEADEND` + `W-XML-UNREACHABLE`, exit 1;
+  drop a `flowNodeRef` → `W-XML-NODE-UNASSIGNED`, exit 1. The zero is a measurement (PL-061).
+- Rule-parity count: 7 shared ids; `W-GW-AMBIGUOUS` YAML-only; `W-XML-NODE-UNASSIGNED` and
+  `W-TYPE-LANE-MISMATCH` XML-only. `tools/validate-workflow.py:302` vs `:773` / `:957`.
+- Live operator defect (`pen_inbound_classifier`, screenshot 2026-07-29): ~14 nodes below all lane
+  bands. Map not reachable — absent from our corpus, our gallery (`/api/list`, 6 maps) and AEF's
+  (11 maps) — so this is read off the screenshot, NOT validated.
+- Full trail: `docs/reports/T-309-validator-surfacing.md`.
+
+Unpriced — carried into the build task's design phase if this goes GO:
+
+- IW-2 (delivery route: port-to-JS vs sidecar-HTTP vs shared spec; `file://` survival) — not run.
+- IW-1 / IW-3 (where findings surface; advisory vs blocking) — not run.
+- IW-4 (the XOR-identical-targets rule) — not run. Note it is now a second missing rule
+  alongside `W-GW-AMBIGUOUS`, not the only one.
+
+Confidence: high that the feature is worth building and will not be noisy; low on cost,
+because the delivery route is the expensive unknown and it is exactly what has not been priced.
+A NO-GO here is entirely defensible on "not yet priced" grounds — the honest read is that spike 1
+established the value and left the cost open.
+
+**Date**: 2026-07-29T22:41:32Z
 
 ## Updates
 
@@ -302,3 +355,57 @@ established the value and left the cost open.
 
 ### 2026-07-29T20:10:39Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-07-29T22:41:32Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Recommendation: GO
+
+Rationale:
+
+The rules already exist and are already trusted — tools/validate-workflow.py carries ~12 semantic rules across both a YAML Validator and an XmlValidator (E-GW-OUTGOING, W-GW-AMBIGUOUS, W-PGW-CONDITION/NOOP/UNBALANCED, W-UNREACHABLE, W-DEADEND, constituents, required-inputs) and its own suite is green at 34 passed, 0 failed. What is missing is reach: a grep of src/aef-workflow-designer.html finds no validation surface at all, so the checks run only in the bridge suite and from the CLI and never reach the person drawing the map, which is where the mistake is actually made. Operator evidence arrived this session as four screenshots of AEF-authored maps; the modelling smell in one of them (an exclusiveGateway fanning six labelled branches into a single shared target) is real but slips through today because no rule covers XOR-with-identical-targets. This is plumbing an existing, tested capability to an existing UI rather than new intelligence, so the cost is bounded; the exploration should price WHERE findings surface (live gutter markers vs an on-demand panel vs save-time gate) and settle the sovereignty question of advisory-vs-blocking, not whether the rules are worth having.
+
+Revision after spike 1 (2026-07-29) — recommendation stands at GO, but the SHAPE changed.
+
+The exploration ran one of four spikes before the inception commit gate required convergence
+(2 exploration commits, no decision). IW-5 was sequenced first precisely because it could kill
+the idea; it did not, but it moved a prerequisite into the critical path that the filing-time
+recommendation above did not know about.
+
+The filing-time rationale says the rules "carry ~12 semantic rules across both a YAML Validator
+and an XmlValidator" and that "what is missing is reach". Counted rather than inferred, that is
+too generous: only 7 rule ids are shared between the two classes, and `W-GW-AMBIGUOUS` —
+exclusive gateway with more than one unconditioned outgoing edge — exists on the YAML path
+only. Confirmed empirically: stripping every `conditionExpression` out of a corpus BPMN map
+fires nothing (exit 0). The designer speaks BPMN. So surfacing "the validator" in the editor
+today would surface the weaker rule set, and would specifically NOT answer the gateway question
+that prompted this inception.
+
+That makes rule parity a prerequisite of the first slice, not a follow-up. It also makes the
+first slice smaller and more certain than the filing-time framing implied: port/expose the XML
+rule set, close the `W-GW-AMBIGUOUS` gap, and surface the result — with `W-XML-NODE-UNASSIGNED`
+as the lead-value rule, because it is the one with a live operator defect behind it.
+
+Evidence:
+
+- Baseline: 24 rendered BPMN + 25 YAML + 63 editor snapshots = 112 maps, 0 findings, both paths.
+- Falsifiability control: drop a `sequenceFlow` → `W-XML-DEADEND` + `W-XML-UNREACHABLE`, exit 1;
+  drop a `flowNodeRef` → `W-XML-NODE-UNASSIGNED`, exit 1. The zero is a measurement (PL-061).
+- Rule-parity count: 7 shared ids; `W-GW-AMBIGUOUS` YAML-only; `W-XML-NODE-UNASSIGNED` and
+  `W-TYPE-LANE-MISMATCH` XML-only. `tools/validate-workflow.py:302` vs `:773` / `:957`.
+- Live operator defect (`pen_inbound_classifier`, screenshot 2026-07-29): ~14 nodes below all lane
+  bands. Map not reachable — absent from our corpus, our gallery (`/api/list`, 6 maps) and AEF's
+  (11 maps) — so this is read off the screenshot, NOT validated.
+- Full trail: `docs/reports/T-309-validator-surfacing.md`.
+
+Unpriced — carried into the build task's design phase if this goes GO:
+
+- IW-2 (delivery route: port-to-JS vs sidecar-HTTP vs shared spec; `file://` survival) — not run.
+- IW-1 / IW-3 (where findings surface; advisory vs blocking) — not run.
+- IW-4 (the XOR-identical-targets rule) — not run. Note it is now a second missing rule
+  alongside `W-GW-AMBIGUOUS`, not the only one.
+
+Confidence: high that the feature is worth building and will not be noisy; low on cost,
+because the delivery route is the expensive unknown and it is exactly what has not been priced.
+A NO-GO here is entirely defensible on "not yet priced" grounds — the honest read is that spike 1
+established the value and left the cost open.
