@@ -214,6 +214,23 @@ else
 fi
 
 echo
+echo "== lane/geometry agreement rule (T-312) =="
+# T-310 taught the DESIGNER to reconcile a lane/geometry conflict at import, but
+# repair only happens where the designer is in the loop — maps travel between us
+# and AEF as bytes and get promoted without ever being opened. This leg pins the
+# VALIDATOR half: the predicate settled with AEF at rail 339 (adopted verbatim),
+# its extremal witness pair, the crossing-count split between a zero-semantic
+# laneSet reorder and an authority call, equal-y as a crossing, SKIP-not-PASS on
+# unpositioned maps, and the origin-freeness that keeps us out of the band
+# reconstruction that produced 7 phantom mismatches on their side.
+if python3 "$ROOT/tests/test_t312_lane_geometry.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "lane/geometry agreement rule regressed — declaration-vs-drawing disagreement may again pass both toolchains (T-312 class)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== annotation seam v0: aef:ready/aef:annotate loop (T-258, T-250 GO) =="
 # Embeds the real editor in an iframe host (AEF Watchtower topology): ready
 # handshake per render, badge intake + unknown-uid/spoof rejection, display-only

@@ -4,10 +4,10 @@ name: "Save path destroys the leading doc comment: agent-authored rationale bloc
 description: >
   AEF field report (rail 332), confirmed against our source. The leading XML comment child of <bpmn:definitions> - which their corpus_spec treats as SEMANTIC and carries into the promoted spec - is dropped on the first UI save and every save after inherits the loss. Two independent confirmations their side: draft-knowledge-leveling v5 -> v6/v7, and draft-trigger-handling v1 -> v2..v6. Verified our side: src/aef-workflow-designer.html has no COMMENT_NODE handling anywhere in the parse path, and buildBpmnXml unconditionally emits one hardcoded comment at :9363 ('BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates'). So the doc comment is dropped at parse and never re-emitted; the only comment on output is our own boilerplate. Nothing else is harmed - AEF reports uid set, flow topology, names and aef:meta notes all round-trip byte-faithfully. Compounding effect their side (already owned there): their parse_map takes the FIRST comment child as 'doc' with no guard, so it silently adopts our boilerplate as the rationale - the field never reads empty, it reads plausible-and-wrong; 5 of their 11 maps carry our boilerplate as their doc and 2 are PROMOTED corpus maps. Open decision AEF raised: preserve comment children through the round-trip, or carry the doc as an aef: extension attr on workflowMeta instead - the latter survives any DOM round-trip but is a schema question to settle before more maps are promoted.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [designer, fidelity, data-loss, aef-seam]
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-29T20:46:02Z
-last_update: 2026-07-29T21:12:14Z
-date_finished: null
+last_update: 2026-07-29T22:02:59Z
+date_finished: 2026-07-29T22:02:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -355,3 +355,20 @@ than being claimed as closed.
 
 ### 2026-07-29T21:12:14Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-60377b81
+- **Timestamp:** 2026-07-29T22:03:52Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 59
+     - evidence: `python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/doc-comment.bpmn --format xml > /dev/null`
+
+### 2026-07-29T22:02:59Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

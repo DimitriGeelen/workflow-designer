@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_lane-geometry-unpositioned"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <!-- T-312 fixture: the HONEST-DEGRADATION case.
+
+       Two populated lanes, so this map does make an ordering claim — but not a
+       single node carries an <aef:position>. There is no geometry to compare
+       the declaration against.
+
+       The rule must SKIP such a map, not pass it. A pass here would be the
+       false green: "lane_geometry: clean" read as evidence that declaration
+       and drawing agree, on a map where nothing was ever drawn. The validator
+       says so out loud with an INFO note, which does not affect the exit code.
+
+       (The designer treats an absent position as y=0 and patches it to the
+       lane centre on import — src:9710-9713 and src:9805 — so y=0 is a
+       sentinel, not a coordinate. The validator reads it the same way; see the
+       second node below, which carries the sentinel explicitly.) -->
+
+  <bpmn:process id="Process_lane-geometry-unpositioned" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="lane-geometry-unpositioned" version="1" schemaVersion="2" title="unpositioned two-lane map (T-312)" tier_default="1"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>hum_0_start</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>agt_1_work</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_2_done</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="hum_0_start" name="operator asks">
+      <bpmn:extensionElements>
+        <aef:uid value="n_start"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:serviceTask id="agt_1_work" name="agent does the work">
+      <bpmn:extensionElements>
+        <aef:uid value="n_work"/>
+        <aef:position x="300.0" y="0.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:endEvent id="agt_2_done" name="done">
+      <bpmn:extensionElements>
+        <aef:uid value="n_done"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="hum_0_start" targetRef="agt_1_work">
+      <bpmn:extensionElements><aef:uid value="e_1"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_2" sourceRef="agt_1_work" targetRef="agt_2_done">
+      <bpmn:extensionElements><aef:uid value="e_2"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>

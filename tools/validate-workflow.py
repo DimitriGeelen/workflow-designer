@@ -71,6 +71,10 @@ REQUIRED_EDGE_FIELDS = ["uid", "source", "target"]
 
 ERROR = "ERROR"
 WARN = "WARN"
+# INFO is non-blocking and never affects the exit code. It exists so a rule can
+# report "I could not evaluate this map" without that reading as a pass (T-312:
+# "an unevaluable map must not report clean").
+INFO = "INFO"
 
 # section 7.2: BPMN + aef extension namespaces
 BPMN_NS = "http://www.omg.org/spec/BPMN/20100524/MODEL"
@@ -653,6 +657,9 @@ class XmlValidator:
     def warn(self, rule, location, message):
         self.findings.append(Finding(WARN, rule, location, message))
 
+    def info(self, rule, location, message):
+        self.findings.append(Finding(INFO, rule, location, message))
+
     @staticmethod
     def _local(tag):
         # strip '{namespace}' prefix from an ElementTree tag
@@ -883,6 +890,161 @@ class XmlValidator:
         # mismatch (WARN) + O-3 inception-must-be-sovereignty-laned (ERROR).
         self._check_iw9_authority(process)
 
+        # Lane/geometry agreement (T-312) — the one class both toolchains were
+        # blind to, because both are purely structural (rail 334/339).
+        self._check_lane_geometry(process)
+
+    def _node_y(self, node_el):
+        """The node's drawn y from <aef:position>, or None when unpositioned.
+
+        ``y == 0`` is the designer's *sentinel* for "no position was encoded":
+        src:9710-9713 defaults an absent/NaN position to y=0 and src:9805 then
+        patches it to the lane centre. Reading it as a real coordinate would
+        invent geometry the map never carried, so it counts as unpositioned
+        here too — both sides must agree what "unpositioned" means.
+        """
+        pos = node_el.find(
+            "{%s}extensionElements/{%s}position" % (BPMN_NS, AEF_NS)
+        )
+        if pos is None:
+            return None
+        raw = pos.get("y")
+        if raw is None:
+            return None
+        try:
+            y = float(raw)
+        except (TypeError, ValueError):
+            return None
+        return None if y == 0 else y
+
+    @staticmethod
+    def _fmt_y(value):
+        return str(int(value)) if float(value).is_integer() else str(value)
+
+    def _check_lane_geometry(self, process):
+        """Lane/geometry agreement (T-312), mirroring AEF `fw corpus lint::lane_geometry`.
+
+        Predicate, settled jointly with AEF at rail 339 and adopted verbatim:
+
+          For lanes in laneSet DECLARATION order, the y-ranges of nodes grouped
+          by DECLARED lane must be strictly ordered and non-overlapping.
+          Evaluate only when: >=2 lanes, >=2 lanes populated, and EVERY node
+          positioned. Otherwise SKIP (do not pass) — an unevaluable map must
+          not report clean.
+          Report per violating ADJACENT lane pair, naming the extremal witness
+          pair: the upper lane's lowest-drawn node and the lower lane's
+          highest-drawn node. Equal y counts as a crossing (two nodes on one
+          row cannot be in two bands).
+          Distinguish repair shape by crossing counts: 100% of both sides =>
+          wholesale inversion => laneSet reorder (zero-semantic). A subset =>
+          placement or stale membership on the named nodes => authority call,
+          not a layout call.
+
+        The predicate is deliberately ORIGIN-FREE: it never reconstructs band
+        boundaries. Do not "improve" it by walking cumulative lane heights from
+        POOL_Y + POOL_HEADER the way the renderer does (laneTop/laneAtY) — that
+        needs an origin the map does not store, and anchoring at the topmost
+        node produced 7 phantom mismatches on AEF's draft-trigger-handling,
+        which is clean under this rule (rail 339).
+
+        Adjacent pairs are sufficient: the relation is transitive across
+        populated lanes, since each populated group has min <= max.
+        """
+        lane_set = process.find("{%s}laneSet" % BPMN_NS)
+        lanes = (
+            lane_set.findall("{%s}lane" % BPMN_NS) if lane_set is not None else []
+        )
+
+        # flow nodes of this process, in document order
+        node_el = {}
+        doc_order = []
+        for child in list(process):
+            local = self._local(child.tag)
+            if local == "sequenceFlow" or local in XML_NON_FLOWNODE_TAGS:
+                continue
+            nid = child.get("id")
+            if nid is None:
+                continue
+            node_el[nid] = child
+            doc_order.append(nid)
+
+        # group by DECLARED lane (flowNodeRef), in laneSet declaration order
+        groups = []
+        for lane in lanes:
+            members = []
+            for ref_el in lane.findall("{%s}flowNodeRef" % BPMN_NS):
+                ref = (ref_el.text or "").strip()
+                if ref and ref in node_el:
+                    members.append(ref)
+            groups.append((lane.get("id") or "?", members))
+        populated = [g for g in groups if g[1]]
+
+        # Out of scope rather than unevaluable: with fewer than two populated
+        # lanes there is no ordering claim to disagree with. Silent by design —
+        # a note on every single-lane map would be noise, not signal.
+        if len(lanes) < 2 or len(populated) < 2:
+            return
+
+        ys = {nid: self._node_y(node_el[nid]) for nid in doc_order}
+        missing = [nid for nid in doc_order if ys[nid] is None]
+        if missing:
+            # SKIP, not PASS. This map has an ordering claim but no geometry to
+            # check it against; reporting it clean would be the false green.
+            self.info(
+                "I-XML-LANE-GEOMETRY-SKIP",
+                "laneSet",
+                "lane/geometry agreement not evaluated: %d of %d flow node(s) "
+                "carry no <aef:position> y (e.g. %s). Geometry that does not "
+                "exist cannot disagree with the declared lanes — this map is "
+                "SKIPPED by lane_geometry, not passed by it"
+                % (len(missing), len(doc_order), ", ".join(sorted(missing)[:3])),
+            )
+            return
+
+        for (upper_id, upper), (lower_id, lower) in zip(populated, populated[1:]):
+            # extremal witness pair; max/min keep the first extremum, so ties
+            # resolve in laneSet declaration order
+            up_lowest = max(upper, key=lambda n: ys[n])
+            lo_highest = min(lower, key=lambda n: ys[n])
+            # strictly ordered and non-overlapping; equal y counts as a crossing
+            if ys[up_lowest] < ys[lo_highest]:
+                continue
+
+            cross_up = [n for n in upper if ys[n] >= ys[lo_highest]]
+            cross_lo = [n for n in lower if ys[n] <= ys[up_lowest]]
+            if len(cross_up) == len(upper) and len(cross_lo) == len(lower):
+                repair = (
+                    "every node on both sides crosses, so this is a wholesale "
+                    "inversion: reorder the laneSet (zero-semantic repair)"
+                )
+            else:
+                repair = (
+                    "only a subset crosses, so this is placement or stale "
+                    "membership on the named nodes: an authority call, not a "
+                    "layout call"
+                )
+            self.warn(
+                "W-XML-LANE-GEOMETRY",
+                "lane '%s' -> lane '%s'" % (upper_id, lower_id),
+                "declared lane order disagrees with geometry (lane_geometry): "
+                "lane '%s' is declared above lane '%s', but its lowest-drawn "
+                "node '%s' (y=%s) is at or below '%s' (y=%s), the highest-drawn "
+                "node of the lower lane; %d/%d and %d/%d nodes cross — %s"
+                % (
+                    upper_id,
+                    lower_id,
+                    up_lowest,
+                    self._fmt_y(ys[up_lowest]),
+                    lo_highest,
+                    self._fmt_y(ys[lo_highest]),
+                    len(cross_up),
+                    len(upper),
+                    len(cross_lo),
+                    len(lower),
+                    repair,
+                ),
+            )
+
     def _check_iw9_authority(self, process):
         """v1.1 IW-9 authority enforcement on the BPMN form (mapping-v1 §3/§7).
 
@@ -1011,12 +1173,22 @@ def render_text(path, findings):
         lines.append("%-5s [%s] %s: %s" % (f.severity, f.rule, f.location, f.message))
     errors = sum(1 for f in findings if f.severity == ERROR)
     warns = sum(1 for f in findings if f.severity == WARN)
+    notes = sum(1 for f in findings if f.severity == INFO)
     if not findings:
         lines.append("VALID  %s -- no findings" % path)
+    elif not errors and not warns:
+        # notes only: still VALID, and still "no findings" in the blocking sense
+        lines.append("VALID  %s -- no findings, %d note(s)" % (path, notes))
     else:
         lines.append(
-            "%s  %s -- %d error(s), %d warning(s)"
-            % ("INVALID" if errors else "WARN", path, errors, warns)
+            "%s  %s -- %d error(s), %d warning(s)%s"
+            % (
+                "INVALID" if errors else "WARN",
+                path,
+                errors,
+                warns,
+                ", %d note(s)" % notes if notes else "",
+            )
         )
     return "\n".join(lines)
 

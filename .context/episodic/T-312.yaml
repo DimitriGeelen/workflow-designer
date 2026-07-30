@@ -1,0 +1,125 @@
+# ============================================================================
+# EPISODIC MEMORY - T-312: Mirror AEF's lane/geometry agreement check as a validator rule
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-30T20:30:10Z
+# ============================================================================
+
+task_id: T-312
+task_name: "Mirror AEF's lane/geometry agreement check as a validator rule"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-29T22:05:10Z
+completed: 2026-07-30T20:28:28Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-07-30T00:05:24+02:00
+last_commit: 2026-07-30T00:45:23+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file the lane/geometry agreement check promised to AEF at rail 335. adopt AEF's settled lane-geometry predicate verbatim; file T-313 (lane capacity)
+
+# Key outcomes
+outcomes:
+  - 'A new rule in `tools/validate-workflow.py` implements the predicate: per map, group nodes by DECLARED lane (`flowNodeRef`), compute each group''s y-range from `<aef:position>`, and report when two groups'' ranges overlap OR when the ranges do not run in laneSet declaration order'
+  - 'The rule degrades honestly rather than guessing: maps where nodes carry no `<aef:position>` (y absent, or the hand-authored `y=0` convention the designer treats as "unpositioned") are SKIPPED, not reported clean and not reported failing — geometry that does not exist cannot disagree with anything'
+  - 'Rule id and message text match AEF''s `fw corpus lint::lane_geometry` — their settled wording arrived at rail 339 and is quoted verbatim in Context above, so there is no divergence left to record. Any deviation from it is a defect in this task, not a local choice'
+  - 'The report names the **extremal witness pair** (upper lane''s lowest-drawn node, lower lane''s highest-drawn node) per violating ADJACENT lane pair — not a count, not an interval. This is what resolved knowledge-leveling v8 to exactly `kl_dormant`/`kl_healing` from bytes alone, and it is why the ordering rule beat the containment variant AEF retracted'
+  - 'Crossing counts drive the repair-shape hint: 100% of both sides → wholesale inversion → "reorder the laneSet, zero-semantic"; a subset → "placement or stale membership on the named nodes — authority call, not a layout call". A rule that says *what to do* is the difference between this and a finding nobody actions'
+  - 'Equal y counts as a crossing (two nodes on one row cannot be in two bands)'
+  - 'Band boundaries are NOT reconstructed from cumulative heights anywhere in the implementation — the predicate is origin-free by design, and reconstructing produced 7 phantom mismatches on AEF''s side'
+  - 'Positive fixture: `tests/fixtures/aef-bpmn/lane-position-conflict.bpmn` (already in-tree from T-310, and the canonical instance of this class) is reported FAILING by the new rule'
+  - 'All three of AEF''s observed shapes are covered by fixtures, not just the swap: wholesale inversion, partial overflow (the promoted-map shape), and the two-node swap. Partial overflow is the one a naive "are the lanes in the right order" check misses'
+  - 'Zero false positives on the clean corpus: all 24 maps in `examples/aef-processes/rendered/` pass the new rule (they were verified lane/geometry-consistent as part of T-310''s byte-identity work)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-07-30 — WARN, not ERROR'
+    chose: '`W-XML-LANE-GEOMETRY` is a WARN (exit 1), not an ERROR (exit 2).'
+    rationale: 'the map is not ambiguous — declared membership wins (T-310), so there'
+    alternatives_rejected: ['ERROR (blocks on maps whose repair needs cross-project']
+  - decision: '2026-07-30 — a new INFO severity for SKIP-not-PASS'
+    chose: 'added an `INFO` severity, used only by `I-XML-LANE-GEOMETRY-SKIP`,'
+    rationale: 'AEF''s predicate says an unevaluable map must SKIP, not pass. Our'
+    alternatives_rejected: ['silently returning (indistinguishable from a pass — the whole']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-07-29.yaml'
+  - '.context/audits/2026-07-30.yaml'
+  - '.context/audits/cron/2026-07-22-0000.yaml'
+  - '.context/audits/cron/2026-07-22-0015.yaml'
+  - '.context/audits/cron/2026-07-22-0030.yaml'
+  - '.context/audits/cron/2026-07-22-0045.yaml'
+  - '.context/audits/cron/2026-07-29-2315.yaml'
+  - '.context/audits/cron/2026-07-29-2330.yaml'
+  - '.context/audits/cron/2026-07-29-2345.yaml'
+  - '.context/audits/cron/2026-07-30-0000.yaml'
+  - '.context/audits/cron/2026-07-30-0015.yaml'
+  - '.context/audits/cron/2026-07-30-0030.yaml'
+  - '.context/audits/cron/2026-07-30-0045.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/episodic/T-311.yaml'
+  - '.context/locks/T-311.lock'
+  - '.context/locks/T-312.lock'
+  - '.context/project/decisions.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/episodic-gen/T-311.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.gate-bypass-log.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-310-nodes-render-outside-every-lane-band-pen.md'
+  - '.tasks/active/T-312-mirror-aefs-lanegeometry-agreement-check.md'
+  - '.tasks/active/T-313-lane-capacity-a-lane-whose-members-outgr.md'
+  - '.tasks/completed/T-311-save-path-destroys-the-leading-doc-comme.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-30T00:05:24"
+    action: "T-312: file the lane/geometry agreement check promised to AEF at rail 335"
+  - time: "2026-07-30T00:45:23"
+    action: "T-312: adopt AEF's settled lane-geometry predicate verbatim; file T-313 (lane capacity)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 1343 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1343
+  commits: 2
+  files_changed: 38
+  lines_added: 1292
+  lines_removed: 449
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-312-mirror-aefs-lanegeometry-agreement-check.md
+generated_by: context-agent-hybrid

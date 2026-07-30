@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-312 fixture, shape 1 of 3: WHOLESALE INVERSION.
+
+     The laneSet declares 'agent' first (so the agent band is drawn on top),
+     but every agent-declared node carries a BOTTOM y and every
+     framework-declared node carries a TOP y. This is the shape AEF found in
+     draft-exception-handling v3 (12 of 13 nodes) and draft-task-creation v3
+     (14 nodes): their seeds treat framework verbs as the visual spine on the
+     top row while the laneSet declares agent first.
+
+     Every node on both sides crosses (2/2 and 2/2), which is what tells the
+     rule this is a wholesale inversion — repairable by reordering the laneSet,
+     a zero-semantic edit. Contrast the partial shapes, where only a subset
+     crosses and the repair is an authority call.
+
+     WARN, not fatal: declared membership is still unambiguous (it wins, per
+     T-310), so the map has a defensible reading. What is broken is that a
+     human reading the picture and a tool reading flowNodeRef get different
+     answers about who is responsible. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t">
+    <bpmn:laneSet id="LaneSet_t">
+      <bpmn:lane id="agent" name="Agent">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>agt_1_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_3_act</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>frw_2_check</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>frw_4_done</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="agt_1_start">
+      <bpmn:extensionElements>
+        <aef:uid value="n_start"/>
+        <aef:position x="180.0" y="300.0"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:scriptTask id="frw_2_check" name="framework validates">
+      <bpmn:extensionElements>
+        <aef:uid value="n_check"/>
+        <aef:position x="300.0" y="100.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:scriptTask>
+    <bpmn:serviceTask id="agt_3_act" name="agent acts">
+      <bpmn:extensionElements>
+        <aef:uid value="n_act"/>
+        <aef:position x="470.0" y="310.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="frw_4_done">
+      <bpmn:extensionElements>
+        <aef:uid value="n_done"/>
+        <aef:position x="640.0" y="110.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_1_start" targetRef="frw_2_check">
+      <bpmn:extensionElements><aef:uid value="e_1"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_2" sourceRef="frw_2_check" targetRef="agt_3_act">
+      <bpmn:extensionElements><aef:uid value="e_2"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_3" sourceRef="agt_3_act" targetRef="frw_4_done">
+      <bpmn:extensionElements><aef:uid value="e_3"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>

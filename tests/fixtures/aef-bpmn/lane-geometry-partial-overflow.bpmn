@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_lane-geometry-partial-overflow"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <!-- T-312 fixture, shape 2 of 3: PARTIAL OVERFLOW.
+
+       This is the shape AEF found on aef-session-lifecycle v1 — a map their
+       operator had already PROMOTED — where three agent-declared nodes were
+       drawn up inside the human band. It is NOT a swap: the human lane's own
+       nodes stay where they belong, and most of the agent lane does too. Only
+       part of one lane leaks upward past the other lane's lowest node.
+
+       Why this fixture exists separately from the swap and the inversion:
+       partial overflow is the shape a naive "are the lanes in the right order"
+       check misses. Compare summary statistics rather than extremes and this
+       map looks fine —
+
+         human  y: 100, 110              median 105, centroid 105
+         agent  y: 105, 115, 120, 400    median 117.5, centroid 185
+
+       — human sits above agent on both, so a centroid- or median-ordered check
+       reports clean. The predicate compares the EXTREMA (the upper lane's
+       lowest-drawn node against the lower lane's highest-drawn node), which is
+       exactly why it catches this: hum_2_gate at y=110 is below agt_3_pick at
+       y=105.
+
+       Crossing counts: 1/2 on the upper side, 1/4 on the lower. A subset, not
+       100% of both, so the rule classifies the repair as placement or stale
+       membership on the named nodes — an authority call, not a layout call.
+       That distinction is the whole point: on a promoted map, silently moving
+       three nodes into the agent band would be rewriting who is accountable.
+
+       Deliberately structurally VALID — start reaches end, every node is
+       laned, task types agree with their lane authority — so everything
+       EXCEPT the geometry rule passes it. -->
+
+  <bpmn:collaboration id="Collaboration_lane-geometry-partial-overflow">
+    <bpmn:participant id="Pool_partial_overflow" name="partial overflow" processRef="Process_lane-geometry-partial-overflow"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_lane-geometry-partial-overflow" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="lane-geometry-partial-overflow" version="1" schemaVersion="2" title="partial lane overflow (T-312)" tier_default="1"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="human" name="Human · Sovereignty">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="hum" authority="sovereignty" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>hum_0_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>hum_2_gate</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="240"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>agt_3_pick</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_4_work</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_5_report</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_6_done</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="hum_0_start" name="operator opens the session">
+      <bpmn:extensionElements>
+        <aef:uid value="n_start"/>
+        <aef:position x="120.0" y="100.0"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:userTask id="hum_2_gate" name="operator authorises the run">
+      <bpmn:extensionElements>
+        <aef:uid value="n_gate"/>
+        <aef:position x="260.0" y="110.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:serviceTask id="agt_3_pick" name="agent picks up the work">
+      <bpmn:extensionElements>
+        <aef:uid value="n_pick"/>
+        <aef:position x="400.0" y="105.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="agt_4_work" name="agent carries it out">
+      <bpmn:extensionElements>
+        <aef:uid value="n_work"/>
+        <aef:position x="540.0" y="115.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="agt_5_report" name="agent reports back">
+      <bpmn:extensionElements>
+        <aef:uid value="n_report"/>
+        <aef:position x="680.0" y="120.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:endEvent id="agt_6_done" name="run recorded">
+      <bpmn:extensionElements>
+        <aef:uid value="n_done"/>
+        <aef:position x="820.0" y="400.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="hum_0_start" targetRef="hum_2_gate">
+      <bpmn:extensionElements><aef:uid value="e_1"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_2" sourceRef="hum_2_gate" targetRef="agt_3_pick">
+      <bpmn:extensionElements><aef:uid value="e_2"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_3" sourceRef="agt_3_pick" targetRef="agt_4_work">
+      <bpmn:extensionElements><aef:uid value="e_3"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_4" sourceRef="agt_4_work" targetRef="agt_5_report">
+      <bpmn:extensionElements><aef:uid value="e_4"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_5" sourceRef="agt_5_report" targetRef="agt_6_done">
+      <bpmn:extensionElements><aef:uid value="e_5"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>
