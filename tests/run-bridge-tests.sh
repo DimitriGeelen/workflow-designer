@@ -351,6 +351,62 @@ else
 fi
 
 echo
+echo
+echo "== Previously-unrun legs (T-316, AEF rail 347/349) =="
+# These nine were on disk, passing, and named by NO runner — several of them
+# guarding the seam this arc depends on. They were green when finally run by
+# hand, which is why the condition survived: a suite nobody runs cannot report a
+# failure, so its silence is indistinguishable from health. All nine were
+# verified green BEFORE this wiring, so this is a wiring change and not a quiet
+# absorption of unknown state.
+#
+# Paths are written out in full so the T-316 guard below sees the literal
+# `tests/<name>` invocation form. It deliberately does NOT match a bare
+# basename: a token in a comment or an echo string would satisfy that, which is
+# the prose-in-the-haystack class this arc has now hit three times.
+orphan_legs=(
+  "tests/test_forward_fixtures.py|forward-compile fixture contract"
+  "tests/test_roundtrip_serialization.py|round-trip serialization is no longer a semantic fixed point"
+  "tests/test_mapping_standard_conformance.py|frozen governance meta-keys drifted from the mapping standard"
+  "tests/test_validate_iw9.py|IW-9 validator rules (W-TYPE-LANE-MISMATCH / E-INCEPTION-NOT-SOVEREIGN) regressed"
+  "tests/test_release_immutability.py|release immutability guard (G-007) — a pinned VERSION was mutated"
+  "tests/test_bridge_seam_roundtrip.py|bridge emissions are being silently dropped on editor import"
+  "tests/test_designer_export_contract.py|designer export contract — an owner-bearing node lost its authority carrier"
+  "tests/test_designer_owner_derived.py|designer owner-derived guard — an editable owner override reappeared (IW-9)"
+  "tests/test_designer_render.py|designer render-check — render, T-177 markers, or inspector dropdowns broke"
+)
+for leg in "${orphan_legs[@]}"; do
+  legfile="${leg%%|*}"
+  legmsg="${leg#*|}"
+  legpath="$ROOT/$legfile"
+  if [ ! -f "$legpath" ]; then
+    report FAIL "orphan leg names a file that does not exist: $legfile"
+    fail=$((fail + 1))
+    continue
+  fi
+  if python3 "$legpath" >/dev/null 2>&1; then
+    pass=$((pass + 1))
+  else
+    report FAIL "$legmsg ($legfile)"
+    fail=$((fail + 1))
+  fi
+done
+
+echo
+echo "== Runner-orphan guard (T-316) =="
+# The guard for the class above: any collectable test file (test_*.py, *_test.py,
+# *.bats) that this runner does not invoke is a finding. Checks membership in
+# THIS runner specifically, not in the union of runners — a file named only by
+# check-corpus-node-cuts.sh would read as wired while the suite everyone
+# actually calls never touches it (reachability is not completeness, AEF 349).
+if python3 "$ROOT/tests/test_t316_runner_orphans.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "a collectable test file is not invoked by this runner, or the orphan guard's own negative controls broke (T-316)"
+  fail=$((fail + 1))
+fi
+
+echo
 # Corpus geometry sweep (T-052): every authored map's nodes must sit inside their
 # lane bands, modulo the exact legacy allowlist. Guards against new maps silently
 # straddling bands — the G-019 blindness found in T-050.

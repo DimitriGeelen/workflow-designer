@@ -4,7 +4,7 @@ name: "Nine test files are referenced by no runner: green today, structurally si
 description: >
   AEF's rail 347 found seven structural guards in tests/lint/ that no runner globbed - never had - with one red since 2026-06-10, and the reason it survived was a name collision that returned green output about an unrelated tool. Swept our side: our tests/ has no orphaned SUBDIRECTORY, but the same class exists one level down. 9 of 33 tests/test_*.py are named in no runner (run-bridge-tests.sh, run-validator-tests.sh, check-corpus-geometry.sh, check-corpus-node-cuts.sh): test_bridge_seam_roundtrip, test_designer_export_contract, test_designer_owner_derived, test_designer_render, test_forward_fixtures, test_mapping_standard_conformance, test_release_immutability, test_roundtrip_serialization, test_validate_iw9. No pytest config, no conftest, no CI workflow, no fw wiring - they run only when invoked by hand. All 9 pass TODAY, which is why this is not urgent and is exactly why it is dangerous: a suite nobody runs cannot report a failure, so its silence is indistinguishable from health. Several guard the producer seam this arc depends on (forward fixtures, export contract, round-trip serialization, release immutability G-007). Fix is a directory/glob-level orphan guard that fails loudly when a tests/ file no runner references appears, verified RED against a synthetic orphan - not a one-time wiring of these nine, which would leave the next added file in the same hole.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-31T10:37:50Z
-last_update: 2026-07-31T10:37:50Z
+last_update: 2026-07-31T11:18:13Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,78 +34,111 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+AEF's rail 347 found seven structural guards in `tests/lint/` that no runner ever globbed —
+one red since 2026-06-10 — surviving because `fw test lint` runs shellcheck, so the obvious
+command actively reassured. Swept our tree: no orphaned subdirectory, but the same class one
+level down. 9 of 34 `tests/test_*.py` are named by no runner.
+
+AEF then ran OUR check against THEIR tree and found their own fresh orphan guard was blind to
+exactly this case — it globbed `*.bats` only, so `tests/web/` (32 pytest files, including the
+designer-seam API contract tests both sides depend on) was invisible to the guard written to
+find invisibility. Their predicate, sent at rail 349 and adopted here:
+
+  MATCH WHAT A RUNNER WOULD COLLECT, NOT WHAT LOOKS LIKE A TEST.
+
+A guard that flags helpers is not a stricter guard; per their L-527 it is one that gets ignored,
+and the honest response to a guard with false positives is to stop running it.
+
+Their second warning, which applies harder here than there: wiring a directory into one runner
+turned their guard green while the suite that actually gates still named a single file. One
+mention anywhere satisfies a directory-level guard — it proves REACHABILITY, not COMPLETENESS
+across runner paths. Our tree is worse on this axis: four runners sit in `tests/`, and a file
+named only by `check-corpus-node-cuts.sh` (9 task-Verification references) would read as wired
+while the suite 78 tasks actually call, `run-bridge-tests.sh`, never touches it.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
-
-### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+- [x] Pre-wiring baseline recorded in this task: each of the 9 unreferenced files run individually
+      BEFORE any wiring, with its exit code. Green-after proves nothing; establishing green-before
+      is what makes this a wiring change rather than a quiet absorption of unknown state.
+- [x] `tests/test_t316_runner_orphans.py` exists and implements the collectable predicate:
+      `test_*.py`, `*_test.py`, `*.bats` under `tests/` are in scope; every other file is a helper
+      and is NOT flagged. Directory walk skips `fixtures/` and `__pycache__/`.
+- [x] The guard matches against the GATING runner (`tests/run-bridge-tests.sh`) with comment lines
+      stripped before the match — a comment naming a path is prose about the wiring, not the wiring.
+- [x] The guard fails loudly if the gating runner is absent, renamed, or empty, instead of passing
+      vacuously (the T-312 span-vacuity class: a check that cannot find its subject must go red).
+- [x] Fixed point: the guard asserts its OWN basename is named by the gating runner, so removing
+      its leg is caught by the guard itself rather than silently retiring it.
+- [x] Three negative controls, executed by the guard against synthetic trees and asserted:
+      (a) RED on a synthetic collectable orphan; (b) RED on call-site drift (gating runner exists
+      but no longer names a collectable file); (c) GREEN on a directory holding only a
+      non-collectable helper — the false-positive control.
+- [x] Teeth on the REAL tree, not only synthetic: the guard is proven RED by mutating the actual
+      runner (removing a leg) and green again after restore. Mutate-then-check, not read-and-believe.
+- [x] All 9 orphans wired into `tests/run-bridge-tests.sh`; census of collectable-but-not-gated
+      files is 0 with an empty deliberate-exclusion list.
+- [x] Full bridge suite green after wiring, with the new leg count recorded.
 
 ## Verification
 
-# Shell commands that MUST pass before work-completed. One per line.
-# Lines starting with # are comments (skipped). Empty lines ignored.
-# The completion gate runs each command — if any exits non-zero, completion is blocked.
-#
-# Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
-# *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
-# pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
-# past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
-#
-# Pipefail/SIGPIPE hint (L-387): P-011 runs each command under `set -eo pipefail`.
-# `cmd | grep -q PATTERN` exits 141 (SIGPIPE) when grep matches and closes stdin
-# while the upstream is still writing — verification then "fails" even though
-# the pattern was present. Safe pattern: capture first, grep the capture:
-#     out=$(cmd 2>&1); echo "$out" | grep -q "PATTERN"
-# Or:
-#     cmd > /tmp/.out 2>&1 && grep -q "PATTERN" /tmp/.out
-# Origin: L-387, captured 4× (T-1716, T-1838, T-1862, T-1863) before this hint.
-#
-# Single pipe only — no intermediate tail/awk/sed stages between capture and grep
-# (T-2090): `echo "$out" | tail -3 | grep -q PAT` re-introduces the SIGPIPE risk
-# the capture step closed off — the middle stage is what `grep -q` slams its
-# stdin on. `echo "$out"` is small and immediate; grep scans the whole captured
-# string anyway, so the tail-3 was cosmetic. Drop it: `echo "$out" | grep -q PAT`.
-#
-# Enforcement-baseline hint (L-398, T-1886): if you edited `.claude/settings.json`
-# (added/removed/reorganised hooks), add `bin/fw enforcement baseline` to your
-# Verification block. Otherwise the canonical hash diverges and `fw doctor`
-# reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
-# Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
-# the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+python3 tests/test_t316_runner_orphans.py
+bash tests/run-bridge-tests.sh > /tmp/.t316-suite 2>&1
+# Anchored on the whole summary line. `grep -q "0 failed"` is satisfied by
+# "10 failed" — the prose-in-the-haystack class, fourth instance this arc, and
+# this one was in the verification of the guard against that very class.
+grep -qE "^bridge round-trip: [0-9]+ passed, 0 failed$" /tmp/.t316-suite
+# The guard must be wired into the runner it checks (fixed point, asserted from
+# outside as well as inside — an inside-only fixed point is self-consistency,
+# which PL-034 says cannot detect a broken promise).
+grep -vE "^\s*#" tests/run-bridge-tests.sh | grep -q "tests/test_t316_runner_orphans.py"
+# Every previously-orphaned file is now named by the gating runner, matched on
+# the invocation path form rather than the bare basename.
+for f in test_bridge_seam_roundtrip test_designer_export_contract test_designer_owner_derived test_designer_render test_forward_fixtures test_mapping_standard_conformance test_release_immutability test_roundtrip_serialization test_validate_iw9; do grep -vE "^\s*#" tests/run-bridge-tests.sh | grep -q "tests/$f.py" || exit 1; done
+
+
+## Evidence
+
+**Pre-wiring baseline (green BEFORE, so this reads as wiring and not as absorption).**
+Each of the nine run individually on 2026-07-31 before any runner change, all `rc=0`:
+
+| file | rc | tail |
+|---|---|---|
+| test_bridge_seam_roundtrip.py | 0 | bridge emissions survive editor import with no silent drop |
+| test_designer_export_contract.py | 0 | 8 owner-bearing node(s) each carry a non-empty authority carrier |
+| test_designer_owner_derived.py | 0 | owner retired from AEF_FIELDS, no editable owner drop-down |
+| test_designer_render.py | 0 | render, T-177 markers, inspector dropdowns, corpus (0.8.0) |
+| test_forward_fixtures.py | 0 | 18 fixture(s) forward-compile clean |
+| test_mapping_standard_conformance.py | 0 | all 4 frozen governance meta-keys present |
+| test_release_immutability.py | 0 | G-007 guard — 5 paths pass |
+| test_roundtrip_serialization.py | 0 | semantic fixed point across all aef-bpmn fixtures |
+| test_validate_iw9.py | 0 | IW-9 rules O-1 / O-3 — 14 cases |
+
+**Guard RED before, GREEN after, on the REAL tree.** Pre-wiring the guard reported
+10 orphans (the nine plus itself) and a fixed-point failure. Post-wiring: 35
+collectable files, all invoked, deliberate-exclusion list empty.
+
+**Mutation teeth (three, against the actual runner, restored byte-identical after):**
+1. Removed the `test_validate_iw9.py` leg → RED, naming that file.
+2. Repointed the guard's own leg at another path → RED on the fixed-point assertion.
+3. Renamed `run-bridge-tests.sh` → RED as unevaluable, rather than passing over an
+   empty span. This is the T-312 vacuity class and the reason the check refuses to
+   treat "cannot find my subject" as "nothing wrong".
+
+**Negative controls (five, inside the guard, run every time):** synthetic orphan RED;
+call-site drift RED; a directory holding only non-collectable helpers GREEN (the
+false-positive control — a guard that flags helpers gets switched off, and per AEF's
+L-527 the honest response to it is to stop running it); unreadable/empty runner RED;
+commented-out call site RED.
+
+The first cut of the commented-out-call control was itself wrong — it built a runner
+whose only line was a comment, so the empty-runner rule fired first and the control
+proved nothing. Caught by running it, not by reading it.
+
+**Suite:** `bridge round-trip: 60 passed, 0 failed` (was 50), geometry sweep 24 clean,
+62s wall.
+
 
 ## RCA
 
@@ -174,3 +207,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-316-nine-test-files-are-referenced-by-no-run.md
 - **Context:** Initial task creation
+
+### 2026-07-31T11:18:13Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
