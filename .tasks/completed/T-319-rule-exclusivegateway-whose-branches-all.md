@@ -4,10 +4,10 @@ name: "Rule: exclusiveGateway whose branches all reconverge immediately is a dec
 description: >
   The example that started T-309: an exclusiveGateway fanning six labelled branches - external, dependency, unknown, design, environment, code - into a single shared target. Exclusive is semantically correct there (a failure has one type; parallel would fire all six), but six branches that reconverge immediately with no intervening difference is a decision without consequence: a data field wearing a gateway's clothes. The operator spotted it by eye, which is the work the validator exists to stop doing by eye. Not covered by any current rule, including T-317's W-XML-GW-AMBIGUOUS - that fires on missing conditions, whereas this case can be fully conditioned and still pointless. NOT to be built unilaterally: unlike T-312 (predicate adopted verbatim from AEF) and T-317 (parity with an existing in-house rule), this is NEW intelligence with a taste component, and the motivating instance is AEF-authored content, so the rule would fire on peer maps. House pattern for a new cross-toolchain rule is to settle the predicate on the rail first. Open questions to pose: does 'no intervening difference' mean literally identical targetRef, or targets that converge within N nodes; is a labelled-but-conditionless fan-in already covered by W-XML-GW-AMBIGUOUS in practice; and is this a validator rule at all or an advisory the designer shows only while authoring.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: next
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-31T11:41:47Z
-last_update: 2026-07-31T11:41:47Z
-date_finished: null
+last_update: 2026-07-31T12:27:53Z
+date_finished: 2026-07-31T12:27:53Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,14 +34,38 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Filed deliberately unbuilt. Unlike T-312 (predicate adopted verbatim from AEF) and
+T-317 (parity with an existing in-house rule), this was NEW intelligence with a
+taste component whose motivating instance is AEF-authored content — so the rule
+would fire on peer maps. The house pattern for a new cross-toolchain rule is to
+settle the predicate on the rail first, not to ship and then discuss.
+
+**That is what happened, and the predicate came back measured as worthless.**
+Closed as DECLINED, not built. Full evidence in `## Decisions`.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+
+The deliverable as filed was *settle the predicate before building* — not *build
+the rule*. That deliverable is complete; its outcome is a decline.
+
+- [x] The three open predicate questions posed to the peer BEFORE any source edit
+      → rail 355, all three (identical-`targetRef` vs convergence-within-N;
+      overlap with `W-XML-GW-AMBIGUOUS`; validator rule vs authoring advisory)
+- [x] Q2 — the deciding question — answered by MEASUREMENT on a real corpus, not
+      by taste
+      → AEF rail 356: 2 strict-predicate hits, 2 already caught by
+      `W-XML-GW-AMBIGUOUS`, **T-319-unique = 0**. Total subsumption
+- [x] Decision recorded with the evidence and the rejected alternatives, so the
+      question reads as answered rather than parked
+      → `## Decisions`, including why DEFER was rejected
+- [x] No source file edited under this task id
+      → `git log --stat` for T-319 touches only this task file
+- [x] The one durable part — that the smell, if ever surfaced, belongs on an
+      authoring surface rather than the validator — carried to where it survives
+      this task's closure
+      → recorded against T-309 (`docs/reports/T-309-validator-surfacing.md`)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -158,6 +182,41 @@ date_finished: null
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-07-31 — DECLINED on measurement (not deferred)
+
+- **Chose:** do not build the reconvergence rule. Close as declined.
+- **Why:** the predicate was posed to AEF at rail 355 before building, exactly
+  because the motivating instance is peer content. Their measurement (rail 356)
+  settles the question I had not measured — Q2, overlap:
+
+  | | |
+  |---|---|
+  | reconverging exclusiveGateways (strict: identical `targetRef`) | 2 |
+  | of those, already caught by `W-XML-GW-AMBIGUOUS` | 2 |
+  | **T-319-unique** | **0** |
+
+  Total subsumption. Every instance the strict predicate would catch is already
+  caught by a rule shipped in T-317. The looser convergence-within-N variant is
+  the only version that would earn anything, and it needs a bound neither side
+  can justify. AEF's formulation, kept verbatim: *a predicate that only pays off
+  in the form you cannot justify is a predicate to leave alone.*
+- **Rejected:** (a) build the strict version anyway — earns zero by measurement;
+  (b) build convergence-within-N — unjustifiable bound; (c) **defer** — a parked
+  task carrying a measured zero is one nobody re-reads, and parking would leave
+  the impression the question is open when it is answered.
+- **Correction absorbed:** the motivating instance was not the map I had in mind.
+  `draft-knowledge-leveling` is NOT a reconvergence case under the strict
+  predicate (`fw_gw_ready` fans 4 edges to 2 distinct targets). The only strict
+  hits anywhere are `draft-exception-handling` v2/v3, `fw_gw_type`, 6 outgoing
+  onto ONE target. A rule built from the witness I was carrying in my head would
+  have missed both real instances — a worse version of building from a single
+  witness, since the single witness was also misremembered.
+- **Salvaged, and it outlives the rule:** if the modelling smell is ever worth
+  surfacing it belongs on an authoring surface, not the validator. Our other
+  WARNs mean "a reader or runtime could reach the wrong answer here"; this one
+  would mean "you wrote something you did not mean". Different surface. Recorded
+  against T-309 rather than lost with this task.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -174,3 +233,19 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-319-rule-exclusivegateway-whose-branches-all.md
 - **Context:** Initial task creation
+
+### 2026-07-31T12:27:27Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-353752f5
+- **Timestamp:** 2026-07-31T12:27:54Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-07-31T12:27:53Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

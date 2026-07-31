@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-319: Rule: exclusiveGateway whose branches all reconverge immediately is a decision without consequence (T-309 IW-4)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-31T12:27:55Z
+# ============================================================================
+
+task_id: T-319
+task_name: "Rule: exclusiveGateway whose branches all reconverge immediately is a decision without consequence (T-309 IW-4)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-31T11:41:47Z
+completed: 2026-07-31T12:27:53Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'The three open predicate questions posed to the peer BEFORE any source edit'
+  - 'Q2 — the deciding question — answered by MEASUREMENT on a real corpus, not'
+  - 'Decision recorded with the evidence and the rejected alternatives, so the'
+  - 'No source file edited under this task id'
+  - 'The one durable part — that the smell, if ever surfaced, belongs on an'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+  - decision: '2026-07-31 — DECLINED on measurement (not deferred)'
+    chose: 'do not build the reconvergence rule. Close as declined.'
+    rationale: 'the predicate was posed to AEF at rail 355 before building, exactly'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 46 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 46
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-319-rule-exclusivegateway-whose-branches-all.md
+generated_by: context-agent-hybrid
