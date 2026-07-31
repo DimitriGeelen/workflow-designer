@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-313 fixture: a SMALL spill whose lowest node is a GATEWAY.
+
+     This is the shape of AEF's live aef-session-lifecycle agent lane (6px past a
+     260px band) and it is the one a height-only occupancy table misses entirely,
+     because a gateway is 48px tall but occupies 66 — the renderer draws its name
+     below the shape.
+
+     The y=199 / y=200 inversion is baked in deliberately, from AEF's own
+     counterexample at rail 341:
+
+       agt_1_gate  exclusiveGateway  y=199  occupies 66  bottom edge 265
+       agt_2_work  serviceTask       y=200  occupies 64  bottom edge 264
+
+     The node that defines the spill is the one with the SMALLER y. A
+     largest-y sort — the obvious implementation — names agt_2_work and reports
+     the wrong node, or misses the lane.
+
+     Lane arithmetic: extent = 265 - 100 = 165 against a declared height of 160,
+     so it spills 5px. The framework lane below contains its content (54 in 200)
+     and must stay quiet, and the lanes are in declaration order, so lane_geometry
+     stays quiet too — this fixture isolates capacity from ordering.
+
+     WARN, not fatal: the map's semantics are intact and the repair is a pure
+     height change with no node movement. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t">
+    <bpmn:laneSet id="LaneSet_t">
+      <bpmn:lane id="agent" name="Agent">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="160"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>agt_0_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_1_gate</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_2_work</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_3_alt</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="200"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>frw_4_done</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="agt_0_start">
+      <bpmn:extensionElements>
+        <aef:uid value="n_start"/>
+        <aef:position x="120.0" y="100.0"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:exclusiveGateway id="agt_1_gate" name="route?">
+      <bpmn:extensionElements>
+        <aef:uid value="n_gate"/>
+        <aef:position x="260.0" y="199.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="agt_2_work" name="do the work">
+      <bpmn:extensionElements>
+        <aef:uid value="n_work"/>
+        <aef:position x="400.0" y="200.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_4</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="agt_3_alt" name="do it the other way">
+      <bpmn:extensionElements>
+        <aef:uid value="n_alt"/>
+        <aef:position x="400.0" y="120.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+      <bpmn:outgoing>flow_5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="frw_4_done">
+      <bpmn:extensionElements>
+        <aef:uid value="n_done"/>
+        <aef:position x="560.0" y="400.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_4</bpmn:incoming>
+      <bpmn:incoming>flow_5</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_0_start" targetRef="agt_1_gate">
+      <bpmn:extensionElements><aef:uid value="e_1"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_2" sourceRef="agt_1_gate" targetRef="agt_2_work">
+      <bpmn:extensionElements><aef:uid value="e_2"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_3" sourceRef="agt_1_gate" targetRef="agt_3_alt">
+      <bpmn:extensionElements><aef:uid value="e_3"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_4" sourceRef="agt_2_work" targetRef="frw_4_done">
+      <bpmn:extensionElements><aef:uid value="e_4"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_5" sourceRef="agt_3_alt" targetRef="frw_4_done">
+      <bpmn:extensionElements><aef:uid value="e_5"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_lane-capacity-large-spill"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <!-- T-313 fixture: a LARGE spill, dimensioned from AEF's live worst case.
+
+       Their draft-knowledge-leveling agent lane declares height 260 and its
+       members span an extent of 567 — 307px past the band edge, an order of
+       magnitude beyond the band, with flowNodeRef still claiming every node.
+       Membership reads correct while the render does not, which is exactly why
+       T-310 explained only half of the operator's screenshot.
+
+       Reproduced here node-for-node in extent:
+
+         agt_0_start   startEvent              y= 87   occupies 54   top edge  87
+         agt_1_pick    serviceTask             y=300   occupies 64
+         agt_2_wait    intermediateCatchEvent  y=600   occupies 54   bottom   654
+
+         extent = 654 - 87 = 567   declared height 260   spill 307
+
+       The lanes are in declaration order (agent max y 600 < framework min y 700),
+       so lane_geometry stays CLEAN on this map. That is the point of the pairing:
+       ordering-clean means the repair is a pure height change with zero node
+       movement, and the finding says so. A map that is dirty on both axes cannot
+       be repaired by heights at all.
+
+       The framework lane below contains its own content (extent 54 in a declared
+       200) and must stay quiet, so the fixture isolates one overflowing lane. -->
+
+  <bpmn:process id="Process_lane-capacity-large-spill" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="lane-capacity-large-spill" version="1" schemaVersion="2" title="lane capacity: large spill (T-313)" tier_default="1"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="260"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>agt_0_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_1_pick</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_2_wait</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="framework" name="Framework · Authority">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="200"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>frw_3_done</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="agt_0_start" name="learning captured">
+      <bpmn:extensionElements>
+        <aef:uid value="n_start"/>
+        <aef:position x="140.0" y="87.0"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:serviceTask id="agt_1_pick" name="agent consolidates">
+      <bpmn:extensionElements>
+        <aef:uid value="n_pick"/>
+        <aef:position x="300.0" y="300.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+      <bpmn:outgoing>flow_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:intermediateCatchEvent id="agt_2_wait" name="dormant until promoted">
+      <bpmn:extensionElements>
+        <aef:uid value="n_wait"/>
+        <aef:position x="470.0" y="600.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_2</bpmn:incoming>
+      <bpmn:outgoing>flow_3</bpmn:outgoing>
+    </bpmn:intermediateCatchEvent>
+
+    <bpmn:endEvent id="frw_3_done" name="recorded">
+      <bpmn:extensionElements>
+        <aef:uid value="n_done"/>
+        <aef:position x="640.0" y="700.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_3</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="flow_1" sourceRef="agt_0_start" targetRef="agt_1_pick">
+      <bpmn:extensionElements><aef:uid value="e_1"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_2" sourceRef="agt_1_pick" targetRef="agt_2_wait">
+      <bpmn:extensionElements><aef:uid value="e_2"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="flow_3" sourceRef="agt_2_wait" targetRef="frw_3_done">
+      <bpmn:extensionElements><aef:uid value="e_3"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>

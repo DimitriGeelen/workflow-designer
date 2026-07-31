@@ -83,6 +83,47 @@ AEF_NS = "http://anchorpoint.framework/aef/extensions"
 # BPMN local tags that are NOT flow nodes (excluded when collecting node ids)
 XML_NON_FLOWNODE_TAGS = {"laneSet", "sequenceFlow", "extensionElements"}
 
+# Occupancy is NOT node height (T-313). The renderer's own containment function
+# adds an 18px allowance for types whose name is drawn BELOW the shape
+# (src:6975):
+#
+#   botOf(n)   = n.y + h(type) + (labelBelow(type) ? 18 : 0)
+#   labelBelow = startEvent | endEvent | linkEventThrow | linkEventCatch
+#              | startsWith('event') | endsWith('Gateway')
+#
+# so a 48px gateway occupies 66 while a 64px task occupies 64 — the smallest
+# shapes are not the smallest occupants, and a height-only table misses any lane
+# whose lowest node is a gateway or an event.
+#
+# Keyed by BPMN local tag, because that is what crosses the seam. The designer's
+# link and typed events all serialise to intermediateCatchEvent /
+# intermediateThrowEvent / boundaryEvent (src:9118 TYPE_TAG, src:9403);
+# collapsing them is sound HERE specifically because every event kind in
+# NODE_DEFAULTS is 36 with labelBelow true. It would not be sound for a rule that
+# needed the shape back.
+#
+# tests/test_t313_lane_capacity.py DERIVES this table from
+# src/aef-workflow-designer.html rather than restating it, so the palette cannot
+# outgrow it silently.
+NODE_OCCUPANCY = {
+    "startEvent": 54,
+    "endEvent": 54,
+    "intermediateCatchEvent": 54,
+    "intermediateThrowEvent": 54,
+    "boundaryEvent": 54,
+    "exclusiveGateway": 66,
+    "parallelGateway": 66,
+    "serviceTask": 64,
+    "userTask": 64,
+    "scriptTask": 64,
+    "subProcess": 64,
+}
+
+# src:6966 — the containment margin the Clean layout applies at BOTH edges. Used
+# only to describe the tidy target in a repair hint; the rule itself gates on
+# containment, NOT on the fixpoint. See _check_lane_capacity.
+LANE_FIT_MARGIN = 12
+
 
 class Finding:
     __slots__ = ("severity", "rule", "location", "message")
@@ -894,6 +935,11 @@ class XmlValidator:
         # blind to, because both are purely structural (rail 334/339).
         self._check_lane_geometry(process)
 
+        # Lane capacity (T-313). MUST run after lane geometry: capacity's repair
+        # hint depends on whether the ordering rule is clean, because heights can
+        # only contain lanes that are already ordered (see _check_lane_capacity).
+        self._check_lane_capacity(process)
+
     def _node_y(self, node_el):
         """The node's drawn y from <aef:position>, or None when unpositioned.
 
@@ -920,6 +966,30 @@ class XmlValidator:
     @staticmethod
     def _fmt_y(value):
         return str(int(value)) if float(value).is_integer() else str(value)
+
+    def _flow_nodes(self, process):
+        """Flow nodes of a process as ({id: element}, [id, ...]) in document order."""
+        node_el = {}
+        doc_order = []
+        for child in list(process):
+            local = self._local(child.tag)
+            if local == "sequenceFlow" or local in XML_NON_FLOWNODE_TAGS:
+                continue
+            nid = child.get("id")
+            if nid is None:
+                continue
+            node_el[nid] = child
+            doc_order.append(nid)
+        return node_el, doc_order
+
+    def _lane_members(self, lane, node_el):
+        """Resolvable flowNodeRef members of a lane, in declaration order."""
+        members = []
+        for ref_el in lane.findall("{%s}flowNodeRef" % BPMN_NS):
+            ref = (ref_el.text or "").strip()
+            if ref and ref in node_el:
+                members.append(ref)
+        return members
 
     def _check_lane_geometry(self, process):
         """Lane/geometry agreement (T-312), mirroring AEF `fw corpus lint::lane_geometry`.
@@ -955,28 +1025,13 @@ class XmlValidator:
             lane_set.findall("{%s}lane" % BPMN_NS) if lane_set is not None else []
         )
 
-        # flow nodes of this process, in document order
-        node_el = {}
-        doc_order = []
-        for child in list(process):
-            local = self._local(child.tag)
-            if local == "sequenceFlow" or local in XML_NON_FLOWNODE_TAGS:
-                continue
-            nid = child.get("id")
-            if nid is None:
-                continue
-            node_el[nid] = child
-            doc_order.append(nid)
+        node_el, doc_order = self._flow_nodes(process)
 
         # group by DECLARED lane (flowNodeRef), in laneSet declaration order
-        groups = []
-        for lane in lanes:
-            members = []
-            for ref_el in lane.findall("{%s}flowNodeRef" % BPMN_NS):
-                ref = (ref_el.text or "").strip()
-                if ref and ref in node_el:
-                    members.append(ref)
-            groups.append((lane.get("id") or "?", members))
+        groups = [
+            (lane.get("id") or "?", self._lane_members(lane, node_el))
+            for lane in lanes
+        ]
         populated = [g for g in groups if g[1]]
 
         # Out of scope rather than unevaluable: with fewer than two populated
@@ -1041,6 +1096,153 @@ class XmlValidator:
                     len(upper),
                     len(cross_lo),
                     len(lower),
+                    repair,
+                ),
+            )
+
+    def _check_lane_capacity(self, process):
+        """Lane capacity (T-313), mirroring AEF `fw corpus lint::lane_overflow`.
+
+        Ordering (``_check_lane_geometry``) compares lanes against EACH OTHER and
+        is structurally blind to a lane that cannot contain its OWN members. This
+        is that rule: a lane whose members' occupancy extent exceeds its declared
+        height draws part of itself past the band edge.
+
+        Gated on CONTAINMENT, strict: ``extent > height``. A box whose bottom edge
+        lands exactly ON the band edge is contained and does not fire.
+
+        This is DELIBERATELY not the Clean fixpoint
+        ``height == extent + 2*LANE_FIT_MARGIN``. A lane that contains its content
+        while missing the fixpoint is one Clean away from tidy, not broken, and
+        (AEF, rail 341) "a lint that reports tidiness as breakage trains people to
+        ignore it". Tidiness is the mapMessiness nudge's job (T-102), not this
+        rule's. Our two toolchains therefore agree exactly, including on the lanes
+        they both decline to report — the divergence is pinned by a test so a
+        future "consistency fix" has to delete a named case to happen.
+
+        Occupancy, not height, and the lowest node is found by botOf rather than
+        by y: AEF's fixture has a gateway at y=199 reaching 265 and a task at
+        y=200 reaching 264, so a largest-y sort names the wrong node, and their
+        live session-lifecycle case has a gateway as its lowest member.
+
+        Composition with the ordering rule, which is why this runs second: bands
+        tile the axis contiguously in declaration order, so heights are the only
+        free variable. A set of heights that contains every lane exists iff the
+        lanes' member extents are already ordered and non-overlapping — i.e. iff
+        lane_geometry is clean. So on an ordering-clean map this is repairable
+        with zero node movement, and on an ordering-dirty one it is not
+        repairable by heights at all.
+        """
+        lane_set = process.find("{%s}laneSet" % BPMN_NS)
+        lanes = (
+            lane_set.findall("{%s}lane" % BPMN_NS) if lane_set is not None else []
+        )
+        if not lanes:
+            return
+        node_el, _ = self._flow_nodes(process)
+
+        # If the lanes are out of order, no set of heights can contain them; say
+        # so in the repair rather than advising a height change that cannot work.
+        ordering_dirty = any(
+            f.rule == "W-XML-LANE-GEOMETRY" for f in self.findings
+        )
+
+        for lane in lanes:
+            lane_id = lane.get("id") or "?"
+            members = self._lane_members(lane, node_el)
+            meta = lane.find(
+                "{%s}extensionElements/{%s}laneMeta" % (BPMN_NS, AEF_NS)
+            )
+            raw_h = meta.get("height") if meta is not None else None
+            try:
+                height = float(raw_h)
+            except (TypeError, ValueError):
+                height = None
+
+            # Out of scope, not unevaluable: a lane with no members or no declared
+            # height makes NO containment claim. Silent by design — otherwise every
+            # hand-authored heightless fixture gains a permanent unresolvable note.
+            if not members or height is None:
+                continue
+
+            unknown = sorted(
+                {
+                    self._local(node_el[m].tag)
+                    for m in members
+                    if self._local(node_el[m].tag) not in NODE_OCCUPANCY
+                }
+            )
+            if unknown:
+                # SKIP rather than default to a guessed occupancy. Defaulting would
+                # silently under- or over-report forever; the coverage test in
+                # tests/test_t313_lane_capacity.py is what stops this from becoming
+                # a permanent quiet skip as the palette grows.
+                self.info(
+                    "I-XML-LANE-CAPACITY-SKIP",
+                    "lane '%s'" % lane_id,
+                    "lane capacity not evaluated: no occupancy is known for node "
+                    "type(s) %s, and guessing one would misreport the band by the "
+                    "size of the guess — this lane is SKIPPED by lane_overflow, "
+                    "not passed by it" % ", ".join(unknown),
+                )
+                continue
+
+            ys = {m: self._node_y(node_el[m]) for m in members}
+            missing = sorted(m for m in members if ys[m] is None)
+            if missing:
+                self.info(
+                    "I-XML-LANE-CAPACITY-SKIP",
+                    "lane '%s'" % lane_id,
+                    "lane capacity not evaluated: %d of %d member(s) carry no "
+                    "<aef:position> y (e.g. %s). A band cannot be shown to "
+                    "overflow content that was never placed — this lane is "
+                    "SKIPPED by lane_overflow, not passed by it"
+                    % (len(missing), len(members), ", ".join(missing[:3])),
+                )
+                continue
+
+            occ = {m: NODE_OCCUPANCY[self._local(node_el[m].tag)] for m in members}
+            # the lowest-drawn node is the one with the greatest BOTTOM edge, which
+            # is not necessarily the one with the greatest y
+            lowest = max(members, key=lambda m: ys[m] + occ[m])
+            bottom = ys[lowest] + occ[lowest]
+            top = min(ys[m] for m in members)
+            extent = bottom - top
+            if extent <= height:
+                continue
+
+            tidy = extent + 2 * LANE_FIT_MARGIN
+            if ordering_dirty:
+                repair = (
+                    "the lanes on this map are NOT in order (see "
+                    "W-XML-LANE-GEOMETRY), and while that holds no set of lane "
+                    "heights can contain them — resolve the ordering first, after "
+                    "which this becomes a pure height change"
+                )
+            else:
+                repair = (
+                    "the lanes on this map are in order, so growing the declared "
+                    "height to at least %s (%s for the Clean fixpoint) fixes this "
+                    "with ZERO node movement — bands tile the axis, so heights are "
+                    "the only free variable"
+                    % (self._fmt_y(extent), self._fmt_y(tidy))
+                )
+            self.warn(
+                "W-XML-LANE-CAPACITY",
+                "lane '%s'" % lane_id,
+                "lane cannot contain its own members (lane_overflow): declared "
+                "height %s, member extent %s, spilling %s px past the band edge. "
+                "Lowest-drawn node is '%s' (%s at y=%s, occupies %d, bottom edge "
+                "%s) — chosen by bottom edge, not by y. %s"
+                % (
+                    self._fmt_y(height),
+                    self._fmt_y(extent),
+                    self._fmt_y(extent - height),
+                    lowest,
+                    self._local(node_el[lowest].tag),
+                    self._fmt_y(ys[lowest]),
+                    occ[lowest],
+                    self._fmt_y(bottom),
                     repair,
                 ),
             )

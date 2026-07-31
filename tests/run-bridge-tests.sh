@@ -231,6 +231,22 @@ else
 fi
 
 echo
+echo "== lane capacity rule (T-313) =="
+# Ordering (T-312) compares lanes against each other and is structurally blind to a
+# lane that cannot contain its OWN members. This leg pins the capacity half:
+# occupancy rather than height (a 48px gateway occupies 66, more than a 64px task),
+# the lowest node chosen by BOTTOM EDGE rather than by y, containment rather than
+# the Clean fixpoint — including the fit-but-untidy cases we and AEF deliberately
+# both stay silent about — and the coverage guard that derives the occupancy table
+# from the renderer's own constants so the palette cannot outgrow it silently.
+if python3 "$ROOT/tests/test_t313_lane_capacity.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "lane capacity rule regressed — a lane may again draw past its own band edge undetected (T-313 class)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== annotation seam v0: aef:ready/aef:annotate loop (T-258, T-250 GO) =="
 # Embeds the real editor in an iframe host (AEF Watchtower topology): ready
 # handshake per render, badge intake + unknown-uid/spoof rejection, display-only
