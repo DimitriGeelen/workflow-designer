@@ -4,20 +4,20 @@ name: "Nine test files are referenced by no runner: green today, structurally si
 description: >
   AEF's rail 347 found seven structural guards in tests/lint/ that no runner globbed - never had - with one red since 2026-06-10, and the reason it survived was a name collision that returned green output about an unrelated tool. Swept our side: our tests/ has no orphaned SUBDIRECTORY, but the same class exists one level down. 9 of 33 tests/test_*.py are named in no runner (run-bridge-tests.sh, run-validator-tests.sh, check-corpus-geometry.sh, check-corpus-node-cuts.sh): test_bridge_seam_roundtrip, test_designer_export_contract, test_designer_owner_derived, test_designer_render, test_forward_fixtures, test_mapping_standard_conformance, test_release_immutability, test_roundtrip_serialization, test_validate_iw9. No pytest config, no conftest, no CI workflow, no fw wiring - they run only when invoked by hand. All 9 pass TODAY, which is why this is not urgent and is exactly why it is dangerous: a suite nobody runs cannot report a failure, so its silence is indistinguishable from health. Several guard the producer seam this arc depends on (forward fixtures, export contract, round-trip serialization, release immutability G-007). Fix is a directory/glob-level orphan guard that fails loudly when a tests/ file no runner references appears, verified RED against a synthetic orphan - not a one-time wiring of these nine, which would leave the next added file in the same hole.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/test_t316_runner_orphans.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-31T10:37:50Z
-last_update: 2026-07-31T11:18:13Z
-date_finished: null
+last_update: 2026-07-31T11:23:24Z
+date_finished: 2026-07-31T11:23:24Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -210,3 +210,22 @@ proved nothing. Caught by running it, not by reading it.
 
 ### 2026-07-31T11:18:13Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e8989f35
+- **Timestamp:** 2026-07-31T11:24:25Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 10
+     - evidence: `grep -vE "^\s*#" tests/run-bridge-tests.sh | grep -q "tests/test_t316_runner_orphans.py"`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 13
+     - evidence: `for f in test_bridge_seam_roundtrip test_designer_export_contract test_designer_owner_derived test_designer_render test_forward_fixtures test_mapping_standard_conformance test_release_immutability tes`
+
+### 2026-07-31T11:23:24Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

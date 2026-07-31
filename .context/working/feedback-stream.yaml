@@ -3239,3 +3239,129 @@ scan_id: R-60377b81
 task_id: T-311
 payload:
   task_file: .tasks/active/T-311-save-path-destroys-the-leading-doc-comme.md
+---
+kind: scan_emitted
+timestamp: '2026-07-30T20:30:07Z'
+scan_id: R-3c781c16
+task_id: T-312
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-30T20:30:07Z'
+scan_id: R-3c781c16
+task_id: T-312
+payload:
+  task_file: .tasks/active/T-312-mirror-aefs-lanegeometry-agreement-check.md
+---
+kind: scan_emitted
+timestamp: '2026-07-31T08:44:15Z'
+scan_id: R-95e3341f
+task_id: T-313
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-31T08:44:15Z'
+scan_id: R-95e3341f
+task_id: T-313
+payload:
+  task_file: .tasks/active/T-313-lane-capacity-a-lane-whose-members-outgr.md
+---
+kind: scan_emitted
+timestamp: '2026-07-31T09:02:44Z'
+scan_id: R-b5e60970
+task_id: T-315
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-31T09:02:44Z'
+scan_id: R-b5e60970
+task_id: T-315
+payload:
+  task_file: .tasks/active/T-315-import-reconcile-answers-an-under-declar.md
+---
+kind: scan_emitted
+timestamp: '2026-07-31T10:52:40Z'
+scan_id: R-8820de5c
+task_id: T-314
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-31T10:52:40Z'
+scan_id: R-8820de5c
+task_id: T-314
+payload:
+  task_file: .tasks/active/T-314-three-sha-pinned-fixtures-carry-the-t-31.md
+---
+kind: scan_emitted
+timestamp: '2026-07-31T11:24:25Z'
+scan_id: R-e8989f35
+task_id: T-316
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-31T11:24:25Z'
+scan_id: R-e8989f35
+task_id: T-316
+payload:
+  task_file: .tasks/active/T-316-nine-test-files-are-referenced-by-no-run.md
+---
+kind: scan_emitted
+timestamp: '2026-07-31T11:36:44Z'
+scan_id: R-428de72d
+task_id: T-317
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-31T11:36:44Z'
+scan_id: R-428de72d
+task_id: T-317
+payload:
+  task_file: .tasks/active/T-317-rule-parity-w-gw-ambiguous-is-missing-fr.md
+---
+kind: scan_emitted
+timestamp: '2026-07-31T11:40:03Z'
+scan_id: R-e2690385
+task_id: T-318
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-31T11:40:03Z'
+scan_id: R-e2690385
+task_id: T-318
+payload:
+  task_file: .tasks/active/T-318-t-314-repair-is-unreachable-to-aef-repai.md

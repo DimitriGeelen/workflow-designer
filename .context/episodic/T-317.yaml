@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-317: Rule parity: W-GW-AMBIGUOUS is missing from the BPMN validator, so the designer's own dialect gets the weaker rule set
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-31T11:36:46Z
+# ============================================================================
+
+task_id: T-317
+task_name: "Rule parity: W-GW-AMBIGUOUS is missing from the BPMN validator, so the designer's own dialect gets the weaker rule set"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-31T11:26:47Z
+completed: 2026-07-31T11:35:21Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-07-31T13:35:14+02:00
+last_commit: 2026-07-31T13:35:14+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  W-XML-GW-AMBIGUOUS — close the branch-ambiguity parity gap, and it finds a live drift in our own fixture pair
+
+# Key outcomes
+outcomes:
+  - 'Teeth FIRST: the gap is recorded as a reproducible pre-change measurement — a BPMN map'
+  - '`XmlValidator` emits `W-XML-GW-AMBIGUOUS` when an `exclusiveGateway` has more than one'
+  - 'Semantics match the YAML rule exactly: exactly one unconditioned outgoing edge is the'
+  - 'Severity is WARN, not ERROR — it must not hard-fail promoted peer bytes we are forbidden'
+  - 'Fixture-suite cases added under the `<RULE-ID>.<ext>` naming contract, and'
+  - 'Corpus sweep: every rendered BPMN map plus every shared fixture re-validated, with the'
+  - 'Bridge suite green (`0 failed`) — the rendered corpus round-trips through this validator,'
+  - 'No YAML-path behaviour change: the existing `W-GW-AMBIGUOUS` findings on the YAML corpus'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'W-XML-GW-AMBIGUOUS — close the branch-ambiguity parity gap, and it finds a live drift in our own fixture pair'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-317-rule-parity-w-gw-ambiguous-is-missing-fr.md'
+  - '.tasks/completed/T-316-nine-test-files-are-referenced-by-no-run.md'
+  - 'tests/fixtures/valid/gw-single-default.xml'
+  - 'tests/fixtures/valid/investigate.bpmn'
+  - 'tests/fixtures/warn/W-XML-GW-AMBIGUOUS.xml'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_dead_leg_census.py'
+  - 'tests/test_t317_gw_ambiguous_parity.py'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-31T13:35:14"
+    action: "T-317: W-XML-GW-AMBIGUOUS — close the branch-ambiguity parity gap, and it finds a live drift in our own fixture pair"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 8
+  commits: 1
+  files_changed: 9
+  lines_added: 565
+  lines_removed: 6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-317-rule-parity-w-gw-ambiguous-is-missing-fr.md
+generated_by: context-agent-hybrid

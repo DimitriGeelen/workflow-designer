@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-07-31T09:02:46Z ===
+task_id: T-315
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-315.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Import reconcile answers an under-declared lane height by moving nodes; growing the band preserves the authored layout
+  Duration: 0 days (16 min)
+  Updates: 1
+  Commits: 2
+  Lines: +854 -57 across 11 files
+  Outcomes: 10 AC checked
+  Artifacts: 11 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-315-import-reconcile-answers-an-under-declar.md
+--- exit code: 0 ---

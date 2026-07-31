@@ -1025,3 +1025,24 @@ decisions:
     date: 2026-07-29
     task: T-311
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-126
+    decision: "`W-XML-LANE-GEOMETRY` is a WARN (exit 1), not an ERROR (exit 2)."
+    scope: project
+    date: 2026-07-30
+    task: T-312
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-127
+    decision: "added an `INFO` severity, used only by `I-XML-LANE-GEOMETRY-SKIP`,"
+    scope: project
+    date: 2026-07-30
+    task: T-312
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-128
+    decision: "rule id `W-XML-LANE-GEOMETRY`, with AEF's bare token `lane_geometry`"
+    scope: project
+    date: 2026-07-30
+    task: T-312
+    rationale: "Auto-captured from task file on completion"

@@ -4,20 +4,20 @@ name: "Rule parity: W-GW-AMBIGUOUS is missing from the BPMN validator, so the de
 description: >
   T-309's GO decision named rule parity as a prerequisite of the first surfacing slice, not a follow-up. The designer speaks BPMN, but W-GW-AMBIGUOUS (exclusiveGateway with more than one unconditioned outgoing edge) exists only on the YAML Validator; the XmlValidator has E-XML-GW-OUTGOING but no ambiguity rule. Confirmed by mutation on 2026-07-31: stripping all 5 conditionExpression elements out of examples/aef-processes/rendered/inception-review.bpmn leaves it VALID with no findings. So surfacing the validator in the editor today would surface the weaker set and would specifically not answer the gateway question that prompted the inception. Deliverable is the XML-side rule plus the fixture-suite cases and a corpus sweep confirming no existing map lights up.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/test_t317_gw_ambiguous_parity.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-31T11:26:47Z
-last_update: 2026-07-31T11:27:11Z
-date_finished: null
+last_update: 2026-07-31T11:35:21Z
+date_finished: 2026-07-31T11:35:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -213,3 +213,15 @@ after that guard shipped, on a real file rather than a synthetic one.
 
 ### 2026-07-31T11:27:11Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-428de72d
+- **Timestamp:** 2026-07-31T11:36:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-07-31T11:35:21Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

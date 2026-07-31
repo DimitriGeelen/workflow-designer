@@ -1,0 +1,23 @@
+=== episodic-gen invocation: 2026-07-31T10:52:41Z ===
+task_id: T-314
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-314.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Three sha-pinned fixtures carry the T-310 lane inversion the new rule found
+  Duration: 1 days (865 min)
+  Updates: 2
+  Commits: 2
+  Lines: +553 -110 across 9 files
+  Outcomes: 10 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 9 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-314-three-sha-pinned-fixtures-carry-the-t-31.md
+--- exit code: 0 ---
