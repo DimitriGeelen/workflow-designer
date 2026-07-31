@@ -406,6 +406,20 @@ else
 fi
 
 echo
+echo "== Rule-form parity guard (T-320) =="
+# T-317 generalized: a rule on one validator form and not the other lets files on
+# the unguarded form assert a cleanliness nothing ever evaluated. Every emitted
+# rule must carry a parity classification (ids scraped from the emit sites, so the
+# table cannot drift from the code), OUT-OF-SCOPE classifications are re-measured
+# against the corpus every run, and the 11 known gaps are a COUNTED tolerance.
+if python3 "$ROOT/tests/test_rule_form_parity.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "rule-form parity broke — a rule was added to one form with no parity decision, an out-of-scope classification stopped being true, or the known-gap count moved (T-320)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Runner-orphan guard (T-316) =="
 # The guard for the class above: any collectable test file (test_*.py, *_test.py,
 # *.bats) that this runner does not invoke is a finding. Checks membership in
