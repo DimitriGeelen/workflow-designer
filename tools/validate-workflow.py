@@ -771,6 +771,11 @@ class XmlValidator:
 
         # -- sequenceFlow endpoint resolution (section 7.3) -----------------
         outgoing_count = {}
+        # Outgoing flows carrying no bpmn:conditionExpression, per source node.
+        # Kept as flow ids rather than a bare count so the finding can name the
+        # witnesses — a count alone tells an author there is a problem without
+        # telling them which edges to look at.
+        unconditioned_out = {}
         for flow in seq_flows:
             fid = flow.get("id", "?")
             for attr in ("sourceRef", "targetRef"):
@@ -785,6 +790,8 @@ class XmlValidator:
             src = flow.get("sourceRef")
             if src is not None:
                 outgoing_count[src] = outgoing_count.get(src, 0) + 1
+                if flow.find("{%s}conditionExpression" % BPMN_NS) is None:
+                    unconditioned_out.setdefault(src, []).append(fid)
 
         # -- lane membership (section 7.3) ----------------------------------
         assigned = set()
@@ -812,6 +819,36 @@ class XmlValidator:
                     "exclusiveGateway '%s'" % gid,
                     "exclusiveGateway has %d outgoing flow(s); requires >= 2"
                     % count,
+                )
+
+        # -- exclusiveGateway branch ambiguity (section 6.5, WARN) ----------
+        # Parity with the YAML path's W-GW-AMBIGUOUS (validate-workflow.py:326).
+        # At most one outgoing edge may be unconditioned — that one is the
+        # default branch. Two or more and the runtime has no defined choice.
+        #
+        # The designer speaks BPMN, so without this the editor would be shown
+        # the weaker of the two rule sets (T-309 / T-317). Semantics are copied
+        # from the YAML rule rather than re-derived: the boundary is exactly
+        # one, so a well-formed gateway with a single default stays SILENT.
+        #
+        # WARN, not ERROR, for the T-312 reason: at ERROR this would hard-fail
+        # promoted peer bytes we are forbidden to edit, and a defensible reading
+        # of an unconditioned pair usually exists (the condition may live in the
+        # branch label rather than in a conditionExpression).
+        #
+        # The bare token `gw_ambiguous` is carried in the message so a grep
+        # joins both toolchains across the rule-id namespacing, as done for
+        # lane_geometry in T-312.
+        for gid in gateways:
+            unconditioned = unconditioned_out.get(gid, [])
+            if len(unconditioned) > 1:
+                self.warn(
+                    "W-XML-GW-AMBIGUOUS",
+                    "exclusiveGateway '%s'" % gid,
+                    "gw_ambiguous: exclusiveGateway has %d outgoing flows "
+                    "without a conditionExpression (%s); at most one may be "
+                    "the default"
+                    % (len(unconditioned), ", ".join(sorted(unconditioned))),
                 )
 
         # -- unassigned flow nodes (convention, WARN) -----------------------

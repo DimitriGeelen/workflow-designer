@@ -66,21 +66,47 @@ if corpus_total != 0:
 #    AEF's own all-versions census (rail 344) reproduced this set independently
 #    — 1 geometry + 2 overflow, same witnesses, same numbers.
 #    Reported on the rail; tracked as T-314.
+#    T-317 adds a THIRD admitted rule, W-XML-GW-AMBIGUOUS: fw_gw_ready fans four
+#    outgoing flows and none carries a conditionExpression. Found the day the
+#    rule shipped, on the same un-editable bytes. It is a genuine upstream
+#    finding of the same character as the other two, and it is the rule's first
+#    true positive.
+#
 #    Tolerance shape: COUNTED, not suppressed. Each admitted finding PRINTS
-#    every run and the count is asserted in T-312's Verification block, so a
-#    fixture joining this set silently is itself the failure.
+#    every run AND the count is asserted right here.
+#
+#    The count assertion used to live in T-312's Verification block. That was
+#    wrong and T-317 moves it: a completed task's Verification never runs again,
+#    so the half of the tolerance that made it a tolerance rather than a
+#    suppression list had quietly stopped being enforced. A counted tolerance
+#    whose count is asserted somewhere that no longer executes is just a
+#    suppression list that used to have manners.
+#
+#    Arithmetic, so a future change has to redo it rather than bump a number:
+#      1 x W-XML-LANE-GEOMETRY  (wholesale lane inversion, T-312)
+#    + 2 x W-XML-LANE-CAPACITY  (agent 194px, framework 44px overflow, T-313)
+#    + 1 x W-XML-GW-AMBIGUOUS   (fw_gw_ready, 4 unconditioned branches, T-317)
+#    = 4 admitted, non-INFO findings. A 5th means a NEW defect entered AEF's
+#    bytes or one of our rules changed behaviour — either way, look, do not bump.
 r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "validate-workflow.py"),
                     FIXTURE, "--json"], capture_output=True, text=True)
 _found = json.loads(r.stdout).get("findings", []) if r.stdout.strip() else []
-_KNOWN = ("W-XML-LANE-GEOMETRY", "W-XML-LANE-CAPACITY")
-for _f in _found:
-    if _f["rule"] in _KNOWN:
-        print(f"NOTE (known, AEF-owned bytes, T-314): {_f['location']}: {_f['message']}")
+_KNOWN = ("W-XML-LANE-GEOMETRY", "W-XML-LANE-CAPACITY", "W-XML-GW-AMBIGUOUS")
+_EXPECTED_KNOWN = 4
+_admitted = [f for f in _found
+             if f["severity"] != "INFO" and f["rule"] in _KNOWN]
+for _f in _admitted:
+    print(f"NOTE (known, AEF-owned bytes, T-314/T-317): {_f['location']}: {_f['message']}")
 _blocking = [f for f in _found
              if f["severity"] != "INFO" and f["rule"] not in _KNOWN]
 if _blocking:
     failures.append("fixture no longer validator-clean: "
                     f"{sorted({f['rule'] for f in _blocking})}")
+if len(_admitted) != _EXPECTED_KNOWN:
+    failures.append(
+        f"admitted-finding count is {len(_admitted)}, expected {_EXPECTED_KNOWN} "
+        "— a known-rule finding appeared or disappeared on AEF's pinned bytes; "
+        "re-derive the arithmetic above, do not adjust the constant")
 
 if failures:
     for f in failures:

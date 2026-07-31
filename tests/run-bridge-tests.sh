@@ -393,6 +393,19 @@ for leg in "${orphan_legs[@]}"; do
 done
 
 echo
+echo "== Gateway branch-ambiguity parity (T-317) =="
+# W-XML-GW-AMBIGUOUS: the BPMN path had no counterpart to the YAML path's
+# W-GW-AMBIGUOUS, so the designer — which speaks BPMN — would have been shown
+# the weaker rule set (T-309 prerequisite). Pins the boundary at exactly one
+# unconditioned outgoing edge, both directions.
+if python3 "$ROOT/tests/test_t317_gw_ambiguous_parity.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "gateway branch-ambiguity parity broke — the two validator classes drifted, the boundary moved, or the corpus census changed (T-317)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Runner-orphan guard (T-316) =="
 # The guard for the class above: any collectable test file (test_*.py, *_test.py,
 # *.bats) that this runner does not invoke is a finding. Checks membership in

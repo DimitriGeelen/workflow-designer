@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- BOUNDARY fixture for W-XML-GW-AMBIGUOUS (T-317). exclusiveGateway n_g has
+     three outgoing flows, two conditioned and ONE unconditioned. That one is
+     the default branch, which is well-formed, so the rule must stay SILENT and
+     this file must validate clean (exit 0).
+
+     This is the case an off-by-one would destroy: a rule written as ">= 1
+     unconditioned" instead of "> 1" would flag every correctly-authored
+     gateway in the corpus, and the suite would still look green because the
+     warn fixture would keep firing. A rule is only pinned when BOTH sides of
+     its boundary are pinned — the positive case alone cannot tell a correct
+     threshold from a threshold that is one too low. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t">
+    <bpmn:laneSet id="LS">
+      <bpmn:lane id="agent" name="Agent">
+        <bpmn:flowNodeRef>n_s</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_g</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_a</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_b</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_c</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_e</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="n_s"/>
+    <bpmn:exclusiveGateway id="n_g" name="confidence sufficient?"/>
+    <bpmn:scriptTask id="n_a"/>
+    <bpmn:scriptTask id="n_b"/>
+    <bpmn:scriptTask id="n_c"/>
+    <bpmn:endEvent id="n_e"/>
+    <bpmn:sequenceFlow id="f0" sourceRef="n_s" targetRef="n_g"/>
+    <bpmn:sequenceFlow id="f1" name="high" sourceRef="n_g" targetRef="n_a">
+      <bpmn:conditionExpression>${confidence &gt;= 0.7}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f2" name="low" sourceRef="n_g" targetRef="n_b">
+      <bpmn:conditionExpression>${confidence &lt; 0.3}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f3" name="otherwise" sourceRef="n_g" targetRef="n_c"/>
+    <bpmn:sequenceFlow id="f4" sourceRef="n_a" targetRef="n_e"/>
+    <bpmn:sequenceFlow id="f5" sourceRef="n_b" targetRef="n_e"/>
+    <bpmn:sequenceFlow id="f6" sourceRef="n_c" targetRef="n_e"/>
+  </bpmn:process>
+</bpmn:definitions>

@@ -86,14 +86,23 @@
     <bpmn:sequenceFlow id="flow_2" sourceRef="agt_1_decompose" targetRef="agt_2_gate">
       <bpmn:extensionElements><aef:uid value="e_0002"/></bpmn:extensionElements>
     </bpmn:sequenceFlow>
+    <!-- Both branch conditions restored under T-317. This file is the BPMN twin
+         of investigate.workflow.yaml, whose e_0003/e_0004 carry
+         ${findings.confidence >= 0.7} and ${findings.confidence < 0.7}; the
+         hand-transcription dropped both, leaving a gateway a runtime cannot
+         resolve. Nothing detected the drift until W-XML-GW-AMBIGUOUS existed,
+         because the YAML rule had no BPMN counterpart to compare against — which
+         is precisely the parity gap T-317 closes. -->
     <bpmn:sequenceFlow id="flow_3" name="sufficient" sourceRef="agt_2_gate" targetRef="frw_2_report">
       <bpmn:extensionElements><aef:uid value="e_0003"/></bpmn:extensionElements>
+      <bpmn:conditionExpression>${findings.confidence &gt;= 0.7}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="flow_4" name="insufficient - loop" sourceRef="agt_2_gate" targetRef="agt_1_decompose">
       <bpmn:extensionElements>
         <aef:uid value="e_0004"/>
         <aef:loopDetour y="165.0"/>
       </bpmn:extensionElements>
+      <bpmn:conditionExpression>${findings.confidence &lt; 0.7}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="flow_5" sourceRef="frw_2_report" targetRef="frw_3_end">
       <bpmn:extensionElements><aef:uid value="e_0005"/></bpmn:extensionElements>
