@@ -40,7 +40,12 @@ vw = pc.vw  # the canonical validate-workflow module, already loaded by pc
 FIXTURE = "two-lane-joint.bpmn"
 FIXTURE_PATH = os.path.join(pc.FIXTURES, FIXTURE)
 # source_bpmn_sha reconcile key — pinned; AEF cross-validates byte-exact against this.
-PINNED_SHA = "efb53839bfddeb44c12bf0d8e11198c4394b017f55f0e0e238eb2524271a8c92"
+# T-314 RE-PIN (was efb53839bfdd…). Same defect and same repair as the promote
+# fixture: `human` declared first while drawn below the agent nodes (1/1 and 3/3
+# cross — wholesale inversion). laneSet reorder ONLY; membership, positions,
+# uids, flows, heights and element set identical, both lanes 160 so no band
+# boundary moved. Zero-semantic, cleared with AEF on the rail before landing.
+PINNED_SHA = "2ba55eedbd90ae7805fa9ad3c8a7037913b4788dfc8c7db2ae9f3953d6d7bf7f"
 
 # The manifest AEF reads from this fixture: one owner-bearing node PER lane, owner
 # DERIVED from lane authority (IW-9, no node override).
@@ -73,19 +78,13 @@ def failures():
     fails += pc.check_mapping_not_drifted()
 
     # (1) canonical validator accepts the fixture (O-3 sovereignty + shape).
-    #     Same known, printed exception as the T-206 fixture: this one declares
-    #     'human' first and draws hum_1_inception at y=300 under three agent
-    #     nodes — a wholesale inversion under W-XML-LANE-GEOMETRY (T-312).
-    #     sha-pinned and AEF-facing, so repair is a coordinated re-pin (T-314).
+    #     T-314: repaired, so the exception is gone (see test_promote_contract for
+    #     the full reasoning). This fixture had the same defect as the T-206 one —
+    #     'human' declared first, hum_1_inception drawn at y=300 under three agent
+    #     nodes, 1/1 and 3/3 crossing — and the same zero-semantic laneSet reorder
+    #     fixes it. Validates CLEAN now; nothing is tolerated here any more.
     all_findings = vw.run_xml(text)
-    for f in all_findings:
-        if f.rule == "W-XML-LANE-GEOMETRY":
-            print("NOTE (known, T-314): %s: %s" % (f.location, f.message))
-    blocking = [
-        f
-        for f in all_findings
-        if f.severity != vw.INFO and f.rule != "W-XML-LANE-GEOMETRY"
-    ]
+    blocking = [f for f in all_findings if f.severity != vw.INFO]
     if blocking:
         rules = sorted({f.rule for f in blocking})
         fails.append("(1) validator rejects the joint fixture; findings=%s" % rules)

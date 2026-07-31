@@ -178,11 +178,14 @@ n=0; s=0; for f in examples/aef-processes/rendered/*.bpmn; do out=$(python3 tool
 # height read; this line only pins the intent marker, so keep both)
 grep -q "deliberately ORIGIN-FREE" tools/validate-workflow.py
 # the known fixture exceptions stay VISIBLE (printed), not silently tolerated.
-# 5 = promote-contract 1 + two-lane-joint 1 + dead-leg-census 3 (that fixture,
-# AEF's pinned v3, carries 1 geometry + 2 capacity — T-313 widened the same
-# counted tolerance to W-XML-LANE-CAPACITY). A 6th means a fixture joined
-# silently, which is the actual failure mode this line exists to catch.
-out=$(bash tests/run-bridge-tests.sh 2>&1); [ "$(echo "$out" | grep -c 'NOTE (known')" -eq 5 ]
+# 3 = dead-leg-census only (AEF's pinned v3: 1 geometry + 2 capacity, on bytes we
+# are not free to edit). Was 5 until T-314 repaired the two 832-owned fixtures by
+# zero-semantic laneSet reorder — promote-contract and two-lane-joint now validate
+# CLEAN and admit nothing at all, so their exceptions were DELETED rather than
+# left standing. A tolerance that outlives its cause is a suppression list.
+# A 4th note means a fixture joined the tolerated set silently, which is the
+# actual failure mode this line exists to catch.
+out=$(bash tests/run-bridge-tests.sh 2>&1); [ "$(echo "$out" | grep -c 'NOTE (known')" -eq 3 ]
 
 ## RCA
 

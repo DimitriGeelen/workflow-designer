@@ -4,10 +4,10 @@ name: "Three sha-pinned fixtures carry the T-310 lane inversion the new rule fou
 description: >
   T-312's lane_geometry rule fired on three sha-pinned fixtures the day it landed, all true positives. (1) tests/fixtures/aef-bpmn/inception-gonogo.bpmn (T-206 shared promote fixture): declares 'human' first, draws hum_1_inception at y=300 below both agent nodes at y=120 — wholesale inversion. (2) tests/fixtures/aef-bpmn/two-lane-joint.bpmn (T-208): same shape, 1/1 and 3/3 crossing. (3) tests/fixtures/aef-overlay/draft-knowledge-leveling-v3.bpmn (T-304, AEF-owned bytes pinned at b82668c8): wholesale inversion, 5/5 and 11/11 nodes cross — strictly larger than the two-node swap AEF reported on v8. None were repaired under T-312: (1) and (2) are sha-pinned and shared with AEF's consumer test so repair is a coordinated re-pin, and (3) is AEF's bytes which we never edit — that one is an upstream report, not our fix. The three contract tests now admit W-XML-LANE-GEOMETRY as a KNOWN, PRINTED exception (a NOTE line every run) so the tolerance cannot rot into a blind spot. This task closes the tolerance: repair ours, re-pin with AEF, and drop the exception.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-30T20:25:02Z
-last_update: 2026-07-30T20:25:02Z
+last_update: 2026-07-31T10:35:20Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,47 +34,101 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+T-312's `lane_geometry` rule found three true positives on day one, all in
+sha-pinned fixtures. Two are ours to repair; one is not.
+
+**Ours (this task repairs them).** `inception-gonogo` (T-206) and
+`two-lane-joint` (T-208) each declare `human` as the FIRST lane and then draw the
+human node BELOW the agent nodes. Under the rule this is a **wholesale inversion**
+— every node on both sides crosses — which by AEF's own classification makes the
+repair a **laneSet reorder: zero-semantic**. No membership changes, no node moves,
+no authority is redecided. It is the declaration order that was wrong.
+
+Worth stating plainly, because it was the uncomfortable part of the T-312 finding:
+AEF diagnosed this authoring defect in *their generator* — treating framework or
+agent verbs as the visual spine on the top row while the laneSet declares someone
+else first. We then found we had done the same thing **by hand**, in the fixture we
+handed them as the producer contract. It is not peer-specific and it is not
+generator-specific; it is what happens when you draw the picture first and write
+the laneSet afterwards.
+
+**Not ours (stays admitted).** AEF's `draft-knowledge-leveling` v3, pinned at
+b82668c8 as the T-304 census fixture, carries the same inversion plus both lane
+overflows found by T-313. Those bytes are theirs; we never edit them. They remain
+a **counted, printed** tolerance.
+
+**Coordination.** `inception-gonogo` is the SHARED byte-identical artifact AEF's
+consumer test pins (T-559 producer-contract half), so re-pinning moves a sha they
+hold. Asked at rail 342; answered at 343 and re-confirmed at 344: **re-pin
+whenever suits us, it is a no-op on their side.** So this is unblocked, and the
+timing was always ours.
+
+**The tolerance must shrink when the reason for it does.** After this repair only
+AEF's fixture should still print a note. A tolerance that outlives its cause is
+indistinguishable from a suppression list — the count assertion has to come down
+from 5 to 3, or the mechanism stops meaning anything.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
-
-### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+- [x] `inception-gonogo` and `two-lane-joint` are repaired by **laneSet reorder only** — the `<bpmn:lane>` elements are re-ordered so declaration order matches drawn order, and nothing else about either file changes
+- [x] The repair is proven zero-semantic, not asserted: for both fixtures, every node's `flowNodeRef` lane membership, every `aef:position`, every `aef:uid`, and the full node/edge sets are IDENTICAL before and after — diffed mechanically against the pre-repair bytes, not eyeballed
+- [x] Both fixtures validate CLEAN under `tools/validate-workflow.py` afterwards — no `W-XML-LANE-GEOMETRY`, and no new finding of any rule introduced by the reorder
+- [x] **Cumulative-boundary check (T-312's caveat, and the reason a reorder is not automatically safe):** lane bands are cumulative heights, so swapping lanes of UNEQUAL height moves every boundary below the swap. Both fixtures are re-checked for `W-XML-LANE-CAPACITY` after the reorder — a lane that fitted before must still fit
+- [x] The pinned shas are updated at every site that holds them, found by search rather than by memory, and each updated pin carries the reason inline so the next reader sees why the bytes moved
+- [x] The counted tolerance SHRINKS to match its remaining cause: `W-XML-LANE-GEOMETRY` is removed from the admitted set in `tests/test_promote_contract.py` and `tests/test_two_lane_joint_contract.py`, which no longer need it, and stays only in `tests/test_dead_leg_census.py` where AEF's un-editable bytes still require it
+- [x] The note-count assertion in T-312's Verification comes down from 5 to 3 (census only: 1 geometry + 2 capacity), and the arithmetic is written down so a future reader can tell a legitimate change from a silent one
+- [x] Teeth: the reorder is shown to be the thing that fixed it — the pre-repair bytes still produce `W-XML-LANE-GEOMETRY` under the current validator, so the green is attributable to the fixture change and not to a rule that stopped firing
+- [x] Bridge suite, validator suite and geometry sweep all stay green with the new bytes (49/0, 36/0, 24 clean)
+- [x] AEF is told on the rail that the re-pin has landed, with the new shas, so their consumer test can re-pin in lockstep — the coordination half of the T-559 producer contract, not an afterthought
 
 ## Verification
+
+# both repaired fixtures validate CLEAN — no geometry, no capacity, nothing else
+out=$(python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/inception-gonogo.bpmn 2>&1); echo "$out" | grep -q "VALID.*no findings"
+out=$(python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/two-lane-joint.bpmn 2>&1); echo "$out" | grep -q "VALID.*no findings"
+# the repair was ZERO-SEMANTIC, and stays that way. The pre/post byte diff was
+# run once at repair time (Evolution records the result); what this line pins is
+# the durable half — the semantic facts the reorder was proven not to touch,
+# recorded here as literals so the check is revision-independent. Anchoring on
+# `git show HEAD~1` would quietly mean something different on every later run.
+python3 - <<'EOF'
+import xml.etree.ElementTree as ET, sys
+NS={'b':'http://www.omg.org/spec/BPMN/20100524/MODEL','a':'http://anchorpoint.framework/aef/extensions'}
+EXPECT={
+ 'inception-gonogo': ({'hum_1_inception':'human','agt_1_request':'agent','agt_2_outcome':'agent'},
+                      {'human':'160','agent':'160'}),
+ 'two-lane-joint':   ({'hum_1_inception':'human','agt_0_request':'agent','agt_2_plan':'agent','agt_3_outcome':'agent'},
+                      {'human':'160','agent':'160'}),
+}
+bad=[]
+for n,(mem_x,h_x) in EXPECT.items():
+    p=ET.parse('tests/fixtures/aef-bpmn/%s.bpmn'%n).getroot().find('b:process',NS)
+    mem={r.text.strip():l.get('id') for l in p.iter('{%s}lane'%NS['b']) for r in l.findall('b:flowNodeRef',NS)}
+    hs={l.get('id'):l.find('b:extensionElements/a:laneMeta',NS).get('height') for l in p.iter('{%s}lane'%NS['b'])}
+    order=[l.get('id') for l in p.iter('{%s}lane'%NS['b'])]
+    # membership and heights unchanged by the reorder; declaration order is now agent-first
+    if mem!=mem_x or hs!=h_x or order!=['agent','human']: bad.append(n)
+sys.exit(1 if bad else 0)
+EOF
+# the counted tolerance shrank with its cause: census only (AEF's un-editable v3)
+out=$(bash tests/run-bridge-tests.sh 2>&1); [ "$(echo "$out" | grep -c 'NOTE (known')" -eq 3 ]
+# and neither repaired contract test admits an exception any more.
+# Anchored on the CODE form of the exclusion, not on the bare rule token: both
+# files now discuss the removed exception in prose, so a bare-token grep is
+# satisfied by the comment explaining the absence — the exact prose-in-the-
+# haystack failure this arc has hit three times (T-311 harnesses, T-312's span
+# scan, here). AEF's formulation is the rule: anchor on a structural literal
+# that cannot occur in prose.
+grep -q '!= "W-XML-LANE-GEOMETRY"' tests/test_promote_contract.py && exit 1 || true
+grep -q '!= "W-XML-LANE-GEOMETRY"' tests/test_two_lane_joint_contract.py && exit 1 || true
+# suites green with the new bytes
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "49 passed, 0 failed"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "36 passed, 0 failed"
+# the new shas are the ones actually pinned
+[ "$(sha256sum tests/fixtures/aef-bpmn/inception-gonogo.bpmn | cut -d' ' -f1)" = "bbfbc5ec48356c3a643efa21e37912994a3fff56532b7e0ef4815f91fbed00ab" ]
+[ "$(sha256sum tests/fixtures/aef-bpmn/two-lane-joint.bpmn | cut -d' ' -f1)" = "2ba55eedbd90ae7805fa9ad3c8a7037913b4788dfc8c7db2ae9f3953d6d7bf7f" ]
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -125,6 +179,53 @@ date_finished: null
 
 ## Evolution
 
+### 2026-07-31 — repaired, re-pinned, tolerance closed
+
+**The zero-semantic claim was measured, once, and here is the result.** Both
+fixtures diffed pre/post on flowNodeRef membership, every `aef:position`, every
+`aef:uid`, the full sequenceFlow source/target set, every `laneMeta` height, and
+the process child-element set: **all identical, both files.** The only delta is
+the order of the two `<bpmn:lane>` elements.
+
+    inception-gonogo   093858400716… -> bbfbc5ec4835…   4314 B (size unchanged)
+    two-lane-joint     efb53839bfdd… -> 2ba55eedbd90…   5491 B (size unchanged)
+
+**The cumulative-boundary caveat did not bite, and I checked rather than assumed.**
+T-312's warning is that swapping lanes of unequal height moves every band boundary
+below the swap, so a reorder is not automatically safe. Both lanes are height 160
+in both files, so no boundary moved — confirmed by re-running the capacity rule
+afterwards, which is the check that would have caught it if I were wrong.
+
+**Teeth on the repair.** "The finding went away" is not evidence by itself. The
+PRE-repair bytes still produce `W-XML-LANE-GEOMETRY` under the CURRENT validator,
+one finding each, so the green is attributable to the fixture change and not to a
+rule that quietly stopped firing.
+
+**The tolerance was deleted, not left standing.** Both contract tests had an
+admitted, printed exception for their own fixture; both are gone, and the
+suite-wide count came down 5 → 3. Three is now exactly AEF's v3 — one geometry
+plus two capacity, on bytes we are not free to edit. A 4th still fails the build.
+
+**A third instance of the prose-in-the-haystack class, in my own verification.**
+The line asserting "this test no longer admits the exception" grepped for the bare
+token `W-XML-LANE-GEOMETRY` — which now appears in the *comment explaining that the
+exception was removed*. The check was satisfied by its own explanation. Re-anchored
+on the code form `!= "W-XML-LANE-GEOMETRY"`, which cannot occur in prose, and
+teeth-checked both directions: it fires on a synthetic exclusion line and passes on
+the repaired files. AEF's formulation is the durable statement of this and I have
+adopted it verbatim — *immune checks anchor on a structural literal that cannot
+occur in prose; exposed ones match a loose pattern that occurs in prose naturally.*
+This arc has now hit the class three times (T-311 harnesses counting elements their
+fixtures' comments quoted, T-312's span scan, this).
+
+**One verification line was rewritten for durability rather than correctness.** The
+zero-semantic check originally read the pre-repair bytes via `git show HEAD~1:`.
+That is right exactly once — on any later run HEAD~1 means a different commit and
+the check silently becomes a comparison of something else against itself. Replaced
+with recorded literals (membership map, heights, expected declaration order), which
+is revision-independent and pins the durable half: not "it changed nothing that
+day" but "these facts still hold".
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -174,3 +275,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-314-three-sha-pinned-fixtures-carry-the-t-31.md
 - **Context:** Initial task creation
+
+### 2026-07-31T10:35:20Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

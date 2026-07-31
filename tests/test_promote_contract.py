@@ -57,7 +57,15 @@ AEF_NS = vw.AEF_NS
 # (Human·sovereignty, Agent·initiative), 3 nodes; the one owner-bearing node is
 # the inception subProcess (sovereignty → owner human).
 FIXTURE = "inception-gonogo.bpmn"
-PINNED_SHA = "093858400716a0c5dd4e6676ad96b1564e47980527a15028fd08242df1c7041e"
+# T-314 RE-PIN (was 093858400716…). The fixture declared `human` first while
+# drawing the human node BELOW the agent nodes — a wholesale lane inversion
+# (1/1 and 2/2 nodes cross) found by T-312's lane_geometry rule. Repaired by
+# reordering the laneSet ONLY: membership, positions, uids, flows, lane heights
+# and the element set are byte-for-byte identical, so this is zero-semantic by
+# AEF's own classification. Both lanes are height 160, so the cumulative band
+# boundaries did not move either. AEF cleared the re-pin as a no-op on their
+# side (rail 343/344) and was told the new sha on the rail.
+PINNED_SHA = "bbfbc5ec48356c3a643efa21e37912994a3fff56532b7e0ef4815f91fbed00ab"
 
 # lane authority -> task owner collapse. CANONICAL SOURCE is the AUTHORITY_OWNER
 # dict in tools/validate-workflow.py:_check_iw9_authority (mapping-v1 §3). It is a
@@ -188,23 +196,17 @@ def failures():
 
     # (1) canonical validator accepts the fixture (reuses O-3 sovereignty + shape).
     #
-    #     KNOWN, PRINTED exception: W-XML-LANE-GEOMETRY (T-312). This fixture
-    #     declares 'human' first but draws hum_1_inception at y=300, below both
-    #     agent nodes at y=120 — a real instance of the T-310 class, found in our
-    #     own fixtures the day the rule landed. It is NOT repaired here: the
-    #     fixture is sha-pinned and shared with AEF's consumer test, so the repair
-    #     is a coordinated re-pin (T-314). Geometry is not a promote input, so it
-    #     does not invalidate this contract — but it is printed every run rather
-    #     than silently tolerated, so the exception cannot rot into a blind spot.
+    #     T-314: the W-XML-LANE-GEOMETRY exception that used to live here is GONE,
+    #     because its cause is gone. This fixture declared 'human' first while
+    #     drawing hum_1_inception at y=300, below both agent nodes at y=120 — a
+    #     wholesale inversion found in our own bytes the day T-312's rule landed,
+    #     and the same authoring defect AEF had diagnosed in their generator. It is
+    #     now repaired at the source by a laneSet reorder (zero-semantic: nothing
+    #     but declaration order changed), so the fixture validates CLEAN and no
+    #     tolerance is needed. A tolerance kept past its cause is indistinguishable
+    #     from a suppression list, so it comes out the moment the bytes are fixed.
     all_findings = vw.run_xml(text)
-    for f in all_findings:
-        if f.rule == "W-XML-LANE-GEOMETRY":
-            print("NOTE (known, T-314): %s: %s" % (f.location, f.message))
-    blocking = [
-        f
-        for f in all_findings
-        if f.severity != vw.INFO and f.rule != "W-XML-LANE-GEOMETRY"
-    ]
+    blocking = [f for f in all_findings if f.severity != vw.INFO]
     if blocking:
         rules = sorted({f.rule for f in blocking})
         fails.append("(1) validator rejects the shared fixture; findings=%s" % rules)
