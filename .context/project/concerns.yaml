@@ -569,3 +569,59 @@ concerns:
       - T-127
       - T-160
       - G-003
+
+  - id: G-013
+    type: gap
+    status: watching
+    severity: high
+    title: "The recorded audit history is a SUBSET presented as a whole — every daily audit for weeks ran sections=structure (20 of 117 checks) and reported 20/0/0 clean"
+    detected: 2026-07-31
+    origin_task: T-320
+    decision_trigger: >
+      The audit trail records which SECTIONS ran alongside the pass/warn/fail
+      counts at the point a human or agent reads them, AND either the daily/cron
+      path runs the full check set or its partial scope is stated in the summary
+      line itself rather than in a field nobody reads. A clean count whose scope
+      is not in the same sentence is the defect. Then close G-013.
+    description: |
+      Found while wrapping T-320. `fw handover --commit` runs a pre-push audit that
+      prints "Sections: structure" and a SUMMARY of 20 pass / 0 warn / 0 fail. That
+      summary has been the reported end-of-session state for weeks, and it is a
+      fifth of the check surface.
+
+      Running the full audit on the same tree, same commit, same minute:
+
+        structure-only (what every handover has reported)   20 pass /  0 warn /  0 fail
+        full                                               117 pass / 22 warn / 55 fail
+
+      Every recorded daily audit (.context/audits/2026-07-2x..3x.yaml) carries
+      `sections: "structure"`. The hourly cron carries `sections: "oe-hourly"`.
+      NEITHER recorded path has ever run the full set — today's is the first full
+      audit in the recorded history. The 55 failures (all CTL-030: completed tasks
+      carrying a stored `horizon` instead of null) are not new breakage. They have
+      been true and invisible the whole time.
+
+      WHY THE FRAMEWORK WAS BLIND, which is the part that matters more than the 55:
+      this is not a missing check — the checks exist and pass/fail correctly. It is
+      a SCOPE that never travels with its VERDICT. "20 pass, 0 fail" is a true
+      statement about a subset, rendered in the same shape and place as a true
+      statement about the whole, and read as the latter by every session including
+      this one. I reported "audit 20 pass / 0 warn / 0 fail" to the operator earlier
+      today on exactly that basis.
+
+      Same failure family the whole T-316..T-320 arc has been documenting, now in
+      our own observability rather than in a validator: a check that ran honestly,
+      whose result was reported about a wider subject than it measured. Sibling of
+      the AEF `file receive --replay` "SHA-256 verified" on the wrong object, of
+      byte-size parity, and of the 0-of-113 dialect measurement taken over one side
+      of a two-sided corpus.
+
+      NOT FIXED HERE, DELIBERATELY. The audit's own priority action names an
+      idempotent remedy for the 55 (bin/migrate-horizon-null-completed.sh, touches
+      only completed/ files), but a 55-file bulk mutation is the operator's call and
+      is not the gap. The gap is that the trend line said "No repeated issues in the
+      last 14 days across 13 audits" while 13 of those 13 audits were scoped to a
+      fifth of the checks.
+    related:
+      - T-320
+      - G-019
