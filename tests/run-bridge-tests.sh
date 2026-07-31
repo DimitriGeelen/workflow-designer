@@ -198,6 +198,21 @@ else
 fi
 
 echo
+echo "== the re-pinned shared fixtures stay zero-semantic (T-314) =="
+# Both 832-owned fixtures declared 'human' first while drawing the human node
+# below the agent nodes — the same authoring defect AEF found in their generator,
+# in the artifact we handed them as the producer contract. Repaired by laneSet
+# reorder only. This leg pins the facts the reorder was proven not to touch
+# (membership, heights) plus the order it did change, and that both still
+# validate clean — geometry AND capacity, since bands are cumulative heights.
+if python3 "$ROOT/tests/test_t314_fixture_repin.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "T-314 re-pinned fixtures drifted — the shared producer contract may no longer be what AEF pins"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== an under-declared lane band is grown, not the nodes moved (T-315) =="
 # The sibling case to T-310 and the one it answers wrongly: when a lane's own
 # declared members spill past its own bottom edge, the map is not contradicting

@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-30T20:25:02Z
-last_update: 2026-07-31T10:35:20Z
+last_update: 2026-07-31T10:45:28Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -80,7 +80,7 @@ from 5 to 3, or the mechanism stops meaning anything.
 - [x] The counted tolerance SHRINKS to match its remaining cause: `W-XML-LANE-GEOMETRY` is removed from the admitted set in `tests/test_promote_contract.py` and `tests/test_two_lane_joint_contract.py`, which no longer need it, and stays only in `tests/test_dead_leg_census.py` where AEF's un-editable bytes still require it
 - [x] The note-count assertion in T-312's Verification comes down from 5 to 3 (census only: 1 geometry + 2 capacity), and the arithmetic is written down so a future reader can tell a legitimate change from a silent one
 - [x] Teeth: the reorder is shown to be the thing that fixed it — the pre-repair bytes still produce `W-XML-LANE-GEOMETRY` under the current validator, so the green is attributable to the fixture change and not to a rule that stopped firing
-- [x] Bridge suite, validator suite and geometry sweep all stay green with the new bytes (49/0, 36/0, 24 clean)
+- [x] Bridge suite, validator suite and geometry sweep all stay green with the new bytes (**50/0** — 49 before, +1 for this task's own new `test_t314_fixture_repin` leg; 36/0; 24 clean)
 - [x] AEF is told on the rail that the re-pin has landed, with the new shas, so their consumer test can re-pin in lockstep — the coordination half of the T-559 producer contract, not an afterthought
 
 ## Verification
@@ -89,29 +89,12 @@ from 5 to 3, or the mechanism stops meaning anything.
 out=$(python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/inception-gonogo.bpmn 2>&1); echo "$out" | grep -q "VALID.*no findings"
 out=$(python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/two-lane-joint.bpmn 2>&1); echo "$out" | grep -q "VALID.*no findings"
 # the repair was ZERO-SEMANTIC, and stays that way. The pre/post byte diff was
-# run once at repair time (Evolution records the result); what this line pins is
-# the durable half — the semantic facts the reorder was proven not to touch,
-# recorded here as literals so the check is revision-independent. Anchoring on
-# `git show HEAD~1` would quietly mean something different on every later run.
-python3 - <<'EOF'
-import xml.etree.ElementTree as ET, sys
-NS={'b':'http://www.omg.org/spec/BPMN/20100524/MODEL','a':'http://anchorpoint.framework/aef/extensions'}
-EXPECT={
- 'inception-gonogo': ({'hum_1_inception':'human','agt_1_request':'agent','agt_2_outcome':'agent'},
-                      {'human':'160','agent':'160'}),
- 'two-lane-joint':   ({'hum_1_inception':'human','agt_0_request':'agent','agt_2_plan':'agent','agt_3_outcome':'agent'},
-                      {'human':'160','agent':'160'}),
-}
-bad=[]
-for n,(mem_x,h_x) in EXPECT.items():
-    p=ET.parse('tests/fixtures/aef-bpmn/%s.bpmn'%n).getroot().find('b:process',NS)
-    mem={r.text.strip():l.get('id') for l in p.iter('{%s}lane'%NS['b']) for r in l.findall('b:flowNodeRef',NS)}
-    hs={l.get('id'):l.find('b:extensionElements/a:laneMeta',NS).get('height') for l in p.iter('{%s}lane'%NS['b'])}
-    order=[l.get('id') for l in p.iter('{%s}lane'%NS['b'])]
-    # membership and heights unchanged by the reorder; declaration order is now agent-first
-    if mem!=mem_x or hs!=h_x or order!=['agent','human']: bad.append(n)
-sys.exit(1 if bad else 0)
-EOF
+# run once at repair time (Evolution records the result); the durable half — the
+# semantic facts the reorder was proven not to touch, plus the order it DID
+# change — is pinned by a real test file with its own bridge leg, deliberately
+# not by an inline blob and deliberately not against `git show HEAD~1` (right
+# exactly once; every later run silently compares something else).
+python3 tests/test_t314_fixture_repin.py
 # the counted tolerance shrank with its cause: census only (AEF's un-editable v3)
 out=$(bash tests/run-bridge-tests.sh 2>&1); [ "$(echo "$out" | grep -c 'NOTE (known')" -eq 3 ]
 # and neither repaired contract test admits an exception any more.
@@ -124,7 +107,7 @@ out=$(bash tests/run-bridge-tests.sh 2>&1); [ "$(echo "$out" | grep -c 'NOTE (kn
 grep -q '!= "W-XML-LANE-GEOMETRY"' tests/test_promote_contract.py && exit 1 || true
 grep -q '!= "W-XML-LANE-GEOMETRY"' tests/test_two_lane_joint_contract.py && exit 1 || true
 # suites green with the new bytes
-out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "49 passed, 0 failed"
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "50 passed, 0 failed"
 out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "36 passed, 0 failed"
 # the new shas are the ones actually pinned
 [ "$(sha256sum tests/fixtures/aef-bpmn/inception-gonogo.bpmn | cut -d' ' -f1)" = "bbfbc5ec48356c3a643efa21e37912994a3fff56532b7e0ef4815f91fbed00ab" ]
