@@ -4,20 +4,20 @@ name: "Rule-form parity census: validator rules that exist on one form and not t
 description: >
   T-317 found W-XML-GW-AMBIGUOUS missing on the XML form while the YAML form had it, and the gap was concealing a live instance of itself (investigate.bpmn sat in fixtures/valid/ asserting a cleanliness no rule could evaluate on its form). That is a class, not a site. Census every rule on both validator forms; classify each asymmetry as correctly-out-of-scope (the other form does not carry the construct, measured) or GAP (it does). File each real GAP as its own task, and leave behind a parity guard so a rule added to one form without a parity decision fails the build.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: claude-code
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/test_rule_form_parity.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-31T12:05:57Z
-last_update: 2026-07-31T12:18:54Z
-date_finished: null
+last_update: 2026-07-31T12:21:42Z
+date_finished: 2026-07-31T12:21:42Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -208,43 +208,6 @@ test -f docs/reports/T-320-rule-form-parity-census.md
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-### 2026-07-31 — the discriminator was wrong, and I had already posted it
-
-- **What changed:** I filed this task and posted the method to AEF (rail 355) using
-  `W-XML-LANE-GEOMETRY` as the canonical example of *correctly out of scope*, on
-  the grounds that "YAML carries no coordinates." That is false — the canonical
-  YAML form carries `x`, `y` on every node and `height` on every lane. What I
-  actually had was an older measurement, *0 violations today*, which I collapsed
-  into *out of scope*.
-- **Plan impact:** the discriminator needed splitting into two axes. Construct
-  carried → classification (GAP vs out-of-scope). Violations today → priority
-  only, never classification. Under the corrected rule, lane geometry is a GAP
-  with 0 live violations, and the out-of-scope bucket shrank from "several
-  obvious ones" to exactly one family.
-- **Triggered:** the `OUT_OF_SCOPE_PROBES` mechanism — every out-of-scope claim
-  must name a probe and is re-measured each run. An unfalsifiable classification
-  is now itself a failure (control c). Correction owed to AEF on the rail.
-- **Note:** this is the same move AEF made at rail 354 in the other direction
-  ("not in the latest tag" collapsed into "not published"). Two instances, one
-  week apart, opposite directions, same shape: **a measurement that supports a
-  weaker claim, silently promoted to a stronger one.** The measurement is honest
-  both times; the promotion is not measured at all.
-
-### 2026-07-31 — AC amended: register-in-guard instead of eight task files
-
-- **What changed:** the filed AC said "each GAP is filed as its own task (one gap
-  = one task)". Eight task files whose content is a row of a table would go stale
-  the moment the table moved, and the framework's own lesson from T-317 is that a
-  register living where nothing executes stops being enforced.
-- **Plan impact:** all 11 gaps are registered in the `PARITY` table, which prints
-  every gap as a NOTE on every run and asserts the count — a counted tolerance in
-  a place that still executes. Tasks filed only for the two actionable gaps:
-  **T-321** (XML node-type vocabulary hole, proven live) and **T-322** (IW-9
-  authority rules missing on the YAML form, governance-bearing).
-- **Triggered:** T-321, T-322. The other six families stay in the table only, and
-  the AC is marked AMENDED rather than silently reinterpreted — a scope change is
-  the operator's to see, not mine to absorb.
-
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -285,6 +248,43 @@ test -f docs/reports/T-320-rule-form-parity-census.md
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-07-31 — the discriminator was wrong, and I had already posted it
+
+- **What changed:** I filed this task and posted the method to AEF (rail 355) using
+  `W-XML-LANE-GEOMETRY` as the canonical example of *correctly out of scope*, on
+  the grounds that "YAML carries no coordinates." That is false — the canonical
+  YAML form carries `x`, `y` on every node and `height` on every lane. What I
+  actually had was an older measurement, *0 violations today*, which I collapsed
+  into *out of scope*.
+- **Plan impact:** the discriminator needed splitting into two axes. Construct
+  carried → classification (GAP vs out-of-scope). Violations today → priority
+  only, never classification. Under the corrected rule, lane geometry is a GAP
+  with 0 live violations, and the out-of-scope bucket shrank from "several
+  obvious ones" to exactly one family.
+- **Triggered:** the `OUT_OF_SCOPE_PROBES` mechanism — every out-of-scope claim
+  must name a probe and is re-measured each run. An unfalsifiable classification
+  is now itself a failure (control c). Correction owed to AEF on the rail.
+- **Note:** this is the same move AEF made at rail 354 in the other direction
+  ("not in the latest tag" collapsed into "not published"). Two instances, one
+  week apart, opposite directions, same shape: **a measurement that supports a
+  weaker claim, silently promoted to a stronger one.** The measurement is honest
+  both times; the promotion is not measured at all.
+
+### 2026-07-31 — AC amended: register-in-guard instead of eight task files
+
+- **What changed:** the filed AC said "each GAP is filed as its own task (one gap
+  = one task)". Eight task files whose content is a row of a table would go stale
+  the moment the table moved, and the framework's own lesson from T-317 is that a
+  register living where nothing executes stops being enforced.
+- **Plan impact:** all 11 gaps are registered in the `PARITY` table, which prints
+  every gap as a NOTE on every run and asserts the count — a counted tolerance in
+  a place that still executes. Tasks filed only for the two actionable gaps:
+  **T-321** (XML node-type vocabulary hole, proven live) and **T-322** (IW-9
+  authority rules missing on the YAML form, governance-bearing).
+- **Triggered:** T-321, T-322. The other six families stay in the table only, and
+  the AC is marked AMENDED rather than silently reinterpreted — a scope change is
+  the operator's to see, not mine to absorb.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -312,3 +312,15 @@ test -f docs/reports/T-320-rule-form-parity-census.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-320-rule-form-parity-census-validator-rules-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b9ffc49f
+- **Timestamp:** 2026-07-31T12:23:03Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-07-31T12:21:42Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
