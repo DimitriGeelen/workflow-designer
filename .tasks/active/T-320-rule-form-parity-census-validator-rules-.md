@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-31T12:05:57Z
-last_update: 2026-07-31T12:05:57Z
+last_update: 2026-07-31T12:18:54Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -43,10 +43,8 @@ defect class needs a tree sweep). AEF independently reached the same conclusion 
 their side at rail 354 and is sweeping in parallel — method posted at rail 355 before
 results, deliberately, so we do not inherit each other's blind spot in the method.
 
-**Discriminator (this is the whole task).** Asymmetry is NOT the finding.
-`W-XML-LANE-GEOMETRY` has no YAML counterpart because YAML carries no coordinates —
-already measured a no-op there (24 evaluable, 0 violating). The test is whether the
-OTHER form carries the CONSTRUCT the rule describes:
+**Discriminator (this is the whole task).** Asymmetry is NOT the finding. The test
+is whether the OTHER form carries the CONSTRUCT the rule describes:
 
 - asymmetric + construct absent on the other form  → correctly out of scope
 - asymmetric + construct PRESENT on the other form → GAP; files on that form can
@@ -54,6 +52,15 @@ OTHER form carries the CONSTRUCT the rule describes:
 
 Decided by measuring the corpus, not by taste — same method that settled T-317's
 labelled-branch question at 0 of 113.
+
+**Live-violation count is priority, not classification.** A gap with zero current
+violations is still a gap: the absence of a rule is what makes the absence of
+violations unfalsifiable.
+
+> The paragraph that stood here at filing used `W-XML-LANE-GEOMETRY` as the
+> canonical out-of-scope case, "because YAML carries no coordinates". That was
+> false and it was also posted to AEF. See the first Evolution entry — the
+> correction is the most useful thing this task produced.
 
 Related: PL-030 (aspect-by-aspect seam guards can all pass while the seam is broken),
 PL-035 (when a spec names X the sole source of a decision, ABSENCE of X is a
