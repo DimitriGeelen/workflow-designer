@@ -41,7 +41,14 @@ lanes:
     name: "Framework · Authority"
     abbr: frw
     authority: authority
-    height: 420
+    # 462 = member extent 438 + 2*LANE_FIT_MARGIN (12 each edge) — the Clean
+    # fixpoint for THIS file's own node positions. Was 420, which its own
+    # members outgrew by 18px (T-313 lane_overflow). The rendered corpus reads
+    # 529 because T-101 baked Clean into the rendered form only; the YAML
+    # sources were never re-measured. Sized from this file, not copied from
+    # rendered — the two carry different layouts and 529 here would be a
+    # borrowed number, not a computed one.
+    height: 462
   - id: agent
     name: "Agent · Initiative"
     abbr: agt

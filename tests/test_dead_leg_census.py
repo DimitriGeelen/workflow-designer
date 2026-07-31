@@ -57,19 +57,27 @@ if corpus_total != 0:
                     "(new adoption? update expectation deliberately)")
 
 # 5. Fixture validates clean (pin pattern: sha + validator-clean)
-#    KNOWN, PRINTED exception: W-XML-LANE-GEOMETRY (T-312). These are AEF's OWN
-#    bytes, pinned at b82668c8 — we never edit them, so this cannot be "fixed"
-#    here. It is also a genuine upstream finding: their v3 is a WHOLESALE lane
-#    inversion (5/5 and 11/11 nodes cross), a strictly larger defect than the
-#    two-node swap they reported on v8. Reported on the rail; tracked as T-314.
+#    KNOWN, PRINTED exceptions: W-XML-LANE-GEOMETRY (T-312) and
+#    W-XML-LANE-CAPACITY (T-313). These are AEF's OWN bytes, pinned at
+#    b82668c8 — we never edit them, so neither can be "fixed" here. Both are
+#    genuine upstream findings: their v3 is a WHOLESALE lane inversion (5/5 and
+#    11/11 nodes cross), a strictly larger defect than the two-node swap they
+#    reported on v8, AND both its lanes overflow their declared heights.
+#    AEF's own all-versions census (rail 344) reproduced this set independently
+#    — 1 geometry + 2 overflow, same witnesses, same numbers.
+#    Reported on the rail; tracked as T-314.
+#    Tolerance shape: COUNTED, not suppressed. Each admitted finding PRINTS
+#    every run and the count is asserted in T-312's Verification block, so a
+#    fixture joining this set silently is itself the failure.
 r = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "validate-workflow.py"),
                     FIXTURE, "--json"], capture_output=True, text=True)
 _found = json.loads(r.stdout).get("findings", []) if r.stdout.strip() else []
+_KNOWN = ("W-XML-LANE-GEOMETRY", "W-XML-LANE-CAPACITY")
 for _f in _found:
-    if _f["rule"] == "W-XML-LANE-GEOMETRY":
+    if _f["rule"] in _KNOWN:
         print(f"NOTE (known, AEF-owned bytes, T-314): {_f['location']}: {_f['message']}")
 _blocking = [f for f in _found
-             if f["severity"] != "INFO" and f["rule"] != "W-XML-LANE-GEOMETRY"]
+             if f["severity"] != "INFO" and f["rule"] not in _KNOWN]
 if _blocking:
     failures.append("fixture no longer validator-clean: "
                     f"{sorted({f['rule'] for f in _blocking})}")

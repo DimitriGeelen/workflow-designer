@@ -261,8 +261,12 @@ check(
     "a huge inter-lane gap is still clean (bands are never reconstructed)",
 )
 src = open(os.path.join(ROOT, "tools", "validate-workflow.py")).read()
+# Bound the span on the NEXT method definition, not on a named one. Naming a
+# successor makes this scan silently vacuous the moment a method is inserted
+# between the two — which is exactly what T-313 did (_check_lane_capacity, a
+# deliberate height READER, landed here and was swallowed into the span).
 start = src.find("def _check_lane_geometry")
-end = src.find("def _check_iw9_authority")
+end = src.find("\n    def ", start + 1) if start >= 0 else -1
 geom = src[start:end] if 0 <= start < end else ""
 check(
     bool(geom)

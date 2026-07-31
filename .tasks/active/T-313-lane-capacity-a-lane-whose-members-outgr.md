@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-29T22:44:43Z
-last_update: 2026-07-31T07:52:25Z
+last_update: 2026-07-31T08:05:14Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -112,52 +112,43 @@ ordering, never before.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A new rule in `tools/validate-workflow.py` reports a lane whose DECLARED members' occupancy extent exceeds its declared `<aef:laneMeta height>`: `extent = max botOf(n) − min topOf(n)` over the lane's `flowNodeRef` members, `botOf = y + occupancy(type)`, `topOf = y`
-- [ ] Occupancy is a per-BPMN-tag table derived from the renderer's own constants, NOT node height: events (`startEvent`/`endEvent`/`intermediateCatchEvent`/`intermediateThrowEvent`/`boundaryEvent`) 54, gateways 66, tasks and `subProcess` 64. The 18px below-shape label allowance is what makes a 48px gateway occupy more than a 64px task
-- [ ] The lowest-drawn node is selected by **botOf, not by y** — and a test pins AEF's counterexample directly (a gateway at y=199 occupying to 265 beats a task at y=200 occupying to 264), because a largest-y sort is the obvious implementation and names the wrong node there
-- [ ] The gate is CONTAINMENT and strict: `extent > height`. A node whose bottom edge lands exactly ON the band edge is contained and must NOT fire
-- [ ] The deliberate divergence from the Clean fixpoint is pinned by a TEST, not a comment: a lane with `height >= extent` but `height < extent + 2*LANE_FIT_MARGIN` (fit-but-untidy — one Clean away) must NOT fire. This is the exact set AEF's rule and ours agree to disagree about; a future "consistency fix" in either direction has to delete a named test to do it
-- [ ] SKIP, not PASS, on an unevaluable lane, reusing T-312's INFO channel: a lane that declares a height and has members but where any member is unpositioned emits `I-XML-LANE-CAPACITY-SKIP`, with text ending "not passed by it"
-- [ ] Scope guard (AEF adopted this from T-312 verbatim; keep it symmetric here): a lane with no members, or with no declared height, makes NO containment claim — out of scope, silent, no note. Without it every hand-authored heightless fixture gains a permanent unresolvable note
-- [ ] An unknown BPMN tag SKIPs its lane rather than defaulting to a guessed occupancy, AND a coverage test asserts every flow-node tag our exporter can emit has an occupancy entry — sourced from `src/aef-workflow-designer.html` so the palette cannot grow past the table silently. Silent-skip-forever is the failure mode this exists to prevent
-- [ ] The finding names the lane, its declared height, the extent, the spill in px, and the lowest-drawn node with its type and occupancy — enough to act on without opening the map
-- [ ] Zero false positives on the clean corpus: all 24 maps in `examples/aef-processes/rendered/` pass, with **0 lanes skipped** (T-101 baked Clean in, so every lane sits at the fixpoint). The zero-skipped half is the load-bearing one — a clean sweep resting on unevaluated lanes is the false green T-312 fixed
-- [ ] Teeth (PL-061): proven RED against the pre-change build on every positive fixture, and the test module is shown to fail against it — a rule that only ever passes is not evidence
-- [ ] Positive fixtures cover both live shapes AEF measured: a large spill (their knowledge-leveling agent lane, 307px past a 260px band) and a small one whose lowest node is a GATEWAY (their session-lifecycle agent lane, 6px) — the second is the one a height-only table misses
-- [ ] Validator suite and bridge suite both stay green (currently 35/0 and 47/0), and the T-312 exception-note count assertion still holds at exactly 3
-
-### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+- [x] A new rule in `tools/validate-workflow.py` reports a lane whose DECLARED members' occupancy extent exceeds its declared `<aef:laneMeta height>`: `extent = max botOf(n) − min topOf(n)` over the lane's `flowNodeRef` members, `botOf = y + occupancy(type)`, `topOf = y`
+- [x] Occupancy is a per-BPMN-tag table derived from the renderer's own constants, NOT node height: events (`startEvent`/`endEvent`/`intermediateCatchEvent`/`intermediateThrowEvent`/`boundaryEvent`) 54, gateways 66, tasks and `subProcess` 64. The 18px below-shape label allowance is what makes a 48px gateway occupy more than a 64px task
+- [x] The lowest-drawn node is selected by **botOf, not by y** — and a test pins AEF's counterexample directly (a gateway at y=199 occupying to 265 beats a task at y=200 occupying to 264), because a largest-y sort is the obvious implementation and names the wrong node there
+- [x] The gate is CONTAINMENT and strict: `extent > height`. A node whose bottom edge lands exactly ON the band edge is contained and must NOT fire
+- [x] The deliberate divergence from the Clean fixpoint is pinned by a TEST, not a comment: a lane with `height >= extent` but `height < extent + 2*LANE_FIT_MARGIN` (fit-but-untidy — one Clean away) must NOT fire. This is the exact set AEF's rule and ours agree to disagree about; a future "consistency fix" in either direction has to delete a named test to do it
+- [x] SKIP, not PASS, on an unevaluable lane, reusing T-312's INFO channel: a lane that declares a height and has members but where any member is unpositioned emits `I-XML-LANE-CAPACITY-SKIP`, with text ending "not passed by it"
+- [x] Scope guard (AEF adopted this from T-312 verbatim; keep it symmetric here): a lane with no members, or with no declared height, makes NO containment claim — out of scope, silent, no note. Without it every hand-authored heightless fixture gains a permanent unresolvable note
+- [x] An unknown BPMN tag SKIPs its lane rather than defaulting to a guessed occupancy, AND a coverage test asserts every flow-node tag our exporter can emit has an occupancy entry — sourced from `src/aef-workflow-designer.html` so the palette cannot grow past the table silently. Silent-skip-forever is the failure mode this exists to prevent
+- [x] The finding names the lane, its declared height, the extent, the spill in px, and the lowest-drawn node with its type and occupancy — enough to act on without opening the map
+- [x] Zero false positives on the clean corpus: all 24 maps in `examples/aef-processes/rendered/` pass, with **0 lanes skipped** (T-101 baked Clean in, so every lane sits at the fixpoint). The zero-skipped half is the load-bearing one — a clean sweep resting on unevaluated lanes is the false green T-312 fixed
+- [x] Teeth (PL-061): proven RED against the pre-change build on every positive fixture, and the test module is shown to fail against it — a rule that only ever passes is not evidence
+- [x] Positive fixtures cover both live shapes AEF measured: a large spill (their knowledge-leveling agent lane, 307px past a 260px band) and a small one whose lowest node is a GATEWAY (their session-lifecycle agent lane, 6px) — the second is the one a height-only table misses
+- [x] Validator suite and bridge suite both stay green (currently 35/0 and 47/0), and the T-312 exception-note count assertion still holds — **re-based 3 → 5, deliberately.** The count moved because this rule found two GENUINE capacity findings on the same AEF-owned pinned fixture (v3: agent 194px over h=220, framework 44px over h=380), not because a test was relaxed. Both are admitted the same way T-312's geometry finding is: PRINTED every run, count asserted. The property the AC exists to protect — no fixture joins the tolerated set silently — is unchanged and now guards a 6th entry. AEF's independent all-versions census (rail 344) returns the identical set: 1 geometry + 2 overflow, same witnesses, same numbers
 
 ## Verification
+
+# the rule's own module, the validator suite, and the seam suite
+python3 tests/test_t313_lane_capacity.py
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "36 passed, 0 failed"
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "48 passed, 0 failed"
+# containment is STRICT — a bottom edge landing exactly ON the band edge is contained
+out=$(python3 tools/validate-workflow.py tests/fixtures/warn/W-XML-LANE-CAPACITY.xml 2>&1); echo "$out" | grep -q "W-XML-LANE-CAPACITY"
+# the lowest-drawn node is chosen by BOTTOM EDGE, not by y (AEF's gateway/task counterexample)
+out=$(python3 tools/validate-workflow.py tests/fixtures/warn/W-XML-LANE-CAPACITY.xml 2>&1); echo "$out" | grep -q "agt_1_gate' (exclusiveGateway at y=199"
+# the large-spill fixture reproduces AEF's live knowledge-leveling numbers
+out=$(python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/lane-capacity-large-spill.bpmn 2>&1); echo "$out" | grep -q "member extent 567, spilling 307 px"
+# an unevaluable lane is SKIPPED, not passed (the false-green T-312 closed)
+out=$(python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/lane-geometry-unpositioned.bpmn 2>&1); echo "$out" | grep -q "SKIPPED by lane_overflow, not passed by it"
+# zero false positives AND zero silent skips across the 24-map rendered corpus
+n=0; s=0; for f in examples/aef-processes/rendered/*.bpmn; do out=$(python3 tools/validate-workflow.py "$f" 2>&1); if echo "$out" | grep -q "W-XML-LANE-CAPACITY"; then n=$((n+1)); fi; if echo "$out" | grep -q "I-XML-LANE-CAPACITY-SKIP"; then s=$((s+1)); fi; done; [ "$n" -eq 0 ] && [ "$s" -eq 0 ]
+# the YAML corpus is self-consistent: every forward-converted map contains its own lanes
+for f in examples/aef-processes/*.workflow.yaml; do python3 tools/yaml-to-bpmn.py "$f" > /tmp/.t313.bpmn 2>/dev/null || continue; out=$(python3 tools/validate-workflow.py /tmp/.t313.bpmn 2>&1); echo "$out" | grep -q "W-XML-LANE-CAPACITY" && exit 1; done; true
+# the counted tolerance stays COUNTED — a 6th note means a fixture joined silently
+out=$(bash tests/run-bridge-tests.sh 2>&1); [ "$(echo "$out" | grep -c 'NOTE (known')" -eq 5 ]
+# T-312's origin-free span scan bounds on the NEXT method, so a height reader
+# inserted between the two rules can never be swallowed into the scanned span
+grep -q 'src.find("\\n    def ", start + 1)' tests/test_t312_lane_geometry.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -207,6 +198,51 @@ ordering, never before.
 -->
 
 ## Evolution
+
+### 2026-07-31 — RESOLVED: all three checkpoint failures closed; bridge 48/0
+
+The three failures named in the checkpoint below were fixed as diagnosed. None
+turned out to be the rule misfiring; two were true positives and one was a
+defect in a test of my own.
+
+**1. `tests/test_t312_lane_geometry.py` origin-free span scan — a test defect,
+and the more interesting of the three.** The scan proves the geometry rule never
+reads a lane height by extracting the rule body and asserting `"height"` is
+absent. It bounded the span on a *named successor* method. T-313 then inserted
+`_check_lane_capacity` — a deliberate height READER — between the two, so the
+scanned span silently swallowed it and the assertion went red. Fixed by bounding
+on the next method definition (`src.find("\n    def ", start + 1)`) rather than
+on any name. **The general defect: naming a successor makes a span scan go
+vacuous or wrong the instant anything is inserted, and nothing tells you.**
+Teeth re-proven after the fix — the span now excludes `_check_lane_capacity`,
+and poisoning it with a synthetic `lane.get("height")` flips the assertion red.
+
+**2. AEF's pinned census fixture (v3, b82668c8) — a second true positive.** Both
+its lanes overflow: agent 194px past h=220 (extent 414), framework 44px past
+h=380 (extent 424). We are forbidden to edit those bytes, so `W-XML-LANE-CAPACITY`
+joined `W-XML-LANE-GEOMETRY` in the **counted, printed** tolerance in
+`tests/test_dead_leg_census.py`. Note count re-based 3 → 5 in T-312's
+Verification, with the arithmetic written down (promote 1 + two-lane-joint 1 +
+census 3). Independently corroborated: AEF's own all-versions census at rail 344
+returns the identical set — 1 geometry + 2 overflow, same witnesses, same
+numbers — from a run aimed at nothing in particular.
+
+**3. `examples/aef-processes/audit-process.workflow.yaml` — real corpus drift.**
+Framework lane declared 420 against a member extent of 438: an 18px spill, 1 of
+65 evaluable YAML lanes. Not a rule artefact — the *rendered* corpus reads 529
+because T-101 baked Clean into the rendered form only and the YAML sources were
+never re-measured. Set to **462** = extent 438 + 2×`LANE_FIT_MARGIN`, the Clean
+fixpoint for *this file's own* positions. Deliberately **not** copied from the
+rendered 529: the two carry different layouts, and 529 here would be a borrowed
+number rather than a computed one (it would also pass silently, since containment
+is strict — which is exactly how an unmeasured lane hides). A new Verification
+line now forward-converts every YAML source and asserts none overflows, so the
+next drift is caught at the source rather than at the baked artefact.
+
+**Pre-existing exposure, worth stating plainly:** this 18px spill was in the
+corpus before the rule existed and nothing could see it. That is the same shape
+as AEF's rail-344 finding on their side — a store judged by whatever rules
+existed at write time and never re-judged when the rules improve.
 
 ### 2026-07-31 — CHECKPOINT: rule is built and green; 3 named suite failures remain
 
