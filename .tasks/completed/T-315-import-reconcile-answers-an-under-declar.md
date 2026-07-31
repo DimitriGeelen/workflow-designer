@@ -4,10 +4,10 @@ name: "Import reconcile answers an under-declared lane height by moving nodes; g
 description: >
   Import reconcile answers an under-declared lane height by moving nodes; growing the band preserves the authored layout
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-31T08:44:51Z
-last_update: 2026-07-31T08:46:47Z
-date_finished: null
+last_update: 2026-07-31T09:01:00Z
+date_finished: 2026-07-31T09:01:00Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -96,7 +96,7 @@ interleaved.
 - [x] Round-trip safety: re-exporting a map whose lanes were grown emits the NEW heights and otherwise byte-identical bytes — the grown height is a real edit to the model, not a render-time fudge that silently reverts on save
 - [x] The operator is told what happened, in the same notice channel T-310 uses: a map whose bands were grown says so, with the lane name(s) and the growth in px — a silent geometry change on load is the failure mode this AC exists to prevent
 - [x] Teeth (PL-061): every new CDP assertion is shown RED against the pre-change build — a rule that only ever passes is not evidence
-- [x] Existing suites stay green: bridge 48/0, validator 36/0, geometry sweep 24 clean, and the T-312 counted-tolerance note count still exactly 5
+- [x] Existing suites stay green: bridge **49/0** (48 before this task; the +1 is this task's own new leg, not a pre-existing test changing behaviour), validator 36/0, geometry sweep 24 clean, and the T-312 counted-tolerance note count still exactly 5 — unchanged, because this task admits no new exceptions
 - [x] Visual verification (CLAUDE.md §Visual Verification for UI Changes): element-level screenshots of the canvas after loading both fixtures, READ with the Read tool, confirming grown bands contain their nodes and no node sits past a band edge — DOM-rect math alone does not close this
 
 ## Visual Verification
@@ -231,3 +231,22 @@ for f in spill-before spill-after swap-before swap-after; do test -s "docs/scree
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-315-import-reconcile-answers-an-under-declar.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b5e60970
+- **Timestamp:** 2026-07-31T09:02:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#4 (Agent)** — **T-310's open-review fixture is provably unaffected:** loading `tests/fixtures/aef-bpmn/lane-position-conflict.bpmn` produces byte-identical node positions, the same "2 nodes moved back" notice, and 
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/fixtures/aef-bpmn/lane-position-conflict.bpmn in: **T-310's open-review fixture is provably unaffected:** loading `tests/fixtures/aef-bpmn/lane-position-conflict.bpmn` produces byte-identical node pos`
+- **AC#5 (Agent)** — A map that is ordering-clean and has an under-declared lane loads with **zero** nodes moved and the lane grown instead — verified on `tests/fixtures/aef-bpmn/lane-capacity-large-spill.bpmn` (agent lan
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/fixtures/aef-bpmn/lane-capacity-large-spill.bpmn in: A map that is ordering-clean and has an under-declared lane loads with **zero** nodes moved and the lane grown instead — verified on `tests/fixtures/a`
+
+### 2026-07-31T09:01:00Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

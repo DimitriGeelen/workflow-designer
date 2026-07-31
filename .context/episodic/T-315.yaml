@@ -1,0 +1,94 @@
+# ============================================================================
+# EPISODIC MEMORY - T-315: Import reconcile answers an under-declared lane height by moving nodes; growing the band preserves the authored layout
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-31T09:02:46Z
+# ============================================================================
+
+task_id: T-315
+task_name: "Import reconcile answers an under-declared lane height by moving nodes; growing the band preserves the authored layout"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-31T08:44:51Z
+completed: 2026-07-31T09:01:00Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-07-31T10:46:46+02:00
+last_commit: 2026-07-31T11:00:42+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file the designer half of the capacity class — grow the band, do not move the nodes. grow an under-declared lane band on import instead of moving the operator's nodes
+
+# Key outcomes
+outcomes:
+  - 'On import, a lane whose declared members'' extent exceeds its declared height has its height grown to the Clean fixpoint (`extent + 2*LANE_FIT_MARGIN`) **before** the T-310 centre-test reconcile runs, so nodes that were only out-of-band because the band was too short are never moved'
+  - 'The growth pass is gated on the map being ordering-clean (T-312''s `lane_geometry` predicate, evaluated in-editor over declared lane membership). On an ordering-dirty map it does nothing and T-310''s reconcile behaves exactly as it does today — the composition result, enforced in code rather than assumed'
+  - 'The growth amount is derived from the lane''s own members only (`max botOf − min topOf`), never from reconstructed band boundaries; all lanes are resized before any node is tested against a band (resize-then-reconcile, not interleaved)'
+  - '**T-310''s open-review fixture is provably unaffected:** loading `tests/fixtures/aef-bpmn/lane-position-conflict.bpmn` produces byte-identical node positions, the same "2 nodes moved back" notice, and identical lane heights before and after this change — pinned by a CDP assertion, not by inspection'
+  - 'A map that is ordering-clean and has an under-declared lane loads with **zero** nodes moved and the lane grown instead — verified on `tests/fixtures/aef-bpmn/lane-capacity-large-spill.bpmn` (agent lane h=260, extent 567), whose four node y-values are unchanged after load'
+  - 'Round-trip safety: re-exporting a map whose lanes were grown emits the NEW heights and otherwise byte-identical bytes — the grown height is a real edit to the model, not a render-time fudge that silently reverts on save'
+  - 'The operator is told what happened, in the same notice channel T-310 uses: a map whose bands were grown says so, with the lane name(s) and the growth in px — a silent geometry change on load is the failure mode this AC exists to prevent'
+  - 'Teeth (PL-061): every new CDP assertion is shown RED against the pre-change build — a rule that only ever passes is not evidence'
+  - 'Existing suites stay green: bridge **49/0** (48 before this task; the +1 is this task''s own new leg, not a pre-existing test changing behaviour), validator 36/0, geometry sweep 24 clean, and the T-312 counted-tolerance note count still exactly 5 — unchanged, because this task admits no new exceptions'
+  - 'Visual verification (CLAUDE.md §Visual Verification for UI Changes): element-level screenshots of the canvas after loading both fixtures, READ with the Read tool, confirming grown bands contain their nodes and no node sits past a band edge — DOM-rect math alone does not close this'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-313.yaml'
+  - 'docs/screenshots/t315-spill-after.png'
+  - 'docs/screenshots/t315-spill-before.png'
+  - 'docs/screenshots/t315-swap-after.png'
+  - 'docs/screenshots/t315-swap-before.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-315-import-reconcile-answers-an-under-declar.md'
+  - '.tasks/completed/T-313-lane-capacity-a-lane-whose-members-outgr.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_t315_lane_grow_on_import.py'
+  - 'tools/_t315-lane-grow-on-import-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-31T10:46:46"
+    action: "T-315: file the designer half of the capacity class — grow the band, do not move the nodes"
+  - time: "2026-07-31T11:00:42"
+    action: "T-315: grow an under-declared lane band on import instead of moving the operator's nodes"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 16 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 16
+  commits: 2
+  files_changed: 11
+  lines_added: 854
+  lines_removed: 57
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-315-import-reconcile-answers-an-under-declar.md
+generated_by: context-agent-hybrid
