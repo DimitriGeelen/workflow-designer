@@ -4,10 +4,10 @@ name: "Lane capacity: a lane whose members outgrow its declared height renders n
 description: >
   AEF T-2687 (rail 338) found a defect class the lane ORDERING rule is structurally blind to: a lane whose own members span more than its declared height. Order correct, nothing crossing, band simply cannot contain its content. Live instance their side: draft-knowledge-leveling agent lane spans 513px inside height=260, overflow 253px - a SECOND independent defect on the v8 promotion candidate, separate from the two-node authority call. On OUR side this is not merely a lint finding but a VISIBLE RENDER DEFECT: poolHeight sums declared lane heights while nodes draw at their own y, so nodes spill past the band edge. This is a candidate mechanism for the operator screenshot that started T-310 - roughly 14 nodes rendered BELOW every lane band with long trunk edges on a 53-node 5-lane map, with the Clean nudge firing. T-310 explained the membership half but never explained why so many sat below ALL bands; capacity does, and Clean firing fits because cleanLayout (T-125) compacts lanes to exactly the fitting height. UNCONFIRMED against that map - pen_inbound_classifier bytes were never obtained. Measured our side: all 24 rendered corpus maps have ZERO overflowing lanes, because T-101 baked Clean layout in and Clean drives lanes to the fixpoint height == (max botOf - min topOf) + 2*LANE_FIT_MARGIN. So the class arrives via IMPORTED maps authored elsewhere, not from our own corpus. Occupancy is not node height: botOf = y + h(type) + (labelBelow(type) ? 18 : 0), LANE_FIT_MARGIN=12 at both edges. Effective occupancy events 54, gateways 66, tasks 64 - the smallest shapes are not the smallest occupants.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-29T22:44:43Z
-last_update: 2026-07-31T08:05:14Z
-date_finished: null
+last_update: 2026-07-31T08:42:33Z
+date_finished: 2026-07-31T08:42:33Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -352,3 +352,25 @@ verification — it is not a fold-in.
 ### 2026-07-31T07:52:25Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-95e3341f
+- **Timestamp:** 2026-07-31T08:44:15Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#8 (Agent)** — An unknown BPMN tag SKIPs its lane rather than defaulting to a guessed occupancy, AND a coverage test asserts every flow-node tag our exporter can emit has an occupancy entry — sourced from `src/aef-w
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=src/aef-workflow-designer.html in: An unknown BPMN tag SKIPs its lane rather than defaulting to a guessed occupancy, AND a coverage test asserts every flow-node tag our exporter can emi`
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 14
+     - evidence: `n=0; s=0; for f in examples/aef-processes/rendered/*.bpmn; do out=$(python3 tools/validate-workflow.py "$f" 2>&1); if echo "$out" | grep -q "W-XML-LANE-CAPACITY"; then n=$((n+1)); fi; if echo "$out" |`
+
+### 2026-07-31T08:42:33Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

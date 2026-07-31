@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-313: Lane capacity: a lane whose members outgrow its declared height renders nodes past the band edge
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-31T08:44:17Z
+# ============================================================================
+
+task_id: T-313
+task_name: "Lane capacity: a lane whose members outgrow its declared height renders nodes past the band edge"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-29T22:44:43Z
+completed: 2026-07-31T08:42:33Z
+duration_days: 2
+updates_count: 2
+first_commit: 2026-07-31T10:05:13+02:00
+last_commit: 2026-07-31T10:42:15+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  lane capacity rule (CHECKPOINT — rule green, 3 named suite failures pending). lane capacity rule complete — a lane whose members outgrow its declared height is now a validator finding, bridge 48/0
+
+# Key outcomes
+outcomes:
+  - 'A new rule in `tools/validate-workflow.py` reports a lane whose DECLARED members'' occupancy extent exceeds its declared `<aef:laneMeta height>`: `extent = max botOf(n) − min topOf(n)` over the lane''s `flowNodeRef` members, `botOf = y + occupancy(type)`, `topOf = y`'
+  - 'Occupancy is a per-BPMN-tag table derived from the renderer''s own constants, NOT node height: events (`startEvent`/`endEvent`/`intermediateCatchEvent`/`intermediateThrowEvent`/`boundaryEvent`) 54, gateways 66, tasks and `subProcess` 64. The 18px below-shape label allowance is what makes a 48px gateway occupy more than a 64px task'
+  - 'The lowest-drawn node is selected by **botOf, not by y** — and a test pins AEF''s counterexample directly (a gateway at y=199 occupying to 265 beats a task at y=200 occupying to 264), because a largest-y sort is the obvious implementation and names the wrong node there'
+  - 'The gate is CONTAINMENT and strict: `extent > height`. A node whose bottom edge lands exactly ON the band edge is contained and must NOT fire'
+  - 'The deliberate divergence from the Clean fixpoint is pinned by a TEST, not a comment: a lane with `height >= extent` but `height < extent + 2*LANE_FIT_MARGIN` (fit-but-untidy — one Clean away) must NOT fire. This is the exact set AEF''s rule and ours agree to disagree about; a future "consistency fix" in either direction has to delete a named test to do it'
+  - 'SKIP, not PASS, on an unevaluable lane, reusing T-312''s INFO channel: a lane that declares a height and has members but where any member is unpositioned emits `I-XML-LANE-CAPACITY-SKIP`, with text ending "not passed by it"'
+  - 'Scope guard (AEF adopted this from T-312 verbatim; keep it symmetric here): a lane with no members, or with no declared height, makes NO containment claim — out of scope, silent, no note. Without it every hand-authored heightless fixture gains a permanent unresolvable note'
+  - 'An unknown BPMN tag SKIPs its lane rather than defaulting to a guessed occupancy, AND a coverage test asserts every flow-node tag our exporter can emit has an occupancy entry — sourced from `src/aef-workflow-designer.html` so the palette cannot grow past the table silently. Silent-skip-forever is the failure mode this exists to prevent'
+  - 'The finding names the lane, its declared height, the extent, the spill in px, and the lowest-drawn node with its type and occupancy — enough to act on without opening the map'
+  - 'Zero false positives on the clean corpus: all 24 maps in `examples/aef-processes/rendered/` pass, with **0 lanes skipped** (T-101 baked Clean in, so every lane sits at the fixpoint). The zero-skipped half is the load-bearing one — a clean sweep resting on unevaluated lanes is the false green T-312 fixed'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'examples/aef-processes/audit-process.workflow.yaml'
+  - '.tasks/active/T-313-lane-capacity-a-lane-whose-members-outgr.md'
+  - '.tasks/completed/T-312-mirror-aefs-lanegeometry-agreement-check.md'
+  - 'tests/fixtures/aef-bpmn/lane-capacity-large-spill.bpmn'
+  - 'tests/fixtures/warn/W-XML-LANE-CAPACITY.xml'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_dead_leg_census.py'
+  - 'tests/test_t312_lane_geometry.py'
+  - 'tests/test_t313_lane_capacity.py'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-31T10:05:13"
+    action: "T-313: lane capacity rule (CHECKPOINT — rule green, 3 named suite failures pending)"
+  - time: "2026-07-31T10:42:15"
+    action: "T-313: lane capacity rule complete — a lane whose members outgrow its declared height is now a validator finding, bridge 48/0"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 2037 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2037
+  commits: 2
+  files_changed: 10
+  lines_added: 1084
+  lines_removed: 82
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-313-lane-capacity-a-lane-whose-members-outgr.md
+generated_by: context-agent-hybrid
