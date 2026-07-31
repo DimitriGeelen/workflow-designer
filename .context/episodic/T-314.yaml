@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-314: Three sha-pinned fixtures carry the T-310 lane inversion the new rule found
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-07-31T10:52:41Z
+# ============================================================================
+
+task_id: T-314
+task_name: "Three sha-pinned fixtures carry the T-310 lane inversion the new rule found"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-30T20:25:02Z
+completed: 2026-07-31T10:50:59Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-07-31T12:45:28+02:00
+last_commit: 2026-07-31T12:50:59+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  re-pin both shared fixtures — the lane inversion we found in our own producer contract is repaired, tolerance closed 5 -> 3. pin the zero-semantic repair as a real test with its own bridge leg (50/0)
+
+# Key outcomes
+outcomes:
+  - '`inception-gonogo` and `two-lane-joint` are repaired by **laneSet reorder only** — the `<bpmn:lane>` elements are re-ordered so declaration order matches drawn order, and nothing else about either file changes'
+  - 'The repair is proven zero-semantic, not asserted: for both fixtures, every node''s `flowNodeRef` lane membership, every `aef:position`, every `aef:uid`, and the full node/edge sets are IDENTICAL before and after — diffed mechanically against the pre-repair bytes, not eyeballed'
+  - 'Both fixtures validate CLEAN under `tools/validate-workflow.py` afterwards — no `W-XML-LANE-GEOMETRY`, and no new finding of any rule introduced by the reorder'
+  - '**Cumulative-boundary check (T-312''s caveat, and the reason a reorder is not automatically safe):** lane bands are cumulative heights, so swapping lanes of UNEQUAL height moves every boundary below the swap. Both fixtures are re-checked for `W-XML-LANE-CAPACITY` after the reorder — a lane that fitted before must still fit'
+  - 'The pinned shas are updated at every site that holds them, found by search rather than by memory, and each updated pin carries the reason inline so the next reader sees why the bytes moved'
+  - 'The counted tolerance SHRINKS to match its remaining cause: `W-XML-LANE-GEOMETRY` is removed from the admitted set in `tests/test_promote_contract.py` and `tests/test_two_lane_joint_contract.py`, which no longer need it, and stays only in `tests/test_dead_leg_census.py` where AEF''s un-editable bytes still require it'
+  - 'The note-count assertion in T-312''s Verification comes down from 5 to 3 (census only: 1 geometry + 2 capacity), and the arithmetic is written down so a future reader can tell a legitimate change from a silent one'
+  - 'Teeth: the reorder is shown to be the thing that fixed it — the pre-repair bytes still produce `W-XML-LANE-GEOMETRY` under the current validator, so the green is attributable to the fixture change and not to a rule that stopped firing'
+  - 'Bridge suite, validator suite and geometry sweep all stay green with the new bytes (**50/0** — 49 before, +1 for this task''s own new `test_t314_fixture_repin` leg; 36/0; 24 clean)'
+  - 'AEF is told on the rail that the re-pin has landed, with the new shas, so their consumer test can re-pin in lockstep — the coordination half of the T-559 producer contract, not an afterthought'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 're-pin both shared fixtures — the lane inversion we found in our own producer contract is repaired, tolerance closed 5 -> 3'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-314-three-sha-pinned-fixtures-carry-the-t-31.md'
+  - '.tasks/active/T-316-nine-test-files-are-referenced-by-no-run.md'
+  - '.tasks/completed/T-312-mirror-aefs-lanegeometry-agreement-check.md'
+  - 'tests/fixtures/aef-bpmn/inception-gonogo.bpmn'
+  - 'tests/fixtures/aef-bpmn/two-lane-joint.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_promote_contract.py'
+  - 'tests/test_t314_fixture_repin.py'
+  - 'tests/test_two_lane_joint_contract.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-07-31T12:45:28"
+    action: "T-314: re-pin both shared fixtures — the lane inversion we found in our own producer contract is repaired, tolerance closed 5 -> 3"
+  - time: "2026-07-31T12:50:59"
+    action: "T-314: pin the zero-semantic repair as a real test with its own bridge leg (50/0)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 865 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 865
+  commits: 2
+  files_changed: 9
+  lines_added: 553
+  lines_removed: 110
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-314-three-sha-pinned-fixtures-carry-the-t-31.md
+generated_by: context-agent-hybrid

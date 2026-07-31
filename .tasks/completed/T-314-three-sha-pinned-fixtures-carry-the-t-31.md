@@ -4,10 +4,10 @@ name: "Three sha-pinned fixtures carry the T-310 lane inversion the new rule fou
 description: >
   T-312's lane_geometry rule fired on three sha-pinned fixtures the day it landed, all true positives. (1) tests/fixtures/aef-bpmn/inception-gonogo.bpmn (T-206 shared promote fixture): declares 'human' first, draws hum_1_inception at y=300 below both agent nodes at y=120 — wholesale inversion. (2) tests/fixtures/aef-bpmn/two-lane-joint.bpmn (T-208): same shape, 1/1 and 3/3 crossing. (3) tests/fixtures/aef-overlay/draft-knowledge-leveling-v3.bpmn (T-304, AEF-owned bytes pinned at b82668c8): wholesale inversion, 5/5 and 11/11 nodes cross — strictly larger than the two-node swap AEF reported on v8. None were repaired under T-312: (1) and (2) are sha-pinned and shared with AEF's consumer test so repair is a coordinated re-pin, and (3) is AEF's bytes which we never edit — that one is an upstream report, not our fix. The three contract tests now admit W-XML-LANE-GEOMETRY as a KNOWN, PRINTED exception (a NOTE line every run) so the tolerance cannot rot into a blind spot. This task closes the tolerance: repair ours, re-pin with AEF, and drop the exception.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-30T20:25:02Z
-last_update: 2026-07-31T10:45:28Z
-date_finished: null
+last_update: 2026-07-31T10:50:59Z
+date_finished: 2026-07-31T10:50:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -262,3 +262,20 @@ day" but "these facts still hold".
 ### 2026-07-31T10:35:20Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8820de5c
+- **Timestamp:** 2026-07-31T10:52:40Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#6 (Agent)** — The counted tolerance SHRINKS to match its remaining cause: `W-XML-LANE-GEOMETRY` is removed from the admitted set in `tests/test_promote_contract.py` and `tests/test_two_lane_joint_contract.py`, whic
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/test_dead_leg_census.py in: The counted tolerance SHRINKS to match its remaining cause: `W-XML-LANE-GEOMETRY` is removed from the admitted set in `tests/test_promote_contract.py``
+
+### 2026-07-31T10:50:59Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
