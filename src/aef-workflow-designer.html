@@ -2151,6 +2151,14 @@ function laneAtY(y) {
 // incapable of reaching the exporter (same discipline as T-308's session-intent Set).
 let _laneReconcileCount = 0;
 
+// T-315: which lanes the last parse had to GROW to contain their own declared
+// members, and by how much. Same discipline as _laneReconcileCount above — a
+// report about the import, kept outside `state` so it is structurally incapable
+// of reaching the exporter. (The grown HEIGHT does reach the exporter, and must:
+// it is a real edit to the document, not a render-time fudge. What stays out is
+// the narration about it.)
+let _laneGrowReport = [];
+
 // ============================================================================
 //  State
 // ============================================================================
@@ -6966,13 +6974,97 @@ function redo() {
 const LANE_FIT_MARGIN = 12;   // containment margin, above tidyLane's 8px grow trigger
 const LANE_FIT_LABEL = 18;    // below-shape name line (events/gateways, ly = h+14)
 const LANE_FIT_EMPTY = 80;    // lanes with no nodes collapse to a slim visible band
+
+// T-315: lane OCCUPANCY, hoisted to module scope so Clean's fit pass and the
+// import-time grow pass cannot drift apart. These were local to compactLanesFit;
+// a second copy is exactly the G-009 copy-paste class, and here it would be
+// worse than usual — two functions disagreeing about how tall a node is would
+// make Clean and import fight over the same lane height on every load.
+// Note the shape that surprises: a 48px gateway carries an 18px label below it
+// and so occupies 66, while a 64px task occupies 64. The smallest shapes are
+// NOT the smallest occupants, which is why the lowest-drawn node must be chosen
+// by BOTTOM EDGE and never by y.
+const laneLabelBelow = t => (t === 'startEvent' || t === 'endEvent' ||
+  t === 'linkEventThrow' || t === 'linkEventCatch' ||
+  t.startsWith('event') || t.endsWith('Gateway'));
+const laneTopOf = n => n.y;
+const laneBotOf = n => n.y + (NODE_DEFAULTS[n.type] || NODE_DEFAULTS.serviceTask).h +
+  (laneLabelBelow(n.type) ? LANE_FIT_LABEL : 0);
+
+// T-315: grow a lane that cannot contain its own declared members, at import,
+// BEFORE the T-310 centre-test reconcile decides anything.
+//
+// The distinction this draws is not a heuristic. T-313 established that bands
+// tile the axis contiguously in declaration order, so lane HEIGHTS are the only
+// free variable, and therefore a set of heights that contains every lane's
+// members exists EXACTLY WHEN the lanes are ordering-clean (T-312's
+// lane_geometry predicate). That gives two disjoint worlds:
+//
+//   ordering-clean + a lane over-spilling its height
+//       -> a pure height solve exists. The map never disagreed about WHO; it
+//          under-declared a number. Grow the band, move nothing, lose nothing.
+//   ordering-dirty
+//       -> no set of heights can fix it. It is a genuine membership/authority
+//          conflict and stays T-310's case, untouched.
+//
+// So this returns [] on a dirty map rather than doing a partial job, and the
+// reconcile below behaves exactly as it did before this function existed. That
+// is load-bearing for governance, not just for correctness: T-310's "declared
+// membership wins" default is in front of the operator as an open [REVIEW]
+// question, and the fixture they are asked to load is a two-node swap — dirty,
+// hence provably untouched here.
+//
+// ORIGIN-FREE, deliberately (T-312's trap, in reverse): every number comes from
+// a lane's OWN members, never from a reconstructed band boundary. Growing lane i
+// moves every boundary below it, so band edges are meaningless mid-pass — which
+// is why all lanes are sized from their members first and only then is any node
+// tested against a band. Resize-then-reconcile, never interleaved.
+//
+// Returns [{id, name, from, to, grew}] for the import notice. Silent geometry
+// changes on load are the failure mode; the caller reports this.
+function growUnderDeclaredLanes(lanes, nodes) {
+  const membersOf = id => nodes.filter(n => n.lane === id);
+  const populated = lanes.filter(l => membersOf(l.id).length > 0);
+  if (!populated.length) return [];
+
+  // y === 0 is the designer's "unpositioned" sentinel, not a coordinate (the
+  // parse tail patches those to the lane centre). A lane holding one cannot be
+  // measured, and an ordering claim cannot be backed, so the whole pass stands
+  // down rather than guessing — SKIP, not PASS (T-312's INFO channel, same
+  // reasoning applied to an action instead of a finding).
+  if (nodes.some(n => n.y === 0)) return [];
+
+  // Ordering precondition, over DECLARED membership, adjacent populated pairs
+  // in laneSet declaration order. Equal y counts as a crossing (strict), same
+  // as the validator rule — two lanes' content starting on the same row is not
+  // an ordering a height change can rescue.
+  for (let i = 0; i + 1 < populated.length; i++) {
+    const upper = membersOf(populated[i].id);
+    const lower = membersOf(populated[i + 1].id);
+    if (Math.max(...upper.map(laneTopOf)) >= Math.min(...lower.map(laneTopOf))) return [];
+  }
+
+  const grown = [];
+  for (const lane of lanes) {
+    const ns = membersOf(lane.id);
+    if (!ns.length) continue;                       // no members => no containment claim
+    const extent = Math.max(...ns.map(laneBotOf)) - Math.min(...ns.map(laneTopOf));
+    if (extent <= lane.height) continue;            // STRICT: a bottom edge exactly ON
+                                                    // the edge is contained (T-313)
+    const from = lane.height;
+    lane.height = extent + 2 * LANE_FIT_MARGIN;     // the Clean fixpoint, so a Tidy
+                                                    // straight after load is a no-op
+    grown.push({ id: lane.id, name: lane.name || lane.id, from, to: lane.height,
+                 grew: lane.height - from });
+  }
+  return grown;
+}
+
 function compactLanesFit() {
-  const labelBelow = t => (t === 'startEvent' || t === 'endEvent' ||
-    t === 'linkEventThrow' || t === 'linkEventCatch' ||
-    t.startsWith('event') || t.endsWith('Gateway'));
+  const labelBelow = laneLabelBelow;
   const cyOf = n => n.y + NODE_DEFAULTS[n.type].h / 2;
-  const topOf = n => n.y;
-  const botOf = n => n.y + NODE_DEFAULTS[n.type].h + (labelBelow(n.type) ? LANE_FIT_LABEL : 0);
+  const topOf = laneTopOf;
+  const botOf = laneBotOf;
   let yCursor = POOL_Y + POOL_HEADER;
   for (const lane of state.lanes) {
     const ns = state.nodes.filter(n => n.lane === lane.id);
@@ -7158,12 +7250,27 @@ function maybeShowLaneFixNotice() {
   const el = $('lane-fix-notice'), msg = $('lane-fix-msg'), nudge = $('clean-nudge');
   if (!el) return;
   const n = _laneReconcileCount;
-  if (n > 0 && msg) {
-    msg.textContent = `⚠ ${n} node${n === 1 ? ' was' : 's were'} drawn outside ` +
-                      `${n === 1 ? 'its' : 'their'} declared lane — moved back into place`;
+  // T-315: two different things can have happened on import, and they must read
+  // differently. A MOVE changes where the reader believes responsibility sits.
+  // A GROW changes nothing but a number — every node is exactly where its author
+  // left it — so it is reported as a repair of the band, not of the work. Both
+  // are stated rather than offered: they have already happened.
+  const g = _laneGrowReport || [];
+  const parts = [];
+  if (n > 0) {
+    parts.push(`${n} node${n === 1 ? ' was' : 's were'} drawn outside ` +
+               `${n === 1 ? 'its' : 'their'} declared lane — moved back into place`);
   }
-  el.style.display = n > 0 ? '' : 'none';
-  if (nudge) nudge.classList.toggle('stacked', n > 0);
+  if (g.length) {
+    const which = g.map(l => `${l.name} (+${l.grew}px)`).join(', ');
+    parts.push(`${g.length} lane${g.length === 1 ? '' : 's'} could not fit ` +
+               `${g.length === 1 ? 'its' : 'their'} own content — band${g.length === 1 ? '' : 's'} ` +
+               `grown, no nodes moved: ${which}`);
+  }
+  const show = parts.length > 0;
+  if (show && msg) msg.textContent = '⚠ ' + parts.join('; ');
+  el.style.display = show ? '' : 'none';
+  if (nudge) nudge.classList.toggle('stacked', show);
 }
 
 // ── Align rows (T-094) ──────────────────────────────────────────────────────
@@ -9800,6 +9907,13 @@ function parseBpmnXml(text) {
   const prev = state;
   state = { lanes };
   _laneReconcileCount = 0;
+  // T-315: size every band from its own members BEFORE any node is tested
+  // against a band. A lane that merely under-declared its height is repaired by
+  // the number, not by moving the operator's work — and doing it first means the
+  // reconcile below never sees those nodes as out-of-band at all. On an
+  // ordering-dirty map this is a no-op by construction, so T-310's behaviour
+  // there is byte-identical to before.
+  _laneGrowReport = growUnderDeclaredLanes(lanes, nodes);
   for (const n of nodes) {
     const def = NODE_DEFAULTS[n.type] || NODE_DEFAULTS.serviceTask;
     if (n.y === 0) {

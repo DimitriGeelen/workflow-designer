@@ -198,6 +198,23 @@ else
 fi
 
 echo
+echo "== an under-declared lane band is grown, not the nodes moved (T-315) =="
+# The sibling case to T-310 and the one it answers wrongly: when a lane's own
+# declared members spill past its own bottom edge, the map is not contradicting
+# itself about WHO — it under-declared a height. Moving the nodes repairs that by
+# destroying an authored layout; growing the band preserves every position. The two
+# separate on T-313's composition result (heights can contain a map exactly when it
+# is ordering-clean), so this leg pins BOTH halves: the grow on a clean map, and the
+# stand-down on a dirty one — where T-310's behaviour must stay byte-identical
+# because that fixture is in front of the operator for review.
+if python3 "$ROOT/tests/test_t315_lane_grow_on_import.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "lane grow-on-import regressed — an under-declared band may again be 'repaired' by relocating the operator's nodes (T-315 class)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== authored doc block survives the round-trip (T-311) =="
 # The leading comment child of <bpmn:definitions> carries the map's rationale and
 # AEF's corpus_spec treats it as SEMANTIC. We used to drop it at parse and never

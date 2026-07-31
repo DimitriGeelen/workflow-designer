@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-31T08:44:51Z
-last_update: 2026-07-31T08:44:51Z
+last_update: 2026-07-31T08:46:47Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -88,49 +88,50 @@ interleaved.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] On import, a lane whose declared members' extent exceeds its declared height has its height grown to the Clean fixpoint (`extent + 2*LANE_FIT_MARGIN`) **before** the T-310 centre-test reconcile runs, so nodes that were only out-of-band because the band was too short are never moved
-- [ ] The growth pass is gated on the map being ordering-clean (T-312's `lane_geometry` predicate, evaluated in-editor over declared lane membership). On an ordering-dirty map it does nothing and T-310's reconcile behaves exactly as it does today — the composition result, enforced in code rather than assumed
-- [ ] The growth amount is derived from the lane's own members only (`max botOf − min topOf`), never from reconstructed band boundaries; all lanes are resized before any node is tested against a band (resize-then-reconcile, not interleaved)
-- [ ] **T-310's open-review fixture is provably unaffected:** loading `tests/fixtures/aef-bpmn/lane-position-conflict.bpmn` produces byte-identical node positions, the same "2 nodes moved back" notice, and identical lane heights before and after this change — pinned by a CDP assertion, not by inspection
-- [ ] A map that is ordering-clean and has an under-declared lane loads with **zero** nodes moved and the lane grown instead — verified on `tests/fixtures/aef-bpmn/lane-capacity-large-spill.bpmn` (agent lane h=260, extent 567), whose four node y-values are unchanged after load
-- [ ] Round-trip safety: re-exporting a map whose lanes were grown emits the NEW heights and otherwise byte-identical bytes — the grown height is a real edit to the model, not a render-time fudge that silently reverts on save
-- [ ] The operator is told what happened, in the same notice channel T-310 uses: a map whose bands were grown says so, with the lane name(s) and the growth in px — a silent geometry change on load is the failure mode this AC exists to prevent
-- [ ] Teeth (PL-061): every new CDP assertion is shown RED against the pre-change build — a rule that only ever passes is not evidence
-- [ ] Existing suites stay green: bridge 48/0, validator 36/0, geometry sweep 24 clean, and the T-312 counted-tolerance note count still exactly 5
-- [ ] Visual verification (CLAUDE.md §Visual Verification for UI Changes): element-level screenshots of the canvas after loading both fixtures, READ with the Read tool, confirming grown bands contain their nodes and no node sits past a band edge — DOM-rect math alone does not close this
+- [x] On import, a lane whose declared members' extent exceeds its declared height has its height grown to the Clean fixpoint (`extent + 2*LANE_FIT_MARGIN`) **before** the T-310 centre-test reconcile runs, so nodes that were only out-of-band because the band was too short are never moved
+- [x] The growth pass is gated on the map being ordering-clean (T-312's `lane_geometry` predicate, evaluated in-editor over declared lane membership). On an ordering-dirty map it does nothing and T-310's reconcile behaves exactly as it does today — the composition result, enforced in code rather than assumed
+- [x] The growth amount is derived from the lane's own members only (`max botOf − min topOf`), never from reconstructed band boundaries; all lanes are resized before any node is tested against a band (resize-then-reconcile, not interleaved)
+- [x] **T-310's open-review fixture is provably unaffected:** loading `tests/fixtures/aef-bpmn/lane-position-conflict.bpmn` produces byte-identical node positions, the same "2 nodes moved back" notice, and identical lane heights before and after this change — pinned by a CDP assertion, not by inspection
+- [x] A map that is ordering-clean and has an under-declared lane loads with **zero** nodes moved and the lane grown instead — verified on `tests/fixtures/aef-bpmn/lane-capacity-large-spill.bpmn` (agent lane h=260, extent 567), whose four node y-values are unchanged after load
+- [x] Round-trip safety: re-exporting a map whose lanes were grown emits the NEW heights and otherwise byte-identical bytes — the grown height is a real edit to the model, not a render-time fudge that silently reverts on save
+- [x] The operator is told what happened, in the same notice channel T-310 uses: a map whose bands were grown says so, with the lane name(s) and the growth in px — a silent geometry change on load is the failure mode this AC exists to prevent
+- [x] Teeth (PL-061): every new CDP assertion is shown RED against the pre-change build — a rule that only ever passes is not evidence
+- [x] Existing suites stay green: bridge 48/0, validator 36/0, geometry sweep 24 clean, and the T-312 counted-tolerance note count still exactly 5
+- [x] Visual verification (CLAUDE.md §Visual Verification for UI Changes): element-level screenshots of the canvas after loading both fixtures, READ with the Read tool, confirming grown bands contain their nodes and no node sits past a band edge — DOM-rect math alone does not close this
 
-### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
+## Visual Verification
 
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
+Four element-level canvas screenshots, all READ (not merely captured), covering
+both fixtures on both builds. Sidecar-served working source in an isolated
+browser; `docs/screenshots/t315-*.png`.
 
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
+| shot | what it shows |
+|---|---|
+| `t315-spill-before.png` | **the defect.** Pre-change build, ordering-clean spill map: the three agent nodes are crushed onto adjacent rows — authored y 87/300/600 becomes 87/160/174 — and `recorded` is dragged from 700 to 404. The notice says "3 nodes were drawn outside their declared lane — moved back into place". The membership is now correct and the drawing is destroyed. |
+| `t315-spill-after.png` | **the repair.** Same map, this build: the Agent band is tall enough to hold its content, all four nodes sit exactly where their author left them, every node is inside the band it claims, and the notice reads "1 lane could not fit its own content — band grown, no nodes moved: Agent · Initiative (+331px)". |
+| `t315-swap-before.png` | T-310's review fixture on the pre-change build — the baseline the operator's open `[REVIEW]` ACs are written against. |
+| `t315-swap-after.png` | the same fixture on this build. **Pixel-identical** to the baseline: both bands still 160, the two swapped nodes still reconciled, the T-310 sentence unchanged and no grow clause added. |
 
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+The before/after pair on the spill map is the whole argument for this task in one
+picture: both builds end with every node in its declared lane, and only one of
+them still shows the diagram the author drew.
 
 ## Verification
+
+python3 tests/test_t315_lane_grow_on_import.py
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "49 passed, 0 failed"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "36 passed, 0 failed"
+# the counted tolerance from T-312/T-313 is untouched by this change
+out=$(bash tests/run-bridge-tests.sh 2>&1); [ "$(echo "$out" | grep -c 'NOTE (known')" -eq 5 ]
+# occupancy has ONE definition — a second copy would let Clean and import fight
+# over the same lane height on every load (G-009 copy-paste class)
+[ "$(grep -c 'const laneBotOf' src/aef-workflow-designer.html)" -eq 1 ]
+# the grow pass is gated on ordering, and stands down rather than doing a partial job
+grep -q 'if (Math.max(...upper.map(laneTopOf)) >= Math.min(...lower.map(laneTopOf))) return \[\];' src/aef-workflow-designer.html
+# resize-then-reconcile: the grow call precedes the centre-test loop in the parse tail
+python3 -c "s=open('src/aef-workflow-designer.html').read(); g=s.index('_laneGrowReport = growUnderDeclaredLanes'); r=s.index('if (findLane(n.lane) && laneAtY('); raise SystemExit(0 if g < r else 1)"
+# the visual evidence exists and is committed, not just captured in a session
+for f in spill-before spill-after swap-before swap-after; do test -s "docs/screenshots/t315-$f.png" || exit 1; done
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
