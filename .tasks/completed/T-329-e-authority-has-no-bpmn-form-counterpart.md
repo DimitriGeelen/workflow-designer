@@ -4,20 +4,20 @@ name: "E-AUTHORITY has no BPMN-form counterpart: an out-of-enum IW-9 lane author
 description: >
   T-328 spike finding. The YAML validator rejects a lane authority outside the section 5 enum (E-AUTHORITY, tools/validate-workflow.py:_check_lanes). yaml-to-bpmn.py carries the bad value faithfully into <aef:laneMeta authority='overlord'/>, and NO XmlValidator rule inspects it -- the bridged document validates clean. So the check exists only on the canonical YAML form, while BPMN is the form the designer authors and the form AEF consumes. tests/test_rule_form_parity.py is green on this because it compares rule IDs and never validates a document; PARITY pairs E-AUTHORITY with 'E-INCEPTION-NOT-SOVEREIGN / laneMeta authority', a pairing the behavioural measurement shows does not hold. This is IW-9 governance data (O-1/O-3 family, PL-035 territory), so a silent pass is a governance gap rather than a lint gap. Fix is an XmlValidator rule reading aef:laneMeta/@authority against the same enum, single-sourced from the YAML side rather than a second copy of the enum.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-01T22:49:21Z
-last_update: 2026-08-01T23:35:22Z
-date_finished: null
+last_update: 2026-08-01T23:41:20Z
+date_finished: 2026-08-01T23:41:20Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -252,3 +252,15 @@ out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "bridge round-
 
 ### 2026-08-01T23:35:22Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-52668da8
+- **Timestamp:** 2026-08-01T23:43:03Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-01T23:41:20Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
