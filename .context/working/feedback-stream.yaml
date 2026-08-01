@@ -3365,3 +3365,57 @@ scan_id: R-e2690385
 task_id: T-318
 payload:
   task_file: .tasks/active/T-318-t-314-repair-is-unreachable-to-aef-repai.md
+---
+kind: scan_emitted
+timestamp: '2026-07-31T12:23:03Z'
+scan_id: R-b9ffc49f
+task_id: T-320
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-31T12:23:03Z'
+scan_id: R-b9ffc49f
+task_id: T-320
+payload:
+  task_file: .tasks/active/T-320-rule-form-parity-census-validator-rules-.md
+---
+kind: scan_emitted
+timestamp: '2026-07-31T12:27:54Z'
+scan_id: R-353752f5
+task_id: T-319
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-07-31T12:27:54Z'
+scan_id: R-353752f5
+task_id: T-319
+payload:
+  task_file: .tasks/active/T-319-rule-exclusivegateway-whose-branches-all.md
+---
+kind: scan_emitted
+timestamp: '2026-08-01T10:24:49Z'
+scan_id: R-589416a7
+task_id: T-322
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-01T10:24:49Z'
+scan_id: R-589416a7
+task_id: T-322
+payload:
+  task_file: .tasks/active/T-322-iw-9-authority-rules-exist-only-on-the-x.md

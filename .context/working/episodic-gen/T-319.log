@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-07-31T12:27:55Z ===
+task_id: T-319
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-319.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Rule: exclusiveGateway whose branches all reconverge immediately is a decision without consequence (T-309 IW-4)
+  Duration: 0 days (46 min)
+  Updates: 2
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 5 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-319-rule-exclusivegateway-whose-branches-all.md
+--- exit code: 0 ---

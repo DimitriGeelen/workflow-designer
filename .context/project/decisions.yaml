@@ -1046,3 +1046,10 @@ decisions:
     date: 2026-07-30
     task: T-312
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-129
+    decision: "do not build the reconvergence rule. Close as declined."
+    scope: project
+    date: 2026-07-31
+    task: T-319
+    rationale: "Auto-captured from task file on completion"
