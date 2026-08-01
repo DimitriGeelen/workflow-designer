@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-01T22:43:26Z
-last_update: 2026-08-01T22:43:26Z
+last_update: 2026-08-01T22:57:11Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -68,18 +68,18 @@ candidate for its own build task rather than a fix folded in here (one bug = one
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 
-- [ ] **AC1 — The pair table is DECLARED, never parsed out of `PARITY`'s prose.** Measured first
+- [x] **AC1 — The pair table is DECLARED, never parsed out of `PARITY`'s prose.** Measured first
       (PL-071): `PARITY`'s counterpart field is free text — `E-XML-STRUCTURE` covers six YAML rules
       as `"E-NOT-MAPPING / E-TOPLEVEL-MISSING / *-FIELD"`, and entries carry parentheticals such as
       `"W-XML-GW-AMBIGUOUS (T-317)"`. Parsing that is the anchor-in-prose defect (four instances this
       arc). The harness declares its own `{yaml_rule: {xml_rule, ...}}` table.
 
-- [ ] **AC2 — That table is drift-guarded BIDIRECTIONALLY against `PARITY`.** Every rule classified
+- [x] **AC2 — That table is drift-guarded BIDIRECTIONALLY against `PARITY`.** Every rule classified
       PAIRED/PAIRED_SAME_ID in `PARITY` must appear in the pair table, and every pair-table entry
       must be PAIRED in `PARITY`. Adding a paired rule without deciding its behavioural status fails
       the build. A table that could silently omit a rule would report agreement it never tested.
 
-- [ ] **AC3 — For every behaviourally-testable pair, the SAME document is driven through both forms
+- [x] **AC3 — For every behaviourally-testable pair, the SAME document is driven through both forms
       and the verdict is one of THREE outcomes, not two.** A YAML document that fires the YAML rule
       is converted via `tools/yaml-to-bpmn.py`; both validators run. 1:many pairs compare at set
       level — form A reports some member of the pair-set iff form B does.
@@ -95,27 +95,27 @@ candidate for its own build task rather than a fix folded in here (one bug = one
       - **BRIDGE-REPAIRED** — the bridged document no longer carries the defect. Declared per pair
         with the repair named, never inferred at runtime from "XML said nothing".
 
-- [ ] **AC4 — Untestable pairs are DECLARED with a reason, PRINTED every run, and COUNT-ASSERTED.**
+- [x] **AC4 — Untestable pairs are DECLARED with a reason, PRINTED every run, and COUNT-ASSERTED.**
       Some pairs have no reachable cross-form document (`E-NOT-MAPPING` fires on YAML that is not a
       mapping, which cannot be bridged at all). Untestable is a legitimate verdict; an *unbounded*
       untestable set is not. Count asserted so the set cannot grow silently into a blanket exemption
       (T-324 discipline: a tolerance is counted and printed, or it is a suppression).
 
-- [ ] **AC5 — Teeth prove the harness DISCRIMINATES, not merely that it fires (PL-070).** Mutate one
+- [x] **AC5 — Teeth prove the harness DISCRIMINATES, not merely that it fires (PL-070).** Mutate one
       implementation's predicate so the two genuinely disagree → harness RED, and the failure text
       must NAME the disagreeing pair and the direction (which form fired). A red that only exits
       non-zero proves the harness runs, not that it compares. Every mutation asserts it LANDED with
       an exact occurrence count before any verdict is read (probes-that-fail-when-right), and the
       tree is restored byte-identical.
 
-- [ ] **AC6 — Negative control: the unmutated tree is GREEN, and the green is falsifiable.** Includes
+- [x] **AC6 — Negative control: the unmutated tree is GREEN, and the green is falsifiable.** Includes
       the (0) branch — if the pair table or the fixture set resolves empty, the harness must RAISE
       rather than pass, since an empty comparison set trivially satisfies every assertion above.
 
-- [ ] **AC7 — Wired into the GATING runner** (`tests/run-bridge-tests.sh`), not merely present on
+- [x] **AC7 — Wired into the GATING runner** (`tests/run-bridge-tests.sh`), not merely present on
       disk — T-316's lesson: a suite nobody runs cannot report a failure. Bridge leg count 65 → 66.
 
-- [ ] **AC8 — The known latent divergence is dispositioned explicitly, not left implicit.**
+- [x] **AC8 — The known latent divergence is dispositioned explicitly, not left implicit.**
       `W-GW-AMBIGUOUS` tests falsy (`:417`), `W-XML-GW-AMBIGUOUS` tests existence (`:949`). Either
       the predicates are aligned, or the divergence is declared latent with its reachability
       condition recorded (both emitters truthiness-gated; 0 empty elements in 100 carrying files).
@@ -168,6 +168,26 @@ candidate for its own build task rather than a fix folded in here (one bug = one
 # while the upstream is still writing — verification then "fails" even though
 # the pattern was present. Safe pattern: capture first, grep the capture:
 #     out=$(cmd 2>&1); echo "$out" | grep -q "PATTERN"
+#
+# T-328 verification. Anchored on structural literals with EXACT counts — never
+# `grep -qv` (which inverts per LINE and succeeds whenever any single line lacks
+# the pattern) and never a bare rule token (which matches prose, filenames and
+# our own canonical type names). Capture-then-grep per L-387.
+
+# 1. the guard itself is green
+out=$(python3 tests/test_harness_cross_form_agreement.py 2>&1); echo "$out" | grep -q "cross-form agreement: OK"
+
+# 2. the counts are the measured ones, not merely "some number"
+out=$(python3 tests/test_harness_cross_form_agreement.py 2>&1); echo "$out" | grep -q "19 pairs compared, 14 AGREE, 4 known DISAGREE"
+
+# 3. wired into the GATING runner exactly once (T-316: on disk is not wired)
+test "$(grep -c 'test_harness_cross_form_agreement.py' tests/run-bridge-tests.sh)" -eq 1
+
+# 4. every declared tolerance cites an OPEN task — a tolerance citing nothing is a suppression
+test "$(ls .tasks/active/ | grep -cE '^T-329-|^T-330-')" -eq 2
+
+# 5. the whole gating suite, with this leg counted in
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "bridge round-trip: 66 passed, 0 failed"
 # Or:
 #     cmd > /tmp/.out 2>&1 && grep -q "PATTERN" /tmp/.out
 # Origin: L-387, captured 4× (T-1716, T-1838, T-1862, T-1863) before this hint.
