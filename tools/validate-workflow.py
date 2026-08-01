@@ -61,6 +61,28 @@ NODE_TYPES = {
 # section 5: lane authority vocabulary
 AUTHORITIES = {"sovereignty", "authority", "initiative", "external", "none"}
 
+# IW-9 authority collapse (mapping-v1 section 3): lane authority -> task-YAML
+# owner. "external" authors no task and "none" is unspecified — both absent
+# here on purpose, so both read as "no owner to disagree with" below.
+#
+# Module scope, not per-class (T-322). These tables decide who is authoritative;
+# a second copy inside each validator would let the two forms drift apart on the
+# governance question itself, which is the defect T-322 exists to close. Same
+# reasoning as the T-315 occupancy hoist.
+AUTHORITY_OWNER = {
+    "sovereignty": "human",
+    "initiative": "agent",
+    "authority": "agent",
+}
+
+# task type -> the performer the type implies. The lane is authority-of-record
+# and wins; task type is presentational (mapping-v1 section 3, O-1).
+TYPE_PERFORMER = {
+    "userTask": "human",
+    "serviceTask": "agent",
+    "scriptTask": "agent",
+}
+
 # section 3: required top-level keys (lanes >= 1; nodes/edges may be empty)
 REQUIRED_TOPLEVEL = ["workflowMeta", "pool", "lanes", "nodes", "edges"]
 
@@ -199,6 +221,7 @@ class Validator:
         self._check_constituents(nodes, node_uids)
         self._check_reachability(nodes, edges)
         self._check_required_inputs(nodes, edges)
+        self._check_iw9_authority(lanes, nodes)
 
     # -- lanes (section 5, section 2) --------------------------------------
 
@@ -683,6 +706,76 @@ class Validator:
                         "node '%s'" % uid,
                         "required input '%s' has no upstream node emitting a "
                         "matching output" % name,
+                    )
+
+    # -- IW-9 authority (section 3, section 7) ------------------------------
+
+    def _check_iw9_authority(self, lanes, nodes):
+        """v1.1 IW-9 authority enforcement on the canonical YAML form.
+
+        The counterpart of ``XmlValidator._check_iw9_authority``, closing the
+        T-322 half of the T-320 parity census. Both rules read the same two
+        module-scope tables and emit the same two ids, so a map that is
+        governance-clean on one form is governance-clean on the other.
+
+        O-3 (E-INCEPTION-NOT-SOVEREIGN, ERROR): a subProcess carrying
+          ``aef.workflowType: inception`` MUST sit in a lane whose authority is
+          ``sovereignty`` — the go/no-go boundary is human-owned.
+        O-1 (W-TYPE-LANE-MISMATCH, WARN): a userTask/serviceTask/scriptTask
+          whose type-implied performer disagrees with the lane authority
+          collapse. The lane wins; the type is presentational.
+
+        Absent lane authority is a VIOLATION of O-3, not a skip (PL-035, T-199):
+        section 7 names the sovereignty lane the sole source of the go/no-go
+        decision, so a map carrying no authority at all is precisely what that
+        MUST rejects — it must not become the one map that passes. O-1 stays
+        silent in that case, guarded on ``authority is not None``, because
+        absent authority is not a disagreement: there is nothing to disagree
+        with.
+        """
+        lane_authority = {
+            lane["id"]: lane.get("authority")
+            for lane in lanes
+            if isinstance(lane, dict) and "id" in lane
+        }
+        for node in nodes:
+            if not isinstance(node, dict):
+                continue
+            uid = node.get("uid")
+            if uid is None:
+                continue
+            # An unresolvable lane reference reads as authority-absent, matching
+            # the XML form's treatment of a node in no flowNodeRef. E-NODE-LANE
+            # already reports the dangling reference itself.
+            authority = lane_authority.get(node.get("lane"))
+            ntype = node.get("type")
+            aef = node.get("aef")
+            if not isinstance(aef, dict):
+                aef = {}
+
+            # O-3: an inception's boundary MUST be sovereignty(human)-laned
+            if ntype == "subProcess" and aef.get("workflowType") == "inception":
+                if authority != "sovereignty":
+                    self.err(
+                        "E-INCEPTION-NOT-SOVEREIGN",
+                        "node '%s'" % uid,
+                        'inception (workflowType="inception") must be in a '
+                        "sovereignty (human) lane; its lane authority is %s "
+                        "(O-3, mapping-v1 §7)"
+                        % ("absent" if authority is None else "'%s'" % authority),
+                    )
+
+            # O-1: task-type should agree with lane authority (lane wins)
+            if ntype in TYPE_PERFORMER and authority is not None:
+                owner = AUTHORITY_OWNER.get(authority)
+                if owner is not None and owner != TYPE_PERFORMER[ntype]:
+                    self.warn(
+                        "W-TYPE-LANE-MISMATCH",
+                        "node '%s'" % uid,
+                        "%s implies performer '%s' but its lane authority '%s' "
+                        "collapses to owner '%s'; the lane wins, task-type is "
+                        "presentational (O-1, mapping-v1 §3)"
+                        % (ntype, TYPE_PERFORMER[ntype], authority, owner),
                     )
 
 
@@ -1295,18 +1388,8 @@ class XmlValidator:
           task-type-implied performer disagrees with the lane authority collapse.
           The lane is authority-of-record and wins; task-type is presentational.
         """
-        # lane authority -> task-YAML owner collapse (mapping-v1 §3)
-        AUTHORITY_OWNER = {
-            "sovereignty": "human",
-            "initiative": "agent",
-            "authority": "agent",
-            # external -> no task authored; none -> unspecified (both skipped)
-        }
-        TYPE_PERFORMER = {
-            "userTask": "human",
-            "serviceTask": "agent",
-            "scriptTask": "agent",
-        }
+        # AUTHORITY_OWNER / TYPE_PERFORMER are module-scope (T-322) so this form
+        # and the canonical YAML form cannot drift on the authority collapse.
         # A missing laneSet must NOT short-circuit O-3 (T-199). Absent lanes means
         # absent authority-of-record — precisely what §7's MUST rejects — so an
         # early return here made the one diagram carrying no human signal at all

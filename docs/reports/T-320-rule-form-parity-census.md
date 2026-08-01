@@ -69,23 +69,73 @@ Residue, measured over 25 canonical YAML maps and 96 authored BPMN files
 | rule family | direction | construct carried on other form | verdict | live |
 |---|---|---|---|---|
 | `E-CONST-DUP` / `E-CONST-SHAPE` / `W-CONST-FIELD` | YAML→XML | `aef:constituents`, **23/96** bpmn | **GAP** | not probed |
-| `E-SCOPEOF-SELF` / `E-SCOPEOF-DANGLING` / `W-SCOPEOF-TYPE` | YAML→XML | `aef:scopeOf`, **0/96** | out of scope | — |
+| `E-SCOPEOF-SELF` / `E-SCOPEOF-DANGLING` / `W-SCOPEOF-TYPE` | YAML→XML | `aef:scopeOf`, **0/96 authored — but in the shared vocabulary** | ~~out of scope~~ **GAP** (overturned, see below) | 0 |
 | `W-IO-INPUT` | YAML→XML | declared io, **17/96** bpmn | **GAP** | not probed |
 | `E-ABBR-DUP` | YAML→XML | lane `abbr`, **96/96** bpmn | **GAP** | 0 |
 | `E-NODE-TYPE` | YAML→XML | typed flow elements, **96/96** | **GAP** | see below |
-| `W-TYPE-LANE-MISMATCH` | XML→YAML | authority + task-type, **24/24** yaml | **GAP** | 0 |
-| `E-INCEPTION-NOT-SOVEREIGN` | XML→YAML | `workflowType=inception`, **2/24** yaml | **GAP** | 0 |
+| `W-TYPE-LANE-MISMATCH` | XML→YAML | authority + task-type, **24/24** yaml | ~~GAP~~ **CLOSED T-322** | 0 |
+| `E-INCEPTION-NOT-SOVEREIGN` | XML→YAML | ~~`workflowType=inception`, 2/24 yaml~~ **0/26 authored — in the canonical vocabulary** (corrected, see below) | ~~GAP~~ **CLOSED T-322** | 0 |
 | `W-XML-LANE-GEOMETRY` | XML→YAML | node `y`, **24/24** yaml | **GAP** | 0 |
 | `W-XML-LANE-CAPACITY` | XML→YAML | lane `height` + `y`, **24/24** yaml | **GAP** | 0 |
 
-**Eight gap families. Exactly one rule family is correctly out of scope** —
-`scopeOf`, at 0/96, and that is the only classification in this table that rests on
-a measurement returning zero rather than on an argument.
+> ### 2026-08-01 — the headline above was wrong, and so was the discriminator (T-322/T-323)
+>
+> Corrected count: **nine gap families, and ZERO are correctly out of scope.**
+>
+> **The discriminator.** This census said: measure whether the *other form carries
+> the construct*, and that got operationalised as **a corpus count** — does any
+> authored file contain it today. But this same document insists a corpus count is
+> **priority, never classification**: *"a gap with zero violations is still a gap;
+> the missing rule is exactly what makes the missing violations unfalsifiable."*
+> I applied that to the GAP rows and not to the OUT-OF-SCOPE rows. The discipline
+> was itself one-form-only — applied to one half of its own table.
+>
+> **`scopeOf` overturned, decisively.** `aef:scopeOf` is in the shared canonical
+> vocabulary (`tools/yaml-to-bpmn.py` `META_KEYS`; designer `metaKeys`,
+> `src/aef-workflow-designer.html:9283`) and the bridge emits it as
+> `<aef:meta scopeOf="…">`. Same map, both forms — a `subProcess` whose `scopeOf`
+> points at itself:
+>
+> | form | verdict |
+> |---|---|
+> | YAML | `ERROR [E-SCOPEOF-SELF]` rc=2 |
+> | BPMN, bridged from those bytes (`scopeOf="n_capture"` present) | `VALID — no findings` rc=0 |
+>
+> So the one family this census called correctly out of scope is a **GAP**. The
+> corrected rule: **out-of-scope means the other form CANNOT EXPRESS the
+> construct**, decided by the schema / shared key vocabulary — not by whether
+> anyone has authored one yet. The probes in `tests/test_rule_form_parity.py`
+> therefore interrogate the wrong object: they walk the corpus, so a
+> classification flips only *after* someone authors a violating file, which is
+> precisely too late. **T-323** repairs the discriminator and the probes.
+>
+> **Second, smaller error, in the row that motivated the task AEF ranked highest.**
+> The `E-INCEPTION-NOT-SOVEREIGN` row read *"`workflowType=inception`, 2/24 yaml"*.
+> Measured: **zero of 26** `.workflow.yaml` carry `workflowType` at all. The two
+> carriers are `tests/fixtures/aef-bpmn/{inception-gonogo,two-lane-joint}.bpmn` —
+> XML files, i.e. the rule's **own** form. I counted carriers on the wrong side of
+> the comparison the column exists to make. The GAP classification survives
+> (`workflowType` is in the canonical vocabulary) but for a different reason and
+> off a different number.
+>
+> Both errors are the same family as the lane-geometry slip corrected above:
+> [[measurement-promoted-past-its-scope]]. Posted to AEF at rail 359 before they
+> ran their own one-form-only sweep, so they would not inherit the discriminator.
 
 The gap runs in **both** directions, which I did not expect. `W-TYPE-LANE-MISMATCH`
 and `E-INCEPTION-NOT-SOVEREIGN` — the IW-9 authority rules, the ones that decide
 whether an inception is sovereign — exist on the XML form and have **no counterpart
 on the canonical YAML form at all.** That is the governance-bearing half.
+
+**Closed by T-322 (2026-08-01).** Both rules now emit from `Validator` as well,
+off module-scope `AUTHORITY_OWNER` / `TYPE_PERFORMER` tables the two classes share
+so the authority collapse itself cannot drift. Fixtures cover both forms — the same
+map, bridged, yields the same rule id and the same exit code on each. The guard
+gained a `PAIRED (same id, both forms)` classification that is *enforced*: deleting
+either half now fails it. Before that it did not — the deletion mutation ran green,
+because the surviving XML half kept the id alive and the stale-entry check only
+fires when no validator emits it at all. A parity claim nothing enforces is the
+same false green this census exists to remove.
 
 ## `E-NODE-TYPE`: the gap, and why the naive fix is wrong
 

@@ -4,10 +4,10 @@ name: "IW-9 authority rules exist only on the XML form: the canonical YAML form 
 description: >
   T-320 census, direction XML-to-YAML. W-TYPE-LANE-MISMATCH (task-type vs lane authority) and E-INCEPTION-NOT-SOVEREIGN (an inception's go/no-go boundary MUST sit in a sovereignty lane) exist on XmlValidator only. The canonical YAML form carries both constructs -- lane authority + node type on 24/24 maps, workflowType=inception on 2/24 -- and no rule describes them there. 0 live violations today, which is priority not classification: the absence of a rule is what makes the absence of violations unfalsifiable. Kept as one task because it is one construct (mapping-v1 section 3/7 authority collapse) on one form, not two independent defects. Governance-bearing: this is the half that decides whether an inception is human-sovereign.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: claude-code
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-31T12:16:05Z
-last_update: 2026-07-31T12:16:05Z
+last_update: 2026-08-01T10:08:02Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,44 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The T-320 census (`docs/reports/T-320-rule-form-parity-census.md`) found the parity gap runs
+in BOTH directions. This is the XML→YAML half, and it is the governance-bearing one: the two
+rules that decide **who is authoritative** — `E-INCEPTION-NOT-SOVEREIGN` (an inception's
+go/no-go boundary MUST sit in a sovereignty lane) and `W-TYPE-LANE-MISMATCH` (task-type vs
+lane-authority collapse) — exist on `XmlValidator` only, at `tools/validate-workflow.py:1287`.
+
+The construct is fully present on the canonical form: `authority` is a REQUIRED lane field
+(`REQUIRED_LANE_FIELDS`) and `subProcess`/`userTask`/`serviceTask`/`scriptTask` are all in
+`NODE_TYPES`. So this is a GAP by the census discriminator (construct presence), not an
+out-of-scope asymmetry. AEF's framing, rail 356: *if sovereignty is only decidable on the
+rendered form, the canonical form cannot answer the governance question it exists to answer.*
+
+Zero live violations today. Per the census's two-axis rule that is **priority, not
+classification** — the missing rule is exactly what makes the missing violations
+unfalsifiable.
+
+**Carrier is the open question, and it must be measured, not assumed.** The XML rule reads
+`aef:meta workflowType="inception"` off the subProcess. Whether the canonical YAML form
+carries that field, carries it under another name, or does not carry it at all decides whether
+O-3 is portable or whether this task ships only O-1 and reclassifies O-3. Do not port
+verbatim — T-320's own lesson (`NODE_TYPES` copied to the XML form would hard-fail 8 of our
+fixtures) is that the missing rule can be real while the obvious fix is wrong.
+
+Relevant precedent surfaced at work-on: **PL-035 (T-199)** — when a spec names X the sole
+source of a decision, ABSENCE of X is a violation. The XML rule already encodes this (a
+lane-less diagram must not become the one diagram that passes O-3); the YAML port must too.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Carrier measured and recorded before implementation: **0 of 26** `.workflow.yaml` carry `workflowType` as a node key; the construct is nonetheless expressible — `workflowType` is in the canonical `aef:` vocabulary (`tools/yaml-to-bpmn.py` `META_KEYS`) and the designer offers it on `subProcess` (`src/aef-workflow-designer.html:1805`, options at `:1897`). Recorded in `## Evolution` with the corpus named, together with the census row it disproves (claimed 2/24 yaml; the 2 carriers are `.bpmn`).
+- [x] `W-TYPE-LANE-MISMATCH` (O-1) emits from `Validator` at `tools/validate-workflow.py:_check_iw9_authority`, WARN, off the same module-scope `AUTHORITY_OWNER`/`TYPE_PERFORMER` tables the XML form now reads. Guarded on `authority is not None`, so absent authority stays silent. Fixture `tests/fixtures/warn/W-TYPE-LANE-MISMATCH.yaml` carries an in-file silence control (a `userTask` in the same sovereignty lane that must NOT warn).
+- [x] O-3 ported as `E-INCEPTION-NOT-SOVEREIGN` on `Validator` with PL-035 semantics — absent lane authority is a violation, not a skip. Proven by mutation M3: with the lane's `authority` removed the rule fires `…its lane authority is absent (O-3, mapping-v1 §7)`.
+- [x] Teeth by mutation on the REAL tree (PL-061), three mutations, tree restored byte-identical (`git diff -- examples/` = 0 lines): **M1** real `userTask` in a sovereignty lane retyped `serviceTask` → `W-TYPE-LANE-MISMATCH` (pre-change build: `VALID — no findings`); **M2** real `subProcess` marked `workflowType: inception` in an `authority` lane → `E-INCEPTION-NOT-SOVEREIGN` (pre-change: `VALID — no findings`); **M3** same with the lane's authority stripped → fires with `absent` (pre-change reported only `E-LANE-FIELD`, a different rule — verified, not assumed).
+- [x] Silence proven: 26 maps scanned, **0** findings for either new rule. Pinned as a Verification line.
+- [x] `tests/test_rule_form_parity.py` updated — both entries moved to the new `PAIRED (same id, both forms)` classification, `EXPECTED_GAPS` 11 → 9 with the arithmetic re-derived in the comment. Guard green at `45 rules classified, 9 gaps`; no assertion was loosened to fit — one was **added** (see the third `## Evolution` entry: plain `PAIRED` did not survive its own teeth test).
+- [x] Pinned by fixtures in the GATING runner rather than a new orphan-prone module (`tests/run-validator-tests.sh` globs `fixtures/{invalid,warn}/*` by the `<RULE-ID>.<ext>` contract): 4 fixtures, both forms, the XML pair generated by bridging the YAML pair so the parity property is asserted directly. Validator suite 38 → **42 passed, 0 failed**; bridge **62 passed, 0 failed**.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -75,6 +105,15 @@ date_finished: null
 -->
 
 ## Verification
+
+out=$(python3 tests/test_rule_form_parity.py 2>&1); echo "$out" | grep -q "^rule-form parity: OK$"
+out=$(python3 tests/test_rule_form_parity.py 2>&1); echo "$out" | grep -q "45 rules classified, 9 gaps"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -qE "^== summary: [0-9]+ passed, 0 failed ==$"
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -qE "^bridge round-trip: [0-9]+ passed, 0 failed$"
+out=$(python3 tools/validate-workflow.py tests/fixtures/invalid/E-INCEPTION-NOT-SOVEREIGN.yaml 2>&1); echo "$out" | grep -q "E-INCEPTION-NOT-SOVEREIGN"
+out=$(python3 tools/validate-workflow.py tests/fixtures/warn/W-TYPE-LANE-MISMATCH.yaml 2>&1); echo "$out" | grep -q "W-TYPE-LANE-MISMATCH"
+# silence: the whole canonical YAML corpus must stay at zero findings for both new rules
+test "$(for f in $(find examples -name '*.workflow.yaml'); do python3 tools/validate-workflow.py "$f" 2>&1; done | grep -cE 'E-INCEPTION-NOT-SOVEREIGN|W-TYPE-LANE-MISMATCH')" = "0"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -147,6 +186,69 @@ date_finished: null
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-08-01 — the carrier measurement, and the census row it disproved
+
+- **What changed:** the AC required measuring the inception carrier before porting O-3.
+  Result: **zero of 26** `.workflow.yaml` in the tree carry `workflowType` — as a node
+  key it appears nowhere. But the T-320 census row for this rule claims "**2/24** yaml".
+  Those two carriers are `tests/fixtures/aef-bpmn/{inception-gonogo,two-lane-joint}.bpmn`
+  — XML files, the rule's **own** form. The census counted carriers on the wrong side of
+  the comparison the column exists to make.
+- **Plan impact:** none to the deliverable — the classification survives, because
+  `workflowType` IS in the canonical `aef:` vocabulary (`tools/yaml-to-bpmn.py` `META_KEYS`;
+  designer `metaKeys` at `src/aef-workflow-designer.html:9283`, offered on `subProcess`
+  with `inception` among its options at `:1897`). So the construct is expressible on the
+  canonical form and the rule was genuinely missing. Same verdict, different reason,
+  different number.
+- **Triggered:** census row corrected in place; the general defect filed as **T-323**.
+
+### 2026-08-01 — the discriminator itself was wrong, and it cost the one out-of-scope call
+
+- **What changed:** chasing the row above exposed the method. T-320 classified a rule
+  OUT-OF-SCOPE when **no file on the other form carries the construct today** — a corpus
+  count. The census's own two-axis rule forbids exactly that: a corpus count is priority,
+  never classification. It was applied to the GAP rows and not to the OUT-OF-SCOPE rows.
+  Proof that this bites: `aef:scopeOf` is in the shared vocabulary and the bridge emits it,
+  yet 0 files carry it, so it was called out of scope. A `subProcess` whose `scopeOf` points
+  at itself is `ERROR [E-SCOPEOF-SELF]` rc=2 on the YAML form and `VALID — no findings`
+  rc=0 on the BPMN bridged from those same bytes.
+- **Plan impact:** the census headline "8 gap families, exactly one correctly out of scope"
+  becomes **9 families, zero correctly out of scope**. Out of T-322's scope to repair — the
+  probes need to interrogate the vocabulary rather than walk the corpus.
+- **Triggered:** **T-323** filed. Census corrected so it no longer carries the disproved
+  claim. Posted to AEF at **rail 359** ahead of their own one-form-only sweep, so they do
+  not inherit the discriminator.
+
+### 2026-08-01 — the guard did not protect the parity it recorded
+
+- **What changed:** teeth-testing the table update found a live hole. Moving the two ids to
+  `PAIRED` and then **deleting the entire YAML rule from the code** left the guard
+  **green** — `XmlValidator` still emitted the ids, so the stale-entry check (which only
+  fires when *no* validator emits an id) stayed quiet while the table went on claiming
+  parity. `PAIRED` was the one classification the guard took on trust: OUT-OF-SCOPE needed
+  a probe, GAP was counted, PAIRED was believed.
+- **Plan impact:** in scope and fixed here rather than deferred, because it is specifically
+  the claim T-322 ships — shipping a parity claim nothing enforces is the false-green class
+  this whole arc exists to remove. New classification `PAIRED (same id, both forms)` with an
+  assertion that both classes still emit the id, plus negative control (b2). The deletion
+  mutation now goes red on both rules.
+- **Triggered:** nothing new. The *other* half — PAIRED via a differently-**named**
+  counterpart (`E-EDGE-DANGLING` ↔ `E-FLOW-DANGLING`) — is still only a note, and belongs
+  with T-323's classification-falsifiability work.
+
+### 2026-08-01 — the two rules had no fixture coverage on either form
+
+- **What changed:** neither `E-INCEPTION-NOT-SOVEREIGN` nor `W-TYPE-LANE-MISMATCH` had a
+  fixture in `tests/fixtures/`, including on the XML form where they have existed all along.
+  The parity census tracks whether a rule EXISTS on each form; it says nothing about whether
+  anything exercises it.
+- **Plan impact:** added fixtures for both forms, not just the new YAML half. The XML
+  fixtures are generated by bridging the YAML ones, so the pair asserts the parity property
+  directly: same map, same rule id, same exit code on both forms.
+- **Triggered:** nothing filed. Worth noting as a candidate axis for a future census —
+  "rule exists" and "rule is exercised" are independent, and this census only measured
+  the first.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -174,3 +276,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-322-iw-9-authority-rules-exist-only-on-the-x.md
 - **Context:** Initial task creation
+
+### 2026-08-01T10:08:02Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

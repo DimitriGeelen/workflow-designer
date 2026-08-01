@@ -1,0 +1,36 @@
+# O-3 on the canonical YAML form (T-322): subProcess n_probe carries
+# aef.workflowType "inception", so its go/no-go boundary is human-owned and it
+# MUST sit in a sovereignty lane (mapping-v1 section 7). It sits in an
+# 'initiative' lane instead. ERROR — a malformed inception fails fast.
+#
+# n_scope is the silence control: a subProcess in the same non-sovereignty lane
+# that is NOT an inception must stay quiet, so the rule cannot be satisfied by
+# warning about every subProcess outside a human lane.
+workflowMeta: {id: t, version: 1, schemaVersion: 2}
+pool: {id: Pool_t, name: t}
+lanes:
+  - {id: human, name: Human, abbr: hum, authority: sovereignty, height: 200}
+  - {id: agent, name: Agent, abbr: agt, authority: initiative, height: 200}
+nodes:
+  - {uid: n_start, type: startEvent, name: Start, lane: agent, x: 100, y: 100}
+  - uid: n_probe
+    type: subProcess
+    name: Explore the problem
+    lane: agent
+    x: 300
+    y: 100
+    aef:
+      workflowType: inception
+  - uid: n_scope
+    type: subProcess
+    name: Ordinary collapsed scope
+    lane: agent
+    x: 500
+    y: 100
+    aef:
+      workflowType: build
+  - {uid: n_end, type: endEvent, name: Done, lane: agent, x: 700, y: 100}
+edges:
+  - {uid: e1, source: n_start, target: n_probe}
+  - {uid: e2, source: n_probe, target: n_scope}
+  - {uid: e3, source: n_scope, target: n_end}

@@ -44,6 +44,14 @@ VALIDATOR = os.path.join(ROOT, "tools", "validate-workflow.py")
 AEF_NS = "http://agentic-engineering.org/schema/1.0"
 
 PAIRED = "PAIRED"
+# PAIRED via the SAME rule id on both forms (T-322). Split out from PAIRED
+# because this half is mechanically ENFORCEABLE: the guard requires the id to be
+# emitted by both validator classes and fails if either side disappears.
+# Discovered the hard way -- deleting the whole YAML rule left the plain PAIRED
+# entry green, because XmlValidator still emitted the id and the stale-entry
+# check only fires when NO validator emits it. A parity claim nothing enforces
+# is the same false green this census exists to remove.
+PAIRED_SAME_ID = "PAIRED (same id, both forms)"
 OUT_OF_SCOPE = "OUT-OF-SCOPE"
 GAP = "GAP"
 
@@ -138,11 +146,12 @@ PARITY = {
 
     "E-XML-ID-DUP":         (GAP, "YAML lane/node ids are not checked for "
                                   "collision beyond uid; no YAML rule"),
-    "W-TYPE-LANE-MISMATCH": (GAP, "authority+task-type carried by 24/24 yaml "
-                                  "maps; no YAML rule (0 live) -- IW-9 governance"),
-    "E-INCEPTION-NOT-SOVEREIGN": (GAP, "workflowType=inception carried by 2/24 "
-                                       "yaml maps; no YAML rule (0 live) -- IW-9 "
-                                       "governance, the sovereignty boundary"),
+    # Closed by T-322 -- both ids now emit from Validator AND XmlValidator off
+    # the same module-scope AUTHORITY_OWNER / TYPE_PERFORMER tables, so the
+    # both-forms assertion below proves these two rather than taking the note's
+    # word for it.
+    "W-TYPE-LANE-MISMATCH": (PAIRED_SAME_ID, "IW-9 O-1, both forms (T-322)"),
+    "E-INCEPTION-NOT-SOVEREIGN": (PAIRED_SAME_ID, "IW-9 O-3, both forms (T-322)"),
     "W-XML-LANE-GEOMETRY":  (GAP, "node y carried by 24/24 yaml maps; no YAML "
                                   "rule (0 live). NOT out of scope -- see the "
                                   "correction in the T-320 census: '0 violations "
@@ -165,8 +174,10 @@ OUT_OF_SCOPE_PROBES = {
 
 # Counted tolerance. Derived by hand from the census, re-derive it there rather
 # than nudging this constant: constituents 3 + io 1 + abbr 1 + node-type 1
-# + xml-id-dup 1 + type-lane 1 + inception 1 + geometry 1 + capacity 1 = 11.
-EXPECTED_GAPS = 11
+# + xml-id-dup 1 + geometry 1 + capacity 1 = 9.
+# T-322 closed type-lane and inception (11 -> 9): the IW-9 authority rules now
+# emit from both forms.
+EXPECTED_GAPS = 9
 
 
 # --------------------------------------------------------------------------
@@ -232,6 +243,40 @@ def check(failures, quiet=False):
             "PARITY classifies '%s' but no validator emits it -- rule removed "
             "or renamed; drop the entry (it currently inflates the gap count)"
             % rid)
+
+    # (1b) a rule emitted by BOTH classes is paired by construction (T-322).
+    # Until now PAIRED was the one classification the guard took on trust: an
+    # OUT_OF_SCOPE entry had to name a probe, a GAP entry was counted, and a
+    # PAIRED entry was believed. This closes the half of that which is
+    # mechanically decidable -- same id on both forms cannot be a gap. The other
+    # half (PAIRED via a DIFFERENTLY-named counterpart, e.g. E-EDGE-DANGLING <->
+    # E-FLOW-DANGLING) is still only a note, and is T-323's to make falsifiable.
+    for rid in sorted(set(y) & set(x)):
+        cls = PARITY.get(rid, (None, ""))[0]
+        if cls is not None and cls not in (PAIRED, PAIRED_SAME_ID):
+            failures.append(
+                "rule '%s' is emitted by BOTH Validator and XmlValidator but is "
+                "classified %s. A counterpart demonstrably exists on the other "
+                "form; the classification is stale (a gap that was closed "
+                "without updating the table still inflates EXPECTED_GAPS)."
+                % (rid, cls))
+
+    # (1c) ...and the converse, which is the half that actually bites: a
+    # PAIRED_SAME_ID entry must still be emitted by BOTH forms. Deleting one
+    # side reopens the gap in the CODE while the table goes on claiming parity,
+    # and nothing else here notices -- the stale-entry check above only fires
+    # when NO validator emits the id at all.
+    for rid, (cls, _note) in sorted(PARITY.items()):
+        if cls != PAIRED_SAME_ID:
+            continue
+        missing = [form for form, ids in (("YAML", y), ("XML", x))
+                   if rid not in ids]
+        if missing:
+            failures.append(
+                "rule '%s' is classified PAIRED-SAME-ID but is no longer emitted "
+                "by the %s form. The parity it claims has been deleted from the "
+                "code; reclassify it as a GAP (and raise EXPECTED_GAPS) or "
+                "restore the rule." % (rid, " and ".join(missing)))
 
     # (2) re-measure every OUT_OF_SCOPE classification
     corpus = _bpmn_corpus()
@@ -316,6 +361,29 @@ def negative_controls(failures):
         failures.append("negative control (b) FAILED: an out-of-scope "
                         "classification whose construct has appeared in the "
                         "corpus did not go red -- the re-measurement is inert")
+
+    # (b2) a PAIRED_SAME_ID entry whose counterpart has been DELETED from one
+    #      form must be caught (T-322). This control exists because the hole was
+    #      real: before (1c), deleting the entire YAML half of the IW-9 rules
+    #      left the guard green -- XmlValidator still emitted the ids, so the
+    #      stale-entry check stayed quiet and the table went on claiming parity.
+    #      Simulated by claiming PAIRED_SAME_ID for a rule only one form emits.
+    saved_io = PARITY["W-IO-INPUT"]
+    PARITY["W-IO-INPUT"] = (PAIRED_SAME_ID, "synthetic control: YAML-only rule")
+    probe_failures = []
+    try:
+        check(probe_failures, quiet=True)
+    except RuntimeError:
+        pass
+    finally:
+        # restore the saved tuple, never a re-typed copy: a hand-written note
+        # here would silently become the table's text if the real one changed
+        PARITY["W-IO-INPUT"] = saved_io
+    if not any("W-IO-INPUT" in f and "no longer emitted by the XML form" in f
+               for f in probe_failures):
+        failures.append("negative control (b2) FAILED: a PAIRED-SAME-ID claim "
+                        "with no counterpart on the other form was accepted -- "
+                        "the parity assertion is inert")
 
     # (c) an OUT_OF_SCOPE entry with no probe must be caught
     PARITY["Z-CONTROL-NOPROBE"] = (OUT_OF_SCOPE, "synthetic control")

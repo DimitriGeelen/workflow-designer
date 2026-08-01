@@ -1,0 +1,22 @@
+# O-1 on the canonical YAML form (T-322): serviceTask n_decide implies performer
+# 'agent', but its lane's authority is 'sovereignty', which collapses to owner
+# 'human' (mapping-v1 section 3). The LANE is authority-of-record and wins; the
+# task type is presentational, so this is a WARN and not an error.
+#
+# n_note is the silence control that has to sit in the same file: a userTask in
+# the same sovereignty lane agrees with the collapse and must NOT warn. Without
+# it, a rule that warned on every task in a human lane would pass this fixture.
+workflowMeta: {id: t, version: 1, schemaVersion: 2}
+pool: {id: Pool_t, name: t}
+lanes:
+  - {id: human, name: Human, abbr: hum, authority: sovereignty, height: 200}
+  - {id: agent, name: Agent, abbr: agt, authority: initiative, height: 200}
+nodes:
+  - {uid: n_start,  type: startEvent,  name: Start,   lane: agent, x: 100, y: 100}
+  - {uid: n_decide, type: serviceTask, name: Decide,  lane: human, x: 300, y: 100}
+  - {uid: n_note,   type: userTask,    name: Note,    lane: human, x: 500, y: 100}
+  - {uid: n_end,    type: endEvent,    name: Done,    lane: agent, x: 700, y: 100}
+edges:
+  - {uid: e1, source: n_start,  target: n_decide}
+  - {uid: e2, source: n_decide, target: n_note}
+  - {uid: e3, source: n_note,   target: n_end}
