@@ -107,7 +107,11 @@ lane-less diagram must not become the one diagram that passes O-3); the YAML por
 ## Verification
 
 out=$(python3 tests/test_rule_form_parity.py 2>&1); echo "$out" | grep -q "^rule-form parity: OK$"
-out=$(python3 tests/test_rule_form_parity.py 2>&1); echo "$out" | grep -q "45 rules classified, 9 gaps"
+# T-323 legitimately moved the gap count (9 -> 12, scopeOf reclassified). The count
+# assertion belongs in the guard's EXPECTED_GAPS, where it executes every run --
+# pinning it here would be the T-317 mistake of parking a counter in a completed
+# task's Verification block, where it silently stops running (or, re-run, lies).
+out=$(python3 tests/test_rule_form_parity.py 2>&1); echo "$out" | grep -q "rules classified"
 out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -qE "^== summary: [0-9]+ passed, 0 failed ==$"
 out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -qE "^bridge round-trip: [0-9]+ passed, 0 failed$"
 out=$(python3 tools/validate-workflow.py tests/fixtures/invalid/E-INCEPTION-NOT-SOVEREIGN.yaml 2>&1); echo "$out" | grep -q "E-INCEPTION-NOT-SOVEREIGN"

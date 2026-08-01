@@ -77,10 +77,26 @@ Residue, measured over 25 canonical YAML maps and 96 authored BPMN files
 | `E-INCEPTION-NOT-SOVEREIGN` | XML→YAML | ~~`workflowType=inception`, 2/24 yaml~~ **0/26 authored — in the canonical vocabulary** (corrected, see below) | ~~GAP~~ **CLOSED T-322** | 0 |
 | `W-XML-LANE-GEOMETRY` | XML→YAML | node `y`, **24/24** yaml | **GAP** | 0 |
 | `W-XML-LANE-CAPACITY` | XML→YAML | lane `height` + `y`, **24/24** yaml | **GAP** | 0 |
+| `E-XML-ID-DUP` | XML→YAML | lane/node id collision beyond `uid` | **GAP** | 0 |
 
 > ### 2026-08-01 — the headline above was wrong, and so was the discriminator (T-322/T-323)
 >
-> Corrected count: **nine gap families, and ZERO are correctly out of scope.**
+> Corrected count: **ZERO rule families are correctly out of scope.**
+>
+> **Counting, stated once so nothing here reads as a second number.** The guard's
+> `EXPECTED_GAPS` counts **rule ids**; this table counts **families** (the three
+> `scopeOf` ids are one family, as are the three `constituents` ids). As of
+> 2026-08-01: **8 gap families / 12 gap rule ids / 0 out of scope.** The path
+> there: 8 families at first publication → 9 when `scopeOf` was overturned below
+> → **8** after T-322 closed `W-TYPE-LANE-MISMATCH` and
+> `E-INCEPTION-NOT-SOVEREIGN`.
+>
+> One more discrepancy found while reconciling those two figures, and it is
+> pre-existing rather than introduced here: the table below has always been
+> missing a family the guard counts — `E-XML-ID-DUP` appears in the
+> `EXPECTED_GAPS` arithmetic and in the guard's output, but never had a row. The
+> artifact and the guard have disagreed by one family since publication. The
+> guard is authoritative; the row is added below.
 >
 > **The discriminator.** This census said: measure whether the *other form carries
 > the construct*, and that got operationalised as **a corpus count** — does any
@@ -105,9 +121,26 @@ Residue, measured over 25 canonical YAML maps and 96 authored BPMN files
 > corrected rule: **out-of-scope means the other form CANNOT EXPRESS the
 > construct**, decided by the schema / shared key vocabulary — not by whether
 > anyone has authored one yet. The probes in `tests/test_rule_form_parity.py`
-> therefore interrogate the wrong object: they walk the corpus, so a
-> classification flips only *after* someone authors a violating file, which is
-> precisely too late. **T-323** repairs the discriminator and the probes.
+> therefore interrogated the wrong object: they walked the corpus, so a
+> classification would flip only *after* someone authored a violating file, which
+> is precisely too late.
+>
+> **Repaired by T-323 (same day).** Probes now resolve the vocabulary by
+> **importing** `KNOWN_AEF_KEYS` from the bridge rather than walking files, so a
+> probe cannot drift from the code that decides what actually crosses between the
+> forms; an unresolvable vocabulary **raises** instead of answering "not
+> expressible", because that silent answer would read as *correctly out of scope*
+> for every rule in the table. The three `scopeOf` rules are now GAPs and
+> **`EXPECTED_GAPS` is 12** — the count went up because the census got more
+> honest, not because anything regressed. Negative control (b) was rewritten to
+> the new semantics and (f) added for the unresolvable-vocabulary path; both
+> proven RED by mutation. Note the old control (b) *could not* have caught this:
+> it asked whether the corpus carried the construct, the corpus carried none, and
+> so the control agreed with the wrong classification.
+>
+> **`OUT_OF_SCOPE_PROBES` is now empty, and that is the finding.** After the
+> repair, **no rule in this table is out of scope.** Every remaining asymmetry is
+> a gap.
 >
 > **Second, smaller error, in the row that motivated the task AEF ranked highest.**
 > The `E-INCEPTION-NOT-SOVEREIGN` row read *"`workflowType=inception`, 2/24 yaml"*.

@@ -4,10 +4,10 @@ name: "Census OUT_OF_SCOPE classifications rest on corpus counts where the discr
 description: >
   T-320's parity census classifies a rule OUT_OF_SCOPE when no file on the other form CARRIES the construct today. That is a corpus count, and the census's own two-axis rule forbids using one to classify: 'a gap with zero violations is still a gap'. Applied to the GAP rows, not to the OUT_OF_SCOPE rows -- the discipline itself was one-form-only. Proof: aef:scopeOf is in the shared canonical vocabulary (tools/yaml-to-bpmn.py META_KEYS, designer metaKeys src:9283) and the bridge emits it as <aef:meta scopeOf=...>. A subProcess with scopeOf pointing at itself is ERROR E-SCOPEOF-SELF rc=2 on the YAML form and VALID rc=0 on the BPMN bridged from those same bytes. So the ONLY entry the census called correctly out of scope is a GAP: 9 gap families, zero correctly out of scope. Fix is to the DISCRIMINATOR and the probes -- OUT_OF_SCOPE must mean the form cannot EXPRESS the construct (vocabulary/schema absence), and OUT_OF_SCOPE_PROBES must probe the vocabulary, not the corpus. Corpus carriers stay as priority signal only.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: claude-code
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-01T10:11:28Z
-last_update: 2026-08-01T10:11:28Z
+last_update: 2026-08-01T10:28:08Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,46 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Found while building T-322. The T-320 census says a rule is OUT-OF-SCOPE on the other form
+when **no file on that form carries the construct** — a corpus count. Its own two-axis rule
+forbids that: *"a gap with zero violations is still a gap; the missing rule is exactly what
+makes the missing violations unfalsifiable."* Applied to the GAP rows, not the OUT-OF-SCOPE
+rows. The discipline was itself one-form-only.
+
+Proof it bites (`docs/reports/T-320-rule-form-parity-census.md`, corrected header): a
+`subProcess` whose `aef:scopeOf` points at itself is `ERROR [E-SCOPEOF-SELF]` rc=2 on the
+YAML form and `VALID — no findings` rc=0 on the BPMN bridged from those same bytes, with
+`scopeOf="n_capture"` verifiably present in the emitted XML.
+
+**The corrected discriminator:** OUT-OF-SCOPE means the other form **cannot express** the
+construct. Expressibility is decided by the schema / shared key vocabulary, not by whether
+anyone has authored one yet. Corpus carriers remain priority signal only. `aef:scopeOf` is
+in `KNOWN_AEF_KEYS` (`tools/yaml-to-bpmn.py`) and the designer's `metaKeys`
+(`src/aef-workflow-designer.html:9283`), so it is expressible on both forms → GAP.
+
+Consequence for the guard: `OUT_OF_SCOPE_PROBES` interrogate the wrong object. A corpus probe
+flips a classification only **after** someone authors a violating file, which is exactly too
+late — knowing the rule is missing before that is the entire point of the census.
+
+Related, and deliberately left open: **PAIRED via a differently-named counterpart**
+(`E-EDGE-DANGLING` ↔ `E-FLOW-DANGLING`) is still an unverified note. T-322 closed the
+same-id half only. Same falsifiability question, in scope here if it fits.
+
+Precedent surfaced at work-on: **PL-034** — a guard that checks internal self-consistency
+cannot detect a broken promise to the outside. A parity table checked only against itself is
+that guard.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The OUT-OF-SCOPE discriminator is restated in `tests/test_rule_form_parity.py` as **expressibility, not corpus presence**, in a `HOW TO CLASSIFY A NEW RULE` block sitting immediately above the `PARITY` table — where someone adding an entry will read it, not in a report they may never open.
+- [x] Probes interrogate the VOCABULARY: `_aef_vocabulary()` **imports** `KNOWN_AEF_KEYS` from `tools/yaml-to-bpmn.py` (44 keys) rather than hand-copying it, so it cannot drift from the code that decides what crosses between the forms. A missing file or an empty/renamed vocabulary RAISES. Original AC text: a probe reports whether the other form can express the construct, resolved from the live vocabulary (imported, not a hand-copied list, so it cannot drift from the bridge). A probe that cannot resolve its vocabulary RAISES rather than returning "absent".
+- [x] Done — `EXPECTED_GAPS` 9 → 12, arithmetic re-derived in the comment; census table, headline and correction block now state ONE number set — 8 gap families / 12 gap rule ids / 0 out of scope — with the families-vs-ids distinction spelled out, because the guard counts ids and the report counts families. Reconciling them surfaced a pre-existing discrepancy: `E-XML-ID-DUP` was in the guard's arithmetic and output but had no table row; row added. Original AC text: The three `scopeOf` rules are reclassified GAP with `EXPECTED_GAPS` re-derived, and the census artifact's table + headline match the guard exactly (no third number anywhere).
+- [x] Measured, not asserted: `scopeOf` ∈ `KNOWN_AEF_KEYS`; bridging a YAML map carrying it emits `scopeOf="n_capture"` into the BPMN bytes; that BPMN then validates `VALID — no findings` rc=0 while the YAML source is `ERROR [E-SCOPEOF-SELF]` rc=2. Original AC text: The reclassification is justified by measurement recorded in the task, not by assertion: `scopeOf` present in the canonical vocabulary AND emitted through the bridge into BPMN bytes.
+- [x] Control (b) rewritten to the new semantics and (f) added; both proven RED by mutation (neutering the expressibility check, and making the vocabulary resolve silently to empty). Control (c) unchanged and still red. Original AC text: (i) an OUT-OF-SCOPE entry whose construct IS expressible fails; (ii) an OUT-OF-SCOPE entry with no probe still fails; (iii) a probe whose vocabulary cannot be resolved fails rather than passing silently.
+- [x] Recorded explicitly: `OUT_OF_SCOPE_PROBES` is now **empty** — after the repair no rule in the table is out of scope — so the machinery is exercised ONLY by controls (b), (c) and (f), which synthesise entries. That is stated in the code comment rather than left for a reader to discover. Original AC text: Vacuity guarded: with zero OUT-OF-SCOPE entries remaining, the probe machinery must still be exercised (by the controls) — a suite that would pass with the probe code deleted is recorded as such, or the machinery is made unreachable-proof.
+- [x] Guard: `45 rules classified, 12 gaps, 0 out-of-scope re-measured against a 44-key vocabulary (96 authored bpmn walked for priority only)`. Bridge 62 passed / 0 failed; validator 42 passed / 0 failed.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -75,6 +107,15 @@ date_finished: null
 -->
 
 ## Verification
+
+out=$(python3 tests/test_rule_form_parity.py 2>&1); echo "$out" | grep -q "^rule-form parity: OK$"
+out=$(python3 tests/test_rule_form_parity.py 2>&1); echo "$out" | grep -q "0 out-of-scope re-measured"
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -qE "^bridge round-trip: [0-9]+ passed, 0 failed$"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -qE "^== summary: [0-9]+ passed, 0 failed ==$"
+# the vocabulary probe must resolve a non-empty vocabulary, or every gap reads as out-of-scope
+python3 -c "import sys; sys.path.insert(0,'tests'); import test_rule_form_parity as t; assert len(t._aef_vocabulary()) > 20"
+# the census artifact and the guard must not report two different numbers
+grep -q "8 gap families / 12 gap rule ids / 0 out of scope" docs/reports/T-320-rule-form-parity-census.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -147,6 +188,45 @@ date_finished: null
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-08-01 — the old control agreed with the wrong classification
+
+- **What changed:** the guard already had a negative control for exactly this row —
+  "an OUT-OF-SCOPE entry whose construct HAS appeared must be caught" — and it was
+  green. It could not have caught the defect: it asked whether the **corpus** carried
+  the construct, the corpus carried none, and so the control faithfully confirmed a
+  classification that was wrong on its own terms. A control inherits the discriminator
+  it is built on. Testing the implementation of a wrong rule proves the rule is
+  implemented, not that it is right.
+- **Plan impact:** none — this is why the AC demanded controls be *rewritten to the new
+  semantics* rather than merely kept passing.
+- **Triggered:** nothing filed; recorded as the sharpest thing learned here.
+
+### 2026-08-01 — the repair empties the table's out-of-scope column entirely
+
+- **What changed:** after reclassifying `scopeOf`, **no rule in the parity table is out
+  of scope.** `OUT_OF_SCOPE_PROBES` is `{}`. Every asymmetry between the two validator
+  forms is now a gap.
+- **Plan impact:** the probe machinery is live code with no production caller, exercised
+  only by negative controls (b), (c) and (f). Left in place and the situation stated in
+  the code comment — deleting it would mean the next out-of-scope claim arrives with no
+  machinery to falsify it, and silently unexercised machinery is the T-312 vacuity class.
+- **Triggered:** nothing filed.
+
+### 2026-08-01 — two counts of two different things, in one artifact
+
+- **What changed:** reconciling `EXPECTED_GAPS` (12) with the census headline ("nine gap
+  families") showed they count different objects — **rule ids** vs **families** — and
+  neither said which. My own AC for this task forbade exactly that ("no third number
+  anywhere") and I had written the violation into the correction block a few hours
+  earlier. Same family as G-013: a number rendered without its subject.
+- **Plan impact:** one number set now stated once, with the distinction spelled out:
+  **8 gap families / 12 gap rule ids / 0 out of scope**, and a Verification line greps
+  that exact string so artifact and guard cannot drift apart silently.
+- **Triggered:** a pre-existing discrepancy fell out of it — `E-XML-ID-DUP` has been in
+  the guard's arithmetic and output since publication with **no row in the census
+  table**. The artifact and the guard have disagreed by one family the whole time. Row
+  added; guard treated as authoritative.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -174,3 +254,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-323-census-outofscope-classifications-rest-o.md
 - **Context:** Initial task creation
+
+### 2026-08-01T10:28:08Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

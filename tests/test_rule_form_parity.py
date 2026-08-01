@@ -33,6 +33,7 @@ different outputs).
 Census and evidence: docs/reports/T-320-rule-form-parity-census.md
 """
 import glob
+import importlib.util
 import os
 import re
 import sys
@@ -70,19 +71,45 @@ def _bpmn_corpus():
     return sorted(out)
 
 
-def _probe_scope_of(paths):
-    """Files carrying aef:scopeOf, as attribute or element."""
-    hits = []
-    for p in paths:
-        try:
-            root = ET.parse(p).getroot()
-        except Exception:
-            continue
-        for el in root.iter():
-            if "scopeOf" in el.attrib or el.tag.endswith("}scopeOf"):
-                hits.append(os.path.relpath(p, ROOT))
-                break
-    return hits
+def _aef_vocabulary():
+    """The canonical aef: key vocabulary, IMPORTED from the bridge.
+
+    Imported rather than hand-copied so the probe cannot drift from the code
+    that decides what actually crosses between the two forms. Any key here is
+    emitted into BPMN bytes by tools/yaml-to-bpmn.py, which is precisely what
+    "the XML form can express this" means.
+    """
+    path = os.path.join(ROOT, "tools", "yaml-to-bpmn.py")
+    if not os.path.isfile(path):
+        raise RuntimeError(
+            "cannot resolve the aef vocabulary: %s is missing. Every "
+            "expressibility probe below depends on it, and a probe that "
+            "silently answered 'not expressible' would turn every gap into a "
+            "clean out-of-scope classification." % path)
+    spec = importlib.util.spec_from_file_location("_y2b_vocab", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    vocab = getattr(mod, "KNOWN_AEF_KEYS", None)
+    if not vocab:
+        raise RuntimeError(
+            "tools/yaml-to-bpmn.py no longer exposes a non-empty "
+            "KNOWN_AEF_KEYS -- renamed or restructured. An empty vocabulary "
+            "makes every construct look inexpressible, which reads as "
+            "'correctly out of scope' for every rule in the table.")
+    return frozenset(vocab)
+
+
+def _expressible_via_aef_meta(key):
+    """Build a probe: can the OTHER form carry this aef: key?
+
+    Returns a callable so the probe table stays uniform. The answer comes from
+    the vocabulary, NOT from the corpus -- T-323. A key in the vocabulary rides
+    through the bridge into <aef:meta key="..."/>, so the XML form can express
+    it whether or not anyone has authored one yet.
+    """
+    def probe(_corpus):
+        return [key] if key in _aef_vocabulary() else []
+    return probe
 
 
 # --------------------------------------------------------------------------
@@ -90,10 +117,27 @@ def _probe_scope_of(paths):
 # --------------------------------------------------------------------------
 # Each entry: rule id -> (classification, note).
 # PAIRED       -- a counterpart rule exists on the other form; note names it.
-# OUT_OF_SCOPE -- the other form does not carry the construct. MUST have a probe
+# OUT_OF_SCOPE -- the other form CANNOT EXPRESS the construct. MUST have a probe
 #                 in OUT_OF_SCOPE_PROBES; the guard re-measures it every run.
-# GAP          -- the other form DOES carry the construct and no rule describes
+# GAP          -- the other form CAN express the construct and no rule describes
 #                 it. Printed as a NOTE every run; the count is asserted below.
+#
+# HOW TO CLASSIFY A NEW RULE (T-323 — read this before adding an entry).
+# The question is EXPRESSIBILITY, not corpus presence. "Can the other form carry
+# this construct?" is answered by the schema / shared key vocabulary, NOT by
+# grepping the corpus for a file that happens to carry one today.
+#
+# T-320 got this wrong and it cost the only OUT-OF-SCOPE call in the table. It
+# classified aef:scopeOf out of scope on the strength of "0 of 96 authored bpmn",
+# while scopeOf sits in the canonical vocabulary and the bridge emits it. Same
+# map, both forms: self-referencing scopeOf is ERROR rc=2 on YAML and VALID rc=0
+# on the BPMN bridged from those bytes. The census's own two-axis rule already
+# said this — "a gap with zero violations is still a gap" — but it was applied to
+# the GAP rows and not to these. The discipline was itself one-form-only.
+#
+# So: a corpus count is PRIORITY, never CLASSIFICATION. A corpus probe would flip
+# a classification only AFTER someone authors a violating file, and knowing the
+# rule is missing before that is the whole point of this table.
 PARITY = {
     # ---- YAML form -------------------------------------------------------
     "E-NOT-MAPPING":        (PAIRED, "E-XML-STRUCTURE"),
@@ -114,9 +158,17 @@ PARITY = {
     "W-PGW-NOOP":           (PAIRED, "W-XML-PGW-NOOP"),
     "W-PGW-UNBALANCED":     (PAIRED, "W-XML-PGW-UNBALANCED"),
 
-    "E-SCOPEOF-SELF":       (OUT_OF_SCOPE, "aef:scopeOf: 0 of N authored bpmn"),
-    "E-SCOPEOF-DANGLING":   (OUT_OF_SCOPE, "aef:scopeOf: 0 of N authored bpmn"),
-    "W-SCOPEOF-TYPE":       (OUT_OF_SCOPE, "aef:scopeOf: 0 of N authored bpmn"),
+    # T-323: were OUT_OF_SCOPE on a corpus zero. scopeOf is in the canonical
+    # vocabulary and the bridge emits it, so the XML form CAN carry it and has
+    # no rule for it. 0 authored carriers is why this is low priority, not why
+    # it would be out of scope.
+    "E-SCOPEOF-SELF":       (GAP, "aef:scopeOf is expressible on the XML form "
+                                  "(KNOWN_AEF_KEYS, bridge-emitted) and no XML "
+                                  "rule describes it; 0 authored carriers"),
+    "E-SCOPEOF-DANGLING":   (GAP, "aef:scopeOf expressible on the XML form; "
+                                  "no XML rule (0 authored carriers)"),
+    "W-SCOPEOF-TYPE":       (GAP, "aef:scopeOf expressible on the XML form; "
+                                  "no XML rule (0 authored carriers)"),
 
     "E-CONST-DUP":          (GAP, "aef:constituents carried by 23/96 bpmn; no XML rule"),
     "E-CONST-SHAPE":        (GAP, "aef:constituents carried by 23/96 bpmn; no XML rule"),
@@ -166,18 +218,26 @@ PARITY = {
 
 # Every OUT_OF_SCOPE rule must name a probe here. The guard re-measures it.
 # No probe -> the classification is unfalsifiable -> hard error.
-OUT_OF_SCOPE_PROBES = {
-    "E-SCOPEOF-SELF":     ("aef:scopeOf", _probe_scope_of),
-    "E-SCOPEOF-DANGLING": ("aef:scopeOf", _probe_scope_of),
-    "W-SCOPEOF-TYPE":     ("aef:scopeOf", _probe_scope_of),
-}
+# EXPRESSIBILITY probes, one per OUT_OF_SCOPE entry (T-323). Each answers "can
+# the other form carry this construct?" from the vocabulary, never the corpus.
+#
+# Currently EMPTY, and that is the finding, not an oversight: after T-323 no rule
+# in this table is out of scope. Every asymmetry left is a gap. The machinery
+# stays because the classification must remain available and falsifiable — and
+# because it is still exercised, by negative controls (b), (c) and (f), which
+# synthesise entries. Without those this whole section would be dead code that
+# passes by never running (the T-312 vacuity class).
+OUT_OF_SCOPE_PROBES = {}
 
 # Counted tolerance. Derived by hand from the census, re-derive it there rather
 # than nudging this constant: constituents 3 + io 1 + abbr 1 + node-type 1
-# + xml-id-dup 1 + geometry 1 + capacity 1 = 9.
+# + xml-id-dup 1 + geometry 1 + capacity 1 = 9, plus scopeOf 3 = 12.
 # T-322 closed type-lane and inception (11 -> 9): the IW-9 authority rules now
-# emit from both forms.
-EXPECTED_GAPS = 9
+# emit from both forms. T-323 reclassified the 3 scopeOf rules out-of-scope ->
+# GAP (9 -> 12): they were classified on a corpus zero, and scopeOf is in the
+# canonical vocabulary. The count went UP because the census got more honest,
+# not because anything regressed.
+EXPECTED_GAPS = 12
 
 
 # --------------------------------------------------------------------------
@@ -278,13 +338,16 @@ def check(failures, quiet=False):
                 "code; reclassify it as a GAP (and raise EXPECTED_GAPS) or "
                 "restore the rule." % (rid, " and ".join(missing)))
 
-    # (2) re-measure every OUT_OF_SCOPE classification
+    # (2) re-measure every OUT_OF_SCOPE classification against the VOCABULARY
+    # (T-323). The corpus is still gathered, but it is no longer what decides a
+    # classification -- it is priority signal, and it keeps the summary line
+    # honest about what was actually walked.
     corpus = _bpmn_corpus()
     if not corpus:
         raise RuntimeError(
-            "found no authored .bpmn under %s -- the out-of-scope probes below "
-            "would all return 'absent' against an empty corpus and pass "
-            "vacuously" % ROOT)
+            "found no authored .bpmn under %s -- an empty corpus means the "
+            "priority figures below describe nothing, and a run that measured "
+            "nothing must not report clean" % ROOT)
     for rid, (cls, _note) in sorted(PARITY.items()):
         if cls != OUT_OF_SCOPE:
             continue
@@ -292,18 +355,21 @@ def check(failures, quiet=False):
             failures.append(
                 "rule '%s' is classified OUT-OF-SCOPE with no probe in "
                 "OUT_OF_SCOPE_PROBES. Out-of-scope is a MEASUREMENT ('the other "
-                "form does not carry this construct'), not an opinion; without a "
+                "form CANNOT EXPRESS this construct'), not an opinion; without a "
                 "probe it can never be falsified." % rid)
             continue
         construct, probe = OUT_OF_SCOPE_PROBES[rid]
-        carriers = probe(corpus)
-        if carriers:
+        # A probe that cannot resolve its vocabulary RAISES rather than
+        # answering "not expressible" -- the silent answer is the one that
+        # would turn every gap in the table into a clean out-of-scope call.
+        expressible = probe(corpus)
+        if expressible:
             failures.append(
-                "rule '%s' is classified OUT-OF-SCOPE because no file on the "
-                "other form carries %s -- but %d now do (%s). The "
-                "classification was true when written and is false now; it is "
-                "a GAP." % (rid, construct, len(carriers),
-                            ", ".join(sorted(carriers)[:3])))
+                "rule '%s' is classified OUT-OF-SCOPE, but the other form CAN "
+                "express %s (%s). Out-of-scope means inexpressible, not "
+                "unused: a construct the form can carry with no rule describing "
+                "it is a GAP, however many files carry one today (T-323)."
+                % (rid, construct, ", ".join(sorted(expressible)[:3])))
 
     # (3) counted tolerance: print every gap, then assert the count
     gaps = sorted(rid for rid, (cls, _n) in PARITY.items() if cls == GAP)
@@ -341,13 +407,17 @@ def negative_controls(failures):
         failures.append("negative control (a) FAILED: removing a rule's "
                         "classification did not fail the guard")
 
-    # (b) an OUT_OF_SCOPE entry whose construct HAS appeared must be caught.
-    #     Simulated by pointing the probe at a construct the corpus does carry.
-    saved_probe = OUT_OF_SCOPE_PROBES["W-SCOPEOF-TYPE"]
-    OUT_OF_SCOPE_PROBES["W-SCOPEOF-TYPE"] = (
-        "lane abbr (stand-in: a construct the corpus DOES carry)",
-        lambda paths: [os.path.relpath(p, ROOT) for p in paths
-                       if b"abbr" in open(p, "rb").read()],
+    # (b) an OUT_OF_SCOPE entry whose construct the other form CAN express must
+    #     be caught (T-323 semantics: expressible, not merely present). This is
+    #     the control that would have caught the scopeOf misclassification, and
+    #     it could not have: the old version asked whether the CORPUS carried
+    #     the construct, and the corpus carried none, so the classification was
+    #     wrong and the control agreed with it.
+    #     'scopeOf' is a real vocabulary key, so a probe built on it must go red.
+    PARITY["Z-CONTROL-EXPRESSIBLE"] = (OUT_OF_SCOPE, "synthetic control")
+    OUT_OF_SCOPE_PROBES["Z-CONTROL-EXPRESSIBLE"] = (
+        "aef:scopeOf (a key the vocabulary really carries)",
+        _expressible_via_aef_meta("scopeOf"),
     )
     probe_failures = []
     try:
@@ -355,12 +425,34 @@ def negative_controls(failures):
     except RuntimeError:
         pass
     finally:
-        OUT_OF_SCOPE_PROBES["W-SCOPEOF-TYPE"] = saved_probe
-    if not any("W-SCOPEOF-TYPE" in f and "is false now" in f
+        del PARITY["Z-CONTROL-EXPRESSIBLE"]
+        del OUT_OF_SCOPE_PROBES["Z-CONTROL-EXPRESSIBLE"]
+    if not any("Z-CONTROL-EXPRESSIBLE" in f and "CAN express" in f
                for f in probe_failures):
         failures.append("negative control (b) FAILED: an out-of-scope "
-                        "classification whose construct has appeared in the "
-                        "corpus did not go red -- the re-measurement is inert")
+                        "classification for a construct the other form can "
+                        "express did not go red -- the re-measurement is inert")
+
+    # (f) a probe that cannot RESOLVE its vocabulary must raise, not answer
+    #     'not expressible'. The silent answer is the dangerous one: it turns
+    #     every gap in the table into a clean out-of-scope call, and the guard
+    #     would report OK while classifying nothing (T-312 vacuity class).
+    saved_root = globals()["ROOT"]
+    globals()["ROOT"] = os.path.join(saved_root, "no-such-tree-T-323")
+    raised = False
+    try:
+        _aef_vocabulary()
+    except RuntimeError:
+        raised = True
+    except Exception:
+        pass
+    finally:
+        globals()["ROOT"] = saved_root
+    if not raised:
+        failures.append("negative control (f) FAILED: an unresolvable "
+                        "vocabulary did not raise -- expressibility probes can "
+                        "answer 'inexpressible' by accident, which reads as "
+                        "'correctly out of scope' for every rule in the table")
 
     # (b2) a PAIRED_SAME_ID entry whose counterpart has been DELETED from one
     #      form must be caught (T-322). This control exists because the hole was
@@ -435,10 +527,18 @@ def main():
     negative_controls(failures)
     emitted, corpus = check(failures)
 
-    print("rule-form parity: %d rules classified, %d gaps, %d authored bpmn "
-          "re-measured" % (len(emitted),
-                           sum(1 for c, _ in PARITY.values() if c == GAP),
-                           len(corpus)))
+    # Say what each number is ABOUT, not just what it is (G-013): the old line
+    # read "N authored bpmn re-measured", which sounded like the corpus decided
+    # the classifications. It never does now -- the vocabulary does, and the
+    # corpus is walked for priority only.
+    print("rule-form parity: %d rules classified, %d gaps, %d out-of-scope "
+          "re-measured against a %d-key vocabulary (%d authored bpmn walked "
+          "for priority only)"
+          % (len(emitted),
+             sum(1 for c, _ in PARITY.values() if c == GAP),
+             sum(1 for c, _ in PARITY.values() if c == OUT_OF_SCOPE),
+             len(_aef_vocabulary()),
+             len(corpus)))
     if failures:
         print()
         for f in failures:
