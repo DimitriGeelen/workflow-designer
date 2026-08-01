@@ -4,20 +4,20 @@ name: "XML form has no node-type vocabulary gate: a typo'd element validates cle
 description: >
   T-320 proved by mutation on tests/fixtures/valid/investigate.bpmn that renaming <bpmn:serviceTask> to <bpmn:serviceTaks> yields 'VALID -- no findings', rc=0. E-NODE-TYPE exists on the YAML form only; the XML form has no vocabulary gate at all. The fix is NOT a copy of NODE_TYPES: porting NODE_TYPES verbatim would hard-fail eight of our own fixtures. (Filing called the XML vocabulary a genuine superset; measured, it is a TRANSLATION of NODE_TYPES plus exactly one extension, boundaryEvent -- corrected in Evolution.) Requires a declared XML vocabulary. Note the only current witness to a bogus type is an I-XML-LANE-CAPACITY-SKIP note from an unrelated rule that refuses to guess occupancy.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: claude-code
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/fixtures/invalid/E-XML-NODE-TYPE.xml, tests/test_rule_form_parity.py, tests/test_xml_node_type_vocab.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-31T12:15:56Z
-last_update: 2026-08-01T13:40:12Z
-date_finished: null
+last_update: 2026-08-01T13:55:03Z
+date_finished: 2026-08-01T13:55:03Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -116,10 +116,16 @@ out=$(python3 tests/test_rule_form_parity.py 2>&1); echo "$out" | grep -q "^rule
 out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -qE "^bridge round-trip: [0-9]+ passed, 0 failed$"
 out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -qE "^== summary: [0-9]+ passed, 0 failed ==$"
 out=$(python3 tools/validate-workflow.py tests/fixtures/invalid/E-XML-NODE-TYPE.xml 2>&1); echo "$out" | grep -q "E-XML-NODE-TYPE"
-# the silence control in that same fixture: boundaryEvent must NOT be reported
-out=$(python3 tools/validate-workflow.py tests/fixtures/invalid/E-XML-NODE-TYPE.xml 2>&1); test "$(echo "$out" | grep -c 'E-XML-NODE-TYPE')" = "1"
-# exactly one authored file fires, and it is the T-324 true positive
-test "$(for f in $(find examples tests/fixtures -name '*.bpmn'); do python3 tools/validate-workflow.py "$f" 2>&1; done | grep -c 'E-XML-NODE-TYPE')" = "3"
+# the silence control in that same fixture: boundaryEvent must NOT be reported.
+# Anchored on the BRACKETED rule id: the bare token also matches the fixture's own
+# FILENAME in the summary line, which made this assert 2 and read as a real failure
+# (same anchoring class as the prose-in-the-haystack findings — match a structural
+# literal that cannot occur in a path or a comment).
+out=$(python3 tools/validate-workflow.py tests/fixtures/invalid/E-XML-NODE-TYPE.xml 2>&1); test "$(echo "$out" | grep -c '\[E-XML-NODE-TYPE\]')" = "1"
+# exactly one authored file fires (3 findings, all offpage-seam) — the T-324 true
+# positive. Scope note: this globs *.bpmn, so the new *.xml fixture is deliberately
+# outside it; the fixture is asserted separately above.
+test "$(for f in $(find examples tests/fixtures -name '*.bpmn'); do python3 tools/validate-workflow.py "$f" 2>&1; done | grep -c '\[E-XML-NODE-TYPE\]')" = "3"
 grep -q "tests/test_xml_node_type_vocab.py" tests/run-bridge-tests.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
@@ -277,3 +283,22 @@ not the other way round.
 ### 2026-08-01T13:40:12Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-fc103fbe
+- **Timestamp:** 2026-08-01T13:56:23Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — Measured over **96 authored BPMN** and **both** emitters before any code: corpus carries 12 distinct flow-node elements; the bridge (`TYPE_MAP`) and the designer (`TYPE_TAG`) produce **exactly the sam
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/yaml-to-bpmn.py in: Measured over **96 authored BPMN** and **both** emitters before any code: corpus carries 12 distinct flow-node elements; the bridge (`TYPE_MAP`) and t`
+- **AC#5 (Agent)** — The T-320 witness reproduced on the real tree: renaming `agt_1_decompose` to `<bpmn:serviceTaks>` in `tests/fixtures/valid/investigate.bpmn` gives pre-change `VALID — no findings`, post-change `ERROR 
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/fixtures/valid/investigate.bpmn in: The T-320 witness reproduced on the real tree: renaming `agt_1_decompose` to `<bpmn:serviceTaks>` in `tests/fixtures/valid/investigate.bpmn` gives pre`
+
+### 2026-08-01T13:55:03Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

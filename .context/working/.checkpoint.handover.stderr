@@ -1,21 +1,21 @@
 === Handover Agent ===
-Session: S-2026-0731-1252
-Timestamp: 2026-07-31T10:52:42Z
+Session: S-2026-0801-1552
+Timestamp: 2026-08-01T13:52:24Z
 
 Gathering state...
 
 Checking episodic completeness...
 ✓ All recent completed tasks have enriched episodics
 ✓ Observation inbox clean
-Concerns register: 8 watching
-Session metrics extracted: 27531 turns, 723 commits, 745 errors, 660 edit bursts
-  Cumulative — CPT: 0.0263 | FTC rate: 0.0576 | PTR: 0.2921
-  Per-session (311 turns) — CPT: 0.0193 | FTC rate: 0.0421 | PTR: 0.4341
+Concerns register: 9 watching
+Session metrics extracted: 28230 turns, 738 commits, 763 errors, 694 edit bursts
+  Cumulative — CPT: 0.0261 | FTC rate: 0.0573 | PTR: 0.2957
+  Per-session (75 turns) — CPT: 0.0 | FTC rate: 0.0465 | PTR: 0.4933
   Output: /opt/832-Workflow-designer/.context/working/.session-metrics.yaml
 Creating handover document...
 
 === Handover Created ===
-File: /opt/832-Workflow-designer/.context/handovers/S-2026-0731-1252.md
+File: /opt/832-Workflow-designer/.context/handovers/S-2026-0801-1552.md
 Latest: /opt/832-Workflow-designer/.context/handovers/LATEST.md
 
 Auto-committing handover...
@@ -24,10 +24,9 @@ WARNING: Task T-005 is closed (in .tasks/completed/)
   Consider: create a new task, or reopen this one.
   Commit allowed (Tier 1 warning).
 
-[master 95347c6] T-005: Session handover S-2026-0731-1252
- 3 files changed, 388 insertions(+), 1 deletion(-)
- create mode 100644 .context/handovers/S-2026-0731-1252.md
- rename .tasks/{active => completed}/T-314-three-sha-pinned-fixtures-carry-the-t-31.md (100%)
+[master 40895a3] T-005: Session handover S-2026-0801-1552
+ 2 files changed, 396 insertions(+), 1 deletion(-)
+ create mode 100644 .context/handovers/S-2026-0801-1552.md
 
 Pushing to remotes...
   Skipping github (mirrored from origin via PushRepository)
@@ -35,7 +34,7 @@ Pushing to remotes...
 === Pre-Push Audit Check ===
 
 === AUDIT REPORT ===
-Timestamp: 2026-07-31T12:52:51+02:00
+Timestamp: 2026-08-01T15:52:33+02:00
 Project: /opt/832-Workflow-designer
 Sections: structure
 
@@ -53,28 +52,36 @@ Sections: structure
 [PASS] No PROJECT_ROOT resolution of framework-owned assets in web/ + lib/ Python (T-2648, OBS-097)
 [PASS] No stale-slice-references (L-417)
 [PASS] No GO-scope-not-propagated inception(s) (sibling to L-417)
-[PASS] Fabric: 6 registered, 0 unregistered
-[PASS] Fabric edges: 0/6 cards enriched (6 without edges)
-[PASS] Fabric drift: All watched source files registered (6 cards)
+[PASS] Fabric: 11 registered, 0 unregistered
+[WARN] Fabric: 11/11 cards have no edges
+       Evidence: Graph coverage below target
+       Mitigation: Run: fw fabric enrich
+[PASS] Fabric drift: All watched source files registered (11 cards)
 [PASS] Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer
 [PASS] Hook threshold: no hooks failing over threshold
 [PASS] Secret scan: tracked tree clean
 [PASS] Designer ghost registry: ghost↔task joins clean
 
 === SUMMARY ===
-Pass: 20
-Warn: 0
+Pass: 19
+Warn: 1
 Fail: 0
 
+=== PRIORITY ACTIONS ===
+     1	Run: fw fabric enrich
 
 === TREND ANALYSIS ===
 No repeated issues in last 14 days (across 13 audits).
 
 Audit history: 13 audit(s) in last 14 days + today
 
-Audit saved to: /opt/832-Workflow-designer/.context/audits/2026-07-31.yaml
+Audit saved to: /opt/832-Workflow-designer/.context/audits/2026-08-01.yaml
 
 === END AUDIT ===
+
+WARNING: Audit has warnings (push allowed)
+Consider addressing the issues above.
+
 To ssh://192.168.10.201:6611/workflow-designer
-   6d1fe08..95347c6  HEAD -> master
+   b7b2a50..40895a3  HEAD -> master
   Pushed to origin ✓

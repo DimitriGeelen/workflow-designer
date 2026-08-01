@@ -458,3 +458,10 @@ learnings:
   date: 2026-07-29
   context: Added via context agent
   application: TBD
+- id: PL-065
+  learning: "A negative control inherits the discriminator it defends: it can be green, teeth-proven, and still confirm a wrong predicate. Mutation-testing proves a rule is implemented, never that it is the right rule."
+  source: P-001
+  task: T-323
+  date: 2026-08-01
+  context: Added via context agent
+  application: TBD

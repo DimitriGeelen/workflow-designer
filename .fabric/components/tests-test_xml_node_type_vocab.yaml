@@ -1,0 +1,20 @@
+id: tests/test_xml_node_type_vocab.py
+name: test_xml_node_type_vocab
+type: script
+subsystem: unknown
+location: tests/test_xml_node_type_vocab.py
+tags: []
+
+purpose: "TODO: describe what this component does"
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-08-01
+created_by: unknown

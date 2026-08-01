@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-321: XML form has no node-type vocabulary gate: a typo'd element validates clean (T-320 gap)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-01T13:56:25Z
+# ============================================================================
+
+task_id: T-321
+task_name: "XML form has no node-type vocabulary gate: a typo'd element validates clean (T-320 gap)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-07-31T12:15:56Z
+completed: 2026-08-01T13:55:03Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-08-01T15:52:24+02:00
+last_commit: 2026-08-01T15:52:24+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the XML form gets a node-type gate — derived from NODE_TYPES, not copied beside it
+
+# Key outcomes
+outcomes:
+  - 'Measured over **96 authored BPMN** and **both** emitters before any code: corpus carries 12 distinct flow-node elements; the bridge (`TYPE_MAP`) and the designer (`TYPE_TAG`) produce **exactly the same 10 element names as each other**. Full table in `## Evolution`. Original AC: every flow-node local name the authored BPMN corpus carries, with counts and files, plus every type the bridge (`tools/yaml-to-bpmn.py`) and the designer can emit. Recorded in `## Evolution` with the populations named.'
+  - 'Two found and both reported rather than folded in: **`boundaryEvent`** (2 occ, `boundary-events.bpmn`) — legal BPMN, unproducible, admitted as the one declared extension with a written reason; **`linkEventThrow`** (3 occ, `offpage-seam.bpmn`) — not a BPMN element at all, filed as **T-324**. Reverse direction: emitters produce nothing the corpus lacks. Original AC: — or vice versa — is reported explicitly rather than silently folded into the vocabulary. Per PL-064, a corpus-only derivation is not acceptable.'
+  - '`E-XML-NODE-TYPE` emits from `XmlValidator`; `XML_NODE_TYPES` is **derived** — `{XML_TYPE_MAP.get(t,t) for t in NODE_TYPES} | XML_ONLY_NODE_TYPES` — so adding a YAML type automatically admits its XML spelling, and the difference between the forms is one small declared set. Original AC: for an unknown flow-node element, and the vocabulary is expressed as a declared extension of the YAML `NODE_TYPES` rather than a second hand-written list, so the superset relationship is stated in one readable place.'
+  - '96 authored BPMN scanned: exactly **one** file fires, and it is a true positive (`offpage-seam.bpmn`, T-324). The 8 fixtures carrying catch/throw/boundary events are silent — this is the AC the naive `NODE_TYPES` copy fails. Original AC: across authored BPMN and `tests/fixtures/` — specifically the 8 fixtures carrying catch/throw/boundary events must NOT fire. This is the AC the naive fix fails.'
+  - 'The T-320 witness reproduced on the real tree: renaming `agt_1_decompose` to `<bpmn:serviceTaks>` in `tests/fixtures/valid/investigate.bpmn` gives pre-change `VALID — no findings`, post-change `ERROR [E-XML-NODE-TYPE]` rc=2. Tree restored (`git diff -- tests/fixtures/` = 0 lines). **First attempt was a null result** — a `sed` that matched nothing produced a clean-looking pass; caught by asserting the occurrence count before reading the verdict. Original AC: the T-320 witness (`<bpmn:serviceTaks>` in `tests/fixtures/valid/investigate.bpmn`) now fires and exits non-zero, the pre-change build calls the same bytes clean, and the tree is restored byte-identical.'
+  - '`tests/fixtures/invalid/E-XML-NODE-TYPE.xml`, carrying an in-file silence control (`<bpmn:boundaryEvent>` must NOT fire). Drift guard `tests/test_xml_node_type_vocab.py` wired into `tests/run-bridge-tests.sh` (T-316 orphan discipline). Bridge 62 → **63 passed, 0 failed**; validator 42 → **43 passed, 0 failed**. Original AC: so the GATING runner exercises the rule, and both suites stay green.'
+  - '`E-NODE-TYPE` → PAIRED, new `E-XML-NODE-TYPE` → PAIRED, `EXPECTED_GAPS` 12 → 11, census number set updated in the same commit to **7 gap families / 11 gap rule ids / 0 out of scope**. Two stale figures found while reconciling (the T-323 block, and T-323''s completed Verification line) and both fixed. Original AC: with `EXPECTED_GAPS` re-derived, and the census artifact''s number set is updated in the same commit so guard and report cannot disagree (the T-323 reconciliation lesson).'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-320-rule-form-parity-census.md'
+  - '.tasks/active/T-321-xml-form-has-no-node-type-vocabulary-gat.md'
+  - '.tasks/active/T-324-offpage-seambpmn-carries-bpmnlinkeventth.md'
+  - '.tasks/completed/T-323-census-outofscope-classifications-rest-o.md'
+  - 'tests/fixtures/invalid/E-XML-NODE-TYPE.xml'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_corpus_fixture_pins.py'
+  - 'tests/test_rule_form_parity.py'
+  - 'tests/test_xml_node_type_vocab.py'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-01T15:52:24"
+    action: "T-321: the XML form gets a node-type gate — derived from NODE_TYPES, not copied beside it"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1539 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1539
+  commits: 1
+  files_changed: 10
+  lines_added: 650
+  lines_removed: 25
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-321-xml-form-has-no-node-type-vocabulary-gat.md
+generated_by: context-agent-hybrid
