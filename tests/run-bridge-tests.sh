@@ -433,6 +433,20 @@ else
 fi
 
 echo
+echo "== Rule dialect axis (T-325 / T-309 IW-1b) =="
+# A second axis over the same rule set: is a finding a correctness claim, a house
+# convention, or a layout remark? Derived from the frozen standard's normative
+# carrier partition — NOT from corpus firing rates, which is the T-323 mistake
+# one level up. Polarity is proven behaviourally against real fixtures, so a
+# wrong label fails rather than computing a wrong class from a wrong premise.
+if python3 "$ROOT/tests/test_rule_dialect_axis.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "rule dialect axis broke — a rule declares no carrier, a carrier drifted from the frozen standard's §1 partition, or a declared polarity stopped matching what the rule actually does (T-325)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Runner-orphan guard (T-316) =="
 # The guard for the class above: any collectable test file (test_*.py, *_test.py,
 # *.bats) that this runner does not invoke is a finding. Checks membership in

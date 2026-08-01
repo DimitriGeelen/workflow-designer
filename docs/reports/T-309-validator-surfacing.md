@@ -187,8 +187,110 @@ a peer *before* running it and being told the measurement backing it had scanned
 two-sided dialect. The rail has now produced this twice in two days in both directions; neither
 side has found its own instance.
 
+### 2026-08-01 — IW-1b RESOLVED (T-325): the axis is derivable from the frozen standard
+
+IW-1b listed three options and called them unpriced: (i) detect dialect per document and suppress,
+(ii) classify each rule universal vs dialect-relative, (iii) surface everything and let the author
+filter. Option (iii) was already rejected on the 47-of-48 number. Option (ii) is now built.
+
+**The discriminator, and the trap it had to avoid.** The obvious way to decide "is this rule
+dialect-relative" is to measure how differently it fires across the two corpora. That is precisely
+the T-323 mistake one level up: the T-320 census classified rules OUT-OF-SCOPE on a corpus zero and
+was wrong, because absence from a corpus is not inexpressibility. **A corpus count is priority,
+never classification.** A firing-rate table is especially seductive here because it looks so much
+like evidence for exactly this question.
+
+The classification is instead derived from `docs/standards/aef-bpmn-mapping-v1.md`:
+
+- **PRESENTATIONAL** — every carrier the predicate reads is in §1's Presentational class. §1 is
+  normative: *"A change to a presentational attribute alone MUST be a no-op for the task graph."*
+  Such a rule cannot be reporting a task-graph defect, whatever else it usefully reports.
+- **DIALECT-RELATIVE** — the predicate fires on the **absence** of a carrier the standard does not
+  mandate. Absence is conformant, so firing separates authoring convention from correctness.
+- **UNIVERSAL** — everything else: graph structure any conformant document must satisfy, or a
+  carrier constrained only *when present*, or a MUST-emit carrier (whose absence is itself the
+  violation — PL-035).
+
+**Polarity is the hinge, and it is mechanical.** `W-GW-AMBIGUOUS` fires when the branch condition is
+ABSENT; `W-PGW-CONDITION` reads the same carrier and fires when it is PRESENT on a parallel branch.
+Same carrier, opposite polarity, opposite class — a map that never writes a condition can never trip
+the second one.
+
+**Result — 46 rules: 39 universal, 3 dialect-relative, 4 presentational.**
+
+| class | rules |
+|---|---|
+| DIALECT-RELATIVE | `W-GW-AMBIGUOUS`, `W-XML-GW-AMBIGUOUS`, `W-IO-INPUT` |
+| PRESENTATIONAL | `W-XML-LANE-GEOMETRY`, `W-XML-LANE-CAPACITY` + their two skip-notes |
+
+`W-IO-INPUT` was not on anyone's list and is the same shape as the gateway pair: it demands an
+upstream `io.outputs` entry matching by name, so a corpus that declares `io` only where it is
+consumed lights up. Two independent instances, found by the discriminator rather than by the
+symptom, is the argument that the discriminator is doing work.
+
+**The gateway rule fires on documents that satisfy the frozen standard — that is a defect in the
+rule, not a quirk of the peer.** mapping-v1 §5 defines an exclusiveGateway's branches as *"outgoing
+edges = branches; edge label = condition"*; forward-compile §3.1 admits *"branch label /
+`conditionExpression`"*. Both carriers are standard-admitted; ours demands one of them. The sharpest
+evidence is in our own tree: `tests/fixtures/warn/W-XML-GW-AMBIGUOUS.xml` labels its branches
+`name="code"`, `name="design"`, `name="environment"` — AEF's dialect exactly — and we ship it as the
+fixture that demonstrates a warning.
+
+**Enforcement.** `tests/test_rule_dialect_axis.py`, wired into the gating runner (bridge 63 → 64).
+Rule enumeration is single-sourced from the T-320 parity guard's extractor, so the two axes can
+never disagree about which rules exist. The classification is *computed* from a declared
+`(carrier, polarity)` pair rather than written down per rule, and the carrier map is drift-guarded
+bidirectionally against §1 — a rule whose class was simply asserted would be the unfalsifiable-PAIRED
+trap again.
+
+Polarity is made falsifiable **behaviourally**: for a REQUIRES rule, adding the carrier to the real
+fixture must silence it; for CONSTRAINS, removing it must. The transform's direction is checked
+against the declared polarity (counted on a comment-stripped copy — the fixture explains itself by
+naming `conditionExpression` in prose, which is the G-009 class), so flipping a label fails rather
+than quietly computing a different class. Teeth proven by four mutations on the real tree — dropped
+declaration, mis-declared carrier, flipped polarity, carrier map moved off the standard — each RED,
+tree restored byte-identical. Six negative controls run every pass, including "an unreadable frozen
+standard must RAISE, not pass quiet".
+
+**Firing-rate cross-check — priority evidence, and it is not the classification.** Naming the
+subject of each number (G-013):
+
+| population | files | findings | of which dialect-relative |
+|---|---|---|---|
+| 832-authored (25 rendered BPMN + 25 YAML) | 50 | **0** | 0 |
+| AEF bytes in `tests/fixtures/aef-bpmn` | 20 | 34 | 6 |
+| AEF bytes in `build/aef-corpus-drop` | 24 | 1 | 0 |
+| AEF live corpus (**their** measurement, rail 356) | — | 47 of 48 gateways | 47 |
+
+Our own zero **discriminates nothing for this question** — it is consistent with the rules being
+universal and with their being dialect-relative, so it is not evidence either way. The two AEF
+populations we hold disagree with each other (34 findings vs 1), which is itself the point: both are
+blends whose proportions are an artifact of which files happened to round-trip through our bridge.
+The only clean foreign-dialect measurement is AEF's own, and it is not reproducible from here.
+
+**A hole in the frozen standard, surfaced by the derivation.** §1 opens *"Every `aef:` datum is
+exactly one of two classes"* — but `aef:laneMeta`'s attributes appear in neither list, though
+`height` and `abbr` are both read by live rules. §3/O-3 does rule normatively on `authority`, so
+that one is covered elsewhere. The two uncovered carriers are declared, printed every run and
+count-asserted rather than absorbed into whichever class made the arithmetic work. **This is a
+ratification question for the operator and the rail, not something to settle here** — the standard
+is frozen and not editable under agent control.
+
+**Consequence for the surfacing work.** IW-1b resolves to option (ii), and the answer to IW-3 falls
+out of it rather than needing its own ruling:
+
+- **UNIVERSAL** (39) — surface normally; advisory per the Authority Model, ERROR/WARN as graded.
+- **DIALECT-RELATIVE** (3) — must not be surfaced as correctness on a foreign map. Either suppressed
+  or re-labelled as a convention note. The honest fix for the gateway pair is upstream of the
+  designer: the rule should accept the standard's other carrier.
+- **PRESENTATIONAL** (4) — a separate channel from correctness, and a natural fit for the existing
+  Clean-layout nudge, which is the house pattern for advisory layout feedback and is already proven
+  not to annoy.
+
 ## Recommendation
 
-*(empty — no recommendation until the spikes above have run. Filing-time advisory was GO on the
-problem being worth solving; that is not a substitute for a priced recommendation. IW-1b now
-sits ahead of IW-2 in the ordering.)*
+*(still empty as a whole-feature recommendation — IW-1a (surface: panel / inline / gutter) and IW-2
+(delivery route) remain unpriced. What has changed is the ordering: IW-1b was the stated
+prerequisite ahead of IW-2 and is now closed, so IW-2 is next and is an architecture call for the
+operator, not an agent call. IW-3 no longer needs a separate ruling — the class decides the
+channel.)*
