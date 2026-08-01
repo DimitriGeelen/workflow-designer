@@ -491,6 +491,23 @@ else
 fi
 
 echo
+echo "== Cross-form behavioural agreement (T-328) =="
+# The parity guard (T-320) classifies a rule PAIRED by regex over each validator
+# class's source span — it never validates a document, so PAIRED proves both
+# forms NAME a rule and never that they AGREE about when it fires. This leg
+# drives the SAME document through both forms and compares VERDICTS. Three
+# outcomes, not two: asserting "the forms must agree" reports working code as
+# broken wherever the bridge legitimately REPAIRS the defect, so bridge-repair
+# is declared per pair and never inferred from "the XML form said nothing" —
+# inferring it is how a real coverage hole gets absorbed as a repair.
+if python3 "$ROOT/tests/test_harness_cross_form_agreement.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "two implementations of a PAIRED validator rule disagree on the same document, or a declared tolerance/repair stopped describing the tree (T-328)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Runner-orphan guard (T-316) =="
 # The guard for the class above: any collectable test file (test_*.py, *_test.py,
 # *.bats) that this runner does not invoke is a finding. Checks membership in
