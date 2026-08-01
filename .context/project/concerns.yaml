@@ -625,3 +625,49 @@ concerns:
     related:
       - T-320
       - G-019
+
+  - id: G-014
+    type: gap
+    status: watching
+    severity: medium
+    title: "A leg of the GATING bridge runner can fail intermittently, and until T-326 the failing run discarded its own output — reproducible-only, never diagnosable"
+    detected: 2026-08-01
+    origin_task: T-326
+    decision_trigger: >
+      The nondeterminism in tests/test_bridge_seam_roundtrip.py is identified and
+      removed (or shown to be environmental and bounded), evidenced by a repeat-run
+      experiment large enough to have caught the observed rate. Closing on "we have
+      not seen it lately" is exactly the failure mode this gap describes — the
+      capture change makes a recurrence readable, it does not make the flake gone.
+    detail: >
+      tests/test_bridge_seam_roundtrip.py failed once inside tests/run-bridge-tests.sh
+      (63 passed, 1 failed) during T-325's P-011 verification gate, then passed
+      standalone and on immediate re-run of the identical command. Repeat-run
+      experiment the same hour: 0/8 standalone, 0/5 in-suite. NOT REPRODUCED —
+      recorded as a bound on the rate, not as an absence.
+
+      Two distinct problems, and the second is the one that mattered:
+
+      (1) The flake itself. Unidentified. First hypothesis is browser/resource
+      contention — the harness drives a real Playwright chromium via
+      tools/_bridge-seam-roundtrip-cdp.mjs and sibling legs in the same suite drive
+      CDP too.
+
+      (2) The runner DISCARDED the failing leg's output (`>/dev/null 2>&1`), so the
+      one run that failed left no evidence of its own cause. Fixed in T-326: output
+      is captured once and printed on failure only. Swept the whole file rather than
+      the one site — two of three invocations discarded output outright, and the
+      third RE-RAN the validator to have something to show, which is right exactly
+      once: under any nondeterminism the second run can print a different, or clean,
+      result than the run whose verdict is being explained.
+
+      WHY THIS IS A GAP AND NOT JUST A TASK: an intermittent red in a GATING runner
+      is dismissible as "just flaky", which is precisely how a real regression gets
+      waved through. It also weakens every green — a suite that fails 1-in-N for
+      unknown reasons is reporting a different, weaker claim than the one its summary
+      line makes. Same family as G-013: a verdict whose reliability is not stated
+      alongside it.
+    related:
+      - T-325
+      - T-326
+      - G-013

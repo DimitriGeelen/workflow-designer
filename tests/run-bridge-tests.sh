@@ -23,6 +23,27 @@ fail=0
 
 report() { printf '  [%s] %s\n' "$1" "$2"; }
 
+# T-326: print the captured output of a leg that FAILED, and only then.
+#
+# This suite used to discard leg output with `>/dev/null 2>&1`, so a failing leg
+# emitted `[FAIL] <message>` and nothing else. That is survivable for a
+# deterministic failure — re-run it and read the output. It is fatal for an
+# intermittent one: the run that failed leaves no evidence of its own cause, so
+# the flake is reproducible-only and never diagnosable. Observed 2026-08-01 when
+# test_bridge_seam_roundtrip.py failed once inside this runner and passed twice
+# immediately after (T-326).
+#
+# Failure-only by design: a suite that prints every leg's stdout buries the
+# signal it exists to surface.
+show_output() {
+  local file="$1" label="$2"
+  [ -s "$file" ] || { printf '      (no output captured from %s)\n' "$label"; return; }
+  printf '      --- captured output of %s (last %d lines) ---\n' "$label" "$SHOW_OUTPUT_LINES"
+  tail -n "$SHOW_OUTPUT_LINES" "$file" | sed 's/^/      | /'
+  printf '      --- end %s ---\n' "$label"
+}
+SHOW_OUTPUT_LINES="${SHOW_OUTPUT_LINES:-40}"
+
 shopt -s nullglob
 files=("$CORPUS"/*.workflow.yaml)
 if [ "${#files[@]}" -eq 0 ]; then
@@ -33,17 +54,22 @@ fi
 for f in "${files[@]}"; do
   base="$(basename "$f" .workflow.yaml)"
   bpmn="$TMP/$base.bpmn"
-  if ! python3 "$BRIDGE" "$f" --out "$bpmn" >/dev/null 2>&1; then
+  if ! python3 "$BRIDGE" "$f" --out "$bpmn" >"$TMP/.out" 2>&1; then
     report FAIL "$base — bridge conversion failed"
+    show_output "$TMP/.out" "bridge $base"
     fail=$((fail + 1))
     continue
   fi
-  if python3 "$VALIDATOR" "$bpmn" >/dev/null 2>&1; then
+  if python3 "$VALIDATOR" "$bpmn" >"$TMP/.out" 2>&1; then
     report PASS "$base — converts + validates clean"
     pass=$((pass + 1))
   else
     report FAIL "$base — emitted BPMN did not validate clean"
-    python3 "$VALIDATOR" "$bpmn" 2>&1 | head -3
+    # T-326: print the CAPTURED output of the run that failed. This used to
+    # re-invoke the validator to get something to show, which is right exactly
+    # once: under any nondeterminism the second run can print a different — or
+    # clean — result than the run whose verdict is being explained.
+    show_output "$TMP/.out" "validator $base"
     fail=$((fail + 1))
   fi
 done
@@ -384,10 +410,11 @@ for leg in "${orphan_legs[@]}"; do
     fail=$((fail + 1))
     continue
   fi
-  if python3 "$legpath" >/dev/null 2>&1; then
+  if python3 "$legpath" >"$TMP/.legout" 2>&1; then
     pass=$((pass + 1))
   else
     report FAIL "$legmsg ($legfile)"
+    show_output "$TMP/.legout" "$legfile"
     fail=$((fail + 1))
   fi
 done
