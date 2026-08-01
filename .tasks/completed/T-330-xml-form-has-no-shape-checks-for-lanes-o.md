@@ -4,20 +4,20 @@ name: "XML form has no shape checks for lanes or nodes: three YAML required-fiel
 description: >
   T-328 spike finding, filed as one task because it is one family (missing shape validation on the BPMN form), not three unrelated bugs. E-LANE-FIELD: a lane missing a required field bridges to a <bpmn:lane> with no <aef:laneMeta> at all, and no XmlValidator rule requires one. E-LANES-EMPTY: an empty lanes list bridges to an empty <bpmn:laneSet>, and no rule requires at least one lane. E-NODE-FIELD: a node missing a required field bridges to a flow node without its position, and no rule checks node shape. In all three the bridged document STILL CARRIES the defect (distinguishing these from E-TOPLEVEL-MISSING, where the bridge repairs it by synthesising bpmn:process from workflowMeta.id). Held as counted, printed tolerances in tests/test_harness_cross_form_agreement.py; when a hole is closed its entry is DELETED, not decremented. Sibling of T-329 (E-AUTHORITY enum, filed separately because its carrier and fix differ).
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/test_rule_dialect_axis.py, tests/test_rule_form_parity.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-01T22:55:48Z
-last_update: 2026-08-01T23:12:43Z
-date_finished: null
+last_update: 2026-08-01T23:32:06Z
+date_finished: 2026-08-01T23:32:06Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -235,7 +235,12 @@ out=$(python3 tests/test_harness_cross_form_agreement.py 2>&1); echo "$out" | gr
 test "$(grep -c 'T-330' tests/test_harness_cross_form_agreement.py)" -eq 4
 # AC4: the CARRIES-probe exists and is wired into the DISAGREE branch.
 grep -q "_carries_out_of_enum_authority" tests/test_harness_cross_form_agreement.py
-grep -q "does NOT carry the defect" tests/test_harness_cross_form_agreement.py
+# Anchored on a literal that is CONTIGUOUS IN THE SOURCE. The first version of
+# this line grepped "does NOT carry the defect", which exists only after runtime
+# string concatenation ("...document does " + "NOT carry the defect...") — the
+# teeth leg matched it because teeth read the OUTPUT, and P-011 caught it
+# because this reads the FILE. Same anchor discipline, two different haystacks.
+grep -q "NOT carry the defect" tests/test_harness_cross_form_agreement.py
 # AC8: both censuses green, gap count deliberately unmoved, new rule registered.
 out=$(python3 tests/test_rule_form_parity.py 2>&1); echo "$out" | grep -q "47 rules classified, 11 gaps"
 out=$(python3 tests/test_rule_form_parity.py 2>&1); echo "$out" | grep -q "rule-form parity: OK"
@@ -314,3 +319,15 @@ out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "bridge round-
 
 ### 2026-08-01T23:12:43Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-15c281d4
+- **Timestamp:** 2026-08-01T23:34:01Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-01T23:32:06Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
