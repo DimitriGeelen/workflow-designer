@@ -4,20 +4,20 @@ name: "Classify every validator rule universal vs dialect-relative (T-309 IW-1b)
 description: >
   Classify every validator rule universal vs dialect-relative (T-309 IW-1b)
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
-components: []
+components: [tests/test_rule_dialect_axis.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-01T19:53:36Z
-last_update: 2026-08-01T19:53:36Z
-date_finished: null
+last_update: 2026-08-01T20:21:52Z
+date_finished: 2026-08-01T20:21:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -153,6 +153,46 @@ grep -q 'IW-1b RESOLVED' docs/reports/T-309-validator-surfacing.md
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+## Recommendation
+
+**Recommendation:** GO on (b) — relax the gateway rule to accept a branch label as a condition
+carrier. DEFER (a) — the §1 carrier-class hole — into the v1.1 batch already awaiting your sign-off.
+
+**Rationale:** These two look like one question and are not. (b) is a rule that is wrong by the
+frozen standard we already agreed: mapping-v1 §5 says "edge label = condition" and forward-compile
+§3.1 says "branch label / `conditionExpression`". Two carriers are admitted; our predicate demands
+one, so it reports a violation against documents that conform. That is not a dialect accommodation
+made to be polite to a peer — it is a false positive, and the cleanest evidence is our own fixture
+`tests/fixtures/warn/W-XML-GW-AMBIGUOUS.xml`, which labels its branches `name="code"`,
+`name="design"`, `name="environment"` and ships as the file demonstrating the warning. Fixing it
+removes 47 of AEF's 48 gateway findings without weakening anything: a gateway with neither a label
+nor a condition on 2+ outflows still warns.
+
+(a) is different in kind. §1 opens "Every `aef:` datum is exactly one of two classes" and then lists
+neither `aef:laneMeta` nor its attributes, while `height` and `abbr` are both read by live rules.
+That is a standards edit, the standard is frozen, and it batches naturally with the T-189 IW-9 and
+T-195 G-3 deltas already sitting for graduation — three v1.1 edits ruled on together beats one
+ruled on alone. Nothing degrades while it waits: both carriers are PRINTED every run and the count
+is asserted, so the hole cannot go quiet.
+
+Both are rail conversations before they are code. (b) changes what fires on AEF's bytes, and the
+last three times either side changed a shared predicate unilaterally we found the divergence
+afterwards.
+
+**Evidence:**
+- `tests/test_rule_dialect_axis.py` — 46 rules classified; 39 universal, 3 dialect-relative, 4
+  presentational. Guard in the gating runner; bridge 64/0, validator 43/0.
+- Standard citations: `docs/standards/aef-bpmn-mapping-v1.md` §1 (carrier partition, normative) and
+  §5 (edge label = condition); `aef-bpmn-forward-compile-v1.md` §3.1 (label / conditionExpression).
+- `docs/reports/T-309-validator-surfacing.md` § "2026-08-01 — IW-1b RESOLVED (T-325)" — discriminator,
+  classification table, firing-rate cross-check with subjects named.
+- Teeth: 4 real-tree mutations all RED (including a flipped polarity label), tree restored
+  byte-identical; 6 negative controls run every pass.
+- Firing rates as PRIORITY only: our 25+25 maps give 0 findings and discriminate nothing here; the
+  two AEF populations we hold disagree (34 vs 1) because both are bridge-blends. AEF's own live
+  measurement (rail 356) is 47 of 48 gateways firing, 0 of 381 flows conditioned.
+- `git diff --exit-code -- docs/standards/aef-bpmn-mapping-v1.md` clean — frozen standard untouched.
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -220,3 +260,22 @@ grep -q 'IW-1b RESOLVED' docs/reports/T-309-validator-surfacing.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-325-classify-every-validator-rule-universal-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-76cb28bb
+- **Timestamp:** 2026-08-01T20:23:08Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — Every rule id in `tests/test_rule_form_parity.py`'s `PARITY` table carries a second-axis
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/test_rule_form_parity.py in: Every rule id in `tests/test_rule_form_parity.py`'s `PARITY` table carries a second-axis`
+- **AC#9 (Agent)** — `tests/run-bridge-tests.sh` green (all legs) and `tools/validate-workflow.py`'s own fixture
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/validate-workflow.py in: `tests/run-bridge-tests.sh` green (all legs) and `tools/validate-workflow.py`'s own fixture`
+
+### 2026-08-01T20:21:52Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
