@@ -287,10 +287,94 @@ out of it rather than needing its own ruling:
   Clean-layout nudge, which is the house pattern for advisory layout feedback and is already proven
   not to annoy.
 
+### 2026-08-02 — IW-2 priced (spike 2). The decision stays the operator's; the numbers were missing
+
+Pricing, not deciding. Every number below is measured against the tree at `f03002b`; where something
+is unmeasured this section says so rather than estimating it.
+
+**The port surface is a quarter the size everyone has been quoting.** IW-2 and the Technical
+Constraints both frame this as "the rules are Python" — 46 rules, 1636 lines. But the designer
+authors the **BPMN form**, so only `XmlValidator` is in play:
+
+| span | lines | rule ids |
+|---|---|---|
+| `Validator` (YAML form) | 614 | 28 |
+| `XmlValidator` (BPMN form) | 681 | **20** |
+| CLI entry / render / format detect | 341 | — |
+
+**A-3 is now measured rather than assumed.** The whole 1636-line file contains exactly one `open()`,
+at line 1601 inside `main()`. No `os`, no `subprocess`, no network, no filesystem reach from any rule
+body — imports are `argparse`, `json`, `sys`, `xml.etree`, `yaml`. The rules are pure functions over
+a parsed tree. The editor already builds an equivalent tree (`src/aef-workflow-designer.html:9596`,
+`DOMParser.parseFromString`) in its own import path, so a port has both a target and a host.
+
+**Route (c) "one shared rule spec" cannot express this rule set, and would decay into route (a).**
+Counting constructs inside `XmlValidator`: 4 worklist/BFS traversal sites, 5 adjacency
+constructions, 4 reachability set-arithmetic sites, and 41 geometry-arithmetic sites. The
+reachability rules (`W-XML-UNREACHABLE`, `W-XML-DEADEND`) and the lane rules
+(`W-XML-LANE-GEOMETRY`, `W-XML-LANE-CAPACITY`) are imperative algorithms over a graph, not
+predicates over attributes. What *is* already declarative is T-325's `(carrier, polarity)`
+classification — genuinely shareable, and it is the metadata layer, not the predicates. Sold as "one
+spec" this route silently becomes *a spec for the easy rules plus a second implementation for the
+rest*, which is route (a) carrying an extra artifact.
+
+**Route (b) "sidecar HTTP" is mechanically cheap and serves the wrong population.** The sidecar
+already exposes 7 routes and `POST /api/save` already receives BPMN text, so `/api/validate` is the
+same shape — hours, not days. The cost is not effort, it is reach: since 0.3.0 every released
+artifact is a **single self-contained HTML file with zero external references**
+(`dist/aef-workflow-designer-0.3.0..0.7.1.html`), and that is the artifact AEF pins and opens from
+the filesystem. So route (b) delivers validation to the population whose maps we have measured at
+**0 findings** (832-authored, 50 files) and withholds it from the population measured at **34
+findings** here and **47 of 48 gateways** in their own corpus. The feature would be absent exactly
+where it fires.
+
+**The drift argument is real, and it is ours — we already ran the experiment.** IW-2's comment worries
+that "two implementations of one rule set is how they drift." We need not reason about it: this
+repository *is* that experiment. `tests/test_rule_form_parity.py` reports **46 rules classified, 11
+gaps** — rules present on one form and absent on the other. T-323 emptied `OUT_OF_SCOPE_PROBES`, so
+**zero of those 11 are explained by inexpressibility**; each is a rule the other form could carry and
+does not. Two implementations, same language, same file, same authors, one rule set: 11/46 diverged.
+
+**But name that number's subject before using it.** The 11 measures **coverage** drift — *does a rule
+exist on both forms*. It says nothing about **behavioural** drift — *do the two implementations agree
+about when to fire*. Those are different defects and conflating them is the error class this arc
+keeps paying for.
+
+**And behavioural drift is not merely unmeasured — no instrument in the tree can see it.**
+`extract_rules()` (`tests/test_rule_form_parity.py:255`) regex-extracts rule ids from each class's
+source span; it never validates a document. T-323's PAIRED enforcement strengthened *id* pairing.
+So `W-GW-AMBIGUOUS` and `W-XML-GW-AMBIGUOUS` could carry different predicates indefinitely and every
+gate in this repository stays green. This is the arc's own lesson landing on our own guard: **teeth
+prove a guard fires, never what it discriminates — and parity proves a rule exists, never that it
+agrees.**
+
+A clean-corpus comparison cannot close this: IW-5 measured 0 findings on both paths, and 0-vs-0
+discriminates nothing (the same trap already recorded at "our own zero discriminates nothing"). The
+populations that *do* fire (AEF bytes) exist only in BPMN form, so there is no paired population that
+fires. Measuring agreement therefore needs constructed documents driven through `yaml-to-bpmn.py`,
+which is a build task, not a paragraph.
+
+**What this does to the three routes.** It does not pick one — that is the operator's call and it is
+an architecture call. It changes what the choice is *between*:
+
+- (a) **port to JS** — 681 lines / 20 rules, pure, with a host tree already parsed; reaches every
+  usage mode including the peer's; adds a third implementation of a rule set whose second
+  implementation has 11/46 coverage drift and whose behavioural agreement is currently unobservable.
+- (b) **sidecar HTTP** — cheapest to build, one implementation, and structurally absent in the
+  standalone artifact the peer actually uses.
+- (c) **shared spec** — expressible for the T-325 classification layer, not for the traversal and
+  geometry predicates; as a whole-rule-set answer it is route (a) with an extra artifact.
+
+**The prerequisite that falls out, and it is independent of which route wins.** A cross-form
+behavioural agreement harness — one document, both forms, compare findings — is (i) the only thing
+that makes route (a) safe rather than merely cheap, (ii) unnecessary for route (b) *only* because
+route (b) declines to serve the peer, and (iii) **valuable today regardless**, because it would test
+the Python pair we already ship and hand to AEF. Filed separately rather than folded in here.
+
 ## Recommendation
 
-*(still empty as a whole-feature recommendation — IW-1a (surface: panel / inline / gutter) and IW-2
-(delivery route) remain unpriced. What has changed is the ordering: IW-1b was the stated
-prerequisite ahead of IW-2 and is now closed, so IW-2 is next and is an architecture call for the
-operator, not an agent call. IW-3 no longer needs a separate ruling — the class decides the
-channel.)*
+*(still empty as a whole-feature recommendation — IW-1a (surface: panel / inline / gutter) remains
+unpriced. IW-2 is now **priced but undecided**: the routes above carry measured costs, and the choice
+between them is an architecture call reserved to the operator. IW-3 no longer needs a separate
+ruling — the class decides the channel. IW-4 is closed: T-319 DECLINED on measurement, so the rule
+set needs no addition before the surface work.)*

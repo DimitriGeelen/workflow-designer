@@ -81,9 +81,18 @@ content and is therefore a rail conversation, not only a local feature.
 
 - **IW-2: How do the Python rules reach the browser — port them to JS in the designer, call the
   existing validator over HTTP via the gallery sidecar, or compile/share a single rule spec?**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 3
+  disposition: PRICED, NOT DECIDED — the routes carry measured costs (2026-08-02, spike 2); the
+    choice between them is an architecture call reserved to the operator.
+  rationale: Port surface is XmlValidator alone — 681 lines / 20 rule ids, not 1636 / 46 — and the
+    rules are pure (one open() in the file, at the CLI entry; no os/subprocess/network), with the
+    editor already building the tree at src:9596. Route (c) cannot express the traversal and
+    geometry predicates and decays into route (a) with an extra artifact. Route (b) is cheapest but
+    structurally absent in the standalone single-file artifact AEF pins — so it withholds the
+    feature from the only population measured to fire. Route (a)'s real cost is a third
+    implementation of a rule set whose second implementation shows 11/46 coverage drift and whose
+    behavioural agreement NO instrument in the tree can observe. Full working in
+    docs/reports/T-309-validator-surfacing.md.
   <!-- The portability question underneath: two implementations of one rule set is how they drift
        (PL-002 is exactly this class — the editor's namespace drifting from the canonical). A shared
        declarative spec avoids the drift but costs more up front. An HTTP call keeps one
@@ -101,9 +110,13 @@ content and is therefore a rail conversation, not only a local feature.
 
 - **IW-4: Does the rule set need the missing XOR-with-identical-targets rule before or after the
   surfacing work?**
-  confidence: 2
-  disposition:
-  rationale:
+  confidence: 3
+  disposition: RESOLVED — NO. Closed as T-319, DECLINED (not deferred) on measurement, not taste.
+  rationale: Predicate questions were posed on the rail before any source edit; AEF measured their
+    live corpus at 2 strict hits, both already caught by W-XML-GW-AMBIGUOUS, so T-319-unique = 0.
+    Their keeper: a predicate that only pays off in the form you cannot justify is a predicate to
+    leave alone. The motivating instance was also misremembered — draft-knowledge-leveling is not a
+    reconvergence case. Consequence: the rule set needs no addition before the surfacing work.
   <!-- The triggering example is not currently caught, so surfacing alone would not have helped the
        operator with THIS map. Suggests the rule is part of the deliverable, not a follow-up — but
        it is also independently useful and separately shippable. -->
