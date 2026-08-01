@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-329: E-AUTHORITY has no BPMN-form counterpart: an out-of-enum IW-9 lane authority passes the form the designer and AEF both use
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-01T23:43:05Z
+# ============================================================================
+
+task_id: T-329
+task_name: "E-AUTHORITY has no BPMN-form counterpart: an out-of-enum IW-9 lane authority passes the form the designer and AEF both use"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-01T22:49:21Z
+completed: 2026-08-01T23:41:20Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-02T01:41:15+02:00
+last_commit: 2026-08-02T01:41:15+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  E-XML-AUTHORITY — the last cross-form tolerance closed, table now empty
+
+# Key outcomes
+outcomes:
+  - 'AC1 — `E-XML-AUTHORITY`: a `<aef:laneMeta authority="...">` value outside'
+  - 'AC2 — SINGLE-SOURCED: the rule reads the module-scope `AUTHORITIES` set'
+  - 'AC3 — SILENCE ON THE CONFORMANT CORPUS: zero findings across every'
+  - 'AC4 — Fixture in `tests/fixtures/invalid/` demonstrating the rule, picked'
+  - 'AC5 — Registered on BOTH censuses: PAIRED in `test_rule_form_parity.py`'
+  - 'AC6 — `E-AUTHORITY` is DELETED from `KNOWN_DISAGREEMENTS` in'
+  - 'AC7 — The empty-table case is not left to trivially pass. With'
+  - 'AC8 — Teeth: the new rule proven RED by mutation, landing-asserted with an'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-329-e-authority-has-no-bpmn-form-counterpart.md'
+  - 'tests/fixtures/invalid/E-XML-AUTHORITY.xml'
+  - 'tests/test_harness_cross_form_agreement.py'
+  - 'tests/test_rule_dialect_axis.py'
+  - 'tests/test_rule_form_parity.py'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-02T01:41:15"
+    action: "T-329: E-XML-AUTHORITY — the last cross-form tolerance closed, table now empty"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 51 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 51
+  commits: 1
+  files_changed: 6
+  lines_added: 157
+  lines_removed: 17
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-329-e-authority-has-no-bpmn-form-counterpart.md
+generated_by: context-agent-hybrid

@@ -528,3 +528,10 @@ learnings:
   date: 2026-08-01
   context: Added via context agent
   application: TBD
+- id: PL-075
+  learning: "WITNESSES OVER COUNTS is a DETECTION rule, not only an ergonomics one. A finding that prints WHICH items triggered it (flow ids, lane + overflow amount, per-node owners) rather than HOW MANY preserves the per-item variation that makes an anomaly legible; a count collapses exactly that variation. Evidence: T-317 names the unconditioned flow ids, T-313 lane-capacity names the lane and by how much, and AEF's OBS-118 per-node owner list -- included for traceability, not discrimination -- turned out to be the ONLY surface on which a Framework-lane-yields-human-owner defect was visible at all. All three were argued as authoring ergonomics ('a count tells an author there is a problem without telling them where'); the detection payoff is separate and larger."
+  source: P-001
+  task: T-330
+  date: 2026-08-01
+  context: Added via context agent
+  application: TBD

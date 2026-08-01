@@ -3527,3 +3527,57 @@ scan_id: R-779f6ccb
 task_id: T-327
 payload:
   task_file: .tasks/active/T-327-gallery-verify-harnesses-synthesise-bpmn.md
+---
+kind: scan_emitted
+timestamp: '2026-08-01T23:02:27Z'
+scan_id: R-e4125c5f
+task_id: T-328
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-01T23:02:27Z'
+scan_id: R-e4125c5f
+task_id: T-328
+payload:
+  task_file: .tasks/active/T-328-cross-form-behavioural-agreement-prove-p.md
+---
+kind: scan_emitted
+timestamp: '2026-08-01T23:34:01Z'
+scan_id: R-15c281d4
+task_id: T-330
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-01T23:34:01Z'
+scan_id: R-15c281d4
+task_id: T-330
+payload:
+  task_file: .tasks/active/T-330-xml-form-has-no-shape-checks-for-lanes-o.md
+---
+kind: scan_emitted
+timestamp: '2026-08-01T23:43:03Z'
+scan_id: R-52668da8
+task_id: T-329
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-01T23:43:03Z'
+scan_id: R-52668da8
+task_id: T-329
+payload:
+  task_file: .tasks/active/T-329-e-authority-has-no-bpmn-form-counterpart.md

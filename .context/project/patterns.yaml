@@ -137,3 +137,10 @@ workflow_patterns:
     inherited_from: framework
     learned_from: T-024
     example: "Disabled git hook, made 5 commits, traceability dropped 97% to 88%. Proved hooks are load-bearing."
+  - id: WP-003
+    pattern: "Emit witnesses, not counts, in any finding that can fire on more than one item"
+    description: "Emit witnesses, not counts, in any finding that can fire on more than one item"
+    scope: project
+    learned_from: T-330
+    date_learned: 2026-08-01
+    context: "Added via context agent"

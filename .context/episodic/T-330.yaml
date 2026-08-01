@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-330: XML form has no shape checks for lanes or nodes: three YAML required-field rules have no BPMN counterpart
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-01T23:34:04Z
+# ============================================================================
+
+task_id: T-330
+task_name: "XML form has no shape checks for lanes or nodes: three YAML required-field rules have no BPMN counterpart"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-01T22:55:48Z
+completed: 2026-08-01T23:32:06Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-02T01:29:35+02:00
+last_commit: 2026-08-02T01:29:35+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  one hole, two repairs — E-XML-LANES-EMPTY built, E-LANE-FIELD/E-NODE-FIELD reclassified, and the tolerance table made answerable to the bridged bytes
+
+# Key outcomes
+outcomes:
+  - 'AC1 — The required-carrier sets for lanes and for nodes are MEASURED off'
+  - 'AC2 — `E-XML-LANES-EMPTY`: a `<bpmn:process>` declaring no lane is an'
+  - 'AC3 — CORRECTED BY AC1''s MEASUREMENT, not dropped for convenience.'
+  - 'AC4 — THE BLIND SPOT THAT LET AC3 HAPPEN IS CLOSED. Every'
+  - 'AC5 — SILENCE ON THE CONFORMANT CORPUS: the three new rules produce zero'
+  - 'AC6 — Teeth: each new rule is proven RED by a mutation of a REAL corpus'
+  - 'AC7 — The three T-330 entries are DELETED from `KNOWN_DISAGREEMENTS` in'
+  - 'AC8 — CORRECTED BY MEASUREMENT. `tests/test_rule_form_parity.py` stays'
+  - 'AC9 — CORRECTED BY MEASUREMENT. The raised count is on the VALIDATOR'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-330-xml-form-has-no-shape-checks-for-lanes-o.md'
+  - 'tests/fixtures/invalid/E-XML-LANES-EMPTY.xml'
+  - 'tests/test_harness_cross_form_agreement.py'
+  - 'tests/test_rule_dialect_axis.py'
+  - 'tests/test_rule_form_parity.py'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-02T01:29:35"
+    action: "T-330: one hole, two repairs — E-XML-LANES-EMPTY built, E-LANE-FIELD/E-NODE-FIELD reclassified, and the tolerance table made answerable to the bridged bytes"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 36 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 36
+  commits: 1
+  files_changed: 6
+  lines_added: 321
+  lines_removed: 30
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-330-xml-form-has-no-shape-checks-for-lanes-o.md
+generated_by: context-agent-hybrid
