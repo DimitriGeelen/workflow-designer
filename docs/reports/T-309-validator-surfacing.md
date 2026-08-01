@@ -371,6 +371,34 @@ that makes route (a) safe rather than merely cheap, (ii) unnecessary for route (
 route (b) declines to serve the peer, and (iii) **valuable today regardless**, because it would test
 the Python pair we already ship and hand to AEF. Filed separately rather than folded in here.
 
+**Probe for an actual divergence — null, and the null is the interesting part.** Having claimed
+behavioural drift is *unobservable*, the next question is whether it is *actual*. The paired gateway
+rules read the same carrier by different tests:
+
+| form | test | site |
+|---|---|---|
+| YAML `W-GW-AMBIGUOUS` | `not e.get("condition")` — **falsy** | `validate-workflow.py:417` |
+| XML `W-XML-GW-AMBIGUOUS` | `flow.find(...conditionExpression) is None` — **existence** | `validate-workflow.py:949` |
+
+An edge whose condition is *empty* is therefore unconditioned on the YAML form and conditioned on the
+XML form — the same map, two verdicts. But before treating that as a finding, the question this arc
+exists to ask: **can either emitter produce that document?** No. Both are truthiness-gated —
+`if e.get("condition"):` (`yaml-to-bpmn.py:342`) and `if (e.condition)` (`aef-workflow-designer.html:9539`).
+And the corpus agrees: **0 empty `conditionExpression` elements across the 100 files that carry one.**
+
+So this is not "the implementations disagree" and it is not "the implementations agree" — it is
+**latent divergence**: two predicates that differ, separated by a document no current emitter emits.
+It is invisible to the parity guard (id-level), unexercised by the corpus (nothing produces the
+separating input), and it goes live the moment either emitter starts writing an empty element. Note
+the designer's *import* already normalises toward it — `condEl` present sets `edge.condition = ""`
+(`:9856`), which the export then drops — so the two sides of the round trip already disagree about
+whether that element exists.
+
+Recording the null honestly matters more than the candidate did. A corpus zero here means *this
+divergence is not currently exercised*; it does not mean the implementations agree. That is the same
+inference the T-320 census got wrong in the other direction, and the reason `OUT_OF_SCOPE_PROBES` is
+now empty.
+
 ## Recommendation
 
 *(still empty as a whole-feature recommendation — IW-1a (surface: panel / inline / gutter) remains
