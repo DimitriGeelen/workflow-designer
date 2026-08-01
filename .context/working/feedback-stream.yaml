@@ -3455,3 +3455,57 @@ scan_id: R-fc103fbe
 task_id: T-321
 payload:
   task_file: .tasks/active/T-321-xml-form-has-no-node-type-vocabulary-gat.md
+---
+kind: scan_emitted
+timestamp: '2026-08-01T20:23:08Z'
+scan_id: R-76cb28bb
+task_id: T-325
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-01T20:23:08Z'
+scan_id: R-76cb28bb
+task_id: T-325
+payload:
+  task_file: .tasks/active/T-325-classify-every-validator-rule-universal-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-01T20:41:36Z'
+scan_id: R-b98a6a82
+task_id: T-326
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-01T20:41:36Z'
+scan_id: R-b98a6a82
+task_id: T-326
+payload:
+  task_file: .tasks/active/T-326-flaky-gating-leg-bridge-seam-roundtrip-f.md
+---
+kind: scan_emitted
+timestamp: '2026-08-01T21:29:25Z'
+scan_id: R-6dfb2229
+task_id: T-324
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-01T21:29:25Z'
+scan_id: R-6dfb2229
+task_id: T-324
+payload:
+  task_file: .tasks/active/T-324-offpage-seambpmn-carries-bpmnlinkeventth.md

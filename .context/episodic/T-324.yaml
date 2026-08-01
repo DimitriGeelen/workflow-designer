@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-324: offpage-seam.bpmn carries <bpmn:linkEventThrow>, an element no emitter can produce: coordinated re-pin with AEF
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-01T21:29:27Z
+# ============================================================================
+
+task_id: T-324
+task_name: "offpage-seam.bpmn carries <bpmn:linkEventThrow>, an element no emitter can produce: coordinated re-pin with AEF"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-01T13:50:30Z
+completed: 2026-08-01T21:28:09Z
+duration_days: 0
+updates_count: 3
+first_commit: 2026-08-01T23:08:50+02:00
+last_commit: 2026-08-01T23:25:50+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  AEF signalled GO on the rail — real ACs + verification written, bytes deliberately untouched. coordinated re-pin — offpage-seam host tags corrected, 0bc15bfac81d -> f9422acd330d
+
+# Key outcomes
+outcomes:
+  - 'Full 64-char sha256 of our fixture is captured and compared against AEF''s `0bc15bfac81d80cc13df527a09056dda6170def304d5a43c038bb504b691449d`. If they differ, STOP: post the divergence to the rail and do not send bytes — the artifacts are not the same file and the re-pin plan does not apply as written.'
+  - '~~Exactly 3 `<bpmn:linkEventThrow>` host elements are rewritten to `<bpmn:intermediateThrowEvent>` + a `<bpmn:linkEventDefinition>` child.~~ **AC CORRECTED MID-BUILD — the original was wrong and would have reintroduced the defect.** Rewritten to `<bpmn:intermediateThrowEvent>` with **NO** `linkEventDefinition`. No other element, attribute, or byte changed.'
+  - 'AEF''s two invariants hold in the corrected bytes: each rewritten host retains its `id` and `name`, and its `<aef:link>` child retains `workflowRef`, `targetWorkflow` and `name` unchanged. Verified by diffing the attribute sets, not by reading.'
+  - 'The corrected fixture validates clean under `tools/validate-workflow.py` — zero `E-XML-NODE-TYPE` findings (this is the consumer AEF''s element-type-blind argument does NOT cover).'
+  - 'The counted tolerance in `tests/test_corpus_fixture_pins.py` that admits exactly 3 findings is DELETED, not decremented to zero — T-314 shape: when the reason for a tolerance is gone, the tolerance goes with it. A reintroduced malformed element must fail the build on the first instance, not the fourth.'
+  - '`FULL_SHA` for this fixture is updated to the new digest and `tools/_offpage-seam-parity-verify.py` passes against the corrected bytes.'
+  - 'Gating suite green: `tests/run-bridge-tests.sh` and the validator suite, both 0 failed, counts recorded in this task.'
+  - 'Teeth: reverting one of the three rewrites (real tree, restored byte-identical afterwards) makes the node-type gate fire. Assert the mutation LANDED (occurrence count before the verdict) — a null result renders identically to a clean pass (L-321), and landing is necessary but not sufficient (L-326): confirm the gate''s finding count actually moved.'
+  - 'New sha256 announced to AEF on the rail WITH the bytes, naming what changed and what did not.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-324-offpage-seambpmn-carries-bpmnlinkeventth.md'
+  - '.tasks/active/T-327-gallery-verify-harnesses-synthesise-bpmn.md'
+  - 'tests/fixtures/aef-bpmn/offpage-seam.bpmn'
+  - 'tests/test_corpus_fixture_pins.py'
+  - 'tests/test_xml_node_type_vocab.py'
+  - 'tools/_offpage-seam-parity-verify.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-01T23:08:50"
+    action: "T-324: AEF signalled GO on the rail — real ACs + verification written, bytes deliberately untouched"
+  - time: "2026-08-01T23:25:50"
+    action: "T-324: coordinated re-pin — offpage-seam host tags corrected, 0bc15bfac81d -> f9422acd330d"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 457 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 457
+  commits: 2
+  files_changed: 6
+  lines_added: 316
+  lines_removed: 42
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-324-offpage-seambpmn-carries-bpmnlinkeventth.md
+generated_by: context-agent-hybrid

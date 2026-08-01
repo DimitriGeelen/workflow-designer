@@ -465,3 +465,24 @@ learnings:
   date: 2026-08-01
   context: Added via context agent
   application: TBD
+- id: PL-066
+  learning: "A probe whose transform direction is fixed by the probe table rather than derived from the claim it tests cannot falsify that claim. T-325's first polarity probe transformed a real fixture and asserted the rule fell silent — and would have passed identically with the polarity label flipped, because the direction came from the table, not from the declared polarity. It looked like behavioural evidence and was decoration. Fix: derive the transform direction FROM the declared property (REQUIRES must be silenced by ADDING the carrier, CONSTRAINS by REMOVING it) so a wrong label fails. Test to apply: would this probe have come out differently if the label were wrong? If not it is zero evidence, the unfalsifiable-classification trap wearing a probe's clothes."
+  source: P-001
+  task: T-325
+  date: 2026-08-01
+  context: Added via context agent
+  application: TBD
+- id: PL-067
+  learning: "Check that a mutation had an EFFECT, not merely that it LANDED. T-321 taught 'assert the mutation landed before reading the verdict' — a sed matching nothing prints output identical to a clean pass. T-326 found the next layer: the mutation landed (file sha moved, anchor occurrence asserted =1) and still produced no failure, because the thing mutated was ignored by the subject (an unknown CLI flag the test scripts silently accept). Landing is necessary and not sufficient. A teeth run must show the subject BEHAVING differently, not just the tree being different."
+  source: P-001
+  task: T-326
+  date: 2026-08-01
+  context: Added via context agent
+  application: TBD
+- id: PL-068
+  learning: "A gating suite that discards a failing leg's output converts every intermittent failure into an undiagnosable one: the run that failed leaves no evidence of its own cause, so it can only be re-run until green. Worse, re-invoking the subject to obtain something to print is right exactly once — under nondeterminism the second run can print a different, or clean, result than the run whose verdict is being explained. Capture once, print on failure only."
+  source: P-001
+  task: T-326
+  date: 2026-08-01
+  context: Added via context agent
+  application: TBD

@@ -4,20 +4,20 @@ name: "offpage-seam.bpmn carries <bpmn:linkEventThrow>, an element no emitter ca
 description: >
   T-321's vocabulary gate found 3 <bpmn:linkEventThrow> elements in tests/fixtures/aef-bpmn/offpage-seam.bpmn. That is not a BPMN element -- it is the canonical YAML type name sitting in the BPMN namespace. Neither emitter can produce it: the bridge (TYPE_MAP) and the designer (TYPE_TAG) both rename linkEventThrow to intermediateThrowEvent on export, so these bytes cannot have come from our toolchain. The file is byte-pinned in tests/test_corpus_fixture_pins.py FULL_SHA and cross-validated by AEF plus tools/_offpage-seam-parity-verify.py, so it must NOT be edited unilaterally -- repair is a coordinated re-pin in lockstep with the peer, exactly as T-314 handled the lane-geometry defect in the fixtures they hold. Until then a COUNTED tolerance in test_corpus_fixture_pins.py admits exactly 3 findings, prints a NOTE every run, and fails the build on a 4th. Before the fix was possible this defect was invisible except as an I-XML-LANE-CAPACITY-SKIP note from an unrelated rule that refuses to guess occupancy.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: claude-code
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/fixtures/invalid/E-XML-NODE-TYPE.xml, tests/test_rule_form_parity.py, tests/test_xml_node_type_vocab.py, tools/_offpage-seam-parity-verify.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-01T13:50:30Z
-last_update: 2026-08-01T21:08:50Z
-date_finished: null
+last_update: 2026-08-01T21:28:09Z
+date_finished: 2026-08-01T21:28:09Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -66,7 +66,10 @@ Three `<bpmn:linkEventThrow>` host elements in the AEF-held fixture are not BPMN
       **EVIDENCE:** bridge round-trip **64 passed / 0 failed**; validator **43 passed / 0 failed**; geometry sweep **24 clean / 0 new-fail / 0 stale / 0 tool-err**; `pytest tests/` **19 passed**.
 - [x] Teeth: reverting one of the three rewrites (real tree, restored byte-identical afterwards) makes the node-type gate fire. Assert the mutation LANDED (occurrence count before the verdict) — a null result renders identically to a clean pass (L-321), and landing is necessary but not sufficient (L-326): confirm the gate's finding count actually moved.
       **EVIDENCE:** 2-leg driver on the real tree. Baseline validator rc=0/0 findings, pin rc=0. Mutation landed (1 open / 1 close asserted *before* any verdict). Leg (a) validator rc 0→2, `E-XML-NODE-TYPE` 0→1. Leg (b) pin test rc 0→1 **on a single reintroduced element**, and the failure text names the rule rather than only the sha — so it is not merely the byte-pin firing. Restored; sha compared, identical.
-- [ ] New sha256 announced to AEF on the rail WITH the bytes, naming what changed and what did not.
+- [x] New sha256 announced to AEF on the rail WITH the bytes, naming what changed and what did not.
+      **EVIDENCE:** rail offset **366** (reply to their 365). Delivered as the exact transformation + target sha + pullable commit `6d7f90f`, NOT as a 218-line paste: applying the rename to their copy and computing sha256 is self-verifying — a match proves byte-identity, a mismatch proves our copies diverged and must be investigated before they re-pin. A paste through the transport could alter whitespace or encoding and would prove nothing. `file_send` deliberately unused (their OBS-108 — refs only).
+
+**OUTSTANDING, and not blocking completion:** AEF's re-pin confirmation. Every criterion above is ours to satisfy and is satisfied; their confirmation is an external event with no agent AC. If their recomputed sha is NOT `f9422acd330d…`, that is a NEW finding (our copies diverged despite an identical starting digest) and gets its own task — it does not reopen this one.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -110,21 +113,35 @@ Three `<bpmn:linkEventThrow>` host elements in the AEF-held fixture are not BPMN
 # pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
 # past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
 #
-# ── T-324 verification (drafted at filing under a wrap-up budget; UNRUN.
-#    Re-check each one against the real tree before relying on it — the fixture
-#    path below comes from this task's own description, not from a fresh read. ──
+# ── T-324 verification. The draft written at filing was WRONG in two places and
+#    is corrected here; both errors are recorded rather than quietly fixed.
+#    (a) it asserted 3 x <bpmn:linkEventDefinition>, which the repair deliberately
+#        does NOT add — see the Evolution entry. Asserting it would have demanded
+#        the very element the fix exists to avoid.
+#    (b) `grep -qv PATTERN` does not mean "absent": -v inverts per LINE, so it
+#        succeeds whenever ANY line lacks the pattern — true of essentially every
+#        multi-line output. It would have passed with findings present. Replaced
+#        with an explicit count. This is a check that discriminates nothing,
+#        caught before it could report a false green. ──
 test -f tests/fixtures/aef-bpmn/offpage-seam.bpmn
-# the malformed element is gone entirely (anchored on the structural literal, not the bare word)
+# the malformed element is gone (structural literal — the bare word appears in prose and in type maps)
 test "$(grep -c '<bpmn:linkEventThrow' tests/fixtures/aef-bpmn/offpage-seam.bpmn)" = "0"
-# and was replaced 3-for-3, not dropped
-test "$(grep -c '<bpmn:linkEventDefinition' tests/fixtures/aef-bpmn/offpage-seam.bpmn)" = "3"
-# AEF's invariant: every aef:link child survived with its three attributes
-test "$(grep -c 'workflowRef=' tests/fixtures/aef-bpmn/offpage-seam.bpmn)" = "3"
-# the consumer their element-type-blind argument does NOT cover
-out=$(python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/offpage-seam.bpmn 2>&1); echo "$out" | grep -qv 'E-XML-NODE-TYPE'
-# the tolerance is DELETED, not decremented — anchored past its own explanatory comment (G-009)
-test "$(grep -vE '^[[:space:]]*#' tests/test_corpus_fixture_pins.py | grep -c 'linkEventThrow')" = "0"
+# replaced 3-for-3, not dropped: open and close tags both present
+test "$(grep -c '<bpmn:intermediateThrowEvent' tests/fixtures/aef-bpmn/offpage-seam.bpmn)" = "3"
+test "$(grep -c '</bpmn:intermediateThrowEvent>' tests/fixtures/aef-bpmn/offpage-seam.bpmn)" = "3"
+# and NO native eventDefinition was introduced — link-ness rides on aef:link by design
+test "$(grep -c 'linkEventDefinition' tests/fixtures/aef-bpmn/offpage-seam.bpmn)" = "0"
+# AEF's invariant: all three aef:link children survived (2 uuid-bearing + 1 legacy slug)
+test "$(grep -c '<aef:link ' tests/fixtures/aef-bpmn/offpage-seam.bpmn)" = "3"
+# the consumer AEF's element-type-blind argument does NOT cover — count, not grep -qv
+out=$(python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/offpage-seam.bpmn 2>&1); test "$(echo "$out" | grep -c 'E-XML-NODE-TYPE')" = "0"
+# both sha pins moved together — missing either one is the failure mode this catches
+test "$(grep -c 'f9422acd330d240dec384591753782dde940289cc94475f22be96aa1551d0c5c' tests/test_corpus_fixture_pins.py)" = "1"
+test "$(grep -c 'f9422acd330d240dec384591753782dde940289cc94475f22be96aa1551d0c5c' tools/_offpage-seam-parity-verify.py)" = "1"
+# the tolerance entry is DELETED, not decremented — anchored past its own explanatory prose (G-009)
+test "$(grep -vE '^[[:space:]]*#' tests/test_corpus_fixture_pins.py | grep -c 'E-XML-NODE-TYPE')" = "0"
 python3 tools/_offpage-seam-parity-verify.py
+python3 tests/test_corpus_fixture_pins.py
 tests/run-bridge-tests.sh
 #
 # Pipefail/SIGPIPE hint (L-387): P-011 runs each command under `set -eo pipefail`.
@@ -248,3 +265,15 @@ tests/run-bridge-tests.sh
 
 ### 2026-08-01T21:08:29Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6dfb2229
+- **Timestamp:** 2026-08-01T21:29:25Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-01T21:28:09Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
