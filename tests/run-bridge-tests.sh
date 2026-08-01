@@ -474,6 +474,23 @@ else
 fi
 
 echo
+echo "== Harness emitter fidelity (T-327) =="
+# Every <bpmn:*> element a harness synthesises must be one our EMITTERS can
+# produce. Otherwise the harness proves the consumer handles a document shape
+# that never occurs and says nothing about the shape it does — which is worse
+# than an absent guard, because an absent guard does not report. Permitted set
+# is DERIVED from both emitters (XML_NODE_TYPES + their own scaffolding
+# literals), never hand-written: after T-324 no corpus file contains
+# linkEventThrow, so a corpus-derived check would have nothing left to say about
+# it while the emitters still cannot produce it.
+if python3 "$ROOT/tests/test_harness_emitter_fidelity.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "a harness synthesises a <bpmn:*> element neither emitter can produce, or a declared tolerance stopped describing the tree (T-327)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Runner-orphan guard (T-316) =="
 # The guard for the class above: any collectable test file (test_*.py, *_test.py,
 # *.bats) that this runner does not invoke is a finding. Checks membership in

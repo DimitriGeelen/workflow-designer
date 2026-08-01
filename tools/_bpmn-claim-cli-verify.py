@@ -51,11 +51,16 @@ def bpmn(map_id, title, workflow_uuid=None, ref_uuid=None):
     meta_uuid = (' uuid="%s"' % workflow_uuid) if workflow_uuid else ''
     link = ''
     if ref_uuid:
-        link = ('    <bpmn:task id="node1" name="node one">\n'
+        # T-327: <bpmn:task> is legal BPMN but NEITHER emitter produces a bare
+        # `task` — they emit serviceTask/userTask/scriptTask, and an <aef:link>
+        # host specifically as intermediateThrowEvent. Milder than the
+        # linkEventThrow class (that tag is not BPMN at all) but the same defect:
+        # asserting the ref-scan against a document shape we cannot emit.
+        link = ('    <bpmn:intermediateThrowEvent id="node1" name="node one">\n'
                 '      <bpmn:extensionElements>\n'
                 '        <aef:link workflowRef="%s" name="ghost-name"/>\n'
                 '      </bpmn:extensionElements>\n'
-                '    </bpmn:task>\n' % ref_uuid)
+                '    </bpmn:intermediateThrowEvent>\n' % ref_uuid)
     return (
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"\n'

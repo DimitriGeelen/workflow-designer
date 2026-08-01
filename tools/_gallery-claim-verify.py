@@ -43,9 +43,12 @@ def bpmn(name, uuid=None, uuid_links=None):
     nodes = ''
     for nid, nname, wref, rname in (uuid_links or []):
         rn = (' name="%s"' % rname) if rname else ''
-        nodes += ('<bpmn:linkEventThrow id="%s" name="%s"><bpmn:extensionElements>'
+        # T-327: host tag must be one an emitter can actually produce. Both
+        # emitters render a linkEventThrow node as <bpmn:intermediateThrowEvent>
+        # (bridge TYPE_MAP, designer TYPE_TAG) with link-ness on <aef:link>.
+        nodes += ('<bpmn:intermediateThrowEvent id="%s" name="%s"><bpmn:extensionElements>'
                   '<aef:link workflowRef="%s"%s/></bpmn:extensionElements>'
-                  '</bpmn:linkEventThrow>' % (nid, nname, wref, rn))
+                  '</bpmn:intermediateThrowEvent>' % (nid, nname, wref, rn))
     return ('<?xml version="1.0"?><bpmn:definitions xmlns:bpmn="x" %s>'
             '<bpmn:process id="Pool_x" name="%s">%s%s</bpmn:process>'
             '</bpmn:definitions>' % (AEF_NS, name, meta, nodes))

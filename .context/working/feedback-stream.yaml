@@ -3509,3 +3509,21 @@ scan_id: R-6dfb2229
 task_id: T-324
 payload:
   task_file: .tasks/active/T-324-offpage-seambpmn-carries-bpmnlinkeventth.md
+---
+kind: scan_emitted
+timestamp: '2026-08-01T21:44:45Z'
+scan_id: R-779f6ccb
+task_id: T-327
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-01T21:44:45Z'
+scan_id: R-779f6ccb
+task_id: T-327
+payload:
+  task_file: .tasks/active/T-327-gallery-verify-harnesses-synthesise-bpmn.md

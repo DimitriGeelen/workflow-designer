@@ -58,9 +58,10 @@ def bpmn(name, uuid=None, links=None):
         # Nest <aef:link> inside <bpmn:extensionElements> like the editor does, so
         # the test exercises the host-node ancestor climb (the id is on the event,
         # not on the link's direct parent).
-        nodes += ('<bpmn:linkEventThrow id="%s" name="%s"><bpmn:extensionElements>'
+        # T-327: emitter-producible host tag (see tools/_gallery-claim-verify.py).
+        nodes += ('<bpmn:intermediateThrowEvent id="%s" name="%s"><bpmn:extensionElements>'
                   '<aef:link workflowRef="%s"%s/></bpmn:extensionElements>'
-                  '</bpmn:linkEventThrow>' % (nid, nname, wref, rn))
+                  '</bpmn:intermediateThrowEvent>' % (nid, nname, wref, rn))
     return ('<?xml version="1.0"?><bpmn:definitions xmlns:bpmn="x" %s>'
             '<bpmn:process id="Pool_x" name="%s">%s%s</bpmn:process>'
             '</bpmn:definitions>' % (AEF_NS, name, meta, nodes))

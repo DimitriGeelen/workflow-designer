@@ -49,13 +49,14 @@ def bpmn(name, uuid=None, uuid_links=None, legacy_links=None):
     nodes = ''
     for nid, nname, wref, rname in (uuid_links or []):
         rn = (' name="%s"' % rname) if rname else ''
-        nodes += ('<bpmn:linkEventThrow id="%s" name="%s"><bpmn:extensionElements>'
+        # T-327: emitter-producible host tag (see tools/_gallery-claim-verify.py).
+        nodes += ('<bpmn:intermediateThrowEvent id="%s" name="%s"><bpmn:extensionElements>'
                   '<aef:link workflowRef="%s"%s/></bpmn:extensionElements>'
-                  '</bpmn:linkEventThrow>' % (nid, nname, wref, rn))
+                  '</bpmn:intermediateThrowEvent>' % (nid, nname, wref, rn))
     for nid, nname, slug in (legacy_links or []):
-        nodes += ('<bpmn:linkEventThrow id="%s" name="%s"><bpmn:extensionElements>'
+        nodes += ('<bpmn:intermediateThrowEvent id="%s" name="%s"><bpmn:extensionElements>'
                   '<aef:link targetWorkflow="%s"/></bpmn:extensionElements>'
-                  '</bpmn:linkEventThrow>' % (nid, nname, slug))
+                  '</bpmn:intermediateThrowEvent>' % (nid, nname, slug))
     return ('<?xml version="1.0"?><bpmn:definitions xmlns:bpmn="x" %s>'
             '<bpmn:process id="Pool_x" name="%s">%s%s</bpmn:process>'
             '</bpmn:definitions>' % (AEF_NS, name, meta, nodes))
