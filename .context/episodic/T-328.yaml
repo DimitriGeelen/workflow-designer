@@ -1,0 +1,94 @@
+# ============================================================================
+# EPISODIC MEMORY - T-328: Cross-form behavioural agreement: prove paired validator rules AGREE, not merely that both forms name them
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-01T23:02:29Z
+# ============================================================================
+
+task_id: T-328
+task_name: "Cross-form behavioural agreement: prove paired validator rules AGREE, not merely that both forms name them"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-01T22:43:26Z
+completed: 2026-08-01T23:01:01Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-02T00:48:13+02:00
+last_commit: 2026-08-02T01:00:54+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  spike measures cross-form agreement BEFORE the harness — 12 agree, 6 do not, and the 6 are three different things. spike escalation — file T-329 for the E-AUTHORITY coverage hole (one bug = one task). two budget instruments disagree by 111K and the docs call one of them 'exact'. cross-form agreement guard — 19 pairs compared, and the drift guard caught my own omission on its first run. teeth — 5 legs, each red for its OWN branch, tree restored byte-identical
+
+# Key outcomes
+outcomes:
+  - '**AC1 — The pair table is DECLARED, never parsed out of `PARITY`''s prose.** Measured first'
+  - '**AC2 — That table is drift-guarded BIDIRECTIONALLY against `PARITY`.** Every rule classified'
+  - '**AC3 — For every behaviourally-testable pair, the SAME document is driven through both forms'
+  - '**AC4 — Untestable pairs are DECLARED with a reason, PRINTED every run, and COUNT-ASSERTED.**'
+  - '**AC5 — Teeth prove the harness DISCRIMINATES, not merely that it fires (PL-070).** Mutate one'
+  - '**AC6 — Negative control: the unmutated tree is GREEN, and the green is falsifiable.** Includes'
+  - '**AC7 — Wired into the GATING runner** (`tests/run-bridge-tests.sh`), not merely present on'
+  - '**AC8 — The known latent divergence is dispositioned explicitly, not left implicit.**'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'spike escalation — file T-329 for the E-AUTHORITY coverage hole (one bug = one task)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-328-cross-form-behavioural-agreement-prove-p.md'
+  - '.tasks/active/T-329-e-authority-has-no-bpmn-form-counterpart.md'
+  - '.tasks/active/T-330-xml-form-has-no-shape-checks-for-lanes-o.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_harness_cross_form_agreement.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-02T00:48:13"
+    action: "T-328: spike measures cross-form agreement BEFORE the harness — 12 agree, 6 do not, and the 6 are three different things"
+  - time: "2026-08-02T00:50:24"
+    action: "T-328: spike escalation — file T-329 for the E-AUTHORITY coverage hole (one bug = one task)"
+  - time: "2026-08-02T00:52:38"
+    action: "T-328: two budget instruments disagree by 111K and the docs call one of them 'exact'"
+  - time: "2026-08-02T00:57:11"
+    action: "T-328: cross-form agreement guard — 19 pairs compared, and the drift guard caught my own omission on its first run"
+  - time: "2026-08-02T01:00:54"
+    action: "T-328: teeth — 5 legs, each red for its OWN branch, tree restored byte-identical"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 17 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 17
+  commits: 5
+  files_changed: 6
+  lines_added: 1041
+  lines_removed: 9
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-328-cross-form-behavioural-agreement-prove-p.md
+generated_by: context-agent-hybrid

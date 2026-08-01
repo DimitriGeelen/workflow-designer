@@ -4,10 +4,10 @@ name: "Cross-form behavioural agreement: prove paired validator rules AGREE, not
 description: >
   The T-320 parity guard extracts rule IDs from each validator class's source span and never validates a document, so PAIRED proves both forms NAME a rule, never that the two implementations agree about when it fires. T-309 IW-2 found a live latent instance: W-GW-AMBIGUOUS tests falsy (not e.get('condition')) while W-XML-GW-AMBIGUOUS tests existence (find(conditionExpression) is None), so an empty condition reads unconditioned on one form and conditioned on the other. Currently unreachable (both emitters truthiness-gated, 0 empty elements in 100 carrying files) and therefore latent, not dead. Build a harness that drives the SAME document through both forms via yaml-to-bpmn.py and asserts the paired rules return the same verdict.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-01T22:43:26Z
-last_update: 2026-08-01T22:57:11Z
-date_finished: null
+last_update: 2026-08-01T23:01:01Z
+date_finished: 2026-08-01T23:01:01Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -272,3 +272,15 @@ out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "bridge round-
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-328-cross-form-behavioural-agreement-prove-p.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e4125c5f
+- **Timestamp:** 2026-08-01T23:02:27Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-01T23:01:01Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
