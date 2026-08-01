@@ -4,20 +4,20 @@ name: "Census OUT_OF_SCOPE classifications rest on corpus counts where the discr
 description: >
   T-320's parity census classifies a rule OUT_OF_SCOPE when no file on the other form CARRIES the construct today. That is a corpus count, and the census's own two-axis rule forbids using one to classify: 'a gap with zero violations is still a gap'. Applied to the GAP rows, not to the OUT_OF_SCOPE rows -- the discipline itself was one-form-only. Proof: aef:scopeOf is in the shared canonical vocabulary (tools/yaml-to-bpmn.py META_KEYS, designer metaKeys src:9283) and the bridge emits it as <aef:meta scopeOf=...>. A subProcess with scopeOf pointing at itself is ERROR E-SCOPEOF-SELF rc=2 on the YAML form and VALID rc=0 on the BPMN bridged from those same bytes. So the ONLY entry the census called correctly out of scope is a GAP: 9 gap families, zero correctly out of scope. Fix is to the DISCRIMINATOR and the probes -- OUT_OF_SCOPE must mean the form cannot EXPRESS the construct (vocabulary/schema absence), and OUT_OF_SCOPE_PROBES must probe the vocabulary, not the corpus. Corpus carriers stay as priority signal only.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: claude-code
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tests/fixtures/invalid/E-INCEPTION-NOT-SOVEREIGN.xml, tests/fixtures/warn/W-TYPE-LANE-MISMATCH.xml, tests/test_rule_form_parity.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-01T10:11:28Z
-last_update: 2026-08-01T10:28:08Z
-date_finished: null
+last_update: 2026-08-01T10:35:47Z
+date_finished: 2026-08-01T10:35:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -258,3 +258,20 @@ grep -q "8 gap families / 12 gap rule ids / 0 out of scope" docs/reports/T-320-r
 ### 2026-08-01T10:28:08Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9177f226
+- **Timestamp:** 2026-08-01T10:37:02Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — Probes interrogate the VOCABULARY: `_aef_vocabulary()` **imports** `KNOWN_AEF_KEYS` from `tools/yaml-to-bpmn.py` (44 keys) rather than hand-copying it, so it cannot drift from the code that decides wh
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/yaml-to-bpmn.py in: Probes interrogate the VOCABULARY: `_aef_vocabulary()` **imports** `KNOWN_AEF_KEYS` from `tools/yaml-to-bpmn.py` (44 keys) rather than hand-copying it`
+
+### 2026-08-01T10:35:47Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

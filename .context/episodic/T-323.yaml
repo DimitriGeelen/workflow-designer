@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-323: Census OUT_OF_SCOPE classifications rest on corpus counts where the discriminator requires expressibility (scopeOf is a GAP, not out of scope)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-01T10:37:04Z
+# ============================================================================
+
+task_id: T-323
+task_name: "Census OUT_OF_SCOPE classifications rest on corpus counts where the discriminator requires expressibility (scopeOf is a GAP, not out of scope)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-01T10:11:28Z
+completed: 2026-08-01T10:35:47Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-01T12:35:40+02:00
+last_commit: 2026-08-01T12:35:40+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  out-of-scope means INEXPRESSIBLE, not unused — the census probes were asking the corpus
+
+# Key outcomes
+outcomes:
+  - 'The OUT-OF-SCOPE discriminator is restated in `tests/test_rule_form_parity.py` as **expressibility, not corpus presence**, in a `HOW TO CLASSIFY A NEW RULE` block sitting immediately above the `PARITY` table — where someone adding an entry will read it, not in a report they may never open.'
+  - 'Probes interrogate the VOCABULARY: `_aef_vocabulary()` **imports** `KNOWN_AEF_KEYS` from `tools/yaml-to-bpmn.py` (44 keys) rather than hand-copying it, so it cannot drift from the code that decides what crosses between the forms. A missing file or an empty/renamed vocabulary RAISES. Original AC text: a probe reports whether the other form can express the construct, resolved from the live vocabulary (imported, not a hand-copied list, so it cannot drift from the bridge). A probe that cannot resolve its vocabulary RAISES rather than returning "absent".'
+  - 'Done — `EXPECTED_GAPS` 9 → 12, arithmetic re-derived in the comment; census table, headline and correction block now state ONE number set — 8 gap families / 12 gap rule ids / 0 out of scope — with the families-vs-ids distinction spelled out, because the guard counts ids and the report counts families. Reconciling them surfaced a pre-existing discrepancy: `E-XML-ID-DUP` was in the guard''s arithmetic and output but had no table row; row added. Original AC text: The three `scopeOf` rules are reclassified GAP with `EXPECTED_GAPS` re-derived, and the census artifact''s table + headline match the guard exactly (no third number anywhere).'
+  - 'Measured, not asserted: `scopeOf` ∈ `KNOWN_AEF_KEYS`; bridging a YAML map carrying it emits `scopeOf="n_capture"` into the BPMN bytes; that BPMN then validates `VALID — no findings` rc=0 while the YAML source is `ERROR [E-SCOPEOF-SELF]` rc=2. Original AC text: The reclassification is justified by measurement recorded in the task, not by assertion: `scopeOf` present in the canonical vocabulary AND emitted through the bridge into BPMN bytes.'
+  - 'Control (b) rewritten to the new semantics and (f) added; both proven RED by mutation (neutering the expressibility check, and making the vocabulary resolve silently to empty). Control (c) unchanged and still red. Original AC text: (i) an OUT-OF-SCOPE entry whose construct IS expressible fails; (ii) an OUT-OF-SCOPE entry with no probe still fails; (iii) a probe whose vocabulary cannot be resolved fails rather than passing silently.'
+  - 'Recorded explicitly: `OUT_OF_SCOPE_PROBES` is now **empty** — after the repair no rule in the table is out of scope — so the machinery is exercised ONLY by controls (b), (c) and (f), which synthesise entries. That is stated in the code comment rather than left for a reader to discover. Original AC text: Vacuity guarded: with zero OUT-OF-SCOPE entries remaining, the probe machinery must still be exercised (by the controls) — a suite that would pass with the probe code deleted is recorded as such, or the machinery is made unreachable-proof.'
+  - 'Guard: `45 rules classified, 12 gaps, 0 out-of-scope re-measured against a 44-key vocabulary (96 authored bpmn walked for priority only)`. Bridge 62 passed / 0 failed; validator 42 passed / 0 failed.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-320-rule-form-parity-census.md'
+  - '.tasks/active/T-323-census-outofscope-classifications-rest-o.md'
+  - '.tasks/completed/T-322-iw-9-authority-rules-exist-only-on-the-x.md'
+  - 'tests/test_rule_form_parity.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-01T12:35:40"
+    action: "T-323: out-of-scope means INEXPRESSIBLE, not unused — the census probes were asking the corpus"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 24 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 24
+  commits: 1
+  files_changed: 4
+  lines_added: 285
+  lines_removed: 64
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-323-census-outofscope-classifications-rest-o.md
+generated_by: context-agent-hybrid

@@ -1,13 +1,13 @@
-error-watchdog=3
+error-watchdog=18
 
 
 error-watchdog=1
-checkpoint=5
-check-tier0=4
-budget-gate=5
-check-project-boundary=5
-check-active-task=5
-loop-detect=4
-check-human-ac-tick=1
-commit-cadence=1
-audit-task-tools=3
+checkpoint=40
+check-tier0=19
+budget-gate=32
+check-project-boundary=33
+check-active-task=33
+loop-detect=39
+check-human-ac-tick=14
+commit-cadence=11
+audit-task-tools=37

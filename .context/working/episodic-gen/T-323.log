@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-01T10:37:04Z ===
+task_id: T-323
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-323.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Census OUT_OF_SCOPE classifications rest on corpus counts where the discriminator requires expressibility (scopeOf is a GAP, not out of scope)
+  Duration: 0 days (24 min)
+  Updates: 2
+  Commits: 1
+  Lines: +285 -64 across 4 files
+  Outcomes: 7 AC checked
+  Artifacts: 4 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-323-census-outofscope-classifications-rest-o.md
+--- exit code: 0 ---

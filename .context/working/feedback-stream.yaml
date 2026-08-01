@@ -3419,3 +3419,21 @@ scan_id: R-589416a7
 task_id: T-322
 payload:
   task_file: .tasks/active/T-322-iw-9-authority-rules-exist-only-on-the-x.md
+---
+kind: scan_emitted
+timestamp: '2026-08-01T10:37:02Z'
+scan_id: R-9177f226
+task_id: T-323
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-01T10:37:02Z'
+scan_id: R-9177f226
+task_id: T-323
+payload:
+  task_file: .tasks/active/T-323-census-outofscope-classifications-rest-o.md
