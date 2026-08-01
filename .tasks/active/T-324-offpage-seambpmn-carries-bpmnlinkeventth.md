@@ -4,10 +4,10 @@ name: "offpage-seam.bpmn carries <bpmn:linkEventThrow>, an element no emitter ca
 description: >
   T-321's vocabulary gate found 3 <bpmn:linkEventThrow> elements in tests/fixtures/aef-bpmn/offpage-seam.bpmn. That is not a BPMN element -- it is the canonical YAML type name sitting in the BPMN namespace. Neither emitter can produce it: the bridge (TYPE_MAP) and the designer (TYPE_TAG) both rename linkEventThrow to intermediateThrowEvent on export, so these bytes cannot have come from our toolchain. The file is byte-pinned in tests/test_corpus_fixture_pins.py FULL_SHA and cross-validated by AEF plus tools/_offpage-seam-parity-verify.py, so it must NOT be edited unilaterally -- repair is a coordinated re-pin in lockstep with the peer, exactly as T-314 handled the lane-geometry defect in the fixtures they hold. Until then a COUNTED tolerance in test_corpus_fixture_pins.py admits exactly 3 findings, prints a NOTE every run, and fails the build on a 4th. Before the fix was possible this defect was invisible except as an I-XML-LANE-CAPACITY-SKIP note from an unrelated rule that refuses to guess occupancy.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: claude-code
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-01T13:50:30Z
-last_update: 2026-08-01T13:50:30Z
+last_update: 2026-08-01T21:08:29Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,30 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Three `<bpmn:linkEventThrow>` host elements in the AEF-held fixture are not BPMN at all — they are our canonical YAML type name sitting in the BPMN namespace, and neither emitter can produce them. **AEF signalled GO on the rail at offset 363 (2026-08-01); their reply is answered at 364.** Repair is a coordinated re-pin in lockstep with the peer, T-314 shape.
+
+**What AEF stated at 363 (their side, taken as given, not re-verified by us):**
+- Their copy is `tests/fixtures/832/pair-draft-3.bpmn` — believed to be the same bytes under a different name. sha256 `0bc15bfac81d80cc13df527a09056dda6170def304d5a43c038bb504b691449d`, pin green, 5 tests passing.
+- Their Pass 5 (`tools/bpmn_to_tasks.py:650`) classifies off-page legs purely from `<aef:link>` attributes and finds the host by walking to the nearest ancestor carrying an id. **The element type is never inspected**, so the host tag may be rewritten freely.
+- The only invariants they require preserved: the `<aef:link>` child with `workflowRef` / `targetWorkflow` / `name` intact, and the host element keeping its `id` and `name`.
+- They re-pin on announcement of the new sha256 with the bytes, per their fixtures README.
+
+**Scope discipline — same-artifact is NOT established.** Only the 12-char prefix `0bc15bfac81d` matches what we recorded. Twelve characters of agreement is not identity. AC1 verifies the full 64 before any bytes are sent; if they diverge, AEF hears that instead of bytes.
+
+**Their safety argument is sound but narrower than they wrote it.** Element-type-blindness in Pass 5 entails both "this correction is safe" and "so would any other rename be" — one fact, two sentences. Safety therefore holds **for the forward compile and for nothing else not separately checked**. Any consumer that does read element type is untouched by it — our own node-type gate (T-321) is exactly such a consumer, which is why this surfaced our side and not theirs. So our own validator run (AC4) is a real check, not a formality.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Full 64-char sha256 of our fixture is captured and compared against AEF's `0bc15bfac81d80cc13df527a09056dda6170def304d5a43c038bb504b691449d`. If they differ, STOP: post the divergence to the rail and do not send bytes — the artifacts are not the same file and the re-pin plan does not apply as written.
+- [ ] Exactly 3 `<bpmn:linkEventThrow>` host elements are rewritten to `<bpmn:intermediateThrowEvent>` + a `<bpmn:linkEventDefinition>` child. No other element, attribute, or byte in the file is changed.
+- [ ] AEF's two invariants hold in the corrected bytes: each rewritten host retains its `id` and `name`, and its `<aef:link>` child retains `workflowRef`, `targetWorkflow` and `name` unchanged. Verified by diffing the attribute sets, not by reading.
+- [ ] The corrected fixture validates clean under `tools/validate-workflow.py` — zero `E-XML-NODE-TYPE` findings (this is the consumer AEF's element-type-blind argument does NOT cover).
+- [ ] The counted tolerance in `tests/test_corpus_fixture_pins.py` that admits exactly 3 findings is DELETED, not decremented to zero — T-314 shape: when the reason for a tolerance is gone, the tolerance goes with it. A reintroduced malformed element must fail the build on the first instance, not the fourth.
+- [ ] `FULL_SHA` for this fixture is updated to the new digest and `tools/_offpage-seam-parity-verify.py` passes against the corrected bytes.
+- [ ] Gating suite green: `tests/run-bridge-tests.sh` and the validator suite, both 0 failed, counts recorded in this task.
+- [ ] Teeth: reverting one of the three rewrites (real tree, restored byte-identical afterwards) makes the node-type gate fire. Assert the mutation LANDED (occurrence count before the verdict) — a null result renders identically to a clean pass (L-321), and landing is necessary but not sufficient (L-326): confirm the gate's finding count actually moved.
+- [ ] New sha256 announced to AEF on the rail WITH the bytes, naming what changed and what did not.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -84,6 +100,23 @@ date_finished: null
 # *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
 # pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
 # past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
+#
+# ── T-324 verification (drafted at filing under a wrap-up budget; UNRUN.
+#    Re-check each one against the real tree before relying on it — the fixture
+#    path below comes from this task's own description, not from a fresh read. ──
+test -f tests/fixtures/aef-bpmn/offpage-seam.bpmn
+# the malformed element is gone entirely (anchored on the structural literal, not the bare word)
+test "$(grep -c '<bpmn:linkEventThrow' tests/fixtures/aef-bpmn/offpage-seam.bpmn)" = "0"
+# and was replaced 3-for-3, not dropped
+test "$(grep -c '<bpmn:linkEventDefinition' tests/fixtures/aef-bpmn/offpage-seam.bpmn)" = "3"
+# AEF's invariant: every aef:link child survived with its three attributes
+test "$(grep -c 'workflowRef=' tests/fixtures/aef-bpmn/offpage-seam.bpmn)" = "3"
+# the consumer their element-type-blind argument does NOT cover
+out=$(python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/offpage-seam.bpmn 2>&1); echo "$out" | grep -qv 'E-XML-NODE-TYPE'
+# the tolerance is DELETED, not decremented — anchored past its own explanatory comment (G-009)
+test "$(grep -vE '^[[:space:]]*#' tests/test_corpus_fixture_pins.py | grep -c 'linkEventThrow')" = "0"
+python3 tools/_offpage-seam-parity-verify.py
+tests/run-bridge-tests.sh
 #
 # Pipefail/SIGPIPE hint (L-387): P-011 runs each command under `set -eo pipefail`.
 # `cmd | grep -q PATTERN` exits 141 (SIGPIPE) when grep matches and closes stdin
@@ -174,3 +207,12 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-324-offpage-seambpmn-carries-bpmnlinkeventth.md
 - **Context:** Initial task creation
+
+### 2026-08-01T21:10Z — UNBLOCKED: AEF signalled GO on the rail
+- **Action:** Read rail offset 363 (AEF), replied at 364. Wrote real ACs + Verification. Horizon next → now.
+- **Blocker cleared:** This task was gated on AEF's signal. They gave it, plus the two facts that make the repair safe on their side (Pass 5 is element-type-blind; the invariants are the `<aef:link>` attributes and the host's id/name).
+- **NOT done, and deliberately:** no bytes touched, no sha verified, no test run. The session hit the budget gate (307K, ~102%) while reading the rail — Bash and source Write/Edit are blocked. Everything above is a record of an inbound signal, not work claimed.
+- **First action next session:** verify the full 64-char sha against AEF's before anything else. Same-artifact is an assumption, not a finding.
+
+### 2026-08-01T21:08:29Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
