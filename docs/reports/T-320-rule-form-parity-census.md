@@ -72,7 +72,7 @@ Residue, measured over 25 canonical YAML maps and 96 authored BPMN files
 | `E-SCOPEOF-SELF` / `E-SCOPEOF-DANGLING` / `W-SCOPEOF-TYPE` | YAML→XML | `aef:scopeOf`, **0/96 authored — but in the shared vocabulary** | ~~out of scope~~ **GAP** (overturned, see below) | 0 |
 | `W-IO-INPUT` | YAML→XML | declared io, **17/96** bpmn | **GAP** | not probed |
 | `E-ABBR-DUP` | YAML→XML | lane `abbr`, **96/96** bpmn | **GAP** | 0 |
-| `E-NODE-TYPE` | YAML→XML | typed flow elements, **96/96** | **GAP** | see below |
+| `E-NODE-TYPE` | YAML→XML | typed flow elements, **96/96** | ~~GAP~~ **CLOSED T-321** | 0 |
 | `W-TYPE-LANE-MISMATCH` | XML→YAML | authority + task-type, **24/24** yaml | ~~GAP~~ **CLOSED T-322** | 0 |
 | `E-INCEPTION-NOT-SOVEREIGN` | XML→YAML | ~~`workflowType=inception`, 2/24 yaml~~ **0/26 authored — in the canonical vocabulary** (corrected, see below) | ~~GAP~~ **CLOSED T-322** | 0 |
 | `W-XML-LANE-GEOMETRY` | XML→YAML | node `y`, **24/24** yaml | **GAP** | 0 |
@@ -86,10 +86,10 @@ Residue, measured over 25 canonical YAML maps and 96 authored BPMN files
 > **Counting, stated once so nothing here reads as a second number.** The guard's
 > `EXPECTED_GAPS` counts **rule ids**; this table counts **families** (the three
 > `scopeOf` ids are one family, as are the three `constituents` ids). As of
-> 2026-08-01: **8 gap families / 12 gap rule ids / 0 out of scope.** The path
+> 2026-08-01: **7 gap families / 11 gap rule ids / 0 out of scope.** The path
 > there: 8 families at first publication → 9 when `scopeOf` was overturned below
-> → **8** after T-322 closed `W-TYPE-LANE-MISMATCH` and
-> `E-INCEPTION-NOT-SOVEREIGN`.
+> → 8 after T-322 closed `W-TYPE-LANE-MISMATCH` and
+> `E-INCEPTION-NOT-SOVEREIGN` → **7** after T-321 closed `E-NODE-TYPE`.
 >
 > One more discrepancy found while reconciling those two figures, and it is
 > pre-existing rather than introduced here: the table below has always been
@@ -131,8 +131,9 @@ Residue, measured over 25 canonical YAML maps and 96 authored BPMN files
 > forms; an unresolvable vocabulary **raises** instead of answering "not
 > expressible", because that silent answer would read as *correctly out of scope*
 > for every rule in the table. The three `scopeOf` rules are now GAPs and
-> **`EXPECTED_GAPS` is 12** — the count went up because the census got more
-> honest, not because anything regressed. Negative control (b) was rewritten to
+> **`EXPECTED_GAPS` went to 12** — up, because the census got more
+> honest, not because anything regressed. (It is **11** now; T-321 closed
+> `E-NODE-TYPE` later the same day. The live number is always the guard's.) Negative control (b) was rewritten to
 > the new semantics and (f) added for the unresolvable-vocabulary path; both
 > proven RED by mutation. Note the old control (b) *could not* have caught this:
 > it asked whether the corpus carried the construct, the corpus carried none, and
@@ -169,6 +170,42 @@ either half now fails it. Before that it did not — the deletion mutation ran g
 because the surviving XML half kept the id alive and the stale-entry check only
 fires when no validator emits it at all. A parity claim nothing enforces is the
 same false green this census exists to remove.
+
+## `E-NODE-TYPE` — CLOSED by T-321, and the census's reasoning here was half wrong
+
+The gap was real and the mutation below still reproduces it on the pre-T-321 build.
+But the paragraph after it — "the XML vocabulary is a genuine superset
+(catch/throw/boundary events, 19 occurrences in 8 fixtures)" — was the wrong
+diagnosis, and it would have produced the wrong fix.
+
+Measured over 96 authored BPMN and **both** emitters (`tools/yaml-to-bpmn.py`
+`TYPE_MAP`; the designer's `TYPE_TAG`, `src:9230ff`), which turn out to produce
+**exactly the same 10 element names as each other**:
+
+| | |
+|---|---|
+| `intermediateCatchEvent` (10 occ) / `intermediateThrowEvent` (7 occ) | **not extra vocabulary** — they are what `linkEventCatch` / `linkEventThrow` (and `eventError`/`eventTimer`/`eventMessage`) are *called* on this form. A **translation**, not a superset. |
+| `boundaryEvent` (2 occ, 1 fixture) | the **only** genuine extension: legal BPMN, read by the designer's import path, producible by neither emitter. |
+| `linkEventThrow` (3 occ, 1 fixture) | **not a superset member and not legal BPMN** — the YAML type name sitting in the BPMN namespace. See below. |
+
+So the census's "19 occurrences in 8 fixtures" conflated three different things.
+Its *operational* conclusion held — copying `NODE_TYPES` verbatim would indeed have
+hard-failed eight fixtures — but for a reason it had not identified, and a fix
+built on "declare a superset" would have hand-written a second vocabulary beside
+the first. The shipped fix instead **derives** the XML set:
+`{XML_TYPE_MAP.get(t, t) for t in NODE_TYPES} | XML_ONLY_NODE_TYPES`, with
+`XML_ONLY_NODE_TYPES == {"boundaryEvent"}` and a drift guard
+(`tests/test_xml_node_type_vocab.py`) asserting the translation still agrees with
+**both** emitters — agreement with one is not agreement.
+
+**Day-one true positive, on bytes we may not touch.** The new gate immediately
+fired on `tests/fixtures/aef-bpmn/offpage-seam.bpmn`: 3 × `<bpmn:linkEventThrow>`,
+an element neither emitter can write, in a file that is **byte-pinned** and
+cross-validated by AEF. Admitted as a **counted tolerance** (prints every run, the
+count is asserted, a 4th fails the build) and filed as **T-324** for a coordinated
+re-pin — the same shape as T-314. Before this gate the only witness was an
+`I-XML-LANE-CAPACITY-SKIP` note from the lane-capacity rule, which noticed solely
+because T-313 built it to refuse to guess an occupancy it does not know.
 
 ## `E-NODE-TYPE`: the gap, and why the naive fix is wrong
 

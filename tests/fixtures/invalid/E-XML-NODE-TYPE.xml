@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-321: the XML form's flow-node vocabulary gate. n_typo is <bpmn:serviceTaks>,
+     a plain typo, which validated CLEAN at rc=0 before this rule existed — the
+     only witness was an INFO skip-note from the lane-capacity rule, which
+     noticed solely because T-313 built it to refuse to guess an occupancy it
+     does not know.
+
+     n_boundary is the silence control that has to sit in the same file:
+     <bpmn:boundaryEvent> is legal BPMN that NEITHER of our emitters can produce,
+     and it is the one member of XML_ONLY_NODE_TYPES. It must NOT fire. Without
+     it, a gate built by copying the YAML NODE_TYPES across would pass this
+     fixture while hard-failing eight real ones. -->
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_t321" targetNamespace="http://anchorpoint.framework/aef">
+  <bpmn:process id="Process_t321" name="t321" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_t321">
+      <bpmn:lane id="agent" name="Agent">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="220"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_typo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_boundary</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>n_end</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="n_start" name="Start">
+      <bpmn:extensionElements><aef:position x="100" y="100"/></bpmn:extensionElements>
+    </bpmn:startEvent>
+    <bpmn:serviceTaks id="n_typo" name="Typo'd element">
+      <bpmn:extensionElements><aef:position x="260" y="90"/></bpmn:extensionElements>
+    </bpmn:serviceTaks>
+    <bpmn:boundaryEvent id="n_boundary" name="Legal, unproducible, must stay silent">
+      <bpmn:extensionElements><aef:position x="440" y="100"/></bpmn:extensionElements>
+    </bpmn:boundaryEvent>
+    <bpmn:endEvent id="n_end" name="Done">
+      <bpmn:extensionElements><aef:position x="620" y="100"/></bpmn:extensionElements>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="e1" sourceRef="n_start" targetRef="n_typo"/>
+    <bpmn:sequenceFlow id="e2" sourceRef="n_typo" targetRef="n_boundary"/>
+    <bpmn:sequenceFlow id="e3" sourceRef="n_boundary" targetRef="n_end"/>
+  </bpmn:process>
+</bpmn:definitions>

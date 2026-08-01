@@ -175,11 +175,13 @@ PARITY = {
     "W-CONST-FIELD":        (GAP, "aef:constituents carried by 23/96 bpmn; no XML rule"),
     "W-IO-INPUT":           (GAP, "declared io carried by 17/96 bpmn; no XML rule"),
     "E-ABBR-DUP":           (GAP, "lane abbr carried by 96/96 bpmn; no XML rule (0 live)"),
-    "E-NODE-TYPE":          (GAP, "XML form has NO node-type vocabulary gate: a "
-                                  "<bpmn:serviceTaks> typo validates clean, rc=0. "
-                                  "Fix is NOT a copy of NODE_TYPES -- the XML "
-                                  "vocabulary is a superset (catch/throw/boundary "
-                                  "events, 19 occurrences in 8 fixtures)"),
+    # T-321 closed this. Note the census's reasoning was half wrong: the XML set
+    # is a TRANSLATION of NODE_TYPES (linkEventThrow -> intermediateThrowEvent,
+    # eventError/Timer/Message -> intermediateCatchEvent) plus exactly ONE
+    # genuine extension, boundaryEvent -- not a broad superset. The catch/throw
+    # elements the census counted as extra vocabulary are what the YAML names
+    # are CALLED on this form.
+    "E-NODE-TYPE":          (PAIRED, "E-XML-NODE-TYPE (T-321)"),
 
     # ---- XML form --------------------------------------------------------
     "E-XML-STRUCTURE":      (PAIRED, "E-NOT-MAPPING / E-TOPLEVEL-MISSING / *-FIELD"),
@@ -196,6 +198,9 @@ PARITY = {
     "W-XML-NODE-UNASSIGNED": (PAIRED, "E-NODE-LANE (lane membership is required "
                                       "by REQUIRED_NODE_FIELDS on the YAML form)"),
 
+    "E-XML-NODE-TYPE":      (PAIRED, "E-NODE-TYPE; XML_NODE_TYPES is DERIVED "
+                                     "from NODE_TYPES via XML_TYPE_MAP plus a "
+                                     "declared XML_ONLY_NODE_TYPES (T-321)"),
     "E-XML-ID-DUP":         (GAP, "YAML lane/node ids are not checked for "
                                   "collision beyond uid; no YAML rule"),
     # Closed by T-322 -- both ids now emit from Validator AND XmlValidator off
@@ -231,13 +236,14 @@ OUT_OF_SCOPE_PROBES = {}
 
 # Counted tolerance. Derived by hand from the census, re-derive it there rather
 # than nudging this constant: constituents 3 + io 1 + abbr 1 + node-type 1
-# + xml-id-dup 1 + geometry 1 + capacity 1 = 9, plus scopeOf 3 = 12.
+# + xml-id-dup 1 + geometry 1 + capacity 1 = 9, plus scopeOf 3 = 12,
+# minus node-type 1 (T-321 closed it) = 11.
 # T-322 closed type-lane and inception (11 -> 9): the IW-9 authority rules now
 # emit from both forms. T-323 reclassified the 3 scopeOf rules out-of-scope ->
 # GAP (9 -> 12): they were classified on a corpus zero, and scopeOf is in the
 # canonical vocabulary. The count went UP because the census got more honest,
 # not because anything regressed.
-EXPECTED_GAPS = 12
+EXPECTED_GAPS = 11
 
 
 # --------------------------------------------------------------------------

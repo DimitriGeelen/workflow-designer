@@ -406,6 +406,19 @@ else
 fi
 
 echo
+echo "== XML node-type vocabulary drift (T-321) =="
+# The XML flow-node vocabulary is DERIVED from NODE_TYPES via a translation table
+# plus one declared extension. The translation is a hand-copy (the validator stays
+# standalone), so this asserts it still agrees with BOTH emitters — the bridge and
+# the designer. Agreement with one is not agreement.
+if python3 "$ROOT/tests/test_xml_node_type_vocab.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "XML node-type vocabulary drifted from an emitter — the validator would reject bytes our own toolchain writes, or admit an element nothing can produce (T-321)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Rule-form parity guard (T-320) =="
 # T-317 generalized: a rule on one validator form and not the other lets files on
 # the unguarded form assert a cleanliness nothing ever evaluated. Every emitted

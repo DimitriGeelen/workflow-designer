@@ -105,6 +105,56 @@ AEF_NS = "http://anchorpoint.framework/aef/extensions"
 # BPMN local tags that are NOT flow nodes (excluded when collecting node ids)
 XML_NON_FLOWNODE_TAGS = {"laneSet", "sequenceFlow", "extensionElements"}
 
+# T-321: the XML form's flow-node vocabulary, DERIVED from the YAML one rather
+# than hand-written beside it. Two hand-maintained lists describing one modelling
+# language drift, which is the T-322 defect one level up.
+#
+# The relationship is a TRANSLATION plus a small extension, not "a superset" as
+# the T-320 census supposed. Measured over 96 authored BPMN and both emitters:
+# the bridge (tools/yaml-to-bpmn.py TYPE_MAP) and the designer (TYPE_TAG,
+# src:9230ff) produce EXACTLY the same 10 element names as each other, because
+# link and typed events are renamed on the way out — linkEventThrow becomes
+# intermediateThrowEvent, and eventError/Timer/Message all become a neutral
+# intermediateCatchEvent whose kind rides <aef:eventDef>. So
+# intermediateCatchEvent / intermediateThrowEvent are not extra vocabulary; they
+# are what the YAML names are CALLED here.
+#
+# Derived, so adding a YAML node type automatically admits its XML spelling and
+# the two forms cannot fall out of step.
+# The translation itself. Declared here rather than imported so the validator
+# stays a standalone tool with no load-time dependency on the bridge — and
+# tests/test_xml_node_type_vocab.py asserts it agrees with BOTH emitters, so the
+# copy cannot drift silently. (A hand-copy with no drift guard is the thing this
+# whole arc keeps finding; a hand-copy WITH one is a declaration.)
+XML_TYPE_MAP = {
+    "linkEventCatch": "intermediateCatchEvent",
+    "linkEventThrow": "intermediateThrowEvent",
+    "eventError": "intermediateCatchEvent",
+    "eventTimer": "intermediateCatchEvent",
+    "eventMessage": "intermediateCatchEvent",
+}
+
+XML_TRANSLATED_NODE_TYPES = frozenset(
+    XML_TYPE_MAP.get(t, t) for t in NODE_TYPES
+)
+
+# The genuine extension: one element, legal BPMN, that no emitter of ours can
+# produce. Everything admitted here needs a reason, because this set is the only
+# place the gate can be widened without touching NODE_TYPES.
+#
+#   boundaryEvent -- attached-event modelling, 2 occurrences in the deliberate
+#     fixture tests/fixtures/aef-bpmn/boundary-events.bpmn. Legal BPMN, read by
+#     the designer's import path (src:9731 treats it as a catch host), but the
+#     editor cannot draw one, so nothing we emit contains it. Admitted rather
+#     than reported: refusing it would call a valid diagram invalid.
+#
+# PL-064 applies to what is NOT here: absence from the corpus is not absence of
+# demand. This set is deliberately small and explicit so widening it is a visible
+# decision rather than a silent one.
+XML_ONLY_NODE_TYPES = frozenset({"boundaryEvent"})
+
+XML_NODE_TYPES = XML_TRANSLATED_NODE_TYPES | XML_ONLY_NODE_TYPES
+
 # Occupancy is NOT node height (T-313). The renderer's own containment function
 # adds an 18px allowance for types whose name is drawn BELOW the shape
 # (src:6975):
@@ -853,6 +903,19 @@ class XmlValidator:
                 continue
             if local in XML_NON_FLOWNODE_TAGS:
                 continue
+            # T-321: vocabulary gate. Until this existed, <bpmn:serviceTaks> --
+            # a plain typo -- validated clean at rc=0, and the only witness was
+            # an INFO skip-note from the lane-capacity rule, which noticed only
+            # because T-313 built it to refuse to guess an occupancy it does not
+            # know. An unrelated rule's honesty was standing in for this gate.
+            if local not in XML_NODE_TYPES:
+                self.err(
+                    "E-XML-NODE-TYPE",
+                    "node '%s'" % (child.get("id") or "?"),
+                    "unknown flow-node element '%s'; the XML vocabulary is "
+                    "%s (section 7.2)"
+                    % (local, ", ".join(sorted(XML_NODE_TYPES))),
+                )
             node_id = child.get("id")
             if node_id is not None:
                 flow_node_ids.add(node_id)

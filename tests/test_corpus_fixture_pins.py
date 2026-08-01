@@ -61,6 +61,15 @@ def _read_bytes(name):
         return fh.read()
 
 
+# T-321: counted tolerances — {fixture: (rule-id, exact expected count)}. A finding
+# admitted here still PRINTS every run and its count is asserted, so a 4th
+# occurrence (or a different rule) fails the build rather than joining the
+# exemption. Empty this dict when T-324's coordinated re-pin lands.
+_TOLERATED_FINDINGS = {
+    "offpage-seam.bpmn": ("E-XML-NODE-TYPE", 3),
+}
+
+
 def _validates_clean(name):
     """Return (ok, output): does the fixture validate CLEAN (exit 0) under the validator."""
     proc = subprocess.run(
@@ -99,10 +108,33 @@ def failures():
         #     satisfy the canonical dialect (a re-pin can't silently pin a broken diagram).
         ok, out = _validates_clean(name)
         if not ok:
-            first = out.strip().splitlines()[:3]
-            fails.append(
-                "(2) %s no longer validates CLEAN:\n     %s" % (name, "\n     ".join(first))
-            )
+            # COUNTED tolerance, never suppression (T-312/T-314/T-317 pattern):
+            # the note prints every run and the count is asserted, so a second
+            # instance fails the build instead of joining the exemption.
+            #
+            # offpage-seam.bpmn carries 3 <bpmn:linkEventThrow> elements. That is
+            # not a BPMN element — it is the YAML type name in the BPMN
+            # namespace — and NEITHER emitter can produce it: the bridge
+            # (TYPE_MAP) and the designer (TYPE_TAG) both rename it to
+            # intermediateThrowEvent on the way out. T-321's vocabulary gate is
+            # the first thing that could see it; before that the only witness was
+            # an INFO skip-note from the lane-capacity rule.
+            #
+            # The bytes are pinned and AEF cross-validates them, so repairing
+            # them here would break their guard. Repair is a COORDINATED re-pin
+            # (T-324), exactly as T-314 handled the lane-geometry defect in the
+            # fixtures they hold.
+            tolerated = _TOLERATED_FINDINGS.get(name)
+            n_hit = sum(1 for ln in out.splitlines() if tolerated and tolerated[0] in ln)
+            if tolerated and n_hit == tolerated[1]:
+                print("  NOTE (tolerated, T-321/T-324): %s has %d x %s — pinned "
+                      "bytes AEF cross-holds; repair is a coordinated re-pin"
+                      % (name, n_hit, tolerated[0]))
+            else:
+                first = out.strip().splitlines()[:3]
+                fails.append(
+                    "(2) %s no longer validates CLEAN:\n     %s" % (name, "\n     ".join(first))
+                )
 
     # (3) teeth — a one-byte change to a pinned fixture MUST trip the sha assertion, proving
     #     the pin is not vacuous. Mutate in memory (do not touch the file) and re-check.
