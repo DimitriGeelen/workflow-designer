@@ -153,7 +153,12 @@ PARITY = {
     "E-EDGE-DANGLING":      (PAIRED, "E-XML-FLOW-DANGLING"),
     "E-GW-OUTGOING":        (PAIRED, "E-XML-GW-OUTGOING"),
     "E-UID-DUP":            (PAIRED, "E-XML-UID-DUP"),
-    "E-AUTHORITY":          (PAIRED, "E-INCEPTION-NOT-SOVEREIGN / laneMeta authority"),
+    # T-329 built the direct counterpart. The old note pointed at
+    # E-INCEPTION-NOT-SOVEREIGN, which reads the same attribute but asks a
+    # different question (is the inception boundary sovereignty-laned), so an
+    # out-of-enum value passed it. Naming a rule that touches the same carrier
+    # is not naming a counterpart.
+    "E-AUTHORITY":          (PAIRED, "E-XML-AUTHORITY"),
     "W-DEADEND":            (PAIRED, "W-XML-DEADEND"),
     "W-UNREACHABLE":        (PAIRED, "W-XML-UNREACHABLE"),
     "W-GW-AMBIGUOUS":       (PAIRED, "W-XML-GW-AMBIGUOUS (T-317)"),
@@ -190,6 +195,7 @@ PARITY = {
     "E-XML-STRUCTURE":      (PAIRED, "E-NOT-MAPPING / E-TOPLEVEL-MISSING / *-FIELD"),
     "E-XML-LANEREF-DANGLING": (PAIRED, "E-NODE-LANE"),
     "E-XML-LANES-EMPTY":    (PAIRED, "E-LANES-EMPTY"),
+    "E-XML-AUTHORITY":      (PAIRED, "E-AUTHORITY"),
     "E-XML-FLOW-DANGLING":  (PAIRED, "E-EDGE-DANGLING"),
     "E-XML-GW-OUTGOING":    (PAIRED, "E-GW-OUTGOING"),
     "E-XML-UID-DUP":        (PAIRED, "E-UID-DUP"),

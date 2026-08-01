@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated from t by tools/yaml-to-bpmn.py. Do not edit by hand. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <bpmn:process id="Pool_t" name="t">
+
+    <bpmn:laneSet id="LaneSet_t">
+      <bpmn:lane id="framework" name="Framework">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="frw" authority="authority" height="130"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>n_a</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="agent" name="Agent">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="overlord" height="320"/>
+        </bpmn:extensionElements>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="n_a" name="Start">
+      <bpmn:extensionElements>
+        <aef:uid value="n_a"/>
+        <aef:position x="100" y="100"/>
+      </bpmn:extensionElements>
+    </bpmn:startEvent>
+
+
+  </bpmn:process>
+</bpmn:definitions>

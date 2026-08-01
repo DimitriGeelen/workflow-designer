@@ -82,7 +82,11 @@ PAIRS = {
     "E-EDGE-DANGLING":      {"E-XML-FLOW-DANGLING"},
     "E-GW-OUTGOING":        {"E-XML-GW-OUTGOING"},
     "E-UID-DUP":            {"E-XML-UID-DUP"},
-    "E-AUTHORITY":          {"E-INCEPTION-NOT-SOVEREIGN"},
+    # T-329 built the direct counterpart. E-INCEPTION-NOT-SOVEREIGN reads the
+    # same attribute but asks whether the inception boundary is sovereignty-
+    # laned; an out-of-enum value sailed past it. Touching the same carrier is
+    # not being a counterpart.
+    "E-AUTHORITY":          {"E-XML-AUTHORITY"},
     # PAIRED_SAME_ID (T-322): IW-9 O-3 is emitted under one id by BOTH forms, so
     # its counterpart is itself. Added because the AC2 drift guard caught its
     # absence on this guard's first run -- which is the drift guard working, not
@@ -168,15 +172,14 @@ def _carries_out_of_enum_authority(vw, root):
     return False
 
 
-KNOWN_DISAGREEMENTS = {
-    "E-AUTHORITY": (
-        "T-329 -- authority='overlord' is carried faithfully into <aef:laneMeta> "
-        "and no XmlValidator rule reads it, so an out-of-enum IW-9 authority "
-        "passes the BPMN form entirely",
-        _carries_out_of_enum_authority,
-    ),
-}
-EXPECTED_DISAGREEMENTS = 1
+#
+# EMPTY as of T-329, and empty is the load-bearing state: every remaining
+# cross-form difference is now either a DECLARED repair or DECLARED untestable.
+# An empty collection satisfies every assertion written over it (the T-328
+# `PAIRS = {}` lesson), so the NEW-disagreement branch below must still fail the
+# build with nothing in this table -- proven by a teeth leg, not by inspection.
+KNOWN_DISAGREEMENTS = {}
+EXPECTED_DISAGREEMENTS = 0
 
 
 # AC8: LATENT divergence -- the predicates differ, but the document that would

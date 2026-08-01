@@ -1495,6 +1495,22 @@ class XmlValidator:
                 "{%s}extensionElements/{%s}laneMeta" % (BPMN_NS, AEF_NS)
             )
             authority = lm.get("authority") if lm is not None else None
+            # T-329: the §5 vocabulary gate, on the form the designer authors.
+            # Until this existed, authority="overlord" was carried faithfully
+            # into <aef:laneMeta> and read by nothing here -- so the check lived
+            # only on the form neither the designer nor AEF consumes.
+            #
+            # AUTHORITIES is the module-scope set the YAML form reads (T-322).
+            # Deliberately NOT re-listed here: a second copy of the vocabulary
+            # is how the one-form-only family reproduces itself one level down,
+            # with the two forms drifting on the governance question itself.
+            if authority is not None and authority not in AUTHORITIES:
+                self.err(
+                    "E-XML-AUTHORITY",
+                    "lane '%s'" % (lane.get("id") or "?"),
+                    "authority '%s' not in %s"
+                    % (authority, sorted(AUTHORITIES)),
+                )
             for ref_el in lane.findall("{%s}flowNodeRef" % BPMN_NS):
                 ref = (ref_el.text or "").strip()
                 if ref:

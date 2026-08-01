@@ -217,6 +217,11 @@ RULE_CARRIERS = {
     # forms. A divergence here would mean the pair T-328 now reports as
     # AGREE agrees on the verdict while disagreeing on what kind of claim it is.
     "E-XML-LANES-EMPTY":        (("bpmn:lane",), STRUCTURAL),
+    # T-329: same carrier and same polarity as the YAML form's E-AUTHORITY
+    # (CONSTRAINS over aef:laneMeta/@authority, SEMANTIC_MUST) -- it must land
+    # UNIVERSAL for the same reason. A different class here would mean the two
+    # forms agree on the verdict while disagreeing on what kind of claim it is.
+    "E-XML-AUTHORITY":          (("aef:laneMeta/@authority",), CONSTRAINS),
     "E-XML-GW-OUTGOING":        (("sequenceFlow",), STRUCTURAL),
     "W-XML-GW-AMBIGUOUS":       (("conditionExpression",), REQUIRES),
     "W-XML-NODE-UNASSIGNED":    (("flowNodeRef",), STRUCTURAL),
