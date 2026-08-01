@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-01T13:50:30Z
-last_update: 2026-08-01T21:08:29Z
+last_update: 2026-08-01T21:08:50Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -49,14 +49,23 @@ Three `<bpmn:linkEventThrow>` host elements in the AEF-held fixture are not BPMN
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Full 64-char sha256 of our fixture is captured and compared against AEF's `0bc15bfac81d80cc13df527a09056dda6170def304d5a43c038bb504b691449d`. If they differ, STOP: post the divergence to the rail and do not send bytes — the artifacts are not the same file and the re-pin plan does not apply as written.
-- [ ] Exactly 3 `<bpmn:linkEventThrow>` host elements are rewritten to `<bpmn:intermediateThrowEvent>` + a `<bpmn:linkEventDefinition>` child. No other element, attribute, or byte in the file is changed.
-- [ ] AEF's two invariants hold in the corrected bytes: each rewritten host retains its `id` and `name`, and its `<aef:link>` child retains `workflowRef`, `targetWorkflow` and `name` unchanged. Verified by diffing the attribute sets, not by reading.
-- [ ] The corrected fixture validates clean under `tools/validate-workflow.py` — zero `E-XML-NODE-TYPE` findings (this is the consumer AEF's element-type-blind argument does NOT cover).
-- [ ] The counted tolerance in `tests/test_corpus_fixture_pins.py` that admits exactly 3 findings is DELETED, not decremented to zero — T-314 shape: when the reason for a tolerance is gone, the tolerance goes with it. A reintroduced malformed element must fail the build on the first instance, not the fourth.
-- [ ] `FULL_SHA` for this fixture is updated to the new digest and `tools/_offpage-seam-parity-verify.py` passes against the corrected bytes.
-- [ ] Gating suite green: `tests/run-bridge-tests.sh` and the validator suite, both 0 failed, counts recorded in this task.
-- [ ] Teeth: reverting one of the three rewrites (real tree, restored byte-identical afterwards) makes the node-type gate fire. Assert the mutation LANDED (occurrence count before the verdict) — a null result renders identically to a clean pass (L-321), and landing is necessary but not sufficient (L-326): confirm the gate's finding count actually moved.
+- [x] Full 64-char sha256 of our fixture is captured and compared against AEF's `0bc15bfac81d80cc13df527a09056dda6170def304d5a43c038bb504b691449d`. If they differ, STOP: post the divergence to the rail and do not send bytes — the artifacts are not the same file and the re-pin plan does not apply as written.
+      **EVIDENCE:** `sha256sum tests/fixtures/aef-bpmn/offpage-seam.bpmn` → `0bc15bfac81d80cc13df527a09056dda6170def304d5a43c038bb504b691449d`. Exact match on all 64 characters. Same artifact, established rather than assumed.
+- [x] ~~Exactly 3 `<bpmn:linkEventThrow>` host elements are rewritten to `<bpmn:intermediateThrowEvent>` + a `<bpmn:linkEventDefinition>` child.~~ **AC CORRECTED MID-BUILD — the original was wrong and would have reintroduced the defect.** Rewritten to `<bpmn:intermediateThrowEvent>` with **NO** `linkEventDefinition`. No other element, attribute, or byte changed.
+      **WHY THE CHANGE:** `src/aef-workflow-designer.html:9233-9236` documents a deliberate design decision — link events use the plain intermediate-throw/catch tags and encode link-ness via `<aef:link>` in extensionElements, because the rest of the XML pipeline already routes through there. `tools/yaml-to-bpmn.py:35` agrees, and **zero** files in the corpus contain `linkEventDefinition`. Adding one would have produced a second element no emitter emits — the exact defect class under repair, wearing a legal element name. Caught by asking what our emitter actually produces before writing bytes, rather than what BPMN permits.
+      **EVIDENCE:** `git diff --stat` = 6 insertions / 6 deletions in one file; filtering the diff for any line not containing `intermediateThrowEvent|linkEventThrow` returns nothing → tag rename only.
+- [x] AEF's two invariants hold in the corrected bytes: each rewritten host retains its `id` and `name`, and its `<aef:link>` child retains `workflowRef`, `targetWorkflow` and `name` unchanged. Verified by diffing the attribute sets, not by reading.
+      **EVIDENCE:** hosts `agt_5_resolved` / `agt_8_ghost` / `agt_9_legacy` all retain id+name; the 3 `<aef:link>` lines are byte-identical (`workflowRef=1f9b5f0c…`+name, `workflowRef=2222…`+name, `targetWorkflow="review-map"`). Independently re-confirmed by `tools/_offpage-seam-parity-verify.py` **7/7**, which checks each leg's full field set and the cross-side uuid anchor.
+- [x] The corrected fixture validates clean under `tools/validate-workflow.py` — zero `E-XML-NODE-TYPE` findings (this is the consumer AEF's element-type-blind argument does NOT cover).
+      **EVIDENCE:** `VALID tests/fixtures/aef-bpmn/offpage-seam.bpmn -- no findings`, rc=0, `E-XML-NODE-TYPE` count 0.
+- [x] The counted tolerance in `tests/test_corpus_fixture_pins.py` that admits exactly 3 findings is DELETED, not decremented to zero — T-314 shape: when the reason for a tolerance is gone, the tolerance goes with it. A reintroduced malformed element must fail the build on the first instance, not the fourth.
+      **EVIDENCE:** `_TOLERATED_FINDINGS = {}` — the entry is gone, not set to a 0 count (a 0-count placeholder would measure the next malformed element against an expectation instead of failing it). The counted-tolerance *mechanism* is deliberately kept, documented as empty-by-design, because coordinated re-pins recur (T-314, T-324) and re-inventing this under time pressure is how a counted tolerance degrades into a silent suppression. Teeth leg (b) proves the emptiness is load-bearing.
+- [x] `FULL_SHA` for this fixture is updated to the new digest and `tools/_offpage-seam-parity-verify.py` passes against the corrected bytes.
+      **EVIDENCE:** new sha `f9422acd330d240dec384591753782dde940289cc94475f22be96aa1551d0c5c`, re-pinned in BOTH holders — `tests/test_corpus_fixture_pins.py` FULL_SHA and `tools/_offpage-seam-parity-verify.py` PIN_SHA (two independent pins; missing the second would have failed the parity guard). Parity guard 7/7, pin test OK.
+- [x] Gating suite green: `tests/run-bridge-tests.sh` and the validator suite, both 0 failed, counts recorded in this task.
+      **EVIDENCE:** bridge round-trip **64 passed / 0 failed**; validator **43 passed / 0 failed**; geometry sweep **24 clean / 0 new-fail / 0 stale / 0 tool-err**; `pytest tests/` **19 passed**.
+- [x] Teeth: reverting one of the three rewrites (real tree, restored byte-identical afterwards) makes the node-type gate fire. Assert the mutation LANDED (occurrence count before the verdict) — a null result renders identically to a clean pass (L-321), and landing is necessary but not sufficient (L-326): confirm the gate's finding count actually moved.
+      **EVIDENCE:** 2-leg driver on the real tree. Baseline validator rc=0/0 findings, pin rc=0. Mutation landed (1 open / 1 close asserted *before* any verdict). Leg (a) validator rc 0→2, `E-XML-NODE-TYPE` 0→1. Leg (b) pin test rc 0→1 **on a single reintroduced element**, and the failure text names the rule rather than only the sha — so it is not merely the byte-pin firing. Restored; sha compared, identical.
 - [ ] New sha256 announced to AEF on the rail WITH the bytes, naming what changed and what did not.
 
 ### Human
@@ -142,6 +151,18 @@ tests/run-bridge-tests.sh
 
 ## RCA
 
+**Symptom:** `tests/fixtures/aef-bpmn/offpage-seam.bpmn` — a byte-pinned fixture AEF cross-validates — carried 3 `<bpmn:linkEventThrow>` elements. Not a BPMN element at any version: it is our canonical YAML type name sitting in the BPMN namespace.
+
+**Root cause:** the bytes were hand-authored (or hand-edited) against the YAML type vocabulary rather than produced by either emitter. Both emitters rename `linkEventThrow` → `intermediateThrowEvent` on export, so no export path can produce these bytes.
+
+**Why structurally allowed — two independent blindnesses, which is why it survived on both sides:**
+1. *Ours:* the fixture was guarded by a byte pin. A byte pin correctly answers "did these bytes change" and was never asked "are these bytes well-formed". Green read as a clean bill of health when its subject was stability. Nothing else looked at element type until T-321's vocabulary gate shipped — and T-321 found it on its first corpus run.
+2. *AEF's:* their Pass 5 classifies off-page legs purely from `<aef:link>` attributes and ancestor-walks to the nearest id. Element type is never inspected, so their consumer could not have surfaced it either (their OBS-115).
+
+**Prevention (distinct from the fix):** the emptied `_TOLERATED_FINDINGS` now fails on the FIRST malformed element rather than the fourth — teeth-proven in leg (b), including that the failure names the rule and not just the sha. Beyond that: T-321's vocabulary gate is the durable detector and it is a DECLARED superset measured against both emitters, so it keeps working even now that no corpus file contains the construct. AEF is filing an element-vocabulary check at intake of foreign fixtures — the prescription I proposed at rail 364 and they adopted at 365: not a stronger pin, one check at ingest, leaving the pin doing its one job.
+
+**Sibling filed:** T-327 — the same class at 4 more sites (three gallery verify harnesses), found by the whole-tree sweep (G-009) rather than by symptom.
+
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
      Non-bug-class tasks may leave this section empty or remove it.
@@ -157,6 +178,17 @@ tests/run-bridge-tests.sh
 -->
 
 ## Evolution
+
+### 2026-08-01 — the repair I nearly shipped was the defect again
+- **What changed:** AC2 at filing said rewrite to `<bpmn:intermediateThrowEvent>` **+ a `<bpmn:linkEventDefinition>` child** — the spec-correct BPMN form, and wrong for this toolchain. `src/aef-workflow-designer.html:9233-9236` records a deliberate decision that link-ness rides on `<aef:link>` and NO native `linkEventDefinition` is emitted; `tools/yaml-to-bpmn.py:35` agrees; zero corpus files contain one. Shipping the drafted AC would have put a second no-emitter-produces-this element into the fixture — the same defect class under a legal element name.
+- **Plan impact:** the repair is a tag rename and nothing else. 6 lines.
+- **Why it nearly happened:** the AC was drafted from what BPMN *permits* rather than from what our emitters *produce*. The peer's own framing at 365 names the trap precisely — I had a conclusion first and would have written bytes to match it.
+- **Triggered:** AC2 rewritten in place with the correction visible rather than silently amended.
+
+### 2026-08-01 — the sweep found the class at four more sites
+- **What changed:** grepping the tree for the malformed tag (G-009 — a copy-paste defect class needs a sweep, not a single-site fix) found 4 more sites in 3 gallery verify harnesses, all passing.
+- **Plan impact:** none for T-324 — deliberately NOT bundled. Mixing unrelated edits into a coordinated re-pin would muddy the sha being delivered to a peer.
+- **Triggered:** T-327. The interesting half is *why* those harnesses pass: the store ref-scan reads `<aef:link>` and ignores the host tag — structurally identical to AEF's Pass 5 blindness. They prove the scanner handles a shape the emitter cannot produce and say nothing about the shape it does.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at

@@ -16,10 +16,16 @@ with BOTH emitters:
   - the designer        src/aef-workflow-designer.html   TYPE_TAG
 
 Measured when written, over 96 authored BPMN: both emitters produce EXACTLY the
-same 10 element names, and the corpus carries two elements neither can produce —
+same 10 element names, and the corpus carried two elements neither can produce —
 `boundaryEvent` (legal BPMN, the one declared extension) and `linkEventThrow`
-(not a BPMN element at all; the YAML type name in the BPMN namespace, in the
-byte-pinned offpage-seam.bpmn — see T-324).
+(not a BPMN element at all; the YAML type name in the BPMN namespace).
+
+T-324 UPDATE: the `linkEventThrow` instances are GONE from the corpus — all three
+lived in the byte-pinned offpage-seam.bpmn and were repaired by coordinated re-pin
+with AEF. `boundaryEvent` remains the one declared extension. Note this does NOT
+weaken the gate: the vocabulary is still a DECLARED superset measured against both
+emitters, not a list of what the corpus happens to contain today. A rule derived
+from corpus content would now have nothing to say about linkEventThrow at all.
 
 Runnable standalone (exit 0 = pass) and under pytest. Wired into
 tests/run-bridge-tests.sh.

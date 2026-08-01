@@ -32,7 +32,9 @@ FIXTURE = os.path.join(ROOT, 'tests', 'fixtures', 'aef-bpmn', 'offpage-seam.bpmn
 
 # Byte pin — MUST match tests/test_corpus_fixture_pins.py FULL_SHA['offpage-seam.bpmn']
 # and AEF's tests/fixtures/832/pair-draft-3.sha256. Editing the fixture re-pins BOTH sides.
-PIN_SHA = '0bc15bfac81d80cc13df527a09056dda6170def304d5a43c038bb504b691449d'
+# T-324 re-pin: 0bc15bfac81d… → f9422acd330d… (3 x <bpmn:linkEventThrow> host tags
+# corrected to <bpmn:intermediateThrowEvent>; tag rename only, aef:link untouched).
+PIN_SHA = 'f9422acd330d240dec384591753782dde940289cc94475f22be96aa1551d0c5c'
 RESOLVED_UUID = '1f9b5f0c-0be4-4cfe-9158-d9e6f0c1d4c7'   # AEF live uuid (pair-draft #3 resolved leg)
 GHOST_UUID = '22222222-2222-4222-8222-222222222222'
 LEGACY_SLUG = 'review-map'

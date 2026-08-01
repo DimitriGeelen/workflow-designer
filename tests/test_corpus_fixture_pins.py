@@ -44,8 +44,15 @@ FULL_SHA = {
         "95bc24cdb0d27952a4f85da55368b74fc8c1e9586960d0dd839453595543594b",
     # offpage-seam.bpmn (T-219, pair-draft #3) — resolved leg pinned to AEF's live
     # aef-task-lifecycle uuid (rail offset 118); delivered rail-inline offset TBD.
+    # T-324 RE-PIN (rail 363 GO / 366 delivery): 0bc15bfac81d… → f9422acd330d…
+    # The three off-page hosts carried <bpmn:linkEventThrow>, the canonical YAML
+    # type name in the BPMN namespace, which neither emitter can produce. Repaired
+    # to <bpmn:intermediateThrowEvent> — tag rename ONLY, 6 lines, no
+    # <bpmn:linkEventDefinition/> added: link-ness rides on <aef:link> by design
+    # (src/aef-workflow-designer.html:9233-9236), so adding one would have
+    # reintroduced the same defect class under a legal element name.
     "offpage-seam.bpmn":
-        "0bc15bfac81d80cc13df527a09056dda6170def304d5a43c038bb504b691449d",
+        "f9422acd330d240dec384591753782dde940289cc94475f22be96aa1551d0c5c",
     # s4-exemplar.bpmn (T-235) — S4 picker-claim exemplar, byte-copy of the map SAVED
     # through the running editor (.editor-versions/claim-smoke-legacy/v1.bpmn): born via
     # the T-228 pending-refs picker (adopts+claims ghost 3ceaf02d, via:ui), carries the
@@ -64,10 +71,20 @@ def _read_bytes(name):
 # T-321: counted tolerances — {fixture: (rule-id, exact expected count)}. A finding
 # admitted here still PRINTS every run and its count is asserted, so a 4th
 # occurrence (or a different rule) fails the build rather than joining the
-# exemption. Empty this dict when T-324's coordinated re-pin lands.
-_TOLERATED_FINDINGS = {
-    "offpage-seam.bpmn": ("E-XML-NODE-TYPE", 3),
-}
+# exemption.
+#
+# T-324: EMPTY, and empty is the point. The single entry (offpage-seam.bpmn,
+# E-XML-NODE-TYPE x3) is GONE rather than decremented to zero — a tolerance whose
+# reason has been repaired must not survive as a 0-count placeholder, because the
+# next malformed element would then be measured against an expectation instead of
+# failing outright. With this dict empty, `tolerated` is None for every fixture and
+# ANY non-clean pinned fixture fails on the FIRST instance.
+#
+# The mechanism itself is kept deliberately: coordinated re-pins with AEF are a
+# recurring shape (T-314, T-324), and re-inventing this under time pressure is how
+# a counted tolerance degrades into a silent suppression. A new entry MUST cite an
+# open coordinated-re-pin task.
+_TOLERATED_FINDINGS = {}
 
 
 def _validates_clean(name):
@@ -112,18 +129,17 @@ def failures():
             # the note prints every run and the count is asserted, so a second
             # instance fails the build instead of joining the exemption.
             #
-            # offpage-seam.bpmn carries 3 <bpmn:linkEventThrow> elements. That is
-            # not a BPMN element — it is the YAML type name in the BPMN
-            # namespace — and NEITHER emitter can produce it: the bridge
-            # (TYPE_MAP) and the designer (TYPE_TAG) both rename it to
-            # intermediateThrowEvent on the way out. T-321's vocabulary gate is
+            # Historical instance (T-321 → T-324, now REPAIRED): offpage-seam.bpmn
+            # carried 3 <bpmn:linkEventThrow> elements — not a BPMN element, the
+            # YAML type name in the BPMN namespace, which NEITHER emitter can
+            # produce (bridge TYPE_MAP and designer TYPE_TAG both rename it to
+            # intermediateThrowEvent on the way out). T-321's vocabulary gate was
             # the first thing that could see it; before that the only witness was
-            # an INFO skip-note from the lane-capacity rule.
-            #
-            # The bytes are pinned and AEF cross-validates them, so repairing
-            # them here would break their guard. Repair is a COORDINATED re-pin
-            # (T-324), exactly as T-314 handled the lane-geometry defect in the
-            # fixtures they hold.
+            # an INFO skip-note from the lane-capacity rule. Because the bytes were
+            # pinned and AEF cross-validates them, repair had to be a COORDINATED
+            # re-pin (T-324), exactly as T-314 handled the lane-geometry defect in
+            # the fixtures they hold. Kept as the worked example of what this
+            # branch is for — the dict above is now empty.
             tolerated = _TOLERATED_FINDINGS.get(name)
             n_hit = sum(1 for ln in out.splitlines() if tolerated and tolerated[0] in ln)
             if tolerated and n_hit == tolerated[1]:
