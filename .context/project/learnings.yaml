@@ -486,3 +486,45 @@ learnings:
   date: 2026-08-01
   context: Added via context agent
   application: TBD
+- id: PL-069
+  learning: "(from T-327) A probe can fail when the claim is RIGHT, and that direction costs more than the usual one: it sends you to debug working code, and you cannot tell it from a real finding by looking at it. T-327 leg (b) asserted a bogus tag inside a COMMENT must NOT trip the guard; it went red, which reads exactly as 'comment-stripping is broken'. The guard was correct — the mutate chained a replace across the whole file and manufactured a real violation. Only the LANDING assertion caught it: +2 occurrences where +1 was expected. Remedy: every teeth leg names the specific evidence its own branch should produce (expected violation count, expected failure wording), so a green leg means THAT branch fired rather than that something did."
+  source: P-001
+  task: T-309
+  date: 2026-08-01
+  context: Added via context agent
+  application: TBD
+- id: PL-070
+  learning: "(from T-327 / AEF OBS-116) Teeth prove a guard FIRES; they say nothing about WHAT it discriminates, and both can be true at once — the instrument is live while measuring something other than the property about to be claimed. AEF's byte pin went red under teeth, but the assertion that fired compares sha to sha: red because the bytes changed, not because a malformed element appeared. Announce a sha for malformed bytes and it is green again. Fourth instance of the shape on this arc (T-320 control agreeing with a wrong rule; their probe passing for any element name; my polarity probe passing with the label flipped; their pin's teeth). Ask what a wrong claim would have made fail, not whether the guard went red."
+  source: P-001
+  task: T-309
+  date: 2026-08-01
+  context: Added via context agent
+  application: TBD
+- id: PL-071
+  learning: "(from T-327) Measure a guard's scan surface BEFORE writing any assertion against it, and let the measurement change the design. The obvious guard — every synthesised BPMN tag must be a known node type — would have flagged bpmn:process in every harness, because most of the 20 distinct element names in code are document scaffolding rather than node types. A guard that noisy gets switched off (AEF's L-527: a rule that gets tuned out is weaker than no rule, because its silence stops meaning anything). The measurement also surfaced a fifth defect site that grepping for the already-known tag could never have found."
+  source: P-001
+  task: T-309
+  date: 2026-08-01
+  context: Added via context agent
+  application: TBD
+- id: PL-072
+  learning: "A parity guard that matches rule IDs across two implementations proves EXISTENCE, never AGREEMENT — tests/test_rule_form_parity.py extracts ids from source spans and never validates a document, so two predicates reading the same carrier by different tests (falsy vs existence) stay green forever"
+  source: P-001
+  task: T-309
+  date: 2026-08-01
+  context: Added via context agent
+  application: TBD
+- id: PL-073
+  learning: "A parity/agreement harness must have THREE outcomes, not two: AGREE / DISAGREE / BRIDGE-REPAIRED. Asserting 'the two forms must agree' reports working code as broken when a converter legitimately repairs the defect (E-TOPLEVEL-MISSING: yaml-to-bpmn.py synthesises bpmn:process from workflowMeta.id). The repaired class must be DECLARED per pair, never inferred at runtime from 'the other form said nothing' — inferring it is how a real coverage hole gets absorbed as a repair"
+  source: P-001
+  task: T-328
+  date: 2026-08-01
+  context: Added via context agent
+  application: TBD
+- id: PL-074
+  learning: "Two budget instruments disagree by 111K and CLAUDE.md calls one of them 'exact': checkpoint.sh status reported 318754 while .budget-status (budget-gate, the ENFORCING hook, 98s fresh) reported 207027/ok on the same session. checkpoint.sh:102 tails 10MB of a 269MB transcript and sums input+cache_read+cache_creation (true prompt occupancy) against a CONTEXT_WINDOW configured at 300K, while the model's actual window is 1M. Neither number is wrong; they have different SUBJECTS, and the resume skill names the cache canonical while CLAUDE.md names the probe exact. A session cannot tell which ceiling it is near"
+  source: P-001
+  task: T-328
+  date: 2026-08-01
+  context: Added via context agent
+  application: TBD
