@@ -180,6 +180,57 @@ python3 tests/test_mapping_standard_conformance.py
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## v1.1 items accumulated after the proposal was written (2026-08-02)
+
+Recorded here rather than left on the AEF rail, where they are invisible to the
+operator ruling this task. Each is a DISTINCT item; none is prejudged.
+
+**(1) The authority-owner question — and a scope error in a ratification we
+co-own.** Our `AUTHORITY_OWNER` maps `authority` → **agent**; AEF's T-2717 maps
+it → **no owner**. AEF measured the separating case (rail 375) by flipping a
+`serviceTask` to `userTask` in a Framework lane:
+
+| | owner | warning |
+|---|---|---|
+| AEF | **human** | none |
+| 832 | agent | `W-TYPE-LANE-MISMATCH` fires |
+
+So on their side a Framework lane yields a HUMAN-owned task — the inverse of
+what the lane means — and nothing warns, for two independent reasons: their O-1
+mismatch check sits inside `if lane_owner is not None` (a no-owner authority
+SKIPS the branch rather than satisfying it), and the name-based fallback matches
+none of their owner tokens, so the owner comes from the node type.
+
+The part that is OURS: the agent-fallback ratified on rail 95 carries the
+sentence "the executor is still the agent; what's lost is provenance". Measured
+by AEF: true for `serviceTask` and `scriptTask`, **FALSE for `userTask`**. The
+ratified sentence generalised over three node types after two were checked. The
+mapping was not wrong; the PROSE describing its scope was — the same shape as a
+table answerable only to itself, applied to a comment. v1.1 should state the
+scope the ratification was actually measured over.
+
+FLIP CONDITION, measured both sides: **0 `userTask`-in-authority-lane nodes
+across our 174 documents and their 31.** Live and unfired, not agreed. AEF has
+this open as OBS-119 and will not act unilaterally — it waits on this ruling.
+
+**(2) Documentation carrier.** `<bpmn:documentation>` is not merely unused: it
+is UNEMITTABLE — 0 occurrences across 175 `.bpmn`, and 0 in the designer export,
+`yaml-to-bpmn.py` or `bpmn-to-yaml.py`. `aef:meta note` carries 100% of the
+explanatory load on both sides. Recommendation into this batch: carry BOTH with
+a stated precedence, NOT migration — migration pays a portability gain with an
+immediate legibility loss on every existing note until re-authored. AEF backs
+this shape and will not move the carrier unilaterally.
+
+**(3) Audience of the note field.** One field silently picks a reader, and today
+it has picked the implementer. If v1.1 admits an audience-tagged pair it should
+also state what makes the pair answerable to something outside itself; the
+admission test AEF has adopted is that the newcomer note MUST NOT be derivable
+by truncating the implementer note. Absent such a test, one field with its
+audience DECLARED is the more honest artifact.
+
+Carried separately from the §1 carrier-class hole and the lane-geometry origin
+item already in this batch.
+
 ## Recommendation
 
 **Recommendation:** GO
