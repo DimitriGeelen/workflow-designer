@@ -32,6 +32,7 @@ import importlib.util
 import os
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -64,7 +65,11 @@ def _load(path, name):
 PAIRS = {
     "E-TOPLEVEL-MISSING":   {"E-XML-STRUCTURE"},
     "E-LANE-FIELD":         {"E-XML-STRUCTURE"},
-    "E-LANES-EMPTY":        {"E-XML-STRUCTURE"},
+    # T-330 built the counterpart. This was the ONE of that task's three filed
+    # holes that survived measurement: the bridge carries `lanes: []` through as
+    # a <bpmn:laneSet> with zero children, so the defect really does reach the
+    # XML form. Its two siblings are in BRIDGE_REPAIRED below.
+    "E-LANES-EMPTY":        {"E-XML-LANES-EMPTY"},
     "E-NODE-FIELD":         {"E-XML-STRUCTURE"},
     "E-NOT-MAPPING":        {"E-XML-STRUCTURE"},
     # T-328 CORRECTION, not a tolerance. PARITY's prose pairs E-EDGE-FIELD with
@@ -105,13 +110,38 @@ EXPECTED_UNTESTABLE = 1
 # AC3: BRIDGE_REPAIRED -- declared, with the repair NAMED. Never inferred at
 # runtime from "the XML form reported nothing", because that inference is
 # exactly how a genuine coverage hole gets absorbed as a repair.
+#
+# Two kinds of repair live here and they are not equally benign:
+#   repair-by-RECOVERY  -- the missing datum is reconstructed from elsewhere in
+#                          the document (E-TOPLEVEL-MISSING).
+#   repair-by-DEFAULT   -- the missing datum is INVENTED (E-LANE-FIELD,
+#                          E-NODE-FIELD). The bridged document is well-formed,
+#                          so XML silence is still correct, but the author's
+#                          underspecification is now invisible on the BPMN form
+#                          and the YAML form is the only place it can be seen.
+# Both belong in this class; the distinction is recorded because only the second
+# kind loses information, and a future decision to stop defaulting would move
+# those two entries into KNOWN_DISAGREEMENTS rather than out of the harness.
 BRIDGE_REPAIRED = {
-    "E-TOPLEVEL-MISSING": "yaml-to-bpmn.py synthesises <bpmn:process id=\"Pool_t\" "
-                          "name=\"t\"> from workflowMeta.id when `pool:` is absent, "
-                          "so the bridged document is genuinely well-formed and "
-                          "XML silence is correct rather than blind",
+    "E-TOPLEVEL-MISSING": "RECOVERY: yaml-to-bpmn.py synthesises <bpmn:process "
+                          "id=\"Pool_t\" name=\"t\"> from workflowMeta.id when "
+                          "`pool:` is absent, so the bridged document is "
+                          "genuinely well-formed and XML silence is correct "
+                          "rather than blind",
+    "E-LANE-FIELD":       "DEFAULT (T-330): a lane missing `height` bridges to "
+                          "<aef:laneMeta abbr=\"agt\" authority=\"initiative\" "
+                          "height=\"120\"/> -- the laneMeta is emitted COMPLETE "
+                          "with a defaulted height, so no defect reaches the XML "
+                          "form. Filed as a coverage hole by T-328 on the "
+                          "strength of the YAML rule alone; the bridged bytes "
+                          "say otherwise",
+    "E-NODE-FIELD":       "DEFAULT (T-330): a node missing `x` bridges to "
+                          "<aef:position x=\"0\" y=\"100\"/> -- and 0 is the "
+                          "T-312 unpositioned SENTINEL, so the map degrades into "
+                          "the honest-degradation path the geometry rule already "
+                          "skips rather than into an invalid document",
 }
-EXPECTED_REPAIRED = 1
+EXPECTED_REPAIRED = 3
 
 # Known DISAGREEMENTS: the bridged document still CARRIES the defect and the XML
 # form is silent. Each is a real coverage hole on the form the designer authors
@@ -121,18 +151,32 @@ EXPECTED_REPAIRED = 1
 # Every entry MUST cite an open task. When the hole is closed the entry is
 # DELETED, not decremented to zero -- a 0-count placeholder measures the next
 # hole against an expectation instead of failing it.
+#
+# AC4 (T-330): each entry carries an executable CARRIES-probe, not just prose.
+# The probe asserts the BRIDGED document still carries the defect. Without it a
+# declared tolerance is unfalsifiable in the direction "this tolerance should
+# not exist": the harness sees yaml-fires / xml-silent, finds the entry in this
+# table, and reports it as expected -- which is precisely how E-LANE-FIELD and
+# E-NODE-FIELD sat here as coverage holes when the bridge had repaired both.
+# The BRIDGE_REPAIRED class was already answerable to the tree (a stale repair
+# claim fails); this table was answerable only to itself.
+def _carries_out_of_enum_authority(vw, root):
+    for meta in root.iter("{%s}laneMeta" % vw.AEF_NS):
+        value = meta.get("authority")
+        if value is not None and value not in vw.AUTHORITIES:
+            return True
+    return False
+
+
 KNOWN_DISAGREEMENTS = {
-    "E-AUTHORITY":  "T-329 -- authority='overlord' is carried faithfully into "
-                    "<aef:laneMeta> and no XmlValidator rule reads it, so an "
-                    "out-of-enum IW-9 authority passes the BPMN form entirely",
-    "E-LANE-FIELD": "T-330 -- lane missing a required field is emitted with no "
-                    "<aef:laneMeta> at all; the XML form has no lane shape check",
-    "E-LANES-EMPTY": "T-330 -- an empty <bpmn:laneSet> is emitted; the XML form "
-                     "has no at-least-one-lane check",
-    "E-NODE-FIELD": "T-330 -- a node missing a required field is emitted without "
-                    "its position; the XML form has no node shape check",
+    "E-AUTHORITY": (
+        "T-329 -- authority='overlord' is carried faithfully into <aef:laneMeta> "
+        "and no XmlValidator rule reads it, so an out-of-enum IW-9 authority "
+        "passes the BPMN form entirely",
+        _carries_out_of_enum_authority,
+    ),
 }
-EXPECTED_DISAGREEMENTS = 4
+EXPECTED_DISAGREEMENTS = 1
 
 
 # AC8: LATENT divergence -- the predicates differ, but the document that would
@@ -169,7 +213,13 @@ def _rule_ids(findings):
 
 
 def classify(vw, yrule, xrules, path):
-    """-> (outcome, yaml_fires, xml_fires, all_xml_rules). Raises on tooling failure."""
+    """-> (outcome, yaml_fires, xml_fires, all_xml_rules, bridged_xml).
+
+    Raises on tooling failure. The bridged text is returned rather than
+    discarded so a KNOWN_DISAGREEMENT's CARRIES-probe can be run against the
+    document the XML form actually saw -- not against the YAML source, which
+    always carries the defect and would make every probe trivially true.
+    """
     text = open(path, encoding="utf-8").read()
     yfound = _rule_ids(vw.run_yaml(text))
     proc = subprocess.run([sys.executable, BRIDGE, path],
@@ -178,9 +228,11 @@ def classify(vw, yrule, xrules, path):
         raise RuntimeError("bridge failed rc=%d on %s: %s"
                            % (proc.returncode, path,
                               proc.stderr.decode("utf-8", "replace")[:200]))
-    xfound = _rule_ids(vw.run_xml(proc.stdout.decode("utf-8")))
+    bridged = proc.stdout.decode("utf-8")
+    xfound = _rule_ids(vw.run_xml(bridged))
     yfires, xfires = yrule in yfound, bool(xrules & xfound)
-    return ("AGREE" if yfires == xfires else "DISAGREE"), yfires, xfires, xfound
+    return (("AGREE" if yfires == xfires else "DISAGREE"),
+            yfires, xfires, xfound, bridged)
 
 
 def failures():
@@ -233,7 +285,8 @@ def failures():
                 % yrule)
             continue
         try:
-            outcome, yf, xf, xall = classify(vw, yrule, PAIRS[yrule], path)
+            outcome, yf, xf, xall, bridged = classify(
+                vw, yrule, PAIRS[yrule], path)
         except Exception as exc:                                # noqa: BLE001
             out.append("%s: comparison could not run (%s). Unevaluable, not "
                        "clean." % (yrule, exc))
@@ -261,8 +314,25 @@ def failures():
                     "agree, and test_rule_form_parity.py is green because both "
                     "forms merely NAME it."
                     % (yrule, yf, xf, ", ".join(sorted(xall)) or "(nothing)"))
-            rows.append((yrule, "DISAGREE",
-                         KNOWN_DISAGREEMENTS.get(yrule, "UNDECLARED")))
+                rows.append((yrule, "DISAGREE", "UNDECLARED"))
+                continue
+            note, carries = KNOWN_DISAGREEMENTS[yrule]
+            # AC4: the tolerance must be answerable to the bridged bytes.
+            try:
+                still_carried = carries(vw, ET.fromstring(bridged))
+            except Exception as exc:                            # noqa: BLE001
+                out.append("%s: its CARRIES-probe could not run (%s). "
+                           "Unevaluable, not clean." % (yrule, exc))
+                still_carried = True
+            if not still_carried:
+                out.append(
+                    "%s is declared a KNOWN_DISAGREEMENT -- a coverage hole -- "
+                    "but its CARRIES-probe reports the bridged document does "
+                    "NOT carry the defect. Then the XML form is silent because "
+                    "there is nothing to find, and this belongs in "
+                    "BRIDGE_REPAIRED with the repair named. Declaring a repair "
+                    "as a hole invents work; the reverse hides it." % yrule)
+            rows.append((yrule, "DISAGREE", note))
         else:
             rows.append((yrule, "AGREE", "yaml=%s xml=%s" % (yf, xf)))
 

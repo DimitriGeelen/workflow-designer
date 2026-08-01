@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- T-330: a laneSet element that declares no lane at all.
+
+     This is the bridged form of tests/fixtures/invalid/E-LANES-EMPTY.yaml
+     (`lanes: []`). yaml-to-bpmn.py carries the defect through unchanged: it
+     emits the empty <bpmn:laneSet> verbatim rather than synthesising a lane,
+     which is what makes this a genuine coverage hole rather than a bridge
+     repair. Its two filed siblings turned out to be repairs; a lane missing
+     `height` bridges to laneMeta with height="120", and a node missing `x`
+     bridges to <aef:position x="0" ...>.
+
+     The nodes below are otherwise well formed and lane assignable, so the
+     only ERROR this fixture should produce is E-XML-LANES-EMPTY. It also
+     leaves both nodes unassigned, so W-XML-NODE-UNASSIGNED fires too; that
+     is a separate rule reporting a real consequence of having no lanes, not
+     a defect of this one. -->
+<bpmn:definitions
+    xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+    xmlns:aef="http://anchorpoint.framework/aef/extensions">
+  <bpmn:process id="Pool_t" name="t">
+    <bpmn:laneSet id="LaneSet_t">
+    </bpmn:laneSet>
+    <bpmn:startEvent id="frw_1_a" name="Start">
+      <bpmn:extensionElements>
+        <aef:uid value="n_a"/>
+        <aef:position x="100" y="100"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:endEvent id="frw_2_b" name="End">
+      <bpmn:extensionElements>
+        <aef:uid value="n_b"/>
+        <aef:position x="300" y="100"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>flow_1</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="flow_1" sourceRef="frw_1_a" targetRef="frw_2_b">
+      <bpmn:extensionElements><aef:uid value="e_1"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>

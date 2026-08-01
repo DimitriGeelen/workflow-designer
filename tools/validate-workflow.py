@@ -949,9 +949,33 @@ class XmlValidator:
                 if flow.find("{%s}conditionExpression" % BPMN_NS) is None:
                     unconditioned_out.setdefault(src, []).append(fid)
 
+        # -- at least one lane (section 3) ----------------------------------
+        # T-330. Counterpart to the YAML form's E-LANES-EMPTY, and the ONE of
+        # that task's three candidate holes that survived measurement: the
+        # bridge carries this defect through unchanged, emitting a <laneSet>
+        # with zero <lane> children. Its two siblings (E-LANE-FIELD,
+        # E-NODE-FIELD) are NOT holes -- yaml-to-bpmn.py repairs both by
+        # defaulting the missing carrier (height -> 120, x -> 0), so no defect
+        # reaches this form and a rule here would report a conformant bridged
+        # document as broken.
+        #
+        # Deliberately does not return: a map with no lanes still has flow
+        # nodes, ids and gateways worth validating, and O-3 must still be
+        # evaluated (T-199 -- a missing laneSet must not short-circuit it).
+        lane_set = process.find("{%s}laneSet" % BPMN_NS)
+        declared_lanes = (
+            [] if lane_set is None
+            else lane_set.findall("{%s}lane" % BPMN_NS)
+        )
+        if not declared_lanes:
+            self.err(
+                "E-XML-LANES-EMPTY",
+                "<bpmn:laneSet>" if lane_set is not None else "<bpmn:process>",
+                "no <bpmn:lane> declared; section 3 requires at least one lane",
+            )
+
         # -- lane membership (section 7.3) ----------------------------------
         assigned = set()
-        lane_set = process.find("{%s}laneSet" % BPMN_NS)
         if lane_set is not None:
             for ref_el in lane_set.iter("{%s}flowNodeRef" % BPMN_NS):
                 ref = (ref_el.text or "").strip()

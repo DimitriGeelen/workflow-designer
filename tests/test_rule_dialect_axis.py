@@ -112,6 +112,12 @@ CARRIER_CLASS = {
     "flow-node element":        STRUCTURE,
     "sequenceFlow":             STRUCTURE,
     "flowNodeRef":              STRUCTURE,
+    # T-330: the XML form's spelling of the YAML carrier "lanes" above. Named
+    # for the element rather than reusing "lanes" because every other XML-form
+    # carrier in this table is named for its element (sequenceFlow,
+    # flowNodeRef); a carrier key that silently spans both forms would hide
+    # which form a classification was actually measured on.
+    "bpmn:lane":                STRUCTURE,
 
     # -- semantic, MUST-emit -----------------------------------------------
     # §4: "Every node and edge MUST carry a stable `aef:uid`."
@@ -205,6 +211,12 @@ RULE_CARRIERS = {
     "E-XML-NODE-TYPE":          (("flow-node element",), STRUCTURAL),
     "E-XML-FLOW-DANGLING":      (("sequenceFlow",), STRUCTURAL),
     "E-XML-LANEREF-DANGLING":   (("flowNodeRef",), STRUCTURAL),
+    # T-330. Same carrier class and same polarity as the YAML form's
+    # E-LANES-EMPTY above ("lanes", STRUCTURAL) -- deliberately, because the
+    # two rules are the same claim about the same construct expressed on two
+    # forms. A divergence here would mean the pair T-328 now reports as
+    # AGREE agrees on the verdict while disagreeing on what kind of claim it is.
+    "E-XML-LANES-EMPTY":        (("bpmn:lane",), STRUCTURAL),
     "E-XML-GW-OUTGOING":        (("sequenceFlow",), STRUCTURAL),
     "W-XML-GW-AMBIGUOUS":       (("conditionExpression",), REQUIRES),
     "W-XML-NODE-UNASSIGNED":    (("flowNodeRef",), STRUCTURAL),

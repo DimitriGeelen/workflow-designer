@@ -143,7 +143,10 @@ PARITY = {
     "E-NOT-MAPPING":        (PAIRED, "E-XML-STRUCTURE"),
     "E-TOPLEVEL-MISSING":   (PAIRED, "E-XML-STRUCTURE"),
     "E-LANE-FIELD":         (PAIRED, "E-XML-STRUCTURE"),
-    "E-LANES-EMPTY":        (PAIRED, "E-XML-STRUCTURE"),
+    # T-330: was recorded here as PAIRED with E-XML-STRUCTURE, which never
+    # fires on a laneless-but-otherwise-wellformed document. The counterpart
+    # now exists and is named.
+    "E-LANES-EMPTY":        (PAIRED, "E-XML-LANES-EMPTY"),
     "E-NODE-FIELD":         (PAIRED, "E-XML-STRUCTURE"),
     "E-EDGE-FIELD":         (PAIRED, "E-XML-STRUCTURE"),
     "E-NODE-LANE":          (PAIRED, "E-XML-LANEREF-DANGLING"),
@@ -186,6 +189,7 @@ PARITY = {
     # ---- XML form --------------------------------------------------------
     "E-XML-STRUCTURE":      (PAIRED, "E-NOT-MAPPING / E-TOPLEVEL-MISSING / *-FIELD"),
     "E-XML-LANEREF-DANGLING": (PAIRED, "E-NODE-LANE"),
+    "E-XML-LANES-EMPTY":    (PAIRED, "E-LANES-EMPTY"),
     "E-XML-FLOW-DANGLING":  (PAIRED, "E-EDGE-DANGLING"),
     "E-XML-GW-OUTGOING":    (PAIRED, "E-GW-OUTGOING"),
     "E-XML-UID-DUP":        (PAIRED, "E-UID-DUP"),
