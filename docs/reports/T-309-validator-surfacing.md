@@ -399,10 +399,114 @@ divergence is not currently exercised*; it does not mean the implementations agr
 inference the T-320 census got wrong in the other direction, and the reason `OUT_OF_SCOPE_PROBES` is
 now empty.
 
+### 2026-08-02 — IW-1a priced (spike 3): **can a finding be pointed at?**
+
+IW-1a has been sitting as a taste question — gutter markers, an on-demand panel, or a save-time
+gate — and taste is the wrong instrument, because two of those three options require every finding
+to name a thing that **exists on the canvas at a position**. That is a property of the emitter and
+the renderer, not of anyone's preference, so it is measurable before the argument starts.
+
+**Method.** Two populations, deliberately separated.
+
+- **(A) Capability** — every `self.err/warn/info` call site read out of `tools/validate-workflow.py`
+  by `ast`, classified by *what its `location` string names*. Read from source, because a shape no
+  document happens to trigger is still a shape the designer would have to render. The classification
+  table is total and explicit: an unlisted rule id is a hard error, never a silent default (T-333).
+- **(B) Occupancy** — every finding actually emitted over 25 corpus BPMN + 22 BPMN fixtures, with
+  the id inside each `location` **resolved against the document it came from**.
+
+Scope is `XmlValidator` alone — **23 distinct rule ids** — because IW-2 already fixed the port
+surface there; the 34 `Validator` (YAML) call sites are not in the form the designer holds.
+
+**The `location` field is prose, not a reference.** `"node 'wrk_2_context'"`, `"lane '%s' -> lane
+'%s'"`, `"<bpmn:laneSet>"`. Any surface that points at something has to parse it back out. That is
+not fatal, but it is a cost that belongs to every option except the panel, and it is invisible until
+you look.
+
+| anchor class | rules | what the canvas can do with it |
+|---|---|---|
+| **NODE** | 12 | id → element carrying `<aef:position>` — a marker can sit on it |
+| **LANE** | 3 | id → band — a marker can sit on its header |
+| **LANE-PAIR** | 1 | `W-XML-LANE-GEOMETRY` names **two** lanes; which one carries the marker is undecided |
+| **DOC** | 3 | no id interpolated at all — nothing on the canvas to point at |
+| **VALUE** | 2 | a *duplicated* id: resolves to ≥2 elements, so "the" anchor does not exist |
+| **REFERENT** | 1 | names the id the rule asserts **does not resolve** |
+| **DROPPED** | 1 | resolves in the document and is still not on the canvas |
+
+**15 of 23 are gutter-able; 8 are not.** But the split by severity is the result that actually
+decides IW-1a:
+
+| severity | gutter-able | not | share a gutter would hide |
+|---|---|---|---|
+| ERROR | 4 | 6 | **60%** |
+| WARN | 10 | 1 | 9% |
+| INFO | 1 | 1 | 50% |
+
+**A gutter would show the author the advice and hide the errors.** The six ERROR rules with nowhere
+to land are `E-XML-STRUCTURE`, `E-XML-LANES-EMPTY`, `E-XML-ID-DUP`, `E-XML-UID-DUP`,
+`E-XML-LANEREF-DANGLING`, `E-XML-FLOW-DANGLING` — the structural ones, which is to say the ones you
+would most want to block a save on. This is not a coincidence: a finding is anchorable when the
+document is well-formed enough to have the element the finding is about, and the ERROR rules are
+precisely the ones that fire when it is not.
+
+**Two mechanisms produce an unanchorable finding, and they are different.**
+
+- `E-XML-LANEREF-DANGLING` (REFERENT): the id genuinely does not resolve — 5 witnesses in
+  `bare-catch-event.bpmn`. The canvas can only show the *referrer* (the lane), and the location
+  string never names it.
+- `E-XML-FLOW-DANGLING` (DROPPED): the id **does** resolve — the `sequenceFlow` element is right
+  there in the XML — and the edge is still not on the canvas, because `renderEdges`
+  (`src/aef-workflow-designer.html:3501-3504`) does `const src = findNode(e.source); … if (!src ||
+  !tgt) continue;`, and `findNode` (`src:2499`) matches on `uid`, which a dangling `targetRef` never
+  becomes. **Resolving against the document scores this one gutter-able, and that is wrong — the
+  document is not the canvas.** The renderer's own defensive skip is what removes the carrier.
+
+**Two rules degrade to a placeholder.** `E-XML-NODE-TYPE` and `E-XML-AUTHORITY` build their location
+as `"… '%s'" % (el.get('id') or '?')`. The element that lacks the identifier the canvas addresses it
+by is exactly the malformed element the author most needs pointed at, and it is the one the location
+cannot name. (The YAML side is worse — 22 of 34 sites use a `loc` that starts life as
+`"nodes[%d]" % i`, an index into the source array, and is upgraded to `node '<uid>'` *only if the
+node has a uid*.)
+
+**How much of this is verified, and how much is my reading.** The corpus cannot answer this question
+at all: 25 documents, **7 findings, 1 rule**, 24/25 clean. A percentage computed over it would be a
+corpus zero wearing a measurement's clothes. Adding the 22 BPMN fixtures gets 34 findings across 9
+rules. So:
+
+- **9 rows confirmed** by resolving real findings against real documents — 9 agree, **0 disagree**.
+- **3 more rows witnessed** by scratch probes built for this spike (a dangling `targetRef`, a
+  duplicated `bpmn:id`, an emptied `laneSet`), confirming `DROPPED`, `VALUE` and `DOC` respectively.
+- **11 rows rest on reading the location expression alone.** They are declared, not measured. The
+  headline 15/23 is a source-derived count; treat the 11 as the part that could move.
+
+**The nag budget (A-2), such as it is.** Over the fixtures: 13/22 clean, mean 3.8 findings on a
+dirty document, max 10. But findings cascade — the single duplicated-id probe produced four
+findings (`E-XML-ID-DUP`, two `E-XML-FLOW-DANGLING`, one `E-XML-LANEREF-DANGLING`) from one
+malformation. A live surface would show four problems where the author made one mistake, and the
+three derived ones are all in the unanchorable classes.
+
+**Consequence for IW-1a.** The options are not interchangeable and the measurement ranks them:
+
+1. **A panel can carry all 23 rules.** It is the only option with no anchorability precondition, and
+   the only one that can show a finding about an element the canvas has dropped.
+2. **A gutter/inline surface can carry 15 of 23 — and it inverts severity**, showing 91% of the
+   warnings and 40% of the errors. Shipping it alone would be a surface whose coverage is worst
+   exactly where the stakes are highest.
+3. **A save-time gate covers exactly what the gutter cannot**: the six structural ERRORs are the
+   findings with no canvas anchor, and a gate needs none. This makes IW-1a and IW-3 **complements
+   rather than alternatives** — the earlier note that "the class decides the channel" now has a
+   second axis, anchorability, that points the same way.
+
+What this does **not** decide: whether the panel is live or on-demand (A-2 is still untested), and
+whether the gate blocks or advises — that is the Authority Model question, and it is the operator's.
+Nothing here has been built; the spike is measurement only.
+
 ## Recommendation
 
-*(still empty as a whole-feature recommendation — IW-1a (surface: panel / inline / gutter) remains
-unpriced. IW-2 is now **priced but undecided**: the routes above carry measured costs, and the choice
-between them is an architecture call reserved to the operator. IW-3 no longer needs a separate
-ruling — the class decides the channel. IW-4 is closed: T-319 DECLINED on measurement, so the rule
-set needs no addition before the surface work.)*
+*(still empty as a whole-feature recommendation. **IW-1a is now priced, not decided**: a panel is the
+only option that can carry the whole rule set, a gutter inverts severity coverage, and a save-time
+gate is the complement of the gutter rather than a rival to it — the choice among them is a product
+call reserved to the operator. IW-2 is **priced but undecided**: the routes carry measured costs and
+the choice between them is an architecture call, also the operator's. IW-3 no longer needs a separate
+ruling — the class decides the channel, and anchorability now points the same way. IW-4 is closed:
+T-319 DECLINED on measurement, so the rule set needs no addition before the surface work.)*

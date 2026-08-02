@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-29T20:09:10Z
-last_update: 2026-08-02T07:48:10Z
+last_update: 2026-08-02T08:08:10Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -75,9 +75,32 @@ content and is therefore a rail conversation, not only a local feature.
 
 - **IW-1: Where do findings surface — live gutter markers on the canvas, an on-demand panel, or a
   save-time gate?**
-  confidence: 1
-  disposition:
-  rationale:
+  confidence: 3
+  disposition: PRICED, NOT DECIDED — anchorability measured over all 23 XmlValidator rules
+    (2026-08-02, spike 3); the choice among the three surfaces is a product call reserved to the
+    operator.
+  rationale: Two of the three options require every finding to name something that exists on the
+    canvas at a position, which is a property of the emitter and the renderer, not a preference.
+    15 of 23 rules are gutter-able (12 NODE, 3 LANE); 8 are not (3 DOC, 2 VALUE, 1 REFERENT,
+    1 DROPPED, 1 LANE-PAIR). Split by severity the gutter INVERTS coverage: it would show 91% of
+    WARNs and only 40% of ERRORs, because a finding is anchorable when the document is well-formed
+    enough to contain the element it is about, and the ERRORs are what fires when it is not. So a
+    panel is the only surface that can carry the whole set; a save-time gate covers exactly the six
+    structural ERRORs the gutter cannot show, making IW-1 and IW-3 complements rather than rivals.
+    Note `E-XML-FLOW-DANGLING`: the id RESOLVES in the document and the edge is still absent from
+    the canvas because renderEdges skips it (src:3501-3504) — resolving against the document scores
+    it anchorable and is wrong. 9 rows confirmed against real documents (0 disagreements), 3 more
+    by scratch probes, 11 rest on reading the location expression alone. Full working in
+    docs/reports/T-309-validator-surfacing.md.
+  <!-- Not decided by this spike: live-vs-on-demand (A-2 still untested) and whether a gate blocks
+       or advises (Authority Model — operator's call). The corpus cannot answer any of it: 25
+       documents, 7 findings, 1 of 23 rules, 24/25 clean. -->
+
+- **IW-1 addendum: the `location` field is prose, not a reference.** `"node 'wrk_2_context'"`,
+  `"lane '%s' -> lane '%s'"`, `"<bpmn:laneSet>"` — any surface that points at something must parse
+  the id back out of a sentence, and two rules (`E-XML-NODE-TYPE`, `E-XML-AUTHORITY`) degrade to
+  `'?'` for exactly the malformed element the author most needs pointed at. If a surface other than
+  the panel is chosen, a structured `location` is a prerequisite, not a nicety.
 
 - **IW-2: How do the Python rules reach the browser — port them to JS in the designer, call the
   existing validator over HTTP via the gallery sidecar, or compile/share a single rule spec?**
