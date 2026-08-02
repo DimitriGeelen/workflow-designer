@@ -549,3 +549,10 @@ learnings:
   date: 2026-08-02
   context: Added via context agent
   application: TBD
+- id: PL-078
+  learning: "A no-regression AC that NAMES baseline suites is worth only the suites it actually invokes. Cited-but-unrun baselines discriminate nothing: put each named baseline into ## Verification as a command so P-011 runs it mechanically."
+  source: P-001
+  task: T-331
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD
