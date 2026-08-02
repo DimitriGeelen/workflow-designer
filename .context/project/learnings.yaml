@@ -577,3 +577,10 @@ learnings:
   date: 2026-08-02
   context: Added via context agent
   application: TBD
+- id: PL-082
+  learning: "A bucket count is only a finding once the bucket is shown to be fillable: T-333's '0 always-fires' was a zero in a bucket never proven reachable — a capability zero wearing an occupancy zero's clothes, inside the answer to AEF's OBS-124 about exactly that. Prove the bucket fills (teeth) before reporting it empty. Corollary: a check whose WITNESSING state is unreachable for the instrument that would witness it (E-LOAD fires on file-not-found; the fixture runner only passes paths that exist) is invisible because a missing fixture looks identical to an impossible one."
+  source: P-001
+  task: T-309
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD
