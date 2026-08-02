@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-29T20:09:10Z
-last_update: 2026-08-02T08:08:10Z
+last_update: 2026-08-02T08:38:21Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -89,9 +89,14 @@ content and is therefore a rail conversation, not only a local feature.
     structural ERRORs the gutter cannot show, making IW-1 and IW-3 complements rather than rivals.
     Note `E-XML-FLOW-DANGLING`: the id RESOLVES in the document and the edge is still absent from
     the canvas because renderEdges skips it (src:3501-3504) — resolving against the document scores
-    it anchorable and is wrong. 9 rows confirmed against real documents (0 disagreements), 3 more
-    by scratch probes, 11 rest on reading the location expression alone. Full working in
-    docs/reports/T-309-validator-surfacing.md.
+    it anchorable and is wrong. Verification: 22 of 23 rows confirmed against real documents,
+    0 disagreements — 9 from on-disk BPMN, 3 from scratch probes, 10 more from the BRIDGED
+    documents the cross-form harness materialises in memory on every gating run. (My first pass
+    said "11 unverified" because its denominator was BPMN files ON DISK — the same
+    scoped-by-the-artifact-that-was-lying-around error as E-XML-FLOW-DANGLING, committed inside
+    the instrument that found it.) The one row still unmeasured is E-XML-STRUCTURE, and it is
+    unreachable rather than merely unwitnessed: no emitter produces a wrong root element.
+    Full working in docs/reports/T-309-validator-surfacing.md.
   <!-- Not decided by this spike: live-vs-on-demand (A-2 still untested) and whether a gate blocks
        or advises (Authority Model — operator's call). The corpus cannot answer any of it: 25
        documents, 7 findings, 1 of 23 rules, 24/25 clean. -->

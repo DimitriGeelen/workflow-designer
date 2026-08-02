@@ -479,6 +479,28 @@ rules. So:
 - **11 rows rest on reading the location expression alone.** They are declared, not measured. The
   headline 15/23 is a source-derived count; treat the 11 as the part that could move.
 
+**Correction, same session — that "11 unverified" was itself a measurement scoped by an accident,
+and it is the finding above happening to me one level up.** My denominator was *BPMN files on disk*.
+`tests/test_harness_cross_form_agreement.py` drives every YAML fixture through
+`tools/yaml-to-bpmn.py` and validates the result with `run_xml` — **BPMN documents that exist only in
+memory, produced on every gating run**. Re-resolving the anchor table against those bridged
+documents: 29 fixtures bridged, **19 XmlValidator rules witnessed, 19 agree, 0 disagree, 10 of them
+rows I had just called unverified.**
+
+**The table is 22 of 23 verified, not 12.** The one that remains is `E-XML-STRUCTURE` (root element
+is not `<bpmn:definitions>`) — and it is unmeasured for a structural reason, not a missing fixture:
+no emitter in the tree produces a document with the wrong root, so it is the same *unreachable
+witnessing state* as `E-LOAD` in T-333. A missing witness and an impossible one look identical until
+you ask which.
+
+The error direction was over-pessimistic, which is the safe way to be wrong — but the mechanism was
+identical to `E-XML-FLOW-DANGLING`: I queried the artifact that happened to be lying around rather
+than the one the property lives in. **I posted the finding to the rail and then committed it in the
+same instrument.** One row is also weaker than the tally suggests: the acceptance predicate for
+`VALUE` only checks that the duplicated id resolves to *something*, not that it resolves to **≥2**
+elements, which is the property that makes the class distinct. Counted as verified; read as
+partially verified.
+
 **The nag budget (A-2), such as it is.** Over the fixtures: 13/22 clean, mean 3.8 findings on a
 dirty document, max 10. But findings cascade — the single duplicated-id probe produced four
 findings (`E-XML-ID-DUP`, two `E-XML-FLOW-DANGLING`, one `E-XML-LANEREF-DANGLING`) from one
