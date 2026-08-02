@@ -22,15 +22,48 @@
 // This instrument supplies the missing direction -- output vs INPUT -- over a
 // population that deliberately includes documents the corpus cannot express.
 //
-// THE LOSSY SET IS MEASURED, NOT DECLARED. A hand-written "known lossy tags" list
+// THE EXPECTED SET IS MEASURED, NOT DECLARED. A hand-written "known lossy" list
 // would be a tolerance answerable only to itself: it could never fail for being
 // wrong, only for being out of date, and nothing would say which. Instead every
-// probe tag is exercised every run and the resulting SET is compared with EXPECTED.
-// A tag joining the set fails. A tag LEAVING it also fails, and says so -- that is
-// how this guard reports that T-337 landed, rather than quietly relaxing.
+// probe is exercised every run and the resulting VERDICT is compared with
+// EXPECTED. A verdict that worsens fails. A verdict that IMPROVES also fails, and
+// says so -- that is how this guard reports that a defect was fixed, rather than
+// quietly relaxing into a permission list.
+//
+// ---------------------------------------------------------------------------
+// T-339 WIDENING. G-016's decision_trigger names THREE populations: "malformed
+// input, out-of-vocabulary tags, unresolvable refs". T-338 shipped one of them
+// (out-of-vocabulary tags) and the prose reporting it did not say which. This
+// file now covers all three, plus a fourth found while covering the third.
+//
+// THE TRAP THIS AVOIDS. For the corpus and for out-of-vocabulary tags the wanted
+// property is LOSSLESSNESS and can be asserted directly. For MALFORMED input it
+// is not: refusing to load a broken document is CORRECT, and a guard demanding
+// preservation would go red exactly when the designer behaves well. The property
+// actually wanted is
+//
+//     either refuse visibly, or preserve -- silent partial acceptance is the defect
+//
+// so the malformed leg is three-way (REFUSED / PRESERVED / SILENTLY-PARTIAL) and
+// only the third fails. The same applies to unresolvable refs: dropping a
+// dangling flowNodeRef may be a legitimate repair, while dropping the ELEMENT
+// that carried it is loss -- those must not share a verdict.
+//
+// IDENTITY IS MEASURED BY uid, NOT BY STRING PRESENCE. Measuring "is this id
+// still somewhere in the output" produced a false data-loss reading on 4 maps
+// during T-339: a node orphaned from its lane is re-homed to the first lane,
+// which RECOMPUTES its display id (frw_6_x -> hum_1_x) and renumbers its
+// siblings. The uid was preserved throughout. On one map the string predicate
+// even read TRUE because a different node had inherited the vacated name. Node
+// counts and aef:uid sets are the discriminators; the id attribute is not.
+//
+// WHAT IS GATED AND WHAT IS ONLY REPORTED. Verdict SETS are gated. Per-map counts
+// (e.g. "4 of 24 maps re-home a lane") are printed but not gated, because a count
+// over the corpus moves whenever the corpus grows -- pinning it would rebuild the
+// G-015 shape: a global always-moving property inside a per-change gate.
 //
 // Usage: node tools/_t338-input-fidelity-cdp.mjs [--json]
-// Exit 0 = corpus lossless AND lossy set == expected; 1 = drift; 2 = misconfig.
+// Exit 0 = every measured verdict matches expectation; 1 = drift; 2 = misconfig.
 import { spawn } from 'node:child_process';
 import { mkdtempSync, existsSync, readFileSync, readdirSync, copyFileSync, rmSync } from 'node:fs';
 import { tmpdir, homedir } from 'node:os';
@@ -42,7 +75,12 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
 const SERVER = join(HERE, 'gallery-serve.py');
 const CORPUS = join(REPO, 'examples', 'aef-processes', 'rendered');
-const SRC = join(REPO, 'src', 'aef-workflow-designer.html');
+// Teeth-only seam. Defaults to the real designer; the gating runner never sets
+// this. It exists so a teeth run can mutate a COPY of the subject and prove that
+// the SILENTLY-PARTIAL and UID-LOST verdicts are reachable at all — without it,
+// "0 silent partial acceptances" would be a zero in a bucket never shown
+// fillable, which is indistinguishable from a bucket that cannot fill.
+const SRC = process.env.T338_DESIGNER_SRC || join(REPO, 'src', 'aef-workflow-designer.html');
 const JSON_OUT = process.argv.includes('--json');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -61,6 +99,87 @@ const PROBE_TAGS = [
 // every run and any difference in EITHER direction is a failure. Empty this after
 // T-337 lands and the guard will tell you if you were wrong to.
 const EXPECTED_LOSSY = new Set(PROBE_TAGS);
+
+// --- population 2: malformed input ----------------------------------------
+// Verdict per case is REFUSED (threw -- acceptable), PRESERVED (acceptable), or
+// SILENTLY-PARTIAL (accepted without complaint and lost content -- the defect).
+const MALFORMED = [
+  { id: 'not-wellformed-unclosed',  fn: x => x.replace('</bpmn:process>', '') },
+  { id: 'not-wellformed-badentity', fn: x => x.replace('<bpmn:process', '<bpmn:process foo="a & b"') },
+  { id: 'not-wellformed-mismatch',  fn: x => x.replace('</bpmn:definitions>', '</bpmn:definitionsX>') },
+  { id: 'no-process-element',       fn: x => x.replace(/<bpmn:process\b/, '<bpmn:processX').replace('</bpmn:process>', '</bpmn:processX>') },
+  { id: 'node-without-id',          fn: x => x.replace(/(<bpmn:serviceTask\s+)id="[^"]*"/, '$1') },
+  { id: 'wrong-root',               fn: x => x.replace('<bpmn:definitions', '<bpmn:definitionsWRONG').replace('</bpmn:definitions>', '</bpmn:definitionsWRONG>') },
+  { id: 'empty-document',           fn: () => '' },
+  { id: 'truncated-midway',         fn: x => x.slice(0, Math.floor(x.length / 2)) },
+];
+
+// Measured 2026-08-02 over all 24 rendered corpus maps. Every entry is the SET of
+// verdicts that case produced, sorted and joined -- so a case that behaves
+// differently on different maps is visible rather than averaged away.
+const EXPECTED_MALFORMED = {
+  'not-wellformed-unclosed':  'REFUSED',
+  'not-wellformed-badentity': 'REFUSED',
+  'not-wellformed-mismatch':  'REFUSED',
+  'no-process-element':       'REFUSED',
+  'node-without-id':          'PRESERVED',
+  'wrong-root':               'PRESERVED',
+  'empty-document':           'REFUSED',
+  'truncated-midway':         'REFUSED',
+};
+
+// --- population 3: unresolvable refs ---------------------------------------
+// Each mutation points one reference at a node that does not exist. The question
+// is what happens to the ELEMENT that carried the bad reference, and to the
+// identities (aef:uid) of everything in the document.
+const REF_CASES = [
+  { id: 'flow-sourceRef-dangling',
+    fn: x => x.replace(/(<bpmn:sequenceFlow\b[^>]*\bsourceRef=")[^"]*(")/, '$1__ghost__$2') },
+  { id: 'flow-targetRef-dangling',
+    fn: x => x.replace(/(<bpmn:sequenceFlow\b[^>]*\btargetRef=")[^"]*(")/, '$1__ghost__$2') },
+  { id: 'flowNodeRef-dangling',
+    fn: x => x.replace(/(<bpmn:flowNodeRef>)[^<]*(<\/bpmn:flowNodeRef>)/, '$1__ghost__$2') },
+  // The corpus contains zero boundaryEvents, so this case BUILDS its carrier
+  // rather than mutating an absent one -- otherwise it would silently skip and a
+  // population of zero would read as a pass. boundaryEvent IS in the importer's
+  // allowlist, so this asks a real question: what happens to a boundary event
+  // whose host task does not exist?
+  { id: 'attachedToRef-dangling',
+    fn: x => {
+      const at = x.indexOf('</bpmn:process>');
+      if (at < 0) return x;
+      const el = `\n    <bpmn:boundaryEvent id="probe_boundary" name="Probe boundary" attachedToRef="__ghost__">\n`
+        + `      <bpmn:extensionElements><aef:uid value="probe_boundary_uid"/></bpmn:extensionElements>\n`
+        + `    </bpmn:boundaryEvent>\n`;
+      return x.slice(0, at) + el + x.slice(at);
+    } },
+];
+
+// Verdict vocabulary: UID-LOST (an aef:uid present in the input is absent from
+// the output -- identity destroyed, data loss), UID-KEPT (every identity
+// survives), LANE-REHOMED (some node's lane assignment changed).
+//
+// LANE-REHOMED is gated even though it is not loss. Lane is not decoration in
+// this project -- it is WHO (IW-9: "Lane = who"), and an unresolvable
+// flowNodeRef silently reassigns the orphaned node to the `human` lane, i.e. to
+// sovereignty. Measured 2026-08-02: framework→human on every corpus map whose
+// mutated node was not already there. Gating the VERDICT rather than the count
+// keeps this corpus-size independent.
+const EXPECTED_REFS = {
+  'flow-sourceRef-dangling': 'UID-KEPT',
+  'flow-targetRef-dangling': 'UID-KEPT',
+  'flowNodeRef-dangling':    'LANE-REHOMED+UID-KEPT',
+  'attachedToRef-dangling':  'UID-KEPT',
+};
+
+// --- population 4: unknown SUB-TREE (found while covering population 3) -----
+// The corpus contains zero <bpmndi:BPMNDiagram> (0 of 175 local .bpmn files), so
+// the whole standard BPMN DI sub-tree is a vocabulary gap one granularity ABOVE
+// T-337's: not an unknown flow-node tag but an entire unknown branch. Every
+// mainstream BPMN modeller emits DI, so this is the shape a real third-party file
+// would arrive in. Filed as its own task; measured here because it is the same
+// class the instrument exists to watch.
+const EXPECTED_DI = 'DI-DROPPED';
 
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
 function freePort() { return new Promise((res, rej) => { const s = net.createServer(); s.listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => res(p)); }); s.on('error', rej); }); }
@@ -85,6 +204,50 @@ function census(xml) {
   return { nodes, flows, lanes };
 }
 
+// Identity, not string presence. See the header note on the T-339 false reading.
+const uidsOf = x => [...x.matchAll(/<aef:uid value="([^"]*)"/g)].map(m => m[1]);
+
+const NODE_TAGS = 'serviceTask|userTask|scriptTask|startEvent|endEvent|exclusiveGateway'
+  + '|parallelGateway|intermediateThrowEvent|intermediateCatchEvent|boundaryEvent|subProcess';
+
+// Lane membership keyed by DISPLAY id — used only to pick a mutation target.
+function laneOfNode(xml) {
+  const m = {};
+  const re = /<bpmn:lane\b[^>]*\bid="([^"]*)"[\s\S]*?<\/bpmn:lane>/g;
+  let g;
+  while ((g = re.exec(xml))) for (const r of g[0].matchAll(/<bpmn:flowNodeRef>([^<]*)<\/bpmn:flowNodeRef>/g)) m[r[1]] = g[1];
+  return m;
+}
+
+// Lane membership keyed by UID. A <bpmn:flowNodeRef> names a node by its DISPLAY
+// id, and the display id is computed from lane + ordinal + name — so it changes
+// whenever a node is re-homed, and re-numbers that node's siblings besides.
+// Comparing lane membership keyed by display id therefore measures renumbering,
+// not re-homing: the first version of this figure read 2 where the true answer
+// is 4. Resolve through aef:uid, which is the stable identity, and refuse to
+// report the figure at all if any reference cannot be resolved.
+function laneByUid(xml) {
+  const idToUid = {};
+  const re = new RegExp(`<bpmn:(${NODE_TAGS})\\b[^>]*\\bid="([^"]*)"[^>]*>([\\s\\S]*?)</bpmn:\\1>`, 'g');
+  let g;
+  while ((g = re.exec(xml))) {
+    const u = g[3].match(/<aef:uid value="([^"]*)"/);
+    idToUid[g[2]] = u ? u[1] : g[2];
+  }
+  const out = {}; const unmappable = [];
+  const laneRe = /<bpmn:lane\b[^>]*\bid="([^"]*)"[\s\S]*?<\/bpmn:lane>/g;
+  let l;
+  while ((l = laneRe.exec(xml))) {
+    for (const r of l[0].matchAll(/<bpmn:flowNodeRef>([^<]*)<\/bpmn:flowNodeRef>/g)) {
+      const ref = r[1];
+      if (ref === '__ghost__') continue;              // dangling by construction
+      if (!(ref in idToUid)) { unmappable.push(ref); continue; }
+      out[idToUid[ref]] = l[1];
+    }
+  }
+  return { lanes: out, unmappable };
+}
+
 // Inject one element carrying `tag` into the process, wired into nothing, so the
 // only thing that can remove it is the importer.
 function inject(xml, tag) {
@@ -96,6 +259,31 @@ function inject(xml, tag) {
   if (at < 0) return null;
   return xml.slice(0, at) + el + xml.slice(at);
 }
+
+// A minimal, standards-correct BPMN DI block. The corpus has none, so this probe
+// BUILDS its carrier rather than mutating an absent one -- otherwise the case
+// would silently skip and a population of zero would read as a pass.
+function injectDI(xml, realNodeId) {
+  const di = `
+  <bpmndi:BPMNDiagram id="DIProbe">
+    <bpmndi:BPMNPlane id="PlaneProbe" bpmnElement="Process_1">
+      <bpmndi:BPMNShape id="Shape_real" bpmnElement="${realNodeId}">
+        <dc:Bounds x="100" y="100" width="100" height="80"/>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+`;
+  let head = xml;
+  if (!/xmlns:bpmndi=/.test(head)) {
+    head = head.replace(/(<bpmn:definitions\b)/,
+      '$1 xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"');
+  }
+  const at = head.indexOf('</bpmn:definitions>');
+  if (at < 0) return null;
+  return head.slice(0, at) + di + head.slice(at);
+}
+
+const setStr = s => [...s].sort().join('+');
 
 async function main() {
   if (!existsSync(CORPUS)) { console.log('FAIL: no corpus at ' + CORPUS); process.exitCode = 2; return; }
@@ -132,6 +320,8 @@ async function main() {
       } catch(e) { return { threw: String(e && e.message || e) }; } })()`);
     };
 
+    const problems = [];
+
     // -- leg 1: the corpus must be lossless -------------------------------
     const corpusLoss = [];
     for (const m of maps) {
@@ -160,28 +350,126 @@ async function main() {
       probeRows.push({ tag, kept });
     }
 
+    // -- leg 3: malformed input (G-016 clause 1) --------------------------
+    // Three-way. Only SILENTLY-PARTIAL is a defect: refusing a broken document
+    // is correct behaviour and must not be able to turn this guard red.
+    const malformedRows = [];
+    for (const c of MALFORMED) {
+      const verdicts = new Set();
+      let applied = 0, partial = 0;
+      for (const m of maps) {
+        const src = c.fn(m.text);
+        if (src === m.text) continue;           // mutation did not apply to this map
+        applied++;
+        const r = await roundTrip(src);
+        if (r.threw) { verdicts.add('REFUSED'); continue; }
+        const a = census(src), b = census(r.xml);
+        const same = a.nodes === b.nodes && a.flows === b.flows && a.lanes === b.lanes;
+        if (same) verdicts.add('PRESERVED');
+        else { verdicts.add('SILENTLY-PARTIAL'); partial++; }
+      }
+      if (applied === 0) problems.push(`malformed case '${c.id}' applied to 0 of ${maps.length} maps — nothing was measured`);
+      malformedRows.push({ id: c.id, applied, partial, verdict: setStr(verdicts) });
+    }
+
+    // -- leg 4: unresolvable refs (G-016 clause 3) ------------------------
+    // Identity is the axis. Lane re-homing is counted and printed, not gated.
+    const refRows = [];
+    for (const c of REF_CASES) {
+      const verdicts = new Set();
+      let applied = 0, rehomed = 0, lost = 0;
+      const rehomedTo = new Set();
+      for (const m of maps) {
+        const src = c.fn(m.text);
+        if (src === m.text) continue;
+        applied++;
+        const r = await roundTrip(src);
+        if (r.threw) { verdicts.add('REFUSED'); continue; }
+        const uIn = new Set(uidsOf(src)), uOut = new Set(uidsOf(r.xml));
+        const missing = [...uIn].filter(u => !uOut.has(u));
+        if (missing.length) { verdicts.add('UID-LOST'); lost++; }
+        else verdicts.add('UID-KEPT');
+
+        // Lane comparison is baselined on the ORIGINAL document, never on the
+        // mutated one. The mutation replaces the victim's flowNodeRef with a
+        // ghost, so a before/after keyed on the mutated input EXCLUDES the very
+        // node whose fate is the question — it can only ever report collateral
+        // movement, and duly reported zero while the answer was four.
+        const O = laneByUid(m.text), B = laneByUid(r.xml);
+        if (O.unmappable.length || B.unmappable.length) {
+          problems.push(`ref case '${c.id}' on map '${m.name}': ${O.unmappable.length + B.unmappable.length} `
+            + `flowNodeRef(s) could not be resolved to a uid — the lane figure would be unsound, so it is not reported`);
+          continue;
+        }
+        let movedHere = false;
+        for (const u of Object.keys(O.lanes)) {
+          const to = B.lanes[u] ?? '(none)';
+          if (to !== O.lanes[u]) { movedHere = true; rehomedTo.add(`${O.lanes[u]}→${to}`); }
+        }
+        if (movedHere) { rehomed++; verdicts.add('LANE-REHOMED'); }
+      }
+      if (applied === 0) problems.push(`ref case '${c.id}' applied to 0 of ${maps.length} maps — nothing was measured`);
+      refRows.push({ id: c.id, applied, rehomed, lost, moves: [...rehomedTo].sort(), verdict: setStr(verdicts) });
+    }
+
+    // -- leg 5: an unknown SUB-TREE (standard BPMN DI) --------------------
+    let diApplied = 0, diKept = 0;
+    for (const m of maps) {
+      const anchor = Object.keys(laneOfNode(m.text))[0];
+      if (!anchor) continue;
+      const src = injectDI(m.text, anchor);
+      if (!src || !/<bpmndi:BPMNShape\b/.test(src)) continue;   // carrier not built
+      diApplied++;
+      const r = await roundTrip(src);
+      if (r.threw) continue;
+      if (/<bpmndi:BPMNShape\b/.test(r.xml)) diKept++;
+    }
+    if (diApplied === 0) problems.push('DI probe carrier could not be built on any map — nothing was measured');
+    const diVerdict = diKept === 0 ? 'DI-DROPPED' : (diKept === diApplied ? 'DI-PRESERVED' : 'DI-MIXED');
+
     // -- population assertions: the guard must not pass by testing nothing --
-    const problems = [];
     if (maps.length === 0) problems.push('corpus population is empty');
     if (probeRows.length === 0) problems.push('out-of-vocabulary population is empty — nothing was probed');
     if (notInjected.length) problems.push(`could not inject ${notInjected.length} probe tag(s): ${notInjected.join(', ')}`);
+    if (malformedRows.length === 0) problems.push('malformed population is empty — nothing was probed');
+    if (refRows.length === 0) problems.push('unresolvable-ref population is empty — nothing was probed');
 
     // -- verdict ----------------------------------------------------------
     const appeared = [...observedLossy].filter(t => !EXPECTED_LOSSY.has(t)).sort();
     const closed = [...EXPECTED_LOSSY].filter(t => !observedLossy.has(t)).sort();
 
-    const ok = corpusLoss.length === 0 && appeared.length === 0 && closed.length === 0 && problems.length === 0;
+    const malformedDrift = malformedRows.filter(r => r.verdict !== EXPECTED_MALFORMED[r.id]);
+    const refDrift = refRows.filter(r => r.verdict !== EXPECTED_REFS[r.id]);
+    const diDrift = diVerdict !== EXPECTED_DI;
+    const silentlyPartial = malformedRows.filter(r => r.partial > 0);
+    const uidLost = refRows.filter(r => r.lost > 0);
+
+    const ok = corpusLoss.length === 0 && appeared.length === 0 && closed.length === 0
+      && problems.length === 0 && malformedDrift.length === 0 && refDrift.length === 0 && !diDrift;
+
     if (JSON_OUT) {
-      console.log(JSON.stringify({ ok, corpus: maps.length, corpusLoss, probed: probeRows.length, lossy: [...observedLossy].sort(), appeared, closed, problems }, null, 2));
+      console.log(JSON.stringify({ ok, corpus: maps.length, corpusLoss, probed: probeRows.length,
+        lossy: [...observedLossy].sort(), appeared, closed,
+        malformed: malformedRows, refs: refRows, di: { verdict: diVerdict, applied: diApplied, kept: diKept },
+        problems }, null, 2));
     } else {
-      console.log(`input fidelity: ${maps.length} corpus maps round-tripped, ${probeRows.length} out-of-vocabulary tags probed (population the corpus does not contain).`);
+      console.log(`input fidelity: ${maps.length} corpus maps round-tripped; ${probeRows.length} out-of-vocabulary tags, `
+        + `${malformedRows.length} malformed shapes, ${refRows.length} unresolvable-ref shapes, 1 unknown sub-tree probed.`);
       console.log(`  corpus loss:  ${corpusLoss.length === 0 ? 'none — every map preserves node/flow/lane counts' : corpusLoss.length + ' map(s) LOST content'}`);
       console.log(`  lossy tags:   ${observedLossy.size}/${probeRows.length} — ${[...observedLossy].sort().join(', ') || '(none)'}`);
+      console.log(`  malformed:    ${silentlyPartial.length === 0 ? 'no silent partial acceptance — every case refuses visibly or preserves' : silentlyPartial.length + ' case(s) SILENTLY ACCEPTED a broken document and lost content'}`);
+      for (const r of malformedRows) console.log(`      ${r.id.padEnd(26)} ${r.verdict.padEnd(18)} (applied to ${r.applied}/${maps.length})`);
+      console.log(`  refs:         ${uidLost.length === 0 ? 'no identity lost — every aef:uid survives an unresolvable reference' : uidLost.length + ' case(s) DESTROYED an identity'}`);
+      for (const r of refRows) console.log(`      ${r.id.padEnd(26)} ${r.verdict.padEnd(22)} (applied ${r.applied}/${maps.length}; lane re-homed on ${r.rehomed}${r.moves.length ? ' — ' + r.moves.join(', ') : ''})`);
+      console.log(`  sub-tree:     ${diVerdict} — standard BPMN DI injected on ${diApplied}/${maps.length} maps, survived on ${diKept}`);
       for (const p of problems) console.log(`  POPULATION:   ${p}`);
       for (const c of corpusLoss) console.log(`  LOSS ${c.map}: ${c.threw ? 'threw ' + c.threw : `in ${JSON.stringify(c.input)} out ${JSON.stringify(c.output)}`}`);
       if (appeared.length) console.log(`  FAIL: a NEW vocabulary gap appeared — ${appeared.join(', ')} now lose content on a load→save round trip. A tag the importer does not know is not rejected, it is invisible, and export writes only what state holds (T-337).`);
       if (closed.length) console.log(`  FAIL: a vocabulary gap CLOSED — ${closed.join(', ')} now survive the round trip. This is good news the guard cannot silently absorb: remove them from EXPECTED_LOSSY in this file and re-run, so the improvement is recorded rather than assumed.`);
-      console.log(ok ? 'OK: the corpus round-trips losslessly, and the set of tags that lose content is exactly what was expected'
+      for (const r of malformedDrift) console.log(`  FAIL: malformed-input behaviour changed for '${r.id}' — expected ${EXPECTED_MALFORMED[r.id]}, measured ${r.verdict}. SILENTLY-PARTIAL means a broken document was accepted without complaint and content was dropped; any other change means the refuse/preserve behaviour moved and EXPECTED_MALFORMED must be updated deliberately.`);
+      for (const r of refDrift) console.log(`  FAIL: unresolvable-ref behaviour changed for '${r.id}' — expected ${EXPECTED_REFS[r.id]}, measured ${r.verdict}. UID-LOST means an aef:uid present in the input is absent from the output: a dangling reference destroyed an identity, which is data loss and not a repair.`);
+      if (diDrift) console.log(`  FAIL: unknown sub-tree behaviour changed — expected ${EXPECTED_DI}, measured ${diVerdict}. DI-PRESERVED is good news that must be recorded in EXPECTED_DI rather than absorbed; DI-MIXED means the outcome now depends on the map.`);
+      console.log(ok ? 'OK: every measured fidelity verdict matches expectation — corpus lossless, vocabulary gap set unchanged, no silent partial acceptance, no identity destroyed'
                      : 'FAIL: input fidelity moved — see above');
     }
     process.exitCode = ok ? 0 : 1;
