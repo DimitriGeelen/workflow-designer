@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-29T20:09:10Z
-last_update: 2026-08-02T08:38:21Z
+last_update: 2026-08-02T08:47:58Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -128,9 +128,27 @@ content and is therefore a rail conversation, not only a local feature.
        a real usage mode. -->
 
 - **IW-3: Are findings ever blocking, or always advisory?**
-  confidence: 2
-  disposition:
-  rationale:
+  confidence: 3
+  disposition: PRICED, NOT DECIDED — blocking vs advisory is an Authority Model call reserved to the
+    operator (2026-08-02, spike 4). What is now measured is what a gate would actually police.
+  rationale: Only ERROR rules are blocking candidates, so the prior question is whether a document
+    violating each can reach the editor at all. Measured over three channels (editor operation /
+    direct state write / import), every case starting from a real corpus map and exporting through
+    the real serializer, verdicts three-way so a silent guard is distinguishable from a silent
+    validator. VALIDATOR-BLIND = 0. Results: a gate would fire on 5 of 10 ERROR rules, and **4 of
+    those 5 arrive by import, not by authoring** — so a blocking gate would mostly refuse a save
+    over a defect that was in the opened map beforehand. Separately, 3 ERROR rules
+    (LANEREF-DANGLING, ID-DUP, LANES-EMPTY) are repaired inside parseBpmnXml and therefore cannot be
+    surfaced by ANY surface — that constrains IW-1 as much as IW-3. Import verdicts hold across all
+    24 corpus maps; widening from one map caught a MIXED reading that turned out to be a probe
+    artifact. Full working in docs/reports/T-309-validator-surfacing.md.
+  <!-- Correction recorded: an earlier Recommendation paragraph claimed IW-3 "no longer needs a
+       separate ruling" because the universal/dialect class decides the channel. That was a sentence
+       promoted past its measurement — the class decides WHERE a finding goes, not WHO may override
+       it. Authority was never in scope for IW-1b. -->
+  <!-- Spike 4 also surfaced a defect that is not a pricing input: E-XML-NODE-TYPE loses a node on
+       import (15/15 affected corpus maps, 15 nodes) and the export then validates clean. Filed as
+       its own build task per one-bug-one-task; it is upstream of every surfacing decision. -->
   <!-- Leaning advisory-only: the validator already grades its own findings ERROR vs WARN, and
        authority over what gets saved belongs to the human (Authority Model). A designer that
        refuses to save is the tool overriding the author. But E-GW-OUTGOING is an ERROR for a

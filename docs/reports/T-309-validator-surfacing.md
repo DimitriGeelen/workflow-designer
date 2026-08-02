@@ -532,12 +532,116 @@ What this does **not** decide: whether the panel is live or on-demand (A-2 is st
 whether the gate blocks or advises — that is the Authority Model question, and it is the operator's.
 Nothing here has been built; the spike is measurement only.
 
+### 2026-08-02 — IW-3 priced (spike 4): can the ERROR rules even be reached from here?
+
+IW-3 asks whether findings are ever blocking. Only ERROR rules are blocking candidates, so the
+question has a prior that nobody had asked: **can a document violating each ERROR rule arrive in
+this editor at all, and by which route?**
+
+IW-5 answered a neighbouring question and bounded itself honestly — 112 committed maps, zero
+findings, "the mid-authoring population a designer-side validator actually sees is NOT sampled". That
+zero cannot distinguish *authors do not make this mistake* from *the editor cannot express this
+mistake*, and those point opposite ways: the first says a gate has teeth and would rarely bite, the
+second says a gate is decoration. So IW-3 was never answerable from IW-5's number.
+
+**Method.** Three channels, measured separately because they are not interchangeable:
+
+- **editor-op** — a real entry point (`createNodeAt`, `deleteNode`, `deleteLane`, property writes)
+  produces the violating state. This is what an author can do.
+- **state-write** — only reachable by writing `state` directly. Tests the *serializer's* fidelity,
+  not the author's reach.
+- **import** — the document arrives through `parseBpmnXml`. This is the population that motivated
+  T-309 in the first place: the maps are AEF's.
+
+Every case starts from a fresh parse of a real corpus map and exports through the real
+`buildBpmnXml`, so nothing is simulated. Verdicts are three-way rather than pass/fail, because
+"the rule stayed quiet" has two causes that mean opposite things:
+
+| verdict | construct in the emitted bytes | rule fires | reading |
+|---|---|---|---|
+| `REACHABLE` | yes | yes | a gate would fire here |
+| `VALIDATOR-BLIND` | yes | **no** | a validator gap, not a surfacing question |
+| `NORMALISED` / `REPAIRED` | no | n/a | editor or serializer silently repaired it |
+| `DROPPED` | no, **and the element is gone** | n/a | silent data loss |
+
+`VALIDATOR-BLIND` came out **0** — no rule stayed silent on a defect that was actually in the bytes.
+The negative control is clean on both harnesses (unmutated map → 0 findings; 24 unmutated maps
+round-trip carrying no defect and losing no nodes), which is load-bearing: the first run of the
+per-case harness returned "nothing fires anywhere" for all 12 cases, and that was a misconfigured
+CLI flag, not a result. Without a control in the same table it would have read as a dramatic finding.
+
+**Result — 10 ERROR rules by channel** (import column measured across all 24 corpus maps):
+
+| rule | editor-op | state-write | import |
+|---|---|---|---|
+| `E-XML-GW-OUTGOING` | **REACHABLE** | — | PRESERVED 20/20 |
+| `E-INCEPTION-NOT-SOVEREIGN` | **REACHABLE** | — | not measured |
+| `E-XML-FLOW-DANGLING` | NORMALISED | — | PRESERVED 24/24 |
+| `E-XML-UID-DUP` | — | REACHABLE | PRESERVED 24/24 |
+| `E-XML-AUTHORITY` | — | REACHABLE | PRESERVED 24/24 |
+| `E-XML-LANES-EMPTY` | GUARDED | REACHABLE | REPAIRED 24/24 |
+| `E-XML-LANEREF-DANGLING` | — | NORMALISED | REPAIRED 24/24 |
+| `E-XML-ID-DUP` | — | NORMALISED | REPAIRED 24/24 |
+| `E-XML-NODE-TYPE` | — | REACHABLE | **DROPPED 15/15** |
+| `E-XML-STRUCTURE` | — | unreachable | not measured |
+
+Two editor-op guards are real and worth naming: `deleteNode` cascades to incident edges (so the
+dangling-flow case an author could most plausibly create does not survive), and `deleteLane` refuses
+below one lane. Neither was assumed — `deleteNode`'s cascade filters edges on `n.id` while edges
+reference nodes by `uid`, which reads like a live bug until you find `id: uid, // alias for compat`
+in the node constructor. Reading the constructor rather than trusting the shape is the whole
+difference between a finding and a false alarm here.
+
+**Answer 1 — a gate would fire on 5 rules, and 4 of them are not the author's doing.** Union of
+editor-op REACHABLE and import PRESERVED: `GW-OUTGOING`, `FLOW-DANGLING`, `UID-DUP`, `AUTHORITY`,
+`INCEPTION-NOT-SOVEREIGN`. Only two of those can be created by authoring; four arrive already
+present in an opened document. So a **blocking** gate would, in the dominant case, refuse to save
+because of a defect that was in someone else's map before the author touched it. That is the
+governance objection in the Authority Model note, but now as a measured ratio rather than a worry:
+**4 of 5**. It does not settle the question — an operator may well decide a map that cannot execute
+should not be saved regardless of who broke it — but it prices what blocking actually costs.
+
+**Answer 2 — three ERROR rules cannot be surfaced on an imported map by ANY surface.**
+`LANEREF-DANGLING`, `ID-DUP` and `LANES-EMPTY` are repaired during `parseBpmnXml`, so the defect
+never reaches `state`. A designer-side validator runs on state; there is nothing there to find. This
+is not a property of the gutter or the panel or the gate — it is upstream of all three, and it
+constrains **IW-1 as much as IW-3**. `LANEREF-DANGLING` round-trips *byte-identical to the clean
+control*: the map is silently rewritten and the author is told nothing.
+
+**Answer 3 — `E-XML-NODE-TYPE` is silent data loss, and it outranks the surfacing question.**
+A map carrying one unknown flow-node tag (`<bpmn:serviceTaks>`, the T-321 typo class) loses that node
+on import. Across the corpus: **15 maps, 15 nodes, gone** — and the exported result validates CLEAN,
+because the evidence was destroyed along with the node. No surfacing decision helps; there is nothing
+left to surface. Filed separately as a build task, per one-bug-one-task.
+
+**What this does not decide.** Whether the gate blocks or advises remains the operator's call under
+the Authority Model — this spike prices it, it does not rule on it. `E-INCEPTION-NOT-SOVEREIGN` and
+`E-XML-STRUCTURE` were not measured on the import channel.
+
+**Scope, stated rather than implied.** Import verdicts are one text-level mutation per rule per map,
+over 24 rendered corpus maps — chosen because a per-rule verdict established on a single carrier and
+then stated about "the importer" is a declaration scoped by its fixture, which this arc has already
+hit twice. Widening earned its keep immediately: on one map `GW-OUTGOING` read PRESERVED, and across
+24 it first read MIXED 20/4 — until an input-side check showed the 4 were **probe artifacts** whose
+mutation never created a defect (those gateways have 3+ outgoing, so removing one still leaves 2).
+Verdicts are now computed from *(defect in input, defect in output)*, not output alone. A verdict
+table that only inspects the output cannot tell a repair from a mutation that never landed.
+
 ## Recommendation
 
 *(still empty as a whole-feature recommendation. **IW-1a is now priced, not decided**: a panel is the
 only option that can carry the whole rule set, a gutter inverts severity coverage, and a save-time
 gate is the complement of the gutter rather than a rival to it — the choice among them is a product
 call reserved to the operator. IW-2 is **priced but undecided**: the routes carry measured costs and
-the choice between them is an architecture call, also the operator's. IW-3 no longer needs a separate
-ruling — the class decides the channel, and anchorability now points the same way. IW-4 is closed:
-T-319 DECLINED on measurement, so the rule set needs no addition before the surface work.)*
+the choice between them is an architecture call, also the operator's. **IW-3 is priced, not decided**
+— an earlier draft of this paragraph said it "no longer needs a separate ruling", which was my own
+sentence promoted past its measurement: the universal/dialect axis decides the **channel** a finding
+belongs in, and says nothing about **authority**, which is the whole of IW-3. Spike 4 now prices it:
+a gate would fire on 5 of 10 ERROR rules, 4 of those arrive by import rather than authoring, and 3
+more can never be surfaced at all because the importer repairs them before `state` exists. Blocking
+vs advisory remains the operator's call. IW-4 is closed: T-319 DECLINED on measurement, so the rule
+set needs no addition before the surface work.
+
+**One finding here is not a pricing input but a defect**: `E-XML-NODE-TYPE` loses a node per affected
+map on import (15/15 corpus maps) and the result validates clean. That is independent of every
+surfacing decision and is filed as its own build task.)*
