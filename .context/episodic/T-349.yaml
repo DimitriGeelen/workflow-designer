@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-349: Can any T-309 surface ever show the import-loss class (T-347/T-348)?
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-02T16:35:31Z
+# ============================================================================
+
+task_id: T-349
+task_name: "Can any T-309 surface ever show the import-loss class (T-347/T-348)?"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-02T16:33:08Z
+completed: 2026-08-02T16:35:29Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-02T18:35:24+02:00
+last_commit: 2026-08-02T18:35:24+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the whole import-loss class is invisible to all three priced T-309 surfaces, and the surface that CAN show it is not on the list. Located from source: loss happens inside parseBpmnXml (src:9595+), and both sites that populate state — src:9124 import and src:6911 _restoreSnapshot/undo — are downstream of a parseBpmnXml call, so this is a property of every route into state rather than of import alone. A panel and a gutter render from state; a save-gate evaluates buildBpmnXml(state); content that never entered state cannot reach any of them, independently of IW-2 — porting rules to JS, calling a sidecar or sharing a spec all produce the same blindness, because the constraint is what the surface READS, not where the rules run. The 3 ERROR rules already recorded as repaired-inside-parseBpmnXml were not one rule family: T-337 tags, T-340 DI, T-347 5 content shapes and T-348 7 root shapes are the same shape, and it is the shape of the import path. THE COUNTER-EXAMPLE THE AC DEMANDED SUCCEEDED, WHICH IS THE USEFUL PART: adoptImportedXml(text, opts) at src:9101 holds the original text in scope and calls parseBpmnXml(text) on the next line, so an input-vs-re-export comparison at that instant would see every loss in the class — exactly what _t338-input-fidelity-cdp.mjs does out-of-band; the text is simply discarded when the function returns. So the class is not unreachable, it is reachable by an unbuilt FOURTH surface, an import-time fidelity report, architecturally unlike the other three (no rule engine, no port-to-JS decision, no severity model — it compares two documents rather than evaluating predicates). Without the counter-example AC this task would have concluded 'no surface can show it', which is false and would have removed the only option worth building. Written into T-309 where the pricing decision lives; no designer source modified
+
+# Key outcomes
+outcomes:
+  - 'The input each T-309 surface reads is identified from source: **panel** and'
+  - 'The loss point is located from source, not memory: it occurs **inside**'
+  - 'Same method applied to all three — each was resolved by asking what it reads,'
+  - '**Counter-example attempt made, and it SUCCEEDED** — see below. The honest answer'
+  - 'Result written into T-309''s Inception Windows section, where the pricing decision'
+  - 'No designer source modified.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the whole import-loss class is invisible to all three priced T-309 surfaces, and the surface that CAN show it is not on the list. Located from source: loss happens inside parseBpmnXml (src:9595+), and both sites that populate state — src:9124 import and src:6911 _restoreSnapshot/undo — are downstream of a parseBpmnXml call, so this is a property of every route into state rather than of import alone. A panel and a gutter render from state; a save-gate evaluates buildBpmnXml(state); content that never entered state cannot reach any of them, independently of IW-2 — porting rules to JS, calling a sidecar or sharing a spec all produce the same blindness, because the constraint is what the surface READS, not where the rules run. The 3 ERROR rules already recorded as repaired-inside-parseBpmnXml were not one rule family: T-337 tags, T-340 DI, T-347 5 content shapes and T-348 7 root shapes are the same shape, and it is the shape of the import path. THE COUNTER-EXAMPLE THE AC DEMANDED SUCCEEDED, WHICH IS THE USEFUL PART: adoptImportedXml(text, opts) at src:9101 holds the original text in scope and calls parseBpmnXml(text) on the next line, so an input-vs-re-export comparison at that instant would see every loss in the class — exactly what _t338-input-fidelity-cdp.mjs does out-of-band; the text is simply discarded when the function returns. So the class is not unreachable, it is reachable by an unbuilt FOURTH surface, an import-time fidelity report, architecturally unlike the other three (no rule engine, no port-to-JS decision, no severity model — it compares two documents rather than evaluating predicates). Without the counter-example AC this task would have concluded ''no surface can show it'', which is false and would have removed the only option worth building. Written into T-309 where the pricing decision lives; no designer source modified'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-309-surface-workflow-validator-findings-in-t.md'
+  - '.tasks/active/T-349-can-any-t-309-surface-ever-show-the-impo.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-02T18:35:24"
+    action: "T-349: the whole import-loss class is invisible to all three priced T-309 surfaces, and the surface that CAN show it is not on the list. Located from source: loss happens inside parseBpmnXml (src:9595+), and both sites that populate state — src:9124 import and src:6911 _restoreSnapshot/undo — are downstream of a parseBpmnXml call, so this is a property of every route into state rather than of import alone. A panel and a gutter render from state; a save-gate evaluates buildBpmnXml(state); content that never entered state cannot reach any of them, independently of IW-2 — porting rules to JS, calling a sidecar or sharing a spec all produce the same blindness, because the constraint is what the surface READS, not where the rules run. The 3 ERROR rules already recorded as repaired-inside-parseBpmnXml were not one rule family: T-337 tags, T-340 DI, T-347 5 content shapes and T-348 7 root shapes are the same shape, and it is the shape of the import path. THE COUNTER-EXAMPLE THE AC DEMANDED SUCCEEDED, WHICH IS THE USEFUL PART: adoptImportedXml(text, opts) at src:9101 holds the original text in scope and calls parseBpmnXml(text) on the next line, so an input-vs-re-export comparison at that instant would see every loss in the class — exactly what _t338-input-fidelity-cdp.mjs does out-of-band; the text is simply discarded when the function returns. So the class is not unreachable, it is reachable by an unbuilt FOURTH surface, an import-time fidelity report, architecturally unlike the other three (no rule engine, no port-to-JS decision, no severity model — it compares two documents rather than evaluating predicates). Without the counter-example AC this task would have concluded 'no surface can show it', which is false and would have removed the only option worth building. Written into T-309 where the pricing decision lives; no designer source modified"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 2
+  lines_added: 264
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-349-can-any-t-309-surface-ever-show-the-impo.md
+generated_by: context-agent-hybrid

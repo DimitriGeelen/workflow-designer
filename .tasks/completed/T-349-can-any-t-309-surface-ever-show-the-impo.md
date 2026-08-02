@@ -4,10 +4,10 @@ name: "Can any T-309 surface ever show the import-loss class (T-347/T-348)?"
 description: >
   T-347 and T-348 measured silent loss that happens INSIDE parseBpmnXml, before state exists. T-309 is pricing three surfaces (panel / gutter / save-gate) that all read from state or from validator findings computed over state. If the loss is invisible to all three by construction, that constrains IW-1a/IW-2/IW-3 the same way the three parseBpmnXml-repaired ERROR rules already do (rail-393), and the operator should know before deciding.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T16:33:08Z
-last_update: 2026-08-02T16:33:08Z
-date_finished: null
+last_update: 2026-08-02T16:35:29Z
+date_finished: 2026-08-02T16:35:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -236,3 +236,15 @@ grep -q "T-349" .tasks/active/T-309-surface-workflow-validator-findings-in-t.md
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-349-can-any-t-309-surface-ever-show-the-impo.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4f4cb111
+- **Timestamp:** 2026-08-02T16:35:30Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-02T16:35:29Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
