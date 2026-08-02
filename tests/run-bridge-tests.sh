@@ -548,6 +548,23 @@ else
 fi
 
 echo
+echo "== Check-pass reachability (T-333, AEF OBS-124) =="
+# The dual this arc had NOT instrumented. Teeth, discrimination probes and
+# PAIRED_SAME_ID all attack the VACUOUS pass (a check that never evaluates).
+# AEF's 19-hook bug was the other one: the check's PASSING state was
+# unreachable, so it failed on 100% of runs and read as decoration. A validator
+# rule is not an assertion in a suite — it is a predicate over documents, and it
+# can fire on every document that exists without any suite noticing, because
+# firing is not failing. This asks, per rule, whether BOTH branches are
+# reachable on real inputs, with form-scoped denominators.
+if python3 "$ROOT/tests/test_check_pass_reachability.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "a validator rule fires on every document of its form (unreachable passing state, AEF OBS-124), or the never-witnessed declaration stopped describing the tree (T-333)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Runner-orphan guard (T-316) =="
 # The guard for the class above: any collectable test file (test_*.py, *_test.py,
 # *.bats) that this runner does not invoke is a finding. Checks membership in

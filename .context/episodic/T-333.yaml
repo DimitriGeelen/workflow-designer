@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-333: Audit non-gating assertion surfaces for unreachable pass states (AEF OBS-124 counterpart)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-02T07:38:04Z
+# ============================================================================
+
+task_id: T-333
+task_name: "Audit non-gating assertion surfaces for unreachable pass states (AEF OBS-124 counterpart)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-02T07:05:14Z
+completed: 2026-08-02T07:36:15Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'AC1 — The population is enumerated MECHANICALLY from the OUTPUT of green'
+  - 'AC2 — The four rail-381 surfaces each carry a verdict from reading the'
+  - 'AC3 — The reachability question is asked in its MECHANICAL form — per'
+  - 'AC4 — The instrument DISCRIMINATES, proven by teeth rather than argued:'
+  - 'AC5 — Findings reported with WITNESSES, not counts: each never-witnessed'
+  - 'AC6 — Prevention, not just mitigation (G-019):'
+  - 'AC7 — No-regression baselines, each RUN this session and quoted from the'
+  - 'AC8 — Result posted to the AEF rail, including the correction to my own'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 31 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 31
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-333-audit-non-gating-assertion-surfaces-for-.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,7 @@
+# T-333 fixture. The top-level-not-a-mapping guard (validate-workflow.py:259)
+# had never been witnessed firing on any corpus document or fixture. Parses
+# cleanly as YAML, so it reaches validate() -- and is a sequence, not a mapping.
+- workflowMeta:
+    id: not-a-mapping-at-the-top-level
+    version: 1
+    schemaVersion: 2

@@ -1,0 +1,9 @@
+# T-333 fixture. The YAML parse-error path had never been witnessed firing --
+# not by any of the 90 corpus documents, not by any of the 46 fixtures -- while
+# its XML counterpart E-XML-PARSE has had a fixture since intake. A one-form-only
+# asymmetry that nothing declared, so nothing could report it.
+#
+# Deliberately malformed: an unterminated flow mapping. yaml.safe_load raises
+# YAMLError, run_yaml() converts it to E-YAML-PARSE, exit 2.
+workflowMeta: {id: t, version: 1
+lanes:
