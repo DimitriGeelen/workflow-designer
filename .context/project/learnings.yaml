@@ -570,3 +570,10 @@ learnings:
   date: 2026-08-02
   context: Added via context agent
   application: TBD
+- id: PL-081
+  learning: "Two duals, and I only had one: a VACUOUS pass (the check never evaluates, reads as confirmation) and an UNREACHABLE pass (the check always fails, reads as decoration). Teeth prove a guard CAN FAIL; nothing proves a guard CAN PASS. Gating suites answer it by construction only where the runner's exit code is load-bearing — surfaces whose failure is PRINTED rather than gated are unprotected."
+  source: P-001
+  task: T-333
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD
