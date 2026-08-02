@@ -582,6 +582,24 @@ else
 fi
 
 echo
+echo "== Input fidelity: load→save preserves content (T-338, G-016) =="
+# The tree's other export-safety instrument (_t308-export-byte-identity-cdp.mjs)
+# is DIFFERENTIAL: it compares working-tree output against git-ref output, over
+# 24 well-formed maps. A defect present in BOTH versions is byte-identical and
+# therefore green, and malformed input is outside its denominator entirely —
+# T-337 (import silently deletes a flow node whose tag is outside the importer's
+# allowlist) survived in exactly that intersection. This supplies the missing
+# direction, output vs INPUT, over a population the corpus cannot express. The
+# lossy-tag set is MEASURED every run and compared with the expected set, so a
+# new vocabulary gap fails AND a gap that closes fails rather than being absorbed.
+if node "$ROOT/tools/_t338-input-fidelity-cdp.mjs"; then
+  pass=$((pass + 1))
+else
+  report FAIL "a load→save round trip stopped preserving content, or the set of BPMN tags that lose content changed in either direction (T-338/G-016 — if a gap CLOSED, update EXPECTED_LOSSY in tools/_t338-input-fidelity-cdp.mjs so the improvement is recorded)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Runner-orphan guard (T-316) =="
 # The guard for the class above: any collectable test file (test_*.py, *_test.py,
 # *.bats) that this runner does not invoke is a finding. Checks membership in
