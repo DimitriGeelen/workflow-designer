@@ -598,3 +598,17 @@ learnings:
   date: 2026-08-02
   context: Added via context agent
   application: TBD
+- id: PL-085
+  learning: "An instrument that resolves a finding's reference against the SOURCE document can score it anchorable when the CONSUMER has dropped it: E-XML-FLOW-DANGLING names a sequenceFlow that exists in the XML, but renderEdges skips any edge whose endpoint findNode() misses, so nothing is on the canvas to mark. Resolve against the artifact the consumer renders, not the one the checker parsed."
+  source: P-001
+  task: T-309
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD
+- id: PL-086
+  learning: "When a measurement is retracted, the durable fix is a teeth leg that makes the retracted assumption a FAILING case, not a resolution to be more careful. T-335 leg (e) deletes the bridged document population from the guard's own denominator and requires a red — normal teeth prove a guard catches defects in its subject; this proves it catches a defect in its own SCOPE."
+  source: P-001
+  task: T-335
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD
