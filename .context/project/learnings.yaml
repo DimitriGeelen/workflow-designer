@@ -556,3 +556,17 @@ learnings:
   date: 2026-08-02
   context: Added via context agent
   application: TBD
+- id: PL-079
+  learning: "A tolerance declared per RULE is verified against whatever input was to hand and silently generalised over every other carrier that rule fires on. Record a per-carrier verdict map whose keys must EQUAL the rule's carrier list (imported, not re-typed) and guard the equality — a prose note stating the measured scope is honest but cannot fail."
+  source: P-001
+  task: T-332
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD
+- id: PL-080
+  learning: "SEVERITY DRIFT ACROSS A SEAM: a cross-form harness that classifies by rule-id PRESENCE cannot distinguish 'caught under a different id at the same severity' from 'ERROR on one form, WARN on the other'. The second means a document one form calls invalid crosses the seam as one that merely warns. Classify by (id, severity), not id."
+  source: P-001
+  task: T-332
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD

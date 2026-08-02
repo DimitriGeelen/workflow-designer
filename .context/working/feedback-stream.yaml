@@ -3599,3 +3599,21 @@ scan_id: R-e828aa5b
 task_id: T-331
 payload:
   task_file: .tasks/active/T-331-o-1-skip-population-authority-values-map.md
+---
+kind: scan_emitted
+timestamp: '2026-08-02T06:01:58Z'
+scan_id: R-620aaf39
+task_id: T-332
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-02T06:01:58Z'
+scan_id: R-620aaf39
+task_id: T-332
+payload:
+  task_file: .tasks/active/T-332-bridgerepaired-is-declared-per-rule-id-b.md
