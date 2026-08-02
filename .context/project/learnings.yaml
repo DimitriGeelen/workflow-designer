@@ -633,3 +633,17 @@ learnings:
   date: 2026-08-02
   context: Added via context agent
   application: TBD
+- id: PL-090
+  learning: "A mitigation string in a report is an untested claim: 'Run: fw fabric enrich' was the audit's sole priority action for 13 consecutive audits and is a structural no-op. Verify that a prescribed remedy can move the metric it is attached to before the report recommends it — a remedy that cannot is indistinguishable, on the reader's screen, from one nobody has run."
+  source: P-001
+  task: T-342
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD
+- id: PL-091
+  learning: "Two checks over the same question agreeing is only evidence if BOTH could have disagreed. An inert check (empty input set, or the same verdict on every branch) agrees with everything, and converts a shared blind spot into apparent independent corroboration. Vary the input and require them to move together; make 'they disagree' red rather than something a reader must notice."
+  source: P-001
+  task: T-342
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD
