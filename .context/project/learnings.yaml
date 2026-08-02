@@ -647,3 +647,10 @@ learnings:
   date: 2026-08-02
   context: Added via context agent
   application: TBD
+- id: PL-092
+  learning: "An acceptance criterion that ENUMERATES gets ticked from the memory of the plan rather than from the artifact — twice on one arc an AC named a probe case that was never implemented and was ticked anyway. P-010 checks the box is ticked, never that the sentence is true. Before ticking any AC containing a list, re-read the list against what shipped; amend in place with the reason an item is deliberately absent. Prefer ACs stating a property over ACs listing instances."
+  source: P-001
+  task: T-346
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD

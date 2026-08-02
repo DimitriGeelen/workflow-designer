@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-346: Measure content-level import fidelity for tags that ARE in the allowlist (unknown child elements and unknown attributes)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-02T11:39:05Z
+# ============================================================================
+
+task_id: T-346
+task_name: "Measure content-level import fidelity for tags that ARE in the allowlist (unknown child elements and unknown attributes)"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-02T11:28:21Z
+completed: 2026-08-02T11:37:25Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-02T13:37:21+02:00
+last_commit: 2026-08-02T13:37:21+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  fifth population — the CONTENT of elements the importer ACCEPTS. Populations 1-4 ask whether a thing is accepted; this asks what happens inside a thing already accepted. parseBpmnXml reaches for ~10 named children and 2 attributes and has no complement branch; export writes only from state. Measured over 24 maps: 5 non-derivable shapes silently dropped — bpmn:documentation, a foreign child inside extensionElements (the T-259 shape verbatim), bpmn:property, multiInstanceLoopCharacteristics, an unknown namespaced attribute. Node/flow/lane counts identical throughout, which is exactly why every existing instrument is green. Two rows make the leg discriminate rather than merely report: conditionExpression is a positive control (read at src:9855, emitted at src:9540) and comes back PRESERVED, and incoming/outgoing is expected-dropped-and-benign because it is derivable. Teeth 5/5 with legs (a)/(b) mutating the DESIGNER so both verdict buckets are proven fillable in the subject, not the instrument; legs (c)/(d) attack the guard's own denominator and injection step. CONTENT-MOVED is recorded as reachable-in-principle but NOT proven fillable rather than left to read as 'no relocation occurs'. Defect filed as T-347, unfixed — repair semantics change what we emit for AEF content (T-559). One AC amended after ticking: it named ioSpecification, which I had not implemented
+
+# Key outcomes
+outcomes:
+  - '`tools/_t338-input-fidelity-cdp.mjs` gains a content-fidelity leg over accepted'
+  - 'The probe population deliberately includes content **the corpus does not carry** —'
+  - 'Verdicts are three-way per shape and computed from **(present in input, present in'
+  - 'The expected set is **re-measured every run and a gap that CLOSES also fails**'
+  - 'Teeth: every verdict bucket is proven **fillable by mutating the DESIGNER**, not the'
+  - 'Every zero in the reported result names its kind (construction vs occupancy) in the'
+  - 'Any defect found is filed as its own task and **not fixed** — repair semantics here'
+  - 'Gating suites stay green: bridge suite `0 failed`, and the widened instrument runs'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'fifth population — the CONTENT of elements the importer ACCEPTS. Populations 1-4 ask whether a thing is accepted; this asks what happens inside a thing already accepted. parseBpmnXml reaches for ~10 named children and 2 attributes and has no complement branch; export writes only from state. Measured over 24 maps: 5 non-derivable shapes silently dropped — bpmn:documentation, a foreign child inside extensionElements (the T-259 shape verbatim), bpmn:property, multiInstanceLoopCharacteristics, an unknown namespaced attribute. Node/flow/lane counts identical throughout, which is exactly why every existing instrument is green. Two rows make the leg discriminate rather than merely report: conditionExpression is a positive control (read at src:9855, emitted at src:9540) and comes back PRESERVED, and incoming/outgoing is expected-dropped-and-benign because it is derivable. Teeth 5/5 with legs (a)/(b) mutating the DESIGNER so both verdict buckets are proven fillable in the subject, not the instrument; legs (c)/(d) attack the guard''s own denominator and injection step. CONTENT-MOVED is recorded as reachable-in-principle but NOT proven fillable rather than left to read as ''no relocation occurs''. Defect filed as T-347, unfixed — repair semantics change what we emit for AEF content (T-559). One AC amended after ticking: it named ioSpecification, which I had not implemented'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-346-measure-content-level-import-fidelity-fo.md'
+  - '.tasks/active/T-347-content-inside-an-accepted-element-is-si.md'
+  - 'tools/_t338-input-fidelity-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-02T13:37:21"
+    action: "T-346: fifth population — the CONTENT of elements the importer ACCEPTS. Populations 1-4 ask whether a thing is accepted; this asks what happens inside a thing already accepted. parseBpmnXml reaches for ~10 named children and 2 attributes and has no complement branch; export writes only from state. Measured over 24 maps: 5 non-derivable shapes silently dropped — bpmn:documentation, a foreign child inside extensionElements (the T-259 shape verbatim), bpmn:property, multiInstanceLoopCharacteristics, an unknown namespaced attribute. Node/flow/lane counts identical throughout, which is exactly why every existing instrument is green. Two rows make the leg discriminate rather than merely report: conditionExpression is a positive control (read at src:9855, emitted at src:9540) and comes back PRESERVED, and incoming/outgoing is expected-dropped-and-benign because it is derivable. Teeth 5/5 with legs (a)/(b) mutating the DESIGNER so both verdict buckets are proven fillable in the subject, not the instrument; legs (c)/(d) attack the guard's own denominator and injection step. CONTENT-MOVED is recorded as reachable-in-principle but NOT proven fillable rather than left to read as 'no relocation occurs'. Defect filed as T-347, unfixed — repair semantics change what we emit for AEF content (T-559). One AC amended after ticking: it named ioSpecification, which I had not implemented"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 1
+  files_changed: 3
+  lines_added: 715
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-346-measure-content-level-import-fidelity-fo.md
+generated_by: context-agent-hybrid

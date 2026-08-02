@@ -4,20 +4,20 @@ name: "Measure content-level import fidelity for tags that ARE in the allowlist 
 description: >
   G-016's trigger named three populations — out-of-vocabulary tags, malformed input, unresolvable refs — and T-338/T-339 covered all three. A fourth is unnamed and unmeasured: a flow node whose TAG is in the allowlist but whose CONTENT is not fully consumed. T-259 proves the class is live and recurrent (an unconsumed aef:eventDef destroyed on layout-only open-save reached a shipped release, the rail-201 field defect). Measure what fraction of an accepted element's own children and attributes survive a round trip.
 
-status: started-work
+status: work-completed
 workflow_type: test
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t338-input-fidelity-cdp.mjs]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:28:21Z
-last_update: 2026-08-02T11:28:21Z
-date_finished: null
+last_update: 2026-08-02T11:37:25Z
+date_finished: 2026-08-02T11:37:25Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -318,3 +318,15 @@ out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "0 failed"
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-346-measure-content-level-import-fidelity-fo.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-5f9cb96a
+- **Timestamp:** 2026-08-02T11:39:03Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-02T11:37:25Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

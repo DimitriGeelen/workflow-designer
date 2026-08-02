@@ -3725,3 +3725,39 @@ scan_id: R-300052c9
 task_id: T-339
 payload:
   task_file: .tasks/active/T-339-widen-the-input-fidelity-instrument-to-t.md
+---
+kind: scan_emitted
+timestamp: '2026-08-02T11:25:55Z'
+scan_id: R-d0a26452
+task_id: T-342
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-02T11:25:55Z'
+scan_id: R-d0a26452
+task_id: T-342
+payload:
+  task_file: .tasks/active/T-342-measure-whether-the-audits-standing-fabr.md
+---
+kind: scan_emitted
+timestamp: '2026-08-02T11:39:03Z'
+scan_id: R-5f9cb96a
+task_id: T-346
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-02T11:39:03Z'
+scan_id: R-5f9cb96a
+task_id: T-346
+payload:
+  task_file: .tasks/active/T-346-measure-content-level-import-fidelity-fo.md
