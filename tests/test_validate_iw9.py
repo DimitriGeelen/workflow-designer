@@ -209,6 +209,106 @@ def failures():
             "W-TYPE-LANE-MISMATCH — absent authority is not a mismatch"
         )
 
+    # ---- T-331: the collapse map must be a TOTAL partition of AUTHORITIES ----
+    #
+    # This is the instrument the old design lacked. Before T-331 the claim that
+    # "external" and "none" were "absent on purpose" lived in a comment, which
+    # cannot fail. A sixth authority value could be admitted to the vocabulary
+    # and would silently land in the same un-decided bucket, disabling O-1 for
+    # every node under it — the exact way the current 7-node population arose.
+    owner_keys = set(vw.AUTHORITY_OWNER)
+    decided = owner_keys | vw.AUTHORITY_NO_TASK | vw.AUTHORITY_NO_OWNER_DERIVABLE
+
+    undecided = vw.AUTHORITIES - decided
+    if undecided:
+        fails.append(
+            "(m) authority value(s) %s are in AUTHORITIES but state no compiled "
+            "outcome: absent from AUTHORITY_OWNER, AUTHORITY_NO_TASK and "
+            "AUTHORITY_NO_OWNER_DERIVABLE alike. Every accepted value must say "
+            "what it compiles to; silence here disables O-1 for every node in "
+            "such a lane." % sorted(undecided)
+        )
+
+    phantom = decided - vw.AUTHORITIES
+    if phantom:
+        fails.append(
+            "(n) authority value(s) %s state a compiled outcome but are not in "
+            "AUTHORITIES — a decision about a value no document can carry. "
+            "Either the vocabulary lost a member or the table gained one."
+            % sorted(phantom)
+        )
+
+    overlap = (
+        (owner_keys & vw.AUTHORITY_NO_TASK)
+        | (owner_keys & vw.AUTHORITY_NO_OWNER_DERIVABLE)
+        | (vw.AUTHORITY_NO_TASK & vw.AUTHORITY_NO_OWNER_DERIVABLE)
+    )
+    if overlap:
+        fails.append(
+            "(o) authority value(s) %s appear in more than one outcome table — "
+            "the partition is ambiguous, so which branch wins depends on "
+            "evaluation order rather than on a decision." % sorted(overlap)
+        )
+
+    # (p) W-LANE-NO-OWNER fires: a task in a lane whose authority has no
+    #     compiled outcome. Uses the live table rather than the literal "none"
+    #     so the leg follows the decision if the partition is re-cut.
+    unmapped = sorted(vw.AUTHORITY_NO_OWNER_DERIVABLE)[0]
+    no_owner_doc = (
+        BPMN_HEAD
+        + '<bpmn:laneSet id="LS">'
+        + lane("L1", unmapped, ["st1"])
+        + "</bpmn:laneSet>"
+        + '<bpmn:serviceTask id="st1" name="svc"><bpmn:extensionElements>'
+        '<aef:uid value="u1"/></bpmn:extensionElements></bpmn:serviceTask>'
+        + BPMN_TAIL
+    )
+    if "W-LANE-NO-OWNER" not in rules(no_owner_doc):
+        fails.append(
+            "(p) serviceTask in a '%s' lane NOT flagged W-LANE-NO-OWNER — "
+            "the lane is the sole authority-of-record and yields no owner"
+            % unmapped
+        )
+
+    # (q) DISCRIMINATION, not just firing: the same document shape with an
+    #     AUTHORITY_NO_TASK value must stay silent. `external -> no task` is a
+    #     decided outcome; warning on a decision trains the warning away. A leg
+    #     that only checked (p) would pass for a rule that fires on everything.
+    no_task = sorted(vw.AUTHORITY_NO_TASK)[0]
+    external_doc = (
+        BPMN_HEAD
+        + '<bpmn:laneSet id="LS">'
+        + lane("L1", no_task, ["st1"])
+        + "</bpmn:laneSet>"
+        + '<bpmn:serviceTask id="st1" name="svc"><bpmn:extensionElements>'
+        '<aef:uid value="u1"/></bpmn:extensionElements></bpmn:serviceTask>'
+        + BPMN_TAIL
+    )
+    if "W-LANE-NO-OWNER" in rules(external_doc):
+        fails.append(
+            "(q) serviceTask in a '%s' lane wrongly flagged "
+            "W-LANE-NO-OWNER — that value HAS a compiled outcome (no "
+            "task); the rule must separate un-decided from decided-to-be-none"
+            % no_task
+        )
+
+    # (r) and it must stay silent where an owner IS derivable, so the rule is
+    #     not simply "warn on every task node".
+    owned_doc = (
+        BPMN_HEAD
+        + '<bpmn:laneSet id="LS">'
+        + lane("L1", "initiative", ["st1"])
+        + "</bpmn:laneSet>"
+        + '<bpmn:serviceTask id="st1" name="svc"><bpmn:extensionElements>'
+        '<aef:uid value="u1"/></bpmn:extensionElements></bpmn:serviceTask>'
+        + BPMN_TAIL
+    )
+    if "W-LANE-NO-OWNER" in rules(owned_doc):
+        fails.append(
+            "(r) serviceTask in an 'initiative' lane wrongly flagged "
+            "W-LANE-NO-OWNER — that authority collapses to an owner"
+        )
+
     return fails
 
 
@@ -219,8 +319,9 @@ def main():
             sys.stderr.write("FAIL: %s\n" % f)
         return 1
     print("OK: IW-9 validator rules (O-1 W-TYPE-LANE-MISMATCH, O-3 "
-          "E-INCEPTION-NOT-SOVEREIGN) — 14 checks pass, incl. the full "
-          "absent-authority family (T-199)")
+          "E-INCEPTION-NOT-SOVEREIGN, W-LANE-NO-OWNER) — 20 checks pass, "
+          "incl. the full absent-authority family (T-199) and the T-331 "
+          "total-partition guard over AUTHORITIES")
     return 0
 
 

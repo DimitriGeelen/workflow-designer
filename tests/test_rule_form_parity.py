@@ -219,6 +219,14 @@ PARITY = {
     # word for it.
     "W-TYPE-LANE-MISMATCH": (PAIRED_SAME_ID, "IW-9 O-1, both forms (T-322)"),
     "E-INCEPTION-NOT-SOVEREIGN": (PAIRED_SAME_ID, "IW-9 O-3, both forms (T-322)"),
+    # T-331. Same id in both forms deliberately, following its two neighbours
+    # above rather than the W-XML- prefix convention: one predicate over one
+    # module-scope table, and PAIRED_SAME_ID carries the stronger guard (the id
+    # must be EMITTED by both forms, so deleting either goes red -- a two-id
+    # pairing would rest on this note instead).
+    "W-LANE-NO-OWNER":      (PAIRED_SAME_ID, "authority accepted by the "
+                                             "vocabulary with no compiled "
+                                             "outcome, both forms (T-331)"),
     "W-XML-LANE-GEOMETRY":  (GAP, "node y carried by 24/24 yaml maps; no YAML "
                                   "rule (0 live). NOT out of scope -- see the "
                                   "correction in the T-320 census: '0 violations "

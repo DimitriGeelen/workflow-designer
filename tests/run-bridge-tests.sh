@@ -44,6 +44,27 @@ show_output() {
 }
 SHOW_OUTPUT_LINES="${SHOW_OUTPUT_LINES:-40}"
 
+# ---- declared corpus warnings (T-331) --------------------------------------
+#
+# A corpus map that emits WARNs is normally a defect in the map. This one is a
+# defect in the STANDARD's coverage, and it is not mine to close: context-memory
+# lanes its nodes by memory TYPE (Working / Project / Episodic), not by actor,
+# so all three lanes carry authority="none". IW-9 (mapping-v1 §3) makes the lane
+# the sole authority-of-record, so those tasks have no derivable owner and
+# W-LANE-NO-OWNER fires seven times. Whether a non-actor lane axis is legitimate
+# is a v1.1 question recorded on T-189 for the operator; re-laning the map here
+# would decide it silently and destroy the counterexample.
+#
+# Declared ANSWERABLY, per T-329: the entry states the rule and the exact count,
+# and the checks below fail if the map validates CLEAN (the exception outlived
+# its cause), if any ERROR appears, if a rule other than the declared one fires,
+# or if the count moves. A bare skip-list entry would be answerable to nothing —
+# which is the class of defect this very rule exists to close.
+DECLARED_WARN_MAP="context-memory"
+DECLARED_WARN_RULE="W-LANE-NO-OWNER"
+DECLARED_WARN_COUNT=7
+DECLARED_WARN_TASK="T-189 (v1.1: may a lane axis be non-actor?)"
+
 shopt -s nullglob
 files=("$CORPUS"/*.workflow.yaml)
 if [ "${#files[@]}" -eq 0 ]; then
@@ -61,8 +82,27 @@ for f in "${files[@]}"; do
     continue
   fi
   if python3 "$VALIDATOR" "$bpmn" >"$TMP/.out" 2>&1; then
+    if [ "$base" = "$DECLARED_WARN_MAP" ]; then
+      report FAIL "$base — validates CLEAN but is declared to emit ${DECLARED_WARN_COUNT}× ${DECLARED_WARN_RULE}"
+      printf '      the declared exception has outlived its cause. If %s was\n' "$base"
+      printf '      re-laned, remove the declaration; if the rule changed, say so.\n'
+      printf '      Cited open question: %s\n' "$DECLARED_WARN_TASK"
+      fail=$((fail + 1))
+      continue
+    fi
     report PASS "$base — converts + validates clean"
     pass=$((pass + 1))
+  elif [ "$base" = "$DECLARED_WARN_MAP" ] && ! grep -q "^ERROR" "$TMP/.out"; then
+    got_declared="$(grep -c "\[$DECLARED_WARN_RULE\]" "$TMP/.out" || true)"
+    got_total="$(grep -c "^WARN  \[" "$TMP/.out" || true)"
+    if [ "$got_declared" -ne "$DECLARED_WARN_COUNT" ] || [ "$got_total" -ne "$DECLARED_WARN_COUNT" ]; then
+      report FAIL "$base — declared ${DECLARED_WARN_COUNT}× ${DECLARED_WARN_RULE} only; got ${got_declared} of that rule and ${got_total} warning(s) total"
+      show_output "$TMP/.out" "validator $base"
+      fail=$((fail + 1))
+    else
+      report PASS "$base — ${DECLARED_WARN_COUNT}× ${DECLARED_WARN_RULE}, declared (${DECLARED_WARN_TASK})"
+      pass=$((pass + 1))
+    fi
   else
     report FAIL "$base — emitted BPMN did not validate clean"
     # T-326: print the CAPTURED output of the run that failed. This used to

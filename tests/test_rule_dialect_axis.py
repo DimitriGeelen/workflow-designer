@@ -203,6 +203,12 @@ RULE_CARRIERS = {
     # is universal despite firing on absence.
     "E-INCEPTION-NOT-SOVEREIGN": (("aef:laneMeta/@authority",), REQUIRES),
     "W-TYPE-LANE-MISMATCH":     (("aef:laneMeta/@authority",), CONSTRAINS),
+    # T-331. CONSTRAINS, not REQUIRES: the carrier IS present (the lane declares
+    # an authority); what is absent is a compiled outcome for the value it
+    # declares. Constraining which values carry meaning is a governance
+    # question, not a dialect one -- the same reading that makes its neighbour
+    # universal.
+    "W-LANE-NO-OWNER":          (("aef:laneMeta/@authority",), CONSTRAINS),
 
     # ---- XML form --------------------------------------------------------
     "E-XML-STRUCTURE":          (("document",), STRUCTURAL),

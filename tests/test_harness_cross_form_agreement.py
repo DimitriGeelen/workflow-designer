@@ -101,6 +101,7 @@ PAIRS = {
     "W-PGW-NOOP":           {"W-XML-PGW-NOOP"},
     "W-PGW-UNBALANCED":     {"W-XML-PGW-UNBALANCED"},
     "W-TYPE-LANE-MISMATCH": {"W-TYPE-LANE-MISMATCH"},
+    "W-LANE-NO-OWNER": {"W-LANE-NO-OWNER"},                     # T-331
 }
 
 # AC4: untestable in PRINCIPLE -- no cross-form document exists to compare.

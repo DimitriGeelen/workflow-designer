@@ -62,18 +62,40 @@ NODE_TYPES = {
 AUTHORITIES = {"sovereignty", "authority", "initiative", "external", "none"}
 
 # IW-9 authority collapse (mapping-v1 section 3): lane authority -> task-YAML
-# owner. "external" authors no task and "none" is unspecified — both absent
-# here on purpose, so both read as "no owner to disagree with" below.
+# owner.
 #
 # Module scope, not per-class (T-322). These tables decide who is authoritative;
 # a second copy inside each validator would let the two forms drift apart on the
 # governance question itself, which is the defect T-322 exists to close. Same
 # reasoning as the T-315 occupancy hoist.
+#
+# T-331: the collapse is now a TOTAL, EXPLICIT PARTITION of AUTHORITIES across
+# three tables. It used to be one table plus a comment saying "external" and
+# "none" were "absent here on purpose". Absence cannot carry a decision:
+# `AUTHORITY_OWNER.get(a) is None` could not distinguish "the standard defines
+# this to produce no task" from "nobody ever decided what this compiles to", and
+# both silently SKIPPED the O-1 check rather than satisfying it. The comment
+# asserting they were equivalent was answerable to nothing and could not fail.
+# See test_validate_iw9.py, which requires the three sets to partition
+# AUTHORITIES exactly — so a sixth authority value cannot be admitted to the
+# vocabulary without someone stating its compiled outcome.
 AUTHORITY_OWNER = {
     "sovereignty": "human",
     "initiative": "agent",
     "authority": "agent",
 }
+
+# mapping-v1 §3 names this outcome normatively: `external -> no task`. The node
+# is not owner-less by omission; it compiles to nothing at all, by decision.
+AUTHORITY_NO_TASK = {"external"}
+
+# Accepted vocabulary with NO compiled outcome anywhere. schema.md §Lanes
+# defines "none" as a lane that "doesn't carry authority semantics", and
+# mapping-v1 §3 makes the lane the SOLE authority-of-record for who-performs.
+# A task node in such a lane therefore has no derivable owner — the sole source
+# is declared absent (PL-035: absence of the named sole source is a violation,
+# not a pass). "none" appears in no collapse map in the frozen standard.
+AUTHORITY_NO_OWNER_DERIVABLE = {"none"}
 
 # task type -> the performer the type implies. The lane is authority-of-record
 # and wins; task type is presentational (mapping-v1 section 3, O-1).
@@ -828,6 +850,29 @@ class Validator:
                         % (ntype, TYPE_PERFORMER[ntype], authority, owner),
                     )
 
+            # T-331: a task node whose lane yields no derivable owner.
+            #
+            # Distinct from O-1, which asks whether two owners DISAGREE. This
+            # asks whether an owner exists at all, and it is the case O-1
+            # cannot reach: `owner is not None` skips rather than fails, so an
+            # unmapped authority silently disabled the only check on the
+            # governance question. Warn-not-refuse matches O-1's posture --
+            # the diagram is underspecified, not malformed.
+            #
+            # Deliberately does NOT fire on AUTHORITY_NO_TASK: `external ->
+            # no task` is a decided outcome, not a missing one, and warning on
+            # a decision is how a warning gets trained away.
+            if ntype in TYPE_PERFORMER and authority in AUTHORITY_NO_OWNER_DERIVABLE:
+                self.warn(
+                    "W-LANE-NO-OWNER",
+                    "node '%s'" % uid,
+                    "%s is a task but its lane authority '%s' has no compiled "
+                    "outcome; mapping-v1 §3 makes the lane the sole "
+                    "authority-of-record, so this task has no derivable owner "
+                    "and a downstream compiler must invent one"
+                    % (ntype, authority),
+                )
+
 
 class XmlValidator:
     """Validates the BPMN-XML export form (docs/designer/schema.md section 7)."""
@@ -1548,6 +1593,23 @@ class XmlValidator:
                         "presentational (O-1, mapping-v1 §3)"
                         % (local, TYPE_PERFORMER[local], authority, owner),
                     )
+
+            # T-331 -- counterpart of the YAML form's W-LANE-NO-OWNER, built in
+            # the same task rather than left for a later parity census to find.
+            # This is the form AEF's compiler consumes, and it is where the
+            # consequence lands: their compiler falls to `owner = type_owner or
+            # "agent"` on a lane that resolves to nothing, silently (their
+            # OBS-120). An owner appears downstream that no table here granted.
+            if local in TYPE_PERFORMER and authority in AUTHORITY_NO_OWNER_DERIVABLE:
+                self.warn(
+                    "W-LANE-NO-OWNER",
+                    "node '%s'" % nid,
+                    "%s is a task but its lane authority '%s' has no compiled "
+                    "outcome; mapping-v1 §3 makes the lane the sole "
+                    "authority-of-record, so this task has no derivable owner "
+                    "and a downstream compiler must invent one"
+                    % (local, authority),
+                )
 
 
 def exit_code(findings):

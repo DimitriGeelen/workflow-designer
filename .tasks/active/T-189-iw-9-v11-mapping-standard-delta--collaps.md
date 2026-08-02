@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-11T16:56:45Z
-last_update: 2026-07-12T20:45:52Z
+last_update: 2026-08-01T23:50:53Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -230,6 +230,56 @@ audience DECLARED is the more honest artifact.
 
 Carried separately from the §1 carrier-class hole and the lane-geometry origin
 item already in this batch.
+
+### Item 6 — `authority: none`, and a lane axis that is not the actor axis (T-331)
+
+**The question for you:** may a lane axis mean something other than *who
+performs*? IW-9 says no by construction. Our own corpus says yes in one map.
+
+**Measured, not argued.** `authority: none` is accepted by
+`AUTHORITIES` (validate-workflow.py:62) and defined in
+`docs/designer/schema.md:380` as "pool-level lanes that don't carry authority
+semantics". It appears in **no collapse map in the frozen standard** — §3 names
+four outcomes (`sovereignty→human`, `initiative→agent`, `authority→agent`,
+`external→no task`) and the vocabulary has five members.
+
+**Where it bites.** `examples/aef-processes/context-memory.workflow.yaml` lanes
+its nodes by *memory type* — Working / Project / Episodic — so all three lanes
+carry `authority: none` and hold **7 task nodes with no derivable owner**:
+
+| lane | authority | task nodes |
+|---|---|---|
+| Working Memory · session-local | `none` | 2 |
+| Project Memory · durable cross-task | `none` | 4 |
+| Episodic Memory · completed histories | `none` | 1 |
+
+This is not a modelling slip to be corrected — the map is legible and the axis
+is deliberate. It is a **counterexample to the ratified collapse**, and it ships
+to AEF in `build/aef-corpus-drop/`.
+
+**Why it is urgent rather than academic.** AEF's compiler (their OBS-120, rail
+377) resolves a lane that yields no owner via `owner = type_owner or "agent"`,
+**silently**. So these 7 nodes acquire `owner: agent` downstream — a value no
+table on either side ever granted them.
+
+**The options, none of them taken here:**
+1. Widen the collapse map: give `none` a stated outcome (`no task`, like
+   `external`? or `agent`?). Cheapest, and it decides by fiat what the lane
+   meant.
+2. Narrow the vocabulary: drop `none` from `AUTHORITIES`, forcing every lane to
+   be an actor lane, and re-lane `context-memory`. Preserves IW-9 exactly;
+   costs a legitimate way of drawing a map.
+3. Admit a second lane axis in v1.1 — lanes carry `authority` OR a declared
+   non-actor role, with node ownership sourced elsewhere for the latter. Most
+   expressive, largest delta, and it reopens "the lane is the sole
+   authority-of-record".
+
+**What was built instead (T-331):** `W-LANE-NO-OWNER` now *reports* the
+condition on both forms, and the collapse map is a total explicit partition of
+`AUTHORITIES` so a sixth value cannot be admitted without stating its outcome.
+The 7 warnings are declared in `tests/run-bridge-tests.sh` citing this item, and
+that declaration fails if the count moves or the map goes clean. **The finding
+is instrumented; the ruling is yours.**
 
 ## Recommendation
 

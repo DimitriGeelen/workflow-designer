@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-331: O-1 skip population: authority values mapping to no owner silently disable the task-type check
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-02T00:33:56Z
+# ============================================================================
+
+task_id: T-331
+task_name: "O-1 skip population: authority values mapping to no owner silently disable the task-type check"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-02T00:10:00Z
+completed: 2026-08-02T00:32:32Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**AC1 — Skip population measured by resolution path.** Every node of a'
+  - '**AC2 — Both forms measured separately.** The O-1 branch exists twice'
+  - '**AC3 — Skips reported as WITNESSES, not counts.** Each skipped node is'
+  - '**AC4 — The exemption becomes answerable.** A check in the test suite'
+  - '**AC5 — N/A, condition did not obtain (measured 11, not 0).**'
+  - '**AC6 — Teeth AND discrimination.** A mutation leg proves the check'
+  - '**AC7 — Decision recorded if the population is non-empty.** `## Decisions`'
+  - '**AC8 — Rule bookkeeping consistent.** If a rule id is added, it is'
+  - '**AC9 — No regression.** Validator suite, bridge suite, cross-form'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-02 — how to close the un-decided authority bucket'
+    chose: 'make the collapse a **total explicit partition** of `AUTHORITIES`'
+    rationale: 'the defect was never "external and none are missing from the table".'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 22 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 22
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-331-o-1-skip-population-authority-values-map.md
+generated_by: context-agent-hybrid

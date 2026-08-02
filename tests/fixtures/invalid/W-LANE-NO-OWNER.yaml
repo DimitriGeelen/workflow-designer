@@ -1,0 +1,21 @@
+# Lane 'memory' declares authority 'none' -- accepted by the section 5 enum but
+# carrying no compiled outcome -- and holds a serviceTask. mapping-v1 section 3
+# makes the lane the sole authority-of-record, so n_write has no derivable
+# owner. Modelled on examples/aef-processes/context-memory.workflow.yaml, where
+# the lane axis is memory TYPE rather than actor (T-331).
+#
+# The 'framework' lane is present so this fixture isolates the rule: it holds a
+# node whose authority DOES collapse, so a rule that fired on every task node
+# would be visible here rather than looking correct.
+workflowMeta: {id: t, version: 1, schemaVersion: 2}
+pool: {id: Pool_t, name: t}
+lanes:
+  - {id: framework, name: Framework, abbr: frw, authority: authority, height: 130}
+  - {id: memory, name: Working Memory, abbr: mem, authority: none, height: 130}
+nodes:
+  - {uid: n_a, type: startEvent, name: Start, lane: framework, x: 100, y: 100}
+  - {uid: n_run, type: scriptTask, name: Run, lane: framework, x: 240, y: 100}
+  - {uid: n_write, type: serviceTask, name: Write, lane: memory, x: 380, y: 100}
+edges:
+  - {uid: e_1, source: n_a, target: n_run}
+  - {uid: e_2, source: n_run, target: n_write}
