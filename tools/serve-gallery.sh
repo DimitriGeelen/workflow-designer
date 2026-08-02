@@ -6,11 +6,53 @@
 # picker. Deliberately does NOT serve the repo root (keeps .git/.context off
 # the wire).
 #
-# Usage: tools/serve-gallery.sh [PORT]   (default 8834)
+# Usage: tools/serve-gallery.sh [PORT] [--build-only]   (default port 8834)
+#
+# --build-only assembles the serve root and stops there — no port is bound, no
+# server is started. Added by T-350 for G-015: every path that produced the serve
+# root also required binding a port, and the default :8834 is retired behind ufw
+# (T-253), which the agent must not change. That coupled "refresh the serve root"
+# to "start a server". It is a FULL rebuild, deliberately: copying designer.html
+# alone would satisfy the diff-based gates while leaving rendered/ stale — a green
+# that asserts less than it says, which is the defect G-015 is about.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-PORT="${1:-8834}"
+
+BUILD_ONLY=0
+PORT=""
+for arg in "$@"; do
+  case "$arg" in
+    --build-only) BUILD_ONLY=1 ;;
+    -h|--help)
+      # Print the header comment block — bounded by the first non-comment line,
+      # not by a pinned line range that silently truncates when the block grows.
+      awk 'NR==1{next} /^#/{sub(/^# ?/,""); print; next} {exit}' "$0"
+      exit 0 ;;
+    -*)
+      # Never fall through to the PORT slot: a typo like `--build-onlyy` would
+      # otherwise become PORT and surface as a baffling bind failure.
+      echo "serve-gallery: unknown option: $arg" >&2
+      echo "  usage: tools/serve-gallery.sh [PORT] [--build-only]" >&2
+      exit 2 ;;
+    *)
+      [ -n "$PORT" ] && { echo "serve-gallery: unexpected extra argument: $arg" >&2; exit 2; }
+      PORT="$arg" ;;
+  esac
+done
+PORT="${PORT:-8834}"
+
 OUT="${GALLERY_DIR:-$ROOT/build/gallery}"
+
+# The recursive delete below takes a caller-supplied path (GALLERY_DIR). Cheap guard
+# against the values that turn a rebuild into a catastrophe. Not hypothetical: T-350
+# makes the build path the routinely run one, and T-350's own teeth harness deleted this
+# repository by feeding an unguarded copy of this script GALLERY_DIR=$ROOT.
+case "${OUT%/}" in
+  ""|"/"|"$ROOT")
+    echo "serve-gallery: FATAL — refusing to recursively delete the serve root: GALLERY_DIR resolves to '$OUT'" >&2
+    echo "  (empty, '/' or the repo root are refused; nothing was deleted)" >&2
+    exit 2 ;;
+esac
 
 rm -rf "$OUT"
 mkdir -p "$OUT/rendered"
@@ -52,8 +94,18 @@ HTML
 } > "$OUT/index.html"
 
 COUNT=$(ls "$OUT"/rendered/*.bpmn | wc -l)
-IP=$(hostname -I 2>/dev/null | awk '{print $1}')
 echo "Gallery root: $OUT ($COUNT maps)"
+
+if [ "$BUILD_ONLY" = 1 ]; then
+  # Say plainly that nothing is being served. The whole point of the T-231 probe
+  # below is that a built artifact is NOT a serving process (PL-046); a build-only
+  # run that printed URLs would assert exactly the thing it did not do.
+  echo "serve-gallery: BUILD-ONLY — serve root assembled; NO port bound, NO server started." >&2
+  echo "  To serve it:  tools/serve-gallery.sh $PORT" >&2
+  exit 0
+fi
+
+IP=$(hostname -I 2>/dev/null | awk '{print $1}')
 echo "Local:  http://localhost:$PORT/"
 echo "LAN:    http://${IP:-localhost}:$PORT/"
 # ── committed!=serving prevention (T-231) ──────────────────────────────────────

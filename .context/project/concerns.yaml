@@ -911,3 +911,65 @@ concerns:
       - T-343
       - T-344
       - T-345
+
+  - id: G-018
+    type: gap
+    status: watching
+    severity: high
+    title: "Tier 0 enforcement reads the Bash tool's command STRING, so a destructive command reached from inside an invoked script is unguarded — an agent test harness deleted this repository through that hole"
+    detected: 2026-08-02
+    origin_task: T-350
+    decision_trigger: >
+      Either (a) destructive-command enforcement moves to a layer that sees what invoked
+      scripts actually do (a sandbox, a filesystem policy, or a wrapper the framework
+      controls), or (b) it is explicitly recorded as string-level ONLY, with the residual
+      accepted in writing, AND the working practice compensates: any agent-authored
+      harness that constructs, mutates or executes a script capable of recursive deletion
+      must assert its own safety precondition before executing, with that assertion itself
+      proven by a mutation leg. Closing because "the harness was fixed" is not closure —
+      the next harness is written by someone who has not read this entry.
+    detail: >
+      2026-08-02, T-350. The Bash tool call was `bash <path>/teeth350.sh`. Three levels
+      down, a mutated copy of tools/serve-gallery.sh ran `rm -rf "$OUT"` with
+      GALLERY_DIR=/opt/832-Workflow-designer. The working tree, .git, .agentic-framework,
+      .tasks and .context were destroyed. Recovered by re-clone from origin at 041765c
+      with zero committed work lost; only the in-flight uncommitted T-350 artifacts were
+      lost and those were reconstructible from session context.
+
+      WHY THE FRAMEWORK DID NOT STOP IT. check-tier0.sh (agents/context/) matches a regex
+      including `rm\s+-` against the Bash tool's command string, and separately names
+      RECURSIVE DELETE patterns for /, ~, . and *. Every one of those inspects the string
+      the agent typed. The string the agent typed was `bash …/teeth350.sh`, which contains
+      no delete at all. Enforcement is at the wrong layer for anything an agent authors
+      and then runs: the moment a command becomes a file, the gate stops seeing it. This
+      is not a bug in check-tier0.sh — it is a scope boundary that was never written down,
+      and its absence reads as coverage.
+
+      SEVERITY IS HIGH, NOT MEDIUM, FOR A REASON THAT IS NOT THE DAMAGE. The damage was
+      recoverable and cheap (P-009's commit cadence is why). What earns high is that the
+      hole is invisible from inside: an agent running `bash script.sh` has no signal that
+      it just left the enforced region, and the region's edge is not documented anywhere
+      an agent reads. Every prior Tier 0 block on this project has come from a typed
+      command, so the gate's apparent reliability is evidence about agent habits, not
+      about coverage.
+
+      THE HARNESS-SIDE DEFECT, RECORDED SEPARATELY BECAUSE IT GENERALISES. The teeth leg
+      deliberately stubbed the delete before removing the guard that stops it — correct
+      design. The stub was a replace-first-occurrence, and the first occurrence was a
+      COMMENT quoting the command, three lines above the guard, written to explain what
+      the guard protects. The comment was stubbed; the live command survived; nothing
+      asserted the stub had applied. This whole arc has catalogued CHECKS that cannot
+      fail (T-335, T-336, T-346, T-348 controls); this is the first SAFEGUARD that was
+      never confirmed to have landed. A safety measure that is not verified to have
+      applied is not a safety measure. Prose about code shares a byte-space with code —
+      serve-gallery.sh's guard comment no longer quotes the command it guards, and the
+      harness's precondition excludes comment lines so prose can neither satisfy nor trip
+      it.
+
+      NOT APPLIED: no change to check-tier0.sh. Widening it to trace invoked scripts is a
+      framework-wide decision with a real false-positive cost, and .agentic-framework is
+      vendored (G-008 upstream territory). Reported with the measurement so the operator
+      can rule.
+    related_tasks:
+      - T-350
+      - T-351
