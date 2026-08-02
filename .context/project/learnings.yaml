@@ -619,3 +619,17 @@ learnings:
   date: 2026-08-02
   context: Added via context agent
   application: TBD
+- id: PL-088
+  learning: "A comparison baselined on the MUTATED input cannot observe its own subject: if the mutation erases the victim's reference, the victim is absent from the before-set, so the diff can only ever report collateral movement — and it returns a confident, clean zero. Baseline from the ORIGINAL artifact and identify the subject by its stable id (aef:uid), not by a computed display name that the change under test recomputes."
+  source: P-001
+  task: T-339
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD
+- id: PL-089
+  learning: "A decision_trigger with several clauses can be satisfied on ONE clause and reported in prose that does not name which — the reader hears the whole trigger. Same failure as doing arithmetic over a 'not measured' table cell. When a gap names N populations, report coverage clause by clause or not at all."
+  source: P-001
+  task: T-339
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD

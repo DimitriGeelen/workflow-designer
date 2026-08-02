@@ -746,6 +746,24 @@ concerns:
       not contain — malformed input, out-of-vocabulary tags, unresolvable refs. Closing
       because "T-337 is fixed" is not closure: the fix removes one instance, the gap is
       that the next vocabulary divergence would be equally invisible.
+    progress: >
+      2026-08-02, T-339. All three clauses of the trigger are now covered by
+      tools/_t338-input-fidelity-cdp.mjs in the gating runner: out-of-vocabulary tags
+      (10 shapes, T-338), malformed input (8 shapes, three-way REFUSED/PRESERVED/
+      SILENTLY-PARTIAL — losslessness is the WRONG expectation there, because refusing a
+      broken document is correct behaviour), unresolvable refs (4 shapes, keyed on aef:uid
+      because a display-id measure reads renumbering as loss). Results: 0 silently-partial,
+      0 identity lost, and both zeros are proven fillable rather than merely observed —
+      teeth legs (f) and (g) mutate the DESIGNER and the buckets duly fill.
+      NOT YET CLOSED, and status deliberately left at watching for the operator. Two
+      findings the widening produced are open: T-340 (the whole standard bpmndi sub-tree is
+      dropped on import, 24/24 — T-337's class one granularity up) and T-341 (an
+      unresolvable flowNodeRef silently re-homes the orphaned node to the human/sovereignty
+      lane). The trigger's own logic applies to itself: closing because the instrument now
+      exists is the same move as closing because T-337 is fixed.
+      Correction recorded: rail 394 reported T-338 as making "the next divergence would be
+      equally invisible" false "regardless". That held for a vocabulary divergence and was
+      unproven for the other two clauses, and the prose did not say which.
     detail: >
       Found while pricing T-309 IW-3. tools/_t308-export-byte-identity-cdp.mjs is the
       tree's instrument for "this change has zero export surface", and T-309's own
