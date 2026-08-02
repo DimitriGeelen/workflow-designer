@@ -146,6 +146,32 @@ content and is therefore a rail conversation, not only a local feature.
     surfaced by ANY surface — that constrains IW-1 as much as IW-3. Import verdicts hold across all
     24 corpus maps; widening from one map caught a MIXED reading that turned out to be a probe
     artifact. Full working in docs/reports/T-309-validator-surfacing.md.
+- **T-349 (2026-08-02): the whole import-loss class is invisible to all three priced surfaces,
+    and the surface that could show it is not on the list.** The three ERROR rules repaired inside
+    `parseBpmnXml` were the first instance of this constraint; T-347 and T-348 make it a much larger
+    population — 5 content shapes and 7 root-level shapes, plus T-337's tags and T-340's DI sub-tree.
+    Located from source rather than memory: loss happens *inside* `parseBpmnXml` (src:9595+), and
+    the two sites that populate `state` — src:9124 (import) and src:6911 (`_restoreSnapshot`, the
+    undo path) — are both downstream of a `parseBpmnXml` call, so this is a property of every route
+    into `state`, not just of import. Every priced surface reads at or after that point — a panel
+    and a gutter render from `state`, and a save-gate runs over what `buildBpmnXml(state)` produces.
+    **Content that never entered `state` cannot appear in any of them, by construction, no matter
+    how the rules are delivered (IW-2).** Note also that the designer runs *no* validator today:
+    `XmlValidator` is `tools/validate-workflow.py`, a separate CLI, so all three surfaces are
+    prospective and none of them inherits an existing import-time view.
+
+    **Counter-example attempt, per the method — and it succeeds, which is the useful part.** One
+    mechanism *does* reach this class: `adoptImportedXml(text, opts)` (src:9101) holds the original
+    `text` in scope and calls `parseBpmnXml(text)` on the very next line. An input-vs-re-export
+    comparison at that moment would see every one of these losses — it is exactly what
+    `tools/_t338-input-fidelity-cdp.mjs` already does out-of-band. The original `text` is simply
+    **discarded when the function returns**; nothing retains it. So this is not an impossibility, it
+    is an unbuilt **fourth surface — an import-time fidelity report** — which is architecturally
+    unlike IW-1a/IW-2/IW-3: it needs no rule engine, no port-to-JS decision, and no severity model,
+    because it compares two documents rather than evaluating predicates. **It should be priced
+    alongside the other three rather than assumed to be covered by them**; on current evidence it is
+    the only one of the four that can address the T-337/T-340/T-347/T-348 class at all.
+
   <!-- Correction recorded: an earlier Recommendation paragraph claimed IW-3 "no longer needs a
        separate ruling" because the universal/dialect class decides the channel. That was a sentence
        promoted past its measurement — the class decides WHERE a finding goes, not WHO may override
