@@ -584,3 +584,10 @@ learnings:
   date: 2026-08-02
   context: Added via context agent
   application: TBD
+- id: PL-083
+  learning: "A verification line that pins a CURRENT pointer as a stand-in for a DELIVERED artifact retires itself at the next release: T-178's 'grep -q ^0.2.0$ VERSION' has been unreachable since 0.3.0 shipped and returned 2/5 for 22 days on the exact surface an operator consults to decide whether the task can close. A permanently-red gate on a human-owned task is indistinguishable from 'the human has not got to it yet'. Assert on the artifact's own identity (dist/<name>-0.2.0.html and its own sha), never on the release pointer. Scanned for the class: population of ONE, so reported without building a guard."
+  source: P-001
+  task: T-309
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD
