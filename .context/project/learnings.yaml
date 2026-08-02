@@ -612,3 +612,10 @@ learnings:
   date: 2026-08-02
   context: Added via context agent
   application: TBD
+- id: PL-087
+  learning: "An instrument that compares two implementations to EACH OTHER (old-vs-new, impl-vs-impl) can only detect CHANGE, never WRONGNESS: a defect both sides carry is identical and therefore green. Ask of any tool offered as evidence of safety: what would a defect present on BOTH sides look like here? If the answer is 'a pass', you need a second instrument comparing OUTPUT against INPUT, and its denominator checked separately — a corpus of well-formed fixtures cannot express defects only malformed input creates. T-337 survived in exactly that intersection for the life of the export-safety harness."
+  source: P-001
+  task: T-338
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD

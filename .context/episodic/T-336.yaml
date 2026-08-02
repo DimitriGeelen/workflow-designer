@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-336: VALUE anchor row agrees for the wrong reason: prove the duplicated id resolves TWICE
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-02T09:12:59Z
+# ============================================================================
+
+task_id: T-336
+task_name: "VALUE anchor row agrees for the wrong reason: prove the duplicated id resolves TWICE"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-02T09:07:28Z
+completed: 2026-08-02T09:11:11Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-02T11:11:06+02:00
+last_commit: 2026-08-02T11:11:06+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the VALUE anchor row now proves MULTIPLICITY, not just resolvability — and the first version of the fix carried the very defect it removed. Counting attribute occurrences scored every bridged node 2, because yaml-to-bpmn emits <serviceTask id='n_a'> carrying <aef:uid value='n_a'/> — the same string on a parent and its child — so the check could never fail. Caught by teeth leg (f), written to falsify rather than confirm. Now counts DISTINCT ELEMENTS via a parent map. Teeth 6/6, guard green, and the published IW-1a headline is UNMOVED: both VALUE rules genuinely resolve to >=2 carriers, so 15 gutter-able / ERROR 60% hidden stands
+
+# Key outcomes
+outcomes:
+  - 'The guard counts how many elements carry each named id — over bpmn `@id` AND over `aef:uid`'
+  - 'The comment in the source that declared this weakness is replaced by what is now checked; no'
+  - 'A teeth leg proves the strengthened assertion CAN fail: declare a NODE-class rule as VALUE and'
+  - '`tests/run-bridge-tests.sh` green, and the guard still reports 22/23 verified with the same'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the VALUE anchor row now proves MULTIPLICITY, not just resolvability — and the first version of the fix carried the very defect it removed. Counting attribute occurrences scored every bridged node 2, because yaml-to-bpmn emits <serviceTask id=''n_a''> carrying <aef:uid value=''n_a''/> — the same string on a parent and its child — so the check could never fail. Caught by teeth leg (f), written to falsify rather than confirm. Now counts DISTINCT ELEMENTS via a parent map. Teeth 6/6, guard green, and the published IW-1a headline is UNMOVED: both VALUE rules genuinely resolve to >=2 carriers, so 15 gutter-able / ERROR 60% hidden stands'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-336-value-anchor-row-agrees-for-the-wrong-re.md'
+  - 'tests/test_finding_anchorability.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-02T11:11:06"
+    action: "T-336: the VALUE anchor row now proves MULTIPLICITY, not just resolvability — and the first version of the fix carried the very defect it removed. Counting attribute occurrences scored every bridged node 2, because yaml-to-bpmn emits <serviceTask id='n_a'> carrying <aef:uid value='n_a'/> — the same string on a parent and its child — so the check could never fail. Caught by teeth leg (f), written to falsify rather than confirm. Now counts DISTINCT ELEMENTS via a parent map. Teeth 6/6, guard green, and the published IW-1a headline is UNMOVED: both VALUE rules genuinely resolve to >=2 carriers, so 15 gutter-able / ERROR 60% hidden stands"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 2
+  lines_added: 273
+  lines_removed: 7
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-336-value-anchor-row-agrees-for-the-wrong-re.md
+generated_by: context-agent-hybrid

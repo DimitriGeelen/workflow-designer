@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-335: Land the IW-1a anchorability measurement as a gating guard
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-02T08:59:35Z
+# ============================================================================
+
+task_id: T-335
+task_name: "Land the IW-1a anchorability measurement as a gating guard"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-02T08:51:36Z
+completed: 2026-08-02T08:57:30Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-02T10:57:26+02:00
+last_commit: 2026-08-02T10:57:26+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  land the IW-1a anchorability measurement as a gating guard — tests/test_finding_anchorability.py, bridge 67->68/0. Population read from source by ast; ANCHOR table TOTAL (unclassified emitted rule = hard fail naming it); every declared class checked against corpus + on-disk fixtures + the BRIDGED documents yaml-to-bpmn produces at run time (76 docs, 29 bridged) — 22/23 verified, 0 disagreements, the 23rd unreachable not unwitnessed. Teeth 5/5 including a leg that deletes the bridged population and requires a red: the mistake that made the first pass under-report by 2x is now wired shut. Report points at the guard, not the scratchpad
+
+# Key outcomes
+outcomes:
+  - '`tests/test_finding_anchorability.py` exists and exits 0, reporting the anchor class of'
+  - 'The rule population is read from SOURCE by `ast` (every `self.err/warn/info` call site),'
+  - 'The `ANCHOR` table is TOTAL and EXPLICIT: a rule id emitted by `XmlValidator` with no entry'
+  - 'The declared anchor class of each rule is CHECKED against what real documents resolve to —'
+  - 'Rows that no document witnesses are REPORTED with their count, not silently absorbed, and'
+  - 'The guard runs as a leg of `tests/run-bridge-tests.sh` (the GATING runner) with a failure'
+  - 'Teeth prove each assertion CAN fail and fails naming its own condition: at minimum'
+  - '`docs/reports/T-309-validator-surfacing.md` points at the landed guard as the thing that'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'land the IW-1a anchorability measurement as a gating guard — tests/test_finding_anchorability.py, bridge 67->68/0. Population read from source by ast; ANCHOR table TOTAL (unclassified emitted rule = hard fail naming it); every declared class checked against corpus + on-disk fixtures + the BRIDGED documents yaml-to-bpmn produces at run time (76 docs, 29 bridged) — 22/23 verified, 0 disagreements, the 23rd unreachable not unwitnessed. Teeth 5/5 including a leg that deletes the bridged population and requires a red: the mistake that made the first pass under-report by 2x is now wired shut. Report points at the guard, not the scratchpad'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-309-validator-surfacing.md'
+  - '.tasks/active/T-335-land-the-iw-1a-anchorability-measurement.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_finding_anchorability.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-02T10:57:26"
+    action: "T-335: land the IW-1a anchorability measurement as a gating guard — tests/test_finding_anchorability.py, bridge 67->68/0. Population read from source by ast; ANCHOR table TOTAL (unclassified emitted rule = hard fail naming it); every declared class checked against corpus + on-disk fixtures + the BRIDGED documents yaml-to-bpmn produces at run time (76 docs, 29 bridged) — 22/23 verified, 0 disagreements, the 23rd unreachable not unwitnessed. Teeth 5/5 including a leg that deletes the bridged population and requires a red: the mistake that made the first pass under-report by 2x is now wired shut. Report points at the guard, not the scratchpad"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 4
+  lines_added: 591
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-335-land-the-iw-1a-anchorability-measurement.md
+generated_by: context-agent-hybrid

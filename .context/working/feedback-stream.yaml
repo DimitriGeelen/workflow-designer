@@ -3653,3 +3653,57 @@ scan_id: R-5dba687c
 task_id: T-334
 payload:
   task_file: .tasks/active/T-334-witness-the-six-never-witnessed-carrier-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-02T08:59:33Z'
+scan_id: R-4907135d
+task_id: T-335
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-02T08:59:33Z'
+scan_id: R-4907135d
+task_id: T-335
+payload:
+  task_file: .tasks/active/T-335-land-the-iw-1a-anchorability-measurement.md
+---
+kind: scan_emitted
+timestamp: '2026-08-02T09:12:58Z'
+scan_id: R-d1955f48
+task_id: T-336
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-02T09:12:58Z'
+scan_id: R-d1955f48
+task_id: T-336
+payload:
+  task_file: .tasks/active/T-336-value-anchor-row-agrees-for-the-wrong-re.md
+---
+kind: scan_emitted
+timestamp: '2026-08-02T09:45:16Z'
+scan_id: R-750087b1
+task_id: T-338
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-02T09:45:16Z'
+scan_id: R-750087b1
+task_id: T-338
+payload:
+  task_file: .tasks/active/T-338-input-fidelity-guard-prove-load-save-pre.md
