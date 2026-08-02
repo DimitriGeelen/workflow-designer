@@ -4,7 +4,7 @@ name: "fw fabric enrich silently discards edges whose target has no component ca
 description: >
   resolve_edges() drops any detected dependency whose target is unregistered, with no counter and no report. Measured on this repo: 17 edges detected, 2 kept, 15 discarded silently. Consequence: the audit's standing mitigation 'Run: fw fabric enrich' is a no-op on a sparse registry and the operator cannot distinguish 'nothing to add' from '15 discarded'.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:15:44Z
-last_update: 2026-08-02T11:15:44Z
+last_update: 2026-08-02T12:34:07Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -71,18 +71,41 @@ This is vendored framework code — G-008 (fix in-tree, upstream to AEF) applies
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `fw fabric enrich` reports the number of detected edges discarded for want of a
+- [x] `fw fabric enrich` reports the number of detected edges discarded for want of a
       registered target, distinctly from edges added, in both normal and `--dry-run` mode.
-- [ ] The report names the unregistered targets (at least under `--verbose`) so the
+- [x] The report names the unregistered targets (at least under `--verbose`) so the
       operator can act on it — a bare count restates the problem without locating it.
-- [ ] A zero in the new counter is distinguishable from the counter never running:
+- [x] A zero in the new counter is distinguishable from the counter never running:
       the summary line is emitted unconditionally, not only when the count is non-zero.
-- [ ] Teeth: with the repo's real cards, the new counter reads **15**; a leg that
-      registers a card for one dropped target reduces it and increases edges added, and
-      the leg fails if the two do not move together.
-- [ ] No change to which edges are written — this is a reporting fix, not a behaviour
-      change. Card contents byte-identical before/after on a `--dry-run`-then-run pair.
-- [ ] Change is confined to `.agentic-framework/` and recorded for upstream to AEF per G-008.
+- [x] **(AMENDED — see Evolution.)** Teeth: the new counter is non-zero on this repo's
+      real cards and equals an independently-computed measurement of the same drop; a leg
+      that registers a card for a currently-discarded target makes the count **fall** and
+      edges-added **rise**, and fails if the two do not move together. No literal count is
+      asserted anywhere in the teeth or the verification block.
+- [x] No change to which edges are written — this is a reporting fix, not a behaviour
+      change. Proven by running the pre-change and post-change builds from the same
+      starting state **in a configuration where enrich actually writes**, and comparing
+      the resulting card trees.
+- [x] Change is confined to `.agentic-framework/` (plus the T-342 probe that monkey-patches
+      the changed function) and recorded for upstream to AEF per G-008.
+
+### Counting the right thing (recorded before the fix, not after)
+
+`resolve_edges` drops for **three** reasons — unregistered target, self-edge, duplicate
+`(target, type)`. T-342 measured `len(raw) − len(resolved)` and attributed the whole
+difference to "want of a card". Decomposed before writing any fix:
+
+| drop arm | count |
+|---|---|
+| target UNREGISTERED | **17** |
+| SELF edge | 0 |
+| DUPLICATE (target, type) | 0 |
+
+The attribution was right *in kind*, but only because the other two arms happen to be
+empty here — an **occupancy** zero, not a construction one. The new counter therefore
+collects the unregistered arm **only**; the other two are genuine non-results and are
+deliberately not counted. Had they been non-zero, the headline number would have been
+reporting three different facts under one name.
 
 ## RCA
 
@@ -99,8 +122,90 @@ registered" — the two are not the same and only one of them is a result. Nothi
 counts the discarded set, so the failure is reported as a clean zero. Same class as
 [[absence-cannot-carry-a-decision]].
 
-**Prevention:** the counter itself, plus the teeth leg above — a guard that proves the
-discarded count is *fillable* rather than merely reading zero.
+**Prevention:** the counter itself, plus the teeth legs above — the summary line is
+emitted *unconditionally*, so a zero renders as `Edges discarded: 0` rather than as an
+absent line. Leg (d) proves that matters: making the line conditional on a non-zero count
+turns a zero back into silence, which is the original defect in a new costume.
+
+## Evidence
+
+### What the operator saw, before and after
+
+Same repo, same cards, same run:
+
+```
+before                                after
+------                                -----
+Cards enriched:    0                  Cards enriched:    0
+Forward edges:     0  (depends_on)    Forward edges:     0  (depends_on)
+Reverse edges:     0  (depended_by)   Reverse edges:     0  (depended_by)
+Total edges added: 0                  Total edges added: 0
+                                      Edges discarded:   17  (target has no
+                                        component card; 10 distinct targets)
+                                        (re-run with --verbose to list them)
+```
+
+The `0`s are unchanged and correct. What changed is that they are no longer the *whole*
+report — the run that produced them discarded 17 detected edges to get there.
+
+Under `--verbose`, the targets are named, and the naming immediately earns its keep:
+
+```
+  4x  [file] tools/validate-workflow.py
+  4x  [file] tools/yaml-to-bpmn.py
+  2x  [file] src/aef-workflow-designer.html
+  1x  [file] .agentic-framework/agents/fabric/lib/enrich.py
+  1x  [dir ] .fabric/components
+  1x  [file] docs/standards/aef-bpmn-mapping-v1.md
+  1x  [dir ] examples/aef-processes
+  1x  [dir ] tests
+  1x  [file] tests/fixtures/valid/gw-single-default.xml
+  1x  [file] tests/fixtures/warn/W-XML-GW-AMBIGUOUS.xml
+```
+
+**3 of the 10 are directories**, which can never hold a component card. A bare count
+would have told the operator to go register ten things; only seven are registerable.
+That distinction exists only because the report names its members.
+
+### Teeth — 7/7
+
+| leg | mutation | required failure |
+|---|---|---|
+| baseline | none | counter present AND non-zero |
+| baseline | none | internal counter **agrees** with the independent T-342 probe |
+| (a) SUBJECT | register a card for a discarded target | count falls (17→14) **and** edges-added rises (0→4) **together** |
+| (a) cleanup | remove it again | both return to baseline |
+| (b) ZERO FILLABLE | run over a card whose edges all resolve | line still printed, reading `0` |
+| (c) SCOPE | neuter the collection inside `compute_forward_edges` | counter reads 0 while the probe still reads 17 |
+| (d) SCOPE | make the summary line conditional on non-zero | a zero becomes an **absent line** |
+
+Leg (c) is the one that makes the baseline agreement mean anything. Two numbers agreeing
+is evidence only if both could have disagreed ([[corroboration-from-a-constant]]); (c)
+produces the disagreement on demand, so the baseline match is a measurement rather than
+two views of one constant.
+
+Leg (a) does **not** assert the fall equals the target's share. Registering
+`tools/validate-workflow.py` resolves its 4 edges but also introduces a new card that is
+itself scanned and contributes its own discards — net 17→14, not 17→13. The leg asserts
+the two counters move *together*, which is the property; the arithmetic is not.
+
+### The write-equivalence check had to be re-run to mean anything
+
+First attempt compared card-tree shas before/after with the stock registry and reported
+`identical: YES`. That result was worthless: enrich writes **nothing** in that state
+(0 cards enriched), so the shas would have matched even if the change had broken
+edge-writing outright — a check that discriminates nothing. Re-run with a card registered
+so enrich genuinely writes (**5 cards enriched, 4 forward + 4 reverse edges**), the
+pre-change and post-change builds produce **byte-identical card trees** and identical
+edge accounting. That version could have failed.
+
+### Note on the T-342 probe's own label
+
+The probe prints `ZERO KIND: OCCUPANCY — edges were detected and discarded for want of a
+card.` That attribution is correct at this reading but is **not something the probe can
+justify** — it measures a difference that spans all three drop arms. It is left as-is
+deliberately: its difference-based number is what makes it an independent cross-check for
+leg (c), and decomposing it would collapse it into the thing it is checking.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -165,6 +270,28 @@ discarded count is *fillable* rather than merely reading zero.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# G-015 note: NO literal edge/card count appears below. The discarded count moved
+# 15 -> 17 within a day of filing purely because a card was registered elsewhere.
+# Every line here asserts a PROPERTY of the report, not a value of the repo.
+
+# 1. The summary line is emitted at all, and unconditionally (a zero must render as "0",
+#    not as an absent line — that absence is the original defect).
+out=$(.agentic-framework/bin/fw fabric enrich --dry-run 2>&1); echo "$out" | grep -q "^Edges discarded:"
+
+# 2. enrich's internal per-arm counter agrees with the T-342 probe's independently
+#    computed difference-based measurement of the same drop. Both are re-measured on
+#    every run; neither number is pinned.
+a=$(.agentic-framework/bin/fw fabric enrich --dry-run 2>&1 | sed -n 's/^Edges discarded: *\([0-9]*\).*/\1/p'); b=$(python3 tools/_t342-fabric-edge-drop-probe.py 2>&1 | sed -n 's/.*dropped at resolution *: *\([0-9]*\).*/\1/p'); test -n "$a" && test -n "$b" && test "$a" = "$b"
+
+# 3. When the count is non-zero the targets are NAMED (a bare count relocates the
+#    problem without locating it). When it is zero this passes trivially — the check
+#    must not decay into a red the day the registry is complete.
+out=$(.agentic-framework/bin/fw fabric enrich --dry-run --verbose 2>&1); n=$(echo "$out" | sed -n 's/^Edges discarded: *\([0-9]*\).*/\1/p'); if [ "${n:-0}" -gt 0 ]; then echo "$out" | grep -q "Discarded edges"; fi
+
+# 4. Reporting-only: enrich still writes exactly what it wrote before. Compared against
+#    the pre-change build from git in a configuration where enrich actually writes.
+python3 tools/_t343-write-equivalence.py
 
 ## RCA
 
@@ -206,6 +333,36 @@ discarded count is *fillable* rather than merely reading zero.
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-08-02 — the AC I wrote at filing was already stale when I came to tick it
+
+- **What changed:** AC 4 originally read *"with the repo's real cards, the new counter
+  reads **15**"*. By the time the fix was built it read **17** — not because anything
+  regressed, but because I had registered one component card for the T-342 probe in the
+  meantime, and that card is itself scanned and contributes its own unresolved edges.
+- **Plan impact:** the AC was a currently-true global pinned into a per-task gate — the
+  **G-015 subject error**, committed by me, in a task filed *by* the window that
+  registered G-015. A verification line built on it would have gone red on the next card
+  anyone registers, and "someone registered a card" would have been indistinguishable
+  from "the counter broke".
+- **Triggered:** AC 4 amended in place to assert the *property* (non-zero; agrees with an
+  independent measurement; falls when a target is registered, together with edges-added
+  rising) rather than any literal. No count appears in the teeth or the verification
+  block. Second cousin of [[acs-ticked-from-the-plan]]: there the enumeration rotted,
+  here the integer did.
+
+### 2026-08-02 — a teeth leg failed for the wrong reason, three lines below the comment warning about it
+
+- **What changed:** leg (d) failed on first run. The subject was fine; the leg invoked the
+  *unmutated* `enrich.py` instead of its mutated copy, so it measured nothing. The
+  docstring immediately above it cites T-338 leg (d) — a leg that went red for the wrong
+  reason — as the mistake being guarded against.
+- **Plan impact:** none to the fix; the leg was corrected and passes.
+- **Triggered:** worth stating plainly rather than quietly fixing — writing the warning
+  down does not stop the hand from making the error. What caught it was that the leg's
+  *detail line* prints what it actually observed (`line_absent_on_zero=False`), so a
+  wrong-reason red was legible as one. Legs that print only PASS/FAIL would have sent me
+  to debug working code.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -233,3 +390,6 @@ discarded count is *fillable* rather than merely reading zero.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-343-fw-fabric-enrich-silently-discards-edges.md
 - **Context:** Initial task creation
+
+### 2026-08-02T12:34:07Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

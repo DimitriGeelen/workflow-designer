@@ -36,8 +36,12 @@ seen_raw = {}          # card_path -> (raw_edges, resolved_edges)
 real_resolve = enrich.resolve_edges
 
 
-def spy(raw_edges, loc_to_id_, source_id):
-    out = real_resolve(raw_edges, loc_to_id_, source_id)
+def spy(raw_edges, loc_to_id_, source_id, *a, **kw):
+    # T-343 added a `discarded` collector parameter to resolve_edges. Forward it
+    # verbatim rather than swallowing it: the caller relies on that list being
+    # filled, and a spy that silently dropped it would make enrich's own new
+    # counter read 0 whenever this probe is loaded.
+    out = real_resolve(raw_edges, loc_to_id_, source_id, *a, **kw)
     spy.last = (list(raw_edges), list(out), source_id)
     return out
 

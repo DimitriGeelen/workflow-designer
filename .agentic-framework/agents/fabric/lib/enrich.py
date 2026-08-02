@@ -652,8 +652,21 @@ def detect_ts_js_imports(content, source_location, project_root):
 # Edge resolver
 # ---------------------------------------------------------------------------
 
-def resolve_edges(raw_edges, loc_to_id, source_id):
-    """Convert (location, type) pairs to edge dicts. Deduplicates."""
+def resolve_edges(raw_edges, loc_to_id, source_id, discarded=None):
+    """Convert (location, type) pairs to edge dicts. Deduplicates.
+
+    T-343: a `loc_to_id` miss means "target is not registered", NOT "target is
+    not a dependency" — the detectors have already existence-guarded every
+    location against disk before it gets here. Dropping that edge is correct
+    (an edge needs two cards), but dropping it SILENTLY is not: on a sparse
+    registry it is nearly all of them, and the run then reports a clean zero
+    that is indistinguishable from "there was nothing to add".
+
+    Pass a list as `discarded` to collect `(location, edge_type)` for the
+    unregistered arm only. The self-edge and duplicate arms below are genuine
+    non-results and are deliberately not collected — conflating the three is
+    what made the original T-342 measurement over-attribute.
+    """
     seen = set()
     resolved = []
 
@@ -661,6 +674,8 @@ def resolve_edges(raw_edges, loc_to_id, source_id):
         loc = os.path.normpath(loc)
         target_id = loc_to_id.get(loc)
         if not target_id:
+            if discarded is not None:
+                discarded.append((loc, edge_type))
             continue
         if target_id == source_id:
             continue
@@ -677,10 +692,14 @@ def resolve_edges(raw_edges, loc_to_id, source_id):
 # Forward pass — detect depends_on for each card
 # ---------------------------------------------------------------------------
 
-def compute_forward_edges(cards, loc_to_id, framework_root):
+def compute_forward_edges(cards, loc_to_id, framework_root, discarded=None):
     """Analyze all cards and return new forward edges per card_path.
 
     Returns: dict of card_path -> list of edge dicts to ADD to depends_on
+
+    T-343: `discarded`, when a list is supplied, collects
+    `(source_location, target_location, edge_type)` for every detected edge
+    dropped because the target has no card.
     """
     forward = {}  # card_path -> [edge_dicts]
 
@@ -745,7 +764,11 @@ def compute_forward_edges(cards, loc_to_id, framework_root):
         if not raw_edges:
             continue
 
-        new_edges = resolve_edges(raw_edges, loc_to_id, card_id)
+        card_discarded = [] if discarded is not None else None
+        new_edges = resolve_edges(raw_edges, loc_to_id, card_id, card_discarded)
+        if card_discarded:
+            for tgt_loc, edge_type in card_discarded:
+                discarded.append((location, tgt_loc, edge_type))
         if not new_edges:
             continue
 
@@ -963,7 +986,8 @@ def main():
     print(f"Processing {len(targets)} cards...\n")
 
     # Phase 1: Compute forward edges (depends_on)
-    forward = compute_forward_edges(targets, loc_to_id, project_root)
+    discarded = []  # T-343: (source_location, target_location, edge_type)
+    forward = compute_forward_edges(targets, loc_to_id, project_root, discarded)
 
     # Phase 2: Compute reverse edges (depended_by) — uses ALL cards as targets
     reverse = compute_reverse_edges(forward, cards, id_to_card)
@@ -984,6 +1008,27 @@ def main():
     print(f"Forward edges:     {n_fwd}  (depends_on)")
     print(f"Reverse edges:     {n_rev}  (depended_by)")
     print(f"Total edges added: {n_fwd + n_rev}")
+
+    # T-343: emitted UNCONDITIONALLY. A zero here means "every detected edge
+    # resolved"; the line's absence would mean "this build does not measure it".
+    # Those are different facts and must not share a rendering.
+    by_target = {}
+    for _src, tgt, _etype in discarded:
+        by_target[tgt] = by_target.get(tgt, 0) + 1
+    print(f"Edges discarded:   {len(discarded)}  "
+          f"(target has no component card; {len(by_target)} distinct targets)")
+
+    if discarded:
+        if args.verbose:
+            print(f"\nDiscarded edges — detected, target unregistered:")
+            for tgt, count in sorted(by_target.items(), key=lambda x: (-x[1], x[0])):
+                kind = "dir " if os.path.isdir(os.path.join(project_root, tgt)) else "file"
+                print(f"  {count:3d}x  [{kind}] {tgt}")
+            print(f"\n  Register a target to turn its edges on:")
+            print(f"    fw fabric register <path>")
+        else:
+            print(f"  (re-run with --verbose to list the {len(by_target)} "
+                  f"unregistered targets)")
 
     if sub_stats:
         print(f"\nEdges by subsystem:")

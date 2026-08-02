@@ -887,6 +887,25 @@ concerns:
       on a new unregistered file. Same framework, same question: a working per-commit
       check and a blind standing audit, and the blind one is the one that reports a
       verdict and accumulates a backlog figure.
+
+      TRIGGER CLAUSE (3) COVERED 2026-08-02 (T-343) — status deliberately NOT flipped;
+      clauses (1) and (2) are untouched and the flip is the operator's. `fw fabric enrich`
+      now emits "Edges discarded: N (target has no component card; M distinct targets)"
+      unconditionally, and names every target under --verbose. The audit still prints
+      "Run: fw fabric enrich" as its PRIORITY ACTION, and that is still not a working
+      remedy — what changed is that running it is no longer a dead end: it now reports
+      why it added nothing, and which targets to register. Self-explaining, not fixed.
+
+      TWO THINGS LEARNED IN COVERING IT, both worth more than the fix. First, T-342's
+      "15 discarded for want of a card" was a difference (len(raw) - len(resolved)) across
+      resolve_edges' THREE drop arms — unregistered, self-edge, duplicate. Decomposed
+      before writing the counter: 17 / 0 / 0. The attribution was right in kind only
+      because the other two arms are empty HERE, an occupancy zero; the counter collects
+      the unregistered arm alone. Second, the count read 15 at filing, 17 a day later, and
+      20 after one more card was registered — three values, no regression among them. The
+      acceptance criterion I wrote at filing pinned the literal 15, i.e. it was a G-015
+      subject error committed inside the window that registered G-015. Amended to assert
+      the property; no literal count appears in T-343's teeth or verification block.
     related_tasks:
       - T-342
       - T-343
