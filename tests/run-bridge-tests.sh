@@ -565,6 +565,23 @@ else
 fi
 
 echo
+echo "== Finding anchorability (T-335, T-309 IW-1a) =="
+# Whether a finding can be POINTED AT decides where findings can surface in the
+# designer — a gutter marker needs the finding to name something that exists on
+# the canvas at a position, and 8 of 23 rules do not. The classification table
+# is hand-written, so without this it is a declaration answerable only to itself
+# (KNOWN_DISAGREEMENTS before T-330). Population read from source by ast, table
+# total (an unclassified rule is a hard fail), and every declared class checked
+# against corpus + on-disk fixtures + the BRIDGED documents — omitting the
+# bridged form is what made the first pass under-report verification by 2×.
+if python3 "$ROOT/tests/test_finding_anchorability.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "a validator rule is unclassified for anchorability, or its declared anchor class stopped agreeing with the documents, or the never-witnessed row moved (T-335 — the IW-1a numbers in docs/reports/T-309-validator-surfacing.md are now wrong)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Runner-orphan guard (T-316) =="
 # The guard for the class above: any collectable test file (test_*.py, *_test.py,
 # *.bats) that this runner does not invoke is a finding. Checks membership in

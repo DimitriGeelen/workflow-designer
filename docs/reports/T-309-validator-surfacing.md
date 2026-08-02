@@ -507,6 +507,15 @@ findings (`E-XML-ID-DUP`, two `E-XML-FLOW-DANGLING`, one `E-XML-LANEREF-DANGLING
 malformation. A live surface would show four problems where the author made one mistake, and the
 three derived ones are all in the unanchorable classes.
 
+**The numbers above are now answerable to the tree, not to this document (T-335).** The
+classification is hand-written, and a hand-written table nothing re-runs is the shape this arc keeps
+finding — `KNOWN_DISAGREEMENTS` before T-330, the parity NOTEs before T-331. Add a rule to
+`XmlValidator` tomorrow and the table quietly stops describing the tree while this report keeps
+quoting a figure someone may act on. `tests/test_finding_anchorability.py` runs as a leg of
+`tests/run-bridge-tests.sh` and fails if a rule is unclassified, if a declared class stops agreeing
+with what documents resolve to, or if the never-witnessed row moves. Teeth 5/5, including a leg that
+deletes the bridged population and requires a red — the mistake above, wired shut.
+
 **Consequence for IW-1a.** The options are not interchangeable and the measurement ranks them:
 
 1. **A panel can carry all 23 rules.** It is the only option with no anchorability precondition, and
