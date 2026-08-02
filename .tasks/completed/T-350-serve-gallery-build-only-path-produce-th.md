@@ -4,10 +4,10 @@ name: "serve-gallery build-only path: produce the serve root without binding a p
 description: >
   serve-gallery build-only path: produce the serve root without binding a port (G-015 remedy leg 2)
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: ["arc:designer-authoring-surface", "tooling", "G-015"]
 components: []
 related_tasks: ["T-093", "T-102", "T-105", "T-231", "T-252", "T-253", "T-309", "T-351"]
@@ -17,8 +17,8 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T21:56:07Z
-last_update: 2026-08-02T21:56:07Z
-date_finished: null
+last_update: 2026-08-02T22:27:39Z
+date_finished: 2026-08-02T22:27:39Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -345,3 +345,15 @@ lost — which is itself only true because of the commit cadence rule (P-009).
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-350-serve-gallery-build-only-path-produce-th.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7f88d784
+- **Timestamp:** 2026-08-02T22:31:04Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-02T22:27:39Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

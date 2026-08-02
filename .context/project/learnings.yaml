@@ -675,3 +675,10 @@ learnings:
   date: 2026-08-02
   context: Added via context agent
   application: TBD
+- id: PL-096
+  learning: "A safeguard that is never verified to have applied is not a safeguard. T-350's teeth leg stubbed a recursive delete via replace-first-occurrence; the first occurrence was a COMMENT quoting the command, so the live command survived and deleted the repository. The arc has catalogued five CHECKS that cannot fail; this is the first SAFEGUARD that silently did not apply, and it is worse - a dead check costs a false green, a dead safeguard costs the guarded thing. Remedies that generalise: (1) prose about code shares a byte-space with code, so never quote a dangerous command in the comment guarding it, and exclude comment lines from any safety scan; (2) state the invariant a harness must satisfy before executing anything it mutated (guard intact OR danger stubbed) and assert it as a precondition; (3) give the precondition its own teeth leg that constructs a violating mutant and requires refusal; (4) anchor mutations at start-of-line, require an exact substitution count, and make a non-applying mutation report BROKEN rather than run; (5) verify the EFFECT, never the edit."
+  source: P-001
+  task: T-350
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD

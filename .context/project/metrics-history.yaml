@@ -232,56 +232,6 @@ entries:
   traceability_pct: 100
   episodic_quality_pct: 0
   open_gaps: 7
-- timestamp: '2026-07-26T22:30:02Z'
-  pass: 2
-  warn: 0
-  fail: 0
-  active_tasks: 76
-  completed_tasks: 181
-  velocity: 12
-  traceability_pct: 100
-  episodic_quality_pct: 0
-  open_gaps: 7
-- timestamp: '2026-07-26T22:45:02Z'
-  pass: 8
-  warn: 4
-  fail: 0
-  active_tasks: 76
-  completed_tasks: 181
-  velocity: 12
-  traceability_pct: 100
-  episodic_quality_pct: 0
-  open_gaps: 7
-- timestamp: '2026-07-26T23:00:26Z'
-  pass: 25
-  warn: 11
-  fail: 6
-  active_tasks: 76
-  completed_tasks: 181
-  velocity: 12
-  traceability_pct: 100
-  episodic_quality_pct: 0
-  open_gaps: 7
-- timestamp: '2026-07-26T23:15:03Z'
-  pass: 8
-  warn: 4
-  fail: 0
-  active_tasks: 76
-  completed_tasks: 181
-  velocity: 12
-  traceability_pct: 100
-  episodic_quality_pct: 0
-  open_gaps: 7
-- timestamp: '2026-07-26T23:30:02Z'
-  pass: 2
-  warn: 0
-  fail: 0
-  active_tasks: 76
-  completed_tasks: 181
-  velocity: 12
-  traceability_pct: 100
-  episodic_quality_pct: 0
-  open_gaps: 7
 - timestamp: '2026-07-26T23:45:02Z'
   pass: 8
   warn: 4
@@ -8699,6 +8649,56 @@ entries:
   active_tasks: 45
   completed_tasks: 306
   velocity: 82
+  traceability_pct: 100
+  episodic_quality_pct: 0
+  open_gaps: 13
+- timestamp: '2026-08-02T22:30:01Z'
+  pass: 2
+  warn: 0
+  fail: 0
+  active_tasks: 45
+  completed_tasks: 306
+  velocity: 83
+  traceability_pct: 100
+  episodic_quality_pct: 0
+  open_gaps: 13
+- timestamp: '2026-08-02T22:45:03Z'
+  pass: 7
+  warn: 2
+  fail: 0
+  active_tasks: 44
+  completed_tasks: 307
+  velocity: 82
+  traceability_pct: 100
+  episodic_quality_pct: 0
+  open_gaps: 13
+- timestamp: '2026-08-02T23:00:17Z'
+  pass: 28
+  warn: 19
+  fail: 59
+  active_tasks: 44
+  completed_tasks: 307
+  velocity: 75
+  traceability_pct: 100
+  episodic_quality_pct: 0
+  open_gaps: 13
+- timestamp: '2026-08-02T23:15:03Z'
+  pass: 7
+  warn: 2
+  fail: 0
+  active_tasks: 44
+  completed_tasks: 307
+  velocity: 72
+  traceability_pct: 100
+  episodic_quality_pct: 0
+  open_gaps: 13
+- timestamp: '2026-08-02T23:30:15Z'
+  pass: 28
+  warn: 19
+  fail: 59
+  active_tasks: 44
+  completed_tasks: 307
+  velocity: 71
   traceability_pct: 100
   episodic_quality_pct: 0
   open_gaps: 13

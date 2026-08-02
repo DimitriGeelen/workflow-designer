@@ -4,7 +4,7 @@ name: "serve-gallery.sh can never stop its own server: trap forwards SIGINT, whi
 description: >
   serve-gallery.sh's exit trap forwards kill -INT to the gallery-serve.py child, but bash sets SIGINT to SIG_IGN for children started with & when job control is off, and python inherits the ignore across exec (confirmed in /proc/PID/status SigIgn). The child therefore survives every INT its parent sends, and orphans on parent death. The in-file comment asserts the exact inverse: that gallery-serve.py handles SIGINT and ignores SIGTERM. SIGTERM is in fact what stops it. Five orphaned gallery-serve.py processes from 2026-07-22 and 2026-07-29 are still resident on this host holding ports with deleted docroots.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T22:02:21Z
-last_update: 2026-08-02T22:02:21Z
+last_update: 2026-08-02T22:31:47Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -224,3 +224,6 @@ and T-350's probe only needed to stop leaking servers *of its own*, which it doe
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-351-serve-gallerysh-can-never-stop-its-own-s.md
 - **Context:** Initial task creation
+
+### 2026-08-02T22:31:46Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

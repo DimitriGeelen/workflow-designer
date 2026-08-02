@@ -1,0 +1,113 @@
+# ============================================================================
+# EPISODIC MEMORY - T-350: serve-gallery build-only path: produce the serve root without binding a port (G-015 remedy leg 2)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-02T22:31:06Z
+# ============================================================================
+
+task_id: T-350
+task_name: "serve-gallery build-only path: produce the serve root without binding a port (G-015 remedy leg 2)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-02T21:56:07Z
+completed: 2026-08-02T22:27:39Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-03T00:25:42+02:00
+last_commit: 2026-08-03T00:25:42+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  serve-gallery.sh grows --build-only (G-015 remedy leg 2) — the serve root can now be produced without binding a port, which was the coupling that made refreshing it require starting a server on a ufw-retired port. FULL rebuild deliberately: copying designer.html alone would green all 75 G-015 diff lines while leaving rendered/ stale, which is the defect the gap is about (AC2 forbids it). Also: unknown-option refusal (a typo no longer becomes the PORT), and a refusal guard on the recursive delete of the caller-supplied GALLERY_DIR. Probe 12/12, teeth 5/5 with every leg naming its own condition. THREE THINGS THE HARNESS CAUGHT ABOUT ITSELF, all recorded rather than fixed silently. (1) Teeth leg (d) DELETED THIS REPOSITORY: it stubbed the recursive delete via replace-first-occurrence, the first occurrence was a COMMENT quoting the command, the live command survived and ran with GALLERY_DIR=ROOT. Recovered by re-clone from origin at 041765c, zero committed work lost. The lesson is not carelessness: a safety measure never verified to have applied is not a safety measure. Harness now enforces 'guard intact OR delete stubbed' before any mutant executes, and leg (e) proves that precondition refuses an armed mutant. Registered as G-018 — Tier 0 matches the Bash command STRING, so a destructive command reached from inside an invoked script is unguarded, and that scope boundary was never written down. (2) The probe leaked a gallery-serve.py per run: SIGINT cannot stop it, because bash sets SIGINT to SIG_IGN for background children and python inherits the ignore across exec (SigIgn in /proc/PID/status). serve-gallery.sh's trap forwards INT only and its comment asserts the inverse of both facts; five orphans from July are still resident. Filed T-351. (3) AC1's listener-delta check could not fire — leg (f) was built specifically to make it fire and could not, because nothing a script backgrounds survives its exit here. The CHECK was removed from the probe rather than the leg dropped, since an inert assertion reads as coverage. G-015 status left at watching: leg 1 (narrowing 75 lines across other owners' tasks) is the operator's, and rebuilding the gallery is not closure
+
+# Key outcomes
+outcomes:
+  - '**AC1 — build-only starts no server.** `tools/serve-gallery.sh --build-only` exits 0 and'
+  - '**AC2 — the build-only root is COMPLETE, not designer-only.** After a build-only run, in the'
+  - '**AC3 — the serve path is unchanged, and the probe cleans up after itself.** Invoked with a'
+  - '**AC4 — an unknown option is refused, not swallowed as a port.** `--build-onlyy` (and any'
+  - '**AC5 — the recursive delete has a destructive guard.** With `GALLERY_DIR` set to `/` or the'
+  - '**AC6 — every check above is proven able to fail, by mutation, and each failure NAMES its own'
+  - '**AC7 — the teeth harness refuses to execute an armed mutant, and that refusal is itself'
+  - '**AC8 — this task''s own `## Verification` block commits no G-015 subject error.** It contains'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'serve-gallery.sh grows --build-only (G-015 remedy leg 2) — the serve root can now be produced without binding a port, which was the coupling that made refreshing it require starting a server on a ufw-retired port. FULL rebuild deliberately: copying designer.html alone would green all 75 G-015 diff lines while leaving rendered/ stale, which is the defect the gap is about (AC2 forbids it). Also: unknown-option refusal (a typo no longer becomes the PORT), and a refusal guard on the recursive delete of the caller-supplied GALLERY_DIR. Probe 12/12, teeth 5/5 with every leg naming its own condition. THREE THINGS THE HARNESS CAUGHT ABOUT ITSELF, all recorded rather than fixed silently. (1) Teeth leg (d) DELETED THIS REPOSITORY: it stubbed the recursive delete via replace-first-occurrence, the first occurrence was a COMMENT quoting the command, the live command survived and ran with GALLERY_DIR=ROOT. Recovered by re-clone from origin at 041765c, zero committed work lost. The lesson is not carelessness: a safety measure never verified to have applied is not a safety measure. Harness now enforces ''guard intact OR delete stubbed'' before any mutant executes, and leg (e) proves that precondition refuses an armed mutant. Registered as G-018 — Tier 0 matches the Bash command STRING, so a destructive command reached from inside an invoked script is unguarded, and that scope boundary was never written down. (2) The probe leaked a gallery-serve.py per run: SIGINT cannot stop it, because bash sets SIGINT to SIG_IGN for background children and python inherits the ignore across exec (SigIgn in /proc/PID/status). serve-gallery.sh''s trap forwards INT only and its comment asserts the inverse of both facts; five orphans from July are still resident. Filed T-351. (3) AC1''s listener-delta check could not fire — leg (f) was built specifically to make it fire and could not, because nothing a script backgrounds survives its exit here. The CHECK was removed from the probe rather than the leg dropped, since an inert assertion reads as coverage. G-015 status left at watching: leg 1 (narrowing 75 lines across other owners'' tasks) is the operator''s, and rebuilding the gallery is not closure'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-08-02-1930.yaml'
+  - '.context/audits/cron/2026-08-02-1945.yaml'
+  - '.context/audits/cron/2026-08-02-2000.yaml'
+  - '.context/audits/cron/2026-08-02-2015.yaml'
+  - '.context/audits/cron/2026-08-02-2030.yaml'
+  - '.context/audits/cron/2026-08-02-2045.yaml'
+  - '.context/audits/cron/2026-08-02-2100.yaml'
+  - '.context/audits/cron/2026-08-02-2115.yaml'
+  - '.context/audits/cron/2026-08-02-2130.yaml'
+  - '.context/audits/cron/2026-08-02-2145.yaml'
+  - '.context/audits/cron/2026-08-02-2200.yaml'
+  - '.context/audits/cron/2026-08-02-2215.yaml'
+  - '.context/audits/cron/2026-08-02-2230.yaml'
+  - '.context/audits/cron/2026-08-02-2245.yaml'
+  - '.context/audits/cron/2026-08-02-2300.yaml'
+  - '.context/audits/cron/2026-08-02-2315.yaml'
+  - '.context/audits/cron/2026-08-02-2330.yaml'
+  - '.context/audits/cron/2026-08-02-2345.yaml'
+  - '.context/audits/cron/2026-08-03-0000.yaml'
+  - '.context/audits/cron/2026-08-03-0015.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/project/concerns.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.session-turn-offset'
+  - '.tasks/active/T-350-serve-gallery-build-only-path-produce-th.md'
+  - '.tasks/active/T-351-serve-gallerysh-can-never-stop-its-own-s.md'
+  - 'tools/serve-gallery.sh'
+  - 'tools/_t350-build-only-probe.sh'
+  - 'tools/_t350-teeth.sh'
+  - 'tools/_t350-verification-hygiene.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-03T00:25:42"
+    action: "T-350: serve-gallery.sh grows --build-only (G-015 remedy leg 2) — the serve root can now be produced without binding a port, which was the coupling that made refreshing it require starting a server on a ufw-retired port. FULL rebuild deliberately: copying designer.html alone would green all 75 G-015 diff lines while leaving rendered/ stale, which is the defect the gap is about (AC2 forbids it). Also: unknown-option refusal (a typo no longer becomes the PORT), and a refusal guard on the recursive delete of the caller-supplied GALLERY_DIR. Probe 12/12, teeth 5/5 with every leg naming its own condition. THREE THINGS THE HARNESS CAUGHT ABOUT ITSELF, all recorded rather than fixed silently. (1) Teeth leg (d) DELETED THIS REPOSITORY: it stubbed the recursive delete via replace-first-occurrence, the first occurrence was a COMMENT quoting the command, the live command survived and ran with GALLERY_DIR=ROOT. Recovered by re-clone from origin at 041765c, zero committed work lost. The lesson is not carelessness: a safety measure never verified to have applied is not a safety measure. Harness now enforces 'guard intact OR delete stubbed' before any mutant executes, and leg (e) proves that precondition refuses an armed mutant. Registered as G-018 — Tier 0 matches the Bash command STRING, so a destructive command reached from inside an invoked script is unguarded, and that scope boundary was never written down. (2) The probe leaked a gallery-serve.py per run: SIGINT cannot stop it, because bash sets SIGINT to SIG_IGN for background children and python inherits the ignore across exec (SigIgn in /proc/PID/status). serve-gallery.sh's trap forwards INT only and its comment asserts the inverse of both facts; five orphans from July are still resident. Filed T-351. (3) AC1's listener-delta check could not fire — leg (f) was built specifically to make it fire and could not, because nothing a script backgrounds survives its exit here. The CHECK was removed from the probe rather than the leg dropped, since an inert assertion reads as coverage. G-015 status left at watching: leg 1 (narrowing 75 lines across other owners' tasks) is the operator's, and rebuilding the gallery is not closure"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 31 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: ["arc:designer-authoring-surface", "tooling", "G-015"]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 31
+  commits: 1
+  files_changed: 33
+  lines_added: 3813
+  lines_removed: 540
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-350-serve-gallery-build-only-path-produce-th.md
+generated_by: context-agent-hybrid
