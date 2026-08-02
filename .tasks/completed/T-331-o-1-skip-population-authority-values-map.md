@@ -235,7 +235,14 @@ test "$(grep -c '^AUTHORITY_NO_OWNER_DERIVABLE = ' tools/validate-workflow.py)" 
 # the declared corpus warning is ANSWERABLE both ways: it fails if the map goes
 # clean, not only if it gets worse
 grep -q "validates CLEAN but is declared" tests/run-bridge-tests.sh
-grep -q "authority: none" tests/fixtures/invalid/W-LANE-NO-OWNER.yaml
+# CORRECTED after completion: the fixture was first placed in fixtures/invalid/,
+# where run-validator-tests.sh requires exit 2 (ERROR). W-LANE-NO-OWNER is a
+# WARN, so that suite went 45/1 -- and AC9 had cited its 45/0 baseline WITHOUT
+# running it. The directory IS the expectation here; fixtures/warn/ is the
+# WARN-severity bucket. Found by running the suite I had only cited.
+bash tests/run-validator-tests.sh
+grep -q "authority: none" tests/fixtures/warn/W-LANE-NO-OWNER.yaml
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "46 passed, 0 failed"
 out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "66 passed, 0 failed"
 out=$(python3 tests/test_harness_cross_form_agreement.py 2>&1); echo "$out" | grep -q "20 pairs compared, 17 AGREE"
 out=$(python3 tests/test_rule_form_parity.py 2>&1); echo "$out" | grep -q "49 rules classified, 11 gaps"
@@ -315,6 +322,23 @@ out=$(python3 tools/validate-workflow.py examples/aef-processes/context-memory.w
   the seam between them, and it is answerable in both directions.
 - **Triggered:** T-189 item 6, and a rail post to AEF whose OBS-120 these 11
   nodes are the live input for.
+
+### 2026-08-02 — AC9 cited a baseline it never ran (found after completion)
+
+- **What changed:** AC9 named five baselines including "validator suite 45/0".
+  Four were run. The validator suite was **cited, not executed** — and it was
+  the one that failed: the fixture went into `tests/fixtures/invalid/`, where
+  `run-validator-tests.sh` requires exit 2, while a WARN rule exits 1. The
+  directory IS the expectation; `tests/fixtures/warn/` is the WARN bucket.
+- **Plan impact:** fixture moved, suite now 46/0 (above baseline), and the
+  Verification block gained the command so the citation is no longer load-
+  bearing on my memory.
+- **Triggered:** the correction is recorded rather than quietly folded in — a
+  cited-but-unrun baseline is exactly the "checks that discriminate nothing"
+  shape, committed by me in the same task that closes it elsewhere. The general
+  form: **a no-regression AC that names suites is worth only the suites it
+  actually invokes**, so each named baseline belongs in `## Verification` as a
+  command, where P-011 runs it mechanically.
 
 ### 2026-08-02 — a teeth leg that went red for the wrong reason
 
