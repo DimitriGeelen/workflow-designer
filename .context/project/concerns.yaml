@@ -671,3 +671,63 @@ concerns:
       - T-325
       - T-326
       - G-013
+
+  - id: G-015
+    type: gap
+    status: watching
+    severity: medium
+    title: "75 verification blocks assert a GLOBAL, always-moving property — `diff src/aef-workflow-designer.html build/gallery/designer.html` — and all of them are red right now"
+    detected: 2026-08-02
+    origin_task: T-309
+    decision_trigger: >
+      Either the line is narrowed to assert what its task actually delivered (e.g.
+      `grep -q "set-branch-pitch" build/gallery/designer.html` — the serve root
+      carries THIS feature), or the convention is dropped in favour of a single
+      tree-level freshness check that is not copied into per-task gates, AND
+      tools/serve-gallery.sh grows a build-only path so the remedy does not require
+      binding a port. Closing because "we rebuilt the gallery" is not closure — the
+      line goes red again on the next edit to src, which is the property being
+      reported.
+    detail: >
+      Found while re-running T-093's verification during T-309 (9/10, line 8 red).
+      The line is `diff -q src/aef-workflow-designer.html build/gallery/designer.html`.
+      Scanned the class before concluding anything: 334 verification blocks, 1261
+      non-comment lines, and this exact assertion (diff/cmp variants) appears in
+      **75 tasks** — 72 completed, 3 active (T-093, T-102, T-105). It is red right
+      now for all of them: build/gallery/designer.html is a Jul-28 snapshot, src was
+      last edited Jul-31, 402 diff lines.
+
+      WHAT IS WRONG IS THE SUBJECT, NOT THE PREDICATE. The intent is good and has
+      history behind it — T-231 and T-252 both cost real time to "committed is not
+      serving" (PL-046), and this line is the scar. But it asserts a property of the
+      WHOLE TREE AT THIS MOMENT (serve root in sync with source), not a property of
+      the task that carries it. It was true when written and decays the instant
+      anyone else edits src. For a completed task that is harmless — the gate already
+      passed and the file is archived. For a task sitting in the human review queue
+      it converts "the human has not got to it yet" into "permanently red", which is
+      exactly the T-178 shape (rail 384) in a reachable costume. T-093 has been
+      partial-complete for 28 days with this line red for reasons that have nothing
+      to do with T-093.
+
+      THE REMEDY IS NOT FREE, WHICH IS THE PART THAT MAKES IT A GAP. The only tool
+      that legitimately produces the artifact is tools/serve-gallery.sh, and it has
+      NO build-only path: it does `rm -rf $OUT`, reassembles, then binds a port,
+      starts gallery-serve.py and refuses to report success unless the running server
+      answers /api/health (the T-231 behaviour probe, itself correct). Its default
+      port is :8834, which is retired — ufw has no allow rule for it (T-253) and the
+      firewall is the operator's boundary, not the agent's to change. So "just rebuild
+      it" couples a per-task verification line to starting a server. Hand-copying only
+      designer.html would green all 75 lines while leaving build/gallery/rendered/
+      stale — a green that asserts less than it says, which is the class of defect
+      this register exists for.
+
+      NOT APPLIED. T-093/T-102/T-105 gates belong to their owners, and narrowing 75
+      lines is a convention change, not a fix. Reported with the measurement so the
+      operator can rule.
+    related:
+      - T-093
+      - T-102
+      - T-105
+      - T-178
+      - T-252
+      - T-253
