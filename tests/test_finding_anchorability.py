@@ -121,13 +121,20 @@ ACCEPTS = {
     "REFERENT":  lambda seen: seen == {"UNRESOLVED"},
     "DROPPED":   lambda seen: seen == {"edge"},
     "DOC":       lambda seen: seen <= {"none", "document"},
-    # NOTE, stated rather than hidden: this predicate proves the duplicated id
-    # resolves to SOMETHING, not that it resolves TWICE, which is the property
-    # that makes VALUE distinct from NODE. Read as partially verified. It is
-    # written this way because the finding names the VALUE, and recovering the
-    # carrier count would mean re-deriving the rule inside its own check.
+    # VALUE is additionally required to resolve to >=2 CARRIERS (T-336) -- see
+    # MULTIPLICITY below. Kind alone would agree with the documents for a reason
+    # that does not test the claim, which is what separates VALUE from NODE.
     "VALUE":     lambda seen: seen <= {"node", "edge", "lane"},
 }
+
+# Classes whose claim is about HOW MANY elements carry the named id, not what
+# kind of thing it is. A duplicated id resolving to one carrier is a NODE
+# wearing a VALUE label: the finding would have a single anchor after all, and
+# the ERROR-side anchorability figure in docs/reports/T-309-validator-surfacing.md
+# would be wrong. Counted over bpmn @id AND over aef:uid values, because
+# E-XML-UID-DUP names the latter -- which is itself why that rule is hard to
+# anchor: the canvas indexes by neither of them for this purpose.
+MULTIPLICITY = {"VALUE": 2}
 
 
 # ---------------------------------------------------------------------------
@@ -166,6 +173,36 @@ def call_sites():
 # ---------------------------------------------------------------------------
 # Population: the documents
 # ---------------------------------------------------------------------------
+
+def _carriers(root):
+    """id -> how many DISTINCT ELEMENTS carry it, over bpmn @id and aef:uid.
+
+    A plain id->kind map cannot answer this: dict keys collapse duplicates,
+    which is precisely the population a VALUE-class rule is about.
+
+    Counting ATTRIBUTE OCCURRENCES instead of elements is wrong and silently so:
+    `yaml-to-bpmn.py` emits `<bpmn:serviceTask id="n_a">` carrying
+    `<aef:uid value="n_a"/>`, the SAME string on a parent and its child, so every
+    node in every bridged document would score 2 and the multiplicity check could
+    never fail. Caught by a teeth leg written to falsify (T-336) -- the first
+    version of this function agreed with the documents for a reason that did not
+    test the claim, which is the exact defect it was written to remove.
+    """
+    owner = {}
+    for parent in root.iter():
+        for child in parent:
+            owner[id(child)] = parent
+    seen = collections.defaultdict(set)
+    for el in root.iter():
+        if el.get("id"):
+            seen[el.get("id")].add(id(el))
+        if el.tag == "{%s}uid" % NS["aef"] and el.get("value"):
+            # attribute the uid to the node that carries it, not to the tag:
+            # <aef:uid> sits inside <bpmn:extensionElements> inside the node
+            node = owner.get(id(owner.get(id(el))), owner.get(id(el), el))
+            seen[el.get("value")].add(id(node))
+    return collections.Counter({k: len(v) for k, v in seen.items()})
+
 
 def _index(root):
     """id -> kind, for everything the canvas can draw."""
@@ -269,17 +306,21 @@ def main():
 
     docs, bridged = bpmn_documents()
     observed = collections.defaultdict(set)
+    max_carriers = collections.Counter()
     for label, text in docs:
         try:
-            idx = _index(ET.fromstring(text))
+            root = ET.fromstring(text)
+            idx, carriers = _index(root), _carriers(root)
         except ET.ParseError:
-            idx = {}
+            idx, carriers = {}, collections.Counter()
         for f in vw.run_xml(text):
             if f.rule not in ANCHOR:
                 continue
             ids = _ids_in(f.location)
             kinds = {idx.get(i, "UNRESOLVED") for i in ids} or {"none"}
             observed[f.rule] |= kinds
+            for i in ids:
+                max_carriers[f.rule] = max(max_carriers[f.rule], carriers[i])
 
     # -- 3. declared vs observed -------------------------------------------
     disagree = []
@@ -292,6 +333,22 @@ def main():
               "resolved to -- the table stopped describing the tree:")
         for rule, cls, kinds in disagree:
             print("      %-27s declared %-10s observed %s" % (rule, cls, kinds))
+        return 1
+
+    # A class whose claim is about HOW MANY carriers, not what kind. Without
+    # this, VALUE agrees for a reason that does not test the claim (T-336).
+    thin = [(r, max_carriers[r], MULTIPLICITY[ANCHOR[r]])
+            for r in sorted(observed)
+            if ANCHOR[r] in MULTIPLICITY
+            and max_carriers[r] < MULTIPLICITY[ANCHOR[r]]]
+    if thin:
+        print("FAIL: a rule declared as a multi-carrier class never resolved to "
+              "more than one carrier -- the id has a single anchor after all, so "
+              "the class is wrong and the ERROR-side anchorability figure in "
+              "docs/reports/T-309-validator-surfacing.md moves:")
+        for rule, got, want in thin:
+            print("      %-27s declared %-8s max carriers observed %d, needs >=%d"
+                  % (rule, ANCHOR[rule], got, want))
         return 1
 
     # -- 4. never-witnessed rows -------------------------------------------
