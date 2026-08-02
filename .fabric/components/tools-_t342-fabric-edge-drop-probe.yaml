@@ -1,0 +1,20 @@
+id: tools/_t342-fabric-edge-drop-probe.py
+name: _t342-fabric-edge-drop-probe
+type: script
+subsystem: unknown
+location: tools/_t342-fabric-edge-drop-probe.py
+tags: []
+
+purpose: "TODO: describe what this component does"
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-08-02
+created_by: unknown
