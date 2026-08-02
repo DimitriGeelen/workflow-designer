@@ -181,6 +181,100 @@ const EXPECTED_REFS = {
 // class the instrument exists to watch.
 const EXPECTED_DI = 'DI-DROPPED';
 
+// --- population 5: CONTENT of an ACCEPTED element (T-346) -------------------
+// Populations 1-4 all ask whether the importer accepts a THING. This one asks
+// what happens INSIDE a thing it already accepts. `parseBpmnXml` reaches into each
+// allowlisted element for ~10 named children and 2 attributes; everything else in
+// that element is not rejected, it is simply never read — and export writes only
+// from `state`. Identical mechanism to T-337, one level further in.
+//
+// Not hypothetical: T-259 is exactly this defect and it shipped — an unconsumed
+// <aef:eventDef> child destroyed by a layout-only open→save (the rail-201 field
+// defect). That fix resolved ONE child. This measures the rest.
+//
+// The corpus leg cannot see this class: it compares node/flow/lane COUNTS, and an
+// element that survives with its content stripped keeps all three identical. Same
+// blind spot as T-341 — green because the measure was about the wrong property.
+const MARK = 'T346MARK';
+const CONTENT_CASES = [
+  { id: 'documentation',      carrier: 'serviceTask',
+    frag: `<bpmn:documentation>${MARK}</bpmn:documentation>` },
+  // The T-259 shape itself: a foreign child inside an extensionElements block the
+  // importer DOES read — it takes the aef:* children it knows and ignores the rest.
+  { id: 'ext-foreign-child',  carrier: 'serviceTask', into: 'extensionElements',
+    ns: ['zeebe', 'http://camunda.org/schema/zeebe/1.0'],
+    frag: `<zeebe:taskDefinition type="${MARK}"/>` },
+  { id: 'property',           carrier: 'serviceTask',
+    frag: `<bpmn:property id="${MARK}" name="p"/>` },
+  { id: 'multiInstanceLoop',  carrier: 'serviceTask',
+    frag: `<bpmn:multiInstanceLoopCharacteristics isSequential="true">`
+        + `<bpmn:loopCardinality>${MARK}</bpmn:loopCardinality>`
+        + `</bpmn:multiInstanceLoopCharacteristics>` },
+  { id: 'unknown-attribute',  carrier: 'serviceTask',
+    ns: ['camunda', 'http://camunda.org/schema/1.0/bpmn'],
+    attr: `camunda:asyncBefore="${MARK}"` },
+  // Deliberately included as a case where dropping is CORRECT: incoming/outgoing
+  // are derivable from the sequenceFlows and re-emitting them from state would be
+  // duplication. Expected DROPPED and flagged benign, so the population is not
+  // "everything we inject disappears" — a result that would say nothing.
+  { id: 'incoming-ref',       carrier: 'serviceTask', benign: true,
+    frag: `<bpmn:incoming>${MARK}</bpmn:incoming>` },
+  // POSITIVE CONTROL. conditionExpression is read (src:9855) and re-emitted
+  // (src:9540) unconditionally. If this one does not come back PRESERVED, the
+  // probe is broken rather than the designer — a leg that goes red when the
+  // subject is right, which is the failure this instrument has hit three times.
+  { id: 'conditionExpression', carrier: 'sequenceFlow',
+    frag: `<bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" `
+        + `xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">${MARK}</bpmn:conditionExpression>` },
+];
+const EXPECTED_CONTENT = {
+  'documentation':       'CONTENT-DROPPED',
+  'ext-foreign-child':   'CONTENT-DROPPED',
+  'property':            'CONTENT-DROPPED',
+  'multiInstanceLoop':   'CONTENT-DROPPED',
+  'unknown-attribute':   'CONTENT-DROPPED',
+  'incoming-ref':        'CONTENT-DROPPED',
+  'conditionExpression': 'CONTENT-PRESERVED',
+};
+
+// Locate the element carrying a given uid. Identity is aef:uid, never the display
+// id — display ids are recomputed from lane+ordinal+name by the change under test
+// (T-341), so a display-id lookup measures renumbering.
+function elementByUid(xml, tag, uid) {
+  const re = new RegExp(`<bpmn:${tag}\\b[^>]*>[\\s\\S]*?</bpmn:${tag}>`, 'g');
+  for (const m of xml.matchAll(re)) {
+    if (m[0].includes(`<aef:uid value="${uid}"`)) return m[0];
+  }
+  return null;
+}
+
+// Inject a content fragment into the FIRST carrier element that is identifiable by
+// uid, and hand back that uid so the verdict can be read off the same element
+// after the round trip rather than off the document as a whole.
+function injectContent(xml, c) {
+  const re = new RegExp(`<bpmn:${c.carrier}\\b[^>]*>[\\s\\S]*?</bpmn:${c.carrier}>`);
+  let head = xml;
+  if (c.ns && !new RegExp(`xmlns:${c.ns[0]}=`).test(head)) {
+    head = head.replace(/(<bpmn:definitions\b)/, `$1 xmlns:${c.ns[0]}="${c.ns[1]}"`);
+  }
+  const m = head.match(re);
+  if (!m) return null;
+  const um = m[0].match(/<aef:uid value="([^"]*)"/);
+  if (!um) return null;                       // victim must be uid-identifiable
+  let mutated;
+  if (c.attr) {
+    mutated = m[0].replace(new RegExp(`^<bpmn:${c.carrier}\\b`), `<bpmn:${c.carrier} ${c.attr}`);
+  } else if (c.into) {
+    const close = `</bpmn:${c.into}>`;
+    if (!m[0].includes(close)) return null;   // no host block on this carrier
+    mutated = m[0].replace(close, c.frag + close);
+  } else {
+    mutated = m[0].replace(new RegExp(`</bpmn:${c.carrier}>$`), c.frag + `</bpmn:${c.carrier}>`);
+  }
+  if (mutated === m[0]) return null;
+  return { xml: head.replace(m[0], () => mutated), uid: um[1], tag: c.carrier };
+}
+
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
 function freePort() { return new Promise((res, rej) => { const s = net.createServer(); s.listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => res(p)); }); s.on('error', rej); }); }
 async function waitPortFile(f) { const t0 = Date.now(); while (Date.now() - t0 < 15000) { if (existsSync(f)) { const t = readFileSync(f, 'utf8').split('\n'); if (t[0] && t[0].trim()) return parseInt(t[0].trim(), 10); } await sleep(100); } throw new Error('no devtools port'); }
@@ -427,12 +521,42 @@ async function main() {
     if (diApplied === 0) problems.push('DI probe carrier could not be built on any map — nothing was measured');
     const diVerdict = diKept === 0 ? 'DI-DROPPED' : (diKept === diApplied ? 'DI-PRESERVED' : 'DI-MIXED');
 
+    // -- leg 6: CONTENT of an accepted element (T-346) ---------------------
+    // The verdict is read off the element bearing the victim's uid, not off the
+    // document: content that survives but is relocated onto a different element is
+    // a different outcome from content that survives in place, and a whole-document
+    // search cannot tell them apart.
+    const contentRows = [];
+    for (const c of CONTENT_CASES) {
+      const verdicts = new Set();
+      let applied = 0;
+      for (const m of maps) {
+        const inj = injectContent(m.text, c);
+        if (!inj) continue;                        // carrier absent on this map
+        if (!inj.xml.includes(MARK)) {
+          problems.push(`content case '${c.id}' on map '${m.name}': injection reported success but the marker is not in the input — the probe would have measured nothing`);
+          continue;
+        }
+        applied++;
+        const r = await roundTrip(inj.xml);
+        if (r.threw) { verdicts.add('REFUSED'); continue; }
+        const el = elementByUid(r.xml, inj.tag, inj.uid);
+        if (!el) { verdicts.add('CARRIER-LOST'); continue; }
+        if (el.includes(MARK)) verdicts.add('CONTENT-PRESERVED');
+        else if (r.xml.includes(MARK)) verdicts.add('CONTENT-MOVED');
+        else verdicts.add('CONTENT-DROPPED');
+      }
+      if (applied === 0) problems.push(`content case '${c.id}' applied to 0 of ${maps.length} maps — nothing was measured`);
+      contentRows.push({ id: c.id, applied, benign: !!c.benign, verdict: setStr(verdicts) });
+    }
+
     // -- population assertions: the guard must not pass by testing nothing --
     if (maps.length === 0) problems.push('corpus population is empty');
     if (probeRows.length === 0) problems.push('out-of-vocabulary population is empty — nothing was probed');
     if (notInjected.length) problems.push(`could not inject ${notInjected.length} probe tag(s): ${notInjected.join(', ')}`);
     if (malformedRows.length === 0) problems.push('malformed population is empty — nothing was probed');
     if (refRows.length === 0) problems.push('unresolvable-ref population is empty — nothing was probed');
+    if (contentRows.length === 0) problems.push('accepted-element content population is empty — nothing was probed');
 
     // -- verdict ----------------------------------------------------------
     const appeared = [...observedLossy].filter(t => !EXPECTED_LOSSY.has(t)).sort();
@@ -441,20 +565,28 @@ async function main() {
     const malformedDrift = malformedRows.filter(r => r.verdict !== EXPECTED_MALFORMED[r.id]);
     const refDrift = refRows.filter(r => r.verdict !== EXPECTED_REFS[r.id]);
     const diDrift = diVerdict !== EXPECTED_DI;
+    const contentDrift = contentRows.filter(r => r.verdict !== EXPECTED_CONTENT[r.id]);
+    // Content the designer drops that it is NOT correct to drop. `incoming-ref` is
+    // marked benign because incoming/outgoing are derivable from the sequenceFlows;
+    // everything else in this list is author-supplied content with no other carrier.
+    const contentLost = contentRows.filter(r => !r.benign && r.verdict === 'CONTENT-DROPPED');
     const silentlyPartial = malformedRows.filter(r => r.partial > 0);
     const uidLost = refRows.filter(r => r.lost > 0);
 
     const ok = corpusLoss.length === 0 && appeared.length === 0 && closed.length === 0
-      && problems.length === 0 && malformedDrift.length === 0 && refDrift.length === 0 && !diDrift;
+      && problems.length === 0 && malformedDrift.length === 0 && refDrift.length === 0 && !diDrift
+      && contentDrift.length === 0;
 
     if (JSON_OUT) {
       console.log(JSON.stringify({ ok, corpus: maps.length, corpusLoss, probed: probeRows.length,
         lossy: [...observedLossy].sort(), appeared, closed,
         malformed: malformedRows, refs: refRows, di: { verdict: diVerdict, applied: diApplied, kept: diKept },
+        content: contentRows,
         problems }, null, 2));
     } else {
       console.log(`input fidelity: ${maps.length} corpus maps round-tripped; ${probeRows.length} out-of-vocabulary tags, `
-        + `${malformedRows.length} malformed shapes, ${refRows.length} unresolvable-ref shapes, 1 unknown sub-tree probed.`);
+        + `${malformedRows.length} malformed shapes, ${refRows.length} unresolvable-ref shapes, 1 unknown sub-tree, `
+        + `${contentRows.length} accepted-element content shapes probed.`);
       console.log(`  corpus loss:  ${corpusLoss.length === 0 ? 'none — every map preserves node/flow/lane counts' : corpusLoss.length + ' map(s) LOST content'}`);
       console.log(`  lossy tags:   ${observedLossy.size}/${probeRows.length} — ${[...observedLossy].sort().join(', ') || '(none)'}`);
       console.log(`  malformed:    ${silentlyPartial.length === 0 ? 'no silent partial acceptance — every case refuses visibly or preserves' : silentlyPartial.length + ' case(s) SILENTLY ACCEPTED a broken document and lost content'}`);
@@ -462,12 +594,15 @@ async function main() {
       console.log(`  refs:         ${uidLost.length === 0 ? 'no identity lost — every aef:uid survives an unresolvable reference' : uidLost.length + ' case(s) DESTROYED an identity'}`);
       for (const r of refRows) console.log(`      ${r.id.padEnd(26)} ${r.verdict.padEnd(22)} (applied ${r.applied}/${maps.length}; lane re-homed on ${r.rehomed}${r.moves.length ? ' — ' + r.moves.join(', ') : ''})`);
       console.log(`  sub-tree:     ${diVerdict} — standard BPMN DI injected on ${diApplied}/${maps.length} maps, survived on ${diKept}`);
+      console.log(`  content:      ${contentLost.length === 0 ? 'no non-derivable content lost from accepted elements' : contentLost.length + ' shape(s) SILENTLY DROPPED from elements the importer accepted'}`);
+      for (const r of contentRows) console.log(`      ${r.id.padEnd(22)} ${r.verdict.padEnd(19)} (applied ${r.applied}/${maps.length})${r.benign ? '  [derivable — dropping is correct]' : ''}`);
       for (const p of problems) console.log(`  POPULATION:   ${p}`);
       for (const c of corpusLoss) console.log(`  LOSS ${c.map}: ${c.threw ? 'threw ' + c.threw : `in ${JSON.stringify(c.input)} out ${JSON.stringify(c.output)}`}`);
       if (appeared.length) console.log(`  FAIL: a NEW vocabulary gap appeared — ${appeared.join(', ')} now lose content on a load→save round trip. A tag the importer does not know is not rejected, it is invisible, and export writes only what state holds (T-337).`);
       if (closed.length) console.log(`  FAIL: a vocabulary gap CLOSED — ${closed.join(', ')} now survive the round trip. This is good news the guard cannot silently absorb: remove them from EXPECTED_LOSSY in this file and re-run, so the improvement is recorded rather than assumed.`);
       for (const r of malformedDrift) console.log(`  FAIL: malformed-input behaviour changed for '${r.id}' — expected ${EXPECTED_MALFORMED[r.id]}, measured ${r.verdict}. SILENTLY-PARTIAL means a broken document was accepted without complaint and content was dropped; any other change means the refuse/preserve behaviour moved and EXPECTED_MALFORMED must be updated deliberately.`);
       for (const r of refDrift) console.log(`  FAIL: unresolvable-ref behaviour changed for '${r.id}' — expected ${EXPECTED_REFS[r.id]}, measured ${r.verdict}. UID-LOST means an aef:uid present in the input is absent from the output: a dangling reference destroyed an identity, which is data loss and not a repair.`);
+      for (const r of contentDrift) console.log(`  FAIL: accepted-element content behaviour changed for '${r.id}' — expected ${EXPECTED_CONTENT[r.id]}, measured ${r.verdict}. CONTENT-DROPPED means the importer accepted the element and silently discarded part of its body: the tag was in the allowlist, so no vocabulary check fires and node/flow/lane counts are unchanged (T-259 shipped this way once). CONTENT-PRESERVED where DROPPED was expected is good news the guard must not absorb — update EXPECTED_CONTENT deliberately. CONTENT-MOVED means the content survived on a DIFFERENT element than the one that carried it.`);
       if (diDrift) console.log(`  FAIL: unknown sub-tree behaviour changed — expected ${EXPECTED_DI}, measured ${diVerdict}. DI-PRESERVED is good news that must be recorded in EXPECTED_DI rather than absorbed; DI-MIXED means the outcome now depends on the map.`);
       console.log(ok ? 'OK: every measured fidelity verdict matches expectation — corpus lossless, vocabulary gap set unchanged, no silent partial acceptance, no identity destroyed'
                      : 'FAIL: input fidelity moved — see above');
