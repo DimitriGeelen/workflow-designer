@@ -3581,3 +3581,21 @@ scan_id: R-52668da8
 task_id: T-329
 payload:
   task_file: .tasks/active/T-329-e-authority-has-no-bpmn-form-counterpart.md
+---
+kind: scan_emitted
+timestamp: '2026-08-02T00:33:53Z'
+scan_id: R-e828aa5b
+task_id: T-331
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-02T00:33:53Z'
+scan_id: R-e828aa5b
+task_id: T-331
+payload:
+  task_file: .tasks/active/T-331-o-1-skip-population-authority-values-map.md

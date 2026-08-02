@@ -1053,3 +1053,17 @@ decisions:
     date: 2026-07-31
     task: T-319
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-130
+    decision: "make the collapse a **total explicit partition** of `AUTHORITIES`"
+    scope: project
+    date: 2026-08-02
+    task: T-331
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-131
+    decision: "`W-LANE-NO-OWNER` in both forms (`PAIRED_SAME_ID`), not"
+    scope: project
+    date: 2026-08-02
+    task: T-331
+    rationale: "Auto-captured from task file on completion"

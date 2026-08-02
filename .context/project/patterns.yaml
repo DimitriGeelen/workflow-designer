@@ -144,3 +144,10 @@ workflow_patterns:
     learned_from: T-330
     date_learned: 2026-08-01
     context: "Added via context agent"
+  - id: WP-004
+    pattern: "Before shipping a fix, ask what else was only visible through the population it empties"
+    description: "Before shipping a fix, ask what else was only visible through the population it empties"
+    scope: project
+    learned_from: T-331
+    date_learned: 2026-08-02
+    context: "Added via context agent"

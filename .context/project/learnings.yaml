@@ -535,3 +535,17 @@ learnings:
   date: 2026-08-01
   context: Added via context agent
   application: TBD
+- id: PL-076
+  learning: "A lookup miss that means two different things — DECIDED-to-be-nothing vs NOBODY-DECIDED — cannot be told apart by 'is not None', so the undecided case silently SKIPS the check rather than failing it. Make the partition total and explicit (one table per outcome, including 'accepted but undecided') and guard that the tables partition the vocabulary exactly."
+  source: P-001
+  task: T-331
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD
+- id: PL-077
+  learning: "A remedy can manufacture a CAPABILITY zero out of an OCCUPANCY zero: where two causes are co-located in a corpus, fixing the first empties the only population in which the second was observable, and afterwards unmeasurable looks identical to absent. Give the second cause its own witness BEFORE fixing the first; do not fold them into one item."
+  source: P-001
+  task: T-331
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD
