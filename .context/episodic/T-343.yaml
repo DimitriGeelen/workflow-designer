@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-343: fw fabric enrich silently discards edges whose target has no component card
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-02T12:43:49Z
+# ============================================================================
+
+task_id: T-343
+task_name: "fw fabric enrich silently discards edges whose target has no component card"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-02T11:15:44Z
+completed: 2026-08-02T12:43:45Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-02T14:43:29+02:00
+last_commit: 2026-08-02T14:43:29+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  fw fabric enrich now reports the edges it discards — count unconditionally, targets by name under --verbose. A dict.get miss on loc_to_id meant 'not registered', and was being used to mean 'not a dependency'; the drop itself is correct (an edge needs two cards) but the silence was not, and on a sparse registry it is nearly every edge. Counter collects the UNREGISTERED arm only: resolve_edges drops for three reasons and T-342's 15 was a len(raw)-len(resolved) difference spanning all three — decomposed before writing anything, 17 unregistered / 0 self / 0 duplicate, so the original attribution was right only by occupancy. Naming the targets earns its keep immediately: 3 of 10 are DIRECTORIES that can never hold a card, so a bare count would have sent the operator to register ten things when seven are registerable. Teeth 7/7 — (a) registering a discarded target makes the count fall AND edges-added rise together, (b) a genuine zero still prints the line, (c) neutering the collector makes the counter read 0 while the independent T-342 probe still reads the drop, which is what makes the baseline agreement between them evidence rather than a shared constant, (d) making the line conditional turns a zero back into an absent line. Leg (d) first failed for the wrong reason — it ran the unmutated file — three lines below the docstring citing T-338 leg (d) as the mistake to avoid. Reporting-only proven by tools/_t343-write-equivalence.py, which asserts the property rather than diffing against git (that form goes vacuous at commit) and refuses to pass over an empty structure; its own teeth leg confirms it goes red when the collector changes writes. G-017 trigger clause (3) covered, status left at watching — clauses (1)/(2) untouched, the flip is the operator's. AC amended: it pinned the literal 15, which read 17 then 20 within a day with no regression among them — a G-015 subject error committed inside the window that registered G-015
+
+# Key outcomes
+outcomes:
+  - '`fw fabric enrich` reports the number of detected edges discarded for want of a'
+  - 'The report names the unregistered targets (at least under `--verbose`) so the'
+  - 'A zero in the new counter is distinguishable from the counter never running:'
+  - '**(AMENDED — see Evolution.)** Teeth: the new counter is non-zero on this repo''s'
+  - 'No change to which edges are written — this is a reporting fix, not a behaviour'
+  - 'Change is confined to `.agentic-framework/` (plus the T-342 probe that monkey-patches'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'fw fabric enrich now reports the edges it discards — count unconditionally, targets by name under --verbose. A dict.get miss on loc_to_id meant ''not registered'', and was being used to mean ''not a dependency''; the drop itself is correct (an edge needs two cards) but the silence was not, and on a sparse registry it is nearly every edge. Counter collects the UNREGISTERED arm only: resolve_edges drops for three reasons and T-342''s 15 was a len(raw)-len(resolved) difference spanning all three — decomposed before writing anything, 17 unregistered / 0 self / 0 duplicate, so the original attribution was right only by occupancy. Naming the targets earns its keep immediately: 3 of 10 are DIRECTORIES that can never hold a card, so a bare count would have sent the operator to register ten things when seven are registerable. Teeth 7/7 — (a) registering a discarded target makes the count fall AND edges-added rise together, (b) a genuine zero still prints the line, (c) neutering the collector makes the counter read 0 while the independent T-342 probe still reads the drop, which is what makes the baseline agreement between them evidence rather than a shared constant, (d) making the line conditional turns a zero back into an absent line. Leg (d) first failed for the wrong reason — it ran the unmutated file — three lines below the docstring citing T-338 leg (d) as the mistake to avoid. Reporting-only proven by tools/_t343-write-equivalence.py, which asserts the property rather than diffing against git (that form goes vacuous at commit) and refuses to pass over an empty structure; its own teeth leg confirms it goes red when the collector changes writes. G-017 trigger clause (3) covered, status left at watching — clauses (1)/(2) untouched, the flip is the operator''s. AC amended: it pinned the literal 15, which read 17 then 20 within a day with no regression among them — a G-015 subject error committed inside the window that registered G-015'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/fabric/lib/enrich.py'
+  - '.context/project/concerns.yaml'
+  - '.fabric/components/tools-_t343-write-equivalence.yaml'
+  - '.tasks/active/T-343-fw-fabric-enrich-silently-discards-edges.md'
+  - 'tools/_t342-fabric-edge-drop-probe.py'
+  - 'tools/_t343-write-equivalence.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-02T14:43:29"
+    action: "T-343: fw fabric enrich now reports the edges it discards — count unconditionally, targets by name under --verbose. A dict.get miss on loc_to_id meant 'not registered', and was being used to mean 'not a dependency'; the drop itself is correct (an edge needs two cards) but the silence was not, and on a sparse registry it is nearly every edge. Counter collects the UNREGISTERED arm only: resolve_edges drops for three reasons and T-342's 15 was a len(raw)-len(resolved) difference spanning all three — decomposed before writing anything, 17 unregistered / 0 self / 0 duplicate, so the original attribution was right only by occupancy. Naming the targets earns its keep immediately: 3 of 10 are DIRECTORIES that can never hold a card, so a bare count would have sent the operator to register ten things when seven are registerable. Teeth 7/7 — (a) registering a discarded target makes the count fall AND edges-added rise together, (b) a genuine zero still prints the line, (c) neutering the collector makes the counter read 0 while the independent T-342 probe still reads the drop, which is what makes the baseline agreement between them evidence rather than a shared constant, (d) making the line conditional turns a zero back into an absent line. Leg (d) first failed for the wrong reason — it ran the unmutated file — three lines below the docstring citing T-338 leg (d) as the mistake to avoid. Reporting-only proven by tools/_t343-write-equivalence.py, which asserts the property rather than diffing against git (that form goes vacuous at commit) and refuses to pass over an empty structure; its own teeth leg confirms it goes red when the collector changes writes. G-017 trigger clause (3) covered, status left at watching — clauses (1)/(2) untouched, the flip is the operator's. AC amended: it pinned the literal 15, which read 17 then 20 within a day with no regression among them — a G-015 subject error committed inside the window that registered G-015"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 88 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 88
+  commits: 1
+  files_changed: 6
+  lines_added: 398
+  lines_removed: 20
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-343-fw-fabric-enrich-silently-discards-edges.md
+generated_by: context-agent-hybrid

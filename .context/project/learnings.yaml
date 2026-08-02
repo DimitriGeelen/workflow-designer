@@ -654,3 +654,24 @@ learnings:
   date: 2026-08-02
   context: Added via context agent
   application: TBD
+- id: PL-093
+  learning: "A count computed as a DIFFERENCE spans every reason the function had for dropping — attributing that difference to one cause is a guess dressed as a measurement. resolve_edges drops for three reasons (unregistered target, self-edge, duplicate); T-342 measured len(raw)-len(resolved) and labelled the whole thing 'discarded for want of a card'. Decomposing before building the fix gave 17/0/0 — right in kind, but only because the other two arms are empty HERE. An occupancy zero, not a construction one. Decompose before you attribute, and count the arm you are naming."
+  source: P-001
+  task: T-343
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD
+- id: PL-094
+  learning: "A literal integer in an acceptance criterion is the same G-015 subject error as a global pinned in a verification block, and decays just as fast. T-343's AC read 'the new counter reads 15'; it read 17 a day later and 20 an hour after that, no regression among them — each move came from registering a card, the very thing the tool exists to encourage. Written in the same window that registered G-015. Assert the PROPERTY (non-zero; agrees with an independent measurement; moves together with its sibling counter), never the value."
+  source: P-001
+  task: T-343
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD
+- id: PL-095
+  learning: "A before/after comparison run in a state where the subject does NOTHING returns identical and proves nothing. T-343's first write-equivalence check compared card-tree shas on the stock registry and reported identical:YES — but enrich writes zero cards in that state, so the shas would have matched had edge-writing been broken outright. Re-run with a card registered so enrich genuinely wrote (5 cards, 4 forward + 4 reverse edges), the comparison could fail and didn't. Ask what an equivalence check would have said if the change had been catastrophic; if the answer is 'the same', it is not a check."
+  source: P-001
+  task: T-343
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD
