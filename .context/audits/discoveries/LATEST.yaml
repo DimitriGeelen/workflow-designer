@@ -1,8 +1,8 @@
-timestamp: 2026-08-02T07:30:01Z
+timestamp: 2026-08-02T08:00:02Z
 findings:
   - id: D1
     level: PASS
-    check: "D1: Episodic quality — 0% [TODO] (0/295)"
+    check: "D1: Episodic quality — 0% [TODO] (0/297)"
   - id: D2
     level: WARN
     check: "D2: Human review queue — 2 task(s) waiting >14d: T-093(28d) T-178(22d)"

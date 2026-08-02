@@ -591,3 +591,10 @@ learnings:
   date: 2026-08-02
   context: Added via context agent
   application: TBD
+- id: PL-084
+  learning: "A scan reporting 'zero violations' must state whether the population it scanned was non-empty: T-333/rail-387 scanned every task verification block for toothless curl assertions, got 0, and nearly reported it clean — there are ZERO curl lines in any verification block, so the zero was vacuous. 'Clean' is the sentence that makes the next author believe the guidance is enforced. Record exposure that is zero BY OCCUPANCY separately from zero BY CONSTRUCTION. Third instance in one session; caught only because checking-what-the-scan-scanned had become a reflex hours earlier."
+  source: P-001
+  task: T-309
+  date: 2026-08-02
+  context: Added via context agent
+  application: TBD
