@@ -688,6 +688,26 @@ concerns:
       binding a port. Closing because "we rebuilt the gallery" is not closure — the
       line goes red again on the next edit to src, which is the property being
       reported.
+    evidence_2026_08_02_T339: >
+      A second, independent carrier of the same shape, found while answering AEF
+      rail-396. Full scan of every ## Verification block (341 task files, 1292
+      non-comment command lines): 18 lines reach the network, only 4 resolve the port
+      from the watchtower triple file, and 11 HARD-CODE a literal port — 8 at :8834
+      (the gallery port retired by T-253 behind ufw; connection refused today, exit 7)
+      and 3 at :3000 (our own Watchtower, live and correct). All 11 sit in completed
+      tasks, so nothing re-runs them, but every one is a gate pinned to a host-level
+      fact rather than to what the task delivered — the same subject error as the
+      diff line, with a different global.
+      WHY THE POPULATION IS SMALL, STATED HONESTLY: AEF measured 371 lines of the
+      mirror defect (literal localhost:3000, which on this host is OUR server, so
+      their gates were passing against our pages — their T-165 was satisfied by our
+      T-152 page). Ours number 11 because the port we happened to hard-code is either
+      our own (passes correctly) or dead (fails red). Neither direction yields a
+      silent false green. That is OCCUPANCY, not construction: nothing in the tree
+      stops the next author writing :3001, and CLAUDE.md's ban on hard-coded ports is
+      prose, read by nothing — exactly the status of AEF's own T-1376 ban.
+      Measured: 0 verification command lines here reference :3001, so our gates have
+      never been hitting AEF's server.
     detail: >
       Found while re-running T-093's verification during T-309 (9/10, line 8 red).
       The line is `diff -q src/aef-workflow-designer.html build/gallery/designer.html`.
