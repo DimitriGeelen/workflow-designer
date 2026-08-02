@@ -575,7 +575,7 @@ CLI flag, not a result. Without a control in the same table it would have read a
 | rule | editor-op | state-write | import |
 |---|---|---|---|
 | `E-XML-GW-OUTGOING` | **REACHABLE** | — | PRESERVED 20/20 |
-| `E-INCEPTION-NOT-SOVEREIGN` | **REACHABLE** | — | not measured |
+| `E-INCEPTION-NOT-SOVEREIGN` | **REACHABLE** | — | PRESERVED 24/24 |
 | `E-XML-FLOW-DANGLING` | NORMALISED | — | PRESERVED 24/24 |
 | `E-XML-UID-DUP` | — | REACHABLE | PRESERVED 24/24 |
 | `E-XML-AUTHORITY` | — | REACHABLE | PRESERVED 24/24 |
@@ -583,7 +583,7 @@ CLI flag, not a result. Without a control in the same table it would have read a
 | `E-XML-LANEREF-DANGLING` | — | NORMALISED | REPAIRED 24/24 |
 | `E-XML-ID-DUP` | — | NORMALISED | REPAIRED 24/24 |
 | `E-XML-NODE-TYPE` | — | REACHABLE | **DROPPED 15/15** |
-| `E-XML-STRUCTURE` | — | unreachable | not measured |
+| `E-XML-STRUCTURE` | — | unreachable | REPAIRED 24/24 |
 
 Two editor-op guards are real and worth naming: `deleteNode` cascades to incident edges (so the
 dangling-flow case an author could most plausibly create does not survive), and `deleteLane` refuses
@@ -592,14 +592,21 @@ reference nodes by `uid`, which reads like a live bug until you find `id: uid, /
 in the node constructor. Reading the constructor rather than trusting the shape is the whole
 difference between a finding and a false alarm here.
 
-**Answer 1 — a gate would fire on 5 rules, and 4 of them are not the author's doing.** Union of
+**Answer 1 — a gate would fire on 5 rules, and EVERY ONE of them can arrive by import.** Union of
 editor-op REACHABLE and import PRESERVED: `GW-OUTGOING`, `FLOW-DANGLING`, `UID-DUP`, `AUTHORITY`,
-`INCEPTION-NOT-SOVEREIGN`. Only two of those can be created by authoring; four arrive already
-present in an opened document. So a **blocking** gate would, in the dominant case, refuse to save
-because of a defect that was in someone else's map before the author touched it. That is the
+`INCEPTION-NOT-SOVEREIGN`. Only two of the five can be created by authoring; **all five** can be
+already present in an opened document. So a **blocking** gate would, in the dominant case, refuse to
+save because of a defect that was in someone else's map before the author touched it. That is the
 governance objection in the Authority Model note, but now as a measured ratio rather than a worry:
-**4 of 5**. It does not settle the question — an operator may well decide a map that cannot execute
+**5 of 5**. It does not settle the question — an operator may well decide a map that cannot execute
 should not be saved regardless of who broke it — but it prices what blocking actually costs.
+
+> **Correction, same day.** This paragraph first read "**4 of 5**", because the first pass left
+> `E-INCEPTION-NOT-SOVEREIGN` unmeasured on the import channel and the table said so. Measuring the
+> two cells that said "not measured" moved it to 5 of 5. A limit that is *stated* in a table still
+> gets *read* as a result when the surrounding prose does arithmetic over the table — so the honest
+> fix was to go and measure, not to add a caveat. Recorded rather than silently corrected: the
+> earlier ratio was given to the operator.
 
 **Answer 2 — three ERROR rules cannot be surfaced on an imported map by ANY surface.**
 `LANEREF-DANGLING`, `ID-DUP` and `LANES-EMPTY` are repaired during `parseBpmnXml`, so the defect
@@ -614,9 +621,16 @@ on import. Across the corpus: **15 maps, 15 nodes, gone** — and the exported r
 because the evidence was destroyed along with the node. No surfacing decision helps; there is nothing
 left to surface. Filed separately as a build task, per one-bug-one-task.
 
+**Answer 2a — `E-XML-STRUCTURE` cannot fire from this editor by any route.** Measured on import:
+a document rooted at something other than `<bpmn:definitions>` is accepted, and the export
+normalises the root back, **preserving node / flow / lane counts exactly across all 24 maps**. So it
+is not data loss — it is a silent repair of a malformed root. Combined with the serializer's
+hard-coded root literal (src:9442), the rule is unreachable from every channel. That confirms
+independently what T-335 recorded as the one *unreachable rather than merely unwitnessed* row in the
+anchorability guard, arrived at from a different direction.
+
 **What this does not decide.** Whether the gate blocks or advises remains the operator's call under
-the Authority Model — this spike prices it, it does not rule on it. `E-INCEPTION-NOT-SOVEREIGN` and
-`E-XML-STRUCTURE` were not measured on the import channel.
+the Authority Model — this spike prices it, it does not rule on it.
 
 **Scope, stated rather than implied.** Import verdicts are one text-level mutation per rule per map,
 over 24 rendered corpus maps — chosen because a per-rule verdict established on a single carrier and

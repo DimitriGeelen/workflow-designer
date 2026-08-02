@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-29T20:09:10Z
-last_update: 2026-08-02T08:47:58Z
+last_update: 2026-08-02T09:32:17Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -135,9 +135,13 @@ content and is therefore a rail conversation, not only a local feature.
     violating each can reach the editor at all. Measured over three channels (editor operation /
     direct state write / import), every case starting from a real corpus map and exporting through
     the real serializer, verdicts three-way so a silent guard is distinguishable from a silent
-    validator. VALIDATOR-BLIND = 0. Results: a gate would fire on 5 of 10 ERROR rules, and **4 of
-    those 5 arrive by import, not by authoring** — so a blocking gate would mostly refuse a save
-    over a defect that was in the opened map beforehand. Separately, 3 ERROR rules
+    validator. VALIDATOR-BLIND = 0. Results: a gate would fire on 5 of 10 ERROR rules, and **all 5
+    of those can arrive by import** (only 2 can be authored) — so a blocking gate would mostly
+    refuse a save over a defect that was in the opened map beforehand. First stated as 4 of 5;
+    measuring the two cells the table marked "not measured" moved it to 5 of 5, corrected in the
+    report rather than absorbed. E-XML-STRUCTURE is now confirmed unreachable from EVERY channel
+    (import silently repairs a wrong root, preserving all counts across 24 maps), which independently
+    reproduces T-335's unreachable-not-unwitnessed row. Separately, 3 ERROR rules
     (LANEREF-DANGLING, ID-DUP, LANES-EMPTY) are repaired inside parseBpmnXml and therefore cannot be
     surfaced by ANY surface — that constrains IW-1 as much as IW-3. Import verdicts hold across all
     24 corpus maps; widening from one map caught a MIXED reading that turned out to be a probe
