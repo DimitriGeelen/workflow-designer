@@ -4,20 +4,20 @@ name: "Measure whether the audit's standing fabric mitigation can move the metri
 description: >
   The audit has printed 'Run: fw fabric enrich' as its sole priority action for 13 consecutive audits against WARN 'Fabric: 11/15 cards have no edges'. Running it enriches 0 cards and adds 0 edges. Measure whether that zero is construction or occupancy, and establish what the coverage denominator actually is.
 
-status: started-work
+status: work-completed
 workflow_type: test
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t342-fabric-edge-drop-probe.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:08:08Z
-last_update: 2026-08-02T11:08:15Z
-date_finished: null
+last_update: 2026-08-02T11:24:29Z
+date_finished: 2026-08-02T11:24:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -280,3 +280,15 @@ out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "0 failed"
 
 ### 2026-08-02T11:08:15Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d0a26452
+- **Timestamp:** 2026-08-02T11:25:55Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-02T11:24:29Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

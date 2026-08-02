@@ -823,3 +823,72 @@ concerns:
       - T-259
       - T-282
       - T-321
+
+  - id: G-017
+    type: gap
+    status: watching
+    severity: medium
+    title: "The audit's fabric coverage verdict is computed from an EMPTY denominator and its prescribed remedy is a structural no-op — 13 consecutive audits recommended an action that cannot move the metric it reports"
+    detected: 2026-08-02
+    origin_task: T-342
+    decision_trigger: >
+      All three of the following hold: (1) the fabric coverage checks range over a
+      non-empty, project-appropriate denominator AND a guard FAILS when the watch-pattern
+      expansion is empty — an empty denominator must be red, not green; (2) the two
+      coverage checks in audit.sh are reconciled — either they agree on a widened
+      population or the broken duplicate is removed, with a leg that goes red if they
+      diverge; (3) `fw fabric enrich` reports the count and identity of edges it discards
+      for want of a registered target, so a zero in its summary is distinguishable from a
+      silent drop. Closing because "we tailored the watch patterns" is NOT closure —
+      `fw context init` regenerates the inert default into any project at any time, so
+      the instance returns without the guard in (1).
+    detail: >
+      THE MEASUREMENT. Every audit for 14 days printed one PRIORITY ACTION:
+      "Run: fw fabric enrich", against "[WARN] Fabric: 11/15 cards have no edges".
+      Running it reports 0 enriched, 0 forward edges, 0 reverse edges. Three independent
+      causes, any one of which alone is sufficient:
+
+      (A) enrich.py:655 discards edges whose target has no component card on a bare
+      `continue`, with no counter and no report — so enrichment can only ever draw edges
+      INSIDE the already-registered set. Measured by wrapping enrich's own resolve_edges:
+      17 edges detected, 2 kept, 15 discarded silently. Every discarded target exists on
+      disk (the detectors are existence-guarded BEFORE resolution runs) and includes
+      tools/validate-workflow.py, tools/yaml-to-bpmn.py and src/aef-workflow-designer.html.
+      A dict.get miss is being used to mean "not a dependency" when it means "not yet
+      registered".
+
+      (B) .fabric/watch-patterns.yaml is the untailored `fw context init` default and
+      expands to ZERO files here — it watches web/, agents/, bin/, crates/ (absent),
+      src/**/*.py (our src is one .html) and lib/ (empty), while tools/ (53 files) and
+      tests/ (47) are unwatched. So the coverage checks compare an empty set against the
+      registry and report complete coverage over a repo that is 15/115 carded — 13%
+      reported as 100%. Occupancy, not construction: the same expander returns 17 files
+      for tools/**/*.py + src/**/*.html.
+
+      (C) audit.sh's first fabric block is a strictly-broken duplicate of its own sibling
+      at :1499 — bare glob.glob(p['glob']) with no PROJECT_ROOT join and no
+      recursive=True (in Python ** does not recurse without it, and every shipped pattern
+      uses **), plus pass() on BOTH arms of its verdict. Measured in one real audit run
+      with widened patterns: "[PASS] Fabric: 15 registered, 0 unregistered" printed beside
+      "[WARN] Fabric drift: 49 source file(s) have no fabric card".
+
+      WHY THIS IS A GAP AND NOT A CHORE. The three defects are individually repairable
+      (T-343/T-344/T-345) but the CLASS is that a verdict surface the operator consults
+      was reporting a fiction, and the two checks covering it agreed at zero because
+      neither was measuring anything — redundancy read as corroboration when the
+      redundant instrument was inert and both zeros shared an upstream cause. The failure
+      direction is green throughout, so no moment of attention was ever created (L-534);
+      the only reason it surfaced is that someone tried to CLEAR the warning rather than
+      carry it. Note also the ordering trap: repairing (B) alone makes the good check warn
+      while the broken one keeps printing a contradicting PASS beside it, which is exactly
+      what the reproduction produced — (C) must land before or with (B).
+
+      CONTRAST WORTH KEEPING. The pre-commit fabric hook is CORRECT and fired immediately
+      on a new unregistered file. Same framework, same question: a working per-commit
+      check and a blind standing audit, and the blind one is the one that reports a
+      verdict and accumulates a backlog figure.
+    related_tasks:
+      - T-342
+      - T-343
+      - T-344
+      - T-345

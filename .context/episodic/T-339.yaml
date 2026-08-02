@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-339: Widen the input-fidelity instrument to the two populations G-016 names and T-338 did not cover: malformed input and unresolvable refs
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-02T10:45:43Z
+# ============================================================================
+
+task_id: T-339
+task_name: "Widen the input-fidelity instrument to the two populations G-016 names and T-338 did not cover: malformed input and unresolvable refs"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-02T10:22:41Z
+completed: 2026-08-02T10:44:03Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-02T12:43:36+02:00
+last_commit: 2026-08-02T12:43:36+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  close the two G-016 clauses T-338 left unmeasured — malformed input and unresolvable refs. The gap's trigger names THREE populations; T-338 covered one and the prose reporting it did not say which, so 'the next divergence would be equally invisible is now false regardless' was true for vocabulary and unproven for the rest. Malformed leg is three-way on purpose (REFUSED/PRESERVED/SILENTLY-PARTIAL): demanding losslessness there would go red exactly when the designer correctly refuses a broken document. Results: 0 silently-partial over 8 shapes, 0 uid lost over 4 ref shapes, and both zeros are proven fillable — teeth (f)/(g) mutate the DESIGNER and the buckets duly fill. Two findings spun off: T-340 (standard BPMN DI dropped whole, 24/24 — T-337's class one granularity up) and T-341 (an unresolvable flowNodeRef silently re-homes the orphaned node to the human/sovereignty lane, framework→human on 5). Method note kept: the lane measure was wrong twice — keyed on display id it measured renumbering, keyed on uid but baselined on the MUTATED input it excluded the victim and returned a confident zero. bridge 69/0, teeth 7/7
+
+# Key outcomes
+outcomes:
+  - 'The instrument probes a **malformed-input** population (not-well-formed XML, absent'
+  - 'The instrument probes an **unresolvable-ref** population — dangling `sourceRef`,'
+  - 'Both new populations are **measured every run** and compared against an expected set,'
+  - 'Population assertions: the run fails if either new population is empty, or if any'
+  - 'Teeth: each new leg is proven to go RED by a mutation, and the failure text is'
+  - 'The gating bridge runner still passes with the widened instrument wired in.'
+  - 'G-016''s coverage is reported honestly clause-by-clause — which of the three'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-339-widen-the-input-fidelity-instrument-to-t.md'
+  - '.tasks/active/T-340-standard-bpmn-di-is-silently-discarded-o.md'
+  - '.tasks/active/T-341-an-unresolvable-flownoderef-silently-rea.md'
+  - 'tools/_t338-input-fidelity-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-02T12:43:36"
+    action: "T-339: close the two G-016 clauses T-338 left unmeasured — malformed input and unresolvable refs. The gap's trigger names THREE populations; T-338 covered one and the prose reporting it did not say which, so 'the next divergence would be equally invisible is now false regardless' was true for vocabulary and unproven for the rest. Malformed leg is three-way on purpose (REFUSED/PRESERVED/SILENTLY-PARTIAL): demanding losslessness there would go red exactly when the designer correctly refuses a broken document. Results: 0 silently-partial over 8 shapes, 0 uid lost over 4 ref shapes, and both zeros are proven fillable — teeth (f)/(g) mutate the DESIGNER and the buckets duly fill. Two findings spun off: T-340 (standard BPMN DI dropped whole, 24/24 — T-337's class one granularity up) and T-341 (an unresolvable flowNodeRef silently re-homes the orphaned node to the human/sovereignty lane, framework→human on 5). Method note kept: the lane measure was wrong twice — keyed on display id it measured renumbering, keyed on uid but baselined on the MUTATED input it excluded the victim and returned a confident zero. bridge 69/0, teeth 7/7"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 21 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 21
+  commits: 1
+  files_changed: 4
+  lines_added: 998
+  lines_removed: 11
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-339-widen-the-input-fidelity-instrument-to-t.md
+generated_by: context-agent-hybrid

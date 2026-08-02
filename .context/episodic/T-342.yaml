@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-342: Measure whether the audit's standing fabric mitigation can move the metric it prescribes
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-02T11:25:57Z
+# ============================================================================
+
+task_id: T-342
+task_name: "Measure whether the audit's standing fabric mitigation can move the metric it prescribes"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-02T11:08:08Z
+completed: 2026-08-02T11:24:29Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-02T13:20:49+02:00
+last_commit: 2026-08-02T13:20:59+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the audit's 14-day standing mitigation cannot move the metric it prescribes — three independent causes, measured, none fixed. (A) fw fabric enrich silently discards every edge whose target has no card: 17 detected, 2 kept, 15 dropped, no counter, so '0 edges added' is indistinguishable from 'nothing to add' [T-343]. (B) .fabric/watch-patterns.yaml is the untailored fw-context-init default and expands to 0 files — web/agents/bin/crates absent, src holds only .html, lib empty, tools/ and tests/ unwatched — so both coverage checks scan nothing and report complete coverage over a repo that is 15/115 carded [T-344]. (C) the audit's first fabric check is a broken duplicate of its own sibling: bare glob.glob(p['glob']) with no PROJECT_ROOT join and no recursive=True, and pass() on BOTH verdict arms — it printed '0 unregistered' PASS in the same run its sibling printed '49 source files have no fabric card' WARN [T-345]. Every zero is occupancy not construction and each was proven fillable. Reading the branch gave only the weaker half of C; the run gave the mechanism. Ordering recorded: C must land before or with B or the audit prints two contradictory fabric lines. register the edge-drop probe (card count 15->16; it has no edges, which is the finding not an oversight)
+
+# Key outcomes
+outcomes:
+  - 'The zero''s KIND is established by measurement, not inference: enrich''s own detectors'
+  - 'The coverage denominator is stated explicitly: what set the audit''s'
+  - 'Every distinct defect found is filed as its own task with its own root cause, and'
+  - 'Any zero reported in the findings names its kind (construction vs occupancy) in the'
+  - 'The measurement is reproducible from the repo — either a committed instrument or a'
+  - 'Existing gating suites stay green (bridge suite `0 failed`); no vendored framework'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the audit''s 14-day standing mitigation cannot move the metric it prescribes — three independent causes, measured, none fixed. (A) fw fabric enrich silently discards every edge whose target has no card: 17 detected, 2 kept, 15 dropped, no counter, so ''0 edges added'' is indistinguishable from ''nothing to add'' [T-343]. (B) .fabric/watch-patterns.yaml is the untailored fw-context-init default and expands to 0 files — web/agents/bin/crates absent, src holds only .html, lib empty, tools/ and tests/ unwatched — so both coverage checks scan nothing and report complete coverage over a repo that is 15/115 carded [T-344]. (C) the audit''s first fabric check is a broken duplicate of its own sibling: bare glob.glob(p[''glob'']) with no PROJECT_ROOT join and no recursive=True, and pass() on BOTH verdict arms — it printed ''0 unregistered'' PASS in the same run its sibling printed ''49 source files have no fabric card'' WARN [T-345]. Every zero is occupancy not construction and each was proven fillable. Reading the branch gave only the weaker half of C; the run gave the mechanism. Ordering recorded: C must land before or with B or the audit prints two contradictory fabric lines'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t342-fabric-edge-drop-probe.yaml'
+  - '.tasks/active/T-309-surface-workflow-validator-findings-in-t.md'
+  - '.tasks/active/T-342-measure-whether-the-audits-standing-fabr.md'
+  - '.tasks/active/T-343-fw-fabric-enrich-silently-discards-edges.md'
+  - '.tasks/active/T-344-fabric-watch-patternsyaml-is-the-untailo.md'
+  - '.tasks/active/T-345-audit-fabric-coverage-check-is-a-broken-.md'
+  - 'tools/_t342-fabric-edge-drop-probe.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-02T13:20:49"
+    action: "T-342: the audit's 14-day standing mitigation cannot move the metric it prescribes — three independent causes, measured, none fixed. (A) fw fabric enrich silently discards every edge whose target has no card: 17 detected, 2 kept, 15 dropped, no counter, so '0 edges added' is indistinguishable from 'nothing to add' [T-343]. (B) .fabric/watch-patterns.yaml is the untailored fw-context-init default and expands to 0 files — web/agents/bin/crates absent, src holds only .html, lib empty, tools/ and tests/ unwatched — so both coverage checks scan nothing and report complete coverage over a repo that is 15/115 carded [T-344]. (C) the audit's first fabric check is a broken duplicate of its own sibling: bare glob.glob(p['glob']) with no PROJECT_ROOT join and no recursive=True, and pass() on BOTH verdict arms — it printed '0 unregistered' PASS in the same run its sibling printed '49 source files have no fabric card' WARN [T-345]. Every zero is occupancy not construction and each was proven fillable. Reading the branch gave only the weaker half of C; the run gave the mechanism. Ordering recorded: C must land before or with B or the audit prints two contradictory fabric lines"
+  - time: "2026-08-02T13:20:59"
+    action: "T-342: register the edge-drop probe (card count 15->16; it has no edges, which is the finding not an oversight)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 16 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 16
+  commits: 2
+  files_changed: 7
+  lines_added: 1153
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-342-measure-whether-the-audits-standing-fabr.md
+generated_by: context-agent-hybrid
