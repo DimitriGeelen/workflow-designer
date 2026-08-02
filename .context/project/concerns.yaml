@@ -731,3 +731,57 @@ concerns:
       - T-178
       - T-252
       - T-253
+
+  - id: G-016
+    type: gap
+    status: watching
+    severity: medium
+    title: "The export-safety instrument is DIFFERENTIAL — it compares two designer versions to each other, so a defect both versions share is byte-identical and therefore green"
+    detected: 2026-08-02
+    origin_task: T-309
+    decision_trigger: >
+      An input-fidelity check exists in the gating runner that compares the EXPORTED
+      document against the INPUT document (counts of flow nodes, edges, lanes at
+      minimum), over a population that deliberately includes documents the corpus does
+      not contain — malformed input, out-of-vocabulary tags, unresolvable refs. Closing
+      because "T-337 is fixed" is not closure: the fix removes one instance, the gap is
+      that the next vocabulary divergence would be equally invisible.
+    detail: >
+      Found while pricing T-309 IW-3. tools/_t308-export-byte-identity-cdp.mjs is the
+      tree's instrument for "this change has zero export surface", and T-309's own
+      assumption A-4 cites it as the technique for proving exactly that. It works by
+      running buildBpmnXml(parseBpmnXml(map)) under the WORKING-TREE designer and under
+      the designer at a git ref, then comparing the two outputs to EACH OTHER across the
+      24 rendered corpus maps.
+
+      TWO BLIND SPOTS FOLLOW FROM THAT SHAPE, AND NEITHER IS A BUG IN THE TOOL — it does
+      what it says. (1) A defect present in BOTH versions produces identical bytes and
+      reports green; the instrument can only see CHANGE, never WRONGNESS. (2) Its
+      denominator is 24 well-formed corpus maps, so any defect that only malformed input
+      can express is outside the population entirely — a corpus zero standing in for a
+      safety property, which cannot distinguish "safe" from "unexercised".
+
+      THE COST IS ALREADY PAID ONCE. T-337: parseBpmnXml enumerates flow nodes by
+      iterating an allowlist of tags, so an element with an unlisted tag is not rejected
+      but INVISIBLE, and export writes only from state.nodes — the node is deleted on
+      open→save and the result validates CLEAN because the evidence went with it.
+      Measured at 15 of 24 corpus maps, 15 nodes. Both designer versions drop it, so
+      byte-identity is green throughout; the corpus carries no such tag, so the
+      population never asks. The defect survived precisely in the intersection of the
+      two blind spots.
+
+      WHY THIS IS A GAP AND NOT A CHORE. The honest sentence about the instrument is
+      "no drift between versions", and the sentence it has been carrying is "no export
+      surface". That is a measurement promoted past its scope, sitting in an assumption
+      (A-4) that a feature decision rests on. Same family as G-015: the predicate is
+      sound, the SUBJECT is wider than what was measured. And T-259 shows the failure
+      mode is recurrent rather than hypothetical — the identical defect class one
+      granularity down (an unconsumed <aef:eventDef> destroyed on layout-only open→save,
+      the rail-201 field defect) also reached a shipped release before anyone saw it.
+    related_tasks:
+      - T-309
+      - T-337
+      - T-308
+      - T-259
+      - T-282
+      - T-321
