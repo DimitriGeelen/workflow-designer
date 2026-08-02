@@ -240,6 +240,127 @@ const EXPECTED_CONTENT = {
 // Locate the element carrying a given uid. Identity is aef:uid, never the display
 // id — display ids are recomputed from lane+ordinal+name by the change under test
 // (T-341), so a display-id lookup measures renumbering.
+// ---------------------------------------------------------------------------
+// Population 6 (T-348) — ROOT-LEVEL SIBLINGS OF THE PROCESS.
+//
+// Populations 1-5 all ask about one bpmn:process and what lives inside it.
+// parseBpmnXml takes processes[0], participant[0] and laneSets[0] — first-only,
+// no complement branch — so definitions' OTHER children are a granularity above
+// anything measured so far.
+//
+// The reason this is not just "T-347 with bigger elements": these root elements
+// are REFERENCED by things the designer does emit. If a referent is dropped but
+// its reference kept, the output is INVALID BPMN rather than merely poorer BPMN.
+// That verdict is read off the emitted document by resolving every *Ref/*ref
+// attribute against the ids present in it — never predicted from reading
+// buildBpmnXml, which is how T-335 nearly shipped a predicate that could not
+// be false.
+// ---------------------------------------------------------------------------
+const RMARK = 'T348MARK';
+
+const ROOT_CASES = [
+  // POSITIVE CONTROL. Pool identity is input-derived (partEl?.name || procName ->
+  // state.pool.name) and re-emitted on bpmn:participant. It MUST come back. If it
+  // reads dropped, the probe is injecting into a document the editor never saw and
+  // every other row in this population is meaningless.
+  { id: 'pool-identity', control: true, kind: 'identity' },
+
+  // A whole second process — T-337's class at the largest granularity available.
+  { id: 'second-process', kind: 'definitions-child',
+    frag: `<bpmn:process id="${RMARK}_p2" isExecutable="false">`
+        + `<bpmn:task id="${RMARK}_t2" name="${RMARK}"/></bpmn:process>` },
+
+  { id: 'root-message', kind: 'definitions-child',
+    frag: `<bpmn:message id="${RMARK}_msg" name="${RMARK}"/>` },
+  { id: 'root-signal', kind: 'definitions-child',
+    frag: `<bpmn:signal id="${RMARK}_sig" name="${RMARK}"/>` },
+  { id: 'root-error', kind: 'definitions-child',
+    frag: `<bpmn:error id="${RMARK}_err" name="${RMARK}" errorCode="${RMARK}"/>` },
+  { id: 'root-datastore', kind: 'definitions-child',
+    frag: `<bpmn:dataStore id="${RMARK}_ds" name="${RMARK}"/>` },
+
+  // Inside the collaboration the editor itself emits: a SECOND pool, and a
+  // message flow between pools. This is the shape every mainstream modeller
+  // produces for a multi-pool diagram.
+  { id: 'second-participant', kind: 'collaboration-child',
+    frag: `<bpmn:participant id="${RMARK}_part" name="${RMARK}" processRef="${RMARK}_p2"/>` },
+  { id: 'message-flow', kind: 'collaboration-child',
+    frag: `<bpmn:messageFlow id="${RMARK}_mf" name="${RMARK}" `
+        + `sourceRef="${RMARK}_part" targetRef="${RMARK}_part"/>` },
+];
+
+const EXPECTED_ROOT = {
+  'pool-identity':      'ROOT-PRESERVED',
+  'second-process':     'ROOT-DROPPED',
+  'root-message':       'ROOT-DROPPED',
+  'root-signal':        'ROOT-DROPPED',
+  'root-error':         'ROOT-DROPPED',
+  'root-datastore':     'ROOT-DROPPED',
+  'second-participant': 'ROOT-DROPPED',
+  'message-flow':       'ROOT-DROPPED',
+};
+
+// Insert a root-level fragment. `definitions-child` goes before </bpmn:definitions>
+// (DOM parsing does not enforce schema child order, and putting it last keeps the
+// injected process from becoming processes[0] — which would measure a different
+// and much louder defect than the one this row is about).
+function injectRoot(xml, c) {
+  if (c.kind === 'identity') {
+    // Mark the carrier the editor actually reads for pool identity: the first
+    // participant's name if there is one, else the process's name.
+    const part = xml.match(/<bpmn:participant\b[^>]*\/>/);
+    if (part && /\bname="/.test(part[0])) {
+      return { xml: xml.replace(part[0], part[0].replace(/\bname="([^"]*)"/, `name="$1 ${RMARK}"`)), carrier: 'participant' };
+    }
+    const proc = xml.match(/<bpmn:process\b[^>]*>/);
+    if (proc && /\bname="/.test(proc[0])) {
+      return { xml: xml.replace(proc[0], proc[0].replace(/\bname="([^"]*)"/, `name="$1 ${RMARK}"`)), carrier: 'process' };
+    }
+    return null;
+  }
+  if (c.kind === 'collaboration-child') {
+    const close = '</bpmn:collaboration>';
+    if (!xml.includes(close)) return null;
+    return { xml: xml.replace(close, c.frag + close), carrier: 'collaboration' };
+  }
+  const close = '</bpmn:definitions>';
+  if (!xml.includes(close)) return null;
+  return { xml: xml.replace(close, c.frag + close), carrier: 'definitions' };
+}
+
+// The BPMN attributes that are genuinely IDREFs into the same document.
+//
+// This list is explicit on purpose. The first version of this check matched any
+// attribute whose name ended in "ref", which swept up AEF's OWN semantic `ref="…"`
+// attribute — `ref="G-019"`, `ref="P-010 [--skip-acceptance-criteria]"`,
+// `ref="docs/reports/*.md"` — and reported 21 "pre-existing dangling references"
+// in every corpus export. Those are prose payloads, not element references, and
+// the finding would have been entirely an artefact of the instrument. Naming the
+// attributes is what stops the checker inventing its subject.
+const IDREF_ATTRS = new Set([
+  'sourceRef', 'targetRef', 'processRef', 'attachedToRef', 'bpmnElement',
+  'messageRef', 'signalRef', 'errorRef', 'escalationRef', 'dataStoreRef',
+  'categoryValueRef', 'dataObjectRef', 'default',
+]);
+
+// Every IDREF attribute value in the document that does not resolve to an id
+// declared in the same document. Answers the dangling-reference question from
+// the ARTIFACT rather than from a reading of the emitter.
+function danglingRefs(xml) {
+  const ids = new Set([...xml.matchAll(/\bid="([^"]*)"/g)].map(m => m[1]));
+  const out = [];
+  for (const m of xml.matchAll(/\b([A-Za-z]+)="([^"]*)"/g)) {
+    const [, attr, val] = m;
+    if (!IDREF_ATTRS.has(attr) || !val) continue;
+    if (!ids.has(val)) out.push(`${attr}=${val}`);
+  }
+  // bpmn:incoming/outgoing and flowNodeRef carry ids as TEXT, not attributes
+  for (const m of xml.matchAll(/<bpmn:(incoming|outgoing|flowNodeRef)>([^<]*)<\//g)) {
+    if (!ids.has(m[2])) out.push(`${m[1]}=${m[2]}`);
+  }
+  return [...new Set(out)].sort();
+}
+
 function elementByUid(xml, tag, uid) {
   const re = new RegExp(`<bpmn:${tag}\\b[^>]*>[\\s\\S]*?</bpmn:${tag}>`, 'g');
   for (const m of xml.matchAll(re)) {
@@ -550,6 +671,58 @@ async function main() {
       contentRows.push({ id: c.id, applied, benign: !!c.benign, verdict: setStr(verdicts) });
     }
 
+    // ---- population 6 (T-348): root-level siblings of the process -----------
+    // The dangling-reference checker gets its own controls before it is used on
+    // anything. A narrowed predicate that no longer fires is worth less than the
+    // wide one it replaced, and the narrowing above was substantial.
+    {
+      const pos = danglingRefs('<a id="x"/><b sourceRef="missing"/>');
+      const neg = danglingRefs('<a id="x"/><b sourceRef="x"/>');
+      const ignored = danglingRefs('<a id="x"/><b ref="G-019"/>');
+      if (pos.length === 0) problems.push('danglingRefs FAILED its positive control — an unresolvable sourceRef was not reported, so "no dangling references" below would mean nothing');
+      if (neg.length !== 0) problems.push('danglingRefs FAILED its negative control — a resolvable sourceRef was reported as dangling');
+      if (ignored.length !== 0) problems.push("danglingRefs FAILED its exclusion control — AEF's semantic ref=\"…\" attribute is being read as an IDREF again");
+    }
+
+    const rootRows = [];
+    let baselineDangling = null;
+    for (const c of ROOT_CASES) {
+      const verdicts = new Set();
+      const danglingSeen = new Set();
+      let applied = 0;
+      for (const m of maps) {
+        const inj = injectRoot(m.text, c);
+        if (!inj) continue;                        // carrier absent on this map
+        if (!inj.xml.includes(RMARK)) {
+          problems.push(`root case '${c.id}' on map '${m.name}': injection reported success but the marker is not in the input — the probe would have measured nothing`);
+          continue;
+        }
+        applied++;
+        const r = await roundTrip(inj.xml);
+        if (r.threw) { verdicts.add('REFUSED'); continue; }
+        verdicts.add(r.xml.includes(RMARK) ? 'ROOT-PRESERVED' : 'ROOT-DROPPED');
+        for (const d of danglingRefs(r.xml)) danglingSeen.add(d);
+      }
+      if (applied === 0) problems.push(`root case '${c.id}' applied to 0 of ${maps.length} maps — nothing was measured`);
+      rootRows.push({
+        id: c.id, applied, control: !!c.control,
+        verdict: setStr(verdicts),
+        dangling: [...danglingSeen].sort(),
+      });
+    }
+
+    // The dangling question needs a baseline: if the UNMUTATED corpus already
+    // emits unresolvable refs, then finding them after an injection says nothing
+    // about the injection. Measured, not assumed.
+    {
+      const seen = new Set();
+      for (const m of maps) {
+        const r = await roundTrip(m.text);
+        if (!r.threw) for (const d of danglingRefs(r.xml)) seen.add(d);
+      }
+      baselineDangling = [...seen].sort();
+    }
+
     // -- population assertions: the guard must not pass by testing nothing --
     if (maps.length === 0) problems.push('corpus population is empty');
     if (probeRows.length === 0) problems.push('out-of-vocabulary population is empty — nothing was probed');
@@ -557,6 +730,8 @@ async function main() {
     if (malformedRows.length === 0) problems.push('malformed population is empty — nothing was probed');
     if (refRows.length === 0) problems.push('unresolvable-ref population is empty — nothing was probed');
     if (contentRows.length === 0) problems.push('accepted-element content population is empty — nothing was probed');
+    if (rootRows.length === 0) problems.push('root-sibling population is empty — nothing was probed');
+    if (!rootRows.some(r => r.control)) problems.push('root-sibling population has no positive control — a population of only-expected-to-drop rows cannot tell loss from an injection that never landed');
 
     // -- verdict ----------------------------------------------------------
     const appeared = [...observedLossy].filter(t => !EXPECTED_LOSSY.has(t)).sort();
@@ -573,15 +748,25 @@ async function main() {
     const silentlyPartial = malformedRows.filter(r => r.partial > 0);
     const uidLost = refRows.filter(r => r.lost > 0);
 
+    const rootDrift = rootRows.filter(r => r.verdict !== EXPECTED_ROOT[r.id]);
+    const rootLost = rootRows.filter(r => !r.control && r.verdict === 'ROOT-DROPPED');
+    // A reference that dangles in the OUTPUT but not in the untouched baseline is
+    // caused by the injection — i.e. the designer kept a reference whose referent it
+    // discarded. That is invalid BPMN, a strictly worse outcome than lossy BPMN.
+    const newDangling = rootRows
+      .map(r => ({ id: r.id, refs: r.dangling.filter(d => !baselineDangling.includes(d)) }))
+      .filter(r => r.refs.length);
+
     const ok = corpusLoss.length === 0 && appeared.length === 0 && closed.length === 0
       && problems.length === 0 && malformedDrift.length === 0 && refDrift.length === 0 && !diDrift
-      && contentDrift.length === 0;
+      && contentDrift.length === 0 && rootDrift.length === 0;
 
     if (JSON_OUT) {
       console.log(JSON.stringify({ ok, corpus: maps.length, corpusLoss, probed: probeRows.length,
         lossy: [...observedLossy].sort(), appeared, closed,
         malformed: malformedRows, refs: refRows, di: { verdict: diVerdict, applied: diApplied, kept: diKept },
         content: contentRows,
+        root: rootRows, baselineDangling, newDangling,
         problems }, null, 2));
     } else {
       console.log(`input fidelity: ${maps.length} corpus maps round-tripped; ${probeRows.length} out-of-vocabulary tags, `
@@ -596,6 +781,11 @@ async function main() {
       console.log(`  sub-tree:     ${diVerdict} — standard BPMN DI injected on ${diApplied}/${maps.length} maps, survived on ${diKept}`);
       console.log(`  content:      ${contentLost.length === 0 ? 'no non-derivable content lost from accepted elements' : contentLost.length + ' shape(s) SILENTLY DROPPED from elements the importer accepted'}`);
       for (const r of contentRows) console.log(`      ${r.id.padEnd(22)} ${r.verdict.padEnd(19)} (applied ${r.applied}/${maps.length})${r.benign ? '  [derivable — dropping is correct]' : ''}`);
+      console.log(`  root siblings:${rootLost.length === 0 ? ' no root-level sibling of the process is lost' : ' ' + rootLost.length + ' shape(s) SILENTLY DROPPED from definitions/collaboration'}`);
+      for (const r of rootRows) console.log(`      ${r.id.padEnd(22)} ${r.verdict.padEnd(19)} (applied ${r.applied}/${maps.length})${r.control ? '  [POSITIVE CONTROL — must survive]' : ''}`);
+      console.log(`  dangling refs:${newDangling.length === 0
+        ? ` none introduced — output stays SELF-CONSISTENT (baseline ${baselineDangling.length === 0 ? 'clean' : baselineDangling.length + ' pre-existing'}); the loss is lossy-but-valid, not invalid`
+        : ' ' + newDangling.length + ' case(s) left a reference whose referent was discarded — the output is INVALID BPMN: ' + newDangling.map(d => d.id + ' [' + d.refs.join(' ') + ']').join(', ')}`);
       for (const p of problems) console.log(`  POPULATION:   ${p}`);
       for (const c of corpusLoss) console.log(`  LOSS ${c.map}: ${c.threw ? 'threw ' + c.threw : `in ${JSON.stringify(c.input)} out ${JSON.stringify(c.output)}`}`);
       if (appeared.length) console.log(`  FAIL: a NEW vocabulary gap appeared — ${appeared.join(', ')} now lose content on a load→save round trip. A tag the importer does not know is not rejected, it is invisible, and export writes only what state holds (T-337).`);
@@ -603,6 +793,7 @@ async function main() {
       for (const r of malformedDrift) console.log(`  FAIL: malformed-input behaviour changed for '${r.id}' — expected ${EXPECTED_MALFORMED[r.id]}, measured ${r.verdict}. SILENTLY-PARTIAL means a broken document was accepted without complaint and content was dropped; any other change means the refuse/preserve behaviour moved and EXPECTED_MALFORMED must be updated deliberately.`);
       for (const r of refDrift) console.log(`  FAIL: unresolvable-ref behaviour changed for '${r.id}' — expected ${EXPECTED_REFS[r.id]}, measured ${r.verdict}. UID-LOST means an aef:uid present in the input is absent from the output: a dangling reference destroyed an identity, which is data loss and not a repair.`);
       for (const r of contentDrift) console.log(`  FAIL: accepted-element content behaviour changed for '${r.id}' — expected ${EXPECTED_CONTENT[r.id]}, measured ${r.verdict}. CONTENT-DROPPED means the importer accepted the element and silently discarded part of its body: the tag was in the allowlist, so no vocabulary check fires and node/flow/lane counts are unchanged (T-259 shipped this way once). CONTENT-PRESERVED where DROPPED was expected is good news the guard must not absorb — update EXPECTED_CONTENT deliberately. CONTENT-MOVED means the content survived on a DIFFERENT element than the one that carried it.`);
+      for (const r of rootDrift) console.log(`  FAIL: root-sibling behaviour changed for '${r.id}' — expected ${EXPECTED_ROOT[r.id]}, measured ${r.verdict}. parseBpmnXml takes processes[0]/participant[0]/laneSets[0] with no complement branch, so definitions' other children never enter state and export writes only from state. ROOT-DROPPED on the POSITIVE CONTROL has TWO possible causes and the control cannot separate them: either the probe is no longer landing, or the identity round-trip itself regressed. Both invalidate every other row in this population — resolve which one it is before reading any of them. ROOT-PRESERVED where DROPPED was expected is good news that must be recorded in EXPECTED_ROOT deliberately, not absorbed.`);
       if (diDrift) console.log(`  FAIL: unknown sub-tree behaviour changed — expected ${EXPECTED_DI}, measured ${diVerdict}. DI-PRESERVED is good news that must be recorded in EXPECTED_DI rather than absorbed; DI-MIXED means the outcome now depends on the map.`);
       console.log(ok ? 'OK: every measured fidelity verdict matches expectation — corpus lossless, vocabulary gap set unchanged, no silent partial acceptance, no identity destroyed'
                      : 'FAIL: input fidelity moved — see above');

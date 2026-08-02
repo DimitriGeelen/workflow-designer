@@ -77,6 +77,33 @@ arriving from a third-party modeller carries both. Within our own corpus the sha
 absent, so nothing is being lost today — but the exposure is on the import path from
 peers, which is the T-559 seam.
 
+## Addendum — T-348 folds into this decision (2026-08-02)
+
+T-348 measured the granularity **above** this one: `bpmn:definitions`' children other than
+the single process the importer reads. `parseBpmnXml` takes `processes[0]`,
+`participant[0]` and `laneSets[0]` — first-only, no complement branch — so seven further
+shapes are silently dropped, 24/24 across the corpus:
+
+`second-process`, root `message`, root `signal`, root `error`, `dataStore`,
+`second-participant`, `messageFlow`.
+
+**Why it folds rather than forking.** The dangling-reference hypothesis — that dropping a
+referent while keeping its reference would emit *invalid* BPMN, a worse outcome than
+merely lossy BPMN — was tested and is **false**. `buildBpmnXml` emits a fixed root
+skeleton and copies no references from the input, so the output is always internally
+consistent. The repair question is therefore identical to this task's: **(a)
+preserve-and-re-emit, (b) consume-as-typed, (c) refuse.** Answering it here answers it
+there; opening a parallel decision would put the same question in front of the operator
+twice.
+
+**The one row that may not want the same answer.** `second-process` is not equivalent in
+weight to the others. A two-pool collaboration opened and saved returns as a one-pool
+document — an entire pool's nodes gone — while node/flow/lane counts *of the surviving
+pool* are unchanged, so every count-based instrument and the validator stay green. Option
+**(c) refuse** is far more defensible for that row than for a `documentation` string. If
+this task is answered uniformly, `second-process` is the row most likely to make the
+uniform answer wrong, and is worth an explicit sentence in the decision either way.
+
 ## Acceptance Criteria
 
 ### Agent

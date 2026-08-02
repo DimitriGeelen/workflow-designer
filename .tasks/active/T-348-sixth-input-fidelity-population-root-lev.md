@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T12:44:22Z
-last_update: 2026-08-02T12:44:22Z
+last_update: 2026-08-02T12:47:11Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -59,39 +59,85 @@ referent, the output is self-consistent and this collapses into T-347's decision
 
 **Which of those two it is, is the whole point of the task.**
 
+## The answer
+
+**SELF-CONSISTENT. The dangling-reference hypothesis is false** — and that is the
+result, not a disappointment. Measured over 24 corpus maps:
+
+| row | verdict | applied |
+|---|---|---|
+| `pool-identity` **(positive control)** | **ROOT-PRESERVED** | 24/24 |
+| `second-process` | ROOT-DROPPED | 24/24 |
+| `root-message` | ROOT-DROPPED | 24/24 |
+| `root-signal` | ROOT-DROPPED | 24/24 |
+| `root-error` | ROOT-DROPPED | 24/24 |
+| `root-datastore` | ROOT-DROPPED | 24/24 |
+| `second-participant` | ROOT-DROPPED | 24/24 |
+| `message-flow` | ROOT-DROPPED | 24/24 |
+
+**Dangling references introduced: none. Baseline: clean.**
+
+The reason is structural and worth stating, because it makes the result robust rather
+than lucky: `buildBpmnXml` emits a **fixed root skeleton** — one `collaboration`, one
+`participant` with `processRef="Process_<id>"`, one `process` with that id. It does not
+copy references from the input. So there is no mechanism by which a kept reference could
+outlive a dropped referent. The output is always internally consistent; it is simply
+smaller than what came in.
+
+**Consequence: this folds into T-347 and does not open a second operator decision.**
+The repair question is identical — (a) preserve-and-re-emit, (b) consume-as-typed,
+(c) refuse — and answering it for unconsumed element *content* answers it for unconsumed
+root *siblings* too.
+
+**One qualification the operator should carry into that decision.** The rows are not
+equally weighty. `root-signal` losing a declaration is a nuisance; `second-process`
+losing an entire pool's worth of nodes is a different order of magnitude — a two-pool
+collaboration opened and saved comes back as a one-pool document, with node/flow/lane
+counts *of the surviving pool* completely unchanged, so every count-based instrument and
+the validator stay green. Option (c) *refuse* is far more defensible for that row than
+for a `documentation` string. If T-347 is answered uniformly, this row is the one most
+likely to make the uniform answer wrong.
+
+## What the corpus could not tell us
+
+All 24 corpus maps are editor exports, so they carry exactly one process and one
+participant. The entire population is therefore **injected**, and the finding is about
+what the importer *would* do to a mainstream modeller's file, not about damage already
+done to anything in this repo. `REFUSED` is never observed and no designer mutation was
+written to produce it — recorded as **unwitnessed, not unreachable**.
+
 ## Acceptance Criteria
 
 ### Agent
-- [ ] A sixth population is added to `tools/_t338-input-fidelity-cdp.mjs` covering the
-      root-level siblings of the process element: at minimum `collaboration`+`participant`,
-      `messageFlow`, root `message`, root `signal`, root `error`, `dataStore`, and a
-      second `process`.
-- [ ] The population contains a **positive control that must survive** — the first
-      `bpmn:process` itself is read and re-emitted, so if the control reads dropped the
-      probe is broken and not the designer. A population of only-expected-to-drop rows
-      cannot distinguish loss from a probe that injected nothing.
-- [ ] Every row records whether injection actually reached the input (marker present
+- [x] A sixth population is added to `tools/_t338-input-fidelity-cdp.mjs` covering the
+      root-level siblings of the process element: `second-process`, root `message`,
+      root `signal`, root `error`, `dataStore`, `second-participant`, `messageFlow`
+      (7 shapes + 1 control).
+- [x] **(AMENDED — see Evolution.)** The population contains a positive control that must
+      survive: **pool identity**, not the process element. A predicate on the process
+      element would be permanently true — `buildBpmnXml` hard-codes `<bpmn:process …>` —
+      so it could not have been false and would have proved nothing (T-335's near-miss).
+      Pool identity is input-derived (`partEl?.name || procName` → `state.pool.name` →
+      re-emitted on `bpmn:participant`), so it is answerable to the subject.
+- [x] Every row records whether injection actually reached the input (marker present
       before round-trip). A row that applied to 0 maps is a failure, not a zero.
-- [ ] **The dangling-reference question is answered explicitly**, by a check that
-      separates the two outcomes: for a referenced root element (e.g. `message` +
-      a node carrying `messageEventDefinition messageRef`), the emitted document is
-      classified as SELF-CONSISTENT (both ref and referent gone) or DANGLING (ref kept,
-      referent gone). The verdict is derived from the output document, not predicted from
-      reading `buildBpmnXml`.
-- [ ] Teeth: at least one leg mutates the **designer** so a currently-dropped root shape
-      comes back preserved, and one leg mutates it so a currently-preserved one is lost —
-      both verdict buckets proven fillable in the subject, not just in the instrument.
-      Every leg fails naming its own condition; a leg asserting only `rc != 0` is not
-      accepted (T-338 leg (d)).
-- [ ] Any verdict bucket that is never observed is recorded as **unwitnessed with its
-      reason** (unreachable vs merely not exercised) rather than left to read as
-      "this does not happen".
-- [ ] The instrument stays green (`rc=0`) with the new population's expectations declared,
-      and the expectations are re-measured every run so a gap that CLOSES also fails —
-      no decay into a permission list.
-- [ ] Findings filed as a task if the designer loses data; if the loss is
-      repair-semantics-identical to T-347, say so and fold it into T-347 rather than
-      opening a parallel decision for the operator.
+- [x] The dangling-reference question is answered explicitly, from the emitted document:
+      every IDREF attribute is resolved against the ids present in the output, and the
+      result is differenced against an **unmutated-corpus baseline** so a pre-existing
+      dangling ref cannot be mistaken for one the injection caused.
+- [x] Teeth 6/6. Legs (a)/(b) mutate the **designer**: (a) teaching the importer to carry
+      a root `bpmn:message` into pool identity flips `root-message` DROPPED→PRESERVED;
+      (b) neutering the pool-identity read flips the control PRESERVED→DROPPED. Both
+      buckets proven producible in the subject. Every leg requires the failure text to
+      name its own condition.
+- [x] `CONTENT-MOVED`-equivalent buckets recorded honestly: `REFUSED` is never observed in
+      this population and **no designer mutation was written to produce it**, so it is
+      recorded as unwitnessed rather than left to read as "the designer never refuses a
+      root sibling".
+- [x] The instrument stays green (`rc=0`) with `EXPECTED_ROOT` declared, and every row is
+      re-measured each run — a row that flips PRESERVED must be recorded deliberately, so
+      the expectation set cannot decay into a permission list.
+- [x] **Folded into T-347, no new operator decision opened** — see "The answer" below.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -156,6 +202,15 @@ referent, the output is self-consistent and this collapses into T-347's decision
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# G-015 note: no global count is pinned below. The instrument re-measures every
+# row each run and fails on DRIFT from EXPECTED_ROOT, which is what makes it a
+# gate rather than a snapshot.
+
+out=$(timeout 1200 node tools/_t338-input-fidelity-cdp.mjs 2>&1); echo "$out" | grep -q "^OK:"
+out=$(timeout 1200 node tools/_t338-input-fidelity-cdp.mjs 2>&1); echo "$out" | grep -q "pool-identity          ROOT-PRESERVED"
+out=$(timeout 1200 node tools/_t338-input-fidelity-cdp.mjs 2>&1); echo "$out" | grep -q "dangling refs: none introduced"
+node --check tools/_t338-input-fidelity-cdp.mjs
 
 ## RCA
 
@@ -185,6 +240,46 @@ referent, the output is self-consistent and this collapses into T-347's decision
      evolves with the process of materialisation." Structural counter to §ACD:
      spec-vs-build divergence is logged as soon as it happens, not lost as
      folklore.
+
+### 2026-08-02 — the positive control I specified could not have failed
+
+- **What changed:** the AC named "the first `bpmn:process` itself" as the positive
+  control. `buildBpmnXml` **hard-codes** `<bpmn:process id="Process_${…}">`, so that
+  predicate is true whatever the importer does — it would have reported PRESERVED over an
+  empty document. A control that cannot fail certifies nothing and would have made the
+  seven DROPPED rows look verified when they were merely unopposed.
+- **Plan impact:** control changed to **pool identity**, whose value is read from the
+  input (`partEl?.name || procName`) and re-emitted, so it is answerable to the subject.
+  Teeth leg (b) proves it: neutering that read flips it to DROPPED.
+- **Triggered:** AC amended in place. Same family as T-335's `REPAIRED` near-miss and
+  T-336's permanently-green VALUE check — the third time on this arc that a predicate was
+  written against something the emitter guarantees.
+
+### 2026-08-02 — the dangling-ref checker invented 21 findings before it found any
+
+- **What changed:** the first version matched any attribute whose name ended in `ref`.
+  That swept up AEF's own semantic `ref="…"` payloads — `ref="G-019"`,
+  `ref="P-010 [--skip-acceptance-criteria]"`, `ref="docs/reports/*.md"` — and reported
+  **21 pre-existing dangling references in every corpus export**. Entirely an artefact of
+  the instrument. Caught by printing the *members* rather than trusting the count.
+- **Plan impact:** predicate narrowed to an explicit `IDREF_ATTRS` set. Because that is a
+  large narrowing, the checker now runs its own **positive, negative and exclusion
+  controls** before it is used on anything, and teeth leg (e) re-widens it to the broken
+  form and requires the exclusion control to fire — the retracted assumption installed as
+  a failing leg rather than resolved-to-be-more-careful.
+- **Triggered:** learning recorded. An anomaly *count* is not a finding until its
+  *members* have been read; 21 looked like a serious result and was noise.
+
+### 2026-08-02 — a teeth leg went red for the wrong reason, for the third time on this arc
+
+- **What changed:** leg (c) (empty the population) failed its own check: `rc=1` but the
+  output never named the condition. The mutation had missed a blank line, leaving
+  `.concat([` unclosed — node died at parse.
+- **Plan impact:** none to the finding. The leg **worked**: requiring the failure text to
+  name its own condition is precisely what stopped a syntax error being banked as proof.
+- **Triggered:** nothing new — this is T-338 leg (d) and T-343 leg (d) again. Worth
+  recording that the requirement has now paid three times, which is a stronger argument
+  for it than the reasoning that introduced it.
 
      Format (one entry per slice boundary or significant insight):
        ### YYYY-MM-DD — [topic]
