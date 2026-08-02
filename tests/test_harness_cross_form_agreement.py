@@ -133,20 +133,62 @@ BRIDGE_REPAIRED = {
                           "`pool:` is absent, so the bridged document is "
                           "genuinely well-formed and XML silence is correct "
                           "rather than blind",
-    "E-LANE-FIELD":       "DEFAULT (T-330): a lane missing `height` bridges to "
-                          "<aef:laneMeta abbr=\"agt\" authority=\"initiative\" "
-                          "height=\"120\"/> -- the laneMeta is emitted COMPLETE "
-                          "with a defaulted height, so no defect reaches the XML "
-                          "form. Filed as a coverage hole by T-328 on the "
-                          "strength of the YAML rule alone; the bridged bytes "
-                          "say otherwise",
-    "E-NODE-FIELD":       "DEFAULT (T-330): a node missing `x` bridges to "
-                          "<aef:position x=\"0\" y=\"100\"/> -- and 0 is the "
+    "E-LANE-FIELD":       "DEFAULT (T-330), MEASURED ON `height` ONLY -- see "
+                          "CARRIER_VERDICTS (T-332): a lane missing `height` "
+                          "bridges to <aef:laneMeta abbr=\"agt\" "
+                          "authority=\"initiative\" height=\"120\"/>, complete, "
+                          "so no defect reaches the XML form. That holds for 2 "
+                          "of this rule's 4 carriers and NOT for `authority`",
+    "E-NODE-FIELD":       "DEFAULT (T-330), MEASURED ON `x` ONLY -- see "
+                          "CARRIER_VERDICTS (T-332): a node missing `x` bridges "
+                          "to <aef:position x=\"0\" y=\"100\"/>, and 0 is the "
                           "T-312 unpositioned SENTINEL, so the map degrades into "
                           "the honest-degradation path the geometry rule already "
-                          "skips rather than into an invalid document",
+                          "skips. That holds for 2 of this rule's 6 carriers",
 }
 EXPECTED_REPAIRED = 3
+
+# T-332. A BRIDGE_REPAIRED entry is declared per RULE ID, but a rule can fire on
+# several carriers with different repair characters. Both entries above were
+# verified against whichever carrier their single fixture omits and the claim was
+# then read as covering the rule. Measured per carrier (baseline-subtracted -- the
+# probe document emits W-XML-LANE-GEOMETRY of its own, which contaminated the
+# first run of this measurement and nearly produced "0 repaired"):
+#
+#   REPAIRED      bridged document is clean; the repair claim holds
+#   CARRIED-ERROR carried, caught on the XML form under a DIFFERENT id at ERROR
+#                 -- mis-attributed, but nothing escapes
+#   CARRIED-WARN  carried, caught under a different id at WARN while the YAML
+#                 form calls it an ERROR -- a SEVERITY DROP across the seam
+#   INFO          honest degradation (T-312): the geometry rules skip by design
+#
+# The severity-drop class is the one this table had no vocabulary for at all: it
+# classifies by rule-id presence, so ERROR-on-one-form/WARN-on-the-other reads as
+# agreement. `authority` is its worst instance -- until W-LANE-NO-OWNER shipped
+# in T-331 the XML form was SILENT there while this table declared it repaired.
+CARRIER_VERDICTS = {
+    "E-LANE-FIELD": {
+        "id":        ("CARRIED-WARN",  "W-XML-NODE-UNASSIGNED"),
+        "name":      ("REPAIRED",      ""),
+        "authority": ("CARRIED-WARN",  "W-LANE-NO-OWNER (T-331; SILENT before)"),
+        "height":    ("REPAIRED",      ""),
+    },
+    "E-NODE-FIELD": {
+        "uid":  ("CARRIED-ERROR", "E-XML-FLOW-DANGLING + W-XML-NODE-UNASSIGNED"),
+        "type": ("CARRIED-ERROR", "E-XML-NODE-TYPE"),
+        "name": ("REPAIRED",      ""),
+        "lane": ("CARRIED-WARN",  "W-XML-NODE-UNASSIGNED"),
+        "x":    ("REPAIRED",      ""),
+        "y":    ("INFO",          "I-XML-LANE-GEOMETRY-SKIP (T-312 sentinel)"),
+    },
+}
+
+# The carrier list each rule actually fires on, imported rather than re-typed:
+# re-listing is how the declaration drifts from the rule it describes.
+CARRIER_SOURCE = {
+    "E-LANE-FIELD": "REQUIRED_LANE_FIELDS",
+    "E-NODE-FIELD": "REQUIRED_NODE_FIELDS",
+}
 
 # Known DISAGREEMENTS: the bridged document still CARRIES the defect and the XML
 # form is silent. Each is a real coverage hole on the form the designer authors
@@ -368,6 +410,39 @@ def failures():
         out.append("ZERO pairs were actually compared -- every row fell through "
                    "to a declaration. A guard that declares everything and "
                    "measures nothing is not a guard.")
+
+    # -- T-332: a BRIDGE_REPAIRED claim must account for EVERY carrier its rule
+    #    fires on. Both entries were measured against the one carrier their
+    #    fixture omits and then read as covering the rule; 6 of the other 8
+    #    carriers are not repaired at all. A note saying "measured on height
+    #    only" would not fail when a fifth required field is added -- this does.
+    for rid, source_name in sorted(CARRIER_SOURCE.items()):
+        carriers = set(getattr(vw, source_name))
+        declared = set(CARRIER_VERDICTS.get(rid, {}))
+        missing = sorted(carriers - declared)
+        if missing:
+            out.append(
+                "%s is declared BRIDGE_REPAIRED but CARRIER_VERDICTS accounts "
+                "for only %d of its %d carriers (%s has %d). Unaccounted: %s. "
+                "The repair was verified against one carrier and generalised "
+                "over the rest; measure each and record its verdict."
+                % (rid, len(declared & carriers), len(carriers), source_name,
+                   len(carriers), ", ".join(missing)))
+        phantom = sorted(declared - carriers)
+        if phantom:
+            out.append(
+                "%s declares a carrier verdict for %s, which is not in %s -- "
+                "a verdict about a field the rule cannot fire on."
+                % (rid, ", ".join(phantom), source_name))
+        # and the entry must not quietly become all-REPAIRED: if every carrier
+        # were repaired the rule would belong in the table without qualification,
+        # so that state has to be re-measured rather than assumed.
+        verdicts = {v for v, _ in CARRIER_VERDICTS.get(rid, {}).values()}
+        if verdicts and verdicts == {"REPAIRED"}:
+            out.append(
+                "%s now claims REPAIRED on every carrier. That is a stronger "
+                "claim than when it was written -- re-measure and, if it holds, "
+                "say so explicitly rather than inheriting the old entry." % rid)
 
     # -- AC8: latent divergences are declared, and their pairs must still exist
     if len(LATENT) != EXPECTED_LATENT:
