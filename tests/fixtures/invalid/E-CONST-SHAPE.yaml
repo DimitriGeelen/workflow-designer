@@ -1,0 +1,20 @@
+# T-334. aef.constituents present but an EMPTY list. Shape rule: must be a non-empty
+# list of {id, name, ref?} mappings.
+#
+# One of six carrier rules that T-333 found had NEVER fired -- not on any of
+# 90 corpus documents, not on any of 48 fixtures. Shipped, and never once
+# demonstrated to work. The document is otherwise clean so this fixture
+# ISOLATES the rule: a predicate firing on every node rather than on the
+# intended condition would be visible here instead of looking correct.
+workflowMeta: {id: t, version: 1, schemaVersion: 2}
+pool: {id: Pool_t, name: t}
+lanes:
+  - {id: agent, name: Agent, abbr: agt, authority: initiative, height: 200}
+nodes:
+  - {uid: n_a, type: startEvent, name: Start, lane: agent, x: 100, y: 100}
+  - {uid: n_b, type: serviceTask, name: Work, lane: agent, x: 240, y: 100,
+     aef: {constituents: []}}
+  - {uid: n_z, type: endEvent, name: Done, lane: agent, x: 520, y: 100}
+edges:
+  - {uid: e_1, source: n_a, target: n_b}
+  - {uid: e_2, source: n_b, target: n_z}

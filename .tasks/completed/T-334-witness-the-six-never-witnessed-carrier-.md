@@ -1,0 +1,258 @@
+---
+id: T-334
+name: "Witness the six never-witnessed carrier rules (aef:constituents, aef:scopeOf)"
+description: >
+  T-333 found six validator rules that fire on no corpus document and no fixture: E-CONST-DUP, E-CONST-SHAPE, W-CONST-FIELD, E-SCOPEOF-DANGLING, E-SCOPEOF-SELF, W-SCOPEOF-TYPE. All six are also declared parity gaps, and the parity NOTE argues priority from carrier counts on the form that has NO rule while the form that HAS the rule has zero witnessed firings. These are shipped rules never demonstrated to work. T-309 surfaces validator findings in the designer, so a rule whose predicate is wrong surfaces a wrong finding to an author. Author one fixture per rule, confirm each fires, and delete its NEVER_WITNESSED entry (the count assertion in test_check_pass_reachability.py is answerable in both directions and will go red either way).
+
+status: work-completed
+workflow_type: build
+owner: agent
+horizon: null
+tags: []
+components: []
+related_tasks: []
+# arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
+#                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
+#                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
+#                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
+created: 2026-08-02T07:41:10Z
+last_update: 2026-08-02T07:45:43Z
+date_finished: 2026-08-02T07:45:43Z
+# revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
+# revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
+# ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
+# bvp_scores:                     # confirmed per-driver scores 0-5, set by `fw bvp confirm` (T-1924).
+#                                 # Sovereignty boundary — only set after human or agent confirmation.
+#                                 # Shape: {D1: <int 0-5>, D2: <int 0-5>, D3: <int 0-5>, D4: <int 0-5>, [<free-driver-id>: <int>]...}
+# bvp_scores_proposed:            # estimator-proposed scores (T-1922 worker). Persists when ≥2 delta
+#                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
+# cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
+#                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+---
+
+# T-334: Witness the six never-witnessed carrier rules (aef:constituents, aef:scopeOf)
+
+## Context
+
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+
+## Acceptance Criteria
+
+### Agent
+- [x] AC1 — One fixture per rule, each making exactly its own rule fire, placed
+      by SEVERITY (`invalid/` asserts exit 2, `warn/` asserts exit 1):
+      `E-CONST-SHAPE`, `E-CONST-DUP`, `E-SCOPEOF-SELF`, `E-SCOPEOF-DANGLING`
+      → `invalid/`; `W-CONST-FIELD`, `W-SCOPEOF-TYPE` → `warn/`. T-331's AC9
+      failure was a WARN fixture filed under `invalid/`; the severity decides
+      the directory, not the feeling that the document is bad.
+- [x] AC2 — Each fixture ISOLATES its rule: the document is otherwise clean, so
+      a predicate that fired on every node (rather than the intended condition)
+      would be visible instead of looking correct. `W-SCOPEOF-TYPE` fires on any
+      non-subProcess node, so the scopeOf ERROR fixtures use `subProcess` to
+      keep the warning from co-firing and masking which rule was witnessed.
+- [x] AC3 — Each rule is confirmed FIRING by the runner, quoted from the run —
+      not inferred from the suite count going up.
+- [x] AC4 — The `NEVER_WITNESSED` entries are deleted and
+      `EXPECTED_NEVER_WITNESSED` decremented to 0. Deleting the table entirely
+      is NOT the goal: an empty declared set is load-bearing, exactly as
+      `KNOWN_DISAGREEMENTS = {}` is in the cross-form harness — it must still
+      go red when a future rule joins it.
+- [x] AC5 — Whether each rule's predicate is CORRECT is reported separately
+      from whether it fires. These six have never been executed; a fixture
+      proves the fire branch is reachable, not that the rule is right. Any
+      predicate found wrong is reported, not quietly fixed under this task.
+- [x] AC6 — No-regression baselines, each RUN and quoted: bridge, validator,
+      cross-form, parity, dialect, geometry.
+
+### Human
+<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
+     Remove this section if all criteria are agent-verifiable.
+     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
+
+     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
+     If your Expected clause is grep-able / file-exists / structural (a deterministic
+     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
+     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
+     verification genuinely needs human taste (tone, feel, layout rhythm).
+     See CLAUDE.md §AC Classification Guidance for the conversion rule.
+
+     [REVIEW] example (genuine human judgment):
+       - [ ] [REVIEW] Dashboard renders correctly
+         **Steps:**
+         1. Open https://example.com/dashboard in browser
+         2. Verify all panels load within 2 seconds
+         3. Check browser console for errors
+         **Expected:** All panels visible, no console errors
+         **If not:** Screenshot the broken panel and note the console error
+
+     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
+       - [ ] [REVIEWER] Block message names both bypass mechanisms
+         **Steps:**
+         1. Run `bin/fw reviewer T-XXX`
+         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
+         **If not:** Inspect hook block-message string and add missing mechanism
+       Conversion: this AC should be moved to ### Agent and
+       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
+-->
+
+## Findings
+
+All six fired on first execution, each in perfect isolation — exactly one
+finding, correct severity, correct rule, correct message:
+
+| rule | dir | witness |
+|---|---|---|
+| `E-CONST-SHAPE` | invalid | `aef.constituents: []` — present but empty |
+| `E-CONST-DUP` | invalid | two entries sharing id `c_one` |
+| `W-CONST-FIELD` | warn | entry carrying `owner`, outside {id,name,ref} |
+| `E-SCOPEOF-SELF` | invalid | `scopeOf: n_b` on node `n_b` |
+| `E-SCOPEOF-DANGLING` | invalid | `scopeOf: n_absent` |
+| `W-SCOPEOF-TYPE` | warn | `scopeOf` carried by a serviceTask |
+
+**AC5 — what this does and does not establish.** Six shipped rules had never
+been executed; now each has one witness. That proves the fire branch is
+REACHABLE. It does not prove the predicate is RIGHT: one witness per rule is
+one input, and `declarations-scoped-by-their-fixture` is precisely the lesson
+that a claim verified on the carrier a fixture happens to exercise gets read as
+covering the rule. No predicate looked wrong on inspection, and none is being
+claimed correct beyond its single witness.
+
+The scopeOf ERROR fixtures use `subProcess` deliberately. `W-SCOPEOF-TYPE`
+fires on any non-subProcess node carrying `scopeOf`, so a serviceTask there
+would have co-fired and left it ambiguous which rule the fixture witnessed.
+
+`NEVER_WITNESSED` is now `{}` and kept, not deleted — the same load-bearing
+empty as `KNOWN_DISAGREEMENTS = {}`. Deleting the table would retire the
+question along with its current answer.
+
+## Verification
+
+# Shell commands that MUST pass before work-completed. One per line.
+# Lines starting with # are comments (skipped). Empty lines ignored.
+# The completion gate runs each command — if any exits non-zero, completion is blocked.
+#
+# Toolchain hint (L-291): if you edited *.vbproj/*.csproj/*.xaml add `dotnet build`;
+# *.go → `go build ./...`; Cargo.toml → `cargo check`; tsconfig.json → `tsc --noEmit`;
+# pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
+# past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
+#
+# Pipefail/SIGPIPE hint (L-387): P-011 runs each command under `set -eo pipefail`.
+# `cmd | grep -q PATTERN` exits 141 (SIGPIPE) when grep matches and closes stdin
+# while the upstream is still writing — verification then "fails" even though
+# the pattern was present. Safe pattern: capture first, grep the capture:
+#     out=$(cmd 2>&1); echo "$out" | grep -q "PATTERN"
+# Or:
+#     cmd > /tmp/.out 2>&1 && grep -q "PATTERN" /tmp/.out
+# Origin: L-387, captured 4× (T-1716, T-1838, T-1862, T-1863) before this hint.
+#
+# Single pipe only — no intermediate tail/awk/sed stages between capture and grep
+# (T-2090): `echo "$out" | tail -3 | grep -q PAT` re-introduces the SIGPIPE risk
+# the capture step closed off — the middle stage is what `grep -q` slams its
+# stdin on. `echo "$out"` is small and immediate; grep scans the whole captured
+# string anyway, so the tail-3 was cosmetic. Drop it: `echo "$out" | grep -q PAT`.
+#
+# Enforcement-baseline hint (L-398, T-1886): if you edited `.claude/settings.json`
+# (added/removed/reorganised hooks), add `bin/fw enforcement baseline` to your
+# Verification block. Otherwise the canonical hash diverges and `fw doctor`
+# reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
+# Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
+# the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+python3 tests/test_check_pass_reachability.py
+out=$(python3 tests/test_check_pass_reachability.py 2>&1); echo "$out" | grep -q "0 declared never-witnessed, 0 always-fire"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "54 passed, 0 failed"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "E-CONST-DUP -> exit 2 and rule present"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "E-CONST-SHAPE -> exit 2 and rule present"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "E-SCOPEOF-SELF -> exit 2 and rule present"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "E-SCOPEOF-DANGLING -> exit 2 and rule present"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "W-CONST-FIELD -> exit 1 and rule present"
+out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "W-SCOPEOF-TYPE -> exit 1 and rule present"
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "67 passed, 0 failed"
+out=$(python3 tests/test_harness_cross_form_agreement.py 2>&1); echo "$out" | grep -q "cross-form agreement: OK"
+python3 tests/test_rule_form_parity.py
+python3 tests/test_rule_dialect_axis.py
+out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "24 clean, 0 known-legacy"
+
+
+## RCA
+
+<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
+     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
+     Non-bug-class tasks may leave this section empty or remove it.
+
+     For bug-class, fill in:
+       **Symptom:** what was observed (the user-facing manifestation).
+       **Root cause:** the specific structural/logical gap — not "the code was wrong".
+       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
+       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
+
+     The completion gate (T-1550, G-019) blocks --status work-completed when
+     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
+-->
+
+## Evolution
+
+<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
+     understanding evolved during build — what was learned that wasn't known at
+     filing, what in the original plan no longer fits, what triggered pivots
+     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
+     before --status work-completed.
+
+     Origin: T-1717 grill Q4 — "the understanding of what we need and want
+     evolves with the process of materialisation." Structural counter to §ACD:
+     spec-vs-build divergence is logged as soon as it happens, not lost as
+     folklore.
+
+     Format (one entry per slice boundary or significant insight):
+       ### YYYY-MM-DD — [topic]
+       - **What changed:** [what we learned that we didn't know at filing]
+       - **Plan impact:** [what in the plan no longer fits]
+       - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
+
+     The completion gate (T-1718) blocks --status work-completed when this
+     section exists but is empty/template-only. Use --skip-evolution to bypass
+     (logged Tier-2). Non-arc tasks may leave this empty.
+-->
+
+## Decisions
+
+<!-- Record decisions ONLY when choosing between alternatives.
+     Skip for tasks with no meaningful choices.
+     Format:
+     ### [date] — [topic]
+     - **Chose:** [what was decided]
+     - **Why:** [rationale]
+     - **Rejected:** [alternatives and why not]
+-->
+
+## Decision
+
+<!-- Filled at completion of inception tasks via:
+     fw inception decide T-XXX go|no-go|defer --rationale "..."
+
+     For non-inception tasks this section is ignored. Kept in template
+     so `fw inception decide` (lib/inception.sh) finds the anchor heading
+     without auto-creating; T-1832 added auto-create as fallback for
+     legacy tasks lacking this section. -->
+
+## Updates
+
+### 2026-08-02T07:41:10Z — task-created [task-create-agent]
+- **Action:** Created task via task-create agent
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-334-witness-the-six-never-witnessed-carrier-.md
+- **Context:** Initial task creation
+
+### 2026-08-02T07:41:16Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-5dba687c
+- **Timestamp:** 2026-08-02T07:47:57Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-02T07:45:43Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -104,15 +104,13 @@ SCOPE_FORM = {
 # To close an entry: author a fixture that makes it fire, then delete the line.
 # The count assertion below goes red either way, so this cannot rot silently.
 # ---------------------------------------------------------------------------
-NEVER_WITNESSED = {
-    "E-CONST-DUP":        "aef:constituents duplicate; no yaml corpus map or fixture carries constituents",
-    "E-CONST-SHAPE":      "aef:constituents malformed; same missing carrier",
-    "W-CONST-FIELD":      "aef:constituents field check; same missing carrier",
-    "E-SCOPEOF-DANGLING": "aef:scopeOf target missing; 0 authored scopeOf carriers on the yaml form",
-    "E-SCOPEOF-SELF":     "aef:scopeOf self-reference; same missing carrier",
-    "W-SCOPEOF-TYPE":     "aef:scopeOf on a node type that cannot carry it; same missing carrier",
-}
-EXPECTED_NEVER_WITNESSED = 6
+# T-334 CLOSED ALL SIX. Empty is load-bearing here, exactly as
+# KNOWN_DISAGREEMENTS = {} is in the cross-form harness: the table stays so that
+# a rule joining this set later goes RED and gets named, rather than arriving in
+# a tree that no longer has anywhere to record it. Deleting the table would
+# retire the question along with its current answer.
+NEVER_WITNESSED = {}
+EXPECTED_NEVER_WITNESSED = 0
 
 CORPUS_GLOBS = (
     "examples/aef-processes/*.workflow.yaml",
