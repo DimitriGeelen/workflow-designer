@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T10:39:07Z
-last_update: 2026-08-03T11:50:39Z
+last_update: 2026-08-03T11:50:47Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -60,15 +60,144 @@ the default should be the sovereignty lane, and whether the reassignment should 
 ERROR rules T-309 IW-3 measured as *repaired inside `parseBpmnXml`* — so no surface can ever
 show it. This task and that finding are the same seam.
 
+## CORRECTION (2026-08-03, measured) — the destination is POSITIONAL, not the sovereignty lane
+
+**This task's own title and description are wrong, and the ruling they ask for is the wrong
+ruling.** `parseBpmnXml` does not assign orphans to `human`. It says:
+
+```js
+let laneId = lanes[0]?.id;      // src/aef-workflow-designer.html:9751
+```
+
+— the **first lane declared in the laneSet**. `human` is first on only **13 of the 24** rendered
+corpus maps; `agent` is first on 10 and `working` on 1. So "reassigns to the human (sovereignty)
+lane" is true on just over half the corpus and false on the rest.
+
+**Why the existing figure could not have caught this.** T-339's mutation ghosts the *first*
+`<bpmn:flowNodeRef>` in the document, which belongs to the first **non-empty** lane. On a
+human-first map with an empty human lane that reads `framework→human` — and that reading is
+predicted *equally well* by both hypotheses. A measurement consistent with both is evidence for
+neither, and the prose then took the semantic one because it was the alarming one.
+
+**The discriminating measurement** (`tools/_t341-orphan-lane-probe.mjs`): orphan a node belonging
+to a lane *other* than `lanes[0]`, on maps whose first lane is not `human`, and see where it
+lands. The probe refuses to emit a verdict unless the population actually contains more than one
+distinct first-lane value — otherwise both hypotheses predict the same thing and the run proves
+nothing. Victim identity is read from the **original** document, per trap 2 above.
+
+Result, 24 maps probed, 0 skipped, first-lane values seen = `agent, human, working`:
+
+| measure | result |
+|---|---|
+| landed in the **first declared lane** | **24 / 24** |
+| landed in the `human` lane | 13 / 24 |
+
+**VERDICT: POSITIONAL.**
+
+**Why this makes the defect worse rather than milder.** "Always sovereignty" would at least be a
+stated, auditable policy that happens to be wrong. Positional means **WHO owns an orphaned node is
+decided by laneSet declaration order** — and this project explicitly treats that order as
+adjustable presentation. `tools/validate-workflow.py:1335` emits, as remedy advice:
+
+> `every node on both sides crosses, so this is a wholesale inversion: reorder the laneSet (zero-semantic repair)`
+
+Stated precisely, because the contradiction is conditional rather than flat: reordering a laneSet
+*is* zero-semantic **while every `flowNodeRef` resolves**. Introduce one dangling ref and the same
+reorder silently changes which authority owns the orphan. The advice carries no such condition,
+and nothing checks for the condition before offering it.
+
+**What this does NOT change:** every `aef:uid` still survives, node/flow/lane counts are still
+unchanged, and `LANE-REHOMED+UID-KEPT` in `tools/_t338-input-fidelity-cdp.mjs` is still the
+correct gated verdict. The defect was never data loss. It is authority assignment — and the
+measurement moves it from *the wrong lane* to *no lane policy at all*.
+
+
+## Recommendation
+
+**Recommendation:** Option **(2) fixed lane by authority** — orphans land in the lowest-authority
+lane present in the document — **plus announce**. Ruling is yours; this is a proposal, and the
+task stays blocked until you record one.
+
+**Rationale:** The three options differ in what happens when a reference fails, and only one of
+them cannot make things *worse* than the author wrote. (1) positional lets a presentation-level
+edit move authority, and leaves the validator advising a laneSet reorder as a "zero-semantic
+repair" while that reorder is not semantically neutral in the presence of a dangling ref. (3)
+refuse-to-place is the most correct in principle and the most costly in practice: it makes the
+designer unable to open a document it could otherwise repair, which is the same failure mode
+rejected as option (c) in T-337 one task ago. (2) keeps the document openable while guaranteeing
+the failure direction is *demotion, never promotion* — an unresolvable reference can lose a step's
+authority, which is visible and recoverable, but can never silently grant sovereignty. Announcing
+is orthogonal and cheap, and without it the repair stays invisible: `E-XML-LANEREF-DANGLING`
+exists as an ERROR rule that no surface can ever show, because `parseBpmnXml` repairs the
+condition before anything can report it.
+
+**Evidence:** `tools/_t341-orphan-lane-probe.mjs` — 24/24 orphans land in the first *declared*
+lane, 13/24 in `human`, across three distinct first-lane values (`agent`, `human`, `working`);
+the probe withholds a verdict unless that variation exists, so it could have returned SEMANTIC.
+`src/aef-workflow-designer.html:9751` is `let laneId = lanes[0]?.id`.
+`tools/validate-workflow.py:1335` is the unconditioned "zero-semantic repair" advice.
+`tools/_t338-input-fidelity-cdp.mjs` gates the behaviour today as
+`flowNodeRef-dangling: LANE-REHOMED+UID-KEPT`.
+
+**Known gap in this recommendation:** option (2) needs a tie-break for documents with no
+authority ordering. `context-memory` lanes by memory type (Working / Project / Episodic), so all
+three carry `authority="none"` — the same map that already makes `W-LANE-NO-OWNER` fire seven
+times and that T-189 parks as a v1.1 question. Whatever you rule, that map has no lowest-authority
+lane to fall to, and (2) reduces to (1) or (3) there. I have not resolved it because the same
+open v1.1 question decides it.
+
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Operator decides: default lane for an orphaned node, and whether the reassignment is announced
-- [ ] If announced: the repair is surfaced rather than silent (interacts with T-309 IW-1/IW-3)
-- [ ] `EXPECTED_REFS` in `tools/_t338-input-fidelity-cdp.mjs` updated to record the change
-- [ ] Bridge suite green with the changed expectation
+- [x] **The question the operator is being asked is the right one.** The filed question ("should
+      the default be the sovereignty lane?") presupposes a semantic default that does not exist.
+      Discriminating probe built and run: **24/24 land in the first DECLARED lane, 13/24 in
+      `human`**, over a population containing three distinct first-lane values — and the probe
+      withholds its verdict if that variation is absent, so the result could have come out the
+      other way. See `## CORRECTION`.
+
+- [ ] **BLOCKED on the Human AC below** — the repair is surfaced rather than silent (interacts
+      with T-309 IW-1/IW-3)
+- [ ] **BLOCKED on the Human AC below** — `EXPECTED_REFS` in `tools/_t338-input-fidelity-cdp.mjs`
+      updated to record the change
+- [ ] **BLOCKED on the Human AC below** — bridge suite green with the changed expectation
+
+**Every remaining agent AC is downstream of a ruling an agent may not make.** They are left
+unticked rather than reworded into something satisfiable; a task whose scope is blocked should
+look blocked.
+
+### Human
+
+- [ ] [REVIEW] **Rule on the default-lane policy for an orphaned flow node.**
+
+  This is a sovereignty call, not a technical one: it decides which authority silently acquires a
+  step when a `flowNodeRef` fails to resolve. **It was filed as an Agent AC, which was a
+  mis-classification** — P-010 would have gated on an agent ticking a box only you may tick, and
+  the only ways out of that are `--force` or a wrong decision made quietly. Moved here (the safe
+  direction; the T-1811/T-1878 conversion rule restricts Human→Agent, not Agent→Human).
+
+  **Steps:**
+  1. `cd /opt/832-Workflow-designer && node tools/_t341-orphan-lane-probe.mjs`
+  2. Read `## CORRECTION` above, then choose **one** default and whether it is announced:
+     - **(1) Keep positional (`lanes[0]`).** Zero change. Accepts that laneSet order decides
+       authority for orphans, and that `validate-workflow.py:1335`'s "zero-semantic repair"
+       advice is unconditioned.
+     - **(2) Fixed lane by authority.** Orphans always land in a named lane regardless of
+       order — e.g. the lowest-authority lane present, so an unresolvable reference can never
+       *promote* a step. Deterministic and auditable; needs a rule for maps with no such lane
+       (`context-memory` lanes by memory type, so all three are `authority="none"`).
+     - **(3) Refuse to place.** Import fails, or the node is held unlaned and the document is
+       reported invalid — no silent repair at all.
+  3. Independently: should the reassignment be **announced**? `E-XML-LANEREF-DANGLING` exists as
+     an ERROR rule but T-309 IW-3 measured it as repaired *inside* `parseBpmnXml`, so no surface
+     can ever show it. Announcing is orthogonal to (1)/(2)/(3) and can be adopted with any of them.
+
+  **Expected:** one option recorded in `## Decisions` with rationale, plus a yes/no on announcing.
+
+  **If not:** the task stays blocked. Do not let an agent pick — the three options differ in *who
+  ends up accountable for a step*, which is the one thing the Authority Model reserves to you.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -133,6 +262,16 @@ show it. This task and that finding are the same seam.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# T-341: the probe is a DECISION-SUPPORT instrument, not a standing guard, and is
+# run here rather than wired into the gating runner on purpose. Gating it would pin
+# the CURRENT (positional) behaviour as expected — i.e. pin the defect. The
+# behaviour itself is already gated: EXPECTED_REFS in _t338-input-fidelity-cdp.mjs
+# holds `flowNodeRef-dangling: LANE-REHOMED+UID-KEPT`, which fails in either
+# direction if the re-homing changes. This block keeps the probe from becoming a
+# tool nobody runs.
+node tools/_t341-orphan-lane-probe.mjs
+node tools/_t338-input-fidelity-cdp.mjs
 
 ## RCA
 
