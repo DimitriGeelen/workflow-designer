@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-08-03T13:14:20Z
-last_update: 2026-08-03T15:58:04Z
+last_update: 2026-08-03T21:49:51Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -83,11 +83,23 @@ Registered via `fw assumption add`:
   `docs/reports/T-357-di-adoption.md` §Spike 1.
 
 - **IW-1b: Does AEF actually generate DI from `aef:position`, as our exported bytes have asserted since 2026-06-05?** *(spawned by IW-1; now the load-bearing question)*
-  confidence: 0
-  disposition: <!-- pending — asked on the rail at offset 418; only AEF can answer -->
-  rationale: <!-- unverifiable from here under the T-559 boundary. Both prior
-  investigations of this comment (our T-311 guard, their T-2682/T-2683 corpus
-  incident) examined the comment's POSITION and left its CLAIM unexamined. -->
+  confidence: 3
+  disposition: answered — **NO**, rail 417 (2026-08-03)
+  rationale: AEF measured their own source: `bpmndi` occurs **exactly once**,
+  `tools/corpus_spec.py:347`, a namespace declaration with no reader and no writer
+  behind it; their round-trip table has no DI row. They never parsed DI, never
+  emitted it, and hold **no record of ever agreeing to**. So the sentence our
+  exports carried had no referent on either side of the seam — **we were shipping a
+  false claim about a named third party in bytes they pin by sha**, for two months,
+  across 11 releases (incl. the 0.4.0 they pin today) and 106 stored documents.
+  Repaired under **T-361** (trailer now names no party; guard + teeth wired as a
+  gating leg; released artifacts deliberately NOT rewritten). Confirms the
+  prediction filed here: both prior investigations examined the comment's POSITION
+  and left its CLAIM unexamined — an incident directs attention rather than
+  distributing it.
+  **Consequence for this inception:** IW-1's "named downstream owner" is void. There
+  is no downstream DI generator anywhere, so DI adoption is **net-new capability on
+  both sides**, not a handoff someone else was already honouring.
 
 - **IW-2: Does anything outside `src/` read or write `aef:position`?**
   confidence: 3
