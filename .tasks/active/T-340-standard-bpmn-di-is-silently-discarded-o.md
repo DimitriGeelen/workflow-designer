@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T10:39:05Z
-last_update: 2026-08-03T12:04:46Z
+last_update: 2026-08-03T12:11:04Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -51,6 +51,15 @@ writes only what state holds.
 what *every* mainstream BPMN modeller (Camunda, bpmn.io, Signavio) emits, so this is the shape a
 genuine third-party file arrives in. It is more exposed than T-337, not less: T-337 needs an
 exotic tag, this needs only a file authored in a real BPMN tool.
+
+> **Filing corrections (2026-08-03, see `## Decisions`) — left in place rather than rewritten,
+> so the record shows what was believed at filing.** (1) "0 of 175" is **0 of 126** at
+> `457194ec`, and the zero is an *unreachable witnessing state*: all 126 are designer-produced
+> and our exporter never emits DI, so the bucket could not have filled. The severity claim
+> rests on the standard, not on the corpus. (2) The `src:9656` anchor for the ratified
+> principle has already drifted — T-337's edit moved it; the durable anchors are `src:8201`
+> (T-225, original) and the head of `parseBpmnXml`. (3) The operator decision is real but
+> *understates* its reach: options that emit DI change bytes AEF pins.
 
 **Repair semantics NOT chosen** — same reason as T-337. Options: (a) preserve-and-re-emit
 unconsumed DI (matches the T-259 precedent and the ratified "diagram XML is never silently
@@ -110,7 +119,6 @@ tickable AC out of it would make a blocked task read as progressing.
       to match the authority is not migration of authored content, whereas re-emitting stale
       coordinates (option (a)) publishes a geometry the document itself contradicts.
 
-### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -237,8 +245,6 @@ population problem, not a rule problem, and is bigger than this task.
 - **Triggered:** no new task. The "no third-party BPMN in the tree" gap is named in the RCA
   rather than filed, because it is a property of the whole import-loss class (T-337, T-340,
   T-347, T-348), not of this task — filing it here would scope it to DI.
-
-## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
