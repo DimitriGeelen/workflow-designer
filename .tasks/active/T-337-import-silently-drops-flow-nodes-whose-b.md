@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T09:33:03Z
-last_update: 2026-08-03T11:17:25Z
+last_update: 2026-08-03T11:20:16Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -84,20 +84,87 @@ canvas needs something to draw. Scope the implementation before building.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] A round-trip fidelity guard exists that loads a BPMN document containing a flow node with an
+- [x] A round-trip fidelity guard exists that loads a BPMN document containing a flow node with an
       out-of-allowlist tag, exports it, and asserts **no flow node is lost** — failing on today's
       code, passing after the fix. Teeth: mutating the fix back must turn it red.
-- [ ] The guard runs in `tests/run-bridge-tests.sh` (the gating runner), not only standalone —
+
+      **The guard was NOT built here — it already existed** (`tools/_t338-input-fidelity-cdp.mjs`,
+      T-338/T-339), pinned to *expect* the loss. Stating that plainly because the AC reads as if
+      the instrument were a deliverable of this task; it is not, and what it cost was one line.
+      What this task did was flip the expectation and prove the flip.
+
+      | run | lossy tags | exit |
+      |---|---|---|
+      | baseline, before the fix | **10 / 10** (adHocSubProcess, businessRuleTask, callActivity, complexGateway, eventBasedGateway, inclusiveGateway, manualTask, receiveTask, sendTask, transaction) | 0 (matched its pinned expectation) |
+      | after the fix, expectation *untouched* | **0 / 10** | **1** — `FAIL: a vocabulary gap CLOSED … remove them from EXPECTED_LOSSY so the improvement is recorded rather than assumed` |
+      | after the fix, `EXPECTED_LOSSY` emptied | 0 / 10 | 0 |
+
+      The middle row is the evidence, and it is the guard reporting its own subject's repair —
+      that instrument is built so an IMPROVEMENT fails too, precisely so a fix cannot be silently
+      absorbed into a permission list. Full-output `diff` of baseline vs post-fix: **one line
+      changed**. Every other population (malformed ×8, refs ×4, sub-tree, content ×7, root
+      siblings ×8, dangling-ref self-consistency) is byte-identical, so the change is surgical
+      rather than merely net-positive.
+
+      **Teeth, two mutants, one per side of the fix** (run against a mutated COPY via the
+      harness's `T338_DESIGNER_SRC` seam — the working tree was never touched):
+      - `mut-emit` — emit side reverted to `TYPE_TAG[n.type]`, import left intact → **10/10 lossy,
+        exit 1**
+      - `mut-parse` — complement branch neutered to `continue` → **10/10 lossy, exit 1**
+
+      Both directions matter: a one-sided mutation test would pass if the other half were dead
+      code. Failure text: `FAIL: a NEW vocabulary gap appeared — … A tag the importer does not
+      know is not rejected, it is invisible, and export writes only what state holds (T-337).`
+
+- [x] The guard runs in `tests/run-bridge-tests.sh` (the gating runner), not only standalone —
       a suite nobody runs cannot report a failure.
-- [ ] Its denominator is stated and checked: the guard must assert it actually exercised an
+
+      `tests/run-bridge-tests.sh:595` invokes it. Confirmed by running the gating runner itself,
+      not by reading the wiring: `bridge.txt:802` carries the leg header `== Input fidelity:
+      load→save preserves content (T-338, G-016) ==` followed by the harness's own output.
+      Whole suite: **160 PASS/OK legs, 0 FAIL, exit 0**; bridge round-trip 69/69; geometry sweep
+      24 clean.
+
+- [x] Its denominator is stated and checked: the guard must assert it actually exercised an
       out-of-allowlist tag, so it cannot pass by testing nothing.
-- [ ] Repair semantics chosen from (a)/(b)/(c) above and recorded in `## Decisions` with rationale,
+
+      Two mechanisms, and **one of them I had to add** — the AC was not already satisfied.
+      (1) Per-probe: the mutated source is asserted to contain `<bpmn:TAG` *before* the round
+      trip, and a tag that fails to inject lands in `notInjected`, which is gated into the
+      verdict. (2) Per-population: the other four populations each carried an
+      `if (rows.length === 0) problems.push('… nothing was probed')` guard; **population 1 did
+      not.** It did not need one while `EXPECTED_LOSSY` held all ten tags — an empty run would
+      have reported ten CLOSED entries and failed. **Emptying the set removed that accidental
+      protection**, so an empty `PROBE_TAGS` would from now on have scored a silent vacuous pass.
+      Guard added in the same change. This is the population inverting from
+      all-expected-to-DROP to all-expected-to-SURVIVE, and the two shapes fail differently.
+
+- [x] Repair semantics chosen from (a)/(b)/(c) above and recorded in `## Decisions` with rationale,
       including whether the choice changes exported bytes for any existing corpus map.
-- [ ] `tools/_t308-export-byte-identity-cdp.mjs HEAD` still reports byte-identical across all 24
+
+      **(a) preserve and re-emit.** Recorded in `## Decisions` with the rejection grounds for (b)
+      and (c), the argument for a node rather than a byte-level passthrough (edge-loss), the
+      failure-direction argument for the exclusion set, and three stated scope boundaries.
+      Byte impact: **none, measured** — 24/24 identical (next AC).
+
+- [x] `tools/_t308-export-byte-identity-cdp.mjs HEAD` still reports byte-identical across all 24
       corpus maps — the fix must not move bytes for well-formed input.
-- [ ] `python3 tests/test_finding_anchorability.py` still passes (E-XML-NODE-TYPE's population may
+
+      `{"ok": true, "maps": 24, "identical": 24, "drifted": 0, "drift": [], "errors": []}`.
+      Run pre-commit, when `HEAD` was `8ee29344` — i.e. genuinely the pre-change tree.
+      **The `## Verification` block pins `8ee29344` rather than `HEAD`**: once this commits, the
+      `HEAD` form compares the tree against itself and is green forever. See `## Decisions`.
+
+- [x] `python3 tests/test_finding_anchorability.py` still passes (E-XML-NODE-TYPE's population may
       move from unwitnessed to witnessed; if the never-witnessed row moves, that is a real result to
       record, not a number to adjust).
+
+      Passes, exit 0: 23 rules over 76 documents, 22 verified against real documents, 0
+      disagreements. **The contingency did not fire, and the reason is not the one the AC
+      guessed:** E-XML-NODE-TYPE was *already* witnessed before this change, so there was no
+      unwitnessed→witnessed move to record. The single never-witnessed row is E-XML-STRUCTURE
+      (`unreachable: no emitter produces a non-<bpmn:definitions> root`), unrelated to this task
+      and unmoved by it.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -162,6 +229,15 @@ canvas needs something to draw. Scope the implementation before building.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# T-337 note: `_t308-export-byte-identity-cdp.mjs` takes a git ref. The ref is
+# PINNED to the commit before this change, deliberately — passing HEAD would make
+# the tool compare the working tree against itself and pass forever (the G-015
+# always-moving-global shape T-354 repaired three times in T-178).
+bash tests/run-bridge-tests.sh
+node tools/_t308-export-byte-identity-cdp.mjs 8ee29344
+node tools/_t338-input-fidelity-cdp.mjs
+python3 tests/test_finding_anchorability.py
 
 ## RCA
 
@@ -225,16 +301,115 @@ running in the gating runner. The fix alone would leave the next vocabulary gap 
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-08-03 — the fix was one line; the prevention had already shipped
+
+- **What changed:** the filing framed this as a build task whose hard part was the repair. It
+  was not. `tools/_t338-input-fidelity-cdp.mjs` (T-338/T-339) already probed all ten
+  out-of-vocabulary tags, already ran in the gating runner, and already carried a comment
+  saying *"Empty this after T-337 lands and the guard will tell you if you were wrong to."*
+  The measurable work was: add the complement branch, add `n.foreignTag ||` to one emit
+  expression, empty `EXPECTED_LOSSY`.
+- **Plan impact:** AC1 is worded as though the guard were a deliverable of this task. It was
+  not, and the AC is ticked with that stated rather than silently satisfied. The genuine
+  design work moved to the *boundaries* — node-vs-passthrough, the exclusion set's failure
+  direction, and what this fix deliberately does not cover.
+- **Triggered:** T-355 (foreign-tag nodes have no visual marker — preservation shipped,
+  disclosure did not).
+
+### 2026-08-03 — emptying an expectation set can delete a control that was never named
+
+- **What changed:** `EXPECTED_LOSSY` held all ten probe tags, which meant an empty
+  `PROBE_TAGS` would have failed loudly (ten CLOSED entries). That was **accidental**
+  protection — a side effect of the expectation's contents, not a guard anyone wrote. The
+  other four populations each carry an explicit empty-population guard; population 1 did not,
+  and nothing noticed because it did not need one **yet**.
+- **Plan impact:** flipping an expectation set is not a bookkeeping edit. The population
+  inverted from all-expected-to-DROP to all-expected-to-SURVIVE, and those two shapes fail in
+  different directions: the old one could pass on an injection that never landed; the new one
+  is only safe because the injection is asserted present. Added the missing guard in the same
+  change and said so in the file.
+- **Triggered:** nothing filed — but this is the same family as the T-338 header's own note
+  that a population of only-expected-to-drop rows cannot tell loss from an injection that
+  never landed. The instrument had written the lesson down for its *root-sibling* population
+  and not applied it to its *first* one.
+
+### 2026-08-03 — a latent defect's census is what makes "latent" a measurement
+
+- **What changed:** the claim "severity is latent, not active" was inherited from the filing.
+  Re-measured statically over all 47 `.bpmn` files: direct children of `<bpmn:process>` are
+  **14 distinct tags, all allowlisted node tags or `sequenceFlow`/`laneSet`/
+  `extensionElements`** — zero artifacts, zero data objects, zero out-of-vocabulary tags.
+- **Plan impact:** none to the fix, but it converts two sentences from assertion to
+  measurement: the byte-identity result is *explained* rather than merely observed, and the
+  reason a corpus-only instrument could never find this defect is now a number rather than an
+  argument. A corpus zero still cannot distinguish *safe* from *unexercised* — which is the
+  whole reason the probe injects rather than surveys.
+
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-08-03 — repair semantics for an out-of-allowlist flow node
+
+- **Chose:** **(a) preserve and re-emit.** The element is imported as a real node
+  carrying `foreignTag`; `buildBpmnXml` emits `n.foreignTag || TYPE_TAG[n.type]`, so the
+  original tag survives the round trip verbatim.
+- **Why:** it matches the house precedent one granularity down (T-259/T-257 GO captured an
+  unconsumed `<aef:eventDef>` as inert state so export could re-emit it) and the ratified
+  principle recorded at `parseBpmnXml`: *diagram XML is never silently migrated*.
+- **Why a NODE and not a byte-level passthrough held outside the graph:** `sequenceFlow`
+  endpoints are resolved through `displayIdToUid`. An element kept verbatim but outside
+  `state.nodes` would preserve its own bytes and take its EDGES down with it — node-loss
+  converted into edge-loss, which is the same defect wearing a quieter costume.
+- **Rejected (b) coerce to a known type:** rewrites a peer's tag silently. Rejected on its
+  face by the filing and nothing measured here changes that.
+- **Rejected (c) refuse the load:** makes the designer unusable on any peer document that
+  uses standard BPMN we have not implemented, and destroys the editing path for exactly the
+  case the seam exists to serve.
+
+**Does it change exported bytes for any existing corpus map? No — measured, not argued.**
+`tools/_t308-export-byte-identity-cdp.mjs 8ee29344` reports **24/24 identical, 0 drifted**.
+The mechanism is that `foreignTag` is written only for an out-of-allowlist element, so a
+well-formed map produces node objects with exactly the fields they had before. Two
+independent reasons it must hold: no corpus map has such a tag (census below), and the emit
+expression falls through to `TYPE_TAG[n.type]` when the field is absent.
+
+**Census backing the "no live population" claim** (static, all 47 `.bpmn` files in the tree):
+direct children of `<bpmn:process>` are 14 distinct tags, every one either an allowlisted node
+tag or `sequenceFlow` / `laneSet` / `extensionElements`. Zero artifacts, zero data objects,
+zero out-of-vocabulary tags. That is why the defect is latent — and why a corpus-only
+instrument could never have found it.
+
+### 2026-08-03 — the exclusion set is the same shape as the bug, kept because its failure direction is safe
+
+The complement branch skips a small `PROCESS_NON_FLOWNODE` set, which is *itself* an
+allowlist — the very shape this task removes. Kept deliberately, because the two errors are
+not symmetric: **misclassify a non-flow-node as a node and it is preserved** (re-emitted,
+drawn, laned); **misclassify a flow node as structure and it is deleted.** Preservation is
+the recoverable direction, so the set is deliberately small — only children BPMN defines as
+non-flowElements, plus the flowElements that are not flow *nodes*.
+
+**Scope boundaries, stated rather than implied:**
+- Direct children of `<bpmn:process>` only. A foreign tag nested inside an accepted
+  `subProcess` is not covered — the entire interior of an accepted element is dropped today,
+  which is **T-347's** population, measured separately by the same instrument
+  (`CONTENT-DROPPED` on 5 shapes, unchanged by this fix).
+- Foreign-*namespace* children of `<bpmn:process>` are left alone. Typing a `camunda:*`
+  element as a BPMN flow node would be a guess; root-level foreign content is **T-340's**
+  class (`DI-DROPPED`, also unchanged).
+- The drawn shape is a presentation-only two-way heuristic (`*Gateway` → diamond, else task
+  rectangle) and moves no bytes, because export reads `foreignTag`, not `type`. Mapping a
+  foreign `*Event` onto `intermediateCatchEvent` was rejected: `REVERSE_TYPE` maps that tag
+  to `linkEventCatch`, so the node would silently inherit link-event semantics and jump UI —
+  a worse lie than a rectangle.
+- **A foreign node is visually indistinguishable from a service task.** No UI marker was
+  built; that is a separate deliverable, not a silent omission. Filed as T-355.
+
+### 2026-08-03 — verification pins a commit, not `HEAD`
+
+`_t308-export-byte-identity-cdp.mjs` compares the working tree against a git ref. Writing
+`HEAD` into `## Verification` would have been green forever the moment this change committed —
+the tool would compare the tree to itself. That is the **G-015 shape** T-354 repaired three
+instances of in T-178 a session ago. The block pins `8ee29344`, the commit before this work,
+so the check keeps asking the question it was written to ask.
 
 ## Decision
 

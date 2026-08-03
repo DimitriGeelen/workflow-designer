@@ -96,9 +96,22 @@ const PROBE_TAGS = [
 ];
 
 // Tags currently measured as lossy. NOT a permission list -- the set is recomputed
-// every run and any difference in EITHER direction is a failure. Empty this after
-// T-337 lands and the guard will tell you if you were wrong to.
-const EXPECTED_LOSSY = new Set(PROBE_TAGS);
+// every run and any difference in EITHER direction is a failure.
+//
+// EMPTIED 2026-08-03 BY T-337, which is the event this file was written to catch.
+// Measured before: 10/10 lossy. Measured after: 0/10, with every other row in every
+// other population byte-identical to the baseline run. parseBpmnXml grew a
+// complement branch, so an out-of-allowlist flow node is now imported carrying its
+// original tag and re-emitted with it.
+//
+// The population inverted with it: this used to be all-expected-to-DROP, and now it
+// is all-expected-to-SURVIVE. Those two shapes fail differently. The old one could
+// pass on an injection that never landed; the new one cannot, because the injection
+// is asserted present in the mutated source (`<bpmn:TAG` matched before the round
+// trip) and a tag that fails to inject lands in `notInjected`, which is gated. That
+// assertion is now the whole control for this leg -- see the empty-population guard
+// below, added with this change so the leg cannot pass by probing nothing.
+const EXPECTED_LOSSY = new Set();
 
 // --- population 2: malformed input ----------------------------------------
 // Verdict per case is REFUSED (threw -- acceptable), PRESERVED (acceptable), or
@@ -727,6 +740,11 @@ async function main() {
     if (maps.length === 0) problems.push('corpus population is empty');
     if (probeRows.length === 0) problems.push('out-of-vocabulary population is empty — nothing was probed');
     if (notInjected.length) problems.push(`could not inject ${notInjected.length} probe tag(s): ${notInjected.join(', ')}`);
+    // T-337: the other four populations each had this guard; population 1 did not,
+    // because while EXPECTED_LOSSY held every tag an empty run failed anyway (10
+    // entries would show as CLOSED). With the set emptied that protection is gone —
+    // an empty PROBE_TAGS would now score a silent, vacuous pass.
+    if (probeRows.length === 0) problems.push('out-of-vocabulary population is empty — nothing was probed');
     if (malformedRows.length === 0) problems.push('malformed population is empty — nothing was probed');
     if (refRows.length === 0) problems.push('unresolvable-ref population is empty — nothing was probed');
     if (contentRows.length === 0) problems.push('accepted-element content population is empty — nothing was probed');

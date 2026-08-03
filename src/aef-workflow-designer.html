@@ -9497,7 +9497,10 @@ function buildBpmnXml(s) {
 
   // nodes
   for (const n of s.nodes) {
-    let tag = TYPE_TAG[n.type];
+    // T-337: an element whose BPMN tag is outside the importer's allowlist rides
+    // through as `foreignTag` and is re-emitted verbatim. Absent on every node the
+    // allowlist could type, so this moves no bytes for well-formed input.
+    let tag = n.foreignTag || TYPE_TAG[n.type];
     // T-204 Slice 2: a typed event carrying a host reference is a boundary event —
     // native bpmn:boundaryEvent attachedToRef=<host displayId> + cancelActivity. The
     // kind still rides <aef:eventDef>; only the tag + attachment differ from the
@@ -9663,8 +9666,71 @@ function parseBpmnXml(text) {
                     'exclusiveGateway', 'parallelGateway', 'intermediateThrowEvent', 'intermediateCatchEvent',
                     'linkEventThrow', 'linkEventCatch',
                     'boundaryEvent', 'subProcess'];
-  for (const tag of nodeTags) {
-    for (const el of byBpmn(proc, tag)) {
+
+  // T-337: THE COMPLEMENT BRANCH. Everything above selects elements BY TAG from a
+  // hard-coded allowlist, and an allowlist-driven read has no complement: a flow
+  // node whose tag we do not implement is not rejected, it is never visited. Export
+  // writes only from state.nodes, so "never visited" means DELETED on open→save —
+  // and the saved document then validates CLEAN, because E-XML-NODE-TYPE's evidence
+  // was destroyed along with the node.
+  //
+  // Chosen repair: PRESERVE AND RE-EMIT (option (a); see the task's Decisions). The
+  // element becomes a real node carrying `foreignTag`, and buildBpmnXml emits that
+  // tag verbatim instead of TYPE_TAG[type]. Same shape as the T-259 eventDef
+  // passthrough one granularity down, and it honours the ratified principle at the
+  // head of this function: diagram XML is never silently migrated.
+  //
+  // Why a node and not a verbatim byte-level passthrough: sequenceFlows referencing
+  // the element are resolved through displayIdToUid below, so an element held
+  // outside the node graph would keep its own bytes and take its EDGES down with
+  // it. Node-loss would become edge-loss — a quieter version of the same defect.
+  //
+  // The exclusion set below is itself an allowlist, i.e. the same shape this fix
+  // exists to remove — but its FAILURE DIRECTION is now the safe one. Misclassify a
+  // non-flow-node as a node and it is preserved (re-emitted, drawn, laned);
+  // misclassify a flow node as structure and it is deleted. Preservation is the
+  // recoverable error, so the set stays deliberately small: only children of
+  // <bpmn:process> that BPMN defines as non-flowElements, plus the flowElements
+  // that are not flow NODES.
+  //
+  // Scope boundary, stated rather than implied: this reaches direct children of
+  // <bpmn:process> only. A foreign tag nested inside an accepted subProcess is NOT
+  // covered — the whole interior of an accepted element is dropped today, which is
+  // T-347's population, not this one. Foreign-NAMESPACE children of <bpmn:process>
+  // are also left alone: typing a camunda:* element as a BPMN flow node would be a
+  // guess, and root-level foreign content is a separate question (T-340's class).
+  const PROCESS_NON_FLOWNODE = new Set([
+    // structural / metadata children of <bpmn:process>
+    'extensionElements', 'documentation', 'auditing', 'monitoring', 'ioSpecification',
+    'property', 'laneSet', 'resourceRole', 'performer', 'correlationSubscription', 'supports',
+    // flowElements that are not flow NODES
+    'sequenceFlow', 'dataObject', 'dataObjectReference', 'dataStoreReference',
+    // artifacts
+    'association', 'textAnnotation', 'group',
+  ]);
+  const _knownNodeTag = new Set(nodeTags);
+  // Presentation only. The canvas needs a shape to draw, and `foreignTag` — not
+  // this — is what export re-emits, so the choice moves no bytes. Deliberately
+  // two-way rather than clever: a *Gateway gets a diamond, everything else gets the
+  // task rectangle. Mapping a foreign *Event onto intermediateCatchEvent would
+  // silently inherit link-event semantics (REVERSE_TYPE maps that tag to
+  // linkEventCatch), which is a worse lie than a rectangle.
+  const foreignDisplayTag = local => (/Gateway$/.test(local) ? 'exclusiveGateway' : 'serviceTask');
+
+  // [typing-tag, element, foreignTag|null]. Building the work list first is what
+  // lets the whole loop body below be shared: for an allowlisted element the typing
+  // tag IS its tag; for a foreign one it is the shape we draw it as.
+  const nodeWork = [];
+  for (const tag of nodeTags) for (const el of byBpmn(proc, tag)) nodeWork.push([tag, el, null]);
+  for (const el of Array.from(proc.children || [])) {
+    if (el.namespaceURI !== BPMN_NS) continue;
+    const local = el.localName;
+    if (_knownNodeTag.has(local) || PROCESS_NON_FLOWNODE.has(local)) continue;
+    nodeWork.push([foreignDisplayTag(local), el, local]);
+  }
+
+  {
+    for (const [tag, el, foreignTag] of nodeWork) {
       const displayId = el.getAttribute('id') || '';
       const name = el.getAttribute('name') || displayId;
       // let, not const: <aef:eventDef> below can override the shared
@@ -9820,10 +9886,15 @@ function parseBpmnXml(text) {
         y = 0; // patched below once lanes are inserted into state
       }
 
+      // T-337: `foreignTag` is written ONLY for an out-of-allowlist element. A
+      // well-formed map therefore produces a node object with exactly the fields it
+      // produced before, which is what keeps exported bytes and the saved-project
+      // JSON shape unchanged for everything the corpus contains.
       nodes.push({
         uid, id: uid, slug, type, name, lane: laneId,
         x, y,
         aef, io,
+        ...(foreignTag ? { foreignTag } : {}),
       });
       displayIdToUid.set(displayId, uid);
     }
