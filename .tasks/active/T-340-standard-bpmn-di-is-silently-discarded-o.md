@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T10:39:05Z
-last_update: 2026-08-03T12:19:47Z
+last_update: 2026-08-03T13:12:56Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -99,17 +99,22 @@ tickable AC out of it would make a blocked task read as progressing.
       2. Choose one: **(a)** preserve-and-re-emit verbatim · **(a′)** preserve structure but
          refresh shape coordinates from `aef:position` on export · **(b)** consume DI as
          layout and re-emit regenerated DI · **(c)** refuse documents carrying DI.
-      3. If **(b)** or **(a′)**: this changes bytes AEF pins. Coordinate on the rail before
-         implementation — `tests/run-bridge-tests.sh:206` says *"fixture edited? re-pin +
-         notify AEF"*, so the ruling is not solely ours to make.
+      3. **Superseded — this step said "(b) or (a′) changes bytes AEF pins, coordinate before
+         implementing". That is true only of a MAXIMAL (b) that always emits regenerated DI.**
+         Scoped as recommended below, (b) changes zero bytes for existing maps and needs no
+         re-pin. What is still worth asking AEF is narrower and is not blocking: *if you ever
+         hand us a document carrying both `aef:position` and DI, which wins?* Nothing produces
+         that shape today. Asked on the rail at offset 413/415.
       4. Record it: `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw context add-decision "T-340 DI repair semantics: <a|a-prime|b|c>" --task T-340 --rationale "<why>"`
 
-      **Expected:** one option recorded, and for (b)/(a′) an acknowledgement from AEF on the
-      rail that the fixture re-pin is expected.
+      **Expected:** one option recorded. No AEF acknowledgement is required for scoped (b) —
+      that expectation belonged to the maximal variant and is withdrawn.
 
       **If not:** if none of the four is right, the likely reason is that the real question is
-      *"should the designer emit standard DI at all"* — which is a feature, not this defect,
-      and should be filed separately rather than widened into T-340.
+      *"should the designer adopt BPMN DI as its geometry and retire `aef:position`?"* —
+      **filed as its own inception (see `## Decisions`), and NOT a reason to defer this
+      ruling.** Scoped (b) is a strict subset of that adoption, so choosing it now is the
+      first increment either way and is not work thrown away if the inception says GO.
 
       **Recommendation (corrected 2026-08-03 — was (a′), now (b)). See
       `## Decisions` → "the recommendation was wrong, and the option set was framed too
