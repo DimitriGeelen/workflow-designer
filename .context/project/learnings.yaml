@@ -696,3 +696,10 @@ learnings:
   date: 2026-08-03
   context: Added via context agent
   application: TBD
+- id: PL-099
+  learning: "A bucket keyed on 'the two measurements did not differ' spans BOTH 'both passed' and 'the first failed so the second never ran' — n/a is the ABSENCE of a measurement, not a matching one. Report the DISTRIBUTION of per-member verdicts, never the cardinality: LATENT 189 hid a 159 PASS/PASS + 30 FAIL/n-a split. Corollary (T-354): an instrument's population definition is chosen for the defect under study, then silently inherited by every later question asked of its output — 30 red lines meant 30 among semicolon-shaped lines only."
+  source: P-011
+  task: T-353
+  date: 2026-08-03
+  context: Added via context agent
+  application: TBD

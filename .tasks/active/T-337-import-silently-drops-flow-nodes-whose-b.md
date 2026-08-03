@@ -4,7 +4,7 @@ name: "Import silently drops flow nodes whose BPMN tag is outside the parseBpmnX
 description: >
   parseBpmnXml iterates a hard-coded nodeTags allowlist (src:9661) and selects elements by tag, so any flow node carrying a tag outside it is never enumerated - no error branch, no warning. Export writes only from state.nodes, so a load-save round trip deletes the node and the result validates CLEAN because E-XML-NODE-TYPE's evidence was destroyed with it. Measured T-309 spike 4: 15 of 24 corpus maps, 15 nodes lost.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T09:33:03Z
-last_update: 2026-08-02T09:35:31Z
+last_update: 2026-08-03T11:16:58Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -252,3 +252,6 @@ running in the gating runner. The fix alone would leave the next vocabulary gap 
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-337-import-silently-drops-flow-nodes-whose-b.md
 - **Context:** Initial task creation
+
+### 2026-08-03T11:16:58Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
