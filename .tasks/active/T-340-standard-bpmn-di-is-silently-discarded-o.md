@@ -4,7 +4,7 @@ name: "Standard BPMN DI is silently discarded on import: the whole bpmndi sub-tr
 description: >
   parseBpmnXml never reads bpmndi and buildBpmnXml never emits it, while declaring the bpmndi namespace on the root. Any BPMN document carrying standard DI loses all of it on open-save. Same class as T-337 one granularity up: an unknown sub-tree rather than an unknown flow-node tag. Latent by occupancy (0 of 175 local .bpmn files carry DI) but every mainstream BPMN modeller emits it. Found by T-339.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T10:39:05Z
-last_update: 2026-08-02T10:39:05Z
+last_update: 2026-08-03T12:04:46Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -63,10 +63,52 @@ Each changes what we emit for a peer's content, which is the T-559 product seam.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Repair semantics decided (operator) among preserve-and-re-emit / consume-as-layout / refuse
-- [ ] Chosen semantics implemented in `parseBpmnXml`/`buildBpmnXml`
-- [ ] `EXPECTED_DI` in `tools/_t338-input-fidelity-cdp.mjs` updated to record the improvement
-- [ ] Bridge suite green with the changed expectation
+- [ ] **BLOCKED** — Chosen semantics implemented in `parseBpmnXml`/`buildBpmnXml`
+- [ ] **BLOCKED** — `EXPECTED_DI` in `tools/_t338-input-fidelity-cdp.mjs` updated to record the improvement
+- [ ] **BLOCKED** — Bridge suite green with the changed expectation
+
+All three are downstream of the ruling below and are left **unticked and marked BLOCKED**
+rather than reworded into something satisfiable. A task whose scope is blocked should look
+blocked. No agent AC was added to cover the measurement work in `## Decisions` — that work
+is *evidence for* the ruling, not a deliverable of the task as scoped, and manufacturing a
+tickable AC out of it would make a blocked task read as progressing.
+
+### Human
+
+- [ ] [REVIEW] Repair semantics for standard BPMN DI on import
+
+      **This AC was filed under `### Agent` and moved here.** It reads "decided (operator)"
+      while sitting in the section P-010 gates on, so completion would have required an agent
+      to tick a box only the human may tick — the only exits from that are `--force` or a
+      quiet wrong decision. Identical mis-filing to T-341's AC1, in the sibling task, filed
+      the same week. Agent→Human is the safe conversion direction (the T-1811/T-1878 rule
+      restricts Human→Agent, not the reverse).
+
+      **Steps:**
+      1. Read `## Decisions` below — in particular *"why option (a) does not transfer from
+         T-337"* and *"what each option costs"*.
+      2. Choose one: **(a)** preserve-and-re-emit verbatim · **(a′)** preserve structure but
+         refresh shape coordinates from `aef:position` on export · **(b)** consume DI as
+         layout and re-emit regenerated DI · **(c)** refuse documents carrying DI.
+      3. If **(b)** or **(a′)**: this changes bytes AEF pins. Coordinate on the rail before
+         implementation — `tests/run-bridge-tests.sh:206` says *"fixture edited? re-pin +
+         notify AEF"*, so the ruling is not solely ours to make.
+      4. Record it: `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw context add-decision "T-340 DI repair semantics: <a|a-prime|b|c>" --task T-340 --rationale "<why>"`
+
+      **Expected:** one option recorded, and for (b)/(a′) an acknowledgement from AEF on the
+      rail that the fixture re-pin is expected.
+
+      **If not:** if none of the four is right, the likely reason is that the real question is
+      *"should the designer emit standard DI at all"* — which is a feature, not this defect,
+      and should be filed separately rather than widened into T-340.
+
+      **Recommendation (recorded, not enacted): (a′) — preserve the DI sub-tree, refresh
+      coordinates from `aef:position` on export.** It is the only option that both stops the
+      loss and leaves exactly one authoritative geometry. Its cost is honest and stated: it
+      rewrites a peer's coordinate bytes, which is the closest any option comes to brushing
+      the ratified *"diagram XML is never silently migrated"* — but refreshing a derived view
+      to match the authority is not migration of authored content, whereas re-emitting stale
+      coordinates (option (a)) publishes a geometry the document itself contradicts.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -131,6 +173,16 @@ Each changes what we emit for a peer's content, which is the T-559 product seam.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# T-340 note: this block deliberately does NOT assert the current state of the
+# defect (e.g. "bpmndi appears exactly twice in src"). Such a line is true today
+# and goes RED at the moment the fix lands — a probe that fails when it is right,
+# sending the next session to debug working code. The DI-specific assertion also
+# cannot be written yet: its shape depends on which repair semantics the operator
+# rules for, and writing one now would encode a guess at that ruling as a gate.
+# What is here holds under every option.
+bash tests/run-bridge-tests.sh
+node tools/_t338-input-fidelity-cdp.mjs
 
 ## RCA
 
@@ -147,6 +199,44 @@ Each changes what we emit for a peer's content, which is the T-559 product seam.
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** a BPMN document carrying standard `<bpmndi:BPMNDiagram>` loses all of it on
+open→save. Not gated (the title matches no bug-class keyword), filled anyway.
+
+**Root cause:** `parseBpmnXml` reads an enumerated set of elements and `buildBpmnXml` writes a
+fixed skeleton from `state`. DI is in neither enumeration, so it is never *rejected* — it is
+never *visited*, and export writes only what `state` holds. Same sentence as T-337 one
+granularity up: **what the importer does not enumerate is invisible, and invisible means
+deleted.** The root declares `xmlns:bpmndi` (`src:9443`) and never uses it, so the emitted
+document advertises a vocabulary it drops.
+
+**Why structurally allowed:** every instrument pointed at this repository measures documents
+this repository produced. 121 of 126 `.bpmn` files carry `aef:position`, our exporter's
+fingerprint; the other 5 are editor save history. Our exporter never emits DI, so **no corpus
+census could ever have witnessed this defect** — the bucket cannot fill. It took injecting DI
+into inputs out-of-band (T-339, `_t338` leg 5) to see it at all. A self-produced corpus
+validates the round trip against our own vocabulary and is silent about everyone else's.
+
+**Prevention:** the `_t338` input-fidelity instrument already covers it (`EXPECTED_DI =
+'DI-DROPPED'`, gated in the bridge suite) — it was built to inject shapes the corpus does not
+contain, precisely because the corpus cannot supply them. The remaining gap is that no
+*third-party-authored* BPMN document exists anywhere in the tree to test against; that is a
+population problem, not a rule problem, and is bigger than this task.
+
+## Evolution
+
+### 2026-08-03 — the operator constraint, and the corpus zero
+- **What changed:** two of the filing's own claims moved under measurement. (1) The "operator
+  decides" AC is real but *understated* — options (b)/(a′) change bytes AEF pins, so the
+  ruling is partly the peer's, not just the operator's. (2) "Latent by occupancy, 0 of 175"
+  is an unreachable witnessing state: 126 files today, all designer-produced, none capable of
+  carrying DI. The zero measures our authorship, not DI's rarity.
+- **Plan impact:** T-337's option (a) cannot be copied across. DI collides with
+  `aef:position`, so preserve-verbatim buys a silent two-geometry document — recommendation
+  moved to (a′), preserve-structure-refresh-coordinates.
+- **Triggered:** no new task. The "no third-party BPMN in the tree" gap is named in the RCA
+  rather than filed, because it is a property of the whole import-loss class (T-337, T-340,
+  T-347, T-348), not of this task — filing it here would scope it to DI.
 
 ## Evolution
 
@@ -174,14 +264,92 @@ Each changes what we emit for a peer's content, which is the T-559 product seam.
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-08-03 — the operator AC is REAL, checked rather than assumed
+
+The first move was to test the filing's own constraint, because the last time I wrote
+"operator's call" into an AC (RAIL-407, the vendored task template) **it was false and I had
+parked a one-file change behind a decision that was never needed.** Restraint and a scope
+error look identical from outside, so the constraint gets measured like anything else.
+
+**The precedent points the other way, and that is what made the check necessary.** T-337 —
+the sibling defect, same class one granularity down — carried the *identical* "Repair
+semantics NOT chosen" filing note and had **no operator AC at all**. The agent chose option
+(a), recorded it under Decisions, and the task shipped complete with zero Human ACs. On the
+face of it T-340's operator AC is the inconsistent one.
+
+**It survives the check anyway, for a reason specific to DI:**
+
+| | T-337 (foreign flow-node tag) | T-340 (standard DI) |
+|---|---|---|
+| what is preserved | bytes nothing else describes | **geometry `aef:position` already owns** (`src:9272`, emitted for every node on every save) |
+| conflict after preservation | none — inert passthrough | **two contradictory sources of truth for one property** |
+| bytes changed for existing maps | 0 (measured, 24/24 identical) | 0 for (a); **all 24** for (b) |
+| decision reaches | this repo | **AEF** — `tests/run-bridge-tests.sh:206` pins `source_bpmn_sha` and says *"fixture edited? re-pin + notify AEF"* |
+
+So the ruling is not merely the operator's, it is partly the **peer's** — which is strictly
+more than the filing claimed. Left blocked.
+
+### 2026-08-03 — why option (a) does not transfer from T-337
+
+T-337's passthrough is inert: a `businessRuleTask` element's bytes are described by nothing
+else we hold, so re-emitting them verbatim cannot contradict anything. **DI is not inert.**
+`<bpmndi:BPMNShape>` carries `dc:Bounds x/y`, which is the same property as `aef:position` —
+and `aef:position` is authoritative, user-mutable (drag), and re-emitted unconditionally at
+`src:9272`.
+
+Preserve-verbatim therefore has a failure mode T-337 did not: **drag one node and save, and
+the document asserts two different positions for it.** A third-party tool reads the standard
+DI and renders the *old* layout; we read `aef:position` and render the new one. Nothing is
+lost, nothing errors, and the two readers disagree forever. That is a worse failure than the
+current one in at least one respect — today's drop is total and therefore obvious to anyone
+who looks; stale DI is silent and self-consistent.
+
+Recorded because the tempting move was to copy T-337's decision across on the strength of
+"same class, one granularity up" — which is how the filing itself describes this task, and it
+is true of the *defect* while being false of the *repair*.
+
+### 2026-08-03 — the corpus zero is an unreachable witnessing state, not evidence of rarity
+
+The filing rates severity "latent by occupancy" on *"0 of 175 local `.bpmn` files carry DI"*.
+Re-measured at `457194ec`:
+
+| population | count |
+|---|---|
+| tracked `.bpmn` files | **126** (filing said 175, no commit pinned) |
+| carrying `BPMNDiagram` | **0** |
+| carrying `aef:position` — i.e. written by our own exporter | **121** |
+| remaining 5 | all `.editor-versions/` save history, 3 in `_trash` — also designer-produced |
+
+**Every one of the 126 is designer-produced, and our exporter provably never emits DI**
+(`bpmndi` appears twice in the whole source: a namespace declaration at `src:9443` and a
+syntax-highlighter regex at `src:10019`, neither functional). So the zero is not a measurement
+of how rare DI is — **it is a restatement of the fact that we wrote the corpus.** The bucket
+could not have filled. A count over a population where the property is impossible by
+construction cannot distinguish "rare" from "never tested".
+
+The honest severity sentence is therefore *not* "latent by occupancy" but: **this repository
+has never once been tested against a BPMN document authored by a third-party tool, so it holds
+no evidence about DI incidence in the wild either way.** The filing's own next sentence — that
+every mainstream modeller emits DI — is the load-bearing one, and it is reasoning from the
+standard, not from the corpus.
+
+Three population numbers now exist for this same question across three tasks — 47 (T-337's
+census), 175 (this filing), 126 (today) — and none was pinned to a commit. The 47 reconciles
+exactly as the authored subset (24 rendered + 20 fixtures + 1 + 1 + 1); 175 reconciles with
+nothing currently in the tree.
+
+### 2026-08-03 — what each option costs (so the ruling is decidable, not just posed)
+
+- **(a) preserve verbatim** — 0 bytes changed for existing maps, seam-safe. Cost: the stale-DI
+  divergence above.
+- **(a′) preserve structure, refresh coordinates from `aef:position` on export** — 0 bytes for
+  maps with no DI (all 126), one authoritative geometry, keeps DI content we do not model
+  (edge waypoints, labels). Cost: rewrites a peer's coordinate bytes.
+- **(b) consume DI as layout, re-emit regenerated** — makes DI authoritative over
+  `aef:position` on import, and **changes exported bytes for all 24 corpus maps**, so
+  `_t308-export-byte-identity` goes 24/24 drifted and AEF's pinned fixtures need a re-pin.
+- **(c) refuse** — destroys the editing path for exactly the documents the seam exists to
+  serve; same objection that rejected (c) in T-337.
 
 ## Decision
 
@@ -199,3 +367,6 @@ Each changes what we emit for a peer's content, which is the T-559 product seam.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-340-standard-bpmn-di-is-silently-discarded-o.md
 - **Context:** Initial task creation
+
+### 2026-08-03T12:04:46Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
