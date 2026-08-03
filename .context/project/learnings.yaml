@@ -731,3 +731,10 @@ learnings:
   date: 2026-08-03
   context: Added via context agent
   application: TBD
+- id: PL-104
+  learning: "Capability is per-QUESTION, not per-population. A remedy that genuinely fixes a capability zero casts a halo over every neighbouring question, and the halo is produced BY the fix. T-356 added third-party BPMN fixtures and made T-340/T-348/T-358 witnessable for the first time — but censused against T-347's five shapes, four are exactly as unreachable as before (documentation 0, foreign extensionElements 0, property 0, loopCharacteristics 0 across all five fixtures). 'The corpus can now exhibit real-world import defects' is true of some questions and false of others and the sentence does not distinguish. Before citing a new population as coverage for a question, census THAT question's shape in it."
+  source: P-001
+  task: T-347
+  date: 2026-08-03
+  context: Added via context agent
+  application: TBD

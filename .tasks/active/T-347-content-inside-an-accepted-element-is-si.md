@@ -4,7 +4,7 @@ name: "Content inside an ACCEPTED element is silently dropped on import: documen
 description: >
   parseBpmnXml reaches into each allowlisted element for ~10 named children and 2 attributes; anything else in that element is never read, and export writes only from state. Measured over 24 corpus maps (T-346): 5 non-derivable content shapes dropped 15/15 applied maps each — bpmn:documentation, a foreign child inside extensionElements (the T-259 shape), bpmn:property, multiInstanceLoopCharacteristics, and an unknown namespaced attribute. conditionExpression is preserved (positive control), and incoming/outgoing are dropped correctly since they are derivable. Node/flow/lane counts are unchanged throughout, which is why every existing instrument is green.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: human
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:34:19Z
-last_update: 2026-08-02T11:34:19Z
+last_update: 2026-08-03T16:56:38Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -33,6 +33,41 @@ date_finished: null
 # T-347: Content inside an ACCEPTED element is silently dropped on import: documentation, foreign extensionElements children, property, loop characteristics and unknown attributes
 
 ## Context
+
+> ### 2026-08-03 — T-356 did NOT make this task capable of failing, and the halo is the risk
+>
+> T-356 added five provably third-party fixtures and 5 of 5 lose content, which made
+> **T-340** (DI), **T-348** (two-pool, first-only roots) and **T-358** (fabrication)
+> witnessable on real documents for the first time. It is tempting — and it would be
+> wrong — to read that as "the import-loss class now has a real population".
+>
+> Censused against **this** task's five shapes:
+>
+> | shape | occurrences across all 5 third-party fixtures |
+> |---|---|
+> | `documentation` | **0** |
+> | foreign `extensionElements` children | **0** |
+> | `property` | **0** |
+> | `*LoopCharacteristics` | **0** |
+> | unknown namespaced attributes | present (`exporter=`, dropped 5/5) |
+>
+> **Four of the five shapes are exactly as unreachable as they were before T-356.**
+> Only the attribute class is exercised, and only incidentally — by the very
+> attribute T-356 uses to prove foreignness.
+>
+> **Capability is per-QUESTION, not per-POPULATION.** T-356's headline ("this
+> repository has never been tested against a third-party document") was true and is
+> now false; but "the corpus can exhibit real-world import defects" is true of some
+> questions here and false of others, and the sentence does not distinguish. A
+> remedy that genuinely fixes a capability zero casts a halo over every neighbouring
+> question, and the halo is *produced by the fix* — the same
+> measurement-promoted-past-its-scope shape, one level up.
+>
+> **Consequence for this task:** its verdicts remain synthetic-only. Do not cite the
+> existence of `tests/fixtures/third-party/` as evidence that T-347 has real-world
+> coverage. Closing it needs fixtures that actually carry documentation, foreign
+> extension children, `property` and loop characteristics — a *different* fixture
+> hunt, not a re-use of this one.
 
 Found by T-346. `parseBpmnXml` reaches into each allowlisted element for the specific
 children and attributes it knows about — `aef:uid`, `aef:position`, `aef:meta`,
@@ -283,3 +318,6 @@ pair of readings in buckets nobody has shown can fill.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-347-content-inside-an-accepted-element-is-si.md
 - **Context:** Initial task creation
+
+### 2026-08-03T16:56:38Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
