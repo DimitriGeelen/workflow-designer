@@ -4,7 +4,7 @@ name: "Validator reports legal non-flow-node children of process as E-XML-NODE-T
 description: >
   Process-level <documentation>, <ioSpecification> and <dataObject> are enumerated as flow nodes by validate-workflow.py and reported as ERROR E-XML-NODE-TYPE on legal BPMN. The documentation case has no id, so the finding anchors to '?' and breaks the T-335 anchorability guard.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T17:34:57Z
-last_update: 2026-08-03T17:34:57Z
+last_update: 2026-08-03T17:39:18Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -78,23 +78,23 @@ flow nodes at all. Any repair must keep the two populations separate.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] The legal non-flow-node children of `<process>` are excluded from flow-node
+- [x] The legal non-flow-node children of `<process>` are excluded from flow-node
       enumeration in `tools/validate-workflow.py`, from an explicit list rather than
       a `documentation`-shaped special case — at minimum `documentation`,
       `extensionElements`, `ioSpecification`, `dataObject`, `dataObjectReference`,
       `dataStoreReference`, `property`, `laneSet`, `sequenceFlow`, `association`,
       `textAnnotation`.
-- [ ] `bizagi-nested-ns.bpmn` and `caseagile-local-ns.bpmn` no longer report
+- [x] `bizagi-nested-ns.bpmn` and `caseagile-local-ns.bpmn` no longer report
       `E-XML-NODE-TYPE` for any of those elements.
-- [ ] The genuine vocabulary gap still fires: `kitchen-sink.bpmn` continues to report
+- [x] The genuine vocabulary gap still fires: `kitchen-sink.bpmn` continues to report
       `E-XML-NODE-TYPE` for `businessRuleTask`/`manualTask`/`receiveTask`. A fix that
       silences both populations has broken the rule rather than corrected it, so this
       AC is the one that separates repair from suppression.
-- [ ] `tests/test_finding_anchorability.py` passes with `E-XML-NODE-TYPE` still
+- [x] `tests/test_finding_anchorability.py` passes with `E-XML-NODE-TYPE` still
       declared `NODE` — the table unchanged, the tree corrected to match it.
-- [ ] Teeth: re-introducing the defect (deleting one exclusion) turns the
+- [x] Teeth: re-introducing the defect (deleting one exclusion) turns the
       anchorability test RED, demonstrated by mutation rather than by reading.
-- [ ] `bash tests/run-bridge-tests.sh` reports `0 failed`.
+- [x] `bash tests/run-bridge-tests.sh` reports `0 failed`.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -184,7 +184,10 @@ out=$(python3 tools/validate-workflow.py tests/fixtures/third-party/caseagile-lo
 # ...and the GENUINE vocabulary gap must still fire. Without this line a fix that
 # disables the rule entirely would pass every other check in this block.
 out=$(python3 tools/validate-workflow.py tests/fixtures/third-party/kitchen-sink.bpmn 2>&1); echo "$out" | grep -q "unknown flow-node element 'businessRuleTask'"
-python3 -m pytest tests/test_finding_anchorability.py -q
+# NOT `pytest tests/test_finding_anchorability.py` — that file has no pytest-style
+# test functions, so pytest collects nothing (exit 5, which at least fails loudly
+# rather than passing vacuously). run-bridge-tests.sh:577 invokes it directly.
+python3 tests/test_finding_anchorability.py
 bash tests/run-bridge-tests.sh
 
 ## RCA
@@ -254,3 +257,6 @@ bash tests/run-bridge-tests.sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-359-validator-reports-legal-non-flow-node-ch.md
 - **Context:** Initial task creation
+
+### 2026-08-03T17:39:18Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

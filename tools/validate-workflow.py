@@ -125,7 +125,42 @@ BPMN_NS = "http://www.omg.org/spec/BPMN/20100524/MODEL"
 AEF_NS = "http://anchorpoint.framework/aef/extensions"
 
 # BPMN local tags that are NOT flow nodes (excluded when collecting node ids)
-XML_NON_FLOWNODE_TAGS = {"laneSet", "sequenceFlow", "extensionElements"}
+# T-359: legal children of <process> that are NOT flow nodes. Everything else in
+# <process> is treated as a flow node and gated against XML_NODE_TYPES, so an
+# omission here is a FALSE POSITIVE — an ERROR reported on a valid document.
+#
+# This set previously held three entries: laneSet, sequenceFlow, extensionElements.
+# Those are the only non-flow-node children OUR OWN emitters produce, so the list was
+# complete for the population that wrote it and wrong for BPMN. Found when
+# tests/fixtures/third-party/bizagi-nested-ns.bpmn put <documentation> directly under
+# <process> — legal, it is on BaseElement — and the validator called it an unknown
+# flow-node element.
+#
+# It had been firing on ioSpecification and dataObject the whole time. Those carry
+# ids, so the finding anchored to a real subject and the T-335 anchorability guard
+# stayed green; only the id-less <documentation> produced `node '?'` and made the
+# class visible. The guard keyed on a by-product of the defect, so it only ever
+# protected the instances that happened to lack it.
+#
+# DO NOT ADD A FLOW-NODE TYPE HERE TO QUIET A REPORT. task, businessRuleTask,
+# manualTask, receiveTask, transaction, adHocSubProcess and callActivity are real
+# flow nodes outside our vocabulary; those errors are CORRECT (the T-321 gate, and
+# the reason <bpmn:serviceTaks> no longer validates clean). Suppressing them here
+# would silence the genuine vocabulary gap using the fix for a different bug.
+XML_NON_FLOWNODE_TAGS = {
+    # BaseElement children, legal on every element including <process>
+    "documentation", "extensionElements",
+    # FlowElementsContainer / Process own properties
+    "laneSet", "sequenceFlow", "property", "ioSpecification",
+    "auditing", "monitoring", "supports",
+    # data
+    "dataObject", "dataObjectReference", "dataStoreReference",
+    "dataInput", "dataOutput", "dataInputAssociation", "dataOutputAssociation",
+    # artifacts — annotations and grouping, never executed
+    "association", "textAnnotation", "group", "artifact",
+    # participants/roles
+    "resourceRole", "performer", "correlationSubscription",
+}
 
 # T-321: the XML form's flow-node vocabulary, DERIVED from the YAML one rather
 # than hand-written beside it. Two hand-maintained lists describing one modelling
