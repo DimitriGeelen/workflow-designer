@@ -9,8 +9,12 @@ Four populations, and keeping them apart IS the deliverable:
             perfectly safe. Reporting SHAPED as the defect count is the overclaim AEF
             warned about at RAIL-403 (theirs ran 4x).
   RUN       the subset actually executed, under both the gate's construct and the remedy.
-  PROVEN    RUN lines that PASS today and FAIL under the remedy. Nothing is inferred:
-            a member is a member because two runs happened and disagreed.
+  DIVERGENT RUN lines that PASS today and FAIL under the remedy. NOTE THE NOUN: this
+            predicate aggregates TWO causes pointing opposite ways — a false green the
+            remedy FIXES, and a correct failure-path test the remedy BREAKS. In this tree
+            it is overwhelmingly the second, so DIVERGENT is the BLAST RADIUS, not the
+            finding. Separating the two needs a human read of each line's intent; do not
+            report this number as a defect count.
   LATENT    RUN lines where both constructs AGREE. These are NOT proven safe. They carry
             the same structure; they simply are not failing in the first command today.
             A corpus zero cannot distinguish "the predicates agree" from "nothing made
@@ -372,7 +376,7 @@ def main():
     print("ALL     = %d   every verification line the gate would run" % len(all_lines))
     print("SHAPED  = %d   top-level ';' — UPPER BOUND, NOT A FINDING" % len(shaped))
     print("RUN     = %d   executed under both constructs" % (len(proven) + len(latent) + len(anomalies)))
-    print("PROVEN  = %d   PASS today, FAIL under the remedy — THIS IS THE FINDING" % len(proven))
+    print("PROVEN  = %d   PASS today, FAIL under the remedy — BLAST RADIUS — two causes, see report" % len(proven))
     print("LATENT  = %d   both constructs agree — NOT proven safe, just not failing today" % len(latent))
     print("SKIPPED = %d   refused by the safety filter — a hole, not a caveat" % len(skipped))
     print("UNRUN   = %d   wall-clock budget exhausted — also a hole" % len(unrun))
@@ -392,7 +396,7 @@ def main():
         fh.write("| ALL | %d | every verification line the gate would run (active + completed) |\n" % len(all_lines))
         fh.write("| SHAPED | %d | top-level `;` — **upper bound, not a finding** |\n" % len(shaped))
         fh.write("| RUN | %d | executed under both the gate's construct and the remedy |\n" % (len(proven) + len(latent) + len(anomalies)))
-        fh.write("| **PROVEN** | **%d** | **PASS today, FAIL under the remedy — this is the finding** |\n" % len(proven))
+        fh.write("| **PROVEN** | **%d** | **PASS today, FAIL under the remedy — BLAST RADIUS, aggregates two opposite causes** |\n" % len(proven))
         fh.write("| LATENT | %d | both constructs agree — **not proven safe**, merely not failing today |\n" % len(latent))
         fh.write("| SKIPPED | %d | refused by the safety filter — a hole in the denominator |\n" % len(skipped))
         fh.write("| ANOMALY | %d | timed out or produced no verdict |\n" % len(anomalies))
@@ -408,7 +412,7 @@ def main():
             fh.write("- **%s** — %s\n  `%s`\n" % (tid, why, line))
         if not classes.get("SUBSTRING-RISK"):
             fh.write("_none_\n")
-        fh.write("\n## PROVEN members\n\n")
+        fh.write("\n## DIVERGENT lines (blast radius — read each before calling it a defect)\n\n")
         if proven:
             for tid, line in proven:
                 fh.write("- **%s** — `%s`\n" % (tid, line))

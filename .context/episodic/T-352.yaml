@@ -1,0 +1,102 @@
+# ============================================================================
+# EPISODIC MEMORY - T-352: P-011 judges a multi-command verification line on its last command alone (set -e suppressed in the gate's if-condition)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-03T10:34:32Z
+# ============================================================================
+
+task_id: T-352
+task_name: "P-011 judges a multi-command verification line on its last command alone (set -e suppressed in the gate's if-condition)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-02T23:59:29Z
+completed: 2026-08-03T10:34:26Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-08-03T02:19:07+02:00
+last_commit: 2026-08-03T12:27:50+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  real ACs replacing the template placeholders — G-020 blocked further edits until they existed, correctly. Five ACs, all shaped so the task cannot be closed by describing the problem: AC1 requires a committed harness that reproduces the false green through the gate's OWN construct copied from update-task.sh, and that harness must go RED when the gate is fixed (it is the regression witness, so it has to fail on the fix). AC2 requires the MEMBERS enumerated with the failing output that satisfies each grep, and requires the merely-structural 332 to be reported explicitly as NOT findings alongside the proven 4 — the counting discipline that stopped this being an 80x overclaim. AC3 requires the non-fix (set -e re-issued inside the subshell, still PASS) recorded WITH its positive control, since 'form C fails more often' is not evidence that form C is right. AC4 requires the point of teaching fixed or the reason written down: the template hint prescribes the broken shape first and labelled 'Safe pattern', so the defect regenerates faster than it can be remediated. AC5 caps the task at proposing the bash -c remedy with its blast radius — no edit to .agentic-framework under agent authority (G-008 upstream, operator's ruling). Task remains captured/started but unimplemented. session bookkeeping — T-348's missing episodic summary generated (flagged by the last two handover runs), handover-run state, and hook counters. Carried under T-352 because T-351 is work-completed and terminal, so the focus-drift gate correctly refuses a T-351-labelled commit; recording the carry rather than reaching for FW_SWITCH_FOCUS. P-011 errexit suppression — probe, teeth, member scan, and the point-of-teaching fix. The gate runs each verification line as 'if ( ... eval "$cmd" )' (update-task.sh:1018); the subshell is the CONDITION of an if, so the set -euo pipefail at line 14 is neutralised inside it and a line of shape 'a; b' is judged on b alone. Probe 9/9, teeth 4/4. THE PROBE EXTRACTS THE GATE'S CONSTRUCT AT RUNTIME RATHER THAN COPYING IT, which is what makes it the regression witness AC1 demands: a copied construct would keep reproducing the old behaviour out of a string literal long after update-task.sh stopped behaving that way — a false green about a false green. Teeth leg (a) proves the property by applying the proposed remedy and requiring the probe to go RED; legs (b)-(d) attack the probe's own scope (extraction guard, pipefail discriminator, negative control) rather than the subject. MEASURED, NOT REASONED: pipefail IS active and errexit is NOT, so the template's sentence 'runs each command under set -eo pipefail' is half true and the false half is the one that matters. Point of teaching fixed in-tree: .tasks/templates/default.md is the PROJECT's template (create-task.sh:447 resolves TASKS_DIR to the project, not the vendored copy), so it is agent-authority — it now leads with the errexit warning and promotes the '&&' file form over the capture form, with the '&&' claim itself asserted in the probe so the advice is measured rather than plausible. Gate change proposed and NOT applied (docs/reports/T-352-remedy.md): vendored, G-008 upstream, operator's ruling. RCA + Evolution + single-command verification block; member scan gains a static classifier and memoisation. THE VERIFICATION BLOCK IS DELIBERATELY ALL SINGLE COMMANDS — a task about 'a; b is judged on b alone' must not contain an instance of it (same discipline as T-351), and the gate's own sed extractor confirms 8 commands and 0 comment lines. Evolution records three corrections to my own work, all of which would have closed green: (1) the population number was wrong TWICE in opposite directions — 332 from a naive grep ';', then 26 from a parser that incremented depth on '$' AND again on the following '(' so $(...) never returned to depth 0; sound number is 322, meaning the crude instrument was roughly right and the sophisticated one was catastrophically wrong. A confident undercount reads exactly like a careful one and arrives with a story about rigour. Parser now self-tests in BOTH directions before emitting any number. (2) The static classifier generated negations by prefixing ('IN'+pat) and asked if pat was a substring of the result — always true, prefixing never removes the original — so it flagged everything; caught by its own self-test, replaced with an explicit vocabulary that UNDER-approximates (can miss, cannot invent). (3) The scan's runner used subprocess.run(timeout=) which kills only the direct child then blocks in communicate() on a stdout EOF the surviving grandchild subshell holds open — leaked runners for minutes, never finished; same stop-path-assumes-cooperation defect as T-351, in the instrument built after fixing it in the subject. Also: a waiter written as 'until ! pgrep -f _t352-member-scan' can never exit because its own argv contains the pattern — liveness variant of the byte-space collision that gave a false reading last window
+
+# Key outcomes
+outcomes:
+  - '**AC1 — the false green is reproduced by a committed harness, not by a paragraph.**'
+  - '**AC2 — the members are enumerated, not the count.** Every verification line whose'
+  - '**AC3 — the non-fix is recorded with its control.** The `set -e`-in-subshell form is'
+  - '**AC4 — the point of teaching is fixed, or the reason it was not is written down.**'
+  - '**AC5 — remedy proposed, not applied.** The `bash -c` wrapper is written up with its'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'RCA + Evolution + single-command verification block; member scan gains a static classifier and memoisation. THE VERIFICATION BLOCK IS DELIBERATELY ALL SINGLE COMMANDS — a task about ''a; b is judged on b alone'' must not contain an instance of it (same discipline as T-351), and the gate''s own sed extractor confirms 8 commands and 0 comment lines. Evolution records three corrections to my own work, all of which would have closed green: (1) the population number was wrong TWICE in opposite directions — 332 from a naive grep '';'', then 26 from a parser that incremented depth on ''$'' AND again on the following ''('' so $(...) never returned to depth 0; sound number is 322, meaning the crude instrument was roughly right and the sophisticated one was catastrophically wrong. A confident undercount reads exactly like a careful one and arrives with a story about rigour. Parser now self-tests in BOTH directions before emitting any number. (2) The static classifier generated negations by prefixing (''IN''+pat) and asked if pat was a substring of the result — always true, prefixing never removes the original — so it flagged everything; caught by its own self-test, replaced with an explicit vocabulary that UNDER-approximates (can miss, cannot invent). (3) The scan''s runner used subprocess.run(timeout=) which kills only the direct child then blocks in communicate() on a stdout EOF the surviving grandchild subshell holds open — leaked runners for minutes, never finished; same stop-path-assumes-cooperation defect as T-351, in the instrument built after fixing it in the subject. Also: a waiter written as ''until ! pgrep -f _t352-member-scan'' can never exit because its own argv contains the pattern — liveness variant of the byte-space collision that gave a false reading last window'
+    source: git-mined
+  - description: 'P-011 errexit suppression — probe, teeth, member scan, and the point-of-teaching fix. The gate runs each verification line as ''if ( ... eval "$cmd" )'' (update-task.sh:1018); the subshell is the CONDITION of an if, so the set -euo pipefail at line 14 is neutralised inside it and a line of shape ''a; b'' is judged on b alone. Probe 9/9, teeth 4/4. THE PROBE EXTRACTS THE GATE''S CONSTRUCT AT RUNTIME RATHER THAN COPYING IT, which is what makes it the regression witness AC1 demands: a copied construct would keep reproducing the old behaviour out of a string literal long after update-task.sh stopped behaving that way — a false green about a false green. Teeth leg (a) proves the property by applying the proposed remedy and requiring the probe to go RED; legs (b)-(d) attack the probe''s own scope (extraction guard, pipefail discriminator, negative control) rather than the subject. MEASURED, NOT REASONED: pipefail IS active and errexit is NOT, so the template''s sentence ''runs each command under set -eo pipefail'' is half true and the false half is the one that matters. Point of teaching fixed in-tree: .tasks/templates/default.md is the PROJECT''s template (create-task.sh:447 resolves TASKS_DIR to the project, not the vendored copy), so it is agent-authority — it now leads with the errexit warning and promotes the ''&&'' file form over the capture form, with the ''&&'' claim itself asserted in the probe so the advice is measured rather than plausible. Gate change proposed and NOT applied (docs/reports/T-352-remedy.md): vendored, G-008 upstream, operator''s ruling'
+    source: git-mined
+  - description: 'real ACs replacing the template placeholders — G-020 blocked further edits until they existed, correctly. Five ACs, all shaped so the task cannot be closed by describing the problem: AC1 requires a committed harness that reproduces the false green through the gate''s OWN construct copied from update-task.sh, and that harness must go RED when the gate is fixed (it is the regression witness, so it has to fail on the fix). AC2 requires the MEMBERS enumerated with the failing output that satisfies each grep, and requires the merely-structural 332 to be reported explicitly as NOT findings alongside the proven 4 — the counting discipline that stopped this being an 80x overclaim. AC3 requires the non-fix (set -e re-issued inside the subshell, still PASS) recorded WITH its positive control, since ''form C fails more often'' is not evidence that form C is right. AC4 requires the point of teaching fixed or the reason written down: the template hint prescribes the broken shape first and labelled ''Safe pattern'', so the defect regenerates faster than it can be remediated. AC5 caps the task at proposing the bash -c remedy with its blast radius — no edit to .agentic-framework under agent authority (G-008 upstream, operator''s ruling). Task remains captured/started but unimplemented'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-348.yaml'
+  - '.context/locks/T-352.lock'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.hook-counter'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - 'docs/reports/T-352-remedy.md'
+  - '.tasks/active/T-351-serve-gallerysh-can-never-stop-its-own-s.md'
+  - '.tasks/active/T-352-p-011-judges-a-multi-command-verificatio.md'
+  - '.tasks/templates/default.md'
+  - 'tools/_t352-member-scan.py'
+  - 'tools/_t352-p011-errexit-probe.sh'
+  - 'tools/_t352-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-03T02:19:07"
+    action: "T-352: real ACs replacing the template placeholders — G-020 blocked further edits until they existed, correctly. Five ACs, all shaped so the task cannot be closed by describing the problem: AC1 requires a committed harness that reproduces the false green through the gate's OWN construct copied from update-task.sh, and that harness must go RED when the gate is fixed (it is the regression witness, so it has to fail on the fix). AC2 requires the MEMBERS enumerated with the failing output that satisfies each grep, and requires the merely-structural 332 to be reported explicitly as NOT findings alongside the proven 4 — the counting discipline that stopped this being an 80x overclaim. AC3 requires the non-fix (set -e re-issued inside the subshell, still PASS) recorded WITH its positive control, since 'form C fails more often' is not evidence that form C is right. AC4 requires the point of teaching fixed or the reason written down: the template hint prescribes the broken shape first and labelled 'Safe pattern', so the defect regenerates faster than it can be remediated. AC5 caps the task at proposing the bash -c remedy with its blast radius — no edit to .agentic-framework under agent authority (G-008 upstream, operator's ruling). Task remains captured/started but unimplemented"
+  - time: "2026-08-03T02:19:39"
+    action: "T-352: session bookkeeping — T-348's missing episodic summary generated (flagged by the last two handover runs), handover-run state, and hook counters. Carried under T-352 because T-351 is work-completed and terminal, so the focus-drift gate correctly refuses a T-351-labelled commit; recording the carry rather than reaching for FW_SWITCH_FOCUS"
+  - time: "2026-08-03T12:20:56"
+    action: "T-352: P-011 errexit suppression — probe, teeth, member scan, and the point-of-teaching fix. The gate runs each verification line as 'if ( ... eval \"$cmd\" )' (update-task.sh:1018); the subshell is the CONDITION of an if, so the set -euo pipefail at line 14 is neutralised inside it and a line of shape 'a; b' is judged on b alone. Probe 9/9, teeth 4/4. THE PROBE EXTRACTS THE GATE'S CONSTRUCT AT RUNTIME RATHER THAN COPYING IT, which is what makes it the regression witness AC1 demands: a copied construct would keep reproducing the old behaviour out of a string literal long after update-task.sh stopped behaving that way — a false green about a false green. Teeth leg (a) proves the property by applying the proposed remedy and requiring the probe to go RED; legs (b)-(d) attack the probe's own scope (extraction guard, pipefail discriminator, negative control) rather than the subject. MEASURED, NOT REASONED: pipefail IS active and errexit is NOT, so the template's sentence 'runs each command under set -eo pipefail' is half true and the false half is the one that matters. Point of teaching fixed in-tree: .tasks/templates/default.md is the PROJECT's template (create-task.sh:447 resolves TASKS_DIR to the project, not the vendored copy), so it is agent-authority — it now leads with the errexit warning and promotes the '&&' file form over the capture form, with the '&&' claim itself asserted in the probe so the advice is measured rather than plausible. Gate change proposed and NOT applied (docs/reports/T-352-remedy.md): vendored, G-008 upstream, operator's ruling"
+  - time: "2026-08-03T12:27:50"
+    action: "T-352: RCA + Evolution + single-command verification block; member scan gains a static classifier and memoisation. THE VERIFICATION BLOCK IS DELIBERATELY ALL SINGLE COMMANDS — a task about 'a; b is judged on b alone' must not contain an instance of it (same discipline as T-351), and the gate's own sed extractor confirms 8 commands and 0 comment lines. Evolution records three corrections to my own work, all of which would have closed green: (1) the population number was wrong TWICE in opposite directions — 332 from a naive grep ';', then 26 from a parser that incremented depth on '$' AND again on the following '(' so $(...) never returned to depth 0; sound number is 322, meaning the crude instrument was roughly right and the sophisticated one was catastrophically wrong. A confident undercount reads exactly like a careful one and arrives with a story about rigour. Parser now self-tests in BOTH directions before emitting any number. (2) The static classifier generated negations by prefixing ('IN'+pat) and asked if pat was a substring of the result — always true, prefixing never removes the original — so it flagged everything; caught by its own self-test, replaced with an explicit vocabulary that UNDER-approximates (can miss, cannot invent). (3) The scan's runner used subprocess.run(timeout=) which kills only the direct child then blocks in communicate() on a stdout EOF the surviving grandchild subshell holds open — leaked runners for minutes, never finished; same stop-path-assumes-cooperation defect as T-351, in the instrument built after fixing it in the subject. Also: a waiter written as 'until ! pgrep -f _t352-member-scan' can never exit because its own argv contains the pattern — liveness variant of the byte-space collision that gave a false reading last window"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 634 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [arc:designer-authoring-surface, tooling, verification-gate]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 634
+  commits: 4
+  files_changed: 15
+  lines_added: 1232
+  lines_removed: 96
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-352-p-011-judges-a-multi-command-verificatio.md
+generated_by: context-agent-hybrid

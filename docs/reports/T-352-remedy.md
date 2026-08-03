@@ -93,33 +93,63 @@ anything. That claim is asserted in the probe (`A/and-form`) so the advice is me
 plausible. The vendored copy at `.agentic-framework/.tasks/templates/default.md` carries the same
 text and is left alone — G-008 upstream.
 
-## 6. Blast radius
+## 6. Blast radius — measured, and it inverts the case for the remedy
 
-Every verification line in every task is re-evaluated under real errexit. **Currently-green lines
-will go red, and that is the point** — but it means tasks that complete today may stop completing,
-including tasks owned by other people.
+`tools/_t352-member-scan.py`, run over active/ + completed/:
 
-Measured rather than estimated: see `docs/reports/T-352-member-scan.md` for the population
-breakdown and the enumerated members. The distinction that matters:
+| population | n |
+|---|---:|
+| ALL verification lines | 1331 |
+| SHAPED (top-level `;`) | 322 |
+| RUN (executed under both constructs) | 243 |
+| **DIVERGENT** (passes today, fails under the remedy) | **19** |
+| LATENT (both constructs agree) | 189 |
+| SKIPPED (safety filter) | 79 |
+| ANOMALY (timeout / no verdict) | 35 |
 
-- **SHAPED** — lines with a top-level `;`, structurally judged on their last command alone. This is
-  an **upper bound and not a finding**. Most pin a zero-failure token (`passed, 0 failed`) and are
-  perfectly safe.
-- **PROVEN** — lines that PASS today and FAIL under the remedy, established by running both. These
-  are the lines that would flip on the day the remedy lands.
+Static partition of the 322, decidable without execution:
+**SUBSTRING-RISK 4 · ZERO-TOKEN 101 · OTHER 184 · NO-PATTERN 33.**
 
-Two independent numbers I got wrong before measuring properly, both recorded because the shape of
-the error is the lesson:
+**The result is not the one this task was filed expecting.**
 
-- **332** was a naive `grep ';'` over verification blocks. It counts semicolons inside quotes,
-  inside `sed 's/a;b/c/'`, and in `find … \;` — none of which are command separators.
-- **26** was the first parser, which incremented nesting depth on `$` *and* again on the following
-  `(`, so `$(…)` never returned to depth 0 and every top-level `;` after a command substitution was
-  invisible. A confident undercount reads exactly like a careful one.
+`DIVERGENT` aggregates two causes pointing in opposite directions — a false green the remedy
+*fixes*, and a correct failure-path test the remedy *breaks* — and reading the 19 members shows
+they are almost entirely the second kind:
 
-The parser now has a **self-test that must pass before any number is produced**, with cases in both
-directions — a test with only positives passes for a parser that answers True to everything, which
-is the mirror of the bug that actually occurred.
+```
+out=$(python3 tools/validate-workflow.py tests/fixtures/invalid/E-XML-NODE-TYPE.xml 2>&1); echo "$out" | grep -q "E-XML-NODE-TYPE"
+out=$(grep -c "id=\"brand-version\"" src/aef-workflow-designer.html); test "$out" = "0"
+```
+
+Both are **correct**. The validator exits non-zero on an invalid fixture by design and the line
+asserts the right error code appears; `grep -c` exits 1 when it counts zero matches, which is
+the very condition being asserted. Under the remedy both die.
+
+So, honestly stated:
+
+- **0 currently-manifesting false greens** in the real corpus. The defect is real and
+  demonstrated on a constructed fixture; it is not firing anywhere in this tree today.
+- **4 latent instances** — the SUBSTRING-RISK class, all `grep -q "VALID"` against
+  `validate-workflow.py`. They pass honestly *because their documents are valid*, and become
+  false greens the moment a document goes invalid — precisely the case the check exists to
+  catch. **Latency is not safety here**; it is the check being untested in the only direction
+  that matters.
+- **19 correct lines the remedy would break.**
+- **All 4 latent instances live in COMPLETED (archived) tasks** — T-288, T-298, T-299. Their
+  verification blocks will not run again unless those tasks are re-completed, so the live
+  exposure today is effectively **zero**. This is occupancy, not construction: nothing stops the
+  next author writing `grep -q "VALID"` tomorrow, which is exactly why the template fix — not the
+  gate change — is the part that had to land now.
+
+**Therefore the cost/benefit runs the other way from the filing.** Applying the gate change today
+buys removal of 4 latent risks and costs 19 working verification lines across other owners' tasks.
+The cheap fix for all 4 is one character each — `grep -q "^VALID"` or `grep -q " VALID "` — with
+no gate change at all.
+
+My recommendation, contrary to what I expected when filing: **repair the 4 patterns now; do not
+apply the gate change until the 19 are converted** (`;` → `&&` inverted, or the failing command
+wrapped so its non-zero exit is expected). The gate change remains correct in principle and
+should still land — after the corpus is ready for it, not before.
 
 ## 7. Recommended rollout
 
