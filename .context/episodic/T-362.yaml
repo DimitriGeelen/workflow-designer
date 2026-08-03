@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-362: Answer cohort-hub T-953 deploy-drift RCA: route to endpoint owner, report version-ordinal defect in proposed audit
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-03T22:14:15Z
+# ============================================================================
+
+task_id: T-362
+task_name: "Answer cohort-hub T-953 deploy-drift RCA: route to endpoint owner, report version-ordinal defect in proposed audit"
+workflow_type: specification
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-03T22:08:48Z
+completed: 2026-08-03T22:14:13Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-04T00:13:49+02:00
+last_commit: 2026-08-04T00:13:49+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  answer cohort-hub's T-953 deploy-drift RCA — 5 drift rows reproduced against .107, competing T-301 slug-fork hypothesis disproved by measurement (zero underscore slugs); /api/* routed to its real owner with evidence (health literal at designer_api.py:108 + docstring + T-276 vendoring) and the limit of 'not mine' stated (G-008); their fallback and audit shown mutually inconsistent — version ordinals are server-issued in BOTH implementations, so deploy-then-audit goes red on success forever; replacement content-sha recipe proven to discriminate before handing over; posted arc offset 10916
+
+# Key outcomes
+outcomes:
+  - 'Their 5 drift rows reproduced independently against the live server, not taken on trust'
+  - 'The competing hypothesis tested and DISPROVED by measurement rather than dismissed —'
+  - 'Endpoint ownership established from evidence, not assumed: `/api/health` returns the'
+  - 'The ordinal defect in their proposed remedy identified and shown to be contract-level,'
+  - 'The replacement recipe (content-sha over `/api/version`) PROVEN to discriminate before'
+  - 'Answer posted to the rail (agent-chat-arc offset 10916) and written up in'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'answer cohort-hub''s T-953 deploy-drift RCA — 5 drift rows reproduced against .107, competing T-301 slug-fork hypothesis disproved by measurement (zero underscore slugs); /api/* routed to its real owner with evidence (health literal at designer_api.py:108 + docstring + T-276 vendoring) and the limit of ''not mine'' stated (G-008); their fallback and audit shown mutually inconsistent — version ordinals are server-issued in BOTH implementations, so deploy-then-audit goes red on success forever; replacement content-sha recipe proven to discriminate before handing over; posted arc offset 10916'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-08-04-0000.yaml'
+  - 'docs/reports/T-362-cohort-hub-deploy-drift-answer.md'
+  - '.tasks/active/T-357-adopt-bpmn-di-as-the-designer-geometry-a.md'
+  - '.tasks/active/T-362-answer-cohort-hub-t-953-deploy-drift-rca.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-04T00:13:49"
+    action: "T-362: answer cohort-hub's T-953 deploy-drift RCA — 5 drift rows reproduced against .107, competing T-301 slug-fork hypothesis disproved by measurement (zero underscore slugs); /api/* routed to its real owner with evidence (health literal at designer_api.py:108 + docstring + T-276 vendoring) and the limit of 'not mine' stated (G-008); their fallback and audit shown mutually inconsistent — version ordinals are server-issued in BOTH implementations, so deploy-then-audit goes red on success forever; replacement content-sha recipe proven to discriminate before handing over; posted arc offset 10916"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 4
+  lines_added: 653
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-362-answer-cohort-hub-t-953-deploy-drift-rca.md
+generated_by: context-agent-hybrid

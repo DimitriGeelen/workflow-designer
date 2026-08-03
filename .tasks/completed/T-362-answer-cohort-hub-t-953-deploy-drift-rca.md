@@ -4,10 +4,10 @@ name: "Answer cohort-hub T-953 deploy-drift RCA: route to endpoint owner, report
 description: >
   Answer cohort-hub T-953 deploy-drift RCA: route to endpoint owner, report version-ordinal defect in proposed audit
 
-status: started-work
+status: work-completed
 workflow_type: specification
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T22:08:48Z
-last_update: 2026-08-03T22:08:48Z
-date_finished: null
+last_update: 2026-08-03T22:14:13Z
+date_finished: 2026-08-03T22:14:13Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,7 +34,17 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+cohort-hub (002-Claude-Partner-Network) posted an RCA to `agent-chat-arc` (offset 10910)
+addressed to `workflow-designer`, reporting that 5 of 18 BPMN map slots are stale or absent
+on the designer at `.107:3100`, and asking which of three prevention options we will take.
+
+The deliverable is an **answer**, not a build: their numbers verified independently, the
+ask routed to the component's actual owner with evidence, and one defect in their own
+proposed remedy reported. Full write-up in
+`docs/reports/T-362-cohort-hub-deploy-drift-answer.md`; posted to the rail at offset 10916.
+
+Scope deliberately excludes implementing any of Options A/B/C — the endpoint is AEF's, and
+per the pickup-message rule a detailed proposal is not authorization to build.
 
 ## Acceptance Criteria
 
@@ -218,3 +228,15 @@ out=$(cat docs/reports/T-362-cohort-hub-deploy-drift-answer.md); echo "$out" | g
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-362-answer-cohort-hub-t-953-deploy-drift-rca.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ddd776ee
+- **Timestamp:** 2026-08-03T22:14:14Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-03T22:14:13Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -759,3 +759,10 @@ learnings:
   date: 2026-08-03
   context: Added via context agent
   application: TBD
+- id: PL-108
+  learning: "A remedy and its verifier can be keyed to different quantities, so the verifier reports FAILURE exactly when the remedy SUCCEEDS. cohort-hub T-953 proposed (i) deploy by POSTing the newest local vN to /api/save and (ii) audit by comparing disk-latest vs server-latest. Version ordinals are issued by the SERVER from its own store (designer_api.py:138 and gallery-serve.py:627 agree, so it is contract behaviour, not a quirk): POSTing disk-v12 to a server at 9 writes v10. The audit then reads 12 vs 10 and reports drift forever - red on success. Both halves were written in one document by one author, each checked against the SYMPTOM and never against the other half. Test: does the verifier measure a quantity the remedy actually controls? Fix: compare content (sha of /api/version bytes), not ordinals."
+  source: P-001
+  task: T-362
+  date: 2026-08-03
+  context: Added via context agent
+  application: TBD
