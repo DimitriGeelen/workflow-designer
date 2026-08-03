@@ -1074,3 +1074,24 @@ decisions:
     date: 2026-08-03
     task: T-337
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-133
+    decision: "capture through the MCP termlink surface, verify with a Python script that"
+    scope: project
+    date: 2026-08-03
+    task: T-360
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-134
+    decision: "exit 3 (UNTRUSTED) when the cursor store is untracked, distinct from exit 1"
+    scope: project
+    date: 2026-08-03
+    task: T-360
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-135
+    decision: "leave G-022 at `watching` and recommend, rather than flip it."
+    scope: project
+    date: 2026-08-03
+    task: T-360
+    rationale: "Auto-captured from task file on completion"

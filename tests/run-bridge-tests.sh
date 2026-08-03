@@ -440,6 +440,7 @@ orphan_legs=(
   "tests/test_designer_export_contract.py|designer export contract — an owner-bearing node lost its authority carrier"
   "tests/test_designer_owner_derived.py|designer owner-derived guard — an editable owner override reappeared (IW-9)"
   "tests/test_designer_render.py|designer render-check — render, T-177 markers, or inspector dropdowns broke"
+  "tests/test_emitted_comment_claims.py|exported bytes carry a claim about an external party, or the emitter duplicates the trailer (T-361)"
 )
 for leg in "${orphan_legs[@]}"; do
   legfile="${leg%%|*}"

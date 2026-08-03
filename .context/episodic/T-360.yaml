@@ -1,0 +1,107 @@
+# ============================================================================
+# EPISODIC MEMORY - T-360: Enumerate every rail carrying my fingerprint before claiming a peer is silent
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-03T21:34:22Z
+# ============================================================================
+
+task_id: T-360
+task_name: "Enumerate every rail carrying my fingerprint before claiming a peer is silent"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-03T18:26:59Z
+completed: 2026-08-03T21:34:17Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-03T20:27:28+02:00
+last_commit: 2026-08-03T23:32:03+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  register G-022 — a peer rail unread ~24 days while 'AEF is silent' was reported from a one-topic measurement. AEF integration state verified — pin surface holds, AEF 4 releases behind, src drifted past the 0.8.0 cut. G-022 root cause — termlink CLI identity != MCP identity, so the obvious cross-check answers for a different agent. rail sweep that refuses an all-clear it cannot justify — G-022 prevention
+
+# Key outcomes
+outcomes:
+  - 'A sweep exists that enumerates **every** topic carrying my fingerprint and'
+  - 'The sweep **refuses to report all-clear from an untracked cursor store.** This'
+  - 'Teeth, by mutation rather than by reading: with the cursor store absent or'
+  - 'The sweep is proven to rediscover the topic that was actually missed'
+  - 'G-022 stays `watching` until prevention exists — reading the backlog was'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-03 — the sweep verifies a capture, it does not gather one'
+    chose: 'capture through the MCP termlink surface, verify with a Python script that'
+    rationale: 'the shell cannot reach my identity''s rails *at all* — different fingerprint,'
+    alternatives_rejected: ['(a) shell script calling the CLI — reproduces the bug; (b) pointing the']
+  - decision: '2026-08-03 — UNTRUSTED is a louder verdict than BACKLOG, and does not lift on mitigation'
+    chose: 'exit 3 (UNTRUSTED) when the cursor store is untracked, distinct from exit 1'
+    rationale: 'draining 99 messages is mitigation. The instrument is still unable to tell'
+    alternatives_rejected: ['folding it into BACKLOG — it would go silent the moment I caught up,']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-08-03-2000.yaml'
+  - '.context/audits/cron/2026-08-03-2015.yaml'
+  - '.context/audits/cron/2026-08-03-2030.yaml'
+  - '.context/audits/cron/2026-08-03-2045.yaml'
+  - '.context/audits/cron/2026-08-03-2100.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/locks/T-360.lock'
+  - '.context/project/concerns.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.hook-counter'
+  - '.context/working/rail-snapshot.json'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.tasks/active/T-347-content-inside-an-accepted-element-is-si.md'
+  - '.tasks/active/T-360-enumerate-every-rail-carrying-my-fingerp.md'
+  - 'tools/rail-sweep.py'
+  - 'tools/_t360-rail-sweep-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-03T20:27:28"
+    action: "T-360: register G-022 — a peer rail unread ~24 days while 'AEF is silent' was reported from a one-topic measurement"
+  - time: "2026-08-03T20:35:44"
+    action: "T-360: AEF integration state verified — pin surface holds, AEF 4 releases behind, src drifted past the 0.8.0 cut"
+  - time: "2026-08-03T21:02:14"
+    action: "T-360: G-022 root cause — termlink CLI identity != MCP identity, so the obvious cross-check answers for a different agent"
+  - time: "2026-08-03T23:32:03"
+    action: "T-360: rail sweep that refuses an all-clear it cannot justify — G-022 prevention"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 187 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 187
+  commits: 4
+  files_changed: 21
+  lines_added: 1806
+  lines_removed: 209
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-360-enumerate-every-rail-carrying-my-fingerp.md
+generated_by: context-agent-hybrid

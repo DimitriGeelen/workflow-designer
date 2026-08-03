@@ -9403,8 +9403,34 @@ function aefExtensionXml(node) {
 // The prefix is split out so the guard below and the emitter at the end of
 // buildBpmnXml share one source of truth — reword the tail and the guard still
 // holds, which is the same prefix-match discipline AEF adopted.
+//
+// T-361: that sentence above was AT BEST aspirational for two months. DI_TRAILER
+// was defined here and READ BY NOTHING; the emitter carried its own hardcoded
+// literal. The two agreed by coincidence, not by construction — so "one source of
+// truth" described an intention, and the code had a duplicate. The emitter now
+// actually uses this constant, which is what makes the claim true.
+//
+// T-361: and the tail itself was FALSE. It said "AEF generates it from node
+// coordinates". AEF measured their own source at rail 417: `bpmndi` occurs exactly
+// once in it, a namespace declaration with no reader and no writer behind it. They
+// never parsed DI and never emitted it, and they hold no record of ever agreeing
+// to. There is no DI generator on our side of the seam either — so the sentence
+// had no referent anywhere, and we shipped it in 11 releases inside bytes AEF pins
+// by sha, including the 0.4.0 they are pinned to today.
+//
+// What makes this worth a comment rather than a quiet edit: this exact string had
+// already been through a two-party incident (their T-2682 reader guard, their
+// T-2683 restore, our guard below). Both investigations asked WHERE the comment
+// appears. Neither asked whether the sentence in it is TRUE. An incident directs
+// attention rather than distributing it — the property that drew scrutiny got
+// fixed while the artifact's central claim walked out of a two-party review still
+// unexamined. The replacement therefore states only what is checkable HERE, and
+// names no other party's behaviour at all.
+//
+// The PREFIX is load-bearing for compatibility and must not change: documents
+// exported by all 11 prior releases carry it, and both readers match on it.
 const DI_TRAILER_PREFIX = 'BPMN DI (visual layout) omitted';
-const DI_TRAILER = `${DI_TRAILER_PREFIX} in this demo; AEF generates it from node coordinates`;
+const DI_TRAILER = `${DI_TRAILER_PREFIX}; node geometry travels as aef:position`;
 
 // A comment is the document's doc block only if it LEADS the document — appears
 // before any element child — and is not our own trailer. Position is the rule AEF's
@@ -9579,7 +9605,7 @@ function buildBpmnXml(s) {
 
   lines.push(`  </bpmn:process>`);
   lines.push(``);
-  lines.push(`  <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates -->`);
+  lines.push(`  <!-- ${DI_TRAILER} -->`);   // T-361: was a hardcoded duplicate of DI_TRAILER
   lines.push(`</bpmn:definitions>`);
   return lines.join('\n');
 }
