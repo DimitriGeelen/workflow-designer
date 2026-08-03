@@ -77,10 +77,12 @@ detects it if they are.
 
 ## What this run does NOT establish
 
-- **AC3 is not met.** Each existing import-loss instrument still needs re-running
-  with its denominator restated **per-population** (designer-produced vs
-  third-party). Pooling 126 incapable files with 5 capable ones would rebuild the
-  original error inside the fix.
+- ~~**AC3 is not met.**~~ **Superseded** — done later the same session; see
+  §"AC3 — denominators restated PER-POPULATION" below. Left struck rather than
+  deleted so the order of work stays legible: the losses were measured and filed
+  *before* the denominators were restated, and the restatement then found a second
+  defect (leg 2's denominator is 1) that would not have surfaced from the losses
+  alone.
 - **No expectation pin was flipped** (AC4). `_t338`'s `EXPECTED_*` sets are
   untouched; this instrument pins nothing. Every row above is a finding to file, not
   a verdict to update.

@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T12:24:28Z
-last_update: 2026-08-03T16:14:28Z
+last_update: 2026-08-03T16:15:21Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,7 +40,7 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **The added fixtures are provably third-party-authored, by a property no fixture we
+- [x] **The added fixtures are provably third-party-authored, by a property no fixture we
       write could fake.** Not "looks like bpmn.io output" — assert the exporter's own
       signature (`exporter=` / `exporterVersion=` attributes on `<bpmn:definitions>`) AND the
       absence of `aef:position` / `aef:uid`. A fixture hand-written to *look* foreign is the
@@ -48,7 +48,7 @@ date_finished: null
       Same shape as the error-vocabulary failure at RAIL-407 — a vocabulary built by imagining
       error text does not match the error text that actually exists.
 
-- [ ] **The new population is proven CAPABLE OF FAILING before any conclusion is drawn from
+- [x] **The new population is proven CAPABLE OF FAILING before any conclusion is drawn from
       it.** This is the whole point of the task and the easiest AC to satisfy vacuously: adding
       fixtures that happen to round-trip cleanly would recreate the exact unreachable
       witnessing state T-356 exists to remove, and the suite would go green and *look* like
@@ -57,18 +57,27 @@ date_finished: null
       added fixture round-trips clean, the correct conclusion is that the fixtures are
       unrepresentative, NOT that the importer is sound — record that and get better fixtures.
 
-- [ ] **Each import-loss instrument's population is re-run over the new fixtures and its
+- [x] **Each import-loss instrument's population is re-run over the new fixtures and its
       denominator restated**, with the split reported per-population (designer-produced vs
       third-party-authored) rather than pooled. A pooled denominator would let 126 incapable
       files dilute a handful of capable ones and reproduce the original error inside the fix.
 
-- [ ] **No expectation pin is flipped in this task.** T-356 adds a population; it does not
+- [x] **No expectation pin is flipped in this task.** T-356 adds a population; it does not
       repair a defect. If a `_t338` verdict changes because a real fixture exercises a path the
       synthetic injection did not, that is a FINDING to file, not a pin to update — and per the
       T-337 lesson, ask which control was load-bearing only while the old contents held.
 
-- [ ] Bridge suite green, and `_t308` byte-identity still 24/24 against its pinned sha
+- [x] Bridge suite green, and `_t308` byte-identity still 24/24 against its pinned sha
       (adding input fixtures must not change what we emit for existing maps)
+
+**Evidence (2026-08-03):** `docs/reports/T-356-third-party-fidelity.md`;
+`tests/fixtures/third-party/PROVENANCE.md`; commits `2f5771c3` (fixtures),
+`6cc26b14` (5/5 lossy measurement), `38a448d1` (T-358 filed), `5a6747a2` (AC3).
+AC1 exporter signatures present + 0 `aef:*` on all five. AC2 **5/5 lose content**,
+positive control clean. AC3 per-instrument table — every pre-existing leg is 24
+designer / 0 third-party, and `_t338` leg 2's denominator is **1**. AC4 no
+`EXPECTED_*` set touched; the new instrument gates nothing. AC5 bridge 69/0,
+geometry 24 clean, `_t308` identical 24/24.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -102,6 +111,11 @@ date_finished: null
 -->
 
 ## Verification
+
+bash tests/run-bridge-tests.sh
+node tools/_t356-third-party-fidelity-cdp.mjs
+test $(grep -c 'exporter=' tests/fixtures/third-party/*.bpmn | grep -cv ':0$') -eq 5
+cd tests/fixtures/third-party && sha256sum -c <(awk '/^[0-9a-f]{64}  /{print}' PROVENANCE.md)
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
