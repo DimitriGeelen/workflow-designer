@@ -724,3 +724,10 @@ learnings:
   date: 2026-08-03
   context: Added via context agent
   application: TBD
+- id: PL-103
+  learning: "When a population's membership criterion is carried BY the artifact (exporter=, version stamp, provenance header), check whether the operation under test destroys it. T-356: exporter= is dropped 5/5 by the very round trip being measured, so a round-tripped fixture becomes indistinguishable from designer output and the population silently reverts to incapable — while the detecting census (grep -c exporter=) keeps counting the originals and reports fine. Membership feels like a fact about the file so it is checked once, at admission, which is the one moment the operation has not yet run."
+  source: P-001
+  task: T-356
+  date: 2026-08-03
+  context: Added via context agent
+  application: TBD
