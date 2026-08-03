@@ -3887,3 +3887,21 @@ scan_id: R-9b2f552c
 task_id: T-356
 payload:
   task_file: .tasks/active/T-356-no-third-party-authored-bpmn-exists-in-t.md
+---
+kind: scan_emitted
+timestamp: '2026-08-03T17:44:25Z'
+scan_id: R-01f1dd0c
+task_id: T-359
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-03T17:44:25Z'
+scan_id: R-01f1dd0c
+task_id: T-359
+payload:
+  task_file: .tasks/active/T-359-validator-reports-legal-non-flow-node-ch.md

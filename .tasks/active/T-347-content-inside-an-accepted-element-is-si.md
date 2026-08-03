@@ -204,10 +204,16 @@ than a widened leg on an existing one.
 > which is the error this whole intake exists to correct. Adding `UNRESOLVED` to the
 > `ANCHOR` table would have been the same move in a different costume.
 >
-> **T-347 cannot reach `work-completed` until T-359 is fixed** — `## Verification`
-> below runs the bridge suite, and it will keep failing. That ordering is correct: the
-> validator should stop lying about legal documents before anyone decides what the
-> importer ought to preserve.
+> **RESOLVED same session — T-359 is fixed and complete, bridge back to 69/0.** The
+> exclusion set in `validate-workflow.py` held only the three non-flow-node children
+> *our own emitters* produce, so it was complete for the population that wrote it and
+> wrong for BPMN — the same defect shape this intake exists to correct, found one
+> layer down. Teeth proven by mutation: removing a single exclusion turns the
+> anchorability guard RED. The `ANCHOR` table was not touched.
+>
+> **T-347 itself remains blocked on the Human `[REVIEW]` above** — the repair-semantics
+> choice. That is unchanged by any of today's work; what changed is that the choice is
+> now made against real witnesses instead of injected probes.
 
 ## Acceptance Criteria
 

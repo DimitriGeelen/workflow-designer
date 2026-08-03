@@ -4,10 +4,10 @@ name: "Validator reports legal non-flow-node children of process as E-XML-NODE-T
 description: >
   Process-level <documentation>, <ioSpecification> and <dataObject> are enumerated as flow nodes by validate-workflow.py and reported as ERROR E-XML-NODE-TYPE on legal BPMN. The documentation case has no id, so the finding anchors to '?' and breaks the T-335 anchorability guard.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T17:34:57Z
-last_update: 2026-08-03T17:39:18Z
-date_finished: null
+last_update: 2026-08-03T17:42:49Z
+date_finished: 2026-08-03T17:42:49Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -260,3 +260,22 @@ bash tests/run-bridge-tests.sh
 
 ### 2026-08-03T17:39:18Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-01f1dd0c
+- **Timestamp:** 2026-08-03T17:44:25Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 51
+     - evidence: `out=$(python3 tools/validate-workflow.py tests/fixtures/third-party/bizagi-nested-ns.bpmn 2>&1); ! echo "$out" | grep -q "unknown flow-node element 'documentation'"`
+  2. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 52
+     - evidence: `out=$(python3 tools/validate-workflow.py tests/fixtures/third-party/caseagile-local-ns.bpmn 2>&1); ! echo "$out" | grep -q "unknown flow-node element 'ioSpecification'"`
+
+### 2026-08-03T17:42:49Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

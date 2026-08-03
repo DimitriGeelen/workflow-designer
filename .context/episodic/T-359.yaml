@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-359: Validator reports legal non-flow-node children of process as E-XML-NODE-TYPE errors
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-03T17:44:27Z
+# ============================================================================
+
+task_id: T-359
+task_name: "Validator reports legal non-flow-node children of process as E-XML-NODE-TYPE errors"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-03T17:34:57Z
+completed: 2026-08-03T17:42:49Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-03T19:42:45+02:00
+last_commit: 2026-08-03T19:42:45+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  exclude legal non-flow-node children of process from the flow-node vocabulary gate — false-positive ERROR on valid BPMN, teeth proven by mutation
+
+# Key outcomes
+outcomes:
+  - 'The legal non-flow-node children of `<process>` are excluded from flow-node'
+  - '`bizagi-nested-ns.bpmn` and `caseagile-local-ns.bpmn` no longer report'
+  - 'The genuine vocabulary gap still fires: `kitchen-sink.bpmn` continues to report'
+  - '`tests/test_finding_anchorability.py` passes with `E-XML-NODE-TYPE` still'
+  - 'Teeth: re-introducing the defect (deleting one exclusion) turns the'
+  - '`bash tests/run-bridge-tests.sh` reports `0 failed`.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'exclude legal non-flow-node children of process from the flow-node vocabulary gate — false-positive ERROR on valid BPMN, teeth proven by mutation'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/locks/T-359.lock'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.tasks/active/T-347-content-inside-an-accepted-element-is-si.md'
+  - '.tasks/active/T-359-validator-reports-legal-non-flow-node-ch.md'
+  - 'tools/validate-workflow.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-03T19:42:45"
+    action: "T-359: exclude legal non-flow-node children of process from the flow-node vocabulary gate — false-positive ERROR on valid BPMN, teeth proven by mutation"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 7
+  commits: 1
+  files_changed: 8
+  lines_added: 65
+  lines_removed: 25
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-359-validator-reports-legal-non-flow-node-ch.md
+generated_by: context-agent-hybrid
