@@ -3869,3 +3869,21 @@ scan_id: R-ac11f251
 task_id: T-337
 payload:
   task_file: .tasks/active/T-337-import-silently-drops-flow-nodes-whose-b.md
+---
+kind: scan_emitted
+timestamp: '2026-08-03T16:18:15Z'
+scan_id: R-9b2f552c
+task_id: T-356
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-03T16:18:15Z'
+scan_id: R-9b2f552c
+task_id: T-356
+payload:
+  task_file: .tasks/active/T-356-no-third-party-authored-bpmn-exists-in-t.md

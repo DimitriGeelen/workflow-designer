@@ -4,10 +4,10 @@ name: "No third-party-authored BPMN exists in the tree: every import-fidelity in
 description: >
   All 126 tracked .bpmn files are designer-produced (121 carry aef:position, our exporter's fingerprint; the other 5 are editor save history). Our exporter emits no bpmndi, no artifacts, no dataObjects, no second pool. So every corpus census run against the import-loss class (T-337 tags, T-340 DI, T-347 accepted-element content, T-348 root shapes) is measuring our own generator, and a zero from it cannot distinguish 'rare' from 'structurally impossible to witness here'. T-340's severity was rated on exactly such a zero. Remedy: add a small fixture set exported by real BPMN tools (bpmn.io, Camunda) so the instruments have a population that can actually fail. Named in T-340's RCA and deliberately not scoped into it, because it is a property of the whole class, not of DI.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T12:24:28Z
-last_update: 2026-08-03T16:15:21Z
-date_finished: null
+last_update: 2026-08-03T16:16:46Z
+date_finished: 2026-08-03T16:16:46Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -234,3 +234,15 @@ cd tests/fixtures/third-party && sha256sum -c <(awk '/^[0-9a-f]{64}  /{print}' P
 
 ### 2026-08-03T12:32:41Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9b2f552c
+- **Timestamp:** 2026-08-03T16:18:15Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-03T16:16:46Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
