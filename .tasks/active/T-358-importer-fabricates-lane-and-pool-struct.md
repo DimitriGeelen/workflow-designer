@@ -1,10 +1,10 @@
 ---
-id: T-356
-name: "No third-party-authored BPMN exists in the tree: every import-fidelity instrument measures a corpus that cannot exhibit the defects it hunts"
+id: T-358
+name: "Importer FABRICATES lane and pool structure the input never had: every third-party document gains 3 lanes and 1 participant on open"
 description: >
-  All 126 tracked .bpmn files are designer-produced (121 carry aef:position, our exporter's fingerprint; the other 5 are editor save history). Our exporter emits no bpmndi, no artifacts, no dataObjects, no second pool. So every corpus census run against the import-loss class (T-337 tags, T-340 DI, T-347 accepted-element content, T-348 root shapes) is measuring our own generator, and a zero from it cannot distinguish 'rare' from 'structurally impossible to witness here'. T-340's severity was rated on exactly such a zero. Remedy: add a small fixture set exported by real BPMN tools (bpmn.io, Camunda) so the instruments have a population that can actually fail. Named in T-340's RCA and deliberately not scoped into it, because it is a property of the whole class, not of DI.
+  Measured T-356: all 5 third-party fixtures come out of open->save carrying lanes 0->3 and participants 0->1. None of the input documents contains a single lane or pool. The catalogued import-loss class (T-337/340/347/348) is subtraction; this is the opposite direction and needs a different repair.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
 horizon: now
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-03T12:24:28Z
-last_update: 2026-08-03T16:12:18Z
+created: 2026-08-03T16:12:36Z
+last_update: 2026-08-03T16:12:36Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,45 +30,72 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-356: No third-party-authored BPMN exists in the tree: every import-fidelity instrument measures a corpus that cannot exhibit the defects it hunts
+# T-358: Importer FABRICATES lane and pool structure the input never had: every third-party document gains 3 lanes and 1 participant on open
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Measured 2026-08-03 by `tools/_t356-third-party-fidelity-cdp.mjs`; full table in
+`docs/reports/T-356-third-party-fidelity.md`.
+
+All **five** third-party fixtures gain `lanes 0->3` and `participants 0->1` on
+open->save. **None of the input documents contains a single lane or pool.**
+
+The whole import-loss class this arc has catalogued -- T-337 foreign tags, T-340 DI,
+T-347 accepted-element content, T-348 root shapes -- shares one sentence: *what the
+importer does not enumerate is invisible, and export writes only what `state`
+holds*. That sentence describes **subtraction**.
+
+This is the other direction. Export also writes what `state` holds **that the input
+never did**, because `state` is initialised into our own lane skeleton and *an
+absent lane set is indistinguishable from an empty one*. Same root shape as T-341
+(an unresolvable `flowNodeRef` silently reassigns a node to the human lane) and the
+same shape as the `n/a`-means-agreement family: a missing thing and a default thing
+share one representation.
+
+**Why this is worse than dropping.** A dropped element leaves a gap somebody may
+notice. An invented lane assignment is **positively asserted governance metadata**
+-- Lane=who, per the frozen mapping standard -- and it reads exactly like the
+author's intent. Node counts stay plausible, the validator stays green, and the
+document now says a third party's task is owned by a role their tool never
+mentioned.
+
+Blocked-adjacent, not blocked: the repair choice interacts with T-341's orphan-lane
+ruling (both are "what do we do when lane membership is absent or unresolvable")
+and should be decided with it, not before it.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **The added fixtures are provably third-party-authored, by a property no fixture we
-      write could fake.** Not "looks like bpmn.io output" — assert the exporter's own
-      signature (`exporter=` / `exporterVersion=` attributes on `<bpmn:definitions>`) AND the
-      absence of `aef:position` / `aef:uid`. A fixture hand-written to *look* foreign is the
-      same defect one level up: a population built by imagining what real input looks like.
-      Same shape as the error-vocabulary failure at RAIL-407 — a vocabulary built by imagining
-      error text does not match the error text that actually exists.
+- [ ] **The fabrication is reproduced and its SITE named** -- the specific line(s)
+      where `state` acquires lanes/participants absent from the input, not "somewhere
+      in parseBpmnXml". Anchor on a function signature, never a line number (they
+      drift; T-340's filed anchor already did).
 
-- [ ] **The new population is proven CAPABLE OF FAILING before any conclusion is drawn from
-      it.** This is the whole point of the task and the easiest AC to satisfy vacuously: adding
-      fixtures that happen to round-trip cleanly would recreate the exact unreachable
-      witnessing state T-356 exists to remove, and the suite would go green and *look* like
-      coverage. Required evidence: **at least one added fixture, run through TODAY's importer,
-      demonstrably loses content** (DI at minimum, per T-340's measured `DI-DROPPED`). If every
-      added fixture round-trips clean, the correct conclusion is that the fixtures are
-      unrepresentative, NOT that the importer is sound — record that and get better fixtures.
+- [ ] **The two causes are separated before any repair.** "Input had no lane set" and
+      "input had a lane set we failed to read" currently produce the same output and
+      must not share a verdict. Required evidence: one fixture of each, with
+      different measured outcomes. If they cannot be separated, that is the finding
+      and the repair is blocked on making the partition total.
 
-- [ ] **Each import-loss instrument's population is re-run over the new fixtures and its
-      denominator restated**, with the split reported per-population (designer-produced vs
-      third-party-authored) rather than pooled. A pooled denominator would let 126 incapable
-      files dilute a handful of capable ones and reproduce the original error inside the fix.
+- [ ] **A negative control proves the probe can report NO fabrication.** A designer-
+      produced corpus map genuinely has 3 lanes, so a probe that merely counts lanes
+      in the output reads "3" for both the honest and the fabricated case and
+      discriminates nothing. The control must be input-derived: lanes-in equals
+      lanes-out for a map that carried them.
 
-- [ ] **No expectation pin is flipped in this task.** T-356 adds a population; it does not
-      repair a defect. If a `_t338` verdict changes because a real fixture exercises a path the
-      synthetic injection did not, that is a FINDING to file, not a pin to update — and per the
-      T-337 lesson, ask which control was load-bearing only while the old contents held.
+- [ ] **Repair does not silently reverse into the opposite defect.** Emitting zero
+      lanes for a lane-less input must be checked against the corpus: if any existing
+      map relies on the fabricated default, that reliance is a finding to file, not a
+      reason to keep fabricating.
 
-- [ ] Bridge suite green, and `_t308` byte-identity still 24/24 against its pinned sha
-      (adding input fixtures must not change what we emit for existing maps)
+- [ ] Bridge suite green; `_t308` byte-identity still 24/24 (a repair here must not
+      change what we emit for existing maps)
+
+- [ ] `tools/_t356-third-party-fidelity-cdp.mjs` re-run: `lanes` and `participants`
+      deltas gone from all five rows, with the other columns unchanged (this task
+      repairs fabrication only, not the DI/pool/node losses those rows also carry)
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -102,6 +129,9 @@ date_finished: null
 -->
 
 ## Verification
+
+bash tests/run-bridge-tests.sh
+node tools/_t356-third-party-fidelity-cdp.mjs
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -213,10 +243,7 @@ date_finished: null
 
 ## Updates
 
-### 2026-08-03T12:24:28Z — task-created [task-create-agent]
+### 2026-08-03T16:12:36Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-356-no-third-party-authored-bpmn-exists-in-t.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-358-importer-fabricates-lane-and-pool-struct.md
 - **Context:** Initial task creation
-
-### 2026-08-03T12:32:41Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
