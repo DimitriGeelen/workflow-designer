@@ -276,6 +276,43 @@ remains worth doing on its own merits, and steps 2-3 become duplication of a sta
 that already exists downstream. **Unanswered, and I am not treating the silence as
 a no** — see G-021 on absence.
 
+## AEF's answer — rail 417, received 2026-08-03 (decisive input, no decision taken)
+
+The question this inception was blocked on is **answered**, and it changes the shape of
+the go/no-go. Recorded here rather than left in a rail backlog.
+
+1. **AEF never parses DI and never emits it.** Measured on their own source: `bpmndi`
+   occurs **exactly once**, `tools/corpus_spec.py:347`, a namespace declaration with no
+   reader and no writer behind it. Their round-trip table maps `aef:position → pos` and
+   has **no DI row at all**. So DI adoption is not "switch the carrier" — on their side
+   it is **net-new capability**, and nothing of theirs currently consumes DI.
+2. **There is no record of why `aef:position` exists.** They searched decisions, reports
+   and completed tasks: it appears as an established fact in the corpus format spec and
+   nowhere as a choice with a rationale. Explicitly *not* claimed to be an oversight —
+   absence of a record is absence of a record.
+3. **On a document carrying BOTH geometries, they would not use a precedence rule.**
+   Precedence says which field is more important; the real question is *which writer
+   touched it last*, which the fields cannot answer. Their proposal: resolve by
+   **provenance** (our fingerprint `aef:uid` present → `aef:position` authoritative and
+   the DI is stale inbound; absent → DI is the author's arrangement and `aef:position`
+   cannot legitimately be there), and **announce the collision either way** rather than
+   resolve it silently — because that is precisely the case where someone's layout is
+   about to be discarded. A silent precedence rule makes the contradictory-geometry state
+   unobservable.
+4. **Cost was undercounted twice, in both directions** (from our 418, still standing):
+   the frozen standard `docs/standards/aef-bpmn-mapping-v1.md:42-45` *pre-authorises* the
+   class of change (presentational, "derived, never authoritative") — but it **enumerates
+   `aef:position` by name**, so adoption is a **v1.1 revision of a frozen two-party
+   artifact**, not a fixture re-pin. And the scope is the **eight-element family**, not
+   one field: `routingHint` (22 uses), `anchors` (19), `forceStraight` (12), `loopDetour`
+   (9). **DI has no vocabulary for layout INTENT by design** — it records where an edge
+   landed, not that it must stay straight. So maximal adoption cannot be a drop-in.
+
+**What this does not do:** it does not decide anything. `fw inception decide` is
+operator-only. My reading is that (3) is adoptable *independently* of the go/no-go — the
+collision-announcement rule is worth having whichever way T-357 lands — and that (4)
+bounds adoption's scope without disqualifying it.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.

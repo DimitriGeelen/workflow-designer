@@ -1,0 +1,117 @@
+# ============================================================================
+# EPISODIC MEMORY - T-361: Exported bytes assert AEF generates DI from aef:position — AEF confirms they never have
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-03T21:48:09Z
+# ============================================================================
+
+task_id: T-361
+task_name: "Exported bytes assert AEF generates DI from aef:position — AEF confirms they never have"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-03T21:34:29Z
+completed: 2026-08-03T21:48:05Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-03T23:48:00+02:00
+last_commit: 2026-08-03T23:48:00+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  our exported bytes named AEF as the owner of a step they have never performed
+
+# Key outcomes
+outcomes:
+  - '**The false attribution is gone from the emitter.** Every `.bpmn` we export'
+  - '**Verified on an exported document, not only on the source.** Grep the emitter'
+  - '**The falsity is demonstrated, not asserted.** Two independent measurements, both'
+  - '**The replacement says only what is true and checkable here.** No claim about any'
+  - '**Blast radius stated, and released artifacts NOT rewritten.** Count the `dist/`'
+  - '**Prevention, and it must fail for the right reason (PL-034).** A guard checking'
+  - '**Teeth by mutation:** re-introducing the attribution must turn the guard RED, and'
+  - '**AEF is told the sha will move,** because they pin these bytes and the change is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-08-03-2115.yaml'
+  - '.context/audits/cron/2026-08-03-2130.yaml'
+  - '.context/audits/cron/2026-08-03-2145.yaml'
+  - '.context/audits/cron/2026-08-03-2200.yaml'
+  - '.context/audits/cron/2026-08-03-2215.yaml'
+  - '.context/audits/cron/2026-08-03-2230.yaml'
+  - '.context/audits/cron/2026-08-03-2245.yaml'
+  - '.context/audits/cron/2026-08-03-2300.yaml'
+  - '.context/audits/cron/2026-08-03-2315.yaml'
+  - '.context/audits/cron/2026-08-03-2330.yaml'
+  - '.context/audits/cron/2026-08-03-2345.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/episodic/T-360.yaml'
+  - '.context/project/decisions.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-360.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-361-exported-bytes-assert-aef-generates-di-f.md'
+  - '.tasks/completed/T-360-enumerate-every-rail-carrying-my-fingerp.md'
+  - 'tests/data/t361-legacy-di-trailer.txt'
+  - 'tests/fixtures/exported/t361-trailer-witness.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_emitted_comment_claims.py'
+  - 'tools/_t361-export-trailer-cdp.mjs'
+  - 'tools/_t361-guard-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-03T23:48:00"
+    action: "T-361: our exported bytes named AEF as the owner of a step they have never performed"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 13 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 13
+  commits: 1
+  files_changed: 38
+  lines_added: 2454
+  lines_removed: 265
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-361-exported-bytes-assert-aef-generates-di-f.md
+generated_by: context-agent-hybrid
