@@ -110,7 +110,47 @@ Third carrier found (after the `diff src/… build/gallery/designer.html` family
 hard-coded ports). Filed separately — one bug, one task — and **not repaired here**: T-178
 is another owner's active task and editing its gate is the same convention question AC5 parks.
 
-## 5. What is deliberately not claimed
+## 5. AC3 + AC4 — the conversions, proven under both constructs
+
+`tools/_t353-convert.py`. Every one of the 19 is a command that is *supposed* to fail, so the
+conversion makes that expectation explicit and lets the assertion carry the whole verdict:
+
+```diff
+- out=$(python3 tools/validate-workflow.py BROKEN.xml 2>&1); echo "$out" | grep -q "E-CODE"
++ out=$(python3 tools/validate-workflow.py BROKEN.xml 2>&1 || true); echo "$out" | grep -q "E-CODE"
+```
+
+Only *assignments* are converted. A `$(…)` used as a value inside the assertion —
+`test "$(echo "$out" | grep -c X)" = "1"` — is part of the verdict, and blanketing it with
+`|| true` would make the assertion unable to fail at all.
+
+Three legs per line:
+
+| leg | line | construct | required |
+|---|---|---|---|
+| 1 | original | remedy | **FAIL** — proves the conversion is not a no-op |
+| 2 | converted | remedy | PASS — ready for the gate change |
+| 3 | converted | current | PASS — no regression before it lands |
+
+**19/19 pass 3/3. DIVERGENT remaining after conversion: 0.**
+
+Leg 1 is what stops this being a ritual: without it, a conversion that changed nothing scores
+2/2 and the corpus gets declared ready on the strength of lines that were never at risk.
+
+## 6. AC1 amended before ticking
+
+AC1 as written required each repaired line to PASS against "the real document". That
+presupposed all four documents are valid. Three are; **T-299's is not**, so the requirement is
+unsatisfiable for it — and forcing it green would have buried §3a.
+
+The probe therefore declares the expected verdict per target and asserts, for T-299, the two
+things that are actually true and falsifiable: the **original** line is already red
+(`leg3n` — which is the correction to T-352's classification), and the repair does not change
+that, because a tightened pattern cannot fix a stale document (`leg4n`).
+
+**16/16 legs green.** Amended rather than quietly re-scoped, per the T-351 precedent.
+
+## 7. What is deliberately not claimed
 
 - The 30 red lines were **counted from the T-352 scan's recorded verdict pairs**, not re-run.
   Their redness is as of that scan. T-178 and T-299 were re-measured individually and both

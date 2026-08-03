@@ -89,19 +89,29 @@ check() {  # $1 expected  $2 actual  $3 label
 orig_line()  { printf 'out=$(python3 tools/validate-workflow.py %s 2>&1); echo "$out" | grep -q "VALID"' "$1"; }
 fixed_line() { printf 'out=$(python3 tools/validate-workflow.py %s 2>&1); echo "$out" | grep -q "^VALID"' "$1"; }
 
-# The four latent targets, as they appear in the archived task files.
+# The four targets, as they appear in the archived task files, each with the verdict its
+# REAL document is expected to produce.
+#
+# T-299 is VALID_DOC=no and that is the finding, not a tolerance. T-352 filed all four as
+# "latent — passes honestly today because the document is valid". Measured, T-299's document
+# validates to `WARN … 0 error(s), 3 warning(s)`: the string VALID does not appear in the
+# output at all, so its line is RED today, not passing. Declaring the expectation here rather
+# than deriving it from the run keeps the probe falsifiable — if that document ever becomes
+# valid, leg 3n goes red and someone has to come back and say so.
 TARGETS=(
-  "T-288|examples/aef-processes/tier0-escalation.workflow.yaml"
-  "T-288|examples/aef-processes/rendered/tier0-escalation.bpmn"
-  "T-298|examples/aef-processes/rendered/error-escalation-ladder.bpmn"
-  "T-299|/tmp/claude-0/-opt-832-Workflow-designer/500d44d9-1e04-4f5a-b40e-f29988622253/scratchpad/draft-task-creation-v2.bpmn"
+  "T-288|yes|examples/aef-processes/tier0-escalation.workflow.yaml"
+  "T-288|yes|examples/aef-processes/rendered/tier0-escalation.bpmn"
+  "T-298|yes|examples/aef-processes/rendered/error-escalation-ladder.bpmn"
+  "T-299|no|/tmp/claude-0/-opt-832-Workflow-designer/500d44d9-1e04-4f5a-b40e-f29988622253/scratchpad/draft-task-creation-v2.bpmn"
 )
 
 for entry in "${TARGETS[@]}"; do
   task="${entry%%|*}"
-  doc="${entry#*|}"
+  rest="${entry#*|}"
+  valid_doc="${rest%%|*}"
+  doc="${rest#*|}"
   short="$(basename "$doc")"
-  echo "-- $task  $short"
+  echo "-- $task  $short  (document expected valid: $valid_doc)"
 
   if [ ! -e "$doc" ]; then
     fail "$task/$short : target document is missing, so every leg below would measure the load-error path instead of the pattern. Red on purpose."
@@ -110,8 +120,17 @@ for entry in "${TARGETS[@]}"; do
 
   check GATE_PASS "$(run_gate "$GATE_COND"   "$(orig_line  "$REJECTED")")" "$task/$short  leg1 original+rejected   (defect reproduced)"
   check GATE_FAIL "$(run_gate "$GATE_COND"   "$(fixed_line "$REJECTED")")" "$task/$short  leg2 repaired+rejected   (defect removed)"
-  check GATE_PASS "$(run_gate "$GATE_COND"   "$(fixed_line "$doc")")"      "$task/$short  leg3 repaired+real       (no regression)"
-  check GATE_PASS "$(run_gate "$REMEDY_COND" "$(fixed_line "$doc")")"      "$task/$short  leg4 repaired+real+remedy(corpus ready)"
+
+  if [ "$valid_doc" = "yes" ]; then
+    check GATE_PASS "$(run_gate "$GATE_COND"   "$(fixed_line "$doc")")"    "$task/$short  leg3 repaired+real       (no regression)"
+    check GATE_PASS "$(run_gate "$REMEDY_COND" "$(fixed_line "$doc")")"    "$task/$short  leg4 repaired+real+remedy(corpus ready)"
+  else
+    # The document is NOT valid, so "the repaired line passes on it" is not the property to
+    # assert — asserting it would force this red green. What IS assertable, and what corrects
+    # T-352's classification, is that the line is already failing BEFORE any repair.
+    check GATE_FAIL "$(run_gate "$GATE_COND"   "$(orig_line  "$doc")")"    "$task/$short  leg3n original+real       (NOT latent — red already)"
+    check GATE_FAIL "$(run_gate "$GATE_COND"   "$(fixed_line "$doc")")"    "$task/$short  leg4n repaired+real       (repair cannot fix a stale doc)"
+  fi
 done
 
 echo

@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T10:35:08Z
-last_update: 2026-08-03T10:35:08Z
+last_update: 2026-08-03T11:02:58Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,29 +40,55 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **AC1 — the 4 latent patterns are tightened, and the tightening is proven to
+- [x] **AC1 — the 4 latent patterns are tightened, and the tightening is proven to
       discriminate.** Each `grep -q "VALID"` becomes a pattern that cannot match `INVALID`.
       Proof is not "it still passes": run each repaired line against a document the validator
       *rejects* and require FAIL, and against the real document and require PASS. A repair
       verified only in the passing direction is the untested-direction defect this task exists
       to remove.
-- [ ] **AC2 — each of the 19 DIVERGENT lines is classified by hand before anything changes.**
+      **AMENDED BEFORE TICKING —** the clause "and against the real document and require PASS"
+      presupposed all four documents are valid. Measured, T-299's is not: it validates to
+      `WARN … 0 error(s), 3 warning(s)` and the string `VALID` does not appear in its output at
+      all, so that line is RED today rather than latent. The requirement is unsatisfiable for
+      it, and forcing it green would have buried the finding. For T-299 the probe instead
+      asserts the two things that are true and falsifiable: the ORIGINAL line already fails
+      (correcting T-352's classification) and the repair does not change that, because a
+      tightened pattern cannot fix a stale document.
+      Evidence: `tools/_t353-repair-probe.sh` — 16/16, gate construct extracted at runtime,
+      leg 1 (original + rejected doc must PASS) proving the repair is not a no-op.
+- [x] **AC2 — each of the 19 DIVERGENT lines is classified by hand before anything changes.**
       Two causes are mixed in that bucket — a correct failure-path test, and a genuine false
       green — and only a read of each line's *intent* separates them. The classification is
       recorded per line with its reason. No line is converted before it is classified.
-- [ ] **AC3 — converted lines express the intended failure as success.** A line asserting "the
+      Evidence: `tools/_t353-classify.py` — **19/19 FAILURE-PATH-CORRECT, zero genuine false
+      greens**, classified by RUNNING each line under the remedy with an `ERR` trap so
+      `$BASH_COMMAND` names the diverging command (the subject's own report, not my parse of
+      it). 4 controls in 4 distinct buckets gate every verdict; they caught three defects in
+      the classifier before it was allowed to speak — see the report §1.
+- [x] **AC3 — converted lines express the intended failure as success.** A line asserting "the
       validator rejects this fixture" must not rely on the gate discarding a non-zero exit; it
       states the expectation directly (capture the status, or invert with `!`). Each conversion
       runs under BOTH the current gate construct and the remedy construct and must pass under
       both — that is what makes the corpus *ready* rather than merely *changed*.
-- [ ] **AC4 — the readiness claim is mechanical, not asserted.** `tools/_t352-member-scan.py`
+      Evidence: `tools/_t353-convert.py` — **19/19 at 3/3 legs**. Leg 1 runs the ORIGINAL under
+      the remedy and requires FAIL, which is what proves each conversion is not a no-op; without
+      it a conversion that changed nothing scores 2/2.
+- [x] **AC4 — the readiness claim is mechanical, not asserted.** `tools/_t352-member-scan.py`
       is re-run at the end and DIVERGENT must be 0 for the lines in scope. If it is not, the
       remaining members are listed with the reason each was left.
-- [ ] **AC5 — the scope boundary is respected and recorded.** All 4 latent instances and most
+      Evidence: `tools/_t353-convert.py` reports **DIVERGENT remaining after conversion: 0**,
+      measured through the extracted gate constructs rather than re-asserted. Zero members left,
+      so the "reason each was left" list is empty by measurement, not by omission.
+- [x] **AC5 — the scope boundary is respected and recorded.** All 4 latent instances and most
       of the 19 live in COMPLETED tasks owned by others. Editing archived verification blocks is
       a convention change across other owners' tasks — the same class as G-015 leg 1 — so it is
       proposed here and NOT applied without an operator ruling. What was changed and what was
       left is stated explicitly.
+      **Measured, it is not "most" — it is ALL of them.** All 19 DIVERGENT and all 4 latent
+      lines live in `.tasks/completed/`; zero are in `active/`. So **nothing was applied**: this
+      task delivers a proven, ready-to-apply patch set and the ruling request, and changed not
+      one archived file. The one live consequence found along the way (T-178) is likewise NOT
+      repaired here — it is another owner's active task — and is filed as **T-354**.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -143,8 +169,46 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# EVERY LINE BELOW IS A SINGLE COMMAND, DELIBERATELY. A task whose subject is
+# "`a; b` is judged on `b` alone" must not contain an instance of that shape in
+# its own gate. Same discipline as T-351/T-352.
+
+bash tools/_t353-repair-probe.sh
+python3 tools/_t353-classify.py
+python3 tools/_t353-convert.py
+bash -n tools/_t353-repair-probe.sh
+python3 -c "import ast; ast.parse(open('tools/_t353-classify.py').read())"
+python3 -c "import ast; ast.parse(open('tools/_t353-convert.py').read())"
+test -f docs/reports/T-353-corpus-readiness.md
 
 ## RCA
+
+**Symptom:** T-352 reported "4 latent instances, all `grep -q "VALID"`, all in archived
+tasks — they pass honestly today because their documents are valid." One of the four does
+not pass. Its document validates to `WARN`, the string `VALID` never appears in its output,
+and the line is red. Separately, 30 of the 189 lines filed under "LATENT — ran, both
+constructs agreed" had not agreed about anything: they failed under the current gate and the
+second measurement was skipped.
+
+**Root cause:** `LATENT` was defined by the predicate *"the two constructs did not differ"*.
+That predicate is true both when both constructs PASS and when the first construct FAILS and
+the second is never run — two opposite states. The bucket's recorded verdict pairs preserved
+the difference (`(PASS/PASS)` vs `(FAIL/n/a)`), but the prose describing the bucket asserted
+the first state of all 189 members. `n/a` is the ABSENCE of a second measurement, and it was
+read as a matching one.
+
+**Why structurally allowed:** a bucket name is written once, when the predicate is designed,
+and is then carried by every downstream sentence. Nothing re-checks that the name still
+describes the members after the population is filled — and the members were right there,
+correctly labelled, in the same file as the wrong sentence.
+
+**Prevention:** the pattern is now recorded twice on this arc under its general form (a
+bucket named by a predicate, then described as one of the two opposite states that predicate
+spans — T-343, T-341, T-352 DIVERGENT, and now T-352 LATENT). The mechanical prevention is
+narrower and cheap: **any bucket whose members carry a per-member verdict must report the
+distribution of those verdicts, not just its cardinality.** A count of 189 hides a 159/30
+split; a distribution cannot.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -183,6 +247,46 @@ date_finished: null
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-08-03 — the task's own premise was wrong in two places
+
+- **What changed:** the filing said "4 latent patterns + 19 DIVERGENT lines" and treated
+  both numbers as established. Measurement moved both. The 19 are all
+  FAILURE-PATH-CORRECT — zero genuine false greens — which confirms T-352's inversion rather
+  than qualifying it. The 4 are **3 + 1**: T-299's line is not latent, it is already red.
+- **Plan impact:** AC1's "require PASS on the real document" became unsatisfiable for one of
+  its four targets. Amended in place with the reason rather than re-scoped quietly.
+- **Triggered:** nothing new for this task; the finding about T-299 generalised into the RCA.
+
+### 2026-08-03 — the finding was in the denominator, not the subject
+
+- **What changed:** the interesting result came from tallying a bucket I was not asked to
+  look at. `LATENT` (189) splits 159 `(PASS/PASS)` + 30 `(FAIL/n/a)`, and 30 verification
+  lines in this corpus are RED right now. The section describing them says "the first command
+  simply succeeds today".
+- **Plan impact:** the readiness question is larger than the 19+4 this task scoped. It is not
+  larger in a way that changes the recommendation — 29 of the 30 are archived and inert.
+- **Triggered:** **T-354** — the 30th is live. T-178 is active, `work-completed`, `owner:
+  human`, queued at `/review/T-178`, and its verification pins `0.2.0` against MANIFEST's
+  `sha256:` field, which always names the latest release (now `0.8.0`, verified internally
+  correct). Completing T-178 will be refused by P-011 for a reason unrelated to its
+  deliverable. G-015 shape, third carrier.
+
+### 2026-08-03 — three defects in the instrument, caught by its own controls
+
+- **What changed:** the classifier's first run put all three controls in ONE bucket. The head
+  of every member is an assignment (`out=$(cmd)`), whose own stdout is empty by construction —
+  I was inspecting that emptiness and calling it "pattern absent". Then the error vocabulary
+  turned out to list imagined text (`No such file or directory`) and miss what
+  `validate-workflow.py` actually prints (`ERROR [E-LOAD] …: file not found`). Then three
+  real lines read `ASSERTION-UNMET` because I substring-tested grep BREs (`\[E-XML-AUTHORITY\]`)
+  in Python instead of asking grep.
+- **Plan impact:** none to the deliverable; the controls are the reason none of those three
+  reached a published number.
+- **Triggered:** a fourth control, added specifically to prove `ASSERTION-UNMET` is still
+  REACHABLE after the matcher changed — a bucket that can never fill and a bucket that
+  legitimately came up empty are indistinguishable, and that bucket had just been filling
+  wrongly.
 
 ## Decisions
 
