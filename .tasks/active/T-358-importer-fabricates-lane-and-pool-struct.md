@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T16:12:36Z
-last_update: 2026-08-03T16:42:23Z
+last_update: 2026-08-03T16:43:58Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -100,7 +100,7 @@ and should be decided with it, not before it.
 > different cause, which is why the two must be ruled on together: a fix that only
 > changes the default value leaves three causes still sharing one output.
 
-- [ ] **The fabrication is reproduced and its SITE named** -- the specific line(s)
+- [x] **The fabrication is reproduced and its SITE named** -- the specific line(s)
       where `state` acquires lanes/participants absent from the input, not "somewhere
       in parseBpmnXml". Anchor on a function signature, never a line number (they
       drift; T-340's filed anchor already did).
