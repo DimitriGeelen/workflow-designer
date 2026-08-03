@@ -4,9 +4,9 @@ name: "serve-gallery.sh can never stop its own server: trap forwards SIGINT, whi
 description: >
   serve-gallery.sh's exit trap forwards kill -INT to the gallery-serve.py child, but bash sets SIGINT to SIG_IGN for children started with & when job control is off, and python inherits the ignore across exec (confirmed in /proc/PID/status SigIgn). The child therefore survives every INT its parent sends, and orphans on parent death. The in-file comment asserts the exact inverse: that gallery-serve.py handles SIGINT and ignores SIGTERM. SIGTERM is in fact what stops it. Five orphaned gallery-serve.py processes from 2026-07-22 and 2026-07-29 are still resident on this host holding ports with deleted docroots.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T22:02:21Z
-last_update: 2026-08-02T23:43:55Z
-date_finished: null
+last_update: 2026-08-03T00:11:32Z
+date_finished: 2026-08-03T00:11:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -146,6 +146,36 @@ and T-350's probe only needed to stop leaking servers *of its own*, which it doe
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+
+## Recommendation
+
+**Recommendation:** GO — kill all six orphans.
+
+**Rationale:** They are pure residue. Every one serves a docroot that no longer exists on
+disk, so none of them can be answering a useful request; what they still hold is six TCP
+ports and six python processes. They exist because the shutdown path never worked, and that
+cause is now fixed and proven fixed by mutation — so killing them is a one-off cleanup, not
+a recurring chore, and the population cannot regrow from this mechanism.
+
+Two reasons it is still yours rather than mine. They are long-lived processes on your host
+that predate this task, and one of the six binds `0.0.0.0:60701` from **2026-08-02 19:10** —
+recent enough that I cannot rule out something of yours having started it deliberately.
+`kill -TERM` is sufficient for all six; none needs `-9`.
+
+**Evidence:**
+- `bash tools/_t351-shutdown-probe.sh` — AC4 census prints all six with start time and full
+  docroot argv; 6 before, 6 after, identities compared not just counted (3/3 green).
+- Docroots `/tmp/t231-gallery-*`, `/tmp/t231-reg-*`, `/tmp/tmp.yzgHh4L1DE/g-serve` and the
+  session-scratchpad pair are all absent from disk.
+- `bash tools/_t351-teeth.sh` — 3/3. Leg (a) reverts the trap to the pre-fix `kill -INT` and
+  the probe goes red naming the surviving PID and the port, which is the orphan being
+  manufactured on demand. That is the direct evidence that this mechanism produced them.
+- The fix itself: `trap 'kill -TERM "$SRV"' INT TERM` in `tools/serve-gallery.sh`, plus the
+  clean-stop loop no longer "escalating" from TERM to a signal the child ignores.
+
+**If you decline:** nothing breaks. The six keep holding high ports until the host reboots.
+The only cost is that `ss -ltnp` stays noisy and a future port collision on those numbers
+would be diagnosed slowly.
 
 ## Verification
 
@@ -285,3 +315,15 @@ mention of the thing.
 
 ### 2026-08-02T22:31:46Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-604f6839
+- **Timestamp:** 2026-08-03T00:14:33Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-03T00:11:32Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

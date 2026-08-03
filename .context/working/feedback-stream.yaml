@@ -3779,3 +3779,21 @@ scan_id: R-7f88d784
 task_id: T-350
 payload:
   task_file: .tasks/active/T-350-serve-gallery-build-only-path-produce-th.md
+---
+kind: scan_emitted
+timestamp: '2026-08-03T00:14:33Z'
+scan_id: R-604f6839
+task_id: T-351
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-03T00:14:33Z'
+scan_id: R-604f6839
+task_id: T-351
+payload:
+  task_file: .tasks/active/T-351-serve-gallerysh-can-never-stop-its-own-s.md

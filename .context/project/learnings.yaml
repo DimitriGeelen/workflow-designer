@@ -682,3 +682,10 @@ learnings:
   date: 2026-08-02
   context: Added via context agent
   application: TBD
+- id: PL-097
+  learning: "A stop path that assumes its own signal works is not a stop path. serve-gallery.sh forwarded SIGINT to a child started with '&' — bash sets SIGINT to SIG_IGN for such children with job control off, and the ignore survives exec, so the trap was a no-op for eleven days and produced six orphaned servers. The generalisable half is the harness: the probe written to catch this ended each case with 'kill -TERM parent; wait parent', assuming the very property under test, and hung on both mutants. Verify a stop path by mutation and bound every cleanup wait (TERM, poll, then KILL). Testing a signal path also requires 'set -m' in the harness, or backgrounding the subject hands it the same SIG_IGN and the test measures the harness."
+  source: P-001
+  task: T-351
+  date: 2026-08-03
+  context: Added via context agent
+  application: TBD

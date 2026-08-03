@@ -1,10 +1,10 @@
-error-watchdog=50
+error-watchdog=66
 
-loop-detect=246
-audit-task-tools=137
+loop-detect=263
+audit-task-tools=153
 
-checkpoint=10
-check-tier0=11
-budget-gate=11
-check-project-boundary=11
-check-active-task=11
+checkpoint=27
+check-tier0=28
+budget-gate=28
+check-project-boundary=28
+check-active-task=28
