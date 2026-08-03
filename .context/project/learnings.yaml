@@ -689,3 +689,10 @@ learnings:
   date: 2026-08-03
   context: Added via context agent
   application: TBD
+- id: PL-098
+  learning: "A 'passes before / fails after' predicate aggregates every cause of the change, including the fix breaking something correct. T-352's 19 DIVERGENT lines were named 'the finding' when they were the blast radius: validate-workflow.py exits non-zero on an invalid fixture BY DESIGN, so a line asserting the right error code appears is correct and the remedy kills it. Separate the causes by reading each member's intent before attaching a noun to the number."
+  source: P-011
+  task: T-352
+  date: 2026-08-03
+  context: Added via context agent
+  application: TBD
