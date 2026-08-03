@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T22:02:21Z
-last_update: 2026-08-02T22:31:47Z
+last_update: 2026-08-02T23:43:55Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -50,9 +50,11 @@ it, so `serve_forever()` never sees the KeyboardInterrupt the code is written to
 **Consequences, in order of cost:**
 1. The exit trap `trap 'kill -INT "$SRV"' INT TERM` is a **no-op**. Ctrl-C, `timeout`, or any
    kill of the parent leaves the python child orphaned holding its port. This is the mechanism
-   behind **five orphaned `gallery-serve.py` processes still resident on this host** — three
-   from 2026-07-22, one from 2026-07-29, one more from Jul-22 — all serving `/tmp` docroots that
-   no longer exist.
+   behind the orphaned `gallery-serve.py` processes still resident on this host, all serving
+   `/tmp` docroots that no longer exist. **This paragraph originally said five and the AC4
+   census measured six** — four from 2026-07-22, one from 2026-07-29, and one from
+   2026-08-02 19:10. The last one matters: it postdates every earlier count and predates this
+   task's work, so the leak was still live, not a historical residue.
 2. The in-file comment states the **inverse of the truth**: *"gallery-serve.py's HTTPServer
    handles KeyboardInterrupt (SIGINT) but ignores SIGTERM; send TERM once (for other server
    kinds), then INT — never a silent -9."* Both halves are backwards. A future maintainer
@@ -68,27 +70,48 @@ and T-350's probe only needed to stop leaking servers *of its own*, which it doe
 ## Acceptance Criteria
 
 ### Agent
-- [ ] **AC1 — the trap stops the child.** Start the server, send the parent the signal a user
+- [x] **AC1 — the trap stops the child.** Start the server, send the parent the signal a user
       would (`SIGTERM`, and separately `SIGINT` as Ctrl-C delivers it), and assert in both cases
       that the listener is gone and no `gallery-serve.py` process survives. Asserted on a port
       discovered free at runtime, never a literal.
-- [ ] **AC2 — the comment states what is true.** The corrected text names SIGTERM as the working
+
+      **AMENDED before ticking.** The AC as written is satisfiable by a probe that proves
+      nothing. Backgrounding the subject with `&` from a non-interactive shell hands it
+      SIG_IGN for SIGINT — the very mechanism under test — and bash then cannot install an
+      INT trap at all, because a signal ignored on entry to the shell cannot be trapped. The
+      SIGINT leg would have gone green by never delivering anything. The probe therefore sets
+      `set -m` (job control, own process group, default dispositions — what a terminal does)
+      AND reads `/proc/PID/status` `SigIgn` before signalling, so an undeliverable signal is
+      reported as a HARNESS fault naming the probe rather than as a verdict on
+      serve-gallery.sh. Teeth leg (b) removes `set -m` and requires exactly that message.
+- [x] **AC2 — the comment states what is true.** The corrected text names SIGTERM as the working
       signal and records *why* SIGINT cannot work here (inherited `SIG_IGN` for `&` children,
       preserved across `exec`), so the next reader does not re-derive it from a wrong premise.
-- [ ] **AC3 — proven by mutation.** Reverting the fix to the INT-only trap makes AC1 go red
+- [x] **AC3 — proven by mutation.** Reverting the fix to the INT-only trap makes AC1 go red
       **naming the surviving PID and port**, not merely returning non-zero.
-- [ ] **AC4 — the existing orphan population is measured before and after**, and the count is
+- [x] **AC4 — the existing orphan population is measured before and after**, and the count is
       reported rather than assumed to be five: `pgrep -f gallery-serve.py` with start times and
       docroots. A cleanup that reports "done" without a count cannot distinguish "cleaned" from
       "nothing matched".
 
+      **Measured: SIX, not five.** Four from 2026-07-22, one from 2026-07-29, and one from
+      2026-08-02 19:10 that predates this task's work — so the leak was still producing
+      orphans independently of the T-350 harness that surfaced it. The "five" in this task's
+      own description was asserted from memory; correcting it is the AC doing its job on its
+      author. The census compares PID *identities* before and after, not just the count: two
+      processes swapped one-for-one would net to zero.
+
 ### Human
-- [ ] [REVIEW] Decide whether the five pre-existing orphans should be killed
+- [ ] [REVIEW] Decide whether the six pre-existing orphans should be killed
       **Steps:**
-      1. `cd /opt/832-Workflow-designer && ps -o pid,lstart,args -C python3 | grep gallery-serve`
-      2. Note that every listed docroot under `/tmp/t231-*` no longer exists.
-      **Expected:** Five processes from 2026-07-22 / 2026-07-29 holding high ports.
-      **If not:** fewer or none means someone or something already reaped them — record which.
+      1. `cd /opt/832-Workflow-designer && bash tools/_t351-shutdown-probe.sh 2>&1 | head -12`
+      **Expected:** SIX processes, not five — the count in the first draft of this task was
+      asserted from memory and the AC4 census corrected it. Four from 2026-07-22, one from
+      2026-07-29 (docroot in a session scratchpad), and **one from 2026-08-02 19:10**, which
+      predates this task's work and shows the leak was still producing orphans independently
+      of the T-350 harness. Every listed docroot is gone from disk.
+      **If not:** fewer means someone or something reaped them since — record which PIDs and
+      when, because a shrinking population without a named reaper is its own question.
       **Why this is yours:** they are long-lived processes on your host, not artifacts of this
       task. The agent did not kill them; it killed only the two it started itself. Reply with
       go/no-go and the agent will clean them under this task.
@@ -145,6 +168,23 @@ and T-350's probe only needed to stop leaking servers *of its own*, which it doe
 # Origin: L-387, captured 4× (T-1716, T-1838, T-1862, T-1863) before this hint.
 #
 # Single pipe only — no intermediate tail/awk/sed stages between capture and grep
+
+# NOTE ON THE HINT ABOVE (T-352, found while writing this block). P-011 runs each line as
+# `if ( ...; eval "$cmd" ); then` — the subshell is the CONDITION of an `if`, so `set -e` is
+# SUPPRESSED inside it. A line of the form `a; b` is therefore judged on `b` alone. The
+# capture-then-grep shape the hint prescribes is exactly that shape, so the producing
+# command's exit code is discarded. Proven, not reasoned: a validate-workflow.py run that
+# exits 2 and prints INVALID returns PASS through the gate's own construct, because
+# `grep -q "VALID"` matches INVALID as a substring. Every line below is therefore a SINGLE
+# command whose own exit code is the verdict, and the two greps were checked against a
+# reverted copy of serve-gallery.sh to confirm they go red rather than merely being present.
+# Runtime is ~4 min: the probe and teeth start real servers and do full gallery rebuilds.
+
+bash tools/_t351-shutdown-probe.sh
+bash tools/_t351-teeth.sh
+bash -n tools/serve-gallery.sh
+grep -qE '^[^#]*kill -TERM "\$SRV"' tools/serve-gallery.sh
+! grep -qE '^[^#]*kill -INT' tools/serve-gallery.sh
 # (T-2090): `echo "$out" | tail -3 | grep -q PAT` re-introduces the SIGPIPE risk
 # the capture step closed off — the middle stage is what `grep -q` slams its
 # stdin on. `echo "$out"` is small and immediate; grep scans the whole captured
@@ -217,6 +257,24 @@ and T-350's probe only needed to stop leaking servers *of its own*, which it doe
      so `fw inception decide` (lib/inception.sh) finds the anchor heading
      without auto-creating; T-1832 added auto-create as fallback for
      legacy tasks lacking this section. -->
+
+## What the harness caught about itself
+
+**The probe's own cleanup had the defect it was built to find.** Each case ended with
+`kill -TERM "$parent"; wait "$parent"` — which assumes the parent dies on TERM, i.e. assumes
+exactly the property under test. Against teeth leg (a)'s INT-only mutant the parent traps
+TERM, forwards an ignored INT, and returns to `wait`; against leg (c)'s stub it traps TERM
+and loops. In both cases the unbounded `wait` blocked until the outer 400s timeout, and the
+run had to be killed by hand. A stop path that assumes its signal works, in the tool written
+because a stop path assumed its signal worked. Replaced with `stop_hard()`: TERM, bounded
+poll, then KILL — TERM first so a well-behaved subject still exits cleanly and that exit
+remains observable, KILL only after TERM has demonstrably not worked.
+
+**A `pkill -f` pattern matched its own command line.** Clearing the hung run with
+`pkill -f '_t351'` killed the invoking shell, because the shell's own argv contained the
+pattern. Not a framework defect and not novel, but it is the same byte-space collision as
+T-350's comment-quoting-the-command: the matcher cannot distinguish the thing from the
+mention of the thing.
 
 ## Updates
 

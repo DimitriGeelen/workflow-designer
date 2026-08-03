@@ -124,12 +124,18 @@ listeners_on_port() {
 held="$(listeners_on_port "$PORT")"
 if [ -n "${held// /}" ]; then
   echo "serve-gallery: port $PORT already held by PID(s): ${held% } — clean-stopping before rebind" >&2
-  # gallery-serve.py's HTTPServer handles KeyboardInterrupt (SIGINT) but ignores
-  # SIGTERM; send TERM once (for other server kinds), then INT — never a silent -9.
+  # SIGTERM is the ONLY signal that stops these servers, and the reason is not about
+  # python at all (T-351). Every gallery-serve.py on this host was started with `&` by a
+  # non-interactive shell, and bash sets SIGINT (and SIGQUIT) to SIG_IGN for background
+  # children when job control is off. An *ignored* disposition — unlike a handler —
+  # survives exec, so python starts with SIGINT already ignored and its
+  # `except KeyboardInterrupt` can never run. /proc/PID/status SigIgn confirms it.
+  # The previous comment here asserted the exact inverse ("handles SIGINT, ignores
+  # SIGTERM") and the loop below only ever worked because attempt 1 sent TERM.
   for attempt in 1 2 3; do
     still="$(listeners_on_port "$PORT")"
     [ -z "${still// /}" ] && break
-    sig=INT; [ "$attempt" = 1 ] && sig=TERM
+    sig=TERM   # not escalated to INT: INT is ignored, so escalating de-escalates
     for pid in $still; do kill -"$sig" "$pid" 2>/dev/null || true; done
     for _ in $(seq 1 20); do
       [ -z "$(listeners_on_port "$PORT" | tr -d ' ')" ] && break
@@ -138,9 +144,9 @@ if [ -n "${held// /}" ]; then
   done
   still="$(listeners_on_port "$PORT")"
   if [ -n "${still// /}" ]; then
-    echo "serve-gallery: FATAL — port $PORT still held by PID(s): ${still% } after TERM+INT;" >&2
+    echo "serve-gallery: FATAL — port $PORT still held by PID(s): ${still% } after 3x TERM;" >&2
     echo "  refusing to start a second, shadowed server (it would serve stale code)." >&2
-    echo "  Stop it manually then re-run:  kill -INT ${still% }" >&2
+    echo "  Stop it manually then re-run:  kill -TERM ${still% }" >&2
     exit 1
   fi
   echo "serve-gallery: port $PORT released." >&2
@@ -159,7 +165,18 @@ fi
 
 # Forward stop signals to the child so the NEXT invocation's clean-stop works and a
 # Ctrl-C / nohup-kill cleanly ends the server instead of orphaning it.
-trap 'kill -INT "$SRV" 2>/dev/null || true' INT TERM
+#
+# TERM, not INT (T-351): the child above was started with `&`, so it has SIGINT set to
+# SIG_IGN and forwarding INT is a no-op — which is why every orphan on this host
+# outlived the script that started it. Two further consequences worth knowing before
+# editing this line:
+#   • If serve-gallery.sh is ITSELF launched with `&` from a non-interactive shell, it
+#     inherits SIG_IGN for INT too, and bash cannot trap a signal that was ignored on
+#     entry — so the INT arm below is silently not installed in that context. It is
+#     kept because the interactive Ctrl-C case (job control on) is real and does trap.
+#   • Testing this therefore requires `set -m` in the harness, or the test backgrounds
+#     the subject and proves only that an un-deliverable signal was not delivered.
+trap 'kill -TERM "$SRV" 2>/dev/null || true' INT TERM
 
 # ── post-deploy BEHAVIOR probe (T-231) ─────────────────────────────────────────
 # Assert the RUNNING process actually answers before reporting success — do NOT
@@ -173,7 +190,7 @@ for _ in $(seq 1 100); do
 done
 if [ "$probe_ok" != 1 ]; then
   echo "serve-gallery: FATAL — server on :$PORT did not answer $PROBE_PATH (PID $SRV); deploy failed" >&2
-  kill -INT "$SRV" 2>/dev/null || true
+  kill -TERM "$SRV" 2>/dev/null || true   # INT is ignored by a `&` child (T-351)
   wait "$SRV" 2>/dev/null || true
   exit 1
 fi

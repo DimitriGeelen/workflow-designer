@@ -2,16 +2,6 @@
 # Auto-appended by audit.sh on each run
 # 30-day rolling retention
 entries:
-- timestamp: '2026-07-04T00:00:12Z'
-  pass: 26
-  warn: 4
-  fail: 0
-  active_tasks: 7
-  completed_tasks: 55
-  velocity: 64
-  traceability_pct: 100
-  episodic_quality_pct: 0
-  open_gaps: 2
 - timestamp: '2026-07-05T00:00:14Z'
   pass: 26
   warn: 1
@@ -229,16 +219,6 @@ entries:
   active_tasks: 76
   completed_tasks: 177
   velocity: 10
-  traceability_pct: 100
-  episodic_quality_pct: 0
-  open_gaps: 7
-- timestamp: '2026-07-26T23:45:02Z'
-  pass: 8
-  warn: 4
-  fail: 0
-  active_tasks: 76
-  completed_tasks: 181
-  velocity: 12
   traceability_pct: 100
   episodic_quality_pct: 0
   open_gaps: 7
@@ -8699,6 +8679,26 @@ entries:
   active_tasks: 44
   completed_tasks: 307
   velocity: 71
+  traceability_pct: 100
+  episodic_quality_pct: 0
+  open_gaps: 13
+- timestamp: '2026-08-02T23:45:03Z'
+  pass: 7
+  warn: 2
+  fail: 0
+  active_tasks: 44
+  completed_tasks: 307
+  velocity: 70
+  traceability_pct: 100
+  episodic_quality_pct: 0
+  open_gaps: 13
+- timestamp: '2026-08-03T00:00:19Z'
+  pass: 28
+  warn: 19
+  fail: 59
+  active_tasks: 45
+  completed_tasks: 307
+  velocity: 65
   traceability_pct: 100
   episodic_quality_pct: 0
   open_gaps: 13
