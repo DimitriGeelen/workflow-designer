@@ -4,9 +4,9 @@ name: "Prepare the corpus for the P-011 errexit gate change (4 latent patterns +
 description: >
   T-352 measured the blast radius of the proposed P-011 errexit fix and it inverts the case for applying it today: 0 currently-manifesting false greens, 4 latent instances (all 'grep -q VALID' against validate-workflow.py, all in ARCHIVED tasks so they never re-run), and 19 CORRECT verification lines the remedy would break (validator exits non-zero on an invalid fixture by design; 'grep -c' exits 1 when it counts zero matches). The gate change is right in principle and must not land before the corpus is ready. This task does the readying: tighten the 4 patterns so they cannot match their own denial, and convert the 19 so their intended failure is expressed as success. Blocked on an operator ruling for the completed-task edits (same class as G-015 leg 1: a convention change across other owners' tasks). See docs/reports/T-352-remedy.md sections 6 and 7.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T10:35:08Z
-last_update: 2026-08-03T11:02:58Z
-date_finished: null
+last_update: 2026-08-03T11:09:29Z
+date_finished: 2026-08-03T11:09:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -120,6 +120,72 @@ date_finished: null
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+
+- [ ] [REVIEW] Ruling: may an agent edit `## Verification` blocks inside `.tasks/completed/`?
+
+  This is a convention question about other owners' archived records, not a technical one —
+  the patch set is already built and proven, and no part of it has been applied.
+
+  **Steps:**
+  1. `cd /opt/832-Workflow-designer && bash tools/_t353-repair-probe.sh` — 16/16, the 4 latent
+     pattern repairs proven to discriminate.
+  2. `cd /opt/832-Workflow-designer && python3 tools/_t353-convert.py` — 19/19, DIVERGENT
+     remaining 0, every conversion proven under both the current and the remedy construct.
+  3. Read `docs/reports/T-353-corpus-readiness.md` §3 and §4 — the two corrections.
+  4. Answer one question: may the agent apply these edits to files in `.tasks/completed/`?
+
+  **Expected:** a yes or no recorded here.
+  - **Yes** → the patch set is applied to the 23 archived lines, and the P-011 gate change
+    becomes unblocked (still a separate operator decision, G-008 upstream).
+  - **No** → the archived lines stay as they are, this task closes as a proven proposal, and
+    the gate change stays parked. Nothing breaks either way.
+
+  **If not:** if the question is not the right one to be asking, say so — the alternative is
+  that the archived corpus is simply never made ready and the gate change is abandoned rather
+  than parked, which is also a legitimate answer.
+
+## Recommendation
+
+**Recommendation:** DEFER — do not bulk-apply the patch set to the archived corpus.
+
+**Rationale:** the readying work is complete and proven, but every line it targets is inert.
+Applying it would change 23 verification blocks inside other owners' completed tasks for zero
+live benefit, and that is a convention change an agent should not make on tidiness grounds.
+The one live consequence found while measuring has been split out as T-354, where it can be
+fixed on its own merits without any ruling at all. Deferring is cheap and reversible: the
+patch set is regenerable from `tools/_t353-convert.py` and does not decay.
+
+**Evidence:**
+
+- `tools/_t353-classify.py` — 19/19 DIVERGENT lines are FAILURE-PATH-CORRECT; **zero genuine
+  false greens**. 4 controls in 4 distinct buckets gate every verdict.
+- `tools/_t353-convert.py` — 19/19 conversions at 3/3 legs; **DIVERGENT remaining: 0**.
+- `tools/_t353-repair-probe.sh` — 16/16; the 4 latent repairs proven to discriminate against a
+  document the validator rejects.
+- Location census — **all 23 lines in scope are in `.tasks/completed/`; zero in `active/`.**
+- `docs/reports/T-353-corpus-readiness.md` §3b — 30 of the corpus's 189 "LATENT" lines are red
+  right now; **29 of the 30 are archived and inert.**
+- The 30th is `T-178`, active and queued at `/review/T-178` → filed as **T-354**.
+
+The measurements do not support applying it now, and they are the same measurements that would
+have supported it if it were warranted:
+
+- **All 23 lines in scope are in `.tasks/completed/`.** Archived verification blocks do not
+  re-run. Repairing them buys tidiness, not safety, and touches other owners' records to get it.
+- **The scariest number is inert too.** 30 corpus verification lines are RED right now — but
+  29 are archived. Their redness has no consequence until someone re-completes those tasks,
+  which does not happen.
+- **The one thing that IS live has been split out.** T-178 is active, queued for review, and
+  will be refused by P-011 when the operator finalises it. That is filed as **T-354** and is
+  worth doing on its own merits regardless of how this ruling goes.
+- **Deferring costs nothing that cannot be recovered.** The patch set is proven and reproducible
+  from `tools/_t353-convert.py`; it does not decay. If the gate change is ever wanted, the
+  readying work is already done and re-runnable.
+
+The argument on the other side, stated fairly: leaving 30 red lines in the corpus means the
+next person to measure it will rediscover them, and `grep -q "VALID"` remains in the tree as a
+copyable example. The second half is already addressed — the template fix in T-352 stops new
+instances at the point of teaching, which is where the leverage was.
 
 ## Verification
 
@@ -315,3 +381,20 @@ split; a distribution cannot.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-353-prepare-the-corpus-for-the-p-011-errexit.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7bba2d16
+- **Timestamp:** 2026-08-03T11:09:55Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#4 (Agent)** — **AC4 — the readiness claim is mechanical, not asserted.** `tools/_t352-member-scan.py`
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t352-member-scan.py in: **AC4 — the readiness claim is mechanical, not asserted.** `tools/_t352-member-scan.py``
+
+### 2026-08-03T11:09:29Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

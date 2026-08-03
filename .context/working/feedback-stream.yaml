@@ -3815,3 +3815,21 @@ scan_id: R-94ebc3d3
 task_id: T-352
 payload:
   task_file: .tasks/active/T-352-p-011-judges-a-multi-command-verificatio.md
+---
+kind: scan_emitted
+timestamp: '2026-08-03T11:09:55Z'
+scan_id: R-7bba2d16
+task_id: T-353
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-03T11:09:55Z'
+scan_id: R-7bba2d16
+task_id: T-353
+payload:
+  task_file: .tasks/active/T-353-prepare-the-corpus-for-the-p-011-errexit.md
