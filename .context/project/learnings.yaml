@@ -703,3 +703,17 @@ learnings:
   date: 2026-08-03
   context: Added via context agent
   application: TBD
+- id: PL-100
+  learning: "A corpus census over artifacts your own tooling produced rates your generator, not the population: T-340's '0 of N files carry DI' was measured over 126 files of which 121 carry our exporter's fingerprint, and our exporter never emits DI — the bucket could not fill"
+  source: P-001
+  task: T-340
+  date: 2026-08-03
+  context: Added via context agent
+  application: TBD
+- id: PL-101
+  learning: "Before copying a repair across a 'same class' boundary, check whether the preserved content collides with something the model already owns: T-337's foreign-tag passthrough is inert, T-340's DI duplicates aef:position, so verbatim preservation would publish two contradictory geometries"
+  source: P-001
+  task: T-340
+  date: 2026-08-03
+  context: Added via context agent
+  application: TBD
