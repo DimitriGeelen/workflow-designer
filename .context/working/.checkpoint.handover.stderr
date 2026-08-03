@@ -1,87 +1,29 @@
 === Handover Agent ===
-Session: S-2026-0801-1552
-Timestamp: 2026-08-01T13:52:24Z
+Session: S-2026-0803-1538
+Timestamp: 2026-08-03T13:38:13Z
 
 Gathering state...
 
 Checking episodic completeness...
 ✓ All recent completed tasks have enriched episodics
 ✓ Observation inbox clean
-Concerns register: 9 watching
-Session metrics extracted: 28230 turns, 738 commits, 763 errors, 694 edit bursts
-  Cumulative — CPT: 0.0261 | FTC rate: 0.0573 | PTR: 0.2957
-  Per-session (75 turns) — CPT: 0.0 | FTC rate: 0.0465 | PTR: 0.4933
+Concerns register: 14 watching
+Session metrics extracted: 32086 turns, 859 commits, 866 errors, 825 edit bursts
+  Cumulative — CPT: 0.0268 | FTC rate: 0.0559 | PTR: 0.3131
+  Per-session (46 turns) — CPT: 0.0 | FTC rate: 0.04 | PTR: 0.3478
   Output: /opt/832-Workflow-designer/.context/working/.session-metrics.yaml
 Creating handover document...
 
 === Handover Created ===
-File: /opt/832-Workflow-designer/.context/handovers/S-2026-0801-1552.md
+File: /opt/832-Workflow-designer/.context/handovers/S-2026-0803-1538.md
 Latest: /opt/832-Workflow-designer/.context/handovers/LATEST.md
 
 Auto-committing handover...
-
-WARNING: Task T-005 is closed (in .tasks/completed/)
-  Consider: create a new task, or reopen this one.
-  Commit allowed (Tier 1 warning).
-
-[master 40895a3] T-005: Session handover S-2026-0801-1552
- 2 files changed, 396 insertions(+), 1 deletion(-)
- create mode 100644 .context/handovers/S-2026-0801-1552.md
+[master 53adcf74] T-005: Session handover S-2026-0803-1538
+ 2 files changed, 453 insertions(+), 1 deletion(-)
+ create mode 100644 .context/handovers/S-2026-0803-1538.md
 
 Pushing to remotes...
-  Skipping github (mirrored from origin via PushRepository)
-
-=== Pre-Push Audit Check ===
-
-=== AUDIT REPORT ===
-Timestamp: 2026-08-01T15:52:33+02:00
-Project: /opt/832-Workflow-designer
-Sections: structure
-
-=== STRUCTURE CHECKS ===
-[PASS] Tasks directory exists
-[PASS] Tasks/active directory exists
-[PASS] Tasks/completed directory exists
-[PASS] Tasks/templates directory exists
-[PASS] Task template exists
-[PASS] No duplicate task IDs across active/ and completed/
-[PASS] All 9 project YAML files parse correctly
-[PASS] All 1 arc anchor_task references resolve to existing tasks
-[PASS] All 1 in-progress arc(s) had task commits within 30 days
-[PASS] No inline arc:<slug> tag-only scans outside canonical lib (T-1881)
-[PASS] No PROJECT_ROOT resolution of framework-owned assets in web/ + lib/ Python (T-2648, OBS-097)
-[PASS] No stale-slice-references (L-417)
-[PASS] No GO-scope-not-propagated inception(s) (sibling to L-417)
-[PASS] Fabric: 11 registered, 0 unregistered
-[WARN] Fabric: 11/11 cards have no edges
-       Evidence: Graph coverage below target
-       Mitigation: Run: fw fabric enrich
-[PASS] Fabric drift: All watched source files registered (11 cards)
-[PASS] Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer
-[PASS] Hook threshold: no hooks failing over threshold
-[PASS] Secret scan: tracked tree clean
-[PASS] Designer ghost registry: ghost↔task joins clean
-
-=== SUMMARY ===
-Pass: 19
-Warn: 1
-Fail: 0
-
-=== PRIORITY ACTIONS ===
-     1	Run: fw fabric enrich
-
-=== TREND ANALYSIS ===
-No repeated issues in last 14 days (across 13 audits).
-
-Audit history: 13 audit(s) in last 14 days + today
-
-Audit saved to: /opt/832-Workflow-designer/.context/audits/2026-08-01.yaml
-
-=== END AUDIT ===
-
-WARNING: Audit has warnings (push allowed)
-Consider addressing the issues above.
-
 To ssh://192.168.10.201:6611/workflow-designer
-   b7b2a50..40895a3  HEAD -> master
+   8a84ecbe..53adcf74  HEAD -> master
   Pushed to origin ✓

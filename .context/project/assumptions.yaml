@@ -185,3 +185,13 @@ assumptions:
   linked_task: T-357
   created: '2026-08-03'
   resolved_date: null
+- id: A-020
+  statement: AEF generates BPMN DI from our aef:position, as every exported document
+    has asserted since 2026-06-05 (src:9406-9407). Unverifiable from 832 under the
+    T-559 boundary; asked on the rail at offset 418.
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-357
+  created: '2026-08-03'
+  resolved_date: null
