@@ -3851,3 +3851,21 @@ scan_id: R-0e261d51
 task_id: T-354
 payload:
   task_file: .tasks/active/T-354-t-178-verification-pins-020-against-mani.md
+---
+kind: scan_emitted
+timestamp: '2026-08-03T11:50:09Z'
+scan_id: R-ac11f251
+task_id: T-337
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-03T11:50:09Z'
+scan_id: R-ac11f251
+task_id: T-337
+payload:
+  task_file: .tasks/active/T-337-import-silently-drops-flow-nodes-whose-b.md
