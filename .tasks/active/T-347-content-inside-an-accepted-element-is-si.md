@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:34:19Z
-last_update: 2026-08-03T16:56:38Z
+last_update: 2026-08-03T16:57:15Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -111,6 +111,23 @@ the standard BPMN element for human-authored prose about a step, and a foreign
 arriving from a third-party modeller carries both. Within our own corpus the shapes are
 absent, so nothing is being lost today — but the exposure is on the import path from
 peers, which is the T-559 seam.
+
+> **CORRECTION 2026-08-03 — the sentence above that reads "Any file arriving from a
+> third-party modeller carries both" is now MEASURED FALSE.** Five real third-party
+> files, from Camunda Modeler and bpmn-js: **0 carry `documentation`, 0 carry a
+> foreign `extensionElements` child.** The claim was reasoned from what such tools
+> *can* store, not from what they *do* emit — the same move that produced the
+> unreachable census this arc has been unpicking all week, made in the opposite
+> direction. There it undercounted a defect; here it overcounted one.
+>
+> **The severity conclusion survives and its justification does not.** These shapes
+> are optional and author-driven: a modeller emits `documentation` when a human
+> typed a note, and a foreign `extensionElements` child when a *platform* (Camunda
+> execution properties, Zeebe bindings) is in play — neither is present in generic
+> test diagrams. So the honest severity is **"latent but with genuinely non-zero
+> occupancy in the wild, unquantified here"**, not "any file carries both". Five
+> fixtures is far too small a sample to put a rate on it, and saying so is the
+> point: the previous sentence put a rate of 100% on it from no sample at all.
 
 ## Addendum — T-348 folds into this decision (2026-08-02)
 
