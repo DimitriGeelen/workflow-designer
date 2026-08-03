@@ -1,0 +1,96 @@
+# ============================================================================
+# EPISODIC MEMORY - T-337: Import silently drops flow nodes whose BPMN tag is outside the parseBpmnXml allowlist
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-03T11:50:12Z
+# ============================================================================
+
+task_id: T-337
+task_name: "Import silently drops flow nodes whose BPMN tag is outside the parseBpmnXml allowlist"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-02T09:33:03Z
+completed: 2026-08-03T11:48:32Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-08-02T11:35:30+02:00
+last_commit: 2026-08-03T13:48:10+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file the import data-loss defect found by T-309 spike 4 — parseBpmnXml enumerates flow nodes from a hard-coded tag ALLOWLIST with no complement branch, so an unlisted tag is not rejected but invisible, and export (writing only from state.nodes) deletes the node; the result then validates CLEAN because E-XML-NODE-TYPE's evidence went with it. 15 of 24 corpus maps, 15 nodes, negative control clean. Severity stated as LATENT not active: zero out-of-allowlist tags in all 47 local .bpmn files today, so this is a corpus zero standing in for a safety property. Repair semantics NOT chosen — (a) preserve-and-re-emit matches T-259 precedent and the ratified 'diagram XML is never silently migrated', but it changes what we emit for peer content, which is the T-559 seam. Registers G-016: the export-safety instrument is DIFFERENTIAL (two designer versions vs each other over 24 well-formed maps), so a defect both versions share is green and malformed input is outside the denominator — the defect survived in the intersection. session bookkeeping carried here — learning capture, memory index, hook counters. Carried under T-337 because both T-353 and T-354 are work-completed and terminal, so the focus-drift gate correctly refuses their labels; T-337 is also genuinely where the next session picks up (import-loss trio, on the arc), not a parking slot. No T-337 work was done this session.. carried here (T-353/T-354 both terminal; no T-337 work done) — sized the unexamined region so 'floor' stops being a hand-wave. Static count over 354 task files, no execution: 1341 verification lines total, 331 SHAPED (top-level ';') which is the ONLY population any scan has ever examined, and 1010 UNSHAPED — 75.3% of the corpus never run by any instrument. So the honest sentence is '30 red lines found in the QUARTER of the corpus anyone has looked at', not '30 red lines in the corpus'. Explicitly NOT a claim the other 1010 are bad: T-178's two unshaped red lines are the only evidence either way and two-of-two is a sample, not a rate — the point is the number had no denominator behind it. Also recorded: the totals MOVED while this was being written (T-352 measured 1331/322, this measures 1341/331) because T-353 and T-354 added verification lines to the very corpus they were measuring — a corpus-wide count is itself a moving global, G-015 arriving one level up on the instrument rather than the subject. import no longer deletes flow nodes whose BPMN tag is outside the allowlist — complement branch + foreignTag re-emit; the guard that already existed reported the repair itself
+
+# Key outcomes
+outcomes:
+  - 'A round-trip fidelity guard exists that loads a BPMN document containing a flow node with an'
+  - 'The guard runs in `tests/run-bridge-tests.sh` (the gating runner), not only standalone —'
+  - 'Its denominator is stated and checked: the guard must assert it actually exercised an'
+  - 'Repair semantics chosen from (a)/(b)/(c) above and recorded in `## Decisions` with rationale,'
+  - '`tools/_t308-export-byte-identity-cdp.mjs HEAD` still reports byte-identical across all 24'
+  - '`python3 tests/test_finding_anchorability.py` still passes (E-XML-NODE-TYPE''s population may'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-03 — repair semantics for an out-of-allowlist flow node'
+    chose: '**(a) preserve and re-emit.** The element is imported as a real node'
+    rationale: 'it matches the house precedent one granularity down (T-259/T-257 GO captured an'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/locks/T-337.lock'
+  - '.context/project/concerns.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - 'docs/reports/T-353-corpus-readiness.md'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-337-import-silently-drops-flow-nodes-whose-b.md'
+  - '.tasks/active/T-355-foreign-tag-nodes-render-identically-to-.md'
+  - 'tools/_t338-input-fidelity-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-02T11:35:30"
+    action: "T-337: file the import data-loss defect found by T-309 spike 4 — parseBpmnXml enumerates flow nodes from a hard-coded tag ALLOWLIST with no complement branch, so an unlisted tag is not rejected but invisible, and export (writing only from state.nodes) deletes the node; the result then validates CLEAN because E-XML-NODE-TYPE's evidence went with it. 15 of 24 corpus maps, 15 nodes, negative control clean. Severity stated as LATENT not active: zero out-of-allowlist tags in all 47 local .bpmn files today, so this is a corpus zero standing in for a safety property. Repair semantics NOT chosen — (a) preserve-and-re-emit matches T-259 precedent and the ratified 'diagram XML is never silently migrated', but it changes what we emit for peer content, which is the T-559 seam. Registers G-016: the export-safety instrument is DIFFERENTIAL (two designer versions vs each other over 24 well-formed maps), so a defect both versions share is green and malformed input is outside the denominator — the defect survived in the intersection"
+  - time: "2026-08-03T13:17:25"
+    action: "T-337: session bookkeeping carried here — learning capture, memory index, hook counters. Carried under T-337 because both T-353 and T-354 are work-completed and terminal, so the focus-drift gate correctly refuses their labels; T-337 is also genuinely where the next session picks up (import-loss trio, on the arc), not a parking slot. No T-337 work was done this session."
+  - time: "2026-08-03T13:20:16"
+    action: "T-337: carried here (T-353/T-354 both terminal; no T-337 work done) — sized the unexamined region so 'floor' stops being a hand-wave. Static count over 354 task files, no execution: 1341 verification lines total, 331 SHAPED (top-level ';') which is the ONLY population any scan has ever examined, and 1010 UNSHAPED — 75.3% of the corpus never run by any instrument. So the honest sentence is '30 red lines found in the QUARTER of the corpus anyone has looked at', not '30 red lines in the corpus'. Explicitly NOT a claim the other 1010 are bad: T-178's two unshaped red lines are the only evidence either way and two-of-two is a sample, not a rate — the point is the number had no denominator behind it. Also recorded: the totals MOVED while this was being written (T-352 measured 1331/322, this measures 1341/331) because T-353 and T-354 added verification lines to the very corpus they were measuring — a corpus-wide count is itself a moving global, G-015 arriving one level up on the instrument rather than the subject"
+  - time: "2026-08-03T13:48:10"
+    action: "T-337: import no longer deletes flow nodes whose BPMN tag is outside the allowlist — complement branch + foreignTag re-emit; the guard that already existed reported the repair itself"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 1575 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1575
+  commits: 4
+  files_changed: 14
+  lines_added: 865
+  lines_removed: 72
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-337-import-silently-drops-flow-nodes-whose-b.md
+generated_by: context-agent-hybrid

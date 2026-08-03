@@ -1067,3 +1067,10 @@ decisions:
     date: 2026-08-02
     task: T-331
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-132
+    decision: "**(a) preserve and re-emit.** The element is imported as a real node"
+    scope: project
+    date: 2026-08-03
+    task: T-337
+    rationale: "Auto-captured from task file on completion"

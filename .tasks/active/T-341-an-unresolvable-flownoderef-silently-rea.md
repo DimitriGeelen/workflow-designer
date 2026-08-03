@@ -4,7 +4,7 @@ name: "An unresolvable flowNodeRef silently reassigns the orphaned node to the h
 description: >
   A node whose lane reference does not resolve is re-homed to the human lane with no notice. Measured framework-to-human on 5 of 24 corpus maps. No data loss (aef:uid and all counts preserved) but lane is WHO in this project (IW-9), so an unresolvable reference silently promotes a step into the sovereignty lane and renumbers its siblings display ids. Found by T-339.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T10:39:07Z
-last_update: 2026-08-02T10:39:07Z
+last_update: 2026-08-03T11:50:39Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -201,3 +201,6 @@ show it. This task and that finding are the same seam.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-341-an-unresolvable-flownoderef-silently-rea.md
 - **Context:** Initial task creation
+
+### 2026-08-03T11:50:39Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
