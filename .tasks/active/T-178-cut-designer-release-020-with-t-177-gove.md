@@ -85,11 +85,28 @@ above is satisfied by this evidence (operator checks the box + runs `work-comple
 ## Verification
 
 python3 tests/test_editor_bridge_meta_parity.py
-grep -q '^0.2.0$' VERSION
+# ── REPAIRED BY T-354 (2026-08-03) ──────────────────────────────────────────────
+# Three lines here were RED and blocking this task's completion:
+#     grep -q '^0.2.0$' VERSION
+#     m=$(grep '^sha256:' dist/MANIFEST.yaml | …); a=$(sha256sum …-0.2.0.html | …); [ "$m" = "$a" ]
+#     grep -q 'latest: "0.2.0"' dist/MANIFEST.yaml
+# All three asserted "the project's CURRENT release state is 0.2.0" — VERSION,
+# MANIFEST's `latest:`, and MANIFEST's `sha256:`, which always names the LATEST
+# release (now 0.8.0, and internally correct: the field matches the 0.8.0 artifact
+# byte for byte). Each was true only in the moment 0.2.0 was latest and has been
+# false through the eight releases since. G-015 shape — a gate asserting a global,
+# always-moving property.
+#
+# THIS IS NOT A WEAKENED GATE. The artifact is intact: dist/…-0.2.0.html still
+# hashes to e301986b…, the sha this task recorded at release time (AC#2/AC#3) and
+# which AEF independently confirmed on re-pin. So the three lines were WRONG —
+# asserting a property this task never durably had — rather than correctly
+# reporting a regression. The property they were reaching for is asserted
+# permanently below: the artifact this task shipped is present and unmodified.
+# VERSION and `latest:` have no permanent equivalent (they legitimately move) and
+# the sha check subsumes what they stood as evidence for.
 test -f dist/aef-workflow-designer-0.2.0.html
-# manifest sha matches the artifact
-m=$(grep '^sha256:' dist/MANIFEST.yaml | tr -d ' "' | cut -d: -f2); a=$(sha256sum dist/aef-workflow-designer-0.2.0.html | awk '{print $1}'); [ "$m" = "$a" ]
-grep -q 'latest: "0.2.0"' dist/MANIFEST.yaml
+echo "e301986b993baf58d5ed29ed25436d94b08ed2be910c6781b0f4b906c25c153a  dist/aef-workflow-designer-0.2.0.html" | sha256sum -c --status -
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.

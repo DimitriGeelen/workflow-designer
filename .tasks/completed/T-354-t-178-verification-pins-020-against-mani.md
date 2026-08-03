@@ -4,10 +4,10 @@ name: "T-178 verification pins 0.2.0 against MANIFEST's always-latest sha256 fie
 description: >
   T-178 is active, status work-completed, owner human, queued at /review/T-178. Its verification block compares MANIFEST.yaml's sha256 field against dist/aef-workflow-designer-0.2.0.html. That field always names the LATEST release; it is at 0.8.0 and is internally correct (field matches the 0.8.0 artifact byte for byte). The line was true exactly once, when 0.2.0 was latest, and has been false through eight releases since. Consequence: when the operator ticks T-178's Human AC and runs work-completed, the P-011 gate refuses the completion for a reason unrelated to T-178's deliverable, which shipped. This is the G-015 shape — a verification line asserting a global, always-moving property — third carrier found after the designer.html diff family and the hard-coded ports. Found by T-353 while tallying the LATENT bucket's recorded verdict pairs: 30 of 189 are (FAIL/n/a), i.e. already red; 29 are archived and inert, this one is live. Repair is to pin the artifact the task actually released (compare against the 0.2.0 sha recorded at release time) rather than against a field that moves. NOT repaired under T-353: T-178 is another owner's active task.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T11:03:24Z
-last_update: 2026-08-03T11:03:24Z
-date_finished: null
+last_update: 2026-08-03T11:15:19Z
+date_finished: 2026-08-03T11:15:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -40,8 +40,62 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **AC1 — the full extent of T-178's staleness is measured, not assumed.**
+      **Measured: THREE red lines, not one.** `grep -q '^0.2.0$' VERSION` and
+      `grep -q 'latest: "0.2.0"' dist/MANIFEST.yaml` were both red and both **invisible to the
+      T-352 scan**, which only ever examined lines carrying a top-level `;`. Confirms the AC's
+      premise — the scan's reach, not T-178, was what "one red line" described. T-353 found the
+      `sha256` line by scanning lines that carry a top-level `;`. That is a SUBPOPULATION, so
+      "T-178 has one red line" is a claim about the scan's reach, not about T-178. Every line in
+      T-178's `## Verification` block is executed individually and its verdict recorded. The
+      count of red lines is reported as measured, whatever it turns out to be.
+- [x] **AC2 — the repair pins a baseline that exists independently of the current file.**
+      Baseline is `e301986b…`, the literal T-178 recorded in its own AC#2/AC#3 **at release
+      time** and which AEF independently confirmed on re-pin — not a value re-derived from the
+      artifact today. `sha256sum` of the artifact matches it exactly, so the artifact is intact.
+      The fix must NOT be "record whatever `sha256sum dist/…-0.2.0.html` prints today" — that is
+      a tolerance answerable only to itself and would pass even if the artifact had been
+      corrupted. The baseline is the sha T-178 **recorded at release time** (`e301986b…`, in its
+      own AC#2/AC#3 text and confirmed by AEF's independent re-pin), and the repaired line must
+      compare the artifact against that literal.
+- [x] **AC3 — the repair is proven to discriminate, in both directions.**
+      Repaired line vs the real `0.2.0` artifact → **PASS**. Same baseline vs `0.1.0` →
+      **FAIL**. Both directions measured, so the PASS is evidence rather than decoration. Run the repaired line
+      against the real artifact and require PASS; run it against a different release artifact
+      (e.g. `0.1.0`) and require FAIL. A line that passes is not evidence — the line being
+      replaced also passed, for eight releases, while asserting nothing true.
+- [x] **AC4 — no gate is weakened to make a task completable.**
+      All three red lines classified **WRONG, not correctly-failing**: each asserted "the
+      project's CURRENT release state is 0.2.0", a global that necessarily moves at the next
+      release. The evidence that none was reporting a real regression is that the artifact
+      hashes to the sha T-178 recorded at release — it is byte-for-byte what shipped. VERSION
+      and `latest:` have no permanent equivalent (they legitimately move) and the sha check
+      subsumes what they stood as evidence for; that reasoning is written into T-178's block
+      rather than left implicit, so the reduction from 5 lines to 3 is auditable. State explicitly, for each line
+      changed, whether the old line was *wrong* (asserting a property T-178 never had) or
+      *correctly failing* (reporting a real regression). Only the first may be repaired. If any
+      line turns out to be correctly failing, it is left red and reported — "the gate blocks, so
+      fix the gate" is a bypass wearing the costume of a repair.
+- [x] **AC5 — the scope boundary is recorded.**
+      Changed: T-178's `## Verification` block only — three red lines replaced by one sound
+      one, with the full reasoning inline in the block itself. Nothing else in T-178 touched;
+      **no AC of T-178 ticked** (its Human `[REVIEW]` AC remains the operator's). Visible at
+      `/review/T-354`. This is a live, broken, review-blocking gate rather than T-353's inert
+      archived corpus, which is why it was repaired instead of parked — but it is the same
+      kind of question and is recorded as such. T-178 is another owner's ACTIVE task. Editing
+      its verification block is a smaller question than T-353's archived-corpus ruling (this one
+      is live, broken, and blocking a queued review) but it is the same *kind* of question. What
+      was changed is stated explicitly, and the operator can see it at `/review/T-354`.
+- [x] **AC6 — the population question T-178 raises is answered or explicitly deferred.**
+      Answered and corrected in place: `docs/reports/T-353-corpus-readiness.md` **§3c** now
+      states that 30 is a **FLOOR, not a count** — the T-352 scan's population was only lines
+      carrying a top-level `;`, so a red line without one was never a candidate. T-178 supplies
+      the concrete proof (2 of its 3 red lines were outside the scan's reach). The corpus-wide
+      figure is unmeasured and strictly greater than 30. Same shape as the RAIL-387 retraction:
+      a subpopulation's property stated about the tree. Carried to AEF in the next rail post. If
+      T-178's second red line is invisible to the T-352 scan because it lacks a top-level `;`,
+      then the corpus-wide "30 red lines" figure is a floor, not a count, and that must be
+      stated wherever the 30 appears (`docs/reports/T-353-corpus-readiness.md` §3b, RAIL-408).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -75,6 +129,16 @@ date_finished: null
 -->
 
 ## Verification
+
+# Every line here is a SINGLE command. This task's whole subject is a verification
+# block that asserted a moving global; its own gate should not be the place to get
+# clever. Same discipline as T-351/T-352/T-353.
+
+test -f dist/aef-workflow-designer-0.2.0.html
+echo "e301986b993baf58d5ed29ed25436d94b08ed2be910c6781b0f4b906c25c153a  dist/aef-workflow-designer-0.2.0.html" | sha256sum -c --status -
+grep -q "REPAIRED BY T-354" .tasks/active/T-178-cut-designer-release-020-with-t-177-gove.md
+grep -q "FLOOR, not a count" docs/reports/T-353-corpus-readiness.md
+test -f docs/reports/T-353-corpus-readiness.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -190,3 +254,18 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-354-t-178-verification-pins-020-against-mani.md
 - **Context:** Initial task creation
+
+### 2026-08-03T11:11:17Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0e261d51
+- **Timestamp:** 2026-08-03T11:15:20Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-03T11:15:19Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

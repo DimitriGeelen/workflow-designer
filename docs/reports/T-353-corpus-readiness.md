@@ -86,6 +86,30 @@ This is the same defect as the DIVERGENT inversion — a bucket named by a predi
 described as if it were one of the two opposite states that predicate spans — committed one
 section below the paragraph diagnosing it. Third instance on this arc (T-343, T-341, T-352).
 
+### 3c. …and 30 is a FLOOR, not a count (found by T-354)
+
+The T-352 scan only ever examined lines carrying a **top-level `;`** — that was its entire
+population definition. So "30 red lines" means *30 red lines among the `;`-shaped ones*. A red
+line without a `;` was never a candidate.
+
+T-178 makes the gap concrete. It has **three** red verification lines, not one:
+
+```
+grep -q '^0.2.0$' VERSION                              # no ';' — invisible to the scan
+m=$(grep '^sha256:' …); a=$(sha256sum …); [ "$m" = "$a" ]   # ';' — the one that was found
+grep -q 'latest: "0.2.0"' dist/MANIFEST.yaml           # no ';' — invisible to the scan
+```
+
+Two of three were outside the scan's reach. **The corpus-wide count of red verification lines
+is unmeasured and strictly greater than 30.** Wherever 30 appears — here, and in RAIL-408 — it
+is a lower bound.
+
+This is the *subpopulation's property stated about the tree* error, the same one retracted at
+RAIL-387 ("zero `curl` lines in any verification block" was active-tasks-only; the real figure
+was 15). What survives unchanged: every specific red line named is genuinely red, and the
+`29 archived / 1 live` split of the found set is unaffected. The finding holds; the population
+sentence did not.
+
 ## 4. A LIVE consequence: T-178 is queued for review and will be blocked
 
 29 of the 30 red lines are in archived tasks that never re-run. **One is not.**

@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-354: T-178 verification pins 0.2.0 against MANIFEST's always-latest sha256 field — blocks a queued human review
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-03T11:15:22Z
+# ============================================================================
+
+task_id: T-354
+task_name: "T-178 verification pins 0.2.0 against MANIFEST's always-latest sha256 field — blocks a queued human review"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-03T11:03:24Z
+completed: 2026-08-03T11:15:19Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**AC1 — the full extent of T-178''s staleness is measured, not assumed.**'
+  - '**AC2 — the repair pins a baseline that exists independently of the current file.**'
+  - '**AC3 — the repair is proven to discriminate, in both directions.**'
+  - '**AC4 — no gate is weakened to make a task completable.**'
+  - '**AC5 — the scope boundary is recorded.**'
+  - '**AC6 — the population question T-178 raises is answered or explicitly deferred.**'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 11 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 11
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-354-t-178-verification-pins-020-against-mani.md
+generated_by: context-agent-hybrid
