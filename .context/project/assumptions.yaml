@@ -176,3 +176,12 @@ assumptions:
   linked_task: T-249
   created: '2026-07-25'
   resolved_date: '2026-07-25'
+- id: A-019
+  statement: aef:position exists for a recorded reason (bridge constraint, or DI judged
+    too heavy for the yaml round trip) rather than because DI was overlooked
+  status: untested
+  validation_method: TBD
+  evidence: []
+  linked_task: T-357
+  created: '2026-08-03'
+  resolved_date: null
