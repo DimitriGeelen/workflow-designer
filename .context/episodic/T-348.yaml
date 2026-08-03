@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-348: Sixth input-fidelity population: root-level siblings of the process element
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-03T00:19:16Z
+# ============================================================================
+
+task_id: T-348
+task_name: "Sixth input-fidelity population: root-level siblings of the process element"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-02T12:44:22Z
+completed: 2026-08-02T12:47:11Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-02T14:47:11+02:00
+last_commit: 2026-08-02T14:59:03+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  open the sixth input-fidelity population — definitions' children OTHER than the single process (collaboration/participant/messageFlow, root message/signal/error, dataStore, a second process). Distinct from T-347 because these root elements are REFERENCED by nodes: if the designer drops the referent but keeps the referencing construct the emitted document has a DANGLING REFERENCE — invalid BPMN, not merely poorer BPMN, a consequence class no population so far has produced. If instead both go, it is repair-semantics-identical to T-347 and folds into it rather than opening a second operator decision; deciding which is the point of the task. ALSO CARRIES T-343's completion bookkeeping (episodic, moved task file, three learnings) — work-completed is terminal so T-343 cannot be refocused, and the focus-drift gate correctly refuses a T-343-labelled commit while focus is elsewhere. Recording the carry here rather than reaching for FW_SWITCH_FOCUS: the standing directive delegates initiative, not gate bypasses. Worth the operator's attention as a small traceability seam — every completed task's episodic necessarily lands under some LATER task's ID. T-343 learnings carried: a DIFFERENCE-based count spans every drop reason so attributing it to one cause is a guess dressed as a measurement; a literal integer in an AC is a G-015 subject error and decayed 15->17->20 in one day with no regression among them; an equivalence check run in a state where the subject does nothing returns identical and proves nothing. sixth input-fidelity population — definitions' children OTHER than the process the importer reads. parseBpmnXml takes processes[0]/participant[0]/laneSets[0], first-only with no complement branch, so 7 root shapes drop 24/24: second-process, root message/signal/error, dataStore, second-participant, messageFlow. THE HYPOTHESIS THAT MOTIVATED THE TASK IS FALSE, and that is the result: no dangling references are introduced, baseline clean, output stays SELF-CONSISTENT — buildBpmnXml emits a fixed root skeleton and copies no references from the input, so a kept ref can never outlive a dropped referent. Repair semantics are therefore identical to T-347's (preserve / consume / refuse) and this FOLDS INTO T-347 rather than putting the same question to the operator twice; addendum written there. One qualification carried across: second-process is not equal in weight to the others — a two-pool collaboration returns as one pool with the surviving pool's counts unchanged, so every count-based instrument and the validator stay green, and 'refuse' is far more defensible for that row than for a documentation string. TWO SELF-CORRECTIONS. (1) The positive control I specified in the AC could not have failed: buildBpmnXml hard-codes <bpmn:process>, so a predicate on it reports PRESERVED over an empty document — third time on this arc a predicate was written against something the emitter guarantees (T-335 REPAIRED, T-336 VALUE). Control changed to pool identity, which is input-derived; teeth leg (b) flips it by neutering that read. (2) The dangling-ref checker matched any attribute ending in 'ref' and invented 21 findings — AEF's own semantic ref=G-019 / ref=P-010 payloads — before it found any; caught by printing the MEMBERS rather than trusting the count. Narrowed to an explicit IDREF set, and because that narrowing is large the checker now runs positive/negative/exclusion controls before use, with teeth leg (e) re-widening it to the broken form and requiring the exclusion control to fire. Teeth 6/6; leg (c) went red for the wrong reason first (unclosed concat, node died at parse) and the name-your-condition requirement caught it — third time it has paid. bridge 69/0, validator 54/0, geometry 24 clean
+
+# Key outcomes
+outcomes:
+  - 'A sixth population is added to `tools/_t338-input-fidelity-cdp.mjs` covering the'
+  - '**(AMENDED — see Evolution.)** The population contains a positive control that must'
+  - 'Every row records whether injection actually reached the input (marker present'
+  - 'The dangling-reference question is answered explicitly, from the emitted document:'
+  - 'Teeth 6/6. Legs (a)/(b) mutate the **designer**: (a) teaching the importer to carry'
+  - '`CONTENT-MOVED`-equivalent buckets recorded honestly: `REFUSED` is never observed in'
+  - 'The instrument stays green (`rc=0`) with `EXPECTED_ROOT` declared, and every row is'
+  - '**Folded into T-347, no new operator decision opened** — see "The answer" below.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'sixth input-fidelity population — definitions'' children OTHER than the process the importer reads. parseBpmnXml takes processes[0]/participant[0]/laneSets[0], first-only with no complement branch, so 7 root shapes drop 24/24: second-process, root message/signal/error, dataStore, second-participant, messageFlow. THE HYPOTHESIS THAT MOTIVATED THE TASK IS FALSE, and that is the result: no dangling references are introduced, baseline clean, output stays SELF-CONSISTENT — buildBpmnXml emits a fixed root skeleton and copies no references from the input, so a kept ref can never outlive a dropped referent. Repair semantics are therefore identical to T-347''s (preserve / consume / refuse) and this FOLDS INTO T-347 rather than putting the same question to the operator twice; addendum written there. One qualification carried across: second-process is not equal in weight to the others — a two-pool collaboration returns as one pool with the surviving pool''s counts unchanged, so every count-based instrument and the validator stay green, and ''refuse'' is far more defensible for that row than for a documentation string. TWO SELF-CORRECTIONS. (1) The positive control I specified in the AC could not have failed: buildBpmnXml hard-codes <bpmn:process>, so a predicate on it reports PRESERVED over an empty document — third time on this arc a predicate was written against something the emitter guarantees (T-335 REPAIRED, T-336 VALUE). Control changed to pool identity, which is input-derived; teeth leg (b) flips it by neutering that read. (2) The dangling-ref checker matched any attribute ending in ''ref'' and invented 21 findings — AEF''s own semantic ref=G-019 / ref=P-010 payloads — before it found any; caught by printing the MEMBERS rather than trusting the count. Narrowed to an explicit IDREF set, and because that narrowing is large the checker now runs positive/negative/exclusion controls before use, with teeth leg (e) re-widening it to the broken form and requiring the exclusion control to fire. Teeth 6/6; leg (c) went red for the wrong reason first (unclosed concat, node died at parse) and the name-your-condition requirement caught it — third time it has paid. bridge 69/0, validator 54/0, geometry 24 clean'
+    source: git-mined
+  - description: 'open the sixth input-fidelity population — definitions'' children OTHER than the single process (collaboration/participant/messageFlow, root message/signal/error, dataStore, a second process). Distinct from T-347 because these root elements are REFERENCED by nodes: if the designer drops the referent but keeps the referencing construct the emitted document has a DANGLING REFERENCE — invalid BPMN, not merely poorer BPMN, a consequence class no population so far has produced. If instead both go, it is repair-semantics-identical to T-347 and folds into it rather than opening a second operator decision; deciding which is the point of the task. ALSO CARRIES T-343''s completion bookkeeping (episodic, moved task file, three learnings) — work-completed is terminal so T-343 cannot be refocused, and the focus-drift gate correctly refuses a T-343-labelled commit while focus is elsewhere. Recording the carry here rather than reaching for FW_SWITCH_FOCUS: the standing directive delegates initiative, not gate bypasses. Worth the operator''s attention as a small traceability seam — every completed task''s episodic necessarily lands under some LATER task''s ID. T-343 learnings carried: a DIFFERENCE-based count spans every drop reason so attributing it to one cause is a guess dressed as a measurement; a literal integer in an AC is a G-015 subject error and decayed 15->17->20 in one day with no regression among them; an equivalence check run in a state where the subject does nothing returns identical and proves nothing'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-343.yaml'
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-347-content-inside-an-accepted-element-is-si.md'
+  - '.tasks/active/T-348-sixth-input-fidelity-population-root-lev.md'
+  - '.tasks/completed/T-343-fw-fabric-enrich-silently-discards-edges.md'
+  - 'tools/_t338-input-fidelity-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-02T14:47:11"
+    action: "T-348: open the sixth input-fidelity population — definitions' children OTHER than the single process (collaboration/participant/messageFlow, root message/signal/error, dataStore, a second process). Distinct from T-347 because these root elements are REFERENCED by nodes: if the designer drops the referent but keeps the referencing construct the emitted document has a DANGLING REFERENCE — invalid BPMN, not merely poorer BPMN, a consequence class no population so far has produced. If instead both go, it is repair-semantics-identical to T-347 and folds into it rather than opening a second operator decision; deciding which is the point of the task. ALSO CARRIES T-343's completion bookkeeping (episodic, moved task file, three learnings) — work-completed is terminal so T-343 cannot be refocused, and the focus-drift gate correctly refuses a T-343-labelled commit while focus is elsewhere. Recording the carry here rather than reaching for FW_SWITCH_FOCUS: the standing directive delegates initiative, not gate bypasses. Worth the operator's attention as a small traceability seam — every completed task's episodic necessarily lands under some LATER task's ID. T-343 learnings carried: a DIFFERENCE-based count spans every drop reason so attributing it to one cause is a guess dressed as a measurement; a literal integer in an AC is a G-015 subject error and decayed 15->17->20 in one day with no regression among them; an equivalence check run in a state where the subject does nothing returns identical and proves nothing"
+  - time: "2026-08-02T14:59:03"
+    action: "T-348: sixth input-fidelity population — definitions' children OTHER than the process the importer reads. parseBpmnXml takes processes[0]/participant[0]/laneSets[0], first-only with no complement branch, so 7 root shapes drop 24/24: second-process, root message/signal/error, dataStore, second-participant, messageFlow. THE HYPOTHESIS THAT MOTIVATED THE TASK IS FALSE, and that is the result: no dangling references are introduced, baseline clean, output stays SELF-CONSISTENT — buildBpmnXml emits a fixed root skeleton and copies no references from the input, so a kept ref can never outlive a dropped referent. Repair semantics are therefore identical to T-347's (preserve / consume / refuse) and this FOLDS INTO T-347 rather than putting the same question to the operator twice; addendum written there. One qualification carried across: second-process is not equal in weight to the others — a two-pool collaboration returns as one pool with the surviving pool's counts unchanged, so every count-based instrument and the validator stay green, and 'refuse' is far more defensible for that row than for a documentation string. TWO SELF-CORRECTIONS. (1) The positive control I specified in the AC could not have failed: buildBpmnXml hard-codes <bpmn:process>, so a predicate on it reports PRESERVED over an empty document — third time on this arc a predicate was written against something the emitter guarantees (T-335 REPAIRED, T-336 VALUE). Control changed to pool identity, which is input-derived; teeth leg (b) flips it by neutering that read. (2) The dangling-ref checker matched any attribute ending in 'ref' and invented 21 findings — AEF's own semantic ref=G-019 / ref=P-010 payloads — before it found any; caught by printing the MEMBERS rather than trusting the count. Narrowed to an explicit IDREF set, and because that narrowing is large the checker now runs positive/negative/exclusion controls before use, with teeth leg (e) re-widening it to the broken form and requiring the exclusion control to fire. Teeth 6/6; leg (c) went red for the wrong reason first (unclosed concat, node died at parse) and the name-your-condition requirement caught it — third time it has paid. bridge 69/0, validator 54/0, geometry 24 clean"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 2
+  files_changed: 6
+  lines_added: 697
+  lines_removed: 36
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-348-sixth-input-fidelity-population-root-lev.md
+generated_by: context-agent-hybrid
