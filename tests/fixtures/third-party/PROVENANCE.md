@@ -80,3 +80,24 @@ it would recreate the exact unreachable witnessing state T-356 exists to remove.
 That measurement is T-356's second acceptance criterion. **If every fixture
 round-trips clean, the correct conclusion is that the fixtures are unrepresentative
 — not that the importer is sound.**
+
+---
+
+## Measured 2026-08-03: the population IS capable of failing
+
+`node tools/_t356-third-party-fidelity-cdp.mjs` → **5 of 5 lose content**; positive
+control (a designer-produced corpus map) clean. Full table and analysis in
+`docs/reports/T-356-third-party-fidelity.md`. The "what this directory does NOT yet
+establish" caveat above is now discharged.
+
+## STANDING WARNING — these files are INPUTS ONLY
+
+**`exporter=` is dropped by the round trip in all five.** The attribute that proves
+these files are foreign does not survive the operation being measured. Round-trip
+one of these fixtures and save it back over itself and it becomes indistinguishable
+from a designer-produced map — the population silently reverts to the incapable
+state T-356 exists to escape, and the census that would detect it
+(`grep -c 'exporter='`) would still be counting the originals.
+
+Never replace a fixture with its own round-trip output. The pinned digests above are
+what catches it if someone does.
