@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T23:59:29Z
-last_update: 2026-08-03T00:19:07Z
+last_update: 2026-08-03T10:20:56Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -163,45 +163,92 @@ how every verification line in the project is evaluated is a framework-wide beha
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# Every line below is a SINGLE command whose own exit code is the verdict — deliberately.
+# This task exists because `a; b` is judged on `b` alone under the gate, so a task ABOUT
+# that defect must not contain an instance of it. (T-351 did the same, for the same reason.)
+bash tools/_t352-p011-errexit-probe.sh
+bash tools/_t352-teeth.sh
+bash -n tools/_t352-p011-errexit-probe.sh
+bash -n tools/_t352-teeth.sh
+python3 -c "import ast; ast.parse(open('tools/_t352-member-scan.py').read())"
+grep -q 'ERREXIT WARNING' .tasks/templates/default.md
+test -f docs/reports/T-352-remedy.md
+test -f docs/reports/T-352-member-scan.md
+
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
+**Symptom:** a verification line whose first command exits 2 and prints `INVALID` is
+recorded as PASS by the P-011 completion gate.
 
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
+**Root cause:** two independent defects stacked, either survivable alone.
+1. `update-task.sh:1018` evaluates each line inside a subshell that is the **condition of an
+   `if`**. Bash suppresses `errexit` in that position, so the `set -euo pipefail` at line 14
+   does not reach `$cmd` and `a; b` is judged on `b` alone.
+2. The line's own pattern, `grep -q "VALID"`, matches `INVALID` as a substring — so even the
+   surviving command agreed with a document that had been rejected.
 
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
+**Why structurally allowed:** the framework *taught* the shape. The task template listed
+`out=$(cmd 2>&1); echo "$out" | grep -q "PATTERN"` first and labelled it "Safe pattern". It
+was introduced for a real reason (L-387, SIGPIPE) and does fix SIGPIPE — while converting a
+single command into `a; b`. A defect the documentation prescribes regenerates faster than it
+can be remediated, so counting or repairing instances could never converge.
+
+Compounding it: the template's claim "P-011 runs each command under `set -eo pipefail`" is
+**half true**. `pipefail` really is in effect; `errexit` is not. A half-true statement about an
+execution context is worse than none, because it answers the question that would otherwise
+have been asked.
+
+**Prevention (distinct from the fix):**
+- The point of teaching is corrected: the template now leads with the errexit warning and
+  promotes the `&&` file form, whose immunity is *asserted in the probe* rather than assumed.
+- `tools/_t352-p011-errexit-probe.sh` **extracts** the gate's construct at runtime instead of
+  copying it, so it fails when the gate is fixed and cannot drift into describing a past.
+- `tools/_t352-teeth.sh` leg (a) applies the remedy and requires the probe to go red, which is
+  the only thing that makes "this is the regression witness" a measurement rather than a claim.
 
 ## Evolution
 
-<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
-     understanding evolved during build — what was learned that wasn't known at
-     filing, what in the original plan no longer fits, what triggered pivots
-     or new sub-tasks. Mandatory at slice boundaries (when applicable) and
-     before --status work-completed.
+### 2026-08-03 — the population number was wrong twice, in opposite directions
 
-     Origin: T-1717 grill Q4 — "the understanding of what we need and want
-     evolves with the process of materialisation." Structural counter to §ACD:
-     spec-vs-build divergence is logged as soon as it happens, not lost as
-     folklore.
+- **What changed:** the figure I reported to AEF at RAIL-405 (332 of 1318) came from a naive
+  `grep ';'`, which also counts semicolons inside quotes, inside `sed 's/a;b/c/'`, and in
+  `find … \;`. Replacing it with a quote/paren-aware parser returned **26** — and that was
+  wrong too, in the other direction: it incremented nesting depth on `$` *and* again on the
+  following `(`, so `$(…)` never returned to depth 0 and every top-level `;` after a command
+  substitution was invisible. The sound number is **322**.
+- **Plan impact:** a confident undercount reads exactly like a careful one. The parser now
+  carries a **self-test in both directions that must pass before any number is produced** — a
+  test with only positives passes for a parser that answers True to everything, which is the
+  mirror of the bug that actually occurred.
+- **Triggered:** no new task. Recorded because the near-miss is the lesson: I would have
+  reported 26 as a *correction* to 332, with a plausible story about over-broad matching.
 
-     Format (one entry per slice boundary or significant insight):
-       ### YYYY-MM-DD — [topic]
-       - **What changed:** [what we learned that we didn't know at filing]
-       - **Plan impact:** [what in the plan no longer fits]
-       - **Triggered:** [new sub-task / pivot / scope cut, with task ID if filed]
+### 2026-08-03 — "vendored, operator's call" was wrong about the template
 
-     The completion gate (T-1718) blocks --status work-completed when this
-     section exists but is empty/template-only. Use --skip-evolution to bypass
-     (logged Tier-2). Non-arc tasks may leave this empty.
--->
+- **What changed:** I filed this task recording that the point of teaching was vendored and
+  therefore not mine to fix. `create-task.sh:447` resolves the template through `TASKS_DIR`,
+  which is the **project's** `.tasks/templates/default.md`. The vendored copy is never read
+  when creating tasks here.
+- **Plan impact:** AC4 was written to allow "record why it was not fixed" as an out. It was
+  fixable all along, so it is fixed. Deferring under a constraint I had not checked would have
+  parked a one-file change behind an operator decision that was never needed.
+- **Triggered:** none. The vendored copy still carries the old text and is left alone — that
+  half really is G-008 upstream.
+
+### 2026-08-03 — the measuring tool reproduced the class it measures, twice
+
+- **What changed:** (a) the scan's runner used `subprocess.run(timeout=…)`, which kills only
+  the direct child and then blocks in `communicate()` waiting for a stdout EOF the surviving
+  grandchild subshell still holds — it leaked runner processes for minutes past their timeout
+  and never finished. Same defect class as T-351: a stop path that assumes cooperation from
+  the thing it is stopping. (b) A wait loop written as
+  `until … ! pgrep -f '_t352-member-scan'` could never exit, because its own argv contains the
+  pattern — so it waited for a condition it was itself keeping true.
+- **Plan impact:** the runner now uses an explicit process group and `killpg`; kill patterns
+  are split so they cannot match the invoking shell.
+- **Triggered:** none — (b) is the third instance of prose/argv sharing a byte-space with the
+  thing it names on this arc, and the first that is a *liveness* bug rather than a false
+  reading. Recorded to [[prose-in-exported-bytes]] territory rather than filed.
 
 ## Decisions
 

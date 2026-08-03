@@ -103,6 +103,27 @@ SELFTEST = [
 ]
 
 
+CLASSIFY_SELFTEST = [
+    ("ZERO-TOKEN",     'out=$(x 2>&1); echo "$out" | grep -q "0 failed"'),
+    ("ZERO-TOKEN",     'out=$(x 2>&1); echo "$out" | grep -q "Fail: 0"'),
+    ("SUBSTRING-RISK", 'out=$(x 2>&1); echo "$out" | grep -q "VALID"'),
+    ("SUBSTRING-RISK", 'out=$(x 2>&1); echo "$out" | grep -q "OK"'),
+    ("OTHER",          'out=$(x 2>&1); echo "$out" | grep -q "showProjectPreview"'),
+    ("NO-PATTERN",     'a=$(x); [ -n "$a" ]'),
+]
+
+
+def classify_selftest():
+    bad = [(w, l, classify(l)[0]) for w, l in CLASSIFY_SELFTEST if classify(l)[0] != w]
+    if bad:
+        for w, l, got in bad:
+            sys.stderr.write("CLASSIFY SELFTEST FAIL: wanted %s got %s for: %s\n" % (w, got, l))
+        sys.stderr.write("The static classifier does not separate its known cases; its "
+                         "partition would be unsound, so nothing is reported.\n")
+        sys.exit(1)
+    print("classifier self-test: %d/%d" % (len(CLASSIFY_SELFTEST), len(CLASSIFY_SELFTEST)))
+
+
 def selftest():
     bad = [(want, s) for want, s in SELFTEST if has_top_level_semicolon(s) != want]
     if bad:
@@ -160,6 +181,61 @@ def is_safe(line):
     if ".agentic-framework/bin" in line:
         return False, "invokes framework tooling"
     return True, ""
+
+
+
+# ── Static classification of the final clause ─────────────────────────────────────────
+# Decidable, no execution, and it is what AC2 asks for directly: separate the lines that
+# pin a zero-failure token (safe by construction — a failing run does not print "0 failed")
+# from the lines whose pattern could match their own command's FAILURE output.
+#
+# The sharpest sub-class is SUBSTRING-RISK: a pattern that is a proper substring of a token
+# meaning the opposite. `grep -q "VALID"` matches `INVALID`; `grep -q "OK"` matches `NOT OK`.
+# This is the class that produced the live false green, and it is decidable from the text.
+ZERO_FAILURE = re.compile(
+    r"(0 fail|0 error|0 warn|fail(ure)?s?:?\s*0|error(s)?:?\s*0|, 0 |no (errors|failures))", re.I)
+# The first version of this rule generated negations by prefixing ("IN" + pat) and asked
+# whether pat was a substring of the result. That is ALWAYS true — prefixing never removes
+# the original — so every pattern scored SUBSTRING-RISK and the class discriminated nothing.
+# Its own self-test caught it. Replaced with an EXPLICIT vocabulary of verdict words whose
+# denial contains them. A vocabulary UNDER-approximates: it can miss a pattern nobody listed,
+# but it cannot invent one. For a findings list that is the correct direction to err — the
+# T-348 lesson, where an over-broad matcher manufactured 21 findings before finding any.
+DENIABLE = {
+    "VALID": "INVALID", "OK": "NOT OK", "CORRECT": "INCORRECT",
+    "COMPLETE": "INCOMPLETE", "CONSISTENT": "INCONSISTENT", "ACTIVE": "INACTIVE",
+    "FOUND": "NOT FOUND", "SUPPORTED": "UNSUPPORTED", "AVAILABLE": "UNAVAILABLE",
+    "CHANGED": "UNCHANGED", "RESOLVED": "UNRESOLVED", "USED": "UNUSED",
+    "MATCH": "NO MATCH", "PRESENT": "NOT PRESENT", "REGISTERED": "UNREGISTERED",
+}
+
+
+def final_pattern(line):
+    """The pattern of the last grep/test clause on the line, or None."""
+    m = None
+    for m in re.finditer(r"""grep\s+(?:-\w+\s+)*["']([^"']+)["']""", line):
+        pass
+    if m:
+        return m.group(1)
+    m = None
+    for m in re.finditer(r"""test\s+"?\$\w+"?\s*=\s*["']?([^"'\s]+)""", line):
+        pass
+    return m.group(1) if m else None
+
+
+def classify(line):
+    pat = final_pattern(line)
+    if pat is None:
+        return "NO-PATTERN", "final clause is not a grep/test comparison"
+    if ZERO_FAILURE.search(pat):
+        return "ZERO-TOKEN", "pins a zero-failure token (%r) — NOT a finding" % pat
+    up = pat.strip().upper()
+    for word, denial in DENIABLE.items():
+        if up == word and word in denial.replace(" ", "") + denial:
+            return "SUBSTRING-RISK", (
+                "pattern %r also matches %r — the grep cannot distinguish the claim from "
+                "its denial" % (pat, denial))
+    return "OTHER", "pattern %r — needs execution to classify" % pat
 
 
 # ── Gate constructs, extracted rather than copied (same rule as the probe) ─────────────
@@ -226,6 +302,7 @@ def run_under(cond, cmd, timeout=8):
 
 def main():
     selftest()
+    classify_selftest()
     cond_a = gate_condition()
     cond_c = cond_a.replace('eval "$cmd"',
                             'bash -c \'set -eo pipefail; eval "$1"\' _ "$cmd"')
@@ -248,10 +325,19 @@ def main():
             if has_top_level_semicolon(line):
                 shaped.append((tid, line))
 
+    classes = {}
+    for tid, line in shaped:
+        k, why = classify(line)
+        classes.setdefault(k, []).append((tid, line, why))
+
     # Wall-clock budget. Whatever it cuts off is reported as unrun, never as clean.
     budget_s = float(os.environ.get("T352_BUDGET_S", "600"))
     started = time.monotonic()
 
+    # Identical command strings recur across tasks (164 unique among 243 safe lines).
+    # They are deterministic checks in a fixed tree, so the verdict is a function of the
+    # string — memoise it. This is not an approximation: it is the same command.
+    cache = {}
     proven, latent, skipped, anomalies, unrun = [], [], [], [], []
     for i, (tid, line) in enumerate(shaped):
         safe, why = is_safe(line)
@@ -261,12 +347,16 @@ def main():
         if time.monotonic() - started > budget_s:
             unrun.append((tid, line, "wall-clock budget exhausted"))
             continue
-        print("  [%d/%d] %s %s" % (i + 1, len(shaped), tid, line[:70]), flush=True)
-        a = run_under(cond_a, line)
+        if line in cache:
+            a, c = cache[line]
+        else:
+            print("  [%d/%d] %s %s" % (i + 1, len(shaped), tid, line[:70]), flush=True)
+            a = run_under(cond_a, line)
         # Only run the remedy form when the gate currently PASSES. A line already failing
         # cannot be a member — it is not producing a false green — and skipping it halves
         # the wall clock without changing any verdict.
-        c = run_under(cond_c, line) if a == "PASS" else "n/a"
+            c = run_under(cond_c, line) if a == "PASS" else "n/a"
+            cache[line] = (a, c)
         if a == "PASS" and c == "FAIL":
             proven.append((tid, line))
         elif a in ("TIMEOUT", "BROKEN") or c in ("TIMEOUT", "BROKEN"):
@@ -274,6 +364,10 @@ def main():
         else:
             latent.append((tid, line, a, c))
 
+    print("")
+    print("static partition of the %d SHAPED lines (no execution, decidable):" % len(shaped))
+    for k in ("SUBSTRING-RISK", "ZERO-TOKEN", "OTHER", "NO-PATTERN"):
+        print("   %-15s %d" % (k, len(classes.get(k, []))))
     print("")
     print("ALL     = %d   every verification line the gate would run" % len(all_lines))
     print("SHAPED  = %d   top-level ';' — UPPER BOUND, NOT A FINDING" % len(shaped))
@@ -303,6 +397,17 @@ def main():
         fh.write("| SKIPPED | %d | refused by the safety filter — a hole in the denominator |\n" % len(skipped))
         fh.write("| ANOMALY | %d | timed out or produced no verdict |\n" % len(anomalies))
         fh.write("| UNRUN | %d | wall-clock budget exhausted before reaching these |\n" % len(unrun))
+        fh.write("\n## Static partition of the SHAPED lines (decidable, no execution)\n\n")
+        fh.write("| class | n | meaning |\n|---|---:|---|\n")
+        fh.write("| **SUBSTRING-RISK** | %d | final pattern also matches its own denial (the `VALID`/`INVALID` class) — **this is the finding shape** |\n" % len(classes.get("SUBSTRING-RISK", [])))
+        fh.write("| ZERO-TOKEN | %d | pins a zero-failure token — **explicitly NOT findings** |\n" % len(classes.get("ZERO-TOKEN", [])))
+        fh.write("| OTHER | %d | pattern needs execution to classify |\n" % len(classes.get("OTHER", [])))
+        fh.write("| NO-PATTERN | %d | final clause is not a grep/test comparison |\n" % len(classes.get("NO-PATTERN", [])))
+        fh.write("\n### SUBSTRING-RISK members\n\n")
+        for tid, line, why in classes.get("SUBSTRING-RISK", []):
+            fh.write("- **%s** — %s\n  `%s`\n" % (tid, why, line))
+        if not classes.get("SUBSTRING-RISK"):
+            fh.write("_none_\n")
         fh.write("\n## PROVEN members\n\n")
         if proven:
             for tid, line in proven:
