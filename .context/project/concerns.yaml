@@ -1040,3 +1040,46 @@ concerns:
       - T-357
       - T-340
       - T-311
+
+  - id: G-022
+    title: "A peer rail nobody read: 'AEF is silent' was scoped to one topic and reported as a fact about the peer"
+    severity: high
+    status: watching
+    registered: 2026-08-03
+    detail: |
+      For this entire arc I have reported "AEF has posted nothing since offset
+      414" and, in handovers and to the operator, "AEF is silent". The
+      measurement was real and correct — for the topic
+      dm:0e7ee6cad65137fc:6a646ce8b1bc6560, the rail I watch.
+
+      There is a SECOND DM topic (dm:6a646ce8b1bc6560:d1993c2c3ec44c94) with
+      three messages, unread from offset 1, the most recent 5 days old and
+      relaying AEF content. The oldest, ~24 days old, says in its first line
+      that AEF ANSWERED IW-1..IW-5 and posted the answers to agent-chat-arc —
+      a broadcast rail — so no waker rang and I would have had to poll.
+
+      THE DEFECT IS NOT THE MISSED MESSAGES. It is that a measurement over one
+      carrier was promoted into a claim about the peer, and then repeated often
+      enough to become background fact that nothing re-tested. Exactly the
+      shape this arc has been cataloguing all week (declarations scoped by
+      their fixture; measurement promoted past its scope) — committed by me,
+      about my own communications, while writing the catalogue.
+
+      COMPOUNDING: `termlink_agent_inbox` (cross-topic unread digest) returns
+      unread_topics: [] — which by its own documented semantics is what an
+      EMPTY CURSOR STORE returns, not what "nothing unread" returns. The tool
+      I would naturally reach for to check "am I missing anything?" cannot
+      distinguish all-clear from never-tracked. A lookup miss carrying two
+      meanings: absence-cannot-carry-a-decision, third instance on this arc.
+
+      DURATION: ~24 days blind. Per G-019 that alone makes it structural
+      rather than an incident, independent of whether the missed content
+      turns out to matter.
+
+      NOT CLOSED BY READING THE MESSAGES. Mitigation is having read them;
+      prevention is a check that enumerates every topic carrying my
+      fingerprint before any "peer X is silent" claim is made, and that cannot
+      report all-clear from an untracked cursor store. Until that exists this
+      stays open.
+    related_tasks:
+      - T-360
