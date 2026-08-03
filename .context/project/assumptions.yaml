@@ -179,12 +179,21 @@ assumptions:
 - id: A-019
   statement: aef:position exists for a recorded reason (bridge constraint, or DI judged
     too heavy for the yaml round trip) rather than because DI was overlooked
-  status: untested
+  status: validated
   validation_method: TBD
-  evidence: []
+  evidence:
+  - outcome: 'VALIDATED IN ITS MAIN CLAUSE, FALSE IN ITS PARENTHETICAL. There IS a
+      recorded reason and it is not an oversight (main clause holds): src:9406-9407
+      + src:9582 emit ''BPMN DI (visual layout) omitted in this demo; AEF generates
+      it from node coordinates'' into every export, i.e. a deliberate demo-stage deferral
+      with a named downstream owner. But NEITHER enumerated cause is right - not a
+      bridge constraint, not DI-too-heavy-for-yaml. The enumeration was the part that
+      would have driven the decision, and it was the wrong part. Spawned A-020 (is
+      the delegation real?), now load-bearing. Entered tree at 61242508 (T-012, 2026-06-05).'
+    date: '2026-08-03'
   linked_task: T-357
   created: '2026-08-03'
-  resolved_date: null
+  resolved_date: '2026-08-03'
 - id: A-020
   statement: AEF generates BPMN DI from our aef:position, as every exported document
     has asserted since 2026-06-05 (src:9406-9407). Unverifiable from 832 under the

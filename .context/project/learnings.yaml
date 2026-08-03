@@ -717,3 +717,10 @@ learnings:
   date: 2026-08-03
   context: Added via context agent
   application: TBD
+- id: PL-102
+  learning: "An incident DIRECTS attention rather than DISTRIBUTING it: the property that drew scrutiny gets fixed while the artifact's central claim can survive a two-party review unexamined — and the review then stands as evidence the artifact was checked. 832's DI trailer poisoned AEF's corpus; both sides investigated WHERE the comment appears, neither asked whether its sentence ('AEF generates DI from node coordinates') is TRUE. 59 days, 10 releases, inside sha-pinned bytes."
+  source: P-001
+  task: T-357
+  date: 2026-08-03
+  context: Added via context agent
+  application: TBD

@@ -973,3 +973,70 @@ concerns:
     related_tasks:
       - T-350
       - T-351
+
+  - id: G-021
+    type: gap
+    status: watching
+    severity: high
+    title: "Exported artifacts carry unverified CLAIMS ABOUT ANOTHER SYSTEM — the DI trailer has asserted 'AEF generates it from node coordinates' in every export for 59 days, across 10 releases, inside bytes AEF pins by sha, and nothing has ever checked whether it is true"
+    detected: 2026-08-03
+    origin_task: T-357
+    decision_trigger: >
+      Either (i) AEF confirms or denies the delegation (asked on the rail at
+      offset 418, tracked as A-020) AND the trailer is corrected or removed to
+      match reality, AND some check exists that a claim about a peer system
+      embedded in shipped bytes has a named owner and a way to go stale
+      loudly; or (ii) the operator rules that unowned cross-project claims in
+      exported artifacts are acceptable and the gap closes as accepted-risk.
+      Closing on the answer ALONE is not enough — that fixes the instance and
+      leaves the class. Mitigation is not prevention.
+    description: |
+      src:9406-9407 defines, and src:9582 emits into EVERY exported .bpmn:
+
+        <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it
+             from node coordinates -->
+
+      Three separate problems, in increasing order of structural interest.
+
+      (1) THE INSTANCE. The sentence asserts a behaviour of a PEER PROJECT.
+      Nobody on this side has ever verified it, and under the T-559 boundary
+      nobody on this side can. It has shipped since 61242508 (T-012,
+      2026-06-05) in dist/ 0.1.0 through 0.8.0, and it sits inside bytes AEF
+      pins by source_bpmn_sha. If the delegation was never collected, the
+      designer's export path has been documenting a pipeline stage that does
+      not exist.
+
+      (2) THE WORD "demo". This is seed-stage scaffolding that was promoted
+      wholesale into the canonical tree and never revisited. A deferral with a
+      named downstream owner is a debt; this one had no ticket, no expiry and
+      no owner on either side of the seam. It survived promotion to canonical
+      (T-012), ten releases, and a two-party incident.
+
+      (3) WHY THE FRAMEWORK WAS BLIND — the part that generalises (G-019).
+      This exact string ALREADY caused a cross-project incident: AEF's reader
+      promoted it to document rationale, poisoning their corpus; they fixed the
+      reader (T-2682) and restored two maps (T-2683), and src:9409-9421 is our
+      half, a guard refusing to read our own trailer as a doc block. So the
+      comment has been under direct scrutiny on BOTH sides with an incident
+      report each — and both investigations asked WHERE THE COMMENT APPEARS.
+      Neither asked WHETHER ITS SENTENCE IS TRUE.
+
+      An incident DIRECTS attention rather than DISTRIBUTING it. The property
+      that drew the attention gets fixed, and the artifact's central claim can
+      walk out of a two-party review still unexamined — with the review itself
+      now standing as evidence the artifact was checked.
+
+      Related in shape but distinct from the arc's existing catalogue: G-015 is
+      an assertion that silently expires; this is an assertion that was never
+      true-or-false-tested at all, about a system its author could not observe.
+      The catalogued failures so far are checks that cannot fail. This is a
+      claim nobody thought to make a check OF.
+
+      NOT FIXED. The trailer is left in place deliberately: removing it now
+      would erase the evidence before AEF answers, and correcting it before
+      knowing which way the answer goes would be guessing. The instance waits
+      on A-020; the class is the operator's.
+    related_tasks:
+      - T-357
+      - T-340
+      - T-311
