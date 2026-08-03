@@ -4,7 +4,7 @@ name: "Adopt BPMN DI as the designer geometry and retire aef-position"
 description: >
   Inception: Adopt BPMN DI as the designer geometry and retire aef-position
 
-status: captured
+status: started-work
 workflow_type: inception
 owner: human
 horizon: now
@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-08-03T13:14:20Z
-last_update: 2026-08-03T13:14:20Z
+last_update: 2026-08-03T13:26:34Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -143,3 +143,6 @@ Portability is the fourth constitutional directive and aef:position is a proprie
 
 <!-- Auto-populated by git mining at task completion.
      Manual entries optional during execution. -->
+
+### 2026-08-03T13:26:34Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
