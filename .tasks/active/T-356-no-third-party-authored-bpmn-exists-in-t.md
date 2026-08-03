@@ -4,7 +4,7 @@ name: "No third-party-authored BPMN exists in the tree: every import-fidelity in
 description: >
   All 126 tracked .bpmn files are designer-produced (121 carry aef:position, our exporter's fingerprint; the other 5 are editor save history). Our exporter emits no bpmndi, no artifacts, no dataObjects, no second pool. So every corpus census run against the import-loss class (T-337 tags, T-340 DI, T-347 accepted-element content, T-348 root shapes) is measuring our own generator, and a zero from it cannot distinguish 'rare' from 'structurally impossible to witness here'. T-340's severity was rated on exactly such a zero. Remedy: add a small fixture set exported by real BPMN tools (bpmn.io, Camunda) so the instruments have a population that can actually fail. Named in T-340's RCA and deliberately not scoped into it, because it is a property of the whole class, not of DI.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T12:24:28Z
-last_update: 2026-08-03T12:24:28Z
+last_update: 2026-08-03T12:32:41Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,8 +40,35 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] **The added fixtures are provably third-party-authored, by a property no fixture we
+      write could fake.** Not "looks like bpmn.io output" — assert the exporter's own
+      signature (`exporter=` / `exporterVersion=` attributes on `<bpmn:definitions>`) AND the
+      absence of `aef:position` / `aef:uid`. A fixture hand-written to *look* foreign is the
+      same defect one level up: a population built by imagining what real input looks like.
+      Same shape as the error-vocabulary failure at RAIL-407 — a vocabulary built by imagining
+      error text does not match the error text that actually exists.
+
+- [ ] **The new population is proven CAPABLE OF FAILING before any conclusion is drawn from
+      it.** This is the whole point of the task and the easiest AC to satisfy vacuously: adding
+      fixtures that happen to round-trip cleanly would recreate the exact unreachable
+      witnessing state T-356 exists to remove, and the suite would go green and *look* like
+      coverage. Required evidence: **at least one added fixture, run through TODAY's importer,
+      demonstrably loses content** (DI at minimum, per T-340's measured `DI-DROPPED`). If every
+      added fixture round-trips clean, the correct conclusion is that the fixtures are
+      unrepresentative, NOT that the importer is sound — record that and get better fixtures.
+
+- [ ] **Each import-loss instrument's population is re-run over the new fixtures and its
+      denominator restated**, with the split reported per-population (designer-produced vs
+      third-party-authored) rather than pooled. A pooled denominator would let 126 incapable
+      files dilute a handful of capable ones and reproduce the original error inside the fix.
+
+- [ ] **No expectation pin is flipped in this task.** T-356 adds a population; it does not
+      repair a defect. If a `_t338` verdict changes because a real fixture exercises a path the
+      synthetic injection did not, that is a FINDING to file, not a pin to update — and per the
+      T-337 lesson, ask which control was load-bearing only while the old contents held.
+
+- [ ] Bridge suite green, and `_t308` byte-identity still 24/24 against its pinned sha
+      (adding input fixtures must not change what we emit for existing maps)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -190,3 +217,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-356-no-third-party-authored-bpmn-exists-in-t.md
 - **Context:** Initial task creation
+
+### 2026-08-03T12:32:41Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
