@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-08-03T13:14:20Z
-last_update: 2026-08-03T13:38:38Z
+last_update: 2026-08-03T13:40:44Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -111,9 +111,24 @@ Registered via `fw assumption add`:
   maximal variant's property settled an option here, it was wrong (RAIL-416).
 
 - **IW-4: Is rewriting 126 existing files' geometry on first save compatible with the T-225 ratification that "diagram XML is never silently migrated" (`src:8201`)?**
-  confidence: 1
-  disposition: <!-- pending -->
-  rationale: <!-- pending; must be argued as a deliberate versioned migration, not assumed exempt -->
+  confidence: 3
+  disposition: answered (for the *adopt* half) / escalated (for the *retire* half)
+  rationale: **The principle splits the task in two.** ADOPT (emit DI, read DI when
+  `aef:position` is absent) adds a representation and rewrites nothing — not a
+  migration. RETIRE (stop writing `aef:position`) is exactly one: a file comes back
+  carrying DI and no `aef:position` on a save made for unrelated reasons. Only
+  *retire* meets T-225, and the two verbs are independently decidable.
+  **Second finding:** T-225 is invoked at four sites (`8201`, `9301`, `9681`,
+  `9777`) and **all four are semantic; zero are presentational.** It was
+  established over semantic cases and *worded* ("diagram XML") over a wider
+  population — a declaration scoped by its fixture, carried this time by a
+  *ratified principle* rather than a measurement, which is worse because a
+  principle is quoted rather than re-derived. Meanwhile the frozen standard
+  pre-authorises presentational rewrites. The two point opposite ways on the same
+  act and only conflict if T-225 reaches presentational content, which it never
+  has. **The retire half needs an explicit operator ruling on T-225's scope — an
+  ambiguity that is live now, not created by this task.**
+  See `docs/reports/T-357-di-adoption.md` §Spike 4.
 
 <!-- Original template guidance retained below. -->
 
@@ -227,9 +242,39 @@ Portability is the fourth constitutional directive and aef:position is a proprie
 
 **Evidence:**
 
-<!-- Add evidence bullets as exploration progresses (file paths,
-     commit hashes, test results). The filing-time recommendation
-     can be revised before fw inception decide. -->
+Research artifact: `docs/reports/T-357-di-adoption.md` (C-001).
+
+**Recommendation still GO on exploring. The useful result of spikes 1-4 is that
+the single question turned out to be three nested ones, each a strict subset of
+the next, so no work is thrown away whichever depth is chosen:**
+
+1. **Read DI when `aef:position` is absent.** = T-340 scoped (b). Byte-neutral, no
+   standard revision, no T-225 question, no seam event. Fixes the user-facing
+   defect: a third-party author's diagram survives being opened.
+2. **Emit DI additively, keep writing `aef:position`.** No T-225 question (adds a
+   representation, rewrites nothing) and no intent-expressiveness problem (the
+   extensions stay). Costs: 24 corpus maps change bytes → coordinated re-pin with
+   AEF; the standard gains a carrier it does not enumerate, which is additive
+   rather than contradictory.
+3. **Retire `aef:position`.** Needs a T-225 scope ruling, a v1.1 revision of the
+   frozen two-party standard, and an answer to the intent gap in IW-3.
+
+- `src:9406-9407`, `src:9582` — the DI trailer; IW-1; **G-021 [high]**, A-020,
+  PL-102. Asked on the rail at offset 418.
+- `src:9409-9421` — our half of the AEF corpus incident (their T-2682/T-2683):
+  the guard that made this string a two-party subject **without anyone asking
+  whether its sentence is true**.
+- `docs/standards/aef-bpmn-mapping-v1.md:42-45` — frozen standard; ratifies A-3,
+  and names `aef:position`, which is what makes step 3 a two-party revision.
+- `src:8201`, `src:9301`, `src:9681`, `src:9777` — all four T-225 invocation
+  sites, all semantic, none presentational.
+- Commits: `fe35c6fa` (spikes 1-3), `2b81a929` (G-021).
+
+**What would still flip this to NO-GO:** AEF answering A-020 with "yes, we generate
+DI from your coordinates". That would mean the pipeline works as designed, step 1
+remains worth doing on its own merits, and steps 2-3 become duplication of a stage
+that already exists downstream. **Unanswered, and I am not treating the silence as
+a no** — see G-021 on absence.
 
 ## Decisions
 

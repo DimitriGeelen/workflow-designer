@@ -164,7 +164,82 @@ classified as result-or-intent.
 
 ## Spike 4 — T-225 compatibility (IW-4)
 
-Not yet run.
+**The principle splits the task in half, and it has never been exercised on the
+half that matters here.**
+
+The ratification is invoked at exactly **four** sites in `src`:
+
+| site | what it protects | kind |
+|---|---|---|
+| `8201` | a resolved uuid is never written back into `aef.targetWorkflow` | semantic |
+| `9301` | the legacy `targetWorkflow` slug alias rides along on re-export | semantic |
+| `9681` | T-337's preserve-and-re-emit of foreign flow-node tags | semantic |
+| `9777` | the legacy `targetWorkflow` leg is not rewritten to `workflowRef` | semantic |
+
+**All four are semantic. Zero are presentational.** In every case the principle is
+invoked to justify *conservation* — the author's bytes keep saying what they said
+unless the author changes them.
+
+### First finding: the task decomposes, and only one half is in scope
+
+- **Adopt** (emit DI; read DI when `aef:position` is absent) **is not a migration.**
+  It adds a representation. Nothing the author wrote is rewritten or dropped.
+- **Retire** (stop writing `aef:position`) **is exactly a silent migration** — a
+  file that carried `aef:position` and no DI comes back carrying DI and no
+  `aef:position`, on a save the author made for unrelated reasons.
+
+T-357's title contains both verbs and they are independently decidable. Only
+*retire* meets T-225.
+
+### Second finding: the principle's scope over presentational content is stated, not tested
+
+Two ratifications point in opposite directions on the same act:
+
+- **T-225 (local, `src`):** *diagram XML is never silently migrated* → retiring
+  `aef:position` on save is prohibited.
+- **The frozen two-party standard (`aef-bpmn-mapping-v1.md:42-45`):**
+  presentational content is *"derived, never authoritative"* and a change to it
+  alone *"MUST be a no-op for the task graph"* → retiring `aef:position` is not
+  merely permitted but pre-authorised.
+
+They only conflict if T-225 reaches presentational content. **It never has.** The
+principle was established over four semantic cases and is *worded* — "diagram XML"
+— in terms that cover presentational content too. Whether it intends to has never
+had to be answered, because until now nothing proposed changing presentational
+content.
+
+That is a **declaration scoped by its fixture**: a rule verified on one population
+and phrased over a wider one. It is the same shape this arc has now hit repeatedly,
+except the carrier this time is a *ratified principle* rather than a measurement —
+which is worse, because a principle is quoted rather than re-derived, and three of
+its four invocation sites are load-bearing code comments justifying live behaviour.
+
+**Disposition:** IW-4 is **answered for the adopt half** (no conflict) and
+**escalated for the retire half**. The retire half needs an explicit ruling on
+T-225's scope. That ruling is the operator's and it is worth having on its own
+merits, independent of this inception — the ambiguity is live right now, not
+created by T-357.
+
+---
+
+## Running effect after spike 4
+
+The recommendation is unchanged at **GO on exploring**, but the shape has firmed
+considerably. What began as one question is now three, in increasing cost order:
+
+1. **Read DI when `aef:position` is absent** — this is T-340 scoped (b). Byte
+   neutral, no standard revision, no T-225 question, no seam event. Fixes the
+   user-facing defect (a foreign author's diagram survives being opened).
+2. **Emit DI additively, keep writing `aef:position`** — no T-225 question, no
+   intent-expressiveness problem (the extensions stay). Costs: 24 corpus maps
+   change bytes → coordinated re-pin with AEF; the standard gains a carrier it
+   does not name, which is additive rather than contradictory.
+3. **Retire `aef:position`** — needs a T-225 scope ruling, a v1.1 standard
+   revision, and an answer to the intent-expressiveness gap in spike 3.
+
+**Each is a strict subset of the next**, so none of the work is thrown away
+whichever depth the operator picks. That is the useful result of this inception,
+and it did not exist when the task was filed.
 
 ---
 
