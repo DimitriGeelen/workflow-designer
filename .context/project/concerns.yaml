@@ -1076,10 +1076,33 @@ concerns:
       rather than an incident, independent of whether the missed content
       turns out to matter.
 
+      ROOT CAUSE FOUND 2026-08-03, and it is worse than the missed rail.
+      THE termlink CLI ON THIS BOX IS A DIFFERENT IDENTITY THAN THE MCP TOOL.
+      My MCP fingerprint is 6a646ce8b1bc6560. Every key in
+      /root/.termlink/cursors.json is suffixed ::d1993c2c3ec44c94 — the relay's
+      fingerprint — and `termlink agent dms` from the CLI returns that agent's
+      topics (dm:0e7ee6ca:d1993c2c, dm:3bba15e6:d1993c2c), none of them mine.
+
+      Two consequences that compound:
+        1. My MCP identity has NO cursor store, which is precisely why
+           agent_inbox returns unread_topics: [] — not "nothing unread" but
+           "nothing tracked". The empty answer was structural, not incidental.
+        2. THE OBVIOUS REMEDY IS A TRAP. "Just check with the termlink CLI"
+           runs as d1993c2c3ec44c94 and returns a confident, well-formed,
+           entirely plausible answer ABOUT A DIFFERENT AGENT. A wrong answer
+           that looks exactly like a right one, from the tool you would reach
+           for to double-check the first tool.
+
+      So the reachable surface is identity-scoped and I have been reading one
+      identity's rails while reasoning as another. Any sweep MUST assert its
+      own fingerprint matches the identity whose topics it enumerates, or it
+      inherits this defect in a new costume.
+
       NOT CLOSED BY READING THE MESSAGES. Mitigation is having read them;
       prevention is a check that enumerates every topic carrying my
-      fingerprint before any "peer X is silent" claim is made, and that cannot
-      report all-clear from an untracked cursor store. Until that exists this
-      stays open.
+      fingerprint before any "peer X is silent" claim is made, that cannot
+      report all-clear from an untracked cursor store, and that FAILS LOUDLY
+      when the identity it runs as is not the identity it reports for. Until
+      that exists this stays open.
     related_tasks:
       - T-360

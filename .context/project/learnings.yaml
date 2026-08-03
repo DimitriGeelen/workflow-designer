@@ -752,3 +752,10 @@ learnings:
   date: 2026-08-03
   context: Added via context agent
   application: TBD
+- id: PL-107
+  learning: "A zero from an unvalidated probe is not evidence of absence. Checking whether canvas navigation shipped, I grepped for 'zoomLevel' and got 0 in both the old and new artifact — a clean, confident 'never shipped' finding. The real identifier is 'zoomFactor' (11 occurrences in both src and the release). The zero was my invented token, not a property of the system. Run any absence-probe against a known-positive carrier first, or you report your own typo as a fact about the artifact."
+  source: P-001
+  task: T-360
+  date: 2026-08-03
+  context: Added via context agent
+  application: TBD

@@ -4,7 +4,7 @@ name: "Enumerate every rail carrying my fingerprint before claiming a peer is si
 description: >
   A second DM topic went unread for ~24 days while I repeatedly reported 'AEF is silent' from a one-topic measurement. termlink_agent_inbox cannot distinguish all-clear from an untracked cursor store, so the natural check is uninformative. Need a rail sweep that enumerates all topics carrying my fingerprint and refuses to report all-clear from an empty cursor store.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T18:26:59Z
-last_update: 2026-08-03T18:27:28Z
+last_update: 2026-08-03T18:59:53Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,8 +40,20 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] A sweep exists that enumerates **every** topic carrying my fingerprint and
+      reports per-topic unread — not just the rail I habitually watch.
+- [ ] The sweep **refuses to report all-clear from an untracked cursor store.** This
+      is the whole point: `termlink agent inbox` returns `unread_topics: []` both when
+      nothing is unread and when `subscribe --resume` has never run, so its reassuring
+      answer and its uninformative answer are byte-identical. The sweep must report
+      UNKNOWN and exit non-zero rather than inherit that ambiguity.
+- [ ] Teeth, by mutation rather than by reading: with the cursor store absent or
+      empty the sweep must NOT print all-clear — demonstrated, not asserted.
+- [ ] The sweep is proven to rediscover the topic that was actually missed
+      (`dm:6a646ce8b1bc6560:d1993c2c3ec44c94`, unread from offset 1 for ~24 days).
+      A sweep that cannot find the known miss is not evidence of coverage.
+- [ ] G-022 stays `watching` until prevention exists — reading the backlog was
+      mitigation, and this task is not done when the inbox is merely empty.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -190,3 +202,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-360-enumerate-every-rail-carrying-my-fingerp.md
 - **Context:** Initial task creation
+
+### 2026-08-03T18:59:53Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
