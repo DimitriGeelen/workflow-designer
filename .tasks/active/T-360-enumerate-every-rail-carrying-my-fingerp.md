@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T18:26:59Z
-last_update: 2026-08-03T18:59:53Z
+last_update: 2026-08-03T19:02:14Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,20 +40,47 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] A sweep exists that enumerates **every** topic carrying my fingerprint and
+- [x] A sweep exists that enumerates **every** topic carrying my fingerprint and
       reports per-topic unread — not just the rail I habitually watch.
-- [ ] The sweep **refuses to report all-clear from an untracked cursor store.** This
+      `tools/rail-sweep.py`. DM coverage is **exhaustive** (every `dm:` shape carrying
+      `6a646ce8b1bc6560`); found 2, including the one I was not watching.
+      **Scope stated rather than implied:** non-DM topics are *watchlist-scoped*, and
+      the sweep prints the denominator (`2 watched of 549`) plus `547 NOT swept.
+      Absence from this report is not evidence of quiet.` Claiming "every topic" over a
+      watchlist would have been G-022 one level up — the same silence, better formatted.
+- [x] The sweep **refuses to report all-clear from an untracked cursor store.** This
       is the whole point: `termlink agent inbox` returns `unread_topics: []` both when
       nothing is unread and when `subscribe --resume` has never run, so its reassuring
       answer and its uninformative answer are byte-identical. The sweep must report
       UNKNOWN and exit non-zero rather than inherit that ambiguity.
-- [ ] Teeth, by mutation rather than by reading: with the cursor store absent or
+      Live, 2026-08-03T21:27Z: exit **3 UNTRUSTED**. Measured simultaneously, same
+      `my_id`, both `ok: true` — `agent_dms` 2 topics / **99 unread**, `agent_inbox`
+      **0 topics / 0 unread**. The two instruments disagree by 99 messages.
+- [x] Teeth, by mutation rather than by reading: with the cursor store absent or
       empty the sweep must NOT print all-clear — demonstrated, not asserted.
-- [ ] The sweep is proven to rediscover the topic that was actually missed
+      `tools/_t360-rail-sweep-teeth.py`: **18 mutations, each moved the verdict as
+      predicted.** Critically it also proves **ALL-CLEAR is reachable** (3 cases) —
+      without that the refusal would be a constant, and a constant discriminates
+      nothing. One over-broad matcher was caught and narrowed by these teeth: keying
+      the frontier flag on `total>0` fired on a topic whose only envelope sits *at*
+      offset 0, manufacturing a finding; it now keys on `last_offset > ack_up_to`.
+- [x] The sweep is proven to rediscover the topic that was actually missed
       (`dm:6a646ce8b1bc6560:d1993c2c3ec44c94`, unread from offset 1 for ~24 days).
       A sweep that cannot find the known miss is not evidence of coverage.
-- [ ] G-022 stays `watching` until prevention exists — reading the backlog was
+      Found. And the discriminator is asserted explicitly: the cursor store misses
+      **both** topics the content walk sees. Had the two sources agreed, this sweep
+      would be measuring a difference that is not there and would pass for the wrong
+      reason — so that agreement is itself a failing case.
+- [x] G-022 stays `watching` until prevention exists — reading the backlog was
       mitigation, and this task is not done when the inbox is merely empty.
+      Still `watching`. I have **not** flipped it: concern state is operator-only.
+      Prevention now exists (this sweep + its teeth), so the flip is *available* to the
+      operator — see the recommendation in `## Decisions`.
+
+**Assertion the root cause demanded, and where it lives:** check 3 (IDENTITY) fails the
+sweep (exit 4) unless `identity.fingerprint == dms.my_id == inbox.my_id`. Three teeth
+cases drive it, one of which is exactly the trap: an enumeration scoped to the CLI
+fingerprint `d1993c2c3ec44c94` instead of mine.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -135,7 +162,69 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# The teeth harness IS the gate. Its own exit code is the verdict, so no chaining
+# and no context question arises (see the errexit warning above). It asserts every
+# mutation moves the verdict, that ALL-CLEAR is reachable, that the known miss is
+# rediscovered, and that the two sources actually disagree on live data.
+python3 tools/_t360-rail-sweep-teeth.py
+
+# The sweep must still REFUSE on the live snapshot (exit 3, not 0). `! cmd` is the
+# whole verdict, so this line is judged on the thing it names.
+! python3 tools/rail-sweep.py --max-age-min 999999 > /dev/null 2>&1
+
+# Identity coherence in the captured snapshot — the assertion the root cause demanded.
+python3 -c "import json; d=json.load(open('.context/working/rail-snapshot.json')); assert d['identity']['fingerprint'] == d['dms']['my_id'] == d['inbox']['my_id'], 'identity incoherent'"
+
 ## RCA
+
+**Symptom:** For ~24 days I reported "AEF is silent" to the operator and on the rail.
+At the moment of writing this, the peer DM rail held **95 unread past my ack frontier**
+and a second DM topic held 4 more, unread from offset 1.
+
+**Root cause — two layers, and the second is the dangerous one.**
+
+*Layer 1, the instrument.* `termlink agent inbox` derives unread from a local cursor
+store. When that store has no entry for an identity it returns `unread_topics: []` with
+`ok: true` — byte-identical to a genuine all-clear. Its own documentation says so. An
+absent measurement is rendered in the vocabulary of a clean bill of health, and absence
+cannot carry a decision.
+
+*Layer 2, the verification path.* The obvious cross-check — "just confirm from the CLI" —
+**is the trap, not the fix.** Probed 2026-08-03:
+
+| surface | identity file | fingerprint |
+|---|---|---|
+| MCP `agent_identity` | `/root/.termlink/identity.json` | `6a646ce8b1bc6560` |
+| shell `termlink agent identity` | `/root/.termlink/identity.key` | `d1993c2c3ec44c94` |
+
+and the path the MCP surface names **does not exist in the shell's view of the
+filesystem at all**. So the two surfaces do not merely hold different keys, they do not
+share a coordinate system in which one could be pointed at the other. The CLI answers
+fluently, correctly, and **about a different agent**. A wrong answer that is
+indistinguishable from a right one, produced by the very tool you would reach for to
+check the first tool.
+
+**Why structurally allowed:** nothing anywhere asserted that the identity *asking* the
+question was the identity the answer was *about*. Every component behaved correctly in
+isolation. The defect lived in the seam, which is precisely where no component's tests
+look. And the failure mode was agreement — the instrument failed toward the reassuring
+answer, so it produced no symptom to investigate. Compare a wrong `LOST`: that sends you
+to debug working code and gets caught within the hour. A wrong all-clear gets published
+and becomes a citation.
+
+**Prevention (distinct from the fix):** `tools/rail-sweep.py` check 3 makes identity
+coherence a *failing condition* (exit 4), so an enumeration scoped to someone else can
+no longer be reported as mine. Check 5 refuses an all-clear that rests on an untracked
+cursor store (exit 3) rather than inheriting its ambiguity. Check 7 refuses one that
+rests on an unset ack frontier. Check 8 prints the non-DM denominator so watchlist scope
+cannot pass itself off as exhaustive. `tools/_t360-rail-sweep-teeth.py` holds all of it
+in place by mutation — including the case that matters most, that ALL-CLEAR is still
+*reachable*, since a refusal that can never lift is a constant and a constant
+discriminates nothing.
+
+**Not yet prevented, stated plainly:** 547 non-DM topics are unswept. The sweep says so
+in its own output rather than going quiet about it, but saying so is disclosure, not
+coverage.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -176,6 +265,37 @@ date_finished: null
 -->
 
 ## Decisions
+
+### 2026-08-03 — the sweep verifies a capture, it does not gather one
+- **Chose:** capture through the MCP termlink surface, verify with a Python script that
+  takes the capture as input.
+- **Why:** the shell cannot reach my identity's rails *at all* — different fingerprint,
+  and the identity path the MCP surface reports is not present in the shell's
+  filesystem view. A shell script that shells out to `termlink` would sweep
+  `d1993c2c3ec44c94` and report it as mine. That is the exact defect, rebuilt.
+- **Rejected:** (a) shell script calling the CLI — reproduces the bug; (b) pointing the
+  CLI at the MCP identity via `TERMLINK_IDENTITY_DIR` — the file it would need is not
+  there; (c) letting the sweep both gather and verify — impossible from one process,
+  and pretending otherwise would hide the seam that caused this.
+
+### 2026-08-03 — UNTRUSTED is a louder verdict than BACKLOG, and does not lift on mitigation
+- **Chose:** exit 3 (UNTRUSTED) when the cursor store is untracked, distinct from exit 1
+  (BACKLOG). It keeps firing after the backlog is drained.
+- **Why:** draining 99 messages is mitigation. The instrument is still unable to tell
+  quiet from untracked, so an all-clear from it is still worthless. A guard that goes
+  green once the mess is cleaned up teaches that cleaning up was the fix. Teeth case
+  `backlog drained but cursor store STILL untracked -> UNTRUSTED` pins this.
+- **Rejected:** folding it into BACKLOG — it would go silent the moment I caught up,
+  which is exactly when I would stop thinking about it.
+
+### 2026-08-03 — recommendation to the operator on G-022 (not actioned)
+- **Chose:** leave G-022 at `watching` and recommend, rather than flip it.
+- **Why:** concern state is operator-only under the Authority Model, and a broad
+  autonomous directive delegates initiative, not authority.
+- **What the operator may now weigh:** prevention exists and has teeth. What is *not*
+  covered is the 547 unswept non-DM topics and the fact that the identity split itself
+  is unrepaired — the sweep detects the split, it does not close it. My reading: G-022
+  is narrower than it was but not closed, because the seam that produced it is intact.
 
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.

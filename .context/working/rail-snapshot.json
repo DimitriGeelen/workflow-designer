@@ -1,0 +1,66 @@
+{
+  "captured_at": "2026-08-03T21:27:29Z",
+  "capture_window": "2026-08-03T21:13:52Z .. 2026-08-03T21:27:29Z (DMs first, channels second)",
+  "captured_via": "mcp:termlink",
+  "note": "Captured through the MCP termlink surface. The shell CLI on this box resolves a DIFFERENT identity (see identity_probe), so this snapshot CANNOT be produced from a shell script. rail-sweep.py verifies it; it does not gather it.",
+  "identity": {
+    "fingerprint": "6a646ce8b1bc6560",
+    "public_key_hex": "06259e56f589745657fa78d912944efb11c456f2ac567b1645d145432e8e7515",
+    "path_reported_by_mcp": "/root/.termlink/identity.json"
+  },
+  "identity_probe": {
+    "mcp_agent_identity_fingerprint": "6a646ce8b1bc6560",
+    "mcp_reported_path": "/root/.termlink/identity.json",
+    "mcp_reported_path_exists_in_shell_view": false,
+    "cli_agent_identity_path": "/root/.termlink/identity.key",
+    "cli_agent_identity_fingerprint": "d1993c2c3ec44c94",
+    "conclusion": "Two surfaces, two fingerprints, and the path the MCP surface names is not visible to the shell. There is no shell-side handle on the MCP identity's rails."
+  },
+  "dms": {
+    "ok": true,
+    "my_id": "6a646ce8b1bc6560",
+    "coverage": "exhaustive — agent_dms filters the hub topic list to every dm: shape carrying my fingerprint",
+    "dms": [
+      {
+        "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560",
+        "peer": "0e7ee6cad65137fc",
+        "unread": 95,
+        "first_unread": 329
+      },
+      {
+        "topic": "dm:6a646ce8b1bc6560:d1993c2c3ec44c94",
+        "peer": "d1993c2c3ec44c94",
+        "unread": 4,
+        "first_unread": 1
+      }
+    ]
+  },
+  "inbox": {
+    "ok": true,
+    "my_id": "6a646ce8b1bc6560",
+    "unread_topics": []
+  },
+  "channels": {
+    "coverage": "watchlist-scoped — NOT exhaustive. See population_non_dm for the denominator.",
+    "population_non_dm": 549,
+    "population_source": "termlink_channel_list, non-dm names, 2026-08-03T21:20Z",
+    "watchlist": [
+      {
+        "topic": "agent-chat-arc",
+        "ack_up_to": 0,
+        "unread_count": 2001,
+        "total": 2001,
+        "first_unread": 8911,
+        "last_offset": 10911
+      },
+      {
+        "topic": "agent-chat-arc-other",
+        "ack_up_to": 0,
+        "unread_count": 0,
+        "total": 1,
+        "first_unread": null,
+        "last_offset": 0
+      }
+    ]
+  }
+}
