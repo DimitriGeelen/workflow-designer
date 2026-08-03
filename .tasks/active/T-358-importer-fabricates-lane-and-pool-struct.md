@@ -4,7 +4,7 @@ name: "Importer FABRICATES lane and pool structure the input never had: every th
 description: >
   Measured T-356: all 5 third-party fixtures come out of open->save carrying lanes 0->3 and participants 0->1. None of the input documents contains a single lane or pool. The catalogued import-loss class (T-337/340/347/348) is subtraction; this is the opposite direction and needs a different repair.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T16:12:36Z
-last_update: 2026-08-03T16:12:36Z
+last_update: 2026-08-03T16:42:23Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -66,6 +66,40 @@ and should be decided with it, not before it.
 ## Acceptance Criteria
 
 ### Agent
+> ### Investigation 2026-08-03 — site named, and the partition is NOT total
+>
+> **The site.** In `parseBpmnXml`, immediately after the `laneSet` read loop:
+> `if (!lanes.length) lanes.push(...defaultLanes());` (`src` ~9647 — anchor on the
+> `defaultLanes()` call inside `parseBpmnXml`, not the line number).
+>
+> **`defaultLanes()` (`src` ~1620) is not a neutral skeleton — it is the Authority
+> Model.** It returns `human / Human · Sovereignty / authority: 'sovereignty'`,
+> `framework / Framework · Authority / authority: 'authority'`, and
+> `agent / Agent · Initiative / authority: 'initiative'`.
+>
+> **And every node lands in the first one.** Node lane membership resolves via
+> `let laneId = lanes[0]?.id;` then searches `flowNodeRef` entries for a match. A
+> document with no lanes has no `flowNodeRef` to match, so the initialiser stands:
+> **`lanes[0]` is `human`, `authority: 'sovereignty'`.**
+>
+> So the accurate statement of this defect is not "three lanes appear". It is:
+> **opening a third-party BPMN file silently asserts that every task in it is
+> human-sovereign** — the highest authority level in the model, the one that means
+> "can override anything, is accountable" — and saving makes that assertion the
+> document. The author's tool has no concept of any of this.
+>
+> **AC2 is NOT satisfied, and that is the result the AC was written to force.**
+> There are **three** paths into `!lanes.length`, not the two anticipated:
+> (i) the input has no `laneSet` at all; (ii) a `laneSet` exists but yields zero
+> `lane` children; (iii) `laneSets[0]` is empty while a *later* laneSet has lanes —
+> the T-348 first-only read. **All three produce byte-identical output.** They
+> cannot be separated by any current instrument, so per this AC's own terms the
+> repair is blocked on making the partition total, not on choosing a default.
+>
+> Same landing site as T-341 (unresolvable `flowNodeRef` → human lane) reached by a
+> different cause, which is why the two must be ruled on together: a fix that only
+> changes the default value leaves three causes still sharing one output.
+
 - [ ] **The fabrication is reproduced and its SITE named** -- the specific line(s)
       where `state` acquires lanes/participants absent from the input, not "somewhere
       in parseBpmnXml". Anchor on a function signature, never a line number (they
@@ -94,8 +128,6 @@ and should be decided with it, not before it.
 - [ ] `tools/_t356-third-party-fidelity-cdp.mjs` re-run: `lanes` and `participants`
       deltas gone from all five rows, with the other columns unchanged (this task
       repairs fabrication only, not the DI/pool/node losses those rows also carry)
-- [ ] [First criterion]
-- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -247,3 +279,6 @@ node tools/_t356-third-party-fidelity-cdp.mjs
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-358-importer-fabricates-lane-and-pool-struct.md
 - **Context:** Initial task creation
+
+### 2026-08-03T16:42:23Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
