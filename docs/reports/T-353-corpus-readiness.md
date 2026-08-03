@@ -110,6 +110,25 @@ was 15). What survives unchanged: every specific red line named is genuinely red
 `29 archived / 1 live` split of the found set is unaffected. The finding holds; the population
 sentence did not.
 
+**Sized statically, so "floor" stops being a hand-wave** (354 task files, no execution):
+
+| population | n | share |
+|---|---:|---:|
+| verification lines, total | 1341 | 100% |
+| **SHAPED** (top-level `;`) — the only population any scan has examined | 331 | 24.7% |
+| **UNSHAPED** (no top-level `;`) — **never examined by anything** | **1010** | **75.3%** |
+
+So the honest sentence is: **30 red lines were found in the quarter of the corpus anyone has
+looked at.** Three-quarters of it has never been run by any instrument. That is not a claim
+that the other 1010 are bad — T-178's two unshaped red lines are the only evidence either way,
+and two out of two is a sample, not a rate. It is a statement that the number has no
+denominator behind it.
+
+Note the totals moved while this was being written (T-352 measured 1331/322; this measures
+1341/331) — because T-353 and T-354 added their own verification lines to the corpus they were
+measuring. A corpus-wide count is itself a moving global, which is the G-015 lesson arriving
+one level up.
+
 ## 4. A LIVE consequence: T-178 is queued for review and will be blocked
 
 29 of the 30 red lines are in archived tasks that never re-run. **One is not.**
