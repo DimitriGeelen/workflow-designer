@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:34:19Z
-last_update: 2026-08-03T16:57:43Z
+last_update: 2026-08-03T17:24:19Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -156,6 +156,59 @@ pool* are unchanged, so every count-based instrument and the validator stay gree
 this task is answered uniformly, `second-process` is the row most likely to make the
 uniform answer wrong, and is worth an explicit sentence in the decision either way.
 
+## Measured 2026-08-03 — this task is now CAPABLE OF FAILING, and it fails on every shape
+
+Last session I recorded here that T-356 did **not** make this task capable of failing:
+its five fixtures censused all-zero against these five shapes, and only the
+unknown-attribute class was exercised — incidentally, by `exporter=` itself. That
+required a **different** fixture hunt, which is now done.
+
+**Five more fixtures** (survey of 467 `.bpmn` across three upstream repos; 288 carried
+an `exporter=` signature), chosen for vendor spread the first intake lacked — Camunda
+Modeler 5.16 and 4.8, **Zeebe Modeler**, **Enterprise Composer**, **Bizagi**. New
+instrument `tools/_t347-accepted-element-content-cdp.mjs`. Control clean.
+
+| shape | carriers losing it | witnesses |
+|---|---|---|
+| `documentation` | **2/2** | `bizagi-nested-ns`, `i18n-documentation` |
+| foreign `extensionElements` children | **6/6** | all six carriers |
+| spec `property` | **2/2** | `caseagile-local-ns`, `kitchen-sink` |
+| loop characteristics | **2/2** | `caseagile-local-ns`, `kitchen-sink` |
+| unknown (foreign-ns) attributes | **3/3** | `i18n-documentation`, `kitchen-sink`, `zeebe-service-task` |
+
+Always to **exactly zero**, never a reduction. Report:
+`docs/reports/T-347-accepted-element-content.md`.
+
+**Severity restated a second time, and this is the version the evidence supports.**
+The pre-T-356 rating was "latent", drawn from a population that could not exhibit the
+defect. I then overcorrected to "any file from a third-party modeller carries both",
+which I retracted last session as measured false. The measured profile is **low
+incidence, total loss**: only 2 of 10 fixtures carry `documentation` and 6 of 10 carry
+a foreign extension child — but *every* carrier loses *all* of it. Neither previous
+wording described that.
+
+**The near-clean verdict is the trap.** `caseagile-local-ns.bpmn` loses exactly one
+thing under the structural census (`_t356`: `exporter`) and **451** under this one.
+Whatever repair is chosen, note that a structure-counting suite will go green over a
+document that is being gutted — which is why this needed its own instrument rather
+than a widened leg on an existing one.
+
+> **The bridge suite is RED on master because of this intake, and deliberately left so.**
+> `bizagi-nested-ns.bpmn` exposed a pre-existing validator false positive: legal
+> non-flow-node children of `<process>` are enumerated as flow nodes and reported as
+> `E-XML-NODE-TYPE`. The id-less `<documentation>` case anchors to `'?'`, which fails the
+> T-335 anchorability guard — **68 passed, 1 failed** (was 69/0).
+>
+> Filed as **T-359**. Not silenced, and the fixture was not withdrawn: removing the
+> document that makes a defect visible is how a population loses the ability to fail,
+> which is the error this whole intake exists to correct. Adding `UNRESOLVED` to the
+> `ANCHOR` table would have been the same move in a different costume.
+>
+> **T-347 cannot reach `work-completed` until T-359 is fixed** — `## Verification`
+> below runs the bridge suite, and it will keep failing. That ordering is correct: the
+> validator should stop lying about legal documents before anyone decides what the
+> importer ought to preserve.
+
 ## Acceptance Criteria
 
 ### Agent
@@ -174,12 +227,25 @@ uniform answer wrong, and is worth an explicit sentence in the decision either w
 ### Human
 - [ ] [REVIEW] Choose repair semantics for unconsumed element content
       **Steps:**
-      1. `cd /opt/832-Workflow-designer && timeout 180 node tools/_t338-input-fidelity-cdp.mjs`
-      2. Read the `content:` block — five non-derivable shapes, one benign, one control.
+      1. `cd /opt/832-Workflow-designer && timeout 300 node tools/_t347-accepted-element-content-cdp.mjs`
+      2. Read the `PER-SHAPE VERDICT` block. Each denominator is the number of files that
+         actually CARRY that shape — `n/a` files are excluded, never counted as agreement.
       3. Decide (a) preserve-and-re-emit, (b) consume-as-typed-fields, or (c) refuse.
       **Expected:** a choice recorded in `## Decisions` with its rationale.
       **If not:** leave filed. Nothing in our own corpus loses content today; the exposure
       is on files arriving from peers.
+
+      **Evidence changed under your feet (2026-08-03) — read this before deciding.** These
+      steps used to point at `_t338`'s `content:` block, which is SYNTHETIC: it splices a
+      probe into a document we wrote. There are now ten real third-party fixtures and a
+      dedicated instrument, and **all five shapes are lost on 100% of the files that carry
+      them, always to exactly zero.** Full table: `docs/reports/T-347-accepted-element-content.md`.
+      Two things there bear directly on the choice:
+      - `caseagile-local-ns.bpmn` loses **one** thing under the structural census (`_t356`)
+        and **451** under this one. A structure-counting instrument returns a near-clean
+        verdict on a document being gutted — so "our suites are green" is not evidence here.
+      - `bizagi-nested-ns.bpmn` loses its **entire task graph** (`nodes 3→0`, `flows 2→0`)
+        because its namespace is declared on an inner element rather than the root.
 
       Note (a) matches the T-259 precedent and the ratified "diagram XML is never silently
       migrated" (`src:9656`), and is the only option that also covers content we have not
@@ -267,6 +333,24 @@ pair of readings in buckets nobody has shown can fill.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+# --- T-347 commands (added 2026-08-03) ---
+# The fixtures are INPUTS ONLY and `exporter=` does not survive the round trip
+# (measured: dropped on all ten). If someone ever round-trips a fixture back over
+# itself, the population silently reverts to designer-authored and every verdict
+# below becomes vacuous while still reading green. The digests are the only detector,
+# so they are checked FIRST and unpiped — `sha256sum -c | tail` returns tail's exit
+# status, which is how this check passed against a deliberately corrupted digest
+# during T-356 (L-387 class: an instrument that discards what it is verifying).
+cd tests/fixtures/third-party && sha256sum -c --quiet --ignore-missing <(grep -A99 'Pinned digests' PROVENANCE.md | grep -E '^[0-9a-f]{64}  ')
+# The census must still run and must still find carriers. A run where every shape
+# reports NO CARRIER is not a pass — it means the fixtures stopped carrying the
+# shapes, which is exactly the unreachable-witness state this task was stuck in.
+out=$(timeout 300 node tools/_t347-accepted-element-content-cdp.mjs 2>&1); echo "$out" | grep -q 'PER-SHAPE VERDICT'
+out=$(timeout 300 node tools/_t347-accepted-element-content-cdp.mjs 2>&1); ! echo "$out" | grep -q 'NO CARRIER'
+# Harness integrity: the positive control is designer-produced and must stay clean.
+out=$(timeout 300 node tools/_t347-accepted-element-content-cdp.mjs 2>&1); echo "$out" | grep -q 'round-trip path sound'
+bash tests/run-bridge-tests.sh
 
 ## RCA
 

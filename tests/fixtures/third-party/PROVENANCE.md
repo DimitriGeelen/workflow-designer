@@ -101,3 +101,98 @@ state T-356 exists to escape, and the census that would detect it
 
 Never replace a fixture with its own round-trip output. The pinned digests above are
 what catches it if someone does.
+
+---
+
+# Second intake, 2026-08-03 (T-347) — five more, for a DIFFERENT question
+
+**The five above could not answer T-347.** Censused against its shapes they returned
+all zeros: `documentation` 0, foreign `extensionElements` children 0, `property` 0,
+loop characteristics 0. They were selected for "does a third-party document survive
+structurally?" and are fit for that. **Capability is per-QUESTION, not per-population**
+— T-356 succeeding cast a halo over neighbouring questions, produced *by* the fix, and
+the halo had to be measured away rather than argued away.
+
+Drawn from a survey of **467 `.bpmn` files** across `bpmn-io/bpmn-js`,
+`bpmn-io/bpmn-moddle` and `camunda/camunda-bpmn-js`; 288 carried an `exporter=`
+signature.
+
+| file | signature | shapes it makes real |
+|---|---|---|
+| `kitchen-sink.bpmn` | `exporter="Camunda Modeler" 5.16.0-dev` | spec `property`, 4 `multiInstance` + 3 `standardLoopCharacteristics`, `zeebe:calledElement` — three shapes in one real export |
+| `i18n-documentation.bpmn` | `exporter="Camunda Modeler" 4.8.0-rc.0` | `<bpmn:documentation>`, `modeler:` attributes |
+| `zeebe-service-task.bpmn` | `exporter="Zeebe Modeler" 0.11.0` | deep `zeebe:` extension tree — `ioMapping`, `taskDefinition`, `taskHeaders`, `input`, `header` |
+| `caseagile-local-ns.bpmn` | `exporter="Enterprise Composer" 1.0.11.0` | 45 `caseagile:property` children, `multiInstanceLoopCharacteristics`, **namespace declared on an inner element, not the root** |
+| `bizagi-nested-ns.bpmn` | `xmlns:bizagi="http://www.bizagi.com/bpmn20"` + `<bizagi:BizagiExtensions>` | 8 `<documentation>`, nested vendor extension tree |
+
+**Vendor spread is deliberately wider than the first intake**, which was entirely
+Camunda Modeler and bpmn-js. Signavio, Enterprise Composer, Zeebe Modeler and Bizagi
+are four vocabularies this project had never seen.
+
+## The criterion was CLARIFIED, and the clarification was checked against the decision it could have overturned
+
+The first intake's rule was worded *"the exporting tool's own signature on
+`<definitions>`"*, and `exporter=` was the instance used. `bizagi-nested-ns.bpmn`
+carries no `exporter=` — but it declares **the vendor's own namespace URI** and
+carries vendor element vocabulary. That is the same class of evidence: a declared,
+machine-written claim of origin no fixture we could write would honestly have.
+
+**Loosening a criterion because it is blocking the result you want is the failure this
+directory exists to prevent**, so the clarification was tested against the two files
+T-356 rejected. `collaboration.bpmn` and `collaboration-vertical.bpmn` have **no
+`exporter=`, no vendor namespace, and no vendor elements**. They remain rejected. The
+clarification overturns no past decision.
+
+## Rejected this intake — the criterion still bites
+
+| file | carried | why rejected |
+|---|---|---|
+| `vendor/yaoqiang-event-definitions.bpmn` | `documentation` ×14, `property` ×7 | **ID prefixes only** (`Yaoqiang-ID_…`). No exporter, no vendor namespace. A naming convention is *resemblance*, and resemblance is what this criterion rules out. It was the single richest `documentation` carrier found and was dropped anyway. |
+| `documentation.bpmn`, `documentation-extension-elements.bpmn` | `documentation` ×2 | Hand-written bpmn-moddle test fixtures. No provenance of any kind — exactly the population the criterion exists to exclude. |
+| `extension/camunda/inputOutput-*.part.bpmn` | `camunda:` children | Fragments, not whole documents. Do not parse standalone. |
+
+**Consequence, stated because it bounds a conclusion:** the rejected files are the
+richest `documentation` carriers available (14 and 8 vs a maximum of 8 admitted, and
+only 1 in the exporter-signed population). The criterion cost real coverage here. It
+was still applied.
+
+## Considered and deliberately not taken
+
+- `bpmn-moddle/test/fixtures/bpmn/complex.bpmn` — a genuine **Signavio Process Editor
+  6.2.1** export with 916 `signavio:` children and 4 loop characteristics. The most
+  real-world document found. **Not taken on size**: 260 KB, ~7× the largest fixture
+  here. Recorded rather than silently skipped — if the `extensionElements` repair ever
+  needs a heavy real-world case, this is it.
+- `extension/camunda/inputOutput.bpmn` — `exporter="camunda modeler" 2.5.0`, and
+  interesting for declaring `xmlns:camunda="http://activiti.org/bpmn"`, the *activiti*
+  URI under the `camunda` prefix. Coverage of nested extension trees is already
+  carried by `zeebe-service-task` and `caseagile-local-ns` with live vendors.
+
+### Pinned digests (second intake)
+
+```
+cf2e096a73984a690959b55614722f3195de31aa9d3e867a31302cbf2dfb9f85  bizagi-nested-ns.bpmn
+fb9bbc8b7e2a32b95cca4bfa671dc26237cd4d45dbd471a881edee2c7e3acf34  caseagile-local-ns.bpmn
+db93b7ed701c578bc59385f1c10bc152e410711529266950bcf4ec14c26dbb6a  i18n-documentation.bpmn
+63c8a9d73ec6d20762d910922fffb268157f75af7b196822aef1eb791801206c  kitchen-sink.bpmn
+e2b75352e08bdcbf234bab30653c13bf6973de56499061c672d9e25c5bdab5b7  zeebe-service-task.bpmn
+```
+
+Sources — `bpmn-io/bpmn-js` @`develop` `test/fixtures/bpmn/`; `bpmn-io/bpmn-moddle`
+@`main` `test/fixtures/bpmn/` and `.../vendor/`; `camunda/camunda-bpmn-js` @`main`
+`test/camunda-cloud/`. Retrieved verbatim via `curl`, unmodified. MIT, as above.
+
+## Measured 2026-08-03: all ten lose content, and the STANDING WARNING now covers all ten
+
+`_t347-accepted-element-content-cdp.mjs` — **every T-347 shape is LOST on 100% of the
+files carrying it**, always to exactly zero. See
+`docs/reports/T-347-accepted-element-content.md`.
+
+`_t356-third-party-fidelity-cdp.mjs` — **10/10 lossy**, control clean. `exporter=` is
+dropped on all five new fixtures too, **measured, not assumed by analogy**. The
+inputs-only warning above therefore applies to this intake without exception.
+
+`bizagi-nested-ns.bpmn` is the severest single row found so far: **`nodes 3→0`,
+`flows 2→0`** — a document whose namespace is declared on an inner element rather
+than the root loses its entire task graph.
+

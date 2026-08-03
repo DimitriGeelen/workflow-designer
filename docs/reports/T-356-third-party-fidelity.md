@@ -1,5 +1,19 @@
 # T-356 — What happens when real third-party BPMN meets today's importer
 
+> **POPULATION NOTE, added 2026-08-03 (T-347).** Every figure below — including the
+> headline **5 of 5** — was measured over the five fixtures present in
+> `tests/fixtures/third-party/` on the date of this run. **T-347 later added five
+> more to that directory, and this instrument enumerates it by glob**, so a fresh run
+> now reports **10/10 lossy** over ten rows, not 5/5 over five.
+>
+> That is the instrument behaving correctly: its job is "measure every third-party
+> fixture we have", and the population growing is the point of T-356. The hazard is
+> only that a headline number outlives the population it was drawn from. It does not
+> apply here because the run prints one row per fixture, so each run states its own
+> denominator — but the number in *this document* is as-of a date, and that is now
+> written down rather than assumed. The `exporter=` half-life below applies to all
+> ten; re-measured under T-347, not carried over by analogy.
+
 **Run:** `node tools/_t356-third-party-fidelity-cdp.mjs`, 2026-08-03.
 **Positive control** (`arc-lifecycle`, a designer-produced corpus map, input-derived):
 **clean** — so the round-trip path itself is sound and every subject loss below is real.
