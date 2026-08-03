@@ -94,3 +94,54 @@ detects it if they are.
   0 new-fail.
 - `tools/_t308-export-byte-identity-cdp.mjs` — **identical: 24** of 24. Adding input
   fixtures changed nothing about what we emit for existing maps, as required.
+
+---
+
+## AC3 — denominators restated PER-POPULATION
+
+The requirement was to re-state each import-loss instrument's denominator with the
+split reported per-population rather than pooled, because 126 incapable files
+diluting a handful of capable ones would rebuild the original error inside the fix.
+
+The restatement turns out to be simpler and starker than expected: **the split is
+already total and disjoint. No instrument pools — because until today no instrument
+had a single third-party document in it.**
+
+| instrument | leg | denominator | designer-produced | third-party |
+|---|---|---|---|---|
+| `_t308` byte-identity | (whole) | 24 corpus maps | 24 | **0** |
+| `_t338` fidelity | 1 corpus losslessness | 24 | 24 | **0** |
+| `_t338` | 2 out-of-vocabulary tags | **1** (`maps[0]` is the sole carrier) | 1 | **0** |
+| `_t338` | 3 malformed input | 24 × cases | 24 | **0** |
+| `_t338` | 4 unresolvable refs | 24 × cases | 24 | **0** |
+| `_t338` | 5 unknown sub-tree (DI) | 24 | 24 | **0** |
+| `_t338` | 6 accepted-element content | 24 × cases | 24 | **0** |
+| `_t338` | 7 root shapes | 24 | 24 | **0** |
+| `_t356` (new) | third-party fidelity | 5 + 1 control | 1 (control) | **5** |
+
+Three things this table says that the corpus-wide census could not:
+
+1. **Every leg of the pre-existing fidelity instrument carries its probes on
+   documents we wrote.** Injection asks "does the importer drop X when X is spliced
+   into a file we authored?" — a real question, and not the question the severity
+   ratings were quoting it for.
+
+2. **Leg 2's denominator is 1, not 24.** Every out-of-vocabulary tag verdict this
+   project holds was measured on a single carrier map, `maps[0]`. That is a
+   population definition chosen for one hunt and inherited by every later sentence —
+   the RAIL-409 shape again, and it was not visible until the denominators were
+   written down side by side.
+
+3. **The third-party column is zero everywhere except the instrument added today.**
+   T-356's premise stated corpus-wide is "no third-party BPMN exists in the tree".
+   Stated per-instrument it is sharper: *no fidelity verdict this project has ever
+   published had third-party evidence behind it.*
+
+**Not pooled, and deliberately not merged.** The new fixtures were NOT added to
+`_t338`'s legs. Folding them in would produce mixed denominators (24 designer + 5
+third-party) in instruments whose `EXPECTED_*` sets were measured over the
+designer-only population, silently changing what every existing verdict means — and
+AC4 forbids flipping a pin in this task. The correct sequencing is: measure the new
+population separately (done), file what it exposes (T-358, plus confirmations on
+T-340/T-348), and let the merge happen in whichever task repairs the defect, where
+the pin change is the deliberate subject rather than a side effect.
