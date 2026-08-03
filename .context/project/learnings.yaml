@@ -738,3 +738,17 @@ learnings:
   date: 2026-08-03
   context: Added via context agent
   application: TBD
+- id: PL-105
+  learning: "A summed total over a category cannot distinguish preservation from substitution: censusing foreign BPMN content, our own aef:position output pushed the output total to 162 against an input of 1, so a deletion reported as 'kept'. Compare per-key over the keys the INPUT had, never the union. Direction matters: this bug failed toward agreement, which is the failure mode that gets published."
+  source: P-001
+  task: T-347
+  date: 2026-08-03
+  context: Added via context agent
+  application: TBD
+- id: PL-106
+  learning: "A guard keyed on a by-product of a defect only protects the instances lacking the by-product. The validator's flow-node false positive fired on ioSpecification and dataObject for a long time, but those carry ids so the finding anchored and the anchorability guard stayed green; only the id-less documentation case was observable. Ask what made an instance detectable and whether that property is part of the defect."
+  source: P-001
+  task: T-359
+  date: 2026-08-03
+  context: Added via context agent
+  application: TBD
