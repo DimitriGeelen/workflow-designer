@@ -84,13 +84,29 @@ date_finished: null
 # pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
 # past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
 #
-# Pipefail/SIGPIPE hint (L-387): P-011 runs each command under `set -eo pipefail`.
-# `cmd | grep -q PATTERN` exits 141 (SIGPIPE) when grep matches and closes stdin
-# while the upstream is still writing — verification then "fails" even though
-# the pattern was present. Safe pattern: capture first, grep the capture:
-#     out=$(cmd 2>&1); echo "$out" | grep -q "PATTERN"
-# Or:
-#     cmd > /tmp/.out 2>&1 && grep -q "PATTERN" /tmp/.out
+# ⚠ ERREXIT WARNING (T-352) — READ BEFORE USING THE CAPTURE PATTERN BELOW.
+# P-011 runs each command under `-o pipefail` but NOT under an effective `-e`.
+# Measured, not assumed (tools/_t352-p011-errexit-probe.sh): the gate runs each line as
+# `if ( … eval "$cmd" ); then` (update-task.sh:1018) and that subshell is the CONDITION
+# of an `if`, which neutralises errexit inside it. pipefail survives; errexit does not.
+# CONSEQUENCE: a line of the form `a; b` IS JUDGED ON `b` ALONE. `a`'s exit code is
+# discarded, so a command that fails outright can still leave the line green.
+#   Proven false green:
+#     out=$(python3 tools/validate-workflow.py BROKEN.bpmn 2>&1); echo "$out" | grep -q "VALID"
+#   -> PASSES on a document the validator exits 2 on and labels INVALID, because
+#      `grep -q "VALID"` matches INVALID as a SUBSTRING. Two defects stacked.
+# PREFER a single command whose own exit code is the verdict — then no context question
+# arises. When you must chain, the LAST command has to be the one that can fail, and its
+# pattern must not be matchable by the earlier command's FAILURE output.
+# Note `set -e` re-issued inside the subshell does NOT fix this: the suppressed context is
+# inherited and re-setting the option does not clear it. See T-352 for the remedy.
+#
+# Pipefail/SIGPIPE hint (L-387): `cmd | grep -q PATTERN` exits 141 (SIGPIPE) when grep
+# matches and closes stdin while the upstream is still writing — verification then
+# "fails" even though the pattern was present. The capture pattern below fixes THAT,
+# and creates the errexit exposure described above; the file form fixes both:
+#     cmd > /tmp/.out 2>&1 && grep -q "PATTERN" /tmp/.out     # PREFERRED: && not ;
+#     out=$(cmd 2>&1); echo "$out" | grep -q "PATTERN"        # SIGPIPE-safe, errexit-blind
 # Origin: L-387, captured 4× (T-1716, T-1838, T-1862, T-1863) before this hint.
 #
 # Single pipe only — no intermediate tail/awk/sed stages between capture and grep
