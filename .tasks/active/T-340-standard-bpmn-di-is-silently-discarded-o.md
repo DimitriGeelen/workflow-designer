@@ -111,13 +111,29 @@ tickable AC out of it would make a blocked task read as progressing.
       *"should the designer emit standard DI at all"* — which is a feature, not this defect,
       and should be filed separately rather than widened into T-340.
 
-      **Recommendation (recorded, not enacted): (a′) — preserve the DI sub-tree, refresh
-      coordinates from `aef:position` on export.** It is the only option that both stops the
-      loss and leaves exactly one authoritative geometry. Its cost is honest and stated: it
-      rewrites a peer's coordinate bytes, which is the closest any option comes to brushing
-      the ratified *"diagram XML is never silently migrated"* — but refreshing a derived view
-      to match the authority is not migration of authored content, whereas re-emitting stale
-      coordinates (option (a)) publishes a geometry the document itself contradicts.
+      **Recommendation (corrected 2026-08-03 — was (a′), now (b)). See
+      `## Decisions` → "the recommendation was wrong, and the option set was framed too
+      narrow" for the full reasoning.** In short: (a) and (a′) both preserve DI *bytes* while
+      leaving the importer blind to it, so a foreign file still auto-layouts on load
+      (`src:9742` — position comes from `aef:position` if present, **else lay out
+      automatically**, and a foreign file has no `aef:position` by construction). (a) then
+      re-emits the original DI alongside auto-layout `aef:position` — two contradictory
+      geometries **immediately, with no user action**. (a′) overwrites the author's
+      coordinates with the auto-layout — consistent, and it destroys the thing worth saving.
+
+      **(b) consume DI as layout is the only option under which the author opens their
+      diagram and sees their diagram**, and the byte objection that disqualified it applies
+      only to a maximal form of it. Scoped as: **on import `aef:position` → else DI → else
+      auto-layout; on export emit DI only when the input carried it.** The two populations are
+      disjoint today (121 of 126 files carry `aef:position` and none carry DI; a foreign file
+      carries DI and cannot carry `aef:position`), so the precedence rule never fires on our
+      corpus: **zero bytes change for existing maps, `_t308` stays 24/24, no fixture re-pin,
+      no seam event.**
+
+      What remains for AEF is therefore narrower than step 3 above implies: not "may we break
+      your pins" but **"if you ever hand us a document carrying both `aef:position` and DI,
+      which wins?"** Nothing produces that shape today, which is exactly why it is cheap to
+      state now.
 
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
@@ -356,6 +372,61 @@ nothing currently in the tree.
   `_t308-export-byte-identity` goes 24/24 drifted and AEF's pinned fixtures need a re-pin.
 - **(c) refuse** — destroys the editing path for exactly the documents the seam exists to
   serve; same objection that rejected (c) in T-337.
+
+### 2026-08-03 — the recommendation was wrong, and the option set was framed too narrow
+
+Two corrections, the second prompted by the operator asking *"why not just adopt the
+standard?"* — a question none of the four options was shaped to receive.
+
+**1. The user-facing defect is worse than "DI is dropped", and that inverts the ranking.**
+`src:9742`: position comes from `aef:position` **if present, else lay out automatically**. A
+third-party file has no `aef:position` — it is our namespace — so opening a Camunda or
+bpmn.io export means the author's arrangement is **replaced by our auto-layout on load**, and
+saving makes that irreversible. So:
+
+| option | what the author sees on open | what the saved file says |
+|---|---|---|
+| today | auto-layout | one geometry, theirs deleted |
+| (a) preserve verbatim | auto-layout | **two contradictory geometries, immediately, with no user action** — original DI beside auto-layout `aef:position` |
+| (a′) preserve + refresh | auto-layout | one geometry — the auto-layout. Consistent, and it destroys the thing worth saving |
+| **(b) consume as layout** | **their diagram** | one geometry, theirs |
+
+(a) and (a′) both preserve DI *bytes* while leaving the importer blind to DI, which is why
+neither addresses the symptom. My earlier note that (a)'s divergence appears "after a drag"
+was wrong — it is present the moment the file is saved.
+
+**2. The byte objection that disqualified (b) applied only to a maximal form of it.** I
+rejected (b) as "changes exported bytes for all 24 maps → re-pin AEF's fixtures", which is
+true of *always* emitting regenerated DI. Scoped properly — **import: `aef:position` → else
+DI → else auto-layout; export: emit DI only when the input carried it** — the two populations
+are disjoint (121 of 126 carry `aef:position`, none carry DI; a foreign file carries DI and
+cannot carry `aef:position`), so the precedence never fires on our corpus. Zero bytes change,
+`_t308` stays 24/24, no seam event. **I let a property of the maximal variant disqualify the
+whole option**, which is the same error as rating severity from a census that could not fill:
+a general claim resting on one unexamined sub-case.
+
+**3. The question the option set could not receive: should `aef:position` exist at all?** DI
+is a standard, is strictly richer than our extension (bounds, waypoints, label positions
+against our x/y), and Portability is the fourth constitutional directive — *prefer standards*.
+The injury is also **symmetric and I had not said so**: our exports carry no DI either, so
+bpmn.io opening one of our files auto-layouts it exactly as we do to theirs. We are on both
+ends of the same defect.
+
+Full adoption is **not** folded into T-340. It changes bytes for all 24 maps, reaches
+`tools/yaml-to-bpmn.py` (which emits `aef:position`) and the bridge parity assertions, needs
+dual-read indefinitely so 126 existing files keep loading, and rewrites every file on first
+save — which must be argued against the T-225 ratification *"diagram XML is never silently
+migrated"* as a deliberate versioned migration rather than assumed exempt. That is an
+inception with one go/no-go question, filed separately.
+
+**Crucially the two are not alternatives: (b) is a strict SUBSET of adopting the standard**,
+not a competing design. It is byte-neutral, ships now, stops the layout destruction, and is
+the first increment of the migration rather than work thrown away if adoption goes ahead.
+
+**Open assumption for that inception, not to be rediscovered halfway through: why does
+`aef:position` exist at all?** There may be a recorded reason — a bridge constraint, DI judged
+too heavy for the yaml round trip — and I have not looked. Recorded as an unchecked
+assumption rather than asserted as an oversight.
 
 ## Decision
 
