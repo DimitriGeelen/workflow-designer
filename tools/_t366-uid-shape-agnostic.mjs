@@ -136,7 +136,7 @@ const DOC = `<?xml version="1.0" encoding="UTF-8"?>
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
 function freePort() { return new Promise((res, rej) => { const s = net.createServer(); s.listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => res(p)); }); s.on('error', rej); }); }
-async function waitPortFile(f) { const t0 = Date.now(); while (Date.now() - t0 < 15000) { if (existsSync(f)) { const t = readFileSync(f, 'utf8').split('\n'); if (t[0] && t[0].trim()) return parseInt(t[0].trim(), 10); } await sleep(100); } throw new Error('no devtools port'); }
+async function waitPortFile(f) { const t0 = Date.now(); while (Date.now() - t0 < 45000) { if (existsSync(f)) { const t = readFileSync(f, 'utf8').split('\n'); if (t[0] && t[0].trim()) return parseInt(t[0].trim(), 10); } await sleep(100); } throw new Error('chrome did not write DevToolsActivePort within 45s'); }
 function cdp(ws) { const s = new WebSocket(ws); let id = 0; const p = new Map(); s.addEventListener('message', ev => { const m = JSON.parse(ev.data); if (m.id && p.has(m.id)) { p.get(m.id)(m); p.delete(m.id); } }); const ready = new Promise((res, rej) => { s.addEventListener('open', res); s.addEventListener('error', rej); }); const cmd = (me, pa = {}) => new Promise((res, rej) => { const mid = ++id; p.set(mid, m => m.error ? rej(new Error(me + ': ' + JSON.stringify(m.error))) : res(m.result)); s.send(JSON.stringify({ id: mid, method: me, params: pa })); }); return { ready, cmd, close: () => s.close() }; }
 async function ev(cmd, e) { const r = await cmd('Runtime.evaluate', { expression: e, returnByValue: true, awaitPromise: true }); if (r.exceptionDetails) throw new Error('eval: ' + JSON.stringify(r.exceptionDetails)); return r.result.value; }
 async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof parseBpmnXml==='function'&&typeof buildBpmnXml==='function'&&typeof refreshDisplayIds==='function'&&_appReady===true)`).catch(() => false); if (ok) return; if (Date.now() - t0 > 20000) throw new Error('editor not ready'); await sleep(150); } }
@@ -157,9 +157,27 @@ async function main() {
 
   let cl, outXml = null, err = null, counts = null;
   try {
+    // 300 x 100ms = 30s, where the 38 sibling CDP probes all use 6s. Raised as cheap
+    // headroom, NOT as a fix — read the next paragraph before repeating this elsewhere.
+    //
+    // This probe returned exit 2 ("harness broken") once inside the P-011 gate and
+    // passed every standalone re-run. I hypothesised the 6s sidecar wait was marginal
+    // under gate load and was about to file a 38-file sweep for it. Then I measured:
+    // gallery-serve.py answers /api/health in 0.13s, three runs, a 46x margin. THE
+    // HYPOTHESIS IS DISPROVED and the timeout is not the known cause.
+    //
+    // The cause is still unknown, because the verification line that caught it wrote
+    // `> /dev/null 2>&1` and the gate prints head -5 of a failed command's output — I
+    // suppressed the only diagnostic there was. Both halves are fixed (that line no
+    // longer redirects; the throws below now name which wait expired), so the next
+    // occurrence will say what it was instead of inviting another guess.
+    //
+    // Remaining unguarded race, named as a suspect and NOT as a finding: the chrome
+    // target list below is read once with no retry, so `tg.find(t => t.type === 'page')`
+    // can be undefined if DevToolsActivePort lands before the page target registers.
     let up = false;
-    for (let i = 0; i < 60; i++) { try { const r = await fetch(BASE + '/api/health'); if (r.ok) { up = true; break; } } catch (_) {} await sleep(100); }
-    if (!up) throw new Error('sidecar down:\n' + pyErr.slice(-400));
+    for (let i = 0; i < 300; i++) { try { const r = await fetch(BASE + '/api/health'); if (r.ok) { up = true; break; } } catch (_) {} await sleep(100); }
+    if (!up) throw new Error('sidecar did not answer /api/health within 30s:\n' + pyErr.slice(-400));
     const dp = await waitPortFile(join(udd, 'DevToolsActivePort'));
     const tg = await (await fetch(`http://127.0.0.1:${dp}/json`)).json();
     cl = cdp(tg.find(t => t.type === 'page').webSocketDebuggerUrl); await cl.ready;

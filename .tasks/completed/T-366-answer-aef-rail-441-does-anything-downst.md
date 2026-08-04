@@ -4,10 +4,10 @@ name: "Answer AEF RAIL-441: does anything downstream of us validate aef:uid SHAP
 description: >
   Answer AEF RAIL-441: does anything downstream of us validate aef:uid SHAPE
 
-status: started-work
+status: work-completed
 workflow_type: test
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T14:29:17Z
-last_update: 2026-08-04T14:29:17Z
-date_finished: null
+last_update: 2026-08-04T14:42:40Z
+date_finished: 2026-08-04T14:42:40Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -200,10 +200,13 @@ date_finished: null
 
 # Shell commands that MUST pass before work-completed. One per line.
 
-# every uid shape survives open->save, in memory AND in the emitted bytes
-node tools/_t366-uid-shape-agnostic.mjs > /dev/null 2>&1
+# every uid shape survives open->save, in memory AND in the emitted bytes.
+# NOT redirected to /dev/null: the gate prints `head -5` of a failed command's output,
+# and `> /dev/null 2>&1` throws away exactly that diagnostic. This line failed once with
+# a bare "exit 2" and no reason, because I had suppressed the reason myself.
+node tools/_t366-uid-shape-agnostic.mjs
 # and that probe can SEE an injected shape validator, and names it shape-SELECTIVE
-python3 tools/_t366-uid-shape-teeth.py > /dev/null 2>&1
+python3 tools/_t366-uid-shape-teeth.py
 # the frozen standard still forbids shape validation (this is what makes the answer binding,
 # not merely true today) — externally-assignable clause, Part I frozen, must not be edited
 out=$(grep -c "externally assignable" docs/standards/aef-bpmn-mapping-v1.md); [ "$out" = "1" ]
@@ -325,3 +328,15 @@ bash tests/run-bridge-tests.sh > /tmp/.t366-bridge.out 2>&1 && grep -q "bridge r
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-366-answer-aef-rail-441-does-anything-downst.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4ee03f06
+- **Timestamp:** 2026-08-04T14:44:15Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-04T14:42:40Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
