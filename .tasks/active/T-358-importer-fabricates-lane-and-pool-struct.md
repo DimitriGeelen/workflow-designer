@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T16:12:36Z
-last_update: 2026-08-04T09:47:53Z
+last_update: 2026-08-04T10:06:19Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -206,6 +206,50 @@ and should be decided with it, not before it.
       > reassurance.
       >
       > This AC stays unticked: the obvious repair fails it. That is the AC working.
+      >
+      > ### Candidates MEASURED 2026-08-04 — so the ruling is a choice between outcomes
+      >
+      > `tools/_t358-repair-options-cdp.mjs` applies each candidate to a temp copy and
+      > round-trips it through the real importer/emitter. No candidate is applied to
+      > the tree; the default choice remains the operator's.
+      >
+      > | candidate | fabricates | asserts sovereignty | provenance survives save | emits empty laneSet | corpus bytes |
+      > |---|---|---|---|---|---|
+      > | current (no repair) | yes (3) | **true** | **no** | no | identical |
+      > | **A** drop (importer + emitter) | no | false | yes | no | identical |
+      > | **B** mark (provenance into the doc) | yes (3) | **true** | yes | no | identical |
+      > | **C** neutral default (1 lane, `unassigned`) | yes (1) | false | no | no | identical |
+      > | **AB** drop + mark | no | false | yes | no | identical |
+      >
+      > `renderAll()` ok on every candidate. Reading the table: **A alone ends the
+      > fabrication; B alone ends the laundering; neither ends the other.** A's
+      > "survives save" is not the signal being preserved — it is the *input property*
+      > being preserved, which is the point of A. C keeps a lane for the downstream
+      > consumers that assume one, at the cost of still inventing structure. Note A
+      > requires BOTH halves: dropping only the importer half emits cause (ii) (F1).
+      >
+      > ### The probe's own instrument was wrong first, and it exposed a separate defect
+      >
+      > The first run printed "this candidate also changed the AUTHORED control's
+      > output" for **all four** candidates — including ones that touch only the
+      > defaulted path. Shape of the result said probe defect, not finding: the base row
+      > compared its own sha against itself and so could never fire. Added an instrument
+      > self-check (emit the same document twice in the same build). Result: **the build
+      > is not byte-stable with itself** on those documents, so the comparison was void
+      > rather than the candidates faulty.
+      >
+      > Diagnosed by `tools/_t358-export-determinism.mjs`: **`aef:uid` is minted fresh
+      > per parse for any node that lacks one.** Designer-produced maps carry uids and
+      > emit deterministically (`audit-process` 13563 bytes, `arc-lifecycle` 12270 —
+      > stable); every third-party fixture is unstable (`kitchen-sink` differs on **81
+      > lines** between two consecutive emits of the same input).
+      >
+      > **Consequence for this arc's main instrument:** `_t308` byte-identity 24/24 is
+      > sound, and is sound *only for designer-produced maps* — the population that
+      > happens to carry uids. It is structurally incapable of reporting on third-party
+      > documents, which is the population every repair in this arc is aimed at. Not a
+      > flaw in the 24/24 result; a bound on what it can be cited for, and I have cited
+      > it repeatedly without that bound. Filed separately — one bug, one task.
 
 - [ ] Bridge suite green; `_t308` byte-identity still 24/24 (a repair here must not
       change what we emit for existing maps)
