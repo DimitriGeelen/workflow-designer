@@ -39,7 +39,11 @@ import net from 'node:net';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
 const SERVER = join(HERE, 'gallery-serve.py');
-const FIXDIR = join(REPO, 'tests', 'fixtures', 'third-party');
+// T-364: overridable so the precondition's hazard path can be exercised against a temp
+// fixture set (tools/_t364-byteid-precondition-teeth.py) without touching the real one.
+// A precondition that reports HOLDS and has never been shown able to report otherwise
+// is a constant wearing a verdict.
+const FIXDIR = process.env.T358_FIXDIR || join(REPO, 'tests', 'fixtures', 'third-party');
 // 3bf37909 is T-358's source change; its parent is the last build without it.
 const BASELINE_REF = process.argv[2] || '3bf37909~1';
 
@@ -101,7 +105,26 @@ async function main() {
         emitted[build][f] = await ev(cmd, `(function(){
           var prev = state; var m = parseBpmnXml(window.__IN__);
           if (!m) { return null; }
-          state = m; var x = buildBpmnXml(state); state = prev; return x;
+          state = m; var x = buildBpmnXml(state);
+          // T-364 PRECONDITION. This tool normalises aef:uid and nothing else, which is
+          // sound only while a uid can't influence any OTHER emitted byte. It can:
+          // computeDisplayId breaks a same-lane x tie with uid.localeCompare, and
+          // displayIdOf IS the emitted element id. Measure the tie on state.nodes — the
+          // array the sort actually consumes — and carry it out with the bytes.
+          var buckets = {};
+          for (var i=0;i<state.nodes.length;i++){
+            var n = state.nodes[i];
+            var k = String(n.lane) + '@' + String(n.x);
+            buckets[k] = (buckets[k] || 0) + 1;
+          }
+          var tieGroups = 0, tieNodes = 0;
+          for (var k in buckets) if (buckets[k] > 1) { tieGroups++; tieNodes += buckets[k]; }
+          var nodeCount = state.nodes.length;
+          state = prev;
+          // uids present in the SOURCE, not post-parse: after parse every node has one.
+          var srcUids = (window.__IN__.match(/<aef:uid\\b/g) || []).length;
+          return { xml: x, tieGroups: tieGroups, tieNodes: tieNodes,
+                   nodeCount: nodeCount, srcUids: srcUids };
         })()`);
       }
     }
@@ -115,9 +138,32 @@ async function main() {
   console.log(`\nByte-identity over THIRD-PARTY documents — current vs ${BASELINE_REF}`);
   console.log('(uid values normalised in document order; nothing else touched)\n');
   let identical = 0, drifted = 0, unusable = 0, normaliserSilent = 0;
+  const hazard = [], indeterminate = [];
   for (const f of fixtures) {
-    const a = emitted.baseline[f], b = emitted.current[f];
-    if (a == null || b == null) { console.log(`  ${f.padEnd(36)} UNUSABLE (parse returned null)`); unusable++; continue; }
+    const ra = emitted.baseline[f], rb = emitted.current[f];
+    if (ra == null || rb == null) { console.log(`  ${f.padEnd(36)} UNUSABLE (parse returned null)`); unusable++; continue; }
+    const a = ra.xml, b = rb.xml;
+    // Precondition, evaluated on the CURRENT build's parse of this fixture.
+    //
+    // KNOWN OVER-STRICTNESS AFTER THE T-364 REPAIR — read before "fixing" this.
+    // The hazard is "uid is NONDETERMINISTIC and breaks a tie". This test approximates
+    // that with "the source carries no aef:uid", which is equivalent only while minted
+    // uids are random. Under repair (a) — derive the uid from the element id — a
+    // uid-less source would mint STABLE uids, the tie would resolve the same way every
+    // parse, and this check would refuse a run that is actually sound.
+    // When that day comes the correct edit is to narrow the predicate to "uid is minted
+    // nondeterministically", NOT to delete the check. A guard that starts crying wolf
+    // after a repair looks exactly like a guard that was always wrong, and the cheap
+    // response to both is removal — which is how the protection dies with the bug.
+
+    if (rb.tieGroups > 0) {
+      if (rb.srcUids === 0) {
+        hazard.push({ f, groups: rb.tieGroups, nodes: rb.tieNodes });
+      } else if (rb.srcUids < rb.nodeCount) {
+        indeterminate.push({ f, groups: rb.tieGroups, srcUids: rb.srcUids, nodeCount: rb.nodeCount });
+      }
+      // srcUids >= nodeCount with ties: every tied node is uid-pinned, tie is inert.
+    }
     const [na, ca] = normaliseUids(a);
     const [nb, cb] = normaliseUids(b);
     if (ca === 0 && cb === 0) normaliserSilent++;
@@ -138,7 +184,38 @@ async function main() {
     console.log('  byte comparison wearing a normalised label — it proves nothing about T-364.');
     return 2;
   }
+  // The precondition verdict is printed whichever way it goes: a silent precondition
+  // is one nobody re-checks when the world changes, and T-357 is a scheduled change
+  // that would break this one.
+  if (hazard.length) {
+    console.log('\n  *** PRECONDITION VIOLATED — this comparison is NOT sound.');
+    for (const h of hazard) {
+      console.log(`      ${h.f}: ${h.groups} same-lane x tie group(s), ${h.nodes} node(s), and the`);
+      console.log('        source carries NO aef:uid, so every tied node gets a random one per parse.');
+    }
+    console.log('      uid is the tie-breaker in computeDisplayId and displayIdOf IS the emitted');
+    console.log('      element id, so uid randomness can permute flowNodeRef / id= / sourceRef /');
+    console.log('      targetRef here. Normalising aef:uid alone leaves that drift in the diff, so');
+    console.log('      an "identical" above is not trustworthy and a "DRIFTED" may be pure churn.');
+    console.log('      Widen the normaliser or pin the uid (T-364) before citing this run.');
+    return 1;
+  }
+  if (indeterminate.length) {
+    console.log('\n  *** PRECONDITION INDETERMINATE — partial uid coverage alongside ties.');
+    for (const h of indeterminate) {
+      console.log(`      ${h.f}: ${h.groups} tie group(s); source carries ${h.srcUids} uid(s) for ${h.nodeCount} node(s).`);
+    }
+    console.log('      This tool cannot tell whether the TIED nodes specifically are the uid-less');
+    console.log('      ones. Refusing rather than guessing — the guess that reads "sound" is the');
+    console.log('      one that costs a wrong identical.');
+    return 1;
+  }
   if (drifted || unusable) return 1;
+  console.log('\n  PRECONDITION HOLDS: no fixture has a same-lane x tie among uid-less nodes, so');
+  console.log('  uid values cannot reach any other emitted byte and normalising them alone is');
+  console.log('  sound for this population. Note this is a property of these fixtures — none');
+  console.log('  carries aef:position, so the importer lays them out strictly increasing per lane');
+  console.log('  and a tie is unreachable. Adopting BPMN DI as geometry (T-357) removes that.');
   console.log('\n  PASS — the population _t308 cannot reach is unchanged by the current build.');
   return 0;
 }
