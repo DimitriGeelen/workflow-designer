@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T10:33:42Z
-last_update: 2026-08-04T11:13:38Z
+last_update: 2026-08-04T11:17:34Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -213,6 +213,73 @@ Related: G-023 (registered), T-358 (where it surfaced), PL-110.
       > The residual stays stated rather than quietly dropped: this is a property of
       > these six documents, not a proof that a displayId tie cannot permute emitted ids
       > on some other document. AC3's repair should pin it directly.
+      >
+      > ---
+      >
+      > **The residual was load-bearing. Measured 2026-08-04 (post-compact), and it
+      > inverts the ranking of (a) and (b).**
+      >
+      > I had this filed as a "latent hazard, worth naming even though it did not fire".
+      > It did not fire because the population could not make it fire. Two new
+      > instruments, `tools/_t364-x-tie-census.py` and `tools/_t364-tie-permutes-ids.mjs`:
+      >
+      > **1. Ties are ordinary, not exotic — 19 of 24 corpus maps** hold at least one
+      > same-lane `x` collision (306/306 nodes carry `aef:position`). The tie-break branch
+      > of the sort is exercised constantly. It is harmless *today* only because those
+      > maps carry `aef:uid` in their bytes, which pins the resolution across parses.
+      >
+      > **2. Today's third-party fixtures cannot tie AT ALL, and that is why they were
+      > clean.** None carries `aef:position`, so the importer's fallback layout assigns
+      > `x = POOL_X + LANE_HEADER + 30 + sameLane.length * 90` — strictly increasing per
+      > lane. A tie is *structurally unreachable* for that population. The "0 non-uid
+      > drift over 10 fixtures" result above is therefore a **capability zero**, exactly
+      > the shape this task was opened about. It was correct and it could not have come
+      > out any other way.
+      >
+      > **3. The mechanism is real, demonstrated end-to-end, with a discriminating
+      > control.** Strip `aef:uid` from a shipped corpus map and emit twice:
+      >
+      > ```
+      >   audit-process       2 tie groups /8 nodes   ids PERMUTED   (frw_12_audit <-> frw_10_audit)
+      >   harvest-pipeline    2 tie groups /9 nodes   ids PERMUTED   (frw_22_dry   <-> frw_21_dry)
+      >   arc-lifecycle       2 tie groups /4 nodes   ids PERMUTED   (frw_2_close  <-> frw_1_close)
+      >   context-memory      1 tie group  /2 nodes   ids PERMUTED   (prj_4_add    <-> prj_5_add)
+      >   healing-loop        0 tie groups           ids STABLE      <- negative control
+      >   verification-gate   0 tie groups           ids STABLE      <- negative control
+      > ```
+      >
+      > Every map's *unstripped* control emitted identical ids twice, and the two tie-free
+      > maps held still under the identical strip. That is what makes this causal rather
+      > than correlational — the first version of this probe had no genuine tie-free row
+      > (I picked `context-memory` believing it was tie-free; it holds a tie), so it
+      > confirmed four times and discriminated nothing until a census chose the controls.
+      >
+      > What permutes is **`flowNodeRef`, and with it `id=`, `sourceRef`/`targetRef`,
+      > `attachedToRef`, `incoming`/`outgoing`** — the document's identity graph, not our
+      > private metadata.
+      >
+      > **Consequence for the (a)/(b) choice, which is the point of measuring:**
+      > **(b) "mint but do not persist" is not the conservative option — it is the
+      > destructive one.** A (b) save produces precisely the documents above: no
+      > `aef:uid`, real colliding `x`. It would introduce identity churn into the 19 of 24
+      > corpus maps that are stable today *because* their uids are in the bytes. My earlier
+      > note said (b) "does not fix identity churn at all"; that was too kind. It creates
+      > it, in the population that currently has none. **(a) derive-from-element-id remains
+      > viable and is now the only candidate that does not regress the corpus.**
+      >
+      > **Consequence for T-357 (adopt BPMN DI as designer geometry), which is an open
+      > inception decision.** Reading the same fixtures through their DI — the coordinates
+      > those nodes *would* have under T-357 — `boundary-events.bpmn` (2 groups/4 nodes)
+      > and `kitchen-sink.bpmn` (11 groups/52 nodes) already hold collision groups whose
+      > members carry no `aef:uid`. Adopting DI supplies the missing ingredient (real,
+      > colliding `x`) to documents that still have no stable identity in their bytes. The
+      > protection we enjoy today is an accident of the fallback layout, and T-357 removes
+      > it. **T-364's repair is a prerequisite of T-357, not parallel to it** — that is a
+      > sequencing input the inception decision did not have.
+      >
+      > Residual, stated: the census reads DI x for population 3 but the T-357 import path
+      > does not exist yet, so that row is a forecast from the input bytes, not a
+      > measurement of a built importer.
 
 - [ ] **No emitted byte moves for the existing corpus.** Any repair must keep
       `_t308` byte-identity green over the designer-produced maps, whose uids are real
