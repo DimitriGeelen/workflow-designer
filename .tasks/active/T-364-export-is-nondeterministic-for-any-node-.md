@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T10:33:42Z
-last_update: 2026-08-04T11:17:34Z
+last_update: 2026-08-04T12:37:31Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -280,6 +280,50 @@ Related: G-023 (registered), T-358 (where it surfaced), PL-110.
       > Residual, stated: the census reads DI x for population 3 but the T-357 import path
       > does not exist yet, so that row is a forecast from the input bytes, not a
       > measurement of a built importer.
+      >
+      > **Second residual, now recorded as a debt rather than closed.** Adopting AEF's
+      > RAIL-432 counter (compute the population two independent ways and diff before
+      > reading the result), the census reports **34 examined of 141 `.bpmn` in the tree**.
+      > The unexamined 107 include **18 peer-authored maps under `tests/fixtures/aef-bpmn`
+      > never measured for ties or uid coverage**, and `.editor-versions/*` — the
+      > dot-directory shape that cost AEF a 32-file denominator error. This census scopes
+      > to named populations on purpose, so the gap is not a bug; but *deliberately
+      > scoped* and *accidentally truncated* produce identical output unless the
+      > unexamined space is printed beside the examined one, so it now prints it.
+      >
+      > ---
+      >
+      > **RAIL-432 answered by measurement: all 12 of AEF's `aef:*` kinds survive an
+      > open→save.** Separate from the determinism question but discovered under it, so
+      > recorded here. AEF asked which of their eleven non-contract extension kinds
+      > `parseBpmnXml` names — their worry being that a round-trip strips their whole
+      > governance overlay (state, lane authority, event typing, anchors) while node/flow/
+      > lane counts stay identical, i.e. the RAIL-399 shape from the other end.
+      >
+      > `tools/_t364-aef-ext-roundtrip.mjs`: one fixture carrying every kind, in the
+      > shapes this build emits, at the carrier each belongs on. **All 12 PRESERVED**
+      > (kind present after round-trip AND every attribute value intact); invented kind
+      > `aef:notAThing` **DROPPED** as the negative control, which is what makes the
+      > PRESERVEDs mean *named* rather than *blind passthrough*.
+      >
+      > Two errors of mine on the way, both caught before the answer was sent:
+      >   - The grep form (`byAef(el, '<name>')` call sites) said **10 of 12**, missing
+      >     `constituents`/`constituent` because they go through the `structItemList`
+      >     list-of-dicts path and never appear in a `byAef(el, <literal>)` site — wrong
+      >     by exactly the two kinds the question was sharpest about, while reading as a
+      >     careful enumeration. **Naming is not preserving** either: a kind can be read
+      >     into a local that never reaches the node object, or reach it and never be
+      >     emitted. Only the round-trip answers what was asked.
+      >   - The first fixture reported `aef:link DROPPED (12 instances)`. Both causes were
+      >     mine: `aef:link` shared a node with `aef:eventDef` (mutually-exclusive typing
+      >     extensions `adoptImportedXml` disambiguates between), and it used a bare
+      >     `name=`, a shape the emitter never writes — `linkAttrs` only fills from
+      >     `workflowRef`/`targetWorkflow`/`linkId`. On its own node with the real shape:
+      >     PRESERVED. Sending that would have spent the peer's attention on a bug of mine.
+      >
+      > Scope stated in the tool's own output: measured on ONE synthetic document, in the
+      > shapes THIS build emits. It does not prove fidelity for attribute names we do not
+      > emit, kinds absent from their census, or nesting this fixture does not reach.
 
 - [ ] **No emitted byte moves for the existing corpus.** Any repair must keep
       `_t308` byte-identity green over the designer-produced maps, whose uids are real
