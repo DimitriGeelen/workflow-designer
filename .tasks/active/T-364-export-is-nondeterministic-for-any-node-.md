@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T10:33:42Z
-last_update: 2026-08-04T12:53:37Z
+last_update: 2026-08-04T12:54:32Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -291,7 +291,24 @@ Related: G-023 (registered), T-358 (where it surfaced), PL-110.
       > scoped* and *accidentally truncated* produce identical output unless the
       > unexamined space is printed beside the examined one, so it now prints it.
       >
-      > **Debt closed same session — population 4 added, and it corroborates AEF.** The 18
+      > **RETRACTED at RAIL-438 — the corroboration claim was wrong; the measurement was not.**
+      > AEF answered: `tests/fixtures/aef-bpmn` holds **5 files on their side, 18 on ours**,
+      > same path, same name, and their `git log --diff-filter=D` over it is empty (no drift
+      > there). I checked the add-commit for all 18: **every one arrived via an 832 task
+      > commit** (T-183/192/204/208/214/215/219/235/308/310/311/312/313). Three are labelled
+      > pair-draft; the rest are ours outright. `session-lifecycle-d3`, one of their five,
+      > is absent from our tree entirely.
+      >
+      > So the directory does not mean "AEF's BPMN". It means **"BPMN fixtures about the AEF
+      > seam, authored here"** — the name asserts a provenance it never had, and I read it as
+      > provenance and said "18 of your maps" to the peer. The measurement was careful and
+      > the NOUN was wrong. **149/149 stands as a fact about our own fixtures; it is not
+      > independent confirmation of AEF's 424/424 and never could have been** — their figure
+      > ranges over 32 maps under `.context/designer/projects/`. Two individually-correct
+      > numbers over populations neither side had checked were the same, about to become an
+      > "independent confirmation" worth nothing and raising both sides' confidence.
+      >
+      > **Debt closed same session — population 4 added (original claim, now corrected).** The 18
       > peer-authored maps under `tests/fixtures/aef-bpmn` are **149/149 uid-covered**, and
       > 7 of 18 carry same-lane x collisions — harmless for exactly the corpus reason:
       > every tied node's uid is in the bytes. AEF reported their live corpus at 424/424;
