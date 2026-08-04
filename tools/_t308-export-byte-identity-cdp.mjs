@@ -134,7 +134,7 @@ async function main() {
       population: {
         source: 'examples/aef-processes/rendered',
         description: 'designer-produced corpus maps — they carry aef:uid in their bytes, which is what makes them byte-comparable at all',
-        does_not_cover: 'third-party documents (no aef:uid on arrival; a fresh uid is minted per parse, so they are not byte-stable with themselves — T-364/G-023). Cite this result for the corpus, never for third-party fidelity; use tools/_t358-byteid-thirdparty.mjs for that population.',
+        does_not_cover: 'third-party documents (they arrive with no aef:uid, so the values this gate compares byte-for-byte are ones WE mint for them rather than anything the author wrote). Until T-364 they were also not byte-stable with themselves — a fresh random uid per parse — which is why the unusable bucket exists; repair (a) fixed that (uid now derives from the element id) and the exclusion still stands on the first reason alone. Cite this result for the corpus, never for third-party fidelity; use tools/_t358-byteid-thirdparty.mjs for that population.',
       },
       drift, errors, unusableMaps: unusable, sample: rows.slice(0, 3),
     }, null, 2));

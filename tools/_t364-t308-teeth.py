@@ -22,6 +22,23 @@ unstable document were counted identical, or dropped from every count, the gate 
 be overstating or quietly shrinking its own denominator — the two failure modes G-023
 was registered for.
 
+---- WHY THIS STILL PASSES AFTER THE T-364 REPAIR, AND WHEN IT WILL STOP ----
+
+Repair (a) made uid derive from the element id, so a third-party document IS now
+byte-stable with itself in the CURRENT build. These teeth kept passing anyway, and
+the reason is worth naming rather than enjoying: _t308 emits each map twice in BOTH
+builds, and the baseline (`3bf37909~1`) still has the random mint, so the injected
+document is unusable on the baseline side. The teeth now depend on a property of the
+BASELINE, not of the code under test.
+
+The day `BASELINE_REF` moves past the repair, both sides derive, the injected document
+becomes perfectly comparable, `unusable` goes to 0 and these teeth go RED — reporting
+"the bucket cannot fill" when the truth is "this injection is no longer a hazard".
+When that happens the fix is a NEW injection that is genuinely unstable in both builds
+(a document with a nondeterministic emitted field, whatever the next one turns out to
+be), NOT deleting the teeth and NOT pinning BASELINE_REF to keep them green. A teeth
+file that is green because its baseline is old is measuring history.
+
 Usage: python3 tools/_t364-t308-teeth.py     Exit 0 = the bucket fills as predicted.
 """
 import json

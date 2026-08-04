@@ -27,18 +27,34 @@
  * flaky harness, and a stable control on a map with NO tie proves nothing either, so
  * the tie count is read out of the input and printed with every row.
  *
- * DO NOT WIRE THIS INTO P-011 VERIFICATION OR THE BRIDGE SUITE AS-IS.
- * It exits 0 when the DEFECT IS PRESENT. After repair (a) — derive the uid from the
- * element id — a stripped document would mint stable uids, the tied rows would stop
- * permuting, and this probe would report PREDICTION REFUTED and exit 1. That is a
- * gate which goes red exactly when the fix works, and someone would "fix" the probe.
- * It is an EXPERIMENT with a recorded result, not a regression gate. The gate that
- * survives the repair is _t358-export-determinism.mjs (stable = good, in both eras).
+ * ---- POLARITY CHANGED WHEN REPAIR (a) LANDED. Read this before interpreting a run. ----
+ *
+ * This file was written as an EXPERIMENT against the pre-repair build, and in that era it
+ * exited 0 when the DEFECT WAS PRESENT — it was explicitly not a gate, because it would
+ * have gone red exactly when the fix worked and someone would then have "fixed" the probe.
+ *
+ * Repair (a) has landed (deriveUid in parseBpmnXml — uid derives from the BPMN element
+ * id). The experiment's question is answered and its recorded result lives in the T-364
+ * task: 4 tied maps PERMUTED, 2 tie-free controls held still. So the polarity is now
+ * inverted ON PURPOSE and the file is a regression guard:
+ *
+ *   exit 0 = the repair holds — tied maps still have their ties, mint is stable, ids still
+ *   exit 1 = REGRESSION (a map permuted), or the guard lost its subject (no map has a tie),
+ *            or the mechanism reading is contradicted (permutation-free WITH a random mint)
+ *   exit 2 = harness broken / a row is uninterpretable
+ *
+ * Which side of the repair the build is on is MEASURED per run (parse the uid-less bytes
+ * twice, compare the uid vector) rather than assumed, so the verdict text cannot tell a
+ * reader "your understanding of computeDisplayId is wrong" when the truth is "the code was
+ * fixed underneath you".
+ *
+ * One caveat that outlives the repair: under a stable mint the tie-free control is INERT.
+ * Nothing permutes any more, so a tie-free map holding still is guaranteed and discriminates
+ * nothing. The quantities that still carry the run are the per-build mint measurement and
+ * the tie counts. The verdict prints this rather than quietly counting an inert control as
+ * corroboration.
  *
  * Usage: node tools/_t364-tie-permutes-ids.mjs
- * Exit 0 = control stable AND the experiment behaved as the tie count predicts.
- * Exit 1 = a prediction failed (either direction — a stable strip is as interesting).
- * Exit 2 = harness broken.
  */
 
 import { spawn } from 'node:child_process';
@@ -121,7 +137,11 @@ function flowIds(xml) {
 async function main() {
   const doc = mkdtempSync(join(tmpdir(), 't364-tie-doc-'));
   const repo = mkdtempSync(join(tmpdir(), 't364-tie-repo-'));
-  writeFileSync(join(doc, 'designer.html'), readFileSync(join(REPO, 'src/aef-workflow-designer.html'), 'utf8'));
+  // T364_SRC: overridable so the REGRESSION branch can be exercised against a mutated
+  // copy (tools/_t364-tie-guard-teeth.py) without ever touching the real source. Same
+  // pattern as T358_FIXDIR in _t358-byteid-thirdparty.mjs.
+  const SRC = process.env.T364_SRC || join(REPO, 'src/aef-workflow-designer.html');
+  writeFileSync(join(doc, 'designer.html'), readFileSync(SRC, 'utf8'));
   mkdirSync(join(doc, 'rendered'), { recursive: true });
   const port = await freePort();
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', doc, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
@@ -142,6 +162,24 @@ async function main() {
     await cmd('Page.enable'); await cmd('Runtime.enable');
     await cmd('Page.navigate', { url: `${BASE}/designer.html` });
     await waitReady(cmd); await sleep(300);
+
+    // Which side of the T-364 repair is this build on? Measured, not assumed: parse the
+    // same uid-less bytes twice and compare the uid vector. Random minting => differs;
+    // derived-from-element-id => identical. Without this the probe cannot tell "the tie
+    // mechanism is wrong" from "the tie mechanism was fixed", and those two readings send
+    // the reader to opposite places.
+    const uidsMintedStably = async (text) => {
+      await ev(cmd, `window.__IN__ = ${JSON.stringify(text)};`);
+      return await ev(cmd, `(function(){
+        function sig(){ var prev=state; var m=parseBpmnXml(window.__IN__); if(!m){ state=prev; return null; }
+          var s = m.nodes.map(function(n){return n.uid;}).join(',') + '|' +
+                  m.edges.map(function(e){return e.uid;}).join(',');
+          state=prev; return s; }
+        var a = sig(), b = sig();
+        if (a===null||b===null) return null;
+        return a === b;
+      })()`);
+    };
 
     const emitTwice = async (text) => {
       await ev(cmd, `window.__IN__ = ${JSON.stringify(text)};`);
@@ -165,6 +203,8 @@ async function main() {
       const tie = await ev(cmd, TIE_EXPR);
       if (tie.fatal) { rows.push({ name, tie: { groups: 0, nodes: 0 }, fatal: 'tie count: ' + tie.fatal }); continue; }
 
+      const stableMint = await uidsMintedStably(stripped);
+
       const ctl = await emitTwice(src);
       if (ctl.fatal) { rows.push({ name, tie, fatal: 'control: ' + ctl.fatal }); continue; }
       const exp = await emitTwice(stripped);
@@ -173,7 +213,7 @@ async function main() {
       const ctlIds = [flowIds(ctl.a), flowIds(ctl.b)];
       const expIds = [flowIds(exp.a), flowIds(exp.b)];
       rows.push({
-        name, tie, removed,
+        name, tie, removed, stableMint,
         controlStable: ctl.a === ctl.b,
         controlIdsSame: JSON.stringify(ctlIds[0]) === JSON.stringify(ctlIds[1]),
         strippedIdsSame: JSON.stringify(expIds[0]) === JSON.stringify(expIds[1]),
@@ -190,7 +230,7 @@ async function main() {
 
   console.log('\nDoes a same-lane x tie permute EMITTED element ids when aef:uid is absent?');
   console.log('(control = the map as it ships; stripped = the same map with aef:uid removed)\n');
-  let broken = 0, confirmed = 0, refuted = 0, cleanNoTie = 0;
+  let broken = 0, confirmed = 0, refuted = 0, cleanNoTie = 0, repairHeld = 0;
   for (const r of rows) {
     if (r.skip) { console.log(`  ${r.name.padEnd(22)} SKIP (${r.skip})`); continue; }
     if (r.fatal) { console.log(`  ${r.name.padEnd(22)} FATAL ${r.fatal}`); broken++; continue; }
@@ -204,8 +244,18 @@ async function main() {
     console.log(`      control  : ids identical across two parses  (as expected — aef:uid pins the tie-break)`);
     if (r.strippedIdsSame) {
       console.log(`      stripped : ids identical too  (${r.idCount} flowNodeRefs)`);
-      if (r.tie.groups > 0) {
-        console.log(`      *** PREDICTION REFUTED — this map HAS a tie and still emitted stable ids.`);
+      if (r.tie.groups > 0 && r.stableMint === null) {
+        console.log(`      UNINTERPRETABLE — could not measure whether this build mints uids stably.`);
+        broken++;
+      } else if (r.tie.groups > 0 && r.stableMint) {
+        console.log(`      *** REPAIR HOLDS — this map HAS a tie and still emitted stable ids, and`);
+        console.log(`          this build mints uids STABLY (two parses of the uid-less bytes produce`);
+        console.log(`          the same uid vector). That is T-364 repair (a) working, not a refuted`);
+        console.log(`          mechanism: the tie is still there and no longer decides anything.`);
+        repairHeld++;
+      } else if (r.tie.groups > 0) {
+        console.log(`      *** PREDICTION REFUTED — this map HAS a tie, this build mints uids`);
+        console.log(`          NONDETERMINISTICALLY, and the ids still held still.`);
         console.log(`          The (x, uid) sort is not the whole story; find what else orders them`);
         console.log(`          before citing this mechanism anywhere.`);
         refuted++;
@@ -227,29 +277,50 @@ async function main() {
   console.log();
   if (broken) { console.log(`  ${broken} row(s) uninterpretable — fix the harness before reading anything.`); return 2; }
   if (refuted) { console.log(`  ${refuted} row(s) refuted the mechanism. The reading of computeDisplayId is wrong.`); return 1; }
-  if (!confirmed) { console.log('  No map exercised the mechanism — this run proves nothing. Pick maps with ties.'); return 1; }
-  if (!cleanNoTie) {
-    console.log('  NO TIE-FREE CONTROL HELD STILL. Every row permuted, so this run cannot tell');
-    console.log('  "the tie causes it" from "any uid strip causes it" — it confirms without');
-    console.log('  discriminating. Add a map the census reports as tie-free and re-run.');
+  // ---- verdict, post-repair semantics ----
+  // This file began as a one-shot experiment whose exit 0 meant "the defect is present".
+  // Repair (a) landed, so that reading is retired: a build that still permutes is now a
+  // REGRESSION, and the exit code says exactly one thing — the repair is in place, or it
+  // is not. The original demonstration (4 maps PERMUTED, 2 tie-free controls held still,
+  // against the pre-repair build) is recorded in the T-364 task; it is not re-runnable
+  // here because the mechanism needs a nondeterministic mint to bite and this build has
+  // none.
+  if (confirmed) {
+    console.log(`  *** REGRESSION — ${confirmed} map(s) permuted their emitted element ids across two`);
+    console.log('  parses of identical bytes. That is the T-364 defect back: some node is getting a');
+    console.log('  uid that is not derived from its element id, and uid is the tie-breaker in');
+    console.log('  computeDisplayId while displayIdOf IS the emitted id. A no-op open-and-save now');
+    console.log('  rewrites flowNodeRef, id=, sourceRef/targetRef, attachedToRef and incoming/outgoing.');
+    console.log('  Look first at the two mint fallbacks in parseBpmnXml (deriveUid, T-364 repair (a)).');
     return 1;
   }
-  console.log(`  CONFIRMED on ${confirmed} map(s); ${cleanNoTie} tie-free map(s) held still as a negative control.`);
-  console.log('  The control is what makes this causal rather than correlational: strip the same');
-  console.log('  aef:uid from a map with no same-lane x tie and the emitted ids do not move.');
+  if (!repairHeld) {
+    console.log('  NO TIED MAP EXERCISED ANYTHING — every picked map reported zero same-lane x ties,');
+    console.log('  so this run cannot tell "the repair holds" from "the subject is gone". The TIED');
+    console.log('  list was chosen from tools/_t364-x-tie-census.py; re-run the census and re-pick.');
+    return 1;
+  }
+  console.log(`  REPAIR HOLDS on ${repairHeld} tied map(s) (${cleanNoTie} tie-free map(s) also held still).`);
+  console.log('  Every tied map still HAS its tie and the ids no longer move: the tie stopped');
+  console.log('  deciding anything because aef:uid now derives from the element id.');
   console.log();
-  console.log('  A same-lane x tie plus a missing aef:uid permutes the EMITTED identity graph —');
-  console.log('  flowNodeRef, and with it id=, sourceRef/targetRef, attachedToRef, incoming/outgoing.');
-  console.log('  Consequences, stated where they bite:');
-  console.log('   1. Repair option (b) "mint the uid but do not persist it" would produce exactly');
-  console.log('      these documents. 19 of 24 corpus maps hold a tie and are stable ONLY because');
-  console.log('      aef:uid is in their bytes. (b) does not fail to fix churn — it CREATES it.');
-  console.log('   2. Any diff, review, merge or downstream consumer keyed on element id sees a');
-  console.log('      whole-document change from a no-op open-and-save.');
-  console.log('   3. tools/_t358-byteid-thirdparty.mjs normalises aef:uid ONLY. It is sound for');
-  console.log('      today\'s third-party fixtures because the importer\'s fallback layout gives');
-  console.log('      them strictly increasing x (a tie is unreachable) — NOT because ties are');
-  console.log('      harmless. Adopt BPMN DI as geometry (T-357) and that protection is gone.');
+  console.log('  Read the two numbers differently — the tie-free control has gone INERT.');
+  console.log('  Before the repair it discriminated: it told "the tie causes the permutation" from');
+  console.log('  "any uid strip causes it". Under a stable mint NOTHING permutes, so a tie-free map');
+  console.log('  holding still is now guaranteed and confirms nothing. What carries this run is the');
+  console.log('  per-build mint measurement (two parses of the uid-less bytes, same uid vector) —');
+  console.log('  that is the quantity which flips if the defect returns, and the tie counts, which');
+  console.log('  prove the hazard population still exists to be protected.');
+  console.log();
+  console.log('  Still true, and not addressed by this repair:');
+  console.log('   1. Repair option (b) "mint the uid but do not persist it" would have produced');
+  console.log('      exactly the permuting documents. 19 of 24 corpus maps hold a tie and were');
+  console.log('      stable ONLY because aef:uid is in their bytes. That is why (b) was rejected.');
+  console.log('   2. tools/_t358-byteid-thirdparty.mjs normalises aef:uid ONLY. Its soundness for');
+  console.log('      today\'s third-party fixtures rests on the importer\'s fallback layout giving');
+  console.log('      them strictly increasing x — NOT on ties being harmless. Adopting BPMN DI as');
+  console.log('      geometry (T-357) removes that, and THEN this repair is what stands between a');
+  console.log('      real colliding x and a permuted identity graph.');
   return 0;
 }
 

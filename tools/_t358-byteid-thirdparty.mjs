@@ -105,6 +105,17 @@ async function main() {
         emitted[build][f] = await ev(cmd, `(function(){
           var prev = state; var m = parseBpmnXml(window.__IN__);
           if (!m) { return null; }
+          // T-364 PRECONDITION, part 1: is this build's uid minting stable WITHIN itself?
+          // Measured, not assumed — parse the same bytes again and compare the uid vector.
+          // Before the T-364 repair the second vector differed (random mint); after it,
+          // uids derive from the element id and the vectors match.
+          var uidSig = function (mm) {
+            return mm.nodes.map(function (n) { return n.uid; }).join(',') + '|' +
+                   mm.edges.map(function (e) { return e.uid; }).join(',');
+          };
+          var sig1 = uidSig(m);
+          var m2 = parseBpmnXml(window.__IN__);
+          var uidNondet = !m2 || uidSig(m2) !== sig1;
           state = m; var x = buildBpmnXml(state);
           // T-364 PRECONDITION. This tool normalises aef:uid and nothing else, which is
           // sound only while a uid can't influence any OTHER emitted byte. It can:
@@ -124,7 +135,8 @@ async function main() {
           // uids present in the SOURCE, not post-parse: after parse every node has one.
           var srcUids = (window.__IN__.match(/<aef:uid\\b/g) || []).length;
           return { xml: x, tieGroups: tieGroups, tieNodes: tieNodes,
-                   nodeCount: nodeCount, srcUids: srcUids };
+                   nodeCount: nodeCount, srcUids: srcUids,
+                   uidNondet: uidNondet, uidSig: sig1 };
         })()`);
       }
     }
@@ -143,22 +155,30 @@ async function main() {
     const ra = emitted.baseline[f], rb = emitted.current[f];
     if (ra == null || rb == null) { console.log(`  ${f.padEnd(36)} UNUSABLE (parse returned null)`); unusable++; continue; }
     const a = ra.xml, b = rb.xml;
-    // Precondition, evaluated on the CURRENT build's parse of this fixture.
+    // Precondition. NARROWED at the T-364 repair (a) — read before "fixing" this.
     //
-    // KNOWN OVER-STRICTNESS AFTER THE T-364 REPAIR — read before "fixing" this.
-    // The hazard is "uid is NONDETERMINISTIC and breaks a tie". This test approximates
-    // that with "the source carries no aef:uid", which is equivalent only while minted
-    // uids are random. Under repair (a) — derive the uid from the element id — a
-    // uid-less source would mint STABLE uids, the tie would resolve the same way every
-    // parse, and this check would refuse a run that is actually sound.
-    // When that day comes the correct edit is to narrow the predicate to "uid is minted
-    // nondeterministically", NOT to delete the check. A guard that starts crying wolf
-    // after a repair looks exactly like a guard that was always wrong, and the cheap
-    // response to both is removal — which is how the protection dies with the bug.
-
-    if (rb.tieGroups > 0) {
+    // The original test approximated the hazard with "the source carries no aef:uid",
+    // which was equivalent only while minted uids were random, and the file predicted it
+    // would go over-strict once uids derived from the element id. Measuring it showed the
+    // predicted narrowing was the wrong one: this tool is a CROSS-BUILD diff, so
+    // within-build determinism is not sufficient. A uid-less node gets a random uid in
+    // the baseline build and a derived one in the current build, and if those two orders
+    // disagree at a tie, the emitted element ids permute between the builds no matter how
+    // deterministic either side is on its own.
+    //
+    // So the honest predicate is neither "the source has no uid" nor "this build mints
+    // nondeterministically" but: THE UID THAT BREAKS THIS TIE IS NOT THE SAME VALUE ON
+    // BOTH SIDES OF THE COMPARISON. Both earlier forms are special cases of it. It is
+    // measured (uidSig per build, plus a second parse per build for within-build
+    // stability) rather than inferred from the source bytes, and it self-heals: once
+    // BASELINE_REF moves past the repair both sides derive identically, the vectors
+    // match, and this stops firing without anyone editing it.
+    const uidsDifferAcrossBuilds = ra.uidSig !== rb.uidSig;
+    const uidUnstableWithinBuild = !!(ra.uidNondet || rb.uidNondet);
+    if (rb.tieGroups > 0 && (uidsDifferAcrossBuilds || uidUnstableWithinBuild)) {
       if (rb.srcUids === 0) {
-        hazard.push({ f, groups: rb.tieGroups, nodes: rb.tieNodes });
+        hazard.push({ f, groups: rb.tieGroups, nodes: rb.tieNodes,
+                      why: uidUnstableWithinBuild ? 'minted nondeterministically' : 'differs between the two builds' });
       } else if (rb.srcUids < rb.nodeCount) {
         indeterminate.push({ f, groups: rb.tieGroups, srcUids: rb.srcUids, nodeCount: rb.nodeCount });
       }
@@ -191,7 +211,7 @@ async function main() {
     console.log('\n  *** PRECONDITION VIOLATED — this comparison is NOT sound.');
     for (const h of hazard) {
       console.log(`      ${h.f}: ${h.groups} same-lane x tie group(s), ${h.nodes} node(s), and the`);
-      console.log('        source carries NO aef:uid, so every tied node gets a random one per parse.');
+      console.log(`        source carries NO aef:uid, so the tie-breaking uid ${h.why}.`);
     }
     console.log('      uid is the tie-breaker in computeDisplayId and displayIdOf IS the emitted');
     console.log('      element id, so uid randomness can permute flowNodeRef / id= / sourceRef /');

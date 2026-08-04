@@ -9638,6 +9638,40 @@ function parseBpmnXml(text) {
   if (!processes.length) return null;
   const proc = processes[0];
 
+  // ---- uid derivation (T-364) ----
+  // A node or edge that arrives without <aef:uid> still needs an identity, and that
+  // identity is NOT private metadata: computeDisplayId sorts same-lane nodes by x and
+  // breaks ties with uid.localeCompare, so the uid reaches the emitted element `id`,
+  // flowNodeRef, sourceRef/targetRef and attachedToRef. Minting it from Math.random()
+  // made two opens of the same document disagree on the whole identity graph — the
+  // T-364 defect. Derive it from the BPMN element id instead: required and unique per
+  // document, so the value is stable across opens without inventing data.
+  // Operator ruling 2026-08-04, candidate (a). See the task's Decisions section —
+  // in particular that this does NOT settle whether we should emit aef:uid into a
+  // third-party document at all (T-358's question); it only stops the churn.
+  const usedUids = new Set(byAef(proc, 'uid').map(u => u.getAttribute('value')).filter(Boolean));
+  // FNV-1a 32-bit. Same prefix_8hex shape generateUid produces, so nothing downstream
+  // sees a new uid format.
+  const hash32 = s => {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 0x01000193) >>> 0;
+    }
+    return h.toString(16).padStart(8, '0');
+  };
+  // Collisions are reachable two ways — a hash collision, or a derived value equal to
+  // an authored uid elsewhere in the document — and an element carrying no id at all
+  // makes every one of its kind seed identically. All three resolve by salting in
+  // document order, which is fixed by the input bytes, so the result stays
+  // deterministic for a given input rather than falling back to randomness.
+  const deriveUid = (prefix, seed) => {
+    let uid = `${prefix}_${hash32(seed)}`;
+    for (let salt = 1; usedUids.has(uid); salt++) uid = `${prefix}_${hash32(`${seed}#${salt}`)}`;
+    usedUids.add(uid);
+    return uid;
+  };
+
   // ---- workflowMeta ----
   // workflowMeta isn't yet round-tripped through XML — pull what we can from the
   // process attributes and fall back to defaults.
@@ -9794,9 +9828,9 @@ function parseBpmnXml(text) {
       // let, not const: <aef:eventDef> below can override the shared
       // intermediateCatchEvent tag to a specific typed-event node type (T-204).
       let type = REVERSE_TYPE[tag] || 'serviceTask';
-      // uid from aef:uid extension, else generate
+      // uid from aef:uid extension, else derive it from the element id (T-364)
       const uidEl = byAef(el, 'uid')[0];
-      const uid = uidEl?.getAttribute('value') || generateUid('n');
+      const uid = uidEl?.getAttribute('value') || deriveUid('n', displayId);
       // Position from aef:position extension if present, else lay out automatically
       const posEl = byAef(el, 'position')[0];
       let x, y;
@@ -9973,7 +10007,7 @@ function parseBpmnXml(text) {
   const edges = [];
   for (const el of byBpmn(proc, 'sequenceFlow')) {
     const uidEl = byAef(el, 'uid')[0];
-    const uid = uidEl?.getAttribute('value') || generateUid('e');
+    const uid = uidEl?.getAttribute('value') || deriveUid('e', el.getAttribute('id') || '');
     const srcDisplayId = el.getAttribute('sourceRef');
     const tgtDisplayId = el.getAttribute('targetRef');
     const source = displayIdToUid.get(srcDisplayId) || srcDisplayId;

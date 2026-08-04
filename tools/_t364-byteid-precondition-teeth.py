@@ -41,6 +41,11 @@ TOOL = os.path.join(HERE, "_t358-byteid-thirdparty.mjs")
 REF = "3bf37909~1"
 
 # Two nodes, one lane, SAME x in aef:position, no aef:uid anywhere in the document.
+#
+# serviceTask, not task: the T-327 harness-fidelity gate refuses a synthesised element
+# neither emitter can produce, and it was right to — the tag is incidental here, the tie
+# is the property under test, so the honest move is to craft it out of a shape we
+# actually emit rather than declare a tolerance for a tag chosen by accident.
 TIE_DOC = """<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
                   xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
@@ -56,12 +61,12 @@ TIE_DOC = """<?xml version="1.0" encoding="UTF-8"?>
         <bpmn:flowNodeRef>lan_2_bravo</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:task id="lan_1_alpha" name="alpha">
+    <bpmn:serviceTask id="lan_1_alpha" name="alpha">
       <bpmn:extensionElements><aef:position x="300.0" y="60.0"/></bpmn:extensionElements>
-    </bpmn:task>
-    <bpmn:task id="lan_2_bravo" name="bravo">
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="lan_2_bravo" name="bravo">
       <bpmn:extensionElements><aef:position x="300.0" y="60.0"/></bpmn:extensionElements>
-    </bpmn:task>
+    </bpmn:serviceTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="D_1"><bpmndi:BPMNPlane id="P_1" bpmnElement="Process_tie"/></bpmndi:BPMNDiagram>
 </bpmn:definitions>

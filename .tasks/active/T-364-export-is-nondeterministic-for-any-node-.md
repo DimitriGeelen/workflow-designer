@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T10:33:42Z
-last_update: 2026-08-04T13:15:33Z
+last_update: 2026-08-04T13:39:04Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -125,22 +125,36 @@ Related: G-023 (registered), T-358 (where it surfaced), PL-110.
       over 25 maps, and `_t308` is itself an on-demand instrument rather than a bridge
       leg. Stated rather than left as a silent omission.
 
-- [ ] **`_t308` states the population it ranges over, and cannot silently range over
-      less than it claims.** A byte-identity run must report its denominator, and a
-      document that is not byte-stable **with itself** must be reported `unusable` —
-      never counted as `identical`. Evidence: the run's own output naming the count and
-      the population, and a mutation showing an unstable document is NOT counted green.
-
       This is G-023's prevention half. Mitigation would be making export deterministic;
       prevention is a gate that cannot overstate its reach even after that fix, because
       the next nondeterministic field will not announce itself either.
 
-- [ ] **Export is deterministic for third-party input**, i.e.
+- [x] **Export is deterministic for third-party input**, i.e.
       `tools/_t358-export-determinism.mjs` exits 0 with every document stable — OR the
       repair is deliberately deferred and this AC records the measured reason, since a
       stable uid must come from somewhere and inventing one is how T-358 started.
 
-      > **NOT STARTED — and flagging the trap in this AC before anyone walks into it.**
+      **DONE — repair (a) implemented 2026-08-04.** `deriveUid` in `parseBpmnXml`
+      (FNV-1a 32-bit over the BPMN element id, `prefix_8hex` shape unchanged, collisions
+      salted in document order). Both mint fallbacks now derive; the random
+      `generateUid` path remains only where the editor creates genuinely new nodes,
+      which is authored data with no document to derive from.
+
+      ```
+      lane-provenance/authored-lanes.bpmn    stable   (2930 bytes)
+      lane-provenance/no-laneset.bpmn        stable   (3157 bytes)
+      third-party/simple.bpmn                stable   (3705 bytes)
+      third-party/kitchen-sink.bpmn          stable   (25442 bytes)
+      corpus/audit-process.bpmn              stable   (13563 bytes)
+      corpus/arc-lifecycle.bpmn              stable   (12270 bytes)
+      All documents emit deterministically.                       (exit 0, was exit 1)
+      ```
+
+      The trap analysis below is kept because it is the reasoning the ruling acted on,
+      not because it is still pending. Read it as the record of what was decided.
+
+      > **WAS NOT STARTED when this AC was written — the trap, flagged before anyone
+      > walked into it.**
       > The obvious fix is to derive the uid from data the document already carries (its
       > BPMN element `id`, which is required and unique per document) instead of
       > `Math.random()`. That is deterministic and involves no invention beyond a hash.
@@ -355,11 +369,41 @@ Related: G-023 (registered), T-358 (where it surfaced), PL-110.
       > shapes THIS build emits. It does not prove fidelity for attribute names we do not
       > emit, kinds absent from their census, or nesting this fixture does not reach.
 
-- [ ] **No emitted byte moves for the existing corpus.** Any repair must keep
+- [x] **No emitted byte moves for the existing corpus.** Any repair must keep
       `_t308` byte-identity green over the designer-produced maps, whose uids are real
       authored data and must not be renumbered by a determinism fix.
 
-- [ ] Bridge suite green (`tests/run-bridge-tests.sh`), no leg lost.
+      **Green after the repair, both populations:**
+
+      ```
+      _t308 vs 3bf37909~1   ok true, 24 identical, 0 drifted, 0 unusable, 24 maps
+      _t358-byteid-thirdparty vs 3bf37909~1
+                            10 identical, 0 drifted, 0 unusable, PRECONDITION HOLDS
+      ```
+
+      The corpus result is the load-bearing one and it is green for the reason it
+      should be, not by luck: all 306 corpus nodes carry `aef:uid` in their bytes
+      (census P1), so the derivation path never executes for them. `audit-process`
+      13563 and `arc-lifecycle` 12270 — the same byte counts recorded in AC1 before
+      the change.
+
+      **The third-party 10-identical is the weaker claim and is stated as such.** That
+      run normalises `aef:uid` values in document order, so what it certifies is "no
+      byte *other than the uid values themselves* moved". The uid values did move —
+      random → derived — and that is the whole point of the repair.
+
+- [x] Bridge suite green (`tests/run-bridge-tests.sh`), no leg lost.
+
+      `bridge round-trip: 71 passed, 0 failed`; geometry sweep 24 clean, 0 new-fail.
+
+      **A leg was regained rather than merely held.** The suite was at 70/1 before this
+      session: `_t364-byteid-precondition-teeth.py` (added last session) synthesised
+      `<bpmn:task>`, which neither emitter can produce, and the T-327 harness-fidelity
+      gate failed it. That failure was mine, it was correct, and the previous session
+      recorded 7/7 P-011 green without re-running the suite that would have caught it —
+      a verification block is not the suite. Fixed by crafting the teeth document out of
+      `<bpmn:serviceTask>`: the tag was incidental, the tie is the property under test,
+      so declaring a tolerance would have been buying an exemption for an accident.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -397,9 +441,23 @@ Related: G-023 (registered), T-358 (where it surfaced), PL-110.
 # Shell commands that MUST pass before work-completed. One per line.
 # Final test IS the verdict (errexit-safe form) — see T-353.
 
-# the two import-side mint fallbacks are still where AC1 says they are
-out=$(grep -c "|| generateUid('n')" src/aef-workflow-designer.html); [ "$out" = "1" ]
-out=$(grep -c "|| generateUid('e')" src/aef-workflow-designer.html); [ "$out" = "1" ]
+# the two import-side mint fallbacks AC1 named are now the repair, and the random mint
+# is gone from the import path. Re-pointed at the fix rather than deleted when (a) landed:
+# these lines asserted "the defect site is here", so on repair they must assert
+# "the repair site is here" or the anchor stops describing anything.
+out=$(grep -c "deriveUid('n', displayId)" src/aef-workflow-designer.html); [ "$out" = "1" ]
+out=$(grep -c "deriveUid('e', el.getAttribute('id') || '')" src/aef-workflow-designer.html); [ "$out" = "1" ]
+out=$(grep -c "|| generateUid('n')" src/aef-workflow-designer.html || true); [ "$out" = "0" ]
+out=$(grep -c "|| generateUid('e')" src/aef-workflow-designer.html || true); [ "$out" = "0" ]
+
+# export is deterministic for third-party input — AC3's own gate, green in both eras
+# (stable = good before and after the repair), so it is the one safe to keep forever
+node tools/_t358-export-determinism.mjs > /dev/null 2>&1
+# the tie no longer reaches the emitted identity graph (guard, post-repair polarity)
+node tools/_t364-tie-permutes-ids.mjs > /dev/null 2>&1
+# and that guard goes RED when the random mint is put back — proven by mutation, not by
+# reading it; its failure branch is new and an unproven red is not a guard
+python3 tools/_t364-tie-guard-teeth.py > /dev/null 2>&1
 
 # the byte-identity gate states its population and holds out what it cannot compare
 out=$(node tools/_t308-export-byte-identity-cdp.mjs 3bf37909~1); echo "$out" | python3 -c "import json,sys; d=json.load(sys.stdin); sys.exit(0 if (d['ok'] and d['unusable']==0 and d['population']['does_not_cover']) else 1)"
@@ -537,6 +595,63 @@ node tools/_t364-aef-ext-roundtrip.mjs > /dev/null 2>&1
 **Gates that must stay green:** AC4 (`_t308` byte-identity over the 24 corpus maps —
 their uids are real authored data and must NOT be renumbered by a determinism fix) and
 AC5 (bridge suite, no leg lost).
+
+### 2026-08-04 — implementing (a): the predicted narrowing was the wrong narrowing
+
+- **Chose:** narrow the `_t358-byteid-thirdparty.mjs` precondition to **"the uid that
+  breaks this tie is not the same value on both sides of the comparison"** — measured per
+  run (uid vector per build, plus a second parse per build for within-build stability) —
+  rather than to "this build mints nondeterministically" as trap 1 instructed.
+- **Why:** trap 1 predicted the guard would go over-strict because a derived uid resolves
+  a tie identically every parse. That is true and it is not sufficient. **This tool is a
+  cross-build diff.** A uid-less node gets a random uid in the baseline build and a derived
+  one in the current build; if those two orders disagree at a tie, the emitted element ids
+  permute *between the builds* no matter how deterministic either side is on its own. A
+  within-build predicate would have declared such a run sound and let a real permutation
+  through as "identical". The measured predicate also **self-heals**: once `BASELINE_REF`
+  moves past the repair, both sides derive identically, the vectors match, and it stops
+  firing without anyone editing it.
+- **Rejected:** deleting the check (trap 1's named failure mode), and the literal
+  within-build narrowing (unsound for this tool, per above).
+- **Kept honest:** the old predicate was not wrong, it was *narrower than its subject* —
+  "source carries no aef:uid" is a special case of the measured one. Both earlier forms
+  are subsumed rather than contradicted.
+
+**A prediction written into a guard is still a prediction.** Trap 1 was right that the
+guard would need narrowing and right that removal was the danger; it was wrong about which
+predicate to narrow to, because it reasoned about the defect and not about what the
+instrument compares. Recorded because the note read as an instruction and was one step
+from being followed literally.
+
+### 2026-08-04 — the tie probe's polarity, and why it is now a gate
+
+- **Chose:** invert `_t364-tie-permutes-ids.mjs` to a regression guard (exit 0 = repair
+  holds, exit 1 = a map permuted), measure per run which side of the repair the build is
+  on, and prove the new red branch by mutation (`_t364-tie-guard-teeth.py`: revert the two
+  `deriveUid` calls in a temp copy → rc=1 "REGRESSION"; real source → rc=0 "REPAIR HOLDS").
+- **Why:** trap 2 was right that its red was the success signal, but left the file saying
+  *"the reading of computeDisplayId is wrong — find what else orders them"* on that red.
+  That sentence would send the next reader to debug working code. An experiment whose
+  question has been answered either gets a new polarity or gets deleted; leaving it with a
+  stale verdict is the worst of the three.
+- **Noted, not hidden:** under a stable mint the **tie-free negative control has gone
+  inert**. Nothing permutes now, so a tie-free map holding still is guaranteed and
+  discriminates nothing. The run prints this instead of counting it as corroboration. What
+  carries the guard is the per-build mint measurement and the tie counts (the tied maps
+  still have their ties — the hazard population still exists to be protected).
+
+### 2026-08-04 — STILL OPEN after (a): should we emit `aef:uid` into third-party bytes?
+
+Trap 3 said (a) must not silently answer this, so it is recorded as unanswered.
+**(a) did not settle it and this task does not close it.** Every third-party document we
+open and save still leaves with our `aef:uid` on nodes that never carried one — the
+values are now derived instead of random, which stops the churn and changes nothing about
+whether they belong there. It is T-358's question about the lane default wearing different
+clothes: *what value should this be* is not *should this be here at all*.
+
+Materially less loaded than T-358's `human · sovereignty` (a uid asserts nothing about
+governance, and AEF ratified `aef:uid` in the seam contract at RAIL-432) — that is an
+argument about severity, not about kind. Carried forward on T-358, not re-filed here.
 
 
 <!-- Record decisions ONLY when choosing between alternatives.
