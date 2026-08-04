@@ -1,6 +1,6 @@
 {
-  "captured_at": "2026-08-03T21:27:29Z",
-  "capture_window": "2026-08-03T21:13:52Z .. 2026-08-03T21:27:29Z (DMs first, channels second)",
+  "captured_at": "2026-08-04T06:24:06Z",
+  "capture_window": "2026-08-04T06:24:06Z (T-362 re-capture: after acking both DM topics to their heads)",
   "captured_via": "mcp:termlink",
   "note": "Captured through the MCP termlink surface. The shell CLI on this box resolves a DIFFERENT identity (see identity_probe), so this snapshot CANNOT be produced from a shell script. rail-sweep.py verifies it; it does not gather it.",
   "identity": {
@@ -19,19 +19,19 @@
   "dms": {
     "ok": true,
     "my_id": "6a646ce8b1bc6560",
-    "coverage": "exhaustive — agent_dms filters the hub topic list to every dm: shape carrying my fingerprint",
+    "coverage": "exhaustive \u2014 agent_dms filters the hub topic list to every dm: shape carrying my fingerprint",
     "dms": [
       {
         "topic": "dm:0e7ee6cad65137fc:6a646ce8b1bc6560",
         "peer": "0e7ee6cad65137fc",
-        "unread": 95,
-        "first_unread": 329
+        "unread": 0,
+        "first_unread": null
       },
       {
         "topic": "dm:6a646ce8b1bc6560:d1993c2c3ec44c94",
         "peer": "d1993c2c3ec44c94",
-        "unread": 4,
-        "first_unread": 1
+        "unread": 0,
+        "first_unread": null
       }
     ]
   },
@@ -41,7 +41,7 @@
     "unread_topics": []
   },
   "channels": {
-    "coverage": "watchlist-scoped — NOT exhaustive. See population_non_dm for the denominator.",
+    "coverage": "watchlist-scoped \u2014 NOT exhaustive. See population_non_dm for the denominator.",
     "population_non_dm": 549,
     "population_source": "termlink_channel_list, non-dm names, 2026-08-03T21:20Z",
     "watchlist": [

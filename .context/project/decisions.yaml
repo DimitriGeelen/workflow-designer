@@ -1095,3 +1095,10 @@ decisions:
     date: 2026-08-03
     task: T-360
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-136
+    decision: "G-022 stays OPEN: draining the backlog does not lift the sweep's UNTRUSTED verdict, and agent_inbox is now proven non-discriminating in BOTH directions"
+    scope: project
+    date: 2026-08-04
+    task: T-362
+    rationale: "First test of T-360's central design claim in a state that could not previously exist. Acked both DM topics to their heads (AEF dm 425, cohort-hub dm 6), so unread went 99->0 for the first time. Two measurements: (1) agent_inbox STILL returns unread_topics:[] -- byte-identical to its answer when 99 were unread, so the verb is uninformative at both ends, not merely when the store is empty; (2) tools/rail-sweep.py still exits 3 UNTRUSTED at zero backlog, because the trust gate keys on len(rows)>0 (all DM topics) and not on unread>0. That is the designed separation between mitigation (draining) and prevention (the instrument regaining sight) holding under test rather than by assertion. Flipping G-022 remains operator-only and the evidence argues against it."

@@ -1,12 +1,12 @@
-timestamp: 2026-08-03T22:00:01Z
+timestamp: 2026-08-04T06:00:01Z
 findings:
   - id: D1
     level: PASS
-    check: "D1: Episodic quality — 0% [TODO] (0/314)"
+    check: "D1: Episodic quality — 0% [TODO] (0/315)"
   - id: D2
-    level: WARN
-    check: "D2: Human review queue — 2 task(s) waiting >14d: T-093(29d) T-178(24d)"
-    mitigation: "Review with: fw task verify"
+    level: FAIL
+    check: "D2: Human review queue — 1 task(s) waiting >30d: T-093(30d) T-178(24d)"
+    mitigation: "Review with: fw task verify (lists unchecked Human ACs)"
   - id: D8
     level: PASS
     check: "D8: Handover quality — no [TODO] in LATEST.md"
@@ -19,6 +19,6 @@ findings:
 
 summary:
   pass: 4
-  warn: 1
-  fail: 0
+  warn: 0
+  fail: 1
   total: 5
