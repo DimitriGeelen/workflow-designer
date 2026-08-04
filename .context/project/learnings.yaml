@@ -766,3 +766,10 @@ learnings:
   date: 2026-08-03
   context: Added via context agent
   application: TBD
+- id: PL-109
+  learning: "A check can be structurally unable to fire, and that is byte-identical to a check that passes. T-358: the probe's totality check was 'seen.some(v => v === undefined)' over an array built with '.filter(Boolean)' -- the filter strips exactly the values the check exists to find. It sat inside an otherwise correct, green probe and would have reported 'the partition is total' for a build where the field was deleted outright. Only the mutation harness found it: case 3 was green when it should have been red. Rule: for every check, ask what input would make it fire, then construct that input. If you cannot, the check is a constant. Related shape: an exemption that cannot fail for existing wrongly (T-361), and a bucket that has never filled (T-361 '0 current, 106 legacy')."
+  source: P-001
+  task: T-358
+  date: 2026-08-04
+  context: Added via context agent
+  application: TBD
