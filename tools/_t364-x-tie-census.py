@@ -202,6 +202,51 @@ def report(title, files, which, note):
 corpus = sorted(glob.glob(os.path.join(ROOT, "examples", "aef-processes", "rendered", "*.bpmn")))
 fixtures = sorted(glob.glob(os.path.join(ROOT, "tests", "fixtures", "third-party", "*.bpmn")))
 
+
+def population_crosscheck(selected):
+    """Compute the .bpmn population a second, independent way and diff the counts.
+
+    Adopted from AEF at RAIL-432, who hit this the hard way: their uid census used
+    glob('**/*.bpmn', recursive=True), which SKIPS DOT-DIRECTORIES, and their entire
+    live corpus lives under .context/designer/projects/. It read 19 files, reported
+    18 exposed nodes, and looked like a finished measurement — plausible number,
+    per-file rows, a total. It disagreed with `find` by 32 files and nothing in the
+    output said so. Their framing: not a predicate that classified wrongly, a
+    DENOMINATOR that never contained the subject.
+
+    This census scopes to two named populations on purpose, so a gap here is not a
+    bug. But "deliberately scoped" and "accidentally truncated" produce identical
+    output unless the unexamined space is printed next to the examined one.
+    """
+    seen = set()
+    for dirpath, dirnames, filenames in os.walk(ROOT):
+        if ".git" in dirpath.split(os.sep):
+            continue
+        for f in filenames:
+            if f.endswith(".bpmn"):
+                seen.add(os.path.join(dirpath, f))
+    sel = {os.path.abspath(p) for p in selected}
+    rest = sorted(seen - sel)
+    buckets = {}
+    for p in rest:
+        d = os.path.relpath(os.path.dirname(p), ROOT)
+        buckets[d] = buckets.get(d, 0) + 1
+    print("\nPOPULATION CROSS-CHECK (two independent walks, per AEF RAIL-432)")
+    print(f"  .bpmn in tree (os.walk, .git excluded): {len(seen)}")
+    print(f"  examined by this census                : {len(sel)}")
+    print(f"  NOT examined                           : {len(rest)}")
+    if rest:
+        print("  The unexamined space, by directory — this census says nothing about these:")
+        for d, n in sorted(buckets.items(), key=lambda kv: -kv[1])[:8]:
+            dot = "  <- dot-directory (the shape that bit AEF)" if any(
+                s.startswith(".") for s in d.split(os.sep)) else ""
+            print(f"      {n:4d}  {d}{dot}")
+        if len(buckets) > 8:
+            print(f"      ... and {len(buckets) - 8} more directories")
+    print("  Reading: the three populations above are chosen and named, not everything")
+    print("  present. tests/fixtures/aef-bpmn in particular is peer-authored material this")
+    print("  census has never measured for ties or uid coverage.")
+
 print("=" * 78)
 print("T-364 — can a same-lane x tie permute emitted element ids?")
 print("=" * 78)
@@ -250,5 +295,6 @@ else:
     print("  DI forecast: no same-lane x collisions in DI coordinates on this sample.")
     print("          That bounds THIS sample; DI x is authored by the exporting tool and")
     print("          nothing prevents a collision in general.")
+population_crosscheck(corpus + fixtures)
 print()
 sys.exit(0)
