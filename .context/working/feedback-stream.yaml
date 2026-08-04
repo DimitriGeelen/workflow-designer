@@ -3959,3 +3959,21 @@ scan_id: R-ddd776ee
 task_id: T-362
 payload:
   task_file: .tasks/active/T-362-answer-cohort-hub-t-953-deploy-drift-rca.md
+---
+kind: scan_emitted
+timestamp: '2026-08-04T06:27:21Z'
+scan_id: R-8c1ea66a
+task_id: T-363
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-04T06:27:21Z'
+scan_id: R-8c1ea66a
+task_id: T-363
+payload:
+  task_file: .tasks/active/T-363-rail-ack-frontier-set--g-022-prevention-.md

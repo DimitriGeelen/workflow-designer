@@ -4,10 +4,10 @@ name: "Rail ack frontier set + G-022 prevention re-tested at zero backlog"
 description: >
   Rail ack frontier set + G-022 prevention re-tested at zero backlog
 
-status: started-work
+status: work-completed
 workflow_type: test
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T06:26:09Z
-last_update: 2026-08-04T06:26:09Z
-date_finished: null
+last_update: 2026-08-04T06:27:21Z
+date_finished: 2026-08-04T06:27:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -218,3 +218,15 @@ out=$(grep -c "PD-136" .context/project/decisions.yaml); [ "$out" = "1" ]
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-363-rail-ack-frontier-set--g-022-prevention-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8c1ea66a
+- **Timestamp:** 2026-08-04T06:27:21Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-04T06:27:21Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1,0 +1,119 @@
+# ============================================================================
+# EPISODIC MEMORY - T-363: Rail ack frontier set + G-022 prevention re-tested at zero backlog
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-04T06:27:23Z
+# ============================================================================
+
+task_id: T-363
+task_name: "Rail ack frontier set + G-022 prevention re-tested at zero backlog"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-04T06:26:09Z
+completed: 2026-08-04T06:27:21Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-04T08:27:16+02:00
+last_commit: 2026-08-04T08:27:16+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  rail acked to true heads (AEF dm 425, cohort-hub dm 6 — first zero-unread state) and G-022 prevention re-tested there; agent_inbox returns the byte-identical unread_topics:[] at 0 unread as it did at 99, so it discriminates in neither direction, and rail-sweep still exits 3 UNTRUSTED — mitigation does not lift prevention. Filed retroactively because the focus gate caught this running with no active task
+
+# Key outcomes
+outcomes:
+  - 'Both DM topics acked to their true heads after being genuinely read end-to-end'
+  - '`agent_inbox` proven non-discriminating in BOTH directions, not merely when the'
+  - 'T-360''s central design claim tested in a state that could not previously exist —'
+  - 'Evidence recorded as PD-136 so the operator''s G-022 call rests on a measurement'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-08-04-0030.yaml'
+  - '.context/audits/cron/2026-08-04-0045.yaml'
+  - '.context/audits/cron/2026-08-04-0100.yaml'
+  - '.context/audits/cron/2026-08-04-0115.yaml'
+  - '.context/audits/cron/2026-08-04-0130.yaml'
+  - '.context/audits/cron/2026-08-04-0145.yaml'
+  - '.context/audits/cron/2026-08-04-0200.yaml'
+  - '.context/audits/cron/2026-08-04-0215.yaml'
+  - '.context/audits/cron/2026-08-04-0230.yaml'
+  - '.context/audits/cron/2026-08-04-0245.yaml'
+  - '.context/audits/cron/2026-08-04-0300.yaml'
+  - '.context/audits/cron/2026-08-04-0315.yaml'
+  - '.context/audits/cron/2026-08-04-0330.yaml'
+  - '.context/audits/cron/2026-08-04-0345.yaml'
+  - '.context/audits/cron/2026-08-04-0400.yaml'
+  - '.context/audits/cron/2026-08-04-0415.yaml'
+  - '.context/audits/cron/2026-08-04-0430.yaml'
+  - '.context/audits/cron/2026-08-04-0445.yaml'
+  - '.context/audits/cron/2026-08-04-0500.yaml'
+  - '.context/audits/cron/2026-08-04-0515.yaml'
+  - '.context/audits/cron/2026-08-04-0530.yaml'
+  - '.context/audits/cron/2026-08-04-0545.yaml'
+  - '.context/audits/cron/2026-08-04-0600.yaml'
+  - '.context/audits/cron/2026-08-04-0615.yaml'
+  - '.context/audits/cron/2026-08-04-0630.yaml'
+  - '.context/audits/cron/2026-08-04-0645.yaml'
+  - '.context/audits/cron/2026-08-04-0700.yaml'
+  - '.context/audits/cron/2026-08-04-0715.yaml'
+  - '.context/audits/cron/2026-08-04-0730.yaml'
+  - '.context/audits/cron/2026-08-04-0745.yaml'
+  - '.context/audits/cron/2026-08-04-0800.yaml'
+  - '.context/audits/cron/2026-08-04-0815.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/project/decisions.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.hook-counter'
+  - '.context/working/rail-snapshot.json'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.tasks/active/T-357-adopt-bpmn-di-as-the-designer-geometry-a.md'
+  - '.tasks/active/T-363-rail-ack-frontier-set--g-022-prevention-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-04T08:27:16"
+    action: "T-363: rail acked to true heads (AEF dm 425, cohort-hub dm 6 — first zero-unread state) and G-022 prevention re-tested there; agent_inbox returns the byte-identical unread_topics:[] at 0 unread as it did at 99, so it discriminates in neither direction, and rail-sweep still exits 3 UNTRUSTED — mitigation does not lift prevention. Filed retroactively because the focus gate caught this running with no active task"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1
+  commits: 1
+  files_changed: 44
+  lines_added: 5758
+  lines_removed: 1361
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-363-rail-ack-frontier-set--g-022-prevention-.md
+generated_by: context-agent-hybrid
