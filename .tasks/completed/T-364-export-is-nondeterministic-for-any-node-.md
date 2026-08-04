@@ -4,10 +4,10 @@ name: "Export is nondeterministic for any node lacking aef:uid: a fresh uid is m
 description: >
   Found under T-358 while measuring repair candidates. buildBpmnXml emits a fresh randomly-minted aef:uid for every node that did not arrive with one, so two consecutive parse->emit cycles of the SAME third-party input produce different bytes (kitchen-sink.bpmn: 81 lines differ). Designer-produced maps carry uids and are stable (audit-process 13563 bytes, arc-lifecycle 12270). Two consequences: (1) opening a third-party file twice yields two different documents, and any consumer keying on aef:uid sees a new identity per open; (2) the _t308 byte-identity gate (24/24 identical) is sound only for the designer-produced population that happens to carry uids, and is structurally incapable of reporting on the third-party population every repair in this arc targets. Evidence: tools/_t358-export-determinism.mjs (exit 1 today, 4 of 6 documents unstable).
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T10:33:42Z
-last_update: 2026-08-04T14:12:00Z
-date_finished: null
+last_update: 2026-08-04T14:16:11Z
+date_finished: 2026-08-04T14:16:11Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -769,3 +769,35 @@ argument about severity, not about kind. Carried forward on T-358, not re-filed 
 
 ### 2026-08-04T10:54:14Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b8d2f318
+- **Timestamp:** 2026-08-04T14:16:29Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 7
+
+**Per-AC findings:**
+
+- **AC#5 (Agent)** — Bridge suite green (`tests/run-bridge-tests.sh`), no leg lost.
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/run-bridge-tests.sh in: Bridge suite green (`tests/run-bridge-tests.sh`), no leg lost.`
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 15
+     - evidence: `node tools/_t358-export-determinism.mjs > /dev/null 2>&1`
+  2. **empty-output-success** (partial, heuristic) @ Verification:line 17
+     - evidence: `node tools/_t364-tie-permutes-ids.mjs > /dev/null 2>&1`
+  3. **empty-output-success** (partial, heuristic) @ Verification:line 20
+     - evidence: `python3 tools/_t364-tie-guard-teeth.py > /dev/null 2>&1`
+  4. **empty-output-success** (partial, heuristic) @ Verification:line 26
+     - evidence: `python3 tools/_t364-t308-teeth.py > /dev/null 2>&1`
+  5. **empty-output-success** (partial, heuristic) @ Verification:line 30
+     - evidence: `python3 tools/_t364-byteid-precondition-teeth.py > /dev/null 2>&1`
+  6. **empty-output-success** (partial, heuristic) @ Verification:line 33
+     - evidence: `node tools/_t364-aef-ext-roundtrip.mjs > /dev/null 2>&1`
+
+### 2026-08-04T14:16:11Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
