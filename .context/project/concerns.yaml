@@ -1106,3 +1106,42 @@ concerns:
       that exists this stays open.
     related_tasks:
       - T-360
+
+  - id: G-023
+    title: "The byte-identity gate is scoped to the population that happens to carry uids, and I have cited it without that bound"
+    severity: high
+    status: watching
+    registered: 2026-08-04
+    detail: |
+      `_t308` byte-identity — "24/24 identical, 0 drifted" — is the instrument
+      this arc uses to prove a change moves no bytes. I have cited it in task
+      ACs, in commits, and to AEF on the rail (RAIL-427), as evidence that a
+      change is safe.
+
+      Measured 2026-08-04 (tools/_t358-export-determinism.mjs): the emitter is
+      NOT deterministic. `aef:uid` is minted fresh per parse for any node that
+      did not arrive with one, so two consecutive parse->emit cycles of the
+      same input differ — kitchen-sink.bpmn by 81 lines. Designer-produced
+      corpus maps carry uids and are stable; every third-party fixture is not.
+
+      So the 24/24 result is real and is real ONLY for designer-produced maps.
+      The instrument is structurally incapable of reporting on third-party
+      documents — which is the exact population every repair in this arc
+      (T-337, T-340, T-347, T-348, T-356, T-358) is aimed at. A gate that can
+      only speak about the artifacts we generated ourselves is a capability
+      bound wearing a coverage number, the same shape as the T-340 DI census
+      (126 files, 0 with DI) and G-009.
+
+      What makes this a concern and not just T-364: the number was correct
+      every time I quoted it, and nothing in the report said which population
+      it covered. A reader — including me, including AEF — takes "24/24
+      identical" as "this change moves no bytes", full stop.
+
+      NOT CLOSED BY FIXING THE UID MINTING (T-364). Mitigation is making the
+      emitter deterministic; prevention is that any byte-identity claim states
+      the population it ranges over and FAILS when asked to speak for a
+      population it cannot measure. Until a byte-identity run reports its own
+      scope, this stays open.
+    related_tasks:
+      - T-364
+      - T-358
