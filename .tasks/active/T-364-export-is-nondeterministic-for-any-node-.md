@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T10:33:42Z
-last_update: 2026-08-04T10:59:04Z
+last_update: 2026-08-04T11:13:38Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -190,6 +190,29 @@ Related: G-023 (registered), T-358 (where it surfaced), PL-110.
       > *only* `aef:uid` and still got 10/10 identical, which is evidence no tie occurred
       > in those ten fixtures — **not** evidence that ties cannot occur. A determinism
       > repair should pin that explicitly rather than inherit it from a lucky corpus.
+      >
+      > **Measured 2026-08-04, and it bounds the defect.** `_t358-export-determinism.mjs`
+      > now classifies every differing line as an `aef:uid` line or something else,
+      > because "all differing lines are uid lines" is precisely the claim that confines
+      > this defect to uid values:
+      >
+      > ```
+      > authored-lanes.bpmn    5 differ ->  5 aef:uid,  0 other
+      > no-laneset.bpmn        5 differ ->  5 aef:uid,  0 other
+      > simple.bpmn            7 differ ->  7 aef:uid,  0 other
+      > kitchen-sink.bpmn     81 differ -> 81 aef:uid,  0 other
+      > ```
+      >
+      > **Zero non-uid drift.** So the uid-only normaliser in
+      > `tools/_t358-byteid-thirdparty.mjs` is *justified* for this corpus rather than
+      > assumed, and the 10/10 result I put on the rail at RAIL-430 rests on a measured
+      > property. The probe now prints that conclusion — and prints the wider warning
+      > instead if a non-uid line ever moves, naming the uid-only normaliser as
+      > insufficient and the claims resting on it as needing a re-run.
+      >
+      > The residual stays stated rather than quietly dropped: this is a property of
+      > these six documents, not a proof that a displayId tie cannot permute emitted ids
+      > on some other document. AC3's repair should pin it directly.
 
 - [ ] **No emitted byte moves for the existing corpus.** Any repair must keep
       `_t308` byte-identity green over the designer-produced maps, whose uids are real

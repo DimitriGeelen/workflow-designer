@@ -83,9 +83,20 @@ async function main() {
         if (a === b) return { same:true, len:a.length };
         var la=a.split('\\n'), lb=b.split('\\n'), i=0;
         while(i<la.length && i<lb.length && la[i]===lb[i]) i++;
+        // Classify every differing line. uid is the tie-breaker in computeDisplayId's
+        // sort and displayIds ARE emitted, so a random uid could in principle permute
+        // emitted element ids too. "All differing lines are uid lines" is the claim
+        // that bounds the defect to aef:uid values; anything else is a wider defect.
+        var uidDiff = 0, otherDiff = 0, otherSample = null;
+        for (var j=0;j<Math.max(la.length,lb.length);j++){
+          if (la[j] === lb[j]) continue;
+          if (/<aef:uid\\b/.test(la[j]||'') && /<aef:uid\\b/.test(lb[j]||'')) uidDiff++;
+          else { otherDiff++; if(!otherSample) otherSample = { a:(la[j]||'').trim().slice(0,130), b:(lb[j]||'').trim().slice(0,130) }; }
+        }
         return { same:false, len:a.length, lineNo:i+1,
                  a:(la[i]||'').trim().slice(0,150), b:(lb[i]||'').trim().slice(0,150),
-                 totalDiff: la.filter(function(l,j){return l!==lb[j];}).length };
+                 totalDiff: la.filter(function(l,j){return l!==lb[j];}).length,
+                 uidDiff: uidDiff, otherDiff: otherDiff, otherSample: otherSample };
       })()`);
       rows.push({ label, ...r });
     }
@@ -97,7 +108,7 @@ async function main() {
   }
 
   console.log('\nIs buildBpmnXml deterministic? (same document, two consecutive parse->emit cycles)\n');
-  let bad = 0;
+  let bad = 0, wider = 0;
   for (const r of rows) {
     if (r.skip) { console.log(`  ${r.label.padEnd(38)} SKIP (${r.skip})`); continue; }
     if (r.fatal) { console.log(`  ${r.label.padEnd(38)} FATAL ${r.fatal}`); bad++; continue; }
@@ -106,12 +117,30 @@ async function main() {
     console.log(`  ${r.label.padEnd(38)} NOT STABLE — ${r.totalDiff} line(s) differ, first at line ${r.lineNo}`);
     console.log(`      run 1: ${r.a}`);
     console.log(`      run 2: ${r.b}`);
+    console.log(`      of those: ${r.uidDiff} aef:uid line(s), ${r.otherDiff} other`);
+    if (r.otherDiff) {
+      wider++;
+      console.log(`      *** NOT confined to uid values — a non-uid line moved:`);
+      console.log(`          run 1: ${r.otherSample.a}`);
+      console.log(`          run 2: ${r.otherSample.b}`);
+    }
   }
   console.log();
   if (bad) {
     console.log(`  ${bad} document(s) do not emit deterministically.`);
     console.log('  Any byte-identity claim is scoped to the class of document that IS stable —');
     console.log('  it cannot speak for the rest. _t308 covers designer-produced corpus maps.');
+    if (wider) {
+      console.log(`\n  ${wider} document(s) drift on a NON-uid line. The defect is wider than`);
+      console.log('  "aef:uid values churn": uid is the tie-breaker in computeDisplayId\'s sort and');
+      console.log('  displayIds are emitted, so a uid-only normaliser (tools/_t358-byteid-thirdparty.mjs)');
+      console.log('  is NOT sufficient for these documents and any claim resting on it must be re-run.');
+    } else {
+      console.log('\n  Every differing line is an aef:uid line: on THIS corpus the nondeterminism is');
+      console.log('  confined to uid values, so a uid-normalising comparison is sound for it. This is');
+      console.log('  a measured property of these documents, not a proof that a displayId tie cannot');
+      console.log('  permute emitted ids on some other document.');
+    }
     return 1;
   }
   console.log('  All documents emit deterministically.');
