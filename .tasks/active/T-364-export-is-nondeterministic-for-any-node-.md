@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T10:33:42Z
-last_update: 2026-08-04T10:54:14Z
+last_update: 2026-08-04T10:57:52Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -139,6 +139,30 @@ Related: G-023 (registered), T-358 (where it surfaced), PL-110.
       `tools/_t358-export-determinism.mjs` exits 0 with every document stable — OR the
       repair is deliberately deferred and this AC records the measured reason, since a
       stable uid must come from somewhere and inventing one is how T-358 started.
+
+      > **NOT STARTED — and flagging the trap in this AC before anyone walks into it.**
+      > The obvious fix is to derive the uid from data the document already carries (its
+      > BPMN element `id`, which is required and unique per document) instead of
+      > `Math.random()`. That is deterministic and involves no invention beyond a hash.
+      >
+      > But it does not answer the prior question, and the prior question is **T-358's
+      > question wearing different clothes**: *should we emit `aef:uid` at all for a node
+      > that arrived without one?* Emitting it adds our metadata to a third-party
+      > document that never had it. Deterministic fabrication is still fabrication — it
+      > merely stops churning. The lane case and this case share one shape, and I got the
+      > lane case wrong for months by treating "what value should the default be" as the
+      > whole question.
+      >
+      > A uid asserts nothing about governance, so this is materially less loaded than
+      > `human · sovereignty` — that is an argument about severity, not about kind. Two
+      > candidates, to be MEASURED and not chosen here:
+      >   (a) derive from element id — stable, still additive
+      >   (b) omit `aef:uid` for nodes that arrived without one — additive-free, but every
+      >       downstream consumer of `node.uid` must be checked first (T-358's F1 was
+      >       exactly a downstream guard disagreeing about what "absent" means)
+      >
+      > Deferring on purpose at 68% context: this is a seam-visible emission change, not
+      > a small bounded unit, and it should be measured the way T-358's candidates were.
 
 - [ ] **No emitted byte moves for the existing corpus.** Any repair must keep
       `_t308` byte-identity green over the designer-produced maps, whose uids are real
