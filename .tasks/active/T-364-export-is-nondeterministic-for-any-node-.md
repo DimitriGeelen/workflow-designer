@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T10:33:42Z
-last_update: 2026-08-04T10:57:52Z
+last_update: 2026-08-04T10:59:04Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -163,6 +163,33 @@ Related: G-023 (registered), T-358 (where it surfaced), PL-110.
       >
       > Deferring on purpose at 68% context: this is a seam-visible emission change, not
       > a small bounded unit, and it should be measured the way T-358's candidates were.
+      >
+      > **Consumer enumeration 2026-08-04 — and it reshapes (b) before any probe is
+      > written.** `uid` is not a decoration on the side of a node, it is the node's
+      > identity inside the editor. Imported nodes are built as
+      > `nodes.push({ uid, id: uid, slug, type, name, lane: laneId, ... })`, so:
+      >
+      >   - `data-id` on the rendered `<g>` is `n.id`, i.e. the uid — it is the DOM key
+      >   - `findNode` / `findEdge` / `findNodeByUid` resolve identity by uid
+      >   - `_displayIdCache` is keyed on uid
+      >   - `computeDisplayId` **sorts by it**:
+      >     `.sort((a, b) => a.x - b.x || a.uid.localeCompare(b.uid))`
+      >
+      > **So (b) cannot mean "no uid".** It can only mean *do not PERSIST the uid*. The
+      > editor still mints one on open, so **(b) does not fix identity churn at all** —
+      > reopening still produces different identities. It only stops our invented
+      > metadata reaching the bytes. That is a narrower benefit than the AC's phrasing
+      > implies, and (a) fixes both halves. The options are not symmetric and I would
+      > have measured them as though they were.
+      >
+      > **Latent hazard, worth naming even though it did not fire.** Because uid is the
+      > tie-breaker in the displayId sort, a random uid can in principle permute
+      > **emitted** displayIds for nodes that tie on `x` within one lane — and displayIds
+      > are emitted (`flowNodeRef`, element ids). The nondeterminism would then not be
+      > confined to `aef:uid` values. `tools/_t358-byteid-thirdparty.mjs` normalised
+      > *only* `aef:uid` and still got 10/10 identical, which is evidence no tie occurred
+      > in those ten fixtures — **not** evidence that ties cannot occur. A determinism
+      > repair should pin that explicitly rather than inherit it from a lucky corpus.
 
 - [ ] **No emitted byte moves for the existing corpus.** Any repair must keep
       `_t308` byte-identity green over the designer-produced maps, whose uids are real
