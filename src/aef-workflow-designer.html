@@ -9670,6 +9670,38 @@ function parseBpmnXml(text) {
       });
     }
   }
+  // T-358: make the DEFAULTING PARTITION TOTAL, before anyone chooses a default.
+  //
+  // Three distinct causes reach `!lanes.length` and currently produce byte-identical
+  // output, so no instrument can tell them apart and no repair can be verified:
+  //   (i)   the document carries no <laneSet> at all;
+  //   (ii)  a <laneSet> exists but yields zero <lane> children, and no other does;
+  //   (iii) laneSets[0] is empty while a LATER laneSet has lanes — the T-348
+  //         first-only read, i.e. we had the data and did not look at it.
+  // (iii) is a defect of ours; (i) is a property of the input. Collapsing them into
+  // one silent default is what makes the two indistinguishable in every report.
+  //
+  // This records WHICH cause fired. It deliberately does NOT change which lanes are
+  // chosen — that is T-341's ruling and is the operator's. Separating the causes is
+  // prerequisite under either ruling, which is why it is not blocked behind it.
+  //
+  // NOT EMITTED. `buildBpmnXml` writes an explicit skeleton from named fields and
+  // never serialises unknown state keys, so this is byte-neutral by construction —
+  // asserted in tests/fixtures via the _t308 byte-identity harness, not by hope.
+  //
+  // The branch order matters: (iii) is tested before (ii) because a document that
+  // satisfies (iii) also satisfies (ii)'s surface condition, and reporting it as a
+  // plain empty laneSet would hide our own first-only read behind the input's shape.
+  let laneProvenance;
+  if (lanes.length) {
+    laneProvenance = 'authored';
+  } else if (!laneSets.length) {
+    laneProvenance = 'defaulted:no-laneset';
+  } else if (laneSets.some((ls, i) => i > 0 && byBpmn(ls, 'lane').length > 0)) {
+    laneProvenance = 'defaulted:later-laneset-ignored';
+  } else {
+    laneProvenance = 'defaulted:empty-laneset';
+  }
   if (!lanes.length) lanes.push(...defaultLanes());
 
   // ---- nodes ----
@@ -9994,6 +10026,11 @@ function parseBpmnXml(text) {
     lanes,
     nodes,
     edges,
+    // T-358: which of the four lane origins produced `lanes` above. Read by probes
+    // and by nothing in the emitter — the exact opposite of docComment below, which
+    // must reach buildBpmnXml. Kept here rather than module-level (the T-308
+    // reconcile-counter pattern) because it is per-document, not per-session.
+    laneProvenance,
     // T-311: the authored rationale. Unlike T-308's reconcile counter — which lives
     // module-level precisely so it CANNOT reach the exporter — this value must reach
     // it, so it belongs on state. Carried verbatim; buildBpmnXml re-emits it as the

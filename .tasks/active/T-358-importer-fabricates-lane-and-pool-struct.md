@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T16:12:36Z
-last_update: 2026-08-03T16:44:36Z
+last_update: 2026-08-04T09:37:21Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -105,17 +105,56 @@ and should be decided with it, not before it.
       in parseBpmnXml". Anchor on a function signature, never a line number (they
       drift; T-340's filed anchor already did).
 
-- [ ] **The two causes are separated before any repair.** "Input had no lane set" and
+- [x] **The two causes are separated before any repair.** "Input had no lane set" and
       "input had a lane set we failed to read" currently produce the same output and
       must not share a verdict. Required evidence: one fixture of each, with
       different measured outcomes. If they cannot be separated, that is the finding
       and the repair is blocked on making the partition total.
 
-- [ ] **A negative control proves the probe can report NO fabrication.** A designer-
+      **Done — and the AC's own escape clause is what fired.** The investigation found
+      **three** causes, not two, so "separate the two" was not satisfiable as written;
+      the partition had to be *made* total first. `parseBpmnXml` now records
+      `laneProvenance` over four disjoint values — `authored`, `defaulted:no-laneset`,
+      `defaulted:empty-laneset`, `defaulted:later-laneset-ignored` — assigned on every
+      path, so no document can leave the function without one.
+
+      Evidence: `tests/fixtures/lane-provenance/` (four independently authored XML
+      shapes, one per branch) run through the real importer in headless Chrome by
+      `tools/_t358-lane-provenance-cdp.mjs` → **4 fixtures, 4 distinct verdicts**. The
+      run fails if any two collide, so "separable" is asserted, not assumed.
+
+      Branch order is load-bearing: (iii) is tested before (ii) because a document
+      satisfying (iii) also satisfies (ii)'s surface condition, and reporting it as a
+      plain empty laneSet would file **our** T-348 first-only read under **the
+      author's** omission — the one case where the data was present and we discarded it.
+
+      This chooses no default and changes no emitted byte: `_t308` byte-identity
+      **24/24 identical, 0 drifted**. T-341's ruling is untouched and still the
+      operator's.
+
+- [x] **A negative control proves the probe can report NO fabrication.** A designer-
       produced corpus map genuinely has 3 lanes, so a probe that merely counts lanes
       in the output reads "3" for both the honest and the fabricated case and
       discriminates nothing. The control must be input-derived: lanes-in equals
       lanes-out for a map that carried them.
+
+      **Done.** `authored-lanes.bpmn` carries 2 lanes named `Operations` / `Finance`
+      and comes back `authored`, **2 in / 2 out**, with those exact names — a count of
+      3 could not have distinguished it. Checked as its own assertion (control must be
+      the only non-defaulted case, and its lane *names* must be input-derived), so it
+      cannot pass by riding on the provenance check.
+
+      `tools/_t358-teeth.py` proves both ACs' instruments can fail: control green plus
+      **6 mutations, each red for its own predicted reason** — including one that
+      changes only what a fabricated lane *asserts* (`sovereignty` → `none`), since the
+      assertion and not the lane count is the defect this task names.
+
+      **The teeth found a real defect in my own probe, which is why they exist.** The
+      totality check was written as `seen.some(v => v === undefined)` over an array
+      built with `.filter(Boolean)` — which strips exactly the values it looked for, so
+      it could never fire. Mutation 3 was green when it should have been red. Totality
+      is now tested before anything is filtered. An unreachable check is a constant,
+      and a constant discriminates nothing.
 
 - [ ] **Repair does not silently reverse into the opposite defect.** Emitting zero
       lanes for a lane-less input must be checked against the corpus: if any existing

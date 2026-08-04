@@ -601,6 +601,27 @@ else
 fi
 
 echo
+echo "== Lane-origin partition is total and separable (T-358) =="
+# The import-loss instruments above all measure SUBTRACTION — content that went in
+# and did not come out. This measures the opposite direction: structure that comes
+# out having never gone in. Opening a third-party file with no lanes fabricates our
+# 3-lane skeleton and lands every node in lanes[0], which is `authority: sovereignty`
+# — so the saved document positively asserts that a stranger's tasks are human-
+# sovereign, in governance metadata their tool has no concept of.
+#
+# Three distinct causes reached that default with byte-identical output: input had no
+# laneSet; laneSet present but empty; laneSet[0] empty while a LATER one carried the
+# lanes (our T-348 first-only read — the only case where the data was there and we
+# discarded it). This leg pins that they stay separable. It does NOT assert which
+# default is correct: that is T-341's ruling and belongs to the operator.
+if node "$ROOT/tools/_t358-lane-provenance-cdp.mjs"; then
+  pass=$((pass + 1))
+else
+  report FAIL "the lane-origin partition stopped being total or separable — two causes of a fabricated lane set now share one verdict, or the negative control was itself defaulted (T-358)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Runner-orphan guard (T-316) =="
 # The guard for the class above: any collectable test file (test_*.py, *_test.py,
 # *.bats) that this runner does not invoke is a finding. Checks membership in

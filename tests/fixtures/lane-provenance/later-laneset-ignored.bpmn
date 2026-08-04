@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  id="Defs_laterls" targetNamespace="http://example.org/t358">
+  <bpmn:process id="Proc_laterls" name="Later lane set ignored" isExecutable="false">
+    <bpmn:laneSet id="LS_first_empty"/>
+    <bpmn:laneSet id="LS_second">
+      <bpmn:lane id="Lane_ops" name="Operations">
+        <bpmn:flowNodeRef>Task_1</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_fin" name="Finance"/>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Start_1" name="Begin"/>
+    <bpmn:task id="Task_1" name="Do the thing"/>
+    <bpmn:endEvent id="End_1" name="Done"/>
+    <bpmn:sequenceFlow id="F_1" sourceRef="Start_1" targetRef="Task_1"/>
+    <bpmn:sequenceFlow id="F_2" sourceRef="Task_1" targetRef="End_1"/>
+  </bpmn:process>
+</bpmn:definitions>
