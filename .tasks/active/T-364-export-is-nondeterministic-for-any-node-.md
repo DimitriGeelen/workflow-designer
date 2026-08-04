@@ -501,6 +501,44 @@ node tools/_t364-aef-ext-roundtrip.mjs > /dev/null 2>&1
 
 ## Decisions
 
+### 2026-08-04 — uid determinism: operator ruling
+
+- **Chose:** **(a) derive the `aef:uid` from the element id.** Ruled by the operator
+  (human) after the measurement was presented. Agent recommendation matched.
+- **Why:** the element `id` is required and unique per BPMN document, so a derived uid is
+  deterministic without inventing data. It fixes BOTH halves — no churn in the bytes and
+  no churn in the editor's internal identity — which (b) does not.
+- **Rejected: (b) mint but do not persist.** Measured as *destructive, not conservative*.
+  A (b) save produces documents with no `aef:uid` and real colliding `x`; 19 of 24 corpus
+  maps hold a same-lane x tie and are stable ONLY because their uids are in the bytes, so
+  (b) would introduce identity churn into a population that has none today. It also fails
+  to stop churn on reopen, since the editor still mints on open.
+
+**Implementation notes for whoever picks this up — three traps already identified:**
+
+1. **`tools/_t358-byteid-thirdparty.mjs` becomes OVER-STRICT the moment this lands.** Its
+   precondition test approximates "uid is nondeterministic" with "the source carries no
+   `aef:uid`". Under (a) a uid-less source mints STABLE uids, so the check will refuse a
+   run that is actually sound. **Narrow the predicate to "minted nondeterministically" —
+   do NOT delete the check.** A guard that starts crying wolf after a repair looks
+   identical to one that was always wrong, and removal is the cheap answer to both. This
+   is written into the file itself as well.
+2. **`tools/_t364-tie-permutes-ids.mjs` is an EXPERIMENT, not a gate.** It exits 0 when
+   the defect is present and will report PREDICTION REFUTED (exit 1) once (a) lands. That
+   red is the success signal. It is deliberately not wired into P-011.
+3. **Deterministic fabrication is still fabrication.** (a) emits our `aef:uid` into
+   third-party documents that never carried one. That is the T-358 question wearing
+   different clothes and it is NOT settled by this ruling — it is a separate call about
+   whether we write our metadata into someone else's bytes at all. AEF confirmed at
+   RAIL-432 that `aef:uid` is ratified and in the seam contract, which is why this is
+   materially less loaded than T-358's `human · sovereignty` fabrication, but the kind is
+   the same. Do not let (a) silently answer it.
+
+**Gates that must stay green:** AC4 (`_t308` byte-identity over the 24 corpus maps —
+their uids are real authored data and must NOT be renumbered by a determinism fix) and
+AC5 (bridge suite, no leg lost).
+
+
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
