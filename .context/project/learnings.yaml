@@ -773,3 +773,10 @@ learnings:
   date: 2026-08-04
   context: Added via context agent
   application: TBD
+- id: PL-110
+  learning: "A diagnostic computed at READ time is erased by the WRITE it describes. T-358's laneProvenance correctly reports 'defaulted:no-laneset' on import, but our own emitted output re-imports as 'authored' — one save and the fabricated assertion is indistinguishable from a human-authored one, by our own instrument. The signal is a parse-time property, not a document property, and it dies at exactly the act that makes the defect permanent. Ask of any provenance/diagnostic signal: does it survive the operation that makes the thing it describes canonical? If not, a report-only remedy cannot reach the corpus and cannot reach anything already written. Corollary found in the same measurement: sibling guards keyed on DIFFERENT predicates (importer on !x.length, emitter/getLanes/addLane on !x) mean a repair at the site everyone points at flows through the others untouched — [] is truthy"
+  source: P-001
+  task: T-358
+  date: 2026-08-04
+  context: Added via context agent
+  application: TBD
