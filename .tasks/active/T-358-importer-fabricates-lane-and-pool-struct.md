@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T16:12:36Z
-last_update: 2026-08-04T09:37:21Z
+last_update: 2026-08-04T09:47:53Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -160,6 +160,52 @@ and should be decided with it, not before it.
       lanes for a lane-less input must be checked against the corpus: if any existing
       map relies on the fabricated default, that reliance is a finding to file, not a
       reason to keep fabricating.
+
+      > ### Measurement 2026-08-04 — the AC fires. NOT ticked, and that is the result.
+      >
+      > `tools/_t358-empty-lanes-blast-radius.mjs` — round-trips fixtures through the
+      > REAL importer and REAL emitter in headless Chrome, on two builds served side by
+      > side: the tree as it stands, and a temp copy with the fabrication suppressed
+      > (the real tree is never edited — same discipline as `_t358-teeth.py`).
+      >
+      > **F1 — the naive repair reverses into the opposite defect, as this AC suspected.**
+      > The fabrication sites are guarded by **different predicates**: the importer on
+      > *emptiness* (`!lanes.length`, ~9705), every downstream site on *nullishness*
+      > (`s.lanes || defaultLanes()` ~9511, `getLanes()` ~2087, `addLane` ~8068). `[]` is
+      > truthy, so an empty array flows through all of them untouched and reaches an
+      > emitter that opens `<bpmn:laneSet id="LaneSet_1">` unconditionally. Measured:
+      > suppressing the importer default gives `lanes=0`, and we emit `laneSet=1,
+      > lane=0` — **we would emit cause (ii) "empty laneSet", the exact shape our own
+      > partition classifies as a third-party defect**, and our own output then
+      > re-imports as `defaulted:empty-laneset`. Rendering survives (`renderAll()` ok on
+      > all rows), so the opposite defect is semantic, not a crash — which is worse,
+      > because nothing announces it.
+      >
+      > **F2 — NOT predicted, and it bounds what T-358 shipped: the fabrication
+      > LAUNDERS ITSELF in one round-trip.** On the current build, `no-laneset.bpmn`
+      > imports as `defaulted:no-laneset` — then our own emitted output re-imports as
+      > **`authored`**, 3 lanes, with `authority="sovereignty"` in the bytes. Open a
+      > third-party file, save it, reopen it: the second open reports the fabricated
+      > assertion as human-authored, **by my own instrument**.
+      >
+      > So `laneProvenance` is a **parse-time** property, not a **document** property.
+      > It survives exactly one hop. Saving is precisely what makes the assertion the
+      > document, so the signal dies at the moment it would matter. Consequence for the
+      > ruling: **any repair must act at or before the first save — a report-only
+      > remedy cannot reach the corpus**, and cannot reach any file already saved.
+      >
+      > **The corpus half, answered — and the zero is a capability zero.** 141 `.bpmn`
+      > in tree: 9 no-laneSet + 1 empty-laneSet = 10 that would import to `lanes=0`.
+      > All 10 are test fixtures (8 authored for this defect class) plus one
+      > hand-authored e2e probe under `.editor-versions/_trash/`. So **no production map
+      > relies on the fabricated default** — but 122/141 carry `aef:position`, our own
+      > exporter's fingerprint, and per F2 any third-party file that ever passed through
+      > the editor was laundered into the "has lanes" bucket at its first save. The
+      > census measures our generator, not the population — the same shape as the T-340
+      > DI census (126 files, 0 with DI). Quoted as a bound on the evidence, not as
+      > reassurance.
+      >
+      > This AC stays unticked: the obvious repair fails it. That is the AC working.
 
 - [ ] Bridge suite green; `_t308` byte-identity still 24/24 (a repair here must not
       change what we emit for existing maps)
