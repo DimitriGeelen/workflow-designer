@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T10:33:42Z
-last_update: 2026-08-04T13:39:04Z
+last_update: 2026-08-04T14:12:00Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -519,6 +519,58 @@ node tools/_t364-aef-ext-roundtrip.mjs > /dev/null 2>&1
 
 ## RCA
 
+**Symptom.** Opening a BPMN document that arrived without `aef:uid` and saving it
+produced different bytes every time, with no edit in between. `kitchen-sink.bpmn`
+differed on 81 lines between two consecutive parse→emit cycles *in the same page*.
+
+**Root cause.** `parseBpmnXml` filled a missing `aef:uid` from `generateUid()`, which is
+`Math.random()`. The uid is not private metadata: `computeDisplayId` ranks same-lane nodes
+by `x` and breaks ties with `uid.localeCompare`, and `displayIdOf` **is** the emitted BPMN
+element id. So a random uid did not just churn one attribute — it permuted `flowNodeRef`,
+`id=`, `sourceRef`/`targetRef`, `attachedToRef` and `incoming`/`outgoing`. The defect was
+mis-scoped as cosmetic for as long as uid was read as a decoration.
+
+**Why structurally allowed.** Three compounding reasons, and only the first is about code.
+
+1. **The only instrument watching for byte drift could not see this population.** `_t308`
+   byte-identity reported "24/24 identical, 0 drifted" and that number was cited as "this
+   change moves no bytes" — including to AEF at RAIL-427. It ranges over the
+   designer-produced corpus, which carries `aef:uid` in its bytes, and that is *precisely*
+   the population in which the defect cannot occur. The gate did not state its
+   denominator, so a result about 24 documents read as a result about all documents.
+2. **The fixture set made the hazard structurally unreachable — a capability zero.** No
+   third-party fixture carries `aef:position`, so the importer lays those documents out at
+   strictly increasing x per lane and a same-lane tie cannot form. The clean result came
+   from an accident of the corpus, not from the code being safe. Meanwhile 19 of 24
+   *corpus* maps do hold a tie and were stable only because their uids are in their bytes.
+3. **The probe that found it was looking at something else.** It surfaced under T-358 only
+   because an instrument was made to check itself — emit the same document twice in one
+   build rather than trust a cross-build comparison. Nothing was aimed at this.
+
+**Prevention** (distinct from the fix, which is `deriveUid`):
+
+- `_t308` now emits every map twice per build, reports a third outcome `unusable` for a
+  document that is not byte-stable with itself, fails the run on it, and carries a
+  `population` block naming what it does not cover. `_t364-t308-teeth.py` proves that
+  bucket can fill — and now also documents *when it will stop being able to*, since it
+  currently depends on the baseline build still having the random mint.
+- `tools/_t358-byteid-thirdparty.mjs` covers the population `_t308` structurally cannot,
+  with a precondition that is **measured per run** rather than assumed, and
+  `_t364-byteid-precondition-teeth.py` proves that precondition fires.
+- `tools/_t364-tie-permutes-ids.mjs` is now a regression guard (red if any map permutes
+  again), with `_t364-tie-guard-teeth.py` proving the red by reverting the repair in a
+  temp copy.
+- `tools/_t358-export-determinism.mjs` gates determinism itself and reads the same way in
+  both eras (stable = good), which makes it the one safe to keep forever.
+
+**The generalisable lesson, and it is not "randomness is bad".** A green from an
+instrument is a claim about the instrument's population, and an instrument that does not
+name its population will have one assumed for it — usually "everything". Both halves of
+this bug were invisible for the same reason: the corpus that could show it was not in the
+denominator, and nothing in the output said so. Registered as **G-023**; the prevention
+half of that gap is now implemented, but flipping a concern is an operator call, so it is
+left `watching` with this task cited as the evidence.
+
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
      Non-bug-class tasks may leave this section empty or remove it.
@@ -639,6 +691,41 @@ from being followed literally.
   discriminates nothing. The run prints this instead of counting it as corroboration. What
   carries the guard is the per-build mint measurement and the tie counts (the tied maps
   still have their ties — the hazard population still exists to be protected).
+
+### 2026-08-04 — the mutation teeth failed, and what they caught was worth the trip
+
+`_t364-tie-guard-teeth.py` went red on its first run under the P-011 gate after passing
+when I ran it by hand. Not a gate-context difference — **the guard was wrong**, in two
+ways the single demonstration run had hidden:
+
+1. **Verdict ordering.** `refuted` was checked before `confirmed`. Under a random mint a
+   tied map holds still on a coin flip, so one lucky map could suppress a real regression
+   another map had already reported. The guard exited 1 with the wrong reason and pointed
+   the reader at `computeDisplayId` instead of the reinstated random mint in front of
+   them. `confirmed` is decisive and is now read first.
+2. **Sampling power.** Two emissions per map means a tie group of two nodes agrees half
+   the time, so the probe missed live defects on a coin flip. Now three.
+
+**The uncomfortable number.** With two samples, the probability that all four tied maps
+show a permutation in one run is **0.21**:
+
+```
+samples=2: P(all 4 tied maps permute) = 0.2109    P(run entirely quiet) = 0.0078
+samples=3: P(all 4 tied maps permute) = 0.6180    P(run entirely quiet) = 0.000061
+```
+
+The previous session's clean "4 rows PERMUTED" was a one-in-five outcome. Had one map come
+up quiet — 79% likely — the probe would have printed *"PREDICTION REFUTED — the reading of
+computeDisplayId is wrong"* and I would have had a correct diagnosis contradicted by my own
+instrument, with a plausible-looking reason to abandon it. The finding was right; the
+confidence in it was borrowed from luck.
+
+**Why this only surfaced now:** a probe run once against a defect that is *probabilistic*
+cannot distinguish "the mechanism fires" from "the mechanism fires often enough". Writing
+mutation teeth forced a second, third and fourth run against a build with the defect
+present, which is the only thing that could have exposed it. The teeth were written to
+prove the guard's red branch worked; they found that it did not, for a reason that also
+undermined the original experiment. See [[guards-need-teeth-by-mutation]].
 
 ### 2026-08-04 — STILL OPEN after (a): should we emit `aef:uid` into third-party bytes?
 

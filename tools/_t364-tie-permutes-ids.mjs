@@ -183,12 +183,17 @@ async function main() {
 
     const emitTwice = async (text) => {
       await ev(cmd, `window.__IN__ = ${JSON.stringify(text)};`);
+      // THREE emissions, not two. Under a random mint a tie group of two nodes agrees
+      // across a parse PAIR half the time, so a two-sample probe misses a live defect on
+      // a coin flip — measured, not theorised: this file failed its own mutation teeth
+      // that way. A third sample takes the per-group miss rate from 1/2 to 1/4 and the
+      // whole-run miss rate across the picked maps from ~0.8% to ~0.006%.
       return await ev(cmd, `(function(){
         function once(){ var prev=state; var m=parseBpmnXml(window.__IN__); if(!m) return null;
           state=m; refreshDisplayIds(); var x=buildBpmnXml(state); state=prev; return x; }
-        var a = once(), b = once();
-        if (a===null||b===null) return { fatal:'parse returned null' };
-        return { a:a, b:b };
+        var a = once(), b = once(), c = once();
+        if (a===null||b===null||c===null) return { fatal:'parse returned null' };
+        return { a:a, b:b, c:c };
       })()`);
     };
 
@@ -210,15 +215,19 @@ async function main() {
       const exp = await emitTwice(stripped);
       if (exp.fatal) { rows.push({ name, tie, fatal: 'stripped: ' + exp.fatal }); continue; }
 
-      const ctlIds = [flowIds(ctl.a), flowIds(ctl.b)];
-      const expIds = [flowIds(exp.a), flowIds(exp.b)];
+      const ctlIds = [flowIds(ctl.a), flowIds(ctl.b), flowIds(ctl.c)];
+      const expIds = [flowIds(exp.a), flowIds(exp.b), flowIds(exp.c)];
+      const allSame = a => a.every(v => JSON.stringify(v) === JSON.stringify(a[0]));
+      // report the first pair that actually differs, not always (0,1)
+      const differing = expIds.slice(1).findIndex(v => JSON.stringify(v) !== JSON.stringify(expIds[0]));
+      const other = differing === -1 ? expIds[1] : expIds[differing + 1];
       rows.push({
         name, tie, removed, stableMint,
-        controlStable: ctl.a === ctl.b,
-        controlIdsSame: JSON.stringify(ctlIds[0]) === JSON.stringify(ctlIds[1]),
-        strippedIdsSame: JSON.stringify(expIds[0]) === JSON.stringify(expIds[1]),
+        controlStable: ctl.a === ctl.b && ctl.b === ctl.c,
+        controlIdsSame: allSame(ctlIds),
+        strippedIdsSame: allSame(expIds),
         idCount: expIds[0].length,
-        sample: expIds[0].map((v, i) => [v, expIds[1][i]]).filter(([p, q]) => p !== q).slice(0, 3),
+        sample: expIds[0].map((v, i) => [v, other[i]]).filter(([p, q]) => p !== q).slice(0, 3),
       });
     }
   } finally {
@@ -254,10 +263,10 @@ async function main() {
         console.log(`          mechanism: the tie is still there and no longer decides anything.`);
         repairHeld++;
       } else if (r.tie.groups > 0) {
-        console.log(`      *** PREDICTION REFUTED — this map HAS a tie, this build mints uids`);
-        console.log(`          NONDETERMINISTICALLY, and the ids still held still.`);
-        console.log(`          The (x, uid) sort is not the whole story; find what else orders them`);
-        console.log(`          before citing this mechanism anywhere.`);
+        console.log(`      held still THIS RUN, but this build mints uids NONDETERMINISTICALLY.`);
+        console.log(`          That is a coin flip that came up heads, not evidence against the`);
+        console.log(`          mechanism: a tie group of two nodes agrees across a sample set with`);
+        console.log(`          probability 1/2^(samples-1). Read the aggregate, not this row.`);
         refuted++;
       } else {
         console.log(`      (no tie in this map, so stability here is the correct negative control)`);
@@ -276,8 +285,13 @@ async function main() {
 
   console.log();
   if (broken) { console.log(`  ${broken} row(s) uninterpretable — fix the harness before reading anything.`); return 2; }
-  if (refuted) { console.log(`  ${refuted} row(s) refuted the mechanism. The reading of computeDisplayId is wrong.`); return 1; }
   // ---- verdict, post-repair semantics ----
+  // ORDER MATTERS HERE, and getting it wrong is how this file failed its own mutation
+  // teeth. A single observed permutation is DECISIVE; a tied map that held still under a
+  // random mint is a coin flip. So `confirmed` is read FIRST. With the checks reversed,
+  // one lucky map suppressed a real regression another map had already reported — the
+  // guard exited 1 with the wrong reason and a reader would have gone looking for a flaw
+  // in computeDisplayId instead of the reinstated random mint sitting in front of them.
   // This file began as a one-shot experiment whose exit 0 meant "the defect is present".
   // Repair (a) landed, so that reading is retired: a build that still permutes is now a
   // REGRESSION, and the exit code says exactly one thing — the repair is in place, or it
@@ -292,6 +306,15 @@ async function main() {
     console.log('  computeDisplayId while displayIdOf IS the emitted id. A no-op open-and-save now');
     console.log('  rewrites flowNodeRef, id=, sourceRef/targetRef, attachedToRef and incoming/outgoing.');
     console.log('  Look first at the two mint fallbacks in parseBpmnXml (deriveUid, T-364 repair (a)).');
+    return 1;
+  }
+  if (refuted) {
+    console.log(`  *** INCONCLUSIVE — this build mints uids NONDETERMINISTICALLY (the repair is not`);
+    console.log(`  in place) yet none of the ${refuted} tied map(s) permuted in this run's samples.`);
+    console.log('  This is NOT "the repair holds" and NOT "the mechanism is refuted": with a random');
+    console.log('  mint every tie group is an independent coin flip, and this run got heads on all');
+    console.log('  of them. Re-run; if it keeps coming up quiet across runs, THEN the reading of');
+    console.log('  computeDisplayId is wrong and the (x, uid) sort is not the whole story.');
     return 1;
   }
   if (!repairHeld) {
