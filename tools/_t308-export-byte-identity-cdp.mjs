@@ -24,7 +24,10 @@ import net from 'node:net';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO = join(HERE, '..');
 const SERVER = join(HERE, 'gallery-serve.py');
-const CORPUS = join(REPO, 'examples', 'aef-processes', 'rendered');
+// T-364: overridable so the `unusable` path can be exercised against a temp corpus
+// (tools/_t364-t308-teeth.py) without mutating the real one. A bucket whose count is
+// the finding has to be shown fillable before its emptiness means anything.
+const CORPUS = process.env.T308_CORPUS || join(REPO, 'examples', 'aef-processes', 'rendered');
 const REF = process.argv[2] || 'HEAD';
 const SRC = 'src/aef-workflow-designer.html';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -40,15 +43,23 @@ const sha = s => createHash('sha256').update(s, 'utf8').digest('hex').slice(0, 1
 // Export each corpus map through the loaded designer, returning uid→sha of the
 // emitted bytes. Rendering is deliberately NOT invoked: this measures the
 // serialization path only, which is exactly the surface that must not move.
+// G-023 / T-364: each map is exported TWICE in the same build. A cross-build byte
+// comparison is only evidence where a build is byte-stable WITH ITSELF, and this
+// gate had no way to know it wasn't. `aef:uid` is minted per parse for any node that
+// arrives without one, so third-party documents are not stable and can never be
+// compared this way — they are absent from the corpus rather than failing in it, and
+// the absence read as coverage for the whole arc. Self-stability is now measured, and
+// an unstable document is reported `unusable`: never counted identical, never silent.
 const EXPORT_EXPR = `(function(){
   var out = {};
   var maps = window.__MAPS__;
+  function once(t){ state = parseBpmnXml(t); refreshDisplayIds(); return buildBpmnXml(state); }
   for (var i=0;i<maps.length;i++){
     try {
-      state = parseBpmnXml(maps[i].text);
-      refreshDisplayIds();
-      out[maps[i].name] = buildBpmnXml(state);
-    } catch(e) { out[maps[i].name] = 'ERROR: ' + (e && e.message || e); }
+      var a = once(maps[i].text);
+      var b = once(maps[i].text);
+      out[maps[i].name] = { xml: a, selfStable: a === b };
+    } catch(e) { out[maps[i].name] = { xml: 'ERROR: ' + (e && e.message || e), selfStable: false }; }
   }
   return out;
 })()`;
@@ -95,21 +106,37 @@ async function main() {
     const before = await exportAll(cmd, `${BASE}/designer-old.html`, maps);
     const after = await exportAll(cmd, `${BASE}/designer-new.html`, maps);
 
-    const drift = [], errors = [], rows = [];
+    const drift = [], errors = [], rows = [], unusable = [];
     for (const m of maps) {
-      const b = before[m.name], a = after[m.name];
+      const B = before[m.name] || {}, A = after[m.name] || {};
+      const b = B.xml, a = A.xml;
       if (typeof b !== 'string' || b.startsWith('ERROR:')) errors.push(`${m.name} (${REF}): ${b}`);
       if (typeof a !== 'string' || a.startsWith('ERROR:')) errors.push(`${m.name} (working tree): ${a}`);
-      if (typeof b === 'string' && typeof a === 'string') {
+      if (typeof b === 'string' && typeof a === 'string' && !b.startsWith('ERROR:') && !a.startsWith('ERROR:')) {
+        // Void before verdict: an unstable document cannot be compared across builds,
+        // so it is neither identical nor drifted. Counting it either way would be a
+        // number that does not mean what it says.
+        if (B.selfStable === false || A.selfStable === false) {
+          unusable.push({ map: m.name, unstableIn: [B.selfStable === false ? REF : null, A.selfStable === false ? 'working tree' : null].filter(Boolean) });
+          continue;
+        }
         if (b !== a) drift.push({ map: m.name, refSha: sha(b), treeSha: sha(a), refBytes: b.length, treeBytes: a.length });
         else rows.push({ map: m.name, sha: sha(a), bytes: a.length });
       }
     }
-    const ok = drift.length === 0 && errors.length === 0;
+    // An unusable map fails the run. The gate exists to answer "did any byte move?";
+    // for a document it cannot compare it has no answer, and a green with a silent
+    // hole is exactly the failure G-023 records.
+    const ok = drift.length === 0 && errors.length === 0 && unusable.length === 0;
     console.log(JSON.stringify({
       ok, ref: REF, maps: maps.length,
-      identical: rows.length, drifted: drift.length,
-      drift, errors, sample: rows.slice(0, 3),
+      identical: rows.length, drifted: drift.length, unusable: unusable.length,
+      population: {
+        source: 'examples/aef-processes/rendered',
+        description: 'designer-produced corpus maps — they carry aef:uid in their bytes, which is what makes them byte-comparable at all',
+        does_not_cover: 'third-party documents (no aef:uid on arrival; a fresh uid is minted per parse, so they are not byte-stable with themselves — T-364/G-023). Cite this result for the corpus, never for third-party fidelity; use tools/_t358-byteid-thirdparty.mjs for that population.',
+      },
+      drift, errors, unusableMaps: unusable, sample: rows.slice(0, 3),
     }, null, 2));
     process.exitCode = ok ? 0 : 1;
   } catch (e) {

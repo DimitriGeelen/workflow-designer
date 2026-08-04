@@ -4,7 +4,7 @@ name: "Export is nondeterministic for any node lacking aef:uid: a fresh uid is m
 description: >
   Found under T-358 while measuring repair candidates. buildBpmnXml emits a fresh randomly-minted aef:uid for every node that did not arrive with one, so two consecutive parse->emit cycles of the SAME third-party input produce different bytes (kitchen-sink.bpmn: 81 lines differ). Designer-produced maps carry uids and are stable (audit-process 13563 bytes, arc-lifecycle 12270). Two consequences: (1) opening a third-party file twice yields two different documents, and any consumer keying on aef:uid sees a new identity per open; (2) the _t308 byte-identity gate (24/24 identical) is sound only for the designer-produced population that happens to carry uids, and is structurally incapable of reporting on the third-party population every repair in this arc targets. Evidence: tools/_t358-export-determinism.mjs (exit 1 today, 4 of 6 documents unstable).
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T10:33:42Z
-last_update: 2026-08-04T10:33:42Z
+last_update: 2026-08-04T10:54:14Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,117 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Found under T-358 while measuring repair candidates, and found only because a probe
+was made to check its own instrument (emit the same document twice in the same build)
+rather than trusting a cross-build comparison.
+
+`buildBpmnXml` emits a freshly minted `aef:uid` for every node that did not arrive
+carrying one. Two consecutive parse->emit cycles of the **same** third-party input
+therefore differ: `kitchen-sink.bpmn` on 81 lines, `simple.bpmn` on 7. Designer-
+produced maps carry uids in their bytes and are stable (`audit-process` 13563 bytes,
+`arc-lifecycle` 12270).
+
+Two consequences, and the second is why G-023 exists:
+
+1. **Identity churn.** Open a third-party file twice and you have two documents that
+   disagree on every node identity. Anything keying on `aef:uid` — ours or a
+   consumer's — is tracking a value we re-roll per open. Flagged to AEF at RAIL-430.
+2. **An instrument scoped by its population without saying so.** `_t308` byte-identity
+   ("24/24 identical, 0 drifted") can only compare documents that emit deterministically,
+   which is exactly the designer-produced set. It is structurally incapable of ranging
+   over third-party documents — the population every repair in this arc targets — and
+   nothing in its output says so. I cited that number as "this change moves no bytes",
+   including to AEF at RAIL-427.
+
+Related: G-023 (registered), T-358 (where it surfaced), PL-110.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **The nondeterminism is reproduced and its site named**, anchored on a function
+      and not a line number. Required: the specific expression that mints a uid during
+      import for a node that arrived without one, plus evidence that the same input
+      emits differently twice in one page.
+
+      **Site.** `generateUid(prefix)` (`src` ~1644) is
+      `Math.floor(Math.random() * 16)` — pure randomness, no seed, no derivation from
+      the document. `parseBpmnXml` falls back to it at two places:
+      `const uid = uidEl?.getAttribute('value') || generateUid('n')` (nodes, ~9799)
+      and the same with `'e'` for edges (~9976). Anchor on those two `|| generateUid(...)`
+      fallbacks inside `parseBpmnXml`, not the line numbers.
+
+      **Reproduction** (`tools/_t358-export-determinism.mjs`, two consecutive
+      parse→emit cycles of the same input in the same page):
+
+      ```
+      lane-provenance/authored-lanes.bpmn   NOT STABLE —  5 lines differ
+      third-party/simple.bpmn               NOT STABLE —  7 lines differ
+      third-party/kitchen-sink.bpmn         NOT STABLE — 81 lines differ
+      corpus/audit-process.bpmn             stable (13563 bytes)
+      corpus/arc-lifecycle.bpmn             stable (12270 bytes)
+
+      run 1: <aef:uid value="n_49d94bba"/>
+      run 2: <aef:uid value="n_1c40c938"/>
+      ```
+
+      The split is exactly "did the document arrive carrying uids": designer maps did,
+      third-party documents did not.
+
+- [x] **`_t308` states the population it ranges over, and cannot silently range over
+      less than it claims.**
+
+      **Done.** `_t308` now exports every map **twice in the same build** and reports a
+      third outcome: a document that is not byte-stable with itself is `unusable` —
+      never `identical`, never `drifted` — and an unusable map **fails the run** (`ok:
+      false`). The gate exists to answer "did any byte move?"; for a document it cannot
+      compare it has no answer, and a green with a silent hole is the failure G-023
+      records. Its JSON now carries a `population` block naming the source, why that
+      population is comparable at all (it carries `aef:uid`), and what it does not cover,
+      pointing at `tools/_t358-byteid-thirdparty.mjs` for third-party fidelity.
+
+      Current run vs `3bf37909~1`: **24 identical, 0 drifted, 0 unusable, ok true.**
+
+      **That zero is only worth something because the bucket was shown to fill.**
+      `tools/_t364-t308-teeth.py` runs the gate against a temp corpus (the real one is
+      never touched — `_t308` takes `T308_CORPUS`):
+
+      ```
+      control : rc=0 maps=24 identical=24 drifted=0 unusable=0
+      teeth   : rc=1 maps=25 identical=24 drifted=0 unusable=1
+      ```
+
+      The injected document is a real third-party fixture — the population the gate was
+      silently omitting, so it is the honest thing to inject. The load-bearing assertion
+      is the middle column: `identical` stays **24**. Had the unstable document been
+      counted identical, or dropped from every count, the gate would be overstating or
+      quietly shrinking its own denominator — the two failure modes G-023 exists for.
+      The teeth also assert the run names the population it cannot cover, so deleting
+      that statement goes red.
+
+      Not wired into `tests/run-bridge-tests.sh`: the teeth run the full CDP gate twice
+      over 25 maps, and `_t308` is itself an on-demand instrument rather than a bridge
+      leg. Stated rather than left as a silent omission.
+
+- [ ] **`_t308` states the population it ranges over, and cannot silently range over
+      less than it claims.** A byte-identity run must report its denominator, and a
+      document that is not byte-stable **with itself** must be reported `unusable` —
+      never counted as `identical`. Evidence: the run's own output naming the count and
+      the population, and a mutation showing an unstable document is NOT counted green.
+
+      This is G-023's prevention half. Mitigation would be making export deterministic;
+      prevention is a gate that cannot overstate its reach even after that fix, because
+      the next nondeterministic field will not announce itself either.
+
+- [ ] **Export is deterministic for third-party input**, i.e.
+      `tools/_t358-export-determinism.mjs` exits 0 with every document stable — OR the
+      repair is deliberately deferred and this AC records the measured reason, since a
+      stable uid must come from somewhere and inventing one is how T-358 started.
+
+- [ ] **No emitted byte moves for the existing corpus.** Any repair must keep
+      `_t308` byte-identity green over the designer-produced maps, whose uids are real
+      authored data and must not be renumbered by a determinism fix.
+
+- [ ] Bridge suite green (`tests/run-bridge-tests.sh`), no leg lost.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -77,6 +180,17 @@ date_finished: null
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.
+# Final test IS the verdict (errexit-safe form) — see T-353.
+
+# the two import-side mint fallbacks are still where AC1 says they are
+out=$(grep -c "|| generateUid('n')" src/aef-workflow-designer.html); [ "$out" = "1" ]
+out=$(grep -c "|| generateUid('e')" src/aef-workflow-designer.html); [ "$out" = "1" ]
+
+# the byte-identity gate states its population and holds out what it cannot compare
+out=$(node tools/_t308-export-byte-identity-cdp.mjs 3bf37909~1); echo "$out" | python3 -c "import json,sys; d=json.load(sys.stdin); sys.exit(0 if (d['ok'] and d['unusable']==0 and d['population']['does_not_cover']) else 1)"
+
+# and that unusable bucket can actually fill — a zero from a check that cannot fire is a constant
+python3 tools/_t364-t308-teeth.py > /dev/null 2>&1
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
 #
@@ -190,3 +304,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-364-export-is-nondeterministic-for-any-node-.md
 - **Context:** Initial task creation
+
+### 2026-08-04T10:54:14Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
