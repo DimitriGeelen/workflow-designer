@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T10:33:42Z
-last_update: 2026-08-04T12:39:50Z
+last_update: 2026-08-04T12:53:37Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -389,6 +389,13 @@ out=$(node tools/_t308-export-byte-identity-cdp.mjs 3bf37909~1); echo "$out" | p
 
 # and that unusable bucket can actually fill — a zero from a check that cannot fire is a constant
 python3 tools/_t364-t308-teeth.py > /dev/null 2>&1
+# the third-party byte-identity run holds its stated precondition (no tie among uid-less nodes)
+out=$(node tools/_t358-byteid-thirdparty.mjs 3bf37909~1 2>&1); echo "$out" | grep -q "PRECONDITION HOLDS"
+# and that precondition can actually FIRE — a HOLDS from a check that cannot fire is a constant
+python3 tools/_t364-byteid-precondition-teeth.py > /dev/null 2>&1
+# the aef:* seam census keeps both controls behaving (uid PRESERVED, unknown kind DROPPED);
+# this is the answer given to AEF at RAIL-434 and it must not rot silently
+node tools/_t364-aef-ext-roundtrip.mjs > /dev/null 2>&1
 # Lines starting with # are comments (skipped). Empty lines ignored.
 # The completion gate runs each command — if any exits non-zero, completion is blocked.
 #
