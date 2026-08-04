@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T10:33:42Z
-last_update: 2026-08-04T12:37:31Z
+last_update: 2026-08-04T12:39:50Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -290,6 +290,19 @@ Related: G-023 (registered), T-358 (where it surfaced), PL-110.
       > to named populations on purpose, so the gap is not a bug; but *deliberately
       > scoped* and *accidentally truncated* produce identical output unless the
       > unexamined space is printed beside the examined one, so it now prints it.
+      >
+      > **Debt closed same session — population 4 added, and it corroborates AEF.** The 18
+      > peer-authored maps under `tests/fixtures/aef-bpmn` are **149/149 uid-covered**, and
+      > 7 of 18 carry same-lane x collisions — harmless for exactly the corpus reason:
+      > every tied node's uid is in the bytes. AEF reported their live corpus at 424/424;
+      > our copies agree. So the peer-authored population is safe today and safe for the
+      > same accidental reason as ours, which is the finding, not the zero. (Two of 149
+      > nodes lack `aef:position` and would take the fallback layout; both carry uids.)
+      >
+      > The census now reports uid coverage on every population, because the tie count
+      > alone cannot tell a safe population from an exposed one — only the conjunction
+      > of *tie* and *uid-less* permutes ids, and reporting either ingredient by itself
+      > invites reading a scary tie count as a hazard or a clean one as safety.
       >
       > ---
       >

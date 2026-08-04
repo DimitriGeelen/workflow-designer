@@ -152,7 +152,7 @@ def ties(rows, which):
 def report(title, files, which, note):
     print(f"\n{title}")
     print(f"  coordinate: {which}   files: {len(files)}")
-    tot_nodes = tot_placed = 0
+    tot_nodes = tot_placed = tot_uid = 0
     tie_files = []
     danger_files = []
     unparsed = []
@@ -162,6 +162,7 @@ def report(title, files, which, note):
             unparsed.append((os.path.basename(p), err))
             continue
         tot_nodes += len(rows)
+        tot_uid += sum(1 for r in rows if r[4])
         placed = [r for r in rows if (r[2] if which == "aef" else r[3]) is not None]
         tot_placed += len(placed)
         t = ties(rows, which)
@@ -172,6 +173,8 @@ def report(title, files, which, note):
             if hot:
                 danger_files.append((os.path.basename(p), hot))
     print(f"  nodes: {tot_nodes}   with a {which} coordinate: {tot_placed}")
+    print(f"  uid coverage: {tot_uid}/{tot_nodes} carry aef:uid"
+          f"{'' if tot_uid == tot_nodes else f'   *** {tot_nodes - tot_uid} WITHOUT'}")
     if tot_placed == 0:
         print(f"  *** NO NODE CARRIES A {which.upper()} COORDINATE — a tie is UNREACHABLE here.")
         print("      This zero is a capability bound, not a safety result.")
@@ -295,6 +298,18 @@ else:
     print("  DI forecast: no same-lane x collisions in DI coordinates on this sample.")
     print("          That bounds THIS sample; DI x is authored by the exporting tool and")
     print("          nothing prevents a collision in general.")
-population_crosscheck(corpus + fixtures)
+# POPULATION 4 — closing the debt this census recorded in its own cross-check. These are
+# peer-authored maps living in our tree, and AEF reported at RAIL-432 that their live
+# corpus is 424/424 uid-covered. Whether OUR copies are is a different question with the
+# same stakes: a uid-less node here is one their _find_uid would forge a duplicate task
+# for on re-parse, and if it also ties on x it permutes emitted element ids as well.
+aef_authored = sorted(glob.glob(os.path.join(ROOT, "tests", "fixtures", "aef-bpmn", "*.bpmn")))
+a_t, a_d, a_p = report(
+    "POPULATION 4 — peer-authored maps in our tree (tests/fixtures/aef-bpmn)",
+    aef_authored, "aef",
+    "AEF reports their live corpus is 424/424 uid-covered; this measures OUR copies.\n"
+    "        Both ingredients are read here, because only their conjunction permutes ids.")
+
+population_crosscheck(corpus + fixtures + aef_authored)
 print()
 sys.exit(0)
