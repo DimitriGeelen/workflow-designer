@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T16:12:36Z
-last_update: 2026-08-04T10:06:19Z
+last_update: 2026-08-04T10:34:22Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -250,6 +250,31 @@ and should be decided with it, not before it.
       > documents, which is the population every repair in this arc is aimed at. Not a
       > flaw in the 24/24 result; a bound on what it can be cited for, and I have cited
       > it repeatedly without that bound. Filed separately — one bug, one task.
+      >
+      > ### The claim I put on the rail, re-evidenced over the right population
+      >
+      > At RAIL-427 I told AEF T-358 "changes no emitted byte", citing `_t308` 24/24.
+      > The claim was about third-party documents; the evidence ranged only over
+      > designer maps. Built the instrument that can reach the other population:
+      > `tools/_t358-byteid-thirdparty.mjs` compares current vs `3bf37909~1` over all
+      > 10 third-party fixtures, normalising `aef:uid` in document order (the one field
+      > that is legitimately nondeterministic per T-364) and demanding exact equality of
+      > everything else.
+      >
+      > **10 identical, 0 drifted, 0 unusable.** The claim holds; the evidence for it
+      > was narrower than the claim until now.
+      >
+      > The normaliser counts its substitutions and the run **fails** if it matched
+      > nothing on every fixture — otherwise this would be the raw comparison it
+      > replaced, wearing a normalised label. Cross-confirmation worth recording:
+      > `kitchen-sink` normalised **81** uids, exactly the 81 lines the determinism
+      > probe found differing between two emits of the same input. Two independent
+      > measurements that could each have disagreed, agreeing that the instability is
+      > entirely uid-attributable.
+      >
+      > Deliberately NOT wired into the bridge suite: its baseline is a pinned commit,
+      > so as a standing gate it would silently compare against an ever-older tree.
+      > It is an on-demand instrument; the standing fix belongs to T-364/G-023.
 
 - [ ] Bridge suite green; `_t308` byte-identity still 24/24 (a repair here must not
       change what we emit for existing maps)
