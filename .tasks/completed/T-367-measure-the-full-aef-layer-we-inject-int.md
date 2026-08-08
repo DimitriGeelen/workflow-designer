@@ -4,10 +4,10 @@ name: "Measure the full aef: layer we inject into third-party documents on open-
 description: >
   Measure the full aef: layer we inject into third-party documents on open-save
 
-status: started-work
+status: work-completed
 workflow_type: test
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T14:44:51Z
-last_update: 2026-08-04T14:45:59Z
-date_finished: null
+last_update: 2026-08-08T06:46:08Z
+date_finished: 2026-08-08T06:46:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -158,7 +158,10 @@ recorded in T-366, awaiting AEF's scope reading).
 - [x] **Result posted to AEF**, since it was promised at RAIL-442 and it bears directly
       on whether their proposed rule is worth either side implementing.
 
-      Posted at RAIL-443.
+      **Posted at RAIL-444**, in reply to their RAIL-443. The post carries the census,
+      the residue argument, the structural (non-`aef:`) injection, and the §1
+      enumeration gap — the last landing directly on a §1 question their operator had
+      just asked in the same message.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -374,3 +377,15 @@ python3 tools/_t367-injection-footprint-teeth.py
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-367-measure-the-full-aef-layer-we-inject-int.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6cf3f807
+- **Timestamp:** 2026-08-08T06:46:15Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-08T06:46:08Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

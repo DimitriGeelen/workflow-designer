@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-367: Measure the full aef: layer we inject into third-party documents on open-save
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-08T06:46:18Z
+# ============================================================================
+
+task_id: T-367
+task_name: "Measure the full aef: layer we inject into third-party documents on open-save"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-04T14:44:51Z
+completed: 2026-08-08T06:46:08Z
+duration_days: 4
+updates_count: 1
+first_commit: 2026-08-04T16:45:59+02:00
+last_commit: 2026-08-08T08:43:08+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  scope the aef-layer injection footprint measurement (not started — budget gate). measure the FULL aef: layer injected into foreign documents — 307 elements, uid 48.5%, and the part that is not aef: at all
+
+# Key outcomes
+outcomes:
+  - '**The full `aef:*` footprint we add to a third-party document is measured per'
+  - '**`aef:uid`''s share of that footprint is stated as a fraction, not a verdict.**'
+  - '**The measurement distinguishes SEMANTIC from PRESENTATIONAL injection**, per the'
+  - '**The probe has a negative control**: at least one kind that we do NOT inject'
+  - '**Result posted to AEF**, since it was promised at RAIL-442 and it bears directly'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+  - decision: '2026-08-08 — the measurement was scoped to `aef:` and the honest answer is not'
+    chose: 'measure the core-BPMN structural injection alongside the `aef:` layer,'
+    rationale: '8 of the 10 fixtures contain **no lane at all** and every one of them comes'
+    alternatives_rejected: ['answering exactly what was asked and filing the structural part as']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-358-importer-fabricates-lane-and-pool-struct.md'
+  - '.tasks/active/T-367-measure-the-full-aef-layer-we-inject-int.md'
+  - 'tools/_t367-aef-injection-footprint.mjs'
+  - 'tools/_t367-injection-footprint-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-04T16:45:59"
+    action: "T-367: scope the aef-layer injection footprint measurement (not started — budget gate)"
+  - time: "2026-08-08T08:43:08"
+    action: "T-367: measure the FULL aef: layer injected into foreign documents — 307 elements, uid 48.5%, and the part that is not aef: at all"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 5281 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5281
+  commits: 2
+  files_changed: 4
+  lines_added: 1046
+  lines_removed: 6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-367-measure-the-full-aef-layer-we-inject-int.md
+generated_by: context-agent-hybrid

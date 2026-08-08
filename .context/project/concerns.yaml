@@ -1145,3 +1145,62 @@ concerns:
     related_tasks:
       - T-364
       - T-358
+
+  - id: G-024
+    title: "No instrument holds the pinned artifact and src at the same time — a consumer-visible fix can sit unreleased indefinitely with nothing reporting it"
+    severity: high
+    status: watching
+    registered: 2026-08-08
+    detail: |
+      Every gate in this project runs against `src/aef-workflow-designer.html`:
+      the bridge suite, the geometry sweep, `_t308` byte-identity, the render
+      gate, all 38 CDP probes. They answer "is the code correct" and they
+      answer it well. None of them answers "is the code the CONSUMER RUNS
+      correct", and no instrument opens both artifacts at once.
+
+      `dist/MANIFEST.yaml` is the consumer-facing contract. It records `latest`,
+      `sha256` and `bytes` — the identity of what was cut — and nothing about
+      what has happened since. So the state "a consumer-visible fix exists and
+      is absent from the pinned artifact" HAS NO REPRESENTATION ANYWHERE. No
+      check failed; there is no place where the two facts meet.
+
+      Discovered 2026-08-08 from AEF's RAIL-443, and the cost was already paid.
+      They are pinned to 0.8.0 (cut 2026-07-29). Eight commits have touched src
+      since, FIVE of them consumer-visible in emitted bytes (T-310, T-311,
+      T-315, T-337, T-361). One of those five, T-311, is the exact defect they
+      reported at four instances across two months — fixed here 2026-07-30, ONE
+      DAY after the cut. Proof it is absent from what they run:
+      `grep -c docComment` → src 5, 0.8.0 0, 0.7.1 0.
+
+      In the nine days between our fix and their instances 3 and 4 they
+      diagnosed it independently, hand-repaired their only detail-authority map
+      (`aef-task-lifecycle` v3), and re-raised a standard proposal partly to
+      work around it. All of that was spent on a defect already fixed here.
+
+      Why it survived: nothing degrades and nothing goes red — the number just
+      grows. It took a direct human question to surface. The nearest thing to a
+      signal was my own RAIL-440, which gave AEF three commit hashes and no
+      version: I told them WHAT CHANGED in a vocabulary that cannot express
+      WHETHER THEY HAVE IT.
+
+      Same family as G-007 (release immutability) and G-015 (assertions about a
+      moving global), opposite direction — those guard the artifact once cut;
+      this is the window before it is cut.
+
+      NOT CLOSED BY CUTTING 0.9.0. That removes today's instance and resets the
+      counter to zero; tomorrow's first consumer-visible commit re-creates the
+      identical condition with nothing watching. The release is mitigation.
+
+    trigger: >
+      A standing, VISIBLE delta between `src` and the pinned release — number of
+      commits, number consumer-visible in emitted bytes, and age of the oldest —
+      surfaced without being asked for (fw doctor / audit / Watchtower) and
+      reported as a NUMBER, not a gate. It must not block: development ahead of a
+      pin is normal, and a gate here would be bypassed daily or would stop the
+      work. The defect is silence, so the remedy is a report. Ideally the consumer
+      half too: a line in dist/MANIFEST.yaml (or the integration protocol) letting
+      AEF answer "am I current?" without asking me. Then close G-024.
+    related_tasks:
+      - T-368
+      - T-311
+      - T-364
