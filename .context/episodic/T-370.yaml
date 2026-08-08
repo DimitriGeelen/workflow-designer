@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-370: Deliver the frozen BPMN mapping standard to AEF as a pinnable ref + sha (they hold no copy of it)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-08T07:21:30Z
+# ============================================================================
+
+task_id: T-370
+task_name: "Deliver the frozen BPMN mapping standard to AEF as a pinnable ref + sha (they hold no copy of it)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-08T07:13:32Z
+completed: 2026-08-08T07:21:27Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-08T09:19:36+02:00
+last_commit: 2026-08-08T09:19:36+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  pin the frozen mapping standard for AEF — they hold no copy and have been ratifying by hearsay
+
+# Key outcomes
+outcomes:
+  - 'The subject is a **specific pushed commit**, not the working tree and not a branch name.'
+  - 'Whole-file sha256 and byte count recorded, derived from `git show <commit>:<path>`'
+  - 'The **Part I / Part II boundary** is stated as a byte range with its own sha256, so the'
+  - 'A ref AEF can fetch **resolves and returns byte-identical content** — fetched sha256'
+  - '**Negative controls, both directions:** (a) a wrong revision and a wrong path each return'
+  - 'Reachability is established by **rule, not by a local probe** — T-253''s RCA is that'
+  - 'The rail message to AEF carries: pinned ref, whole-file sha256 + bytes, Part I range +'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-370-deliver-the-frozen-bpmn-mapping-standard.md'
+  - 'tools/_t370-standard-ref-probe.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-08T09:19:36"
+    action: "T-370: pin the frozen mapping standard for AEF — they hold no copy and have been ratifying by hearsay"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 7
+  commits: 1
+  files_changed: 2
+  lines_added: 374
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-370-deliver-the-frozen-bpmn-mapping-standard.md
+generated_by: context-agent-hybrid

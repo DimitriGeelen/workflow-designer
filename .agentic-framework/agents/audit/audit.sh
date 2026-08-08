@@ -2799,11 +2799,26 @@ if [ "$c001_missing" -eq 0 ]; then
 fi
 
 # C-002 OE: Check commit-msg hook has research artifact check installed
-if grep -q "inception-research-warnings" "$PROJECT_ROOT/.git/hooks/commit-msg" 2>/dev/null; then
+#
+# T-371: this was `grep -q PATTERN "$hook" 2>/dev/null` with a single else-branch.
+# A MISSING file and a PRESENT file WITHOUT the pattern both make grep exit
+# non-zero, so both collapsed into one warning whose text — "commit-msg hook
+# missing research artifact check" — asserts the hook exists and lacks a sub-check.
+# When this repo was re-cloned after the T-350 incident and lost every hook, that
+# warning fired 270 times across six days while describing the wrong defect: it
+# reported one absent sub-gate when in fact NO commit-msg gate existed at all,
+# including P-002 task-reference enforcement. A warning that misnames the defect is
+# worse than silence, because it answers the question that would otherwise be asked.
+# Partition is now total and explicit: absent / present-without / present-with.
+if [ ! -f "$PROJECT_ROOT/.git/hooks/commit-msg" ]; then
+    warn "C-002: commit-msg hook ABSENT — no gate at all, not merely missing C-002" \
+         ".git/hooks/commit-msg does not exist, so P-002 task-reference enforcement and the C-002 inception gate are BOTH inactive. Hooks live outside version control, so a clone/re-clone/restore silently drops them." \
+         "Install hooks: fw git install-hooks"
+elif grep -q "inception-research-warnings" "$PROJECT_ROOT/.git/hooks/commit-msg" 2>/dev/null; then
     pass "C-002: commit-msg hook has research artifact check"
 else
-    warn "C-002: commit-msg hook missing research artifact check" \
-         "Hook at .git/hooks/commit-msg doesn't contain C-002 gate" \
+    warn "C-002: commit-msg hook present but missing research artifact check" \
+         "Hook at .git/hooks/commit-msg exists (P-002 enforcement active) but doesn't contain the C-002 gate" \
          "Reinstall hooks: fw git install-hooks (or manually add C-002)"
 fi
 

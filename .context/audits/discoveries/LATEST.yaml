@@ -1,8 +1,8 @@
-timestamp: 2026-08-08T06:00:01Z
+timestamp: 2026-08-08T07:27:46Z
 findings:
   - id: D1
     level: PASS
-    check: "D1: Episodic quality — 0% [TODO] (0/318)"
+    check: "D1: Episodic quality — 0% [TODO] (0/321)"
   - id: D2
     level: FAIL
     check: "D2: Human review queue — 1 task(s) waiting >30d: T-093(34d) T-178(28d)"
@@ -29,13 +29,13 @@ findings:
     mitigation: "Recover both classes with: bin/fw inception sweep (T-1514)"
   - id: D3
     level: PASS
-    check: "D3: Commit velocity — normal (PASS today=0 avg=38 ratio=0.0x)"
+    check: "D3: Commit velocity — normal (PASS today=9 avg=38 ratio=0.2x)"
   - id: D7
     level: PASS
-    check: "D7: Commit bunching — none (PASS no_recent_commits)"
+    check: "D7: Commit bunching — detected (INFO 1_bunch(es) 9_commits_24h)"
   - id: D6
     level: WARN
-    check: "D6: Completion velocity — sustained drop (drop recent_avg=0.0 vs earlier_avg=5.6)"
+    check: "D6: Completion velocity — sustained drop (drop recent_avg=1.0 vs earlier_avg=5.6)"
     mitigation: "Check for blockers or process issues slowing work"
   - id: D12
     level: PASS

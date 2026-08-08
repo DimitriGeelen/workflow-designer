@@ -1,121 +1,70 @@
-# Audit Results - 2026-07-31-0700
-timestamp: 2026-07-31T05:00:01Z
-sections: "oe-daily"
+# Audit Results - 2026-08-08-0900
+timestamp: 2026-08-08T07:00:01Z
+sections: "structure,compliance,quality,discovery"
 summary:
-  pass: 51
-  warn: 16
-  fail: 55
+  pass: 28
+  warn: 18
+  fail: 60
 findings:
   - level: PASS
-    check: "CTL-002: Tier 0 guard installed and wired in settings.json"
+    check: "Tasks directory exists"
   - level: PASS
-    check: "CTL-005: Error watchdog installed and wired in settings.json"
+    check: "Tasks/active directory exists"
   - level: PASS
-    check: "CTL-006: Handover coverage for compactions (251 handovers, 95 compactions)"
+    check: "Tasks/completed directory exists"
   - level: PASS
-    check: "CTL-007: Post-compact resume hook configured in settings.json"
+    check: "Tasks/templates directory exists"
   - level: PASS
-    check: "CTL-009: Inception T-155 has decision (3 commits)"
+    check: "Task template exists"
   - level: PASS
-    check: "CTL-009: Inception T-280 has decision (3 commits)"
+    check: "No duplicate task IDs across active/ and completed/"
   - level: PASS
-    check: "CTL-009: Inception T-309 has decision (5 commits)"
+    check: "All 9 project YAML files parse correctly"
   - level: PASS
-    check: "CTL-009: Inception T-002 has decision (11 commits)"
+    check: "All 1 arc anchor_task references resolve to existing tasks"
   - level: PASS
-    check: "CTL-009: Inception T-006 has decision (4 commits)"
+    check: "All 1 in-progress arc(s) had task commits within 30 days"
   - level: PASS
-    check: "CTL-009: Inception T-007 has decision (4 commits)"
+    check: "No inline arc:<slug> tag-only scans outside canonical lib (T-1881)"
   - level: PASS
-    check: "CTL-009: Inception T-015 has decision (4 commits)"
+    check: "No PROJECT_ROOT resolution of framework-owned assets in web/ + lib/ Python (T-2648, OBS-097)"
   - level: PASS
-    check: "CTL-009: Inception T-020 has decision (11 commits)"
+    check: "No stale-slice-references (L-417)"
   - level: PASS
-    check: "CTL-009: Inception T-068 has decision (7 commits)"
+    check: "No GO-scope-not-propagated inception(s) (sibling to L-417)"
   - level: PASS
-    check: "CTL-009: Inception T-092 has decision (3 commits)"
-  - level: PASS
-    check: "CTL-009: Inception T-112 has decision (6 commits)"
-  - level: PASS
-    check: "CTL-009: Inception T-128 has decision (3 commits)"
-  - level: PASS
-    check: "CTL-009: Inception T-142 has decision (3 commits)"
-  - level: PASS
-    check: "CTL-009: Inception T-173 has decision (15 commits)"
-  - level: PASS
-    check: "CTL-009: Inception T-175 has decision (13 commits)"
-  - level: PASS
-    check: "CTL-009: Inception T-190 has decision (12 commits)"
-  - level: PASS
-    check: "CTL-009: Inception T-201 has decision (8 commits)"
-  - level: PASS
-    check: "CTL-009: Inception T-213 has decision (5 commits)"
-  - level: PASS
-    check: "CTL-009: Inception T-218 has decision (8 commits)"
-  - level: PASS
-    check: "CTL-009: Inception T-244 has decision (7 commits)"
-  - level: PASS
-    check: "CTL-009: Inception T-247 has decision (6 commits)"
-  - level: PASS
-    check: "CTL-009: Inception T-249 has decision (4 commits)"
-  - level: PASS
-    check: "CTL-009: Inception T-250 has decision (5 commits)"
-  - level: PASS
-    check: "CTL-009: Inception T-257 has decision (8 commits)"
-  - level: PASS
-    check: "CTL-009: Inception T-263 has decision (5 commits)"
-  - level: PASS
-    check: "CTL-027: Inception T-155 has Recommendation + Decision sections"
-  - level: PASS
-    check: "CTL-027: Inception T-184 has Recommendation + Decision sections"
-  - level: PASS
-    check: "CTL-027: Inception T-185 has Recommendation + Decision sections"
-  - level: PASS
-    check: "CTL-027: Inception T-186 has Recommendation + Decision sections"
-  - level: PASS
-    check: "CTL-027: Inception T-277 has Recommendation + Decision sections"
-  - level: PASS
-    check: "CTL-027: Inception T-279 has Recommendation + Decision sections"
-  - level: PASS
-    check: "CTL-027: Inception T-280 has Recommendation + Decision sections"
-  - level: PASS
-    check: "CTL-027: Inception T-281 has Recommendation + Decision sections"
-  - level: PASS
-    check: "CTL-027: Inception T-282 has Recommendation + Decision sections"
-  - level: PASS
-    check: "CTL-027: Inception T-301 has Recommendation + Decision sections"
-  - level: PASS
-    check: "CTL-027: Inception T-309 has Recommendation + Decision sections"
-  - level: PASS
-    check: "CTL-010: Bypass log exists but empty (no bypasses detected)"
-  - level: PASS
-    check: "CTL-011: pre-push hook installed and executable"
+    check: "Fabric: 17 registered, 0 unregistered"
   - level: WARN
-    check: "CTL-013: T-312 verification re-run: 1 command(s) failing"
-    mitigation: "Review T-312 — environment may have changed"
-  - level: WARN
-    check: "CTL-013: T-311 verification re-run: 2 command(s) failing"
-    mitigation: "Review T-311 — environment may have changed"
+    check: "Fabric: 13/17 cards have no edges"
+    mitigation: "Run: fw fabric enrich"
   - level: PASS
-    check: "CTL-019: claude-fw wrapper installed and executable"
+    check: "Fabric drift: All watched source files registered (17 cards)"
   - level: PASS
-    check: "CTL-025: T-093 partial-complete with owner:human ✓"
+    check: "Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer"
   - level: PASS
-    check: "CTL-025: T-178 partial-complete with owner:human ✓"
+    check: "Hook threshold: no hooks failing over threshold"
   - level: PASS
-    check: "CTL-025: T-308 partial-complete with owner:human ✓"
+    check: "Secret scan: tracked tree clean"
   - level: PASS
-    check: "CTL-025: T-310 partial-complete with owner:human ✓"
-  - level: WARN
-    check: "CTL-029: 2 stuck partial-complete task(s) — all ACs ticked, in active/ — run: bin/fw task archive-eligible"
-    mitigation: "Sweep with: bin/fw task archive-eligible (origin: T-1903, L-403)"
+    check: "Designer ghost registry: ghost↔task joins clean"
+  - level: PASS
+    check: "All 49 active tasks are valid"
+  - level: PASS
+    check: "All active tasks meet quality thresholds"
   - level: PASS
     check: "CTL-026: Human sovereignty gate present (completion + owner protection)"
-  - level: PASS
-    check: "CTL-028: All completed/ tasks have frontmatter status: work-completed"
-  - level: FAIL
-    check: "CTL-030: T-090 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
-    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: WARN
+    check: "CTL-028: T-335 is in .tasks/completed/ but frontmatter status='started-work' (expected: work-completed)"
+    mitigation: "Fix: bin/fw task update T-335 --status work-completed --force, or hand-edit frontmatter to status: work-completed + set date_finished"
+  - level: WARN
+    check: "CTL-028: T-336 is in .tasks/completed/ but frontmatter status='started-work' (expected: work-completed)"
+    mitigation: "Fix: bin/fw task update T-336 --status work-completed --force, or hand-edit frontmatter to status: work-completed + set date_finished"
+  - level: WARN
+    check: "CTL-028: T-338 is in .tasks/completed/ but frontmatter status='started-work' (expected: work-completed)"
+    mitigation: "Fix: bin/fw task update T-338 --status work-completed --force, or hand-edit frontmatter to status: work-completed + set date_finished"
+  - level: WARN
+    check: "CTL-028: T-348 is in .tasks/completed/ but frontmatter status='started-work' (expected: work-completed)"
+    mitigation: "Fix: bin/fw task update T-348 --status work-completed --force, or hand-edit frontmatter to status: work-completed + set date_finished"
   - level: FAIL
     check: "CTL-030: T-073 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
     mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
@@ -130,6 +79,9 @@ findings:
     mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
   - level: FAIL
     check: "CTL-030: T-077 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: FAIL
+    check: "CTL-030: T-079 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
     mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
   - level: FAIL
     check: "CTL-030: T-081 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
@@ -147,7 +99,34 @@ findings:
     check: "CTL-030: T-085 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
     mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
   - level: FAIL
+    check: "CTL-030: T-087 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: FAIL
     check: "CTL-030: T-089 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: FAIL
+    check: "CTL-030: T-090 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: FAIL
+    check: "CTL-030: T-094 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: FAIL
+    check: "CTL-030: T-095 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: FAIL
+    check: "CTL-030: T-096 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: FAIL
+    check: "CTL-030: T-097 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: FAIL
+    check: "CTL-030: T-098 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: FAIL
+    check: "CTL-030: T-099 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: FAIL
+    check: "CTL-030: T-100 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
     mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
   - level: FAIL
     check: "CTL-030: T-104 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
@@ -225,42 +204,6 @@ findings:
     check: "CTL-030: T-172 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
     mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
   - level: FAIL
-    check: "CTL-030: T-240 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
-    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
-  - level: FAIL
-    check: "CTL-030: T-245 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
-    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
-  - level: FAIL
-    check: "CTL-030: T-258 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
-    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
-  - level: FAIL
-    check: "CTL-030: T-079 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
-    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
-  - level: FAIL
-    check: "CTL-030: T-087 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
-    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
-  - level: FAIL
-    check: "CTL-030: T-094 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
-    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
-  - level: FAIL
-    check: "CTL-030: T-095 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
-    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
-  - level: FAIL
-    check: "CTL-030: T-096 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
-    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
-  - level: FAIL
-    check: "CTL-030: T-097 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
-    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
-  - level: FAIL
-    check: "CTL-030: T-098 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
-    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
-  - level: FAIL
-    check: "CTL-030: T-099 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
-    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
-  - level: FAIL
-    check: "CTL-030: T-100 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
-    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
-  - level: FAIL
     check: "CTL-030: T-176 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
     mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
   - level: FAIL
@@ -276,7 +219,28 @@ findings:
     check: "CTL-030: T-215 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
     mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
   - level: FAIL
+    check: "CTL-030: T-240 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: FAIL
+    check: "CTL-030: T-245 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: FAIL
     check: "CTL-030: T-255 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: FAIL
+    check: "CTL-030: T-258 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: FAIL
+    check: "CTL-030: T-335 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: FAIL
+    check: "CTL-030: T-336 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: FAIL
+    check: "CTL-030: T-338 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
+    mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
+  - level: FAIL
+    check: "CTL-030: T-348 is in .tasks/completed/ but stored horizon='now' (expected: null/absent — render derives 'past' from _location, T-2160)"
     mitigation: "Fix: bin/migrate-horizon-null-completed.sh   (idempotent, only touches completed/ files with non-null horizon)"
   - level: WARN
     check: "CTL-029: T-041 has all Agent ACs ticked but status='started-work' — completable, not closed"
@@ -318,6 +282,17 @@ findings:
     check: "CTL-029: T-309 has all Agent ACs ticked but status='started-work' — completable, not closed"
     mitigation: "Run: bin/fw task update T-309 --status work-completed"
   - level: PASS
-    check: "CTL-012: All 276 completed tasks have checked ACs"
+    check: "CTL-012: All 320 completed tasks have checked ACs"
   - level: PASS
-    check: "Arc 'arc-001': 10/14 (0.7143) — below threshold 0.80, no closure pressure"
+    check: "D1: Episodic quality — 0% [TODO] (0/320)"
+  - level: FAIL
+    check: "D2: Human review queue — 1 task(s) waiting >30d: T-093(34d) T-178(28d)"
+    mitigation: "Review with: fw task verify (lists unchecked Human ACs)"
+  - level: PASS
+    check: "D8: Handover quality — no [TODO] in LATEST.md"
+  - level: PASS
+    check: "D8b: Handover archive — 0/10 recent handovers have [TODO]s"
+  - level: PASS
+    check: "D10: Decision-without-dialogue — none detected"
+  - level: PASS
+    check: "D11: Gap register staleness — all gaps fresh"
