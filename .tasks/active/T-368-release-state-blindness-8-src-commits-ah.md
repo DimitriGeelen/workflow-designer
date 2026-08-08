@@ -4,9 +4,9 @@ name: "Release-state blindness: 8 src commits ahead of the 0.8.0 pin, AEF re-rep
 description: >
   Release-state blindness: 8 src commits ahead of the 0.8.0 pin, AEF re-reporting a defect fixed 9 days ago
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T06:47:02Z
-last_update: 2026-08-08T06:47:02Z
-date_finished: null
+last_update: 2026-08-08T06:52:17Z
+date_finished: 2026-08-08T06:52:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -272,6 +272,42 @@ window before it is cut.
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Recommendation
+
+**Recommendation:** GO — cut 0.9.0, and tell AEF to re-pin.
+
+**Rationale:** 5 of the 8 unreleased commits change bytes a consumer observes, and one
+of them is a defect AEF has reported four times over two months and is actively paying
+to work around. The cost of holding is being borne by the peer right now, in hand
+repairs to their only detail-authority map. The cost of cutting is a version bump and a
+rail post.
+
+The safety objection that would normally apply does not: **G-007 (no immutability guard
+in `release-designer.sh`) is about RE-CUTTING an already-released version and silently
+mutating bytes a consumer has pinned.** 0.9.0 is a fresh version, so no existing pin can
+move. The guard must stay respected in the obvious way — bump `VERSION` to `0.9.0`
+first, never re-run the cut at `0.8.0`.
+
+Two things I explicitly do NOT recommend re-pinning for, because saying so is part of
+the advice: **T-358** emits nothing (its own byte-identity evidence is 24/24 identical),
+and **T-364**'s uid derivation executes only where `aef:uid` is absent — `corpus_spec`
+emits a uid on every map AEF generates, so the path never runs for them. Both are real
+fixes; neither is a reason for AEF to move.
+
+**Evidence:**
+- Per-commit consumer-visibility table, AC1 above — 5 YES, 2 no, 1 render-only.
+- `grep -c docComment` → `src` 5, `dist/…-0.8.0.html` 0, `dist/…-0.7.1.html` 0. The
+  T-311 fix is measurably absent from the pinned artifact.
+- T-311 fixed `8c54906b` 2026-07-30; 0.8.0 cut `1a13035c` 2026-07-29. One day apart.
+- AEF instances 3 and 4 dated 2026-08-08 (RAIL-443), nine days after the fix.
+- AEF's pin verified against our artifact: sha256 `cab3c751…0935`, 903600 B, exact match.
+- `src` is 934239 B against the pinned 903600.
+- G-024 registered high/watching; `fw gaps` 16 → 17.
+
+**What this does NOT close:** G-024. Cutting resets the counter to zero and restores the
+same silence tomorrow. The release is the mitigation; a standing visible src-vs-pin
+delta is the prevention, and it is not built.
+
 ## Verification
 
 python3 -c "import yaml; yaml.safe_load(open('.context/project/concerns.yaml'))"
@@ -391,3 +427,20 @@ python3 -c "import yaml; yaml.safe_load(open('.context/project/concerns.yaml'))"
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-368-release-state-blindness-8-src-commits-ah.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ae15cd46
+- **Timestamp:** 2026-08-08T06:52:18Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 2
+     - evidence: `.agentic-framework/bin/fw gaps 2>&1 | grep -q "G-024"`
+
+### 2026-08-08T06:52:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

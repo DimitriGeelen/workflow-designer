@@ -3977,3 +3977,75 @@ scan_id: R-8c1ea66a
 task_id: T-363
 payload:
   task_file: .tasks/active/T-363-rail-ack-frontier-set--g-022-prevention-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-04T14:16:29Z'
+scan_id: R-b8d2f318
+task_id: T-364
+payload:
+  overall: CONCERN
+  finding_count: 7
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-04T14:16:29Z'
+scan_id: R-b8d2f318
+task_id: T-364
+payload:
+  task_file: .tasks/active/T-364-export-is-nondeterministic-for-any-node-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-04T14:44:15Z'
+scan_id: R-4ee03f06
+task_id: T-366
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-04T14:44:15Z'
+scan_id: R-4ee03f06
+task_id: T-366
+payload:
+  task_file: .tasks/active/T-366-answer-aef-rail-441-does-anything-downst.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T06:46:15Z'
+scan_id: R-6cf3f807
+task_id: T-367
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T06:46:15Z'
+scan_id: R-6cf3f807
+task_id: T-367
+payload:
+  task_file: .tasks/active/T-367-measure-the-full-aef-layer-we-inject-int.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T06:52:18Z'
+scan_id: R-ae15cd46
+task_id: T-368
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T06:52:18Z'
+scan_id: R-ae15cd46
+task_id: T-368
+payload:
+  task_file: .tasks/active/T-368-release-state-blindness-8-src-commits-ah.md

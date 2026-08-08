@@ -1102,3 +1102,59 @@ decisions:
     date: 2026-08-04
     task: T-362
     rationale: "First test of T-360's central design claim in a state that could not previously exist. Acked both DM topics to their heads (AEF dm 425, cohort-hub dm 6), so unread went 99->0 for the first time. Two measurements: (1) agent_inbox STILL returns unread_topics:[] -- byte-identical to its answer when 99 were unread, so the verb is uninformative at both ends, not merely when the store is empty; (2) tools/rail-sweep.py still exits 3 UNTRUSTED at zero backlog, because the trust gate keys on len(rows)>0 (all DM topics) and not on unread>0. That is the designed separation between mitigation (draining) and prevention (the instrument regaining sight) holding under test rather than by assertion. Flipping G-022 remains operator-only and the evidence argues against it."
+
+  - id: PD-137
+    decision: "**(a) derive the `aef:uid` from the element id.** Ruled by the operator"
+    scope: project
+    date: 2026-08-04
+    task: T-364
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-138
+    decision: "narrow the `_t358-byteid-thirdparty.mjs` precondition to **\"the uid that"
+    scope: project
+    date: 2026-08-04
+    task: T-364
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-139
+    decision: "invert `_t364-tie-permutes-ids.mjs` to a regression guard (exit 0 = repair"
+    scope: project
+    date: 2026-08-04
+    task: T-364
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-140
+    decision: "measure the core-BPMN structural injection alongside the `aef:` layer,"
+    scope: project
+    date: 2026-08-08
+    task: T-367
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-141
+    decision: "conclude from the residue (158 elements left after RAIL-441) rather than"
+    scope: project
+    date: 2026-08-08
+    task: T-367
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-142
+    decision: "a third bucket, reported as a gap in the frozen standard."
+    scope: project
+    date: 2026-08-08
+    task: T-367
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-143
+    decision: "attribute it to T-348 (`processes[0]` first-only) meeting T-358 path (iii),"
+    scope: project
+    date: 2026-08-08
+    task: T-367
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-144
+    decision: "record the near-miss rather than quietly fixing the anchor."
+    scope: project
+    date: 2026-08-08
+    task: T-367
+    rationale: "Auto-captured from task file on completion"
