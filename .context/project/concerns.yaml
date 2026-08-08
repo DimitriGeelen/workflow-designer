@@ -1497,9 +1497,10 @@ concerns:
       failures. Any detector built for this must report VERIFICATION STATE, not just
       AC state.
 
-    closure_condition: |
+    decision_trigger: |
       An instrument reports tasks in the state (all ACs ticked AND owner: human AND
       status: started-work), and reports each one's P-011 result alongside -- so the
       output distinguishes "ready to close" from "ticked but verification red". Closed
       when that surfaces to the operator without an agent being asked to look.
     origin_task: T-398
+    related_tasks: [T-398, T-306, T-399]
