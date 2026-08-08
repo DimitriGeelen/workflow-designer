@@ -4481,3 +4481,21 @@ scan_id: R-1d05c622
 task_id: T-393
 payload:
   task_file: .tasks/active/T-393-cut-designer-release-090.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T19:16:47Z'
+scan_id: R-9bd6a76b
+task_id: T-394
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T19:16:47Z'
+scan_id: R-9bd6a76b
+task_id: T-394
+payload:
+  task_file: .tasks/active/T-394-state-the-t-391-guard-boundary-bash--n-c.md

@@ -1015,6 +1015,19 @@ print(text)
     #   stderr != "" -> bash warns "here-document delimited by end-of-file":
     #                   the line opens a heredoc whose body is on later lines
     #
+    # BOUNDARY — what this does NOT catch (AEF, rail 479; they ran the positive
+    # control before trusting their own zero result). `import yaml, sys` PASSES
+    # `bash -n`: it is a syntactically valid shell command. That is the same
+    # argument used above against a keyword list, turned back on this remedy —
+    # `bash -n` has no vocabulary, which is its virtue against `import`-as-keyword
+    # and exactly why it cannot see `import`-as-command. A standalone dangerous
+    # line pasted into a Verification block is undetectable by syntax alone.
+    #
+    # It is still sufficient for the MECHANISM: tearing a quoted one-liner always
+    # leaves an unterminated opener, so the block is refused at the line before
+    # the damage. Corollary for anyone scanning with this predicate: a zero
+    # result means "no torn openers", never "no dangerous lines".
+    #
     # `bash -n` parses without executing, so this is safe on any line. Measured
     # blast radius at introduction: 1460 verification lines across 322 task
     # files, 0 refused. Herestrings (`<<<`) and arithmetic shifts (`$((1<<2))`)
