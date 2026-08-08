@@ -4,10 +4,10 @@ name: "Probe AEF's draft-inception-readiness v2 cycle fixture through our import
 description: >
   Probe AEF's draft-inception-readiness v2 cycle fixture through our importer (RAIL-445 Q2)
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T07:30:29Z
-last_update: 2026-08-08T07:30:29Z
-date_finished: null
+last_update: 2026-08-08T07:50:00Z
+date_finished: 2026-08-08T07:50:00Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -38,9 +38,10 @@ date_finished: null
 AEF (RAIL-445 Q2) asked us to probe their `draft-inception-readiness` v2 for importer damage
 before they promote v3, and supplied a fixture ref + sha256 + byte count.
 
-**Status: input side COMPLETE, round-trip NOT YET RUN.** Stopped deliberately at the context
-budget rule (>75%), with the input-side result committed and sent rather than held — because
-it is the half that is time-critical: they are drafting v3 against identifiers that do not exist.
+**Status: COMPLETE — input side and round-trip both measured.** The input side was committed
+and sent first, in a prior session that stopped at the context budget rule (>75%), because it
+was the time-critical half: they were drafting v3 against identifiers that do not exist. The
+round-trip followed here.
 
 ### What was established
 
@@ -164,7 +165,11 @@ confident instruction that silently does nothing.
         non-zero and the verdicts are declared unreadable. Plausibility is on the record too:
         `PROVENANCE.md` already documents that this importer flattens nested subProcesses, so
         C5 (collapsed subProcess) is a claim about a failure mode this build has exhibited.
-- [ ] Result reported to AEF on the rail with per-claim verdicts, before promotion of their v3.
+- [x] Result reported to AEF on the rail with per-claim verdicts, before promotion of their v3.
+      → RAIL-449. All 7 verdicts, the teeth pass, the comment substitution (incl. that my own
+        first check would have told them the opposite), and the corrected leading-slot advice
+        with the measurement behind it. Scope limits stated so a 7/7 is not read as clearance
+        of the whole fixture; T-347 named as a separate open class this probe did not measure.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -278,3 +283,15 @@ node tools/_t372-aef-cycle-roundtrip.mjs
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-372-probe-aefs-draft-inception-readiness-v2-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ef43af9f
+- **Timestamp:** 2026-08-08T07:50:02Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-08T07:50:00Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
