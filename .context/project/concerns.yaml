@@ -1104,6 +1104,29 @@ concerns:
       report all-clear from an untracked cursor store, and that FAILS LOUDLY
       when the identity it runs as is not the identity it reports for. Until
       that exists this stays open.
+    # T-383: this gap carried NO closure condition for 5 days — it was one of two the
+    # T-382 audit check surfaced. The detail above already argued the prevention in its
+    # last paragraph; nothing had ever moved it into the field the register renders.
+    decision_trigger: >
+      A reachability sweep that runs BEFORE any "peer X is silent" / "nothing inbound"
+      claim, and that satisfies all three of: (1) it enumerates every topic carrying MY
+      fingerprint, not one topic chosen by habit; (2) it CANNOT return all-clear from an
+      untracked cursor store — an empty result must be reported as "not tracked",
+      distinct from "nothing unread", because those are the two meanings the current
+      agent_inbox collapses; (3) it ASSERTS that the identity it executes as is the
+      identity it reports for, and fails loudly otherwise — the CLI on this box runs as
+      the relay's fingerprint and answers fluently about a different agent, so the
+      obvious double-check is a wrong answer wearing a right answer's shape.
+      Then close G-022.
+
+      NOT CLOSED BY: reading the missed topic (mitigation — done, and the gap is about
+      the next carrier, not this one); nor by "I now also check topic X", which fixes
+      one instance of a habit and leaves the class; nor by a sweep that passes without
+      condition (3), which would inherit the identity defect in a new costume.
+
+      CURRENTLY MET: no. No such sweep exists. Stated explicitly because a closure
+      condition that is already satisfied when written is a description of the present,
+      not a condition on the future.
     related_tasks:
       - T-360
 
@@ -1142,6 +1165,28 @@ concerns:
       the population it ranges over and FAILS when asked to speak for a
       population it cannot measure. Until a byte-identity run reports its own
       scope, this stays open.
+    # T-383: no closure condition for 4 days. As with G-022 the detail already stated
+    # the prevention; it had never been written into the rendered field.
+    decision_trigger: >
+      The GATING byte-identity run reports the population it ranges over in the same
+      breath as its verdict — "N/N identical over <which corpus>" — and refuses to
+      return a clean result for a population it cannot measure, rather than silently
+      omitting it. Concretely: a run asked to speak for third-party documents must
+      either measure them or FAIL as out-of-scope; "24/24 identical" must never again
+      be quotable without its denominator's identity attached. Then close G-023.
+
+      NOT CLOSED BY: T-364 making uid minting deterministic — that is mitigation, it
+      removes the reason the instrument was blind and leaves the reporting habit that
+      let a capability bound be read as a coverage number. Nor by
+      tools/_t358-byteid-thirdparty.mjs alone: it CAN reach the third-party population
+      (10 identical, 0 drifted, uid-normalised with a leg that fails if the normaliser
+      matched nothing), but it is deliberately on-demand — its baseline is a pinned
+      commit, so as a standing gate it would compare against an ever-older tree. An
+      instrument nobody runs cannot report the silence this gap is about.
+
+      CURRENTLY MET: no. The gating runner still reports a bare 24/24 with no
+      population named. Partial progress exists (T-364 + the on-demand third-party
+      probe); the reporting requirement — the actual prevention — is not built.
     related_tasks:
       - T-364
       - T-358

@@ -1,9 +1,9 @@
-# Audit Results - 2026-08-08-1817
-timestamp: 2026-08-08T16:17:47Z
+# Audit Results - 2026-08-08-1828
+timestamp: 2026-08-08T16:28:54Z
 sections: "structure"
 summary:
-  pass: 17
-  warn: 5
+  pass: 18
+  warn: 4
   fail: 0
 findings:
   - level: PASS
@@ -52,6 +52,5 @@ findings:
   - level: WARN
     check: "Release lag:   - oldest unshipped product change is 9d old (>= 7d)"
     mitigation: "Cut a release, or record why the delay is intended"
-  - level: WARN
-    check: "Watching gap(s) with no closure condition: G-022 G-023"
-    mitigation: "Add decision_trigger: to each, or downgrade/close the gap"
+  - level: PASS
+    check: "Gap register: every watching gap has a renderable closure condition"

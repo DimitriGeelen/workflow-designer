@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-383: Write closure conditions for G-022 and G-023 - the only two watching gaps with none
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-08T16:29:06Z
+# ============================================================================
+
+task_id: T-383
+task_name: "Write closure conditions for G-022 and G-023 - the only two watching gaps with none"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-08T16:13:53Z
+completed: 2026-08-08T16:28:54Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**AC-1 — both gaps gain a `decision_trigger` under the key the register actually'
+  - '**AC-2 — each trigger states PREVENTION, not mitigation.** Per G-019, "we cleaned'
+  - '**AC-3 — the closure bar is not set to something already true.** For each trigger,'
+  - '**AC-4 — the T-382 audit check goes quiet for the right reason.**'
+  - '**AC-5 — no gap is closed by this task.** Writing a closure condition is not'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 15 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 15
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-383-write-closure-conditions-for-g-022-and-g.md
+generated_by: context-agent-hybrid

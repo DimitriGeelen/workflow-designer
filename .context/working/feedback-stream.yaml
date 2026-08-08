@@ -4319,3 +4319,21 @@ scan_id: R-db96f72d
 task_id: T-384
 payload:
   task_file: .tasks/active/T-384-session-capture-and-handover-s-2026-0808.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T16:29:04Z'
+scan_id: R-cacfaff4
+task_id: T-383
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T16:29:04Z'
+scan_id: R-cacfaff4
+task_id: T-383
+payload:
+  task_file: .tasks/active/T-383-write-closure-conditions-for-g-022-and-g.md

@@ -4,10 +4,10 @@ name: "Write closure conditions for G-022 and G-023 - the only two watching gaps
 description: >
   G-022 (a peer rail nobody read) and G-023 (byte-identity gate scoped to the uid-carrying population) are the only two watching gaps with no decision_trigger, now surfaced by the T-382 audit check. Both are high. A gap that cannot be closed is permanent furniture; writing a closure condition for a high gap is governance-weighty and was deliberately not rushed inside T-382.
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T16:13:53Z
-last_update: 2026-08-08T16:13:53Z
-date_finished: null
+last_update: 2026-08-08T16:28:54Z
+date_finished: 2026-08-08T16:28:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -39,9 +39,25 @@ date_finished: null
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **AC-1 — both gaps gain a `decision_trigger` under the key the register actually
+      renders.** Verified by `fw gaps` showing a non-empty Trigger line for each, not by
+      the field existing in the YAML — that distinction is the entire reason T-382 found
+      this (a written condition under an unread key reads as no condition at all).
+- [x] **AC-2 — each trigger states PREVENTION, not mitigation.** Per G-019, "we cleaned
+      up the instance" does not close a gap. Each must name a condition under which the
+      NEXT instance would be caught, and must explicitly say what does NOT close it —
+      the failure mode being a trigger satisfiable by the fix that prompted the filing.
+- [x] **AC-3 — the closure bar is not set to something already true.** For each trigger,
+      state whether it is currently met. If a trigger is satisfied at the moment it is
+      written, it is a description of the present, not a condition on the future, and it
+      must be rewritten or the gap closed outright with that evidence.
+- [x] **AC-4 — the T-382 audit check goes quiet for the right reason.**
+      `check_gap_triggers` must stop reporting G-022/G-023, AND its "missing" branch must
+      still be shown able to fire (synthetic register), so a silent check is
+      distinguishable from a satisfied one.
+- [x] **AC-5 — no gap is closed by this task.** Writing a closure condition is not
+      meeting it. Both stay `watching`; whether they are met is a separate judgement on
+      separate evidence.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -123,6 +139,14 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+
+# Register must parse and both gaps must carry a trigger under the key `fw gaps` renders.
+python3 -c "import yaml,sys; c=yaml.safe_load(open('/opt/832-Workflow-designer/.context/project/concerns.yaml')).get('concerns') or []; g={x['id']:x for x in c}; sys.exit(0 if all((g[i].get('decision_trigger') or '').strip() for i in ('G-022','G-023')) else 1)"
+# Neither gap may be closed by this task — writing a condition is not meeting it.
+python3 -c "import yaml,sys; c=yaml.safe_load(open('/opt/832-Workflow-designer/.context/project/concerns.yaml')).get('concerns') or []; g={x['id']:x for x in c}; sys.exit(0 if all(g[i].get('status')=='watching' for i in ('G-022','G-023')) else 1)"
+# The audit check must now PASS over the real register.
+bash -c ".agentic-framework/bin/fw audit --sections structure > /tmp/.t383.out 2>&1; grep -q 'Gap register: every watching gap has a renderable closure condition' /tmp/.t383.out"
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -190,3 +214,18 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-383-write-closure-conditions-for-g-022-and-g.md
 - **Context:** Initial task creation
+
+### 2026-08-08T16:26:48Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-cacfaff4
+- **Timestamp:** 2026-08-08T16:29:04Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-08T16:28:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
