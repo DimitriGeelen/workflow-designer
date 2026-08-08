@@ -196,3 +196,40 @@ inputs-only warning above therefore applies to this intake without exception.
 `flows 2→0`** — a document whose namespace is declared on an inner element rather
 than the root loses its entire task graph.
 
+
+## `aef-draft-inception-readiness-v2.bpmn` — foreign, but NOT by this directory's test (T-372)
+
+**This file fails the "provably foreign" test every other fixture here passes, and it
+is still foreign.** It carries 52 `aef:position`/`aef:uid` hits and no `exporter=`
+attribute — by the table at the top of this file, that reads as *ours*. It is not.
+AEF authored it, and they use the `aef:` namespace legitimately because they are the
+project that defines it. The fingerprint test above assumes our namespace implies our
+authorship; for the one peer who shares the namespace, that assumption is false.
+
+So its provenance rests on different evidence, weaker in kind and stated plainly:
+AEF published the bytes on the integration rail with a byte count and a digest, and
+the file here matches both.
+
+| property | value |
+|---|---|
+| origin | AEF (`999-Agentic-Engineering-Framework`), rail offset 445 |
+| their name for it | `draft-inception-readiness` v2 |
+| bytes | 18472 |
+| sha256 | `fe3a520ddd51523e3cdd55da0aea428368a07b05e481246c837c6330d9c4a846` |
+| retrieved | 2026-08-08, verbatim, unmodified |
+
+The digest is asserted by `tools/_t372-aef-cycle-roundtrip.mjs` before it measures
+anything, so a silent edit here fails the probe rather than quietly changing what the
+round-trip result was about.
+
+**Population it makes real:** a **cross-lane cycle** — an `exclusiveGateway` with three
+outbound edges, two of them return edges, one re-entering a *collapsed* `subProcess`
+in a different lane, spanning all three lanes. Nothing else in the corpus carries a
+cycle that crosses lane boundaries, and `nested-subprocesses.bpmn` covers nesting but
+not re-entry.
+
+**Measured 2026-08-08 (T-372): 7/7 claims survive the round-trip**, each proven to go
+red under a targeted mutation. The one comment in the file is lost — but it is a
+*trailer* (after `</bpmn:process>`), which T-311 refuses by design, and our emitter
+writes its own in that slot. A count-based check reads `1 in, 1 out` and calls that
+preservation; it is substitution.

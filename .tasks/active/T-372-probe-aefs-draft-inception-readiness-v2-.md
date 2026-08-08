@@ -76,10 +76,60 @@ named it. I nearly inherited it: the AC requiring the named topology be confirme
 **before** measuring is the only reason the mismatch surfaced instead of becoming a probe that
 searched for absent ids and returned a confident, vacuous verdict.
 
-### Remaining
+### Round-trip result: 7/7 survive
 
-The round-trip (import -> export) against the corrected ids. Expected-loss list is fixed in
-advance below and must not be revised after seeing output.
+Measured 2026-08-08 by `tools/_t372-aef-cycle-roundtrip.mjs`. 17 nodes / 18 edges / 3 lanes
+in, same out. Every claim also proven to go **red** under a mutation targeted at it.
+
+```
+C1  fw_2_proposed keeps exactly 3 outbound edges     PASS  -> agt_4_explore, fw_3_put, hum_1_operator
+C2  return edge fw_2_proposed -> agt_4_explore       PASS  flow_7   (cross-lane framework -> agent)
+C3  return edge hum_1_operator -> agt_4_explore      PASS  flow_10  (cross-lane human -> agent)
+C4  forward edge fw_2_proposed -> fw_3_put           PASS  flow_9
+C5  agt_4_explore still a COLLAPSED subProcess       PASS  bpmn:subProcess, 0 child flow elements
+C6  lane membership of all cycle participants        PASS  framework/agent/human intact
+C7  agt_4_explore keeps all 3 inbound edges          PASS  agt_3_create, fw_2_proposed, hum_1_operator
+```
+
+### What the run corrected — my own probe had the defect it was written to catch
+
+The expected-loss line said the doc comment would be lost because "comments are not retained
+through parse→emit". **The prediction was right and the reason was wrong**, and the first
+version of the check could not tell the difference.
+
+It counted comments: `1 in, 1 out`, and reported that as the expected loss NOT occurring —
+i.e. it would have told AEF their comment survives. It does not. It is **replaced**:
+
+```
+LOST : <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates -->
+NEW  : <!-- BPMN DI (visual layout) omitted; node geometry travels as aef:position -->
+```
+
+A total cannot tell *kept* from *replaced* — `substitution-reading-as-preservation`, in a
+probe written while holding that exact memory. Fixed to compare comment **text**.
+
+The real mechanism is finer than "comments are dropped", and it is not damage: AEF's comment
+is a **trailer** (char 18290 of 18403, after `</bpmn:process>`). T-311 retains the *leading*
+comment child of `<bpmn:definitions>` and refuses trailers deliberately — promoting our own DI
+trailer to rationale is the defect that poisoned 5 of AEF's 11 maps. The consequence for them
+is that a re-pin diff shows a **changed** line carrying text they did not write, not a removed
+one.
+
+### The advice I nearly gave was wrong, and a control caught it
+
+The obvious next sentence to AEF is "put rationale in the leading slot and it survives". I was
+about to send that on the strength of reading T-311's header. T-311 point 5 says a **hoisted**
+trailer is refused by *content*, not position — so for this exact string the advice could be
+false. Measured both, on their document:
+
+```
+their trailer text HOISTED to leading position  : REFUSED
+a distinct authored rationale, leading position : KEPT
+```
+
+Position alone is not enough; the guard reads content. The advice is therefore "author
+rationale in the leading slot" — **not** "move the DI boilerplate up", which would have been a
+confident instruction that silently does nothing.
 
 ## Acceptance Criteria
 
@@ -91,18 +141,29 @@ advance below and must not be revised after seeing output.
       under the ids given; resolved to the real ids, shape confirmed intact. If the gateway,
       the two return edges, or the cross-lane subProcess re-entry are not there to begin with,
       every "survived" verdict is vacuous — the population cannot contain the defect.
-- [ ] Round-trip measured (import → export) on these specific claims: the `fw_6_readiness`
+- [x] Round-trip measured (import → export) on these specific claims: the `fw_6_readiness`
       gateway retains **three** outbound edges; both return edges survive; the edge from
       `hum_7_dialogue` back into `agt_4_explore` survives; `agt_4_explore` remains a
       **collapsed subProcess** and is not flattened or re-parented; lane membership of every
       cycle participant is unchanged.
-- [ ] **Expected-loss list stated up front, not after seeing results.** The doc comment is our
+      → `tools/_t372-aef-cycle-roundtrip.mjs`, **7/7 PASS** against the corrected ids.
+        17 nodes / 18 edges / 3 lanes in, same out.
+- [x] **Expected-loss list stated up front, not after seeing results.** The doc comment is our
       T-311 and AEF explicitly asked that it not be reported as a finding. Anything else that
       drops is a finding. Declaring this before measuring is what stops the result being
       retro-fitted to whatever came out.
-- [ ] **Positive control:** at least one asserted property must be one our exporter could
+      → declared in code before the run and **left unedited afterwards**. The prediction held
+        (the comment does not survive); the *reason* I gave for it was wrong, and the run is
+        what corrected it — see "What the run corrected" below. The correction is recorded as
+        a post-run annotation, not as a rewrite of the declaration.
+- [x] **Positive control:** at least one asserted property must be one our exporter could
       plausibly break, and at least one must be verified to change when deliberately mutated —
       otherwise a clean run cannot distinguish "preserved" from "not examined".
+      → stronger than asked: **all 7** claims are re-checked against output mutated to break
+        exactly that claim, and **all 7 go red**. A claim that cannot go red exits the harness
+        non-zero and the verdicts are declared unreadable. Plausibility is on the record too:
+        `PROVENANCE.md` already documents that this importer flattens nested subProcesses, so
+        C5 (collapsed subProcess) is a claim about a failure mode this build has exhibited.
 - [ ] Result reported to AEF on the rail with per-claim verdicts, before promotion of their v3.
 
 ### Human
@@ -140,8 +201,15 @@ advance below and must not be revised after seeing output.
 
 
 ```
-python3 -c "import hashlib,sys; d=open('/tmp/claude-0/-opt-832-Workflow-designer/500d44d9-1e04-4f5a-b40e-f29988622253/scratchpad/aef-fixture.bpmn','rb').read(); assert len(d)==18472, len(d); assert hashlib.sha256(d).hexdigest()=='fe3a520ddd51523e3cdd55da0aea428368a07b05e481246c837c6330d9c4a846'; print('fixture identity OK')"
+python3 -c "import hashlib; d=open('tests/fixtures/third-party/aef-draft-inception-readiness-v2.bpmn','rb').read(); assert len(d)==18472, len(d); assert hashlib.sha256(d).hexdigest()=='fe3a520ddd51523e3cdd55da0aea428368a07b05e481246c837c6330d9c4a846'; print('fixture identity OK')"
+node tools/_t372-aef-cycle-roundtrip.mjs
 ```
+
+<!-- The fixture path was a session-scoped scratchpad path when this task was filed. That
+     is a moving reference: the probe would have gone unrunnable the moment the session
+     ended, and a verification line that cannot run is not a gate. Vendored into
+     tests/fixtures/third-party/ with the digest pinned in both the probe and PROVENANCE.md. -->
+
 
 ## RCA
 
