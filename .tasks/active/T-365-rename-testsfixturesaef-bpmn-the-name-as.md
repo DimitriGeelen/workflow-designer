@@ -4,10 +4,10 @@ name: "Rename tests/fixtures/aef-bpmn: the name asserts a provenance it does not
 description: >
   T-364/RAIL-438 surfaced this: the directory name reads as 'AEF's BPMN fixtures' and every file in it was added by an 832 task commit (T-183/192/204/208/214/215/219/235/308/310/311/312/313; three labelled pair-draft, rest ours outright). AEF has 5 files at the same path; we have 18; one of theirs is absent here. I read the name as provenance and published a corroboration claim to the peer that had to be retracted at RAIL-438 — the measurement was careful and the noun came from the filesystem. Blast radius measured: 150 files reference the string, including .context/episodic/* (historical records that must NOT be rewritten — they record what was true when written) and .agentic-framework/docs/reports/* (vendored AEF material, G-008 territory). Needs scoping before any git mv: which reference classes get rewritten, which are frozen history, and whether a rename or a split (seam-fixtures-ours vs genuinely-peer-supplied) is correct.
 
-status: captured
+status: started-work
 workflow_type: refactor
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T13:18:53Z
-last_update: 2026-08-04T13:19:30Z
+last_update: 2026-08-08T19:24:47Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -38,10 +38,24 @@ date_finished: null
 
 ## Acceptance Criteria
 
-### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+**BLOCKED ON A SCOPING DECISION — see `## Decisions`. Do not `git mv` until it is
+made.** The ACs below are written for whichever shape is chosen.
+
+- [ ] Scoping decision recorded: single rename vs. split into
+      832-authored / genuinely-peer-supplied (3 pair-drafts)
+- [ ] Move performed with `git mv` (history preserved, not delete-and-add)
+- [ ] Every LIVE reference updated (37 files: tests/, tools/, scripts/, src/,
+      lib/, web/, docs/ excluding docs/reports/) — no live path resolves to the
+      old name
+- [ ] HISTORICAL records are NOT rewritten: `.context/episodic/`,
+      `.tasks/completed/`, `docs/reports/` keep the name they were written with.
+      A record that says `aef-bpmn` was true when written; editing it would be
+      falsifying the audit trail to make a rename look tidy.
+- [ ] `.agentic-framework/docs/reports/` left alone — vendored AEF material,
+      G-008 territory, not ours to rewrite
+- [ ] `PROVENANCE.md` updated to explain what the NEW name asserts and to record
+      the move
+- [ ] Test suite green after the move — no fixture resolves by luck
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -165,6 +179,49 @@ date_finished: null
 
 ## Decisions
 
+### 2026-08-08 — picked up as "mechanical", stopped when it wasn't
+
+- **Chose:** do not `git mv`; hand over with the scoping decision stated.
+- **Why:** I selected this at 79% budget as a bounded mechanical rename, having
+  read only the title. The task's own `description` says the open question is
+  *rename vs. split*, and ends "Needs scoping before any git mv." Three fixtures
+  (`session-handover` T-214, `dispatch-loop` T-215, `offpage-seam` T-219) are
+  genuine pair-drafts with AEF; the other 14 are ours outright. A single rename
+  asserts one provenance over a directory that demonstrably has two.
+- **Rejected:** renaming to `aef-seam/` anyway and noting the split as a
+  follow-up. That is the same error the directory already embodies — a name
+  asserting a uniform provenance the contents do not have — committed a second
+  time, in a task that exists to fix exactly that.
+
+### The decision needed (one call, then this is mechanical)
+
+**A — single rename** to `tests/fixtures/aef-seam/`. Cheapest, one path to
+update, PROVENANCE.md carries the per-file nuance as it already does. The name
+becomes "fixtures about the AEF seam", which is true of all 17.
+
+**B — split** into `tests/fixtures/seam-ours/` (14) and
+`tests/fixtures/seam-pairdraft/` (3). Encodes the distinction in the filesystem,
+where it cannot be missed by someone who does not open PROVENANCE.md. Costs a
+second path, and the 3 pair-drafts are co-authored rather than AEF-supplied, so
+even this split does not produce a "theirs" directory — arguably it invents a
+distinction finer than the evidence supports.
+
+**Weight for A:** the original failure was reading a *directory name* as
+provenance and publishing a corroboration claim to AEF that had to be retracted
+(rail 438). What prevents a recurrence is that no name claims provenance at all
+— which A achieves and B partially undoes by reintroducing provenance into
+paths.
+
+### Established this session (so the next pickup does not re-measure)
+
+- 186 files reference `aef-bpmn`; **37 are live** (tests/ tools/ scripts/ src/
+  lib/ web/ docs/ minus docs/reports/). The rest are episodic memory, completed
+  tasks, and vendored AEF reports — all frozen history.
+- Directory holds 17 fixtures + `PROVENANCE.md` + one subdirectory
+  (`t257-eventdef-roundtrip`).
+- `PROVENANCE.md` already contains the per-file authorship table and names this
+  task as the tracked rename, so no re-measurement of authorship is needed.
+
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
@@ -190,3 +247,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-365-rename-testsfixturesaef-bpmn-the-name-as.md
 - **Context:** Initial task creation
+
+### 2026-08-08T19:24:47Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

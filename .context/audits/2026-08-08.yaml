@@ -1,5 +1,5 @@
-# Audit Results - 2026-08-08-2019
-timestamp: 2026-08-08T18:19:46Z
+# Audit Results - 2026-08-08-2117
+timestamp: 2026-08-08T19:17:57Z
 sections: "structure"
 summary:
   pass: 18
@@ -33,13 +33,13 @@ findings:
   - level: PASS
     check: "No GO-scope-not-propagated inception(s) (sibling to L-417)"
   - level: WARN
-    check: "Fabric: 17 registered, 144 unregistered (of 158 watched)"
+    check: "Fabric: 17 registered, 145 unregistered (of 159 watched)"
     mitigation: "Run: fw fabric scan"
   - level: WARN
     check: "Fabric: 13/17 cards have no edges"
     mitigation: "Run: fw fabric enrich"
   - level: WARN
-    check: "Fabric drift: 144 source file(s) have no fabric card"
+    check: "Fabric drift: 145 source file(s) have no fabric card"
     mitigation: "Run: fw fabric scan"
   - level: PASS
     check: "Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer"
@@ -50,7 +50,7 @@ findings:
   - level: PASS
     check: "Designer ghost registry: ghost↔task joins clean"
   - level: WARN
-    check: "Release lag:   - oldest unshipped product change is 9d old (>= 7d)"
-    mitigation: "Cut a release, or record why the delay is intended"
+    check: "Release lag UNMEASURED — COULD NOT MEASURE: release tag designer-v0.9.0 does not exist — cannot measure build lag. A missing tag is NOT zero lag."
+    mitigation: "Run: python3 tools/_t382-release-lag.py"
   - level: PASS
     check: "Gap register: every watching gap has a renderable closure condition"
