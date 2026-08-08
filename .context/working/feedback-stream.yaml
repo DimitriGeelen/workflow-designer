@@ -4463,3 +4463,21 @@ scan_id: R-b930f1d6
 task_id: T-391
 payload:
   task_file: .tasks/active/T-391-sweep-for-the-obs-201-class-python-sourc.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T19:05:17Z'
+scan_id: R-1d05c622
+task_id: T-393
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T19:05:17Z'
+scan_id: R-1d05c622
+task_id: T-393
+payload:
+  task_file: .tasks/active/T-393-cut-designer-release-090.md

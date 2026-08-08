@@ -1,13 +1,13 @@
 ---
-id: T-392
-name: "Safe-list early-return shadows the focus-drift gate: T-390 exempted drift pattern 2"
+id: T-393
+name: "Cut designer release 0.9.0"
 description: >
-  check-active-task.sh:95-97 exits 0 as soon as is_bash_safe_command returns true; the focus-drift gate is at line 299. Safe-listing a verb therefore also exempts it from drift ATTRIBUTION. T-390 safe-listed fw context add-*, which is drift pattern 2, so that pattern has been unreachable since T-390 landed. Reported by AEF (their T-2880, rail 476) and confirmed here by reading our own ordering. A drift check that never runs is silent in exactly the way a drift check that finds nothing is silent.
+  Cut designer release 0.9.0
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-08T18:57:24Z
-last_update: 2026-08-08T18:58:04Z
-date_finished: null
+created: 2026-08-08T19:04:11Z
+last_update: 2026-08-08T19:05:16Z
+date_finished: 2026-08-08T19:05:16Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,7 +30,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-392: Safe-list early-return shadows the focus-drift gate: T-390 exempted drift pattern 2
+# T-393: Cut designer release 0.9.0
 
 ## Context
 
@@ -39,29 +39,16 @@ date_finished: null
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Shadowing is demonstrated by probe BEFORE the fix: with a focus set to
-      T-A, `fw context add-learning "x" --task T-B` must be shown NOT to reach
-      the drift gate, while patterns 1 and 3 do reach it
-- [ ] After the fix, all three drift patterns reach the gate under the same
-      conditions
-- [ ] The T-390 deadlock stays fixed: with focus NULL, every capture verb
-      (`fw note`, `fw context add-*`, `fw handover`) is still ALLOWED — the fix
-      must not re-introduce the deadlock it is built on top of
-- [ ] Positive control against over-correction: a safe verb carrying NO task id
-      (`fw doctor`, `git status`) still exits early and never consults focus
-- [ ] Mutation teeth: reverting the fix must make the pre-fix probe leg go red
-
-### Human
-- [ ] [REVIEW] Approve reordering the central governance hook
-  **Steps:**
-  1. Read the `## Decisions` section of this task for the two candidate shapes
-     (hoist the focus read vs. set a flag honoured by later checkpoints)
-  2. Decide which shape is acceptable in `check-active-task.sh`
-  **Expected:** A named choice, or a direction to leave the shadow open and
-  document it instead
-  **If not:** Leave `horizon: now` and re-raise at the start of a session with
-  full budget — this is the central enforcement path and both AEF and 832
-  deferred it once already for that reason
+- [x] VERSION bumped 0.8.0 to 0.9.0 and `scripts/release-designer.sh` run clean
+- [x] Artifact `dist/aef-workflow-designer-0.9.0.html` exists and its sha256
+      matches the sha recorded in `dist/MANIFEST.yaml` — `9ccd2c58…`, 934239 B
+- [x] Render gate PASS (the script's own gate; a failed gate must abort the cut)
+- [x] Immutability: `dist/aef-workflow-designer-0.8.0.html` is byte-identical to
+      its released sha `cab3c751…` — a new cut must never disturb a pinned one
+- [x] Release ANNOUNCED on the rail as a cv-indexed envelope (T-389), and the
+      script's final line reads `CUT and ANNOUNCED` — rail offset 480
+- [x] Content of the cut is stated: 8 src commits since the 0.8.0 pin, T-361
+      included (it was the named blocker)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -143,6 +130,12 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+test -f dist/aef-workflow-designer-0.9.0.html
+grep -q '^latest: "0.9.0"' dist/MANIFEST.yaml
+test "$(sha256sum dist/aef-workflow-designer-0.9.0.html | awk '{print $1}')" = "$(awk -F'"' '/^sha256:/{print $2}' dist/MANIFEST.yaml)"
+test "$(sha256sum dist/aef-workflow-designer-0.8.0.html | awk '{print $1}')" = "cab3c75183979b0e15e23192518f9360ea12fe33b6a4f78641d7e264f6110935"
+test "$(tr -d '[:space:]' < VERSION)" = "0.9.0"
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -185,44 +178,6 @@ date_finished: null
 
 ## Decisions
 
-### 2026-08-08 — deferred rather than attempted at 66% budget
-
-- **Chose:** file with full diagnosis; do not start the reorder this session.
-- **Why:** this is the central enforcement hook on every Bash/Write/Edit call.
-  Budget was 197K/300K (66%) when the report arrived, and framework policy at
-  60-75% is small bounded tasks only. AEF independently deferred the identical
-  change at 68% for the same reason (rail 476). Getting this wrong fails open on
-  every command in the session that discovers it.
-- **Rejected:** shipping a quick fix now. The two candidate shapes below are not
-  equivalent in risk, and choosing between them at the warn line is how the
-  wrong one gets chosen.
-
-### Candidate shapes (for the human REVIEW above)
-
-**A — hoist the focus read.** `CURRENT_TASK` is not read until ~line 186, after
-the early return, so the drift comparison cannot simply be moved up; the read
-itself has to move. Smaller diff at the call site, larger blast radius on
-initialisation order.
-
-**B — flag honoured by later checkpoints.** The safe branch sets e.g.
-`_FW_SAFE_ALLOWED=1` instead of `exit 0`; the existing checkpoints then honour
-it: exit 0 when focus is NULL (no drift is possible with nothing to drift from),
-run drift detection when a focus exists. Preserves the T-390 deadlock fix by
-construction, at the cost of three call sites that must all honour the flag —
-and any one that forgets it re-introduces the deadlock silently.
-
-Note the asymmetry: A fails toward blocking work, B fails toward permitting it.
-
-### 2026-08-08 — why this is a regression I introduced, not an inherited defect
-
-Before T-390 the `context)` arm allowed `status|focus|init` only, so
-`fw context add-*` fell through to the drift check as designed. T-390 added the
-`add-*` arm and, with it, the early return. The RCA question (G-019) is not "why
-did the code break" but "what let this go undetected": **one early return is
-answering two independent questions** — *does this need a task* and *is this
-attributed to the right task*. Exempting from the first silently exempted from
-the second, and nothing reports a check that stopped being consulted.
-
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
@@ -244,7 +199,24 @@ the second, and nothing reports a check that stopped being consulted.
 
 ## Updates
 
-### 2026-08-08T18:57:24Z — task-created [task-create-agent]
+### 2026-08-08T19:04:11Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-392-safe-list-early-return-shadows-the-focus.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-393-cut-designer-release-090.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1d05c622
+- **Timestamp:** 2026-08-08T19:05:17Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — VERSION bumped 0.8.0 to 0.9.0 and `scripts/release-designer.sh` run clean
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=scripts/release-designer.sh in: VERSION bumped 0.8.0 to 0.9.0 and `scripts/release-designer.sh` run clean`
+
+### 2026-08-08T19:05:16Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

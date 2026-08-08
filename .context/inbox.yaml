@@ -24,3 +24,10 @@ observations:
   tags: [gap]
   status: pending
   promoted_to: null
+- id: OBS-004
+  text: "check-active-task.sh:92 has_bash_write_pattern runs BEFORE the line-98 task-bootstrap exemption, so a redirect-looking character inside a quoted task NAME blocks task creation. Measured: fw work-on with an ASCII arrow in the name is BLOCKED; identical command without it creates the task. The block message advises 'fw task create --name ...' which fails the same way. Fifth instance of the gate-refuses-its-own-remedy class (G-026); first where the trigger is the content of a human-readable string. SIXTH instance found immediately after: this very note was blocked on its first attempt because its own text contained the arrow. Reported to AEF at rail 478."
+  captured: 2026-08-08T18:59:15Z
+  context_task: null
+  tags: [gap]
+  status: pending
+  promoted_to: null
