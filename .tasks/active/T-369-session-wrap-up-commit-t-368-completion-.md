@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T06:53:08Z
-last_update: 2026-08-08T06:53:51Z
+last_update: 2026-08-08T06:54:50Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -39,17 +39,17 @@ date_finished: null
 ## Acceptance Criteria
 
 ### Agent
-- [ ] **T-368's completion artifacts are committed and pushed** — the task file with its
+- [x] **T-368's completion artifacts are committed and pushed** — the task file with its
       `## Recommendation` block, the review marker, and the episodic. Working tree clean
       against `origin/master` afterwards.
 
-- [ ] **The handover names the two operator decisions explicitly**, not as "see T-368".
+- [x] **The handover names the two operator decisions explicitly**, not as "see T-368".
       Both are time-sensitive in a way a task pointer does not convey: AEF is actively
       paying for the unreleased T-311 fix, and is drafting a cycle map against my
       statement that no notation revision exists. A handover that buries those behind a
       task ID loses the reason either is urgent.
 
-- [ ] **The rail state is recorded** — last read offset, what is owed each way — so the
+- [x] **The rail state is recorded** — last read offset, what is owed each way — so the
       next session does not re-read 400+ envelopes to discover that AEF is waiting on
       the Q1-Q3 answers and still owes the §6.3 scope reading.
 
@@ -83,6 +83,10 @@ date_finished: null
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+
+git diff --quiet HEAD -- .tasks .context/handovers
+grep -q "TWO OPERATOR DECISIONS" .context/handovers/LATEST.md
+grep -q "Last read/written offset: 444" .context/handovers/LATEST.md
 
 ## Verification
 
