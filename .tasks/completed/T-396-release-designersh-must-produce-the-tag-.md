@@ -4,10 +4,10 @@ name: "release-designer.sh must produce the tag or refuse to report success"
 description: >
   T-395 prevention. The release script builds the artifact and writes MANIFEST but never tags; all ten prior tags were applied by hand and 0.9.0 was the first cut where nobody remembered. Detection already works (T-382 lag check caught it in one session, reporting UNMEASURED rather than defaulting to zero) so the gap is generation, not noticing. Make the script either create the annotated tag itself at the VERSION-bump commit, or refuse to print a success verdict while the tag for the version it just built is absent. Must assert the tagged tree carries the matching VERSION and artifact sha, not merely that some tag exists.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T19:42:50Z
-last_update: 2026-08-08T19:54:41Z
-date_finished: null
+last_update: 2026-08-08T19:57:56Z
+date_finished: 2026-08-08T19:57:56Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -244,3 +244,15 @@ python3 tools/_t382-release-lag.py > /tmp/.t396-lag 2>&1 && ! grep -q "COULD NOT
 
 ### 2026-08-08T19:54:41Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4271c621
+- **Timestamp:** 2026-08-08T19:58:07Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-08T19:57:56Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

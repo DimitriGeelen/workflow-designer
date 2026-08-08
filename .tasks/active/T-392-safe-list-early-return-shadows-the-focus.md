@@ -298,6 +298,32 @@ place", and it points at a different prevention: nothing enforced the rule and
 nothing surfaced it at the point of edit. Verified present in our copy at
 lines 221-224, not taken on report.
 
+### 2026-08-08 — OBS-003 lands in the SAME function shape C creates: do them together
+
+Not a separate piece of work, and splitting them would mean writing
+`_fw_extract_drift_target()` and then immediately rewriting it.
+
+OBS-003 (raised at T-390, still open, registered as a gap): the drift gate infers
+its target from **any task id appearing anywhere in the command string, including
+inside a quoted payload that is merely prose**. Writing a rail message whose text
+mentions a completed task was blocked as "action targets a different task" when
+the action was writing a file. That describes every cross-project rail message we
+send. Its recorded remedy direction is *"derive the target from the fw
+sub-command's own argument position, not from a scan of the whole string."*
+
+Shape C's whole content is extracting those three patterns into
+`_fw_extract_drift_target()`. That function IS the scan OBS-003 wants replaced —
+so the argument-position fix belongs in it at the moment it is created, not after.
+
+Concretely, patterns 1 and 2 already anchor on the sub-command
+(`fw task update <id>`, `fw context add-* --task <id>`) and are close to correct.
+**Pattern 3 is the loose one:** `git commit` + a bare `(T-[0-9]+):` match anywhere
+in the string, which is what a quoted commit body or heredoc trips. Anchoring it
+to the message argument rather than the whole command is the fix.
+
+Flagged here rather than filed separately because whoever implements C will be
+editing exactly these lines, and OBS-003 is invisible from inside that diff.
+
 ### 2026-08-08 — shadowing reproduced HERE, not inferred from AEF's report
 
 `tools/_t392-drift-shadow-probe.sh`, 11 legs, drives the real hook with a

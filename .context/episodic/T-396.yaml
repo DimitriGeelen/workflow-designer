@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-396: release-designer.sh must produce the tag or refuse to report success
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-08T19:58:09Z
+# ============================================================================
+
+task_id: T-396
+task_name: "release-designer.sh must produce the tag or refuse to report success"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-08T19:42:50Z
+completed: 2026-08-08T19:57:56Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-08T21:57:51+02:00
+last_commit: 2026-08-08T21:57:51+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  report the TAG as the third release output, in both directions
+
+# Key outcomes
+outcomes:
+  - '`release-designer.sh` reports tag state as a third release output, in BOTH'
+  - 'Tag present → final line ends `— TAGGED`, and no false NOT-TAGGED warning fires'
+  - 'Tag absent → final line ends `— NOT YET TAGGED`, plus a loud warning that'
+  - 'Backward compatible: the substrings `CUT and ANNOUNCED` and `CUT but NOT'
+  - 'T-387 idempotence preserved: re-running at an unchanged VERSION leaves'
+  - 'Probe drives both branches in throwaway clones — the live `dist/`, the live'
+  - 'Probe carries an anti-vacuity control: if the tag for the current VERSION is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-08.yaml'
+  - '.context/locks/T-396.lock'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.new-file-counter'
+  - 'scripts/release-designer.sh'
+  - '.tasks/active/T-392-safe-list-early-return-shadows-the-focus.md'
+  - '.tasks/active/T-396-release-designersh-must-produce-the-tag-.md'
+  - 'tools/_t396-release-tag-state.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-08T21:57:51"
+    action: "T-396: report the TAG as the third release output, in both directions"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 15 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 15
+  commits: 1
+  files_changed: 12
+  lines_added: 261
+  lines_removed: 503
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-396-release-designersh-must-produce-the-tag-.md
+generated_by: context-agent-hybrid

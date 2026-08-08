@@ -794,3 +794,10 @@ learnings:
   date: 2026-08-08
   context: Added via context agent
   application: TBD
+- id: PL-113
+  learning: "A clone-based probe tests COMMITTED state, not the change under test. tools/_t396-release-tag-state.sh cloned the repo to drive both branches in isolation; the script change was uncommitted, so both branches ran the previous version and four legs went red for a cause unrelated to either branch. The red was luck: had the change been a no-op-looking addition the legs could equally have gone GREEN against the old artifact. Same family as rehearsed-in-the-wrong-shell and the T-391 mutant that died before reaching the gate. Fix: overlay the working-tree file into the clone after cloning, and say why in the probe. General rule: any probe that materialises its own fixture from git (clone, worktree, git show, archive) is testing a REF, and the ref is almost never the working tree you are editing."
+  source: P-001
+  task: T-396
+  date: 2026-08-08
+  context: Added via context agent
+  application: TBD
