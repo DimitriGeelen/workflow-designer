@@ -780,3 +780,10 @@ learnings:
   date: 2026-08-04
   context: Added via context agent
   application: TBD
+- id: PL-111
+  learning: "Mutation teeth can catch a BLIND INSTRUMENT, not just a missing guard. A T-389 idempotence leg asserted 'topic length unchanged' via a helper that parsed 'channel state --json' as {rows:[...]} when it is a BARE LIST — the helper returned -1 on every call, so the leg compared -1 to -1 and went green: a length check that never read a length. The teeth (disable the guard, require a duplicate to appear) went RED while the leg they protect stayed green, because no duplicate could 'appear' through a dead measurement. Remedy: a parse-failure sentinel must be an explicit REJECTION at the call site, never a value — otherwise a failed measurement is indistinguishable from two values agreeing."
+  source: P-011
+  task: T-389
+  date: 2026-08-08
+  context: Added via context agent
+  application: TBD

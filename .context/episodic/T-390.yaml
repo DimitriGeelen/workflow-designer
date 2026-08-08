@@ -1,0 +1,107 @@
+# ============================================================================
+# EPISODIC MEMORY - T-390: Knowledge-capture verbs are blocked in the no-task state that follows completing a task
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-08T17:59:35Z
+# ============================================================================
+
+task_id: T-390
+task_name: "Knowledge-capture verbs are blocked in the no-task state that follows completing a task"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-08T17:53:57Z
+completed: 2026-08-08T17:59:27Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-08T19:59:22+02:00
+last_commit: 2026-08-08T19:59:22+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  knowledge-capture verbs survive the no-task state — fw note / fw context add-* / fw handover (OBS-002) exempt when focus is null, verb-scoped with a positive control against blanket-fw regression; probe 12/12 with teeth on the case arm. G-026 registered: THIRD verb-by-verb fix for one deadlock shape (task create, git commit, capture verbs) — the exemption list has G-025's enumeration problem in the opposite polarity, and adding verbs is the method under criticism. OBS-003: drift gate reads task ids out of quoted prose
+
+# Key outcomes
+outcomes:
+  - '`fw note`, `fw context add-learning|add-pattern|add-decision|generate-episodic`'
+  - 'The exemption is verb-scoped and does NOT widen to mutating siblings: `fw context'
+  - 'When focus IS set, these verbs still reach the focus-drift gate (T-1730) — the'
+  - '`tools/_t390-capture-verbs-nulltask.sh` measures the real vendored hook (not a'
+  - 'The live block that produced this task is gone: `fw note "..."` and'
+  - 'The structural observation is registered as its own concern: this is the THIRD'
+  - 'The diff is sent to AEF on the rail (shared vendored hook, G-008: fixable in-tree'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'knowledge-capture verbs survive the no-task state — fw note / fw context add-* / fw handover (OBS-002) exempt when focus is null, verb-scoped with a positive control against blanket-fw regression; probe 12/12 with teeth on the case arm. G-026 registered: THIRD verb-by-verb fix for one deadlock shape (task create, git commit, capture verbs) — the exemption list has G-025''s enumeration problem in the opposite polarity, and adding verbs is the method under criticism. OBS-003: drift gate reads task ids out of quoted prose'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.context/audits/2026-08-08.yaml'
+  - '.context/audits/cron/2026-08-08-1930.yaml'
+  - '.context/audits/cron/2026-08-08-1945.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/episodic/T-389.yaml'
+  - '.context/inbox.yaml'
+  - '.context/locks/T-389.lock'
+  - '.context/project/concerns.yaml'
+  - '.context/project/decisions.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-389.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.tasks/active/T-390-knowledge-capture-verbs-are-blocked-in-t.md'
+  - '.tasks/completed/T-389-post-a-release-envelope-to-the-aef-rail-.md'
+  - 'tools/_t390-capture-verbs-nulltask.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-08T19:59:22"
+    action: "T-390: knowledge-capture verbs survive the no-task state — fw note / fw context add-* / fw handover (OBS-002) exempt when focus is null, verb-scoped with a positive control against blanket-fw regression; probe 12/12 with teeth on the case arm. G-026 registered: THIRD verb-by-verb fix for one deadlock shape (task create, git commit, capture verbs) — the exemption list has G-025's enumeration problem in the opposite polarity, and adding verbs is the method under criticism. OBS-003: drift gate reads task ids out of quoted prose"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 1
+  files_changed: 28
+  lines_added: 1106
+  lines_removed: 63
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-390-knowledge-capture-verbs-are-blocked-in-t.md
+generated_by: context-agent-hybrid
