@@ -178,3 +178,35 @@ echo "Released designer $VERSION"
 echo "  artifact: dist/aef-workflow-designer-$VERSION.html"
 echo "  sha256:   $SHA"
 echo "  bytes:    $BYTES"
+
+# Announce to the rail (T-389, G-024 consumer half). A cut nobody can learn about
+# is the gap itself: AEF re-reported a defect fixed 9 days earlier because nothing
+# readable told them a newer build existed.
+#
+# NON-FATAL BY DESIGN, LOUD BY REQUIREMENT. The artifact is the deliverable and it
+# is already on disk and verified; a hub that happens to be down must not roll that
+# back or fail the cut. But an announce that fails QUIETLY is strictly worse than
+# one that fails loudly — AEF's consumer check would keep reporting "current" from a
+# stale rail, which is the false-green direction they called unacceptable. So the
+# script always states which of the two happened, and names the standalone recovery
+# command. `|| ANNOUNCE_RC=$?` is required under `set -e`.
+ANNOUNCE_RC=0
+if [ "${RELEASE_SKIP_ANNOUNCE:-0}" = "1" ]; then
+  echo "  announce: SKIPPED (RELEASE_SKIP_ANNOUNCE=1) — rail still advertises the PREVIOUS release." >&2
+else
+  "$REPO_ROOT/scripts/announce-release.sh" || ANNOUNCE_RC=$?
+  if [ "$ANNOUNCE_RC" -ne 0 ]; then
+    echo "WARNING: release $VERSION is CUT but NOT ANNOUNCED (announce exited $ANNOUNCE_RC)." >&2
+    echo "WARNING: the rail still advertises the previous release, so a consumer checking" >&2
+    echo "WARNING: currency will be told it is up to date when it is not." >&2
+    echo "WARNING: re-run the announce alone once the hub is reachable — no re-cut needed:" >&2
+    echo "WARNING:   cd $REPO_ROOT && scripts/announce-release.sh" >&2
+  fi
+fi
+
+# Final line is the one a caller greps. It must never be ambiguous about the announce.
+if [ "$ANNOUNCE_RC" -eq 0 ] && [ "${RELEASE_SKIP_ANNOUNCE:-0}" != "1" ]; then
+  echo "Release $VERSION: CUT and ANNOUNCED"
+else
+  echo "Release $VERSION: CUT but NOT ANNOUNCED"
+fi
