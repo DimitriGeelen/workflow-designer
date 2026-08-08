@@ -232,6 +232,14 @@ than a widened leg on an existing one.
 
 ### Human
 - [ ] [REVIEW] Choose repair semantics for unconsumed element content
+
+      > **Consolidated view: `docs/reports/T-397-import-repair-semantics-brief.md`.** One of
+      > four open rulings, all four stated there in current form. Two things from it bear on
+      > this one: **T-337 is completed and ruled `(a)` at the granularity directly above this
+      > task** (unknown tag), which the text below anticipated but could not yet cite; and the
+      > brief's **competing-carrier rule** explains why `(a)` is right here and *not* right for
+      > T-340 — no rival carrier exists for element content, so preservation cannot
+      > self-contradict.
       **Steps:**
       1. `cd /opt/832-Workflow-designer && timeout 300 node tools/_t347-accepted-element-content-cdp.mjs`
       2. Read the `PER-SHAPE VERDICT` block. Each denominator is the number of files that

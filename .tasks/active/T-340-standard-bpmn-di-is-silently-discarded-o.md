@@ -86,6 +86,18 @@ tickable AC out of it would make a blocked task read as progressing.
 
 - [ ] [REVIEW] Repair semantics for standard BPMN DI on import
 
+      > **Consolidated view: `docs/reports/T-397-import-repair-semantics-brief.md`.** This is
+      > one of four open rulings; the brief states all four in their *current* form, which
+      > matters here because this AC has been corrected in place (the recommendation moved
+      > from `(a′)` to `(b)`, and step 3 below is marked superseded). The brief also
+      > re-measured the disjointness claim this ruling rests on — `BOTH = 0` still holds, now
+      > over 142 files rather than the 126 measured when it was written.
+      >
+      > **Read the brief's "competing-carrier rule" before ruling.** It explains why this
+      > ruling should *differ* from T-337's and T-347's rather than matching them: DI is the
+      > only class where we generate a rival carrier (`aef:position`), so preservation here
+      > produces two contradictory geometries instead of fidelity.
+
       **This AC was filed under `### Agent` and moved here.** It reads "decided (operator)"
       while sitting in the section P-010 gates on, so completion would have required an agent
       to tick a box only the human may tick — the only exits from that are `--force` or a

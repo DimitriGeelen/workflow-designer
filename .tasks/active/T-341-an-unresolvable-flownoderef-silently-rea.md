@@ -172,6 +172,14 @@ look blocked.
 
 - [ ] [REVIEW] **Rule on the default-lane policy for an orphaned flow node.**
 
+  > **Consolidated view: `docs/reports/T-397-import-repair-semantics-brief.md`.** One of four
+  > open rulings. The brief classifies this one as **Q2 (fabrication)** and holds it apart from
+  > the T-340/T-347 fidelity rulings on purpose: those decide what we do with content we failed
+  > to read, this decides what we *invent*. The Q1 precedent (T-337, ruled `(a)`) does not reach
+  > it, and the brief **offers no recommendation on this ruling** — deliberately, for the reason
+  > stated below. **T-358 follows from whatever is decided here**; ruling one without the other
+  > is how the two acquire inconsistent policies.
+
   This is a sovereignty call, not a technical one: it decides which authority silently acquires a
   step when a `flowNodeRef` fails to resolve. **It was filed as an Agent AC, which was a
   mis-classification** — P-010 would have gated on an agent ticking a box only you may tick, and

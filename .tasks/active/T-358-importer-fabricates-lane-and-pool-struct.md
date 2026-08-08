@@ -156,6 +156,11 @@ and should be decided with it, not before it.
       is now tested before anything is filtered. An unreachable check is a constant,
       and a constant discriminates nothing.
 
+> **The three ACs below are REPAIR, and repair needs the fabrication policy — which is
+> T-341's open `[REVIEW]` ruling, not this task's.** Diagnosis here is complete (3/3 above).
+> Consolidated view of all four open rulings, and why this one follows T-341 rather than
+> standing alone: `docs/reports/T-397-import-repair-semantics-brief.md` (§ Q2b).
+
 - [ ] **Repair does not silently reverse into the opposite defect.** Emitting zero
       lanes for a lane-less input must be checked against the corpus: if any existing
       map relies on the fabricated default, that reliance is a finding to file, not a
