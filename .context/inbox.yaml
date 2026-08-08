@@ -10,3 +10,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-002
+  text: "fw handover is BLOCKED by check-active-task when no task is focused - the command CLAUDE.md mandates at Session End Protocol step 4 cannot run at session end, because completing the last task nulls focus. Same family as T-381 (wedge in the wrap-up path). Workaround used: create a session-capture task (T-380/T-384 precedent), which is honest but means every session ends by creating a task whose only purpose is to permit the handover. Candidate fix: add 'fw handover' to the T-2054 no-active-task exemption alongside 'git commit' - CLAUDE.md already lists handover as allowed at critical budget, so the two policies disagree."
+  captured: 2026-08-08T16:17:32Z
+  context_task: T-384
+  tags: []
+  status: pending
+  promoted_to: null
