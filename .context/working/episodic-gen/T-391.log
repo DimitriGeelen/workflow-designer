@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-08T18:54:21Z ===
+task_id: T-391
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-391.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Sweep for the OBS-201 class: python source executed as shell
+  Duration: 0 days (10 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 6 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-391-sweep-for-the-obs-201-class-python-sourc.md
+--- exit code: 0 ---

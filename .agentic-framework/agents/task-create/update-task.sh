@@ -985,6 +985,76 @@ print(text)
 
     [ -z "$verify_cmds" ] && return 0
 
+    # T-391 (AEF OBS-201): refuse a block containing a MULTI-LINE construct.
+    #
+    # The loop below runs ONE LINE PER COMMAND (`eval "$cmd"` at the `cd
+    # "$PROJECT_ROOT" &&` below). A construct spanning lines is therefore torn
+    # apart: the opener runs truncated, and every continuation line runs as a
+    # BARE SHELL COMMAND in the repo root. CLAUDE.md tells agents to write
+    # `python3 -c "import yaml; ..."` verification lines, so the multi-line form
+    # of that idiom is a natural thing to write — and its second line is
+    # `import yaml, sys`, which the shell resolves to ImageMagick's screen
+    # capture binary. AEF found a 7 MB PostScript file named `yaml,sys` in their
+    # repo root, staged, caught only by a secret scanner false-positive.
+    #
+    # Two properties make the torn form worse than a stray file: `import` exits
+    # 0 after writing, so the line is reported PASS and counted toward the
+    # verification total; and cwd is forced to PROJECT_ROOT, so the artifact
+    # lands where `git add -A` stages it.
+    #
+    # The predicate is delegated to bash's own parser rather than to a pattern
+    # list. Counting quote characters was tried first and produced 12 false
+    # positives across 9 task files (`grep -q "x').onclick"` has an odd quote
+    # count and is perfectly valid) — PL-025: character-level regexes
+    # over-approximate shell intent. A vocabulary deny-list (`import`, `from`,
+    # ...) was rejected for the G-025/G-026 reason: enumeration cannot name
+    # every member of an open class, in either polarity. `bash -n` is the only
+    # thing that actually knows how quoting nests.
+    #
+    #   rc != 0      -> unterminated quote / syntax error: the line is a fragment
+    #   stderr != "" -> bash warns "here-document delimited by end-of-file":
+    #                   the line opens a heredoc whose body is on later lines
+    #
+    # `bash -n` parses without executing, so this is safe on any line. Measured
+    # blast radius at introduction: 1460 verification lines across 322 task
+    # files, 0 refused. Herestrings (`<<<`) and arithmetic shifts (`$((1<<2))`)
+    # are silent under this predicate and stay legal.
+    local _vc_line _vc_err _vc_rc _vc_bad
+    _vc_bad=""
+    while IFS= read -r _vc_line; do
+        _vc_line=$(echo "$_vc_line" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+        [ -z "$_vc_line" ] && continue
+        # Guarded as an `if` condition, not a bare assignment: this script runs
+        # under `set -e` (line 14), and a bare `_vc_err=$(bash -n ...)` aborts
+        # the whole script the moment `bash -n` reports the very fragment this
+        # loop exists to catch — the guard would kill the gate instead of
+        # reporting it (observed: silent exit 2 right after the P-010 line).
+        if _vc_err=$(bash -n -c "$_vc_line" 2>&1 >/dev/null); then
+            _vc_rc=0
+        else
+            _vc_rc=$?
+        fi
+        if [ $_vc_rc -ne 0 ]; then
+            _vc_bad="${_vc_bad}\n  - incomplete command (bash -n exit $_vc_rc): ${_vc_line:0:100}"
+        elif [ -n "$_vc_err" ]; then
+            _vc_bad="${_vc_bad}\n  - opens an unterminated heredoc: ${_vc_line:0:100}"
+        fi
+    done <<< "$verify_cmds"
+
+    if [ -n "$_vc_bad" ]; then
+        echo "" >&2
+        echo -e "${RED}=== Verification Gate (P-011): MALFORMED BLOCK ===${NC}" >&2
+        echo "The ## Verification section contains a multi-line construct." >&2
+        echo "P-011 runs ONE LINE PER COMMAND, so its continuation lines would be" >&2
+        echo "executed as bare shell commands in $PROJECT_ROOT." >&2
+        echo -e "$_vc_bad" >&2
+        echo "" >&2
+        echo "Nothing was run. Rewrite each verification as a SINGLE line, e.g." >&2
+        echo "  python3 -c \"import yaml; yaml.safe_load(open('file.yaml'))\"" >&2
+        echo "or move the multi-line logic into a script and call the script." >&2
+        return 1
+    fi
+
     verify_total=$(echo "$verify_cmds" | wc -l)
     verify_pass=0
     verify_fail=0

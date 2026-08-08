@@ -1242,3 +1242,17 @@ decisions:
     date: 2026-08-08
     task: T-389
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-157
+    decision: "delegate to bash's own parser. `bash -n -c \"$line\"` must exit 0 AND"
+    scope: project
+    date: 2026-08-08
+    task: T-391
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-158
+    decision: "the probe's torn continuation line is `touch <marker>`, not"
+    scope: project
+    date: 2026-08-08
+    task: T-391
+    rationale: "Auto-captured from task file on completion"

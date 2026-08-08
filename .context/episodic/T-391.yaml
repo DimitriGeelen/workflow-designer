@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-391: Sweep for the OBS-201 class: python source executed as shell
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-08T18:54:22Z
+# ============================================================================
+
+task_id: T-391
+task_name: "Sweep for the OBS-201 class: python source executed as shell"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-08T18:43:48Z
+completed: 2026-08-08T18:54:16Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'Tree and full git history are proven clear of the artifact class (no'
+  - 'Blast radius measured: every existing task''s `## Verification` block'
+  - 'P-011 refuses a verification block containing a multi-line construct'
+  - 'The guard is stated over CONSTRUCT SHAPE, not over a list of python'
+  - 'Probe with mutation teeth: disabling the guard must make a torn fragment'
+  - 'Positive control: a normal single-line verification block, including the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-08 — what predicate decides "this line is a fragment"'
+    chose: 'delegate to bash''s own parser. `bash -n -c "$line"` must exit 0 AND'
+    rationale: 'the only thing that actually knows how shell quoting nests is the'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 10 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 10
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-391-sweep-for-the-obs-201-class-python-sourc.md
+generated_by: context-agent-hybrid

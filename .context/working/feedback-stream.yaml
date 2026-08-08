@@ -4445,3 +4445,21 @@ scan_id: R-e2481957
 task_id: T-390
 payload:
   task_file: .tasks/active/T-390-knowledge-capture-verbs-are-blocked-in-t.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T18:54:19Z'
+scan_id: R-b930f1d6
+task_id: T-391
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T18:54:19Z'
+scan_id: R-b930f1d6
+task_id: T-391
+payload:
+  task_file: .tasks/active/T-391-sweep-for-the-obs-201-class-python-sourc.md
