@@ -4247,3 +4247,21 @@ scan_id: R-5c2a3ed1
 task_id: T-379
 payload:
   task_file: .tasks/active/T-379-sweep-this-tree-for-rail-bytes-read-from.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T15:06:11Z'
+scan_id: R-b1ce096d
+task_id: T-380
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T15:06:11Z'
+scan_id: R-b1ce096d
+task_id: T-380
+payload:
+  task_file: .tasks/active/T-380-session-capture-and-handover-s-2026-0808.md
