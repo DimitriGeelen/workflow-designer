@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-08T14:55:52Z ===
+task_id: T-378
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-378.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Verify AEF's Frozen-v1 over-claim finding against the frozen text itself
+  Duration: 0 days (3 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 7 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-378-verify-aefs-frozen-v1-over-claim-finding.md
+--- exit code: 0 ---

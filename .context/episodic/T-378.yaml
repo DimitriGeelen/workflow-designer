@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-378: Verify AEF's Frozen-v1 over-claim finding against the frozen text itself
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-08T14:55:52Z
+# ============================================================================
+
+task_id: T-378
+task_name: "Verify AEF's Frozen-v1 over-claim finding against the frozen text itself"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-08T14:52:02Z
+completed: 2026-08-08T14:55:49Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'The file still hashes to the delivered pin (whole-file `fbada7b3`, Part I `970dd530`'
+  - 'The struck-through row and its `v1.1` annotation are located and quoted with byte'
+  - 'Whether the annotation falls INSIDE the frozen extent [1906,9811) is decided by'
+  - 'The over-claim question is answered from the text on its own terms, stating what the'
+  - 'The whole frozen extent is swept for the same construct, not just the one row they'
+  - 'Operator decision prepared with remedy options, consequences, and the expected pin'
+  - 'The standard itself is NOT edited: `git diff --exit-code docs/standards/aef-bpmn-mapping-v1.md` is clean at completion'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-378-verify-aefs-frozen-v1-over-claim-finding.md
+generated_by: context-agent-hybrid
