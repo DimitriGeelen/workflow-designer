@@ -4,7 +4,7 @@ name: "release-designer.sh must produce the tag or refuse to report success"
 description: >
   T-395 prevention. The release script builds the artifact and writes MANIFEST but never tags; all ten prior tags were applied by hand and 0.9.0 was the first cut where nobody remembered. Detection already works (T-382 lag check caught it in one session, reporting UNMEASURED rather than defaulting to zero) so the gap is generation, not noticing. Make the script either create the annotated tag itself at the VERSION-bump commit, or refuse to print a success verdict while the tag for the version it just built is absent. Must assert the tagged tree carries the matching VERSION and artifact sha, not merely that some tag exists.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T19:42:50Z
-last_update: 2026-08-08T19:42:50Z
+last_update: 2026-08-08T19:54:41Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,54 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+T-395 prevention. A cut produces **three** outputs — the artifact, the rail
+announcement, and the tag — and `release-designer.sh` reported only the first two.
+0.9.0 was cut, verified, announced and pushed with no tag; all ten prior tags were
+applied by hand by a session that happened to remember.
+
+**This became load-bearing on 2026-08-08.** Until now a missing tag was hygiene.
+At rail 483 AEF were given a fetch path that resolves the artifact **by tag**
+(`git clone --depth 1 --branch designer-v0.9.0 <public mirror>`, verified
+end-to-end, anonymous). A future cut that misses its tag now breaks a live
+consumer path, not just an audit line.
+
+**Why the script cannot simply tag.** When it runs, the release commit does not
+exist: `dist/` and `MANIFEST` have just been written to the *working tree* and the
+commit containing them comes afterwards. `git tag` at that point names the
+PREVIOUS commit — the same error T-395 nearly made by trusting MANIFEST's
+`src_commit`. A tag resolving to a tree without its own VERSION and artifact is
+worse than no tag, because it looks correct.
+
+**Why it must not exit non-zero.** On a genuine fresh cut the tag *cannot* exist
+yet, so failing would make every correct release "fail". A warning that fires
+every time is one the reader learns to dismiss — after which an untagged release
+is once again indistinguishable from a tagged one. Same fail-closed-decays-into-
+fail-open argument settled on the rail for currency checks. So: exit 0, report the
+true state, name the exact command.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `release-designer.sh` reports tag state as a third release output, in BOTH
+      directions — a message that only ever says "NOT YET TAGGED" would pass a
+      one-sided test while being useless
+- [x] Tag present → final line ends `— TAGGED`, and no false NOT-TAGGED warning fires
+- [x] Tag absent → final line ends `— NOT YET TAGGED`, plus a loud warning that
+      names the missing tag, states the tag must follow the release commit, and
+      gives a single copy-pasteable remedy including `cd`, `git tag -a` and
+      `git push origin` (CLAUDE.md §T-609)
+- [x] Backward compatible: the substrings `CUT and ANNOUNCED` and `CUT but NOT
+      ANNOUNCED` survive verbatim in the script source — T-389's verification
+      greps them and must keep matching
+- [x] T-387 idempotence preserved: re-running at an unchanged VERSION leaves
+      `dist/` byte-unchanged
+- [x] Probe drives both branches in throwaway clones — the live `dist/`, the live
+      `VERSION` and the rail are never touched (`RELEASE_SKIP_ANNOUNCE=1`)
+- [x] Probe carries an anti-vacuity control: if the tag for the current VERSION is
+      absent from the source repo, the TAGGED branch has no fixture and the probe
+      reports CANNOT MEASURE (exit 3) rather than a result
+
+`tools/_t396-release-tag-state.sh` — 9/9, exit 0.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -123,6 +163,17 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# Both branches (tag present / tag absent) in throwaway clones. Single command
+# whose own exit code is the verdict, so the T-352 errexit trap does not arise.
+# Exits 3 (not 1) if it could not measure — a missing fixture is not a pass.
+bash tools/_t396-release-tag-state.sh
+# Backward compatibility, asserted independently of the probe so a probe defect
+# cannot hide a regression that would break T-389's verification.
+grep -q "CUT but NOT ANNOUNCED" scripts/release-designer.sh
+grep -q "CUT and ANNOUNCED" scripts/release-designer.sh
+# The live release is still tagged and still measurable (T-395 must not regress).
+python3 tools/_t382-release-lag.py > /tmp/.t396-lag 2>&1 && ! grep -q "COULD NOT MEASURE" /tmp/.t396-lag
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -190,3 +241,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-396-release-designersh-must-produce-the-tag-.md
 - **Context:** Initial task creation
+
+### 2026-08-08T19:54:41Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

@@ -204,9 +204,50 @@ else
   fi
 fi
 
-# Final line is the one a caller greps. It must never be ambiguous about the announce.
-if [ "$ANNOUNCE_RC" -eq 0 ] && [ "${RELEASE_SKIP_ANNOUNCE:-0}" != "1" ]; then
-  echo "Release $VERSION: CUT and ANNOUNCED"
+# --- Tag state (T-396, after T-395) ------------------------------------------
+# A cut has THREE outputs, not two: the artifact, the announcement, and the tag.
+# The first two were reported here; the third was not, and 0.9.0 shipped untagged
+# because nothing at cut time said so. All ten prior tags were applied by hand by
+# a session that happened to remember — that is not a step, it is a hope.
+#
+# WHY THIS SCRIPT CANNOT SIMPLY TAG. The release commit does not exist yet when
+# this runs: we have just written dist/ + MANIFEST into the WORKING TREE, and the
+# commit that contains them comes after. `git tag` here would name the PREVIOUS
+# commit — which is exactly the error T-395 nearly made by trusting MANIFEST's
+# `src_commit` (the state built FROM, not the release). A tag that resolves to a
+# tree without its own VERSION and artifact is worse than no tag: it looks right.
+#
+# WHY IT DOES NOT EXIT NON-ZERO. On a genuine fresh cut the tag CANNOT exist yet,
+# so failing here would make every correct release "fail", and a warning that
+# fires every time is one the reader learns to dismiss — after which an untagged
+# release is indistinguishable from a tagged one again. Same fail-closed-decays-
+# into-fail-open argument the rail settled for currency checks. So: exit 0, state
+# the truth, name the exact command.
+TAG_NAME="designer-v$VERSION"
+TAG_STATE="NOT YET TAGGED"
+if git -C "$REPO_ROOT" rev-parse -q --verify "refs/tags/$TAG_NAME" >/dev/null 2>&1; then
+  TAG_STATE="TAGGED"
 else
-  echo "Release $VERSION: CUT but NOT ANNOUNCED"
+  echo "" >&2
+  echo "WARNING: release $VERSION is NOT TAGGED — tag '$TAG_NAME' does not exist." >&2
+  echo "WARNING: the release is INCOMPLETE. dist/ and the rail announcement name a" >&2
+  echo "WARNING: sha, but nothing names a REF it can be fetched at, and a branch tip" >&2
+  echo "WARNING: is not a release. AEF fetch the artifact by tag (rail 483)." >&2
+  echo "WARNING:" >&2
+  echo "WARNING: The tag must be applied AFTER the release commit exists — tagging" >&2
+  echo "WARNING: now would name the previous commit, which carries neither this" >&2
+  echo "WARNING: VERSION nor this artifact. So: commit first, then tag HEAD:" >&2
+  echo "WARNING:   cd $REPO_ROOT && git tag -a $TAG_NAME -m \"designer $VERSION (sha256 $SHA)\" && git push origin $TAG_NAME" >&2
+  echo "WARNING:" >&2
+  echo "WARNING: Verify with: cd $REPO_ROOT && python3 tools/_t382-release-lag.py" >&2
+fi
+
+# Final line is the one a caller greps. It must never be ambiguous about the
+# announce OR the tag. The substrings "CUT and ANNOUNCED" and "CUT but NOT
+# ANNOUNCED" are preserved verbatim so existing greps (T-389) keep matching;
+# the tag state is appended rather than replacing them.
+if [ "$ANNOUNCE_RC" -eq 0 ] && [ "${RELEASE_SKIP_ANNOUNCE:-0}" != "1" ]; then
+  echo "Release $VERSION: CUT and ANNOUNCED — $TAG_STATE"
+else
+  echo "Release $VERSION: CUT but NOT ANNOUNCED — $TAG_STATE"
 fi
