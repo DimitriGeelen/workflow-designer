@@ -141,12 +141,27 @@ fi
 # --- the verdict branch must no longer be constant ---------------------------
 # Extract the live branch from audit.sh and drive BOTH arms. Three branches emitting one
 # verdict is a rename, not a partition — this requires the two arms to differ.
-branch=$(awk '/^        if \[ "\$fabric_unreg" -gt 0 \]; then$/{f=1} f{print} f && /^        fi$/{exit}' "$AUDIT")
+# T-376: re-anchored. T-344 inserted an empty-denominator arm and T-374 an
+# expander-unavailable arm AHEAD of this one, so the branch head is now
+# FABRIC_EXPAND_OK and the fabric_unreg test is an elif. This leg reported
+# "could not extract — it moved" rather than passing over a branch it could no
+# longer find, which is the entire reason the branch is extracted at runtime
+# instead of restated here.
+#
+# Both drives pin FABRIC_EXPAND_OK=1 and a non-zero fabric_watched so the two
+# EARLIER arms are not the ones answering. Without that this leg would still go
+# green while silently testing a different question — a re-anchor that lands on
+# the wrong branch is worse than one that fails to land at all.
+branch=$(awk '/^        if \[ "\$\{FABRIC_EXPAND_OK:-1\}" -eq 0 \]; then$/{f=1} f{print} f && /^        fi$/{exit}' "$AUDIT")
 if [ -z "$branch" ]; then
   bad "could not extract the verdict branch from audit.sh — it moved; re-anchor this leg"
+elif ! echo "$branch" | grep -q 'fabric_unreg" -gt 0'; then
+  bad "extracted a branch, but it does not contain the fabric_unreg test — the anchor"
+  bad "      landed on the wrong branch; a green below would measure something else"
 else
-  hot=$(fabric_unreg=7 fabric_registered=15 bash -c "pass(){ echo \"PASS|\$1\"; }; warn(){ echo \"WARN|\$1\"; }; $branch" 2>&1)
-  cold=$(fabric_unreg=0 fabric_registered=15 bash -c "pass(){ echo \"PASS|\$1\"; }; warn(){ echo \"WARN|\$1\"; }; $branch" 2>&1)
+  drive_env() { FABRIC_EXPAND_OK=1 fabric_watched=147 fabric_registered=15 "$@"; }
+  hot=$(drive_env env fabric_unreg=7 bash -c "pass(){ echo \"PASS|\$1\"; }; warn(){ echo \"WARN|\$1\"; }; $branch" 2>&1)
+  cold=$(drive_env env fabric_unreg=0 bash -c "pass(){ echo \"PASS|\$1\"; }; warn(){ echo \"WARN|\$1\"; }; $branch" 2>&1)
   case "$hot" in
     WARN*) ok "unregistered>0 now raises WARN (was pass) — the metric can recruit attention" ;;
     *)     bad "unregistered>0 still emits: $hot" ;;
