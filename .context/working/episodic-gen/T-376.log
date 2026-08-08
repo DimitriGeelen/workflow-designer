@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-08T12:36:13Z ===
+task_id: T-376
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-376.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Re-anchor the T-345 probe after T-374 turned its verdict branch into an elif
+  Duration: 0 days (2 min)
+  Updates: 1
+  Commits: 1
+  Lines: +247 -3 across 2 files
+  Outcomes: 4 AC checked
+  Artifacts: 2 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-376-re-anchor-the-t-345-probe-after-t-374-tu.md
+--- exit code: 0 ---

@@ -1158,3 +1158,31 @@ decisions:
     date: 2026-08-08
     task: T-367
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-145
+    decision: "read 454 back off the hub and localise the mutating stage before repeating"
+    scope: project
+    date: 2026-08-08
+    task: T-377
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-146
+    decision: "include `no-trailing-newline` and `trailing-spaces` alongside the shape that"
+    scope: project
+    date: 2026-08-08
+    task: T-377
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-147
+    decision: "post the probe payloads to `t377-fidelity-probe`."
+    scope: project
+    date: 2026-08-08
+    task: T-377
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-148
+    decision: "assert `970dd530…` as a literal in the Verification block."
+    scope: project
+    date: 2026-08-08
+    task: T-377
+    rationale: "Auto-captured from task file on completion"

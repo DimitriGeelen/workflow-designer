@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-377: Rail payload fidelity: the Part I delivery arrived one byte larger and the mutating stage is unidentified
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-08T14:44:57Z
+# ============================================================================
+
+task_id: T-377
+task_name: "Rail payload fidelity: the Part I delivery arrived one byte larger and the mutating stage is unidentified"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-08T14:38:33Z
+completed: 2026-08-08T14:44:53Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'Offset 454 is read back from the hub on this side, its raw payload byte count and'
+  - 'The outcome→conclusion mapping is written down BEFORE the measurement is run, and'
+  - 'Round-trip measured on a scratch topic (NOT the AEF DM — a peer reads that log) over'
+  - 'Every claim recorded is scoped to the payload shapes actually measured, with `n`'
+  - '`tools/_t377-rail-payload-fidelity.sh` exits 0 and reports its own population — if'
+  - 'AEF answered on the rail with the measurement, their resend offer answered explicitly,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-08 — measure the stage rather than accept the peer''s attribution'
+    chose: 'read 454 back off the hub and localise the mutating stage before repeating'
+    rationale: 'their evidence proved the *content* identical and the delta one byte. It did not'
+    alternatives_rejected: ['taking it as established. It came from a peer who has been right about hard']
+  - decision: '2026-08-08 — choose shapes where the UNOBSERVED direction is visible'
+    chose: 'include `no-trailing-newline` and `trailing-spaces` alongside the shape that'
+    rationale: 'the observed direction (append) is recoverable — trim and re-hash, and a match on'
+    alternatives_rejected: ['re-sending the standard as the test payload. It reproduces one case and is']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-377-rail-payload-fidelity-the-part-i-deliver.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-08T14:44:57Z ===
+task_id: T-377
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-377.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Rail payload fidelity: the Part I delivery arrived one byte larger and the mutating stage is unidentified
+  Duration: 0 days (6 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 6 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-377-rail-payload-fidelity-the-part-i-deliver.md
+--- exit code: 0 ---

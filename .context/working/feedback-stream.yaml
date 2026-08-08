@@ -4139,3 +4139,75 @@ scan_id: R-32906ed6
 task_id: T-373
 payload:
   task_file: .tasks/active/T-373-inception-decide-defer-skips-the-agent-a.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T12:25:19Z'
+scan_id: R-97884102
+task_id: T-374
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T12:25:19Z'
+scan_id: R-97884102
+task_id: T-374
+payload:
+  task_file: .tasks/active/T-374-auditsh-silently-ignores-the-exclude-key.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T12:30:57Z'
+scan_id: R-2ffbbdf4
+task_id: T-375
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T12:30:57Z'
+scan_id: R-2ffbbdf4
+task_id: T-375
+payload:
+  task_file: .tasks/active/T-375-deliver-frozen-part-i-of-aef-bpmn-mappin.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T12:36:12Z'
+scan_id: R-edc67767
+task_id: T-376
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T12:36:12Z'
+scan_id: R-edc67767
+task_id: T-376
+payload:
+  task_file: .tasks/active/T-376-re-anchor-the-t-345-probe-after-t-374-tu.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T14:44:54Z'
+scan_id: R-cd2c8627
+task_id: T-377
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T14:44:54Z'
+scan_id: R-cd2c8627
+task_id: T-377
+payload:
+  task_file: .tasks/active/T-377-rail-payload-fidelity-the-part-i-deliver.md

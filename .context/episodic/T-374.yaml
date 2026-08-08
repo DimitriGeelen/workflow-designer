@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-374: audit.sh silently ignores the exclude: key that fw fabric drift honors
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-08T12:25:21Z
+# ============================================================================
+
+task_id: T-374
+task_name: "audit.sh silently ignores the exclude: key that fw fabric drift honors"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-08T12:18:11Z
+completed: 2026-08-08T12:25:07Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-08T14:25:02+02:00
+last_commit: 2026-08-08T14:25:02+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  audit.sh ignored the exclude: key that fw fabric drift honors
+
+# Key outcomes
+outcomes:
+  - 'Both `audit.sh` fabric coverage blocks obtain their file list from'
+  - 'A probe drives the real `audit.sh` over a watch config **containing** an `exclude:`'
+  - 'The missing/failing-expander case is reported distinctly from the empty-watch-set case.'
+  - 'The audit''s standing verdict is unchanged by this refactor on the current config'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.tasks/active/T-344-fabric-watch-patternsyaml-is-the-untailo.md'
+  - '.tasks/active/T-374-auditsh-silently-ignores-the-exclude-key.md'
+  - 'tools/_t344-watch-set-denominator.sh'
+  - 'tools/_t374-audit-honors-exclude.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-08T14:25:02"
+    action: "T-374: audit.sh ignored the exclude: key that fw fabric drift honors"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 5
+  lines_added: 532
+  lines_removed: 14
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-374-auditsh-silently-ignores-the-exclude-key.md
+generated_by: context-agent-hybrid

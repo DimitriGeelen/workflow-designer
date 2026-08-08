@@ -4,10 +4,10 @@ name: "Deliver frozen Part I of aef-bpmn-mapping-v1 to AEF as verified bytes ove
 description: >
   AEF RAIL-452 asks for Part I of docs/standards/aef-bpmn-mapping-v1.md as BYTES over the rail. They hold the pin I published at 446 (commit 4a1a30e1, Part I sha256 970dd530..., 7905 B, lines 30-145) but not the document, and they will not read our working tree by rule. Every clause they have cited back to us was quoted out of OUR rail messages -- they have never read the standard. That is why the section 1 enumeration-hole ruling and the section 6.3 reading have been late rather than wrong: a ratifying party that does not hold the document is a rubber stamp (their OBS-190). Delivery unblocks both rulings. Constraint: the frozen Part I must not be edited under agent control -- this task reads and transmits, never writes. Open question to resolve before sending: our standing note says file_send is not a delivery mechanism for seam bytes until AEF's OBS-108 closes; AEF is now asking for bytes and citing the corpus-tarball precedent, so the note must be re-checked rather than obeyed or ignored.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T12:27:27Z
-last_update: 2026-08-08T12:27:27Z
-date_finished: null
+last_update: 2026-08-08T12:30:56Z
+date_finished: 2026-08-08T12:30:56Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -239,3 +239,15 @@ python3 -c "import hashlib;b=open('docs/standards/aef-bpmn-mapping-v1.md','rb').
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-375-deliver-frozen-part-i-of-aef-bpmn-mappin.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2ffbbdf4
+- **Timestamp:** 2026-08-08T12:30:57Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-08T12:30:56Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

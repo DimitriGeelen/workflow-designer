@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-376: Re-anchor the T-345 probe after T-374 turned its verdict branch into an elif
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-08T12:36:13Z
+# ============================================================================
+
+task_id: T-376
+task_name: "Re-anchor the T-345 probe after T-374 turned its verdict branch into an elif"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-08T12:33:47Z
+completed: 2026-08-08T12:36:01Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-08T14:36:01+02:00
+last_commit: 2026-08-08T14:36:01+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  re-anchor the T-345 probe after T-374 moved its verdict branch
+
+# Key outcomes
+outcomes:
+  - 'Establish whether `tools/_t345-fabric-check-agreement.sh` is actually red before'
+  - 'If red: re-anchor on the branch''s new head so the leg drives the same verdict logic'
+  - 'The re-anchored probe still has teeth: reverting each glob defect must still change'
+  - 'Every probe touched or affected by today''s audit.sh work is run and its result stated:'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-376-re-anchor-the-t-345-probe-after-t-374-tu.md'
+  - 'tools/_t345-fabric-check-agreement.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-08T14:36:01"
+    action: "T-376: re-anchor the T-345 probe after T-374 moved its verdict branch"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 2
+  lines_added: 247
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-376-re-anchor-the-t-345-probe-after-t-374-tu.md
+generated_by: context-agent-hybrid
