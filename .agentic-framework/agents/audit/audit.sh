@@ -1394,8 +1394,20 @@ for card_path in glob.glob(os.path.join(COMP_DIR, '*.yaml')):
     if data and data.get('location'):
         registered.add(data['location'])
 
-unregistered = 0
 orphaned = 0
+# T-344: the DENOMINATOR. An unregistered count alone cannot distinguish every-
+# watched-file-is-carded from nothing-is-watched -- both are 0. Counted here and
+# reported in the verdict. Sets, not counters: two globs matching one file must
+# not count it twice, and expand_patterns.py (the shared expander used by fw
+# fabric drift) dedupes -- a denominator that disagrees with the other surface is
+# the T-345 defect one level down.
+#
+# NOTE FOR EDITORS: this block is a python3 -c argument inside a DOUBLE-QUOTED
+# bash string. Backticks and double quotes here are parsed by BASH, not python.
+# The first draft of this comment used both and broke the audit with a bash
+# syntax error at the set() line below. Plain ASCII only in this block.
+watched_set = set()
+unregistered_set = set()
 
 # Check watch patterns
 if os.path.exists(WATCH_FILE):
@@ -1416,8 +1428,14 @@ if os.path.exists(WATCH_FILE):
             continue
         for match in glob.glob(os.path.join(PROJECT_ROOT, g), recursive=True):
             rel = os.path.relpath(match, PROJECT_ROOT)
-            if os.path.isfile(match) and rel not in registered:
-                unregistered += 1
+            if not os.path.isfile(match):
+                continue
+            watched_set.add(rel)
+            if rel not in registered:
+                unregistered_set.add(rel)
+
+watched = len(watched_set)
+unregistered = len(unregistered_set)
 
 # Check orphaned cards
 for card_path in glob.glob(os.path.join(COMP_DIR, '*.yaml')):
@@ -1427,11 +1445,12 @@ for card_path in glob.glob(os.path.join(COMP_DIR, '*.yaml')):
         if not os.path.exists(os.path.join(PROJECT_ROOT, data['location'])):
             orphaned += 1
 
-print(f'{len(registered)} {unregistered} {orphaned}')
+print(f'{len(registered)} {unregistered} {orphaned} {watched}')
 " 2>&1)
         fabric_registered=$(echo "$drift_result" | awk '{print $1}')
         fabric_unreg=$(echo "$drift_result" | awk '{print $2}')
         fabric_orphan=$(echo "$drift_result" | awk '{print $3}')
+        fabric_watched=$(echo "$drift_result" | awk '{print $4}')
 
         if [ "$fabric_orphan" -gt 0 ]; then
             warn "Fabric: $fabric_orphan orphaned card(s) (file deleted but card remains)" \
@@ -1447,12 +1466,34 @@ print(f'{len(registered)} {unregistered} {orphaned}')
         # condition. Two checks over one question disagreeing on severity is the same
         # class of defect one level up, and matching is the only choice that does not
         # invent a new opinion about how bad this is.
-        if [ "$fabric_unreg" -gt 0 ]; then
-            warn "Fabric: $fabric_registered registered, $fabric_unreg unregistered" \
+        #
+        # T-344: the EMPTY-DENOMINATOR arm, checked before either of the above.
+        # `0 unregistered` is produced both by "every watched file is carded" and
+        # by "nothing is watched", and this repo sat in the second state for 11
+        # days printing the first one's message. The untailored `fw context init`
+        # default watches src/**/*.py, web/, agents/, bin/, crates/, *.ts, *.go —
+        # plausible enough to survive a glance, and it matched zero files here.
+        #
+        # WARN, not FAIL, and the reason is measured rather than assumed: the
+        # pre-push hook (git/lib/hooks.sh:~843) blocks on audit exit 2, and the
+        # bypass is `--no-verify`, which is Tier 0. A freshly-initialised project
+        # is in exactly this state by construction, so FAIL would make a new
+        # project unpushable at `fw context init` until it tailored a config it
+        # has not been told about. The defect being repaired is a check that
+        # could not recruit attention; WARN recruits it. FAIL gated on
+        # `cards > 0 && watched == 0` (adopted the fabric, then lost the
+        # denominator) is the stricter variant and is a deliberate non-choice
+        # here — severity for other trees is their operator's call, not mine.
+        if [ "${fabric_watched:-0}" -eq 0 ]; then
+            warn "Fabric: watch set expands to 0 files — coverage is UNMEASURED, not complete" \
+                 "$fabric_registered card(s) registered, but .fabric/watch-patterns.yaml matches nothing in this project, so '0 unregistered' is vacuous" \
+                 "Edit .fabric/watch-patterns.yaml to describe this project's source layout"
+        elif [ "$fabric_unreg" -gt 0 ]; then
+            warn "Fabric: $fabric_registered registered, $fabric_unreg unregistered (of $fabric_watched watched)" \
                  "$fabric_unreg file(s) matching watch-patterns.yaml have no component card" \
                  "Run: fw fabric scan"
         else
-            pass "Fabric: $fabric_registered registered, 0 unregistered"
+            pass "Fabric: $fabric_registered registered, 0 unregistered (of $fabric_watched watched)"
         fi
 
         # Check for unenriched cards (no depends_on AND no depended_by edges)
@@ -1514,27 +1555,42 @@ for f in glob.glob(os.path.join(COMP_DIR, "*.yaml")):
 with open(WATCH_FILE) as f:
     data = yaml.safe_load(f)
 patterns = data.get("patterns", []) if data else []
-unregistered = []
+# T-344: `watched` is the denominator. Reported alongside, because an empty one
+# yields the same "all registered" line as complete coverage. Sets dedupe overlapping
+# globs, matching expand_patterns.py.
+watched = set()
+unregistered = set()
 for p in patterns:
     g = p.get("glob", "") if isinstance(p, dict) else str(p)
     if not g:
         continue
     for match in glob.glob(os.path.join(PROJECT_ROOT, g), recursive=True):
         rel = os.path.relpath(match, PROJECT_ROOT)
-        if os.path.isfile(match) and rel not in registered:
-            unregistered.append(rel)
+        if not os.path.isfile(match):
+            continue
+        watched.add(rel)
+        if rel not in registered:
+            unregistered.add(rel)
 
-print(f"{len(unregistered)} {len(registered)}")
+print(f"{len(unregistered)} {len(registered)} {len(watched)}")
 DRIFTEOF
     )
     drift_unreg=$(echo "$drift_result" | awk '{print $1}')
     drift_total=$(echo "$drift_result" | awk '{print $2}')
-    if [ "$drift_unreg" -gt 0 ] 2>/dev/null; then
+    drift_watched=$(echo "$drift_result" | awk '{print $3}')
+    # T-344: "All watched source files registered (17 cards)" is TRUE of an empty
+    # watch set, and reads as a coverage report. The card count in the message is
+    # what makes it convincing — it names a number that was never the denominator.
+    if [ "${drift_watched:-0}" -eq 0 ] 2>/dev/null; then
+        warn "Fabric drift: watch set expands to 0 files — nothing was checked" \
+             ".fabric/watch-patterns.yaml matches no file in this project; the $drift_total card(s) were never compared against anything" \
+             "Edit .fabric/watch-patterns.yaml to describe this project's source layout"
+    elif [ "$drift_unreg" -gt 0 ] 2>/dev/null; then
         warn "Fabric drift: $drift_unreg source file(s) have no fabric card" \
-             "$drift_unreg unregistered files matching watch-patterns.yaml" \
+             "$drift_unreg of $drift_watched watched files matching watch-patterns.yaml are unregistered" \
              "Run: fw fabric scan"
     else
-        pass "Fabric drift: All watched source files registered ($drift_total cards)"
+        pass "Fabric drift: all $drift_watched watched source file(s) registered ($drift_total cards)"
     fi
 fi
 

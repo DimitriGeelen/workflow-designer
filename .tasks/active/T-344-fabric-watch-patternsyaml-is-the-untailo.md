@@ -4,7 +4,7 @@ name: "fabric watch-patterns.yaml is the untailored fw context init default and 
 description: >
   The generated default watches src/**/*.py, lib/**/*.py, web/, agents/, bin/, crates/ — none of which describe this repo (web, agents, bin, crates absent; src holds only .html; lib empty). Expansion yields 0 files, so the audit's coverage checks scan nothing. Widening to tools/tests/src patterns makes the audit immediately report 49 unregistered source files. Real tracked source population is 115, of which 15 are carded.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: human
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:15:56Z
-last_update: 2026-08-02T11:15:56Z
+last_update: 2026-08-08T12:06:56Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -90,15 +90,65 @@ patterns without it makes the audit print two contradictory fabric lines side by
 ## Acceptance Criteria
 
 ### Agent
-- [ ] `.fabric/watch-patterns.yaml` describes this repo: patterns that expand to a non-empty
+- [x] `.fabric/watch-patterns.yaml` describes this repo: patterns that expand to a non-empty
       set, with the excluded categories (`dist/`, vendored, one-shot probes) named explicitly
       rather than omitted by accident.
-- [ ] The expansion count is recorded in this task alongside the resulting unregistered
+- [x] The expansion count is recorded in this task alongside the resulting unregistered
       count, so the accepted debt is a stated number and not a surprise at the next audit.
-- [ ] A guard fails if the watch set ever expands to zero again — a coverage check whose
+- [x] A guard fails if the watch set ever expands to zero again — a coverage check whose
       denominator is empty must be red, not green. This is the actual prevention: without it
       the next `fw context init` regenerates the inert default and the pass returns.
-- [ ] The audit's new standing verdict (pass/warn/fail totals) is reported before and after.
+- [x] The audit's new standing verdict (pass/warn/fail totals) is reported before and after.
+
+## Measurements
+
+All taken at `8b60b22d` (the commit before this task's changes), except where noted.
+
+**Expansion, before and after.** The eleven default patterns expand to **0** files — measured
+per pattern, all eleven are zero, not ten-plus-one. The tailored set expands to **147**.
+
+| | watched | carded | unregistered |
+|---|---|---|---|
+| default (as shipped) | 0 | 17 | 0 *(vacuous)* |
+| **as landed (broad)** | **147** | **14** | **133** |
+| narrow alternative (drop `_`-prefixed probes) | 61 | 8 | 53 |
+
+Three of the 17 cards are `tests/fixtures/**` XML — outside the watch set under either scope,
+and deliberately so (fixtures are data). That is why `carded` is 14, not 17.
+
+**Audit standing verdict.**
+
+```
+BEFORE   Pass: 19  Warn: 1  Fail: 0
+         [PASS] Fabric: 17 registered, 0 unregistered
+         [PASS] Fabric drift: All watched source files registered (17 cards)
+
+AFTER    Pass: 17  Warn: 3  Fail: 0
+         [WARN] Fabric: 17 registered, 133 unregistered (of 147 watched)
+         [WARN] Fabric drift: 133 source file(s) have no fabric card
+```
+
+Two PASS lines became two WARN lines. Neither number changed because coverage got worse —
+they were never measured. The pre-existing `13/17 cards have no edges` WARN is unrelated and
+unchanged.
+
+**T-345 is now demonstrated, which it was not at its own completion.** I closed T-345 stating
+plainly that the totals were unchanged and that this was *not* evidence the fix worked, because
+the watch set expanded to zero and both checks agreed at 0 either way. With a real population
+the two builds separate: the pre-T-345 expander (no `PROJECT_ROOT` join, no `recursive=True`,
+no `isfile` guard) returns **0** over this same tailored watch set, while the fixed one returns
+**133** — and the sibling check independently returns **133**. Had T-344 landed first, the audit
+would have printed `0 unregistered` directly above `133 source file(s) have no fabric card`.
+
+**The pre-fix defect, reproduced rather than inferred.** Driving both original verdict branches
+with the empty-denominator input emits, verbatim:
+
+```
+PASS|Fabric: 17 registered, 0 unregistered
+PASS|Fabric drift: All watched source files registered (17 cards)
+```
+
+Those are the exact strings the audit had been printing since 28 Jul.
 
 ### Human
 - [ ] [REVIEW] Approve the watch scope and the registration debt it makes visible
@@ -192,6 +242,17 @@ default at any time.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# The guard: watch set non-empty, product file in it, both audit verdict branches
+# (extracted from audit.sh at runtime) reporting an empty denominator rather than
+# passing over it, and the audit's two coverage checks agreeing on the count.
+# Exit code only — no "N passed" literal, which would rot the moment a leg is added.
+bash tools/_t344-watch-set-denominator.sh
+
+# audit.sh must remain parseable — the first draft of the T-344 comment used
+# backticks and double quotes inside a python3 -c "..." bash string and broke
+# the whole audit with a syntax error at the set() line.
+bash -n .agentic-framework/agents/audit/audit.sh
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -243,6 +304,53 @@ default at any time.
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-08-08 — WARN, not FAIL, for an empty watch set
+
+- **Chose:** the empty-denominator guard raises WARN in both audit blocks; the FAIL-capable
+  assertion lives in `tools/_t344-watch-set-denominator.sh` (exit 1), which is a P-011
+  verification line here.
+- **Why:** measured the consequence before choosing. `git/lib/hooks.sh:~843` blocks `git push`
+  on audit exit 2, and the bypass is `--no-verify`, which is Tier 0. A freshly-initialised
+  project is in the empty-expansion state *by construction* — `fw context init` stamps out
+  patterns for a Python/Rust layout — so FAIL would make a new project unpushable before it
+  had been told the config exists. The defect being repaired is a check that could not recruit
+  attention; WARN recruits it, and the WARN text names the inertness rather than printing a
+  flattering zero.
+- **Rejected:** FAIL gated on `cards > 0 && watched == 0` (project adopted the fabric, then
+  lost its denominator). That is non-circular and strictly better than a bare FAIL, and it is
+  deliberately *not* taken here: this file is vendored and goes upstream as G-008, and severity
+  for another project's push gate is that operator's call, not mine. Named in the code comment
+  so the choice is available rather than invisible.
+
+### 2026-08-08 — broad watch scope (147) over durable-source-only (61)
+
+- **Chose:** watch all authored code including the 85 one-shot `_t###-*` task probes.
+  Standing debt: 133 unregistered.
+- **Why:** the probes are the *dependents* of the product file. `fw fabric blast-radius` on
+  `src/aef-workflow-designer.html` is meant to answer "what exercises this", and the probe set
+  is that answer. The registry already agrees — 6 of the 17 existing cards are `_`-prefixed
+  probes, so excluding them would put the watch set at odds with the registry it is compared
+  against.
+- **Rejected:** narrowing to 61 watched / 53 unregistered. Defensible — 133 is large enough to
+  become wallpaper, which is how the `13/17 cards have no edges` WARN has been treated. This is
+  the [REVIEW] Human AC; narrowing is a one-line edit and the number is stated above so the
+  choice is made against evidence.
+
+### 2026-08-08 — no `exclude:` key, exclusions named in comments instead
+
+- **Chose:** express the scope entirely in include globs; name the excluded categories
+  (`.agentic-framework/`, `dist/`, `vendor/`, `docs/`, `examples/`, `.editor-versions/`,
+  `tests/fixtures/`) in comments.
+- **Why:** `exclude:` is honored by `expand_patterns.py` (which `fw fabric drift` and
+  `fw fabric scan` use) and **silently ignored by both audit.sh blocks**. Measured on one
+  config: `tools/**/*.mjs` with `exclude: ["tools/_*"]` gives **1** from the expander and **50**
+  from the audit's logic. Writing excludes today would hand the operator a config where the two
+  surfaces disagree 50-fold — and narrowing the scope is exactly the [REVIEW] action they are
+  most likely to take. Filed separately as its own bug.
+- **Rejected:** writing the excludes anyway as belt-and-braces. Under a precise include set they
+  would exclude nothing today, so they would be inert entries that read as protection — a
+  guard that cannot discriminate is worse than a comment, because it invites trust.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -259,3 +367,6 @@ default at any time.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-344-fabric-watch-patternsyaml-is-the-untailo.md
 - **Context:** Initial task creation
+
+### 2026-08-08T12:06:56Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

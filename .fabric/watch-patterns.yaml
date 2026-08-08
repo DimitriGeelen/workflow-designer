@@ -1,15 +1,73 @@
-# Fabric watch patterns — source files to track for drift detection
-# Generated automatically by fw context init
-# Edit to match your project's source layout
+# Fabric watch patterns — the source files the coverage checks range over.
+#
+# T-344: this file WAS the untailored `fw context init` default (src/**/*.py,
+# lib/**/*.py, web/, agents/, bin/, crates/, **/*.ts, **/*.go). Against this repo
+# every one of those eleven patterns expanded to ZERO files — web/, agents/, bin/
+# and crates/ do not exist here, src/ holds a single .html, and nothing is written
+# in Go or TypeScript. An empty denominator is not full coverage, but it prints
+# the same: `Fabric: 17 registered, 0 unregistered` / `All watched source files
+# registered`. It read as 100% while 13% of our source was carded, from 28 Jul.
+#
+# EXPANSION IS ASSERTED, NOT ASSUMED: tools/_t344-watch-set-denominator.sh fails
+# if this file ever expands to zero again, and the audit now WARNs on it rather
+# than passing. `fw context init` can regenerate the inert default at any time,
+# so the guard — not this edit — is the fix for the class.
+#
+# ── WHAT IS DELIBERATELY NOT WATCHED, AND WHY ────────────────────────────────
+# Named here rather than left to the silence of a pattern that happens not to
+# match. The include list below is precise enough that no `exclude:` key is
+# load-bearing today, which is deliberate: `exclude:` is honored by
+# expand_patterns.py (`fw fabric drift`, `fw fabric scan`) and SILENTLY IGNORED
+# by both of audit.sh's coverage blocks — measured, 1 vs 50 on the same config.
+# Until that is fixed, narrow this set by editing the globs below, NOT by adding
+# an `exclude:` key, or the two surfaces will report different numbers.
+#
+#   .agentic-framework/**  vendored governance framework; not our source. It
+#                          carries its own fabric upstream (G-008).
+#   dist/**                build output of src/aef-workflow-designer.html.
+#   vendor/**              third-party.
+#   docs/**, examples/**   prose and sample data, not code.
+#   .editor-versions/**    editor-saved snapshots (.bpmn/.png/.json), data.
+#   tests/fixtures/**      .bpmn/.xml/.yaml fixtures are DATA, not code. Three
+#                          fixture cards predate this file and remain valid —
+#                          a card may exist for anything; the watch set only
+#                          decides what an ABSENT card is reported about.
+#
+# ── SCOPE, AND THE DEBT IT MAKES VISIBLE ─────────────────────────────────────
+# The counts are recorded in .tasks/ T-344 against the commit they were taken at,
+# and deliberately NOT repeated here as bare literals. Writing this file's own
+# guard moved them: `tools/_t344-watch-set-denominator.sh` is a .sh under tools/,
+# so the instrument entered the population it measures and 146 became 147 in the
+# same edit. Any literal here is a moving global sitting in a comment nobody
+# re-reads. To get today's number:
+#
+#   python3 .agentic-framework/agents/fabric/lib/expand_patterns.py \
+#           .fabric/watch-patterns.yaml . | wc -l
+#
+# Shape, which does not rot: roughly three-fifths of the watch set is one-shot
+# `_t###-*` task probes. Dropping them gives a set about 40% the size.
+#
+# Kept broad, because the probes are the DEPENDENTS of the product file: a
+# blast-radius query on aef-workflow-designer.html is meant to answer "what
+# exercises this", and that answer is exactly the probe set. The registry
+# already agrees — 6 of the 17 existing cards are `_`-prefixed probes.
+# To narrow, replace `tools/**/*.mjs` etc. with explicit non-probe globs.
+# This is the T-344 [REVIEW] decision; the number above is the standing WARN
+# it accepts.
+
 patterns:
-  - glob: "src/**/*.py"
-  - glob: "src/**/*.rs"
-  - glob: "crates/*/src/**/*.rs"
-  - glob: "lib/**/*.py"
-  - glob: "lib/**/*.sh"
-  - glob: "web/**/*.py"
-  - glob: "agents/**/*.sh"
-  - glob: "agents/**/*.py"
-  - glob: "bin/*"
-  - glob: "**/*.ts"
-  - glob: "**/*.go"
+  # The product: one ~10k-line file this whole arc is about.
+  - glob: "src/**/*.html"
+
+  # Tooling and harnesses — CLIs, validators, renderers, task probes.
+  - glob: "tools/**/*.mjs"
+  - glob: "tools/**/*.py"
+  - glob: "tools/**/*.sh"
+
+  # Test suites (code only — fixtures are excluded above as data).
+  - glob: "tests/**/*.py"
+  - glob: "tests/**/*.sh"
+
+  # Build and release scripts.
+  - glob: "scripts/**/*.py"
+  - glob: "scripts/**/*.sh"
