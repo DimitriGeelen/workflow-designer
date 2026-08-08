@@ -1374,6 +1374,38 @@ else
          "Backfill related_tasks: in the inception OR file the promised siblings (origin: T-2078, T-2091; sibling to L-417/T-1975)"
 fi
 
+# T-374: ONE expansion, two consumers.
+#
+# Both fabric coverage checks below used to inline their own glob loop over
+# patterns:, and neither read exclude: — which expand_patterns.py honors and
+# fw fabric drift / fw fabric scan therefore respect. Measured on one config
+# (tools/**/*.mjs with exclude: tools/_*): the expander returns 1, the audit's
+# inline logic returns 50. T-1842 centralised expansion into expand_patterns.py
+# precisely so the exclude predicate would have a single source of truth after
+# the Penelope T-1458 silent-junk class (5946 junk cards, 22 days undetected,
+# because the bug appeared in both code paths identically). It reached
+# register.sh and drift.sh and did not reach here.
+#
+# Sharing the LIST rather than agreeing on a count also retires the T-345
+# duplication structurally: two checks cannot disagree about a set they read out
+# of the same variable.
+FABRIC_WATCH_FILE="$PROJECT_ROOT/.fabric/watch-patterns.yaml"
+FABRIC_EXPANDER="$FRAMEWORK_ROOT/agents/fabric/lib/expand_patterns.py"
+FABRIC_WATCHED=""
+FABRIC_EXPAND_OK=1
+if [ -f "$FABRIC_WATCH_FILE" ]; then
+    if [ -f "$FABRIC_EXPANDER" ]; then
+        FABRIC_WATCHED=$(python3 "$FABRIC_EXPANDER" "$FABRIC_WATCH_FILE" "$PROJECT_ROOT" 2>/dev/null) || FABRIC_EXPAND_OK=0
+    else
+        # A broken install and an empty watch set both yield zero watched files.
+        # They are different problems with different remedies, so they must not
+        # collapse into one message — that collapse IS the T-344 defect, and
+        # reproducing it inside T-344's own follow-up would be a poor joke.
+        FABRIC_EXPAND_OK=0
+    fi
+fi
+export FABRIC_WATCHED
+
 # Fabric drift detection (T-212 — component topology integrity)
 if [ -d "$PROJECT_ROOT/.fabric/components" ]; then
     fabric_cards=$(find "$PROJECT_ROOT/.fabric/components/" -maxdepth 1 -name '*.yaml' -type f 2>/dev/null | wc -l)
@@ -1409,8 +1441,21 @@ orphaned = 0
 watched_set = set()
 unregistered_set = set()
 
-# Check watch patterns
-if os.path.exists(WATCH_FILE):
+# Check watch patterns.
+# T-374: the file list now comes from expand_patterns.py via FABRIC_WATCHED, the
+# same expander fw fabric drift uses, so exclude: is honored and both audit blocks
+# read one set. The inline glob loop that used to live here is retained just below
+# as a FALLBACK for a framework install whose expander is missing -- it is
+# patterns-only and exclude-blind, which is why FABRIC_EXPAND_OK is reported
+# separately rather than letting a degraded reading pass as a normal one.
+if os.environ.get('FABRIC_WATCHED') is not None and os.environ.get('FABRIC_WATCHED') != '':
+    for rel in os.environ['FABRIC_WATCHED'].split(chr(10)):
+        if not rel:
+            continue
+        watched_set.add(rel)
+        if rel not in registered:
+            unregistered_set.add(rel)
+elif os.path.exists(WATCH_FILE):
     with open(WATCH_FILE) as f:
         wp = yaml.safe_load(f)
     # T-345: three defects fixed here, each independently sufficient to make this
@@ -1484,7 +1529,13 @@ print(f'{len(registered)} {unregistered} {orphaned} {watched}')
         # `cards > 0 && watched == 0` (adopted the fabric, then lost the
         # denominator) is the stricter variant and is a deliberate non-choice
         # here — severity for other trees is their operator's call, not mine.
-        if [ "${fabric_watched:-0}" -eq 0 ]; then
+        if [ "${FABRIC_EXPAND_OK:-1}" -eq 0 ]; then
+            # T-374 AC3: distinct from the empty-watch-set arm below. Same
+            # observable (zero watched files), different cause, different remedy.
+            warn "Fabric: pattern expander unavailable — coverage NOT evaluated" \
+                 "$FABRIC_EXPANDER is missing or failed, so watch-patterns.yaml could not be expanded; this is a framework install problem, not a project configuration one" \
+                 "Check the vendored framework install: $FRAMEWORK_ROOT"
+        elif [ "${fabric_watched:-0}" -eq 0 ]; then
             warn "Fabric: watch set expands to 0 files — coverage is UNMEASURED, not complete" \
                  "$fabric_registered card(s) registered, but .fabric/watch-patterns.yaml matches nothing in this project, so '0 unregistered' is vacuous" \
                  "Edit .fabric/watch-patterns.yaml to describe this project's source layout"
@@ -1558,19 +1609,31 @@ patterns = data.get("patterns", []) if data else []
 # T-344: `watched` is the denominator. Reported alongside, because an empty one
 # yields the same "all registered" line as complete coverage. Sets dedupe overlapping
 # globs, matching expand_patterns.py.
+# T-374: the list comes from expand_patterns.py (FABRIC_WATCHED) so `exclude:` is
+# honored and this check reads the SAME set as its sibling above — not a second
+# implementation that happens to agree. Inline glob retained as install fallback.
 watched = set()
 unregistered = set()
-for p in patterns:
-    g = p.get("glob", "") if isinstance(p, dict) else str(p)
-    if not g:
-        continue
-    for match in glob.glob(os.path.join(PROJECT_ROOT, g), recursive=True):
-        rel = os.path.relpath(match, PROJECT_ROOT)
-        if not os.path.isfile(match):
+_shared = os.environ.get("FABRIC_WATCHED", "")
+if _shared:
+    for rel in _shared.split("\n"):
+        if not rel:
             continue
         watched.add(rel)
         if rel not in registered:
             unregistered.add(rel)
+else:
+    for p in patterns:
+        g = p.get("glob", "") if isinstance(p, dict) else str(p)
+        if not g:
+            continue
+        for match in glob.glob(os.path.join(PROJECT_ROOT, g), recursive=True):
+            rel = os.path.relpath(match, PROJECT_ROOT)
+            if not os.path.isfile(match):
+                continue
+            watched.add(rel)
+            if rel not in registered:
+                unregistered.add(rel)
 
 print(f"{len(unregistered)} {len(registered)} {len(watched)}")
 DRIFTEOF

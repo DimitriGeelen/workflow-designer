@@ -72,12 +72,19 @@ drive() { # <branch-text> <env assignments...>
   env "$@" bash -c "pass(){ echo \"PASS|\$1\"; }; warn(){ echo \"WARN|\$1\"; }; fail(){ echo \"FAIL|\$1\"; }; $branch" 2>&1
 }
 
-b1=$(awk '/^        if \[ "\$\{fabric_watched:-0\}" -eq 0 \]; then$/{f=1} f{print} f && /^        fi$/{exit}' "$AUDIT")
+# T-374 moved this branch head: the expander-unavailable arm was inserted ahead of
+# the empty-watch-set arm, so the anchor is now FABRIC_EXPAND_OK. This probe caught
+# that as "it moved; re-anchor" rather than passing over a branch it could no longer
+# find — which is the whole reason the branch is extracted instead of restated.
+# FABRIC_EXPAND_OK=1 in both drives keeps the EMPTY-SET arm the one under test;
+# without it the new first arm would answer, and this leg would silently change
+# subject while still looking green.
+b1=$(awk '/^        if \[ "\$\{FABRIC_EXPAND_OK:-1\}" -eq 0 \]; then$/{f=1} f{print} f && /^        fi$/{exit}' "$AUDIT")
 if [ -z "$b1" ]; then
   bad "could not extract the 'Fabric:' verdict branch from audit.sh — it moved; re-anchor"
 else
-  empty=$(drive "$b1" fabric_watched=0 fabric_unreg=0 fabric_registered=17)
-  full=$(drive "$b1" fabric_watched=146 fabric_unreg=0 fabric_registered=17)
+  empty=$(drive "$b1" FABRIC_EXPAND_OK=1 fabric_watched=0 fabric_unreg=0 fabric_registered=17)
+  full=$(drive "$b1" FABRIC_EXPAND_OK=1 fabric_watched=146 fabric_unreg=0 fabric_registered=17)
   case "$empty" in
     WARN*UNMEASURED*) ok "block 1: watched=0 raises WARN naming coverage UNMEASURED" ;;
     *)                bad "block 1: watched=0 emits: $empty" ;;

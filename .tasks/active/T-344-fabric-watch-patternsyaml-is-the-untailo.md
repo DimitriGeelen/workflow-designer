@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:15:56Z
-last_update: 2026-08-08T12:06:56Z
+last_update: 2026-08-08T12:17:53Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -115,6 +115,13 @@ per pattern, all eleven are zero, not ten-plus-one. The tailored set expands to 
 
 Three of the 17 cards are `tests/fixtures/**` XML — outside the watch set under either scope,
 and deliberately so (fixtures are data). That is why `carded` is 14, not 17.
+
+**These numbers have already moved, and that is the point.** Writing this task's guard took the
+set from 146 to 147 (`tools/_t344-watch-set-denominator.sh` is a `.sh` under `tools/`), and
+T-374's probe took it to 148/134 the same afternoon. Every count here is therefore stamped with
+its commit and none of them live in a gate or a config comment — a literal integer in an
+assertion is the moving-global defect wearing prose (G-015). The current figure is whatever
+`expand_patterns.py` prints today.
 
 **Audit standing verdict.**
 
