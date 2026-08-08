@@ -1,4 +1,6 @@
-# AEF Workflow Designer — release manifest. Content-derived, deterministic.
+# AEF Workflow Designer — release manifest. Content-derived and idempotent:
+# re-running at an unchanged VERSION with a byte-identical artifact reproduces
+# this file exactly, including released/src_commit (T-387).
 # AEF vendors a pinned copy of the artifact named below and verifies its sha256.
 # Protocol: docs/aef-designer-integration-protocol.md
 latest: "0.8.0"
@@ -6,6 +8,35 @@ artifact: "dist/aef-workflow-designer-0.8.0.html"
 sha256: "cab3c75183979b0e15e23192518f9360ea12fe33b6a4f78641d7e264f6110935"
 bytes: 903600
 source: "src/aef-workflow-designer.html"
+# T-387 (AEF rail 464): consumer-facing release identity. None derived from the others.
+#   released   — ISO8601 UTC, when this artifact was CUT
+#   src_commit — the commit it was built from
+#   supersedes — the previous version present in dist/ ("" for the first release)
+#
+# BACKFILLED, not emitted. 0.8.0 was cut before these fields existed, so every value
+# below is DERIVED from the repository and the derivation is recorded here rather
+# than left for someone to reconstruct:
+#
+#   released    committer date of 1a13035c, the commit that introduced
+#               dist/aef-workflow-designer-0.8.0.html, converted to UTC
+#               (2026-07-29T08:19:12+02:00). The annotated tag designer-v0.8.0 was
+#               created 10s later at 08:19:22+02:00; the artifact's own commit is
+#               the closer evidence of when it was cut, so that is what is used.
+#
+#   src_commit  1a13035c. NOTE THE LIMIT OF THE EVIDENCE: content-matching alone
+#               cannot identify this commit. THREE consecutive commits — 1a13035c,
+#               27ba5fbf, abafabb2 — carry byte-identical src/aef-workflow-designer.html
+#               matching this artifact's sha256, so the hash bounds WHAT was built
+#               and says nothing about WHERE it came from. 1a13035c is chosen as the
+#               commit that introduced the artifact, i.e. the release commit itself.
+#               Cuts from here on record HEAD at build time and carry no ambiguity.
+#
+#   supersedes  0.7.1 — the highest version present in dist/ below 0.8.0, by the same
+#               rule the script now applies at cut time.
+version: "0.8.0"
+released: "2026-07-29T06:19:12Z"
+src_commit: "1a13035ce2bbcd9644d5d59ecc168fda9bfa7a8a"
+supersedes: "0.7.1"
 # T-258/T-246: structured capability flags — a consumer (AEF) self-configures
 # conditional behaviour at re-pin by reading these instead of sniffing bytes.
 # annotation_seam: postMessage aef:ready/aef:annotate read-only badge layer

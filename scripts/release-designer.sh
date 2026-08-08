@@ -103,11 +103,54 @@ fi
 SHA="$(sha256sum "$ARTIFACT" | awk '{print $1}')"
 BYTES="$(wc -c < "$ARTIFACT" | tr -d '[:space:]')"
 
-# Content-derived manifest => re-running at the same VERSION yields an identical
-# file. dist/ accumulates versioned artifacts; this pointer names the latest and
-# its checksum so a consumer (AEF) can pin + verify.
+# T-387 — the four consumer-facing fields AEF asked for at rail 464. They exist so
+# AEF can compute BOTH lags from its own seat instead of asking us: `released` gives
+# the age of what they hold, `src_commit` lets them measure build lag against our src
+# themselves, `supersedes` turns "behind" into a countable chain so "1 behind" and
+# "skipped 4" stop being the same number.
+#
+# DETERMINISM. The header used to claim, unqualified, that re-running at the same
+# VERSION yields an identical file. A wall-clock timestamp would have made that false.
+# Rather than drop the guarantee or fake the timestamp, re-running at an unchanged
+# VERSION with a byte-identical artifact PRESERVES the existing released/src_commit:
+# the release happened once, and re-running this script is not a re-cut. Idempotence
+# is kept honestly instead of by leaving the timestamp out.
+RELEASED=""
+SRC_COMMIT=""
+if [ -f "$MANIFEST" ]; then
+  _prev_version="$(sed -n 's/^latest: *"\(.*\)"/\1/p' "$MANIFEST" | head -1)"
+  _prev_sha="$(sed -n 's/^sha256: *"\(.*\)"/\1/p' "$MANIFEST" | head -1)"
+  if [ "$_prev_version" = "$VERSION" ] && [ "$_prev_sha" = "$SHA" ]; then
+    RELEASED="$(sed -n 's/^released: *"\(.*\)"/\1/p' "$MANIFEST" | head -1)"
+    SRC_COMMIT="$(sed -n 's/^src_commit: *"\(.*\)"/\1/p' "$MANIFEST" | head -1)"
+  fi
+fi
+[ -n "$RELEASED" ] || RELEASED="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+[ -n "$SRC_COMMIT" ] || SRC_COMMIT="$(git -C "$REPO_ROOT" rev-parse HEAD 2>/dev/null || echo "unknown")"
+
+# `supersedes` is read from what is actually PRESENT in dist/, not from a
+# hand-maintained list: a curated chain drifts from what shipped, and the whole
+# point of the field is to be countable against reality. Empty for the first release.
+# The `|| true` is load-bearing under `set -euo pipefail`: on a FIRST release the
+# grep filters out the only entry, exits 1, and takes the whole script down before
+# the manifest is written. Found by running the probe, not by reading this line —
+# the failure mode is "no manifest and no error message", which reads exactly like
+# a silent success from anywhere upstream.
+SUPERSEDES="$( { ls "$DIST"/aef-workflow-designer-*.html 2>/dev/null \
+  | sed 's/.*aef-workflow-designer-\(.*\)\.html/\1/' \
+  | grep -v "^$VERSION\$" \
+  | sort -V | tail -1; } || true )"
+
+# dist/ accumulates versioned artifacts; this pointer names the latest and its
+# checksum so a consumer (AEF) can pin + verify. NOTE for the consumer half of
+# G-024: this file lives at a STABLE path and is overwritten at every cut — it is
+# not shipped inside any versioned artifact, so it can answer "is there something
+# newer?" provided it is FETCHED rather than vendored. A vendored copy of this file
+# reports the state at the time it was copied, which is the failure it exists to fix.
 cat > "$MANIFEST" <<EOF
-# AEF Workflow Designer — release manifest. Content-derived, deterministic.
+# AEF Workflow Designer — release manifest. Content-derived and idempotent:
+# re-running at an unchanged VERSION with a byte-identical artifact reproduces
+# this file exactly, including released/src_commit (T-387).
 # AEF vendors a pinned copy of the artifact named below and verifies its sha256.
 # Protocol: docs/aef-designer-integration-protocol.md
 latest: "$VERSION"
@@ -115,6 +158,14 @@ artifact: "dist/aef-workflow-designer-$VERSION.html"
 sha256: "$SHA"
 bytes: $BYTES
 source: "src/aef-workflow-designer.html"
+# T-387 (AEF rail 464): consumer-facing release identity. None derived from the others.
+#   released   — ISO8601 UTC, when this artifact was CUT
+#   src_commit — the commit it was built from
+#   supersedes — the previous version present in dist/ ("" for the first release)
+version: "$VERSION"
+released: "$RELEASED"
+src_commit: "$SRC_COMMIT"
+supersedes: "$SUPERSEDES"
 # T-258/T-246: structured capability flags — a consumer (AEF) self-configures
 # conditional behaviour at re-pin by reading these instead of sniffing bytes.
 # annotation_seam: postMessage aef:ready/aef:annotate read-only badge layer
