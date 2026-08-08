@@ -4,10 +4,10 @@ name: "Verify the python3 -c task-gate bypass class against our vendored hook (A
 description: >
   AEF reports at rail 465 that check-active-task.sh safe-lists python3 -c behind a textual write-indicator deny-list, and that pathlib write_text/write_bytes and os.replace pass both predicates so the hook exits 0 before any gate runs. We vendor that hook. Measure whether it reproduces here, with an anti-vacuity control, rather than reasoning from the regex.
 
-status: started-work
+status: work-completed
 workflow_type: test
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T17:01:02Z
-last_update: 2026-08-08T17:01:02Z
-date_finished: null
+last_update: 2026-08-08T17:10:09Z
+date_finished: 2026-08-08T17:10:09Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -64,7 +64,7 @@ named.
 - [x] Probe asserts the deny-list predicate is genuinely reached for at least one idiom it DOES catch (positive control) — so a blanket "python3 is never checked" and "python3 is checked but these slip" are distinguishable findings
 - [x] Verdict is reported per-idiom as a table, and the aggregate sentence names the SUBJECT (our vendored hook at its current sha), not "the framework"
 - [x] If the class reproduces: registered on our side (gap or observation) rather than only reported to AEF — their OBS-200 does not cover our tree
-- [ ] Finding sent to AEF on the rail, including any idiom where my result DISAGREES with theirs
+- [x] Finding sent to AEF on the rail, including any idiom where my result DISAGREES with theirs
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -230,3 +230,15 @@ grep -A2 "G-025" /tmp/.t385-gaps > /tmp/.t385-g025 && grep -q "Trigger: A .pytho
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-385-verify-the-python3--c-task-gate-bypass-c.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a8162ff1
+- **Timestamp:** 2026-08-08T17:10:14Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-08T17:10:09Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

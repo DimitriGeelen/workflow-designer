@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-386: Focus-drift block message recommends a command the gate now refuses (T-381 follow-on)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-08T17:22:50Z
+# ============================================================================
+
+task_id: T-386
+task_name: "Focus-drift block message recommends a command the gate now refuses (T-381 follow-on)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-08T17:10:35Z
+completed: 2026-08-08T17:22:45Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-08T19:13:52+02:00
+last_commit: 2026-08-08T19:13:52+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the focus-drift gate stops recommending a command it refuses
+
+# Key outcomes
+outcomes:
+  - 'When the drift target is a COMPLETED task, the block message does not present `fw context focus <target>` as a working option — it is either omitted or explicitly marked unavailable **with the reason**, so the operator is not left guessing why the recommendation failed'
+  - 'When the drift target is an ACTIVE task, the message is unchanged — remedy 1 still offered, same wording; the case that works must not regress'
+  - 'Completed-detection uses the same scope the focus writer now enforces (a `completed/` lookup), not a heuristic on the id or on task-file contents'
+  - 'Bypass mechanisms are untouched: options 2 and 3 still present in both branches, exit code still 2, and the `--switch-focus` / `FW_SWITCH_FOCUS=1` paths still log and allow'
+  - 'Probe measures BOTH branches against the REAL hook — completed target and active target — and asserts the two messages differ in the required way rather than merely that each is non-empty'
+  - '**Anti-vacuity control:** the probe proves it reaches the focus-drift gate specifically (not some earlier block), since every earlier gate also exits 2 and would satisfy a naive rc check'
+  - '**Teeth by mutation of LIVE source, not a git ref:** reverting the fix in a working copy must turn the probe RED. Adopting AEF''s rail-463 lesson — their `git show HEAD~1` teeth leg skipped while reporting ok once the fix landed one commit earlier; a git-ref check has an expiry date set by the next commit and nothing announces it'
+  - 'Diff sent to AEF, since the hook is theirs and I told them at rail 466 I would not rewrite their wording unilaterally'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/check-active-task.sh'
+  - '.tasks/active/T-386-focus-drift-block-message-recommends-a-c.md'
+  - '.tasks/completed/T-385-verify-the-python3--c-task-gate-bypass-c.md'
+  - 'tools/_t386-drift-remedy-reachable.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-08T19:13:52"
+    action: "T-386: the focus-drift gate stops recommending a command it refuses"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 12 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 12
+  commits: 1
+  files_changed: 4
+  lines_added: 494
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-386-focus-drift-block-message-recommends-a-c.md
+generated_by: context-agent-hybrid

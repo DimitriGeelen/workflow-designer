@@ -4,10 +4,10 @@ name: "Emit the four consumer-facing release fields AEF asked for in dist/MANIFE
 description: >
   AEF answered the manifest-shape question at rail 464: version, released (ISO8601 UTC at cut), src_commit, supersedes — none derived from the others — so they can compute build lag and adoption lag from their own seat and drop the vendored-pin read. Emit them at cut, preserving released across idempotent re-runs, and backfill 0.8.0.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T17:15:17Z
-last_update: 2026-08-08T17:15:17Z
-date_finished: null
+last_update: 2026-08-08T17:22:50Z
+date_finished: 2026-08-08T17:22:50Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -70,7 +70,7 @@ truthfully rather than by omission.
 - [x] The backfilled `src_commit` is accompanied by an explicit note that content-matching alone cannot identify it: three commits carry byte-identical src for 0.8.0, so the sha bounds WHAT was built, never WHERE it came from
 - [x] Existing consumer contract is not broken: `latest`, `artifact`, `sha256`, `bytes`, `source`, `capabilities` all still present and unchanged in meaning
 - [x] `tools/_t382-release-lag.py` still runs and reports (the instrument that reads this file must survive the shape change)
-- [ ] Position on the redundant `dist/LATEST.yaml` sent to AEF with the reasoning, so they can overrule it — it is their consumer half, not mine to close by fiat
+- [x] Position on the redundant `dist/LATEST.yaml` sent to AEF with the reasoning, so they can overrule it — it is their consumer half, not mine to close by fiat
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -237,3 +237,20 @@ bash -n scripts/release-designer.sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-387-emit-the-four-consumer-facing-release-fi.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-9ca88336
+- **Timestamp:** 2026-08-08T17:22:55Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#9 (Agent)** — Position on the redundant `dist/LATEST.yaml` sent to AEF with the reasoning, so they can overrule it — it is their consumer half, not mine to close by fiat
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=dist/LATEST.yaml in: Position on the redundant `dist/LATEST.yaml` sent to AEF with the reasoning, so they can overrule it — it is their consumer half, not mine to close by`
+
+### 2026-08-08T17:22:50Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

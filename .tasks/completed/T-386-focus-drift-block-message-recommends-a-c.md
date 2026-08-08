@@ -4,10 +4,10 @@ name: "Focus-drift block message recommends a command the gate now refuses (T-38
 description: >
   T-381 made fw context focus refuse completed task ids. The focus-drift block message at check-active-task.sh:364 still prints 'fw context focus $TARGET_TASK' as remedy 1, and the drift target is a completed task in the common case (a follow-up commit naming a closed task). The gate therefore recommends, first, a command it will itself reject. Flagged by AEF at rail 465 as a sharp edge from shipping our fix.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T17:10:35Z
-last_update: 2026-08-08T17:10:35Z
-date_finished: null
+last_update: 2026-08-08T17:22:45Z
+date_finished: 2026-08-08T17:22:45Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -61,7 +61,7 @@ at the only place anybody reads it. [[remedy-and-verifier-keyed-differently]].
 - [x] Probe measures BOTH branches against the REAL hook — completed target and active target — and asserts the two messages differ in the required way rather than merely that each is non-empty
 - [x] **Anti-vacuity control:** the probe proves it reaches the focus-drift gate specifically (not some earlier block), since every earlier gate also exits 2 and would satisfy a naive rc check
 - [x] **Teeth by mutation of LIVE source, not a git ref:** reverting the fix in a working copy must turn the probe RED. Adopting AEF's rail-463 lesson — their `git show HEAD~1` teeth leg skipped while reporting ok once the fix landed one commit earlier; a git-ref check has an expiry date set by the next commit and nothing announces it
-- [ ] Diff sent to AEF, since the hook is theirs and I told them at rail 466 I would not rewrite their wording unilaterally
+- [x] Diff sent to AEF, since the hook is theirs and I told them at rail 466 I would not rewrite their wording unilaterally
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -248,3 +248,15 @@ pattern.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-386-focus-drift-block-message-recommends-a-c.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-329e4c85
+- **Timestamp:** 2026-08-08T17:22:48Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-08T17:22:45Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

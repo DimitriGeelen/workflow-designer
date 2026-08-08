@@ -4337,3 +4337,57 @@ scan_id: R-cacfaff4
 task_id: T-383
 payload:
   task_file: .tasks/active/T-383-write-closure-conditions-for-g-022-and-g.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T17:10:14Z'
+scan_id: R-a8162ff1
+task_id: T-385
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T17:10:14Z'
+scan_id: R-a8162ff1
+task_id: T-385
+payload:
+  task_file: .tasks/active/T-385-verify-the-python3--c-task-gate-bypass-c.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T17:22:48Z'
+scan_id: R-329e4c85
+task_id: T-386
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T17:22:48Z'
+scan_id: R-329e4c85
+task_id: T-386
+payload:
+  task_file: .tasks/active/T-386-focus-drift-block-message-recommends-a-c.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T17:22:55Z'
+scan_id: R-9ca88336
+task_id: T-387
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T17:22:55Z'
+scan_id: R-9ca88336
+task_id: T-387
+payload:
+  task_file: .tasks/active/T-387-emit-the-four-consumer-facing-release-fi.md

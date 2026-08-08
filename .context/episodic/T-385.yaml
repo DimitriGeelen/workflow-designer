@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-385: Verify the python3 -c task-gate bypass class against our vendored hook (AEF OBS-200)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-08T17:10:15Z
+# ============================================================================
+
+task_id: T-385
+task_name: "Verify the python3 -c task-gate bypass class against our vendored hook (AEF OBS-200)"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-08T17:01:02Z
+completed: 2026-08-08T17:10:09Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-08T19:08:00+02:00
+last_commit: 2026-08-08T19:08:00+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  OBS-200 reproduces in our vendored gate — 7/7, and one row makes the deny-list unclosable
+
+# Key outcomes
+outcomes:
+  - 'Probe invokes the REAL vendored hook (`.agentic-framework/` on disk, via `fw hook check-active-task`), not a re-implementation of its regexes, and fails loudly if the hook cannot be located'
+  - 'Probe runs against a sandbox whose `focus.yaml` has `current_task: null` — the state in which every gate is supposed to fire'
+  - '**Anti-vacuity control:** a command known to be blocked (shell redirect form) returns non-zero *in the same harness*, proving the harness reaches the gate and can fail; a run where the control passes is reported as COULD-NOT-MEASURE, never as "no bypass found"'
+  - 'All three AEF-named idioms measured with their rc recorded individually: `pathlib.Path(p).write_text(s)`, `pathlib.Path(p).write_bytes(b)`, `os.replace(a,b)`'
+  - 'At least two idioms AEF did NOT name are measured, chosen from write forms that appear in THIS repo, and their results reported in whichever direction they come out'
+  - 'Probe asserts the deny-list predicate is genuinely reached for at least one idiom it DOES catch (positive control) — so a blanket "python3 is never checked" and "python3 is checked but these slip" are distinguishable findings'
+  - 'Verdict is reported per-idiom as a table, and the aggregate sentence names the SUBJECT (our vendored hook at its current sha), not "the framework"'
+  - 'If the class reproduces: registered on our side (gap or observation) rather than only reported to AEF — their OBS-200 does not cover our tree'
+  - 'Finding sent to AEF on the rail, including any idiom where my result DISAGREES with theirs'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.tasks/active/T-385-verify-the-python3--c-task-gate-bypass-c.md'
+  - 'tools/_t385-python-c-gate-bypass.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-08T19:08:00"
+    action: "T-385: OBS-200 reproduces in our vendored gate — 7/7, and one row makes the deny-list unclosable"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 1
+  files_changed: 3
+  lines_added: 515
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-385-verify-the-python3--c-task-gate-bypass-c.md
+generated_by: context-agent-hybrid

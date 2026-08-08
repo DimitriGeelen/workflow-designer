@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-387: Emit the four consumer-facing release fields AEF asked for in dist/MANIFEST.yaml (G-024 consumer half)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-08T17:22:57Z
+# ============================================================================
+
+task_id: T-387
+task_name: "Emit the four consumer-facing release fields AEF asked for in dist/MANIFEST.yaml (G-024 consumer half)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-08T17:15:17Z
+completed: 2026-08-08T17:22:50Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-08T19:19:20+02:00
+last_commit: 2026-08-08T19:19:20+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the four consumer-facing release fields AEF asked for (G-024 consumer half)
+
+# Key outcomes
+outcomes:
+  - '`scripts/release-designer.sh` emits all four fields at cut: `version`, `released` (ISO8601 UTC), `src_commit`, `supersedes`'
+  - 'Re-running the script at an unchanged VERSION with a byte-identical artifact leaves `released:` and `src_commit:` UNCHANGED — measured by running it twice and diffing, not asserted from reading the code'
+  - 'The manifest header no longer claims unqualified determinism if that claim has stopped being true; whatever it claims must match what a second run actually produces'
+  - '`supersedes:` is derived from the actual previous release present in `dist/`, not from a hand-maintained list that can drift from what shipped'
+  - '`dist/MANIFEST.yaml` backfilled for 0.8.0 with values DERIVED and each one''s derivation recorded — no invented timestamps'
+  - 'The backfilled `src_commit` is accompanied by an explicit note that content-matching alone cannot identify it: three commits carry byte-identical src for 0.8.0, so the sha bounds WHAT was built, never WHERE it came from'
+  - 'Existing consumer contract is not broken: `latest`, `artifact`, `sha256`, `bytes`, `source`, `capabilities` all still present and unchanged in meaning'
+  - '`tools/_t382-release-lag.py` still runs and reports (the instrument that reads this file must survive the shape change)'
+  - 'Position on the redundant `dist/LATEST.yaml` sent to AEF with the reasoning, so they can overrule it — it is their consumer half, not mine to close by fiat'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'dist/MANIFEST.yaml'
+  - 'scripts/release-designer.sh'
+  - '.tasks/active/T-387-emit-the-four-consumer-facing-release-fi.md'
+  - 'tools/_t387-manifest-fields.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-08T19:19:20"
+    action: "T-387: the four consumer-facing release fields AEF asked for (G-024 consumer half)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 7
+  commits: 1
+  files_changed: 4
+  lines_added: 464
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-387-emit-the-four-consumer-facing-release-fi.md
+generated_by: context-agent-hybrid
