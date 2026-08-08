@@ -4553,3 +4553,21 @@ scan_id: R-a924b7ff
 task_id: T-397
 payload:
   task_file: .tasks/active/T-397-consolidate-import-repair-semantics-one-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T21:03:46Z'
+scan_id: R-d0cbec58
+task_id: T-398
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T21:03:46Z'
+scan_id: R-d0cbec58
+task_id: T-398
+payload:
+  task_file: .tasks/active/T-398-census-now-horizon-tasks-showing-no-open.md

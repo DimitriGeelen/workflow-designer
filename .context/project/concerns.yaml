@@ -1462,3 +1462,44 @@ concerns:
       CURRENTLY MET: no.
     related_tasks:
       - T-390
+  - id: G-027
+    title: "No instrument detects a task that is fully verified and one command from done: all ACs ticked + owner human + still started-work is invisible to every check we have"
+    severity: medium
+    status: watching
+    registered: 2026-08-08
+    detail: |
+      Twelve now-horizon tasks were found in `started-work` with EVERY acceptance
+      criterion ticked -- agent and human. The ticks were legitimate: all twelve trace
+      to one operator-authorised batch close (`ee2b902a`, T-306, 2026-07-29), where
+      55/66 closed and 11 were left as R-033 sovereignty blocks for the operator. They
+      then sat for ten days.
+
+      WHY NOTHING SAW IT. The audit's D2 discovery check watches the HUMAN REVIEW
+      QUEUE -- tasks whose human ACs are UNCHECKED. These twelve are invisible to it
+      *precisely because the human already did the verification work*. Doing the work
+      is what removed them from the only instrument that was looking.
+
+      So the state meaning "verified, one command from done" is indistinguishable, to
+      every check in the tree, from "in progress". The queue metric improves when a
+      task enters this state, which is the wrong direction.
+
+      NOT A GATE DEFECT. R-033 is correct and must not be bypassed: an agent may not
+      complete an `owner: human` task, and `--skip-sovereignty` is withheld by
+      CLAUDE.md's autonomous-mode boundaries. The missing thing is DETECTION, not
+      permission -- nothing tells the operator the queue exists.
+
+      SECOND-ORDER FINDING (why detection alone is not enough). Gate order is
+      sovereignty (update-task.sh:1517) -> P-010 (1523) -> P-011 (1528). So "all ACs
+      ticked" does NOT imply "will close cleanly"; the sovereignty gate exits first and
+      hides the verification result. Pre-running the twelve `## Verification` blocks
+      directly: 5 would close cleanly, 7 would fail P-011 AFTER passing sovereignty.
+      An operator acting on a naive "these are ready" list would hit seven surprise
+      failures. Any detector built for this must report VERIFICATION STATE, not just
+      AC state.
+
+    closure_condition: |
+      An instrument reports tasks in the state (all ACs ticked AND owner: human AND
+      status: started-work), and reports each one's P-011 result alongside -- so the
+      output distinguishes "ready to close" from "ticked but verification red". Closed
+      when that surfaces to the operator without an agent being asked to look.
+    origin_task: T-398
