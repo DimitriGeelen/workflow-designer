@@ -1265,3 +1265,91 @@ concerns:
       - T-368
       - T-311
       - T-364
+
+  - id: G-025
+    title: "The task gate safe-lists an interpreter, so `python3 -c` skips every gate — and one allowed idiom (subprocess) re-admits the whole shell, making the deny-list unclosable by enumeration"
+    severity: high
+    status: watching
+    registered: 2026-08-08
+    detail: |
+      `check-active-task.sh` is the structural enforcement behind the Core
+      Principle — "nothing gets done without a task". For Bash it consults two
+      textual predicates, and `python3 -c` is on the safe-list behind a
+      write-indicator deny-list (safe-commands.sh:170):
+
+          open\(.*, *['"]w  |  \.write\(  |  shutil\.  |  os\.(rename|remove|unlink|makedirs|system)
+
+      MEASURED against the real vendored hook in a sandbox with
+      `current_task: null` (tools/_t385-python-c-gate-bypass.sh), 7 of 7 probed
+      idioms came back ALLOWED — the hook exits 0 before the no-active-task
+      check, the task-is-active check, G-020 and the T-1730 focus-drift gate
+      ever run:
+
+          pathlib.Path(p).write_text(s)      AEF     .write_text misses \.write\(
+          pathlib.Path(p).write_bytes(b)     AEF     same
+          os.replace(a, b)                   AEF     not among the five os.* names
+          subprocess.run([cp, src, dst])     832     only os.system is denied
+          print(x, file=open(p, "a"))        832     the regex demands a quote then w
+          pathlib.Path(p).unlink()           832     os.unlink denied, Path.unlink not
+          subprocess.call(cmd, shell=True)   832     a general shell, no signature at all
+
+      Reported by AEF at rail 465 (their OBS-200) with the first three; the last
+      four are ours. Two of those four are grounded in code we actually run —
+      `subprocess.*` has 49 call sites under tools/ lib/ web/ and `.unlink()` has
+      4 — so this is not an exotic bypass but a shape our own tree already uses.
+      The other two measure ZERO sites here and are stated as what they are: an
+      `open(p,"a")` boundary probe (the deny-list regex demands a quote then `w`,
+      so the append mode of the very function it names walks through), and the
+      shell=True row below. Kept separate deliberately — "an idiom we use" and "an
+      idiom that defeats the predicate" are different arguments, and only the first
+      speaks to our exposure. (`os.replace` is AEF's documented atomic-write idiom
+      and has 1 site here; the house-style argument is theirs, not ours.)
+
+      WHY IT IS ITS OWN GAP RATHER THAN A MISSING DENY-LIST ENTRY. The last row is
+      a different claim from the other six. A general shell reached through the
+      safe-listed interpreter, with the command in a variable, carries no textual
+      signature for any predicate to match — and it re-admits every pattern the
+      deny-list already denies. So the list cannot be closed by enumeration even
+      in principle; adding the six named idioms above would leave the seventh
+      untouched and the gate exactly as open. Enumeration is not a slow fix here,
+      it is not a fix.
+
+      FAILURE DIRECTION IS THE DANGEROUS ONE: false NEGATIVE. Every gate is
+      skipped, nothing is written to the bypass log, and the outcome is
+      indistinguishable from compliance after the fact. A defect whose signature
+      is the ABSENCE of evidence cannot be found by looking for evidence — which
+      is why this was found by a peer reading the source, not by anything we run.
+
+      Both controls in the probe were green before any row was believed: a shell
+      redirect BLOCKED (the harness reaches the gate) and a deny-listed idiom
+      `shutil.` BLOCKED (python3 -c genuinely IS inspected). Without the second,
+      "python3 is never checked" and "python3 is checked but these slip" produce
+      identical ALLOWED rows and have different fixes.
+
+      Vendored subject: check-active-task.sh @ sha256 b3e135d423df (first 12).
+      G-008 applies — fixable in-tree and upstreamable; AEF asked to adopt ours
+      rather than invent a second answer, so the remedy is a joint decision, not
+      a unilateral patch to a hook they own.
+    decision_trigger: >
+      A `python3 -c` command that writes cannot reach the interpreter without an
+      active task — enforced by CONSTRUCTION rather than by pattern, since the
+      subprocess row proves patterns cannot close it. Two directions are on the
+      table (AEF rail 465): drop the interpreter from the safe-list entirely, or
+      make `-c` scripts write-free by construction. The first costs the
+      `python3 -c "import yaml; yaml.safe_load(...)"` verification idiom, which is
+      used throughout our own Verification blocks — that cost is the reason this
+      is a decision and not a patch.
+
+      NOT CLOSED BY adding the seven measured idioms to the deny-list. That
+      removes the instances and leaves the mechanism: `subprocess.call(cmd,
+      shell=True)` still passes, and it can perform every operation the list
+      names. A remedy that leaves the last row ALLOWED has not closed this gap
+      regardless of how many rows it turns green.
+
+      NOT CLOSED BY the probe existing. tools/_t385-python-c-gate-bypass.sh
+      measures the hole; it does not gate anything, and a census that reports a
+      known-open gate every run is a description, not a prevention.
+
+      CURRENTLY MET: no. Measured 7/7 ALLOWED at registration.
+    related_tasks:
+      - T-385
