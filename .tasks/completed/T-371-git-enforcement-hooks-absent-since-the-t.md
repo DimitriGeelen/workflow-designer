@@ -4,10 +4,10 @@ name: "Git enforcement hooks absent since the T-350 re-clone: restore, prove the
 description: >
   Git enforcement hooks absent since the T-350 re-clone: restore, prove they fire, and make absence detectable
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T07:21:44Z
-last_update: 2026-08-08T07:21:44Z
-date_finished: null
+last_update: 2026-08-08T07:29:53Z
+date_finished: 2026-08-08T07:29:53Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -105,8 +105,10 @@ one return value and a consumer silently downgraded.
       three states by mutating the hook, requires **distinct** output from each (three branches
       emitting one string is not a partition), and reproduces the pre-fix construct against an
       absent hook to prove the mis-report was real and not assumed. 5/5.
-- [ ] Finding + fix communicated to AEF — same vendored framework, same
-      one-time-side-effect-outside-version-control property. G-008 upstream candidate.
+- [x] Finding + fix communicated to AEF (rail 447, incl. the correction to my own 446
+      claim that no detector existed)
+      (As originally filed: "same vendored framework, same one-time-side-effect-outside-
+      version-control property. G-008 upstream candidate." — scope unchanged, only annotated.)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -216,3 +218,15 @@ bash tools/_t371-audit-partition-teeth.sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-371-git-enforcement-hooks-absent-since-the-t.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-fe4ea85e
+- **Timestamp:** 2026-08-08T07:29:54Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-08T07:29:53Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
