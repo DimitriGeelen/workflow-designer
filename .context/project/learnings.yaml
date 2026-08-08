@@ -787,3 +787,10 @@ learnings:
   date: 2026-08-08
   context: Added via context agent
   application: TBD
+- id: PL-112
+  learning: "A gate that runs authored lines one-per-command must first ask the shell whether each line IS a complete command (bash -n: exit!=0 = fragment, stderr!=empty = unterminated heredoc). Otherwise a multi-line construct is torn apart and its body lines execute as bare shell in the gate's cwd. Do NOT enumerate dangerous tokens: the danger is not that 'import' is a python keyword, it is that it is a complete shell command that writes and exits 0 — so the gate reports PASS for a program nobody invoked."
+  source: P-011
+  task: T-391
+  date: 2026-08-08
+  context: Added via context agent
+  application: TBD
