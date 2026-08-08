@@ -2062,6 +2062,77 @@ check_stale_drafts() {
 }
 check_stale_drafts
 
+# T-382 / G-024 — a consumer-visible fix must not sit unreleased with nothing
+# reporting it. The gap is not "src differs from the release" (always true, and the
+# G-015 mistake) but AGE: how long the product's oldest unshipped change has waited.
+# Runs in `structure` because that is the section the daily/cron path actually
+# executes (G-013) — a check placed in a section nobody runs is the gap, not the fix.
+check_release_lag() {
+    local _probe="$PROJECT_ROOT/tools/_t382-release-lag.py"
+    [ -f "$_probe" ] || return 0
+    local _out _rc
+    _out=$(python3 "$_probe" 2>&1); _rc=$?
+    local _l1 _l2
+    _l1=$(printf '%s' "$_out" | grep -m1 'oldest unshipped product change' || true)
+    _l2=$(printf '%s' "$_out" | grep -m1 'peer pin behind' || true)
+    case "$_rc" in
+        0) pass "Release lag: src, released artifact and peer pin are in step" ;;
+        1) warn "Release lag: ${_l1:-${_l2:-below threshold}}" \
+                "A fix a consumer cannot get is not shipped (G-024)" \
+                "Cut a release, or record why the delay is intended" ;;
+        2) warn "Release lag EXCEEDED: ${_l1:-${_l2:-see probe}}" \
+                "G-024: a consumer-visible fix has sat unreleased past the incident threshold" \
+                "Run: python3 tools/_t382-release-lag.py" ;;
+        3) warn "Release lag UNMEASURED — $(printf '%s' "$_out" | grep -m1 'COULD NOT MEASURE')" \
+                "An unmeasured lag is not a clean one (G-024)" \
+                "Run: python3 tools/_t382-release-lag.py" ;;
+    esac
+}
+check_release_lag
+
+# T-382 — a gap with no closure condition can never be closed, and a closure
+# condition written under a key the renderer ignores is worse: `fw gaps` prints
+# "Trigger: " for it, so it reads as decided-to-have-none rather than unrendered.
+# G-024 sat that way with 587 characters written. Absence and invisibility must not
+# share one appearance.
+check_gap_triggers() {
+    local _f="$PROJECT_ROOT/.context/project/concerns.yaml"
+    [ -f "$_f" ] || return 0
+    local _out
+    _out=$(python3 - "$_f" <<'PY' 2>/dev/null
+import sys, yaml
+d = yaml.safe_load(open(sys.argv[1])) or {}
+gaps = d.get('concerns', d.get('gaps', [])) or []
+watching = [g for g in gaps if g.get('status') == 'watching']
+# The renderer (bin/fw, `fw gaps`) reads decision_trigger and nothing else.
+RENDERED = 'decision_trigger'
+missing, unread = [], []
+for g in watching:
+    if (g.get(RENDERED) or '').strip():
+        continue
+    alt = [k for k in g if k != RENDERED and 'trigger' in k and (g.get(k) or '').strip()]
+    (unread if alt else missing).append('%s%s' % (g.get('id'), '(%s)' % ','.join(alt) if alt else ''))
+print('%d|%d|%s|%s' % (len(missing), len(unread), ' '.join(missing), ' '.join(unread)))
+PY
+) || return 0
+    local _nm _nu _m _u
+    IFS='|' read -r _nm _nu _m _u <<< "$_out"
+    if [ "${_nu:-0}" -gt 0 ]; then
+        warn "Gap closure condition written under an UNREAD key: $_u" \
+             "\`fw gaps\` renders only 'decision_trigger' — these print as empty" \
+             "Rename the key to decision_trigger so the register shows it"
+    fi
+    if [ "${_nm:-0}" -gt 0 ]; then
+        warn "Watching gap(s) with no closure condition: $_m" \
+             "A gap that cannot be closed is permanent furniture (T-382)" \
+             "Add decision_trigger: to each, or downgrade/close the gap"
+    fi
+    if [ "${_nm:-0}" -eq 0 ] && [ "${_nu:-0}" -eq 0 ]; then
+        pass "Gap register: every watching gap has a renderable closure condition"
+    fi
+}
+check_gap_triggers
+
 echo ""
 fi # end structure
 

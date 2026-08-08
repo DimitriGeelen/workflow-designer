@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-382: G-024 prevention: instrument reporting consumer-visible fixes sitting in src but not in the artifact AEF has pinned
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-08T16:13:36Z
+# ============================================================================
+
+task_id: T-382
+task_name: "G-024 prevention: instrument reporting consumer-visible fixes sitting in src but not in the artifact AEF has pinned"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-08T16:05:42Z
+completed: 2026-08-08T16:13:33Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**AC-1 — both lags measured separately.** The instrument reports (a) build lag:'
+  - '**AC-2 — leg 2''s bound is printed, not buried.** The peer pin is read from a'
+  - '**AC-3 — thresholds chosen from the incident, not the tree.** WARN/FAIL day counts'
+  - '**AC-4 — unmeasured is never reported as ok.** A missing release tag, an'
+  - '**AC-5 — teeth prove the gauge moves in BOTH directions.** Legs establish that the'
+  - '**AC-6 — the current reading is reported to the operator and to AEF**, including'
+  - '**AC-7 — REWRITTEN: the premise was wrong, and the real defect is better.**'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 7
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-382-g-024-prevention-instrument-reporting-co.md
+generated_by: context-agent-hybrid

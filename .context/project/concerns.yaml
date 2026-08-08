@@ -1191,7 +1191,13 @@ concerns:
       counter to zero; tomorrow's first consumer-visible commit re-creates the
       identical condition with nothing watching. The release is mitigation.
 
-    trigger: >
+    # T-382: this was written under `trigger:` — a key the register's renderer does
+    # not read (it reads `decision_trigger:`). `fw gaps` therefore printed "Trigger: "
+    # empty for 587 characters of written closure condition, and I read that display
+    # as "this gap has no closure condition" and set out to write one. A field that
+    # exists but never renders is indistinguishable from a field that is absent, in
+    # the one place anybody looks. Renamed; the text is unchanged.
+    decision_trigger: >
       A standing, VISIBLE delta between `src` and the pinned release — number of
       commits, number consumer-visible in emitted bytes, and age of the oldest —
       surfaced without being asked for (fw doctor / audit / Watchtower) and
@@ -1200,6 +1206,16 @@ concerns:
       work. The defect is silence, so the remedy is a report. Ideally the consumer
       half too: a line in dist/MANIFEST.yaml (or the integration protocol) letting
       AEF answer "am I current?" without asking me. Then close G-024.
+
+      PARTIALLY MET by T-382 (`tools/_t382-release-lag.py`, wired into audit.sh
+      `structure` so it runs on the daily/cron path and pre-push). It reports both
+      lags as numbers with ages, WARNs rather than blocks — exactly as this trigger
+      requires — and refuses to report an unmeasured leg as clean. Live at
+      registration time: 8 unshipped product commits, oldest 9d, verdict WARN.
+      NOT met: the consumer half. AEF still cannot answer "am I current?" without
+      asking, because `dist/MANIFEST.yaml` records only what was cut. Leg 2 reads a
+      VENDORED copy of their pin, so it is a lower bound on adoption lag and can only
+      under-report. G-024 stays open on that half.
     related_tasks:
       - T-368
       - T-311

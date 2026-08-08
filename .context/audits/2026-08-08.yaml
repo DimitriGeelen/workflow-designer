@@ -1,9 +1,9 @@
-# Audit Results - 2026-08-08-1712
-timestamp: 2026-08-08T15:12:32Z
+# Audit Results - 2026-08-08-1812
+timestamp: 2026-08-08T16:12:29Z
 sections: "structure"
 summary:
   pass: 17
-  warn: 3
+  warn: 5
   fail: 0
 findings:
   - level: PASS
@@ -19,7 +19,7 @@ findings:
   - level: PASS
     check: "No duplicate task IDs across active/ and completed/"
   - level: PASS
-    check: "All 9 project YAML files parse correctly"
+    check: "All 10 project YAML files parse correctly"
   - level: PASS
     check: "All 1 arc anchor_task references resolve to existing tasks"
   - level: PASS
@@ -33,13 +33,13 @@ findings:
   - level: PASS
     check: "No GO-scope-not-propagated inception(s) (sibling to L-417)"
   - level: WARN
-    check: "Fabric: 17 registered, 136 unregistered (of 150 watched)"
+    check: "Fabric: 17 registered, 138 unregistered (of 152 watched)"
     mitigation: "Run: fw fabric scan"
   - level: WARN
     check: "Fabric: 13/17 cards have no edges"
     mitigation: "Run: fw fabric enrich"
   - level: WARN
-    check: "Fabric drift: 136 source file(s) have no fabric card"
+    check: "Fabric drift: 138 source file(s) have no fabric card"
     mitigation: "Run: fw fabric scan"
   - level: PASS
     check: "Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer"
@@ -49,3 +49,9 @@ findings:
     check: "Secret scan: tracked tree clean"
   - level: PASS
     check: "Designer ghost registry: ghost↔task joins clean"
+  - level: WARN
+    check: "Release lag:   - oldest unshipped product change is 9d old (>= 7d)"
+    mitigation: "Cut a release, or record why the delay is intended"
+  - level: WARN
+    check: "Watching gap(s) with no closure condition: G-022 G-023"
+    mitigation: "Add decision_trigger: to each, or downgrade/close the gap"
