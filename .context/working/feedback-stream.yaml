@@ -4499,3 +4499,21 @@ scan_id: R-9bd6a76b
 task_id: T-394
 payload:
   task_file: .tasks/active/T-394-state-the-t-391-guard-boundary-bash--n-c.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T19:44:39Z'
+scan_id: R-b8c3c094
+task_id: T-395
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T19:44:39Z'
+scan_id: R-b8c3c094
+task_id: T-395
+payload:
+  task_file: .tasks/active/T-395-tag-the-090-release-so-build-lag-is-meas.md

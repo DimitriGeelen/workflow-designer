@@ -1256,3 +1256,17 @@ decisions:
     date: 2026-08-08
     task: T-391
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-159
+    decision: "`8cd0c5d3`, the VERSION-bump / `dist/` regeneration commit from T-393."
+    scope: project
+    date: 2026-08-08
+    task: T-395
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-160
+    decision: "tag 0.9.0 under this task; file the script change as T-396."
+    scope: project
+    date: 2026-08-08
+    task: T-395
+    rationale: "Auto-captured from task file on completion"

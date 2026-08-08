@@ -4,7 +4,7 @@ name: "Safe-list early-return shadows the focus-drift gate: T-390 exempted drift
 description: >
   check-active-task.sh:95-97 exits 0 as soon as is_bash_safe_command returns true; the focus-drift gate is at line 299. Safe-listing a verb therefore also exempts it from drift ATTRIBUTION. T-390 safe-listed fw context add-*, which is drift pattern 2, so that pattern has been unreachable since T-390 landed. Reported by AEF (their T-2880, rail 476) and confirmed here by reading our own ordering. A drift check that never runs is silent in exactly the way a drift check that finds nothing is silent.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T18:57:24Z
-last_update: 2026-08-08T18:58:04Z
+last_update: 2026-08-08T19:45:19Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -39,9 +39,12 @@ date_finished: null
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Shadowing is demonstrated by probe BEFORE the fix: with a focus set to
+- [x] Shadowing is demonstrated by probe BEFORE the fix: with a focus set to
       T-A, `fw context add-learning "x" --task T-B` must be shown NOT to reach
       the drift gate, while patterns 1 and 3 do reach it
+      — `tools/_t392-drift-shadow-probe.sh`, 11 legs, exit 0, VERDICT
+      "shadowing REPRODUCED on this copy"; leg 0 anti-vacuity control proves the
+      fixture was visible (block message names both T-9001 and T-9002)
 - [ ] After the fix, all three drift patterns reach the gate under the same
       conditions
 - [ ] The T-390 deadlock stays fixed: with focus NULL, every capture verb
@@ -52,16 +55,29 @@ date_finished: null
 - [ ] Mutation teeth: reverting the fix must make the pre-fix probe leg go red
 
 ### Human
-- [ ] [REVIEW] Approve reordering the central governance hook
+- [ ] [REVIEW] Approve changing the central governance hook
   **Steps:**
-  1. Read the `## Decisions` section of this task for the two candidate shapes
-     (hoist the focus read vs. set a flag honoured by later checkpoints)
+  1. Read the `## Decisions` section for the **three** candidate shapes.
+     A (hoist the focus read) and B (flag honoured by later checkpoints) were
+     ours. **C is AEF's, arrived at rail 482 after this task was filed, and it
+     is the recommended one** — it changes no ordering at all: drift-target
+     *extraction* is pure string work, so it runs in the fast path, and only the
+     early return becomes conditional. C has B's mechanism with A's failure
+     direction, and it is already landed and measured on AEF's side (T-2880).
   2. Decide which shape is acceptable in `check-active-task.sh`
   **Expected:** A named choice, or a direction to leave the shadow open and
   document it instead
   **If not:** Leave `horizon: now` and re-raise at the start of a session with
   full budget — this is the central enforcement path and both AEF and 832
   deferred it once already for that reason
+
+  **Note on why this still needs you even though C is clearly better:** the
+  question is no longer "which of two risky shapes" — C removes most of that
+  risk. What remains is that this is the hook gating every Write/Edit/Bash call
+  in every session, and a defect in it fails open silently. That is a
+  sovereignty call, not a technical one. The agent-side evidence is complete:
+  the defect is reproduced here (11 legs), the shape is specified, and AEF has
+  run it in production on their copy.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -213,6 +229,99 @@ and any one that forgets it re-introduces the deadlock silently.
 
 Note the asymmetry: A fails toward blocking work, B fails toward permitting it.
 
+**C — extract the QUESTION, not the answer. (AEF, rail 482 §1-2. Landed on their
+side as T-2880. This is the recommended shape.)**
+
+Both A and B assumed the drift comparison has to happen where `CURRENT_TASK` is
+readable. It doesn't. The hook asks two questions with different inputs:
+
+    "does this need an active task?"        SESSION state    needs focus.yaml
+    "is it attributed to the right task?"   COMMAND string   needs nothing
+
+Target *extraction* is pure string work over `$BASH_CMD`. It never needed the
+focus parse at ~186, so it can run in the fast path at ~90. Extract the three
+patterns into `_fw_extract_drift_target()`, call it BEFORE the safe-list return,
+and make that return conditional:
+
+    names no task  -> exit 0            (unchanged — every ordinary safe command)
+    names a task   -> SAFE_ALLOWED=1, fall through to the real gate
+
+**No focus read moves. No hoist. Nothing is reordered.** A's cost — a YAML parse
+in the hot path of every safe command, and safety made dependent on focus state,
+which is the exact coupling that caused this defect — disappears, because the
+thing being hoisted is the *question*, not the answer.
+
+**C takes B's mechanism with A's failure direction.** My own framing of the A/B
+choice was "B is the one I would reach for and A is the one I would trust"; AEF's
+reply is that those are separable, and the flag's danger lives in its REACH, not
+in its being a flag:
+
+    flag honoured at 3 sites -> one forgets -> gate silently stops enforcing
+    flag honoured at 1 site  -> that site missed -> deadlock returns LOUDLY,
+                                                    with a remedy
+
+`SAFE_ALLOWED` is consumed at **exactly one place**: the null-focus branch
+(line 233 here). Nowhere else. The stale-focus / G-013 / status checks
+deliberately do NOT honour it — so a drift-naming command under stale focus
+blocks, and AEF verified the remedy that block prints (`fw work-on T-X`) is
+itself safe-listed, i.e. not a second deadlock.
+
+**AEF's measurement, before and after** (real hook, synthetic PROJECT_ROOT via
+the stdin `cwd` re-anchor, live focus untouched — `context add-*` naming T-9002
+while focus is T-9001):
+
+    focus state                    before   after
+    null (post-completion)         ALLOW    ALLOW   <- T-2878/T-390 preserved
+    T-9001, current session        ALLOW    BLOCK   <- the repair
+    T-9001, stale session          ALLOW    BLOCK   (remedy is safe-listed)
+    T-9001, not in active/         ALLOW    BLOCK
+    T-9001, status captured        ALLOW    BLOCK
+
+Non-drift-naming safe commands (`doctor`, `git status`, `ls -la`, `note`,
+`handover`, `context status`, and bare `context add-learning` with no `--task`)
+are unchanged ALLOW in all five states. 11 new assertions plus 160 pre-existing
+over that hook, green.
+
+**Sharper root cause, from AEF §3 — and it reproduces here verbatim.** Lines
+221-224 of our own `check-active-task.sh`, written for T-2054's `git commit`
+exemption, two hundred lines above where T-390 broke it:
+
+    "This lives here, NOT in is_bash_safe_command, on purpose: when focus is
+     NON-null git commit must still reach the focus-drift gate (T-1730) — a
+     context-free allowlist entry would short-circuit that."
+
+The rule was stated, correctly, in prose, by a prior task that hit the identical
+tension and resolved it right. T-390 then added a context-free allowlist entry
+and short-circuited the gate. **The placement was known-wrong before it was
+written** — which is a sharper root cause than "the early return was in the wrong
+place", and it points at a different prevention: nothing enforced the rule and
+nothing surfaced it at the point of edit. Verified present in our copy at
+lines 221-224, not taken on report.
+
+### 2026-08-08 — shadowing reproduced HERE, not inferred from AEF's report
+
+`tools/_t392-drift-shadow-probe.sh`, 11 legs, drives the real hook with a
+sandbox PROJECT_ROOT injected through the stdin `cwd` re-anchor. Live focus is
+never read or written.
+
+    pattern 1  fw task update T-9002        REACHES gate -> blocked
+    pattern 3  git commit -m "T-9002: ..."  REACHES gate -> blocked
+    pattern 2  fw context add-* --task T-9002   SHADOWED -> allowed (rc=0)
+
+Leg 0 is an anti-vacuity control and it is the reason the rest counts: it
+requires the block message to NAME BOTH fixture ids (T-9001 focused, T-9002
+targeted). If the re-anchor silently no-opped, the hook would read the live
+focus and every leg below would describe the real repo while looking identical
+to a green run — the fixture-invisible failure mode from T-381. The probe exits
+**3** (not 1) in that case, because "measured nothing" and "measured a defect"
+are different outcomes and collapsing them is the very defect this task is about.
+
+Also confirmed by the same run: the T-390 deadlock stays fixed (null focus still
+allows `note`, `handover`, and `context add-*` with no `--task`), and no
+over-correction (`doctor`, `git status`, `ls -la`, `context status` still exit
+early without consulting focus). Those are the two rows a repair could plausibly
+break, measured before any repair exists.
+
 ### 2026-08-08 — why this is a regression I introduced, not an inherited defect
 
 Before T-390 the `context)` arm allowed `status|focus|init` only, so
@@ -248,3 +357,6 @@ the second, and nothing reports a check that stopped being consulted.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-392-safe-list-early-return-shadows-the-focus.md
 - **Context:** Initial task creation
+
+### 2026-08-08T19:45:19Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

@@ -1,8 +1,8 @@
-# Audit Results - 2026-08-08-2140
-timestamp: 2026-08-08T19:40:15Z
+# Audit Results - 2026-08-08-2143
+timestamp: 2026-08-08T19:43:26Z
 summary:
   pass: 124
-  warn: 29
+  warn: 30
   fail: 60
 findings:
   - level: PASS
@@ -53,11 +53,11 @@ findings:
   - level: PASS
     check: "Gap register: every watching gap has a renderable closure condition"
   - level: PASS
-    check: "All 51 active tasks are valid"
+    check: "All 52 active tasks are valid"
   - level: PASS
     check: "All active tasks meet quality thresholds"
   - level: PASS
-    check: "Git traceability: 100% (1248/1248 commits reference tasks)"
+    check: "Git traceability: 100% (1249/1249 commits reference tasks)"
   - level: WARN
     check: "Uncommitted changes present"
     mitigation: "Commit changes with task reference or stash"
@@ -113,7 +113,7 @@ findings:
   - level: PASS
     check: "CTL-003: Budget status file fresh (< 5min old)"
   - level: PASS
-    check: "CTL-004: Tool counter at 22 (last commit: 9 minutes ago)"
+    check: "CTL-004: Tool counter at 1 (last commit: 52 seconds ago)"
   - level: PASS
     check: "CTL-018: Budget status valid JSON (level: ok)"
   - level: PASS
@@ -473,6 +473,9 @@ findings:
   - level: WARN
     check: "CTL-029: T-345 has all Agent ACs ticked but status='started-work' — completable, not closed"
     mitigation: "Run: bin/fw task update T-345 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-395 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-395 --status work-completed"
   - level: PASS
     check: "CTL-012: All 344 completed tasks have checked ACs"
   - level: PASS
@@ -497,9 +500,9 @@ findings:
     check: "D13: Inception limbo — 1 task(s): A=0/B=1 T-309(B)"
     mitigation: "Recover both classes with: bin/fw inception sweep (T-1514)"
   - level: PASS
-    check: "D3: Commit velocity — normal (PASS today=61 avg=38 ratio=1.6x)"
+    check: "D3: Commit velocity — normal (PASS today=62 avg=38 ratio=1.6x)"
   - level: PASS
-    check: "D7: Commit bunching — detected (INFO 1_bunch(es) 61_commits_24h)"
+    check: "D7: Commit bunching — detected (INFO 1_bunch(es) 62_commits_24h)"
   - level: PASS
     check: "D6: Completion velocity — normal (PASS recent=8.7 earlier=5.6)"
   - level: PASS
