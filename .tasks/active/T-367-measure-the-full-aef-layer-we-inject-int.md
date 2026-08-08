@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T14:44:51Z
-last_update: 2026-08-04T14:44:51Z
+last_update: 2026-08-04T14:45:59Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -64,7 +64,7 @@ recorded in T-366, awaiting AEF's scope reading).
 ## Acceptance Criteria
 
 ### Agent
-- [ ] **The full `aef:*` footprint we add to a third-party document is measured per
+- [x] **The full `aef:*` footprint we add to a third-party document is measured per
       kind, with counts, over all 10 fixtures in `tests/fixtures/third-party/`.**
       Method: harvest every `<aef:KIND>` from the input bytes and from the emitted
       bytes of an open→save, and report the delta by kind. Input counts are expected to
@@ -72,26 +72,93 @@ recorded in T-366, awaiting AEF's scope reading).
       than assuming it, since a fixture that already carries an `aef:` element would
       quietly turn an injection into a passthrough.
 
-- [ ] **`aef:uid`'s share of that footprint is stated as a fraction, not a verdict.**
+      **`tools/_t367-aef-injection-footprint.mjs`. 10/10 imported, 0 failed. 307
+      `aef:` elements injected across 4 kinds:**
+
+      | kind | §1 class | in | out | injected | share |
+      |---|---|---|---|---|---|
+      | `aef:uid` | SEMANTIC | 0 | 149 | 149 | 48.5% |
+      | `aef:position` | PRESENTATIONAL | 0 | 120 | 120 | 39.1% |
+      | `aef:laneMeta` | UNCLASSIFIED | 0 | 28 | 28 | 9.1% |
+      | `aef:workflowMeta` | UNCLASSIFIED | 0 | 10 | 10 | 3.3% |
+
+      **Input carried zero `aef:` elements — measured, not assumed.** The counts
+      reconcile exactly against the import: uid 149 = 120 nodes + 29 edges;
+      position 120 = nodes; laneMeta 28 = 3×8 fabricated + 2×2 preserved;
+      workflowMeta 10 = one per document. A census that did not reconcile would be
+      the first sign the harvester was matching something other than what it names.
+
+- [x] **`aef:uid`'s share of that footprint is stated as a fraction, not a verdict.**
       This is the number the whole question turns on. AEF's RAIL-441 recommendation
       ("uid persistence follows authorship, not observation") targets uid alone; if uid
       is a small minority of what we inject, then their rule is right and its SCOPE is
       wrong — it should be "we do not add an `aef:` layer to documents we did not
       author", of which uid is one line. Do not pre-judge which way it lands.
 
-- [ ] **The measurement distinguishes SEMANTIC from PRESENTATIONAL injection**, per the
+      **uid is 149 of 307 = 48.5%.** Stated as a fraction, and the conclusion is
+      deliberately NOT hung on which side of 50% it fell — the first draft of the
+      probe branched its verdict on a `>= 50` threshold, which would have made the
+      recommendation to AEF flip on a coin-toss margin. Rewritten to conclude from
+      the residue instead: RAIL-441 as written removes 149 and **leaves 158**, so
+      open-and-save stays a non-no-op. That holds at 48.5% and would hold at 80%,
+      because the property AEF wants back is binary.
+
+- [x] **The measurement distinguishes SEMANTIC from PRESENTATIONAL injection**, per the
       frozen standard §1 two-class partition. `aef:position` is presentational and a
       change to it alone MUST be a task-graph no-op; `aef:uid` is semantic. An
       injection footprint that is 90% presentational is a different argument from one
       that is 90% semantic, and reporting a single total would hide exactly that.
 
-- [ ] **The probe has a negative control**: at least one kind that we do NOT inject
+      **SEMANTIC 149 (48.5%) · PRESENTATIONAL 120 (39.1%) · UNCLASSIFIED 38 (12.4%).**
+
+      The third bucket is a finding, not a rounding step. §1 opens "Every `aef:`
+      datum is exactly one of two classes" and declares the partition normative, but
+      it **enumerates** rather than defines, and this build emits two kinds in
+      neither list: `aef:laneMeta` (28×) and `aef:workflowMeta` (10×). Folding them
+      into PRESENTATIONAL because they are absent from the semantic list would be a
+      ruling wearing the costume of a measurement — the standard is frozen and the
+      fence is AEF's. `aef:laneMeta` in particular carries `authority=`, which is
+      Axis-1 governance data, so guessing "presentational" would have guessed wrong
+      in the direction that understates the finding.
+
+- [x] **The probe has a negative control**: at least one kind that we do NOT inject
       must be shown absent from the output, so a run reporting "we inject everything"
       can be distinguished from a harvester that matches too broadly (T-364's
       21-invented-findings failure — see [[anomaly-counts-need-their-members]]).
 
-- [ ] **Result posted to AEF**, since it was promised at RAIL-442 and it bears directly
+      **20 of 24 emittable kinds are not injected** — `meta`, `endpoint`,
+      `contextReads`, `artifactsWrites`, `decisionInput`, `decisionOutputs`, `link`,
+      `eventDef`, `boundaryPos`, `io`, `input`, `output`, `constituents`,
+      `constituent`, `anchors`, `loopDetour`, `forceStraight`, `routingHint`,
+      `routing`, `waypoint`.
+
+      Three controls, because the failure modes differ, and the third is the one that
+      makes the negative control mean anything:
+      1. **positive** — `aef:uid` must be injected, else the save never ran;
+      2. **negative** — the 20 above, drawn from the emitter's own vocabulary so each
+         bucket was reachable;
+      3. **harvester capability** — `harvest()` is run against a document carrying
+         all 24 kinds and must find every one, BEFORE any zero is read as "not
+         injected". Without it a missing witness and an invisible one are the same
+         output ([[unreachable-witnessing-state]]).
+
+      Plus an **over-match guard**: a decoy with one live element, one commented-out
+      mention and one entity-escaped mention. The harvester does match inside XML
+      comments, so every count in the census is taken over comment-stripped bytes.
+      The fixtures happen to carry no comments at all, which makes the exposure inert
+      *on this corpus* — a property of the corpus, not the instrument, so the strip
+      is applied rather than the risk argued away ([[prose-in-exported-bytes]]).
+
+      **Teeth: `tools/_t367-injection-footprint-teeth.py`, 4 legs, all pass.**
+      (a) removing `aef:uid` emission ⇒ positive control fires; (b) emitting all 24
+      kinds ⇒ negative control fires; (c) removing `aef:position` emission ⇒ run
+      stays green but the total moves 307→187 and the row leaves the table, proving
+      the census tracks the emitter rather than reprinting a vocabulary.
+
+- [x] **Result posted to AEF**, since it was promised at RAIL-442 and it bears directly
       on whether their proposed rule is worth either side implementing.
+
+      Posted at RAIL-443.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -125,6 +192,9 @@ recorded in T-366, awaiting AEF's scope reading).
 -->
 
 ## Verification
+
+node tools/_t367-aef-injection-footprint.mjs
+python3 tools/_t367-injection-footprint-teeth.py
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -223,6 +293,70 @@ recorded in T-366, awaiting AEF's scope reading).
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-08-08 — the measurement was scoped to `aef:` and the honest answer is not
+
+- **Chose:** measure the core-BPMN structural injection alongside the `aef:` layer,
+  even though the task asked only for the `aef:` layer.
+- **Why:** 8 of the 10 fixtures contain **no lane at all** and every one of them comes
+  back carrying three, plus the enclosing `laneSet`; 6 gain a `<bpmn:participant>` the
+  input never had. Those are core BPMN — every other tool renders them — and **no
+  `aef:`-scoped rule removes a single one.** Reporting "we inject 307 `aef:` elements"
+  and stopping would have been a careful number answering a narrower question than the
+  reader's, which is the shape of [[measurement-promoted-past-its-scope]] with the
+  scope error on my side rather than in the prose.
+- **Rejected:** answering exactly what was asked and filing the structural part as
+  follow-up. The two numbers only mean something together: `aef:laneMeta` (28) is
+  *downstream* of the fabricated lanes, so quoting it as an `aef:` injection without
+  the lanes attributes it to the wrong cause.
+
+### 2026-08-08 — the verdict does not branch on the 48.5%
+
+- **Chose:** conclude from the residue (158 elements left after RAIL-441) rather than
+  from whether uid is a majority.
+- **Why:** the first draft printed one recommendation at `uid >= 50%` and the opposite
+  below it. uid measured **48.5%** — a coin-toss margin deciding what I tell the peer
+  to build. The residue framing is threshold-free and strictly stronger: any residue
+  defeats a no-op property, so the conclusion holds at 80% too.
+- **Rejected:** keeping the threshold and noting the margin was narrow. A caveat next
+  to a verdict does not stop the verdict being carried into prose alone.
+
+### 2026-08-08 — `laneMeta`/`workflowMeta` left UNCLASSIFIED rather than assigned
+
+- **Chose:** a third bucket, reported as a gap in the frozen standard.
+- **Why:** §1 says the partition is total but enumerates rather than defines, and these
+  two kinds are in neither list. `aef:laneMeta` carries `authority=`, which is Axis-1
+  governance data, so the "obvious" default of presentational would have been wrong in
+  the direction that *understates* the finding. An absence in an enumeration cannot
+  carry a classification decision ([[absence-cannot-carry-a-decision]]), and the
+  document is frozen and not mine to interpret.
+- **Rejected:** folding them into PRESENTATIONAL to produce a clean two-way split.
+
+### 2026-08-08 — bizagi's total loss reported as consequence, not as a new defect
+
+- **Chose:** attribute it to T-348 (`processes[0]` first-only) meeting T-358 path (iii),
+  and report only the consequence as new.
+- **Why:** `bizagi-nested-ns.bpmn` has two processes — the first an empty stub, the
+  second holding all the content — so the importer reads the stub and yields **0 nodes,
+  0 edges** from a 9 KB document. Saving emits a file containing *none* of the author's
+  content: three invented governance lanes, our namespace, `isExecutable` flipped to
+  true. That is substitution reading as preservation, and it reports as a clean import
+  because `parseBpmnXml` returns a map rather than null. But the **cause is already
+  filed twice over**, and presenting it as a discovery would double-count a known defect
+  ([[incidents-direct-attention]]).
+- **Rejected:** opening a new bug task. One bug = one task, and this bug has one.
+
+### 2026-08-08 — teeth leg (a) was single-site against a two-site emission
+
+- **Chose:** record the near-miss rather than quietly fixing the anchor.
+- **Why:** leg (a) removes `aef:uid` emission and requires the positive control to fire.
+  The first version removed only the **node** site (`src` ~9269) and the leg went
+  **green** — 29 edge uids from the second site (`src` ~9575) kept the control
+  satisfied, and the control was *right* to be satisfied, because the save had in fact
+  run. A single-site mutation against a two-site emission proves nothing and fails in
+  the direction that looks like success. Same shape as [[g-009-whole-tree-sweep]], with
+  the instrument as the subject. The reconciliation (149 = 120 nodes + 29 edges) is what
+  made the two sites visible.
 
 ## Decision
 

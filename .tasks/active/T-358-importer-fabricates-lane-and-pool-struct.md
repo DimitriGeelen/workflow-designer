@@ -436,3 +436,58 @@ node tools/_t356-third-party-fidelity-cdp.mjs
 
 ### 2026-08-03T16:42:23Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-08-08 — population widened 5 → 10 by T-367; the universal quantifier does not hold
+
+Measured by `tools/_t367-aef-injection-footprint.mjs` over all 10 fixtures in
+`tests/fixtures/third-party/` (this task's evidence base was 5).
+
+**This task's title says every third-party document gains 3 lanes and 1 participant on
+open. On 10 fixtures it is 8/10 for lanes and 6/10 for participants.**
+
+`caseagile-local-ns.bpmn` (2 lanes in → 2 out) and `kitchen-sink.bpmn` (2 → 2) carry
+their own lane sets, and the importer **preserves them and fabricates nothing**. The
+`!lanes.length` guard is doing exactly what it says; the two documents that reach it
+with lanes never enter the branch.
+
+The defect is unchanged and the site is unchanged. What was wrong is the quantifier:
+"every" was true of the 5 documents measured and was never true of the class. Same
+shape as [[measurement-promoted-past-its-scope]] — an honest measurement carried into
+a wider sentence.
+
+**It also sharpens the repair.** A fix that changes what `defaultLanes()` returns would
+alter output for 8 of 10 and leave 2 correct documents untouched, so the two preserving
+fixtures are the regression control the repair needs: they must stay byte-identical
+across any change to the fabrication path, and nothing currently asserts that.
+
+**Participants move in BOTH directions, which a net count would have hidden.** 6
+fixtures gain a participant (0 → 1); 3 LOSE one (`bizagi-nested-ns`,
+`collaboration-message-flows`, `kitchen-sink`, all 2 → 1) — the two-pool-saves-as-one-pool
+collapse from RAIL-400, a different defect sharing the same column. A net participant
+delta over the corpus is +3 and means nothing; see [[counts-that-hide-their-distribution]].
+
+**`laneProvenance` classifies all 10 correctly and is silent about the thing that
+matters most in one of them.** Verdicts measured, not inferred (the probe now returns
+`m.laneProvenance`): 8 `defaulted:*`, and `caseagile-local-ns` + `kitchen-sink` come
+back **`authored`** — the two preserving documents, on real third-party bytes rather
+than a purpose-built fixture. That is this task's negative control holding up outside
+its own corpus.
+
+The exception is `bizagi-nested-ns.bpmn`, and it is not a new cause — I first wrote it
+up here as a witness for path (iii) and that was **wrong**. Measured, it is
+**`defaulted:empty-laneset`**, path (ii): both its processes carry a self-closing
+`<laneSet/>`, so nothing was ignored and the value is accurate.
+
+What the value cannot say is that the document also lost **every node**. Bizagi writes
+an empty stub process first and the content second; `parseBpmnXml` reads `processes[0]`
+(T-348) and yields **0 nodes, 0 edges from a 9 KB file**. The saved output contains none
+of the author's content — three fabricated governance lanes, our namespace,
+`isExecutable` flipped to true — and a reader handed `defaulted:empty-laneset` concludes
+"the author had no lanes, so we defaulted", which is true, sufficient-sounding, and
+attributes the whole event to the author's omission.
+
+**So `laneProvenance` is scoped to laneSet selection while the loss here is process
+selection — two axes, one of them unreported.** This does not make the taxonomy wrong;
+it makes it non-diagnostic exactly where the outcome is worst. Whatever ruling lands on
+the default, the provenance signal should not be the only thing a caller sees, or the
+total-loss case will keep reporting as an ordinary default.
