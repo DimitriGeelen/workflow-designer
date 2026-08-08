@@ -1,0 +1,12 @@
+# Observation Inbox - Unprocessed observations
+# Capture: fw note "text"
+# Review:  fw note list
+# Triage:  fw note triage
+observations:
+- id: OBS-001
+  text: "check-active-task.sh:92-107 — has_bash_write_pattern is tested BEFORE the T-2052 bootstrap exemption (elif), so a bootstrap verb carrying a write pattern (e.g. 'fw context focus T-X > log') is judged on focus state and blocked. MEASURED in T-381, not a wedge risk: all four remedies the block message actually prints (bare + 'cd && ' form, context focus + work-on) are ALLOWED. Defensible as-is (a redirect is a write, and writes need a task) — recorded so the ordering is a decision rather than an accident. Probe leg exists but is deliberately unscored: tools/_t381-focus-gate-wedge.sh B2."
+  captured: 2026-08-08T15:22:21Z
+  context_task: T-381
+  tags: []
+  status: pending
+  promoted_to: null

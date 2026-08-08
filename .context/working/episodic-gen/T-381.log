@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-08T15:25:44Z ===
+task_id: T-381
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-381.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: focus gate wedge: fw context focus accepts a completed task id its own reader rejects
+  Duration: 0 days (7 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 6 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-381-focus-gate-wedge-writer-accepts-complete.md
+--- exit code: 0 ---

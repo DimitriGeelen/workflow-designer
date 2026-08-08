@@ -31,9 +31,34 @@ do_focus() {
     else
         local task_id="$1"
 
-        # Validate task exists
-        local task_file=$(find_task_file "$task_id")
+        # Validate task exists AND is active (T-381).
+        #
+        # This used to call `find_task_file "$task_id"` UNSCOPED, which resolves
+        # active/ then completed/. The gate that reads this value back requires
+        # active/ specifically (check-active-task.sh, G-013). The writer therefore
+        # accepted a wider set than its reader could use: focusing a completed task
+        # succeeded, and every gated Write/Edit/Bash afterwards was blocked with
+        # "Task <id> is not active". PL-020 class — validating that a value EXISTS
+        # is not validating that its consumer can USE it.
+        #
+        # Refusing here is consistent with how the framework already treats the
+        # state: T-2054 notes that `--status work-completed` nulls current_task and
+        # moves the file to completed/ precisely so it cannot be re-focused.
+        local task_file=$(find_task_file "$task_id" active)
         if [ -z "$task_file" ]; then
+            local completed_file=$(find_task_file "$task_id" completed)
+            if [ -n "$completed_file" ]; then
+                echo -e "${RED}Task $task_id is completed — cannot focus it.${NC}"
+                echo "  Location: $completed_file"
+                echo ""
+                echo "Focus must name a task in .tasks/active/; the task gate requires it"
+                echo "and would block every Write/Edit/Bash until focus was changed back."
+                echo ""
+                echo "Did you mean:"
+                echo "  fw work-on T-XXX                        (resume an active task)"
+                echo "  fw work-on \"<name>\" --type build        (start new work)"
+                exit 1
+            fi
             echo -e "${RED}Task not found: $task_id${NC}"
             exit 1
         fi

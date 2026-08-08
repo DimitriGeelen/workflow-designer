@@ -1186,3 +1186,31 @@ decisions:
     date: 2026-08-08
     task: T-377
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-149
+    decision: "narrow `do_focus` to `find_task_file \"$task_id\" active`."
+    scope: project
+    date: 2026-08-08
+    task: T-381
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-150
+    decision: "leave check-active-task.sh:92-107 untouched."
+    scope: project
+    date: 2026-08-08
+    task: T-381
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-151
+    decision: "strip `PROJECT_ROOT`/`TASKS_DIR`/`CONTEXT_DIR`/`FRAMEWORK_ROOT` from the env for"
+    scope: project
+    date: 2026-08-08
+    task: T-381
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-152
+    decision: "print the bootstrap-verb-plus-redirect result without a PASS/FAIL, and file it"
+    scope: project
+    date: 2026-08-08
+    task: T-381
+    rationale: "Auto-captured from task file on completion"
