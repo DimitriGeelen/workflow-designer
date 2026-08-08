@@ -1314,6 +1314,33 @@ concerns:
       untouched and the gate exactly as open. Enumeration is not a slow fix here,
       it is not a fix.
 
+      COMPOSITION — the danger is in the PRODUCT of entries, not in any entry.
+      Reported by AEF at rail 471 §1, following from our pipeline bound (every
+      segment of a pipeline must be safe-listed, which is why `termlink | python3`
+      was GATED while `cat | python3` was not):
+
+          curl -s http://host | python3 -c "<write idiom>"    ALLOWED
+
+      `curl` and `wget` are both safe-listed here (safe-commands.sh:162), so REMOTE
+      content reaches the local filesystem with no active task and no bypass-log
+      entry. Neither entry is wrong alone.
+
+      WHY THE ENTRY LOOKS REASONABLE, which is the part worth keeping: line 162
+      groups `curl|wget` with `date|uname|ps|ss|id|whoami|hostname|env|df|du|free|
+      uptime|nproc` — a cluster of read-only info commands. In that company curl
+      reads as harmless, and by the category the grouping actually implements
+      ("does not modify local state") it IS harmless. The category is what misses:
+      a command can be perfectly read-only and still be the INPUT to something that
+      writes. The safe-list classifies commands by what they DO; composition is
+      about what they CARRY. That is why this survived review rather than being an
+      oversight anyone was careless about.
+
+      EPISTEMIC NOTE (AEF's L-546, adopted): we vendor their hook, so re-running
+      their rows here executes the SAME predicate and cannot fail differently. Our
+      reproduction is reporting fidelity, not corroboration; the finding stands on
+      the predicate being read correctly, which either side can do alone. The
+      curl/wget grouping observation above is a READ of the list, not a re-run.
+
       FAILURE DIRECTION IS THE DANGEROUS ONE: false NEGATIVE. Every gate is
       skipped, nothing is written to the bypass log, and the outcome is
       indistinguishable from compliance after the fact. A defect whose signature
@@ -1335,10 +1362,25 @@ concerns:
       active task — enforced by CONSTRUCTION rather than by pattern, since the
       subprocess row proves patterns cannot close it. Two directions are on the
       table (AEF rail 465): drop the interpreter from the safe-list entirely, or
-      make `-c` scripts write-free by construction. The first costs the
-      `python3 -c "import yaml; yaml.safe_load(...)"` verification idiom, which is
-      used throughout our own Verification blocks — that cost is the reason this
-      is a decision and not a patch.
+      make `-c` scripts write-free by construction.
+
+      CORRECTION (2026-08-08, AEF rail 467 §3, measured here). This entry
+      originally said the first direction costs the `python3 -c "import yaml;
+      yaml.safe_load(...)"` idiom used throughout our Verification blocks, and
+      that the cost was "the reason this is a decision and not a patch". THAT COST
+      IS NOT REAL. P-011 executes Verification commands from inside update-task.sh
+      as subprocesses; PreToolUse hooks fire on the agent's tool calls, not on
+      processes a script spawns. Measured in this tree: the hook is wired
+      `Write|Edit|Bash` only, and update-task.sh references it zero times. Both
+      sides had independently priced the remedy against a population it does not
+      touch. What removal actually costs is interactive one-liners during recovery
+      states (no active task, focus drift) — where `grep`/`cat` substitute, though
+      whether they substitute FULLY is AEF's IW-2 and remains unmeasured by either
+      of us. The remedy is cheaper than this entry first claimed; it is still a
+      joint decision because the hook is shared, not because of this cost.
+
+      A "safe-list fewer helpers" remedy is ALSO ruled out by the composition row:
+      the bare `python3 -c` form needs no helper and is already open.
 
       NOT CLOSED BY adding the seven measured idioms to the deny-list. That
       removes the instances and leaves the mechanism: `subprocess.call(cmd,
