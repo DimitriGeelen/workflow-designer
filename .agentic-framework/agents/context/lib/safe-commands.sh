@@ -102,7 +102,42 @@ is_bash_safe_command() {
                         status|focus|init)
                             return 0
                             ;;
+                        # T-390: knowledge capture must survive the no-task state,
+                        # because that state is CREATED by the event these verbs
+                        # exist to record. `--status work-completed` nulls focus and
+                        # moves the task to completed/, and the very next thing the
+                        # framework asks for is a learning ("LEARNING PROMPT — no
+                        # learning entry references T-XXX", printed BY update-task.sh
+                        # at the moment its own gate has just made the command
+                        # unrunnable). Same deadlock shape as T-2052 (task create)
+                        # and T-2054 (git commit); third instance in this file.
+                        #
+                        # Safe on the same grounds as those two: these verbs write
+                        # only under .context/, which is already an exempt path for
+                        # Write/Edit, and they record knowledge ABOUT work already
+                        # produced under the gate — they cannot author source. The
+                        # --task T-XXX argument still attributes the entry, so
+                        # traceability is unaffected.
+                        add-learning|add-pattern|add-decision|generate-episodic)
+                            return 0
+                            ;;
                     esac
+                    ;;
+                # T-390: `fw note` is the lightweight observation inbox — the verb for
+                # recording something you noticed but are not acting on now. Blocking
+                # it with no active task is self-defeating in a specific way: the
+                # framework could not record the observation that it cannot record
+                # observations. Writes only to .context/inbox.yaml; its one escalating
+                # sub-verb (`note promote`) creates a task, already exempt (T-2052).
+                note)
+                    return 0
+                    ;;
+                # T-390 / OBS-002: `fw handover` was blocked with no active task —
+                # the state at the end of a session that just completed its last task,
+                # which is exactly when a handover is MANDATORY (CLAUDE.md §Session End
+                # Protocol). Writes to .context/handovers/ only.
+                handover)
+                    return 0
                     ;;
                 task)
                     local task_sub

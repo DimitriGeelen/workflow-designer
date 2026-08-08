@@ -1214,3 +1214,31 @@ decisions:
     date: 2026-08-08
     task: T-381
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-153
+    decision: "post to the existing DM rail tagged `metadata.cv_key=designer-release`."
+    scope: project
+    date: 2026-08-08
+    task: T-389
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-154
+    decision: "read the current cv value and compare `version + sha256` before posting."
+    scope: project
+    date: 2026-08-08
+    task: T-389
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-155
+    decision: "the cut succeeds, the announce failure is loud, and the final line always"
+    scope: project
+    date: 2026-08-08
+    task: T-389
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-156
+    decision: "after posting, re-read the cv index and require it to point at our offset."
+    scope: project
+    date: 2026-08-08
+    task: T-389
+    rationale: "Auto-captured from task file on completion"

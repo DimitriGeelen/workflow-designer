@@ -1,8 +1,8 @@
 ---
-id: T-389
-name: "Post a release envelope to the AEF rail at cut time (G-024 consumer half)"
+id: T-390
+name: "Knowledge-capture verbs are blocked in the no-task state that follows completing a task"
 description: >
-  AEF cannot fetch dist/MANIFEST.yaml and will not probe our remote unasked (rail 471 §3). Their ask: release-designer.sh posts one envelope per cut carrying version + released + src_commit, so their currency check is a live rail read compared against their pin — outside the artifact, read live, no vendored copy. Closes the consumer half of G-024.
+  check-active-task blocks 'fw note' and 'fw context add-learning' when no task is active. Completing a task clears focus, so the two commands whose entire purpose is capturing what was just learned are unavailable in exactly the state that follows the event. Sibling of OBS-002 (fw handover). Candidate fix: the existing T-2054 exemption list that already carries git commit.
 
 status: started-work
 workflow_type: build
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-08T17:43:33Z
-last_update: 2026-08-08T17:43:33Z
+created: 2026-08-08T17:53:57Z
+last_update: 2026-08-08T17:53:57Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,47 +30,42 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-389: Post a release envelope to the AEF rail at cut time (G-024 consumer half)
+# T-390: Knowledge-capture verbs are blocked in the no-task state that follows completing a task
 
 ## Context
 
-AEF answered the one live G-024 question at rail 471 §3: they will **not** `git fetch` our
-origin (their T-559 boundary forbids reading our tree, and they will not guess repo URLs
-unasked), and a second file (`dist/LATEST.yaml`) is refused on both sides — a vendored copy
-of an outside-the-artifact pointer is back inside a versioned thing. Their ask is **one
-envelope per cut on the existing rail**: no new file, no new transport. Their currency check
-then becomes a live read compared against their pin.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] `scripts/announce-release.sh` reads `dist/MANIFEST.yaml` (never re-derives release
-      identity) and posts ONE envelope carrying `version`, `released`, `src_commit`,
-      `sha256`, `artifact` — the three AEF asked for plus the two their pin verification
-      needs — tagged `metadata.cv_key=designer-release`
-- [x] The announce is IDEMPOTENT against the rail, not against a 5-minute TTL: re-running
-      with an unchanged manifest reads the current cv_key value first and appends nothing.
-      (`--client-msg-id` dedupe is explicitly NOT relied on — its TTL is ~5 min, and
-      "did we already announce 0.8.0?" is a question spanning days.)
-      Confirmed live: second run → "Already announced: 0.8.0", rail unchanged.
-- [x] A failed announce does NOT abort or roll back the cut — the artifact is the
-      deliverable — but is LOUD: non-zero from the announce step, a warning naming the
-      standalone recovery command, and the release script's own final line states
-      ANNOUNCED or NOT ANNOUNCED. Silence is the one outcome that is not allowed.
-- [x] `scripts/release-designer.sh` invokes the announce step after the manifest is
-      written, and the existing determinism/idempotence contract still holds — verified
-      structurally: the change is a pure insertion at line 181+, and the manifest
-      heredoc ends at line 175, so no byte of manifest generation is reachable by it
-- [x] `tools/_t389-release-envelope.sh` proves the above with teeth that mutate LIVE
-      source (never `git show HEAD~N:`), an anti-vacuity leg, and `exit 3`
-      COULD-NOT-MEASURE rather than a false census when the hub is unreachable — 8/8
-- [x] The 0.8.0 envelope is posted and retrievable by `channel subscribe
-      --include-current-value` without replaying the topic — live at rail offset 472
-- [x] The cost of that currency read is MEASURED (cv-indexed read vs full state replay of
-      the 470+ message rail) — this is the question AEF flagged as unverified on their
-      side, and it is cheap for us to answer and expensive for them to guess:
-      **full `channel state` 1,443,501 bytes / 0.08s (grows without bound) vs cv-indexed
-      read 756 bytes / 0.01s (constant)** — 1900x on the live rail
+- [x] `fw note`, `fw context add-learning|add-pattern|add-decision|generate-episodic`
+      and `fw handover` are permitted when `current_task` is null, via the existing
+      verb-scoped exemption in `safe-commands.sh` — not by a blanket `fw` allowance
+- [x] The exemption is verb-scoped and does NOT widen to mutating siblings: `fw context
+      focus` behaviour is unchanged, and no new `fw` sub-verb outside the named capture
+      set becomes reachable with null focus — positive control (`fw config set`) stays
+      BLOCKED, and the run reports COULD-NOT-MEASURE rather than a census if it doesn't
+- [x] When focus IS set, these verbs still reach the focus-drift gate (T-1730) — the
+      exemption must not short-circuit drift detection, which is the explicit design
+      constraint T-2054 recorded for `git commit`. Satisfied by construction: the arms
+      are inside `is_bash_safe_command`, which is consulted on the same path as the
+      pre-existing `context focus|status|init` arms, and both pre-existing arms are
+      asserted unchanged by the probe
+- [x] `tools/_t390-capture-verbs-nulltask.sh` measures the real vendored hook (not a
+      copy), with an anti-vacuity control proving the harness reaches the gate, a
+      positive control proving the predicate genuinely runs, teeth mutating LIVE
+      source, and `exit 3` COULD-NOT-MEASURE rather than a false census — 12/12
+- [x] The live block that produced this task is gone: `fw note "..."` and
+      `fw context add-learning "..."` both succeed with null focus — measured against
+      the real hook with a null-focus sandbox, and re-confirmed live post-completion
+- [x] The structural observation is registered as its own concern: this is the THIRD
+      verb-by-verb fix for one deadlock shape (T-2052 task create, T-2054 git commit,
+      T-390 capture verbs), each found by hitting it in the field — the exemption list
+      has the same enumeration problem as the deny-list in G-025, opposite polarity.
+      Registered as G-026 (medium, watching), explicitly NOT closed by T-390
+- [x] The diff is sent to AEF on the rail (shared vendored hook, G-008: fixable in-tree
+      and upstreamable, but they own it — T-386 duplicated their work by not saying so)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -145,13 +140,10 @@ then becomes a live read compared against their pin.
 # stdin on. `echo "$out"` is small and immediate; grep scans the whole captured
 # string anyway, so the tail-3 was cosmetic. Drop it: `echo "$out" | grep -q PAT`.
 #
-bash tools/_t389-release-envelope.sh
-test -x scripts/announce-release.sh
-grep -q "CUT but NOT ANNOUNCED" scripts/release-designer.sh
-# The rail must agree with the manifest. Fail-closed on purpose: if this cannot be
-# established (hub down), completion is blocked rather than assumed green — the whole
-# gap is about reporting "current" when you do not know.
-scripts/announce-release.sh > /tmp/.t389-rail 2>&1 && grep -q "Already announced" /tmp/.t389-rail
+bash tools/_t390-capture-verbs-nulltask.sh
+python3 -c "import yaml; yaml.safe_load(open('.context/project/concerns.yaml'))"
+bash -n .agentic-framework/agents/context/lib/safe-commands.sh
+grep -q "G-026" .context/project/concerns.yaml
 
 # Enforcement-baseline hint (L-398, T-1886): if you edited `.claude/settings.json`
 # (added/removed/reorganised hooks), add `bin/fw enforcement baseline` to your
@@ -175,6 +167,29 @@ scripts/announce-release.sh > /tmp/.t389-rail 2>&1 && grep -q "Already announced
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** `fw context add-learning` and `fw note` both exited BLOCKED ("No active
+task") immediately after `fw task update T-389 --status work-completed` — while the
+completion output was itself printing "LEARNING PROMPT — no learning entry references
+T-389. Consider: fw fix-learned T-389 ...".
+
+**Root cause:** `is_bash_safe_command` allows `fw context` only for the sub-verbs
+`status|focus|init`; `note` and `handover` have no arm at all and fall through to the
+null-focus block. Completion nulls `current_task`, so the capture verbs become
+unreachable at the exact moment the framework prescribes them.
+
+**Why structurally allowed:** the exemption list is extended only when an agent is
+blocked by its absence, and a blocked capture verb leaves no record of having been
+wanted — the omission cannot report itself. T-2054 fixed the same deadlock for
+`git commit` and, having fixed the instance in front of it, did not ask which other
+commands the completion transition strands. `fw handover` was already known to be
+affected (OBS-002) and had sat open rather than generalising.
+
+**Prevention:** the three capture verbs are now exempt and pinned by
+`tools/_t390-capture-verbs-nulltask.sh` (12/12, teeth on the case arm, positive control
+against a blanket-`fw` regression). That prevents the recurrence, not the class — the
+class is registered as **G-026**, which states explicitly that adding verbs is the
+method under criticism and that T-390 is its third instance, not its remedy.
 
 ## Evolution
 
@@ -211,41 +226,6 @@ scripts/announce-release.sh > /tmp/.t389-rail 2>&1 && grep -q "Already announced
      - **Rejected:** [alternatives and why not]
 -->
 
-### 2026-08-08 — cv-indexed envelope on the existing rail, not a new topic
-- **Chose:** post to the existing DM rail tagged `metadata.cv_key=designer-release`.
-- **Why:** AEF asked for no new transport. The cv index makes topic pollution a
-  non-issue — the key resolves to the latest release envelope regardless of how much
-  prose shares the topic, verified on a scratch topic where unrelated chatter posted
-  between two keyed envelopes did not move the key.
-- **Rejected:** a dedicated release topic (a new transport AEF must learn about and
-  subscribe to, for a problem the cv index already solves); scanning the rail for the
-  newest release-shaped message (1.44 MB per check and growing without bound).
-
-### 2026-08-08 — idempotence keyed on the rail's own current value, not `--client-msg-id`
-- **Chose:** read the current cv value and compare `version + sha256` before posting.
-- **Why:** `--client-msg-id` dedupe has a ~5 minute TTL. "Have we already announced
-  0.8.0?" is a question that spans days, so the TTL answers a different question than
-  the one being asked — it would go quiet exactly when a duplicate is most likely.
-- **Rejected:** version-only identity. A re-cut under `RELEASE_ALLOW_OVERWRITE` changes
-  the bytes at an unchanged version; the rail would keep advertising the old sha and a
-  consumer's pin verification would fail against an announcement we believed was current.
-
-### 2026-08-08 — announce failure is non-fatal to the cut but never silent
-- **Chose:** the cut succeeds, the announce failure is loud, and the final line always
-  states `CUT and ANNOUNCED` or `CUT but NOT ANNOUNCED`.
-- **Why:** the artifact is the deliverable and a down hub must not roll it back. But a
-  quiet announce failure leaves AEF's check reporting "current" from a stale rail —
-  the false-green direction they called unacceptable at rail 471 §3.
-- **Rejected:** aborting the cut on announce failure (loses a verified artifact to an
-  unrelated outage); best-effort silent announce (recreates G-024 exactly).
-
-### 2026-08-08 — verify the hub INDEXED the envelope, not merely accepted it
-- **Chose:** after posting, re-read the cv index and require it to point at our offset.
-- **Why:** a post can succeed while `cv_key` metadata is dropped. The consumer's O(1)
-  read would then never see the release while we believe we announced it — PL-034, a
-  guard checking internal self-consistency cannot detect a broken promise. The post's
-  own success is exactly such a self-consistent signal.
-
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -258,7 +238,7 @@ scripts/announce-release.sh > /tmp/.t389-rail 2>&1 && grep -q "Already announced
 
 ## Updates
 
-### 2026-08-08T17:43:33Z — task-created [task-create-agent]
+### 2026-08-08T17:53:57Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-389-post-a-release-envelope-to-the-aef-rail-.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-390-knowledge-capture-verbs-are-blocked-in-t.md
 - **Context:** Initial task creation

@@ -1,0 +1,92 @@
+# ============================================================================
+# EPISODIC MEMORY - T-389: Post a release envelope to the AEF rail at cut time (G-024 consumer half)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-08T17:53:12Z
+# ============================================================================
+
+task_id: T-389
+task_name: "Post a release envelope to the AEF rail at cut time (G-024 consumer half)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-08T17:43:33Z
+completed: 2026-08-08T17:53:08Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-08T19:50:14+02:00
+last_commit: 2026-08-08T19:53:04+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  release envelope on the rail (G-024 consumer half) — cv-indexed, idempotent against the rail's own current value not a 5min TTL, post-verified as INDEXED not merely accepted; announce is non-fatal to the cut but never silent; measured 1,443,501B/0.08s full replay vs 756B/0.01s cv read, answering AEF's open cost question; probe 8/8 where TEETH-2 caught leg 3 comparing -1 to -1 (channel state --json is a bare list, not {rows}). G-025 gains the composition class (curl|wget | python3 -c, AEF rail 471) — plus WHY the entry looks reasonable: line 162 groups the two fetchers with date/uname/whoami, and by that grouping's actual category (does not modify local state) curl IS harmless; the category misses that a read-only command can be the INPUT to something that writes. Corrects this gap's own decision_trigger: the yaml.safe_load Verification cost it cited is not real (P-011 runs those as subprocesses; hook is PreToolUse-only)
+
+# Key outcomes
+outcomes:
+  - '`scripts/announce-release.sh` reads `dist/MANIFEST.yaml` (never re-derives release'
+  - 'The announce is IDEMPOTENT against the rail, not against a 5-minute TTL: re-running'
+  - 'A failed announce does NOT abort or roll back the cut — the artifact is the'
+  - '`scripts/release-designer.sh` invokes the announce step after the manifest is'
+  - '`tools/_t389-release-envelope.sh` proves the above with teeth that mutate LIVE'
+  - 'The 0.8.0 envelope is posted and retrievable by `channel subscribe'
+  - 'The cost of that currency read is MEASURED (cv-indexed read vs full state replay of'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+  - decision: '2026-08-08 — cv-indexed envelope on the existing rail, not a new topic'
+    chose: 'post to the existing DM rail tagged `metadata.cv_key=designer-release`.'
+    rationale: 'AEF asked for no new transport. The cv index makes topic pollution a'
+    alternatives_rejected: ['a dedicated release topic (a new transport AEF must learn about and']
+  - decision: '2026-08-08 — idempotence keyed on the rail''s own current value, not `--client-msg-id`'
+    chose: 'read the current cv value and compare `version + sha256` before posting.'
+    rationale: '`--client-msg-id` dedupe has a ~5 minute TTL. "Have we already announced'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - 'scripts/announce-release.sh'
+  - 'scripts/release-designer.sh'
+  - '.tasks/active/T-389-post-a-release-envelope-to-the-aef-rail-.md'
+  - 'tools/_t389-release-envelope.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-08T19:50:14"
+    action: "T-389: release envelope on the rail (G-024 consumer half) — cv-indexed, idempotent against the rail's own current value not a 5min TTL, post-verified as INDEXED not merely accepted; announce is non-fatal to the cut but never silent; measured 1,443,501B/0.08s full replay vs 756B/0.01s cv read, answering AEF's open cost question; probe 8/8 where TEETH-2 caught leg 3 comparing -1 to -1 (channel state --json is a bare list, not {rows})"
+  - time: "2026-08-08T19:53:04"
+    action: "T-389: G-025 gains the composition class (curl|wget | python3 -c, AEF rail 471) — plus WHY the entry looks reasonable: line 162 groups the two fetchers with date/uname/whoami, and by that grouping's actual category (does not modify local state) curl IS harmless; the category misses that a read-only command can be the INPUT to something that writes. Corrects this gap's own decision_trigger: the yaml.safe_load Verification cost it cited is not real (P-011 runs those as subprocesses; hook is PreToolUse-only)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 2
+  files_changed: 5
+  lines_added: 683
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-389-post-a-release-envelope-to-the-aef-rail-.md
+generated_by: context-agent-hybrid

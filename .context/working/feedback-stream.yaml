@@ -4409,3 +4409,21 @@ scan_id: R-13d7e194
 task_id: T-388
 payload:
   task_file: .tasks/active/T-388-session-close-s-2026-0808-1900-handover-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T17:53:10Z'
+scan_id: R-059a8412
+task_id: T-389
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T17:53:10Z'
+scan_id: R-059a8412
+task_id: T-389
+payload:
+  task_file: .tasks/active/T-389-post-a-release-envelope-to-the-aef-rail-.md

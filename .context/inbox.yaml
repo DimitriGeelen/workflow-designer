@@ -17,3 +17,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-003
+  text: "Focus-drift gate infers the action target from any task id appearing anywhere in the Bash command string, INCLUDING inside a quoted payload/heredoc that is merely prose. Writing a rail message whose text mentions a completed task was blocked as 'action targets a different task' when the action was writing a file. Any command carrying prose that mentions another task trips it — which describes every cross-project rail message. Remedy direction: derive the target from the fw sub-command's own argument position, not from a scan of the whole string. Hit live at T-390."
+  captured: 2026-08-08T17:59:15Z
+  context_task: T-390
+  tags: [gap]
+  status: pending
+  promoted_to: null
