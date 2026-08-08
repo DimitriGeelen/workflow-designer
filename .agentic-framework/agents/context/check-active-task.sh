@@ -360,8 +360,35 @@ if [ "$TOOL_NAME" = "Bash" ] && [ -n "$BASH_CMD" ] && [ -n "$CURRENT_TASK" ]; th
             echo "  Framework rule: actions on a task should run with focus on" >&2
             echo "  that task. To proceed, either:" >&2
             echo "" >&2
-            echo "    1. Switch focus first:" >&2
-            echo "       $(_fw_cmd) context focus $TARGET_TASK" >&2
+            # T-386: remedy 1 is unreachable when the target is COMPLETED. T-381
+            # scoped `fw context focus` to active/ (the gate reads focus back with
+            # `find_task_file "$CURRENT_TASK" active`, so focusing a completed id
+            # produced a writable-but-unusable state). The drift target is completed
+            # in the COMMON case — a follow-up `git commit -m "T-XXX: ..."` naming a
+            # task that just closed — so without this branch the gate's own first
+            # recommendation is a command the same subsystem will refuse.
+            # Scoped exactly like the writer now is; an id that resolves in neither
+            # directory falls through to the normal wording rather than asserting
+            # something about a task nobody can find.
+            # PROJECT_ROOT, not TASKS_DIR: this hook never sets TASKS_DIR, and a
+            # guard on an unset variable would have made the whole branch a silent
+            # no-op — the fix would have "shipped" while the message never changed.
+            # Line 469 below is the in-file precedent for "$PROJECT_ROOT"/.tasks/…
+            _t386_completed=""
+            if [ -n "${PROJECT_ROOT:-}" ]; then
+                for _t386_f in "$PROJECT_ROOT"/.tasks/completed/"$TARGET_TASK"-*.md; do
+                    [ -e "$_t386_f" ] && _t386_completed=1 && break
+                done
+            fi
+            if [ -n "$_t386_completed" ]; then
+                echo "    1. NOT AVAILABLE — $TARGET_TASK is completed, and" >&2
+                echo "       '$(_fw_cmd) context focus' accepts active tasks only (T-381)." >&2
+                echo "       Use option 2 or 3 below. This is the normal path for a" >&2
+                echo "       follow-up commit on a task that has already closed." >&2
+            else
+                echo "    1. Switch focus first:" >&2
+                echo "       $(_fw_cmd) context focus $TARGET_TASK" >&2
+            fi
             echo "" >&2
             echo "    2. Append --switch-focus to a fw command (logged Tier 2)." >&2
             echo "       Works for: fw task update, fw context add-*." >&2
