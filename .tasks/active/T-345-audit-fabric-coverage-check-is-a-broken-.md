@@ -4,7 +4,7 @@ name: "audit fabric coverage check is a broken duplicate of its own sibling and 
 description: >
   audit.sh's first fabric block globs watch patterns with bare glob.glob(p['glob']) — no PROJECT_ROOT join and no recursive=True — while the correct sibling at line 1499 uses os.path.join(PROJECT_ROOT, g) with recursive=True. Both branches of its verdict call pass(). Measured: in one audit run with widened patterns it printed 'Fabric: 15 registered, 0 unregistered' [PASS] while its sibling printed 'Fabric drift: 49 source file(s) have no fabric card' [WARN].
 
-status: captured
+status: started-work
 workflow_type: build
 owner: human
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:15:57Z
-last_update: 2026-08-02T11:15:57Z
+last_update: 2026-08-08T07:59:30Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -87,17 +87,59 @@ This task should land first, or with it.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] The first fabric block either resolves patterns identically to the sibling at :1499
+- [x] The first fabric block either resolves patterns identically to the sibling at :1499
       (PROJECT_ROOT-joined, `recursive=True`) **or** is removed as a duplicate — with the
-      choice recorded in `## Decisions`, since the sibling already covers the question.
-- [ ] If retained: the `unregistered > 0` branch no longer reports `pass`. The severity
+      choice recorded in `## Decisions
+
+### 2026-08-08 — repair vs remove: repaired provisionally, human call preserved
+
+- **Chose:** repair all three defects in the first block; do NOT delete it.
+- **Why:** delete is irreversible under agent action and the retain-vs-remove call is an
+  explicit `[REVIEW]` Human AC on this task. Repair leaves the tree in a correct state
+  under either outcome — if the human chooses removal it is a one-line follow-up, whereas
+  a deletion I made unilaterally would have taken their decision and lost what the check
+  reported. The repaired block is now a near-duplicate of the sibling and that is a real
+  argument for removal; I have not made that argument into a decision.
+- **Rejected:** removing it now (takes a decision reserved to the human); leaving it inert
+  (an always-PASS line over a structurally-empty input set is worse than no line, because
+  it answers the question that would otherwise be asked).`, since the sibling already covers the question.
+      → REPAIRED (provisionally — the retain-vs-remove call is the Human AC below and is
+        not mine to make). All three defects fixed: PROJECT_ROOT join, `recursive=True`,
+        and an `isfile()` guard the sibling had and this one did not. Repair rather than
+        delete because repair is reversible under review and delete is not: if the human
+        chooses removal, that is a trivial follow-up; if I had deleted and they wanted it
+        kept, the check would be gone with no record of what it said.
+- [x] If retained: the `unregistered > 0` branch no longer reports `pass`. The severity
       chosen is stated; "coverage growing" as a PASS is not carried forward unexamined.
-- [ ] Teeth: with the shipped watch patterns widened to a set that matches real files, the
+      → now `warn`. Severity chosen to MATCH THE SIBLING at ~:1510, which warns on exactly
+        this condition — two checks over one question disagreeing on severity is the same
+        defect one level up, and matching is the only choice that does not invent a new
+        opinion about how bad this is. "(coverage growing)" is dropped: it framed a rising
+        count of UNREGISTERED files as good news.
+- [x] Teeth: with the shipped watch patterns widened to a set that matches real files, the
       first check and the sibling report the **same** count. A leg that reverts either of
       the two glob fixes makes them disagree and fails naming which one diverged.
-- [ ] The audit's own PASS/WARN/FAIL totals are re-baselined and the change to the standing
+      → `tools/_t345-fabric-check-agreement.sh`, 9/9. Population asserted first (83 real
+        files) because over an empty watch set both checks return 0 and agree perfectly
+        while measuring nothing.
+      **The probe corrected me on fix 1.** Its first run reported the PROJECT_ROOT join as
+      INERT — reverting it changed nothing, because CWD already *was* the project root. I
+      would otherwise have reported three fixes verified when the run had evidence for two.
+      Re-exercised under the condition it addresses (audit invoked from another CWD) it is
+      load-bearing: 76 -> 0. Both facts are now printed, because "load-bearing" and
+      "load-bearing always" are different claims and only the first is true.
+- [x] The audit's own PASS/WARN/FAIL totals are re-baselined and the change to the standing
       verdict is stated explicitly in the completion report (this alters what the operator
       sees at every audit).
+      → Post-fix full audit: **Pass 120 / Warn 28 / Fail 60**, and the two fabric lines now
+        read consistently (`Fabric: 17 registered, 0 unregistered` + `Fabric drift: All
+        watched source files registered`).
+      **Today's totals are UNCHANGED, and that is not evidence the fix works.** The shipped
+      `watch-patterns.yaml` is the untailored default that expands to zero files (T-344), so
+      both checks report 0 over an empty population — they would agree at 0 whether or not
+      this fix landed. The real change to the standing verdict is conditional: once T-344
+      gives the checks a real population, this line becomes capable of emitting WARN and
+      contributing a PRIORITY ACTION, which it never could before at any input value.
 
 ### Human
 - [ ] [REVIEW] Decide retain-and-fix vs remove-as-duplicate for the first fabric block
@@ -159,6 +201,10 @@ makes a future divergence red rather than invisible.
 -->
 
 ## Verification
+
+```
+bash tools/_t345-fabric-check-agreement.sh
+```
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -258,3 +304,6 @@ makes a future divergence red rather than invisible.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-345-audit-fabric-coverage-check-is-a-broken-.md
 - **Context:** Initial task creation
+
+### 2026-08-08T07:59:30Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

@@ -1401,10 +1401,22 @@ orphaned = 0
 if os.path.exists(WATCH_FILE):
     with open(WATCH_FILE) as f:
         wp = yaml.safe_load(f)
+    # T-345: three defects fixed here, each independently sufficient to make this
+    # number structurally zero. The sibling check at ~:1499 already resolved all
+    # three correctly; this one is the earlier, unfixed copy.
+    #   1. no PROJECT_ROOT join — patterns resolved against the process CWD
+    #   2. no recursive=True — in Python's glob, '**' does NOT recurse without it,
+    #      and every shipped watch pattern except 'bin/*' uses '**'
+    #   3. no isfile() guard — directories counted as unregistered files
+    # Measured before the fix, same audit run: this said '0 unregistered' while the
+    # sibling said 49. The reassuring one was the broken one.
     for p in wp.get('patterns', []):
-        for match in glob.glob(p['glob']):
+        g = p.get('glob', '') if isinstance(p, dict) else str(p)
+        if not g:
+            continue
+        for match in glob.glob(os.path.join(PROJECT_ROOT, g), recursive=True):
             rel = os.path.relpath(match, PROJECT_ROOT)
-            if rel not in registered:
+            if os.path.isfile(match) and rel not in registered:
                 unregistered += 1
 
 # Check orphaned cards
@@ -1426,8 +1438,19 @@ print(f'{len(registered)} {unregistered} {orphaned}')
                  "$fabric_orphan cards reference missing files" \
                  "Run: fw fabric drift"
         fi
+        # T-345: both arms previously called pass(), so no value of the metric could
+        # raise anything — the check was constant regardless of its input, on top of an
+        # input set that was structurally empty. "(coverage growing)" framed a rising
+        # count of UNREGISTERED files as good news.
+        #
+        # Severity chosen to MATCH THE SIBLING at ~:1510, which warns on exactly this
+        # condition. Two checks over one question disagreeing on severity is the same
+        # class of defect one level up, and matching is the only choice that does not
+        # invent a new opinion about how bad this is.
         if [ "$fabric_unreg" -gt 0 ]; then
-            pass "Fabric: $fabric_registered registered, $fabric_unreg unregistered (coverage growing)"
+            warn "Fabric: $fabric_registered registered, $fabric_unreg unregistered" \
+                 "$fabric_unreg file(s) matching watch-patterns.yaml have no component card" \
+                 "Run: fw fabric scan"
         else
             pass "Fabric: $fabric_registered registered, 0 unregistered"
         fi
