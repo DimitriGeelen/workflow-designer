@@ -621,6 +621,23 @@ if [ -s "$REVISITS_FILE" ]; then
     done < "$REVISITS_FILE"
     echo ""
 fi
+
+# T-373 (G-008): deferrals with NO revisit date. Separate file and separate heading
+# from "Revisits Ripe Today" — these are not ripe, they have no scheduled return at
+# all, which is why nothing surfaced them before.
+UNDATED_FILE="$PROJECT_ROOT/.context/working/.revisits-undated.txt"
+if [ -s "$UNDATED_FILE" ]; then
+    echo "## Deferred With No Revisit Date"
+    echo ""
+    echo "These carry a DEFER decision but no \`revisit_at\`, so the daily scan has"
+    echo "nothing to fire on. Set a date, or record why there is deliberately none."
+    echo ""
+    while IFS= read -r line; do
+        [ -z "$line" ] && continue
+        echo "- $line"
+    done < "$UNDATED_FILE"
+    echo ""
+fi
 )
 ## Work in Progress
 

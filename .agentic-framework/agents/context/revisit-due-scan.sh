@@ -40,6 +40,20 @@ fi
 
 TASKS_DIR="$PROJECT_ROOT/.tasks/active"
 OUTPUT_FILE="$PROJECT_ROOT/.context/working/.revisits-due.txt"
+# T-373 (G-008): second, separate signal — DEFER decisions carrying NO revisit date.
+#
+# `fw inception decide <id> defer` parks a task at horizon:later and never sets
+# `revisit_at` — the string does not occur anywhere in lib/inception.sh. This scan
+# then skipped it at the `[ -z "$revisit_at" ] && continue` below, so the canonical
+# way to create a deferral produced exactly the state the deferral scanner could not
+# see. Absence stood for both "deliberately no date" and "nobody set one", and the
+# silent branch was the one that meant the task would never ripen.
+#
+# Deliberately a SEPARATE file rather than extra lines in .revisits-due.txt: that file
+# means "ripe today" and its consumer (handover.sh) prints it under that heading. A
+# dateless deferral is not ripe today — it has no date at all. Widening an existing
+# signal to cover a second meaning is how the ambiguity got here in the first place.
+UNDATED_FILE="$PROJECT_ROOT/.context/working/.revisits-undated.txt"
 
 if [ ! -d "$TASKS_DIR" ]; then
     echo "revisit-due-scan: tasks dir not found at $TASKS_DIR" >&2
@@ -49,7 +63,8 @@ fi
 TODAY=$(date -u +%Y-%m-%d)
 
 tmp=$(mktemp)
-trap 'rm -f "$tmp"' EXIT
+tmp_undated=$(mktemp)
+trap 'rm -f "$tmp" "$tmp_undated"' EXIT
 
 for f in "$TASKS_DIR"/*.md; do
     [ -f "$f" ] || continue
@@ -67,8 +82,17 @@ for f in "$TASKS_DIR"/*.md; do
         }
     ' "$f")
 
-    [ -z "$revisit_at" ] && continue
-    [[ "$revisit_at" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || continue
+    # T-373: make the partition total BEFORE the skip. A task whose Decision block
+    # records DEFER but which carries no usable revisit date is not "nothing to do" —
+    # it is a deferral with no scheduled return, and it is reported as its own class.
+    if ! [[ "$revisit_at" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+        if grep -qE '^\*\*Decision\*\*:[[:space:]]*DEFER' "$f" 2>/dev/null; then
+            u_id=$(awk '/^---$/{n++;if(n==2)exit;next} n==1 && /^id:/{sub(/^id:[[:space:]]*/,"");print;exit}' "$f")
+            u_name=$(awk '/^---$/{n++;if(n==2)exit;next} n==1 && /^name:/{sub(/^name:[[:space:]]*"?/,"");sub(/"?[[:space:]]*$/,"");print;exit}' "$f")
+            [ -n "$u_id" ] && echo "$u_id deferred with no revisit date: $u_name" >> "$tmp_undated"
+        fi
+        continue
+    fi
 
     # Lexicographic compare on ISO dates is correct
     if [[ "$revisit_at" > "$TODAY" ]]; then
@@ -88,6 +112,13 @@ if [ -s "$tmp" ]; then
     mv "$tmp" "$OUTPUT_FILE"
 else
     rm -f "$OUTPUT_FILE"
+fi
+
+# Same absent-or-empty convention as above, so readers can treat both alike.
+if [ -s "$tmp_undated" ]; then
+    mv "$tmp_undated" "$UNDATED_FILE"
+else
+    rm -f "$UNDATED_FILE"
 fi
 
 exit 0
