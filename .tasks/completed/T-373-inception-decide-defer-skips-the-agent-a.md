@@ -4,10 +4,10 @@ name: "DEFER produces exactly the task state the G-053 revisit scanner cannot se
 description: >
   DEFER produces exactly the task state the G-053 revisit scanner cannot see
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T07:51:56Z
-last_update: 2026-08-08T07:51:56Z
-date_finished: null
+last_update: 2026-08-08T07:57:35Z
+date_finished: 2026-08-08T07:57:35Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -128,8 +128,13 @@ ever blocked a dateless deferral, so instances could only accumulate, never be p
       one I must not run.
       → no `fw inception decide` invocation anywhere in the harness; half (a) is a static
         whole-file count precisely because the end-to-end test is off-limits.
-- [ ] Finding + fix communicated to AEF as a G-008 upstream, including the correction that
+- [x] Finding + fix communicated to AEF as a G-008 upstream, including the correction that
       my originally-reported "DEFER skips the AC preflight" framing was wrong and why.
+      → RAIL-450, retraction first and explicitly flagged as do-not-act-on: I had sent them
+        the wrong framing at 448, and the fix it implied would have made the tool worse.
+        Includes both edits, the teeth result against the pre-fix scanner, the 1-of-1
+        incidence with its n stated, and what I deliberately did NOT change (the
+        operator-authority decide path) and why that is their call and my operator's.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -282,3 +287,15 @@ bash tools/_t373-defer-revisit-blindspot.sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-373-inception-decide-defer-skips-the-agent-a.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-32906ed6
+- **Timestamp:** 2026-08-08T07:57:36Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-08T07:57:35Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

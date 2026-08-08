@@ -4103,3 +4103,39 @@ scan_id: R-fe4ea85e
 task_id: T-371
 payload:
   task_file: .tasks/active/T-371-git-enforcement-hooks-absent-since-the-t.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T07:50:02Z'
+scan_id: R-ef43af9f
+task_id: T-372
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T07:50:02Z'
+scan_id: R-ef43af9f
+task_id: T-372
+payload:
+  task_file: .tasks/active/T-372-probe-aefs-draft-inception-readiness-v2-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T07:57:36Z'
+scan_id: R-32906ed6
+task_id: T-373
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T07:57:36Z'
+scan_id: R-32906ed6
+task_id: T-373
+payload:
+  task_file: .tasks/active/T-373-inception-decide-defer-skips-the-agent-a.md
