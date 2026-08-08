@@ -801,3 +801,10 @@ learnings:
   date: 2026-08-08
   context: Added via context agent
   application: TBD
+- id: PL-114
+  learning: "Competing-carrier rule: preserve-and-re-emit is the right semantics for content an importer does not consume, UNLESS the importer generates a rival carrier for the same fact. Where it does, preservation makes export write BOTH the preserved original and the generated one — a self-contradictory document, which is worse than the loss it was meant to fix. Corollary for reasoning about precedent: a ratified decision at one granularity does NOT automatically transfer to a sibling granularity. Test the transfer by asking 'do we generate a competing carrier here?' rather than assuming uniformity. Measured on 832: T-337 foreign tag (no rival, preserve, shipped) and T-347 element content (no rival, preserve) vs T-340 BPMN DI (rival = aef:position we generate, so consume)."
+  source: P-001
+  task: T-397
+  date: 2026-08-08
+  context: Added via context agent
+  application: TBD

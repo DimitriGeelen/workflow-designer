@@ -4,10 +4,10 @@ name: "Consolidate import-repair-semantics: one operator ruling, not four"
 description: >
   Consolidate import-repair-semantics: one operator ruling, not four
 
-status: started-work
+status: work-completed
 workflow_type: design
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T20:46:16Z
-last_update: 2026-08-08T20:46:16Z
-date_finished: null
+last_update: 2026-08-08T20:52:23Z
+date_finished: 2026-08-08T20:52:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -239,3 +239,15 @@ for t in 340 341 347 358; do out=$(cat .tasks/active/T-$t-*.md); echo "$out" | g
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-397-consolidate-import-repair-semantics-one-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a924b7ff
+- **Timestamp:** 2026-08-08T20:52:24Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-08T20:52:23Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
