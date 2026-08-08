@@ -1,11 +1,11 @@
 ---
-id: T-365
-name: "Rename tests/fixtures/aef-bpmn: the name asserts a provenance it does not have"
+id: T-395
+name: "tag the 0.9.0 release so build lag is measurable"
 description: >
-  T-364/RAIL-438 surfaced this: the directory name reads as 'AEF's BPMN fixtures' and every file in it was added by an 832 task commit (T-183/192/204/208/214/215/219/235/308/310/311/312/313; three labelled pair-draft, rest ours outright). AEF has 5 files at the same path; we have 18; one of theirs is absent here. I read the name as provenance and published a corroboration claim to the peer that had to be retracted at RAIL-438 — the measurement was careful and the noun came from the filesystem. Blast radius measured: 150 files reference the string, including .context/episodic/* (historical records that must NOT be rewritten — they record what was true when written) and .agentic-framework/docs/reports/* (vendored AEF material, G-008 territory). Needs scoping before any git mv: which reference classes get rewritten, which are frozen history, and whether a rename or a split (seam-fixtures-ours vs genuinely-peer-supplied) is correct.
+  tag the 0.9.0 release so build lag is measurable
 
 status: started-work
-workflow_type: refactor
+workflow_type: build
 owner: agent
 horizon: now
 tags: []
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-04T13:18:53Z
-last_update: 2026-08-08T19:25:38Z
+created: 2026-08-08T19:37:36Z
+last_update: 2026-08-08T19:37:36Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,32 +30,46 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-365: Rename tests/fixtures/aef-bpmn: the name asserts a provenance it does not have
+# T-395: tag the 0.9.0 release so build lag is measurable
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Release 0.9.0 was cut in T-393 (VERSION bump + `dist/` regeneration at commit
+`8cd0c5d3`) but never tagged. The audit surfaced this as a **warn, not a pass**:
+
+    [WARN] Release lag UNMEASURED — COULD NOT MEASURE: release tag designer-v0.9.0
+           does not exist — cannot measure build lag. A missing tag is NOT zero lag.
+
+That wording is the point. The check refuses to report a number it cannot derive
+rather than reporting `0` — an absent tag and a zero lag are the same one-bit
+outcome under a naive check, and this one declines to conflate them
+(see the `exit-codes-carry-the-wrong-reason` family).
+
+Tag target is `8cd0c5d3`, established by convention across the two prior cuts,
+verified not assumed:
+
+| tag              | commit     | that commit's `VERSION` |
+|------------------|-----------|--------------------------|
+| `designer-v0.7.1`| `9d62c852`| 0.7.1                    |
+| `designer-v0.8.0`| `1a13035c`| 0.8.0                    |
+| `designer-v0.9.0`| `8cd0c5d3`| **0.9.0** (confirmed)    |
+
+Note `dist/MANIFEST.yaml` records `src_commit: dd5f80c1`, which is the commit the
+build was made *from* — NOT the release commit. Tagging `dd5f80c1` would match the
+manifest field and still be wrong: it does not contain the 0.9.0 `VERSION` or the
+built artifact. The two identifiers answer different questions and only one of them
+is what a release tag names.
 
 ## Acceptance Criteria
 
-**BLOCKED ON A SCOPING DECISION — see `## Decisions`. Do not `git mv` until it is
-made.** The ACs below are written for whichever shape is chosen.
-
-- [ ] Scoping decision recorded: single rename vs. split into
-      832-authored / genuinely-peer-supplied (3 pair-drafts)
-- [ ] Move performed with `git mv` (history preserved, not delete-and-add)
-- [ ] Every LIVE reference updated (37 files: tests/, tools/, scripts/, src/,
-      lib/, web/, docs/ excluding docs/reports/) — no live path resolves to the
-      old name
-- [ ] HISTORICAL records are NOT rewritten: `.context/episodic/`,
-      `.tasks/completed/`, `docs/reports/` keep the name they were written with.
-      A record that says `aef-bpmn` was true when written; editing it would be
-      falsifying the audit trail to make a rename look tidy.
-- [ ] `.agentic-framework/docs/reports/` left alone — vendored AEF material,
-      G-008 territory, not ours to rewrite
-- [ ] `PROVENANCE.md` updated to explain what the NEW name asserts and to record
-      the move
-- [ ] Test suite green after the move — no fixture resolves by luck
+### Agent
+- [x] Annotated tag `designer-v0.9.0` exists and points at `8cd0c5d3` (the VERSION-bump commit), matching the convention of the two prior cuts
+- [x] The tag's tree carries `VERSION` == `0.9.0` — i.e. the tag names a commit that actually IS the release, not merely one near it
+- [x] The tag's tree carries `dist/aef-workflow-designer-0.9.0.html` at sha256 `9ccd2c584e073bcd3702eb7efac5b0e5ec734b9ecabb572a3cff012083ff801a` (the sha announced to AEF at rail 480) — so the announced bytes and the tagged bytes are provably the same artifact
+- [x] `tools/_t382-release-lag.py` reports a MEASURED lag (no `COULD NOT MEASURE`)
+- [x] `fw audit` no longer emits `Release lag UNMEASURED`
+- [x] Tag is pushed to `origin` and visible via `git ls-remote --tags`
+- [x] The structural gap is recorded: `scripts/release-designer.sh` contains no tagging step, so this omission recurs on every cut unless prevention is filed (see RCA)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -137,6 +151,24 @@ made.** The ACs below are written for whichever shape is chosen.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# Tag resolves to the release commit. `^{commit}` peels the annotated tag object;
+# without it an annotated tag resolves to its OWN sha and this can never match.
+git rev-parse designer-v0.9.0^{commit} > /tmp/.t395-rev 2>&1 && grep -qx "8cd0c5d3d5e6511236953aba18f4068ddcd1befd" /tmp/.t395-rev
+# The tagged tree IS the release, not merely adjacent to it.
+git show designer-v0.9.0:VERSION > /tmp/.t395-ver 2>&1 && grep -qx "0.9.0" /tmp/.t395-ver
+# Tagged artifact bytes == the sha announced to AEF at rail 480. Reads from the TAG,
+# not the worktree, so a dirty tree cannot forge this.
+git show designer-v0.9.0:dist/aef-workflow-designer-0.9.0.html 2>/dev/null | sha256sum > /tmp/.t395-sha 2>&1 && grep -q "9ccd2c584e073bcd3702eb7efac5b0e5ec734b9ecabb572a3cff012083ff801a" /tmp/.t395-sha
+# Lag is MEASURED. Negated grep is the verdict, so a tool crash (empty output) also fails.
+python3 tools/_t382-release-lag.py > /tmp/.t395-lag 2>&1 && ! grep -q "COULD NOT MEASURE" /tmp/.t395-lag
+# Audit no longer reports the UNMEASURED warn. `;` is DELIBERATE here (contra the errexit
+# note above): audit exits 1 while the 3 fabric warns stand, so its exit code must not be
+# the verdict — the absence of this specific string is. Anchored on "Release lag UNMEASURED"
+# which cannot appear when the check succeeds.
+.agentic-framework/bin/fw audit > /tmp/.t395-audit 2>&1; ! grep -q "Release lag UNMEASURED" /tmp/.t395-audit
+# Tag is on origin, not just local.
+git ls-remote --tags origin designer-v0.9.0 > /tmp/.t395-remote 2>&1 && grep -q "designer-v0.9.0" /tmp/.t395-remote
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -152,6 +184,47 @@ made.** The ACs below are written for whichever shape is chosen.
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** Release 0.9.0 was cut, verified, announced to AEF and pushed — but
+carried no git tag. The audit reported `Release lag UNMEASURED` rather than a lag.
+
+**Root cause:** `scripts/release-designer.sh` performs no tagging step. Verified:
+the script reads `VERSION`, builds the artifact, and writes `dist/MANIFEST.yaml`,
+but `git tag` appears nowhere in its 10821 bytes. Every one of the ten prior tags
+(`designer-v0.2.0` … `designer-v0.8.0`) was therefore applied **by hand**, by a
+session that happened to remember. 0.9.0 is simply the first cut where nobody did.
+
+**Why structurally allowed:** the release procedure has two outputs — the *artifact*
+(automated, deterministic, byte-verified) and the *tag* (manual, unprompted,
+unverified at the point of cutting). Nothing at cut time reads the tag back, so the
+omission was invisible until an unrelated check went looking for it later. This is
+the same shape as PL-112 / the T-391 finding, one layer up: **a step that depends on
+the author remembering it is not a step, it is a hope.** The release script's own
+success output cannot distinguish "release complete" from "release complete except
+for the identifier everything downstream keys on".
+
+**Detection worked — generation is what is missing.** Worth stating precisely,
+because the two are easy to conflate into one "we should fix releases" conclusion.
+The G-024 / T-382 lag check caught this within a single session, and caught it in
+the *right* way: it reported `UNMEASURED (exit 3) — deliberately not 'ok'` rather
+than defaulting a missing tag to a zero lag. Confirmed as a live positive control
+before the fix (exit 3, `COULD NOT MEASURE`) and after (exit 0, `verdict: OK`), so
+the check demonstrably discriminates rather than always-passing. The gap is not in
+noticing; it is that the cut can complete without producing the thing.
+
+**Prevention:** not delivered by this task, and deliberately not bolted on here —
+one task, one deliverable. Filed separately as **T-396**: make `release-designer.sh`
+either create the tag itself or refuse to report success without it. Recording the
+distinction rather than closing on the mitigation, per G-019: tagging 0.9.0 is
+mitigation (the mess is cleaned up), not prevention (0.10.0 can miss it identically).
+
+**Note on the near-miss target.** `dist/MANIFEST.yaml` records
+`src_commit: dd5f80c1`, a *handover* commit — the source state the build was made
+from. Tagging that would have matched the manifest field, looked correct, and been
+wrong: `dd5f80c1` contains neither `VERSION: 0.9.0` nor the built artifact. The
+manifest's `src_commit` and a release tag answer different questions. AC 2 and AC 3
+exist to catch exactly that error class — they assert the tagged tree *is* the
+release (VERSION + artifact sha), not merely that a tag was created.
 
 ## Evolution
 
@@ -179,49 +252,6 @@ made.** The ACs below are written for whichever shape is chosen.
 
 ## Decisions
 
-### 2026-08-08 — picked up as "mechanical", stopped when it wasn't
-
-- **Chose:** do not `git mv`; hand over with the scoping decision stated.
-- **Why:** I selected this at 79% budget as a bounded mechanical rename, having
-  read only the title. The task's own `description` says the open question is
-  *rename vs. split*, and ends "Needs scoping before any git mv." Three fixtures
-  (`session-handover` T-214, `dispatch-loop` T-215, `offpage-seam` T-219) are
-  genuine pair-drafts with AEF; the other 14 are ours outright. A single rename
-  asserts one provenance over a directory that demonstrably has two.
-- **Rejected:** renaming to `aef-seam/` anyway and noting the split as a
-  follow-up. That is the same error the directory already embodies — a name
-  asserting a uniform provenance the contents do not have — committed a second
-  time, in a task that exists to fix exactly that.
-
-### The decision needed (one call, then this is mechanical)
-
-**A — single rename** to `tests/fixtures/aef-seam/`. Cheapest, one path to
-update, PROVENANCE.md carries the per-file nuance as it already does. The name
-becomes "fixtures about the AEF seam", which is true of all 17.
-
-**B — split** into `tests/fixtures/seam-ours/` (14) and
-`tests/fixtures/seam-pairdraft/` (3). Encodes the distinction in the filesystem,
-where it cannot be missed by someone who does not open PROVENANCE.md. Costs a
-second path, and the 3 pair-drafts are co-authored rather than AEF-supplied, so
-even this split does not produce a "theirs" directory — arguably it invents a
-distinction finer than the evidence supports.
-
-**Weight for A:** the original failure was reading a *directory name* as
-provenance and publishing a corroboration claim to AEF that had to be retracted
-(rail 438). What prevents a recurrence is that no name claims provenance at all
-— which A achieves and B partially undoes by reintroducing provenance into
-paths.
-
-### Established this session (so the next pickup does not re-measure)
-
-- 186 files reference `aef-bpmn`; **37 are live** (tests/ tools/ scripts/ src/
-  lib/ web/ docs/ minus docs/reports/). The rest are episodic memory, completed
-  tasks, and vendored AEF reports — all frozen history.
-- Directory holds 17 fixtures + `PROVENANCE.md` + one subdirectory
-  (`t257-eventdef-roundtrip`).
-- `PROVENANCE.md` already contains the per-file authorship table and names this
-  task as the tracked rename, so no re-measurement of authorship is needed.
-
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
@@ -230,6 +260,30 @@ paths.
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-08-08 — which commit the tag names
+
+- **Chose:** `8cd0c5d3`, the VERSION-bump / `dist/` regeneration commit from T-393.
+- **Why:** it is the convention the two prior cuts already follow, and the choice was
+  verified rather than inferred — `git show <tag>:VERSION` returns the matching
+  version for `designer-v0.7.1` (`9d62c852`), `designer-v0.8.0` (`1a13035c`), and now
+  `designer-v0.9.0`. The tagged tree additionally reproduces the exact artifact sha
+  announced to AEF at rail 480, so the announced bytes and the tagged bytes are the
+  same object.
+- **Rejected:** `dd5f80c1`, the commit named by `dist/MANIFEST.yaml`'s `src_commit`.
+  Superficially the more "official" answer, and wrong: it is the source state the
+  build was made *from* and contains neither the 0.9.0 `VERSION` nor the artifact.
+  Rejected on evidence, not preference — under AC 2 and AC 3 it fails both.
+
+### 2026-08-08 — mitigation recorded as mitigation, not as a fix
+
+- **Chose:** tag 0.9.0 under this task; file the script change as T-396.
+- **Why:** G-019 — tagging this one release cleans up the mess but leaves 0.10.0 able
+  to miss identically. Keeping them separate stops a closed task from reading as
+  though the recurrence were prevented. Also honours one-task-one-deliverable.
+- **Rejected:** amending `release-designer.sh` inside this task. It would have closed
+  the audit warn and the structural gap under a single ID, making the prevention
+  invisible in the register the moment this task archived.
 
 ## Decision
 
@@ -243,11 +297,7 @@ paths.
 
 ## Updates
 
-### 2026-08-04T13:18:53Z — task-created [task-create-agent]
+### 2026-08-08T19:37:36Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-365-rename-testsfixturesaef-bpmn-the-name-as.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-395-tag-the-090-release-so-build-lag-is-meas.md
 - **Context:** Initial task creation
-
-### 2026-08-08T19:24:47Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
-- **Change:** horizon: next → now (auto-sync)
