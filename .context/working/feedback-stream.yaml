@@ -4049,3 +4049,21 @@ scan_id: R-ae15cd46
 task_id: T-368
 payload:
   task_file: .tasks/active/T-368-release-state-blindness-8-src-commits-ah.md
+---
+kind: scan_emitted
+timestamp: '2026-08-08T06:55:02Z'
+scan_id: R-cbe1d499
+task_id: T-369
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-08T06:55:02Z'
+scan_id: R-cbe1d499
+task_id: T-369
+payload:
+  task_file: .tasks/active/T-369-session-wrap-up-commit-t-368-completion-.md
