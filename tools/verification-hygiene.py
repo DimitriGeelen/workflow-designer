@@ -106,14 +106,36 @@ def line_key(line):
 
 
 def scan():
-    """-> (findings, stats). findings: relpath -> {key: {line, kinds}}."""
+    """-> (findings, stats, collisions). findings: task-file BASENAME -> {key: {...}}.
+
+    KEYED ON BASENAME, NOT RELPATH (T-409). `work-completed` MOVES a task file from
+    .tasks/active/ to .tasks/completed/. A relpath key made that move look like a brand
+    new carrier appearing at an unseen path, so the ratchet went red about a task nobody
+    had edited — and it fired exactly when the operator finally acted on G-015, making the
+    guard look like it was punishing the fix. All three remaining active carriers (T-093,
+    T-102, T-105) were queued for precisely that move.
+
+    Directory membership is LIFECYCLE STATE and moves by design; the task is the same task
+    either side of it. Identity must not be carried by the moving property (PL-083, and the
+    same lesson as T-399's path-vs-sha split).
+    """
     paths = sorted(glob.glob(os.path.join(ROOT, ".tasks", "active", "*.md"))
                    + glob.glob(os.path.join(ROOT, ".tasks", "completed", "*.md")))
     findings = {}
+    seen_at = {}
+    collisions = []
     stats = {"task_files": len(paths), "with_block": 0, "exec_lines": 0,
              KIND_DIFF: 0, KIND_PORT: 0}
     for p in paths:
         rel = os.path.relpath(p, ROOT)
+        name = os.path.basename(p)
+        # A basename in BOTH active/ and completed/ would let one file's exemption cover
+        # the other's carrier. Rare (work-completed moves rather than copies) but it is
+        # the one way basename keying could launder a carrier, so it fails loudly.
+        if name in seen_at:
+            collisions.append((name, seen_at[name], rel))
+        else:
+            seen_at[name] = rel
         try:
             text = open(p, encoding="utf-8").read()
         except OSError as e:
@@ -130,9 +152,9 @@ def scan():
                 continue
             for k in kinds:
                 stats[k] += 1
-            findings.setdefault(rel, {})[line_key(ln)] = {
-                "line": ln.strip(), "kinds": kinds}
-    return findings, stats
+            findings.setdefault(name, {})[line_key(ln)] = {
+                "line": ln.strip(), "kinds": kinds, "where": rel}
+    return findings, stats, collisions
 
 
 def load_baseline():
@@ -175,7 +197,7 @@ def main():
     ap.add_argument("--adopt", action="store_true")
     args = ap.parse_args()
 
-    findings, stats = scan()
+    findings, stats, collisions = scan()
 
     # ANTI-VACUITY (PL-084). A scan reporting "zero violations" must state whether the
     # population it scanned was non-empty. Every exit below this point is a claim about
@@ -184,6 +206,15 @@ def main():
         print("VACUOUS: scanned %d task file(s), %d with a ## Verification block. A clean "
               "verdict over an empty population is a bug, not a pass."
               % (stats["task_files"], stats["with_block"]), file=sys.stderr)
+        return 2
+
+    # Basename keying is only safe while basenames are unique across the two directories.
+    if collisions:
+        print("COLLISION: %d task-file basename(s) appear in BOTH .tasks/active/ and "
+              ".tasks/completed/. Baseline entries are keyed on basename, so one file's "
+              "exemption would cover the other's carrier:" % len(collisions), file=sys.stderr)
+        for name, a, b in collisions:
+            print("  - %s\n      %s\n      %s" % (name, a, b), file=sys.stderr)
         return 2
 
     if args.census:
@@ -226,15 +257,19 @@ def main():
 
     # Stale = baseline entry whose line is gone. Never a failure — cleaning up must not be
     # punished — but reported on every run so a cleaned file cannot SILENTLY re-acquire one.
+    #
+    # Presence is decided by whether the SCAN still finds the task file, not by testing a
+    # stored path on disk. The stored-path test was the T-409 defect's other half: it called
+    # a completed task "gone" purely because it had moved out of active/.
     stale = []
-    for rel, keys in sorted(carriers.items()):
-        present = findings.get(rel, {})
-        if not os.path.exists(os.path.join(ROOT, rel)):
-            stale.append((rel, "task file no longer at this path (moved by work-completed?)"))
+    for name, keys in sorted(carriers.items()):
+        present = findings.get(name)
+        if present is None:
+            stale.append((name, "task file no longer present under .tasks/ (deleted?)"))
             continue
         for key in sorted(keys):
             if key not in present:
-                stale.append((rel, "carrier line removed (%s)" % key))
+                stale.append((name, "carrier line removed (%s)" % key))
 
     if args.tighten:
         kept = {}
@@ -267,8 +302,9 @@ def main():
     if new:
         print("\nHYGIENE FAIL — %d carrier line(s) outside the baseline:" % len(new),
               file=sys.stderr)
-        for rel, info in new:
-            print("  - %s [%s]" % (rel, ", ".join(info["kinds"])), file=sys.stderr)
+        for name, info in new:
+            print("  - %s [%s]" % (info.get("where", name), ", ".join(info["kinds"])),
+                  file=sys.stderr)
             print("      %s" % info["line"], file=sys.stderr)
         print("\nG-015: a ## Verification line must assert what ITS OWN TASK delivered, not "
               "a global that decays when anyone else edits the tree.", file=sys.stderr)

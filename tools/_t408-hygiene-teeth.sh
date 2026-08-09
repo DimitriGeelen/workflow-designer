@@ -197,6 +197,42 @@ else
   ok "(e) empty baseline -> rc=2 VACUOUS"
 fi
 
+# --- (g) work-completed MOVES the task file: active/ -> completed/ -----------
+# T-409. The baseline was keyed on relpath, so this move made a grandfathered carrier
+# look like a brand-new one at an unseen path — a red naming a task nobody edited, fired
+# exactly when the operator finally acted on G-015. All three remaining active carriers
+# (T-093, T-102, T-105) were queued for this move.
+build_tree; adopt
+mv "$TMP/.tasks/active/T-901-legacy-diff.md" "$TMP/.tasks/completed/T-901-legacy-diff.md"
+out="$(run)"; rc=$?
+if [ "$rc" -ne 0 ]; then
+  fail "(g) completing a grandfathered task must NOT go red — the carrier moved with the
+     file, it is the same task. rc=$rc
+$out"
+elif echo "$out" | grep -q "RATCHET AVAILABLE"; then
+  fail "(g) exited 0 but issued a stale notice for a file that merely MOVED — that notice
+     would invite --tighten, which would then drop a still-present carrier from the baseline
+$out"
+else
+  ok "(g) grandfathered carrier survives the active/ -> completed/ move -> rc=0, no notice"
+fi
+
+# --- (g2) basename collision across the two directories ----------------------
+# The one way basename keying could launder a carrier: same basename both sides.
+build_tree; adopt
+cp "$TMP/.tasks/active/T-903-clean.md" "$TMP/.tasks/completed/T-903-clean.md"
+out="$(run)"; rc=$?
+if [ "$rc" -ne 2 ]; then
+  fail "(g2) a basename present in BOTH directories must exit 2 — one file's exemption
+     would otherwise cover the other's carrier. got rc=$rc
+$out"
+elif ! echo "$out" | grep -q "COLLISION"; then
+  fail "(g2) exited 2 but not for the stated collision reason
+$out"
+else
+  ok "(g2) basename in both active/ and completed/ -> rc=2 COLLISION, not silent laundering"
+fi
+
 # --- RECIPROCAL CONTROL ------------------------------------------------------
 # The direction no mutation case can reach. Every case above proves the guard CAN go red;
 # only this proves it is not simply red about "a file the baseline has never seen".
@@ -264,4 +300,4 @@ if [ "$fails" -ne 0 ]; then
   echo "TEETH FAIL — $fails leg(s) failed" >&2
   exit 1
 fi
-echo "TEETH PASS — 10/10 legs (control + 6 mutations + reciprocal + agreement)"
+echo "TEETH PASS — 12/12 legs (control + 8 mutations + reciprocal + agreement)"
