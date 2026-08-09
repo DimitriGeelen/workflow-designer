@@ -1504,3 +1504,60 @@ concerns:
       when that surfaces to the operator without an agent being asked to look.
     origin_task: T-398
     related_tasks: [T-398, T-306, T-399]
+
+  - id: G-028
+    title: "A learning can be recorded correctly and never applied: nothing revisits an entry whose application field reads TBD"
+    severity: high
+    status: watching
+    registered: "2026-08-09"
+    detail: |
+      PL-025 was captured on 2026-07-10 (T-170). It named two specific defects in the
+      Bash task gate's write-detection heuristic -- that a redirect operator only acts
+      OUTSIDE quotes, and that a redirect to a /dev sink is a discard rather than a
+      source write -- and it prescribed the exact remedy: pin the boundary with a
+      true-positive/false-positive corpus.
+
+      Every word of it was correct. Its `application:` field read `TBD`.
+
+      Thirty days later both defects were still live and blocked five read-only
+      commands in a single resume sequence, including `fw task create` for the task
+      that describes them (the description quoted the operators). The finding then had
+      to be re-derived from scratch -- three falsified hypotheses -- before anyone
+      noticed the framework itself had surfaced PL-025 on the new task's creation.
+
+      WHY NOTHING SAW IT. Learnings are write-once. `fw context add-learning` appends
+      an entry with `application: TBD` and no check ever reads that field again. There
+      is no queue of unapplied learnings, no age alarm, nothing in `fw doctor` or the
+      audit that distinguishes a learning that changed the code from one that changed
+      nothing. The capture ritual is enforced (the framework PROMPTS for a learning at
+      task completion); the application step has no ritual at all.
+
+      This is the inverse of G-027. There, the operator did the work and the instrument
+      stopped seeing them. Here, the agent recorded the knowledge and no instrument
+      ever looked again. Both are cases where a system measures the ceremony rather
+      than the outcome.
+
+      MEASURED (2026-08-09). 113 of 118 learnings -- 96% -- have `application` set to
+      TBD or empty. The oldest dates to 2026-07-02; 22 predate PL-025 itself.
+
+      Read that carefully, because the honest conclusion is narrower and worse than
+      "113 unapplied findings". Many learnings are behavioural and are applied by being
+      read, so the backlog is not 113 live defects. What 96% establishes is that the
+      field carries NO INFORMATION: it cannot distinguish a learning that changed the
+      code from one that changed nothing, because essentially nothing ever sets it. The
+      one entry that mattered -- PL-025, describing a live gate defect -- was
+      indistinguishable from the 112 that did not need action. There was no signal to
+      miss, which is why nobody missed it.
+
+      SCOPE. Not about PL-025 specifically; that one is now applied (T-404). The
+      register entry exists because the mechanism is untouched. Draining a backlog
+      would not close this: the defect is that an inert field is the only thing
+      standing between a correct finding and a month of silence.
+    decision_trigger: |
+      Unapplied learnings are visible without an agent being asked to look: something
+      reports entries whose `application` is TBD/empty, with age, so a correct finding
+      cannot sit inert for a month unnoticed. Closed when that surfaces to the operator
+      -- NOT when the current backlog happens to be drained, since draining is
+      mitigation and the missing instrument is the defect.
+    origin_task: T-404
+    related_tasks: [T-404, T-170, T-405, T-401]

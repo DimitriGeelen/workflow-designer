@@ -218,7 +218,14 @@ is_bash_safe_command() {
 
         # Special: echo without redirect is safe (diagnostic output)
         echo|printf)
-            if ! echo "$cmd" | grep -qE '[^>]>[^>]|>>'; then
+            # T-404: ONE redirect predicate, two callers. This branch used to carry
+            # its own copy — `[^>]>[^>]|>>` — which never received the fd/sink
+            # exclusions its sibling in has_bash_write_pattern was given, so
+            # `echo x; cat f 2>/dev/null` was classified as a file write. Classic
+            # copy-drift: the copy that does not fire is the copy that rots
+            # unnoticed (same finding as T-401's two budget gauges, same remedy).
+            # Delegate instead of duplicating.
+            if ! has_bash_write_pattern "$cmd"; then
                 return 0
             fi
             ;;
@@ -244,14 +251,80 @@ is_bash_safe_command() {
     return 1
 }
 
+# T-404 / PL-025: remove the CONTENT of quoted segments, leaving shell structure
+# intact, so a redirect operator inside a quoted argument is not mistaken for a
+# real redirect. `grep -n "a\|>>\|b" f` reads a file; it does not write one.
+#
+# Pure bash on purpose — no fork. This runs inside a PreToolUse hook on EVERY
+# Bash tool call, so a `$(...)` subshell or a python3 startup here is paid
+# thousands of times a session. Result is returned in the global _SC_STRIPPED
+# rather than on stdout, for the same reason.
+_sc_strip_quoted() {
+    # `n` MUST be computed in its own statement. In `local s="$1" n=${#s}`, bash
+    # expands every word BEFORE performing any assignment, so ${#s} would read
+    # the not-yet-assigned s and yield 0 — the loop would never run, the stripped
+    # result would be the empty string, and this predicate would silently report
+    # "no writes" for every command. Caught by the genuine-writes half of the
+    # corpus; invisible to the benign half, which an always-empty result passes.
+    local s="$1"
+    local out="" i=0 c q=""
+    local n=${#s}
+    while [ "$i" -lt "$n" ]; do
+        c="${s:$i:1}"
+        if [ -n "$q" ]; then
+            # Inside quotes: emit nothing. The content is data, not structure.
+            [ "$c" = "$q" ] && q=""
+        elif [ "$c" = "'" ] || [ "$c" = '"' ]; then
+            q="$c"
+        elif [ "$c" = "\\" ]; then
+            i=$((i + 1))   # escaped char is data too — skip both
+        else
+            out+="$c"
+        fi
+        i=$((i + 1))
+    done
+    _SC_STRIPPED="$out"
+}
+
 # Check if a command contains file-write patterns
 has_bash_write_pattern() {
     local cmd="$1"
 
-    # Redirect operators (but not comparison operators like 2>&1)
-    if echo "$cmd" | grep -qE '[^2>&]>[^>&]|>>'; then
-        return 0
-    fi
+    # --- Redirects: judged on shell structure, not raw characters (PL-025) ---
+    # Walk every redirect in the quote-stripped command and look at its TARGET.
+    # A redirect is only a write if it lands on a file:
+    #   >f  >>f  1>f  2>f  &>f       → write
+    #   >/dev/null  2>/dev/null  &>/dev/null → discard, writes nothing
+    #   2>&1  >&2  2>&-              → fd duplication/close, no file involved
+    # The previous single regex could not tell these apart: it fired on
+    # `2>/dev/null` (via the drifted copy below) and on quoted `>>`.
+    _sc_strip_quoted "$cmd"
+    local rest="$_SC_STRIPPED" tgt
+    # NB: the operator is written [>] and NOT \> on purpose. bash's =~ uses the
+    # system ERE engine, where glibc gives \> the meaning "end of word" — so a
+    # \>\>? group silently matches word boundaries and never sees a redirect at
+    # all. Held as a variable because an unquoted $var is the one form bash
+    # reliably treats as a regex rather than a literal.
+    local sc_redirect_re='(&?[0-9]*)([>][>]?[|]?)[[:space:]]*([^[:space:];|]*)(.*)$'
+    while [[ "$rest" =~ $sc_redirect_re ]]; do
+        tgt="${BASH_REMATCH[3]}"
+        rest="${BASH_REMATCH[4]}"
+        case "$tgt" in
+            /dev/null)  ;;              # discard sink — not a source write
+            '&'[0-9]|'&'-) ;;           # fd dup / fd close — no file
+            '')         ;;              # nothing to redirect onto — ignore
+            *) return 0 ;;              # a real target → genuine write
+        esac
+    done
+
+    # --- Destructive/writing VERBS: deliberately still judged on the RAW string ---
+    # T-404 decision: quote-stripping is applied to redirects only. For verbs the
+    # failure directions are not symmetric. A false positive here costs "you need an
+    # active task" (mild). A false negative would let `sh -c "rm -rf x"` — where the
+    # verb lives inside quotes — past the gate. Erring toward "is a write" is the
+    # safe direction for destructive verbs, so these keep scanning $cmd, not
+    # $_SC_STRIPPED. Consequence, accepted knowingly: `grep -n "rm" f` is still
+    # classified as a write. That is the conservative side of the boundary.
 
     # In-place sed
     if echo "$cmd" | grep -qE '\bsed\b.*-i'; then

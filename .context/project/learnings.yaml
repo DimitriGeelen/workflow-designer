@@ -175,7 +175,15 @@ learnings:
   task: T-170
   date: 2026-07-10
   context: Added via context agent
-  application: TBD
+  application: >
+    APPLIED 2026-08-09 by T-404, 30 days after capture. Both named defects were still live
+    and blocked five read-only commands during one resume — including `fw task create` for
+    the task describing them, because the description quoted the operators. The prescribed
+    remedy (a true-positive/false-positive corpus) is now
+    .agentic-framework/web/test_safe_commands.py, plus tools/t404-gate-e2e.sh at the gate.
+    Note for whoever reads this next: this learning was correct, specific and actionable on
+    the day it was written, and `application: TBD` is why it changed nothing for a month.
+    Capture is not application — see T-405's sibling concern on the learning-application gap.
 - id: PL-026
   learning: "When the human has given a standing 'proceed' directive AND a decision is recorded (a GO), act decisively — do not present menus or re-gate settled decisions. A GO is authorization to proceed; a human REVIEW AC is a lightweight check, not a blocker requiring agent hand-wringing. Source: operator 'a go is a go, a review is a review'."
   source: P-003
