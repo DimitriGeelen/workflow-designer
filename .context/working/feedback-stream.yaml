@@ -4733,3 +4733,21 @@ scan_id: R-1d651aca
 task_id: T-409
 payload:
   task_file: .tasks/active/T-409-verification-hygiene-baseline-keys-on-re.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T11:05:45Z'
+scan_id: R-834e4103
+task_id: T-400
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T11:05:45Z'
+scan_id: R-834e4103
+task_id: T-400
+payload:
+  task_file: .tasks/active/T-400-gap-register-entries-can-be-silently-unr.md

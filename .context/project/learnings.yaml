@@ -900,3 +900,17 @@ learnings:
   date: 2026-08-09
   context: Added via context agent
   application: TBD
+- id: PL-127
+  learning: "A schema whose field names are 'obviously' right is where silent inertness hides, and it fails in BOTH directions. Census the register: of 20 field names only 6 were read by any code. The two near-synonym pairs suspected of hiding a load-bearing member (detail/description, related/related_tasks) turned out to have NEITHER member read — the danger was never that the wrong one was load-bearing, it was that both look like they are. And the mirror query found the more interesting half: closure_check_command, last_reviewed and created are READ by lib/gaps.py and carried by 0 of 25 entries, so correct machinery sits inert with its input never arriving. When auditing a schema, always run the read-but-absent query too; present-but-unread is only half the defect."
+  source: P-001
+  task: T-400
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
+- id: PL-128
+  learning: "A near-synonym detector keyed on a shared substring cannot catch near-synonyms. The audit grew a check that flags an alternate field name only when it contains 'trigger' — but the field that caused the gap was 'closure_condition', which does not. Sharing a substring with the field you shadow is precisely what near-synonyms do not do. The only reliable separator between 'a field the code reads' and 'a field that looks like one' is an explicit allowlist of the former, with each entry naming its reader so the claim stays checkable."
+  source: P-001
+  task: T-400
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD

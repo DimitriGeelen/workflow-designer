@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-400: Gap register entries can be silently unreadable: G-027 used a closure field name no check reads
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-09T11:05:47Z
+# ============================================================================
+
+task_id: T-400
+task_name: "Gap register entries can be silently unreadable: G-027 used a closure field name no check reads"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-08T21:08:12Z
+completed: 2026-08-09T11:05:42Z
+duration_days: 1
+updates_count: 1
+first_commit: 2026-08-08T23:08:39+02:00
+last_commit: 2026-08-09T13:05:37+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  G-027 uses decision_trigger, the register's actual closure field. refuse register fields nothing reads, and census the register in both directions
+
+# Key outcomes
+outcomes:
+  - 'G-027 uses `decision_trigger`, the field the audit''s closure check actually reads.'
+  - '`concerns.yaml` still parses.'
+  - '**The register cannot silently accept an unreadable entry.** `tools/concerns-schema.py`'
+  - 'Census the other 23 entries for fields that no check reads — done, and it found more'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-08.yaml'
+  - '.context/project/concerns.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.hook-counter'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.tasks/active/T-400-gap-register-entries-can-be-silently-unr.md'
+  - 'tools/concerns-schema.py'
+  - 'tools/_t400-schema-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-08T23:08:39"
+    action: "T-400: G-027 uses decision_trigger, the register's actual closure field"
+  - time: "2026-08-09T13:05:37"
+    action: "T-400: refuse register fields nothing reads, and census the register in both directions"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 837 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 837
+  commits: 2
+  files_changed: 11
+  lines_added: 725
+  lines_removed: 56
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-400-gap-register-entries-can-be-silently-unr.md
+generated_by: context-agent-hybrid
