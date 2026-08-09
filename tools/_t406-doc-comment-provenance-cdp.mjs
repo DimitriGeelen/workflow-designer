@@ -47,9 +47,14 @@ const PEER_FIXTURE = join(REPO, 'tests', 'fixtures', 'third-party',
 const COLLIDING = 'BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates';
 const PLAIN = 'Rationale authored by the peer, nothing to do with layout.';
 
-// NOTE ON FIXTURE PROVENANCE: the two documents below are SYNTHETIC — minimal
-// definitions elements built here, not bytes AEF published. Offered to them at rail 492
-// that they author the adversarial one; this stands in until they do, and says so.
+// NOTE ON FIXTURE PROVENANCE: the four `doc()`-built documents below are SYNTHETIC —
+// minimal definitions elements built here, not bytes AEF published. The two below THAT
+// are the real thing: AEF authored them at their commit 4f9a42926 and posted the bytes
+// on the rail (504/505) after OBS-108 closed the file channel. Landed and sha256-verified
+// by tools/_t413-land-fixtures.py; see the README beside them.
+const FIX_DIR = join(REPO, 'tests', 'fixtures', 'aef-inbound');
+const FIX_CLEAN = join(FIX_DIR, 't406-clean-leading-boilerplate.bpmn');
+const FIX_INCIDENTAL = join(FIX_DIR, 't406-incidental-leading-boilerplate.bpmn');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
 function freePort() { return new Promise((res, rej) => { const s = net.createServer(); s.listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => res(p)); }); s.on('error', rej); }); }
@@ -79,6 +84,16 @@ function doc({ exporter, comment }) {
 `;
 }
 
+// Which arm of readDocComment's `someoneElsesDocument` test this document lands on.
+// OURS = our own export; FOREIGN = positively names a different producer; UNSTAMPED =
+// names nobody, which is the default arm — and the one every real AEF document takes.
+const OURS = 'aef-workflow-designer';
+function branchOf(xml) {
+  const m = /\bexporter\s*=\s*"([^"]*)"/.exec(xml);
+  if (!m) return 'UNSTAMPED (default)';
+  return m[1] === OURS ? 'OURS' : `FOREIGN "${m[1]}"`;
+}
+
 async function main() {
   // Precondition: the colliding string must really be what the peer fixture carries.
   // If they diverge, this probe would be testing a string nobody actually writes.
@@ -89,6 +104,23 @@ async function main() {
     return 2;
   }
   console.log('  precondition ok — colliding string is present verbatim in the peer fixture');
+
+  // T-413 precondition: the two AEF-authored fixtures must be present AND must actually
+  // LEAD with the colliding string. A fixture that drifted off the shape would turn its
+  // leg into a straw man that passes for the wrong reason.
+  for (const f of [FIX_CLEAN, FIX_INCIDENTAL]) {
+    if (!existsSync(f)) {
+      console.log(`  FAIL — AEF fixture missing: ${f}`);
+      console.log('        Land it: python3 tools/_t413-land-fixtures.py <rail-state.json> tests/fixtures/aef-inbound');
+      return 2;
+    }
+    const first = /<!--([\s\S]*?)-->/.exec(readFileSync(f, 'utf8'));
+    if (!first || !first[1].trim().startsWith(COLLIDING)) {
+      console.log(`  FAIL precondition — ${f} no longer leads with the colliding string`);
+      return 2;
+    }
+  }
+  console.log('  precondition ok — both AEF fixtures present and leading with the colliding string');
 
   const CASES = [
     // Proves the parser ran at all. A probe that never invoked it reports "preserved"
@@ -101,11 +133,32 @@ async function main() {
     // top must not be promoted to rationale. This is the direction that poisoned AEF's
     // corpus, and a fix satisfying only the line above would have removed it.
     ['OURS     boilerplate hoisted to top', { exporter: 'aef-workflow-designer', comment: COLLIDING }, 'suppress'],
-    // THE RESIDUAL, pinned rather than left implicit: an UNIDENTIFIED document is still
-    // suppressed. That is T-311's rule retained, and it is why AEF are still affected
-    // until they stamp. If this ever flips, someone has changed the decision in
-    // T-406's Decisions and this line is how they will find out.
+    // THE RESIDUAL, pinned rather than left implicit: an UNIDENTIFIED document whose
+    // comment is NOTHING BUT the trailer is suppressed, and correctly — nothing is lost.
     ['UNKNOWN  no producer identity      ', { exporter: null, comment: COLLIDING }, 'suppress'],
+
+    // ── T-413: AEF's own fixtures, their commit 4f9a42926, delivered as payload_b64 on
+    // the rail at offsets 504/505 because OBS-108 shuts the file channel. These are the
+    // first legs in this probe running REAL PEER BYTES rather than documents we
+    // synthesized to be convenient for ourselves.
+    //
+    // Both are UNSTAMPED — measured on the received bytes, 0 `exporter=` on either, and
+    // 0 across all 37 .bpmn of their live corpus (their rail 506 §2). So both take the
+    // default branch, and the default branch is the one that decides every real AEF
+    // document.
+    //
+    // The four legs above are NOT blind to that branch — CONTROL and UNKNOWN both run
+    // through it. What they never cross it with is the SHAPE of the comment. Above, the
+    // leading comment is either nothing but the trailer or has no trailer at all; the
+    // mixed shape — trailer, then real rationale, one block — appears on no leg at any
+    // branch. Producer identity was the axis I chose, and the case that actually loses
+    // content is discriminated by shape, which is why AEF's narrowing beats my gate here.
+    ['AEF-CLEAN    trailer only, real bytes ', { file: FIX_CLEAN }, 'suppress'],
+    // The expectation here is what SHOULD happen, not what does. The comment is our
+    // eight words followed by seven lines of genuine `aef-task-lifecycle` rationale in
+    // the same block; suppressing it destroys content no one can recover. Pinning the
+    // observed behaviour instead would encode the defect as the specification.
+    ['AEF-INCIDENTAL rationale after trailer', { file: FIX_INCIDENTAL }, 'preserve'],
   ];
 
   const d = mkdtempSync(join(tmpdir(), 't406-doc-'));
@@ -133,13 +186,14 @@ async function main() {
     await waitReady(cmd); await sleep(300);
 
     for (const [label, spec, want] of CASES) {
-      await ev(cmd, `window.__IN__ = ${JSON.stringify(doc(spec))};`);
+      const xml = spec.file ? readFileSync(spec.file, 'utf8') : doc(spec);
+      await ev(cmd, `window.__IN__ = ${JSON.stringify(xml)};`);
       const got = await ev(cmd, `(function(){
         var m = parseBpmnXml(window.__IN__);
         if(!m) return {parsed:false};
         return {parsed:true, doc: m.docComment == null ? null : String(m.docComment)};
       })()`);
-      results.push([label, want, got]);
+      results.push([label, want, got, branchOf(xml)]);
     }
   } finally {
     try { cl && cl.close(); } catch (_) {}
@@ -149,11 +203,15 @@ async function main() {
   }
 
   let fail = 0;
-  for (const [label, want, got] of results) {
+  for (const [label, want, got, branch] of results) {
     if (!got || !got.parsed) { console.log(`  FAIL ${label} parse returned null`); fail = 1; continue; }
     const kept = got.doc != null && String(got.doc).trim().length > 0;
     const ok = want === 'preserve' ? kept : !kept;
-    console.log(`  ${ok ? 'ok  ' : 'FAIL'} ${label} want=${want} got=${kept ? 'preserved' : 'suppressed'}`);
+    // The BRANCH is printed next to every verdict on purpose. A bare
+    // suppressed/preserved cannot distinguish the identity gate working from the
+    // default branch happening to be permissive — right answer, wrong mechanism, which
+    // is the expensive kind of green because it retires the question (AEF, rail 506 §2a).
+    console.log(`  ${ok ? 'ok  ' : 'FAIL'} ${label} [branch: ${branch}] want=${want} got=${kept ? 'preserved' : 'suppressed'}`);
     if (!ok) fail = 1;
   }
 
