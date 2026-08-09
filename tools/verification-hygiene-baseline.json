@@ -1,0 +1,458 @@
+{
+ "_note": "G-015 carrier baseline (T-408). Grandfathered population awaiting the operator's leg-1 ruling. A carrier NOT listed here fails the ratchet. Never hand-edit to add entries.",
+ "_generated_against": {
+  "task_files": 408,
+  "files_with_verification_block": 408,
+  "executable_lines": 1553,
+  "serve-root-diff": 75,
+  "hardcoded-port": 17
+ },
+ "carriers": {
+  ".tasks/active/T-093-branch-pitch-setting-parallel-block-stac.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/active/T-102-mapmessiness-false-positive-branch-stack.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/active/T-105-baked-verification-gate-gateway-label-collision.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/active/T-293-endpoint-reconnect-drag-hand-often-fails.md": {
+   "823f233fab2b19aa": [
+    "hardcoded-port"
+   ]
+  },
+  ".tasks/completed/T-073-router-straightening-tolerance--near-ali.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-074-magnetic-drag-snapping--lane-centre-neig.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-075-editor-settings-page--consolidate-routin.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-076-routing-survey-r-2-loop-back-edges-shoul.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-077-routing-survey-r-5-keep-badges-and-edge-.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-079-adaptive-alignment-rows-sub-row-snap-lin.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-080-editor-import-drops-pool-participant-idn.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-081-subprocess-node-type-phase-1-collapsed-o.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-082-edge-label-placement-pass-measure-after-.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-083-label-halo-theme-background-rect-behind-.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-084-lane-header-ellipsis-truncate-vertical-l.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-085-view-density--label-visibilitysize-contr.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-087-node-label-fit-ladder-long-task-names-mu.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-088-bug-lane-label-shrink-tier-was-a-silent-.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-089-edge-label-wrap-multi-line-edge-labels-s.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-094-align-rows-one-shot-action-snap-lane-row.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-095-clean-layout-composite-action-tidy--bran.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-096-density-setting-has-no-visible-effect---.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-097-crossing-aware-branch-ordering-order-fan.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-098-edge-channel-separation-setting-corridor.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-099-clean-layout-on-import-opt-in-setting-ap.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-100-clean-layout-nudge-offer-one-click-clean.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-104-density-and-branch-pitch-view-settings-a.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-106-routing-margin-setting-reserved-peripher.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-107-align-columns-one-shot-action-snap-near-.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-108-vertical-spacing-control-and-density-bra.md": {
+   "e06d5e8c818a3cc6": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-109-distribute-evenly-action-equalise-horizo.md": {
+   "e06d5e8c818a3cc6": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-111-surface-distribute-align-columns-trade-o.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-114-obstacle-avoiding-orthogonal-edge-routin.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-115-horizontal-spacing-control-mirror-of-ver.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-116-align-in-middle-wire-align-columns-centr.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-117-de-jog-routed-edges-collapse-tiny-interi.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-118-endpoint-straight-snap-collapse-endpoint.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-119-consolidate-split-migrations-two-step-st.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-120-sibling-shared-riser-uncross-fan-out-joi.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-123-edge-label-on-gateway-declutter-push-bra.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-124-content-fit-fan-spacing-rule-in-cleanlay.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-127-editor-repo-save-versioning-revert-autoreload.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-130-b3-editor-save-to-project-button-with-ca.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-131-b4-editor-version-history--revert-ui-wit.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-132-b5-general-undo-redo-history-stack.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-133-enlarge-edge-endpoint-handle-hovergrab-t.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-134-selection-scoped-align-and-distribute-fo.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-135-gallery-server-sends-no-cache-headers-so.md": {
+   "65b62e0553d821a6": [
+    "hardcoded-port"
+   ]
+  },
+  ".tasks/completed/T-136-endpoint-overlap-selection-blocked-at-convergence.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-137-loop-back-edges-with-persisted-detoury-c.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-139-retire-align-columns-and-distribute-even.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-140-built-in-seed-map-autosaves-a-spurious-i.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-141-guard-save-to-project-against-the-pristi.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-144-in-editor-open-from-project-modal-uses-a.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-148-revert-shows-wrong-toast--reuses-autosav.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-149-versions-modal-thumbnail-404-leaves-blan.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-150-version-notes-are-inert-wire-up-or-remov.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-151-open-project-card-title-clipped-against-.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ],
+   "96ca8c6d3a037686": [
+    "hardcoded-port"
+   ]
+  },
+  ".tasks/completed/T-152-disambiguate-two-colliding-version-conce.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-153-consistent-tiles-generate-thumbnails-for.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-154-open-project-vs-workflow-picker-dropdown.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-156-open-project-card-hover-zoom-preview-non.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-157-show-current-maps-loaded-saved-version-i.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-158-remove-the-bare-v1-contract-version-badg.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-159-rename-properties-library-section-to-rec.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-160-handoff-nodes-double-click--panel-button.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-161-replace-native-save-note-prompt-with-sty.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-162-open-project-cards-collapse-and-clip-map.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-163-target-workflow-field-uses-open-project-browser.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-164-consistent-tile-hover-zoom-in-the-versio.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-165-open-this-version-action-in-the-versions.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-166-delete-a-workflow-from-the-project-archi.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-167-version-level-delete-and-keep-only-lates.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-168-connection-point-anchoring-attach-edges-.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-172-drag-to-place-nodes-from-the-palette-ont.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-220-off-page-seam-editor-build--decompositio.md": {
+   "e80fe0608d97f85e": [
+    "hardcoded-port"
+   ]
+  },
+  ".tasks/completed/T-234-030-jump-autosave-poisoning-bug--post-ju.md": {
+   "58abf964b37ea6d7": [
+    "hardcoded-port"
+   ],
+   "f8058ad66a0c2632": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-237-eventdeflinkeventcatch-vocabulary-collis.md": {
+   "0ad1e832589725ab": [
+    "hardcoded-port"
+   ],
+   "f8058ad66a0c2632": [
+    "serve-root-diff"
+   ]
+  },
+  ".tasks/completed/T-252-refresh-stale-gallery-serve-root-so-oper.md": {
+   "4cf42f07156822fd": [
+    "hardcoded-port"
+   ],
+   "e2b83f353be6e44e": [
+    "hardcoded-port"
+   ],
+   "f3781d0e72e2ff74": [
+    "hardcoded-port"
+   ]
+  },
+  ".tasks/completed/T-276-execute-framework-re-vendor-to-v16763--p.md": {
+   "6c252443f87b14a4": [
+    "hardcoded-port"
+   ],
+   "f5ee65b0aefe97fa": [
+    "hardcoded-port"
+   ]
+  },
+  ".tasks/completed/T-284-gallery-serves-the-app-processes-corpus-.md": {
+   "083d97ec191c2d13": [
+    "hardcoded-port"
+   ],
+   "d72f728abc00ad94": [
+    "hardcoded-port"
+   ]
+  },
+  ".tasks/completed/T-296-cut-designer-release-080-t-286-badge-z-o.md": {
+   "b37435338acaf5ea": [
+    "hardcoded-port"
+   ]
+  },
+  ".tasks/completed/T-298-error-escalation-ladder-pair-leg-aef-t-2.md": {
+   "a9a5356fc0ed7fec": [
+    "hardcoded-port"
+   ]
+  },
+  ".tasks/completed/T-375-deliver-frozen-part-i-of-aef-bpmn-mappin.md": {
+   "ff05014490ad317f": [
+    "hardcoded-port"
+   ]
+  },
+  ".tasks/completed/T-378-verify-aefs-frozen-v1-over-claim-finding.md": {
+   "37481a152bc18612": [
+    "hardcoded-port"
+   ]
+  }
+ }
+}
