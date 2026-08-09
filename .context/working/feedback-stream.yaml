@@ -4787,3 +4787,93 @@ scan_id: R-9d4c23fd
 task_id: T-411
 payload:
   task_file: .tasks/active/T-411-measure-learnings-application-field-cove.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T14:42:08Z'
+scan_id: R-b92ee402
+task_id: T-412
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T14:42:08Z'
+scan_id: R-b92ee402
+task_id: T-412
+payload:
+  task_file: .tasks/active/T-412-announced-pair-is-completed-by-a-single-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T15:30:35Z'
+scan_id: R-074c5bd7
+task_id: T-414
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T15:30:35Z'
+scan_id: R-074c5bd7
+task_id: T-414
+payload:
+  task_file: .tasks/active/T-414-leading-rationale-following-our-di-trail.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T15:31:36Z'
+scan_id: R-89f1a613
+task_id: T-413
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T15:31:36Z'
+scan_id: R-89f1a613
+task_id: T-413
+payload:
+  task_file: .tasks/active/T-413-run-aefs-two-t-406-fixtures-through-the-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T15:34:20Z'
+scan_id: R-017cec51
+task_id: T-415
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T15:34:20Z'
+scan_id: R-017cec51
+task_id: T-415
+payload:
+  task_file: .tasks/active/T-415-probe-the-announced-span-rule-against-ae.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T15:38:36Z'
+scan_id: R-296b7c56
+task_id: T-416
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T15:38:36Z'
+scan_id: R-296b7c56
+task_id: T-416
+payload:
+  task_file: .tasks/active/T-416-announced-pair-completes-from-two-qualif.md

@@ -122,3 +122,5 @@ Press CTRL+C to quit
 127.0.0.1 - - [09/Aug/2026 16:27:25] "GET /api/version?id=t293-retest-harvest&v=1 HTTP/1.1" 200 -
 192.168.10.107 - - [09/Aug/2026 16:29:55] "GET / HTTP/1.1" 200 -
 192.168.10.157 - - [09/Aug/2026 16:39:49] "GET /review/T-251/acs HTTP/1.1" 200 -
+192.168.10.157 - - [09/Aug/2026 17:07:27] "GET /review/T-251/acs HTTP/1.1" 200 -
+192.168.10.107 - - [09/Aug/2026 17:17:41] "GET / HTTP/1.1" 200 -

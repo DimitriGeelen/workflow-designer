@@ -1,0 +1,11 @@
+  precondition ok — colliding string is present verbatim in the peer fixture
+  precondition ok — both AEF fixtures present and leading with the colliding string
+  ok   CONTROL  peer, plain rationale      [branch: UNSTAMPED (default)] want=preserve got=preserved
+  ok   STAMPED  peer, colliding comment    [branch: FOREIGN "camunda modeler"] want=preserve got=preserved
+  ok   OURS     boilerplate hoisted to top [branch: OURS] want=suppress got=suppressed
+  ok   UNKNOWN  no producer identity       [branch: UNSTAMPED (default)] want=suppress got=suppressed
+  ok   AEF-CLEAN    trailer only, real bytes  [branch: UNSTAMPED (default)] want=suppress got=suppressed
+  ok   AEF-INCIDENTAL rationale after trailer [branch: UNSTAMPED (default)] want=preserve got=preserved
+  ok   OURS+RATIONALE trailer then content  [branch: OURS] want=preserve got=preserved
+
+PASS — a peer rationale survives; our own hoisted boilerplate is still suppressed

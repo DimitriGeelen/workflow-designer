@@ -949,3 +949,31 @@ learnings:
     classifier. Audit existing registers with tools/memory-application-census.py, which
     separates AUTHORED from MACHINE-written values; a bare presence count over any
     machine-populated field is the misleading answer, not the owed one."
+- id: PL-133
+  learning: "Two word-lists being disjoint does not make their MATCHES disjoint: a word present in both satisfies an AND-pair from a single span, collapsing a two-signal rule into a one-word match. tracked-secret-artifacts.py had password/passwd in both the secrecy and noun halves, so reset-password.md classed as key material. Prevention: require the halves to match at NON-OVERLAPPING SPANS, and deliberately KEEP the overlapping words so the span rule stays load-bearing — set-differencing the lists fixes the instance and leaves the rule that permits it. Test generatively from the word lists at run time, not from the filenames that happened to be wrong."
+  source: P-001
+  task: T-412
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
+- id: PL-134
+  learning: "A BRANCH's presence in a test matrix reads as coverage of that branch's BEHAVIOUR. T-406 gated doc-comment suppression on producer identity and pinned four legs; T-413's branch column disproved the obvious theory that the unstamped default branch was untested (two of four legs ran through it) and showed the real hole was an untested AXIS: every leg's comment was either nothing-but-the-trailer or had no trailer, so the mixed shape appeared on no leg at any branch. Coverage of the branch is exactly what made the axis hole invisible. Sibling of AEF L-560 (a detector's scope note reads as coverage) and PL-132 (a schema's field presence reads as content)."
+  source: P-001
+  task: T-414
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
+- id: PL-135
+  learning: "A GENERATIVE test is only as general as the SHAPE it generates. T-412's generative leg enumerated the word tuples at run time and probed each word ALONE — and stayed green through the entire life of the two-qualifier defect T-416 fixed, because no single-word probe can construct a name carrying two members of the password family. Deriving cases from the data at run time protects against the data changing; it does not protect against the defect needing a bigger shape than the generator emits. When a rule takes N inputs, generate over N-tuples, not over members."
+  source: P-001
+  task: T-416
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
+- id: PL-136
+  learning: "A producer's report that a stamp SHIPPED is a claim about the EMITTER; the consumer needs a claim about the ARTIFACT. AEF shipped exporter=aef-corpus-spec at rail 494 and it is real in tools/corpus_spec.py:407 — inside generate(), which nothing calls on stored maps. T-413 measured 0 occurrences on 37 live .bpmn, 0 on disk, 0 on both fixtures. A prediction was built on that stamp and was wrong in its mechanism, not just its outcome. At a seam, re-measure the peer's mechanism on the bytes you actually receive (AEF's own formulation, rail 506 §3, adopted)."
+  source: P-001
+  task: T-413
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD

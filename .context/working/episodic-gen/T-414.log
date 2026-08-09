@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-09T15:30:36Z ===
+task_id: T-414
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-414.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Leading rationale following our DI trailer is destroyed on import: suppression keys on the prefix rather than on the comment being nothing but the trailer
+  Duration: 0 days (4 min)
+  Updates: 1
+  Commits: 1
+  Lines: +467 -7 across 6 files
+  Outcomes: 7 AC checked
+  Artifacts: 6 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-414-leading-rationale-following-our-di-trail.md
+--- exit code: 0 ---
