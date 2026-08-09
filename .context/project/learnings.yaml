@@ -858,3 +858,17 @@ learnings:
   date: 2026-08-09
   context: Added via context agent
   application: TBD
+- id: PL-121
+  learning: "When a peer authors to your published standard, every structural marker you emit becomes shared BY DESIGN — namespaces, targetNamespace, id shapes — because conforming is the point of the standard. Identity therefore cannot come from any field describing the process; it has to come from a field describing the PRODUCER. Check the standard first: BPMN already defines exporter on definitions, and every real emitter in our third-party corpus stamps it while our own output was the only one that stayed silent."
+  source: P-001
+  task: T-399
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
+- id: PL-122
+  learning: "A scope pre-filter can be load-bearing for correctness while reading as a cheap optimisation. The T-361 guard's continue-unless-prefix-present line looked like a fast path and was actually the answer to who wrote this. Its failure mode is silent WIDENING: it can only ever pull more documents into scope, and in a guard that reports offenders every wrongly-included document becomes an accusation. A red naming a file always reads as that file is broken and never as the check misidentified whose file this is."
+  source: P-001
+  task: T-399
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
