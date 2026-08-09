@@ -1319,3 +1319,17 @@ decisions:
     date: 2026-08-09
     task: T-404
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-168
+    decision: "judge every segment; all must be safe."
+    scope: project
+    date: 2026-08-09
+    task: T-405
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-169
+    decision: "run the segment split over `_sc_strip_quoted`'s output."
+    scope: project
+    date: 2026-08-09
+    task: T-405
+    rationale: "Auto-captured from task file on completion"

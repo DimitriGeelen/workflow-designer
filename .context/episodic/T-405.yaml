@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-405: Bash gate mis-parses VAR=$(cmd args) as an env-var prefix and takes the next word as the command name
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-09T08:42:29Z
+# ============================================================================
+
+task_id: T-405
+task_name: "Bash gate mis-parses VAR=$(cmd args) as an env-var prefix and takes the next word as the command name"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-09T08:27:53Z
+completed: 2026-08-09T08:42:18Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-09T10:42:05+02:00
+last_commit: 2026-08-09T10:42:05+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  base-command extraction assumed the command is the first word — judge every segment instead
+
+# Key outcomes
+outcomes:
+  - '`VAR=$(cmd args) ...` is no longer treated as an env-var prefix; the real command'
+  - 'The T-1908 contract still holds: `FW_SWITCH_FOCUS=1 fw work-on T-XXX` is still'
+  - 'A multi-line read-only command is allowed, and is judged per line — every line must'
+  - 'Base extraction no longer forks `awk` and `sed` — pure parameter expansion, since'
+  - 'Corpus extended in `web/test_safe_commands.py` covering all of the above, including'
+  - '`tools/t404-gate-e2e.sh` extended: with focus null, the `/resume` skill''s Step 5'
+  - 'T-404''s corpus and e2e still pass unchanged (no regression in the redirect predicate)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-09 — segment-wise judgement, which TIGHTENS the gate'
+    chose: 'judge every segment; all must be safe.'
+    rationale: 'it is the only reading that is correct for compounds, and it fixes the false'
+    alternatives_rejected: ['taking the first line''s first word. Simpler, and it would have made the']
+  - decision: '2026-08-09 — split the quote-stripped string, not the raw one'
+    chose: 'run the segment split over `_sc_strip_quoted`''s output.'
+    rationale: 'splitting the raw string would treat `grep ''a;b'' f` as two commands — reintroducing'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/web/test_safe_commands.py'
+  - '.tasks/active/T-405-bash-gate-mis-parses-varcmd-args-as-an-e.md'
+  - 'tools/t404-gate-e2e.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-09T10:42:05"
+    action: "T-405: base-command extraction assumed the command is the first word — judge every segment instead"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 14 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 14
+  commits: 1
+  files_changed: 4
+  lines_added: 261
+  lines_removed: 14
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-405-bash-gate-mis-parses-varcmd-args-as-an-e.md
+generated_by: context-agent-hybrid

@@ -4571,3 +4571,75 @@ scan_id: R-d0cbec58
 task_id: T-398
 payload:
   task_file: .tasks/active/T-398-census-now-horizon-tasks-showing-no-open.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T07:52:36Z'
+scan_id: R-36fc5f7d
+task_id: T-401
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T07:52:36Z'
+scan_id: R-36fc5f7d
+task_id: T-401
+payload:
+  task_file: .tasks/active/T-401-budget-gauge-false-critical-after-compac.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T07:58:26Z'
+scan_id: R-4e59282a
+task_id: T-403
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T07:58:26Z'
+scan_id: R-4e59282a
+task_id: T-403
+payload:
+  task_file: .tasks/active/T-403-fold-aefs-measured-importer-answer-rail-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T08:30:32Z'
+scan_id: R-2e7fc094
+task_id: T-404
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T08:30:32Z'
+scan_id: R-2e7fc094
+task_id: T-404
+payload:
+  task_file: .tasks/active/T-404-check-active-task-blocks-read-only-comma.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T08:42:27Z'
+scan_id: R-7a19d7e3
+task_id: T-405
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T08:42:27Z'
+scan_id: R-7a19d7e3
+task_id: T-405
+payload:
+  task_file: .tasks/active/T-405-bash-gate-mis-parses-varcmd-args-as-an-e.md

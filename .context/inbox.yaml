@@ -31,3 +31,10 @@ observations:
   tags: [gap]
   status: pending
   promoted_to: null
+- id: OBS-005
+  text: "T-404 asymmetry paper-cut, observed immediately: destructive verbs are judged on the RAW command string, so any command whose ARGUMENTS quote a destructive verb is classified as a write. Concretely, 'fw context add-learning' was blocked when the learning text quoted a recursive-delete invocation as an example — i.e. you cannot record a learning ABOUT a dangerous command without an active task. This is the documented, tested, conservative side of the T-404 decision (a false negative there would let sh -c with a quoted destructive verb past), so it is correct as designed, not a defect. Capturing it because the cost is now observed rather than hypothetical: if it recurs, the fix is to judge verbs on the quote-stripped string for the FIRST segment only, keeping raw-string scanning for sh/bash -c payloads."
+  captured: 2026-08-09T08:43:10Z
+  context_task: null
+  tags: []
+  status: pending
+  promoted_to: null

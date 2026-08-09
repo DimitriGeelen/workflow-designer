@@ -851,3 +851,10 @@ learnings:
   date: 2026-08-09
   context: Added via context agent
   application: TBD
+- id: PL-120
+  learning: "A predicate can be answering a question its input does not have. is_bash_safe_command extracted 'the base command' as the first word — but a compound command (cd X followed by a recursive delete, or any multi-line script) has no single base, so the function returned a plausible string either way and nothing looked wrong. The fix was not a better extractor but a different question: judge every segment, all must pass. Watch for this shape — a helper whose name presupposes a unique answer (THE base, THE target, THE owner) applied to inputs that can carry several. It fails quietly in BOTH directions: a destructive compound was allowlisted wholesale on the strength of its leading 'cd', and every multi-line read was blocked."
+  source: P-001
+  task: T-405
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD

@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-09T08:30:34Z ===
+task_id: T-404
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-404.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: check-active-task blocks read-only commands: drifted redirect predicate and regex over unparsed shell
+  Duration: 0 days (11 min)
+  Updates: 1
+  Commits: 1
+  Lines: +907 -6 across 7 files
+  Outcomes: 8 AC checked
+  Artifacts: 7 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-404-check-active-task-blocks-read-only-comma.md
+--- exit code: 0 ---
