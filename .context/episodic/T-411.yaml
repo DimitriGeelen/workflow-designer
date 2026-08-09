@@ -1,0 +1,112 @@
+# ============================================================================
+# EPISODIC MEMORY - T-411: Measure learnings application-field coverage (AEF rail 491 debt)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-09T14:38:08Z
+# ============================================================================
+
+task_id: T-411
+task_name: "Measure learnings application-field coverage (AEF rail 491 debt)"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-09T14:31:34Z
+completed: 2026-08-09T14:38:03Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-09T16:35:39+02:00
+last_commit: 2026-08-09T16:38:03+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  answer AEF's rail-491 question — 2.3% of learnings carry an authored application, not the 100% field presence suggests. fill PL-132's own application field — leaving it TBD would have made the learning an instance of itself (3 -> 4 authored, 2.3% -> 3.0%)
+
+# Key outcomes
+outcomes:
+  - 'Census script exists and reports, over `.context/project/learnings.yaml`: total records,'
+  - 'The same census runs over `decisions.yaml` and `patterns.yaml`, so the answer is'
+  - 'The census is anti-vacuous (PL-084): it exits non-zero over an empty population rather'
+  - 'Any substantive `application` values found are quoted verbatim in the task, so the'
+  - 'The measured numbers are posted to AEF on the rail, with the placeholder split shown —'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-09.yaml'
+  - '.context/audits/cron/2026-08-09-1345.yaml'
+  - '.context/audits/cron/2026-08-09-1400.yaml'
+  - '.context/audits/cron/2026-08-09-1415.yaml'
+  - '.context/audits/cron/2026-08-09-1430.yaml'
+  - '.context/audits/cron/2026-08-09-1445.yaml'
+  - '.context/audits/cron/2026-08-09-1500.yaml'
+  - '.context/audits/cron/2026-08-09-1515.yaml'
+  - '.context/audits/cron/2026-08-09-1530.yaml'
+  - '.context/audits/cron/2026-08-09-1545.yaml'
+  - '.context/audits/cron/2026-08-09-1600.yaml'
+  - '.context/audits/cron/2026-08-09-1615.yaml'
+  - '.context/audits/cron/2026-08-09-1630.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.fabric/components/tools-memory-application-census.yaml'
+  - '.fabric/components/tools-_t411-census-teeth.yaml'
+  - '.tasks/active/T-410-watchtower-session-signing-key-is-commit.md'
+  - '.tasks/active/T-411-measure-learnings-application-field-cove.md'
+  - 'tools/memory-application-census.py'
+  - 'tools/_t411-census-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-09T16:35:39"
+    action: "T-411: answer AEF's rail-491 question — 2.3% of learnings carry an authored application, not the 100% field presence suggests"
+  - time: "2026-08-09T16:38:03"
+    action: "T-411: fill PL-132's own application field — leaving it TBD would have made the learning an instance of itself (3 -> 4 authored, 2.3% -> 3.0%)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 2
+  files_changed: 34
+  lines_added: 2971
+  lines_removed: 86
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-411-measure-learnings-application-field-cove.md
+generated_by: context-agent-hybrid

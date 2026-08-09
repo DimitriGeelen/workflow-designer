@@ -104,11 +104,35 @@ RE_DOTENV = re.compile(r"^\.env(\..+)?$")
 DOTENV_OK = ("example", "sample", "template", "dist", "defaults", "schema")
 
 # ---------------------------------------------------------------------------
-# ANNOUNCED — a secrecy word AND a credential noun in the same filename.
+# ANNOUNCED — a secrecy word AND a credential noun at NON-OVERLAPPING spans.
 # Both halves required: "secret-scan.sh" is secrecy+scan (tooling, not a secret);
 # "context_tokens.py" is noun-only. ".fw-secret-key" is secret+key.
+#
+# T-412 — WHY "DIFFERENT LISTS" IS NOT ENOUGH, AND WHY THE FIX IS SPANS.
+# `password` and `passwd` are in BOTH tuples below, so one occurrence of either satisfied
+# both halves and the pair silently collapsed into a single-word match. `reset-password.md`,
+# `password-policy.md` and `password_reset_test.py` all flagged: documentation and a test,
+# none of them key material, and exactly the false-positive class the pair EXISTS to exclude.
+#
+# The obvious fix — remove the overlap from the lists — repairs this instance and leaves the
+# rule that permitted it in place, so the next author to add a sensible-looking word to both
+# tuples reintroduces it. So the pair is now required to match at DISJOINT SPANS of the name:
+# two different stretches of text, not two different list memberships. The overlap is left in
+# the tuples deliberately (both words genuinely belong in both roles) and made harmless.
+#
+# Credit: AEF hit the identical shape in their own name-axis scanner (rail 501) —
+# "a pair one word can complete is a single-word match wearing a pair's clothes."
 # ---------------------------------------------------------------------------
-SECRECY_WORDS = ("secret", "credential", "password", "passwd", "privkey", "private-key")
+# SELF-SUFFICIENT: these already name key material on their own and carry their own noun.
+# `private-key` spans the noun `key`, so under the disjoint-span rule it could never pair with
+# anything and `private-key-store.dat` would go unflagged. They are not qualifiers awaiting a
+# noun; they are the whole announcement.
+SELF_SUFFICIENT = ("privkey", "private-key", "priv-key")
+
+# QUALIFIERS: need a credential noun at a DISJOINT span. `password` is here rather than in
+# SELF_SUFFICIENT deliberately — `reset-password.md` and `password-policy.md` are prose about
+# passwords, and the noun is what separates those from `password-key.txt`.
+SECRECY_WORDS = ("secret", "credential", "password", "passwd")
 CREDENTIAL_NOUNS = ("key", "token", "cred", "passwd", "password", "pass", "pw")
 
 
@@ -133,15 +157,53 @@ def classify(path):
             return None, None
         return "DEFINITIVE", "dotenv file — the canonical home for service credentials"
 
-    flat = _norm(name)
-    parts = [p for p in flat.split("-") if p]
     if lower.endswith(".pub"):
         return None, None
-    has_secrecy = any(w in flat for w in SECRECY_WORDS)
-    has_noun = any(p in CREDENTIAL_NOUNS for p in parts)
-    if has_secrecy and has_noun:
+    if announced_pair(name):
         return "ANNOUNCED", "filename pairs a secrecy word with a credential noun"
     return None, None
+
+
+def _spans(flat, words, whole_part_only):
+    """Char ranges in `flat` where any of `words` matches.
+
+    whole_part_only=True restricts matches to complete `-`-separated parts, which is what
+    the credential-noun half wants: `pass` must not match inside `passenger`.
+    """
+    out = []
+    if whole_part_only:
+        pos = 0
+        for part in flat.split("-"):
+            if part and part in words:
+                out.append((pos, pos + len(part)))
+            pos += len(part) + 1
+        return out
+    for w in words:
+        start = flat.find(w)
+        while start != -1:
+            out.append((start, start + len(w)))
+            start = flat.find(w, start + 1)
+    return out
+
+
+def announced_pair(name):
+    """-> (secrecy_span, noun_span) at DISJOINT positions, or None.
+
+    T-412: the two halves must come from different stretches of the filename. Requiring only
+    that they come from different LISTS lets a word present in both satisfy the pair alone.
+    """
+    flat = _norm(name)
+    for w in SELF_SUFFICIENT:
+        if w in flat:
+            i = flat.find(w)
+            return (i, i + len(w)), (i, i + len(w))
+    sec = _spans(flat, SECRECY_WORDS, whole_part_only=False)
+    noun = _spans(flat, CREDENTIAL_NOUNS, whole_part_only=True)
+    for s0, s1 in sec:
+        for n0, n1 in noun:
+            if s1 <= n0 or n1 <= s0:          # no overlap
+                return (s0, s1), (n0, n1)
+    return None
 
 
 def load_allowlist(path):

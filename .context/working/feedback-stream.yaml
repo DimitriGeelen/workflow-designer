@@ -4769,3 +4769,21 @@ scan_id: R-7636549f
 task_id: T-410
 payload:
   task_file: .tasks/active/T-410-watchtower-session-signing-key-is-commit.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T14:38:06Z'
+scan_id: R-9d4c23fd
+task_id: T-411
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T14:38:06Z'
+scan_id: R-9d4c23fd
+task_id: T-411
+payload:
+  task_file: .tasks/active/T-411-measure-learnings-application-field-cove.md
