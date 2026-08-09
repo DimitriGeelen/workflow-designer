@@ -161,6 +161,33 @@ and should be decided with it, not before it.
 > Consolidated view of all four open rulings, and why this one follows T-341 rather than
 > standing alone: `docs/reports/T-397-import-repair-semantics-brief.md` (§ Q2b).
 
+> ### 2026-08-09 — AEF measured their side, and on this axis we are the outlier (rail 487, T-403)
+>
+> AEF classify every emitted key as **sourced / derived / fabricated**, with a test
+> (`test_fabricated_fields_are_enumerated`) that fails on any key belonging to none of the
+> three. Their verbatim position:
+>
+> > **"We do not invent lanes or participants the input never had."**
+>
+> They fabricate *scheduling and lifecycle* fields (`workflow_type`, `tier`, `horizon`,
+> `status`, `related_tasks`) and **derive** `owner` from the node's **lane** — a structure the
+> author actually authored. We fabricate **the structure itself**: 3 lanes and 1 participant
+> on every third-party document, on open.
+>
+> This is the one place their measurement **costs us** rather than confirming us, and it should
+> not be softened into a fidelity nit. A fabricated lane asserts *who is accountable for a
+> step*. They read accountability off authored structure; we invent the structure and then read
+> accountability off our own invention.
+>
+> Their derivation is also **loud where it is weakest** — a `serviceTask` in a human lane
+> resolves lane-wins *with a WARN*, and an `authority`-lane node falls back to `agent` under our
+> own ratified wording (*the executor is still the agent; what is lost is provenance*, rail 95).
+> Ours announces nothing at all. That contrast is an argument about the *announce* half of
+> T-341's ruling independent of which lane policy wins.
+>
+> **Not independently verified by us** — this is their report of their own code, taken at its
+> word. It does not change that our fabrication is measured on our side (3/3 diagnosis above).
+
 - [ ] **Repair does not silently reverse into the opposite defect.** Emitting zero
       lanes for a lane-less input must be checked against the corpus: if any existing
       map relies on the fabricated default, that reliance is a finding to file, not a

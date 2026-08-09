@@ -93,6 +93,24 @@ tickable AC out of it would make a blocked task read as progressing.
       > re-measured the disjointness claim this ruling rests on — `BOTH = 0` still holds, now
       > over 142 files rather than the 126 measured when it was written.
       >
+      > ### 2026-08-09 — AEF reached the same ruling independently (rail 487, T-403)
+      >
+      > AEF measured their round-trip importer and **drop** `bpmndi` geometry, for our reason:
+      > they emit `aef:position` on every node and no BPMNDI at all, so preserving the input's
+      > DI would hand the export two carriers for one geometry with no user action to reconcile
+      > them. Same position, same ruling, same reasoning — *arrived at before reading ours*.
+      >
+      > That is worth strictly more than agreement: two independent derivations of PL-114 from
+      > different codebases. It does not make the ruling yours-by-default — it removes the
+      > worry that PL-114 was reasoning built backwards from a conclusion we already liked.
+      >
+      > **Adopt their instrument, not just their answer.** They pin
+      > `test_di_drop_has_a_competing_carrier`, which asserts the carrier **exists**: delete
+      > `aef:position` and the test goes red. Ours argues the rule in prose. Theirs makes the
+      > day the rule stops holding go RED instead of going silent — which is precisely the
+      > failure mode this whole brief is about. Recommend adding the equivalent guard on our
+      > side as part of whatever repair this ruling authorises.
+
       > **Read the brief's "competing-carrier rule" before ruling.** It explains why this
       > ruling should *differ* from T-337's and T-347's rather than matching them: DI is the
       > only class where we generate a rival carrier (`aef:position`), so preservation here

@@ -254,6 +254,108 @@ narrower question genuinely owed to AEF is *"if you ever hand us a document carr
 re-measured above). Q2 is entirely ours. Their answer changes **what we record about the
 seam**, not what we decide.
 
+### The answer arrived, measured — rail 487 (their T-2882) — 2026-08-09
+
+They declined my offered fallback (*"we're (b) by omission, not by decision"*) and measured
+instead: harness `tests/unit/test_importer_fidelity.py`, report `docs/reports/T-2882-importer-fidelity.md`.
+
+**My question had the wrong shape.** They have *two* importers, and only one is a round-trip:
+`bpmn_to_tasks.py` is a **projection** (BPMN → task skeletons on stdout, never writes a
+`.bpmn`), `corpus_spec.py` is the **round-trip**. For the projection the (a)/(b)/(c) question
+barely applies — everything it drops is still in the untouched source file, which remains the
+store of record. That is a *projection loss, not a data loss*. **We must not import that
+distinction by analogy: it does not exist in the same form on our side**, because our importer
+feeds an editor whose export is the next store of record.
+
+Round-trip results, by position (fixture: **our** `session-handover.bpmn` from T-214, which
+round-trips canonically identical — so it doubles as proof they can read what we author):
+
+| their outcome | positions |
+|---|---|
+| **preserved (a)** | unrecognised `aef:*` child of `extensionElements`; foreign-ns child of `extensionElements`; non-extension child of `sequenceFlow` |
+| **refused (c)** | unsupported `process` child **with an id** → hard `SystemExit` |
+| **dropped (b), silently** | foreign-ns attribute on a node; **loose text inside a node** ← our T-347 shape; `<bpmn:documentation>` on a **node**; unsupported `process` child **without** an id; foreign sub-tree off `<definitions>`; trailing comment; **`bpmndi` geometry** ← our T-340 position |
+
+**Q1b / T-340 — convergence, not agreement.** They emit `aef:position` on every node and no
+BPMNDI at all, and concluded that preserving input DI hands the export two carriers for one
+geometry with no user action to reconcile them. Same position, same ruling, same reasoning,
+*arrived at before reading ours*. That is worth strictly more than agreement would be: two
+independent derivations of PL-114 from different codebases. **Adopt their test shape.** Ours
+argues the rule in prose; theirs pins `test_di_drop_has_a_competing_carrier`, which asserts the
+carrier **exists** — delete `aef:position` and it goes red. The day our DI drop becomes pure
+loss, we get a red test instead of a silence. Our recommendation is unchanged; our *instrument*
+should change.
+
+**Q1a / T-347 — 484's question resolves, but it does not settle the ruling.** They drop loose
+node text silently too. So the behaviour is a property of **the seam**, not a defect peculiar
+to us — our ruling is not a defect confession. Stated plainly, because it is tempting to
+over-read: *"both sides do it" is a description, not a justification.* It removes the argument
+that we are uniquely lossy; it adds nothing to the case that (a) is correct. The
+recommendation for T-347 still rests on our own precedent (T-337) and the absence of a
+competing carrier — exactly where it rested before their reply.
+
+**Q2 / T-341 + T-358 — this is where the measurement costs us.** Their classification, with a
+test (`test_fabricated_fields_are_enumerated`) that fails on any emitted key belonging to none
+of the three classes:
+
+| class | keys |
+|---|---|
+| sourced | `id` (`aef:uid`), `name` (`@name`) |
+| derived | `owner` ← from the node's **lane** (their IW-7 authority-of-record) |
+| fabricated | `workflow_type`, `tier`, `horizon`, `status`, `related_tasks` |
+
+> **"We do not invent lanes or participants the input never had."**
+
+They fabricate *scheduling and lifecycle* fields and **derive** the accountability field from a
+structure the author actually authored. Our importer **fabricates the structure itself** — 3
+lanes and 1 participant on every third-party document, on open (T-358).
+
+On the sovereignty axis **we are the outlier and they are not.** This belongs in front of the
+operator as an asymmetry, not as a fidelity nit: a fabricated lane asserts *who is accountable
+for a step*, so we are inventing accountability where they are reading it off authored
+structure. Note also that their derivation is *visible where it is weakest* — a `serviceTask`
+in a human lane resolves lane-wins **with a WARN**, and an `authority`-lane node falls back to
+`agent` under our own ratified wording (*the executor is still the agent; what is lost is
+provenance*, rail 95). Ours announces nothing.
+
+**Two findings they reported, unfixed, with analogues we have NOT checked:**
+
+- **OBS-205 — node/edge asymmetry.** `<bpmn:documentation>` on an **edge** round-trips; the
+  byte-identical element on a **task** is destroyed silently. Same content, opposite outcome,
+  decided by which side of the graph it landed on.
+- **OBS-206 — the refusal is gated on having an id.** Their hard error fires from a branch
+  requiring `el.get("id")`. Same tag, same content, same position: *with* an id, a loud
+  `SystemExit`; *without*, it vanishes. `textAnnotation` and `association` are routinely
+  authored without ids — **the hole is exactly the shape of the elements most likely to fall
+  into it.**
+
+OBS-206's concealment mechanism is the one to carry across: **the guard's *success* is what hid
+it.** Every time it fired, it fired loudly and correctly, and that track record is evidence
+about which elements people give ids to — not about the guard's reach. Same shape as PL-115
+(fixing a gate does not replay what it blocked) and as our own DI finding: a control reads as
+comprehensive precisely because the cases escaping it are the silent ones.
+
+We have plausible analogues of both. **We have not looked.** Recorded here as unchecked, not as
+clean.
+
+**Method note worth stealing.** My 484 line — *"an element that survives with its body stripped
+keeps its node, flow and lane counts"* — changed their harness, not just their answer. Their
+instruments were structural and would have reported clean for the same reason ours did. Every
+probe now carries a unique sentinel and asks **where that string ended up**, never how many
+elements survived. They added two controls we should copy: a **positive** control (a mutation in
+a position the importer demonstrably reads *must* move the output — otherwise every
+"dropped-silently" reading is equally consistent with a harness that never invoked the importer
+at all; they had exactly that masquerade as a working fix in T-2881) and a **null** control (an
+unused `xmlns` declaration must *not* move the output, or the foreign-namespace probes are
+measuring the declaration rather than the payload). They also split our (b) into
+`dropped-silently` vs `dropped-with-notice` — every one of theirs came back silent.
+
+**What they did not measure**, in their words: one fixture per importer; probes are
+per-position, not per-map; the designer save path was *inspected, not probed* (it writes client
+bytes verbatim); `bpmn_promote.py` not probed; probes insert one level deep, so a deeply nested
+foreign sub-tree inside a preserved `ext_raw` child is preserved by construction but not
+separately probed.
+
 ---
 
 ## Recording a ruling
@@ -285,3 +387,7 @@ cd /opt/832-Workflow-designer && .agentic-framework/bin/fw context add-decision 
 | 1-vs-451 structural/content divergence | T-347 report, `caseagile-local-ns.bpmn` |
 | T-358 diagnosis 3/6 complete | AC state in the task file |
 | T-337 ruled (a) and shipped | `.tasks/completed/T-337-*.md` → `## Decisions` |
+| AEF round-trip table (preserved/refused/dropped) | rail 487, their T-2882 — **their** measurement, reported not reproduced |
+| AEF sourced/derived/fabricated split | rail 487; pinned their side by `test_fabricated_fields_are_enumerated` |
+| "AEF does not invent lanes or participants" | rail 487, verbatim — **not independently verified by us** |
+| OBS-205 / OBS-206 | rail 487; our analogues **unchecked** |

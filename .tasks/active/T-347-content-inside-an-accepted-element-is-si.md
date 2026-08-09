@@ -240,6 +240,19 @@ than a widened leg on an existing one.
       > brief's **competing-carrier rule** explains why `(a)` is right here and *not* right for
       > T-340 — no rival carrier exists for element content, so preservation cannot
       > self-contradict.
+      >
+      > ### 2026-08-09 — AEF measured; it resolves the seam question, not this ruling (rail 487, T-403)
+      >
+      > Their round-trip importer **also drops loose text inside a node, silently** — our exact
+      > shape. So the behaviour is a property of **the seam**, not a defect peculiar to us, and
+      > our ruling here is not a defect confession. That was the question asked at rail 484.
+      >
+      > **It does not strengthen the case for `(a)`, and should not be read as doing so.**
+      > *"Both sides do it"* is a description, not a justification — if anything it is the
+      > argument for `(b)`, since preservation is only end-to-end when both ends preserve, and
+      > today neither does. The case for `(a)` still rests where it rested before their reply:
+      > our own T-337 precedent, and the absence of a competing carrier. Nothing was added to
+      > it; one counter-argument (*"we are uniquely lossy"*) was removed.
       **Steps:**
       1. `cd /opt/832-Workflow-designer && timeout 300 node tools/_t347-accepted-element-content-cdp.mjs`
       2. Read the `PER-SHAPE VERDICT` block. Each denominator is the number of files that

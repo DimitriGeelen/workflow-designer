@@ -179,6 +179,20 @@ look blocked.
   > it, and the brief **offers no recommendation on this ruling** — deliberately, for the reason
   > stated below. **T-358 follows from whatever is decided here**; ruling one without the other
   > is how the two acquire inconsistent policies.
+  >
+  > ### 2026-08-09 — AEF's comparable, and it bears on the *announce* half only (rail 487, T-403)
+  >
+  > AEF report they **do not invent lanes or participants the input never had**; they derive
+  > `owner` from the node's lane and fabricate only scheduling/lifecycle fields. So they have no
+  > orphan-lane policy to compare against — they never reach the situation, because they do not
+  > manufacture the container. That means **their answer does not transfer to this ruling**, and
+  > the brief still offers **no recommendation here**. Unchanged, deliberately.
+  >
+  > What *does* transfer is the announce question. Where their derivation is weakest they are
+  > **loud**: a `serviceTask` in a human lane resolves lane-wins *with a WARN*, and an
+  > `authority`-lane node falls back to `agent` under our own ratified wording (rail 95). Our
+  > reassignment is silent. Whichever lane policy wins, that contrast is evidence for
+  > announcing — and it is available without settling the policy itself.
 
   This is a sovereignty call, not a technical one: it decides which authority silently acquires a
   step when a `flowNodeRef` fails to resolve. **It was filed as an Agent AC, which was a

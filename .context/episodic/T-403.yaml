@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-403: Fold AEF's measured importer answer (rail 487) into the T-397 brief: convergence on T-340, seam-wide drop on T-347, and the fabrication asymmetry on T-341/T-358
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-09T07:58:27Z
+# ============================================================================
+
+task_id: T-403
+task_name: "Fold AEF's measured importer answer (rail 487) into the T-397 brief: convergence on T-340, seam-wide drop on T-347, and the fabrication asymmetry on T-341/T-358"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-09T07:54:54Z
+completed: 2026-08-09T07:58:25Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'The brief carries AEF''s measured answer as **evidence with a named source**, not as'
+  - '**T-347''s recommendation is re-examined, not merely reinforced.** Their round-trip drops'
+  - '**The fabrication asymmetry is recorded against T-358 as the operator-facing headline.**'
+  - '**The carrier-exists test shape is adopted as a recommendation for T-340.** Ours argues'
+  - 'OBS-205 (node/edge asymmetry) and OBS-206 (refusal gated on `el.get("id")`) are recorded'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-403-fold-aefs-measured-importer-answer-rail-.md
+generated_by: context-agent-hybrid
