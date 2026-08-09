@@ -4,10 +4,10 @@ name: "Ratchet the G-015 verification-hygiene population: grandfather the 85 kno
 description: >
   The G-015 carrier population is growing under an open gap: the register measured 11 hard-coded-port verification lines on 2026-08-02; today there are 17 (75 serve-root-diff lines unchanged, 85 distinct task files). CLAUDE.md's ban on hard-coded ports is prose read by nothing, and _t350-verification-hygiene.py checks a single task by ID. Build a tree-wide ratchet: baseline the known carriers, fail only on NEW ones, so leg 1 (the convention change) stays the operator's ruling while the population stops growing silently.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-09T10:47:56Z
-last_update: 2026-08-09T10:47:56Z
-date_finished: null
+last_update: 2026-08-09T10:54:17Z
+date_finished: 2026-08-09T10:54:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -309,3 +309,20 @@ changes is that the number the operator rules on is now pinned.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-408-ratchet-the-g-015-verification-hygiene-p.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-bac5cd93
+- **Timestamp:** 2026-08-09T10:54:21Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — A baseline file records the carriers present at this commit; the scanner exits 0 on the tree as it stands today and exits non-zero when a carrier appears in a file not in the baseline (the ratchet dir
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/verification-hygiene-baseline.json in: A baseline file records the carriers present at this commit; the scanner exits 0 on the tree as it stands today and exits non-zero when a carrier appe`
+
+### 2026-08-09T10:54:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

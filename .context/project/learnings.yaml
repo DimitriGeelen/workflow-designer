@@ -879,3 +879,24 @@ learnings:
   date: 2026-08-09
   context: Added via context agent
   application: TBD
+- id: PL-124
+  learning: "A gap whose remedy needs an operator ruling still needs CONTAINMENT while it waits, or the population the operator will rule on keeps moving under them. G-015 was filed 2026-08-02 with 11 hard-coded-port carriers; seven days later there were 17, authored while the gap was open, documented and severity-medium. The ratchet (baseline the known population, fail only on new members) is the containment shape: it changes nothing the operator must decide, and pins the number they decide about."
+  source: P-001
+  task: T-408
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
+- id: PL-125
+  learning: "A prose ban is not enforcement, and this is now measured rather than argued. CLAUDE.md banned hard-coded ports in verification lines, the gap register described the defect at length, and a checker existed — but it took a task ID as argv[1], so nothing scanned the population. Six new violations landed in seven days. If a rule matters, something must read the whole population; a per-item checker enforces nothing about the set."
+  source: P-001
+  task: T-408
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
+- id: PL-126
+  learning: "Teeth that only mutate CONTENT are blind to the LIFECYCLE operations the framework itself performs on the artifact. T-408 shipped ten green legs, every one editing a task file in place; none moved one. But work-completed MOVES task files active/ -> completed/, so a baseline keyed on relpath fired a false red on the very tasks waiting for the ruling. When guarding an artifact the framework moves, renames or archives, the test vocabulary must include those moves."
+  source: P-001
+  task: T-409
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD

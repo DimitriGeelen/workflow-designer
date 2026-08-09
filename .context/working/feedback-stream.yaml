@@ -4697,3 +4697,39 @@ scan_id: R-fe9836cf
 task_id: T-406
 payload:
   task_file: .tasks/active/T-406-readdoccomment-discards-a-peer-authored-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T10:54:21Z'
+scan_id: R-bac5cd93
+task_id: T-408
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T10:54:21Z'
+scan_id: R-bac5cd93
+task_id: T-408
+payload:
+  task_file: .tasks/active/T-408-ratchet-the-g-015-verification-hygiene-p.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T10:58:00Z'
+scan_id: R-1d651aca
+task_id: T-409
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T10:58:00Z'
+scan_id: R-1d651aca
+task_id: T-409
+payload:
+  task_file: .tasks/active/T-409-verification-hygiene-baseline-keys-on-re.md

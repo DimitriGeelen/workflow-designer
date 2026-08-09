@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-408: Ratchet the G-015 verification-hygiene population: grandfather the 85 known carriers, fail on any new one
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-09T10:54:23Z
+# ============================================================================
+
+task_id: T-408
+task_name: "Ratchet the G-015 verification-hygiene population: grandfather the 85 known carriers, fail on any new one"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-09T10:47:56Z
+completed: 2026-08-09T10:54:17Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-09T12:54:13+02:00
+last_commit: 2026-08-09T12:54:13+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  ratchet the G-015 carrier population — grandfather 85 files/92 lines, fail on any new carrier
+
+# Key outcomes
+outcomes:
+  - '`tools/verification-hygiene.py` scans EVERY task file in `.tasks/active/` and `.tasks/completed/` (not one task by ID) and detects both G-015 carrier shapes: a `diff`/`cmp` against the serve root, and a hard-coded `:PORT` literal — 408 files, 1553 executable lines, 75 + 17 carriers across 85 files'
+  - 'A baseline file records the carriers present at this commit; the scanner exits 0 on the tree as it stands today and exits non-zero when a carrier appears in a file not in the baseline (the ratchet direction) — `tools/verification-hygiene-baseline.json`, 85 files / 92 lines; teeth (a) (b)'
+  - 'Removing a carrier is always allowed and never fails the scan; the baseline is keyed on the sha256 of the carrier LINE (not per-file counts) so a grandfathered file cannot become a free slot for a different carrier — teeth (b2); and after `--tighten` a cleaned file cannot re-acquire one — teeth (c2)'
+  - 'Anti-vacuity (PL-084): the scanner reports the size of the population it scanned and FAILS (rc=2 VACUOUS) if that population is zero or if the baseline resolves to no carriers — a clean verdict over nothing is a bug, not a pass — teeth (d) (e)'
+  - 'A teeth harness proves each arm produces its own stated outcome: (a) new port carrier → rc=1 naming file+kind, (b) new serve-root diff → rc=1 naming file+kind, (b2) new carrier line inside a grandfathered file → rc=1 quoting the line, (c) baseline entry whose line is gone → **rc=0 with a standing `RATCHET AVAILABLE` notice, not a red** (removal must never be punished; the standing notice is what makes re-acquisition non-silent), (c2) re-acquire after `--tighten` → rc=1, (d)/(e) vacuity → rc=2; plus a reciprocal control proving a legitimately-clean NEW task file still passes, and (f) a behavioural agreement check against `_t350`. 10/10 legs green'
+  - '`_t350-verification-hygiene.py` still passes for T-350 (the single-task check is not regressed or deleted) — `hygiene ok: ... 5 executable line(s)`'
+  - 'No existing `## Verification` line anywhere in the tree is edited by this task (leg 1 stays the operator''s ruling) — `git diff .tasks/` shows only T-408 (new) and a `last_update:` metadata bump on T-102 from `fw work-on`; census still reads exactly 75 / 17'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+  - decision: '2026-08-09 — grandfather by line-hash, not by count or by directory'
+    chose: 'baseline keyed on (task file, sha256 of the normalised carrier line).'
+    rationale: 'it makes "this file is already excused" mean *this line*, not *one free'
+    alternatives_rejected: ['per-file counts (`current <= baseline`) — a file cleaned 1→0 could go']
+  - decision: '2026-08-09 — containment now, ruling later; do NOT touch the 75 lines'
+    chose: 'change zero existing verification lines, and pin the census at 75/17 in'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-102-mapmessiness-false-positive-branch-stack.md'
+  - '.tasks/active/T-408-ratchet-the-g-015-verification-hygiene-p.md'
+  - 'tools/_t408-hygiene-teeth.sh'
+  - 'tools/verification-hygiene-baseline.json'
+  - 'tools/verification-hygiene.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-09T12:54:13"
+    action: "T-408: ratchet the G-015 carrier population — grandfather 85 files/92 lines, fail on any new carrier"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 5
+  lines_added: 1323
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-408-ratchet-the-g-015-verification-hygiene-p.md
+generated_by: context-agent-hybrid

@@ -1375,3 +1375,17 @@ decisions:
     date: 2026-08-09
     task: T-406
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-176
+    decision: "baseline keyed on (task file, sha256 of the normalised carrier line)."
+    scope: project
+    date: 2026-08-09
+    task: T-408
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-177
+    decision: "change zero existing verification lines, and pin the census at 75/17 in"
+    scope: project
+    date: 2026-08-09
+    task: T-408
+    rationale: "Auto-captured from task file on completion"

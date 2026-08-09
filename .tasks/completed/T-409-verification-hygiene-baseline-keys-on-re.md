@@ -4,10 +4,10 @@ name: "verification-hygiene baseline keys on relpath, so completing a grandfathe
 description: >
   T-408's baseline records .tasks/active/T-102-....md. work-completed moves the file to .tasks/completed/, so its grandfathered carrier reappears at a path the baseline has never seen and the ratchet reports it as a NEW carrier — a red naming a task nobody edited. Three known carriers sit in active/ today (T-093, T-102, T-105) and all three are queued for exactly that move. Key the baseline on task-file identity (basename) instead of lifecycle location.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-09T10:54:48Z
-last_update: 2026-08-09T10:54:48Z
-date_finished: null
+last_update: 2026-08-09T10:57:46Z
+date_finished: 2026-08-09T10:57:46Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -252,3 +252,15 @@ what the scan finds, not by testing a stored path on disk.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-409-verification-hygiene-baseline-keys-on-re.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1d651aca
+- **Timestamp:** 2026-08-09T10:58:00Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-09T10:57:46Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
