@@ -1270,3 +1270,38 @@ decisions:
     date: 2026-08-08
     task: T-395
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-161
+    decision: "Keep the token formula exactly as it was and change which entry is selected."
+    scope: project
+    date: 2026-08-09
+    task: T-401
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-162
+    decision: "The conversation is the model with the most entries since the last boundary."
+    scope: project
+    date: 2026-08-09
+    task: T-401
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-163
+    decision: "Return 0 (→ `ok`) when fewer than two in-scope entries exist."
+    scope: project
+    date: 2026-08-09
+    task: T-401
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-164
+    decision: "Extract `lib/context_tokens.py` rather than patch both inline copies."
+    scope: project
+    date: 2026-08-09
+    task: T-401
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-165
+    decision: "File the allow-regex substring flaw as **T-402**, fix nothing about it here."
+    scope: project
+    date: 2026-08-09
+    task: T-401
+    rationale: "Auto-captured from task file on completion"

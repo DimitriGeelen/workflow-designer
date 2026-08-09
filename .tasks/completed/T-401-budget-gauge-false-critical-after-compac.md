@@ -1,13 +1,13 @@
 ---
 id: T-401
-name: "Budget gauge false-critical after compaction: the summarization request's own usage entry is read as post-compact context size"
+name: "Budget gauge false-critical after compaction: a foreign-model usage entry in the same transcript is read as this session's context size"
 description: >
   budget-gate computed 341880 tokens (critical, BLOCK) on the first tool call of a post-compact session whose real size was 84629 (~28%). The gate refused all work in a session with ~72% headroom, immediately after a /compact performed to reclaim exactly that context.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-09T07:39:33Z
-last_update: 2026-08-09T07:39:42Z
-date_finished: null
+last_update: 2026-08-09T07:52:32Z
+date_finished: 2026-08-09T07:52:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,7 +30,16 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-401: Budget gauge false-critical after compaction: the summarization request's own usage entry is read as post-compact context size
+# T-401: Budget gauge false-critical after compaction: a foreign-model usage entry in the same transcript is read as this session's context size
+
+> **Title corrected mid-task.** It was filed as *"the summarization request's own usage entry is
+> read as post-compact context size"* — my opening hypothesis, that `/compact`'s own summarization
+> call (whose input is the entire pre-compact conversation) was landing at the boundary and being
+> read as the result. The transcript falsified it: the poisoning entry is **18 minutes after** the
+> boundary, on a **different model**, and is a **cache-priming call**, not a summarization. The
+> filename slug still carries the old wording; the `name:` field is canonical. Recording this
+> rather than silently overwriting it — a title that asserts the wrong cause is the defect T-365
+> was filed about.
 
 ## Context
 
@@ -348,3 +357,15 @@ algorithm still fails the fixture, so the fixture cannot silently stop reproduci
 
 ### 2026-08-09T07:39:42Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-36fc5f7d
+- **Timestamp:** 2026-08-09T07:52:36Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-09T07:52:32Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

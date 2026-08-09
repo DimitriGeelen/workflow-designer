@@ -69,6 +69,14 @@ failure_patterns:
     date_learned: 2026-07-29
     mitigation: "Field failure was environmental: operator-reachable designers all serve pinned 0.7.1 (predates fix) and :8834 has no ufw allow rule (T-253 class). Code fix verified 12/12 zoom legs + 8/8 served real-click legs. Remedy: cut 0.8.0 + rail announce for re-pin; ufw allow is operator-only."
 
+  - id: FP-010
+    pattern: "Two hand-copied implementations of one algorithm feeding one enforcement decision: the copy that does not fire drifts unnoticed. budget-gate.sh (PreToolUse, blocking) and checkpoint.sh (PostToolUse, warning) each carried an inline transcript scan; budget-gate gained the T-2322 compact_boundary reset and checkpoint never did, so the fallback gauge was silently a version behind the gate it backs up."
+    description: "Two hand-copied implementations of one algorithm feeding one enforcement decision: the copy that does not fire drifts unnoticed. budget-gate.sh (PreToolUse, blocking) and checkpoint.sh (PostToolUse, warning) each carried an inline transcript scan; budget-gate gained the T-2322 compact_boundary reset and checkpoint never did, so the fallback gauge was silently a version behind the gate it backs up."
+    scope: project
+    learned_from: T-401
+    date_learned: 2026-08-09
+    mitigation: "Extract to one implementation with both callers (lib/context_tokens.py) rather than patching both copies — patching leaves the drift class alive and there is simply a third divergence later. Level C, not Level A."
+
 success_patterns:
   - id: SP-001
     pattern: "Phased implementation"

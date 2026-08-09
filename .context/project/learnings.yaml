@@ -815,3 +815,17 @@ learnings:
   date: 2026-08-08
   context: Added via context agent
   application: TBD
+- id: PL-116
+  learning: "A filter keyed on POSITION in a shared log silently stops being sufficient the moment the log gains a second writer. The budget gauge had three defenses (compact_boundary reset, session-start-ts filter, <synthetic> skip) and all three missed a foreign-model entry because all three ask WHEN a record was written, and none asks WHOSE conversation it belongs to. Until a second writer appeared, every entry belonged to the conversation by construction, so the question had never needed asking. When a log acquires a new writer, audit every filter over it for the position-vs-identity assumption."
+  source: P-001
+  task: T-401
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
+- id: PL-117
+  learning: "A false-positive that self-clears is nearly undetectable, and is worse than one that persists. The budget gauge's poisoned reading blocked only while its cache was <90s fresh, then re-read healthy. So it struck exactly at session resumption and looked fine by the time anyone investigated. When triaging 'it was broken but works now', treat the self-clearing as a property of the defect to be explained, not as evidence that nothing was wrong."
+  source: P-001
+  task: T-401
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
