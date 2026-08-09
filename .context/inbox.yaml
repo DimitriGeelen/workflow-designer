@@ -66,3 +66,10 @@ observations:
   tags: [gap]
   status: pending
   promoted_to: null
+- id: OBS-010
+  text: "Framework-side, fleet-wide: fw vendor writes .agentic-framework/.gitignore covering only __pycache__/*.pyc/*.pyo/.DS_Store. Any AEF consumer that tracks .context/working/ wholesale publishes its Watchtower signing key. Ours tracked 371 files there and published the key for 2 months (T-410). One-line fix in the vendored gitignore template, widest blast radius. Reported to AEF at rail 498."
+  captured: 2026-08-09T11:37:03Z
+  context_task: T-102
+  tags: []
+  status: pending
+  promoted_to: null

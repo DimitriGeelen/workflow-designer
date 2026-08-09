@@ -4,20 +4,20 @@ name: "Watchtower session signing key is committed to the tracked tree and invis
 description: >
   Watchtower session signing key is committed to the tracked tree and invisible to the secret scanner
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
-components: []
+components: [tools/_t410-secret-artifact-teeth.sh, tools/tracked-secret-artifacts.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-09T11:24:36Z
-last_update: 2026-08-09T11:24:36Z
-date_finished: null
+last_update: 2026-08-09T11:36:19Z
+date_finished: 2026-08-09T11:36:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -170,6 +170,43 @@ nobody was reading the ufw state as part of the picture — pointing the other w
   network exposure of the sovereignty surface.
 
   **If not:** leave unticked. Nothing regresses; the key is rotated either way.
+
+## Recommendation
+
+**Recommendation:** GO — with both Human ACs genuinely open, and neither of them blocking.
+
+**Rationale:** the exploitable part is already closed. The published key signs nothing:
+it was rotated before it was untracked, which is the order that matters — untracking
+alone produces a repo that looks clean and a key that still works. What remains for you
+is not remediation, it is two rulings that are yours by right and not urgent:
+
+1. whether the dead key's presence in ~2 months of history is worth a Tier 0 rewrite
+   plus a force-push to a mirrored remote (my read: probably not — it is a rotated LAN
+   dev-tool session key, not a vendor credential, and the rewrite has real cost);
+2. whether Watchtower should be LAN-admitted at all, given `watchtower.sh` opens its own
+   ufw rule at start-up. That is a standing posture question this incident merely
+   surfaced, not something this task changed.
+
+I would not hold the task open for either. If you disagree on (1), the rewrite is
+strictly additive — nothing here has to be undone first.
+
+**Evidence:**
+- `sha256(committed blob)` == `sha256(on-disk)` == `ef0fbe61…` before the fix — the
+  published value WAS the live signing key, with `FW_SECRET_KEY` unset in the running
+  Watchtower's env (pid 1341537) so the resolver had fallen through to the file
+- after rotation: on-disk `51f64e07…` ≠ `ef0fbe61…`, mode back to `0600`, Watchtower
+  restarted (pid 8448) and serving `fw_session_3000` signed with the new value
+- `git ls-files` no longer lists it; `git check-ignore` resolves BOTH depths
+- `tools/tracked-secret-artifacts.py` — clean over 5562 tracked files, empty allowlist
+- `tools/_t410-secret-artifact-teeth.sh` — 13/13, incl. the actual file at its actual
+  path (PL-113: the live tree passes whether or not the tool works, so that leg is the
+  only thing separating "it works" from "the file is gone")
+- P-011 6/6
+- exposure was live, not theoretical: `fw watchtower restart` reported
+  `[firewall] Port 3000 already open` — reported, not changed; no ufw rule was touched
+- reported to AEF at rail 498: the generator, the vendored `.gitignore` that omits it,
+  and the scanner blind spot are all framework-side, and every consumer tracking
+  `.context/working/` wholesale has the same exposure
 
 ## Verification
 
@@ -345,3 +382,19 @@ content rule — the same axis that was already being read.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-410-watchtower-session-signing-key-is-commit.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7636549f
+- **Timestamp:** 2026-08-09T11:36:22Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** yes
+- **Findings:** none
+
+- **Layer-1 escalations:** 1
+  1. **destructive-action** (high) — Destructive operation in verification or AC
+     - matched: `force-push`
+
+### 2026-08-09T11:36:19Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

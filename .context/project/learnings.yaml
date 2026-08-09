@@ -914,3 +914,24 @@ learnings:
   date: 2026-08-09
   context: Added via context agent
   application: TBD
+- id: PL-129
+  learning: "A secret scanner built on vendor prefixes (AKIA, ghp_, sk-ant-) is structurally blind to the secrets the framework GENERATES ITSELF: secrets.token_hex(32) has no third-party fingerprint to anchor a specific pattern on. The class of secret a system is guaranteed to produce is the class its own prefix-based scanner is guaranteed to miss. Fix the AXIS (read filenames over git ls-files), not the pattern list."
+  source: P-001
+  task: T-410
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
+- id: PL-130
+  learning: "Rotate BEFORE untracking a committed secret. git rm --cached produces a repo that LOOKS clean and a key that still signs — the value stays readable in history and in every existing clone. Untracking is bookkeeping; rotation is the remedy. History rewrite is Tier 0 defence-in-depth AFTER rotation, never instead of it."
+  source: P-001
+  task: T-410
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
+- id: PL-131
+  learning: "An ignore rule for an artifact that exists once per PROJECT_ROOT must be depth-agnostic (no leading slash). T-410's tree held two .fw-secret-key copies — the project's and the vendored framework's — and a path-anchored rule would have covered one and left the other untracked-but-committable."
+  source: P-001
+  task: T-410
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
