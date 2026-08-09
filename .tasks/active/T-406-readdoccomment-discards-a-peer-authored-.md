@@ -4,7 +4,7 @@ name: "readDocComment discards a peer authored doc block whose leading comment o
 description: >
   Third instance of the T-399 authorship-from-prose class, found by that task's census, and it fails in the losing direction. src/aef-workflow-designer.html readDocComment returns null for any LEADING comment whose text starts with DI_TRAILER_PREFIX, on the reasoning that a hand-edit may have hoisted our own boilerplate to the top. A peer authoring to our mapping standard whose rationale opens with those eight words therefore has its doc block silently dropped on import. T-399's instance mislabels a foreign document; this one destroys content, which is the T-347 loss shape arriving from a mechanism we built ourselves. No corpus document triggers it today, which is the same no-live-witness condition under which T-399 sat undetected until the population changed.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-09T09:13:10Z
-last_update: 2026-08-09T09:13:10Z
+last_update: 2026-08-09T10:24:11Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,8 +40,36 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A leading comment in a document we did NOT produce survives import as the doc block,
+      even when it opens with `DI_TRAILER_PREFIX`. Measured through the real editor
+      (`parseBpmnXml`), not asserted from source.
+      — **Met for a peer that STAMPS its own producer identity** (`STAMPED` case,
+      `exporter="camunda modeler"` + the colliding comment → preserved). **Explicitly NOT
+      met for an unstamped peer, which is AEF today** — deliberate, argued in `## Decisions`,
+      and pinned by the probe's `UNKNOWN` case so the residual cannot be mistaken for
+      coverage. It closes when AEF adopt the producer field (recommended at rail 492); no
+      further work here closes it.
+- [x] The property the suppression exists for is NOT lost: a document we DID produce, with
+      our boilerplate hand-hoisted to the top, still has it suppressed rather than promoted
+      to rationale. This is the direction that poisoned AEF's corpus, so a fix that only
+      satisfies the criterion above has removed the guard rather than repaired it.
+      — `OURS` case suppressed; `test_t311_doc_comment_roundtrip.py` green. **This AC did
+      real work:** my first fix failed it and the bridge suite caught it (see Decisions).
+- [x] Both directions are asserted by ONE probe run, with a control proving the probe
+      actually invoked the parser (a probe that never ran reports "preserved" for the same
+      reason a working one does).
+      — `tools/_t406-doc-comment-provenance-cdp.mjs`, 4/4: control, repair, retained
+      property, residual. Plus a PRECONDITION check that the colliding string is still
+      present verbatim in AEF's fixture, so the probe cannot quietly degrade into testing
+      a straw man of my own writing.
+- [x] The known limit is stated in `## Decisions` with its cost named: documents carrying
+      no producer identity at all (our own pre-T-399 exports) lose the belt-and-braces. The
+      choice of which failure to prefer — silent loss vs visible wrong-promotion — is
+      argued, not assumed.
+      — argued, and the argument REVERSED mid-task on evidence. See Decisions.
+- [x] Bridge suite still green (`0 failed`), and `test_t311_doc_comment_roundtrip.py` in
+      particular still passes — it owns the doc-block round-trip this touches.
+      — 71 passed, 0 failed, exit 0; geometry 24 clean.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -75,6 +103,18 @@ date_finished: null
 -->
 
 ## Verification
+
+# --- T-406 commands ---
+# Both directions plus control and residual, through the real parser. Own exit code is
+# the verdict, so the errexit note below cannot apply. Exit 2 if its precondition fails.
+node tools/_t406-doc-comment-provenance-cdp.mjs
+# T-311 owns the doc-block round-trip this touches, and it is what caught my first
+# (wrong) fix. Named separately from the suite so a regression here is unmissable.
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"
+# The suppression must still be gated on identity and not on prefix alone — a revert to
+# the unguarded form would leave the probe's OURS/UNKNOWN cases green while re-opening
+# the defect for every stamping peer.
+grep -q "someoneElsesDocument" src/aef-workflow-designer.html
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -125,6 +165,37 @@ date_finished: null
 
 ## RCA
 
+**Symptom:** `readDocComment` returns null for any LEADING comment opening with
+`DI_TRAILER_PREFIX`, so a peer whose authored rationale begins with those eight words has
+their doc block destroyed on import. No error, no notice.
+
+**Root cause:** the suppression asked "is this our boilerplate?" and answered it from the
+comment's TEXT. That is unanswerable from text here, and demonstrably so: the DI comment in
+AEF's fixture is byte-identical to the false trailer we shipped for two months — almost
+certainly because it was copied from a document we exported. Two parties, one string, and
+only provenance separates them.
+
+**Why structurally allowed:** three things.
+
+1. The check was written when the corpus contained only our own output, so "a comment that
+   looks like our boilerplate" and "our boilerplate" were the same set. The T-347/T-356/T-372
+   intake ended that — the third instance of that shape, after T-359 and T-337, and the
+   fourth counting T-399.
+2. It was reasoned about as belt-and-braces behind a position rule, which framed its failure
+   mode as *redundant safety* rather than as *an independent destructive decision*.
+3. **No live witness.** Nothing in either corpus triggers it, so no test could have gone red
+   and no user could have reported it. It was found by auditing "where do we infer identity
+   from content" — a question, not a symptom. AEF made the sharper version of the point
+   (rail 491): the absence of a witness is exactly the condition T-399's own instance sat in
+   until the population changed.
+
+**Prevention:** identity now comes from the producer field T-399 added rather than from
+content, so the class is answered at its root rather than patched at one site. The probe
+pins all four states including the residual, so the boundary is a recorded fact rather than
+an assumption. And the finding itself came from a census AC on another task — the practice
+that produced it is worth more than this fix: auditing by mechanism found three instances
+where auditing by symptom had found one in two months.
+
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
      Non-bug-class tasks may leave this section empty or remove it.
@@ -165,6 +236,46 @@ date_finished: null
 
 ## Decisions
 
+### 2026-08-09 — suppress unless the document names a DIFFERENT producer (reversed mid-task)
+
+- **Chose:** preserve the leading comment only when the document positively identifies a
+  producer that is not us. An UNIDENTIFIED document is still suppressed.
+- **Why:** this was the second answer, not the first, and the reversal is the point.
+  I initially chose the opposite — suppress only when the document is provably OURS,
+  preserving everything unidentified — on the argument that silent loss is worse than
+  visible wrong-promotion. **The bridge suite falsified the "visible" half within a minute:**
+  `test_t311_doc_comment_roundtrip.py` went red on `hoistedTrailerRefused`. T-311 is not a
+  cosmetic UI concern. It is a REAL incident that propagated a false rationale into AEF's
+  corpus, and it propagates through save whether or not a human happens to look at the doc
+  field — so my "visible failure" was visible only in a place nobody was required to look.
+  T-406, by contrast, has no live witness at all: no document in either corpus triggers it.
+  Preferring my hypothetical over their measured harm would have been trading a known cost
+  for an imagined benefit.
+- **Rejected — discriminate on the comment's CONTENT** (exact-match against known trailers
+  rather than prefix). Checked, and it cannot work: the DI comment in AEF's fixture is
+  **byte-identical** to the false trailer we shipped for two months. There is no string test
+  that separates them, which is the whole reason identity is required here.
+- **Rejected — preserve everything unidentified** (my first answer). Above.
+- **Residual, stated rather than buried:** AEF do not stamp a producer identity (rail 491),
+  so their documents remain affected. The fix works for every peer that identifies itself —
+  Camunda, bpmn-js, and AEF if they adopt the field. **This is not closable from our side**,
+  and the probe's `UNKNOWN` case pins it so it reads as a known boundary rather than as
+  coverage. Recommendation sent at rail 492.
+
+### 2026-08-09 — the probe reads the colliding string from AEF's fixture, not from my memory
+
+- **Chose:** assert as a precondition that the colliding string is still present verbatim in
+  `tests/fixtures/third-party/aef-draft-inception-readiness-v2.bpmn`, and exit 2 if not.
+- **Why:** the whole hazard is that a specific real string collides with ours. A probe
+  carrying its own retyped copy would keep passing after the fixture changed, testing a
+  straw man I had written for myself — the failure PROVENANCE.md names in its own words
+  ("a population built by imagining what real input looks like is the same defect one level
+  up").
+- **Note on fixture provenance:** the four probe documents ARE synthetic minimal
+  `<definitions>` elements, and the file says so. Offered to AEF at rail 492 that they
+  author the adversarial one, since input from the party who would actually write it beats
+  input I imagine them writing.
+
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.
      Format:
@@ -190,3 +301,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-406-readdoccomment-discards-a-peer-authored-.md
 - **Context:** Initial task creation
+
+### 2026-08-09T10:24:11Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

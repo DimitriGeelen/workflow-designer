@@ -9471,7 +9471,33 @@ function readDocComment(defsEl) {
     if (c.nodeType === 1) return null;        // ELEMENT_NODE — the document body started, no doc block
     if (c.nodeType !== 8) continue;           // whitespace/text between the tag and the comment
     const data = c.data == null ? '' : String(c.data);
-    if (data.trim().startsWith(DI_TRAILER_PREFIX)) return null;
+    // T-406: the suppression is gated on the document being OURS.
+    //
+    // It used to fire on prefix alone, which meant a peer whose leading rationale opens
+    // with our eight words had their doc block silently destroyed on import — AEF's own
+    // T-347 loss shape, arriving from a mechanism we built. It is not hypothetical that
+    // the strings collide: the comment in their draft-inception fixture is BYTE-IDENTICAL
+    // to the false trailer we shipped for two months, so no test on the CONTENT can tell
+    // the two apart. Only who produced the document can.
+    //
+    // We suppress unless the document positively names a DIFFERENT producer. An
+    // UNIDENTIFIED document keeps being suppressed, and that asymmetry is the whole
+    // decision — see this task's Decisions for why it is not the other way round.
+    //
+    // Briefly: T-311 is a real incident that propagated a false rationale into AEF's
+    // corpus; T-406 is so far a hypothetical with no live witness. Preferring the
+    // hypothetical would trade a measured harm for an imagined one. So this fixes the
+    // case that can be fixed with evidence — a peer who stamps their own identity, as
+    // Camunda and bpmn-js do — and leaves the identity-less case under T-311's rule.
+    //
+    // CONSEQUENCE, stated so it is not discovered later: AEF do not stamp an exporter
+    // today (their rail 491), so their documents are still affected. Closing it for
+    // them depends on them adopting the producer field, which is the recommendation
+    // sent at rail 492 — not on further work here.
+    const exporterAttr = typeof defsEl.getAttribute === 'function'
+      ? defsEl.getAttribute('exporter') : null;
+    const someoneElsesDocument = exporterAttr && exporterAttr !== BPMN_EXPORTER;
+    if (!someoneElsesDocument && data.trim().startsWith(DI_TRAILER_PREFIX)) return null;
     return data;
   }
   return null;
