@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-404: check-active-task blocks read-only commands: drifted redirect predicate and regex over unparsed shell
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-09T08:30:34Z
+# ============================================================================
+
+task_id: T-404
+task_name: "check-active-task blocks read-only commands: drifted redirect predicate and regex over unparsed shell"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-09T08:19:08Z
+completed: 2026-08-09T08:30:26Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-09T10:29:57+02:00
+last_commit: 2026-08-09T10:29:57+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  Bash gate mis-classified read-only commands as writes — quote-aware redirect predicate, one implementation, PL-025 applied 30 days late
+
+# Key outcomes
+outcomes:
+  - 'Redirect operators appearing inside single- or double-quoted arguments are no longer'
+  - 'A redirect whose target is `/dev/null` is no longer counted as a write, in stdout,'
+  - 'Genuine writes are still caught — `cmd > f`, `cmd >> f`, `tee f`, `sed -i`, heredoc,'
+  - 'One redirect predicate, one implementation: the drifted duplicate regex in the'
+  - 'A true-positive/false-positive corpus exists and is green — PL-025''s own prescribed'
+  - 'The three commands this session actually blocked are in the corpus as must-pass'
+  - 'End-to-end through `check-active-task.sh` with focus null: a read-only command'
+  - '`PL-025.application` no longer reads `TBD` and references this task'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-09 — quote-stripping applied to redirects only, not to verbs'
+    chose: 'judge redirect operators on the quote-stripped command, but keep the'
+    rationale: 'the two failure directions are not symmetric. A false positive on a verb costs'
+    alternatives_rejected: ['applying quote-stripping uniformly. Cleaner to describe, but it silently']
+  - decision: '2026-08-09 — the /resume Step 5 command is NOT fully unblocked by this fix'
+    chose: 'scope T-404 to the redirect predicate and file the remaining blocker separately.'
+    rationale: 'measured, not assumed. After the fix, the `/resume` Step 5 command shape reports'
+    alternatives_rejected: ['widening T-404 to cover it. One bug = one task; and claiming T-404 "fixes']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/lib/safe-commands.sh'
+  - '.agentic-framework/web/test_safe_commands.py'
+  - '.context/project/concerns.yaml'
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-404-check-active-task-blocks-read-only-comma.md'
+  - '.tasks/active/T-405-bash-gate-mis-parses-varcmd-args-as-an-e.md'
+  - 'tools/t404-gate-e2e.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-09T10:29:57"
+    action: "T-404: Bash gate mis-classified read-only commands as writes — quote-aware redirect predicate, one implementation, PL-025 applied 30 days late"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 11 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 11
+  commits: 1
+  files_changed: 7
+  lines_added: 907
+  lines_removed: 6
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-404-check-active-task-blocks-read-only-comma.md
+generated_by: context-agent-hybrid

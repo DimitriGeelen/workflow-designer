@@ -4,10 +4,10 @@ name: "check-active-task blocks read-only commands: drifted redirect predicate a
 description: >
   has_bash_write_pattern runs before the safe-command allowlist and mis-classifies read-only commands as writes. Two defects: (1) the echo/printf branch at safe-commands.sh:221 uses a redirect regex lacking the stderr and fd-dup exclusions its sibling at line 252 has - copy drift, so stderr-suppression reads as a file write; (2) has_bash_write_pattern regexes the raw command string, so redirect operators inside a QUOTED argument count as real redirects. Consequence: compaction nulls focus, and the /resume skill documented Step 5 command uses stderr-suppression, so the framework post-compaction recovery command is blocked by the framework own gate. Fifth instance of the self-deadlock class this file already names (T-2052, T-2054, T-390) - including this task creation, blocked because its description quoted the operators.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-09T08:19:08Z
-last_update: 2026-08-09T08:19:08Z
-date_finished: null
+last_update: 2026-08-09T08:30:26Z
+date_finished: 2026-08-09T08:30:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -162,7 +162,9 @@ PL-025 verbatim:
 bash tools/t404-gate-e2e.sh
 bash -n .agentic-framework/agents/context/lib/safe-commands.sh
 bash -n .agentic-framework/agents/context/check-active-task.sh
-python3 -c "import sys; s=open('.agentic-framework/agents/context/lib/safe-commands.sh').read(); sys.exit(0 if '[^>]>[^>]' not in s else 1)"
+# Comment lines excluded on purpose: the fix quotes the retired regex verbatim in a
+# comment so the next reader knows what was wrong. Only executable lines can reintroduce it.
+python3 -c "import sys; code='\n'.join(l for l in open('.agentic-framework/agents/context/lib/safe-commands.sh').read().splitlines() if not l.lstrip().startswith('#')); sys.exit(0 if '[^>]>[^>]' not in code else 1)"
 python3 -c "import sys,yaml; d=yaml.safe_load(open('.context/project/learnings.yaml')); e=[x for x in (d.get('learnings') or d) if isinstance(x,dict) and x.get('id')=='PL-025']; sys.exit(0 if e and 'T-404' in str(e[0].get('application','')) else 1)"
 
 ## RCA
@@ -299,3 +301,15 @@ fixing this predicate does not fix the mechanism that let PL-025 rot.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-404-check-active-task-blocks-read-only-comma.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2e7fc094
+- **Timestamp:** 2026-08-09T08:30:32Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-09T08:30:26Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

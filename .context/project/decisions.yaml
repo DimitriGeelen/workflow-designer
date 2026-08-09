@@ -1305,3 +1305,17 @@ decisions:
     date: 2026-08-09
     task: T-401
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-166
+    decision: "judge redirect operators on the quote-stripped command, but keep the"
+    scope: project
+    date: 2026-08-09
+    task: T-404
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-167
+    decision: "scope T-404 to the redirect predicate and file the remaining blocker separately."
+    scope: project
+    date: 2026-08-09
+    task: T-404
+    rationale: "Auto-captured from task file on completion"

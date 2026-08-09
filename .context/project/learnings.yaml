@@ -837,3 +837,17 @@ learnings:
   date: 2026-08-09
   context: Added via context agent
   application: TBD
+- id: PL-118
+  learning: "A test corpus that only asserts the permissive half is not teeth. When T-404 broke the write-predicate wide open (the strip loop never ran, so every command read as 'not a write'), the 15 benign-command assertions all passed — a predicate that returns false for everything trivially satisfies 'benign forms must pass'. Only the genuine-writes half caught it. Whenever a fix WIDENS what is allowed, the must-still-be-caught list is the load-bearing half of the test; write it first and treat a green benign list as no evidence at all."
+  source: P-001
+  task: T-404
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
+- id: PL-119
+  learning: "Two bash traps that fail SILENTLY inside hook predicates, both hit in T-404. (1) In 'local s=$1 out= n=${#s}' bash expands every word BEFORE performing any assignment, so ${#s} reads the not-yet-assigned s and yields 0 — a length-driven loop never runs and the function returns a plausible-looking empty result. Declare the derived variable in its own statement. (2) bash's =~ uses the system ERE engine, where glibc gives \\\\> the meaning 'end of word' — so a pattern written \\\\>\\\\>? matches word boundaries and never sees a redirect character. Write [>] instead. Neither raises an error; both produce a predicate that quietly answers 'no' to everything."
+  source: P-001
+  task: T-404
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
