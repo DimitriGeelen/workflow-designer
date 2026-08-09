@@ -4,20 +4,20 @@ name: "Run AEF's two T-406 fixtures through the provenance gate: the unstamped b
 description: >
   Run AEF's two T-406 fixtures through the provenance gate: the unstamped branch decides every real AEF document
 
-status: started-work
+status: work-completed
 workflow_type: test
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t413-land-fixtures.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-09T15:19:17Z
-last_update: 2026-08-09T15:19:17Z
-date_finished: null
+last_update: 2026-08-09T15:31:34Z
+date_finished: 2026-08-09T15:31:34Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -63,20 +63,20 @@ the emitter; the consumer needs a claim about the artifact).
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Both fixtures materialised from the rail `payload_b64`, with sha256 verified against
+- [x] Both fixtures materialised from the rail `payload_b64`, with sha256 verified against
       AEF's 506 §1 digests **on the decoded buffer before it is written to any path**
       (`bbc6269d…befd9c` / `04ae662f…f26c41`) — a hash computed after the write proves the
       write, not the transfer
-- [ ] AEF's 506 §2 exporter claim re-measured **on the received bytes, not accepted from
+- [x] AEF's 506 §2 exporter claim re-measured **on the received bytes, not accepted from
       the report**: `exporter=` occurrences counted on both fixtures and the count recorded
-- [ ] `tools/_t406-doc-comment-provenance-cdp.mjs` runs green with the two fixtures added
+- [x] `tools/_t406-doc-comment-provenance-cdp.mjs` runs green with the two fixtures added
       as fifth and sixth legs, against live src
-- [ ] For each fixture the probe reports **which branch decided it** (stamped / unstamped /
+- [x] For each fixture the probe reports **which branch decided it** (stamped / unstamped /
       foreign-producer), not merely suppressed-vs-preserved — a verdict without its branch
       cannot distinguish the gate working from the default being permissive
-- [ ] The 502 §3 prediction is recorded in this file against its measured outcome, stated
+- [x] The 502 §3 prediction is recorded in this file against its measured outcome, stated
       as right or wrong, with the mechanism named either way
-- [ ] Fixtures committed under a path that carries their provenance (source commit + sha256
+- [x] Fixtures committed under a path that carries their provenance (source commit + sha256
       + rail offsets in a README), so the T-365 defect — a fixture directory whose name
       asserts a provenance it does not have — is not reproduced here
 
@@ -159,10 +159,15 @@ echo "bbc6269dacc06991c5ab8df6e7231f7e58f5882605d7475dbdd81d4c27befd9c  tests/fi
 echo "04ae662f09ef27d19bbf4968219e3a4cf5beb7b4e94209c086928ae043f26c41  tests/fixtures/aef-inbound/t406-incidental-leading-boilerplate.bpmn" | sha256sum -c -
 # The exporter claim, re-measured on the received bytes rather than trusted from the report.
 test "$(cat tests/fixtures/aef-inbound/*.bpmn | grep -c 'exporter=')" = "0"
-# Every leg reports the branch that decided it. Deliberately the `a; b` form T-352 warns
-# about: the probe's own exit code is NOT the verdict here — whether every leg is branch-
-# attributed is. Judging on `b` alone is the intent, not the accident.
-mkdir -p .context/working/t413; node tools/_t406-doc-comment-provenance-cdp.mjs > .context/working/t413/probe.out 2>&1; test "$(grep -c 'branch:' .context/working/t413/probe.out)" = "6"
+# Both fixture legs ran AND are branch-attributed AND landed on the default branch — which
+# is the finding, not an incidental detail of the output.
+#
+# This line first read `test "$(grep -c 'branch:' …)" = "6"` and the P-011 gate rejected it:
+# T-414 added a seventh leg minutes later and the count went stale the moment the file it
+# measures was extended. The count was never what mattered. A gate keyed on the size of a
+# collection fails when the collection grows for a good reason, and passes when the two
+# members it actually cares about are swapped out for others.
+mkdir -p .context/working/t413 && node tools/_t406-doc-comment-provenance-cdp.mjs > .context/working/t413/probe.out 2>&1 && grep -q 'AEF-CLEAN.*branch: UNSTAMPED (default)' .context/working/t413/probe.out && grep -q 'AEF-INCIDENTAL.*branch: UNSTAMPED (default)' .context/working/t413/probe.out
 # The first run is kept verbatim as the defect witness; a later fix makes the live probe
 # green and this file is then the only record that the incidental leg was ever red.
 grep -q "FAIL AEF-INCIDENTAL" tests/fixtures/aef-inbound/_t413-first-run.txt
@@ -303,3 +308,15 @@ comment is *nothing but* the trailer.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-413-run-aefs-two-t-406-fixtures-through-the-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-89f1a613
+- **Timestamp:** 2026-08-09T15:31:36Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-09T15:31:34Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

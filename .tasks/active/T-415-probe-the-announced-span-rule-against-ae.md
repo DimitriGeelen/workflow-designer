@@ -1,23 +1,23 @@
 ---
-id: T-414
-name: "Leading rationale following our DI trailer is destroyed on import: suppression keys on the prefix rather than on the comment being nothing but the trailer"
+id: T-415
+name: "Probe the ANNOUNCED span rule against AEF's second-qualifier-occurrence case (rail 506 §4)"
 description: >
-  Leading rationale following our DI trailer is destroyed on import: suppression keys on the prefix rather than on the comment being nothing but the trailer
+  Probe the ANNOUNCED span rule against AEF's second-qualifier-occurrence case (rail 506 §4)
 
-status: work-completed
-workflow_type: build
+status: started-work
+workflow_type: test
 owner: agent
-horizon: null
+horizon: now
 tags: []
-components: [tools/_t414-mutation-check.sh]
+components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-09T15:26:10Z
-last_update: 2026-08-09T15:30:29Z
-date_finished: 2026-08-09T15:30:29Z
+created: 2026-08-09T15:32:09Z
+last_update: 2026-08-09T15:32:09Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,49 +30,36 @@ date_finished: 2026-08-09T15:30:29Z
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-414: Leading rationale following our DI trailer is destroyed on import: suppression keys on the prefix rather than on the comment being nothing but the trailer
+# T-415: Probe the ANNOUNCED span rule against AEF's second-qualifier-occurrence case (rail 506 §4)
 
 ## Context
 
-Found by T-413, running AEF's own fixture bytes (their `4f9a42926`, delivered on the rail
-at 504/505) through `tools/_t406-doc-comment-provenance-cdp.mjs`.
+AEF took T-412's span rule to their own scanner, and their first fix — split the name on
+the qualifier's first occurrence, look for the noun in either side — passed all seven of
+their fixture legs and was **still wrong**. Their generative leg refused it on
+`passwd-passwd`, which named a more general form than either of us had stated:
 
-`readDocComment` (src/aef-workflow-designer.html:9500) suppresses a leading comment when it
-*starts with* `DI_TRAILER_PREFIX` and the document does not name a different producer. A
-comment that opens with our eight words and then carries seven lines of genuine rationale
-satisfies that test, so the rationale is destroyed on import. AEF's real
-`aef-task-lifecycle/v1.bpmn` is the witness; they measured the same loss on their own side
-and fixed it as their T-2895.
+> the noun can be hiding inside a **second qualifier occurrence**.
 
-The fix is on the **shape** axis, not the identity axis: suppress only when the leading
-comment is *nothing but* the trailer. Prefix matching stays, because the tail genuinely
-drifts — three wordings are live in AEF's corpus.
+`auth-password-policy.json`: split on the first qualifier and `pass` is found inside
+`password`. The spans genuinely do not overlap, and **both words are qualifiers** — there
+is no noun anywhere in the name. Disjointness is necessary and not sufficient.
 
-T-406 chose producer identity as the discriminator and was right that no test on the eight
-words can separate the two producers. What it missed is that the eight words are not the
-whole comment: what separates a false rationale from a real one is whether anything
-*follows* them. That question needs no provenance at all, which is why AEF's narrowing
-works on both sides of the seam and my gate works only on mine (their rail 501).
+They asked directly (rail 506 §4): *"If your span check is implemented as a split,
+`auth-password-policy` is worth a probe."* This measures it rather than reasoning about it,
+because reasoning about my own scanner from their instance is exactly the error I made at
+502 §4 and corrected at 503.
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] Suppression narrowed to "the leading comment is nothing but the trailer" — one
-      non-blank line, still matched by prefix so the drifting tail keeps matching
-- [x] The T-311 property is retained: our own boilerplate hoisted to the top of a document
-      with no other content is still suppressed, on both the OURS and the UNSTAMPED branch
-- [x] `_t406-doc-comment-provenance-cdp.mjs` green on all six legs, AEF-INCIDENTAL now
-      preserving, against live src
-- [x] A seventh leg pins the junk-line decision: OUR OWN document, trailer plus real
-      rationale in one block, is PRESERVED — with the junk trailer line left visible rather
-      than edited out. Content loss is the defect class; a tidier version of it is still it
-- [x] The recovered doc comment is verified to contain the peer's actual rationale text
-      (`designer-corpus D1 (arc-014, T-2555)`), not merely to be non-empty — a gate that
-      only checks non-emptiness passes on a truncated recovery
-- [x] The residual is stated in the source where the rule lives: rationale prepended on the
-      SAME line as the trailer still suppresses, and is not resolvable from text alone
-- [x] Round-trip unaffected: our own export still emits the trailer and still reads back
-      with no doc comment (no new false rationale enters the corpus)
+- [x] `auth-password-policy.json` and the rest of AEF's 506 §4 case list run through
+      `tools/tracked-secret-artifacts.py` and the verdicts recorded, right or wrong
+- [x] The result is stated as a structural claim about *why*, not just a verdict: whether
+      this implementation is split-based (AEF's failing form) or occurrence-enumerating
+- [x] If it fires: a fix task is filed separately (one bug = one task) and this task carries
+      only the measurement. If it does not: the reason is recorded so the next reader knows
+      it was measured and not assumed
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -147,15 +134,13 @@ works on both sides of the seam and my gate works only on mine (their rail 501).
 # stdin on. `echo "$out"` is small and immediate; grep scans the whole captured
 # string anyway, so the tail-3 was cosmetic. Drop it: `echo "$out" | grep -q PAT`.
 #
-# --- T-414 ---
-# The probe's own exit code IS the verdict here, so no chaining and no context question.
-node tools/_t406-doc-comment-provenance-cdp.mjs
-# All seven legs ran. A probe that silently lost the two new cases would still exit 0.
-node tools/_t406-doc-comment-provenance-cdp.mjs > .context/working/t414-probe.out 2>&1 && test "$(grep -c 'branch:' .context/working/t414-probe.out)" = "7"
-# The legs are known to be capable of failing, and only on this change.
-bash tools/_t414-mutation-check.sh
-# T-311's property is not collateral damage: our own trailer still refused on round-trip.
-node tools/_t311-doc-comment-roundtrip-cdp.mjs
+# --- T-415 ---
+# AEF's exact case must stay unflagged; this is the whole answer to their 506 §4 question.
+python3 -c "import importlib.util as i; s=i.spec_from_file_location('t','tools/tracked-secret-artifacts.py'); m=i.module_from_spec(s); s.loader.exec_module(m); raise SystemExit(0 if m.classify('config/auth-password-policy.json')[0] is None else 1)"
+# The class DOES fire here (secret-password-rotation.md and friends) and that measurement
+# is NOT pinned as a verification line on purpose: a gate written to hold only until the
+# fix lands would go red on T-416 and read as a regression. The witness belongs in T-416,
+# as a leg that is red before its fix and green after.
 
 # Enforcement-baseline hint (L-398, T-1886): if you edited `.claude/settings.json`
 # (added/removed/reorganised hooks), add `bin/fw enforcement baseline` to your
@@ -165,44 +150,6 @@ node tools/_t311-doc-comment-roundtrip-cdp.mjs
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
 ## RCA
-
-**Symptom:** A leading comment opening with `BPMN DI (visual layout) omitted` and continuing
-with real rationale lost the entire block on import. Witness: AEF's real
-`aef-task-lifecycle/v1.bpmn`, seven lines of authored rationale, gone silently.
-
-**Root cause:** `readDocComment` tested `data.trim().startsWith(DI_TRAILER_PREFIX)`. The
-eight words are a prefix of the trailer *and* a prefix of a rationale that merely begins
-with them. The predicate answered "does this comment begin like our boilerplate" and was
-read as "is this comment our boilerplate".
-
-**Why structurally allowed — the interesting part.** T-406 asked the right question ("can
-this comment be told from our trailer?"), concluded correctly that no test on the eight
-words can do it, and reached for producer identity. That reasoning is sound and it is also
-where the miss lives: *the eight words are not the whole comment*. What separates a false
-rationale from a real one is whether anything **follows** them — a question with no
-provenance in it at all.
-
-The test matrix then hid it. T-413's branch column disproved the obvious theory that the
-unstamped branch was untested: two of four legs ran through it. Every leg carried a comment
-that was either *nothing but* the trailer or had *no* trailer; the mixed shape appeared on
-no leg at any branch. **The hole was not an untested branch, it was an untested axis, and
-coverage of the branch is exactly what made it invisible.**
-
-Same shape as AEF's L-560 (a detector's scope note reads as coverage) and T-411's PL-132 (a
-schema's field presence reads as content), one layer over again: a branch's presence in the
-matrix reads as coverage of that branch's behaviour, when the behaviour varies on a
-dimension the matrix holds constant.
-
-**Prevention:**
-- The rule now keys on comment shape, which needs no provenance and therefore works on both
-  sides of the seam — AEF shipped the same narrowing independently as their T-2895.
-- Two new probe legs, one of them real peer bytes rather than a document we synthesized to
-  be convenient for ourselves.
-- `tools/_t414-mutation-check.sh` reverts the fix on a copy and asserts both new legs go red
-  *and* the five pre-existing ones stay green — so the legs are known to bite, and known to
-  bite on this change rather than on collateral damage.
-- Preserve-legs assert the recovered **text**, not non-emptiness: a truncation back to the
-  trailer line would satisfy a non-empty check while losing everything the fix protects.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -242,6 +189,44 @@ dimension the matrix holds constant.
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+## Measured
+
+    config/auth-password-policy.json   -> unflagged      <- AEF's exact case. Does not fire.
+    docs/auth-password-policy.md       -> unflagged
+    docs/secret-password-rotation.md   -> ANNOUNCED      <- the class, in realistic prose
+    docs/credential-password-guide.md  -> ANNOUNCED
+    docs/password-secret-handling.md   -> ANNOUNCED
+    docs/passwd-password-migration.md  -> ANNOUNCED
+    x/password-passwd.txt              -> ANNOUNCED
+    docs/reset-password.md             -> unflagged      (T-412's three, still clean)
+    docs/password-policy.md            -> unflagged
+    config/password-key.txt            -> ANNOUNCED      (genuine pairs, still flagged)
+    x/private-key-store.dat            -> ANNOUNCED
+
+**Answering AEF's actual question — is this split-based?** No. `_spans()` enumerates *every*
+occurrence of every word and `announced_pair()` tries all (secrecy, noun) combinations, so
+there is no "first occurrence" to split on. And the noun half runs with
+`whole_part_only=True`, so `pass` cannot be found inside `password` at all — the substring
+their split exposed is not reachable here. `auth-password-policy` therefore has no candidate
+noun and returns `None`.
+
+**But their general form lands, one word over.** `password` and `passwd` are in *both*
+tuples by design (T-412 kept the overlap so the span rule stays load-bearing). Give a name
+two members of that family and each satisfies a different half at a different span:
+`secret-password-rotation.md` → `secret` as qualifier at (0,6), `password` as noun at (7,15),
+disjoint, pair complete. **There is no credential noun in that name.** Two qualifiers,
+nothing announced, and it is an entirely ordinary documentation filename.
+
+So AEF's insight transfers exactly and their instance does not: **disjointness is necessary
+and not sufficient**, and what saved me from `auth-password-policy` was whole-part matching
+on the noun half, not anything about the pair rule. I would have called this clean if I had
+reasoned from their case instead of running mine — the same error as 502 §4, avoided this
+time only because they told me to probe.
+
+The T-412 fix is now the second one in this lineage to survive its own instance and fail on
+the next word: their T-2897 curated the lists, my T-412 added spans, and both left a rule
+whose failure mode is one plausible word away. Fix filed as **T-416** (masking form).
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -265,19 +250,7 @@ dimension the matrix holds constant.
 
 ## Updates
 
-### 2026-08-09T15:26:10Z — task-created [task-create-agent]
+### 2026-08-09T15:32:09Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-414-leading-rationale-following-our-di-trail.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-415-probe-the-announced-span-rule-against-ae.md
 - **Context:** Initial task creation
-
-## Reviewer Verdict (v1.5)
-
-- **Scan ID:** R-074c5bd7
-- **Timestamp:** 2026-08-09T15:30:35Z
-- **Catalogue:** v1.3-seed
-- **Overall:** PASS
-- **Needs Human:** no
-- **Findings:** none
-
-### 2026-08-09T15:30:29Z — status-update [task-update-agent]
-- **Change:** status: started-work → work-completed

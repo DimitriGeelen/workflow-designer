@@ -4,20 +4,20 @@ name: "ANNOUNCED pair is completed by a single word: password/passwd sit in both
 description: >
   ANNOUNCED pair is completed by a single word: password/passwd sit in both halves
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t412-announced-pair-teeth.sh, tools/tracked-secret-artifacts.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-09T14:38:17Z
-last_update: 2026-08-09T14:38:17Z
-date_finished: null
+last_update: 2026-08-09T14:42:04Z
+date_finished: 2026-08-09T14:42:04Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -233,3 +233,20 @@ python3 tools/tracked-secret-artifacts.py > /tmp/.t412c 2>&1 && grep -qE "scan o
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-412-announced-pair-is-completed-by-a-single-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b92ee402
+- **Timestamp:** 2026-08-09T14:42:08Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — `docs/reset-password.md`, `docs/password-policy.md` and `lib/password_reset_test.py`
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=lib/password_reset_test.py in: `docs/reset-password.md`, `docs/password-policy.md` and `lib/password_reset_test.py``
+
+### 2026-08-09T14:42:04Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
