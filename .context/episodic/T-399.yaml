@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-399: Bridge red: T-361 trailer check treats an AEF-authored fixture as one of our exports (prefix collision)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-09T09:15:19Z
+# ============================================================================
+
+task_id: T-399
+task_name: "Bridge red: T-361 trailer check treats an AEF-authored fixture as one of our exports (prefix collision)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-08T21:03:58Z
+completed: 2026-08-09T09:13:45Z
+duration_days: 1
+updates_count: 1
+first_commit: 2026-08-09T11:13:39+02:00
+last_commit: 2026-08-09T11:13:39+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  bridge red — our exports carried no producer identity, so the trailer guard inferred authorship from prose
+
+# Key outcomes
+outcomes:
+  - 'Bridge suite green: `tests/run-bridge-tests.sh` reports `0 failed` and exits 0.'
+  - 'The repair identifies our exports by something a peer''s PROSE cannot collide with, and'
+  - '**Mutation teeth, T-359 style.** Take a genuine document of ours, give it a STALE'
+  - 'The reciprocal control: with the repair in place, AEF''s fixture is NOT reported, and'
+  - 'Census of the same shape: how many other checks in the tree infer authorship or'
+  - 'T-041 and T-101 re-run: their bridge-suite verification lines pass.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-09 — identity: the standard''s `exporter` attribute, not prose'
+    chose: 'emit `exporter="aef-workflow-designer"` on `<bpmn:definitions>` (BPMN 2.0''s own'
+    rationale: 'the question is "who produced these bytes", and BPMN already defines the field for'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-399-bridge-red-t-361-trailer-check-treats-an.md'
+  - '.tasks/active/T-406-readdoccomment-discards-a-peer-authored-.md'
+  - 'tests/fixtures/exported/t361-trailer-witness.bpmn'
+  - 'tests/test_emitted_comment_claims.py'
+  - 'tools/_t361-guard-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-09T11:13:39"
+    action: "T-399: bridge red — our exports carried no producer identity, so the trailer guard inferred authorship from prose"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 729 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 729
+  commits: 2
+  files_changed: 21
+  lines_added: 1715
+  lines_removed: 48
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-399-bridge-red-t-361-trailer-check-treats-an.md
+generated_by: context-agent-hybrid

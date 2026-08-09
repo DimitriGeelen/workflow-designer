@@ -1333,3 +1333,24 @@ decisions:
     date: 2026-08-09
     task: T-405
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-170
+    decision: "emit `exporter=\"aef-workflow-designer\"` on `<bpmn:definitions>` (BPMN 2.0's own"
+    scope: project
+    date: 2026-08-09
+    task: T-399
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-171
+    decision: "the historic identity arm asks whether the document's PATH is in the ledger; the"
+    scope: project
+    date: 2026-08-09
+    task: T-399
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-172
+    decision: "emit `exporter` only."
+    scope: project
+    date: 2026-08-09
+    task: T-399
+    rationale: "Auto-captured from task file on completion"
