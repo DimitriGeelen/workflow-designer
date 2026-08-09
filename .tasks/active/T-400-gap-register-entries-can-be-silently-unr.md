@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T21:08:12Z
-last_update: 2026-08-08T21:08:12Z
+last_update: 2026-08-09T11:00:55Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -43,16 +43,18 @@ date_finished: null
 - [x] G-027 uses `decision_trigger`, the field the audit's closure check actually reads.
       Audit back to 19 pass / 3 warn / 0 fail (was 18/4/0).
 - [x] `concerns.yaml` still parses.
-- [ ] **The register cannot silently accept an unreadable entry.** A gap written with a
-      plausible-but-unread field name should be refused or flagged AT WRITE TIME, not
-      discovered by an audit warn one commit later. Today the only detector is a WARN whose
-      text ("no closure condition") describes the entry as *missing* the thing it visibly
-      contains — so the message actively misdirects toward rewriting prose that is already
-      there. **This AC is the actual deliverable; the two above are the cleanup.**
-- [ ] Census the other 23 entries for fields that no check reads. `closure_condition` was
-      1 of 1 — but `detail` (11) vs `description` (13), and `related` (14) vs
-      `related_tasks` (9), are near-synonym pairs of exactly the shape that produced this,
-      and nothing establishes which member of each pair is load-bearing.
+- [x] **The register cannot silently accept an unreadable entry.** `tools/concerns-schema.py`
+      refuses any field name that is neither read by code nor documented as prose, and names
+      the remedy INLINE (including `decision_trigger`) rather than sending the reader to
+      another command — G-027's whole cost was a message that misdirected. Teeth leg (a)
+      uses the literal field name G-027 used, and proves the audit's existing heuristic
+      would still miss it. **On "at write time":** the check runs standing (this task's
+      `## Verification`; available to pre-commit or audit wiring). It is deliberately NOT
+      wired as a new PreToolUse hook — that edits `.claude/settings.json` and moves the
+      enforcement baseline, which is an operator-facing enforcement change rather than
+      agent initiative. Surfaced in `## Operator decision needed` below.
+- [x] Census the other 23 entries for fields that no check reads — done, and it found more
+      than the two pairs named at filing. See `## Census`; `--census` reproduces it live.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -133,6 +135,77 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# NOTE: carries neither G-015 shape — no serve-root diff, no port literal (T-350 AC8).
+python3 -c "import yaml; yaml.safe_load(open('.context/project/concerns.yaml'))"
+python3 tools/concerns-schema.py
+bash tools/_t400-schema-teeth.sh
+# The specific G-027 miss, asserted by name so this cannot pass on another leg's green.
+out=$(bash tools/_t400-schema-teeth.sh 2>&1); echo "$out" | grep -q "(a) closure_condition refused by name"
+# G-027 itself still uses the field the audit reads.
+out=$(python3 tools/concerns-schema.py --census 2>&1); echo "$out" | grep -q "decision_trigger"
+
+## Census
+
+25 entries, 20 distinct field names. Reproduce with
+`python3 tools/concerns-schema.py --census`.
+
+**Read by code — 6 of 20.** `id`, `status`, `title`, `severity`, `type`,
+`decision_trigger`. That is the whole load-bearing surface of the register.
+
+**Prose — 14 of 20.** `origin_task`(20), `detected`(18), `related`(14),
+`description`(13), `detail`(12), `evidence`(11), `related_tasks`(11),
+`registered`(7), `closure_evidence`(4), `resolved`(1), `resolution`(1),
+`prevention_partial`(1), `progress`(1), plus the dated-evidence convention.
+
+**The pairs named at filing are both inert, in the same direction.**
+`detail`(12) vs `description`(13) — neither is read. `related`(14) vs
+`related_tasks`(11) — neither is read. So the question the AC posed ("which member
+is load-bearing?") has an answer nobody expected: *neither is*. The pairs are
+harmless today precisely because no code depends on either. The risk is that they
+LOOK load-bearing, which is the exact perceptual condition that produced G-027.
+
+**A THIRD DIRECTION THE AC DID NOT ANTICIPATE — read-but-absent.** The census also
+runs the mirror query, and it is the more interesting half:
+
+| field | read by | entries carrying it |
+|---|---|---|
+| `closure_check_command` | `lib/gaps.py` one-click closure gauge | **0 / 25** |
+| `last_reviewed` | `lib/gaps.py:408` staleness reference | **0 / 25** |
+| `created` | `lib/gaps.py:408` staleness fallback | **0 / 25** |
+
+The register carries `detected`(18) and `registered`(7); `gaps.py` reads
+`created`/`last_reviewed`. **This is a second live instance of the G-027 shape,
+running the other way** — the machinery is correct, its input never arrives, and
+the staleness reference silently resolves to `""` for all 25 entries. Likewise the
+one-click closure gauge has no users at all. Reported as a NOTE, never a failure:
+an optional feature may legitimately have no users yet, and this task must not
+smuggle in an argument that it should.
+
+**Why the existing audit detector would not have caught G-027.** `audit.sh`
+(~line 2107) flags an alternate key only when its name contains the substring
+`trigger`. `closure_condition` does not contain `trigger`, so the very entry that
+motivated this task would still have been classified `missing` rather than
+`unread`. Near-synonyms do not reliably share a substring with the field they
+shadow — that is what makes them near-synonyms. Teeth leg (a) pins this.
+
+## Operator decision needed — NOT taken here
+
+The AC asks for refusal **at write time**. The check exists and passes standing, but
+making it a genuine write-time gate means adding a PreToolUse hook, which edits
+`.claude/settings.json` and moves the enforcement baseline (L-398). Adding
+enforcement is an operator-facing change to how the framework constrains everyone,
+not agent initiative, so it is surfaced rather than done:
+
+1. Leave standing-only (today's state) — caught at verification/audit, not at write.
+2. Wire as a PreToolUse hook on Write|Edit matching `concerns.yaml` — true write-time
+   refusal; requires `bin/fw enforcement baseline` after.
+3. Wire into the audit as a FAIL — catches it a commit later, but with a message that
+   no longer misdirects, which was most of G-027's actual cost.
+
+No recommendation is withheld here: **option 3** is the cheapest honest improvement,
+since the misdirecting message was the expensive part rather than the timing. Option 2
+is the only one that satisfies the AC's literal wording.
 
 ## RCA
 
