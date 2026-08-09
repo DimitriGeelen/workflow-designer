@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-09T14:31:34Z
-last_update: 2026-08-09T14:31:34Z
+last_update: 2026-08-09T14:35:40Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -68,6 +68,12 @@ whether `application` carries information here or is schema decoration.
 The three, quoted verbatim by the census so the count is checkable: PL-025 (T-170),
 PL-039 (T-207), PL-042 (T-210).
 
+**Post-measurement delta, stated so the table above is not silently stale:** this task then
+added PL-132 (the field-presence learning) *with* its `application` filled in, taking the
+register to 133 records and 4 AUTHORED (3.0%). The table is the measurement as found; the
+current census output is one record further on. Leaving PL-132 at `TBD` would have made the
+learning an instance of itself.
+
 ### The finding is the emitters, not the ratio
 
 `application` is never a decision anyone declines to make; it is a slot filled by machine
@@ -107,7 +113,7 @@ rail, not patched unilaterally. This task measures; it does not legislate.
       than reporting 0% of nothing as a clean result
 - [x] Any substantive `application` values found are quoted verbatim in the task, so the
       claim "N are real" is checkable and not a count I assert
-- [ ] The measured numbers are posted to AEF on the rail, with the placeholder split shown —
+- [x] The measured numbers are posted to AEF on the rail, with the placeholder split shown —
       a bare presence percentage would be the misleading answer, not the owed one
 
 ### Human

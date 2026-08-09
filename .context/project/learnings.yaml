@@ -935,3 +935,17 @@ learnings:
   date: 2026-08-09
   context: Added via context agent
   application: TBD
+- id: PL-132
+  learning: "A schema field written by the tool at record-creation time cannot register as missing, so field PRESENCE reads as CONTENT to every downstream consumer. learnings.yaml application: 100% present, 2.3% authored — 127/132 are the literal TBD from context/lib/learning.sh:100, 2 are a slug template from healing/lib/resolve.sh:133. Prevention: leave a decision field ABSENT until someone decides; a placeholder written by machine is indistinguishable from a filled-in answer in every count. Sibling of AEF's L-560 (a detector's scope note reads as coverage) one layer down."
+  source: P-001
+  task: T-411
+  date: 2026-08-09
+  context: Added via context agent
+  application: "Applied here immediately, deliberately: this record is the first in the
+    register to carry a real application, and leaving it TBD would have made the learning
+    an instance of itself. When adding any decision-shaped field to a schema, write the
+    emitter so an undecided record leaves the field ABSENT rather than filled with a
+    placeholder — then `field in record` is a true coverage measure and needs no
+    classifier. Audit existing registers with tools/memory-application-census.py, which
+    separates AUTHORED from MACHINE-written values; a bare presence count over any
+    machine-populated field is the misleading answer, not the owed one."

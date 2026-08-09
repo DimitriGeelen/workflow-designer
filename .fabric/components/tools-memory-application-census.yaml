@@ -1,0 +1,20 @@
+id: tools/memory-application-census.py
+name: memory-application-census
+type: script
+subsystem: unknown
+location: tools/memory-application-census.py
+tags: []
+
+purpose: "TODO: describe what this component does"
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-08-09
+created_by: unknown
