@@ -4679,3 +4679,21 @@ scan_id: R-10d965da
 task_id: T-407
 payload:
   task_file: .tasks/active/T-407-measure-what-our-export-does-to-a-foreig.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T10:33:13Z'
+scan_id: R-fe9836cf
+task_id: T-406
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T10:33:13Z'
+scan_id: R-fe9836cf
+task_id: T-406
+payload:
+  task_file: .tasks/active/T-406-readdoccomment-discards-a-peer-authored-.md

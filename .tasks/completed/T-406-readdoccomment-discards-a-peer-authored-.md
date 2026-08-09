@@ -4,10 +4,10 @@ name: "readDocComment discards a peer authored doc block whose leading comment o
 description: >
   Third instance of the T-399 authorship-from-prose class, found by that task's census, and it fails in the losing direction. src/aef-workflow-designer.html readDocComment returns null for any LEADING comment whose text starts with DI_TRAILER_PREFIX, on the reasoning that a hand-edit may have hoisted our own boilerplate to the top. A peer authoring to our mapping standard whose rationale opens with those eight words therefore has its doc block silently dropped on import. T-399's instance mislabels a foreign document; this one destroys content, which is the T-347 loss shape arriving from a mechanism we built ourselves. No corpus document triggers it today, which is the same no-live-witness condition under which T-399 sat undetected until the population changed.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-09T09:13:10Z
-last_update: 2026-08-09T10:24:11Z
-date_finished: null
+last_update: 2026-08-09T10:31:43Z
+date_finished: 2026-08-09T10:31:43Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -304,3 +304,15 @@ where auditing by symptom had found one in two months.
 
 ### 2026-08-09T10:24:11Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-fe9836cf
+- **Timestamp:** 2026-08-09T10:33:13Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-09T10:31:43Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
