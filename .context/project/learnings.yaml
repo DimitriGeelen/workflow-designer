@@ -977,3 +977,10 @@ learnings:
   date: 2026-08-09
   context: Added via context agent
   application: TBD
+- id: PL-137
+  learning: "Regenerable SCRATCH must not be written into a tracked directory, even when writing it to a file is the right call. T-413 dumped a 1.6MB rail topic to .context/working/t413/ specifically to keep 32K chars of base64 out of the agent's context — correct reasoning, wrong directory: a bulk 'git add' four minutes later published every message body of a 464-message conversation to a repo that mirrors to GitHub. Under .context/working/ INCLUSION IS THE DEFAULT, which is the same shape as T-222 (.tier0-approval*) and T-410 (.fw-secret-key) — an ignore file trusted to cover a directory while the one entry that matters is absent, now three times. Sessions with a scratchpad directory should use it; ignore entries added afterwards must be checked with 'git check-ignore -v', because T-222's entry existed and never matched."
+  source: P-001
+  task: T-417
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD

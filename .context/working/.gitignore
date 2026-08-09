@@ -14,3 +14,18 @@ focus.yaml
 # anyone choosing it. Second instance of the T-222 shape directly above: an ignore file
 # that is trusted to cover a directory while the one entry that matters is absent.
 .fw-secret-key
+
+# T-417: THIRD instance of the shape the two entries above describe. T-413 dumped the whole
+# rail topic here (1.6 MB, every message body of a 464-message conversation) so the base64
+# fixture payloads would not have to pass through the agent's context — a good call about
+# context, made in the wrong directory. A checkpoint handover's bulk add published it four
+# minutes later, into a repo that mirrors to GitHub. Not secret; simply not chosen, and
+# regenerable from the hub at any time.
+#
+# The lesson is not "add another line". It is that under this directory INCLUSION IS THE
+# DEFAULT, so every new working file is one bulk `git add` from publication. Regenerable
+# scratch belongs in the session scratchpad, outside the repo. These two entries cover the
+# artifacts that P-011 verification lines must write inside the tree, where the scratchpad's
+# session-specific path is not available to them.
+t413/
+*-probe.out
