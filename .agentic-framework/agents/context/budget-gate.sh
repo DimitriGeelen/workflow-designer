@@ -278,74 +278,40 @@ if [ -z "${TRANSCRIPT:-}" ]; then
     exit 0
 fi
 
-# Read tokens + write status + determine action — single Python call
-# T-1088: Filter usage entries by .session-start-ts to exclude pre-compact
-# entries from the same JSONL (claude -c continues the same file, so the
-# "last usage" scan can pick up pre-compact entries). ISO-8601 Z timestamps
-# sort lexically in chronological order — no parsing needed. Falls back to
-# no-filter if the file is missing (backward compat with fresh installs).
-SLOW_RESULT=$(tail -c 10000000 "$TRANSCRIPT" 2>/dev/null | python3 -c "
-import sys, json, time, os
+# Read tokens, derive level, write the cache the fast path above reads.
+#
+# T-401: the scan moved to lib/context_tokens.py, shared with checkpoint.sh.
+# It used to be a hand-copied inline script in both files, and they drifted --
+# this copy had the T-2322 compact_boundary reset, checkpoint.sh did not.
+#
+# That file also carries the T-401 fix: entries are scoped to the session's own
+# model. A cache-priming call on a DIFFERENT model, logged into this session's
+# transcript with a 322k cache write, was being read as a 341880-token context
+# and blocking a session that had ~72% of its window free. All three prior
+# defenses (T-2322 boundary reset, T-1088 sidecar filter, <synthetic> skip)
+# filter by position in the log, and that entry was legitimately positioned --
+# only model identity separates it from the conversation.
+TOKENS=$(python3 "$FRAMEWORK_ROOT/lib/context_tokens.py" \
+    "$TRANSCRIPT" "$CONTEXT_DIR/working/.session-start-ts" 2>/dev/null) || TOKENS=0
+# This gate runs on EVERY tool call: a non-numeric reading must degrade to 0
+# (fail open) rather than crash the arithmetic below and block every tool.
+case "${TOKENS:-}" in
+    ''|*[!0-9]*) TOKENS=0 ;;
+esac
 
-# T-1088: Read session-start timestamp if present.
-session_start_ts = ''
-ts_file = '$CONTEXT_DIR/working/.session-start-ts'
-if os.path.exists(ts_file):
-    try:
-        with open(ts_file) as sf:
-            session_start_ts = sf.read().strip()
-    except: pass
+LEVEL=ok
+if [ "$TOKENS" -ge "$TOKEN_CRITICAL" ]; then
+    LEVEL=critical
+elif [ "$TOKENS" -ge "$TOKEN_URGENT" ]; then
+    LEVEL=urgent
+elif [ "$TOKENS" -ge "$TOKEN_WARN" ]; then
+    LEVEL=warn
+fi
 
-t = 0
-for line in sys.stdin:
-    try:
-        e = json.loads(line)
-        # T-2322: detect compact_boundary in the transcript itself — single source
-        # of truth. Resets t so pre-compact usage is discarded even when the
-        # T-1088 sidecar (.session-start-ts) is missing/stale/empty. Mirrors the
-        # behavior /compact has on the live token budget (post-compact starts
-        # near zero until first real usage entry lands). Complements (does not
-        # replace) the T-1088 sidecar filter below — both run in this loop.
-        if e.get('type') == 'system' and e.get('subtype') == 'compact_boundary':
-            t = 0
-            continue
-        model = e.get('message', {}).get('model', '')
-        if model == '<synthetic>' or model.startswith('<'):
-            continue
-        # T-1088: Skip entries from before session start (pre-compact entries
-        # in the same JSONL). String comparison works for ISO-8601 Z format.
-        if session_start_ts:
-            entry_ts = e.get('timestamp', '')
-            if entry_ts and entry_ts < session_start_ts:
-                continue
-        u = e.get('message', {}).get('usage')
-        if u and 'input_tokens' in u:
-            t = u['input_tokens'] + u.get('cache_read_input_tokens', 0) + u.get('cache_creation_input_tokens', 0)
-    except: pass
-
-# Determine level
-level = 'ok'
-if t >= $TOKEN_CRITICAL:
-    level = 'critical'
-elif t >= $TOKEN_URGENT:
-    level = 'urgent'
-elif t >= $TOKEN_WARN:
-    level = 'warn'
-
-# Write status file
-status = {'level': level, 'tokens': t, 'timestamp': int(time.time()), 'source': 'budget-gate'}
-try:
-    with open('$STATUS_FILE', 'w') as f:
-        json.dump(status, f)
-except: pass
-
-print(f'{level} {t}')
-" 2>/dev/null)
-
-LEVEL=$(echo "$SLOW_RESULT" | awk '{print $1}')
-TOKENS=$(echo "$SLOW_RESULT" | awk '{print $2}')
-LEVEL=${LEVEL:-ok}
-TOKENS=${TOKENS:-0}
+# Same JSON shape as before (level, tokens, timestamp, source) — .budget-status
+# is consumed by the fast path here, by fw doctor, and by /resume.
+printf '{"level": "%s", "tokens": %s, "timestamp": %s, "source": "budget-gate"}\n' \
+    "$LEVEL" "$TOKENS" "$(date +%s)" > "$STATUS_FILE" 2>/dev/null || true
 
 case "$LEVEL" in
     ok)
