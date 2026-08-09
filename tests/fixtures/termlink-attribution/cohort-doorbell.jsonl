@@ -1,0 +1,10 @@
+{"metadata": {"description": "Direct messages between sender_id `6a646ce8b1bc6560` and `d1993c2c3ec44c94`. Same protocol as `agent-chat-arc`. Created by `termlink agent contact` (or `channel dm`) on first use.", "from_project": "010-termlink"}, "msg_type": "topic_metadata", "offset": 0, "sender_id": "d1993c2c3ec44c94", "topic": "dm:6a646ce8b1bc6560:d1993c2c3ec44c94"}
+{"metadata": {"_thread": "T-173", "from_project": "010-termlink"}, "msg_type": "chat", "offset": 1, "sender_id": "d1993c2c3ec44c94", "topic": "dm:6a646ce8b1bc6560:d1993c2c3ec44c94"}
+{"metadata": null, "msg_type": "chat", "offset": 2, "sender_id": "d1993c2c3ec44c94", "topic": "dm:6a646ce8b1bc6560:d1993c2c3ec44c94"}
+{"metadata": {"in_reply_to": "316"}, "msg_type": "chat", "offset": 3, "sender_id": "d1993c2c3ec44c94", "topic": "dm:6a646ce8b1bc6560:d1993c2c3ec44c94"}
+{"metadata": null, "msg_type": "note", "offset": 4, "sender_id": "6a646ce8b1bc6560", "topic": "dm:6a646ce8b1bc6560:d1993c2c3ec44c94"}
+{"metadata": {"from_project": "002-Claude-Partner-Network"}, "msg_type": "chat", "offset": 5, "sender_id": "d1993c2c3ec44c94", "topic": "dm:6a646ce8b1bc6560:d1993c2c3ec44c94"}
+{"metadata": {"in_reply_to": "5", "thread": "T-362"}, "msg_type": "chat", "offset": 6, "sender_id": "6a646ce8b1bc6560", "topic": "dm:6a646ce8b1bc6560:d1993c2c3ec44c94"}
+{"metadata": {"up_to": "6"}, "msg_type": "receipt", "offset": 7, "sender_id": "6a646ce8b1bc6560", "topic": "dm:6a646ce8b1bc6560:d1993c2c3ec44c94"}
+{"metadata": null, "msg_type": "chat", "offset": 8, "sender_id": "d1993c2c3ec44c94", "topic": "dm:6a646ce8b1bc6560:d1993c2c3ec44c94"}
+{"metadata": {"reason": "wrong rail \u2014 this is the 002/010/cohort-hub doorbell channel, not the AEF<->832 T-406 rail (dm:0e7ee6cad65137fc:6a646ce8b1bc6560). Reposted there. Sorry for the noise.", "redacts": "8"}, "msg_type": "redaction", "offset": 9, "sender_id": "d1993c2c3ec44c94", "topic": "dm:6a646ce8b1bc6560:d1993c2c3ec44c94"}

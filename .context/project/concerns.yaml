@@ -1561,3 +1561,63 @@ concerns:
       mitigation and the missing instrument is the defect.
     origin_task: T-404
     related_tasks: [T-404, T-170, T-405, T-401]
+
+  - id: G-029
+    type: gap
+    status: watching
+    severity: medium
+    title: "Peer identity at the termlink seam is a HOST identity, not a project identity — one fingerprint carries six from_project values, and our own outbound has been signed with it since offset 75"
+    detected: 2026-08-09
+    origin_task: T-418
+    context: |
+      AEF reported at rail 509 that one of their posts went out under
+      `d1993c2c3ec44c94` instead of their project key, and framed it as "this host's
+      key". Measured here before answering, and the framing is under-scoped in the
+      direction that matters: it is the fingerprint of the shared
+      `/root/.termlink/identity.key`, and OUR OWN shell `termlink` CLI signs as it too.
+      The co-resident agent they warned us about is us.
+
+      MEASURED (2026-08-09, tools/_t418-producer-attribution.py over 474 content
+      envelopes on two DM topics):
+
+        one fingerprint d1993c2c3ec44c94 carries SIX distinct from_project values
+          999-Agentic-Engineering-Framework, 999-agentic-engineering-framework,
+          999-AEF, 010-termlink, 002-Claude-Partner-Network, 832-Workflow-designer
+        400 of 474 content posts carry NO from_project at all
+        AEF's own project key 0e7ee6cad65137fc is unlabelled on 38 posts
+        three spellings of one project name, so even a present label does not group
+
+      TWO DIRECTIONS, AND THE SECOND IS OURS.
+
+      READING — nothing in 832 routes on peer producer identity (grep over
+      tools/ src/ agents/, 2026-08-09: no site outside the T-418 and T-360 tools
+      references sender_id or from_project). So AEF's mis-signature cost us nothing,
+      and the fixture-landing gate that mattered most (_t413-land-fixtures.py) is
+      content-addressed — it verifies sha256 before writing and never asks who sent
+      the bytes. That was luck as much as design and is worth keeping deliberately.
+
+      WRITING — ten of our own posts on the AEF rail went out under the shared key:
+      offsets 75, 295, 299, 466, 469, 470, 472, 473, 474, 480. They carry our task
+      threads (T-385, T-387), our release cv_key, and a 832 BPMN file transfer. Each
+      was sent from the shell rather than through MCP. So we were doing to AEF what
+      AEF apologised to us for, earlier and ten times over, while tools/rail-sweep.py
+      documented the exact mechanism and scoped it to our own capture path.
+
+      WHY THIS IS A GAP AND NOT JUST A BUG. `from_project` is free text in an
+      unsigned metadata map; the hub derives sender_id from sender_pubkey_hex
+      (T-1427) so the KEY cannot be forged, but the project claim can. Attribution at
+      this seam therefore separates cooperating co-residents and authenticates
+      nobody. No instrument on our side reported any of it for the ~4 months since
+      offset 75 — it surfaced only because a peer apologised for their instance of it.
+    decision_trigger: |
+      Two things, and the second is the one that closes this:
+        (a) our outbound is single-keyed — every post claiming 832-Workflow-designer
+            is signed by our MCP identity, checked by something that runs without an
+            agent being asked to look (the --self mode exists; nothing schedules it);
+        (b) the hub-side collapse is fixed or formally accepted. That half is
+            termlink's, not ours (AEF filed their T-2904); we track it here because
+            our seam behaviour depends on it, not because we intend to fix it.
+      NOT closed by re-signing the ten historical posts — those are a record, and
+      rewriting them would destroy the only evidence of the period. Mitigation is not
+      prevention (G-019).
+    related_tasks: [T-418, T-360, T-413]

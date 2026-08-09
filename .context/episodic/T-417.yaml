@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-417: Session scratch swept into the tree: a 1.6MB rail dump under .context/working/ was auto-committed (third instance of the T-222/T-410 shape)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-09T15:43:29Z
+# ============================================================================
+
+task_id: T-417
+task_name: "Session scratch swept into the tree: a 1.6MB rail dump under .context/working/ was auto-committed (third instance of the T-222/T-410 shape)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-09T15:41:22Z
+completed: 2026-08-09T15:43:26Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-09T17:43:20+02:00
+last_commit: 2026-08-09T17:43:20+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  untrack the rail dump and move it to the session scratchpad — third instance of an ignore file trusted to cover a directory where inclusion is the default
+
+# Key outcomes
+outcomes:
+  - '`.context/working/t413/` untracked and the 1.6 MB blob out of the index'
+  - '`.context/working/.gitignore` carries an entry for it with the reason, in the style of'
+  - 'The ignore is verified to actually MATCH (`git check-ignore -v`), not merely present:'
+  - '`tools/_t413-land-fixtures.py` takes the capture path as an argument and is re-run from'
+  - 'The scratch-location practice is captured as a learning, not just fixed here'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - '.context/working/.gitignore'
+  - '.context/working/t413/probe.out'
+  - '.context/working/t413/rail-state.err'
+  - '.context/working/t413/rail-state.json'
+  - '.context/working/t414-probe.out'
+  - '.tasks/active/T-417-session-scratch-swept-into-the-tree-a-16.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-09T17:43:20"
+    action: "T-417: untrack the rail dump and move it to the session scratchpad — third instance of an ignore file trusted to cover a directory where inclusion is the default"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 1
+  files_changed: 7
+  lines_added: 280
+  lines_removed: 4664
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-417-session-scratch-swept-into-the-tree-a-16.md
+generated_by: context-agent-hybrid

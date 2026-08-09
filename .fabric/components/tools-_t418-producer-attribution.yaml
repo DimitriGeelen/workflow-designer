@@ -1,0 +1,20 @@
+id: tools/_t418-producer-attribution.py
+name: _t418-producer-attribution
+type: script
+subsystem: unknown
+location: tools/_t418-producer-attribution.py
+tags: []
+
+purpose: "TODO: describe what this component does"
+
+depends_on:
+  # Format: - target: <relative-path>
+  #          type: calls|reads|writes|triggers|renders
+  []
+
+depended_by:
+  # Same format as depends_on — filled by enrich.py or manually
+  []
+
+last_verified: 2026-08-09
+created_by: unknown

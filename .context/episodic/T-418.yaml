@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-418: Peer identity at the termlink seam is not project-unique: five producers share one fingerprint and our own CLI is one of them
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-09T21:52:19Z
+# ============================================================================
+
+task_id: T-418
+task_name: "Peer identity at the termlink seam is not project-unique: five producers share one fingerprint and our own CLI is one of them"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-09T21:43:57Z
+completed: 2026-08-09T21:52:09Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'Measurement recorded: for each DM topic carrying our fingerprint, the distinct'
+  - 'A detector exists that reports a sender fingerprint as NOT project-unique when it'
+  - 'The detector is proven capable of BOTH verdicts: red on the live capture as it'
+  - 'Capture and verdict are separate steps (T-360''s split, deliberately reused): the'
+  - '`tools/rail-sweep.py`''s statement of the identity split is corrected to name the'
+  - 'Recorded whether any 832 gate, leg, or tool routes on peer producer identity —'
+  - 'Reciprocal: `tools/_t360-rail-sweep-teeth.py` still passes unchanged'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+  - decision: '2026-08-09 — a detector over the class, not a note about the fingerprint'
+    chose: 'Build a detector that partitions any capture and reports every sender'
+    rationale: 'The obvious remedy for rail 509 is one line — "treat `d1993c2c…` as'
+    alternatives_rejected: ['A comment in rail-sweep.py naming the collapsed fingerprint. That was']
+  - decision: '2026-08-09 — the capture drops payloads at capture time, not later'
+    chose: '`_t418-capture-attribution.sh` projects each envelope to'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 8
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-418-peer-identity-at-the-termlink-seam-is-no.md
+generated_by: context-agent-hybrid

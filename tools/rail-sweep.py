@@ -43,6 +43,31 @@ plausible answer about somebody else's rails. A wrong answer that looks exactly
 like a right one, produced by the very tool you would reach for to verify the
 first tool.
 
+WHAT THIS PARAGRAPH ORIGINALLY UNDER-SCOPED (T-418, 2026-08-09)
+----------------------------------------------------------------
+Read as written above, `d1993c2c3ec44c94` is "what OUR shell resolves to" -- one
+member, ours, a local hazard. It is not. It is the fingerprint of the shared
+`/root/.termlink/identity.key`, and every co-resident agent's CLI signs as it:
+
+    832 (this project), AEF, cohort-hub and 010-termlink all post under it.
+    Measured: one fingerprint, six distinct `from_project` values.
+
+Two consequences the original framing hid, both of which cost something:
+
+  READING  a peer's `sender_id` is a HOST identity, not a project identity. AEF
+           reported this to us at rail 509 as "our host's key"; it is not theirs,
+           it is the substrate's. `from_project` separates cooperating producers
+           and is unsigned, so it cannot authenticate one.
+  WRITING  ten of OUR OWN posts on the AEF rail went out under this key, from
+           offset 75 onward, because they were sent from the shell rather than
+           through MCP. We were doing to AEF what AEF apologised to us for --
+           for longer, and while this very file documented the mechanism.
+
+That is the shape: the learning generalised, the remedy closed the member in hand
+(our capture path), and the class stayed open for six days. Detector over the class
+now lives in tools/_t418-producer-attribution.py; the rule for this file is
+unchanged and unaffected.
+
 Consequence for the design: the CAPTURE can only happen through the MCP
 surface. This script VERIFIES a capture; it does not gather one. That split is
 load-bearing, not a limitation worked around -- which is why check 3 exists.
