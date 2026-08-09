@@ -4,7 +4,7 @@ name: "Bash gate mis-parses VAR=$(cmd args) as an env-var prefix and takes the n
 description: >
   safe-commands.sh:29 strips leading env-var prefixes with the regex KEY=VAL followed by whitespace, where VAL is any run of non-whitespace. A command-substitution assignment such as WURL=$(cat some/path 2>/dev/null || echo fallback) has no whitespace until inside the substitution, so the stripper consumes WURL=$(cat and treats the NEXT word - the file path argument - as the base command name. It matches nothing in the allowlist and the command is blocked with no active task. Discovered while fixing T-404: after that fix the /resume skill Step 5 command reports write=no but safe=no, so it is still blocked, by this second independent mechanism. Consequence: the framework documented post-compaction recovery command remains unrunnable in the exact state compaction creates.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-09T08:27:53Z
-last_update: 2026-08-09T08:27:53Z
+last_update: 2026-08-09T08:36:49Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -36,12 +36,40 @@ date_finished: null
 
 <!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
+## Context
+
+Second of the two mechanisms blocking the framework's own post-compaction recovery command.
+T-404 fixed the first (redirect mis-classification); after it, the `/resume` Step 5 command
+reports `write=no` but still `safe=no`. This is why.
+
+Both defects live in `is_bash_safe_command`'s base-command extraction — one function, two
+witnesses:
+
+1. **`VAR=$(cmd args)` mis-parsed as an env-var prefix.** The T-1908 stripper matches
+   `KEY=` followed by any run of non-whitespace, so in `WURL=$(cat some/path 2>/dev/null)`
+   the "value" ends at `$(cat` — the first space falls *inside* the substitution. The next
+   word, a file path argument, is then taken as the command name.
+2. **Multi-line commands.** `echo "$cmd" | awk '{print $1}'` prints the first word of
+   *every* line, producing a multi-word "base" that matches no case arm.
+
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `VAR=$(cmd args) ...` is no longer treated as an env-var prefix; the real command
+      name is extracted and the allowlist is consulted against it
+- [x] The T-1908 contract still holds: `FW_SWITCH_FOCUS=1 fw work-on T-XXX` is still
+      recognised as safe (the fix must not break the bypass-mechanism promise it exists for)
+- [x] A multi-line read-only command is allowed, and is judged per line — every line must
+      be safe, so a multi-line command whose second line is not read-only stays blocked
+      (fixes the false negative WITHOUT widening the gate)
+- [x] Base extraction no longer forks `awk` and `sed` — pure parameter expansion, since
+      this predicate runs on every Bash tool call
+- [x] Corpus extended in `web/test_safe_commands.py` covering all of the above, including
+      the must-still-block direction, and green (49/49)
+- [x] `tools/t404-gate-e2e.sh` extended: with focus null, the `/resume` skill's Step 5
+      command shape is ALLOWED end-to-end through the real hook — the deadlock T-404 and
+      T-405 jointly close (13/13)
+- [x] T-404's corpus and e2e still pass unchanged (no regression in the redirect predicate)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -123,7 +151,67 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+(cd .agentic-framework && python3 -m pytest web/test_safe_commands.py -q)
+(cd .agentic-framework && python3 -m pytest web/test_safe_commands.py::test_resume_step5_is_allowed -q)
+(cd .agentic-framework && python3 -m pytest web/test_safe_commands.py::test_env_prefix_contract_still_holds -q)
+(cd .agentic-framework && python3 -m pytest web/test_safe_commands.py::test_segments_are_judged_individually -q)
+bash tools/t404-gate-e2e.sh
+bash -n .agentic-framework/agents/context/lib/safe-commands.sh
+bash -n .agentic-framework/agents/context/check-active-task.sh
+
 ## RCA
+
+**Symptom:** with focus null, `WURL=$(cat path 2>/dev/null); curl ...` — the `/resume`
+skill's documented Step 5 — was blocked. So was every multi-line command.
+
+**Root cause:** one defect, two witnesses. `is_bash_safe_command` assumed *the command is
+the first word*.
+
+1. The T-1908 env-prefix stripper matched `KEY=` followed by any run of non-whitespace. In
+   `WURL=$(cat some/path ...)` the first space falls INSIDE the command substitution, so the
+   "value" ended at `$(cat` and the next word — a file path ARGUMENT — became the command
+   name. Nothing in the allowlist matches `.context/working/watchtower.url`.
+2. `echo "$cmd" | awk '{print $1}'` prints the first word of EVERY line, so any multi-line
+   command produced a multi-word "base" matching no case arm.
+
+**Why structurally allowed:** the same self-hiding property as T-404 — base extraction only
+decides an outcome when focus is null. Beyond that, "first word" is not a wrong heuristic so
+much as an ill-defined question: a compound command has no single base. The predicate was
+answering a question the input does not have an answer to, and returning a plausible string
+either way, so there was nothing to notice.
+
+**Prevention:** the extractor no longer answers that question. Every segment (split on
+newline, `;`, `&&`, `||`, `|`, out of the quote-stripped command) is judged on its own and
+all must pass. The corpus pins both directions, including the naive-fix trap: a multi-line
+command whose FIRST line is read-only and whose second is not must stay blocked.
+
+## Decisions
+
+### 2026-08-09 — segment-wise judgement, which TIGHTENS the gate
+
+- **Chose:** judge every segment; all must be safe.
+- **Why:** it is the only reading that is correct for compounds, and it fixes the false
+  negatives without opening a false positive. It also closes a real hole: `cd /x && rm -rf y`
+  previously extracted base `cd`, matched the allowlist wholesale, and was "safe" as far as
+  this predicate was concerned — only the destructive-verb check stood behind it.
+- **Rejected:** taking the first line's first word. Simpler, and it would have made the
+  resume command work, but it would allowlist a whole multi-line script on the strength of
+  its opening word. Pinned by a test so nobody re-introduces it as a simplification.
+- **Known cost, measured not assumed:** commands that were allowed ONLY because their first
+  word was allowlisted are now blocked under null focus. The one that will be noticed is
+  `cd X && python3 -m pytest ...` — previously safe via the `cd` arm, now blocked because
+  `python3` is only allowlisted in its `-c` parse-check form. This is the hole closing
+  rather than a regression, and the remedy is the framework's actual rule (have an active
+  task), but it is a behaviour change and is recorded here so it is not a surprise.
+
+### 2026-08-09 — split the quote-stripped string, not the raw one
+
+- **Chose:** run the segment split over `_sc_strip_quoted`'s output.
+- **Why:** splitting the raw string would treat `grep 'a;b' f` as two commands — reintroducing
+  on the allowlist side the exact "quotes are not structure" defect T-404 fixed on the
+  write-detection side. Same bug, same file, opposite predicate.
+
+<!-- Record decisions ONLY when choosing between alternatives.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -190,3 +278,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-405-bash-gate-mis-parses-varcmd-args-as-an-e.md
 - **Context:** Initial task creation
+
+### 2026-08-09T08:36:49Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

@@ -68,7 +68,21 @@ check "redirect to discard sink" 'echo hi > /dev/null'                          
 # duplication needs a command that is genuinely a read.
 check "fd duplication"           'git status --short 2>&1'                          ALLOW
 
+echo "--- null focus: the /resume skill's own Step 5 command (T-404 + T-405) ---"
+# The whole point of both tasks. Compaction nulls focus; this is the command the
+# framework's documented recovery procedure runs first. It was blocked by two
+# independent defects — redirect mis-classification (T-404) and base-command
+# extraction (T-405) — so the recovery path was unrunnable in the exact state
+# compaction creates.
+check "resume Step 5 command"    'WURL=$(cat .context/working/watchtower.url 2>/dev/null || echo "http://localhost:3000"); curl -sf "$WURL/" > /dev/null && echo running'  ALLOW
+check "env-prefix contract"      'FW_SWITCH_FOCUS=1 bin/fw work-on T-123'           ALLOW
+check "multi-line read"          'grep foo bar
+cat baz'                                                                            ALLOW
+
 echo "--- null focus: genuine writes must STILL be blocked ---"
+check "multi-line, unsafe line"  'grep foo bar
+make install'                                                                       BLOCK
+check "compound hiding a delete" 'cd /tmp && rm -rf scratch'                        BLOCK
 check "write to source file"     'echo pwned > src/app.js'                          BLOCK
 check "append to source file"    'echo pwned >> src/app.js'                         BLOCK
 check "in-place sed on source"   'sed -i "s/a/b/" src/app.js'                       BLOCK

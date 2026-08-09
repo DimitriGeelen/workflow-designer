@@ -16,24 +16,89 @@
 #   5. System utilities (6 patterns)
 #   6. Validation (2 patterns)
 
+# T-405: a multi-line command is safe only if EVERY line is safe.
+#
+# The previous base extraction was `echo "$cmd" | awk '{print $1}'`, which on a
+# multi-line command prints the first word of EVERY line — producing a
+# multi-word "base" that matches no case arm. Multi-line reads were therefore
+# blocked, by accident rather than by design.
+#
+# The tempting fix — take the first line's first word — would WIDEN the gate:
+# `grep x` on line 1 would allowlist whatever line 2 does. Instead each line is
+# judged on its own and all must pass. That fixes multi-line reads without
+# admitting anything a single-line command could not already do.
 is_bash_safe_command() {
     local cmd="$1"
 
     # T-1908: strip leading env-var prefixes (`KEY=val [KEY2=val2 ...] cmd args`).
     # Without this, the L-399 / T-1890 bypass-mechanism contract that promises
-    # `FW_SWITCH_FOCUS=1 fw work-on T-XXX` works actually fails — the awk
-    # extraction below returns `FW_SWITCH_FOCUS=1` as the base, no case
-    # matches, the safe-command path is skipped, and the downstream
-    # captured-status check blocks the very command the focus-drift block
-    # message recommended. Strip one prefix at a time until none remain.
-    while [[ "$cmd" =~ ^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]+[[:space:]]+(.*)$ ]]; do
-        cmd="${BASH_REMATCH[1]}"
+    # `FW_SWITCH_FOCUS=1 fw work-on T-XXX` works actually fails — the base
+    # extraction returns `FW_SWITCH_FOCUS=1`, no case matches, the safe-command
+    # path is skipped, and the downstream captured-status check blocks the very
+    # command the focus-drift block message recommended. Strip one at a time.
+    local sc_env_re='^[A-Za-z_][A-Za-z0-9_]*=([^[:space:]]*)[[:space:]]+(.*)$'
+    while [[ "$cmd" =~ $sc_env_re ]]; do
+        # T-405: `WURL=$(cat some/path 2>/dev/null)` is NOT an env-var prefix.
+        # Its first space falls INSIDE the command substitution, so the regex
+        # ends the "value" at `$(cat` and the next word — an ARGUMENT — becomes
+        # the command name. `.context/working/watchtower.url` matches nothing in
+        # the allowlist, so the command is blocked. This is the second mechanism
+        # blocking the /resume skill's own Step 5 command; T-404 was the first.
+        case "${BASH_REMATCH[1]}" in
+            *'$('*|*'`'*|*'"'*|*"'"*) break ;;
+        esac
+        cmd="${BASH_REMATCH[2]}"
     done
+
+    # Judge every SEGMENT; all must be safe. A command with no runnable segment
+    # is NOT safe (fail closed) rather than vacuously safe.
+    #
+    # Segments are split out of the QUOTE-STRIPPED command, so a separator inside
+    # a quoted argument — `grep 'a;b' f` — is not a separator. Splitting the raw
+    # string would reintroduce, on the allowlist side, exactly the quotes-are-not-
+    # structure defect T-404 fixed on the write-detection side.
+    #
+    # This also TIGHTENS the gate, deliberately: `cd /x && rm -rf y` previously
+    # extracted base `cd`, matched the allowlist wholesale, and was safe as far as
+    # this predicate was concerned — only the destructive-verb check stood behind
+    # it. Now every segment is judged on its own.
+    _sc_strip_quoted "$cmd"
+    local segs="$_SC_STRIPPED"
+    segs="${segs//&&/$'\n'}"
+    segs="${segs//||/$'\n'}"     # before the single-pipe pass, or `||` splits twice
+    segs="${segs//;/$'\n'}"
+    segs="${segs//|/$'\n'}"
+
+    local line seen=0
+    while IFS= read -r line; do
+        [ -n "${line//[[:space:]]/}" ] || continue   # skip blank/whitespace-only
+        seen=1
+        _sc_simple_is_safe "$line" || return 1
+    done <<< "$segs"
+    [ "$seen" -eq 1 ] || return 1
+    return 0
+}
+
+# Judge ONE line. Everything below is the original allowlist, with base
+# extraction changed from an awk+sed pipeline to pure parameter expansion —
+# two fewer forks on a predicate that runs on every Bash tool call.
+_sc_simple_is_safe() {
+    local cmd="$1"
 
     # Extract the base command (first word, strip path).
     # For compound commands, the first word is still the primary command.
-    local base
-    base=$(echo "$cmd" | awk '{print $1}' | sed 's|.*/||')
+    local base="${cmd#"${cmd%%[![:space:]]*}"}"   # ltrim
+    base="${base%%[[:space:]]*}"                  # first token
+
+    # T-405: the command inside an assignment's command substitution IS the
+    # command. `WURL=$(cat path)` runs `cat`; the token is not an env-var prefix
+    # (the stripper above correctly refuses it, because its value contains an
+    # unclosed `$(`) and it is not a command name either. Unwrap to the real one.
+    case "$base" in
+        *'=$('*) base="${base#*=\$\(}" ;;
+        '$('*)   base="${base#\$\(}"   ;;
+    esac
+    base="${base##*/}"                            # strip leading path
 
     case "$base" in
         # Category 1: Git read-only

@@ -169,6 +169,83 @@ def test_destructive_verbs_are_judged_conservatively():
     assert is_write('grep -n "rm" notes.txt')  # the price it charges
 
 
+# --------------------------------------------------------------------------
+# T-405: base-command extraction. Two witnesses of one defect — the extractor
+# assumed "the command is the first word", which is false for an assignment
+# carrying a command substitution and false for anything multi-line.
+# --------------------------------------------------------------------------
+
+RESUME_STEP5 = (
+    'WURL=$(cat .context/working/watchtower.url 2>/dev/null '
+    '|| echo "http://localhost:3000"); curl -sf "$WURL/" > /dev/null && echo running'
+)
+
+
+def test_resume_step5_is_allowed():
+    """The command the /resume skill documents for post-compaction recovery.
+
+    It was blocked by TWO independent defects: the redirect predicate (T-404)
+    and base extraction (T-405). Compaction nulls focus, so the framework's own
+    recovery command was unrunnable in the exact state compaction creates. This
+    asserts the deadlock is closed — the reason both tasks exist.
+    """
+    assert is_safe(RESUME_STEP5)
+    assert not is_write(RESUME_STEP5)
+    assert gate_allows(RESUME_STEP5)
+
+
+def test_env_prefix_contract_still_holds():
+    """T-1908's promise must survive the fix that narrows the stripper.
+
+    The stripper exists so `FW_SWITCH_FOCUS=1 fw work-on T-XXX` — the command
+    the focus-drift block message itself recommends — is recognised. Narrowing
+    it to exclude command substitutions must not cost that.
+    """
+    assert is_safe("FW_SWITCH_FOCUS=1 fw work-on T-123")
+    assert is_safe("FOO=bar BAZ=qux git status")
+
+
+@pytest.mark.parametrize(
+    "cmd,expected",
+    [
+        # multi-line, every line read-only
+        ("grep foo bar\ncat baz", True),
+        # multi-line where a later line is NOT read-only: must stay blocked.
+        # The naive fix (take the first line's first word) would allow this.
+        ("grep foo bar\nmake install", False),
+        # compound on one line, judged per segment
+        ("cd /opt && bin/fw task list", True),
+        ("git status --short | grep -c D", True),
+        ("cat f | make", False),
+        # TIGHTENING: previously base was `cd`, which matched the allowlist
+        # wholesale and made the whole compound "safe" as far as this predicate
+        # was concerned. Now each segment is judged.
+        ("cd /x && rm -rf y", False),
+        # a separator inside quotes is data, not a separator
+        ("grep 'a;b' f", True),
+        # nothing runnable is not vacuously safe
+        ("", False),
+        ("   \n  ", False),
+    ],
+)
+def test_segments_are_judged_individually(cmd, expected):
+    assert is_safe(cmd) is expected, f"{cmd!r} expected safe={expected}"
+
+
+def test_base_extraction_does_not_fork():
+    """Perf contract: this predicate runs on EVERY Bash tool call.
+
+    The awk+sed pipeline cost two forks per invocation. Pure parameter expansion
+    costs none. Asserted structurally so it cannot quietly regress.
+    """
+    code = "\n".join(
+        line
+        for line in LIB.read_text().splitlines()
+        if not line.lstrip().startswith("#")
+    )
+    assert "awk '{print $1}'" not in code
+
+
 def test_no_second_copy_of_the_redirect_predicate():
     """Level C guard: one redirect implementation, not two.
 
