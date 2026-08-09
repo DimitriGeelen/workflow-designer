@@ -109,22 +109,36 @@ Landed 2026-08-08 in `ee2d8217` (T-372). The suite has been red since.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Bridge suite green: `tests/run-bridge-tests.sh` reports `0 failed` and exits 0.
-- [ ] The repair identifies our exports by something a peer's PROSE cannot collide with, and
+- [x] Bridge suite green: `tests/run-bridge-tests.sh` reports `0 failed` and exits 0.
+      — **71 passed, 0 failed, exit 0** (was 70 passed / 1 failed).
+- [x] The repair identifies our exports by something a peer's PROSE cannot collide with, and
       the choice is recorded in `## Decisions` with the two rejected shapes named (ledger
       entry — states a falsehood; directory exclusion — an allowlist patch on an allowlist
       defect, and it moves the moment a peer file is vendored elsewhere).
-- [ ] **Mutation teeth, T-359 style.** Take a genuine document of ours, give it a STALE
+      — the standard `exporter` attribute on `<definitions>` (forward) ∪ ledger PATH
+      (historic). Both rejected shapes named in `## Decisions`.
+- [x] **Mutation teeth, T-359 style.** Take a genuine document of ours, give it a STALE
       trailer, and prove the repaired check still reports it. A fix that silences the one
       false positive by narrowing the net until nothing is caught has removed the check, not
       repaired it — and would look identical in the suite output.
-- [ ] The reciprocal control: with the repair in place, AEF's fixture is NOT reported, and
+      — `_t361-guard-teeth.py` case 8 mutates the REAL exported witness (bytes produced by
+      the real editor in a real browser), not a synthetic document. Red on the right check.
+      Case 7 is the anti-narrowing case: strip producer identity from every document and the
+      guard must report a narrowed net rather than a clean tree. 8/8 red, control green.
+- [x] The reciprocal control: with the repair in place, AEF's fixture is NOT reported, and
       the reason it is not reported is the new identity mechanism rather than a path skip.
-- [ ] Census of the same shape: how many other checks in the tree infer authorship or
+      — `RECIPROC` control in the teeth harness copies the fixture to
+      `vendored/somewhere-else/peer-document.bpmn`, a path no rule mentions, so a pass
+      cannot be a path skip in disguise. Guard green, fixture not named.
+- [x] Census of the same shape: how many other checks in the tree infer authorship or
       provenance from a string match? Reported (not necessarily fixed) — T-372 found one such
       misfire on this exact file and this is a second, so a third is the working assumption
       until counted.
-- [ ] T-041 and T-101 re-run: their bridge-suite verification lines pass.
+      — **The working assumption was right: there is a third, and it is live.** See
+      `## Census` below. Filed as T-406, not fixed here.
+- [x] T-041 and T-101 re-run: their bridge-suite verification lines pass.
+      — bridge line PASS (both), plus T-101's geometry line (`0 known-legacy, 0 new-fail`)
+      and validator line (`passed, 0 failed`).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -206,17 +220,150 @@ Landed 2026-08-08 in `ee2d8217` (T-372). The suite has been red since.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-# --- T-399 commands (added at filing; the task is NOT yet fixed) ---
+# --- T-399 commands ---
 out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"
 # The collision itself, asserted directly: the fixture must NOT be named as an offender.
 out=$(python3 tests/test_emitted_comment_claims.py 2>&1); ! echo "$out" | grep -q "aef-draft-inception-readiness-v2"
 # Anti-vacuity: the check must still be CAPABLE of reporting. If the repair narrowed the
 # net to nothing, the line above passes and means nothing — same failure the fix must avoid.
 out=$(python3 tests/test_emitted_comment_claims.py 2>&1); echo "$out" | grep -q "documents:"
+# The teeth. Its own exit code is the verdict (no chaining, so the errexit note above
+# cannot apply): control green, 8 mutations each red on their OWN check, and the
+# reciprocal control proving the peer document is not reported for the right reason.
+python3 tools/_t361-guard-teeth.py
+# Producer identity in REAL produced bytes, not just in src. This witness came out of the
+# actual editor in a real browser (tools/_t361-export-trailer-cdp.mjs). A source-only
+# assertion would prove the constant was edited, which is the exact gap T-361 was about.
+grep -q 'exporter="aef-workflow-designer"' tests/fixtures/exported/t361-trailer-witness.bpmn
+# The forward arm must actually resolve: 0 current would make the guard vacuous.
+out=$(python3 tests/test_emitted_comment_claims.py 2>&1); echo "$out" | grep -q "forward identity arm resolves"
+
+## Census — checks that infer authorship or provenance from a string
+
+Searched `src/`, `tests/`, `tools/`, `lib/`, `web/` for namespace constants, provenance and
+authorship vocabulary, and every reader of `DI_TRAILER_PREFIX`. Not searched:
+`.agentic-framework/` (vendored, different owner).
+
+**Members of the class — three, not two:**
+
+| # | site | infers | status |
+|---|---|---|---|
+| 1 | `tests/test_emitted_comment_claims.py:165` | trailer PREFIX in body ⟹ "we exported this" | **fixed here** |
+| 2 | `tests/fixtures/third-party/PROVENANCE.md:12-25` | `exporter=` + absence of our fingerprints ⟹ "provably foreign" | sound; documented misfire on this exact file (T-372) |
+| 3 | `src/aef-workflow-designer.html:9474` (`readDocComment`) | leading comment starts with our prefix ⟹ "our own boilerplate, discard" | **live, unfixed → T-406** |
+
+**#3 is the same collision failing in the other direction, and it is worse.** T-399's
+instance mislabels a foreign document; #3 *destroys content*. A peer whose leading rationale
+opens with those eight words has their doc block silently dropped on import — the T-347
+loss shape, from a mechanism we built ourselves. No document in the corpus triggers it today
+(AEF's fixture carries its DI comment at line 349, not leading), so this is a live code path
+with no live witness — which is precisely the condition under which T-399's own instance sat
+undetected until the population changed.
+
+**#2 deserves a note, because it is the one that got it right.** T-372 wrote, one day before
+this task needed it: *"the test is a property no fixture we could write would honestly have —
+**the exporting tool's own signature on `<definitions>`**"*, and tabulated `exporter=` for
+all five third-party fixtures. Every real emitter in the population stamps it. Ours was the
+only producer that stayed silent, which is why "who wrote this?" had no answer to give. The
+repair is not a new mechanism; it is adopting the one this tree had already written down.
+
+**Checked and NOT members** (recorded so the next census does not re-derive them):
+
+- `tools/rail-sweep.py:168` — membership by ed25519 fingerprint. Cryptographic identity, not
+  prose. This is the shape the other three want to be.
+- `tests/test_rule_dialect_axis.py` — partition derived from the frozen standard
+  (`_standard_partition`), explicitly with "no corpus term in it".
+- `tests/test_corpus_fixture_pins.py` — explicit paths, no inference.
+- ~20 `AEF_NS` / `xmlns:aef` constants across `tools/` and `tests/` — these select a
+  VOCABULARY, they do not claim authorship. A namespace says which dictionary a field comes
+  from; it says nothing about who wrote the document. Conflating the two is exactly what made
+  the AEF fixture ambiguous, so the distinction is worth stating rather than assuming.
+- `tools/_t366-uid-shape-teeth.py` — models shape-based identity (`^n_[0-9a-f]{8}$`) as a
+  HAZARD to be proven against; no live code does it.
 
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
+**Symptom:** `tests/run-bridge-tests.sh` red on master since `ee2d8217` (2026-08-08),
+70 passed / 1 failed. `test_emitted_comment_claims.py` named
+`tests/fixtures/third-party/aef-draft-inception-readiness-v2.bpmn` as an exported document of
+ours missing the approved trailer. It has never been through our emitter.
+
+**Root cause:** the guard needed to answer "did we export this document?" and had nothing to
+answer it with, because **our exports carried no producer identity at all**. It substituted
+"the body contains `DI_TRAILER_PREFIX`" — using a claim about DI as a proxy for authorship.
+That was a correct identity test for a corpus containing only our own output. The
+T-347/T-356/T-372 third-party intake ended that precondition; AEF authored a document to our
+own mapping standard and opened its DI comment with the same eight words, describing the same
+fact in the same domain vocabulary. **The check did not become wrong — the population it
+measured did.**
+
+Prose was the proximate carrier, but no other marker we emit would have worked either: a peer
+conforming to the mapping standard produces the same namespaces, the same `targetNamespace`
+and the same `Definitions_<id>` shape, *because conforming is the point of the standard*. The
+deeper cause is that we asked an identity question of a corpus in which every real emitter
+answers it via `exporter=` and only ours declined to.
+
+**Why structurally allowed:** three things, and the third is the general one.
+
+1. Nothing required a produced artifact to identify its producer. The one guard that needed
+   the answer invented a proxy locally, and a proxy in one file is invisible to everything.
+2. `prefix in body` was load-bearing for scope while reading as a cheap pre-filter. Its
+   failure mode is silent widening — it can only ever pull MORE documents in, and every
+   document it wrongly pulls in becomes an accusation.
+3. **It fails in the unsafe direction and the suite output cannot show that.** A red naming a
+   file reads as "this file is broken"; it never reads as "the check misidentified whose file
+   this is". A reader would have gone looking for an emitter bug that does not exist.
+
+Third instance of one shape from one intake: T-359 (validator's exclusion set, complete for
+children *our* emitters produce), T-337 (importer's tag allowlist, complete for tags *we*
+emit), T-399 (trailer check's identity proxy, complete for documents *we* exported). All
+three were correct-and-total over a population defined by our own output, and all three were
+falsified by the same event.
+
+**Prevention** (distinct from the fix):
+
+- The forward arm is a STANDARD field, so the next peer to arrive answers it themselves
+  rather than colliding with us. Adopting the standard's carrier is what makes this scale
+  past AEF — the fix is not "handle AEF", it is "stop guessing".
+- `_t361-guard-teeth.py` case 7 is an anti-narrowing test: if the identity mechanism ever
+  resolves nothing, the guard reports a narrowed net instead of a clean tree. The failure
+  mode of *this repair* now has teeth, not just the failure mode it repaired.
+- Two anti-vacuity checks inside the guard assert each arm independently, because a break in
+  one is invisible while the other still resolves something.
+- The `RECIPROC` control pins the false-positive direction, which no mutation case can cover:
+  every other case proves the guard can go red, and only this one proves it stopped going red
+  about somebody else's file.
+- The census above turned a "working assumption" into a filed task (T-406) rather than a
+  worry.
+
+## Evolution
+
+### 2026-08-09 — the answer was already in the tree, written down the day before
+
+- **What changed:** I expected to have to invent an identity mechanism and weigh it against
+  alternatives. `tests/fixtures/third-party/PROVENANCE.md` (T-372, landed 2026-08-08) had
+  already named the right one — *"the exporting tool's own signature on `<definitions>`"* —
+  and tabulated `exporter=` for all five third-party fixtures. The same file's §200 records
+  that the AEF fixture carries **"no `exporter=`"**, which is the precise fact that makes the
+  repair work, sitting in a section written to explain a *different* misfire on the *same*
+  file.
+- **Plan impact:** the design question collapsed from "what should identity be" to "why is
+  our own output the only thing in this corpus that does not answer it". That reframed the
+  root cause from a test defect to an emitter omission, and moved the fix into `src/`.
+- **Triggered:** T-406 (third census instance, `readDocComment`). Also the observation that
+  T-372 and T-399 are two checks misfiring on ONE file for related reasons within 24 hours —
+  the tell was there, and only one of the two was noticed at the time.
+
+### 2026-08-09 — the harness failed the fix, which is the harness working
+
+- **What changed:** my first anti-vacuity check (`legacy_ok > 0`) asserted a property of the
+  full tree against the deliberately minimal tree the teeth harness builds. CONTROL went red.
+- **Plan impact:** the fix was right and the test tree was wrong — `build_tree` did not
+  represent both identity generations, because until this task there was only one. Corrected
+  by materialising two ledgered documents (two, not one, so the case that tampers with the
+  first still leaves the historic arm resolving).
+- **Triggered:** nothing filed; recorded because the sequence is the point — the teeth caught
+  a defect in the repair itself within a minute of the repair existing. (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
      Non-bug-class tasks may leave this section empty or remove it.
 
@@ -255,6 +402,58 @@ out=$(python3 tests/test_emitted_comment_claims.py 2>&1); echo "$out" | grep -q 
 -->
 
 ## Decisions
+
+### 2026-08-09 — identity: the standard's `exporter` attribute, not prose
+
+- **Chose:** emit `exporter="aef-workflow-designer"` on `<bpmn:definitions>` (BPMN 2.0's own
+  producer field), and scope the guard to `exporter matches` **OR** `path is in the legacy
+  ledger`.
+- **Why:** the question is "who produced these bytes", and BPMN already defines the field for
+  it — so we answer with the standard's carrier rather than inventing one (Portability). It
+  is the one marker a conforming peer cannot collide with by accident: everything else we
+  emit (namespaces, `targetNamespace`, `Definitions_<id>`) is *shared on purpose*, because
+  conforming to the mapping standard is the point of having one. To collide on `exporter` a
+  peer must assert our identity — a lie about provenance, not an overlap of vocabulary. This
+  tree already relies on exactly this property: `PROVENANCE.md` calls it "a property no
+  fixture we could write would honestly have".
+- **Rejected — add the fixture to the legacy ledger.** The ledger pins sha→path to say *"this
+  document legitimately carries an OLD trailer of ours"*. This document carries no trailer of
+  ours and never did. The entry would be a false statement, and the ledger's entire value is
+  that its entries are true.
+- **Rejected — exclude `tests/fixtures/third-party/`.** An allowlist-shaped patch to an
+  allowlist-shaped defect (the move T-337's Decisions warns about), and it relocates the bug
+  rather than fixing it: the collision returns the moment a peer document is vendored
+  anywhere else. The `RECIPROC` control puts the fixture at
+  `vendored/somewhere-else/peer-document.bpmn` specifically so this shape cannot creep back in
+  and still pass.
+
+### 2026-08-09 — scope keyed on PATH, exemption keyed on SHA
+
+- **Chose:** the historic identity arm asks whether the document's PATH is in the ledger; the
+  exemption asks whether its SHA matches.
+- **Why:** it preserves the ledger's own stated design — *"Changing the bytes moves the sha,
+  drops it out of the ledger, and puts it back under the live rule"*. A re-export at a
+  ledgered path stays in scope by path and loses its exemption by sha, so it lands in
+  offenders exactly as before.
+- **Rejected — key scope on sha too.** Tempting (one mechanism, not two) and wrong: changed
+  bytes would leave scope entirely instead of falling back to the live rule, so a re-export
+  carrying a false trailer would escape the guard rather than be caught by it. The exemption
+  would become a silence with a filename — the precise thing `_t361-guard-teeth.py` case 5
+  exists to forbid, and it would have gone on passing while meaning nothing.
+- **Accepted limit, stated rather than hidden:** a legacy document hand-edited to a path not
+  in the ledger leaves scope. Those are no longer bytes we produced, and no signal
+  distinguishes them from a foreign document without reintroducing prose matching.
+
+### 2026-08-09 — `exporterVersion` deliberately NOT emitted
+
+- **Chose:** emit `exporter` only.
+- **Why:** `src/` carries no version constant, so sourcing a version would mean a second copy
+  of `VERSION` living inside the emitter, kept in step with the real one by good intentions.
+  That is the duplicate-constant class T-361 exists to prevent — it would be introduced ten
+  lines below its own tombstone. Identity does not need the version.
+- **Rejected — add a version constant now.** Doing it properly needs build-time substitution
+  plus a guard that the two cannot drift, which is a separate deliverable, not a rider on a
+  red-suite fix.
 
 <!-- Record decisions ONLY when choosing between alternatives.
      Skip for tasks with no meaningful choices.

@@ -9432,6 +9432,33 @@ function aefExtensionXml(node) {
 const DI_TRAILER_PREFIX = 'BPMN DI (visual layout) omitted';
 const DI_TRAILER = `${DI_TRAILER_PREFIX}; node geometry travels as aef:position`;
 
+// T-399: PRODUCER IDENTITY — the answer to "did we export this document?"
+//
+// The T-361 guard needed that answer and did not have one, so it used "the body
+// contains DI_TRAILER_PREFIX" as a proxy. That was a correct identity test for a
+// corpus containing only our own output, and the T-347/T-356/T-372 third-party
+// intake ended that. AEF authored a document to our own mapping standard whose
+// comment opens with the same eight words; it satisfied the proxy and was reported
+// as an unaccounted export of ours. The check did not become wrong — the
+// population it measured did. (Third instance of that shape: T-359, T-337, T-399.)
+//
+// Prose was never going to work here, and neither is any other marker we emit:
+// a peer conforming to our mapping standard produces the SAME namespaces, the SAME
+// targetNamespace and the SAME Definitions_<id> shape, because conformance is the
+// entire point of the standard. Identity has to be a field that is ABOUT THE
+// PRODUCER rather than about the process, and BPMN 2.0 already defines one on
+// <definitions>. A conforming peer sets their own value in it; to collide with us
+// they would have to assert our identity, which is a lie about provenance rather
+// than an accidental overlap of vocabulary.
+//
+// exporterVersion is DELIBERATELY NOT EMITTED. src carries no version constant, so
+// sourcing it would mean a second copy of VERSION living inside this file, kept in
+// step with the real one by good intentions — the exact duplicate-constant class
+// T-361 exists to prevent, ten lines above its own tombstone. Identity does not
+// need the version; if a per-release marker is ever wanted it needs build-time
+// substitution and a guard, which is a separate task.
+const BPMN_EXPORTER = 'aef-workflow-designer';
+
 // A comment is the document's doc block only if it LEADS the document — appears
 // before any element child — and is not our own trailer. Position is the rule AEF's
 // reader uses, so matching it keeps both sides reading the same string. The trailer
@@ -9471,6 +9498,14 @@ function buildBpmnXml(s) {
   lines.push(`                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"`);
   lines.push(`                  xmlns:aef="http://anchorpoint.framework/aef/extensions"`);
   lines.push(`                  id="Definitions_${escAttr(s.workflowMeta.id)}"`);
+  // T-399: producer identity. BPMN 2.0 defines `exporter` on <definitions> for
+  // exactly this question, so we answer it with the standard's own carrier rather
+  // than inventing one (Portability). Before this, NOTHING in our output said who
+  // produced it — the T-361 guard had to infer authorship from the trailer PROSE,
+  // and a peer authoring to our own mapping standard collides with every other
+  // structural marker we emit (same namespaces, same targetNamespace, same
+  // Definitions_ id shape) because conforming to it is the point.
+  lines.push(`                  exporter="${BPMN_EXPORTER}"`);
   lines.push(`                  targetNamespace="https://aef.anchorpoint.dev/workflows">`);
   lines.push(``);
   // T-311: the authored rationale leads the document, ahead of the collaboration —

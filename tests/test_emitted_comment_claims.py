@@ -97,6 +97,16 @@ def main():
     prefix = m_pref.group(1)
     trailer = m_trail.group(1).replace("${DI_TRAILER_PREFIX}", prefix)
 
+    # T-399: producer identity, derived from src for the same reason the trailer is
+    # — a hardcoded copy here would agree with the emitter by coincidence, which is
+    # the precise mechanism that let the false trailer survive a repair for two
+    # months (see this file's header, reason 1).
+    m_exp = re.search(r"const BPMN_EXPORTER = '([^']*)';", src)
+    check(bool(m_exp), "BPMN_EXPORTER is defined")
+    if not m_exp:
+        return finish()
+    exporter = m_exp.group(1)
+
     check(trailer.startswith(prefix),
           "trailer preserves the compatibility prefix",
           f"prefix={prefix!r} trailer={trailer!r}")
@@ -137,6 +147,16 @@ def main():
           "no stray hardcoded copy of the trailer prefix in code",
           "\n".join(stray[:4]))
 
+    # T-399: the identity marker gets the same derive-don't-duplicate treatment as
+    # the trailer. It is now load-bearing for THIS guard's scope, so a literal in the
+    # emitter that drifts from the constant would silently empty the guard's net
+    # rather than merely mis-word a comment.
+    exp_emit = [l for l in src.splitlines() if "lines.push" in l and "exporter=" in l]
+    check(exp_emit and all("${BPMN_EXPORTER}" in l for l in exp_emit),
+          "emitter derives the exporter attribute from BPMN_EXPORTER",
+          "\n".join(l for l in exp_emit if "${BPMN_EXPORTER}" not in l)
+          or "no exporter emit site found")
+
     # ── real produced bytes ─────────────────────────────────────────────────
     # A source check proves the string was EDITED. It does not prove any shipped
     # artifact stopped saying it. So walk the documents we actually exported.
@@ -150,6 +170,35 @@ def main():
             ledger[path] = sha
     check(bool(ledger), f"legacy ledger loaded ({len(ledger)} documents)")
 
+    # ── who wrote it: the two positive identity arms (T-399) ────────────────
+    # Scope used to be `prefix in body` — "contains our trailer PREFIX" standing in
+    # for "we exported this". Prose collides: AEF's fixture opens its DI comment with
+    # the same eight words because it describes the same fact in the same domain
+    # vocabulary. It failed in the UNSAFE direction, reporting a foreign document as
+    # an unaccounted export of ours, sending any reader after an emitter bug that
+    # does not exist.
+    #
+    # Two arms, because our exports come in two generations and only one of them can
+    # ever carry a marker we added today:
+    #
+    #   FORWARD   the standard `exporter` attribute, emitted by buildBpmnXml.
+    #   HISTORIC  the document's PATH appears in the legacy ledger.
+    #
+    # The historic arm is keyed on PATH and the exemption below stays keyed on SHA,
+    # and the split is deliberate. It is what preserves the ledger's stated design
+    # (its own header: "Changing the bytes moves the sha, drops it out of the ledger,
+    # and puts it back under the live rule"): a re-export at a ledgered path is still
+    # in scope by path, and no longer exempt by sha, so it lands in offenders. Keying
+    # scope on sha instead would let a re-export escape the guard entirely — the
+    # exemption would become a silence with a filename, which is exactly what
+    # _t361-guard-teeth.py case 5 exists to forbid.
+    #
+    # Known and accepted limit: a legacy document HAND-EDITED to a path not in the
+    # ledger leaves scope. It is no longer bytes we produced, and no available signal
+    # distinguishes it from a foreign document without reintroducing prose matching.
+    def is_ours(rel, body):
+        return (f'exporter="{exporter}"' in body) or (rel in ledger)
+
     offenders, legacy_ok, current_ok = [], 0, 0
     for dirpath, dirnames, filenames in os.walk(ROOT):
         dirnames[:] = [d for d in dirnames if d not in (".git", "node_modules")]
@@ -161,6 +210,8 @@ def main():
             try:
                 body = open(full, encoding="utf-8", errors="replace").read()
             except OSError:
+                continue
+            if not is_ours(rel, body):
                 continue
             if prefix not in body:
                 continue
@@ -175,6 +226,17 @@ def main():
 
     print(f"       documents: {current_ok} current, {legacy_ok} legacy-exempt, "
           f"{len(offenders)} unaccounted")
+
+    # ANTI-VACUITY (T-399). Narrowing scope is how this repair could go wrong: an
+    # identity test that resolves nothing makes the offender list empty and the guard
+    # green, and the output would be indistinguishable from a clean tree. Assert the
+    # net still catches documents — BOTH arms, since a break in either one is
+    # invisible while the other still resolves something.
+    check(current_ok > 0,
+          "forward identity arm resolves at least one document (exporter attribute)")
+    check(legacy_ok > 0,
+          "historic identity arm resolves at least one document (ledger path)")
+
     check(not offenders,
           "every exported document carries the approved trailer or is a pinned legacy record",
           "\n".join(offenders[:8]))
