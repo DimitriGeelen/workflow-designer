@@ -9490,14 +9490,55 @@ function readDocComment(defsEl) {
     // case that can be fixed with evidence — a peer who stamps their own identity, as
     // Camunda and bpmn-js do — and leaves the identity-less case under T-311's rule.
     //
-    // CONSEQUENCE, stated so it is not discovered later: AEF do not stamp an exporter
-    // today (their rail 491), so their documents are still affected. Closing it for
-    // them depends on them adopting the producer field, which is the recommendation
-    // sent at rail 492 — not on further work here.
+    // T-413 SPENT THAT ARGUMENT AND ITS EXIT PATH. Both halves are now measured false:
+    //
+    //   "no live witness"  — AEF's clean fixture IS real corruption that reached their
+    //                        promoted corpus, and their T-2895 measured real rationale
+    //                        loss in their own corpus from the incidental shape.
+    //   "closing it for them depends on them adopting the producer field, not on further
+    //    work here" — they adopted it at rail 494 and it changed nothing. The stamp lives
+    //                 in their emitter (corpus_spec.py:407, inside generate()) and reaches
+    //                 0 artifacts: 0 of 37 live .bpmn, 0 on disk, 0 on either fixture.
+    //                 Nothing round-trips a stored map through `generate --save`. A stamp
+    //                 emitted by a function nothing calls is not a stamp on the wire.
+    //
+    // So the identity-less branch is not a residual affecting hypothetical documents. It
+    // is the branch that decides EVERY real AEF document, and the line below is what
+    // stopped it destroying their rationale.
+    // T-414: AND ON THE SHAPE OF THE COMMENT, WHICH IS THE PART IDENTITY COULD NOT DO.
+    //
+    // Identity alone was not enough, and T-413 measured it on AEF's own bytes: their real
+    // aef-task-lifecycle rationale opens with our eight words and then continues for seven
+    // more lines. `startsWith` fired, the whole block was dropped, and content nobody can
+    // recover was destroyed on import. The identity gate did not misfire — it was never
+    // consulted about the question that mattered.
+    //
+    // The eight words are not the whole comment. What separates our false trailer from a
+    // real rationale is not who wrote it but whether ANYTHING FOLLOWS IT. So suppress only
+    // when the leading comment is NOTHING BUT the trailer — a single non-blank line. That
+    // test needs no provenance, which is why it works on both sides of this seam while an
+    // identity gate works only for whoever owns the string (AEF, rail 501).
+    //
+    // Prefix matching stays: the tail after the eight words genuinely drifts, three
+    // wordings are live in AEF's corpus, and pinning the full DI_TRAILER would silently
+    // stop matching the older two.
+    //
+    // WE DO NOT STRIP THE TRAILER LINE off a recovered comment. Tidier, and it would mangle
+    // the case this exists to protect — a genuine rationale whose own first line happens to
+    // open with those words. This defect class IS silent deletion; a smaller version of it
+    // is still it. A human can delete a visible junk line and cannot recover a deleted one.
+    // (AEF's decision at rail 501, adopted here on the same reasoning.)
+    //
+    // RESIDUAL, stated rather than discovered later: a rationale prepended on the SAME LINE
+    // as the trailer still suppresses. One non-blank line opening with the prefix is
+    // indistinguishable from the trailer itself by any test on the text, and neither side
+    // of this seam can resolve it — see AEF rail 501.
     const exporterAttr = typeof defsEl.getAttribute === 'function'
       ? defsEl.getAttribute('exporter') : null;
     const someoneElsesDocument = exporterAttr && exporterAttr !== BPMN_EXPORTER;
-    if (!someoneElsesDocument && data.trim().startsWith(DI_TRAILER_PREFIX)) return null;
+    const lines = data.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    const nothingButTrailer = lines.length === 1 && lines[0].startsWith(DI_TRAILER_PREFIX);
+    if (!someoneElsesDocument && nothingButTrailer) return null;
     return data;
   }
   return null;

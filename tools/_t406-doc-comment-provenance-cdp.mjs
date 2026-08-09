@@ -159,11 +159,31 @@ async function main() {
     // the same block; suppressing it destroys content no one can recover. Pinning the
     // observed behaviour instead would encode the defect as the specification.
     ['AEF-INCIDENTAL rationale after trailer', { file: FIX_INCIDENTAL }, 'preserve'],
+
+    // T-414: the junk-line decision, pinned on OUR OWN documents too. Identity is not a
+    // licence to delete: if one of our exports has real rationale under a hoisted trailer,
+    // dropping it destroys a user's content exactly as it destroyed AEF's. This leg is what
+    // stops a future "we know it's ours, just suppress it" simplification, and it is the
+    // one case where the recovered comment deliberately KEEPS a visible junk first line.
+    ['OURS+RATIONALE trailer then content ',
+     { exporter: 'aef-workflow-designer', comment: COLLIDING + '\n       ' + PLAIN }, 'preserve'],
   ];
+
+  // T-414: for legs that must PRESERVE a specific text, non-emptiness is not enough — a
+  // recovery that truncated to the trailer line alone would satisfy `kept` and lose
+  // everything the fix exists to save. These legs assert the content is actually there.
+  const MUST_CONTAIN = {
+    'AEF-INCIDENTAL rationale after trailer': 'designer-corpus D1 (arc-014, T-2555)',
+    'OURS+RATIONALE trailer then content ': PLAIN,
+  };
 
   const d = mkdtempSync(join(tmpdir(), 't406-doc-'));
   const repo = mkdtempSync(join(tmpdir(), 't406-repo-'));
-  copyFileSync(join(REPO, 'src/aef-workflow-designer.html'), join(d, 'designer.html'));
+  // T406_SRC overrides the subject so the legs can be MUTATION-TESTED: run against a copy
+  // with the fix reverted and confirm they go red. Legs that have never failed are not
+  // known to be capable of failing. Defaults to live src, so a plain run is unaffected.
+  copyFileSync(process.env.T406_SRC || join(REPO, 'src/aef-workflow-designer.html'),
+               join(d, 'designer.html'));
   mkdirSync(join(d, 'rendered'), { recursive: true });
   const port = await freePort();
   const py = spawn('python3', [SERVER, String(port), '--repo', repo, '--docroot', d, '--bind', '127.0.0.1'], { stdio: ['ignore', 'ignore', 'pipe'] });
@@ -206,7 +226,16 @@ async function main() {
   for (const [label, want, got, branch] of results) {
     if (!got || !got.parsed) { console.log(`  FAIL ${label} parse returned null`); fail = 1; continue; }
     const kept = got.doc != null && String(got.doc).trim().length > 0;
-    const ok = want === 'preserve' ? kept : !kept;
+    const need = MUST_CONTAIN[label];
+    const hasText = !need || (kept && String(got.doc).includes(need));
+    const ok = want === 'preserve' ? (kept && hasText) : !kept;
+    if (want === 'preserve' && kept && !hasText) {
+      console.log(`  FAIL ${label} [branch: ${branch}] preserved, but the recovered comment`);
+      console.log(`       does not contain ${JSON.stringify(need)} — a truncated recovery`);
+      console.log(`       passes a non-emptiness check and still loses the content.`);
+      fail = 1;
+      continue;
+    }
     // The BRANCH is printed next to every verdict on purpose. A bare
     // suppressed/preserved cannot distinguish the identity gate working from the
     // default branch happening to be permissive — right answer, wrong mechanism, which
