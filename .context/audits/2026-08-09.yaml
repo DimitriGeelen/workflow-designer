@@ -1,5 +1,5 @@
-# Audit Results - 2026-08-09-1223
-timestamp: 2026-08-09T10:23:00Z
+# Audit Results - 2026-08-09-1233
+timestamp: 2026-08-09T10:33:24Z
 sections: "structure"
 summary:
   pass: 19
@@ -33,13 +33,13 @@ findings:
   - level: PASS
     check: "No GO-scope-not-propagated inception(s) (sibling to L-417)"
   - level: WARN
-    check: "Fabric: 17 registered, 149 unregistered (of 163 watched)"
+    check: "Fabric: 17 registered, 150 unregistered (of 164 watched)"
     mitigation: "Run: fw fabric scan"
   - level: WARN
     check: "Fabric: 13/17 cards have no edges"
     mitigation: "Run: fw fabric enrich"
   - level: WARN
-    check: "Fabric drift: 149 source file(s) have no fabric card"
+    check: "Fabric drift: 150 source file(s) have no fabric card"
     mitigation: "Run: fw fabric scan"
   - level: PASS
     check: "Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer"
