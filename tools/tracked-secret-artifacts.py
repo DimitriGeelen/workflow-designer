@@ -187,23 +187,52 @@ def _spans(flat, words, whole_part_only):
 
 
 def announced_pair(name):
-    """-> (secrecy_span, noun_span) at DISJOINT positions, or None.
+    """-> (secrecy_span, noun_span), or None. The noun must survive MASKING every qualifier.
 
-    T-412: the two halves must come from different stretches of the filename. Requiring only
-    that they come from different LISTS lets a word present in both satisfy the pair alone.
+    T-412 required the two halves to match at DISJOINT SPANS, which fixed the case where one
+    occurrence of `password` satisfied both. T-416: disjointness is necessary and NOT
+    SUFFICIENT. `password` and `passwd` are in both tuples, so a name carrying two members of
+    that family completes the pair from two qualifiers at two different spans, with no
+    credential noun anywhere in it:
+
+        secret-password-rotation.md   secret(0,6) + password(7,15), disjoint -> ANNOUNCED
+        credential-password-guide.md  -> ANNOUNCED
+        passwd-password-migration.md  -> ANNOUNCED
+
+    Ordinary documentation, classed as key material. So the noun is now required to be in
+    what REMAINS once every occurrence of every secrecy word is masked out. A word already
+    spent as the qualifier cannot be re-spent as the noun, at any span.
+
+    MASKING SUBSTITUTES A SEPARATOR, IT DOES NOT DELETE. Deleting closes the gap and lets a
+    noun be assembled across the seam from two harmless neighbours; substituting `-` also
+    creates the part boundary the whole-part noun match wants, so `mypasswordkey` still
+    yields `key`. Length is preserved, which keeps the returned spans meaningful against the
+    original string.
+
+    Credit: AEF, rail 506 §4 — their own first fix split on the qualifier's FIRST occurrence,
+    passed all seven fixture legs, and was still wrong; their generative leg caught it. Third
+    fix in this lineage (their T-2897 curated the lists, our T-412 added spans), and the first
+    two each repaired their own instance while leaving a rule one plausible word from failing.
+    This one is keyed on what remains after the qualifiers are gone, which has no next word.
     """
     flat = _norm(name)
     for w in SELF_SUFFICIENT:
         if w in flat:
             i = flat.find(w)
             return (i, i + len(w)), (i, i + len(w))
+
     sec = _spans(flat, SECRECY_WORDS, whole_part_only=False)
-    noun = _spans(flat, CREDENTIAL_NOUNS, whole_part_only=True)
+    if not sec:
+        return None
+
+    residue = list(flat)
     for s0, s1 in sec:
-        for n0, n1 in noun:
-            if s1 <= n0 or n1 <= s0:          # no overlap
-                return (s0, s1), (n0, n1)
-    return None
+        for i in range(s0, s1):
+            residue[i] = "-"
+    noun = _spans("".join(residue), CREDENTIAL_NOUNS, whole_part_only=True)
+    if not noun:
+        return None
+    return sec[0], noun[0]
 
 
 def load_allowlist(path):
