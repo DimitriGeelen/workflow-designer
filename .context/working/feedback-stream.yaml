@@ -4643,3 +4643,39 @@ scan_id: R-7a19d7e3
 task_id: T-405
 payload:
   task_file: .tasks/active/T-405-bash-gate-mis-parses-varcmd-args-as-an-e.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T09:15:16Z'
+scan_id: R-a5df59ad
+task_id: T-399
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T09:15:16Z'
+scan_id: R-a5df59ad
+task_id: T-399
+payload:
+  task_file: .tasks/active/T-399-bridge-red-t-361-trailer-check-treats-an.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T10:22:50Z'
+scan_id: R-10d965da
+task_id: T-407
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T10:22:50Z'
+scan_id: R-10d965da
+task_id: T-407
+payload:
+  task_file: .tasks/active/T-407-measure-what-our-export-does-to-a-foreig.md

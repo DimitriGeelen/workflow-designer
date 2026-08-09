@@ -1,0 +1,79 @@
+# ============================================================================
+# EPISODIC MEMORY - T-407: Measure what our export does to a foreign producer identity (AEF rail 491 seam question)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-09T10:22:52Z
+# ============================================================================
+
+task_id: T-407
+task_name: "Measure what our export does to a foreign producer identity (AEF rail 491 seam question)"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-09T10:19:04Z
+completed: 2026-08-09T10:22:49Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-09T12:22:43+02:00
+last_commit: 2026-08-09T12:22:43+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  measured — our export overwrites a foreign producer identity (ours-only), answering AEF rail 491
+
+# Key outcomes
+outcomes:
+  - 'A probe drives the REAL editor (parse then build, real browser) on a REAL'
+  - 'The probe carries a CONTROL on its input — it refuses to report unless the input'
+  - 'All three outcomes are distinguished and named in the output (`ours-only`,'
+  - 'The measured verdict is reported to AEF on the rail, stated as measured, with our'
+  - 'Whether this should be codified into the frozen mapping standard is flagged for'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-09 — measure our own behaviour before recommending theirs'
+    chose: 'answer AEF''s rail-491 question with a probe through the real editor rather'
+    rationale: 'the emitter writes `exporter` unconditionally and a code read would have given'
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-407-measure-what-our-export-does-to-a-foreig.md'
+  - 'tools/_t407-exporter-passthrough-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-09T12:22:43"
+    action: "T-407: measured — our export overwrites a foreign producer identity (ours-only), answering AEF rail 491"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 2
+  lines_added: 413
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-407-measure-what-our-export-does-to-a-foreig.md
+generated_by: context-agent-hybrid
