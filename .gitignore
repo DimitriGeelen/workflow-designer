@@ -3,3 +3,17 @@
 build/
 tools/__pycache__/
 tests/__pycache__/
+
+# T-410: Watchtower's session signing key. It was tracked from 2b9c8ffa (2026-06-04)
+# until T-410 — 2 months of commits, pushed to origin and mirrored to GitHub (D-701),
+# carrying the LIVE key that signs fw_session_<port> and the CSRF token inside it.
+#
+# No leading slash, so this matches at ANY depth — deliberately. The key exists once
+# per PROJECT_ROOT, and this tree holds two of them: ours at .context/working/ and the
+# vendored framework's at .agentic-framework/.context/working/ (that second one was
+# already sitting untracked-but-committable when this was found). A path-anchored rule
+# would have covered one and left the other.
+#
+# `.context/working/.gitignore` also lists it. That file is the natural home, but it
+# only governs its own directory — it cannot reach the vendored copy. Both, on purpose.
+.fw-secret-key

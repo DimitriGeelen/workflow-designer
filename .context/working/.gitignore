@@ -7,3 +7,10 @@ focus.yaml
 # `.tier0-approval` token, so transient Tier-0 grants leaked into commits. Glob the
 # `.pending`/`.consumed` siblings too.
 .tier0-approval*
+# T-410: the Watchtower session signing key — the value that signs fw_session_<port>
+# and the CSRF token inside it. It is regenerated on demand by _resolve_secret_key()
+# (web/app.py), so it is volatile in exactly the sense this file is for; it was never
+# listed, and 371 tracked files under .context/working/ meant it was swept in without
+# anyone choosing it. Second instance of the T-222 shape directly above: an ignore file
+# that is trusted to cover a directory while the one entry that matters is absent.
+.fw-secret-key
