@@ -1,0 +1,92 @@
+# ============================================================================
+# EPISODIC MEMORY - T-419: Competing-carrier rule has no instrument: the premise four import rulings rest on is asserted in prose and cannot go red
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-10T18:39:03Z
+# ============================================================================
+
+task_id: T-419
+task_name: "Competing-carrier rule has no instrument: the premise four import rulings rest on is asserted in prose and cannot go red"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-10T18:25:43Z
+completed: 2026-08-10T18:36:58Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-10T20:36:52+02:00
+last_commit: 2026-08-10T20:36:52+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  competing-carrier rule gets an instrument — population 7 derives PL-114's premise from the round trip (geometry CARRIER-GENERATED:aef:position 24/24, foreign-flownode and element-content CARRIER-NONE), EXPECTED_CARRIER fails both directions, mutation-checked; brief + PL-114 + T-357 point at it
+
+# Key outcomes
+outcomes:
+  - 'Carrier-census leg added to `tools/_t338-input-fidelity-cdp.mjs` measuring, per'
+  - 'All three brief rows covered (geometry / foreign flow-node tag / element content),'
+  - '`EXPECTED_CARRIER` records today''s measured table; drift in **either** direction'
+  - 'Mutation-checked: deleting the `aef:position` emission (`src:9272`) turns the'
+  - 'The brief and PL-114 point at the instrument, so a future reader of the rule reaches'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-10 — widen AEF''s instrument to all three rows rather than port it'
+  - decision: '2026-08-10 — measure the answer, do not encode it'
+  - decision: '2026-08-10 — a whole-document diff, not a per-element one'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-08-10-2030.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.new-file-counter'
+  - '.context/working/watchtower.log'
+  - 'docs/reports/T-397-import-repair-semantics-brief.md'
+  - '.fabric/components/tools-_t419-carrier-mutation-check.yaml'
+  - '.tasks/active/T-340-standard-bpmn-di-is-silently-discarded-o.md'
+  - '.tasks/active/T-357-adopt-bpmn-di-as-the-designer-geometry-a.md'
+  - '.tasks/active/T-419-competing-carrier-rule-has-no-instrument.md'
+  - 'tools/_t338-input-fidelity-cdp.mjs'
+  - 'tools/_t419-carrier-mutation-check.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-10T20:36:52"
+    action: "T-419: competing-carrier rule gets an instrument — population 7 derives PL-114's premise from the round trip (geometry CARRIER-GENERATED:aef:position 24/24, foreign-flownode and element-content CARRIER-NONE), EXPECTED_CARRIER fails both directions, mutation-checked; brief + PL-114 + T-357 point at it"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 11 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 11
+  commits: 1
+  files_changed: 17
+  lines_added: 713
+  lines_removed: 28
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-419-competing-carrier-rule-has-no-instrument.md
+generated_by: context-agent-hybrid

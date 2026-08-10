@@ -1023,3 +1023,17 @@ learnings:
   date: 2026-08-09
   context: Added via context agent
   application: TBD
+- id: PL-142
+  learning: "A rule and the FACT it rests on are different artifacts with different lifetimes, and promoting the rule protects only the rule. PL-114 (competing-carrier) was promoted to a learning, cited in a brief and three task files, and decides four import rulings — while its load-bearing premise ('which granularities do we generate a rival carrier for?') stayed unmeasured prose. A premise is a property of the code on a given day; the rule is durable. Only the premise can silently expire, and when it does the rule keeps reading as true and the rulings keep citing it. Remedy: when a learning cites a measured fact, guard the fact separately — and put the warning at the point of the change most likely to falsify it (here T-357, which proposes retiring the exact emission the premise depends on), not only in the document that states the rule. A changer who never opens the brief still trips over the note."
+  source: P-001
+  task: T-419
+  date: 2026-08-10
+  context: Added via context agent
+  application: TBD
+- id: PL-143
+  learning: "A suite can be blind in a DIRECTION rather than in a gap. The input-fidelity harness had six populations and every one measured what the importer LOSES; the competing-carrier question asks what the exporter GENERATES, and no instrument in the tree asked it. Coverage counted six ways of being thorough about one direction, so the blind spot was invisible to any 'do we test this class?' review — the class was covered, the direction was not. Both halves of a round trip are separate measurement surfaces. When a rule turns on what a system EMITS, check whether every existing probe is pointed at what it CONSUMES."
+  source: P-001
+  task: T-419
+  date: 2026-08-10
+  context: Added via context agent
+  application: TBD

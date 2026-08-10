@@ -73,3 +73,24 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-011
+  text: "add"
+  captured: 2026-08-10T18:40:27Z
+  context_task: null
+  tags: []
+  status: dismissed
+  promoted_to: null
+- id: OBS-012
+  text: "832 has no equivalent of AEF's rail-post emitter: every MCP termlink post carries from_project only because an agent typed it into the metadata map by hand. AEF closed this class structurally (their fw rail post attaches + normalises the label when the caller omits it, rail 513 §1); our side still runs on habit, and T-418's detector catches the miss only after the fact as UNATTRIBUTED — detection, not prevention. Same promise-vs-mechanism shape that already failed three times on the AEF rail. Admitted at rail 514 §4. Needs a posting wrapper or equivalent single source."
+  captured: 2026-08-10T18:40:54Z
+  context_task: null
+  tags: [seam]
+  status: pending
+  promoted_to: null
+- id: OBS-013
+  text: "fw note silently mis-captures when given a subcommand-like first argument: 'fw note add \"real text\"' stores the literal string 'add' as the observation and discards the rest, exit 0, success message. The verbs list (list/count/triage/promote/dismiss) makes 'add' the natural guess, and free-text capture means any typo'd verb becomes a valid one-word observation. Silent wrong-capture, not a refusal — the operator sees success and the content is gone. Suggested fix: reject a bare first argument that looks like a verb but is not one, or require --text. Vendored framework (G-008 in-tree fix + upstream)."
+  captured: 2026-08-10T18:40:58Z
+  context_task: null
+  tags: [tooling]
+  status: pending
+  promoted_to: null

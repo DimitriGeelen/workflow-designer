@@ -4913,3 +4913,21 @@ scan_id: R-79907438
 task_id: T-418
 payload:
   task_file: .tasks/active/T-418-peer-identity-at-the-termlink-seam-is-no.md
+---
+kind: scan_emitted
+timestamp: '2026-08-10T18:39:00Z'
+scan_id: R-cc540a1f
+task_id: T-419
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-10T18:39:00Z'
+scan_id: R-cc540a1f
+task_id: T-419
+payload:
+  task_file: .tasks/active/T-419-competing-carrier-rule-has-no-instrument.md

@@ -4,20 +4,20 @@ name: "Competing-carrier rule has no instrument: the premise four import rulings
 description: >
   Competing-carrier rule has no instrument: the premise four import rulings rest on is asserted in prose and cannot go red
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t338-input-fidelity-cdp.mjs, tools/_t419-carrier-mutation-check.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T18:25:43Z
-last_update: 2026-08-10T18:25:43Z
-date_finished: null
+last_update: 2026-08-10T18:36:58Z
+date_finished: 2026-08-10T18:36:58Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -340,3 +340,15 @@ similarity is superficial.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-419-competing-carrier-rule-has-no-instrument.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-cc540a1f
+- **Timestamp:** 2026-08-10T18:39:00Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-10T18:36:58Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
