@@ -222,15 +222,15 @@ must not become T-340's blocker.
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -354,7 +354,51 @@ bounds adoption's scope without disqualifying it.
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Recommendation: GO
+
+Rationale:
+
+Portability is the fourth constitutional directive and aef:position is a proprietary re-implementation of a standard that already exists and is strictly richer (DI carries bounds, waypoints and label positions against our x/y). The injury is symmetric and measured: we auto-layout a third-party author's diagram on import because src:9742 falls back to auto-layout when aef:position is absent, and our own exports carry no DI, so bpmn.io scrambles our files exactly as we scramble theirs. Adoption retires the two-geometries question permanently rather than managing it. Recommending GO on exploring rather than on executing, because one assumption is unchecked and could flip it: WHY aef:position exists at all. There may be a recorded bridge constraint or a judgement that DI was too heavy for the yaml round trip, and I have not looked - that check is the inception's first spike, not a detail. Real costs to scope: it reaches tools/yaml-to-bpmn.py and the bridge parity assertions, not just the editor; all 24 corpus maps change bytes so AEF's pinned source_bpmn_sha fixtures need coordinated re-pinning; reading must stay dual indefinitely or 126 existing files stop loading; and rewriting every file on first save must be argued against the T-225 ratification 'diagram XML is never silently migrated' as a deliberate versioned migration rather than assumed exempt. Not blocking T-340: scoped option (b) is a strict SUBSET of adoption, byte-neutral, and is the first increment either way.
+
+Evidence:
+
+Research artifact: `docs/reports/T-357-di-adoption.md` (C-001).
+
+Recommendation still GO on exploring. The useful result of spikes 1-4 is that
+the single question turned out to be three nested ones, each a strict subset of
+the next, so no work is thrown away whichever depth is chosen:
+
+1. Read DI when `aef:position` is absent. = T-340 scoped (b). Byte-neutral, no
+   standard revision, no T-225 question, no seam event. Fixes the user-facing
+   defect: a third-party author's diagram survives being opened.
+2. Emit DI additively, keep writing `aef:position`. No T-225 question (adds a
+   representation, rewrites nothing) and no intent-expressiveness problem (the
+   extensions stay). Costs: 24 corpus maps change bytes → coordinated re-pin with
+   AEF; the standard gains a carrier it does not enumerate, which is additive
+   rather than contradictory.
+3. Retire `aef:position`. Needs a T-225 scope ruling, a v1.1 revision of the
+   frozen two-party standard, and an answer to the intent gap in IW-3.
+
+- `src:9406-9407`, `src:9582` — the DI trailer; IW-1; G-021 [high], A-020,
+  PL-102. Asked on the rail at offset 418.
+- `src:9409-9421` — our half of the AEF corpus incident (their T-2682/T-2683):
+  the guard that made this string a two-party subject without anyone asking
+  whether its sentence is true.
+- `docs/standards/aef-bpmn-mapping-v1.md:42-45` — frozen standard; ratifies A-3,
+  and names `aef:position`, which is what makes step 3 a two-party revision.
+- `src:8201`, `src:9301`, `src:9681`, `src:9777` — all four T-225 invocation
+  sites, all semantic, none presentational.
+- Commits: `fe35c6fa` (spikes 1-3), `2b81a929` (G-021).
+
+What would still flip this to NO-GO: AEF answering A-020 with "yes, we generate
+DI from your coordinates". That would mean the pipeline works as designed, step 1
+remains worth doing on its own merits, and steps 2-3 become duplication of a stage
+that already exists downstream. Unanswered, and I am not treating the silence as
+a no — see G-021 on absence.
+
+**Date**: 2026-08-10T20:08:36Z
 
 ## Updates
 
@@ -363,3 +407,48 @@ bounds adoption's scope without disqualifying it.
 
 ### 2026-08-03T13:26:34Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-08-10T20:08:36Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Recommendation: GO
+
+Rationale:
+
+Portability is the fourth constitutional directive and aef:position is a proprietary re-implementation of a standard that already exists and is strictly richer (DI carries bounds, waypoints and label positions against our x/y). The injury is symmetric and measured: we auto-layout a third-party author's diagram on import because src:9742 falls back to auto-layout when aef:position is absent, and our own exports carry no DI, so bpmn.io scrambles our files exactly as we scramble theirs. Adoption retires the two-geometries question permanently rather than managing it. Recommending GO on exploring rather than on executing, because one assumption is unchecked and could flip it: WHY aef:position exists at all. There may be a recorded bridge constraint or a judgement that DI was too heavy for the yaml round trip, and I have not looked - that check is the inception's first spike, not a detail. Real costs to scope: it reaches tools/yaml-to-bpmn.py and the bridge parity assertions, not just the editor; all 24 corpus maps change bytes so AEF's pinned source_bpmn_sha fixtures need coordinated re-pinning; reading must stay dual indefinitely or 126 existing files stop loading; and rewriting every file on first save must be argued against the T-225 ratification 'diagram XML is never silently migrated' as a deliberate versioned migration rather than assumed exempt. Not blocking T-340: scoped option (b) is a strict SUBSET of adoption, byte-neutral, and is the first increment either way.
+
+Evidence:
+
+Research artifact: `docs/reports/T-357-di-adoption.md` (C-001).
+
+Recommendation still GO on exploring. The useful result of spikes 1-4 is that
+the single question turned out to be three nested ones, each a strict subset of
+the next, so no work is thrown away whichever depth is chosen:
+
+1. Read DI when `aef:position` is absent. = T-340 scoped (b). Byte-neutral, no
+   standard revision, no T-225 question, no seam event. Fixes the user-facing
+   defect: a third-party author's diagram survives being opened.
+2. Emit DI additively, keep writing `aef:position`. No T-225 question (adds a
+   representation, rewrites nothing) and no intent-expressiveness problem (the
+   extensions stay). Costs: 24 corpus maps change bytes → coordinated re-pin with
+   AEF; the standard gains a carrier it does not enumerate, which is additive
+   rather than contradictory.
+3. Retire `aef:position`. Needs a T-225 scope ruling, a v1.1 revision of the
+   frozen two-party standard, and an answer to the intent gap in IW-3.
+
+- `src:9406-9407`, `src:9582` — the DI trailer; IW-1; G-021 [high], A-020,
+  PL-102. Asked on the rail at offset 418.
+- `src:9409-9421` — our half of the AEF corpus incident (their T-2682/T-2683):
+  the guard that made this string a two-party subject without anyone asking
+  whether its sentence is true.
+- `docs/standards/aef-bpmn-mapping-v1.md:42-45` — frozen standard; ratifies A-3,
+  and names `aef:position`, which is what makes step 3 a two-party revision.
+- `src:8201`, `src:9301`, `src:9681`, `src:9777` — all four T-225 invocation
+  sites, all semantic, none presentational.
+- Commits: `fe35c6fa` (spikes 1-3), `2b81a929` (G-021).
+
+What would still flip this to NO-GO: AEF answering A-020 with "yes, we generate
+DI from your coordinates". That would mean the pipeline works as designed, step 1
+remains worth doing on its own merits, and steps 2-3 become duplication of a stage
+that already exists downstream. Unanswered, and I am not treating the silence as
+a no — see G-021 on absence.
