@@ -122,3 +122,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-018
+  text: "A ruling that lands in a task file does not reach the registers that index it. A-020 was answered NO at rail 417 on 2026-08-03 and recorded in T-357's Open Questions as IW-1b 'answered — NO'. The assumption register still read 'untested' seven days later, and I filed a whole build task (T-425) on the strength of the register plus a stale research artifact. Third instance of the PL-145 shape (T-340 AC1, T-341 AC1, T-209 were prose-filed rulings; this one is a register-filed one). The register and the task file are two carriers for one fact with no reconciliation between them, exactly the competing-carrier problem PL-114 names for geometry. Candidate check: for every assumption still 'untested', does its owning task's Open Questions record a disposition?"
+  captured: 2026-08-10T20:27:58Z
+  context_task: T-425
+  tags: []
+  status: pending
+  promoted_to: null

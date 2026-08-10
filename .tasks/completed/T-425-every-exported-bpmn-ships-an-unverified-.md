@@ -2,12 +2,12 @@
 id: T-425
 name: "Every exported .bpmn ships an unverified claim about AEF's behaviour"
 description: >
-  T-357 spike 1 finding, independent of the DI adoption decision. src:9406-9407 defines DI_TRAILER and src:9582 emits it into EVERY document the designer exports: 'BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates'. Two defects in one string. (1) 'in this demo' is seed-stage scaffolding that entered the canonical tree in 61242508 (T-012, 2026-06-05) by wholesale promotion from zzz-seed-design-files, and has shipped in the export path for two months across ten releases (dist 0.1.0-0.8.0 all carry it). (2) It is an unverified assertion about a PEER PROJECT shipped inside our bytes — we have never checked whether AEF generates DI from our coordinates, and under the T-559 boundary only AEF can answer it. Tracked as A-020, asked on the rail at offset 418 and re-raised at 523, still untested. The same trailer already caused a cross-project incident (their T-2682/T-2683, our src:9409-9421 half) and that incident did NOT surface this. Blocked on A-020: if AEF does generate DI, the sentence is merely stale; if they do not, we have shipped a false statement about a peer for two months. Fix changes exported bytes, so it coordinates with T-423's re-pin.
+  WITHDRAWN AS A DUPLICATE — no work to do. Filed 2026-08-10 against T-357 spike 1, which quotes a DI_TRAILER reading 'BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates'. That string was repaired seven days earlier by T-361 (2026-08-03): src now reads 'BPMN DI (visual layout) omitted; node geometry travels as aef:position', naming no third party, and T-399 subsequently fixed a defect in T-361's guard. A-020 was likewise already answered NO at rail 417 and recorded in T-357's own IW-1b; the assumption register was stale and has been corrected to invalidated. Kept rather than deleted because the filing error is the finding: a research artifact was read as current fact without re-running the measurement it rested on — PL-142 applied to my own prior output. See RCA. Residue filed as OBS-018 (register/task-file divergence, 16 candidates, 1 confirmed).
 
-status: captured
+status: work-completed
 workflow_type: build
 owner: claude-code
-horizon: next
+horizon: null
 tags: []
 components: []
 related_tasks: [T-357, T-423]
@@ -17,8 +17,8 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:50Z
-last_update: 2026-08-10T20:23:50Z
-date_finished: null
+last_update: 2026-08-10T20:29:40Z
+date_finished: 2026-08-10T20:29:40Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -35,14 +35,57 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+**WITHDRAWN AS A DUPLICATE. The defect was real and was repaired seven days before I filed
+this — by T-361, on 2026-08-03.** Nothing to build. Closed with the evidence rather than
+deleted, because the way I came to file it is the finding.
+
+What I filed against: `docs/reports/T-357-di-adoption.md` §Spike 1, which quotes
+`src:9406-9407`:
+
+    const DI_TRAILER = `${DI_TRAILER_PREFIX} in this demo; AEF generates it from node coordinates`
+
+What `src` actually contains **today** (`src/aef-workflow-designer.html:9432-9433`):
+
+    const DI_TRAILER_PREFIX = 'BPMN DI (visual layout) omitted';
+    const DI_TRAILER = `${DI_TRAILER_PREFIX}; node geometry travels as aef:position`;
+
+The claim about a third party is gone; so is "in this demo". `src:9407-9431` carries
+T-361's comment recording why, and `src:9710` notes the hardcoded duplicate emit site was
+collapsed onto the constant. T-399 then fixed a defect in the guard T-361 added.
+
+**A-020 is likewise not "untested".** It was answered **NO** at rail 417 on 2026-08-03, and
+is recorded as answered in this very inception's `## Open Questions` under IW-1b: AEF
+measured their own source and found `bpmndi` occurring exactly once — a namespace
+declaration with no reader or writer behind it. They never parsed DI, never emitted it, and
+hold no record of agreeing to. The assumption register still says `untested`. That
+divergence is real, and it is the one live item this task leaves behind.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] Re-measured `src` rather than trusting the research artifact: the current
+      `DI_TRAILER` names no third party and contains no "in this demo". Evidence in
+      `## Verification` — one grep asserting the repaired string is present, one asserting
+      the false claim survives only inside comments, not in any live code path.
+- [x] Confirmed the repair has an owning task with its own reasoning trail (T-361,
+      completed; guard defect subsequently found and fixed by T-399), establishing this as
+      a duplicate rather than a regression that happens to look like one.
+- [x] The one genuine residue is filed rather than folded in here: A-020 read `untested`
+      in the assumption register while IW-1b in T-357 recorded it answered NO. Corrected to
+      **invalidated** (not `validated` — the measured answer is that the assumption is
+      FALSE; `validated` would have asserted its opposite, and it was briefly mis-set that
+      way before being corrected the same minute). Registered as **OBS-018**.
+- [x] Scope of OBS-018 measured rather than asserted, **and the measurement's limits
+      stated**: 16 of 20 assumptions read `untested`, the oldest (`A-001`, `T-020`) since
+      2026-07-02 — five weeks. Every one of those 16 belongs to a task whose Open Questions
+      carry at least one answered/deferred disposition.
+      **That is a proxy, not a proof.** `disposition:` lines belong to `IW-x` open
+      questions, not to `A-xxx` assumptions; a task can have answered IWs and a genuinely
+      still-open assumption. So the honest reading is **16 candidates and exactly one
+      confirmed instance (A-020)** — not 16 confirmed divergences. Resolving the other 15
+      needs a per-assumption read, which is its own task and not this one.
+      Recorded because the tempting version of this line ("16/16 divergent") is the same
+      over-claim from a proxy measurement that this task's RCA is about.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -76,6 +119,10 @@ date_finished: null
 -->
 
 ## Verification
+
+grep -q "node geometry travels as aef:position" src/aef-workflow-designer.html
+python3 -c "import sys; live=[l for l in open('src/aef-workflow-designer.html') if 'AEF generates it from node' in l and not l.strip().startswith('//')]; sys.exit(1 if live else 0)"
+test -f .tasks/completed/T-361-exported-bytes-assert-aef-generates-di-f.md
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -126,6 +173,29 @@ date_finished: null
 
 ## RCA
 
+**Symptom:** I created a build task for a defect that had been fixed seven days earlier,
+and wrote its description asserting the defect was live "across ten releases".
+
+**Root cause:** I read a **research artifact** as a statement of current fact. Spike 1 of
+`docs/reports/T-357-di-adoption.md` was written 2026-08-03 and was accurate that day.
+T-361 repaired the string later the same day. I quoted the spike verbatim into a new task
+without re-running the grep it rested on.
+
+**Why structurally allowed:** nothing marks a research artifact as *dated evidence* rather
+than standing truth — it reads like documentation and ages like a measurement. Worse, the
+inception's own `## Open Questions` carried the corrected answer (IW-1b, "answered — NO,
+rail 417") a few lines from the material I was decomposing. I read past it because I was
+reading the *artifact*, not the *task*.
+
+**Prevention:** this is **PL-142** — *a rule and the FACT it rests on are different
+artifacts with different lifetimes* — which I applied deliberately three times last session
+(T-209's coverage table re-run rather than re-read, T-420's declared producer list dated,
+T-421's disposition computed at runtime) and then failed to apply the first time the stale
+fact was in a document **I had written myself**. The prevention is not a new rule; it is
+the qualifier that the rule's hardest case is your own prior output, because that is the
+source you feel least need to re-measure. Every AC above is therefore a re-measurement
+rather than a citation, which is the only form of this task that could have caught itself.
+
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
      Non-bug-class tasks may leave this section empty or remove it.
@@ -141,6 +211,23 @@ date_finished: null
 -->
 
 ## Evolution
+
+### 2026-08-10 — the task was wrong before it was written
+- **What changed:** everything. At filing I believed a false claim about AEF was live in
+  every export across ten releases. It had been repaired seven days earlier by T-361, and
+  the assumption I said was untested (A-020) had been answered NO at rail 417 on the same
+  day as the repair. The task had no subject.
+- **Plan impact:** T-425 is not a build. It converts to a closed record: three
+  re-measurements, a corrected register entry, and an RCA. It is deliberately **not**
+  deleted — a deleted task leaves no trace of why it was filed, and the filing is the only
+  thing here worth keeping.
+- **What I would have missed by deleting it:** the register/task-file divergence. Chasing
+  down *why* my premise was stale is what surfaced A-020 sitting `untested` next to an
+  IW-1b that read "answered — NO". That is a second carrier for one fact with nothing
+  reconciling them — the same shape PL-114 names for geometry, one layer up.
+- **Triggered:** OBS-018; A-020 corrected `untested` → `invalidated` (via a wrong turn
+  through `validated`, which would have asserted the opposite of the measurement); PL-142
+  extended with the qualifier that its hardest case is your own prior output.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
@@ -191,3 +278,19 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-425-every-exported-bpmn-ships-an-unverified-.md
 - **Context:** Initial task creation
+
+### 2026-08-10T20:26:17Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2b9bd2f9
+- **Timestamp:** 2026-08-10T20:29:41Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-10T20:29:40Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

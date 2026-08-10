@@ -4967,3 +4967,21 @@ scan_id: R-a9316d78
 task_id: T-420
 payload:
   task_file: .tasks/active/T-420-rail-attribution-gate-refuse-an-mcp-term.md
+---
+kind: scan_emitted
+timestamp: '2026-08-10T20:29:41Z'
+scan_id: R-2b9bd2f9
+task_id: T-425
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-10T20:29:41Z'
+scan_id: R-2b9bd2f9
+task_id: T-425
+payload:
+  task_file: .tasks/active/T-425-every-exported-bpmn-ships-an-unverified-.md

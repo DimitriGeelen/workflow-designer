@@ -2,12 +2,12 @@
 id: T-423
 name: "T-357 step 2: emit BPMN DI additively alongside aef:position"
 description: >
-  Second of the three nested increments under T-357's GO. Emit bpmndi (dc:Bounds for shapes, di:waypoint for edges, label bounds) on export while continuing to write aef:position. Additive: no T-225 silent-migration question because nothing the author wrote is rewritten or dropped, and the intent extensions (forceStraight, routingHint, loopDetour) stay, so the spike-3 intent gap does not bite. Costs: all 24 corpus maps change bytes, so AEF's pinned source_bpmn_sha fixtures need a COORDINATED re-pin — this is the first step in the arc that touches the seam. Blocked on step 1 (T-340 option b) landing and on A-020 being answered.
+  Second of the three nested increments under T-357's GO. Emit bpmndi (dc:Bounds for shapes, di:waypoint for edges, label bounds) on export while continuing to write aef:position. Additive: no T-225 silent-migration question because nothing the author wrote is rewritten or dropped, and the intent extensions (forceStraight, routingHint, loopDetour) stay, so the spike-3 intent gap does not bite. Costs: all 24 corpus maps change bytes, so AEF's pinned source_bpmn_sha fixtures need a COORDINATED re-pin — this is the first step in the arc that touches the seam. Blocked on step 1 (T-340 option b) landing. NOT blocked on A-020 — that was answered NO at rail 417 (2026-08-03) and is recorded invalidated: AEF never parsed or emitted DI and holds no record of agreeing to. The consequence sharpens this task rather than gating it — with no downstream DI generator on either side of the seam, emitting DI is NET-NEW CAPABILITY on both sides, not the completion of a handoff someone else was already honouring. Nobody is waiting for these bytes, so the re-pin is the whole cost and the benefit is portability to standard viewers (bpmn.io, Camunda), not AEF interop.
 
 status: captured
 workflow_type: build
 owner: claude-code
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: [T-357, T-340, T-424, T-425]
@@ -17,7 +17,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:27Z
-last_update: 2026-08-10T20:23:27Z
+last_update: 2026-08-10T20:31:11Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -35,14 +35,55 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Step 2 of three under T-357's GO (operator, 2026-08-10). Research: `docs/reports/T-357-di-adoption.md`.
+
+**Not started — this task is scoped, not built.** ACs written now because G-020 requires
+real criteria before any source edit, and because writing them is what exposes whether the
+step is actually ready. It is not: it sits behind T-340's ruling.
+
+Why this is the first step that touches the seam: steps land in strict subset order, and
+step 1 (T-340 scoped `b`) is byte-neutral because the two populations are disjoint —
+121 of 126 files carry `aef:position` and none carry DI. Step 2 breaks that: **every**
+export gains a `bpmndi` sub-tree, so all 24 corpus maps change bytes and AEF's pinned
+`source_bpmn_sha` fixtures go red. That is a coordinated re-pin, not a unilateral change.
+
+What A-020's answer changed: there is no DI generator anywhere — not on AEF's side (rail
+417: `bpmndi` occurs once in their source, a namespace declaration with no reader or
+writer) and not on ours. So emitting DI is net-new capability, and the beneficiary is any
+standard viewer (bpmn.io, Camunda), **not** AEF. Nobody is waiting for these bytes. That
+removes the urgency and clarifies the trade: pay a two-party re-pin, buy portability.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] **Ordering respected: this task does not start until T-340 is ruled and step 1 has
+      landed.** Step 2's precedence rule (`aef:position` → else DI) is step 1's deliverable;
+      building step 2 first means writing DI that the importer cannot yet read, which is
+      the two-contradictory-geometries state PL-114 exists to prevent, self-inflicted.
+- [ ] `bpmndi:BPMNDiagram` / `bpmndi:BPMNPlane` emitted on export with `dc:Bounds` for every
+      shape, `di:waypoint` for every edge, and label bounds where a label position is
+      persisted. Verified by validating one exported map against the BPMN 2.0 DI schema —
+      not by grepping for the element names.
+- [ ] `aef:position` is **still written**, unchanged, on every node. This is the property
+      that keeps step 2 out of T-225's scope: it adds a representation and rewrites nothing.
+      A diff of one round-tripped map shows DI added and no existing element removed or
+      reordered.
+- [ ] The intent extensions (`forceStraight` 12, `routingHint` 22, `loopDetour` 9,
+      `anchors` 19, `aef:waypoint` 1) are untouched. Spike 3 established DI has no
+      vocabulary for layout *intent*, only for computed results, so DI cannot carry these
+      and must not be treated as having replaced them.
+- [ ] Round-trip is lossless in both directions: export → re-import → export produces
+      byte-identical output on all 24 corpus maps. A DI emitter that is not idempotent
+      makes every save a spurious diff.
+- [ ] **Re-pin is coordinated, not announced.** AEF's `source_bpmn_sha` fixtures are pinned
+      over whole files; all 24 change. Agreed with AEF on the rail BEFORE the bytes change,
+      with the new shas supplied as refs (not via `file_send` — OBS-108 is open on their
+      side). Evidence: the rail offsets of the request and their agreement.
+- [ ] A competing-carrier guard exists, in AEF's shape rather than ours: they pin
+      `test_di_drop_has_a_competing_carrier`, which asserts the rival carrier *exists* —
+      delete `aef:position` and the test goes red. Our equivalent must fail loudly the day
+      step 3 removes `aef:position`, instead of silently permitting two geometries.
+      (Adopting their instrument, not just their answer — T-340's Human AC records why.)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -191,3 +232,10 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-423-t-357-step-2-emit-bpmn-di-additively-alo.md
 - **Context:** Initial task creation
+
+### 2026-08-10T20:29:58Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
+
+### 2026-08-10T20:31:11Z — status-update [task-update-agent]
+- **Change:** status: started-work → captured

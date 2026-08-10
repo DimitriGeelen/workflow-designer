@@ -198,9 +198,27 @@ assumptions:
   statement: AEF generates BPMN DI from our aef:position, as every exported document
     has asserted since 2026-06-05 (src:9406-9407). Unverifiable from 832 under the
     T-559 boundary; asked on the rail at offset 418.
-  status: untested
+  status: invalidated
   validation_method: TBD
-  evidence: []
+  evidence:
+  - outcome: 'ANSWERED NO at rail 417 (2026-08-03), recorded in T-357 IW-1b: AEF measured
+      their own source and found bpmndi occurring exactly once — a namespace declaration
+      with no reader and no writer behind it. They never parsed DI, never emitted
+      it, and hold no record of ever agreeing to. The assumption ''AEF generates BPMN
+      DI from our aef:position'' is therefore FALSE, not merely untested. Repaired
+      in our exported bytes under T-361; guard defect fixed under T-399. Register
+      said ''untested'' for 7 days after the answer landed (OBS-018).'
+    date: '2026-08-10'
+  - outcome: 'REFUTED at rail 417 (2026-08-03), recorded in T-357 IW-1b. AEF measured
+      their own source: bpmndi occurs exactly once — a namespace declaration with
+      no reader and no writer behind it. They never parsed DI, never emitted it, and
+      hold no record of ever agreeing to. There is no DI generator on our side of
+      the seam either, so the sentence our exports carried had no referent anywhere.
+      Shipped in 11 releases inside bytes AEF pins by sha. Trailer repaired under
+      T-361; guard defect fixed under T-399. NOTE: briefly mis-set to ''validated''
+      on 2026-08-10 — ''validated'' would assert the opposite of what was measured.
+      Corrected same minute.'
+    date: '2026-08-10'
   linked_task: T-357
   created: '2026-08-03'
-  resolved_date: null
+  resolved_date: '2026-08-10'
