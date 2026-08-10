@@ -815,7 +815,18 @@ learnings:
   task: T-397
   date: 2026-08-08
   context: Added via context agent
-  application: TBD
+  application: "MEASURED since T-419 (2026-08-10). The rule's factual premise — which
+    granularities we generate a rival carrier for — was prose in a brief and three task
+    files until `tools/_t338-input-fidelity-cdp.mjs` leg 8 (population 7) began deriving
+    it from the round trip: feed the importer a fact in standard form only, and observe
+    whether the exporter emits a representation the input never had. EXPECTED_CARRIER
+    pins today's answer per row and fails in BOTH directions. This matters because the
+    DI row's premise is scheduled for deletion: T-357 proposes retiring `aef:position`,
+    which would silently void T-340's ruling. Mutation-checked by
+    `tools/_t419-carrier-mutation-check.sh`. Instrument adopted from AEF (rail 487,
+    their `test_di_drop_has_a_competing_carrier`) and widened — theirs pins the one
+    'yes' row, ours pins all three, because a 'no' row expiring inverts a ruling just as
+    completely."
 - id: PL-115
   learning: "Fixing a gate does not replay what it blocked. When a gate correctly refuses an edit, two acts are needed: fix the gate, and REDO the refused edit. Only the first has anything forcing it — the block is loud, the fix feels like closure, and the un-restored edit leaves no trace, so session notes truthfully record 'gate fixed' and 'edit intended' while the edit never landed. The gate's SUCCESS is what erases the evidence. Remedy: when a gate blocks an edit, record the blocked edit as an outstanding item before fixing the gate, and verify it landed after. Origin: AEF L-556 via rail 485 — their arc-017 T-2877 lost its prose-quality [REVIEW] AC exactly this way (our Half B invariant refused the edit on a tag-matching bug; they fixed the invariant, never restored the AC), so a deliverable whose entire value is how it reads to a newcomer shipped with zero operator review. Applies to every gate on both sides: G-020 blocked this session three times and restoration depended on habit, not mechanism."
   source: P-001

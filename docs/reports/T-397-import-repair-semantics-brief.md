@@ -77,6 +77,33 @@ DI is the only case in the tree where we generate a rival carrier. That is why i
 only one that departs from the precedent, and the departure is principled rather than an
 inconsistency to be tidied away.
 
+> **Every cell in the middle column is now MEASURED, not asserted (T-419).**
+> `tools/_t338-input-fidelity-cdp.mjs` population 7 derives the column from the round
+> trip — feed the importer a fact in standard form only, then check whether the exporter
+> emits a representation of it the input never carried — and `EXPECTED_CARRIER` pins the
+> result per row. Measured 2026-08-10: geometry `CARRIER-GENERATED:aef:position` (24/24
+> maps), foreign flow-node `CARRIER-NONE` (24/24), element content `CARRIER-NONE`
+> (15/24). The carrier is read out of the diff and never named in the logic, so the check
+> reports *which* carrier rather than confirming one it was told to expect.
+>
+> **Why this table needed a guard and the rest of the brief did not:** the DI row's
+> premise is already scheduled for deletion. **T-357** proposes retiring `aef:position`
+> outright. If it ships, the sentence above — *"DI is the only case where we generate a
+> rival carrier"* — becomes false, T-340's whole reason for departing from the T-337
+> precedent evaporates, and nothing anywhere goes red. The brief would keep reading as
+> true and the rulings would keep citing it. Both directions fail: a carrier disappearing
+> **and** a carrier appearing where this table says none, which would invert T-337's and
+> T-347's rulings the other way.
+>
+> Adopted from AEF (rail 487, their T-2882/T-403), who pin
+> `test_di_drop_has_a_competing_carrier` on their own importer for the same reason —
+> arrived at independently, before reading ours. Theirs pins the single **yes** row;
+> ours pins all three, because a **no** row expiring is equally ruling-breaking.
+> Mutation-checked in `tools/_t419-carrier-mutation-check.sh`: deleting the
+> `aef:position` emission moves the geometry row and nothing else, and a row whose
+> baseline is `CARRIER-NONE` is shown capable of reporting `GENERATED` — otherwise its
+> "none" would be indistinguishable from a probe that missed.
+
 ---
 
 ## The two questions

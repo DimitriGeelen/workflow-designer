@@ -313,6 +313,74 @@ const EXPECTED_ROOT = {
   'message-flow':       'ROOT-DROPPED',
 };
 
+// --- population 7: do we GENERATE a competing carrier? (T-419) --------------
+// Populations 1-6 all ask what the importer LOSES. This one asks the opposite
+// question, and it is the one PL-114 turns on: for a fact the input already
+// carries in standard form, does our EXPORTER emit a second, rival representation
+// of the same fact?
+//
+// That single bit decides four import rulings:
+//
+//   granularity                        rival carrier?   ruling
+//   foreign flow-node tag (T-337)      no               (a) preserve   -- shipped
+//   content in an accepted el (T-347)  no               (a) preserve   -- recommended
+//   bpmndi geometry       (T-340)      YES aef:position (b) consume    -- recommended
+//
+// Preserving is right where nothing competes and wrong where something does: DI
+// preserved beside a generated aef:position is two contradictory geometries in one
+// document, with no user action. That is the whole argument for T-340 departing
+// from its own precedent — and until now every cell of that table lived in prose in
+// docs/reports/T-397-import-repair-semantics-brief.md and was measured nowhere.
+//
+// Not hypothetical. T-357 proposes retiring `aef:position` outright. If it ships,
+// the DI row's premise is gone and nothing anywhere goes red — the brief keeps
+// reading as true and the ruling keeps citing it.
+//
+// DERIVED, NOT DECLARED. The verdict is the set of markers in OUR namespace that
+// appear in the output and not in the input, read out of the diff. No carrier is
+// named in the logic: naming `aef:position` here would make the check agree with
+// today's answer by construction, which is the close-the-member-in-hand move
+// (T-418). The carrier's NAME is recorded in EXPECTED_CARRIER, so a different
+// carrier appearing is drift rather than a silent pass.
+const CARRIER_CASES = [
+  // Geometry. The input must be a foreign document to pose the question at all:
+  // standard DI present, `aef:position` absent. Stripping ours is what makes an
+  // emitted aef:position GENERATED rather than merely preserved — leave it in and
+  // the row measures nothing while looking identical.
+  { id: 'geometry', fact: 'node position',
+    prepare(xml) {
+      const anchor = Object.keys(laneOfNode(xml))[0];
+      if (!anchor) return null;
+      const withDI = injectDI(xml, anchor);
+      if (!withDI || !/<bpmndi:BPMNShape\b/.test(withDI)) return null;
+      const foreign = withDI.replace(/[ \t]*<aef:position\b[^>]*\/>\r?\n?/g, '');
+      if (foreign === withDI) return null;      // nothing stripped -> not a foreign doc
+      return foreign;
+    } },
+  // Foreign flow-node tag: T-337's granularity. The tag's own bytes are the only
+  // description of it we hold, so there is nothing for us to generate.
+  { id: 'foreign-flownode', fact: 'an out-of-vocabulary flow node',
+    prepare: xml => inject(xml, 'businessRuleTask') },
+  // Content inside an element we accept: T-347's granularity. `documentation` is
+  // author prose; we model no rival field for it.
+  { id: 'element-content', fact: 'author documentation on a task',
+    prepare(xml) {
+      const inj = injectContent(xml, { carrier: 'serviceTask',
+        frag: `<bpmn:documentation>${MARK}</bpmn:documentation>` });
+      return inj ? inj.xml : null;
+    } },
+];
+
+// The measured table. `CARRIER-GENERATED:<names>` names the rival carrier as
+// DERIVED from the round trip, so both directions of drift fail: a carrier
+// vanishing (T-357 retiring aef:position) and a carrier appearing where the brief
+// says none (which would silently invert T-337's and T-347's rulings).
+const EXPECTED_CARRIER = {
+  'geometry':         'CARRIER-GENERATED:aef:position',
+  'foreign-flownode': 'CARRIER-NONE',
+  'element-content':  'CARRIER-NONE',
+};
+
 // Insert a root-level fragment. `definitions-child` goes before </bpmn:definitions>
 // (DOM parsing does not enforce schema child order, and putting it last keeps the
 // injected process from becoming processes[0] — which would measure a different
@@ -512,6 +580,17 @@ function injectDI(xml, realNodeId) {
 }
 
 const setStr = s => [...s].sort().join('+');
+
+// Every marker in a namespace WE own that appears anywhere in a document, as
+// element names and as attribute names. Used only as a DIFF between input and
+// output, so the answer to "did we generate a carrier" is read out of the data
+// rather than compared against a list of carriers someone remembered to maintain.
+function ownMarkers(xml) {
+  const out = new Set();
+  for (const m of xml.matchAll(/<(aef:[\w.-]+)/g)) out.add(m[1]);
+  for (const m of xml.matchAll(/\s(aef:[\w.-]+)\s*=/g)) out.add('@' + m[1]);
+  return out;
+}
 
 async function main() {
   if (!existsSync(CORPUS)) { console.log('FAIL: no corpus at ' + CORPUS); process.exitCode = 2; return; }
@@ -736,6 +815,32 @@ async function main() {
       baselineDangling = [...seen].sort();
     }
 
+    // -- leg 8: does the exporter GENERATE a competing carrier? (T-419) -----
+    // The verdict per case is the set of our-namespace markers the OUTPUT carries
+    // and the INPUT did not. Read off the whole document rather than one element:
+    // a carrier that appears on a different element than the fact it duplicates is
+    // still a rival carrier, and a per-element read would miss exactly that.
+    const carrierRows = [];
+    for (const c of CARRIER_CASES) {
+      const verdicts = new Set();
+      const generated = new Set();
+      let applied = 0;
+      for (const m of maps) {
+        const src = c.prepare(m.text);
+        if (!src) continue;                        // shape not buildable on this map
+        applied++;
+        const r = await roundTrip(src);
+        if (r.threw) { verdicts.add('REFUSED'); continue; }
+        const before = ownMarkers(src), after = ownMarkers(r.xml);
+        const fresh = [...after].filter(k => !before.has(k)).sort();
+        for (const k of fresh) generated.add(k);
+        verdicts.add(fresh.length ? 'CARRIER-GENERATED:' + fresh.join(',') : 'CARRIER-NONE');
+      }
+      if (applied === 0) problems.push(`carrier case '${c.id}' applied to 0 of ${maps.length} maps — nothing was measured`);
+      carrierRows.push({ id: c.id, fact: c.fact, applied,
+        generated: [...generated].sort(), verdict: setStr(verdicts) });
+    }
+
     // -- population assertions: the guard must not pass by testing nothing --
     if (maps.length === 0) problems.push('corpus population is empty');
     if (probeRows.length === 0) problems.push('out-of-vocabulary population is empty — nothing was probed');
@@ -750,6 +855,14 @@ async function main() {
     if (contentRows.length === 0) problems.push('accepted-element content population is empty — nothing was probed');
     if (rootRows.length === 0) problems.push('root-sibling population is empty — nothing was probed');
     if (!rootRows.some(r => r.control)) problems.push('root-sibling population has no positive control — a population of only-expected-to-drop rows cannot tell loss from an injection that never landed');
+    if (carrierRows.length === 0) problems.push('competing-carrier population is empty — nothing was probed');
+    // Two of the three rows assert an ABSENCE, and an absence is also what a broken
+    // detector reports. The geometry row is the positive control: it is the one case
+    // where a carrier is known to be generated, so if IT reads CARRIER-NONE the other
+    // two rows' CARRIER-NONE means nothing (G-022 — absence must not render as a
+    // clean bill). Asserted structurally so the control cannot be dropped.
+    if (!carrierRows.some(r => r.verdict.startsWith('CARRIER-GENERATED')))
+      problems.push('competing-carrier population reports no generated carrier on ANY row — the detector cannot be shown capable of finding one, so every CARRIER-NONE in it is uninterpretable');
 
     // -- verdict ----------------------------------------------------------
     const appeared = [...observedLossy].filter(t => !EXPECTED_LOSSY.has(t)).sort();
@@ -775,9 +888,11 @@ async function main() {
       .map(r => ({ id: r.id, refs: r.dangling.filter(d => !baselineDangling.includes(d)) }))
       .filter(r => r.refs.length);
 
+    const carrierDrift = carrierRows.filter(r => r.verdict !== EXPECTED_CARRIER[r.id]);
+
     const ok = corpusLoss.length === 0 && appeared.length === 0 && closed.length === 0
       && problems.length === 0 && malformedDrift.length === 0 && refDrift.length === 0 && !diDrift
-      && contentDrift.length === 0 && rootDrift.length === 0;
+      && contentDrift.length === 0 && rootDrift.length === 0 && carrierDrift.length === 0;
 
     if (JSON_OUT) {
       console.log(JSON.stringify({ ok, corpus: maps.length, corpusLoss, probed: probeRows.length,
@@ -785,11 +900,12 @@ async function main() {
         malformed: malformedRows, refs: refRows, di: { verdict: diVerdict, applied: diApplied, kept: diKept },
         content: contentRows,
         root: rootRows, baselineDangling, newDangling,
+        carrier: carrierRows,
         problems }, null, 2));
     } else {
       console.log(`input fidelity: ${maps.length} corpus maps round-tripped; ${probeRows.length} out-of-vocabulary tags, `
         + `${malformedRows.length} malformed shapes, ${refRows.length} unresolvable-ref shapes, 1 unknown sub-tree, `
-        + `${contentRows.length} accepted-element content shapes probed.`);
+        + `${contentRows.length} accepted-element content shapes, ${carrierRows.length} competing-carrier questions probed.`);
       console.log(`  corpus loss:  ${corpusLoss.length === 0 ? 'none — every map preserves node/flow/lane counts' : corpusLoss.length + ' map(s) LOST content'}`);
       console.log(`  lossy tags:   ${observedLossy.size}/${probeRows.length} — ${[...observedLossy].sort().join(', ') || '(none)'}`);
       console.log(`  malformed:    ${silentlyPartial.length === 0 ? 'no silent partial acceptance — every case refuses visibly or preserves' : silentlyPartial.length + ' case(s) SILENTLY ACCEPTED a broken document and lost content'}`);
@@ -804,6 +920,8 @@ async function main() {
       console.log(`  dangling refs:${newDangling.length === 0
         ? ` none introduced — output stays SELF-CONSISTENT (baseline ${baselineDangling.length === 0 ? 'clean' : baselineDangling.length + ' pre-existing'}); the loss is lossy-but-valid, not invalid`
         : ' ' + newDangling.length + ' case(s) left a reference whose referent was discarded — the output is INVALID BPMN: ' + newDangling.map(d => d.id + ' [' + d.refs.join(' ') + ']').join(', ')}`);
+      console.log(`  carriers:     ${carrierDrift.length === 0 ? 'the competing-carrier table still describes the code — PL-114 holds as measured' : carrierDrift.length + ' row(s) MOVED — a ruling premise changed'}`);
+      for (const r of carrierRows) console.log(`      ${r.id.padEnd(22)} ${r.verdict.padEnd(32)} (applied ${r.applied}/${maps.length}; ${r.fact})`);
       for (const p of problems) console.log(`  POPULATION:   ${p}`);
       for (const c of corpusLoss) console.log(`  LOSS ${c.map}: ${c.threw ? 'threw ' + c.threw : `in ${JSON.stringify(c.input)} out ${JSON.stringify(c.output)}`}`);
       if (appeared.length) console.log(`  FAIL: a NEW vocabulary gap appeared — ${appeared.join(', ')} now lose content on a load→save round trip. A tag the importer does not know is not rejected, it is invisible, and export writes only what state holds (T-337).`);
@@ -813,6 +931,7 @@ async function main() {
       for (const r of contentDrift) console.log(`  FAIL: accepted-element content behaviour changed for '${r.id}' — expected ${EXPECTED_CONTENT[r.id]}, measured ${r.verdict}. CONTENT-DROPPED means the importer accepted the element and silently discarded part of its body: the tag was in the allowlist, so no vocabulary check fires and node/flow/lane counts are unchanged (T-259 shipped this way once). CONTENT-PRESERVED where DROPPED was expected is good news the guard must not absorb — update EXPECTED_CONTENT deliberately. CONTENT-MOVED means the content survived on a DIFFERENT element than the one that carried it.`);
       for (const r of rootDrift) console.log(`  FAIL: root-sibling behaviour changed for '${r.id}' — expected ${EXPECTED_ROOT[r.id]}, measured ${r.verdict}. parseBpmnXml takes processes[0]/participant[0]/laneSets[0] with no complement branch, so definitions' other children never enter state and export writes only from state. ROOT-DROPPED on the POSITIVE CONTROL has TWO possible causes and the control cannot separate them: either the probe is no longer landing, or the identity round-trip itself regressed. Both invalidate every other row in this population — resolve which one it is before reading any of them. ROOT-PRESERVED where DROPPED was expected is good news that must be recorded in EXPECTED_ROOT deliberately, not absorbed.`);
       if (diDrift) console.log(`  FAIL: unknown sub-tree behaviour changed — expected ${EXPECTED_DI}, measured ${diVerdict}. DI-PRESERVED is good news that must be recorded in EXPECTED_DI rather than absorbed; DI-MIXED means the outcome now depends on the map.`);
+      for (const r of carrierDrift) console.log(`  FAIL: competing-carrier answer changed for '${r.id}' (${r.fact}) — expected ${EXPECTED_CARRIER[r.id]}, measured ${r.verdict}. This is the premise PL-114 rests on, and four import rulings cite it (T-337 preserve, T-347 preserve, T-340 consume). GENERATED→NONE means we stopped emitting a rival carrier for a fact the input already carries — the reason T-340 departs from the T-337 precedent is gone, and the ruling must be re-argued, not re-expected (T-357 retiring aef:position would land exactly here). NONE→GENERATED means we started competing with content we currently preserve, which inverts that row's ruling the other way. Update EXPECTED_CARRIER only alongside the ruling it changes, and fix docs/reports/T-397-import-repair-semantics-brief.md in the same commit — the brief's table is the thing this row keeps honest.`);
       console.log(ok ? 'OK: every measured fidelity verdict matches expectation — corpus lossless, vocabulary gap set unchanged, no silent partial acceptance, no identity destroyed'
                      : 'FAIL: input fidelity moved — see above');
     }

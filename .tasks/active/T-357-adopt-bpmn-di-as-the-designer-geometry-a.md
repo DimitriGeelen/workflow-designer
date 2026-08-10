@@ -202,6 +202,22 @@ strict subset of adoption, byte-neutral, needs no AEF coordination, and ships on
 the operator's T-340 ruling whether this inception says GO or NO-GO. This task
 must not become T-340's blocker.
 
+> **If this inception goes GO, it retires a premise three other rulings cite —
+> and there is now a guard that will say so (T-419).** Retiring `aef:position`
+> deletes the only rival carrier we generate, which is the entire reason T-340
+> departs from the T-337/T-347 "preserve" precedent. That claim is no longer prose:
+> `tools/_t338-input-fidelity-cdp.mjs` population 7 measures it, and removing the
+> `aef:position` emission moves the `geometry` row from
+> `CARRIER-GENERATED:aef:position` to `CARRIER-NONE` — a deliberate, loud FAIL in the
+> bridge suite, verified by `tools/_t419-carrier-mutation-check.sh` (M1 *is* this
+> change, applied to a copy).
+>
+> **That FAIL is correct and must not be silenced by updating `EXPECTED_CARRIER`
+> alone.** The expectation, `docs/reports/T-397-import-repair-semantics-brief.md`'s
+> competing-carrier table, and PL-114's worked example all move together or the rule
+> starts describing a codebase that no longer exists. Budget it as part of adoption,
+> not as test breakage to be tidied.
+
 ## Acceptance Criteria
 
 ### Agent
