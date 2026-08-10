@@ -1662,7 +1662,7 @@ concerns:
       SHAPE. Same family as G-013 (a subset reported as the whole) and G-022 (a
       one-topic measurement reported as a fact about a peer): an instrument that is
       accurate about its own scope, read as if its scope were the population.
-    closure_condition: |
+    decision_trigger: |
       A detector exists that flags any task whose body defers to a human decision
       (ruling-shaped prose: "operator's call", "needs human confirmation", "left for
       human", "the human must decide", "awaiting operator") while its `### Human`
