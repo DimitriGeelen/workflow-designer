@@ -1,13 +1,13 @@
-error-watchdog=4
+error-watchdog=47
 
-loop-detect=17
-audit-task-tools=17
+loop-detect=70
+audit-task-tools=69
 error-watchdog=10
-check-human-ac-tick=3
+check-human-ac-tick=4
 check-fabric-new-file=1
 
-checkpoint=4
-check-tier0=4
-budget-gate=4
-check-project-boundary=4
-check-active-task=4
+checkpoint=57
+check-tier0=51
+budget-gate=52
+check-project-boundary=52
+check-active-task=50
