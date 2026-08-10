@@ -4,10 +4,10 @@ name: "832-side compile->promote->create producer-contract test (AEF rail offset
 description: >
   AEF (rail offset 78) proposes a 832-side integration test mirroring their tests/unit/bpmn_promote_e2e.bats contract (manifest shape, promote CLI output, owner: agenthuman+captured forcing, aef_provenance block, reconcile states, gate refusal, inception-node DEFER-materialization leg). SCOPE ASSESSMENT NEEDED (G-020: this is a PROPOSAL, not authorization): T-559 symmetric boundary means 832 CANNOT run AEF tooling, so this is a PRODUCER-CONTRACT test on our side (assert our .bpmn serialization + manifest projection meet the pinned contract), NOT a live e2e. We already have tests/test_promote_contract.py + tests/test_two_lane_joint_contract.py asserting producer inputs; determine whether this is an extension of those or a genuinely new test before building. If serialization diverges, AEF offered byte-exact cross-validation (T-2535/T-2536 pattern).
 
-status: captured
+status: started-work
 workflow_type: test
 owner: human
-horizon: next
+horizon: now
 tags: [aef, arc, seam, producer-contract]
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-19T15:42:35Z
-last_update: 2026-07-27T22:15:12Z
+last_update: 2026-08-10T19:40:56Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -83,45 +83,133 @@ covered by T-206 + T-208. Suggested dispositions:
 This is a decision to decline/defer a peer's proposal → left for human (Dimitri)
 confirmation before closing or replying. Assessment only — no source written (budget-wrap).
 
+## Re-Measurement (2026-08-10) — the premise, not the conclusion
+
+The finding above is ~2 months old. Its conclusion ("already covered") is a rule; its
+basis ("these tests assert these rows") is a fact about files on a given day. Only the
+second can dissolve without a symptom, and the first keeps reading as true when it does
+(PL-142). So it was re-run, not re-read.
+
+**Both suites executed today, both green:**
+
+    $ python3 tests/test_promote_contract.py                       exit 0
+    OK: designer→AEF promote contract — inception-gonogo.bpmn (sha bbfbc5ec4835)
+      manifest owner-bearing uids: n_inception {owner:human←sovereignty,
+      workflow_type:inception}; uid totality + byte-determinism + teeth verified
+
+    $ python3 tests/test_two_lane_joint_contract.py                exit 0
+    OK: two-lane joint promote contract — two-lane-joint.bpmn (sha 2ba55eedbd90)
+      owner-bearing uids: n_inception {owner:human←sovereignty, wf:inception};
+      n_plan {owner:agent←initiative, wf:build}; uid totality + byte-determinism
+      + teeth verified
+
+Row by row, against the current files rather than the old table:
+
+| producer-INPUT row | asserted today by | evidence |
+|---|---|---|
+| manifest tuple `{name, owner, workflow_type}` | `extract_manifest`, both suites | tuple printed per owner-bearing uid in both runs |
+| owner `human` ← sovereignty lane | both | `owner:human←sovereignty` in both outputs |
+| owner `agent` ← initiative lane | joint only | `n_plan {owner:agent←initiative}`; joint check (3) asserts the owner SET is exactly `{human, agent}` |
+| uid totality (reconcile key 1) | both | "uid totality … verified" |
+| `source_bpmn_sha` (reconcile key 2) | both | fixture sha pinned in the output line itself |
+| inception-node → `workflow_type: inception` | both | `workflow_type:inception` / `wf:inception` |
+| teeth (each suite can fail) | both | "teeth verified"; joint (5b) blanks the initiative lane's authority and requires owner derivation to break |
+
+**Side-split re-checked by measuring the exporter, not by re-reading the partition.**
+`src/aef-workflow-designer.html` emits 23 distinct `aef:*` markers today
+(`aef:uid`, `aef:position`, `aef:meta`, `aef:laneMeta`, `aef:workflowMeta`, `aef:io`,
+`aef:routing`, …). None of the four AEF-OUTPUT rows appears among them:
+
+    aef_provenance      0 occurrences
+    status="captured"   0 occurrences
+    provenance          2 — both inside comments
+    reconcile           6 — all inside comments
+    promote             5 — all inside comments
+
+So no row has crossed the T-559 boundary since the assessment. For one to cross, 832
+would have to start EMITTING the field (a provenance block, a `status`, a reconcile
+state) rather than merely mentioning it — and it emits none.
+
+**Verdict: the original finding survives re-measurement.** The recommendation below now
+rests on a dated measurement rather than a dated reading.
+
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **The coverage table is RE-MEASURED, not re-read.** The assessment above concluded
+      "already covered by T-206 + T-208" and is ~2 months old. That conclusion is a
+      RULE; "these tests assert these rows" is a FACT about the test files on the day it
+      was written, and only the fact can expire silently (PL-142). Each producer-INPUT
+      row is re-checked against the current `tests/test_promote_contract.py` and
+      `tests/test_two_lane_joint_contract.py`, and both suites are RUN, not just read.
+      A green table asserted from a stale reading is exactly what would make us decline
+      a peer's proposal on a premise that has since dissolved.
+- [x] **The T-559 side-split is re-checked against the CURRENT seam.** The assessment
+      partitions AEF's offset-78 proposal into producer-INPUT (ours) and AEF-OUTPUT
+      (theirs). If any row has since moved sides — e.g. a field we now emit that we did
+      not then — the "no new producer-input surface" finding does not hold. Verified by
+      naming, for each AEF-OUTPUT row, what in 832 would have to change for it to become
+      ours.
+- [x] Whatever the re-measurement finds is written into the task as a dated result with
+      the command output, replacing the undated claim. If it confirms the original
+      finding, that is a measurement; if it does not, the recommendation below is
+      withdrawn before the operator is asked to act on it.
 
 ### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
+- [ ] [REVIEW] Decline AEF's offset-78 producer-contract proposal as already satisfied?
 
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
+  **This ruling has existed since the task was filed — as prose in `## Context`, not as
+  an AC.** So a task waiting on your decision has been reading as in-progress agent
+  work, invisible to `fw task verify` and to the review queue. That is the fourth
+  instance of this mis-filing (T-340 AC1, T-341 AC1, T-358), and it is filed here rather
+  than fixed silently.
 
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
+  **What is being decided:** whether to tell a cooperating peer that the test they
+  proposed we build is unnecessary. That is a seam ruling about a peer's work, not an
+  implementation choice, which is why it is yours.
 
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
+  **What the measurement says (re-run today, not inherited):** every producer-INPUT row
+  in AEF's offset-78 proposal is asserted by `tests/test_promote_contract.py` +
+  `tests/test_two_lane_joint_contract.py`, both green, both with working teeth. The
+  remaining four rows are AEF OUTPUTS which, under T-559, 832 must NOT assert — building
+  them here would test our guess at their behaviour and call it a contract. Our exporter
+  emits none of the four fields, so nothing has crossed the boundary since.
+
+  **Options:**
+  - **A — Decline as satisfied.** Reply on the rail citing the two suites and the
+    tuple-pin, note the AEF-OUTPUT half correctly lives in their bats, close T-209.
+  - **B — Build it anyway.** Cost: a third suite asserting what two already assert, plus
+    the standing risk that its AEF-OUTPUT half encodes our assumption about their side.
+  - **C — Decline the promote/manifest half, open the real gap.** As A, and additionally
+    file typed-event byte-exact cross-validation (`typed-events.bpmn` /
+    `boundary-events.bpmn`, rail offsets 82–83) as its own task — a genuinely uncovered
+    producer surface that the offset-78 proposal did not name.
+
+  **Recommendation: C.** A is correct and incomplete: it closes the item and leaves the
+  one real gap unfiled, which is how a satisfied-contract finding turns into a blind
+  spot. The typed-event surface is a different contract, and AEF already shipped a WARN
+  detector for it (T-2552) — so declining the proposal while filing that gap answers
+  their proposal in the spirit it was made.
+
+  **Steps:**
+  1. `python3 tests/test_promote_contract.py && python3 tests/test_two_lane_joint_contract.py`
+  2. Confirm both print `OK:` and exit 0
+  3. Record the decision:
+     `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw context add-decision "T-209 offset-78 proposal: C" --task T-209 --rationale "producer-input contract already met by T-206+T-208, re-measured green; AEF-OUTPUT half stays in their bats per T-559; file typed-event byte-exact cross-validation as its own task"`
+
+  **Expected:** a decision recorded against T-209. The agent then posts the rail reply
+  and files the typed-event task; T-209 closes.
+
+  **If not:** if you want the reply worded differently, or want the typed-event gap left
+  unfiled for now, say so in the rationale — the agent will not send a rail message
+  declining a peer's proposal without this decision recorded.
+
 
 ## Verification
+
+python3 tests/test_promote_contract.py
+python3 tests/test_two_lane_joint_contract.py
+test 0 -eq "$(grep -cE '<aef:(provenance)|status="captured"' src/aef-workflow-designer.html)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -224,3 +312,7 @@ confirmation before closing or replying. Assessment only — no source written (
 
 ### 2026-07-27T22:14:59Z — status-update [task-update-agent]
 - **Change:** owner:  → human
+
+### 2026-08-10T19:40:56Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
