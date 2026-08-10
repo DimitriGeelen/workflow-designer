@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-421: Enforcement claim drift: gates the tree asserts are live are not registered
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-10T19:37:59Z
+# ============================================================================
+
+task_id: T-421
+task_name: "Enforcement claim drift: gates the tree asserts are live are not registered"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-10T19:30:28Z
+completed: 2026-08-10T19:37:51Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-10T21:37:37+02:00
+last_commit: 2026-08-10T21:37:37+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  enforcement claim drift — the tree promises a gate it never installed
+
+# Key outcomes
+outcomes:
+  - 'A drift detector exists that compares three sets and reports the gaps:'
+  - 'The detector distinguishes **claimed-active** from **merely mentioned**. A hook name'
+  - 'Every one of the 21 unregistered scripts is **dispositioned**, and the DETECTOR'
+  - 'Mutation check proves the detector can fail: (a) inject a fake claimed-active hook'
+  - 'Each CLAIMED-BUT-OFF finding gets a follow-up task or an explicit recorded reason'
+  - 'Detector wired into `## Verification` so the claimed∧¬registered set cannot grow'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-10 — baseline containment rather than exit-1-on-any-finding'
+    chose: 'pin the known set; fail only when it GROWS.'
+    rationale: 'the one finding is a follow-up decision (register vs delete the sentence),'
+    alternatives_rejected: ['hard fail on any finding — honest, and it would have been switched off']
+  - decision: '2026-08-10 — the detector prints the disposition; the task file does not own it'
+    chose: 'classification is computed at runtime from the scripts'' own headers and the'
+    rationale: 'a disposition table written into a task file is accurate on the day it is'
+    alternatives_rejected: ['maintaining the 21-row table by hand in this task.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/enforcement-claim-baseline.txt'
+  - '.fabric/components/tools-_t421-drift-mutation-check.yaml'
+  - '.fabric/components/tools-_t421-enforcement-claim-drift.yaml'
+  - '.tasks/active/T-421-enforcement-claim-drift-gates-the-tree-a.md'
+  - '.tasks/active/T-422-check-arc-id-register-the-hook-or-delete.md'
+  - 'tools/_t421-drift-mutation-check.sh'
+  - 'tools/_t421-enforcement-claim-drift.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-10T21:37:37"
+    action: "T-421: enforcement claim drift — the tree promises a gate it never installed"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 7
+  commits: 1
+  files_changed: 7
+  lines_added: 1055
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-421-enforcement-claim-drift-gates-the-tree-a.md
+generated_by: context-agent-hybrid

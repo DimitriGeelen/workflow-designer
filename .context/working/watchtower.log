@@ -131,3 +131,134 @@ Press CTRL+C to quit
 192.168.10.107 - - [10/Aug/2026 00:09:40] "GET / HTTP/1.1" 200 -
 192.168.10.157 - - [10/Aug/2026 00:14:26] "GET /review/T-251/acs HTTP/1.1" 200 -
 192.168.10.157 - - [10/Aug/2026 20:33:05] "GET /review/T-251/acs HTTP/1.1" 200 -
+192.168.10.157 - - [10/Aug/2026 20:49:54] "GET /review/T-251/acs HTTP/1.1" 200 -
+192.168.10.157 - - [10/Aug/2026 21:06:52] "GET /review/T-251/acs HTTP/1.1" 200 -
+192.168.10.157 - - [10/Aug/2026 21:23:01] "GET /review/T-251/acs HTTP/1.1" 200 -
+192.168.10.157 - - [10/Aug/2026 21:24:01] "GET /review/T-251/acs HTTP/1.1" 200 -
+192.168.10.107 - - [10/Aug/2026 21:24:23] "GET /api/_identity HTTP/1.1" 200 -
+192.168.10.107 - - [10/Aug/2026 21:24:24] "GET /api/_identity HTTP/1.1" 200 -
+192.168.10.107 - - [10/Aug/2026 21:24:25] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:28] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:29] "GET /approvals HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:29] "GET /approvals/content HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:29] "GET /arcs HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:29] "GET /assumptions HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:31] "GET /bvp HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:31] "GET /cockpit/activity HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:31] "GET /config HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:34] "GET /costs HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:40] "GET /decisions HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:40] "GET /designer HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:40] "GET /designer/app HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:40] "GET /designer/ghosts HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:40] "GET /designer/overlay HTTP/1.1" 404 -
+127.0.0.1 - - [10/Aug/2026 21:24:41] "GET /directives HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:43] "GET /discoveries HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:43] "GET /docs/generated HTTP/1.1" 200 -
+Failed to parse bypass log /opt/832-Workflow-designer/.context/bypass-log.yaml: while parsing a block mapping
+  in "<unicode string>", line 3, column 1:
+    bypasses: []
+    ^
+expected <block end>, but found '<block sequence start>'
+  in "<unicode string>", line 4, column 3:
+      - timestamp: 2026-08-08T06:55:23Z
+      ^
+127.0.0.1 - - [10/Aug/2026 21:24:44] "GET /enforcement HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:44] "GET /escalation-drift HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:44] "GET /fabric HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:45] "GET /fabric/graph HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:48] "GET /fleet HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:49] "GET /gaps HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:52] "GET /cron HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:53] "GET /graduation HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:53] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:53] "GET /hooks HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:53] "GET /inception HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:53] "GET /learnings HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:55] "GET /metrics HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:55] "GET /orchestrator HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:55] "GET /orchestrator/parallel HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:55] "GET /patterns HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:55] "GET /pending HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:56] "GET /project HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:56] "GET /prompts HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:56] "GET /quality HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:56] "GET /reviewer/audit HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:56] "GET /reviewer/overrides HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:24:56] "GET /risks HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:25:00] "GET /search HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:25:00] "GET /search/conversations HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:25:00] "GET /search/feedback/analytics HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:25:00] "GET /search/load-conversation HTTP/1.1" 400 -
+127.0.0.1 - - [10/Aug/2026 21:25:00] "GET /sessions HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:25:00] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:25:00] "GET /settings/appearance HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:25:00] "GET /settings/models HTTP/1.1" 200 -
+192.168.10.157 - - [10/Aug/2026 21:25:01] "GET /review/T-251/acs HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:25:04] "GET /tasks HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:25:04] "GET /terminal HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:25:07] "GET /timeline HTTP/1.1" 200 -
+192.168.10.157 - - [10/Aug/2026 21:26:01] "GET /review/T-251/acs HTTP/1.1" 200 -
+192.168.10.157 - - [10/Aug/2026 21:27:01] "GET /review/T-251/acs HTTP/1.1" 200 -
+192.168.10.107 - - [10/Aug/2026 21:27:16] "GET /api/_identity HTTP/1.1" 200 -
+192.168.10.107 - - [10/Aug/2026 21:27:16] "GET /api/_identity HTTP/1.1" 200 -
+192.168.10.107 - - [10/Aug/2026 21:27:16] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:19] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:19] "GET /approvals HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:19] "GET /approvals/content HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:19] "GET /arcs HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:20] "GET /assumptions HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:20] "GET /bvp HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:20] "GET /cockpit/activity HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:20] "GET /config HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:20] "GET /costs HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:25] "GET /decisions HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:25] "GET /designer HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:26] "GET /designer/app HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:26] "GET /designer/ghosts HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:26] "GET /designer/overlay HTTP/1.1" 404 -
+127.0.0.1 - - [10/Aug/2026 21:27:26] "GET /directives HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:28] "GET /discoveries HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:29] "GET /docs/generated HTTP/1.1" 200 -
+Failed to parse bypass log /opt/832-Workflow-designer/.context/bypass-log.yaml: while parsing a block mapping
+  in "<unicode string>", line 3, column 1:
+    bypasses: []
+    ^
+expected <block end>, but found '<block sequence start>'
+  in "<unicode string>", line 4, column 3:
+      - timestamp: 2026-08-08T06:55:23Z
+      ^
+127.0.0.1 - - [10/Aug/2026 21:27:29] "GET /enforcement HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:29] "GET /escalation-drift HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:29] "GET /fabric HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:29] "GET /fabric/graph HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:33] "GET /fleet HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:33] "GET /gaps HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:37] "GET /cron HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:37] "GET /graduation HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:37] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:37] "GET /hooks HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:37] "GET /inception HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:38] "GET /learnings HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:40] "GET /metrics HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:40] "GET /orchestrator HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:40] "GET /orchestrator/parallel HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:40] "GET /patterns HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:40] "GET /pending HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:40] "GET /project HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:40] "GET /prompts HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:40] "GET /quality HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:40] "GET /reviewer/audit HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:40] "GET /reviewer/overrides HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:40] "GET /risks HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:40] "GET /search HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:40] "GET /search/conversations HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:40] "GET /search/feedback/analytics HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:40] "GET /search/load-conversation HTTP/1.1" 400 -
+127.0.0.1 - - [10/Aug/2026 21:27:40] "GET /sessions HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:40] "GET /settings/ HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:41] "GET /settings/appearance HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:41] "GET /settings/models HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:41] "GET /tasks HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:41] "GET /terminal HTTP/1.1" 200 -
+127.0.0.1 - - [10/Aug/2026 21:27:41] "GET /timeline HTTP/1.1" 200 -

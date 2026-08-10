@@ -1417,3 +1417,17 @@ decisions:
     date: 2026-08-09
     task: T-418
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-182
+    decision: "pin the known set; fail only when it GROWS."
+    scope: project
+    date: 2026-08-10
+    task: T-421
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-183
+    decision: "classification is computed at runtime from the scripts' own headers and the"
+    scope: project
+    date: 2026-08-10
+    task: T-421
+    rationale: "Auto-captured from task file on completion"
