@@ -1037,3 +1037,10 @@ learnings:
   date: 2026-08-10
   context: Added via context agent
   application: TBD
+- id: PL-144
+  learning: "fw hook-enable GROUPS registrations by matcher: registering a new hook on a matcher that already exists appends into the existing group rather than creating a new one. Consequence when removing: filtering settings.json by 'which group mentions my script' deletes every CO-TENANT of that group. Measured live in T-420 — a probe hook registered on matcher 'Bash' landed inside the group that carries check-tier0, and removing the probe by group took the Tier 0 destructive-command gate down with it. Restored byte-exact within two tool calls, verified by git diff. There is no 'fw hook-disable', so every removal is hand-rolled JSON surgery on the file that holds the highest-consequence gates in the system. Remove by COMMAND within the group, never by group; and diff settings.json before trusting the result."
+  source: P-001
+  task: T-420
+  date: 2026-08-10
+  context: Added via context agent
+  application: TBD

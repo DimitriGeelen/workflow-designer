@@ -85,12 +85,26 @@ observations:
   captured: 2026-08-10T18:40:54Z
   context_task: null
   tags: [seam]
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-013
   text: "fw note silently mis-captures when given a subcommand-like first argument: 'fw note add \"real text\"' stores the literal string 'add' as the observation and discards the rest, exit 0, success message. The verbs list (list/count/triage/promote/dismiss) makes 'add' the natural guess, and free-text capture means any typo'd verb becomes a valid one-word observation. Silent wrong-capture, not a refusal — the operator sees success and the content is gone. Suggested fix: reject a bare first argument that looks like a verb but is not one, or require --text. Vendored framework (G-008 in-tree fix + upstream)."
   captured: 2026-08-10T18:40:58Z
   context_task: null
   tags: [tooling]
+  status: pending
+  promoted_to: null
+- id: OBS-014
+  text: "fw hook-enable has no inverse. Registering is one governed command; DEREGISTERING is hand-edited JSON against the file that holds check-tier0, check-active-task, budget-gate and the plan-mode block. T-420 hit the cost directly: a probe registration merged into the existing 'Bash' group, and removing it by group deleted the Tier 0 gate for two tool calls. The asymmetry is the flaw — a framework that makes it easy to add an enforcement hook and unsupported to remove one guarantees the removal happens by improvisation, on the highest-consequence file, with no gate watching. Remedy direction: fw hook-disable --script <path> --matcher <pat> --event <evt>, removing the COMMAND from its group and dropping the group only when it empties, plus a post-write assertion that every previously-registered command is still present. Vendored framework (G-008 in-tree fix + upstream)."
+  captured: 2026-08-10T19:25:30Z
+  context_task: T-420
+  tags: []
+  status: pending
+  promoted_to: null
+- id: OBS-015
+  text: "Claude Code SNAPSHOTS hook configuration at session start: a hook registered mid-session does not fire for the rest of that session. Measured in T-420 with a discriminating probe — a trivial hook registered on matcher 'Bash' (a matcher already proven live) also failed to fire, which separates 'my matcher pattern is wrong' from 'registrations are snapshotted'. Consequence for this project: ANY task whose deliverable is a PreToolUse/PostToolUse gate cannot verify live interception within the session that builds it. The mutation check proves the script's logic; it cannot prove the wiring. Worth an audit of prior hook-adding tasks (T-1730, T-1849, T-1886, check-visual-verification) for ACs that claim interception evidence they could not have had."
+  captured: 2026-08-10T19:25:34Z
+  context_task: T-420
+  tags: []
   status: pending
   promoted_to: null

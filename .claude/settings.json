@@ -103,6 +103,15 @@
             "command": "/opt/832-Workflow-designer/.agentic-framework/bin/fw hook block-task-tools"
           }
         ]
+      },
+      {
+        "matcher": "mcp__termlink__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/opt/832-Workflow-designer/tools/_t420-rail-attribution-gate.py"
+          }
+        ]
       }
     ],
     "PostToolUse": [
