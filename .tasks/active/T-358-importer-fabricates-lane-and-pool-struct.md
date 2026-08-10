@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T16:12:36Z
-last_update: 2026-08-04T10:36:01Z
+last_update: 2026-08-10T18:47:30Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -308,14 +308,98 @@ and should be decided with it, not before it.
       > so as a standing gate it would silently compare against an ever-older tree.
       > It is an on-demand instrument; the standing fix belongs to T-364/G-023.
 
-- [ ] Bridge suite green; `_t308` byte-identity still 24/24 (a repair here must not
-      change what we emit for existing maps)
+- [ ] **BLOCKED** — Bridge suite green; `_t308` byte-identity still 24/24 (a repair here
+      must not change what we emit for existing maps)
 
-- [ ] `tools/_t356-third-party-fidelity-cdp.mjs` re-run: `lanes` and `participants`
-      deltas gone from all five rows, with the other columns unchanged (this task
-      repairs fabrication only, not the DI/pool/node losses those rows also carry)
+- [ ] **BLOCKED** — `tools/_t356-third-party-fidelity-cdp.mjs` re-run: `lanes` and
+      `participants` deltas gone from all five rows, with the other columns unchanged
+      (this task repairs fabrication only, not the DI/pool/node losses those rows also
+      carry)
+
+Both are downstream of the Human ruling below and are marked **BLOCKED** rather than
+left looking merely undone: there is no repair to verify until a candidate is chosen,
+and a task whose scope is blocked should look blocked (same convention as T-340). The
+diagnosis ACs above are genuinely complete — the block is on the repair, not the
+investigation.
+
+**Caveat carried forward when these are eventually run:** `_t308` byte-identity is
+sound *only for designer-produced maps*, because `aef:uid` is minted fresh per parse
+for any node lacking one, so every third-party fixture emits nondeterministically. A
+green 24/24 here says nothing about the population this repair is aimed at — use
+`tools/_t358-byteid-thirdparty.mjs` for that half.
 
 ### Human
+
+- [ ] [REVIEW] Choose the lane/pool fabrication repair: **A · B · C · AB · no repair**
+
+      **This ruling already existed — it was recorded in prose and never filed as an
+      AC.** `## Decisions` says *"the default choice remains the operator's"*, and the
+      three remaining Agent ACs are all downstream of it, so the task has read as
+      in-progress agent work while actually waiting on a decision nobody was asked for.
+      Filed here on 2026-08-10 so it appears in `fw task verify` and the review queue.
+      Same mis-filing as T-340's AC1 and T-341's AC1; Agent→Human is the safe conversion
+      direction (T-1811/T-1878 restricts Human→Agent, not the reverse). **No measurement
+      below is new** — all of it was already in `## Decisions`, gathered here so the
+      ruling is decidable without reading the whole task.
+
+      **Why this is not the agent's call:** every candidate changes what we assert about
+      a *peer's* document on the sovereignty axis — whether a third-party file that
+      names no lanes comes back claiming a `sovereignty` lane it never had. AEF measured
+      their own importer and does **not** fabricate (rail 484/486, our T-403), so this is
+      also the axis on which we are currently the outlier at the seam.
+
+      **Measured 2026-08-04, `tools/_t358-repair-options-cdp.mjs`** — every candidate
+      applied to a temp copy and round-tripped through the real importer/emitter:
+
+      | candidate | fabricates | asserts sovereignty | provenance survives save | emits empty laneSet | corpus bytes |
+      |---|---|---|---|---|---|
+      | current (no repair) | yes (3) | **true** | **no** | no | identical |
+      | **A** drop (importer + emitter) | no | false | yes | no | identical |
+      | **B** mark (provenance into the doc) | yes (3) | **true** | yes | no | identical |
+      | **C** neutral default (1 lane, `unassigned`) | yes (1) | false | no | no | identical |
+      | **AB** drop + mark | no | false | yes | no | identical |
+
+      **Three facts that constrain the choice:**
+      1. **A must be taken in BOTH halves or it inverts into a worse defect.** Dropping
+         only the importer default yields `lanes=0` while the emitter still opens
+         `<bpmn:laneSet>` unconditionally — we would emit the *empty laneSet* shape our
+         own partition classifies as a third-party defect, and our output re-imports as
+         `defaulted:empty-laneset`. Rendering survives, so nothing announces it.
+      2. **A report-only remedy cannot work.** `laneProvenance` is a parse-time property
+         that survives exactly one hop: a third-party file imports as `defaulted`, and
+         our own saved output re-imports as `authored` with `authority="sovereignty"` in
+         the bytes. Saving is what makes the invention the document. **Any repair must
+         act at or before the first save**, and none can reach files already saved.
+      3. **"No production map relies on the default" is a capability zero, not
+         reassurance.** 10 of 141 `.bpmn` would import to `lanes=0` and all 10 are
+         fixtures — but 122/141 carry `aef:position`, our own exporter's fingerprint,
+         and per (2) any third-party file that ever passed through the editor was
+         laundered into the "has lanes" bucket at its first save. The census measures
+         our generator, not the population (same shape as T-340's DI census).
+
+      **Steps:**
+      1. Read `## Decisions` → *"Candidates MEASURED 2026-08-04"* for the full run.
+      2. Choose one. Note that **A and AB are identical on every measured column**, so
+         B buys nothing on top of A *as measured* — if you pick AB, pick it for a reason
+         the table does not capture, and say so in the rationale.
+      3. Record it: `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw context add-decision "T-358 lane/pool fabrication repair: <A|B|C|AB|none>" --task T-358 --rationale "<why>"`
+
+      **Expected:** one option recorded as a decision. The three remaining Agent ACs
+      then become executable and the repair ships under this task.
+
+      **If not:** if none fits, the likely reason is that the real question is *"may we
+      ever assert structure a peer's document did not contain?"* — which is broader than
+      lanes and would want its own inception rather than being settled here.
+
+      **Recommendation: A (drop, both halves).** It is the only candidate that stops us
+      inventing a sovereignty assertion on a peer's document, it is byte-identical on the
+      corpus, `renderAll()` is ok on it, and no production map depends on the fabricated
+      default. It also puts us where AEF already is, which removes the outlier position
+      at the seam rather than annotating it. **The honest cost:** downstream consumers
+      that assume at least one lane exists now meet `lanes=0` — C exists precisely to
+      keep a lane for them at the price of still inventing structure, and if a consumer
+      turns up that genuinely cannot take zero, C is the right answer over A.
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
