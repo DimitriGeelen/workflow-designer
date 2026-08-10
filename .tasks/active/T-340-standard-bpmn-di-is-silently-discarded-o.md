@@ -86,6 +86,22 @@ tickable AC out of it would make a blocked task read as progressing.
 
 - [ ] [REVIEW] Repair semantics for standard BPMN DI on import
 
+      > ### 2026-08-10 — the T-357 GO may already contain this ruling. One command settles both.
+      >
+      > You recorded **GO** on T-357 (adopt BPMN DI as the designer geometry). The rationale
+      > you approved names its first increment as *"Read DI when `aef:position` is absent.
+      > = T-340 scoped (b)"* — i.e. the recommendation below, by name.
+      >
+      > **I am not treating that as a ruling on T-340.** An inception decision approves a
+      > direction; it does not tick another task's Human AC, and reading an implication as an
+      > authorisation is the exact move the sovereignty gate exists to prevent. So this AC
+      > stands open.
+      >
+      > But if endorsing (b) *was* what you meant, step 4 below is all that is left — and
+      > T-340 unblocks immediately, byte-neutral, no seam event, no AEF coordination.
+      > T-357's post-GO decomposition (T-423 step 2, T-424 step 3, T-425 the trailer claim)
+      > is filed and all of it sits downstream of this one ruling.
+
       > **Consolidated view: `docs/reports/T-397-import-repair-semantics-brief.md`.** This is
       > one of four open rulings; the brief states all four in their *current* form, which
       > matters here because this AC has been corrected in place (the recommendation moved

@@ -1431,3 +1431,24 @@ decisions:
     date: 2026-08-10
     task: T-421
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-184
+    decision: "block the call and make the agent retype the label."
+    scope: project
+    date: 2026-08-10
+    task: T-420
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-185
+    decision: "`label != EXPECTED_LABEL` blocks, with no normalisation."
+    scope: project
+    date: 2026-08-10
+    task: T-420
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-186
+    decision: "`basename(dirname(dirname(__file__)))`, resolved from the script's own"
+    scope: project
+    date: 2026-08-10
+    task: T-420
+    rationale: "Auto-captured from task file on completion"

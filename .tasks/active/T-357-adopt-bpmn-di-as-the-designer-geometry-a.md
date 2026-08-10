@@ -352,6 +352,36 @@ bounds adoption's scope without disqualifying it.
      - **Rejected:** [alternatives and why not]
 -->
 
+## Post-GO Decomposition (2026-08-10)
+
+Operator recorded **GO** at 2026-08-10T20:08:36Z via Watchtower. Per Inception Discipline
+rule 5, build work does not continue under this task ID. The GO rationale described three
+nested increments; those existed only as prose inside a decision field, which is exactly
+the PL-145 / G-030 failure mode (*a ruling filed as prose is invisible to every instrument
+that looks for rulings*). They are now tracked artifacts:
+
+| step | task | status | gated on |
+|---|---|---|---|
+| 1 — read DI when `aef:position` is absent | **T-340** (already existed) | awaiting operator ruling, rec **(b)** | operator ruling only; byte-neutral, no seam event |
+| 2 — emit DI additively, keep `aef:position` | **T-423** | captured, horizon `next` | step 1 landing + **A-020**; first step that touches the seam (24 corpus maps change bytes → coordinated `source_bpmn_sha` re-pin with AEF) |
+| 3 — retire `aef:position` | **T-424** (owner human) | captured, horizon `later` | T-225 scope ruling + v1.1 revision of the frozen two-party standard + spike 3's unresolved intent gap |
+
+Deliberately **not** a fourth step, filed independently because it is decidable without
+the adoption question: **T-425** — every exported `.bpmn` carries `DI_TRAILER`, an
+unverified claim about a peer project's behaviour, shipped for two months across ten
+releases (spike 1). Blocked on A-020 like step 2, but for a different reason: A-020 decides
+whether that sentence is *stale* or *false*.
+
+**No duplicate task was created for step 1.** T-340 is the step-1 build task — filing a
+second one would break "one bug = one task" and split the causality trail. What step 1
+still needs is the ruling, not a ticket.
+
+**On the strength of the GO for T-340:** the approved rationale names step 1 as "= T-340
+scoped (b)", which reads as an endorsement of option (b). It is *not* recorded as a T-340
+decision, and I am not treating an implication as a ruling — T-340's Human AC stands. The
+overlap is flagged there so the operator can settle both with one command if that was the
+intent.
+
 ## Decision
 
 **Decision**: GO

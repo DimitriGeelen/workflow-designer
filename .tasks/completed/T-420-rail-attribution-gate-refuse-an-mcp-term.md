@@ -4,20 +4,20 @@ name: "Rail attribution gate: refuse an MCP termlink post that omits from_projec
 description: >
   Rail attribution gate: refuse an MCP termlink post that omits from_project (OBS-012)
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t420-gate-mutation-check.sh, tools/_t420-rail-attribution-gate.py, tools/_t421-drift-mutation-check.sh, tools/_t421-enforcement-claim-drift.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T19:16:52Z
-last_update: 2026-08-10T19:39:16Z
-date_finished: null
+last_update: 2026-08-10T20:19:12Z
+date_finished: 2026-08-10T20:19:12Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -68,17 +68,27 @@ wrong label; a gate that refuses cannot).
       missing field, the exact value to use, and the reason.
       Evidence: `git diff .claude/settings.json` is a 9-line addition and nothing else;
       `fw enforcement baseline` refreshed, `fw doctor` reports "Enforcement baseline intact".
-- [ ] **LIVE INTERCEPTION — NOT VERIFIABLE IN THE SESSION THAT BUILT IT.** Claude Code
-      snapshots hook configuration at session start, measured here with a discriminating
+- [x] **LIVE INTERCEPTION — VERIFIED 2026-08-10, IN THE SUCCESSOR SESSION.** Claude Code
+      snapshots hook configuration at session start, measured with a discriminating
       probe: a trivial hook registered mid-session on matcher `Bash` — a matcher already
-      proven live by the G-020 block earlier in this same session — also failed to fire.
-      That separates "my `mcp__termlink__.*` pattern is wrong" from "registrations are
-      snapshotted"; only the second is consistent with the evidence.
-      The mutation check proves the script's LOGIC (15/15). It cannot prove the WIRING.
-      Verify first thing next session: attempt `termlink_channel_post` to any real topic
-      with no `metadata.from_project`. Expected: blocked, exit 2, nothing on the wire.
+      proven live by the G-020 block in that same session — also failed to fire.
+      That separated "my `mcp__termlink__.*` pattern is wrong" from "registrations are
+      snapshotted"; only the second was consistent with the evidence.
+      The mutation check proves the script's LOGIC (15/15). It could not prove the WIRING.
+      **Result, measured in the next session, all three legs:**
+      (1) NEGATIVE — `termlink_channel_post` to `t420-gate-probe` with a payload and no
+          `metadata.from_project` → `PreToolUse ... BLOCKED`, exit 2, the message naming
+          the missing field, both accepted forms, and the OBS-012 measurement.
+      (2) NOTHING ON THE WIRE — `channel_state_since(t420-gate-probe, 0)` → `count: 0`,
+          `rows: []`. The refusal happened before the hub, not after.
+      (3) POSITIVE CONTROL — the same tool WITH `metadata.from_project` posted normally
+          (AEF rail offset **523**). The gate discriminates; it does not merely deny.
+      Probe topic deliberately scratch, not the live rail: the gate keys on the tool and
+      its content keys, never on the topic, so a scratch topic is a faithful test with
+      zero collateral if the gate had been dead.
       Filed as OBS-015 because this blind spot applies to every gate-building task in
-      this project, not just this one.
+      this project, not just this one — and see the Evolution entry: AEF's T-2815 is the
+      same defect with a repo-sized radius, which makes OBS-015 an instance, not a quirk.
 - [x] The producer test is **derived from the call wherever it can be** (T-418 principle):
       any `mcp__termlink__*` call carrying a non-empty content key (`payload`,
       `payload_b64`, `text`) requires attribution, so a producer surface that did not
@@ -304,6 +314,23 @@ will stay green through its expiry and says so in its own header.
 - **Triggered:** OBS-015, scoped wider than this task — every gate-building task in this
   project has the same blind spot, and prior ones may have claimed past it.
 
+### 2026-08-10 — the gate fired, and OBS-015 turned out to be an instance of a bigger class
+- **What changed:** verified in the successor session, all three legs (see AC2). Blocked
+  with exit 2, `count: 0` on the probe topic, and the correctly-attributed post landed at
+  rail offset 523. Wiring confirmed; the gate discriminates rather than merely denies.
+- **Plan impact:** T-420 completes on measurement, not on the mutation check. The
+  deliberate one-session delay was the cost of not claiming past the evidence, and it was
+  the right trade — the alternative was ticking AC2 on file contents.
+- **The wider finding (AEF rail 522 §3, arriving the same hour):** AEF measured their
+  `check-onboarding-gate` — 38 green test legs — as registered ONLY in the repo where
+  there are zero onboarding tasks to guard, and absent in every consumer where the
+  guarded thing exists. Their green suite and my inert gate are the same observable.
+  **Generalised: an enforcement artifact cannot be verified by the process that installs
+  it.** Verification must cross a boundary — session, repo, or install. OBS-015 is
+  therefore not a Claude Code quirk but one instance; reported back on rail 523 §2 with
+  the reciprocal framing, and the in-process test either side CAN run is not "does the
+  gate block?" but "is the gate registered where the guarded thing exists?"
+
 ### 2026-08-10 — took the Tier 0 gate down while cleaning up the probe
 - **What changed:** `fw hook-enable` groups registrations by matcher. The probe landed
   inside the existing `Bash` group, which is where `check-tier0` lives. Removing the
@@ -360,3 +387,20 @@ will stay green through its expiry and says so in its own header.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-420-rail-attribution-gate-refuse-an-mcp-term.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a9316d78
+- **Timestamp:** 2026-08-10T20:19:54Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — A PreToolUse gate script exists in-tree (`tools/_t420-rail-attribution-gate.py`)
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t420-rail-attribution-gate.py in: A PreToolUse gate script exists in-tree (`tools/_t420-rail-attribution-gate.py`)`
+
+### 2026-08-10T20:19:12Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1,22 +1,23 @@
 ---
-id: T-422
-name: "check-arc-id: register the hook or delete the promise"
+id: T-424
+name: "T-357 step 3: retire aef:position"
 description: >
-  T-421 finding. The task template asserts a PreToolUse hook (check-arc-id) blocks saves whose arc_id does not resolve. It is not registered in this project and never has been, so the sentence ships in every task file and has never been true. Two remedies, and they are different decisions: register the hook (adds enforcement that will start refusing saves) or delete the sentence (admits the absence). Operator call because the first changes behaviour for every future task write.
+  Third and maximal increment under T-357's GO. Stop writing aef:position, leaving DI as the sole geometry carrier. Unlike steps 1-2 this is NOT additive: spike 4 established it is exactly a silent migration under T-225 (a file that carried aef:position and no DI comes back carrying DI and no aef:position, on a save the author made for unrelated reasons), and T-225's four invocation sites in src are all semantic, none presentational — so the principle's scope over presentational content is stated, never tested. Also requires a v1.1 revision of the FROZEN two-party standard docs/standards/aef-bpmn-mapping-v1.md, which names aef:position, making this a two-party decision not a local one. Owner human: needs a T-225 scope ruling before any build. Also blocked by spike 3's unresolved intent gap — DI has no vocabulary for forceStraight/routingHint/loopDetour, and anchors/aef:waypoint are still unclassified as result-or-intent.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: human
-horizon: now
+horizon: later
 tags: []
 components: []
-related_tasks: []
+related_tasks: [T-357, T-423]
+arc_id: designer-authoring-surface
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-10T19:36:51Z
-last_update: 2026-08-10T20:22:09Z
+created: 2026-08-10T20:23:36Z
+last_update: 2026-08-10T20:23:36Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,116 +31,18 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-422: check-arc-id: register the hook or delete the promise
+# T-424: T-357 step 3: retire aef:position
 
 ## Context
 
-T-421's claim-drift detector found that the task template promises a `check-arc-id`
-PreToolUse hook that is not registered here. Filed as ours to fix.
-
-**It is not ours.** AEF measured the thing this project has no second population to see
-(rail 522 §1, 2026-08-10), on a real `fw init`'d consumer under `env -i`:
-
-    this framework repo   24 hooks
-    any fresh consumer    17 hooks
-
-Our 17 is the vendored default, exactly. Seven hooks have never shipped to any consumer:
-`check-arc-id`, `check-onboarding-gate`, `check-inception-decisions`,
-`check-inception-schema`, `check-active-completed-dup`, `check-heredoc-cmd-sub`,
-`check-settings-edit`.
-
-Root cause is on AEF's side and was predicted in their own source: `fw hook-enable`
-writes only `.claude/settings.json`, while a consumer's file is generated from a separate
-hardcoded list in `lib/init.sh generate_claude_code_config`. `bin/hook-enable.sh:120`
-carries the comment *"Mirrors lib/init.sh:generate_claude_code_config; both sites must
-change together (L-399 producer/consumer parity)"* — it names the failure and both sites,
-and was broken seven times. Filed there as **T-2911** (parity) and **T-2912** (the
-`fw upgrade` false-success that reports the seven as fixed and never converges).
-
-AEF's explicit instruction: **do not hand-add the seven.** They would be correct today and
-diverge silently at their next hook.
-
-**What this task is now:** not a build. A disposition decision about a promise this
-project cannot keep and did not make.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] Blast radius measured BEFORE registering: how many task files carry an `arc_id`
-      that does not resolve, and would therefore become unsaveable. Registering a
-      validation hook against a corpus that fails it wedges every subsequent edit — the
-      G-026 gate-refuses-its-own-remedy class, self-inflicted.
-      **Measured 2026-08-10 across `.tasks/active/` + `.tasks/completed/`: 3 files carry
-      an `arc_id`, 0 unresolved.** The only arc on disk is `designer-authoring-surface`.
-      Registering would have been safe. Worth stating plainly: the blast-radius check
-      cleared option A, and option A is still wrong — for a reason no measurement
-      available inside this repo could have produced.
-- [ ] Whichever remedy the operator picks is applied, and
-      `python3 tools/_t421-enforcement-claim-drift.py` reflects it — **gone** if the
-      promise is deleted, **baselined with a dated reason pointing at AEF T-2911** if the
-      promise is left standing as theirs to keep. Baselining is only honest here because
-      the remedy genuinely sits in another repo; it is not "baselined away".
-- [ ] If REGISTER (option A, contraindicated): live interception verified in a session
-      started AFTER registration. Hook config is snapshotted at session start (OBS-015),
-      so this cannot be confirmed in the session that registers it. Do not tick on the
-      strength of the file content. *(Method now proven — see T-420 AC2, verified
-      2026-08-10 with a scratch-topic negative, a hub-side `count: 0`, and a positive
-      control. The three-leg shape transfers to any gate.)*
-
-### Human
-- [ ] [REVIEW] The premise changed after this task was written. Register, delete, or wait?
-
-  **⚠ MY EARLIER RECOMMENDATION (A — register it) IS WITHDRAWN.** If you already acted on
-  it, say so and I will unwind it. The evidence that overturned it arrived on the AEF rail
-  at offset 522 and could not have been produced from inside this repo — it needed a
-  second population. See `## Context`.
-
-  The task template tells every task file:
-
-      # arc_id: ... PreToolUse hook (check-arc-id) blocks save under agent
-      #        control if it doesn't resolve.
-
-  The sentence has never been true here — and now we know it has never been true in **any**
-  AEF consumer. `check-arc-id` is one of seven hooks that exist in the framework repo and
-  are absent from the consumer template. It is AEF's shipping defect (their T-2911),
-  reproduced identically in every consumer, and they have asked us not to hand-patch it.
-
-  **A — Register it. NOT RECOMMENDED.** Blast radius is 0, so it would work today. It
-  also forks our `.claude/settings.json` from the vendored default, and AEF's next hook
-  addition diverges us silently — trading a visible false promise for an invisible one.
-
-  **B — Delete the sentence.** The tree stops promising what it does not do. Cost: our
-  `.tasks/templates/` diverges from the vendored default in the other direction, and when
-  AEF's parity fix lands and the hook actually ships, our template no longer documents a
-  gate that is now real.
-
-  **C — Neither. Record it as theirs, keep it visible, wait for T-2911.** Pin
-  `check-arc-id` in the claim-drift baseline with a dated note naming AEF T-2911 as the
-  remedy. Nothing in our tree changes. The false promise stays — but it is now a *known,
-  attributed, externally-owned* false promise rather than an unexplained one, and the
-  detector still fails if a **second** unbacked claim appears.
-
-  **Recommendation: C.**
-  Both A and B are local edits to files whose whole value is being the unmodified vendored
-  default; each fixes today's sentence by creating tomorrow's divergence. C is the only
-  option that leaves the defect where its fix lives. The cost of C is honest and small:
-  `arc_id` typos stay unvalidated, against a corpus of 3 files with 0 typos.
-
-  **Steps:**
-  1. `cd /opt/832-Workflow-designer && python3 tools/_t421-enforcement-claim-drift.py`
-  2. Confirm the CLAIMED-BUT-OFF section names `check-arc-id` and nothing else
-  3. Record the decision:
-     `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw context add-decision "check-arc-id: C" --task T-422 --rationale "AEF T-2911 owns it; hand-patching forks the vendored default and diverges at their next hook"`
-     (substitute `A` or `B` with your own rationale to overrule)
-
-  **Expected:** a decision recorded against T-422; the agent then executes it and closes
-  the task.
-
-  **If not:** if you want the validation regardless of provenance — a locally-owned
-  arc_id check that does not pretend to be the framework's — say so and I will scope it
-  as its own task rather than registering theirs.
-
-
+<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -239,21 +142,7 @@ project cannot keep and did not make.
 
 ## Evolution
 
-### 2026-08-10 — a correct instrument produced a confident wrong owner
-- **What changed:** T-421's detector was right that the tree asserts something untrue. I
-  then attributed it to drift in *this* project, because this project's tree was the only
-  population I could measure. AEF measured a second population and the finding inverted:
-  never drift, never ours, present in every consumer.
-- **Plan impact:** T-422 stops being a build task. Both original options (register /
-  delete) are now local edits to vendored-default files, and each buys a correct sentence
-  today at the price of silent divergence later. Option C added and recommended.
-- **The lesson worth keeping:** the blast-radius check *cleared* option A — 3 files with
-  `arc_id`, 0 unresolved. A safe, measured, well-evidenced recommendation was still wrong,
-  because every measurement available inside the repo was consistent with both stories.
-  **A single-population measurement cannot distinguish "we changed" from "we were never
-  given".** Registering would have felt like diligence and would have forked us.
-- **Triggered:** rail 523 §1 (withdrawal reported to AEF); recommendation flipped in front
-  of the operator *before* they acted on it.
+<!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
      or new sub-tasks. Mandatory at slice boundaries (when applicable) and
@@ -298,11 +187,7 @@ project cannot keep and did not make.
 
 ## Updates
 
-### 2026-08-10T19:36:51Z — task-created [task-create-agent]
+### 2026-08-10T20:23:36Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-422-check-arc-id-register-the-hook-or-delete.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-424-t-357-step-3-retire-aefposition.md
 - **Context:** Initial task creation
-
-### 2026-08-10T20:20:31Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
-- **Change:** horizon: next → now (auto-sync)

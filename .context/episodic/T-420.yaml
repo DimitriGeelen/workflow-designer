@@ -1,0 +1,96 @@
+# ============================================================================
+# EPISODIC MEMORY - T-420: Rail attribution gate: refuse an MCP termlink post that omits from_project (OBS-012)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-10T20:19:59Z
+# ============================================================================
+
+task_id: T-420
+task_name: "Rail attribution gate: refuse an MCP termlink post that omits from_project (OBS-012)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-10T19:16:52Z
+completed: 2026-08-10T20:19:12Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-10T21:28:35+02:00
+last_commit: 2026-08-10T21:28:35+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  rail attribution gate — refuse an MCP termlink call that puts content on the wire without a project label
+
+# Key outcomes
+outcomes:
+  - 'A PreToolUse gate script exists in-tree (`tools/_t420-rail-attribution-gate.py`)'
+  - '**LIVE INTERCEPTION — VERIFIED 2026-08-10, IN THE SUCCESSOR SESSION.** Claude Code'
+  - 'The producer test is **derived from the call wherever it can be** (T-418 principle):'
+  - 'The part that **cannot** be derived is declared as such, not disguised: producers'
+  - 'Producer-surface **enumeration is recorded** in the task (which `mcp__termlink__*`'
+  - 'The label is checked for **value, not presence**: a `from_project` that is empty or'
+  - 'Mutation check (`tools/_t420-*`) proves the gate can fail, in both directions:'
+  - '`fw enforcement baseline` refreshed (L-398) — `.claude/settings.json` changed.'
+  - 'OBS-012 dispositioned in the observation inbox with the outcome (dismissed,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-10 — refuse rather than attach'
+    chose: 'block the call and make the agent retype the label.'
+    rationale: '832''s only correct-identity producer is an MCP tool call, not a script we'
+    alternatives_rejected: ['mirroring AEF''s attach-on-omit — unavailable at this surface, not']
+  - decision: '2026-08-10 — exact label comparison, including case'
+    chose: '`label != EXPECTED_LABEL` blocks, with no normalisation.'
+    rationale: 'T-418''s detector reads one fingerprint with two spellings as AMBIGUOUS —'
+    alternatives_rejected: ['case-insensitive compare (convenient, and it is the actual bug next door).']
+  - decision: '2026-08-10 — the expected label is derived from the project root, not typed'
+    chose: '`basename(dirname(dirname(__file__)))`, resolved from the script''s own'
+    rationale: 'cwd is caller-controlled; the script''s path is not. And the same one-line'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.claude/settings.json'
+  - '.context/inbox.yaml'
+  - '.context/project/enforcement-baseline.sha256'
+  - '.context/project/learnings.yaml'
+  - '.fabric/components/tools-_t420-gate-mutation-check.yaml'
+  - '.fabric/components/tools-_t420-rail-attribution-gate.yaml'
+  - '.tasks/active/T-420-rail-attribution-gate-refuse-an-mcp-term.md'
+  - 'tools/_t420-gate-mutation-check.sh'
+  - 'tools/_t420-rail-attribution-gate.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-10T21:28:35"
+    action: "T-420: rail attribution gate — refuse an MCP termlink call that puts content on the wire without a project label"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 62 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 62
+  commits: 1
+  files_changed: 9
+  lines_added: 799
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-420-rail-attribution-gate-refuse-an-mcp-term.md
+generated_by: context-agent-hybrid

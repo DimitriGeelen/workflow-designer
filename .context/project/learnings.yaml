@@ -1051,3 +1051,17 @@ learnings:
   date: 2026-08-10
   context: Added via context agent
   application: TBD
+- id: PL-146
+  learning: "A single-population measurement cannot distinguish 'we drifted' from 'we were never given it'. T-421 correctly found check-arc-id promised-but-unregistered; I attributed it to local drift because this repo was the only tree I could measure. AEF measured a fresh consumer: our 17 hooks ARE the vendored default and 7 hooks never shipped to any consumer. The blast-radius check even CLEARED the fix (3 arc_id files, 0 unresolved) — a safe, measured, evidenced recommendation that was still wrong. Before attributing a gap to your own drift, ask whether you have a second population; if not, label the owner as UNKNOWN rather than SELF."
+  source: P-001
+  task: T-422
+  date: 2026-08-10
+  context: Added via context agent
+  application: TBD
+- id: PL-147
+  learning: "An enforcement artifact cannot be verified by the process that installs it — verification must cross a boundary (session, repo, or install). Measured twice on the same day: T-420's gate was inert to the session that registered it (Claude Code snapshots hook config at session start) and fired correctly in the successor; AEF's check-onboarding-gate has 38 green legs that all execute in the repo with ZERO onboarding tasks, and is unregistered in every consumer where the guarded thing exists. A green suite and an unreachable gate are the same observable. The in-process test that IS answerable: not 'does the gate block?' but 'is the gate registered where the guarded thing exists?'"
+  source: P-001
+  task: T-420
+  date: 2026-08-10
+  context: Added via context agent
+  application: TBD
