@@ -1621,3 +1621,55 @@ concerns:
       rewriting them would destroy the only evidence of the period. Mitigation is not
       prevention (G-019).
     related_tasks: [T-418, T-360, T-413]
+
+  - id: G-030
+    type: gap
+    status: watching
+    severity: high
+    title: "An operator ruling filed as prose is invisible: four tasks waited on a human decision while reading as in-progress agent work"
+    detected: 2026-08-10
+    origin_task: T-209
+    context: |
+      Four times now, a task whose next step is a HUMAN decision has recorded that
+      decision as prose — in `## Decisions`, or in `## Context` under a phrase like
+      "needs human confirmation" / "the default choice remains the operator's" — and
+      NOT as a Human AC.
+
+        T-340 AC1   DI repair semantics
+        T-341 AC1   (no agent recommendation, deliberately)
+        T-358       lane/pool fabrication repair — prose in `## Decisions`
+        T-209       decline a peer's proposal — prose in `## Context`
+
+      CONSEQUENCE, and it is not cosmetic. `fw task verify` reports unchecked Human
+      ACs. The Watchtower review queue lists tasks with unchecked Human ACs. A ruling
+      written as prose appears in NEITHER. So the task reads as in-progress agent work
+      to every instrument that looks at it, and the only thing that surfaces it is an
+      agent happening to re-read the body. T-340 sat ~7 days that way; T-209 sat ~2
+      months.
+
+      WHY THE FRAMEWORK ALLOWS IT. There is no gate between "this task cannot proceed
+      without a human" and "this task has a Human AC". The task template offers the
+      Human section, and nothing checks that a task whose prose defers to the operator
+      actually uses it. The absence is silent in exactly the way the register exists to
+      catch: nothing fails, no count moves, and the queue is accurate about the tasks it
+      knows about.
+
+      NOT A ONE-INSTANCE COMPLAINT. Each was fixed individually as it was found
+      (T-358 and T-209 this session). Four instances across three weeks, each found by
+      accident rather than by an instrument, is the class — and the fix-on-discovery
+      pattern is what has kept it open.
+
+      SHAPE. Same family as G-013 (a subset reported as the whole) and G-022 (a
+      one-topic measurement reported as a fact about a peer): an instrument that is
+      accurate about its own scope, read as if its scope were the population.
+    closure_condition: |
+      A detector exists that flags any task whose body defers to a human decision
+      (ruling-shaped prose: "operator's call", "needs human confirmation", "left for
+      human", "the human must decide", "awaiting operator") while its `### Human`
+      section is empty or template-only — and it is wired into a gate or the audit, so
+      the next instance is caught by the instrument rather than by an agent re-reading
+      the body. Detector must be mutation-checked in both directions: a task with the
+      prose AND a real Human AC must NOT be flagged, or it will report every correctly
+      filed task and be switched off.
+
+      Explicitly NOT closure: fixing a fifth instance by hand.

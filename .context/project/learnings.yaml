@@ -1044,3 +1044,10 @@ learnings:
   date: 2026-08-10
   context: Added via context agent
   application: TBD
+- id: PL-145
+  learning: "A ruling filed as PROSE is invisible to every instrument that looks for rulings. fw task verify and the Watchtower review queue both key on UNCHECKED HUMAN ACs; a decision written in ## Decisions or ## Context ('needs human confirmation', 'the operator's call') appears in neither, so a task blocked on a human reads as in-progress agent work to the whole system. Measured four times: T-340 AC1, T-341 AC1, T-358 (~1 week), T-209 (~2 months). The tell is a task whose prose defers to the operator while its ### Human section is still template text. When you find yourself writing 'this needs human confirmation' into a task body, that sentence IS a Human AC and belongs in the section the queue reads. Registered as G-030 — and note the fix-on-discovery pattern is what kept the class open: each instance was repaired by hand and none of the repairs made the next one detectable."
+  source: P-001
+  task: T-209
+  date: 2026-08-10
+  context: Added via context agent
+  application: TBD
