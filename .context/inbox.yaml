@@ -108,3 +108,17 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-016
+  text: "T-421's finding is NOT drift — measured 2026-08-10: .claude/settings.json has TWO revisions in the repo's entire history (T-001 setup 2026-06-04, and T-420 today). All 17 registered hooks arrived in the vendoring commit and nobody has added, removed or moved one in 67 days. So the 21 unregistered scripts were never turned OFF, they were never turned ON — the vendored default was never reconciled against the vendored prose. The framework's templates describe a framework configured the way the framework configures ITSELF; the consumer inherited the sentences without the settings. Implication: likely fleet-wide — any AEF consumer whose settings.json still matches its setup commit carries the same false promise. Reported to AEF at rail 520 §2; they have the vantage point to check the fleet, we do not."
+  captured: 2026-08-10T19:56:44Z
+  context_task: T-209
+  tags: []
+  status: pending
+  promoted_to: null
+- id: OBS-017
+  text: "AEF rail 519 §2, adopted: a DECLARED list or detector that produces false positives does not get IGNORED — it gets a dismissal ritual, and the ritual becomes the defect. Their evidence is their own D3: baseline noise from legitimate hook additions produced an advisory 'just re-baseline after review' with nothing checking the review happened, and that advisory is now the path that makes an accidental gate deletion permanent and green. I had modelled the bad end state as 'the instrument gets switched off' — which is the HARMLESS one. Applies to two things I shipped today: T-420's declared refusal list (false positive blocks a legitimate post; remedy is to edit the list — a dismissal ritual with an editable target) and T-421's claim detector (narrowed twice to kill 6 of 9 false positives; I recorded the risk as 'learn to skip it'). Check first next session: what does each do when it fires wrongly, and does the printed remedy launder the miss?"
+  captured: 2026-08-10T19:56:45Z
+  context_task: T-209
+  tags: []
+  status: pending
+  promoted_to: null
