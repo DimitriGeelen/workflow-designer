@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-09T21:52:18Z ===
+task_id: T-418
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-418.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Peer identity at the termlink seam is not project-unique: five producers share one fingerprint and our own CLI is one of them
+  Duration: 0 days (8 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 7 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-418-peer-identity-at-the-termlink-seam-is-no.md
+--- exit code: 0 ---

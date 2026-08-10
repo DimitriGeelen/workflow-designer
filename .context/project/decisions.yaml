@@ -1389,3 +1389,31 @@ decisions:
     date: 2026-08-09
     task: T-408
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-178
+    decision: "Build a detector that partitions any capture and reports every sender"
+    scope: project
+    date: 2026-08-09
+    task: T-418
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-179
+    decision: "`_t418-capture-attribution.sh` projects each envelope to"
+    scope: project
+    date: 2026-08-09
+    task: T-418
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-180
+    decision: "Keep detector + capture + teeth + mutation check under T-418 rather than"
+    scope: project
+    date: 2026-08-09
+    task: T-418
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-181
+    decision: "Do not re-post, re-sign, or redact offsets 75, 295, 299, 466, 469, 470,"
+    scope: project
+    date: 2026-08-09
+    task: T-418
+    rationale: "Auto-captured from task file on completion"

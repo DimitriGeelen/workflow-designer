@@ -4877,3 +4877,39 @@ scan_id: R-296b7c56
 task_id: T-416
 payload:
   task_file: .tasks/active/T-416-announced-pair-completes-from-two-qualif.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T15:43:27Z'
+scan_id: R-df325fd0
+task_id: T-417
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T15:43:27Z'
+scan_id: R-df325fd0
+task_id: T-417
+payload:
+  task_file: .tasks/active/T-417-session-scratch-swept-into-the-tree-a-16.md
+---
+kind: scan_emitted
+timestamp: '2026-08-09T21:52:16Z'
+scan_id: R-79907438
+task_id: T-418
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-09T21:52:16Z'
+scan_id: R-79907438
+task_id: T-418
+payload:
+  task_file: .tasks/active/T-418-peer-identity-at-the-termlink-seam-is-no.md

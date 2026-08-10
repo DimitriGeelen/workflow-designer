@@ -984,3 +984,31 @@ learnings:
   date: 2026-08-09
   context: Added via context agent
   application: TBD
+- id: PL-138
+  learning: "Unforgeable is not identifying: a signed sender_id names a key the process had in scope (TERMLINK_IDENTITY_FILE env precedence), not a host, project or session — so 'cannot be forged' must never be promoted to 'can be relied on to attribute'"
+  source: P-001
+  task: T-418
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
+- id: PL-139
+  learning: "A remedy keyed to the offending value in hand (a fingerprint, a filename, a word) closes the member and leaves the class; make the detector derive offenders from the data and add a leg that fails the build if the literal reappears in the logic"
+  source: P-001
+  task: T-418
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
+- id: PL-140
+  learning: "Drop unneeded bytes at CAPTURE time, not at commit time: attribution needs {offset,sender_id,msg_type,metadata}, so projecting there makes fixtures committable by construction instead of by remembering to filter (T-417 applied at design time)"
+  source: P-001
+  task: T-418
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
+- id: PL-141
+  learning: "A correction must be reachable FROM the wrong claim, not filed near it: retain the original sentence verbatim and put the correction directly beneath it — deleting destroys the evidence that the reasoning failed, which is the only part with transfer value (AEF rail 510)"
+  source: P-001
+  task: T-418
+  date: 2026-08-09
+  context: Added via context agent
+  application: TBD
