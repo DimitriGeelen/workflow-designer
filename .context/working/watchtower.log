@@ -556,3 +556,14 @@ expected <block end>, but found '<block sequence start>'
 192.168.10.107 - - [11/Aug/2026 14:44:35] "GET / HTTP/1.1" 200 -
 192.168.10.157 - - [11/Aug/2026 14:56:33] "GET /review/T-251/acs HTTP/1.1" 200 -
 192.168.10.107 - - [11/Aug/2026 16:05:46] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [11/Aug/2026 16:38:32] "GET /api/_identity HTTP/1.1" 200 -
+192.168.10.107 - - [11/Aug/2026 16:38:32] "GET /api/_identity HTTP/1.1" 200 -
+127.0.0.1 - - [11/Aug/2026 16:38:32] "GET /api/_identity HTTP/1.1" 200 -
+192.168.10.107 - - [11/Aug/2026 16:38:32] "GET /api/_identity HTTP/1.1" 200 -
+127.0.0.1 - - [11/Aug/2026 16:38:34] "GET /api/_identity HTTP/1.1" 200 -
+192.168.10.107 - - [11/Aug/2026 16:38:34] "GET /api/_identity HTTP/1.1" 200 -
+127.0.0.1 - - [11/Aug/2026 16:38:34] "GET /api/_identity HTTP/1.1" 200 -
+192.168.10.107 - - [11/Aug/2026 16:38:34] "GET /api/_identity HTTP/1.1" 200 -
+192.168.10.157 - - [11/Aug/2026 16:42:20] "GET /review/T-251/acs HTTP/1.1" 200 -
+127.0.0.1 - - [11/Aug/2026 17:34:10] "GET /api/_identity HTTP/1.1" 200 -
+192.168.10.107 - - [11/Aug/2026 17:34:10] "GET /api/_identity HTTP/1.1" 200 -

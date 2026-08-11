@@ -171,3 +171,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-025
+  text: "The owner vocabulary has three incompatible value sets in simultaneous use and nothing reconciles them: the frozen mapping standard says human|agent, AEF's shipped VALID_OWNERS says human claude-code, and this tree practises agent x304 / human x118 / claude-code x9. AEF's is_valid_owner() is defined at lib/enums.sh:101 and called from NOWHERE, which is why no value was ever rejected. Not an A-012 gap (representability is via the lane and holds) — a separate drift, and the question 'which is authoritative, agent or claude-code' is AEF's to answer."
+  captured: 2026-08-11T15:36:24Z
+  context_task: T-431
+  tags: []
+  status: pending
+  promoted_to: null

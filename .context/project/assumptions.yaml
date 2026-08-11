@@ -102,12 +102,26 @@ assumptions:
 - id: A-012
   statement: 'Every AEF workflow_type and owner is representable by (BPMN type + aef:
     extension) with no new BPMN shape'
-  status: untested
+  status: validated
   validation_method: TBD
-  evidence: []
+  evidence:
+  - outcome: 'T-431 measured it locally instead of waiting for AEF. workflow_type:
+      AEF ships 7 (build decommission design inception refactor specification test),
+      the frozen standard maps exactly those 7 — exact match in both directions, both
+      sides extracted at run time from the shipping files, neither retyped. owner:
+      representability is not threatened, because v1.1 derives owner from the LANE
+      and a lane can carry any label, so no new BPMN shape is required — which is
+      what A-012 asserts. Instrument: tools/_t431-a012-enumeration-probe.py (exit
+      2 when either enumeration is not extractable), teeth 13/13 in tools/_t431-enumeration-teeth.sh.
+      SEPARATE finding, deliberately not folded into this disposition: the standard''s
+      owner VALUE SET (human|agent) matches neither AEF''s shipped VALID_OWNERS (human
+      claude-code) nor this tree''s practice (agent x304, human x118, claude-code
+      x9), and AEF''s is_valid_owner() has ZERO call sites so nothing ever rejected
+      any of it.'
+    date: '2026-08-11'
   linked_task: T-175
   created: '2026-07-10'
-  resolved_date: null
+  resolved_date: '2026-08-11'
 - id: A-013
   statement: AEF's task/inception model can receive a BPMN-derived proposed task graph
     (forward compile target exists or is cheap)
