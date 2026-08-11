@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T14:06:58Z
-last_update: 2026-08-11T14:06:58Z
+last_update: 2026-08-11T14:22:42Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -55,23 +55,23 @@ previous session, whose entire purpose is to prove an instrument can move.
 ## Acceptance Criteria
 
 ### Agent
-- [ ] A census instrument enumerates every `tools/*.sh` suite that keeps a pass/fail
+- [x] A census instrument enumerates every `tools/*.sh` suite that keeps a pass/fail
       counter and classifies each as GUARDED (its exit path asserts legs actually ran) or
       UNGUARDED, and it prints its own denominator (examined N of M) so the census cannot
       commit the defect it is auditing
-- [ ] The census is proven discriminating against a fixture containing both a guarded and
+- [x] The census is proven discriminating against a fixture containing both a guarded and
       an unguarded suite in ONE tree — not one fixture per verdict (T-427/T-428: a
       per-file constant passes separate fixtures)
-- [ ] At least one real UNGUARDED suite is FORCED into the zero-leg condition and its
+- [x] At least one real UNGUARDED suite is FORCED into the zero-leg condition and its
       actual exit code and printed output are recorded — measured, not inferred from
       reading the exit line
-- [ ] `tools/_t428-disposition-mutation-check.sh` is in the census and its verdict is
+- [x] `tools/_t428-disposition-mutation-check.sh` is in the census and its verdict is
       recorded whichever way it falls
-- [ ] Every suite the census reports UNGUARDED is either fixed, or listed by name in the
+- [x] Every suite the census reports UNGUARDED is either fixed, or listed by name in the
       task with the reason it was left — no silent truncation, no "top N"
-- [ ] The fix is proven: a fixed suite with its legs disabled exits non-zero, and the same
+- [x] The fix is proven: a fixed suite with its legs disabled exits non-zero, and the same
       suite unmodified still exits 0 (both directions, so the guard cannot be a blanket fail)
-- [ ] No file under `.agentic-framework/` is modified (asserted in Verification)
+- [x] No file under `.agentic-framework/` is modified (asserted in Verification)
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -112,6 +112,8 @@ previous session, whose entire purpose is to prove an instrument can move.
       guarded before this task           0
       guarded after                     22
       refused, named below              13
+    (the census now reports 36 / 23 — it counts this task's own teeth suite,
+     which carries the guard it audits for)
 
 **Zero.** Not a guard with thin coverage — no suite in this project had one. Every one ends
 on `[ "$fail" -eq 0 ] || exit 1`, and a suite whose legs never ran has `fail=0`.
@@ -144,12 +146,24 @@ unmodified they are still green (`pass=16 fail=0` for T-428's).
    verdict line's own `|| exit 1`. So a suite that merely PRINTED "nothing ran" and
    returned success classified as guarded. Fixed by extracting the region the test
    actually governs; leg V4 exists for this.
-3. **The applier's first fix would have manufactured its own alarm.** For fails-only
-   suites it injected a leg counter into the first function whose body increments
-   something — which in those files is `fail()`, the failure reporter. A leg count driven
-   by the failure reporter reads zero on a fully clean run, so the guard would have fired
-   on **every green suite**. `bash -n` caught the syntax accident that came with it
-   (one-liner helpers) and said nothing at all about the semantic one.
+3. **The applier's first fix would have manufactured its own alarm — and it shipped.**
+   For fails-only suites it injected a leg counter into the first function whose body
+   increments something, which in those files is `fail()`, the failure reporter. A leg
+   count driven by the failure reporter reads zero on a fully clean run, so the guard
+   would have fired on **every green suite**. `bash -n` caught the syntax accident that
+   came with it (one-liner helpers swallow the injected line's comment, taking `}` with
+   it) and said nothing about the semantic one.
+
+   **Nine files reverted on the syntax error. Two did not, because on those the injection
+   stayed syntactically valid** — `_t418-mutation-check.sh` and
+   `_t419-carrier-mutation-check.sh` were written, passed `bash -n`, and were committed in
+   `06e8c58` **broken**: `t429_legs: unbound variable` on the first leg, under `set -u`. A
+   runtime error is invisible to a syntax check, and I had already written the sentence
+   claiming revert-on-failure made the draft cost nothing.
+
+   Caught by **re-running the suites**, which is the verification step whose whole purpose
+   is this and which nothing forced me to do. Both restored from `HEAD~1`, both exit 0
+   again, and both now sit in the refused list where they always belonged.
 
 Items 1 and 2 are the same class AEF reported at DM 529 §3 (`_git_commit_count_since`
 grepping a whole commit message for a task id). Named back to them at 530 as
@@ -158,27 +172,42 @@ was *is this the thing*.
 
 ### The 13 suites deliberately NOT fixed
 
-Eleven tally **only failures**: `_t350-build-only-probe`, `_t400-schema-teeth`,
+Twelve tally **only failures**: `_t350-build-only-probe`, `_t400-schema-teeth`,
 `_t408-hygiene-teeth`, `_t410-secret-artifact-teeth`, `_t411-census-teeth`,
 `_t412-announced-pair-teeth`, `_t414-mutation-check`, `_t416-mutation-check`,
-`_t416-qualifier-residue-teeth`, `_t418-attribution-teeth`, `_t419-carrier-mutation-check`.
-In those, a clean run and an empty run are identical in the file's own state, so the guard
-cannot be written from what is there. Adding a leg counter means reading how each suite is
-structured — a judgement per file, which is what defect 3 above proves an applier must not
-attempt. `_t353-repair-probe` has no identifiable verdict block. `_t426-gate-misfire-matrix`
-was guarded.
+`_t416-qualifier-residue-teeth`, `_t418-attribution-teeth`, `_t418-mutation-check`,
+`_t419-carrier-mutation-check`. In those, a clean run and an empty run are identical in the
+file's own state, so the guard cannot be written from what is there. Adding a leg counter
+means reading how each suite is structured — a judgement per file, which is what defect 3
+above proves an applier must not attempt. `_t353-repair-probe` has no identifiable verdict
+block.
+
+Carried forward as **T-430**, one suite at a time, each verified in both directions.
 
 Filed as a follow-up rather than forced: an unverified fix to an abstention bug is the same
 family as the bug.
 
 ### Verification coverage, stated rather than implied
 
-- **Both directions, behaviourally:** the three suites named above.
-- **Still green after the edit:** the self-contained teeth/mutation suites, re-run.
-- **Static only:** `_t381-focus-gate-wedge`, `_t390-capture-verbs-nulltask`,
-  `_t396-release-tag-state`, `_t351-shutdown-probe` — these mutate live focus, task, tag or
-  server state, and re-running them is a side effect this task has no mandate for. They
-  passed `bash -n` and the census; that is all that is claimed for them.
+- **Both directions, behaviourally** (legs neutered → exit 2; unmodified → exit 0):
+  `_t428-disposition-mutation-check`, `_t421-drift-mutation-check`,
+  `_t420-gate-mutation-check`.
+- **Still green after the edit, re-run and measured:** `_t344-watch-set-denominator`,
+  `_t345-fabric-check-agreement`, `_t350-teeth`, `_t352-teeth`,
+  `_t373-defer-revisit-blindspot`, `_t374-audit-honors-exclude`,
+  `_t386-drift-remedy-reachable`, `_t387-manifest-fields`, `_t392-drift-shadow-probe`,
+  `_t426-gate-misfire-matrix` — all exit 0.
+- **Static check only** (`bash -n` + census, and nothing more is claimed):
+  `_t351-teeth`, `_t351-shutdown-probe`, `_t352-p011-errexit-probe`,
+  `_t381-focus-gate-wedge`, `_t385-python-c-gate-bypass`, `_t389-release-envelope`,
+  `_t390-capture-verbs-nulltask`, `_t391-p011-multiline-guard`, `_t396-release-tag-state`.
+  These start servers or mutate live focus, task and tag state. `_t351-teeth` was in the
+  first re-run batch and had to be killed — it drives `_t351-shutdown-probe`, which stops
+  and restarts a real server, and it outlived its own 240s timeout. Re-running the rest is
+  a side effect this task has no mandate for.
+
+The two files damaged by the applier's first draft were in the **static-only** column at
+the time they were committed. Being in that column is exactly how they got there.
 
 ## Verification
 
