@@ -1,0 +1,119 @@
+# ============================================================================
+# EPISODIC MEMORY - T-436: Observation inbox is effectively write-only: 24 pending, and its contents are being re-derived instead of read
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-11T22:08:59Z
+# ============================================================================
+
+task_id: T-436
+task_name: "Observation inbox is effectively write-only: 24 pending, and its contents are being re-derived instead of read"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-11T21:36:14Z
+completed: 2026-08-11T22:08:54Z
+duration_days: 0
+updates_count: 5
+first_commit: 2026-08-11T23:37:31+02:00
+last_commit: 2026-08-12T00:08:50+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  scope the inbox triage with real ACs, to be worked next session. the inbox route is built, wired and silently dead — handover.sh:925 splits observations on an indentation the file does not use, so 24 pending yield 0 summary lines every session, inside a section that still prints its heading and count and therefore looks complete. AEF fixed this exact regex one file over (audit.sh:2681 comments the defect verbatim as their T-2514 rationale); the sweep stopped at the call site being debugged. Idiom census 3 sites: handover.sh:925 actively wrong, handover.sh:386 broken-but-latent (urgent path can never fire; no obs carries the key today, so recorded as latent not as a miss), lib/harvest.sh:214 CORRECT — it reads patterns.yaml which genuinely uses 2-space indent, and filing it would have been a false upstream report. Re-derivation measured with a denominator: 7/24 read by a later different task, 4/24 self-cited only, 13/24 never read — and read latency kills the 29%: no observation has EVER been read more than 1 day after filing, while the oldest entries have zero reads. What delivered those 7 was session continuity, not the inbox. triage complete 24 in / 24 out — 4 promoted (T-439..T-442), 6 folded into existing carriers, 2 to learnings PL-156/157, 5 reported upstream at DM 546, 3 closed as decided, 1 retained. Third fw note defect found by verifying my own dispositions instead of trusting the success message: observe.sh:229-248 parses --reason into a local, echoes it on line 247, and the sed on 246 writes status: dismissed and nothing else — no reason field, no dismissed_at. The command's own help advertises the flag and this task's AC4 requires it; all 26 dismissals in the register carry no reason. That also falsifies a claim I made last session about OBS-028 (the reason 'the next person will find' has nowhere to be), corrected in the file rather than left standing. The disposition ledger now lives in the task because the register cannot hold it. G-032 registered for the dead handover route with closure defined as a re-vendored handover.sh whose section line count matches fw note count — explicitly NOT emptying the inbox, since a count of 0 makes the block unreachable and the defect invisible again. standing detector for G-032 + RCA. tools/_t436-inbox-route-probe.sh extracts the REAL listing block from the shipped handover and runs it against the live inbox (leg A) and a synthetic 2-space-indent fixture (leg R). Leg R went red on the first run and caught my own crashed extraction — the shipped 'python3 <<' line is INDENTED, so my ^python3 anchor missed it and left a shell line atop the .py; both legs then emitted 0 and leg A reported a FALSE ok, i.e. the crash was indistinguishable from the defect it was built to detect. That is the same mention-vs-instance shape a third time, in the instrument, and it is only visible because the reciprocal exists. Now guarded by three markers + a compile check that exit 2 rather than score. Both refusal paths mutation-proven: zero-pending abstains (so 'we emptied the inbox' cannot read as a fix, which is exactly what G-032 refuses as closure) and a moved anchor abstains. RCA names two independent silences: the listing block prints its heading and count regardless, and nothing compares the count printed against the lines produced; plus a fix scoped to the instance that hurt when the finding was about an idiom
+
+# Key outcomes
+outcomes:
+  - 'Every pending observation reaches a disposition — promoted to a task, folded into'
+  - 'The re-derivation claim is measured, not assumed. For each observation, check'
+  - 'The **route** is established before the backlog is cleared, or clearing it'
+  - 'No observation is dismissed merely because it is old, nor promoted merely to empty'
+  - '`fw note list` afterwards shows only observations deliberately retained, and the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'standing detector for G-032 + RCA. tools/_t436-inbox-route-probe.sh extracts the REAL listing block from the shipped handover and runs it against the live inbox (leg A) and a synthetic 2-space-indent fixture (leg R). Leg R went red on the first run and caught my own crashed extraction — the shipped ''python3 <<'' line is INDENTED, so my ^python3 anchor missed it and left a shell line atop the .py; both legs then emitted 0 and leg A reported a FALSE ok, i.e. the crash was indistinguishable from the defect it was built to detect. That is the same mention-vs-instance shape a third time, in the instrument, and it is only visible because the reciprocal exists. Now guarded by three markers + a compile check that exit 2 rather than score. Both refusal paths mutation-proven: zero-pending abstains (so ''we emptied the inbox'' cannot read as a fix, which is exactly what G-032 refuses as closure) and a moved anchor abstains. RCA names two independent silences: the listing block prints its heading and count regardless, and nothing compares the count printed against the lines produced; plus a fix scoped to the instance that hurt when the finding was about an idiom'
+    source: git-mined
+  - description: 'the inbox route is built, wired and silently dead — handover.sh:925 splits observations on an indentation the file does not use, so 24 pending yield 0 summary lines every session, inside a section that still prints its heading and count and therefore looks complete. AEF fixed this exact regex one file over (audit.sh:2681 comments the defect verbatim as their T-2514 rationale); the sweep stopped at the call site being debugged. Idiom census 3 sites: handover.sh:925 actively wrong, handover.sh:386 broken-but-latent (urgent path can never fire; no obs carries the key today, so recorded as latent not as a miss), lib/harvest.sh:214 CORRECT — it reads patterns.yaml which genuinely uses 2-space indent, and filing it would have been a false upstream report. Re-derivation measured with a denominator: 7/24 read by a later different task, 4/24 self-cited only, 13/24 never read — and read latency kills the 29%: no observation has EVER been read more than 1 day after filing, while the oldest entries have zero reads. What delivered those 7 was session continuity, not the inbox'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-11.yaml'
+  - '.context/audits/cron/2026-08-12-0000.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/handovers/LATEST.md'
+  - '.context/handovers/S-2026-0811-2350.md'
+  - '.context/inbox.yaml'
+  - '.context/locks/T-436.lock'
+  - '.context/locks/T-439.lock'
+  - '.context/locks/T-440.lock'
+  - '.context/locks/T-441.lock'
+  - '.context/locks/T-442.lock'
+  - '.context/project/concerns.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-432-full-fw-audit-reports-60-fail-across-non.md'
+  - '.tasks/active/T-436-observation-inbox-is-effectively-write-o.md'
+  - '.tasks/active/T-439-claudemd-documents-the-context-budget-la.md'
+  - '.tasks/active/T-440-t-429-measured-35-of-35-counter-bearing-.md'
+  - '.tasks/active/T-441-toolsconcerns-schemapy-accounts-for-no-f.md'
+  - '.tasks/active/T-442-t429-zero-leg-probesh-reads-a-non-zero-p.md'
+  - 'tools/_t436-inbox-route-probe.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-11T23:37:31"
+    action: "T-436: scope the inbox triage with real ACs, to be worked next session"
+  - time: "2026-08-11T23:59:40"
+    action: "T-436: the inbox route is built, wired and silently dead — handover.sh:925 splits observations on an indentation the file does not use, so 24 pending yield 0 summary lines every session, inside a section that still prints its heading and count and therefore looks complete. AEF fixed this exact regex one file over (audit.sh:2681 comments the defect verbatim as their T-2514 rationale); the sweep stopped at the call site being debugged. Idiom census 3 sites: handover.sh:925 actively wrong, handover.sh:386 broken-but-latent (urgent path can never fire; no obs carries the key today, so recorded as latent not as a miss), lib/harvest.sh:214 CORRECT — it reads patterns.yaml which genuinely uses 2-space indent, and filing it would have been a false upstream report. Re-derivation measured with a denominator: 7/24 read by a later different task, 4/24 self-cited only, 13/24 never read — and read latency kills the 29%: no observation has EVER been read more than 1 day after filing, while the oldest entries have zero reads. What delivered those 7 was session continuity, not the inbox"
+  - time: "2026-08-12T00:05:48"
+    action: "T-436: triage complete 24 in / 24 out — 4 promoted (T-439..T-442), 6 folded into existing carriers, 2 to learnings PL-156/157, 5 reported upstream at DM 546, 3 closed as decided, 1 retained. Third fw note defect found by verifying my own dispositions instead of trusting the success message: observe.sh:229-248 parses --reason into a local, echoes it on line 247, and the sed on 246 writes status: dismissed and nothing else — no reason field, no dismissed_at. The command's own help advertises the flag and this task's AC4 requires it; all 26 dismissals in the register carry no reason. That also falsifies a claim I made last session about OBS-028 (the reason 'the next person will find' has nowhere to be), corrected in the file rather than left standing. The disposition ledger now lives in the task because the register cannot hold it. G-032 registered for the dead handover route with closure defined as a re-vendored handover.sh whose section line count matches fw note count — explicitly NOT emptying the inbox, since a count of 0 makes the block unreachable and the defect invisible again"
+  - time: "2026-08-12T00:08:50"
+    action: "T-436: standing detector for G-032 + RCA. tools/_t436-inbox-route-probe.sh extracts the REAL listing block from the shipped handover and runs it against the live inbox (leg A) and a synthetic 2-space-indent fixture (leg R). Leg R went red on the first run and caught my own crashed extraction — the shipped 'python3 <<' line is INDENTED, so my ^python3 anchor missed it and left a shell line atop the .py; both legs then emitted 0 and leg A reported a FALSE ok, i.e. the crash was indistinguishable from the defect it was built to detect. That is the same mention-vs-instance shape a third time, in the instrument, and it is only visible because the reciprocal exists. Now guarded by three markers + a compile check that exit 2 rather than score. Both refusal paths mutation-proven: zero-pending abstains (so 'we emptied the inbox' cannot read as a fix, which is exactly what G-032 refuses as closure) and a moved anchor abstains. RCA names two independent silences: the listing block prints its heading and count regardless, and nothing compares the count printed against the lines produced; plus a fix scoped to the instance that hurt when the finding was about an idiom"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 4 commit(s), 32 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 32
+  commits: 4
+  files_changed: 34
+  lines_added: 2301
+  lines_removed: 144
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-436-observation-inbox-is-effectively-write-o.md
+generated_by: context-agent-hybrid

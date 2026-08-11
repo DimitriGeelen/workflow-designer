@@ -4,10 +4,10 @@ name: "Observation inbox is effectively write-only: 24 pending, and its contents
 description: >
   OBS-009 (2026-08-09) already contained the finding T-432 spent a work unit re-deriving. The inbox accumulates but nothing routes from it into work, so a finding filed there is invisible to the next session that needs it. This task triages the pending backlog to disposition (promote / fold into an existing task or concern / dismiss with reason) and reports whether the write-only behaviour is a habit or a missing route.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T21:36:14Z
-last_update: 2026-08-11T22:05:48Z
-date_finished: null
+last_update: 2026-08-11T22:08:54Z
+date_finished: 2026-08-11T22:08:54Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -416,3 +416,15 @@ never the defect.
 ### 2026-08-11T21:55:42Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3c4eaf69
+- **Timestamp:** 2026-08-11T22:08:56Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-11T22:08:54Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
