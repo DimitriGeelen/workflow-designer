@@ -129,3 +129,24 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-019
+  text: "Remedy text in check-active-task.sh:441 prints 'fw work-on $CURRENT_TASK' unconditionally when the focused task has status captured — it never asks whether the focused task SHOULD start. Live FP-destructive specimen 2026-08-11: focus was T-423, whose AC#1 reads 'this task does not start until T-340 is ruled and step 1 has landed'. Following the printed remedy would have violated the guard T-423 exists to hold and left it in started-work with nothing recording the violation. AEF-owned instrument (vendored); reported on agent-chat-arc thread T-426. Class: a block message is the most authoritative text an agent sees, so a wrong remedy is MORE likely to be followed, not less."
+  captured: 2026-08-11T09:11:31Z
+  context_task: T-426
+  tags: []
+  status: pending
+  promoted_to: null
+- id: OBS-020
+  text: "CLAUDE.md documents the context-budget ladder as 120K warn / 150K urgent / 170K critical BLOCK, but budget-gate.sh computes them as percentages of CONTEXT_WINDOW (default 300000): 225K / 255K / 285K. The prose is a 200K-window artifact. Same claim-drift family as T-421 but about VALUES rather than registration — the detector only looks at hook NAMES, so nothing would catch a stale number. Surfaced while checking whether the 170K critical block applied at 171717 tokens; the gate said level=ok and the two disagreed."
+  captured: 2026-08-11T11:42:12Z
+  context_task: T-402
+  tags: []
+  status: pending
+  promoted_to: null
+- id: OBS-021
+  text: "validation_method is inert across the ENTIRE assumption register: 20 of 20 rows read TBD, including all four that were disposed with real evidence. The field has never steered a single disposition — A-017/A-018/A-019/A-020 were each answered by a method (rail question, CDP spike, source measurement) that the row does not record. PL-127 instance about a register rather than a schema: the name is obviously right, which is why nobody noticed it was never filled. Consequence: there is no way to ask 'how would this assumption be settled' before committing to settle it, so an assumption's cost is invisible until someone tries. Measured under T-428 (tools/_t428-assumption-disposition-check.py reports the census but deliberately does NOT fail on it — it is a property of the register's design, and folding it into the dangling count would hide it)."
+  captured: 2026-08-11T13:06:27Z
+  context_task: T-428
+  tags: [tooling]
+  status: pending
+  promoted_to: null
