@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T15:41:06Z
-last_update: 2026-08-11T15:41:37Z
+last_update: 2026-08-11T15:41:39Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -39,9 +39,35 @@ date_finished: null
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] A per-section breakdown is produced: for every section `fw audit` supports, the
+      PASS/WARN/FAIL counts, recorded in the task — the whole point is the denominator, so
+      a total without the split repeats the defect that motivated this task
+- [ ] The set of sections the **push gate** runs is stated explicitly, alongside the set it
+      does not, extracted from the hook rather than retyped from memory
+- [ ] Each FAIL is classified as one of: pre-existing (present before this project's first
+      commit to the file it names), self-inflicted, or a check that cannot pass in this
+      project by design — with the evidence for the classification, not an assertion
+- [ ] Any FAIL that names a file under `.agentic-framework/` is reported upstream rather
+      than fixed locally, per the vendored-tree boundary (T-427, DM 522 §1)
+- [ ] No `--force`, no `--skip-*`, and no widening or narrowing of the push gate's section
+      list under agent initiative — the gate's scope is an operator decision and this task
+      only measures it
+
+<!-- SCOPE NOTE: this task MEASURES. It does not fix the 60. Deciding which of them are
+     worth fixing needs the breakdown to exist first, and bundling the fix into the
+     measurement is how a task with an unknown denominator becomes a task with an unknown
+     size. Fixes get their own tasks, one root cause each. -->
+
+### Human
+- [ ] [REVIEW] Whether the push gate should keep running `--sections structure` only
+      **Steps:**
+      1. Read the per-section breakdown this task writes into `## Findings`
+      2. Decide: (a) leave the gate narrow and treat the rest as advisory, (b) widen it to
+         the sections whose FAILs turn out to be real, or (c) widen it fully and fix
+         whatever blocks the push
+      **Expected:** one of a/b/c recorded here, with a one-line reason
+      **If not:** the gate stays as it is and the 60 stay unwatched, which is the status
+      quo this task exists to make visible rather than to change unilaterally
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
