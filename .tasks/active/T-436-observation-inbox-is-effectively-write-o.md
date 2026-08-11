@@ -4,10 +4,10 @@ name: "Observation inbox is effectively write-only: 24 pending, and its contents
 description: >
   OBS-009 (2026-08-09) already contained the finding T-432 spent a work unit re-deriving. The inbox accumulates but nothing routes from it into work, so a finding filed there is invisible to the next session that needs it. This task triages the pending backlog to disposition (promote / fold into an existing task or concern / dismiss with reason) and reports whether the write-only behaviour is a habit or a missing route.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T21:36:14Z
-last_update: 2026-08-11T21:37:31Z
+last_update: 2026-08-11T21:55:42Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,7 +34,79 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+The inbox accumulates and nothing routes from it into work. This task establishes WHY
+before clearing anything, because a cleared backlog with the cause intact refills.
+
+## Findings
+
+### 1. The route is not missing — it is built, wired, and silently dead
+
+Three layers were checked by driving them, not by reading them:
+
+| Layer | Carries | Status |
+|---|---|---|
+| `fw context init` / handover stdout | the COUNT + "Run: `fw note triage`" | works |
+| handover doc `## Observation Inbox` | the COUNT | works |
+| handover doc, per-observation summaries (`handover.sh:921-935`) | **the CONTENT** | **emits nothing** |
+| `fw audit --section observations` (cron 6h, `audit.sh:2668`) | count/urgent/stale | works (fixed upstream by T-2514) |
+
+`handover.sh:925` splits the inbox with `re.split(r'\n  - ', content)`. The real inbox
+writes observations as `- id:` at **column 0**, so the pattern matches nothing. Run
+verbatim against the live file: **1 block, 0 summary lines** — for 24 pending
+observations, every session, since the block was written.
+
+The failure is silent by construction: the enclosing `if [ "$PENDING_OBS" -gt 0 ]` is
+true, so the heading, the count and the blank lines all print. The section looks
+well-formed and complete. Only the payload is absent.
+
+**AEF already fixed this exact regex one file over.** `audit.sh:2681-2686` carries a
+comment naming the defect precisely — "observations are `- id:` at column 0, not
+`  - `" — as the rationale for their T-2514 repair. The repair was applied to the
+call site that was being debugged, and the identical idiom in `handover.sh` was never
+swept. Class: a fix scoped to the instance that hurt, not to the idiom.
+
+**Census of the idiom (3 live sites), and a false alarm avoided:**
+- `handover.sh:925` — content listing. **Broken, actively wrong** (24 → 0).
+- `handover.sh:386` — urgent count. **Broken, latent.** Always returns 0; no pending
+  observation currently carries `urgent: true` (none carries the key at all), so
+  nothing is being missed *today* — but the "run triage BEFORE starting new work"
+  escalation can never fire. Recorded as latent, not claimed as an active miss.
+- `lib/harvest.sh:214` — **correct, not a defect.** It reads `patterns.yaml`, which
+  genuinely uses `  - id:` at 2-space indent (verified). Same idiom, different subject.
+  Filing this one would have been a false report upstream.
+
+### 2. The re-derivation claim: measured, and it is a rate, not an instance
+
+Denominator 24 pending. "Read" = the OBS id appears in a task/register/tool file
+outside `inbox.yaml`, authored by a task **other than** the one that filed it
+(self-citation proves authorship, not readership; T-436 excluded as it is this task).
+
+- **7/24 (29%)** read by a later, different task
+- **4/24** cited only by their own filing task
+- **13/24** never read by anything: OBS-004, 005, 007, 008, 010, 013, 016, 020, 023,
+  024, 026, 029, 030
+
+The read rate alone would flatter the inbox. **Read latency falsifies it:**
+
+| OBS | filed | first cited | latency |
+|---|---|---|---|
+| OBS-003 | 08-08 | 08-08 | 0d |
+| OBS-014 | 08-10 | 08-10 | 0d |
+| OBS-015 | 08-10 | 08-10 | 0d |
+| OBS-017 | 08-10 | 08-11 | 1d |
+| OBS-018 | 08-10 | 08-11 | 1d |
+| OBS-021 | 08-11 | 08-11 | 0d |
+| OBS-027 | 08-11 | 08-11 | 0d |
+
+**No observation has ever been read more than 1 day after it was filed.** The inbox
+holds items up to 4 days old, and the oldest entries (OBS-004/005/007/008/010) have
+zero reads. So the 7 hits were delivered by session continuity and handover narrative
+— the filing session was still running, or its immediate successor was. The inbox has
+never once functioned as memory across the gap it exists to bridge, which is exactly
+what a dead content-route predicts.
+
+OBS-009 is the specimen: filed 08-09 from T-102, its finding re-derived by T-432 three
+days later, and the only task that ever cites it is this one.
 
 ## Acceptance Criteria
 
@@ -220,3 +292,7 @@ date_finished: null
 ### 2026-08-11T21:37:31Z — status-update [task-update-agent]
 - **Change:** status: started-work → captured
 - **Change:** horizon: now → next
+
+### 2026-08-11T21:55:42Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
