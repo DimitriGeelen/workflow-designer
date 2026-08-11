@@ -1,13 +1,13 @@
 ---
-id: T-436
-name: "Observation inbox is effectively write-only: 24 pending, and its contents are being re-derived instead of read"
+id: T-437
+name: "Record AEF's OBS-221 disposition on G-031 so the concern carries its upstream resolution"
 description: >
-  OBS-009 (2026-08-09) already contained the finding T-432 spent a work unit re-deriving. The inbox accumulates but nothing routes from it into work, so a finding filed there is invisible to the next session that needs it. This task triages the pending backlog to disposition (promote / fold into an existing task or concern / dismiss with reason) and reports whether the write-only behaviour is a habit or a missing route.
+  AEF accepted the 75/EX_TEMPFAIL remedy as specified at DM 541 and answered the block-vs-warn half: could-not-evaluate BLOCKS at the push gate. G-031 currently records only the finding. A concern that does not carry its upstream disposition is how a finding gets re-derived — the exact failure T-436 was filed about.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-11T21:36:14Z
-last_update: 2026-08-11T21:37:31Z
+created: 2026-08-11T21:40:00Z
+last_update: 2026-08-11T21:40:00Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,7 +30,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-436: Observation inbox is effectively write-only: 24 pending, and its contents are being re-derived instead of read
+# T-437: Record AEF's OBS-221 disposition on G-031 so the concern carries its upstream resolution
 
 ## Context
 
@@ -40,26 +40,14 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Every pending observation reaches a disposition — promoted to a task, folded into
-      an existing task or concern by ID, or dismissed with a reason. Count in equals
-      count out; no observation is left pending without being named as deliberately
-      deferred and why.
-- [ ] The re-derivation claim is measured, not assumed. For each observation, check
-      whether its content already exists as a task, concern, or learning. OBS-009 is the
-      known instance (its finding was re-derived by T-432 three days later); the question
-      is whether it is one instance or a rate, and the answer is a number with a
-      denominator.
-- [ ] The **route** is established before the backlog is cleared, or clearing it
-      accomplishes nothing durable: identify what, if anything, causes a pending
-      observation to be read by a session that would benefit from it — handover section,
-      audit check, session-start step, or nothing. If the answer is nothing, that is the
-      finding, and it is registered as a concern rather than fixed by this task's
-      one-time cleanup.
-- [ ] No observation is dismissed merely because it is old, nor promoted merely to empty
-      the queue. Each disposition cites the specific reason. Batch-dismissal by age is
-      the failure mode that produced the backlog's invisibility in the first place.
-- [ ] `fw note list` afterwards shows only observations deliberately retained, and the
-      before/after counts are both recorded.
+- [x] G-031 carries the upstream disposition: remedy accepted as specified, the exit code
+      agreed, the block-vs-warn answer and **its reasoning** (not just the verdict — the
+      operator must be able to disagree with the argument rather than the conclusion),
+      and that it is filed upstream but not yet landed.
+- [x] The concern's `decision_trigger` is left UNCHANGED. An accepted remedy is not a
+      landed one; closure is still the probe flipping. Recording agreement as though it
+      were delivery is how a register fills with resolved-looking open items.
+- [x] `concerns.yaml` still parses, and G-031 is still `status: watching`.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -141,6 +129,12 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# Asserts all three ACs in one command whose own exit code is the verdict: the register
+# parses, G-031 is still watching (not silently closed by an acceptance that has not
+# landed), its decision_trigger still keys on the probe flip, and the disposition text
+# actually landed. A grep for the word 'accepted' would pass on this task's own prose.
+python3 -c "import yaml,sys; d=yaml.safe_load(open('.context/project/concerns.yaml')); g=[c for c in d['concerns'] if c['id']=='G-031'][0]; ok = g['status']=='watching' and g['decision_trigger'].strip().startswith('tools/_t435') and 'UPSTREAM DISPOSITION' in g['context'] and 'BLOCK-VS-WARN' in g['context'] and 'NOT LANDED' in g['context']; print('G-031 ok:', ok); sys.exit(0 if ok else 1)"
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -204,19 +198,7 @@ date_finished: null
 
 ## Updates
 
-### 2026-08-11T21:36:14Z — task-created [task-create-agent]
+### 2026-08-11T21:40:00Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-436-observation-inbox-is-effectively-write-o.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-437-record-aefs-obs-221-disposition-on-g-031.md
 - **Context:** Initial task creation
-
-### 2026-08-11T21:37:04Z — status-update [task-update-agent]
-- **Change:** status: started-work → captured
-- **Change:** horizon: now → next
-
-### 2026-08-11T21:37:29Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
-- **Change:** horizon: next → now (auto-sync)
-
-### 2026-08-11T21:37:31Z — status-update [task-update-agent]
-- **Change:** status: started-work → captured
-- **Change:** horizon: now → next

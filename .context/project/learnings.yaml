@@ -1114,3 +1114,10 @@ learnings:
   date: 2026-08-11
   context: Added via context agent
   application: TBD
+- id: PL-155
+  learning: "A gate that cannot evaluate and says 'fine' is not a gate; it is a banner (AEF, DM 541). Corollary on refusal: whether a gate should BLOCK or WARN on could-not-evaluate is decided by the refused population, not by the gate — refuse when the refused party has a move (wait, re-run), warn when the refused set and the non-compliant set are the same set and refusal is a trap with no exit."
+  source: P-002
+  task: T-437
+  date: 2026-08-11
+  context: Added via context agent
+  application: TBD

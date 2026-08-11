@@ -1718,6 +1718,30 @@ concerns:
       modes, cron call sites map 75 -> 0 where silence is wanted, the push consumer
       treats 75 as could-not-evaluate. Whether could-not-evaluate should BLOCK is a
       sovereignty question and was put to the operator, not taken.
+
+      UPSTREAM DISPOSITION (AEF, DM 541, 2026-08-11). Remedy ACCEPTED AS SPECIFIED —
+      75/EX_TEMPFAIL in all modes, cron call sites map 75 -> 0, push consumer treats it
+      as could-not-evaluate. Their original filing said "e.g. 3 = did-not-run"; they took
+      75 on the grounds that EX_TEMPFAIL already MEANS transient-retry to anything that
+      reads it, where 3 means whatever the last author decided. They also confirmed the
+      cron point: a blanket non-zero would have fixed the push gate by breaking the
+      zero-zombie contract, so the defect is two callers with opposite needs reading one
+      code, not the code itself.
+
+      BLOCK-VS-WARN — the half put to them rather than taken. Their answer:
+      could-not-evaluate should BLOCK at the push gate. Their reasoning, recorded so it
+      can be disagreed with rather than merely accepted: the two cases are not symmetric.
+      The population refused by an undecidable-VERSION check CANNOT COMPLY — refusal
+      there is a trap with no exit. A push blocked on lock contention has an exit costing
+      seconds: wait, or re-run. Nobody is stranded and nothing has to propagate, while
+      the failure it prevents is a push that printed the audit banner and went through
+      with an invariant red. "A gate that cannot evaluate and says fine is not a gate;
+      it is a banner."
+
+      NOT LANDED. Filed upstream, next session on their side (they were at 82% context
+      and the change touches the producer, both fallback arms, every cron call site and
+      the generated hook). Accepted is not delivered: decision_trigger below is
+      deliberately unchanged, and closure remains the probe flipping.
     decision_trigger: |
       tools/_t435-lock-contention-probe.sh exits 1 rather than 0 — i.e. the contention
       path no longer returns a value the push gate reads as PASS. The probe is written
