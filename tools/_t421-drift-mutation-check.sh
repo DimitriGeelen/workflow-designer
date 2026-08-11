@@ -64,6 +64,17 @@ upstream() {
     | awk '/\[inherited at seed\]$/{print $1}' | sort -u
 }
 
+# vendored <root> -> hook names claimed by prose that arrived in a BULK IMPORT
+#
+# T-427: the third verdict. Kept as its own parser rather than folded into upstream()
+# so M8 can assert that `inherited` and `vendored` do not leak into each other — a
+# shared "not ours" bucket would pass on an implementation that never distinguishes
+# them, which is the implementation this leg exists to rule out.
+vendored() {
+  T421_ROOT="$1" python3 "$DET" 2>/dev/null \
+    | awk '/\[vendored import\]$/{print $1}' | sort -u
+}
+
 check() {   # check <name> <expected-newline-list> <actual>
   local name="$1" want="$2" got="$3"
   if [ "$want" = "$got" ]; then
@@ -174,6 +185,45 @@ mkscratch "$WORK/m6"
 ) >/dev/null 2>&1
 check "M6a seeded claim is UPSTREAM, not our drift" "check-arc-id" "$(upstream "$WORK/m6")"
 check "M6b claim written after seed IS our drift"  "check-heredoc-cmd-sub" "$(findings "$WORK/m6")"
+
+# ---- M8 RE-VENDOR IS NOT AUTHORSHIP (T-427) ----------------------------------
+# The defect: provenance() asked WHEN a line arrived (with the file, or later) and read
+# "later" as "we wrote it". A re-vendor commit arrives later and is not ours. Measured
+# on the case that exposed it — budget-gate.sh:152 blames to ebf0c721 (re-vendor,
+# 1367 files) and the binary called it `authored`, i.e. told the reader to go fix
+# upstream's bytes in their own tree. That is the fork AEF explicitly warned against.
+#
+# The scratch tree needs three commits so all three verdicts are live at once:
+#   1. seed        (small)   -> the templates' arc_id claim = inherited
+#   2. bulk import (>=200)   -> a claim added here = vendored
+#   3. small edit  (1 file)  -> a claim added here = authored
+#
+# All three asserted in the same tree. Asserting them in separate trees would pass on
+# an implementation that returns a constant per-tree, and the whole point of the third
+# verdict is that it coexists with the other two.
+mkscratch "$WORK/m8"
+(
+  cd "$WORK/m8" || exit 1
+  git init -q .
+  git -c user.email=t@t -c user.name=t add -A
+  git -c user.email=t@t -c user.name=t commit -qm "seed" --no-verify
+
+  # commit 2: a bulk import. 250 filler files carry the breadth; the claim rides along,
+  # exactly as a real vendor bump carries upstream prose it did not ask us about.
+  mkdir -p vendor-drop
+  i=0; while [ "$i" -lt 250 ]; do echo "x" > "vendor-drop/f$i.txt"; i=$((i + 1)); done
+  printf '\nThe check-heredoc-cmd-sub hook blocks any edit containing a heredoc.\n' >> CLAUDE.md
+  git -c user.email=t@t -c user.name=t add -A
+  git -c user.email=t@t -c user.name=t commit -qm "re-vendor bump" --no-verify
+
+  # commit 3: one file, our own hands.
+  printf '\nThe check-settings-edit hook refuses direct edits to settings.json.\n' >> CLAUDE.md
+  git -c user.email=t@t -c user.name=t add -A
+  git -c user.email=t@t -c user.name=t commit -qm "authored later" --no-verify
+) >/dev/null 2>&1
+check "M8a bulk-import claim is VENDORED" "check-heredoc-cmd-sub" "$(vendored "$WORK/m8")"
+check "M8b same tree, small commit is AUTHORED" "check-settings-edit" "$(findings "$WORK/m8")"
+check "M8c same tree, seed claim still INHERITED" "check-arc-id" "$(upstream "$WORK/m8")"
 
 # ---- M7 PROVENANCE FAILS LOUD, NOT SILENT ------------------------------------
 # No git history at all (every other scratch in this file). Provenance is unknowable,

@@ -262,8 +262,59 @@ def _git(*args):
     return out.stdout.strip() if out.returncode == 0 else None
 
 
+# T-427: THE SEED-vs-LATER BINARY WAS STILL THE WRONG AXIS.
+#
+# The version above asked WHEN a line arrived (with the file, or after it) and read
+# "after" as "we wrote it". That is false for any tree that RE-VENDORS. Measured, on
+# the case that exposed it — .agentic-framework/agents/context/budget-gate.sh:152:
+#
+#     added   6b249629  T-001 "AEF setup"                        2026-06-04
+#     blame   ebf0c721  T-276 "re-vendor .agentic-framework"     2026-07-28
+#
+# Not the seed, so the binary answered `authored` — "832 wrote this line" — for bytes
+# that arrived verbatim from upstream in a bulk bump. Every upstream line touched by any
+# re-vendor since setup was misattributed identically. That is the SAME wrong-owner
+# conclusion T-421 was repaired to stop making, one layer down: T-426 moved the question
+# from per-file to per-line and stopped, when the missing axis is neither WHERE nor WHEN
+# but HOW — authored here, or imported wholesale.
+#
+# The discriminator is BREADTH OF THE INTRODUCING COMMIT, measured on this tree:
+#
+#     ebf0c721  re-vendor v1.6.763      1367 files   import
+#     6b249629  T-001 setup             2241 files   import
+#     86a256fd  T-401                      6 files   authored  <- edits VENDORED files
+#     92021feb  T-426                      3 files   authored
+#     3fcb11c1  T-426 correction           1 file    authored
+#
+# Three orders of magnitude with no overlap, so the threshold is not delicate. 86a256fd
+# is the row that matters: a real local edit to a file under `.agentic-framework/`. It
+# must stay `authored`, which is exactly why the path test rejected in T-426 is still
+# the wrong instrument — "is the file vendored" gets that row wrong, "did this LINE
+# arrive in a bulk import" gets it right.
+#
+# THRESHOLD IS A DECLARED CONSTANT, and the margin above is its justification rather
+# than a guess. If a future authored commit ever touches 200+ files it will read as an
+# import; that direction is the QUIET one, so it is called out here as the known edge
+# rather than left implicit. Everything ambiguous fails the other way:
+#
+#     any git failure, unreadable commit, or missing history  ->  "authored"
+#
+# i.e. toward REPORTING. A detector that goes quiet when it cannot measure is the
+# failure this entire line of work is about (M7 pins the no-history case).
+IMPORT_BREADTH = 200
+
+
+def _commit_breadth(sha):
+    """File count touched by a commit. None when unmeasurable (caller fails loud)."""
+    out = _git("diff-tree", "-r", "--root", "--no-commit-id", "--name-only", sha)
+    if out is None:
+        return None
+    return len([l for l in out.split("\n") if l.strip()])
+
+
 def provenance(path, lineno):
-    """'inherited' if the line arrived with the file, 'authored' if added later."""
+    """'inherited' (arrived with the file), 'vendored' (arrived in a bulk import),
+    or 'authored' (written here). Only 'authored' is this project's to answer for."""
     blame = _git("blame", "-L", "%d,%d" % (lineno, lineno), "--porcelain", "--", path)
     if not blame:
         return "authored"
@@ -272,8 +323,12 @@ def provenance(path, lineno):
     if not added:
         return "authored"
     seed_sha = added.split("\n")[-1].strip()
-    return "inherited" if line_sha.startswith(seed_sha[:12]) or \
-        seed_sha.startswith(line_sha[:12]) else "authored"
+    if line_sha.startswith(seed_sha[:12]) or seed_sha.startswith(line_sha[:12]):
+        return "inherited"
+    breadth = _commit_breadth(line_sha)
+    if breadth is None:
+        return "authored"
+    return "vendored" if breadth >= IMPORT_BREADTH else "authored"
 
 
 def main():
@@ -301,7 +356,11 @@ def main():
     # here after seeding. If every claim arrived with its file, the owner is upstream.
     prov = {n: {provenance(p, ln) for p, ln, _ in claimed[n]} for n in all_finding}
     finding = [n for n in all_finding if "authored" in prov[n]]
-    inherited = [n for n in all_finding if "authored" not in prov[n]]
+    inherited = [n for n in all_finding if "authored" not in prov[n]
+                 and "inherited" in prov[n]]
+    vendored = [n for n in all_finding if "authored" not in prov[n]
+                and "inherited" not in prov[n]]
+    upstream = inherited + vendored
 
     if not args.quiet:
         print("=== T-421 enforcement claim drift ===")
@@ -315,6 +374,8 @@ def main():
                 tag = "REFERENCE-ONLY (self-declared)"
             elif n in inherited:
                 tag = "claimed by SEEDED prose — upstream's to answer for"
+            elif n in vendored:
+                tag = "claimed by IMPORTED prose — upstream's to answer for"
             elif n in claimed:
                 tag = "CLAIMED-BUT-OFF  <-- finding"
             else:
@@ -328,19 +389,29 @@ def main():
                     print("    %-24s %s:%d  [%s]"
                           % (n, path, lineno, provenance(path, lineno)))
                     print("      %s" % line)
-        if inherited:
+        if upstream:
             print()
-            print("  UPSTREAM — claimed only by prose that arrived WITH its file:")
+            print("  UPSTREAM — claimed only by prose this project did not write:")
             for n in inherited:
                 for path, lineno, line in claimed[n][:3]:
                     print("    %-24s %s:%d  [inherited at seed]" % (n, path, lineno))
                     print("      %s" % line)
+            # T-427: a separate marker, not a shared "not ours" bucket. Same remedy,
+            # different evidence — "arrived with the file" and "arrived in a vendor
+            # bump six weeks later" are different sentences to put in front of a
+            # reader deciding whether to escalate upstream, and collapsing them
+            # would hide exactly the case that produced this fix.
+            for n in vendored:
+                for path, lineno, line in claimed[n][:3]:
+                    print("    %-24s %s:%d  [vendored import]" % (n, path, lineno))
+                    print("      %s" % line)
             print()
-            print("    These are NOT this project's drift. The sentence was seeded, not")
-            print("    written here, so neither local remedy is correct: registering the")
-            print("    hook forks the vendored default, and deleting the sentence edits")
-            print("    someone else's prose to hide someone else's gap. Attribute it")
-            print("    upstream and pin it in the baseline until they ship the fix.")
+            print("    These are NOT this project's drift. The sentence was seeded or")
+            print("    imported, not written here, so neither local remedy is correct:")
+            print("    registering the hook forks the vendored default, and deleting")
+            print("    the sentence edits someone else's prose to hide someone")
+            print("    else's gap. Attribute it upstream and pin it in the")
+            print("    baseline until they ship the fix.")
             print("    (Measured case: check-arc-id -> AEF T-2911, seven hooks that")
             print("    never shipped to any consumer. See T-422.)")
 
@@ -380,9 +451,9 @@ def main():
         print("\nFAIL — %d hook(s) claimed active by prose written here, none registered."
               % len(finding))
         return 1
-    if inherited:
+    if upstream:
         print("\nPASS (with %d upstream item(s)) — nothing this project WROTE is a false"
-              % len(inherited))
+              % len(upstream))
         print("  promise. The seeded claims above are real, and they are upstream's.")
         return 0
     print("\nPASS — every hook the tree asserts is live is registered.")
