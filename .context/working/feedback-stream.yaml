@@ -5057,3 +5057,39 @@ scan_id: R-fc6b1505
 task_id: T-431
 payload:
   task_file: .tasks/active/T-431-a-012-is-measurable-without-aef---does-t.md
+---
+kind: scan_emitted
+timestamp: '2026-08-11T20:57:54Z'
+scan_id: R-f6e5b0cb
+task_id: T-434
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-11T20:57:54Z'
+scan_id: R-f6e5b0cb
+task_id: T-434
+payload:
+  task_file: .tasks/active/T-434-backfill-horizon-null-into-the-59-comple.md
+---
+kind: scan_emitted
+timestamp: '2026-08-11T21:27:22Z'
+scan_id: R-64ce4fad
+task_id: T-430
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-11T21:27:22Z'
+scan_id: R-64ce4fad
+task_id: T-430
+payload:
+  task_file: .tasks/active/T-430-leg-counters-for-the-11-fails-only-suite.md

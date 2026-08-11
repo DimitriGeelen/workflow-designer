@@ -4,10 +4,10 @@ name: "Backfill horizon: null into the 59 completed tasks CTL-030 flags"
 description: >
   T-432 measured 59 of 374 completed tasks carrying stored horizon='now' where CTL-030 expects null/absent. The source is already plugged (update-task.sh:1896 writes horizon: null at completion; verified working on T-427/T-429/T-431), so this is terminal residue from the window between the T-1068 auto-promote existing and the plug landing. Mechanical, reversible, and it converts the oe-daily section from 60 FAIL to 1 — the remaining FAIL being D2, the human review queue, which is a working signal and not a defect. Doing this BEFORE the T-432 gate-scope decision makes option (c) free: widening the push gate to oe-daily costs nothing once the residue is gone, and then catches the next regression of a class that has already recurred 8+ times upstream. Only completed/ files are touched, only the horizon field, and only where the value is 'now'.
 
-status: started-work
+status: work-completed
 workflow_type: refactor
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T20:45:13Z
-last_update: 2026-08-11T20:57:05Z
-date_finished: null
+last_update: 2026-08-11T20:57:53Z
+date_finished: 2026-08-11T20:57:53Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -223,3 +223,15 @@ python3 -c "import os,re,sys; d='.tasks/completed'; bad=[f for f in os.listdir(d
 
 ### 2026-08-11T20:45:19Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-f6e5b0cb
+- **Timestamp:** 2026-08-11T20:57:54Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-11T20:57:53Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

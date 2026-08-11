@@ -1100,3 +1100,10 @@ learnings:
   date: 2026-08-11
   context: Added via context agent
   application: TBD
+- id: PL-153
+  learning: "A guard's proof must assert the guard FIRED, not that the process exited non-zero. _t429-zero-leg-probe reads any non-zero exit as GUARDED, so on a suite carrying a real failure it certifies a file that has no guard at all (measured, T-430). Require the guard's own distinguishing exit code AND its own sentence."
+  source: P-011
+  task: T-430
+  date: 2026-08-11
+  context: Added via context agent
+  application: TBD

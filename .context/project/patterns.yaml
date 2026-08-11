@@ -109,6 +109,14 @@ failure_patterns:
     date_learned: 2026-08-11
     mitigation: "Key the predicate on the structure that carries the meaning — operator AND connective together, and the region a test actually GOVERNS rather than the lines near it. Keep the token-identical negative row in the fixture permanently."
 
+  - id: FP-015
+    pattern: "Simulating 'nothing ran' by disabling ONE recorder leaves the other recorders counting"
+    description: "Simulating 'nothing ran' by disabling ONE recorder leaves the other recorders counting"
+    scope: project
+    learned_from: T-430
+    date_learned: 2026-08-11
+    mitigation: "Neuter every increment-bearing helper, not the first one found — otherwise a suite with any real failure never reaches the zero-branch and the simulation silently measures nothing"
+
 success_patterns:
   - id: SP-001
     pattern: "Phased implementation"

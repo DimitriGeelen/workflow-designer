@@ -4,20 +4,20 @@ name: "Leg counters for the 11 fails-only suites T-429 refused to guard mechanic
 description: >
   T-429 guarded 22 of 35 suites against reporting success with no legs run. Eleven were refused BY NAME because they tally only failures, so fails==0 is both 'clean' and 'empty' and no guard can be written from the file's own state. Adding a leg counter there means reading how each suite is structured — T-429 proved an applier must not attempt it: its first draft injected the counter into fail(), the failure reporter, which would have fired the guard on every green run. One suite at a time, each verified in both directions (legs neutered -> non-zero; unmodified -> still green) with tools/_t429-zero-leg-probe.sh. Suites: _t350-build-only-probe, _t400-schema-teeth, _t408-hygiene-teeth, _t410-secret-artifact-teeth, _t411-census-teeth, _t412-announced-pair-teeth, _t414-mutation-check, _t416-mutation-check, _t416-qualifier-residue-teeth, _t418-attribution-teeth, _t419-carrier-mutation-check. Plus _t353-repair-probe, which has no identifiable verdict block. Close condition: tools/_t429-abstention-census.py exits 0.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t410-secret-artifact-teeth.sh, tools/_t411-census-teeth.sh, tools/_t412-announced-pair-teeth.sh, tools/_t414-mutation-check.sh, tools/_t416-mutation-check.sh, tools/_t416-qualifier-residue-teeth.sh, tools/_t418-attribution-teeth.sh, tools/_t418-mutation-check.sh, tools/_t419-carrier-mutation-check.sh, tools/_t430-abstention-teeth.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T14:23:23Z
-last_update: 2026-08-11T21:19:05Z
-date_finished: null
+last_update: 2026-08-11T21:26:11Z
+date_finished: 2026-08-11T21:26:11Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -303,3 +303,20 @@ Both directions on all 13: `pass=26 fails=0`. No suite's verdict moved.
 ### 2026-08-11T21:10:33Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-64ce4fad
+- **Timestamp:** 2026-08-11T21:27:22Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — Each edited suite is proven in BOTH directions with `tools/_t429-zero-leg-probe.sh`
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t429-zero-leg-probe.sh in: Each edited suite is proven in BOTH directions with `tools/_t429-zero-leg-probe.sh``
+
+### 2026-08-11T21:26:11Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

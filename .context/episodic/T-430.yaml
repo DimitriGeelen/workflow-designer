@@ -1,0 +1,95 @@
+# ============================================================================
+# EPISODIC MEMORY - T-430: Leg counters for the 11 fails-only suites T-429 refused to guard mechanically
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-11T21:27:24Z
+# ============================================================================
+
+task_id: T-430
+task_name: "Leg counters for the 11 fails-only suites T-429 refused to guard mechanically"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-11T14:23:23Z
+completed: 2026-08-11T21:26:11Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-11T23:19:04+02:00
+last_commit: 2026-08-11T23:26:00+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  leg counters for 8 of the 13 fails-only suites, and the finding that the probe I was told to verify them with cannot tell a guard from a corpse.. the last 5 suites — census 13 UNGUARDED to 0, exits 0, and all 13 proven in both directions (26/26)
+
+# Key outcomes
+outcomes:
+  - 'The population is measured, not recalled: the current census output is captured as a'
+  - 'Every suite named in that baseline carries a counter incremented **at the leg site**'
+  - 'Each edited suite is proven in BOTH directions with `tools/_t429-zero-leg-probe.sh`'
+  - 'No suite''s pre-existing verdict changes. Each edited suite''s pass/fail counts are'
+  - '`python3 tools/_t429-abstention-census.py` exits 0 — every counter-bearing suite in'
+  - 'Suites the census cannot answer for (no identifiable verdict block, e.g.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-430-leg-counters-for-the-11-fails-only-suite.md'
+  - 'tools/_t350-build-only-probe.sh'
+  - 'tools/_t353-repair-probe.sh'
+  - 'tools/_t400-schema-teeth.sh'
+  - 'tools/_t408-hygiene-teeth.sh'
+  - 'tools/_t410-secret-artifact-teeth.sh'
+  - 'tools/_t411-census-teeth.sh'
+  - 'tools/_t412-announced-pair-teeth.sh'
+  - 'tools/_t414-mutation-check.sh'
+  - 'tools/_t416-mutation-check.sh'
+  - 'tools/_t416-qualifier-residue-teeth.sh'
+  - 'tools/_t418-attribution-teeth.sh'
+  - 'tools/_t418-mutation-check.sh'
+  - 'tools/_t419-carrier-mutation-check.sh'
+  - 'tools/_t430-abstention-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-11T23:19:04"
+    action: "T-430: leg counters for 8 of the 13 fails-only suites, and the finding that the probe I was told to verify them with cannot tell a guard from a corpse."
+  - time: "2026-08-11T23:26:00"
+    action: "T-430: the last 5 suites — census 13 UNGUARDED to 0, exits 0, and all 13 proven in both directions (26/26)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 422 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 422
+  commits: 2
+  files_changed: 16
+  lines_added: 526
+  lines_removed: 36
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-430-leg-counters-for-the-11-fails-only-suite.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,145 @@
+# ============================================================================
+# EPISODIC MEMORY - T-434: Backfill horizon: null into the 59 completed tasks CTL-030 flags
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-11T20:57:56Z
+# ============================================================================
+
+task_id: T-434
+task_name: "Backfill horizon: null into the 59 completed tasks CTL-030 flags"
+workflow_type: refactor
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-11T20:45:13Z
+completed: 2026-08-11T20:57:53Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-11T22:57:04+02:00
+last_commit: 2026-08-11T22:57:52+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  backfill horizon null into 59 completed tasks — full audit 60 FAIL to 1, CTL-030 now PASS. Bounded deliberately: only .tasks/completed/, only a frontmatter line matching ^horizon: now$, only the value replaced, and the substitution confined to the frontmatter BLOCK rather than applied file-wide — an unranged sed on ^horizon:.* is the same defect AEF hit this week on ^owner:, where a task whose BODY quotes the field gets rewritten. Asserted both directions: exactly 59 files, 59 lines, +59/-59, every changed line is a horizon line (0 others), and a second pass substitutes 0. The surviving FAIL is D2, the human review queue at T-093 37d and T-178 31d — a control designed to fail when the queue ages, deliberately NOT silenced by this task. OBS-027: running --section oe-daily ALONE reports 0 FAIL and never emits D2, while the same section inside a full run does; the before-number was a full run, so taking the after-number from the section-alone run would have compared two instruments and claimed 60 to 0. Both numbers here are full runs. That discrepancy bears on T-432's gate decision — a push gate built from a section list can be green while the full audit is not. verification line asserts the whole CTL-030 class, not just the value backfilled — any completed task carrying horizon now, next OR later fails it. Backfilling one value and leaving its siblings unguarded is how a residue class returns wearing a different label. Tested before committing: 0 violations, exit 0
+
+# Key outcomes
+outcomes:
+  - '**The edit is bounded and stated before it runs**: only files under'
+  - '**The count is asserted both directions**: exactly 59 files change, and a re-run'
+  - '**CTL-030 is re-run and reports PASS**, and the oe-daily FAIL count drops from 60'
+  - '**No completed task''s meaning changes.** `horizon` is a scheduling field on'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.hook-counter'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-402-budget-gate-allow-regex-matches-anywhere.md'
+  - '.tasks/active/T-432-full-fw-audit-reports-60-fail-across-non.md'
+  - '.tasks/active/T-433-fw-upgrade-refuses-the-sanctioned-consum.md'
+  - '.tasks/active/T-434-backfill-horizon-null-into-the-59-comple.md'
+  - '.tasks/completed/T-073-router-straightening-tolerance--near-ali.md'
+  - '.tasks/completed/T-074-magnetic-drag-snapping--lane-centre-neig.md'
+  - '.tasks/completed/T-075-editor-settings-page--consolidate-routin.md'
+  - '.tasks/completed/T-076-routing-survey-r-2-loop-back-edges-shoul.md'
+  - '.tasks/completed/T-077-routing-survey-r-5-keep-badges-and-edge-.md'
+  - '.tasks/completed/T-079-adaptive-alignment-rows-sub-row-snap-lin.md'
+  - '.tasks/completed/T-081-subprocess-node-type-phase-1-collapsed-o.md'
+  - '.tasks/completed/T-082-edge-label-placement-pass-measure-after-.md'
+  - '.tasks/completed/T-083-label-halo-theme-background-rect-behind-.md'
+  - '.tasks/completed/T-084-lane-header-ellipsis-truncate-vertical-l.md'
+  - '.tasks/completed/T-085-view-density--label-visibilitysize-contr.md'
+  - '.tasks/completed/T-087-node-label-fit-ladder-long-task-names-mu.md'
+  - '.tasks/completed/T-089-edge-label-wrap-multi-line-edge-labels-s.md'
+  - '.tasks/completed/T-090-watchtower-review-pages-all-500---dispat.md'
+  - '.tasks/completed/T-094-align-rows-one-shot-action-snap-lane-row.md'
+  - '.tasks/completed/T-095-clean-layout-composite-action-tidy--bran.md'
+  - '.tasks/completed/T-096-density-setting-has-no-visible-effect---.md'
+  - '.tasks/completed/T-097-crossing-aware-branch-ordering-order-fan.md'
+  - '.tasks/completed/T-098-edge-channel-separation-setting-corridor.md'
+  - '.tasks/completed/T-099-clean-layout-on-import-opt-in-setting-ap.md'
+  - '.tasks/completed/T-100-clean-layout-nudge-offer-one-click-clean.md'
+  - '.tasks/completed/T-104-density-and-branch-pitch-view-settings-a.md'
+  - '.tasks/completed/T-106-routing-margin-setting-reserved-peripher.md'
+  - '.tasks/completed/T-107-align-columns-one-shot-action-snap-near-.md'
+  - '.tasks/completed/T-108-vertical-spacing-control-and-density-bra.md'
+  - '.tasks/completed/T-109-distribute-evenly-action-equalise-horizo.md'
+  - '.tasks/completed/T-114-obstacle-avoiding-orthogonal-edge-routin.md'
+  - '.tasks/completed/T-115-horizontal-spacing-control-mirror-of-ver.md'
+  - '.tasks/completed/T-116-align-in-middle-wire-align-columns-centr.md'
+  - '.tasks/completed/T-117-de-jog-routed-edges-collapse-tiny-interi.md'
+  - '.tasks/completed/T-118-endpoint-straight-snap-collapse-endpoint.md'
+  - '.tasks/completed/T-119-consolidate-split-migrations-two-step-st.md'
+  - '.tasks/completed/T-127-editor-repo-save-versioning-revert-autoreload.md'
+  - '.tasks/completed/T-132-b5-general-undo-redo-history-stack.md'
+  - '.tasks/completed/T-134-selection-scoped-align-and-distribute-fo.md'
+  - '.tasks/completed/T-136-endpoint-overlap-selection-blocked-at-convergence.md'
+  - '.tasks/completed/T-137-loop-back-edges-with-persisted-detoury-c.md'
+  - '.tasks/completed/T-139-retire-align-columns-and-distribute-even.md'
+  - '.tasks/completed/T-141-guard-save-to-project-against-the-pristi.md'
+  - '.tasks/completed/T-144-in-editor-open-from-project-modal-uses-a.md'
+  - '.tasks/completed/T-164-consistent-tile-hover-zoom-in-the-versio.md'
+  - '.tasks/completed/T-165-open-this-version-action-in-the-versions.md'
+  - '.tasks/completed/T-166-delete-a-workflow-from-the-project-archi.md'
+  - '.tasks/completed/T-167-version-level-delete-and-keep-only-lates.md'
+  - '.tasks/completed/T-168-connection-point-anchoring-attach-edges-.md'
+  - '.tasks/completed/T-172-drag-to-place-nodes-from-the-palette-ont.md'
+  - '.tasks/completed/T-176-offline-harden-the-designer-inline-or-se.md'
+  - '.tasks/completed/T-197-iw-9-editor-ui-retire-node-owner-overrid.md'
+  - '.tasks/completed/T-204-typed-bpmn-event-palette-errortimermessa.md'
+  - '.tasks/completed/T-214-pair-draft-sessionhandover-corpus-diagra.md'
+  - '.tasks/completed/T-215-pair-draft-dispatch-loop-corpus-diagram-.md'
+  - '.tasks/completed/T-240-uuid-workflowref-auto-resolve-jump-targe.md'
+  - '.tasks/completed/T-245-canvas-view-chrome-controls-paletteprope.md'
+  - '.tasks/completed/T-255-pool-right-edge-resize-handle-authored-p.md'
+  - '.tasks/completed/T-258-annotation-seam-v0-postmessage-aefreadya.md'
+  - '.tasks/completed/T-335-land-the-iw-1a-anchorability-measurement.md'
+  - '.tasks/completed/T-336-value-anchor-row-agrees-for-the-wrong-re.md'
+  - '.tasks/completed/T-338-input-fidelity-guard-prove-load-save-pre.md'
+  - '.tasks/completed/T-348-sixth-input-fidelity-population-root-lev.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-11T22:57:04"
+    action: "T-434: backfill horizon null into 59 completed tasks — full audit 60 FAIL to 1, CTL-030 now PASS. Bounded deliberately: only .tasks/completed/, only a frontmatter line matching ^horizon: now$, only the value replaced, and the substitution confined to the frontmatter BLOCK rather than applied file-wide — an unranged sed on ^horizon:.* is the same defect AEF hit this week on ^owner:, where a task whose BODY quotes the field gets rewritten. Asserted both directions: exactly 59 files, 59 lines, +59/-59, every changed line is a horizon line (0 others), and a second pass substitutes 0. The surviving FAIL is D2, the human review queue at T-093 37d and T-178 31d — a control designed to fail when the queue ages, deliberately NOT silenced by this task. OBS-027: running --section oe-daily ALONE reports 0 FAIL and never emits D2, while the same section inside a full run does; the before-number was a full run, so taking the after-number from the section-alone run would have compared two instruments and claimed 60 to 0. Both numbers here are full runs. That discrepancy bears on T-432's gate decision — a push gate built from a section list can be green while the full audit is not"
+  - time: "2026-08-11T22:57:52"
+    action: "T-434: verification line asserts the whole CTL-030 class, not just the value backfilled — any completed task carrying horizon now, next OR later fails it. Backfilling one value and leaving its siblings unguarded is how a residue class returns wearing a different label. Tested before committing: 0 violations, exit 0"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 12 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 12
+  commits: 2
+  files_changed: 68
+  lines_added: 599
+  lines_removed: 285
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-434-backfill-horizon-null-into-the-59-comple.md
+generated_by: context-agent-hybrid
