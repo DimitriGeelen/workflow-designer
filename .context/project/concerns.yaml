@@ -1822,6 +1822,10 @@ concerns:
       OWNERSHIP: framework-side, vendored. Reported upstream rather than patched
       here, per G-008 — a local edit to .agentic-framework/ is lost on re-vendor,
       and this project has settled on reporting over forking (DM 522 §1).
+    # T-445: first user of a field lib/gaps.py has always read and no gap has ever
+    # carried. READY only on FIXED (rows == pending); ABSTAINED emits no verdict key,
+    # so gaps.py reads UNKNOWN and refuses closure without calling it a measurement.
+    closure_check_command: bash tools/_t436-inbox-route-probe.sh --json
     decision_trigger: |
       A re-vendored handover.sh emits one summary line per pending observation —
       i.e. `fw handover` produces a `## Observation Inbox` section whose line count
@@ -1830,6 +1834,18 @@ concerns:
       Explicitly NOT closure: emptying the inbox (a count of 0 makes the block
       unreachable and the defect invisible again), a local edit to the vendored
       handover.sh, or AEF acknowledging the report. Accepted is not delivered.
+
+      NOT CLOSURE EITHER — THE PARTIAL STATE (T-445, measured by AEF on their tree,
+      not by me on mine). A listing that emits SOME rows is not progress toward this
+      condition; it is the same silence with a plausible row on top. AEF fixed both
+      sites and measured 1 row of 112 pending at :931, and 1 of 3 at :386. In their
+      words: a zero can read as "nothing pending", but one well-formed row under a
+      "112 pending" heading reads as a section that WORKED, and it is the row an eye
+      lands on. The equality above was always the bar — this paragraph exists
+      because a careful reader holding the same bug in their own tree read the bar
+      as "non-empty", and a closure condition that reader can misread is
+      under-specified. States, named: DEFECT rows==0 / PARTIAL 0<rows<N / FIXED
+      rows==N. Only FIXED closes.
 
       SECOND, INDEPENDENT LEG — the silence is the worse half. Closure also
       requires that a listing block which emits nothing for a non-zero count says

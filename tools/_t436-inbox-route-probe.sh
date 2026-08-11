@@ -22,16 +22,70 @@
 # because emptying the inbox is the one action that makes the defect invisible without
 # fixing it, and G-032 explicitly refuses it as closure.
 #
+# THREE STATES, NOT TWO  (T-445, after AEF measured their own tree)
+# This probe originally asked "did it emit anything?". That is the wrong question, and
+# the peer proved it with a number: their fixed tree emitted 1 row for 112 pending, and
+# their :386 site 1 for 3. A zero can read as "nothing pending". ONE well-formed row
+# under a "112 pending" heading reads as a section that WORKED — and it is the row an
+# eye lands on. The partial answer is worse than the empty one.
+#   DEFECT   rows == 0        the recorded state
+#   PARTIAL  0 < rows < N     the dangerous state — looks fixed, drops the rest
+#   FIXED    rows == N        the closure signal for G-032
+# G-032's closure condition already demanded count EQUALITY ("line count matches
+# `fw note count`"). This probe did not hold that bar: it tested `rows -eq 0` and
+# deferred the comparison to prose in a failure message. A bar stated in a string is
+# not a bar the instrument holds.
+#
+# USAGE
+#   _t436-inbox-route-probe.sh [inbox-path]      default: .context/inbox.yaml
+#   The argument exists so the state machine can be mutation-driven against fixtures
+#   (tools/_t445-partial-state-mutation.sh) — an arm that has never been exercised is
+#   indistinguishable from one that cannot fire.
+#
+#   _t436-inbox-route-probe.sh --json [inbox-path]
+#   Gauge mode for G-032's `closure_check_command:` (lib/gaps.py contract: pure JSON on
+#   stdout, exit 0, `verdict: READY|NOT_READY`). READY only for FIXED. It re-runs THIS
+#   script and classifies its verdict line rather than re-deriving the state, so the
+#   gauge and the human-readable probe can never drift apart. Abstention emits no
+#   `verdict` key at all — gaps.py then reads UNKNOWN, which refuses closure while
+#   staying distinguishable from a measured NOT_READY.
+#
 # EXIT
-#   0  the defect is present as recorded (pending > 0, content lines emitted == 0).
+#   0  DEFECT — the defect is present as recorded (pending > 0, content lines == 0).
 #      PASS here means NOT FIXED — read the text, not the code.
-#   1  a leg moved. Leg A emitting lines is the fix landing; leg R going red means the
-#      probe itself can no longer be trusted and leg A says nothing.
+#   1  a leg moved: PARTIAL or FIXED, or leg R went red (in which case the probe itself
+#      can no longer be trusted and leg A says nothing). Read the verdict line.
 #   2  cannot answer (no inbox, no pending observations, block not found).
 set -uo pipefail
 
 cd "$(dirname "$0")/.." || exit 2
-INBOX=".context/inbox.yaml"
+
+if [ "${1:-}" = "--json" ]; then
+  shift
+  raw="$(bash "$0" "$@" 2>&1)"
+  python3 - "$raw" <<'PYEOF'
+import json, re, sys
+raw = sys.argv[1]
+m = re.search(r'(PARTIAL|FIXED) — the block emitted (\d+) of (\d+)', raw)
+if m:
+    state, rows, pending = m.group(1), int(m.group(2)), int(m.group(3))
+    print(json.dumps({"verdict": "READY" if state == "FIXED" else "NOT_READY",
+                      "state": state, "rows": rows, "pending": pending,
+                      "gap": "G-032"}))
+elif "PASS [DEFECT]" in raw:
+    n = re.search(r'listed 0 of (\d+)', raw)
+    print(json.dumps({"verdict": "NOT_READY", "state": "DEFECT", "rows": 0,
+                      "pending": int(n.group(1)) if n else None, "gap": "G-032"}))
+else:
+    # No verdict key: gaps.py reads UNKNOWN. Cannot-answer must not become NOT_READY —
+    # both refuse closure, but only one of them is a measurement.
+    print(json.dumps({"state": "ABSTAINED", "gap": "G-032",
+                      "reason": raw.strip().splitlines()[0] if raw.strip() else "no output"}))
+PYEOF
+  exit 0
+fi
+
+INBOX="${1:-.context/inbox.yaml}"
 HANDOVER=".agentic-framework/agents/handover/handover.sh"
 
 legs=0; fails=0
@@ -85,10 +139,19 @@ run_block() { # run_block <inbox-path> -> line count on stdout
 # ------------------------------------------------------------------ A: the live inbox
 a_lines="$(run_block "$INBOX")"
 if [ "$a_lines" -eq 0 ]; then
+  STATE=DEFECT
   ok "A the block emitted 0 content lines for $PENDING pending observations"
+elif [ "$a_lines" -lt "$PENDING" ]; then
+  STATE=PARTIAL
+  bad "A PARTIAL — the block emitted $a_lines of $PENDING. This does NOT close G-032.
+        A section headed '$PENDING pending' carrying $a_lines row(s) reads as one that
+        worked, which is why this state is worse than the zero it replaced. Measured
+        first by AEF on their own tree (1 of 112, and 1 of 3 at the urgent site)."
 else
-  bad "A the block emitted $a_lines lines. If this is the fix landing, G-032 can close
-        once the count matches \`fw note count\` ($PENDING)."
+  STATE=FIXED
+  bad "A FIXED — the block emitted $a_lines of $PENDING pending observations. Row count
+        matches the pending count, which is exactly G-032's closure condition. Verify
+        against \`fw note count\` and close the gap."
 fi
 
 # ------------------------------- R: the reciprocal — the block works on `  - ` indent
@@ -120,8 +183,14 @@ if [ $(( ${legs:-0} + ${fails:-0} )) -eq 0 ]; then
   exit 2
 fi
 if [ "$fails" -ne 0 ]; then
-  echo "CHANGED — a leg moved. Read leg A: the route carrying content is the fix." >&2
+  echo "CHANGED [$STATE] — a leg moved. Read leg A." >&2
+  case "$STATE" in
+    PARTIAL) echo "  PARTIAL is not progress toward closure; it is the same silence with" >&2
+             echo "  a plausible row on top. G-032 stays watching." >&2 ;;
+    FIXED)   echo "  FIXED is the closure signal G-032 names. Confirm against a" >&2
+             echo "  non-empty inbox, then close." >&2 ;;
+  esac
   exit 1
 fi
-echo "PASS — the defect is present as recorded: the handover prints the count and not"
-echo "  the finding, and nothing reports that it listed 0 of $PENDING."
+echo "PASS [DEFECT] — the defect is present as recorded: the handover prints the count"
+echo "  and not the finding, and nothing reports that it listed 0 of $PENDING."
