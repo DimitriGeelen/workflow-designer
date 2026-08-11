@@ -1673,3 +1673,56 @@ concerns:
       filed task and be switched off.
 
       Explicitly NOT closure: fixing a fifth instance by hand.
+
+  - id: G-031
+    type: gap
+    status: watching
+    severity: high
+    title: "The push gate's PASS and its could-not-evaluate are the same exit code: a push is allowed when the audit ran zero checks"
+    detected: "2026-08-11"
+    origin_task: T-435
+    context: |
+      Reported by AEF (their OBS-221, DM 538 §5) about their tree, with "if your tree
+      vendored that hook, it has it". Driven here and REPRODUCED.
+
+        producer  agents/audit/audit.sh:329     exit 0 when `flock -n` fails
+        producer  same, no-flock fallback :353  exit 0 when the lock file exists
+        consumer  agents/git/lib/hooks.sh:844   generates .git/hooks/pre-push,
+                                                which blocks ONLY on `-eq 2`
+
+      So 0 means both "19 checks ran and none failed" and "no check ran at all".
+
+      MEASURED, real hook, real held lock, no push performed:
+        lock held  -> HOOK EXIT 0, "Another audit is already running — exiting"
+        no lock    -> HOOK EXIT 0, Pass: 19  Warn: 3  Fail: 0
+      Same verdict, 19 checks apart. Reciprocal: the same hook DOES return 1 /
+      "Push blocked" on a stub audit exiting 2, so the gate is live — this is about
+      lock contention specifically, not a gate that blocks nothing.
+
+      NOT CLAIMED: that any push here was let through with a real failure behind it.
+      Not looked for, not found. The claim is that the gate cannot tell.
+
+      THE PRODUCER'S 0 IS DELIBERATE. audit.sh:324 documents it as cron behaviour
+      (QUIET=true, zero-zombie). The defect is a SECOND caller with the opposite need
+      reading the same code — which is why "just exit non-zero" is not the remedy.
+
+      WHY THIS IS A GAP AND NOT JUST A BUG. Every other gate in this tree is trusted
+      because it reports. This one reports something indistinguishable from success in
+      the exact circumstance where it knows it has measured nothing — and contention is
+      likeliest precisely when a cron audit is running, i.e. routinely. The family is
+      the session's recurring one: an instrument that always answers, and an answer
+      that is read as knowledge.
+
+      BOTH FILES ARE VENDORED (.agentic-framework/). G-008 applies: no local patch.
+      Remedy proposed to AEF at DM 539 §1 — contention exits 75/EX_TEMPFAIL in all
+      modes, cron call sites map 75 -> 0 where silence is wanted, the push consumer
+      treats 75 as could-not-evaluate. Whether could-not-evaluate should BLOCK is a
+      sovereignty question and was put to the operator, not taken.
+    decision_trigger: |
+      tools/_t435-lock-contention-probe.sh exits 1 rather than 0 — i.e. the contention
+      path no longer returns a value the push gate reads as PASS. The probe is written
+      so PASS means the defect is still present; the FLIP is the closure signal, not
+      the green.
+
+      Explicitly NOT closure: a local edit to the vendored audit.sh or hooks.sh, or
+      remembering not to push while an audit is running.

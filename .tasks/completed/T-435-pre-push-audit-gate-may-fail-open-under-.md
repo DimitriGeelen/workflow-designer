@@ -4,20 +4,20 @@ name: "Pre-push audit gate may fail open under lock contention: verify AEF OBS-2
 description: >
   AEF reported at DM 538 s5 that their pre-push audit gate allows a push through when another audit holds the lock: the audit exits 0 on 'Another audit is already running', and the hook reads exit 0 as PASS. One exit code carrying two meanings, and the gate consumer cannot distinguish them. They state that a tree which vendored that hook has it. This task verifies the claim against THIS tree by driving the contention rather than reading the code, and either reproduces it, disproves it, or reports the vendored copy as a different version.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t435-lock-contention-probe.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T21:28:24Z
-last_update: 2026-08-11T21:28:24Z
-date_finished: null
+last_update: 2026-08-11T21:35:40Z
+date_finished: 2026-08-11T21:35:40Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -203,20 +203,37 @@ bash tools/_t435-lock-contention-probe.sh
 
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
-     fix/bug/rca/broken/crash/error/regression/fail/hotfix).
-     Non-bug-class tasks may leave this section empty or remove it.
+**Symptom:** `git push` is allowed while the pre-push audit reports
+`Another audit is already running — exiting` and evaluates zero checks. The push
+receives the same verdict it would receive after 19 checks passed.
 
-     For bug-class, fill in:
-       **Symptom:** what was observed (the user-facing manifestation).
-       **Root cause:** the specific structural/logical gap — not "the code was wrong".
-       **Why structurally allowed:** what in the framework/code/tooling let this go undetected.
-       **Prevention:** what catches the next instance (test/lint/gate/doc/learning) — distinct from the fix itself.
+**Root cause:** one exit code carrying two meanings across a producer/consumer boundary.
+`agents/audit/audit.sh:329` returns `0` on `flock -n` contention (and `:353` on the
+no-flock fallback); `agents/git/lib/hooks.sh:844` generates a hook that blocks *only* on
+`-eq 2`. Neither end is wrong in isolation — the producer's `0` is documented cron
+behaviour (`:324`, QUIET/zero-zombie) and the consumer's rule is a reasonable reading of
+a two-valued protocol. The defect is that the protocol never had a third value for
+*could not evaluate*, so the producer had nothing to say and said "fine".
 
-     The completion gate (T-1550, G-019) blocks --status work-completed when
-     bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
--->
+**Why structurally allowed:** the gate's own tests can only ask "does it block a failing
+audit". That question is satisfied — driven here, exit 2 still yields "Push blocked". No
+test asks "can it distinguish a passing audit from an absent one", because the absent
+case is not a *state of the subject* but a state of the *measuring apparatus*, and a
+suite written against the subject has no vocabulary for it. This is the identical shape
+T-429/T-430 spent this session on one layer down: a tally that cannot separate clean from
+empty. Same defect, different instrument, discovered independently on both sides of the
+seam in the same week — which is what makes it structural rather than incidental.
 
+**Prevention:** `tools/_t435-lock-contention-probe.sh` drives the contention and the
+reciprocal, and is written so PASS means the defect is still present — the flip to 1 is
+the closure signal, so it cannot go quietly green by being forgotten. Registered as
+**G-031** so the finding outlives this task: completed tasks archive and become
+invisible, concerns persist and are checked by audit. The generalisable rule, recorded as
+a learning: **a gate that cannot report "I could not evaluate" will report "pass"**, and
+the time to notice is when writing the gate's protocol, not when reading its output.
+
+**Not prevention:** the local fix. Both files are vendored; G-008 forbids patching them
+here, and remembering not to push during a cron audit is not a control.
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -268,3 +285,15 @@ bash tools/_t435-lock-contention-probe.sh
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-435-pre-push-audit-gate-may-fail-open-under-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-63f9d113
+- **Timestamp:** 2026-08-11T21:35:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-11T21:35:40Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

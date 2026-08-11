@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-11T21:35:46Z ===
+task_id: T-435
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-435.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Pre-push audit gate may fail open under lock contention: verify AEF OBS-221 against this tree
+  Duration: 0 days (7 min)
+  Updates: 1
+  Commits: 1
+  Lines: +446 -28 across 11 files
+  Outcomes: 5 AC checked
+  Artifacts: 11 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-435-pre-push-audit-gate-may-fail-open-under-.md
+--- exit code: 0 ---

@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-435: Pre-push audit gate may fail open under lock contention: verify AEF OBS-221 against this tree
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-11T21:35:47Z
+# ============================================================================
+
+task_id: T-435
+task_name: "Pre-push audit gate may fail open under lock contention: verify AEF OBS-221 against this tree"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-11T21:28:24Z
+completed: 2026-08-11T21:35:40Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-11T23:33:35+02:00
+last_commit: 2026-08-11T23:33:35+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  AEF's OBS-221 REPRODUCED here — the push gate allows a push when the audit never ran
+
+# Key outcomes
+outcomes:
+  - 'The claim is DRIVEN, not read. A second audit is started while the first holds the'
+  - 'The hook''s own consumption of that exit code is established the same way: which'
+  - 'The verdict is one of exactly three, stated with its evidence: REPRODUCED (this tree'
+  - 'If reproduced, the fix is NOT applied to `.agentic-framework/` under agent'
+  - 'No push is performed to test this. The gate under examination is the push gate;'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-11.yaml'
+  - '.context/locks/audit.lock'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.new-file-counter'
+  - '.fabric/components/tools-_t435-lock-contention-probe.yaml'
+  - '.tasks/active/T-435-pre-push-audit-gate-may-fail-open-under-.md'
+  - 'tools/_t435-lock-contention-probe.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-11T23:33:35"
+    action: "T-435: AEF's OBS-221 REPRODUCED here — the push gate allows a push when the audit never ran"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 7
+  commits: 1
+  files_changed: 11
+  lines_added: 446
+  lines_removed: 28
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-435-pre-push-audit-gate-may-fail-open-under-.md
+generated_by: context-agent-hybrid
