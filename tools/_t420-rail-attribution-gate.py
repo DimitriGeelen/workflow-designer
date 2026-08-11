@@ -135,10 +135,48 @@ def attribution_of(tool_input):
     return None, None
 
 
+# Rule 0 (DECLARED — added 2026-08-11 by T-426's misfire audit).
+# Tools that carry a CONTENT_KEY but never put an envelope on a hub topic: they write
+# keystrokes to a PTY or an event onto a session-local bus. Rule 1 blocked all three,
+# and — this is the part that made them worth fixing rather than tolerating — the
+# remedy it printed named `metadata` and `project`, NEITHER OF WHICH EXISTS on any of
+# them. An unfollowable remedy is not a smaller version of a correct one. Its only
+# exits are abandon-the-tool or bypass-the-gate, and neither leaves a record, so the
+# gate converts a false positive into an untracked bypass with an authoritative tone.
+#
+# DECLARED, not derived, and DELIBERATELY SHORT: it lists only tools whose schemas were
+# read on 2026-08-11. Every other termlink tool carrying content stays blocked. That
+# asymmetry is the safe one — an unknown tool is treated as a possible producer, so the
+# failure mode of an incomplete list is a false positive (loud, fixable) rather than an
+# unattributed envelope (silent, unrecoverable). Same PL-142 split as Rule 2: the RULE
+# (session-scoped tools are not producers) is durable, the LIST is a 2026-08-11 fact.
+SESSION_SCOPED_NOT_PRODUCERS = {
+    "termlink_inject": "writes keystrokes to a local PTY session (params: target, text, enter)",
+    "termlink_remote_inject": "writes keystrokes to a PTY on a remote hub (params: hub, session, text, enter, scope, secret, secret_file, timeout)",
+    "termlink_emit": "publishes to a session's local event bus, not a hub topic (params: target, topic, payload)",
+}
+
 # Rule 2 (DECLARED — enumerated 2026-08-10, see module docstring class B).
 # Tools that emit an envelope and have NO attribution channel at all. Each entry
 # carries the compliant alternative; a refusal without a remedy is a wedge.
 UNATTRIBUTABLE_PRODUCERS = {
+    # Added 2026-08-11 (T-426). MISSED BY THE ORIGINAL ENUMERATION — the gate allowed
+    # it, exit 0, silently. agent_contact posts a signed msg_type=chat envelope to a
+    # `dm:<a>:<b>` topic with retention=forever ("WRITES state" in its own schema), and
+    # carries its content under `message` OR `body_file` — a path, so an entire file can
+    # go on the wire — neither of which is in CONTENT_KEYS. Its `project` channel is
+    # `target='name:project'`, which stamps metadata.to_project: the RECIPIENT, not the
+    # producer. `sender_id` overrides the fingerprint, which is the host key this whole
+    # gate exists because of. So: a real producer, no producer-attribution channel,
+    # invisible to both rules. A false negative in exactly the class Rule 2 was built
+    # for is worse than the false positives above — those announce themselves.
+    "termlink_agent_contact": (
+        "agent_contact posts a signed chat envelope to a dm topic but has no "
+        "from_project channel — `target='<peer>:<project>'` stamps to_project (the "
+        "RECIPIENT) and `sender_id` only overrides the host fingerprint.\n"
+        "  Resolve the dm topic (`dm:<sorted_a>:<sorted_b>`) and use "
+        "termlink_channel_post with metadata={'from_project': '%s', ...} instead."
+    ),
     "termlink_channel_reply": (
         "channel_reply takes no metadata and no project parameter, so its envelope "
         "can never say who produced it.\n"
@@ -171,6 +209,13 @@ def decide(tool_name, tool_input):
     if not tool_name.startswith(TERMLINK_PREFIX):
         return 0
     short = tool_name[len(TERMLINK_PREFIX):]
+
+    # --- Rule 0 (DECLARED) ---------------------------------------------------
+    # Checked BEFORE Rule 1, and deliberately not before Rule 2: if a tool ever appears
+    # in both lists that is a contradiction to resolve by re-measuring, not by letting
+    # precedence quietly pick a winner.
+    if short in SESSION_SCOPED_NOT_PRODUCERS and short not in UNATTRIBUTABLE_PRODUCERS:
+        return 0
 
     # --- Rule 2 (DECLARED) ---------------------------------------------------
     if short in UNATTRIBUTABLE_PRODUCERS:
