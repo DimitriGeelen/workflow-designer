@@ -44,7 +44,8 @@ run_against() { # run_against <designer-src> <out.json>
   python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$2" 2>/dev/null
 }
 
-check() { # check <name> <mutated-src> <row-that-must-move> <expected-prefix> [reciprocal:yes|no]
+check() {
+  t429_legs=$((t429_legs + 1))  # T-429 abstention guard # check <name> <mutated-src> <row-that-must-move> <expected-prefix> [reciprocal:yes|no]
   local name="$1" msrc="$2" moved="$3" want="$4" recip="${5:-yes}"
   local out="$TMP/$name.json"
   if ! run_against "$msrc" "$out"; then
@@ -124,6 +125,13 @@ PY
 check m2-rival-for-documentation "$TMP/m2.html" element-content CARRIER-GENERATED no
 
 echo
+
+# T-429 abstention guard — a suite that recorded no legs must not report success.
+if [ $(( ${t429_legs:-0} )) -eq 0 ]; then
+  echo "ABSTAINED — no legs ran; this is not a pass." >&2
+  exit 2
+fi
+
 if [ "$fails" -ne 0 ]; then
   echo "MUTATION CHECK FAIL — $fails" >&2
   exit 1

@@ -20,7 +20,8 @@ trap 'rm -rf "$TMP"' EXIT
 
 fails=0
 
-mutate() { # mutate <name> <leg-that-must-go-red> <python-anchor-replace-heredoc-file>
+mutate() {
+  t429_legs=$((t429_legs + 1))  # T-429 abstention guard # mutate <name> <leg-that-must-go-red> <python-anchor-replace-heredoc-file>
   local name="$1" leg="$2" script="$3"
   local mutant="$TMP/mutant-$name.py"
   if ! python3 "$script" "$SRC" "$mutant"; then
@@ -96,6 +97,13 @@ PY
 mutate m3-empty-passes "(f)" "$TMP/m3.py"
 
 echo
+
+# T-429 abstention guard — a suite that recorded no legs must not report success.
+if [ $(( ${t429_legs:-0} )) -eq 0 ]; then
+  echo "ABSTAINED — no legs ran; this is not a pass." >&2
+  exit 2
+fi
+
 if [ "$fails" -ne 0 ]; then
   echo "MUTATION CHECK FAIL — $fails" >&2
   exit 1

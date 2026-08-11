@@ -239,6 +239,13 @@ T421_ROOT="$WORK/m5" python3 "$DET" --quiet >/dev/null 2>&1
 check "M5 empty hook dir exits UNKNOWN (2)" "2" "$?"
 
 echo
+
+# T-429 abstention guard — a suite that recorded no legs must not report success.
+if [ $(( ${pass:-0} + ${fail:-0} )) -eq 0 ]; then
+  echo "ABSTAINED — no legs ran; this is not a pass." >&2
+  exit 2
+fi
+
 if [ "$fail" -eq 0 ]; then
   echo "MUTATION CHECK PASS — $pass/$pass cases."
   echo "  Detector moves in both directions (claim added -> found, hook registered ->"

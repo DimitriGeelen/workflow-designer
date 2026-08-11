@@ -210,5 +210,12 @@ echo "            (not scored — see comment; filed as an observation, not a de
 # --------------------------------------------------------------- summary -----
 echo
 echo "=== summary ==="
+
+# T-429 abstention guard — a suite that recorded no legs must not report success.
+if [ $(( ${PASS:-0} + ${FAIL:-0} )) -eq 0 ]; then
+  echo "ABSTAINED — no legs ran; this is not a pass." >&2
+  exit 2
+fi
+
 echo "passed: $PASS   failed: $FAIL"
 [ $FAIL -eq 0 ]

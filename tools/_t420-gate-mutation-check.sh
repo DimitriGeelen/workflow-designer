@@ -108,6 +108,13 @@ check "Write with content, not termlink" 0 \
 check "unparseable hook input fails open" 0 'not json at all'
 
 echo
+
+# T-429 abstention guard — a suite that recorded no legs must not report success.
+if [ $(( ${pass:-0} + ${fail:-0} )) -eq 0 ]; then
+  echo "ABSTAINED — no legs ran; this is not a pass." >&2
+  exit 2
+fi
+
 if [ "$fail" -eq 0 ]; then
   echo "MUTATION CHECK PASS — $pass/$pass cases."
   echo "  Gate blocks 8 distinct spoilings, allows 6 legitimate calls including two"

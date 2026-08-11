@@ -178,5 +178,12 @@ if [ "${SHADOWED:-0}" -eq 1 ]; then
     echo "  Patterns 1 and 3 reach the focus-drift gate; pattern 2 does not."
     echo "  The gate is intact — nothing reaches it."
 fi
+
+# T-429 abstention guard — a suite that recorded no legs must not report success.
+if [ $(( ${PASS:-0} + ${FAIL:-0} )) -eq 0 ]; then
+  echo "ABSTAINED — no legs ran; this is not a pass." >&2
+  exit 2
+fi
+
 [ "$FAIL" -eq 0 ] || exit 1
 exit 0

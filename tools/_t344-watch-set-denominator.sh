@@ -166,5 +166,12 @@ fi
 
 echo
 echo "  $pass passed, $fail failed"
+
+# T-429 abstention guard — a suite that recorded no legs must not report success.
+if [ $(( ${pass:-0} + ${fail:-0} )) -eq 0 ]; then
+  echo "ABSTAINED — no legs ran; this is not a pass." >&2
+  exit 2
+fi
+
 [ "$fail" -eq 0 ] || exit 1
 exit 0

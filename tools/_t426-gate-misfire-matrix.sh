@@ -123,5 +123,12 @@ LIMIT — measured edges, not assertions:
 LIMITS
 
 echo
+
+# T-429 abstention guard — a suite that recorded no legs must not report success.
+if [ $(( ${pass:-0} + ${fail:-0} )) -eq 0 ]; then
+  echo "ABSTAINED — no legs ran; this is not a pass." >&2
+  exit 2
+fi
+
 echo "pass=$pass fail=$fail"
 [ "$fail" -eq 0 ]
