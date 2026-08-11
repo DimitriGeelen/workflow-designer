@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-427: T-421 provenance collapses re-vendor imports into authored: any line arriving via a bulk vendor bump is reported as our own drift
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-11T11:37:47Z
+# ============================================================================
+
+task_id: T-427
+task_name: "T-421 provenance collapses re-vendor imports into authored: any line arriving via a bulk vendor bump is reported as our own drift"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-11T11:32:45Z
+completed: 2026-08-11T11:37:37Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-11T13:37:31+02:00
+last_commit: 2026-08-11T13:37:31+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  T-421's provenance test called re-vendored bytes 'authored' — the same wrong-owner conclusion it was repaired to stop making, one layer down. Found by USING the instrument on a new case (T-402's disposition question), not by re-reading it: budget-gate.sh:152 blames to ebf0c721 're-vendor .agentic-framework to v1.6.763', which is not the file's seed commit, so the seed-vs-later binary answered 'authored' — '832 wrote this line' about bytes that arrived verbatim from upstream. Every upstream line touched by any re-vendor since setup was misattributed identically, and the remedy that verdict prints sends the reader to fix upstream's bytes in their own tree: precisely the fork AEF warned against at DM 522 §1 and that T-422 was withdrawn over. T-426 moved the question from per-file to per-line and stopped; the missing axis is neither WHERE nor WHEN but HOW — authored here or imported wholesale. Fix: third verdict 'vendored', discriminated by BREADTH of the introducing commit (imports 1367/2241 files, authored commits 6/3/1 — three orders of magnitude, no overlap). NOT the path test, and 86a256fd is the row that proves it: 6 files, editing files under .agentic-framework/, a real local edit to vendored code that must stay ours — asserted in the Verification block so the path test cannot creep back. Ambiguity still fails LOUD (git failure -> authored, the reporting direction). Teeth 13 -> 16: M8a/M8b/M8c assert all three verdicts in ONE scratch tree with real history (seed -> 250-file bulk import -> 1-file edit), because separate trees would pass on an implementation returning a constant per-tree. Mutation-proven: with IMPORT_BREADTH out of reach M8a AND M8b go red, M8b showing the misattribution itself. Real-tree verdict unchanged: check-arc-id still inherited-at-seed, PASS with 1 upstream item
+
+# Key outcomes
+outcomes:
+  - '**The defect is reproduced against the real tree before the fix**, using a claim'
+  - '**A third verdict `vendored` exists** and is distinct in the report from both'
+  - '**The discriminator is breadth-of-introducing-commit, not path.** A commit that'
+  - '**Ambiguity fails LOUD.** Any git failure, missing history, or unreadable commit'
+  - '**Mutation teeth extended and both directions asserted.** A one-sided test passes'
+  - '**The parser-anchor lesson from T-426 is honoured**: the new marker is asserted to'
+  - '**No regression**: `bash tools/_t421-drift-mutation-check.sh` green at its new'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'T-421''s provenance test called re-vendored bytes ''authored'' — the same wrong-owner conclusion it was repaired to stop making, one layer down. Found by USING the instrument on a new case (T-402''s disposition question), not by re-reading it: budget-gate.sh:152 blames to ebf0c721 ''re-vendor .agentic-framework to v1.6.763'', which is not the file''s seed commit, so the seed-vs-later binary answered ''authored'' — ''832 wrote this line'' about bytes that arrived verbatim from upstream. Every upstream line touched by any re-vendor since setup was misattributed identically, and the remedy that verdict prints sends the reader to fix upstream''s bytes in their own tree: precisely the fork AEF warned against at DM 522 §1 and that T-422 was withdrawn over. T-426 moved the question from per-file to per-line and stopped; the missing axis is neither WHERE nor WHEN but HOW — authored here or imported wholesale. Fix: third verdict ''vendored'', discriminated by BREADTH of the introducing commit (imports 1367/2241 files, authored commits 6/3/1 — three orders of magnitude, no overlap). NOT the path test, and 86a256fd is the row that proves it: 6 files, editing files under .agentic-framework/, a real local edit to vendored code that must stay ours — asserted in the Verification block so the path test cannot creep back. Ambiguity still fails LOUD (git failure -> authored, the reporting direction). Teeth 13 -> 16: M8a/M8b/M8c assert all three verdicts in ONE scratch tree with real history (seed -> 250-file bulk import -> 1-file edit), because separate trees would pass on an implementation returning a constant per-tree. Mutation-proven: with IMPORT_BREADTH out of reach M8a AND M8b go red, M8b showing the misattribution itself. Real-tree verdict unchanged: check-arc-id still inherited-at-seed, PASS with 1 upstream item'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-427-t-421-provenance-collapses-re-vendor-imp.md'
+  - 'tools/_t421-drift-mutation-check.sh'
+  - 'tools/_t421-enforcement-claim-drift.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-11T13:37:31"
+    action: "T-427: T-421's provenance test called re-vendored bytes 'authored' — the same wrong-owner conclusion it was repaired to stop making, one layer down. Found by USING the instrument on a new case (T-402's disposition question), not by re-reading it: budget-gate.sh:152 blames to ebf0c721 're-vendor .agentic-framework to v1.6.763', which is not the file's seed commit, so the seed-vs-later binary answered 'authored' — '832 wrote this line' about bytes that arrived verbatim from upstream. Every upstream line touched by any re-vendor since setup was misattributed identically, and the remedy that verdict prints sends the reader to fix upstream's bytes in their own tree: precisely the fork AEF warned against at DM 522 §1 and that T-422 was withdrawn over. T-426 moved the question from per-file to per-line and stopped; the missing axis is neither WHERE nor WHEN but HOW — authored here or imported wholesale. Fix: third verdict 'vendored', discriminated by BREADTH of the introducing commit (imports 1367/2241 files, authored commits 6/3/1 — three orders of magnitude, no overlap). NOT the path test, and 86a256fd is the row that proves it: 6 files, editing files under .agentic-framework/, a real local edit to vendored code that must stay ours — asserted in the Verification block so the path test cannot creep back. Ambiguity still fails LOUD (git failure -> authored, the reporting direction). Teeth 13 -> 16: M8a/M8b/M8c assert all three verdicts in ONE scratch tree with real history (seed -> 250-file bulk import -> 1-file edit), because separate trees would pass on an implementation returning a constant per-tree. Mutation-proven: with IMPORT_BREADTH out of reach M8a AND M8b go red, M8b showing the misattribution itself. Real-tree verdict unchanged: check-arc-id still inherited-at-seed, PASS with 1 upstream item"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 3
+  lines_added: 432
+  lines_removed: 13
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-427-t-421-provenance-collapses-re-vendor-imp.md
+generated_by: context-agent-hybrid

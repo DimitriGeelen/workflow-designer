@@ -1,0 +1,113 @@
+# ============================================================================
+# EPISODIC MEMORY - T-429: Our own checks may abstain and print PASS - denominator audit
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-11T14:27:46Z
+# ============================================================================
+
+task_id: T-429
+task_name: "Our own checks may abstain and print PASS - denominator audit"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-11T14:06:58Z
+completed: 2026-08-11T14:27:37Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-11T16:22:39+02:00
+last_commit: 2026-08-11T16:27:33+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  every teeth suite in this project exits 0 having run no legs — 35 of 35, and the instrument built to find that committed the defect twice on its way to finding it. Arrived as AEF's finding about AEF's code (DM 529 §4): a stalled-task guard with 11/1325 coverage printing the sentence a guard that cleared 300 tasks would print, generalised as 'a verdict must never print without its denominator'. Taken as a question about our side rather than agreement. Answer is worse than theirs because it is not one guard but the whole population: every suite ends on [ "$fail" -eq 0 ] || exit 1, and a suite whose legs never ran has fail=0. Measured behaviourally, not read off exit lines — the zero-leg probe neuters the assertion helper (FOUND, not assumed: first function whose body increments a variable by one) and runs the real file. Two results worth keeping: _t421-drift-mutation-check exited 0 printing 'refuses to answer rather than pass when an input is missing', and _t420-gate-mutation-check exited 0 printing 'It is not an all-block or an all-allow' — both sentences true, both printed by a run that asserted nothing, the second being the summary of a gate audit. Three defects inside the instruments built here, all the same family: (1) the census's first classifier called the VERDICT line a guard because it matched -eq 0 near exit 1 — that line fires when fail is NON-zero and is silent in exactly the audited case, 16 false GUARDED; (2) the second credited an exit it did not CONTROL via a 4-line proximity window, and the statement after a zero-test is in every one of these files the verdict line's own || exit 1, so a suite that merely PRINTED 'nothing ran' classified as guarded; (3) the applier's first fix injected a leg counter into fail(), the FAILURE reporter, so a fully clean run reads zero legs and the guard would have fired on every green suite — a fix manufacturing the alarm it exists to raise, with bash -n catching the syntax accident that came with it and saying nothing about the semantic one. (1) and (2) are AEF 529 §3's class (_git_commit_count_since grepping a commit MESSAGE for a task id); named back to them at 530 as mention-vs-instance — a predicate answering 'is the thing named here' when the question was 'is this the thing'. 22 suites guarded and proven in BOTH directions (neutered -> exit 2; unmodified -> still green); 13 refused BY NAME, 11 of them because they tally only failures so a clean run and an empty run are identical in the file's own state, and inventing a leg counter there is a per-file judgement which defect (3) proves an applier must not attempt. Teeth 14/14 over ONE scratch tools/ carrying all four verdicts, keeping the verdict-line row permanently. Verification coverage stated rather than implied: four state-touching suites are static-check-only and say so. the applier's first draft did not cost nothing — it shipped two broken suites, and re-running them is the only reason anyone found out. Nine files reverted on the syntax accident the leg-counter injection caused (a one-liner helper swallows the injected comment and takes the closing brace with it); _t418-mutation-check and _t419-carrier-mutation-check did NOT, because on those the same injection stayed syntactically valid. Both were written, both passed bash -n, both were committed in the previous commit BROKEN: 't429_legs: unbound variable' on the first leg under set -u. A runtime error is invisible to a syntax check, and I had already written the sentence claiming revert-on-failure made the draft cost nothing. Caught by the re-run step whose entire purpose is this and which nothing forced me to do — the suites are in the STATIC-CHECK-ONLY column of this task's own coverage table, which is exactly how they got there. Restored from HEAD~1, both exit 0, both moved into the refused list where they always belonged: fails-only, so a clean run and an empty run are identical in the file's own state and a leg counter is a per-file judgement. Refused set now 13 (12 fails-only + _t353-repair-probe, no identifiable verdict block), carried to T-430 one suite at a time. Coverage table rewritten to name every suite in each column rather than say 'the self-contained ones': 3 proven in both directions, 10 re-run green, 9 static-only because they start servers or mutate live focus/task/tag state — _t351-teeth had to be killed after outliving its own 240s timeout, since it drives _t351-shutdown-probe which stops and restarts a real server. Also: learning on fails-only tallies, failure pattern 'mention-vs-instance', T-430 filed, OBS-023 (the class generalises to the 60+ .mjs CDP probes, unasked), OBS-024 (fw note add "text" captures the literal string 'add' as the observation and silently discards the rest — a well-formed inbox entry with no content, indistinguishable from a real one until read, which is this task's finding wearing different clothes). OBS-022 was that defect happening to me and is dismissed with the reason
+
+# Key outcomes
+outcomes:
+  - 'A census instrument enumerates every `tools/*.sh` suite that keeps a pass/fail'
+  - 'The census is proven discriminating against a fixture containing both a guarded and'
+  - 'At least one real UNGUARDED suite is FORCED into the zero-leg condition and its'
+  - '`tools/_t428-disposition-mutation-check.sh` is in the census and its verdict is'
+  - 'Every suite the census reports UNGUARDED is either fixed, or listed by name in the'
+  - 'The fix is proven: a fixed suite with its legs disabled exits non-zero, and the same'
+  - 'No file under `.agentic-framework/` is modified (asserted in Verification)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the applier''s first draft did not cost nothing — it shipped two broken suites, and re-running them is the only reason anyone found out. Nine files reverted on the syntax accident the leg-counter injection caused (a one-liner helper swallows the injected comment and takes the closing brace with it); _t418-mutation-check and _t419-carrier-mutation-check did NOT, because on those the same injection stayed syntactically valid. Both were written, both passed bash -n, both were committed in the previous commit BROKEN: ''t429_legs: unbound variable'' on the first leg under set -u. A runtime error is invisible to a syntax check, and I had already written the sentence claiming revert-on-failure made the draft cost nothing. Caught by the re-run step whose entire purpose is this and which nothing forced me to do — the suites are in the STATIC-CHECK-ONLY column of this task''s own coverage table, which is exactly how they got there. Restored from HEAD~1, both exit 0, both moved into the refused list where they always belonged: fails-only, so a clean run and an empty run are identical in the file''s own state and a leg counter is a per-file judgement. Refused set now 13 (12 fails-only + _t353-repair-probe, no identifiable verdict block), carried to T-430 one suite at a time. Coverage table rewritten to name every suite in each column rather than say ''the self-contained ones'': 3 proven in both directions, 10 re-run green, 9 static-only because they start servers or mutate live focus/task/tag state — _t351-teeth had to be killed after outliving its own 240s timeout, since it drives _t351-shutdown-probe which stops and restarts a real server. Also: learning on fails-only tallies, failure pattern ''mention-vs-instance'', T-430 filed, OBS-023 (the class generalises to the 60+ .mjs CDP probes, unasked), OBS-024 (fw note add "text" captures the literal string ''add'' as the observation and silently discards the rest — a well-formed inbox entry with no content, indistinguishable from a real one until read, which is this task''s finding wearing different clothes). OBS-022 was that defect happening to me and is dismissed with the reason'
+    source: git-mined
+  - description: 'every teeth suite in this project exits 0 having run no legs — 35 of 35, and the instrument built to find that committed the defect twice on its way to finding it. Arrived as AEF''s finding about AEF''s code (DM 529 §4): a stalled-task guard with 11/1325 coverage printing the sentence a guard that cleared 300 tasks would print, generalised as ''a verdict must never print without its denominator''. Taken as a question about our side rather than agreement. Answer is worse than theirs because it is not one guard but the whole population: every suite ends on [ "$fail" -eq 0 ] || exit 1, and a suite whose legs never ran has fail=0. Measured behaviourally, not read off exit lines — the zero-leg probe neuters the assertion helper (FOUND, not assumed: first function whose body increments a variable by one) and runs the real file. Two results worth keeping: _t421-drift-mutation-check exited 0 printing ''refuses to answer rather than pass when an input is missing'', and _t420-gate-mutation-check exited 0 printing ''It is not an all-block or an all-allow'' — both sentences true, both printed by a run that asserted nothing, the second being the summary of a gate audit. Three defects inside the instruments built here, all the same family: (1) the census''s first classifier called the VERDICT line a guard because it matched -eq 0 near exit 1 — that line fires when fail is NON-zero and is silent in exactly the audited case, 16 false GUARDED; (2) the second credited an exit it did not CONTROL via a 4-line proximity window, and the statement after a zero-test is in every one of these files the verdict line''s own || exit 1, so a suite that merely PRINTED ''nothing ran'' classified as guarded; (3) the applier''s first fix injected a leg counter into fail(), the FAILURE reporter, so a fully clean run reads zero legs and the guard would have fired on every green suite — a fix manufacturing the alarm it exists to raise, with bash -n catching the syntax accident that came with it and saying nothing about the semantic one. (1) and (2) are AEF 529 §3''s class (_git_commit_count_since grepping a commit MESSAGE for a task id); named back to them at 530 as mention-vs-instance — a predicate answering ''is the thing named here'' when the question was ''is this the thing''. 22 suites guarded and proven in BOTH directions (neutered -> exit 2; unmodified -> still green); 13 refused BY NAME, 11 of them because they tally only failures so a clean run and an empty run are identical in the file''s own state, and inventing a leg counter there is a per-file judgement which defect (3) proves an applier must not attempt. Teeth 14/14 over ONE scratch tools/ carrying all four verdicts, keeping the verdict-line row permanently. Verification coverage stated rather than implied: four state-touching suites are static-check-only and say so'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-429-our-own-checks-may-abstain-and-print-pas.md'
+  - '.tasks/active/T-430-leg-counters-for-the-11-fails-only-suite.md'
+  - 'tools/_t344-watch-set-denominator.sh'
+  - 'tools/_t345-fabric-check-agreement.sh'
+  - 'tools/_t350-teeth.sh'
+  - 'tools/_t351-shutdown-probe.sh'
+  - 'tools/_t351-teeth.sh'
+  - 'tools/_t352-p011-errexit-probe.sh'
+  - 'tools/_t352-teeth.sh'
+  - 'tools/_t373-defer-revisit-blindspot.sh'
+  - 'tools/_t374-audit-honors-exclude.sh'
+  - 'tools/_t381-focus-gate-wedge.sh'
+  - 'tools/_t385-python-c-gate-bypass.sh'
+  - 'tools/_t386-drift-remedy-reachable.sh'
+  - 'tools/_t387-manifest-fields.sh'
+  - 'tools/_t389-release-envelope.sh'
+  - 'tools/_t390-capture-verbs-nulltask.sh'
+  - 'tools/_t391-p011-multiline-guard.sh'
+  - 'tools/_t392-drift-shadow-probe.sh'
+  - 'tools/_t396-release-tag-state.sh'
+  - 'tools/_t418-mutation-check.sh'
+  - 'tools/_t419-carrier-mutation-check.sh'
+  - 'tools/_t420-gate-mutation-check.sh'
+  - 'tools/_t421-drift-mutation-check.sh'
+  - 'tools/_t426-gate-misfire-matrix.sh'
+  - 'tools/_t428-disposition-mutation-check.sh'
+  - 'tools/_t429-abstention-census.py'
+  - 'tools/_t429-apply-abstention-guard.py'
+  - 'tools/_t429-guard-teeth.sh'
+  - 'tools/_t429-zero-leg-probe.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-11T16:22:39"
+    action: "T-429: every teeth suite in this project exits 0 having run no legs — 35 of 35, and the instrument built to find that committed the defect twice on its way to finding it. Arrived as AEF's finding about AEF's code (DM 529 §4): a stalled-task guard with 11/1325 coverage printing the sentence a guard that cleared 300 tasks would print, generalised as 'a verdict must never print without its denominator'. Taken as a question about our side rather than agreement. Answer is worse than theirs because it is not one guard but the whole population: every suite ends on [ \"$fail\" -eq 0 ] || exit 1, and a suite whose legs never ran has fail=0. Measured behaviourally, not read off exit lines — the zero-leg probe neuters the assertion helper (FOUND, not assumed: first function whose body increments a variable by one) and runs the real file. Two results worth keeping: _t421-drift-mutation-check exited 0 printing 'refuses to answer rather than pass when an input is missing', and _t420-gate-mutation-check exited 0 printing 'It is not an all-block or an all-allow' — both sentences true, both printed by a run that asserted nothing, the second being the summary of a gate audit. Three defects inside the instruments built here, all the same family: (1) the census's first classifier called the VERDICT line a guard because it matched -eq 0 near exit 1 — that line fires when fail is NON-zero and is silent in exactly the audited case, 16 false GUARDED; (2) the second credited an exit it did not CONTROL via a 4-line proximity window, and the statement after a zero-test is in every one of these files the verdict line's own || exit 1, so a suite that merely PRINTED 'nothing ran' classified as guarded; (3) the applier's first fix injected a leg counter into fail(), the FAILURE reporter, so a fully clean run reads zero legs and the guard would have fired on every green suite — a fix manufacturing the alarm it exists to raise, with bash -n catching the syntax accident that came with it and saying nothing about the semantic one. (1) and (2) are AEF 529 §3's class (_git_commit_count_since grepping a commit MESSAGE for a task id); named back to them at 530 as mention-vs-instance — a predicate answering 'is the thing named here' when the question was 'is this the thing'. 22 suites guarded and proven in BOTH directions (neutered -> exit 2; unmodified -> still green); 13 refused BY NAME, 11 of them because they tally only failures so a clean run and an empty run are identical in the file's own state, and inventing a leg counter there is a per-file judgement which defect (3) proves an applier must not attempt. Teeth 14/14 over ONE scratch tools/ carrying all four verdicts, keeping the verdict-line row permanently. Verification coverage stated rather than implied: four state-touching suites are static-check-only and say so"
+  - time: "2026-08-11T16:27:33"
+    action: "T-429: the applier's first draft did not cost nothing — it shipped two broken suites, and re-running them is the only reason anyone found out. Nine files reverted on the syntax accident the leg-counter injection caused (a one-liner helper swallows the injected comment and takes the closing brace with it); _t418-mutation-check and _t419-carrier-mutation-check did NOT, because on those the same injection stayed syntactically valid. Both were written, both passed bash -n, both were committed in the previous commit BROKEN: 't429_legs: unbound variable' on the first leg under set -u. A runtime error is invisible to a syntax check, and I had already written the sentence claiming revert-on-failure made the draft cost nothing. Caught by the re-run step whose entire purpose is this and which nothing forced me to do — the suites are in the STATIC-CHECK-ONLY column of this task's own coverage table, which is exactly how they got there. Restored from HEAD~1, both exit 0, both moved into the refused list where they always belonged: fails-only, so a clean run and an empty run are identical in the file's own state and a leg counter is a per-file judgement. Refused set now 13 (12 fails-only + _t353-repair-probe, no identifiable verdict block), carried to T-430 one suite at a time. Coverage table rewritten to name every suite in each column rather than say 'the self-contained ones': 3 proven in both directions, 10 re-run green, 9 static-only because they start servers or mutate live focus/task/tag state — _t351-teeth had to be killed after outliving its own 240s timeout, since it drives _t351-shutdown-probe which stops and restarts a real server. Also: learning on fails-only tallies, failure pattern 'mention-vs-instance', T-430 filed, OBS-023 (the class generalises to the 60+ .mjs CDP probes, unasked), OBS-024 (fw note add \"text\" captures the literal string 'add' as the observation and silently discards the rest — a well-formed inbox entry with no content, indistinguishable from a real one until read, which is this task's finding wearing different clothes). OBS-022 was that defect happening to me and is dismissed with the reason"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 20 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 20
+  commits: 2
+  files_changed: 30
+  lines_added: 1366
+  lines_removed: 47
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-429-our-own-checks-may-abstain-and-print-pas.md
+generated_by: context-agent-hybrid

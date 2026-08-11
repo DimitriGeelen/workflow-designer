@@ -150,3 +150,24 @@ observations:
   tags: [tooling]
   status: pending
   promoted_to: null
+- id: OBS-022
+  text: "add"
+  captured: 2026-08-11T14:23:40Z
+  context_task: T-429
+  tags: []
+  status: dismissed
+  promoted_to: null
+- id: OBS-023
+  text: "T-429 measured 35 of 35 counter-bearing suites in tools/ as able to exit 0 having run no legs. The class generalises beyond bash: any check whose verdict derives from a tally of FAILURES alone reports 'clean' when it means 'empty'. Unasked so far: the 60+ .mjs CDP probes (out of T-429 scope entirely) and every python check that prints PASS on a zero finding count without printing what it examined."
+  captured: 2026-08-11T14:23:58Z
+  context_task: T-429
+  tags: []
+  status: pending
+  promoted_to: null
+- id: OBS-024
+  text: "fw note has no unknown-subcommand error: 'fw note add \"real text\"' captures the literal string 'add' as the observation and silently discards the argument that follows. The inbox then holds a well-formed entry with no content, which is indistinguishable from a real one until someone reads it. Same family as T-429's finding — a record that exists and says nothing looks exactly like a record."
+  captured: 2026-08-11T14:23:58Z
+  context_task: T-429
+  tags: []
+  status: pending
+  promoted_to: null

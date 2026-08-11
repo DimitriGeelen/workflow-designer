@@ -4985,3 +4985,57 @@ scan_id: R-2b9bd2f9
 task_id: T-425
 payload:
   task_file: .tasks/active/T-425-every-exported-bpmn-ships-an-unverified-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-11T11:37:44Z'
+scan_id: R-d5b2365e
+task_id: T-427
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-11T11:37:44Z'
+scan_id: R-d5b2365e
+task_id: T-427
+payload:
+  task_file: .tasks/active/T-427-t-421-provenance-collapses-re-vendor-imp.md
+---
+kind: scan_emitted
+timestamp: '2026-08-11T13:12:02Z'
+scan_id: R-ca034fd4
+task_id: T-428
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-11T13:12:02Z'
+scan_id: R-ca034fd4
+task_id: T-428
+payload:
+  task_file: .tasks/active/T-428-assumption-register-never-reconciles-wit.md
+---
+kind: scan_emitted
+timestamp: '2026-08-11T14:27:43Z'
+scan_id: R-7d577252
+task_id: T-429
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-11T14:27:43Z'
+scan_id: R-7d577252
+task_id: T-429
+payload:
+  task_file: .tasks/active/T-429-our-own-checks-may-abstain-and-print-pas.md
