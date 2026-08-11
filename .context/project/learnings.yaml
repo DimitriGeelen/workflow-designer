@@ -1079,3 +1079,10 @@ learnings:
   date: 2026-08-11
   context: Added via context agent
   application: TBD
+- id: PL-150
+  learning: "A report delivered to the wrong venue and a report never written are the same observable. Verify the DESTINATION, not just the send: read a topic's last offsets before posting, and when the offsets do not match the numbering a conversation has been using, that is the wire saying you are in the wrong room — not a numbering artifact to explain away."
+  source: P-001
+  task: T-426
+  date: 2026-08-11
+  context: Added via context agent
+  application: TBD
