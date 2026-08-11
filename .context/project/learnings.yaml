@@ -1065,3 +1065,17 @@ learnings:
   date: 2026-08-10
   context: Added via context agent
   application: TBD
+- id: PL-148
+  learning: "An instrument's REGISTRATION must be asserted by something other than the instrument. A green test suite proves the decision logic and says nothing about reachability, and from inside the suite the two are the same observable. Three instances across two projects: AEF's check-onboarding-gate (38 green legs, zero onboarding tasks in the repo, unregistered in every consumer), 832's T-420 gate (inert to the session that registered it), and 832's T-421 detector (registered NOWHERE — its only call site was its own task's P-011 block, which stops running at completion; it has been exiting 1 into a void). Remedy: assert registration as a SEPARATE verification command from behaviour, and state reachability as an explicit LIMIT in the instrument's own output so a green run cannot imply coverage it does not have."
+  source: P-011
+  task: T-426
+  date: 2026-08-11
+  context: Added via context agent
+  application: TBD
+- id: PL-149
+  learning: "A single population contains its own history — provenance is answerable from inside one tree, by git blame, without a second population. Sharpens PL-146, which concluded too pessimistically that one population cannot distinguish 'we drifted' from 'we were never given it' and the owner should be labelled UNKNOWN. The question an attribution detector must ask is not 'does the tree say this?' but 'did WE say it?': compare the introducing commit of the CLAIM LINE against the commit that ADDED the file — same commit means seeded/inherited (owner upstream), later commit means authored here (owner us). Crucially this is per-LINE, not per-FILE: the vendored-path test gives the WRONG answer, because .tasks/templates/default.md sits outside .agentic-framework/ and is project-owned under agent authority (T-352) yet its claim lines are inherited. Fails loud: git unavailable or history absent must yield 'authored', so an unmeasurable provenance still blocks."
+  source: P-011
+  task: T-426
+  date: 2026-08-11
+  context: Added via context agent
+  application: TBD

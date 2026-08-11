@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T08:56:53Z
-last_update: 2026-08-11T09:05:07Z
+last_update: 2026-08-11T09:09:55Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -167,10 +167,48 @@ it is the reason this audit is not academic.
       asserts the marker exists — because when the heading moved, the parser returned
       EMPTY and three real cases went green. **A parser coupled to prose fails toward
       silence**, which is the same shape as everything else in this audit.
-- [ ] **Every finding is either fixed in the instrument or registered** as a gap/
+- [x] **Every finding is either fixed in the instrument or registered** as a gap/
       observation with the reason it is not being fixed now. No finding is left as prose
       in this task file only — that is the G-030/PL-145 shape this project already has a
       gap open for.
+      **Disposition of all six findings:**
+      1. T-420 FN (`agent_contact`) — FIXED, Rule 2 + matrix leg.
+      2. T-420 FPs (`inject`/`remote_inject`/`emit`) — FIXED, Rule 0 + matrix legs.
+      3. T-421 provenance — FIXED, `provenance()` + M6a/M6b/M7 teeth.
+      4. Mutation-check parser coupled to prose — FIXED, marker-keyed + P0 anchor leg.
+      5. `check-active-task.sh:441` unconditional remedy (AEF-owned) — **OBS-019**,
+         reported on agent-chat-arc thread T-426. Not fixed here: vendored, and
+         hand-patching it is the exact fork T-422 option C exists to avoid.
+      6. `attribution_of()` treats ANY `project` key as attribution — standing exposure,
+         not a finding: no tool on today's surface uses `project` as a filter, so it
+         cannot misfire yet. Recorded here because the next tool added could create it,
+         and it is the one shape that would be FP-**destructive** rather than merely
+         unfollowable.
+      **NOT fixed, and deliberately left to the operator — the T-421 detector still runs
+      nowhere.** The sanctioned mechanism exists
+      (`fw hook-enable --script <abs-path> --event <evt> --matcher <pat>`), but
+      registering a new enforcement hook changes session behaviour and edits
+      `.claude/settings.json`, which `check-settings-edit` guards. Under "initiative not
+      authority" that is the operator's call, so it is written up as a Human AC below
+      rather than done quietly. **Fixing the detector's logic while leaving it
+      unreachable would be this task's own finding, committed by its own author** — so
+      it is named here rather than left to look finished.
+- [x] **AEF told on the rail**, with the specimen and the generalization.
+      **DONE** — posted to `agent-chat-arc` via MCP with
+      `metadata.from_project=832-Workflow-designer`, thread `T-426`, offset **11732**.
+      Five sections: the FN/FP asymmetry and the mirror exposure in their attach-side
+      remedy; the PL-146 correction including the wrong turn I took first (vendored-path
+      vs per-line blame) so they don't repeat it; PL-147's third instance and the
+      sharpened in-process test; the parser-fails-toward-silence case; and an explicit
+      "no action requested — check-arc-id stays pinned as UPSTREAM awaiting your T-2911,
+      and I am not pre-empting my operator's T-422 ruling."
+      **The post doubled as a positive control**: the fixed gate allowed it because
+      `from_project` was present, on the same run in which it now blocks `agent_contact`.
+      One accuracy note recorded rather than smoothed over: I set `in_reply_to: "523"`,
+      but the topic's absolute offsets run in the 11,000s, so the 511/514/522/523
+      numbering used in earlier sessions was a view-local index whose frame I could not
+      re-confirm. It is unsigned routing metadata, so nothing depends on it — but the
+      earlier claim "AEF rail offset 523" should be read as view-relative, not absolute.
 - [x] **The fix does not widen the gate's blast radius unmeasured**: after any edit,
       re-run the full probe matrix and show the before/after verdict for EVERY probed
       tool, not just the ones changed. A fix that silently flips an unrelated verdict is
@@ -187,6 +225,37 @@ it is the reason this audit is not academic.
       names as the trade it accepted).
 
 ### Human
+
+- [ ] [REVIEW] **Decide whether the T-421 claim-drift detector gets registered, and on
+      which event.** This is the one finding I fixed the logic for and deliberately did
+      not close: the detector is correct and reaches nothing. Registering it edits
+      `.claude/settings.json` (guarded by `check-settings-edit`) and changes session
+      behaviour, which is authority rather than initiative.
+
+      **Steps — option A (recommended), register it as a Stop hook so it reports once
+      per response and cannot block a tool call:**
+      1. `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw hook-enable --script /opt/832-Workflow-designer/tools/_t421-enforcement-claim-drift.py --event Stop --matcher "" --dry-run`
+      2. Read the printed JSON. If it is what you want, re-run without `--dry-run`.
+      3. `cd /opt/832-Workflow-designer && .agentic-framework/bin/fw enforcement baseline`
+         — REQUIRED after any settings.json change, or `fw doctor` starts reporting
+         "Enforcement baseline CHANGED" and it accumulates silently (L-398).
+      **Expected:** `fw doctor` clean, and the detector's output appears at end of turn
+      showing `PASS (with 1 upstream item(s))`.
+      **If not:** revert with `fw hook-disable` (or restore settings.json from git) and
+      re-run `fw enforcement baseline`.
+
+      **Option B — leave it manual.** Legitimate: it is a slow-moving check and the
+      claim set changes rarely. If you choose this, say so and I will record the
+      decision, because "unregistered by choice" and "unregistered by oversight" are
+      the same observable, which is the entire subject of this task.
+
+      **Option C — wait for AEF.** Their T-2911 may ship a framework-side equivalent,
+      and registering ours first could duplicate it.
+
+      **Why not just do it:** a detector whose whole finding is "the tree claims a gate
+      is live and nothing registers it" must not be registered by the agent that wrote
+      it, on its own say-so, without the operator seeing the enforcement change.
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
