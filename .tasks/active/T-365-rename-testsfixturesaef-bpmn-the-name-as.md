@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T13:18:53Z
-last_update: 2026-08-08T19:25:38Z
+last_update: 2026-08-11T22:23:15Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -193,7 +193,58 @@ made.** The ACs below are written for whichever shape is chosen.
   asserting a uniform provenance the contents do not have — committed a second
   time, in a task that exists to fix exactly that.
 
-### The decision needed (one call, then this is mechanical)
+### 2026-08-11 — the rename is not ours to make, and A/B were the wrong question
+
+Both options below assume the path is an internal implementation detail. It is not.
+Measured before touching anything:
+
+- **`docs/standards/aef-bpmn-mapping-v1.md:142`** names
+  `tests/fixtures/aef-bpmn/inception-gonogo.bpmn` as a **Reference fixture**. That line
+  is at 142; `# Part II — Provisional` begins at 146. **It is inside Part I — Frozen**,
+  the two-party standard this project may not edit under agent control.
+- **`docs/standards/aef-bpmn-forward-compile-v1.md:21`** names
+  `tests/fixtures/aef-bpmn/*.bpmn` as **"the reference corpus"**, and **§5 at :106 is
+  titled after the path**.
+
+So the directory name is **normative in a frozen shared contract**. Renaming it
+unilaterally would (a) strand a reference in a document I cannot edit, and (b) move a
+path AEF's forward-compile contract names as the corpus — a seam change dressed as
+housekeeping.
+
+**A near-miss worth recording, because it is the same class the task exists to fix.**
+My first census returned "42 live references" and I nearly acted on it. The string
+`aef-bpmn` matches TWO unrelated things: the fixture directory, and
+`docs/standards/aef-bpmn-mapping-v1.md` / `-forward-compile-v1.md`. **46 files
+reference the standards.** A blanket `sed s/aef-bpmn/aef-seam/` — the obvious
+mechanical execution of option A — would have rewritten every reference to the frozen
+standard, including inside the standard itself. Re-censused on `fixtures/aef-bpmn`:
+**22 live files**, not 37 and not 42.
+
+The recorded "so the next pickup does not re-measure" numbers had also drifted: 37 → 22
+live (different string), and 17 → 18 fixtures. A measurement filed as durable aged
+silently, which is why it was re-measured rather than quoted.
+
+**Revised options:**
+
+- **C — do not rename; fix the claim where it can be fixed.** The name stays because
+  the standard makes it normative. `PROVENANCE.md` states explicitly that the directory
+  name asserts SCOPE (fixtures about the AEF seam), never AUTHORSHIP, and the per-file
+  table is the only provenance source. Add a mechanical guard that the fixtures the
+  standards name normatively actually exist, so the seam contract is checked rather
+  than assumed.
+- **D — propose the rename to AEF as a standard delta**, queued with the v1.1 deltas
+  already drafted by T-189 and T-195. Two-party, operator-governed, not a refactor.
+
+**Recommended: C now, D offered to AEF.** C removes the actual failure mode — the
+original incident was reading a directory NAME as provenance and publishing a
+corroboration claim that had to be retracted at rail 438. AEF reads the same path from
+their own standard and would read it the same way, so making the name's meaning
+explicit at the source protects both sides. A rename does not: it produces a *new* name
+that a future reader will also interpret, in a document neither side may edit.
+
+C is agent-executable. D is AEF's and the operator's. **No `git mv` performed.**
+
+### The decision needed — SUPERSEDED by the entry above (A/B assumed the path was ours)
 
 **A — single rename** to `tests/fixtures/aef-seam/`. Cheapest, one path to
 update, PROVENANCE.md carries the per-file nuance as it already does. The name
