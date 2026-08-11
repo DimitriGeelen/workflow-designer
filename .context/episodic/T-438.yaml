@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-438: Diagnose the three standing audit warns so the next session inherits the measurement instead of re-deriving it
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-11T21:48:38Z
+# ============================================================================
+
+task_id: T-438
+task_name: "Diagnose the three standing audit warns so the next session inherits the measurement instead of re-deriving it"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-11T21:44:58Z
+completed: 2026-08-11T21:48:35Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-11T23:48:25+02:00
+last_commit: 2026-08-11T23:48:25+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the 'Warn: 3' the project has been steering by is one section of nineteen — the full audit reports 34
+
+# Key outcomes
+outcomes:
+  - 'The three WARN lines are captured verbatim from a real audit run, with their'
+  - 'For each, one sentence on whether the audit''s own prescribed remedy can move it.'
+  - 'Measurement only. No `fabric enrich`, no `fabric scan`, no registration. A diagnosis'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-11.yaml'
+  - '.context/audits/cron/2026-08-11-2345.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.hook-counter'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.tasks/active/T-438-diagnose-the-three-standing-audit-warns-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-11T23:48:25"
+    action: "T-438: the 'Warn: 3' the project has been steering by is one section of nineteen — the full audit reports 34"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 11
+  lines_added: 378
+  lines_removed: 50
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-438-diagnose-the-three-standing-audit-warns-.md
+generated_by: context-agent-hybrid

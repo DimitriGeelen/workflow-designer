@@ -4,10 +4,10 @@ name: "Diagnose the three standing audit warns so the next session inherits the 
 description: >
   fw audit has reported Warn: 3 for weeks with priority actions 'fw fabric enrich' and 'fw fabric scan'. G-017 already records that the fabric coverage verdict is computed from an empty denominator and its prescribed remedy is a structural no-op. This task measures what the three warns actually are and whether the prescribed remedies can move them, and records the answer where the next session will find it. Measurement only: no fabric mutation, no enrich, no scan.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T21:44:58Z
-last_update: 2026-08-11T21:44:58Z
-date_finished: null
+last_update: 2026-08-11T21:48:35Z
+date_finished: 2026-08-11T21:48:35Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -34,7 +34,7 @@ date_finished: null
 
 ## Context
 
-## Findings (partial — full audit still running at session end; see caveat)
+## Findings
 
 Captured verbatim:
 
@@ -238,3 +238,15 @@ Fail: 1 is D2, the human review queue (T-093, T-178), unchanged and expected.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-438-diagnose-the-three-standing-audit-warns-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b15bd72f
+- **Timestamp:** 2026-08-11T21:48:35Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-11T21:48:35Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
