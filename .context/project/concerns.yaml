@@ -1553,6 +1553,30 @@ concerns:
       register entry exists because the mechanism is untouched. Draining a backlog
       would not close this: the defect is that an inert field is the only thing
       standing between a correct finding and a month of silence.
+
+      SECOND WITNESS, DIFFERENT REGISTER (2026-08-11, OBS-021 folded in here under
+      T-436). `validation_method` is inert across the ENTIRE assumption register:
+      20 of 20 rows read TBD, including all four assumptions that were actually
+      disposed with real evidence. A-017/A-018/A-019/A-020 were each settled by a
+      concrete method -- a rail question, a CDP spike, a source measurement -- and
+      not one row records which.
+
+      This matters because it generalises the concern past learnings. The shape is
+      not "learnings are write-once"; it is A FIELD WHOSE NAME IS OBVIOUSLY RIGHT
+      AND WHICH NOTHING EVER READS OR WRITES. Two registers, two such fields, 96%
+      and 100% inert, neither noticed until someone counted. The consequence here
+      is specific: there is no way to ask "how would this assumption be settled"
+      BEFORE committing to settle it, so an assumption's cost stays invisible until
+      someone tries to pay it.
+
+      Deliberately NOT folded into the dangling-assumption count by the tool that
+      measured it (tools/_t428-assumption-disposition-check.py reports the census
+      and does not fail on it) -- it is a property of the register's design, and
+      failing on it would hide it inside a number.
+
+      Closure below is written for learnings. It should be read as covering both:
+      a check that surfaces inert never-written fields per register, not one that
+      drains a particular backlog.
     decision_trigger: |
       Unapplied learnings are visible without an agent being asked to look: something
       reports entries whose `application` is TBD/empty, with age, so a correct finding
@@ -1750,3 +1774,64 @@ concerns:
 
       Explicitly NOT closure: a local edit to the vendored audit.sh or hooks.sh, or
       remembering not to push while an audit is running.
+
+  - id: G-032
+    type: gap
+    status: watching
+    severity: high
+    title: "The inbox's only CONTENT route is dead and fails silently — the handover prints the count, never the finding"
+    detected: '2026-08-11'
+    origin_task: T-436
+    context: |
+      MEASURED under T-436 by running the code, not reading it.
+
+      The handover has a block whose entire purpose is to carry observation CONTENT
+      into the next session (handover.sh:921-935). Run verbatim against the live
+      inbox it emits ZERO lines for 24 pending observations, because it splits on
+      `\n  - ` while the inbox writes `- id:` at column 0. It has done this every
+      session since it was written.
+
+      The failure is silent BY CONSTRUCTION: the enclosing `if [ PENDING_OBS -gt 0 ]`
+      is true, so the heading, the count and the blank lines all print. The section
+      is well-formed and complete-looking with the payload absent. Nothing anywhere
+      reports "listed 0 of 24".
+
+      CONSEQUENCE, measured with a denominator: 7/24 pending observations were ever
+      read by a later, different task; 13/24 by nothing at all. And read LATENCY
+      falsifies the 29% — no observation has EVER been read more than 1 day after
+      filing, while the inbox holds items up to 4 days old and the oldest have zero
+      reads. What delivered those 7 was session continuity and handover narrative,
+      not the inbox. The inbox has never once worked across the gap it exists to
+      bridge. OBS-009 is the specimen: filed 08-09, its finding re-derived by T-432
+      three days later.
+
+      WHY IT SURVIVED: AEF fixed this exact regex ONE FILE OVER. audit.sh:2681-2686
+      names the defect verbatim ("observations are `- id:` at column 0, not `  - `")
+      as the rationale for their T-2514 repair. The repair was scoped to the call
+      site being debugged; the identical idiom in handover.sh was never swept. The
+      class is not the regex — it is a fix applied to an INSTANCE when the finding
+      was about an IDIOM, with nothing that enumerates the idiom's other sites.
+
+      SCOPE, checked rather than assumed: 3 live sites. handover.sh:925 actively
+      wrong. handover.sh:386 (urgent count) broken but LATENT — always 0, and no
+      pending observation carries `urgent: true` today, so the "run triage BEFORE
+      starting new work" escalation can never fire but is missing nothing yet.
+      lib/harvest.sh:214 is CORRECT — it reads patterns.yaml, which genuinely uses
+      2-space indent. Filing that one would have been a false report upstream.
+
+      OWNERSHIP: framework-side, vendored. Reported upstream rather than patched
+      here, per G-008 — a local edit to .agentic-framework/ is lost on re-vendor,
+      and this project has settled on reporting over forking (DM 522 §1).
+    decision_trigger: |
+      A re-vendored handover.sh emits one summary line per pending observation —
+      i.e. `fw handover` produces a `## Observation Inbox` section whose line count
+      matches `fw note count`, verified against a non-empty inbox.
+
+      Explicitly NOT closure: emptying the inbox (a count of 0 makes the block
+      unreachable and the defect invisible again), a local edit to the vendored
+      handover.sh, or AEF acknowledging the report. Accepted is not delivered.
+
+      SECOND, INDEPENDENT LEG — the silence is the worse half. Closure also
+      requires that a listing block which emits nothing for a non-zero count says
+      so. While the count and the listing can disagree without complaint, the next
+      instance of this class is equally invisible.

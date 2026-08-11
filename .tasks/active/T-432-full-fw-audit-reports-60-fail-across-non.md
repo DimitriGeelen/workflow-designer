@@ -155,6 +155,28 @@ and would catch the next regression of a class that has already recurred 8+ time
 
 That ordering is a recommendation, not a decision. The Human AC below owns it.
 
+### Addendum (2026-08-11, OBS-027 folded in here under T-436) — a section list may not reproduce the full run
+
+Measured under T-434, and it bears directly on the option the Human AC is choosing
+between: **a section's audit result depends on whether it is run ALONE or inside a
+FULL run.**
+
+`fw audit --section oe-daily` reports 61 pass / 25 warn / 0 fail and never emits the
+D2 human-review-queue check at all. The same section inside a full run emits D2 and
+reports different pass counts.
+
+This nearly produced a false claim in T-434: the before-number (60 FAIL) came from a
+full run, and taking the after-number from the section-alone run would have compared
+two different instruments and reported 60 → 0 instead of 60 → 1.
+
+**Consequence for option (b), widening the gate to a section list:** a gate built from
+sections can be green while the full audit is not. Whatever is chosen, the gate and the
+number the project steers by have to be the same instrument, or the gate is measuring
+something nobody reads. T-438 sharpened the same point from the other end — the
+familiar "Warn: 3" is a `--section structure` figure; the full audit reports 34.
+
+This is context for the decision, not a change to it. The three options stand as written.
+
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.

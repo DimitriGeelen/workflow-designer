@@ -8,7 +8,7 @@ observations:
   captured: 2026-08-08T15:22:21Z
   context_task: T-381
   tags: []
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-002
   text: "fw handover is BLOCKED by check-active-task when no task is focused - the command CLAUDE.md mandates at Session End Protocol step 4 cannot run at session end, because completing the last task nulls focus. Same family as T-381 (wedge in the wrap-up path). Workaround used: create a session-capture task (T-380/T-384 precedent), which is honest but means every session ends by creating a task whose only purpose is to permit the handover. Candidate fix: add 'fw handover' to the T-2054 no-active-task exemption alongside 'git commit' - CLAUDE.md already lists handover as allowed at critical budget, so the two policies disagree."
@@ -22,21 +22,21 @@ observations:
   captured: 2026-08-08T17:59:15Z
   context_task: T-390
   tags: [gap]
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-004
   text: "check-active-task.sh:92 has_bash_write_pattern runs BEFORE the line-98 task-bootstrap exemption, so a redirect-looking character inside a quoted task NAME blocks task creation. Measured: fw work-on with an ASCII arrow in the name is BLOCKED; identical command without it creates the task. The block message advises 'fw task create --name ...' which fails the same way. Fifth instance of the gate-refuses-its-own-remedy class (G-026); first where the trigger is the content of a human-readable string. SIXTH instance found immediately after: this very note was blocked on its first attempt because its own text contained the arrow. Reported to AEF at rail 478."
   captured: 2026-08-08T18:59:15Z
   context_task: null
   tags: [gap]
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-005
   text: "T-404 asymmetry paper-cut, observed immediately: destructive verbs are judged on the RAW command string, so any command whose ARGUMENTS quote a destructive verb is classified as a write. Concretely, 'fw context add-learning' was blocked when the learning text quoted a recursive-delete invocation as an example — i.e. you cannot record a learning ABOUT a dangerous command without an active task. This is the documented, tested, conservative side of the T-404 decision (a false negative there would let sh -c with a quoted destructive verb past), so it is correct as designed, not a defect. Capturing it because the cost is now observed rather than hypothetical: if it recurs, the fix is to judge verbs on the quote-stripped string for the FIRST segment only, keeping raw-string scanning for sh/bash -c payloads."
   captured: 2026-08-09T08:43:10Z
   context_task: null
   tags: []
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-006
   text: "add"
@@ -50,28 +50,28 @@ observations:
   captured: 2026-08-09T10:59:27Z
   context_task: T-408
   tags: [gap]
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-008
   text: "audit.sh (~line 2107) classifies a gap's alternate closure field as 'unread' only when the key name contains the substring 'trigger'. Proven insufficient by T-400 teeth leg (a): G-027's actual field was closure_condition, which contains no 'trigger', so the entry that motivated the whole check would STILL be reported as MISSING a closure condition it visibly contains. Near-synonyms do not reliably share a substring with the field they shadow. tools/concerns-schema.py now covers this project-side via an explicit read-field allowlist; the framework-side heuristic is unchanged and remains weak for any future non-'trigger' synonym. Framework-side fix would be upstream (G-008)."
   captured: 2026-08-09T11:06:37Z
   context_task: T-400
   tags: [framework]
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-009
   text: "G-013 second independent witness, measured 2026-08-09. This session's pre-push audit reported 'Pass: 19 Warn: 3 Fail: 0' and I read it as the state of the tree. The FULL audit run minutes later: Pass 124 / Warn 29 / Fail 60. Of those, 59 are CTL-030 (completed tasks carrying stored horizon='now'; legacy files — current completions correctly write horizon: null, verified on T-408/T-409/T-400, none of which appear in the list). So the routinely-visible number says 0 FAIL while the real number is 60, exactly the subset-presented-as-whole shape G-013 registers. I only saw it because I ran the full audit by hand for an unrelated reason. Raising as evidence, not acting: G-013's decision_trigger already specifies closure (scope stated in the summary line itself, or the cron path runs the full set) and that is a framework-side change to audit.sh."
   captured: 2026-08-09T11:10:56Z
   context_task: T-102
   tags: [gap]
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-010
   text: "Framework-side, fleet-wide: fw vendor writes .agentic-framework/.gitignore covering only __pycache__/*.pyc/*.pyo/.DS_Store. Any AEF consumer that tracks .context/working/ wholesale publishes its Watchtower signing key. Ours tracked 371 files there and published the key for 2 months (T-410). One-line fix in the vendored gitignore template, widest blast radius. Reported to AEF at rail 498."
   captured: 2026-08-09T11:37:03Z
   context_task: T-102
   tags: []
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-011
   text: "add"
@@ -92,63 +92,63 @@ observations:
   captured: 2026-08-10T18:40:58Z
   context_task: null
   tags: [tooling]
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-014
   text: "fw hook-enable has no inverse. Registering is one governed command; DEREGISTERING is hand-edited JSON against the file that holds check-tier0, check-active-task, budget-gate and the plan-mode block. T-420 hit the cost directly: a probe registration merged into the existing 'Bash' group, and removing it by group deleted the Tier 0 gate for two tool calls. The asymmetry is the flaw — a framework that makes it easy to add an enforcement hook and unsupported to remove one guarantees the removal happens by improvisation, on the highest-consequence file, with no gate watching. Remedy direction: fw hook-disable --script <path> --matcher <pat> --event <evt>, removing the COMMAND from its group and dropping the group only when it empties, plus a post-write assertion that every previously-registered command is still present. Vendored framework (G-008 in-tree fix + upstream)."
   captured: 2026-08-10T19:25:30Z
   context_task: T-420
   tags: []
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-015
   text: "Claude Code SNAPSHOTS hook configuration at session start: a hook registered mid-session does not fire for the rest of that session. Measured in T-420 with a discriminating probe — a trivial hook registered on matcher 'Bash' (a matcher already proven live) also failed to fire, which separates 'my matcher pattern is wrong' from 'registrations are snapshotted'. Consequence for this project: ANY task whose deliverable is a PreToolUse/PostToolUse gate cannot verify live interception within the session that builds it. The mutation check proves the script's logic; it cannot prove the wiring. Worth an audit of prior hook-adding tasks (T-1730, T-1849, T-1886, check-visual-verification) for ACs that claim interception evidence they could not have had."
   captured: 2026-08-10T19:25:34Z
   context_task: T-420
   tags: []
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-016
   text: "T-421's finding is NOT drift — measured 2026-08-10: .claude/settings.json has TWO revisions in the repo's entire history (T-001 setup 2026-06-04, and T-420 today). All 17 registered hooks arrived in the vendoring commit and nobody has added, removed or moved one in 67 days. So the 21 unregistered scripts were never turned OFF, they were never turned ON — the vendored default was never reconciled against the vendored prose. The framework's templates describe a framework configured the way the framework configures ITSELF; the consumer inherited the sentences without the settings. Implication: likely fleet-wide — any AEF consumer whose settings.json still matches its setup commit carries the same false promise. Reported to AEF at rail 520 §2; they have the vantage point to check the fleet, we do not."
   captured: 2026-08-10T19:56:44Z
   context_task: T-209
   tags: []
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-017
   text: "AEF rail 519 §2, adopted: a DECLARED list or detector that produces false positives does not get IGNORED — it gets a dismissal ritual, and the ritual becomes the defect. Their evidence is their own D3: baseline noise from legitimate hook additions produced an advisory 'just re-baseline after review' with nothing checking the review happened, and that advisory is now the path that makes an accidental gate deletion permanent and green. I had modelled the bad end state as 'the instrument gets switched off' — which is the HARMLESS one. Applies to two things I shipped today: T-420's declared refusal list (false positive blocks a legitimate post; remedy is to edit the list — a dismissal ritual with an editable target) and T-421's claim detector (narrowed twice to kill 6 of 9 false positives; I recorded the risk as 'learn to skip it'). Check first next session: what does each do when it fires wrongly, and does the printed remedy launder the miss?"
   captured: 2026-08-10T19:56:45Z
   context_task: T-209
   tags: []
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-018
   text: "A ruling that lands in a task file does not reach the registers that index it. A-020 was answered NO at rail 417 on 2026-08-03 and recorded in T-357's Open Questions as IW-1b 'answered — NO'. The assumption register still read 'untested' seven days later, and I filed a whole build task (T-425) on the strength of the register plus a stale research artifact. Third instance of the PL-145 shape (T-340 AC1, T-341 AC1, T-209 were prose-filed rulings; this one is a register-filed one). The register and the task file are two carriers for one fact with no reconciliation between them, exactly the competing-carrier problem PL-114 names for geometry. Candidate check: for every assumption still 'untested', does its owning task's Open Questions record a disposition?"
   captured: 2026-08-10T20:27:58Z
   context_task: T-425
   tags: []
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-019
   text: "Remedy text in check-active-task.sh:441 prints 'fw work-on $CURRENT_TASK' unconditionally when the focused task has status captured — it never asks whether the focused task SHOULD start. Live FP-destructive specimen 2026-08-11: focus was T-423, whose AC#1 reads 'this task does not start until T-340 is ruled and step 1 has landed'. Following the printed remedy would have violated the guard T-423 exists to hold and left it in started-work with nothing recording the violation. AEF-owned instrument (vendored); reported on agent-chat-arc thread T-426. Class: a block message is the most authoritative text an agent sees, so a wrong remedy is MORE likely to be followed, not less."
   captured: 2026-08-11T09:11:31Z
   context_task: T-426
   tags: []
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-020
   text: "CLAUDE.md documents the context-budget ladder as 120K warn / 150K urgent / 170K critical BLOCK, but budget-gate.sh computes them as percentages of CONTEXT_WINDOW (default 300000): 225K / 255K / 285K. The prose is a 200K-window artifact. Same claim-drift family as T-421 but about VALUES rather than registration — the detector only looks at hook NAMES, so nothing would catch a stale number. Surfaced while checking whether the 170K critical block applied at 171717 tokens; the gate said level=ok and the two disagreed."
   captured: 2026-08-11T11:42:12Z
   context_task: T-402
   tags: []
-  status: pending
-  promoted_to: null
+  status: promoted
+  promoted_to: task
 - id: OBS-021
   text: "validation_method is inert across the ENTIRE assumption register: 20 of 20 rows read TBD, including all four that were disposed with real evidence. The field has never steered a single disposition — A-017/A-018/A-019/A-020 were each answered by a method (rail question, CDP spike, source measurement) that the row does not record. PL-127 instance about a register rather than a schema: the name is obviously right, which is why nobody noticed it was never filled. Consequence: there is no way to ask 'how would this assumption be settled' before committing to settle it, so an assumption's cost is invisible until someone tries. Measured under T-428 (tools/_t428-assumption-disposition-check.py reports the census but deliberately does NOT fail on it — it is a property of the register's design, and folding it into the dangling count would hide it)."
   captured: 2026-08-11T13:06:27Z
   context_task: T-428
   tags: [tooling]
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-022
   text: "add"
@@ -162,35 +162,35 @@ observations:
   captured: 2026-08-11T14:23:58Z
   context_task: T-429
   tags: []
-  status: pending
-  promoted_to: null
+  status: promoted
+  promoted_to: task
 - id: OBS-024
   text: "fw note has no unknown-subcommand error: 'fw note add \"real text\"' captures the literal string 'add' as the observation and silently discards the argument that follows. The inbox then holds a well-formed entry with no content, which is indistinguishable from a real one until someone reads it. Same family as T-429's finding — a record that exists and says nothing looks exactly like a record."
   captured: 2026-08-11T14:23:58Z
   context_task: T-429
   tags: []
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-025
   text: "The owner vocabulary has three incompatible value sets in simultaneous use and nothing reconciles them: the frozen mapping standard says human|agent, AEF's shipped VALID_OWNERS says human claude-code, and this tree practises agent x304 / human x118 / claude-code x9. AEF's is_valid_owner() is defined at lib/enums.sh:101 and called from NOWHERE, which is why no value was ever rejected. Not an A-012 gap (representability is via the lane and holds) — a separate drift, and the question 'which is authoritative, agent or claude-code' is AEF's to answer."
   captured: 2026-08-11T15:36:24Z
   context_task: T-431
   tags: []
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-026
   text: "A-014 (AEF record reconstructs a faithful process map deterministically) is child-3's premise, not the arc anchor's. T-184 reverse-discovery was DEFERRED by operator 2026-07-11 with revisit trigger 'child-2 shipped + demand to edit existing task graphs' — not fired. Carried on the anchor blocker list regardless, and sent to AEF as blocking. With A-012 (answerable locally, T-431) that is two of three so-called anchor blockers that were not blockers. Class: 'blocking' was read as a property of the ASSUMPTION when it is a property of the assumption PLUS the schedule. Nothing re-checks a blocker list against the deferral state of the child that owns it."
   captured: 2026-08-11T16:45:59Z
   context_task: T-402
   tags: []
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-027
   text: "A section's audit result depends on whether it is run ALONE or inside a FULL run. 'fw audit --section oe-daily' reports 61 pass / 25 warn / 0 fail and never emits the D2 human-review-queue check; the same section inside a full run emits D2 and reports different pass counts. Nearly produced a false claim in T-434: the before-number (60 FAIL) came from a full run, and taking the after-number from the section-alone run would have compared two different instruments and reported 60 to 0 instead of 60 to 1. Bears directly on T-432's gate-scope decision — widening the push gate to a SECTION LIST may not reproduce what the full audit reports, so a gate built from sections could be green while the full audit is not."
   captured: 2026-08-11T20:56:54Z
   context_task: T-434
   tags: []
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-028
   text: "add"
@@ -204,12 +204,19 @@ observations:
   captured: 2026-08-11T21:25:32Z
   context_task: T-430
   tags: [bug]
-  status: pending
-  promoted_to: null
+  status: promoted
+  promoted_to: task
 - id: OBS-030
   text: "_t429-zero-leg-probe.sh reads a non-zero PROCESS EXIT as GUARDED, which is only sound while the suite is otherwise green — on a suite carrying any real failure it reports GUARDED for a file with no guard at all (measured on _t400-schema-teeth with the guard deleted, T-430). Same mention-vs-instance class the probe was built to find. Superseded for T-430's purposes by _t430-abstention-teeth.sh (neuters every increment-bearing helper; requires rc==2 AND the ABSTAINED line). The old probe is unmodified and still cited by T-429's record — decide whether to annotate it in place or leave the limitation documented only in T-430."
   captured: 2026-08-11T21:25:39Z
   context_task: T-430
+  tags: [tooling]
+  status: promoted
+  promoted_to: task
+- id: OBS-031
+  text: "fw note promote uses the ENTIRE observation body as the new task's name field, and sets description to the one-line stub 'Promoted from observation OBS-NNN' — so the paragraph lands where a title belongs and the summary slot holds nothing. Four promotions in this triage produced task names of 300-700 characters, which is what every handover, task list and review URL then prints as the title. Measured, then repaired by hand: name replaced with a real title, body moved into description so the observation text is not lost. Same fw note UX family as the verb mis-capture — the command's output is well-formed and exits 0, so nothing reports that the two fields are swapped. Retained deliberately rather than opened as a third upstream message: it should ride with the response to the batch already sent."
+  captured: 2026-08-11T22:04:13Z
+  context_task: T-436
   tags: [tooling]
   status: pending
   promoted_to: null

@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T21:36:14Z
-last_update: 2026-08-11T21:55:42Z
+last_update: 2026-08-11T21:59:40Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -107,6 +107,78 @@ what a dead content-route predicts.
 
 OBS-009 is the specimen: filed 08-09 from T-102, its finding re-derived by T-432 three
 days later, and the only task that ever cites it is this one.
+
+### 3. `fw note dismiss --reason` accepts the reason, prints it, and discards it
+
+Found while verifying my own dispositions rather than trusting the success message.
+
+`observe.sh:229-248` — `do_dismiss` parses `--reason` into a local variable, uses it in
+exactly one place (the `echo` on line 247), and the write on line 246 is:
+
+    _sed_i "/id: $obs_id/,/promoted_to:/{s/status: pending/status: dismissed/}"
+
+`status: dismissed` and nothing else. No `reason` field, no `dismissed_at`, no
+`dismissed_by`. The reason is printed to a terminal nobody archives, then gone.
+
+The command's own help advertises `--reason "..."`. This task's AC4 requires every
+disposition to cite a specific reason. The command that records dispositions throws
+the reason away. **All 26 dismissals in this register carry no reason** — including
+the six that predate this task.
+
+**This falsifies something I claimed last session.** I dismissed OBS-028 "with that
+reason rather than deleting it, so the next person who types it finds the answer."
+They will not. There is no field for it to be in. The reason went to stdout and the
+session that could read it has ended. Correcting the record rather than leaving it.
+
+Third member of the `fw note` family, and the worst: §A of DM 546 is a mis-capture
+(loud once you look at the entry), this one is silent by design — the operation
+succeeds, the confirmation quotes your reason back at you, and the file never gets it.
+
+**Consequence for this task:** the ledger below IS the durable record of the 20
+dismissals. It is here because the register cannot hold it.
+
+## Disposition Ledger — 24 pending in, 24 out
+
+Counts: **in 24 → promoted 4, folded 6, learning 2, upstream-reported 5, closed-as-decided 3,
+consumed 2, retained 1 (new), and 1 net-new capture (OBS-031).**
+No observation was dismissed for age; every line names its target or its reason.
+
+**Promoted to tasks** (real local work behind them; all `horizon: next`)
+| OBS | → | Task |
+|---|---|---|
+| OBS-020 | → | T-439 — CLAUDE.md's budget ladder is a 200K-window artifact (prose 120/150/170K vs gate 225/255/285K) |
+| OBS-023 | → | T-440 — zero-leg blindness beyond bash: 60+ .mjs probes, python checks printing PASS on a zero count |
+| OBS-029 | → | T-441 — `concerns-schema.py` has no `context` field, so `_t400`'s RECIPROC leg is red on the live register |
+| OBS-030 | → | T-442 — `_t429-zero-leg-probe` reads any non-zero exit as GUARDED; annotate in place or retire |
+
+**Folded into an existing carrier** (the concern/task outlives the inbox entry)
+| OBS | → | Carrier | Why |
+|---|---|---|---|
+| OBS-003 | → | T-392 | already folded as shape C and cited there |
+| OBS-007 | → | G-015 | status update; leg 1 stays UNRULED on that concern |
+| OBS-009 | → | G-013 + G-032 | second witness of G-013; named specimen of G-032 |
+| OBS-018 | → | G-030 | the register-filed variant of "a ruling filed as prose is invisible" |
+| OBS-021 | → | G-028 | second witness in a different register (20/20 `validation_method` TBD) |
+| OBS-027 | → | T-432 | bears directly on the gate-scope option its Human AC decides |
+
+**Promoted to a learning** (the durable form is a rule, not a ticket)
+- OBS-015 → **PL-156** — hook config is snapshotted at session start, so a hook-deliverable AC cannot claim live interception.
+- OBS-026 → **PL-157** — "blocking" is a property of an assumption PLUS the schedule.
+
+**Reported upstream** (framework-side; not patched here per G-008)
+- OBS-013 + OBS-024 → **DM 546 §A** (duplicates of each other — independently captured by two sessions, which is itself evidence)
+- OBS-014 → **DM 546 §B** · OBS-008 → **DM 546 §C** · OBS-025 → **DM 546 §D**
+- Already reported before this task: OBS-004 (rail 478, class G-026), OBS-010 (rail 498), OBS-016 (rail 520 §2), OBS-019 (agent-chat-arc, T-426)
+
+**Closed as decided, not as defects**
+- OBS-001 — ordering is a recorded decision; T-381 measured all four printed remedies as ALLOWED, so no wedge.
+- OBS-005 — the conservative side of T-404 by design; a false negative there would admit `sh -c` with a quoted destructive verb.
+- OBS-017 — consumed by T-426, which exists because of it.
+
+**Deliberately retained (1)**
+- **OBS-031** — `fw note promote` puts the whole observation body in `name` and a stub in
+  `description`. Repaired by hand here for all four promotions. Held rather than opened
+  as a third upstream message; it should ride with AEF's response to the batch already sent.
 
 ## Acceptance Criteria
 

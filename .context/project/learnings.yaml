@@ -1121,3 +1121,17 @@ learnings:
   date: 2026-08-11
   context: Added via context agent
   application: TBD
+- id: PL-156
+  learning: "Claude Code SNAPSHOTS hook configuration at session start: a hook registered mid-session does not fire for the rest of that session. Measured in T-420 with a DISCRIMINATING probe — a trivial hook on matcher 'Bash' (a matcher already proven live) also failed to fire, which separates 'my matcher pattern is wrong' from 'registrations are snapshotted'. CONSEQUENCE: any task whose deliverable is a PreToolUse/PostToolUse gate CANNOT verify live interception within the session that builds it. A mutation check proves the script's logic; it cannot prove the wiring. Write the AC accordingly — claim logic, not interception — or the task ships an unverifiable claim."
+  source: P-001
+  task: T-436
+  date: 2026-08-11
+  context: Added via context agent
+  application: TBD
+- id: PL-157
+  learning: "'Blocking' is a property of an assumption PLUS the schedule, not of the assumption. A-014 was carried on the arc anchor's blocker list and sent to AEF as blocking, when it is child-3's premise — and child-3 (T-184) was operator-DEFERRED on 2026-07-11 with a revisit trigger that has not fired. With A-012 (answerable locally) that is two of three so-called anchor blockers that were not blockers. Nothing re-checks a blocker list against the deferral state of the child that owns it, so a deferred child's premise keeps reporting as an active blocker on its parent indefinitely. Before escalating an assumption as blocking, check which task OWNS it and whether that task is scheduled."
+  source: P-001
+  task: T-436
+  date: 2026-08-11
+  context: Added via context agent
+  application: TBD
