@@ -7,7 +7,7 @@ description: >
 status: work-completed
 workflow_type: build
 owner: human
-horizon: now
+horizon: null
 tags: [typed-events, editor, bridge, aef, arc, feature]
 components: []
 related_tasks: []

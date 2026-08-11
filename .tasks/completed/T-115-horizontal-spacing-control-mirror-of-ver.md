@@ -7,7 +7,7 @@ description: >
 status: work-completed
 workflow_type: build
 owner: human
-horizon: now
+horizon: null
 tags: [ui, editor, routing, layout]
 components: []
 related_tasks: [T-105, T-108]

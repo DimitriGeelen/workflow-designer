@@ -1,13 +1,13 @@
 ---
-id: T-100
-name: "Clean layout nudge: offer one-click Clean on load when a map is measurably messy"
+id: T-434
+name: "Backfill horizon: null into the 59 completed tasks CTL-030 flags"
 description: >
-  Operator option 3 (auto-tidy discussion): after a user import/deep-link, if clean-on-import is OFF and the map is measurably wavy/cramped, show a dismissable one-click 'This map could use Clean layout' nudge near the toolbar. Zero mutation until clicked; uses cleanLayout(); auto-hides when clean or when clean-on-import is on.
+  T-432 measured 59 of 374 completed tasks carrying stored horizon='now' where CTL-030 expects null/absent. The source is already plugged (update-task.sh:1896 writes horizon: null at completion; verified working on T-427/T-429/T-431), so this is terminal residue from the window between the T-1068 auto-promote existing and the plug landing. Mechanical, reversible, and it converts the oe-daily section from 60 FAIL to 1 — the remaining FAIL being D2, the human review queue, which is a working signal and not a defect. Doing this BEFORE the T-432 gate-scope decision makes option (c) free: widening the push gate to oe-daily costs nothing once the residue is gone, and then catches the next regression of a class that has already recurred 8+ times upstream. Only completed/ files are touched, only the horizon field, and only where the value is 'now'.
 
-status: work-completed
-workflow_type: build
-owner: human
-horizon: null
+status: started-work
+workflow_type: refactor
+owner: agent
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-07-05T10:30:52Z
-last_update: 2026-07-29T15:42:34Z
-date_finished: 2026-07-05T10:37:54Z
+created: 2026-08-11T20:45:13Z
+last_update: 2026-08-11T20:45:19Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,22 +30,41 @@ date_finished: 2026-07-05T10:37:54Z
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-100: Clean layout nudge: offer one-click Clean on load when a map is measurably messy
+# T-434: Backfill horizon: null into the 59 completed tasks CTL-030 flags
 
 ## Context
 
-Operator decision (2026-07-05 dialogue on auto-tidy): option 3 of three. Complements T-099: when clean-on-import is OFF and a user opens a measurably messy map, show a dismissable on-canvas nudge offering one-click Clean — zero geometry mutation until the operator clicks (PD-044). Messiness measured by a NON-mutating dry-run of the Clean passes (would-move count). Nudge auto-suppressed when clean-on-import is on (map already cleaned) or the dry-run moves nothing.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] `mapMessiness()` read-only signal: counts nodes involved in a same-lane node overlap OR a wavy row (side-by-side row-mates, centres 1–14px off); no mutation, no render — `buildBpmnXml` byte-identical before/after the probe (messiness_netzero: true). NOTE: pivoted from the filed "cleanWouldMove dry-run" — see Evolution
-- [x] On a user import (`opts.userImport`) with clean-on-import OFF, `mapMessiness() >= 3` shows the canvas nudge ("✨ This map could use Clean layout" + Clean button + dismiss ✕); clicking Clean runs `cleanLayout()` (feedback "Cleaned 15 nodes — Ctrl+Z reverts") and hides the nudge; ✕ hides without mutating. Verified live (messy_userimport_prefoff: true; clean click → nudgeVisible false)
-- [x] Nudge suppressed when clean-on-import ON (messy_prefon: false), messiness < 3 (clean_userimport: false), or load is programmatic (messy_programmatic: false); re-evaluated on each user import
-- [x] Live check: `?load=rendered/task-lifecycle.bpmn` (pref off) shows the nudge (messiness 9); the 6 clean corpus maps (release-pipeline, cross-host-dispatch, fabric-blast-radius, inception-review, resume-status, review-emission) score 0 → no nudge; clicking Clean tidies and hides it
-- [x] Suites pass (bridge 31/31, validator 34/34, corpus 24 clean, parity OK); gallery copy identical
-- [x] Screenshots READ: nudge shown (`.playwright-mcp/t100-nudge-shown.png`), after-clean (`t100-after-clean.png` — nudge gone, map tidied)
+<!-- RESULT: full audit 60 FAIL -> 1 FAIL. Survivor is D2 (human review queue), as
+     predicted. Pass 123->124, Warn 32->35. CTL-030 now reports PASS.
+
+     MEASUREMENT NOTE, recorded because it nearly produced a false claim: running
+     `--section oe-daily` ALONE reports 61/25/0 and does not emit D2 at all, while the
+     same section inside a FULL run reports it. So a section's result depends on whether
+     it is run alone or with the others. The before-number (60) came from a full run; had
+     I taken the after-number from the section-alone run I would have compared two
+     different instruments and reported "60 -> 0". Both numbers here are full runs.
+     Filed as an observation — it bears directly on T-432's gate-scope decision, since
+     widening the push gate to a section list may not reproduce what the full audit says. -->
+- [x] **The edit is bounded and stated before it runs**: only files under
+      `.tasks/completed/`, only a frontmatter line matching `^horizon: now$`, only the
+      value replaced with `null`. Nothing in `active/`, no other field, no body prose.
+      An unranged `sed 's/^horizon:.*/…/'` is exactly the defect AEF hit this week on
+      `owner:` — a task whose BODY quotes the field gets rewritten — so the replacement
+      is confined to the frontmatter block, not applied file-wide.
+- [x] **The count is asserted both directions**: exactly 59 files change, and a re-run
+      changes 0 (idempotent). A migration that cannot say how many rows it touched is
+      the same defect as a suite that cannot say how many legs it ran.
+- [x] **CTL-030 is re-run and reports PASS**, and the oe-daily FAIL count drops from 60
+      to exactly 1 — the surviving FAIL being D2, the human review queue, which is a
+      working signal and must NOT be silenced by this task.
+- [x] **No completed task's meaning changes.** `horizon` is a scheduling field on
+      terminal records; the diff must touch nothing else, verified by inspecting the
+      full diff stat rather than trusting the script.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -77,13 +96,6 @@ Operator decision (2026-07-05 dialogue on auto-tidy): option 3 of three. Complem
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
-- [x] [REVIEW] Nudge is helpful, not naggy
-  **Steps:**
-  1. Ensure Settings → View → "Clean layout when opening a file" is OFF
-  2. Open http://192.168.10.107:8834/designer.html?load=rendered/task-lifecycle.bpmn
-  3. Try the nudge's Clean button, and (reload) try its ✕ dismiss
-  **Expected:** A small "This map could use Clean layout" prompt appears on a messy map; Clean tidies it and the prompt vanishes; ✕ dismisses without changing the map; already-tidy maps show no prompt
-  **If not:** Note whether it nagged on a clean map or failed to appear on a messy one; screenshot
 
 ## Verification
 
@@ -96,13 +108,29 @@ Operator decision (2026-07-05 dialogue on auto-tidy): option 3 of three. Complem
 # pom.xml → `mvn -q compile`. P-011 runs only what you write — broken builds slip
 # past otherwise (origin: 003-NTB-ATC-Plugin T-077, broken WPF DLL on master 5 days).
 #
-# Pipefail/SIGPIPE hint (L-387): P-011 runs each command under `set -eo pipefail`.
-# `cmd | grep -q PATTERN` exits 141 (SIGPIPE) when grep matches and closes stdin
-# while the upstream is still writing — verification then "fails" even though
-# the pattern was present. Safe pattern: capture first, grep the capture:
-#     out=$(cmd 2>&1); echo "$out" | grep -q "PATTERN"
-# Or:
-#     cmd > /tmp/.out 2>&1 && grep -q "PATTERN" /tmp/.out
+# ⚠ ERREXIT WARNING (T-352) — READ BEFORE USING THE CAPTURE PATTERN BELOW.
+# P-011 runs each command under `-o pipefail` but NOT under an effective `-e`.
+# Measured, not assumed (tools/_t352-p011-errexit-probe.sh): the gate runs each line as
+# `if ( … eval "$cmd" ); then` (update-task.sh:1018) and that subshell is the CONDITION
+# of an `if`, which neutralises errexit inside it. pipefail survives; errexit does not.
+# CONSEQUENCE: a line of the form `a; b` IS JUDGED ON `b` ALONE. `a`'s exit code is
+# discarded, so a command that fails outright can still leave the line green.
+#   Proven false green:
+#     out=$(python3 tools/validate-workflow.py BROKEN.bpmn 2>&1); echo "$out" | grep -q "VALID"
+#   -> PASSES on a document the validator exits 2 on and labels INVALID, because
+#      `grep -q "VALID"` matches INVALID as a SUBSTRING. Two defects stacked.
+# PREFER a single command whose own exit code is the verdict — then no context question
+# arises. When you must chain, the LAST command has to be the one that can fail, and its
+# pattern must not be matchable by the earlier command's FAILURE output.
+# Note `set -e` re-issued inside the subshell does NOT fix this: the suppressed context is
+# inherited and re-setting the option does not clear it. See T-352 for the remedy.
+#
+# Pipefail/SIGPIPE hint (L-387): `cmd | grep -q PATTERN` exits 141 (SIGPIPE) when grep
+# matches and closes stdin while the upstream is still writing — verification then
+# "fails" even though the pattern was present. The capture pattern below fixes THAT,
+# and creates the errexit exposure described above; the file form fixes both:
+#     cmd > /tmp/.out 2>&1 && grep -q "PATTERN" /tmp/.out     # PREFERRED: && not ;
+#     out=$(cmd 2>&1); echo "$out" | grep -q "PATTERN"        # SIGPIPE-safe, errexit-blind
 # Origin: L-387, captured 4× (T-1716, T-1838, T-1862, T-1863) before this hint.
 #
 # Single pipe only — no intermediate tail/awk/sed stages between capture and grep
@@ -117,29 +145,6 @@ Operator decision (2026-07-05 dialogue on auto-tidy): option 3 of three. Complem
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
-
-out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"  # count-agnostic (T-305: suite grew 31->43; totals rot)
-out=$(bash tests/run-validator-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"  # count-agnostic (T-305)
-out=$(bash tests/check-corpus-geometry.sh 2>&1); echo "$out" | grep -q "24 clean"
-diff -q src/aef-workflow-designer.html build/gallery/designer.html
-grep -q "function mapMessiness" src/aef-workflow-designer.html
-grep -q "clean-nudge" src/aef-workflow-designer.html
-
-## Visual Verification
-
-Screenshots taken via Playwright and READ:
-- `.playwright-mcp/t100-nudge-shown.png` — task-lifecycle via `?load=` (pref off): nudge centered top ("✨ This map could use Clean layout" + Clean button + ✕), accent border
-- `.playwright-mcp/t100-after-clean.png` — after clicking the nudge's Clean: nudge gone, rows tidied
-
-## Recommendation
-
-**Recommendation:** GO
-**Rationale:** Zero-mutation until the operator clicks; only appears on maps with genuine visual mess (overlaps/wavy rows), so it complements T-099 without nagging. The 6 clean corpus maps stay quiet; messy ones offer one click.
-**Evidence:**
-- Branch logic verified live: shows on messy+userImport+prefOff; hidden on clean map, pref-on, and programmatic load
-- mapMessiness net-zero (buildBpmnXml byte-identical across probes); clean/messy separation at threshold 3 (6 maps score 0, messy 3–14)
-- Suites green: bridge 31/31, validator 34/34, corpus 24 clean, parity OK; gallery copy identical
-- Screenshots READ (nudge shown; after-clean)
 
 ## RCA
 
@@ -192,10 +197,7 @@ Screenshots taken via Playwright and READ:
      - **Rejected:** [alternatives and why not]
 -->
 
-### 2026-07-05 — messiness signal: not "would Tidy move", but overlaps+waves
-- **Chose:** `mapMessiness()` = count of nodes in a same-lane overlap or wavy row-pair, threshold 3.
-- **Why:** The filed plan's `cleanWouldMove()` dry-run was built and measured first — it reported ≥3 on ALL 24 maps (release-pipeline, the survey's clean control, scored 17) because Tidy grid-snaps at least one node on every machine-generated raw file. A nudge on every single load is exactly the nagging the operator's "helpful not naggy" bar forbids. The overlap+wave metric cleanly separates the 6 genuinely-clean maps (score 0) from messy ones (3–14).
-- **Rejected:** Higher would-move threshold (no value separates clean from messy — release-pipeline 17 > many messy maps); measuring move *magnitude* (fragile, sub-pixel-sensitive).
+## Decision
 
 <!-- Filled at completion of inception tasks via:
      fw inception decide T-XXX go|no-go|defer --rationale "..."
@@ -207,26 +209,10 @@ Screenshots taken via Playwright and READ:
 
 ## Updates
 
-### 2026-07-05T10:30:52Z — task-created [task-create-agent]
+### 2026-08-11T20:45:13Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-100-clean-layout-nudge-offer-one-click-clean.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-434-backfill-horizon-null-into-the-59-comple.md
 - **Context:** Initial task creation
 
-### 2026-07-05T10:37:54Z — status-update [task-update-agent]
-- **Change:** status: started-work → work-completed
-
-## Reviewer Verdict (v1.5)
-
-- **Scan ID:** R-4e2b7179
-- **Timestamp:** 2026-07-29T13:13:35Z
-- **Catalogue:** v1.3-seed
-- **Overall:** CONCERN
-- **Needs Human:** no
-- **Findings:** 2
-
-**Per-AC findings:**
-
-- **AC#4 (Agent)** — Live check: `?load=rendered/task-lifecycle.bpmn` (pref off) shows the nudge (messiness 9); the 6 clean corpus maps (release-pipeline, cross-host-dispatch, fabric-blast-radius, inception-review, resume
-  - **AC-verify-mismatch** (narrow, heuristic) — `path=rendered/task-lifecycle.bpmn in: Live check: `?load=rendered/task-lifecycle.bpmn` (pref off) shows the nudge (messiness 9); the 6 clean corpus maps (release-pipeline, cross-host-dispa`
-- **AC#6 (Agent)** — Screenshots READ: nudge shown (`.playwright-mcp/t100-nudge-shown.png`), after-clean (`t100-after-clean.png` — nudge gone, map tidied)
-  - **AC-verify-mismatch** (narrow, heuristic) — `path=playwright-mcp/t100-nudge-shown.png in: Screenshots READ: nudge shown (`.playwright-mcp/t100-nudge-shown.png`), after-clean (`t100-after-clean.png` — nudge gone, map tidied)`
+### 2026-08-11T20:45:19Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

@@ -7,7 +7,7 @@ description: >
 status: work-completed
 workflow_type: build
 owner: human
-horizon: now
+horizon: null
 tags: [bug, editor, regression-suspect]
 components: []
 related_tasks: [T-133]
