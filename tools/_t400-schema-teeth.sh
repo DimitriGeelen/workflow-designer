@@ -12,8 +12,23 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 fails=0
-fail() { echo "FAIL: $*" >&2; fails=$((fails + 1)); }
-ok()   { echo "  ok  $*"; }
+legs=0
+# T-430: `fails` alone cannot answer the question the census asks. A run whose legs never
+# executed and a run in which every leg passed BOTH print fails=0 and BOTH exit 0 — the
+# caller, P-011, and a human reading the transcript six weeks later all record a green.
+#
+# The counter is incremented in leg(), which every recorded outcome passes through, and
+# NOT in fail(): T-429's automated applier put it there and would have fired the new guard
+# on every clean run, since fail() is the one helper a green suite never calls.
+#
+# leg() is defined FIRST on purpose. tools/_t429-zero-leg-probe.sh simulates the condition
+# under audit by blanking the body of the first increment-bearing function in the file; if
+# fail() came first the probe would silence the wrong tally, `legs` would keep counting,
+# and the suite would report ABSTAINED while actually having run all ten legs — a proof
+# that measures the probe's reach instead of the suite's guard.
+leg()  { legs=$((legs + 1)); }
+fail() { leg; echo "FAIL: $*" >&2; fails=$((fails + 1)); }
+ok()   { leg; echo "  ok  $*"; }
 
 reg() { # reg <file> <extra-yaml-lines-for-entry>
   cat > "$TMP/$1" <<EOF
@@ -163,8 +178,17 @@ else
 fi
 
 echo
+# T-430 abstention guard — must precede the verdict, or the verdict answers first and the
+# zero-leg case exits 0 on the way past.
+if [ $(( ${legs:-0} + ${fails:-0} )) -eq 0 ]; then
+  echo "ABSTAINED — no legs ran; this is not a pass." >&2
+  exit 2
+fi
 if [ "$fails" -ne 0 ]; then
   echo "TEETH FAIL — $fails leg(s) failed" >&2
   exit 1
 fi
-echo "TEETH PASS — 10/10 legs (control + 8 cases + reciprocal on the live register)"
+# The count is printed as MEASURED, not as the literal "10/10" this line used to carry —
+# a hard-coded denominator is the same claim-without-measurement the guard above exists to
+# stop, one line further down.
+echo "TEETH PASS — $legs/10 legs recorded (control + 8 cases + reciprocal on the live register)"

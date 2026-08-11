@@ -23,8 +23,15 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 fails=0
-fail() { echo "FAIL: $*" >&2; fails=$((fails + 1)); }
-ok()   { echo "  ok  $*"; }
+legs=0
+# T-430: `fails` alone cannot tell "clean" from "never ran" — both print fails=0 and both
+# exit 0. `legs` counts every recorded outcome; the guard below reads legs+fails.
+# leg() is defined FIRST so a zero-leg simulation silences the tally that matters, and the
+# increment is NOT confined to fail(), the one helper a green run never calls.
+# Full rationale: tools/_t400-schema-teeth.sh, tools/_t430-abstention-teeth.sh.
+leg()  { legs=$((legs + 1)); }
+fail() { leg; echo "FAIL: $*" >&2; fails=$((fails + 1)); }
+ok()   { leg; echo "  ok  $*"; }
 
 # A task file with the given ## Verification body.
 mk() { # mk <dir> <name> <verification-body>
@@ -296,6 +303,11 @@ PY
 fi
 
 echo
+# T-430 abstention guard — before the verdict, or the verdict answers first.
+if [ $(( ${legs:-0} + ${fails:-0} )) -eq 0 ]; then
+  echo "ABSTAINED — no legs ran; this is not a pass." >&2
+  exit 2
+fi
 if [ "$fails" -ne 0 ]; then
   echo "TEETH FAIL — $fails leg(s) failed" >&2
   exit 1

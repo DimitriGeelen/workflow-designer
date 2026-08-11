@@ -4,10 +4,10 @@ name: "Leg counters for the 11 fails-only suites T-429 refused to guard mechanic
 description: >
   T-429 guarded 22 of 35 suites against reporting success with no legs run. Eleven were refused BY NAME because they tally only failures, so fails==0 is both 'clean' and 'empty' and no guard can be written from the file's own state. Adding a leg counter there means reading how each suite is structured — T-429 proved an applier must not attempt it: its first draft injected the counter into fail(), the failure reporter, which would have fired the guard on every green run. One suite at a time, each verified in both directions (legs neutered -> non-zero; unmodified -> still green) with tools/_t429-zero-leg-probe.sh. Suites: _t350-build-only-probe, _t400-schema-teeth, _t408-hygiene-teeth, _t410-secret-artifact-teeth, _t411-census-teeth, _t412-announced-pair-teeth, _t414-mutation-check, _t416-mutation-check, _t416-qualifier-residue-teeth, _t418-attribution-teeth, _t419-carrier-mutation-check. Plus _t353-repair-probe, which has no identifiable verdict block. Close condition: tools/_t429-abstention-census.py exits 0.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T14:23:23Z
-last_update: 2026-08-11T14:23:23Z
+last_update: 2026-08-11T21:10:33Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,16 +34,48 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+T-429 guarded 22 of 35 counter-bearing suites so that a run which executed no legs
+cannot exit 0. It refused the rest **by name** rather than guessing: those suites tally
+only FAILURES, so `fail=0` means "clean" and "never ran" simultaneously, and no guard is
+derivable from the file's own state. Closing them needs a leg counter, and a leg counter
+needs the suite read — T-429's own first draft proved an automated applier must not try
+it, having injected the counter into `fail()`, the failure reporter, which would have
+fired the new guard on every green run.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] The population is measured, not recalled: the current census output is captured as a
+      BEFORE baseline listing every UNGUARDED suite by name with its tallies, and the
+      filed count (11 + `_t353-repair-probe`) is confirmed or corrected against it. The
+      task's description is a claim from a prior session; if it disagrees with the
+      instrument, the instrument wins and the discrepancy is recorded.
+- [ ] Every suite named in that baseline carries a counter incremented **at the leg site**
+      — the place a leg actually executes — and NOT inside a failure reporter. Asserted
+      mechanically, not by eye: for each edited suite, a check shows the increment is not
+      within the body of a `fail()`/`err()`-style function.
+- [ ] Each edited suite is proven in BOTH directions with `tools/_t429-zero-leg-probe.sh`
+      (or an equivalent recorded here): legs neutered → the suite exits NON-ZERO and says
+      it ran nothing; unmodified → the suite still exits 0. A guard proven in only the
+      passing direction is the defect this task exists to remove.
+- [ ] No suite's pre-existing verdict changes. Each edited suite's pass/fail counts are
+      captured before and after and compared; any movement is a regression introduced by
+      the guard and is either fixed or reported, never absorbed.
+- [ ] `python3 tools/_t429-abstention-census.py` exits 0 — every counter-bearing suite in
+      `tools/` fails when its legs do not run.
+- [ ] Suites the census cannot answer for (no identifiable verdict block, e.g.
+      `_t353-repair-probe`) are named explicitly with the reason, and either guarded or
+      carried forward as a filed follow-up. Silent omission is the failure mode being
+      audited here and must not be reproduced by this task.
 
-### Human
+<!-- No ### Human section: every criterion above is a shell check. Removed rather than
+     left as an empty template block — a stray second "### Human" heading is parsed by
+     heading and is silently ignored or silently merged depending on which reader looks
+     (hit twice in the previous session, on T-432 and T-433).
+
+     Original template guidance retained below for reference only.
+
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
      Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
@@ -123,6 +155,11 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# The close condition. Exits 0 only when every counter-bearing suite in tools/ takes a
+# non-zero exit on the branch where its tally is zero. Its own exit code is the verdict,
+# so no capture/grep chain and no errexit exposure (T-352).
+python3 tools/_t429-abstention-census.py
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -190,3 +227,7 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-430-leg-counters-for-the-11-fails-only-suite.md
 - **Context:** Initial task creation
+
+### 2026-08-11T21:10:33Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)
