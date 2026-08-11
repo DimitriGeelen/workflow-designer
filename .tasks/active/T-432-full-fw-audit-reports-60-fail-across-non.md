@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T15:41:06Z
-last_update: 2026-08-11T16:12:42Z
+last_update: 2026-08-11T20:27:48Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -39,19 +39,29 @@ date_finished: null
 ## Acceptance Criteria
 
 ### Agent
-- [ ] A per-section breakdown is produced: for every section `fw audit` supports, the
+- [x] A per-section breakdown is produced: for every section `fw audit` supports, the
       PASS/WARN/FAIL counts, recorded in the task — the whole point is the denominator, so
       a total without the split repeats the defect that motivated this task
-- [ ] The set of sections the **push gate** runs is stated explicitly, alongside the set it
+      **DONE** — see `## Findings`. 18 sections emit output; **all 60 FAILs are in one**.
+- [x] The set of sections the **push gate** runs is stated explicitly, alongside the set it
       does not, extracted from the hook rather than retyped from memory
-- [ ] Each FAIL is classified as one of: pre-existing (present before this project's first
+      **DONE** — `.git/hooks/pre-push:306` reads `"$AUDIT_SCRIPT" --section structure`.
+      One section of nineteen. Note the flag is `--section`, singular; this task's own
+      filing said `--sections`, which is the kind of detail that must be extracted.
+- [x] Each FAIL is classified as one of: pre-existing (present before this project's first
       commit to the file it names), self-inflicted, or a check that cannot pass in this
       project by design — with the evidence for the classification, not an assertion
-- [ ] Any FAIL that names a file under `.agentic-framework/` is reported upstream rather
+      **DONE** — two classes, both with evidence. See `## Findings`.
+- [x] Any FAIL that names a file under `.agentic-framework/` is reported upstream rather
       than fixed locally, per the vendored-tree boundary (T-427, DM 522 §1)
-- [ ] No `--force`, no `--skip-*`, and no widening or narrowing of the push gate's section
+      **DONE — vacuously: zero of the 60 name a file under `.agentic-framework/`.** Stated
+      as a measurement rather than left silent, because "nothing to report upstream" and
+      "I did not look" render identically in a ticked box.
+- [x] No `--force`, no `--skip-*`, and no widening or narrowing of the push gate's section
       list under agent initiative — the gate's scope is an operator decision and this task
       only measures it
+      **DONE** — nothing was fixed, migrated or re-scoped. The audit ran read-only with
+      `--output` pointed at scratch so it did not overwrite the tracked audit record.
 
 <!-- SCOPE NOTE: this task MEASURES. It does not fix the 60. Deciding which of them are
      worth fixing needs the breakdown to exist first, and bundling the fix into the
@@ -68,6 +78,82 @@ date_finished: null
       **Expected:** one of a/b/c recorded here, with a one-line reason
       **If not:** the gate stays as it is and the 60 stay unwatched, which is the status
       quo this task exists to make visible rather than to change unilaterally
+
+## Findings
+
+### The headline: 60 FAILs are 2 problems, not 60
+
+    SECTION                     PASS  WARN  FAIL
+    structure                     19     3     0   <-- the ONLY section the push gate runs
+    task compliance                1     0     0
+    task quality                   1     0     0
+    git traceability               2     1     0
+    enforcement                    4     0     0
+    learning capture               2     0     0
+    episodic memory                3     0     0
+    observation inbox              1     0     0
+    concerns register              2     0     0
+    graduation pipeline            1     0     0
+    inception research             0     3     0
+    research persistence oe        5     0     0
+    oe-fast: 30-minute control     4     0     0
+    oe-hourly: hourly control      2     0     0
+    oe-daily: daily control       73    25    60   <-- every FAIL is here
+    oe-weekly: weekly control      1     0     0
+    orchestrator arc               1     0     0
+    arc-completion                 1     0     0
+    TOTAL                        123    32    60
+
+**17 of 18 sections are clean.** The alarming number came from reading a total without its
+split — which is the same defect the T-429/T-431 work was about, committed by me in this
+task's own filing description. "60 FAIL across non-structure sections" implied breadth.
+There is none.
+
+### Class 1 — CTL-030 × 59: pre-existing residue, source already plugged
+
+Every one reads: *`T-NNN is in .tasks/completed/ but stored horizon='now'`*.
+
+Evidence for the classification, in order:
+
+1. **The check is sound.** `audit.sh:3665` (CTL-030, T-2162, arc-009 Slice 3) — completed
+   tasks must carry null/absent horizon because render derives `past` from `_location`.
+2. **The leak has a known source.** `update-task.sh:1613` auto-promotes `horizon: now` on
+   `started-work` (the T-1068 invariant). Every task that is worked on gets the field set.
+3. **The source is already plugged**, upstream and in this vendored copy:
+   `update-task.sh:1896` writes `horizon: null` at completion, with a comment naming this
+   exact defect as a prior *8-instance* CTL-030 class (T-2168/T-2180/T-2182/T-2196/…).
+4. **The plug is working here, measured today.** T-427, T-429 and T-431 all completed with
+   `horizon: null`.
+5. **Denominator:** 374 completed tasks, **315 correct, 59 stale** — so this is 16%
+   residue, not a systemic failure.
+
+**Verdict: pre-existing, closed at source, mechanically fixable.** The remedy is a
+one-time backfill of 59 completed task files. Not done here — this task measures, and
+editing 59 completed records is its own task with its own blast radius.
+
+One nuance worth recording: the 59 are **not** a contiguous historical block. 247 tasks
+with *lower* IDs are clean and 68 with *higher* IDs are clean. So "everything before date
+X" is the wrong model; what these 59 share is being completed in the window between the
+field existing and the plug landing.
+
+### Class 2 — D2 × 1: not a defect, a working signal
+
+    D2: Human review queue — 2 task(s) waiting >30d: T-093(37d) T-178(31d)
+
+This control is *designed* to fail when the queue ages. It is reporting truthfully, and it
+clears when the operator reviews T-093 and T-178 — not when anything is fixed.
+
+Counting it alongside the other 59 is itself a category error: one is stale data, the
+other is a live queue. A "FAIL count" that sums them answers no question anybody has.
+
+### What this means for the gate decision
+
+Widening the push gate to `oe-daily` today would **block every push** until 59 completed
+task files are edited — high cost, and the safety value is near zero because the records
+are terminal and the source is plugged. Widening it *after* a backfill would cost nothing
+and would catch the next regression of a class that has already recurred 8+ times upstream.
+
+That ordering is a recommendation, not a decision. The Human AC below owns it.
 
 ## Verification
 
