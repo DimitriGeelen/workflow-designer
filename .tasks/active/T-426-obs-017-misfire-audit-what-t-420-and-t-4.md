@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T08:56:53Z
-last_update: 2026-08-11T08:56:53Z
+last_update: 2026-08-11T09:05:07Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -131,8 +131,42 @@ it is the reason this audit is not academic.
       **The FN class is not closed** — only this instance. A future tool using
       `message`/`body_file` reopens it, which the matrix states as a LIMIT rather than
       implying coverage it does not have.
-- [ ] **T-421's instrument given the same two-sided treatment** (what does it print on a
+- [x] **T-421's instrument given the same two-sided treatment** (what does it print on a
       false hit, and would acting on that print make things worse).
+      **Yes — and this one already DID make things worse, in front of the operator.**
+      On 2026-08-10 it printed `CLAIMED-BUT-OFF — the tree asserts these are live:
+      check-arc-id`, and on baseline growth prints *"Either register the hook, or drop
+      the sentence that promises it."* Both remedies are local edits. Both were wrong:
+      AEF's second population showed check-arc-id is one of seven hooks that never
+      shipped to any consumer, so registering forks the vendored default and deleting
+      edits inherited prose to hide someone else's gap. I acted on the first and put it
+      in front of the operator as T-422 option A before withdrawing it.
+      **Root cause, and it is not "I lacked a second population."** The detector asked
+      *does the tree say this?* and never *did WE say it?* A single population contains
+      its own history: `git blame` shows the claim line's introducing commit is
+      `6b249629` (T-001 "AEF setup", 2026-06-04) — the commit that ADDED the file —
+      while the only other commit touching that file is our own T-352. Seeded, not
+      drifted, **provable from inside one tree.**
+      **Fix shipped:** per-line `provenance()`; findings split into CLAIMED-BUT-OFF
+      (written here → our drift → exit 1) and UPSTREAM (arrived with its file →
+      attribute upstream, pin, do not fork). The detector now reaches AEF's answer
+      unaided: `PASS (with 1 upstream item)`.
+      **Not the vendored-path test.** `.tasks/templates/default.md` is outside
+      `.agentic-framework/` and T-352 established it is project-owned under agent
+      authority — we have edited it. "Is the file vendored?" gives the WRONG answer
+      here; "who introduced this LINE?" gives the right one. I started to write the
+      vendored-file version of this fix and T-352's own commit message disproved it.
+      **Teeth:** `_t421-drift-mutation-check.sh` 13/13 (was 9). New legs M6a/M6b assert
+      BOTH directions against a real git history — a one-sided test would pass on a
+      detector that called everything inherited, i.e. one that can never fail. M7 pins
+      fail-loud: no git history → provenance unknown → treated as OURS.
+      **The teeth caught a defect in themselves.** `findings()` parsed the report by
+      indentation; the new UPSTREAM block's explanatory paragraph matched too, and five
+      English words ("hook", "never", "someone", "upstream", "written") were promoted to
+      hook names. Re-keyed on the `[authored]`/`[inherited at seed]` markers, and P0 now
+      asserts the marker exists — because when the heading moved, the parser returned
+      EMPTY and three real cases went green. **A parser coupled to prose fails toward
+      silence**, which is the same shape as everything else in this audit.
 - [ ] **Every finding is either fixed in the instrument or registered** as a gap/
       observation with the reason it is not being fixed now. No finding is left as prose
       in this task file only — that is the G-030/PL-145 shape this project already has a

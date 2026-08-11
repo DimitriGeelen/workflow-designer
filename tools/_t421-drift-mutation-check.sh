@@ -40,10 +40,28 @@ mkscratch() {   # mkscratch <dir>
 }
 
 # findings <root> -> newline-separated hook names reported as CLAIMED-BUT-OFF
+#
+# T-426: the header text this keys on changed when provenance split the report in two.
+# That mismatch is worth naming rather than silently repairing — it broke P1/M1/M3
+# into EMPTY findings, i.e. the mutation check reported "no drift" for a tree that
+# still had drift. A parser coupled to a human-readable heading fails toward silence,
+# which is the same failure shape the detector itself exists to catch. Left as string
+# matching (the detector has no --json yet) but both headings are asserted by P0 below,
+# so a future rewording fails loudly here instead of quietly zeroing the suite.
+# Both parsers key on the per-entry PROVENANCE MARKER rather than on indentation.
+# Indentation matched the explanatory paragraph under the UPSTREAM block too, so
+# upstream() returned "check-arc-id hook never someone upstream written" — five English
+# words promoted to hook names. Matching `[authored]` / `[inherited at seed]` keys on
+# something the entry has and prose does not.
 findings() {
   T421_ROOT="$1" python3 "$DET" 2>/dev/null \
-    | awk '/CLAIMED-BUT-OFF — the tree asserts/{f=1;next} f && /^    [a-z]/{print $1}' \
-    | sort -u
+    | awk '/\[authored\]$/{print $1}' | sort -u
+}
+
+# upstream <root> -> hook names reported as claimed-by-seeded-prose (not our drift)
+upstream() {
+  T421_ROOT="$1" python3 "$DET" 2>/dev/null \
+    | awk '/\[inherited at seed\]$/{print $1}' | sort -u
 }
 
 check() {   # check <name> <expected-newline-list> <actual>
@@ -59,6 +77,19 @@ check() {   # check <name> <expected-newline-list> <actual>
 }
 
 echo "=== T-421 claim-drift detector — mutation check ==="
+
+# ---- P0 THE PARSER'S OWN ANCHORS EXIST ---------------------------------------
+# findings()/upstream() key on two headings. If either is reworded, every leg that
+# uses them silently returns EMPTY and the suite reports a clean tree. Assert the
+# anchors themselves so a rewording fails HERE, loudly, in one line — instead of
+# turning six real cases green. (T-426: this is exactly how the provenance change
+# broke P1/M1/M3, and the failure looked like "no drift found".)
+# Both parsers key on the `[inherited at seed]` / `[authored]` markers. The real tree's
+# only claim is inherited, so nothing else in this suite would notice that marker being
+# reworded — it would just return empty and every leg would go green on a clean bill of
+# health. `[authored]` is covered transitively: M1 must return a name through it.
+anchors="$(T421_ROOT="$REAL" python3 "$DET" 2>/dev/null | grep -c '\[inherited at seed\]$')"
+check "P0 provenance marker the parser expects exists" "1" "$anchors"
 
 # ---- P1 POSITIVE CONTROL -----------------------------------------------------
 # An unmutated scratch copy must reproduce the real tree's finding exactly. If this
@@ -119,6 +150,36 @@ T421_ROOT="$WORK/m1" python3 "$DET" --baseline "$WORK/baseline.txt" --quiet >/de
 r_grown=$?
 check "M4a baseline passes the known finding" "0" "$r_known"
 check "M4b baseline fails on a NEW finding"   "1" "$r_grown"
+
+# ---- M6 PROVENANCE DISCRIMINATES (T-426) -------------------------------------
+# The defect: the detector asked "does the tree say this?" and never "did WE say it?"
+# — so a sentence seeded from upstream read as our drift, and the remedy it printed
+# (register the hook / delete the sentence) sent us to fork a vendored default.
+#
+# A scratch tree with REAL history is the only way to test this, because provenance is
+# git blame. Seed commit adds everything (so the templates' arc_id claim arrives WITH
+# its file = inherited); a second commit adds a claim of our own = authored.
+#
+# Both directions asserted. A one-sided test would pass on a detector that simply
+# called everything inherited — which would be a detector that can never fail.
+mkscratch "$WORK/m6"
+(
+  cd "$WORK/m6" || exit 1
+  git init -q .
+  git -c user.email=t@t -c user.name=t add -A
+  git -c user.email=t@t -c user.name=t commit -qm "seed" --no-verify
+  printf '\nThe check-heredoc-cmd-sub hook blocks any edit containing a heredoc.\n' >> CLAUDE.md
+  git -c user.email=t@t -c user.name=t add -A
+  git -c user.email=t@t -c user.name=t commit -qm "authored later" --no-verify
+) >/dev/null 2>&1
+check "M6a seeded claim is UPSTREAM, not our drift" "check-arc-id" "$(upstream "$WORK/m6")"
+check "M6b claim written after seed IS our drift"  "check-heredoc-cmd-sub" "$(findings "$WORK/m6")"
+
+# ---- M7 PROVENANCE FAILS LOUD, NOT SILENT ------------------------------------
+# No git history at all (every other scratch in this file). Provenance is unknowable,
+# and the detector must treat unknown as OURS — an instrument that goes quiet when it
+# cannot measure is the failure this whole task is about.
+check "M7 no git history -> claim still reported" "check-arc-id" "$(findings "$WORK/base")"
 
 # ---- M5 REFUSES TO ANSWER ON A MISSING INPUT ---------------------------------
 # An empty hook directory is an absent measurement, not a clean bill of health.

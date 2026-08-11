@@ -86,6 +86,7 @@ import argparse
 import json
 import os
 import re
+import subprocess
 import sys
 
 # T421_ROOT exists so the mutation check can point this at a scratch copy of the tree
@@ -224,6 +225,57 @@ def claims(known_names):
     return found
 
 
+# --- Provenance (T-426, 2026-08-11) ---------------------------------------------
+# The defect this closes, in one line: the detector asked "does the tree say this?"
+# and never asked "did WE say it?"
+#
+# On 2026-08-10 it reported check-arc-id as CLAIMED-BUT-OFF, correctly — the sentence
+# is in .tasks/templates/default.md and the hook is not registered. I read that as OUR
+# drift and recommended registering the hook. AEF then measured a second population (a
+# fresh `fw init` consumer) and inverted it: check-arc-id is one of seven hooks that
+# never shipped to ANY consumer. Never our drift. Registering would have forked the
+# vendored default and diverged at their next hook, which is the one thing they asked
+# us not to do.
+#
+# PL-146 drew the lesson as "one population cannot distinguish drift from
+# never-given, so label the owner UNKNOWN." That was too pessimistic, and this
+# function is the correction: A SINGLE POPULATION STILL CONTAINS ITS OWN HISTORY.
+# `git blame` answers "did we write this line, or did it arrive with the file?"
+# without any second tree at all. Measured on the motivating case: the claim line's
+# introducing commit is 6b249629 (T-001 "AEF setup", 2026-06-04) — the commit that
+# ADDED the file — while the only other commit touching it is our own T-352. Seeded,
+# not drifted, and provable from inside.
+#
+# NOT the vendored-path test. `.tasks/templates/default.md` sits outside
+# `.agentic-framework/` and T-352 established it is the PROJECT's template under agent
+# authority (create-task.sh resolves TASKS_DIR to the project copy) — we have edited
+# it. So "is it vendored?" gives the wrong answer here; "who introduced this LINE?"
+# gives the right one. Provenance is per-line, not per-file.
+#
+# Fails toward LOUD: any git failure yields "authored", so the finding still blocks.
+def _git(*args):
+    try:
+        out = subprocess.run(("git",) + args, cwd=ROOT, capture_output=True,
+                             text=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return out.stdout.strip() if out.returncode == 0 else None
+
+
+def provenance(path, lineno):
+    """'inherited' if the line arrived with the file, 'authored' if added later."""
+    blame = _git("blame", "-L", "%d,%d" % (lineno, lineno), "--porcelain", "--", path)
+    if not blame:
+        return "authored"
+    line_sha = blame.split("\n", 1)[0].split(" ", 1)[0]
+    added = _git("log", "--diff-filter=A", "--format=%H", "--", path)
+    if not added:
+        return "authored"
+    seed_sha = added.split("\n")[-1].strip()
+    return "inherited" if line_sha.startswith(seed_sha[:12]) or \
+        seed_sha.startswith(line_sha[:12]) else "authored"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--baseline")
@@ -243,7 +295,13 @@ def main():
 
     claimed = claims(set(exists))
     unregistered = sorted(n for n in exists if n not in registered)
-    finding = sorted(n for n in claimed if n not in registered)
+    all_finding = sorted(n for n in claimed if n not in registered)
+
+    # A hook is OURS to answer for only if at least one of its claim lines was written
+    # here after seeding. If every claim arrived with its file, the owner is upstream.
+    prov = {n: {provenance(p, ln) for p, ln, _ in claimed[n]} for n in all_finding}
+    finding = [n for n in all_finding if "authored" in prov[n]]
+    inherited = [n for n in all_finding if "authored" not in prov[n]]
 
     if not args.quiet:
         print("=== T-421 enforcement claim drift ===")
@@ -255,6 +313,8 @@ def main():
         for n in unregistered:
             if exists[n]["self_reference_only"]:
                 tag = "REFERENCE-ONLY (self-declared)"
+            elif n in inherited:
+                tag = "claimed by SEEDED prose — upstream's to answer for"
             elif n in claimed:
                 tag = "CLAIMED-BUT-OFF  <-- finding"
             else:
@@ -262,11 +322,27 @@ def main():
             print("    %-30s %s" % (n, tag))
         if finding:
             print()
-            print("  CLAIMED-BUT-OFF — the tree asserts these are live:")
+            print("  CLAIMED-BUT-OFF — prose WRITTEN HERE asserts these are live:")
             for n in finding:
                 for path, lineno, line in claimed[n][:3]:
-                    print("    %-24s %s:%d" % (n, path, lineno))
+                    print("    %-24s %s:%d  [%s]"
+                          % (n, path, lineno, provenance(path, lineno)))
                     print("      %s" % line)
+        if inherited:
+            print()
+            print("  UPSTREAM — claimed only by prose that arrived WITH its file:")
+            for n in inherited:
+                for path, lineno, line in claimed[n][:3]:
+                    print("    %-24s %s:%d  [inherited at seed]" % (n, path, lineno))
+                    print("      %s" % line)
+            print()
+            print("    These are NOT this project's drift. The sentence was seeded, not")
+            print("    written here, so neither local remedy is correct: registering the")
+            print("    hook forks the vendored default, and deleting the sentence edits")
+            print("    someone else's prose to hide someone else's gap. Attribute it")
+            print("    upstream and pin it in the baseline until they ship the fix.")
+            print("    (Measured case: check-arc-id -> AEF T-2911, seven hooks that")
+            print("    never shipped to any consumer. See T-422.)")
 
     if args.write_baseline:
         if not args.baseline:
@@ -289,6 +365,8 @@ def main():
         new = sorted(set(finding) - pinned)
         if new:
             print("\nFAIL — the claimed-but-unregistered set GREW: %s" % ", ".join(new))
+            print("  These are claims written HERE (git blame: added after the file was")
+            print("  seeded), so they are this project's to answer for.")
             print("  Either register the hook, or drop the sentence that promises it.")
             print("  Do not widen the baseline to make this pass without a reason.")
             return 1
@@ -299,8 +377,14 @@ def main():
         return 0
 
     if finding:
-        print("\nFAIL — %d hook(s) claimed active, none registered." % len(finding))
+        print("\nFAIL — %d hook(s) claimed active by prose written here, none registered."
+              % len(finding))
         return 1
+    if inherited:
+        print("\nPASS (with %d upstream item(s)) — nothing this project WROTE is a false"
+              % len(inherited))
+        print("  promise. The seeded claims above are real, and they are upstream's.")
+        return 0
     print("\nPASS — every hook the tree asserts is live is registered.")
     return 0
 
