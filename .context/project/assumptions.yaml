@@ -125,12 +125,29 @@ assumptions:
 - id: A-013
   statement: AEF's task/inception model can receive a BPMN-derived proposed task graph
     (forward compile target exists or is cheap)
-  status: untested
+  status: validated
   validation_method: TBD
-  evidence: []
+  evidence:
+  - outcome: 'AEF answered at DM 532 section 3 against 2906 task files. The forward
+      compile target EXISTS and ships: tools/bpmn_to_tasks.py driven by ''fw bpmn
+      compile|promote'', uid-keyed on aef:uid, idempotent on (uid, source_bpmn_sha)
+      — new create / unchanged no-op / changed refuse-clobber-if-human-touched / deleted
+      orphan+flag. Promotion never leaves the task-gate perimeter (delegates to fw
+      task create). Flow order is NOT dropped: _task_tier() walks the flow graph,
+      HORIZON_BY_TIER maps tier to horizon, _nearest_task_preds() derives nearest
+      predecessors into related_tasks. BASIS OF EVIDENCE, stated rather than blurred:
+      the compiler is not vendored in this tree and I am not permitted to run their
+      tooling, so its existence is ATTESTED by the owner, not measured here. What
+      IS verifiable here was verified here: their reported ceiling on related_tasks
+      reproduces against the vendored copy — lib/arc.sh reads the anchor''s related_tasks
+      as ARC MEMBERSHIP when seeding constituents, and lib/task_pair_acd.py:96 _read_related_tasks
+      is a THIRD consumer they did not name. A-013 asserts the target exists or is
+      cheap; it exists. The fidelity ceiling does not falsify that and is recorded
+      separately rather than smeared into this disposition.'
+    date: '2026-08-11'
   linked_task: T-175
   created: '2026-07-10'
-  resolved_date: null
+  resolved_date: '2026-08-11'
 - id: A-014
   statement: AEF's own record (task graph + fabric + episodic) is structured enough
     to reconstruct a faithful process map deterministically
