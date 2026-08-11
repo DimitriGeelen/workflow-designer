@@ -4,7 +4,7 @@ name: "The vendor bump is available and its version relation is formally undecid
 description: >
   AEF named fw upgrade against the public GitHub mirror as the sanctioned consumer pull point (DM 536 section 1). This task exists to put a MEASURED blast radius in front of the operator, because the bump is their call and mine to describe accurately. NOTE - THIS TASK WAS FILED ON A PREDICTION THAT DRIVING IT FALSIFIED, and the wrong prediction is kept in the RCA rather than deleted, because it is the second time in one session that reading a code path beat running it and then lost. Predicted: the T-1912 precheck at lib/upgrade.sh:849 compares with sort -V, this tree says 1.6.354, upstream says 1.6.9, sort -V puts 1.6.354 last, therefore the upgrade refuses as a downgrade. Every one of those facts is true and the conclusion is false. Running the upstream fw in --dry-run from inside the clone shows a newer guard, T-2713, which recognises that AEF's VERSION is a RESETTING COUNTER and that string order therefore cannot decide direction at all - it reports 'direction undecidable', warns, and PROCEEDS by default (FW_UNDECIDABLE_VERSION_PROCEED=0 to refuse). So the upgrade is available, not blocked. What is true and unchanged: no version_sha is recorded and no tag v1.6.354 exists in the framework repo, so nothing verifies this bump moves forward rather than backward; this tree's 1.6.354 label was written by ebf0c721, whose own commit message says it vendored v1.6.763; and the upstream tree labelled 1.6.9 contains T-2919/T-2923/T-2924, work from this week. Blast radius measured against a read-only clone: 285 files differ, 502 exist only upstream, 14 only here, and the vendor step would replace bin, lib, agents, web, docs, policy, templates and status-transitions.yaml wholesale (~29MB). Unblocks the T-402 close path once the bytes land.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T20:13:47Z
-last_update: 2026-08-11T20:13:47Z
+last_update: 2026-08-11T20:19:41Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -89,37 +89,6 @@ decision is made against evidence instead of a version string nobody can interpr
       **Expected:** one of a/b/c recorded here with a one-line reason
       **If not:** T-402 stays open indefinitely — its close condition is bytes that only
       this decision can deliver
-
-### Human
-<!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
-     Remove this section if all criteria are agent-verifiable.
-     Each criterion MUST include Steps/Expected/If-not so the human can act without guessing.
-
-     ── Prefix routing (T-1811, T-1878): default to [REVIEWER] if Expected is grep-able ──
-     If your Expected clause is grep-able / file-exists / structural (a deterministic
-     shell check), prefer [REVIEWER] — that AC should be an Agent AC with the reviewer
-     command in `## Verification` instead of a Human AC here. Only keep [REVIEW] if
-     verification genuinely needs human taste (tone, feel, layout rhythm).
-     See CLAUDE.md §AC Classification Guidance for the conversion rule.
-
-     [REVIEW] example (genuine human judgment):
-       - [ ] [REVIEW] Dashboard renders correctly
-         **Steps:**
-         1. Open https://example.com/dashboard in browser
-         2. Verify all panels load within 2 seconds
-         3. Check browser console for errors
-         **Expected:** All panels visible, no console errors
-         **If not:** Screenshot the broken panel and note the console error
-
-     [REVIEWER] example (static-scan-verifiable — convert to Agent AC + Verification):
-       - [ ] [REVIEWER] Block message names both bypass mechanisms
-         **Steps:**
-         1. Run `bin/fw reviewer T-XXX`
-         **Expected:** Verdict: PASS; no findings on `block-message-completeness`
-         **If not:** Inspect hook block-message string and add missing mechanism
-       Conversion: this AC should be moved to ### Agent and
-       `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
--->
 
 ## Findings
 
@@ -297,3 +266,6 @@ next reader is me.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-433-fw-upgrade-refuses-the-sanctioned-consum.md
 - **Context:** Initial task creation
+
+### 2026-08-11T20:19:41Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
