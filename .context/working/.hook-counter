@@ -1,14 +1,14 @@
-error-watchdog=14
+error-watchdog=16
 
-check-project-boundary=124
-check-active-task=81
+check-project-boundary=126
+check-active-task=83
 check-human-ac-tick=20
 pre-compact=1
 check-agent-dispatch=1
 
-checkpoint=23
-check-tier0=19
-budget-gate=21
-loop-detect=22
-audit-task-tools=22
+checkpoint=25
+check-tier0=21
+budget-gate=23
+loop-detect=24
+audit-task-tools=24
 commit-cadence=2

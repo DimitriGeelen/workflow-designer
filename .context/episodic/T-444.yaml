@@ -1,0 +1,91 @@
+# ============================================================================
+# EPISODIC MEMORY - T-444: Session capture: upstream reports have no follow-up trigger, and one T-365 learning is uncaptured
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-11T22:39:54Z
+# ============================================================================
+
+task_id: T-444
+task_name: "Session capture: upstream reports have no follow-up trigger, and one T-365 learning is uncaptured"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-11T22:37:52Z
+completed: 2026-08-11T22:39:50Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-12T00:39:45+02:00
+last_commit: 2026-08-12T00:39:45+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  session-capture (P-007) found two uncaptured items and both are now durable. G-033 registers what the four upstream reports depend on: fw note dismiss discards --reason, so OBS-008/013/014/025 (DM 546 sections A-D, offsets verified against the rail rather than from memory) had their only record inside T-436's ledger in a COMPLETED task file — the exact invisibility T-436 measured. Distinguished from G-032 in the entry: G-032 is the content route dead on the way OUT, G-033 is the disposition record lost on the way IN, and fixing either leaves the other. PL-158 records the T-365 guard-design rule: a guard must DERIVE its checked set from the authority it guards, not restate it, paired with an abstention exit because an extraction that silently stops matching reads as clean. Also: G-020 correctly blocked me twice — I added real ACs but left the generated placeholders below them, and the gate counted what was there rather than what I intended
+
+# Key outcomes
+outcomes:
+  - 'The four upstream-reported observations (OBS-008/013/014/025) gain a durable'
+  - 'The trigger is registered where a register-reader will find it — not only in'
+  - 'The T-365 guard-design rule is recorded as a learning with its origin, so it'
+  - 'Nothing is claimed as reported that was not: each of the four cites its DM'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'session-capture (P-007) found two uncaptured items and both are now durable. G-033 registers what the four upstream reports depend on: fw note dismiss discards --reason, so OBS-008/013/014/025 (DM 546 sections A-D, offsets verified against the rail rather than from memory) had their only record inside T-436''s ledger in a COMPLETED task file — the exact invisibility T-436 measured. Distinguished from G-032 in the entry: G-032 is the content route dead on the way OUT, G-033 is the disposition record lost on the way IN, and fixing either leaves the other. PL-158 records the T-365 guard-design rule: a guard must DERIVE its checked set from the authority it guards, not restate it, paired with an abstention exit because an extraction that silently stops matching reads as clean. Also: G-020 correctly blocked me twice — I added real ACs but left the generated placeholders below them, and the gate counted what was there rather than what I intended'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-12.yaml'
+  - '.context/audits/cron/2026-08-04-0030.yaml'
+  - '.context/audits/cron/2026-08-12-0030.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/project/concerns.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.hook-counter'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-444-session-capture-upstream-reports-have-no.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-12T00:39:45"
+    action: "T-444: session-capture (P-007) found two uncaptured items and both are now durable. G-033 registers what the four upstream reports depend on: fw note dismiss discards --reason, so OBS-008/013/014/025 (DM 546 sections A-D, offsets verified against the rail rather than from memory) had their only record inside T-436's ledger in a COMPLETED task file — the exact invisibility T-436 measured. Distinguished from G-032 in the entry: G-032 is the content route dead on the way OUT, G-033 is the disposition record lost on the way IN, and fixing either leaves the other. PL-158 records the T-365 guard-design rule: a guard must DERIVE its checked set from the authority it guards, not restate it, paired with an abstention exit because an extraction that silently stops matching reads as clean. Also: G-020 correctly blocked me twice — I added real ACs but left the generated placeholders below them, and the gate counted what was there rather than what I intended"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1
+  commits: 1
+  files_changed: 15
+  lines_added: 554
+  lines_removed: 59
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-444-session-capture-upstream-reports-have-no.md
+generated_by: context-agent-hybrid

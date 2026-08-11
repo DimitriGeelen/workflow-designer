@@ -5183,3 +5183,21 @@ scan_id: R-2f244a7d
 task_id: T-365
 payload:
   task_file: .tasks/active/T-365-rename-testsfixturesaef-bpmn-the-name-as.md
+---
+kind: scan_emitted
+timestamp: '2026-08-11T22:39:52Z'
+scan_id: R-631e409d
+task_id: T-444
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-11T22:39:52Z'
+scan_id: R-631e409d
+task_id: T-444
+payload:
+  task_file: .tasks/active/T-444-session-capture-upstream-reports-have-no.md

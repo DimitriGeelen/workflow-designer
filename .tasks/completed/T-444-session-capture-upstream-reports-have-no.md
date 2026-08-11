@@ -4,10 +4,10 @@ name: "Session capture: upstream reports have no follow-up trigger, and one T-36
 description: >
   Session-capture checklist (P-007) found two uncaptured items. (1) OBS-008/013/014/025 were dismissed citing 'reported upstream at DM 546 section X', but T-436 proved fw note dismiss discards --reason, so those four now carry NO durable record outside T-436's ledger in a completed task file, and nothing will resurface them if AEF never acts. G-031 and G-032 both have decision_triggers; these four have none. (2) T-365 produced a transferable rule not yet recorded as a learning: a guard must DERIVE its checked set from the authority it guards, not restate it, or a revision to the authority leaves the guard green on a promise nobody makes any more.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T22:37:52Z
-last_update: 2026-08-11T22:37:52Z
-date_finished: null
+last_update: 2026-08-11T22:39:50Z
+date_finished: 2026-08-11T22:39:50Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -207,3 +207,15 @@ grep -q "DERIVE its checked set from the authority" .context/project/learnings.y
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-444-session-capture-upstream-reports-have-no.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-631e409d
+- **Timestamp:** 2026-08-11T22:39:52Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-11T22:39:50Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
