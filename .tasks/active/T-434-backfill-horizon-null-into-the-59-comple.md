@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T20:45:13Z
-last_update: 2026-08-11T20:45:19Z
+last_update: 2026-08-11T20:57:05Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -98,6 +98,13 @@ date_finished: null
 -->
 
 ## Verification
+
+# The invariant CTL-030 checks, asserted directly rather than by running the full audit
+# (which takes minutes). Exits 1 if any completed task carries a stored horizon of now,
+# next or later — the check is the whole class, not just the 'now' value this task fixed,
+# because backfilling one value and leaving its siblings unguarded is how a residue class
+# comes back wearing a different label.
+python3 -c "import os,re,sys; d='.tasks/completed'; bad=[f for f in os.listdir(d) if f.endswith('.md') and re.search(r'(?m)^horizon:[ \t]*(now|next|later)[ \t]*\$', open(os.path.join(d,f),encoding='utf-8').read().split('\n---\n')[0])]; print('violations:', len(bad), bad[:5]); sys.exit(1 if bad else 0)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
