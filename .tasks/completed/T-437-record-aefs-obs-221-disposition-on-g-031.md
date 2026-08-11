@@ -4,10 +4,10 @@ name: "Record AEF's OBS-221 disposition on G-031 so the concern carries its upst
 description: >
   AEF accepted the 75/EX_TEMPFAIL remedy as specified at DM 541 and answered the block-vs-warn half: could-not-evaluate BLOCKS at the push gate. G-031 currently records only the finding. A concern that does not carry its upstream disposition is how a finding gets re-derived — the exact failure T-436 was filed about.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T21:40:00Z
-last_update: 2026-08-11T21:40:00Z
-date_finished: null
+last_update: 2026-08-11T21:41:29Z
+date_finished: 2026-08-11T21:41:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -202,3 +202,15 @@ python3 -c "import yaml,sys; d=yaml.safe_load(open('.context/project/concerns.ya
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-437-record-aefs-obs-221-disposition-on-g-031.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-447922ea
+- **Timestamp:** 2026-08-11T21:41:30Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-11T21:41:29Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

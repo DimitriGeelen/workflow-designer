@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-437: Record AEF's OBS-221 disposition on G-031 so the concern carries its upstream resolution
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-11T21:41:32Z
+# ============================================================================
+
+task_id: T-437
+task_name: "Record AEF's OBS-221 disposition on G-031 so the concern carries its upstream resolution"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-11T21:40:00Z
+completed: 2026-08-11T21:41:29Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-11T23:41:25+02:00
+last_commit: 2026-08-11T23:41:25+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  record AEF's OBS-221 disposition on G-031 — accepted as specified, and block-at-push with its reasoning
+
+# Key outcomes
+outcomes:
+  - 'G-031 carries the upstream disposition: remedy accepted as specified, the exit code'
+  - 'The concern''s `decision_trigger` is left UNCHANGED. An accepted remedy is not a'
+  - '`concerns.yaml` still parses, and G-031 is still `status: watching`.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-11.yaml'
+  - '.context/project/concerns.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.hook-counter'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.tasks/active/T-436-observation-inbox-is-effectively-write-o.md'
+  - '.tasks/active/T-437-record-aefs-obs-221-disposition-on-g-031.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-11T23:41:25"
+    action: "T-437: record AEF's OBS-221 disposition on G-031 — accepted as specified, and block-at-push with its reasoning"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1
+  commits: 1
+  files_changed: 11
+  lines_added: 299
+  lines_removed: 39
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-437-record-aefs-obs-221-disposition-on-g-031.md
+generated_by: context-agent-hybrid
