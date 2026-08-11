@@ -1135,3 +1135,10 @@ learnings:
   date: 2026-08-11
   context: Added via context agent
   application: TBD
+- id: PL-158
+  learning: "A guard must DERIVE its checked set from the authority it guards, not restate it. T-365: the fixture paths named normatively in the frozen two-party standard are extracted BY READING the standard at check time, not hard-coded in the guard. A guard that hard-codes 'inception-gonogo.bpmn' restates the standard instead of following it — revise the standard and the guard still passes on a promise nobody makes any more, and the direction of failure is silent. Derived extraction also makes the guard demand the NEW path after a legitimate revision, which is the correct direction. Corollary: pair it with an abstention exit, because an extraction that silently stops matching yields zero findings and reads as clean."
+  source: P-001
+  task: T-444
+  date: 2026-08-11
+  context: Added via context agent
+  application: TBD

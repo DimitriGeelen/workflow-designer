@@ -1835,3 +1835,53 @@ concerns:
       requires that a listing block which emits nothing for a non-zero count says
       so. While the count and the listing can disagree without complaint, the next
       instance of this class is equally invisible.
+
+  - id: G-033
+    type: gap
+    status: watching
+    severity: medium
+    title: "A dismissed observation is indistinguishable from a swept one, and four upstream reports now depend on a ledger inside a completed task file"
+    detected: '2026-08-11'
+    origin_task: T-444
+    context: |
+      T-436 measured that `fw note dismiss --reason` discards the reason
+      (observe.sh:246 writes `status: dismissed` and nothing else). The register
+      therefore cannot answer the only question anyone asks of a dismissed
+      observation: was this JUDGED and closed, or was it SWEPT? Those are the same
+      row.
+
+      CONCRETE EXPOSURE. Four observations were dismissed during the T-436 triage
+      citing an upstream report as their disposition:
+
+        OBS-013 + OBS-024 -> DM 546 §A   (fw note verb mis-capture)
+        OBS-014           -> DM 546 §B   (fw hook-enable has no inverse)
+        OBS-008           -> DM 546 §C   (gap-closure-field substring heuristic)
+        OBS-025           -> DM 546 §D   (owner vocabulary, three value sets)
+
+      Offsets verified against the rail, not from memory (also 545 handover regex,
+      547 the dismiss defect itself, 548 T-365's standard delta).
+
+      Their only durable record is the disposition ledger inside
+      `.tasks/completed/T-436-*.md`. That is precisely the invisibility T-436
+      measured: a completed task file is searchable but nothing surfaces it. If AEF
+      never acts on §A-§D, nothing on this side will ever resurface them — and the
+      inbox rows that would have carried the reason now read as bare dismissals.
+
+      Registered rather than fixed because the fix is upstream (reported at DM 547)
+      and this project does not patch vendored bytes (G-008).
+
+      NOT the same as G-032. G-032 is the inbox's CONTENT ROUTE being dead on the
+      way OUT (the handover never carries the finding). This is the DISPOSITION
+      RECORD being lost on the way IN. Fixing either leaves the other.
+    decision_trigger: |
+      Either:
+      (a) a re-vendored `observe.sh` persists a `reason` (and timestamp) onto the
+          dismissed observation — verified by dismissing a throwaway note and
+          reading the field back from `.context/inbox.yaml`; or
+      (b) AEF answers DM 546 §A-§D and each answer is recorded against a durable
+          carrier here (task, concern or learning), so the four no longer depend on
+          a completed task file.
+
+      Explicitly NOT closure: AEF acknowledging receipt; this concern being read;
+      or re-filing the four as fresh observations, which would restart the same
+      cycle with the same discard.
