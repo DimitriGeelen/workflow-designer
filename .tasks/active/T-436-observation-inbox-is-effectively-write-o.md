@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T21:36:14Z
-last_update: 2026-08-11T21:59:40Z
+last_update: 2026-08-11T22:05:48Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -184,25 +184,25 @@ No observation was dismissed for age; every line names its target or its reason.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Every pending observation reaches a disposition — promoted to a task, folded into
+- [x] Every pending observation reaches a disposition — promoted to a task, folded into
       an existing task or concern by ID, or dismissed with a reason. Count in equals
       count out; no observation is left pending without being named as deliberately
       deferred and why.
-- [ ] The re-derivation claim is measured, not assumed. For each observation, check
+- [x] The re-derivation claim is measured, not assumed. For each observation, check
       whether its content already exists as a task, concern, or learning. OBS-009 is the
       known instance (its finding was re-derived by T-432 three days later); the question
       is whether it is one instance or a rate, and the answer is a number with a
       denominator.
-- [ ] The **route** is established before the backlog is cleared, or clearing it
+- [x] The **route** is established before the backlog is cleared, or clearing it
       accomplishes nothing durable: identify what, if anything, causes a pending
       observation to be read by a session that would benefit from it — handover section,
       audit check, session-start step, or nothing. If the answer is nothing, that is the
       finding, and it is registered as a concern rather than fixed by this task's
       one-time cleanup.
-- [ ] No observation is dismissed merely because it is old, nor promoted merely to empty
+- [x] No observation is dismissed merely because it is old, nor promoted merely to empty
       the queue. Each disposition cites the specific reason. Batch-dismissal by age is
       the failure mode that produced the backlog's invisibility in the first place.
-- [ ] `fw note list` afterwards shows only observations deliberately retained, and the
+- [x] `fw note list` afterwards shows only observations deliberately retained, and the
       before/after counts are both recorded.
 
 ### Human
@@ -285,9 +285,57 @@ No observation was dismissed for age; every line names its target or its reason.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# --- T-436 ---
+# 1. The standing detector for G-032. Exits 0 while the defect is PRESENT (leg A: the
+#    handover block emits 0 content lines) and 1 when it flips. Leg R is the reciprocal
+#    that makes leg A falsifiable; it went red on the first run and caught a crashed
+#    extraction that had produced a FALSE ok on leg A. Refuses (exit 2) on an empty
+#    inbox, so "we cleared the backlog" cannot read as a fix.
+bash tools/_t436-inbox-route-probe.sh
+# 2. Every observation reached a disposition; exactly one is deliberately retained.
+python3 -c "import yaml; d=yaml.safe_load(open('.context/inbox.yaml')); p=[o['id'] for o in d['observations'] if o.get('status')=='pending']; assert p==['OBS-031'], p; assert not [o for o in d['observations'] if o.get('status') not in ('pending','dismissed','promoted')]"
+# 3. The four promotions exist, and none kept the paragraph-as-title that fw note promote wrote.
+python3 -c "import glob,yaml; ns=[yaml.safe_load(open(glob.glob('.tasks/active/%s-*.md'%t)[0]).read().split('---')[1])['name'] for t in ['T-439','T-440','T-441','T-442']]; assert all(len(n)<130 for n in ns), [len(n) for n in ns]"
+# 4. G-032 is registered and the register still parses.
+python3 -c "import yaml; d=yaml.safe_load(open('.context/project/concerns.yaml')); assert any(c['id']=='G-032' for c in d['concerns'])"
+
 ## RCA
 
-<!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
+**Symptom:** 24 observations accumulated pending. A finding filed in the inbox
+(OBS-009) was re-derived from scratch by a different task three days later, at the cost
+of a work unit, while the observation sat unread.
+
+**Root cause:** the handover's per-observation listing block splits the inbox on
+`\n  - ` while the file writes `- id:` at column 0, so it emits zero lines. The only
+route that carries observation CONTENT across a session boundary has never worked. The
+count route works, so every session was told there were N pending and never what they
+said.
+
+**Why structurally allowed:** two independent silences.
+(a) The listing block is wrapped in `if [ "$PENDING_OBS" -gt 0 ]`, so the heading, the
+count and the blank lines print regardless. A section that emits 0 of 24 is
+byte-indistinguishable from one that had nothing to list. Nothing compares the count it
+printed against the number of lines it produced.
+(b) AEF fixed this exact regex in `audit.sh` under their T-2514 and documented it in a
+comment there. The fix was scoped to the call site being debugged; nothing enumerated
+the idiom's other sites, so the sibling in `handover.sh` — the one carrying the payload
+— was never swept.
+
+A third silence compounded it: `fw note dismiss --reason` discards the reason
+(finding 3), so the register cannot distinguish a judged closure from a sweep.
+
+**Prevention:** `tools/_t436-inbox-route-probe.sh` — a standing detector that runs the
+REAL block extracted from the shipped handover, with a reciprocal leg proving the block
+works on matching indentation, and two refusal paths (empty inbox, moved anchor) that
+exit 2 rather than scoring. G-032 registered with closure defined as the section's line
+count matching `fw note count`, and explicitly NOT as an emptied inbox. All four
+defects reported upstream (DM 545/546/547) rather than patched in vendored bytes.
+
+Prevention is deliberately NOT "remember to run `fw note triage`" — the backlog was
+never the defect.
+
+<!-- RCA above is the real one. Template guidance follows.
+     REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
      Non-bug-class tasks may leave this section empty or remove it.
 
