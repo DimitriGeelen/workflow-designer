@@ -4,10 +4,10 @@ name: "Assumption register never reconciles with owning task completion"
 description: >
   Assumption register never reconciles with owning task completion
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T13:02:18Z
-last_update: 2026-08-11T13:02:18Z
-date_finished: null
+last_update: 2026-08-11T13:11:59Z
+date_finished: 2026-08-11T13:11:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -246,7 +246,19 @@ python3 tools/_t428-assumption-disposition-check.py > /tmp/.t428-verify.out 2>&1
 
 # OBS-017 guard, asserted against the LIVE run rather than only the fixture: the report
 # must never hand the reader a command that clears the finding without answering it.
-grep -ciE 'run:? *(bin/)?(\.agentic-framework/bin/)?fw assumption validate' /tmp/.t428-verify.out | grep -qx 0
+#
+# NOT `grep -c ... | grep -qx 0` (the first draft, rejected by this gate on 2026-08-11).
+# `grep -c` exits 1 when the count is ZERO — it reports "no lines selected" regardless of
+# having printed a perfectly good "0" — so under P-011's `-o pipefail` that pipeline fails
+# EXACTLY WHEN THE ANSWER IS THE GOOD ONE. An interactive dry-run passes (no pipefail) and
+# the gate fails, which is the worst way round to discover it. Same family as L-387, new
+# member: L-387 is `cmd | grep -q` dying on SIGPIPE, this is a COUNT whose exit code
+# contradicts its own stdout. Rule: never put `grep -c` in a pipeline whose exit code is
+# the verdict.
+#
+# `test -s` first so a missing file FAILS. Bare `! grep -q` on an absent file exits 2,
+# which `!` would flip to 0 — a silent pass on nothing having been measured.
+test -s /tmp/.t428-verify.out && ! grep -qiE 'run:? *(bin/)?(\.agentic-framework/bin/)?fw assumption validate' /tmp/.t428-verify.out
 
 ## RCA
 
@@ -349,3 +361,15 @@ a reference implementation; the ask is a check on their side, not our bytes on t
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-428-assumption-register-never-reconciles-wit.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ca034fd4
+- **Timestamp:** 2026-08-11T13:12:02Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-11T13:11:59Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

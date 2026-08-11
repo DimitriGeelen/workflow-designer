@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-428: Assumption register never reconciles with owning task completion
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-11T13:12:05Z
+# ============================================================================
+
+task_id: T-428
+task_name: "Assumption register never reconciles with owning task completion"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-11T13:02:18Z
+completed: 2026-08-11T13:11:59Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-11T15:09:01+02:00
+last_commit: 2026-08-11T15:09:01+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the assumption register has no live end — 16 untested assumptions, all 16 owned by tasks in completed/, zero owned by anything open. OBS-018 recorded this as a reconciliation lag (a rail answer took 7 days to reach the register); measured across all 20 rows it is not a lag but a missing direction. An assumption is registered BY a task and not owned BY it in any way the completion path can see: work-completed runs P-010, P-011, the RCA and Evolution gates, generates an episodic and captures decisions, and never opens assumptions.yaml. linked_task is a field the register keeps and the gate never consults, so the tie is one-directional and 'later' — when an assumption is meant to be answered — is exactly when its creating task is gone. The zero is the finding, not the sixteen: a project asking questions faster than it answers them would show a healthy live count. 13 of the 16 are mentioned NOWHERE outside the register (measured by grepping every ID across tasks, docs and project registers); the only surviving mentions of the other three are PLANS to validate them, in a task body that reads 'IN FLIGHT' and now sits in completed/. Three of the sixteen belong to the arc anchor. This was already visible six days ago — a task body states the count correctly and it produced no task, no gate and no change, because a measurement filed in prose is indexed by nothing, the same carrier failure one level up. Instrument classifies five verdicts against ONE heterogeneous fixture (a per-file constant would pass five separate fixtures — the shape the provenance bug had); dangling keys on the OWNER leaving, not on age, because age sorts by creation date and tells you nothing about whether anyone is holding it; unevidenced is split from disposed because status-without-evidence is the flip this instrument would be laundered with, and splitting it costs nothing today at 4-of-4 evidenced, which is when to build it. The printed remedy names no runnable command on purpose and the suite greps its own output to keep it that way. Ambiguity exits 2, never 0. No status flipped: sixteen dispositions are sixteen evidence claims and three cannot be answered from inside 832 at all. Prevention is stated as PARTIAL — detection built, not wired; the natural home is the audit, the audit already carries designer-specific checks upstream, so the ask goes to AEF rather than becoming a local edit to a vendored file
+
+# Key outcomes
+outcomes:
+  - '`tools/_t428-assumption-disposition-check.py` classifies every row of the live register'
+  - 'The instrument is run against the live register and its verdict recorded in'
+  - '**The printed remedy never offers a status flip.** `fw assumption validate A-XXX` as a'
+  - 'Mutation check `tools/_t428-disposition-mutation-check.sh` proves the instrument fails'
+  - 'Ambiguity fails **loud**, never silent: unparseable register or missing tasks dir exits'
+  - '**No assumption status is flipped under agent initiative.** Disposing of an assumption'
+  - 'The `validation_method` inertness census (20/20 `TBD`) is registered as its own'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the assumption register has no live end — 16 untested assumptions, all 16 owned by tasks in completed/, zero owned by anything open. OBS-018 recorded this as a reconciliation lag (a rail answer took 7 days to reach the register); measured across all 20 rows it is not a lag but a missing direction. An assumption is registered BY a task and not owned BY it in any way the completion path can see: work-completed runs P-010, P-011, the RCA and Evolution gates, generates an episodic and captures decisions, and never opens assumptions.yaml. linked_task is a field the register keeps and the gate never consults, so the tie is one-directional and ''later'' — when an assumption is meant to be answered — is exactly when its creating task is gone. The zero is the finding, not the sixteen: a project asking questions faster than it answers them would show a healthy live count. 13 of the 16 are mentioned NOWHERE outside the register (measured by grepping every ID across tasks, docs and project registers); the only surviving mentions of the other three are PLANS to validate them, in a task body that reads ''IN FLIGHT'' and now sits in completed/. Three of the sixteen belong to the arc anchor. This was already visible six days ago — a task body states the count correctly and it produced no task, no gate and no change, because a measurement filed in prose is indexed by nothing, the same carrier failure one level up. Instrument classifies five verdicts against ONE heterogeneous fixture (a per-file constant would pass five separate fixtures — the shape the provenance bug had); dangling keys on the OWNER leaving, not on age, because age sorts by creation date and tells you nothing about whether anyone is holding it; unevidenced is split from disposed because status-without-evidence is the flip this instrument would be laundered with, and splitting it costs nothing today at 4-of-4 evidenced, which is when to build it. The printed remedy names no runnable command on purpose and the suite greps its own output to keep it that way. Ambiguity exits 2, never 0. No status flipped: sixteen dispositions are sixteen evidence claims and three cannot be answered from inside 832 at all. Prevention is stated as PARTIAL — detection built, not wired; the natural home is the audit, the audit already carries designer-specific checks upstream, so the ask goes to AEF rather than becoming a local edit to a vendored file'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-428-assumption-register-never-reconciles-wit.md'
+  - 'tools/_t428-assumption-disposition-check.py'
+  - 'tools/_t428-disposition-mutation-check.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-11T15:09:01"
+    action: "T-428: the assumption register has no live end — 16 untested assumptions, all 16 owned by tasks in completed/, zero owned by anything open. OBS-018 recorded this as a reconciliation lag (a rail answer took 7 days to reach the register); measured across all 20 rows it is not a lag but a missing direction. An assumption is registered BY a task and not owned BY it in any way the completion path can see: work-completed runs P-010, P-011, the RCA and Evolution gates, generates an episodic and captures decisions, and never opens assumptions.yaml. linked_task is a field the register keeps and the gate never consults, so the tie is one-directional and 'later' — when an assumption is meant to be answered — is exactly when its creating task is gone. The zero is the finding, not the sixteen: a project asking questions faster than it answers them would show a healthy live count. 13 of the 16 are mentioned NOWHERE outside the register (measured by grepping every ID across tasks, docs and project registers); the only surviving mentions of the other three are PLANS to validate them, in a task body that reads 'IN FLIGHT' and now sits in completed/. Three of the sixteen belong to the arc anchor. This was already visible six days ago — a task body states the count correctly and it produced no task, no gate and no change, because a measurement filed in prose is indexed by nothing, the same carrier failure one level up. Instrument classifies five verdicts against ONE heterogeneous fixture (a per-file constant would pass five separate fixtures — the shape the provenance bug had); dangling keys on the OWNER leaving, not on age, because age sorts by creation date and tells you nothing about whether anyone is holding it; unevidenced is split from disposed because status-without-evidence is the flip this instrument would be laundered with, and splitting it costs nothing today at 4-of-4 evidenced, which is when to build it. The printed remedy names no runnable command on purpose and the suite greps its own output to keep it that way. Ambiguity exits 2, never 0. No status flipped: sixteen dispositions are sixteen evidence claims and three cannot be answered from inside 832 at all. Prevention is stated as PARTIAL — detection built, not wired; the natural home is the audit, the audit already carries designer-specific checks upstream, so the ask goes to AEF rather than becoming a local edit to a vendored file"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 1
+  files_changed: 4
+  lines_added: 735
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-428-assumption-register-never-reconciles-wit.md
+generated_by: context-agent-hybrid

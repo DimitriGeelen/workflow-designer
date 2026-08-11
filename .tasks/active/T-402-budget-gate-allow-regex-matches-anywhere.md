@@ -6,7 +6,7 @@ description: >
 
 status: started-work
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-09T07:49:37Z
-last_update: 2026-08-11T11:38:06Z
+last_update: 2026-08-11T11:42:12Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -327,3 +327,6 @@ git diff --quiet HEAD -- .agentic-framework/agents/context/budget-gate.sh
 
 ### 2026-08-11T11:38:06Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-08-11T11:42:12Z — status-update [task-update-agent]
+- **Change:** owner: agent → human

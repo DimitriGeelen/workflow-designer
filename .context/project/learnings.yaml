@@ -1086,3 +1086,10 @@ learnings:
   date: 2026-08-11
   context: Added via context agent
   application: TBD
+- id: PL-151
+  learning: "grep -c exits 1 when the count is ZERO — it reports 'no lines selected' even though it printed a perfectly good 0. So any verification line that counts with grep -c and then compares the count in a pipeline FAILS EXACTLY WHEN THE ANSWER IS THE GOOD ONE, because P-011 runs each command under pipefail. Worse, it is invisible in development: an interactive dry-run has no pipefail and passes, so the defect only appears at the completion gate. Same family as L-387 but a distinct member — L-387 is a reader dying on SIGPIPE, this is a count whose exit code contradicts its own stdout. Rule: never let grep -c sit in a pipeline whose exit code is the verdict; use a form whose own exit code is the answer, and put test -s in front of it so a missing input FAILS rather than flipping an absent-file exit 2 into a pass. Found by the gate on T-428, first draft rejected."
+  source: P-011
+  task: T-428
+  date: 2026-08-11
+  context: Added via context agent
+  application: TBD

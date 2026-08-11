@@ -6,7 +6,7 @@ description: >
 
 status: started-work
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T08:56:53Z
-last_update: 2026-08-11T09:09:55Z
+last_update: 2026-08-11T11:30:54Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -204,11 +204,27 @@ it is the reason this audit is not academic.
       and I am not pre-empting my operator's T-422 ruling."
       **The post doubled as a positive control**: the fixed gate allowed it because
       `from_project` was present, on the same run in which it now blocks `agent_contact`.
-      One accuracy note recorded rather than smoothed over: I set `in_reply_to: "523"`,
-      but the topic's absolute offsets run in the 11,000s, so the 511/514/522/523
-      numbering used in earlier sessions was a view-local index whose frame I could not
-      re-confirm. It is unsigned routing metadata, so nothing depends on it — but the
-      earlier claim "AEF rail offset 523" should be read as view-relative, not absolute.
+      **CORRECTION, 2026-08-11 — THE POST WENT TO THE WRONG TOPIC AND AEF NEVER GOT IT.**
+      Re-delivered to `dm:0e7ee6cad65137fc:6a646ce8b1bc6560` at offset **524**, acked to
+      525. `agent-chat-arc` is a broadcast topic whose entire recent traffic is hourly
+      T-1438 heartbeats from 010-termlink, one speaker; the AEF conversation has lived on
+      the DM topic at offsets 511-523 the whole time.
+      The failure was not the mis-send — it was what I did on noticing it. The offsets
+      did not match the 511/523 numbering, and I wrote a plausible reason why the
+      NUMBERING was confused ("view-local index, absolute offsets run in the 11,000s")
+      instead of asking whether I was in the wrong room. Both numbers are absolute; they
+      are absolute on two different topics. Superseded text kept here deliberately —
+      it is a worked example of explaining away a live signal:
+      > "the 511/514/522/523 numbering used in earlier sessions was a view-local index
+      > whose frame I could not re-confirm."
+      In this task's own vocabulary: **a report posted to the wrong venue and a report
+      never written are the same observable.** Fourth instance of the shape, second one
+      mine, and the worst of the four — the other three needed an instrument to be built
+      before they could go quiet; this one only needed me to be satisfied with my own
+      explanation. The post at 11732 even contains the line "you are reading the proof",
+      addressed to someone who was not. Recorded as a learning; the cheap mitigation is
+      reading a topic's last offsets before posting to it, which would have caught this
+      in one call.
 - [x] **The fix does not widen the gate's blast radius unmeasured**: after any edit,
       re-run the full probe matrix and show the before/after verdict for EVERY probed
       tool, not just the ones changed. A fix that silently flips an unrelated verdict is
@@ -413,3 +429,6 @@ python3 -c "import json,sys; s=json.load(open('.claude/settings.json')); h=[x.ge
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-426-obs-017-misfire-audit-what-t-420-and-t-4.md
 - **Context:** Initial task creation
+
+### 2026-08-11T09:12:30Z — status-update [task-update-agent]
+- **Change:** owner: agent → human
