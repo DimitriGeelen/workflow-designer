@@ -47,14 +47,22 @@ T406_SRC="$TMP/mutant.html" node "$PROBE" > "$out" 2>&1
 rc=$?
 
 fails=0
-fail() { echo "FAIL: $*" >&2; fails=$((fails + 1)); }
+legs=0
+# T-430: a fails-only tally cannot separate "the mutant was caught" from "the loops never
+# ran" — a mutation step that silently produced no output leaves fails=0 and exits 0, and
+# the caller records the mutation check as passed. `legs` counts the comparisons actually
+# made. Named note_leg() rather than leg() because `leg` is the loop variable below.
+note_leg() { legs=$((legs + 1)); }
+fail() { note_leg; echo "FAIL: $*" >&2; fails=$((fails + 1)); }
 
+note_leg
 if [ "$rc" -eq 0 ]; then
   fail "the probe PASSED against a mutant with the fix reverted. Whatever the legs are
      measuring, it is not this fix."
 fi
 
 for leg in "AEF-INCIDENTAL" "OURS+RATIONALE"; do
+  note_leg
   if grep -q "FAIL $leg" "$out"; then
     echo "  ok  $leg goes red on the mutant"
   else
@@ -64,6 +72,7 @@ for leg in "AEF-INCIDENTAL" "OURS+RATIONALE"; do
 done
 
 for leg in "CONTROL" "STAMPED" "OURS  " "UNKNOWN" "AEF-CLEAN"; do
+  note_leg
   if grep -q "FAIL  *$leg" "$out"; then
     fail "pre-existing leg '$leg' went red on the mutant. The two new legs are then not
      isolating the narrowing — the mutation is breaking something else as well."
@@ -72,8 +81,13 @@ done
 echo "  ok  all 5 pre-existing legs stay green on the mutant (the change is isolated)"
 
 echo
+# T-430 abstention guard — before the verdict, or the verdict answers first.
+if [ $(( ${legs:-0} + ${fails:-0} )) -eq 0 ]; then
+  echo "ABSTAINED — no legs ran; this is not a pass." >&2
+  exit 2
+fi
 if [ "$fails" -ne 0 ]; then
   echo "MUTATION CHECK FAIL — $fails" >&2
   exit 1
 fi
-echo "MUTATION CHECK PASS — both new legs bite, and only they do"
+echo "MUTATION CHECK PASS — $legs/8 legs: both new legs bite, and only they do"

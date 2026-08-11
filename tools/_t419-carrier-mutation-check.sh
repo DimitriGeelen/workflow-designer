@@ -25,6 +25,12 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 fails=0
+legs=0
+# T-430: `fails` alone cannot separate "both mutations were caught" from "neither
+# mutation ran". The anchors these mutations depend on live in the designer source and
+# drift; if a heredoc stops matching, nothing increments and the check exits 0 green.
+# `legs` counts the mutations actually driven, incremented inside check() — the leg site,
+# so blanking check() faithfully simulates a run in which no mutation was measured.
 
 # Verdict for one carrier row out of the harness's JSON. Reads the row by id rather
 # than by position, so adding a case cannot silently re-point an assertion.
@@ -45,6 +51,7 @@ run_against() { # run_against <designer-src> <out.json>
 }
 
 check() { # check <name> <mutated-src> <row-that-must-move> <expected-prefix> [reciprocal:yes|no]
+  legs=$((legs + 1))
   local name="$1" msrc="$2" moved="$3" want="$4" recip="${5:-yes}"
   local out="$TMP/$name.json"
   if ! run_against "$msrc" "$out"; then
@@ -124,11 +131,17 @@ PY
 check m2-rival-for-documentation "$TMP/m2.html" element-content CARRIER-GENERATED no
 
 echo
+# T-430 abstention guard — before the verdict, or the verdict answers first.
+if [ $(( ${legs:-0} + ${fails:-0} )) -eq 0 ]; then
+  echo "ABSTAINED — no legs ran; this is not a pass." >&2
+  exit 2
+fi
 if [ "$fails" -ne 0 ]; then
   echo "MUTATION CHECK FAIL — $fails" >&2
   exit 1
 fi
-echo "MUTATION CHECK PASS — M1: the geometry row goes NONE when the aef:position
+echo "MUTATION CHECK PASS — $legs/2 mutations driven.
+             M1: the geometry row goes NONE when the aef:position
              emission is retired in the source, and no other carrier row moves with it.
              M2: a row whose baseline is CARRIER-NONE can report GENERATED, so its
              'none' is a measurement rather than a silent miss. M2 is global by

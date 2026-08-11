@@ -178,3 +178,38 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-026
+  text: "A-014 (AEF record reconstructs a faithful process map deterministically) is child-3's premise, not the arc anchor's. T-184 reverse-discovery was DEFERRED by operator 2026-07-11 with revisit trigger 'child-2 shipped + demand to edit existing task graphs' — not fired. Carried on the anchor blocker list regardless, and sent to AEF as blocking. With A-012 (answerable locally, T-431) that is two of three so-called anchor blockers that were not blockers. Class: 'blocking' was read as a property of the ASSUMPTION when it is a property of the assumption PLUS the schedule. Nothing re-checks a blocker list against the deferral state of the child that owns it."
+  captured: 2026-08-11T16:45:59Z
+  context_task: T-402
+  tags: []
+  status: pending
+  promoted_to: null
+- id: OBS-027
+  text: "A section's audit result depends on whether it is run ALONE or inside a FULL run. 'fw audit --section oe-daily' reports 61 pass / 25 warn / 0 fail and never emits the D2 human-review-queue check; the same section inside a full run emits D2 and reports different pass counts. Nearly produced a false claim in T-434: the before-number (60 FAIL) came from a full run, and taking the after-number from the section-alone run would have compared two different instruments and reported 60 to 0 instead of 60 to 1. Bears directly on T-432's gate-scope decision — widening the push gate to a SECTION LIST may not reproduce what the full audit reports, so a gate built from sections could be green while the full audit is not."
+  captured: 2026-08-11T20:56:54Z
+  context_task: T-434
+  tags: []
+  status: pending
+  promoted_to: null
+- id: OBS-028
+  text: "add"
+  captured: 2026-08-11T21:25:21Z
+  context_task: T-430
+  tags: []
+  status: dismissed
+  promoted_to: null
+- id: OBS-029
+  text: "tools/concerns-schema.py accounts for no field named 'context', and the live .context/project/concerns.yaml carries one in 2 entries — so _t400-schema-teeth's RECIPROC leg has been red on the real register. Pre-existing at HEAD, surfaced while baselining T-430, deliberately not fixed there (one bug, one task). Either 'context' is load-bearing and the schema should read it, or it is prose and should be declared as such."
+  captured: 2026-08-11T21:25:32Z
+  context_task: T-430
+  tags: [bug]
+  status: pending
+  promoted_to: null
+- id: OBS-030
+  text: "_t429-zero-leg-probe.sh reads a non-zero PROCESS EXIT as GUARDED, which is only sound while the suite is otherwise green — on a suite carrying any real failure it reports GUARDED for a file with no guard at all (measured on _t400-schema-teeth with the guard deleted, T-430). Same mention-vs-instance class the probe was built to find. Superseded for T-430's purposes by _t430-abstention-teeth.sh (neuters every increment-bearing helper; requires rc==2 AND the ABSTAINED line). The old probe is unmodified and still cited by T-429's record — decide whether to annotate it in place or leave the limitation documented only in T-430."
+  captured: 2026-08-11T21:25:39Z
+  context_task: T-430
+  tags: [tooling]
+  status: pending
+  promoted_to: null

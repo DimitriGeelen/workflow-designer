@@ -19,8 +19,15 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 fails=0
+legs=0
+# T-430: every outcome here is recorded by `fails`, so a run in which no mutation was
+# built — an anchor drifting, a heredoc going missing — leaves fails=0 and exits 0, and
+# reads exactly like a check in which all three mutations were caught. `legs` counts the
+# mutations actually driven. It is incremented INSIDE mutate() because that is the leg
+# site; blanking mutate() is then a faithful simulation of "no mutation ran".
 
 mutate() { # mutate <name> <leg-that-must-go-red> <python-anchor-replace-heredoc-file>
+  legs=$((legs + 1))
   local name="$1" leg="$2" script="$3"
   local mutant="$TMP/mutant-$name.py"
   if ! python3 "$script" "$SRC" "$mutant"; then
@@ -96,8 +103,13 @@ PY
 mutate m3-empty-passes "(f)" "$TMP/m3.py"
 
 echo
+# T-430 abstention guard — before the verdict, or the verdict answers first.
+if [ $(( ${legs:-0} + ${fails:-0} )) -eq 0 ]; then
+  echo "ABSTAINED — no legs ran; this is not a pass." >&2
+  exit 2
+fi
 if [ "$fails" -ne 0 ]; then
   echo "MUTATION CHECK FAIL — $fails" >&2
   exit 1
 fi
-echo "MUTATION CHECK PASS — each distinction has a leg that bites, and only it does"
+echo "MUTATION CHECK PASS — $legs/3 mutations driven: each distinction has a leg that bites, and only it does"

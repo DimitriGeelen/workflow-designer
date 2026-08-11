@@ -135,4 +135,21 @@ done
 
 echo
 echo "probe: $pass passed, $fails failed"
+# T-430 abstention guard. This probe's verdict is the bare `[ "$fails" -eq 0 ]` below —
+# the script's exit status, with no `exit N` anywhere on the success path, which is why
+# the census could not classify it and named it as unanswerable rather than clean.
+#
+# The loop it ends with iterates over discovered tasks. If discovery returns nothing —
+# a corpus move, a renamed fixture directory, a glob that stops matching — the loop body
+# never executes, `pass` and `fails` are both 0, and `[ 0 -eq 0 ]` succeeds. The probe
+# then reports "0 passed, 0 failed" and exits green, which is the sentence a fully clean
+# corpus produces minus two digits nobody reads.
+#
+# Unlike the fails-only suites this task is mostly about, the counter needed here already
+# existed: ok() has always incremented `pass`. What was missing was any line that consults
+# it. The guard is the whole fix.
+if [ $(( ${pass:-0} + ${fails:-0} )) -eq 0 ]; then
+  echo "ABSTAINED — no legs ran; this is not a pass." >&2
+  exit 2
+fi
 [ "$fails" -eq 0 ]

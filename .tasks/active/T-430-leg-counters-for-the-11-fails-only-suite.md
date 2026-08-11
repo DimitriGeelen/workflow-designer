@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T14:23:23Z
-last_update: 2026-08-11T21:10:33Z
+last_update: 2026-08-11T21:19:05Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -46,25 +46,25 @@ fired the new guard on every green run.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The population is measured, not recalled: the current census output is captured as a
+- [x] The population is measured, not recalled: the current census output is captured as a
       BEFORE baseline listing every UNGUARDED suite by name with its tallies, and the
       filed count (11 + `_t353-repair-probe`) is confirmed or corrected against it. The
       task's description is a claim from a prior session; if it disagrees with the
       instrument, the instrument wins and the discrepancy is recorded.
-- [ ] Every suite named in that baseline carries a counter incremented **at the leg site**
+- [x] Every suite named in that baseline carries a counter incremented **at the leg site**
       — the place a leg actually executes — and NOT inside a failure reporter. Asserted
       mechanically, not by eye: for each edited suite, a check shows the increment is not
       within the body of a `fail()`/`err()`-style function.
-- [ ] Each edited suite is proven in BOTH directions with `tools/_t429-zero-leg-probe.sh`
+- [x] Each edited suite is proven in BOTH directions with `tools/_t429-zero-leg-probe.sh`
       (or an equivalent recorded here): legs neutered → the suite exits NON-ZERO and says
       it ran nothing; unmodified → the suite still exits 0. A guard proven in only the
       passing direction is the defect this task exists to remove.
-- [ ] No suite's pre-existing verdict changes. Each edited suite's pass/fail counts are
+- [x] No suite's pre-existing verdict changes. Each edited suite's pass/fail counts are
       captured before and after and compared; any movement is a regression introduced by
       the guard and is either fixed or reported, never absorbed.
-- [ ] `python3 tools/_t429-abstention-census.py` exits 0 — every counter-bearing suite in
+- [x] `python3 tools/_t429-abstention-census.py` exits 0 — every counter-bearing suite in
       `tools/` fails when its legs do not run.
-- [ ] Suites the census cannot answer for (no identifiable verdict block, e.g.
+- [x] Suites the census cannot answer for (no identifiable verdict block, e.g.
       `_t353-repair-probe`) are named explicitly with the reason, and either guarded or
       carried forward as a filed follow-up. Silent omission is the failure mode being
       audited here and must not be reproduced by this task.
@@ -159,6 +159,78 @@ fired the new guard on every green run.
 # non-zero exit on the branch where its tally is zero. Its own exit code is the verdict,
 # so no capture/grep chain and no errexit exposure (T-352).
 python3 tools/_t429-abstention-census.py
+
+# The census reads SOURCE and reasons about branches — it is a belief about behaviour.
+# This drives all 13 and reads the result: with every leg neutered each must exit 2 AND
+# print its ABSTAINED line. Named in full rather than globbed: a glob that stops matching
+# would run zero suites, and this file is about instruments that pass having run nothing.
+bash tools/_t430-abstention-teeth.sh tools/_t350-build-only-probe.sh tools/_t353-repair-probe.sh tools/_t400-schema-teeth.sh tools/_t408-hygiene-teeth.sh tools/_t410-secret-artifact-teeth.sh tools/_t411-census-teeth.sh tools/_t412-announced-pair-teeth.sh tools/_t414-mutation-check.sh tools/_t416-mutation-check.sh tools/_t416-qualifier-residue-teeth.sh tools/_t418-attribution-teeth.sh tools/_t418-mutation-check.sh tools/_t419-carrier-mutation-check.sh
+
+## Findings
+
+### 1. The filed population was 12; the instrument says 13
+
+`_t418-mutation-check.sh` is UNGUARDED and was not in the task description's
+enumeration. The description was written from a prior session's reading; the census was
+run first here precisely so the list would come from the tool. Corrected, not argued.
+
+### 2. The probe this task was told to verify with cannot tell a guard from a corpse
+
+`tools/_t429-zero-leg-probe.sh` blanks the assertion helper and reads the **process exit
+code**: non-zero → `GUARDED`. That inference holds only while the suite is otherwise
+green, and nothing in the probe says so.
+
+Measured. `_t400-schema-teeth.sh` carries one genuinely red leg. With a leg counter added
+and the abstention guard **deleted**, the probe printed:
+
+```
+  assertion helper neutered: leg()
+  exit code with no legs recorded: 1
+GUARDED — the suite refused to report success without running legs.
+```
+
+over a file that provably had no guard. It exited 1 because a leg was red. Two distinct
+defects compound here:
+
+- **the verdict question is wrong** — it asks *did this process exit non-zero* when the
+  question is *did the abstention guard fire*. Mention-vs-instance, inside the fix for
+  the finding that named the class.
+- **the simulation is incomplete** — blanking only the FIRST increment-bearing helper
+  leaves `fails` counting in the shape this task installs, so a suite with any real
+  failure never reaches the zero-branch at all.
+
+`tools/_t430-abstention-teeth.sh` neuters **every** increment-bearing helper and requires
+`rc == 2` **and** the guard's own sentence. Mutation-proven: it goes red on the
+guard-deleted variant the old probe called GUARDED.
+
+The old probe is left in place, unmodified — it is T-429's evidence and has its own teeth.
+It is simply not sufficient on its own, which is now written down.
+
+### 3. `_t400-schema-teeth` was already red at HEAD — not absorbed
+
+`RECIPROC` fails: the live `.context/project/concerns.yaml` carries a field `context` in
+2 entries that `tools/concerns-schema.py` accounts for nowhere. Pre-existing, unrelated to
+this task, and deliberately not silenced by it. Verdict before: `rc=1`, 1 FAIL. After:
+`rc=1`, 1 FAIL. Filed as an observation rather than fixed here — one bug, one task.
+
+### 4. Hard-coded denominators were removed where touched
+
+`_t400` printed `TEETH PASS — 10/10 legs` on a run where a leg had failed and been
+silenced: a count it never measured, which is the same claim-without-a-denominator the
+guard exists to stop, one line further down. It now prints what it recorded — `0/10`
+under neutering, so the abstention is visible in the text and not only in the exit code.
+
+### 5. The class landed once more, in this task's own scaffolding
+
+The throwaway check that removed the guard for finding 2 asserted `"ABSTAINED" not in
+src` — and failed, because the comment I had written a minute earlier *mentions* the
+word. Asked "does the file mention it" when the question was "does the file contain the
+executable guard". Re-anchored on `^\s*echo "ABSTAINED`.
+
+### Result
+
+Census `13 UNGUARDED → 0`, exits 0, 39 of 39 counter-bearing suites guarded.
+Both directions on all 13: `pass=26 fails=0`. No suite's verdict moved.
 
 ## RCA
 

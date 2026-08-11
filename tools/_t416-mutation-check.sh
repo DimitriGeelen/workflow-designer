@@ -54,11 +54,21 @@ SUBJECT="$TMP/mutant.py" bash "$TEETH" > "$out" 2>&1
 rc=$?
 
 fails=0
+legs=0
+# T-430: this file had no helper at all — every outcome is recorded by an inline
+# `fails=$((fails + 1))`, so a run in which the greps below never execute leaves fails=0
+# and exits 0, indistinguishable from a clean mutation check. note_leg() is a function
+# rather than an inline counter so a zero-leg run can be SIMULATED by blanking it
+# (tools/_t430-abstention-teeth.sh); an inline counter cannot be silenced from outside.
+note_leg() { legs=$((legs + 1)); }
+
+note_leg
 if [ "$rc" -eq 0 ]; then
   echo "FAIL: the teeth PASSED against the pre-fix rule. They are not measuring this fix." >&2
   fails=1
 fi
 for leg in "(a)" "(c)" "(f)"; do
+  note_leg
   if grep -q "FAIL: $leg" "$out"; then
     echo "  ok  leg $leg goes red on the T-412 rule"
   else
@@ -70,6 +80,7 @@ done
 # ANNOUNCED class collapsing rather than by the residue rule. (f) is deliberately NOT in (b):
 # it is a miss this fix CLOSES, so it goes red on the mutant for a good reason, and folding
 # it into (b) made this very check report the improvement as collateral damage.
+note_leg
 if grep -q "FAIL: (b)" "$out"; then
   echo "FAIL: the reciprocal leg went red on the mutant — the mutation broke more than the
      rule under test, so (a)/(c) going red proves nothing about it." >&2
@@ -79,8 +90,13 @@ else
 fi
 
 echo
+# T-430 abstention guard — before the verdict, or the verdict answers first.
+if [ $(( ${legs:-0} + ${fails:-0} )) -eq 0 ]; then
+  echo "ABSTAINED — no legs ran; this is not a pass." >&2
+  exit 2
+fi
 if [ "$fails" -ne 0 ]; then
   echo "MUTATION CHECK FAIL — $fails" >&2
   exit 1
 fi
-echo "MUTATION CHECK PASS — the residue legs bite, and only they do"
+echo "MUTATION CHECK PASS — $legs/5 legs: the residue legs bite, and only they do"
