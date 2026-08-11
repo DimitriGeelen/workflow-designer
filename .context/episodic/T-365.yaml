@@ -1,0 +1,109 @@
+# ============================================================================
+# EPISODIC MEMORY - T-365: fixtures/aef-bpmn asserts a provenance it lacks — claim fixed at source; the rename is a two-party standard delta, not a refactor
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-11T22:29:07Z
+# ============================================================================
+
+task_id: T-365
+task_name: "fixtures/aef-bpmn asserts a provenance it lacks — claim fixed at source; the rename is a two-party standard delta, not a refactor"
+workflow_type: refactor
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-04T13:18:53Z
+completed: 2026-08-11T22:29:03Z
+duration_days: 7
+updates_count: 2
+first_commit: 2026-08-04T15:19:30+02:00
+last_commit: 2026-08-12T00:28:58+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file the naming defect and stop the directory misleading the next reader. tests/fixtures/aef-bpmn contains zero files handed to us by AEF — git log --diff-filter=A on all 18 shows every one added by an 832 task commit (three pair-draft, rest ours outright), while AEF has 5 files at the same path including one absent here. The name asserted a provenance it never had, I read it as provenance, and published a corroboration claim to the peer that was retracted at RAIL-438: the measurement was careful and the subject noun came from the filesystem. Rename NOT attempted — blast radius is 150 files including .context/episodic (frozen history that must not be rewritten) and .agentic-framework vendored AEF docs (G-008), so it needs scoping, not a git mv at urgent budget. PROVENANCE.md states the measured truth in place as interim prevention: whoever measures this next reads what it actually is before they read the name. scope the fixture rename instead of performing it — the directory name asserts a uniform provenance the contents do not have (14 ours, 3 pair-draft, 0 AEF-supplied), and a single rename would commit that same error a second time in the task that exists to fix it. Decision A (single rename to aef-seam) vs B (split ours/pairdraft) stated with the weight for A; 37 live refs vs 149 frozen-history refs measured so the next pickup does not re-measure. No git mv performed. the rename is not ours to make — the fixture path is NORMATIVE in the frozen two-party standard. mapping-v1.md:142 names tests/fixtures/aef-bpmn/inception-gonogo.bpmn as a Reference fixture and sits at line 142 while Part II begins at 146, i.e. inside Part I Frozen; forward-compile-v1.md:21 calls tests/fixtures/aef-bpmn/*.bpmn 'the reference corpus' and titles its section 5 after the path. Options A and B both assumed the directory was an internal detail. Near-miss recorded because it is the same class the task exists to fix: my first census said 42 live refs, but the string aef-bpmn matches the fixture dir AND the two standards — 46 files reference the standards, so the obvious mechanical execution of option A (a blanket sed) would have rewritten every reference to the frozen document, including inside it. Re-censused on the precise path: 22 live, not 37 and not 42; the recorded 'so the next pickup does not re-measure' numbers had drifted (37 to 22, 17 to 18 fixtures). Revised to C (fix the claim at the source, agent-executable) + D (rename as a standard delta, AEF and operator). No git mv performed. option C shipped — the claim fixed at the source, the rename put to AEF as a standard delta (DM 548). PROVENANCE.md now states the directory name asserts SCOPE never AUTHORSHIP, names the per-file table as the only provenance source, and records both normative references with their Part. tools/_t365-normative-fixture-guard.py asserts every fixture path the standards name normatively resolves, DERIVING the paths by reading the standards rather than restating them — so a revision moves the checked set instead of leaving the guard green on an old promise. Mutation-proven both directions: the exact rename option A would have performed drives it to fails=2 rc=1; standards naming no fixture path drive it to rc=2 ABSTAINED, never a green. ACs rewritten to match reality with the superseded four kept visible (as a numbered list, not checkboxes — leaving - [ ] would make P-010 count superseded criteria as outstanding). Nothing frozen or historical edited; git diff clean on docs/standards. title corrected to name the real outcome (T-401 precedent) — the task no longer renames anything, so a title promising a rename would misdescribe the record. T-443 filed (owner human, horizon later) to carry option D with its trigger stated: AEF's answer to DM 548 section 5, plus the section 6 confirmation that the three pair-drafts are considered co-authored on their side, which PROVENANCE.md currently asserts on our evidence alone
+
+# Key outcomes
+outcomes:
+  - 'The rename is NOT performed, and the reason is recorded with evidence:'
+  - 'Blast radius re-measured rather than quoted, on the PRECISE string. The'
+  - '`PROVENANCE.md` states explicitly that the directory name asserts **scope,'
+  - 'A mechanical guard exists for the half that is mechanizable:'
+  - 'The guard DERIVES paths by reading the standards rather than restating'
+  - 'The guard is mutation-proven in both directions: the exact rename option A'
+  - 'No frozen or historical bytes edited: `git diff --exit-code` clean on'
+  - 'Option D (rename as a standard delta) is put to AEF on the rail rather than'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'option C shipped — the claim fixed at the source, the rename put to AEF as a standard delta (DM 548). PROVENANCE.md now states the directory name asserts SCOPE never AUTHORSHIP, names the per-file table as the only provenance source, and records both normative references with their Part. tools/_t365-normative-fixture-guard.py asserts every fixture path the standards name normatively resolves, DERIVING the paths by reading the standards rather than restating them — so a revision moves the checked set instead of leaving the guard green on an old promise. Mutation-proven both directions: the exact rename option A would have performed drives it to fails=2 rc=1; standards naming no fixture path drive it to rc=2 ABSTAINED, never a green. ACs rewritten to match reality with the superseded four kept visible (as a numbered list, not checkboxes — leaving - [ ] would make P-010 count superseded criteria as outstanding). Nothing frozen or historical edited; git diff clean on docs/standards'
+    source: git-mined
+  - description: 'the rename is not ours to make — the fixture path is NORMATIVE in the frozen two-party standard. mapping-v1.md:142 names tests/fixtures/aef-bpmn/inception-gonogo.bpmn as a Reference fixture and sits at line 142 while Part II begins at 146, i.e. inside Part I Frozen; forward-compile-v1.md:21 calls tests/fixtures/aef-bpmn/*.bpmn ''the reference corpus'' and titles its section 5 after the path. Options A and B both assumed the directory was an internal detail. Near-miss recorded because it is the same class the task exists to fix: my first census said 42 live refs, but the string aef-bpmn matches the fixture dir AND the two standards — 46 files reference the standards, so the obvious mechanical execution of option A (a blanket sed) would have rewritten every reference to the frozen document, including inside it. Re-censused on the precise path: 22 live, not 37 and not 42; the recorded ''so the next pickup does not re-measure'' numbers had drifted (37 to 22, 17 to 18 fixtures). Revised to C (fix the claim at the source, agent-executable) + D (rename as a standard delta, AEF and operator). No git mv performed'
+    source: git-mined
+  - description: 'scope the fixture rename instead of performing it — the directory name asserts a uniform provenance the contents do not have (14 ours, 3 pair-draft, 0 AEF-supplied), and a single rename would commit that same error a second time in the task that exists to fix it. Decision A (single rename to aef-seam) vs B (split ours/pairdraft) stated with the weight for A; 37 live refs vs 149 frozen-history refs measured so the next pickup does not re-measure. No git mv performed'
+    source: git-mined
+  - description: 'file the naming defect and stop the directory misleading the next reader. tests/fixtures/aef-bpmn contains zero files handed to us by AEF — git log --diff-filter=A on all 18 shows every one added by an 832 task commit (three pair-draft, rest ours outright), while AEF has 5 files at the same path including one absent here. The name asserted a provenance it never had, I read it as provenance, and published a corroboration claim to the peer that was retracted at RAIL-438: the measurement was careful and the subject noun came from the filesystem. Rename NOT attempted — blast radius is 150 files including .context/episodic (frozen history that must not be rewritten) and .agentic-framework vendored AEF docs (G-008), so it needs scoping, not a git mv at urgent budget. PROVENANCE.md states the measured truth in place as interim prevention: whoever measures this next reads what it actually is before they read the name'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-08 — picked up as "mechanical", stopped when it wasn''t'
+    chose: 'do not `git mv`; hand over with the scoping decision stated.'
+    rationale: 'I selected this at 79% budget as a bounded mechanical rename, having'
+    alternatives_rejected: ['renaming to `aef-seam/` anyway and noting the split as a']
+  - decision: '2026-08-11 — the rename is not ours to make, and A/B were the wrong question'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-08.yaml'
+  - '.context/locks/T-365.lock'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.hook-counter'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.tasks/active/T-264-save-target-guard-set-id-field-collision.md'
+  - '.tasks/active/T-364-export-is-nondeterministic-for-any-node-.md'
+  - '.tasks/active/T-365-rename-testsfixturesaef-bpmn-the-name-as.md'
+  - '.tasks/active/T-443-rename-fixturesaef-bpmn-as-a-v12-standar.md'
+  - 'tests/fixtures/aef-bpmn/PROVENANCE.md'
+  - 'tools/_t365-normative-fixture-guard.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-04T15:19:30"
+    action: "T-365: file the naming defect and stop the directory misleading the next reader. tests/fixtures/aef-bpmn contains zero files handed to us by AEF — git log --diff-filter=A on all 18 shows every one added by an 832 task commit (three pair-draft, rest ours outright), while AEF has 5 files at the same path including one absent here. The name asserted a provenance it never had, I read it as provenance, and published a corroboration claim to the peer that was retracted at RAIL-438: the measurement was careful and the subject noun came from the filesystem. Rename NOT attempted — blast radius is 150 files including .context/episodic (frozen history that must not be rewritten) and .agentic-framework vendored AEF docs (G-008), so it needs scoping, not a git mv at urgent budget. PROVENANCE.md states the measured truth in place as interim prevention: whoever measures this next reads what it actually is before they read the name"
+  - time: "2026-08-08T21:25:38"
+    action: "T-365: scope the fixture rename instead of performing it — the directory name asserts a uniform provenance the contents do not have (14 ours, 3 pair-draft, 0 AEF-supplied), and a single rename would commit that same error a second time in the task that exists to fix it. Decision A (single rename to aef-seam) vs B (split ours/pairdraft) stated with the weight for A; 37 live refs vs 149 frozen-history refs measured so the next pickup does not re-measure. No git mv performed"
+  - time: "2026-08-12T00:25:20"
+    action: "T-365: the rename is not ours to make — the fixture path is NORMATIVE in the frozen two-party standard. mapping-v1.md:142 names tests/fixtures/aef-bpmn/inception-gonogo.bpmn as a Reference fixture and sits at line 142 while Part II begins at 146, i.e. inside Part I Frozen; forward-compile-v1.md:21 calls tests/fixtures/aef-bpmn/*.bpmn 'the reference corpus' and titles its section 5 after the path. Options A and B both assumed the directory was an internal detail. Near-miss recorded because it is the same class the task exists to fix: my first census said 42 live refs, but the string aef-bpmn matches the fixture dir AND the two standards — 46 files reference the standards, so the obvious mechanical execution of option A (a blanket sed) would have rewritten every reference to the frozen document, including inside it. Re-censused on the precise path: 22 live, not 37 and not 42; the recorded 'so the next pickup does not re-measure' numbers had drifted (37 to 22, 17 to 18 fixtures). Revised to C (fix the claim at the source, agent-executable) + D (rename as a standard delta, AEF and operator). No git mv performed"
+  - time: "2026-08-12T00:28:00"
+    action: "T-365: option C shipped — the claim fixed at the source, the rename put to AEF as a standard delta (DM 548). PROVENANCE.md now states the directory name asserts SCOPE never AUTHORSHIP, names the per-file table as the only provenance source, and records both normative references with their Part. tools/_t365-normative-fixture-guard.py asserts every fixture path the standards name normatively resolves, DERIVING the paths by reading the standards rather than restating them — so a revision moves the checked set instead of leaving the guard green on an old promise. Mutation-proven both directions: the exact rename option A would have performed drives it to fails=2 rc=1; standards naming no fixture path drive it to rc=2 ABSTAINED, never a green. ACs rewritten to match reality with the superseded four kept visible (as a numbered list, not checkboxes — leaving - [ ] would make P-010 count superseded criteria as outstanding). Nothing frozen or historical edited; git diff clean on docs/standards"
+  - time: "2026-08-12T00:28:58"
+    action: "T-365: title corrected to name the real outcome (T-401 precedent) — the task no longer renames anything, so a title promising a rename would misdescribe the record. T-443 filed (owner human, horizon later) to carry option D with its trigger stated: AEF's answer to DM 548 section 5, plus the section 6 confirmation that the three pair-drafts are considered co-authored on their side, which PROVENANCE.md currently asserts on our evidence alone"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 10630 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 10630
+  commits: 5
+  files_changed: 14
+  lines_added: 803
+  lines_removed: 74
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-365-rename-testsfixturesaef-bpmn-the-name-as.md
+generated_by: context-agent-hybrid

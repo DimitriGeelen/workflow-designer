@@ -4,10 +4,10 @@ name: "fixtures/aef-bpmn asserts a provenance it lacks — claim fixed at source
 description: >
   T-364/RAIL-438 surfaced this: the directory name reads as 'AEF's BPMN fixtures' and every file in it was added by an 832 task commit (T-183/192/204/208/214/215/219/235/308/310/311/312/313; three labelled pair-draft, rest ours outright). AEF has 5 files at the same path; we have 18; one of theirs is absent here. I read the name as provenance and published a corroboration claim to the peer that had to be retracted at RAIL-438 — the measurement was careful and the noun came from the filesystem. Blast radius measured: 150 files reference the string, including .context/episodic/* (historical records that must NOT be rewritten — they record what was true when written) and .agentic-framework/docs/reports/* (vendored AEF material, G-008 territory). Needs scoping before any git mv: which reference classes get rewritten, which are frozen history, and whether a rename or a split (seam-fixtures-ours vs genuinely-peer-supplied) is correct.
 
-status: started-work
+status: work-completed
 workflow_type: refactor
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T13:18:53Z
-last_update: 2026-08-11T22:28:00Z
-date_finished: null
+last_update: 2026-08-11T22:29:03Z
+date_finished: 2026-08-11T22:29:03Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -343,3 +343,15 @@ paths.
 ### 2026-08-08T19:24:47Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: next → now (auto-sync)
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2f244a7d
+- **Timestamp:** 2026-08-11T22:29:03Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-11T22:29:03Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
