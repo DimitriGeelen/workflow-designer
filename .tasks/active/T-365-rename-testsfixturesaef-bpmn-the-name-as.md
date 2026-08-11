@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T13:18:53Z
-last_update: 2026-08-11T22:23:15Z
+last_update: 2026-08-11T22:25:21Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -38,24 +38,53 @@ date_finished: null
 
 ## Acceptance Criteria
 
-**BLOCKED ON A SCOPING DECISION — see `## Decisions`. Do not `git mv` until it is
-made.** The ACs below are written for whichever shape is chosen.
+**REWRITTEN 2026-08-11.** The original ACs below the fold assumed a `git mv`. That
+premise was falsified: the path is normative inside the frozen two-party standard (see
+`## Decisions`), so the rename is a standard delta, not a refactor. These ACs implement
+**option C** — fix the claim where it can be fixed — and hand **option D** to AEF and
+the operator.
 
-- [ ] Scoping decision recorded: single rename vs. split into
-      832-authored / genuinely-peer-supplied (3 pair-drafts)
-- [ ] Move performed with `git mv` (history preserved, not delete-and-add)
-- [ ] Every LIVE reference updated (37 files: tests/, tools/, scripts/, src/,
-      lib/, web/, docs/ excluding docs/reports/) — no live path resolves to the
-      old name
-- [ ] HISTORICAL records are NOT rewritten: `.context/episodic/`,
-      `.tasks/completed/`, `docs/reports/` keep the name they were written with.
-      A record that says `aef-bpmn` was true when written; editing it would be
-      falsifying the audit trail to make a rename look tidy.
-- [ ] `.agentic-framework/docs/reports/` left alone — vendored AEF material,
-      G-008 territory, not ours to rewrite
-- [ ] `PROVENANCE.md` updated to explain what the NEW name asserts and to record
-      the move
-- [ ] Test suite green after the move — no fixture resolves by luck
+### Agent
+- [x] The rename is NOT performed, and the reason is recorded with evidence:
+      `aef-bpmn-mapping-v1.md:142` (Part I frozen, Part II begins at 146) and
+      `aef-bpmn-forward-compile-v1.md:21`/§5 both name the path normatively.
+- [x] Blast radius re-measured rather than quoted, on the PRECISE string. The
+      recorded 37 was measuring `aef-bpmn`, which also matches the two standards
+      (46 files) — a blanket rewrite would have edited the frozen document
+      itself. True live set on `fixtures/aef-bpmn`: **22 files**. The drift in
+      the previously-recorded figures (37→22, 17→18 fixtures) is stated.
+- [x] `PROVENANCE.md` states explicitly that the directory name asserts **scope,
+      never authorship**, names the per-file table as the only provenance source,
+      and records why the name cannot be changed unilaterally.
+- [x] A mechanical guard exists for the half that is mechanizable:
+      `tools/_t365-normative-fixture-guard.py` asserts every fixture path the
+      standards name normatively resolves on disk.
+- [x] The guard DERIVES paths by reading the standards rather than restating
+      them, so a standard revision moves the checked set instead of leaving the
+      guard passing on an old promise.
+- [x] The guard is mutation-proven in both directions: the exact rename option A
+      would have performed drives it to `fails=2, rc=1`; standards that name no
+      fixture path drive it to `rc=2 ABSTAINED`, never a green.
+- [x] No frozen or historical bytes edited: `git diff --exit-code` clean on
+      `docs/standards/`, and `.context/episodic/`, `.tasks/completed/`,
+      `docs/reports/`, `.agentic-framework/` untouched.
+- [x] Option D (rename as a standard delta) is put to AEF on the rail rather than
+      decided here.
+
+<details><summary>Original ACs (superseded — kept, not deleted)</summary>
+
+1. ~~Scoping decision recorded: single rename vs. split~~
+2. ~~Move performed with `git mv`~~
+3. ~~Every LIVE reference updated (37 files)~~
+4. ~~PROVENANCE.md updated to explain what the NEW name asserts~~
+
+(Rendered as a numbered list, not checkboxes — leaving `- [ ]` here would make P-010
+count superseded criteria as outstanding work.)
+
+Superseded because all four presuppose the rename. Kept visible so the reversal is
+auditable rather than tidied away.
+
+</details>
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -136,6 +165,18 @@ made.** The ACs below are written for whichever shape is chosen.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+# --- T-365 (option C) ---
+# 1. Every fixture path the standards name normatively resolves. Derives paths by
+#    reading the standards, so a revision moves the checked set. Abstains (2) rather
+#    than passing if the extraction stops matching.
+python3 tools/_t365-normative-fixture-guard.py
+# 2. The frozen two-party standards are unmodified under agent control.
+git diff --exit-code -- docs/standards/
+# 3. The normative path still exists — i.e. no rename was performed by this task.
+test -d tests/fixtures/aef-bpmn
+# 4. PROVENANCE.md carries the scope-not-authorship statement the whole option rests on.
+grep -q "asserts SCOPE, not AUTHORSHIP" tests/fixtures/aef-bpmn/PROVENANCE.md
 
 ## RCA
 

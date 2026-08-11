@@ -1,7 +1,33 @@
 # Provenance of `tests/fixtures/aef-bpmn/`
 
 **This directory does not contain AEF's BPMN files.** The name says otherwise, which is
-why this note exists. Rename tracked as **T-365**.
+why this note exists.
+
+## The name asserts SCOPE, not AUTHORSHIP — and it is not ours to change
+
+`aef-bpmn` means *"BPMN fixtures concerning the AEF seam"*. It has never meant *"BPMN
+files originating from AEF"*, and nothing in this directory should be cited as evidence
+of AEF authorship. The per-file table below is the **only** provenance source; the
+directory name is not one.
+
+**This path is normative in a frozen two-party standard** (measured 2026-08-11 under
+T-365, and the reason the rename was NOT performed):
+
+| Document | Reference | Status |
+|---|---|---|
+| `docs/standards/aef-bpmn-mapping-v1.md:142` | `tests/fixtures/aef-bpmn/inception-gonogo.bpmn` as a **Reference fixture** | line 142 — inside **Part I, Frozen** (Part II starts at 146) |
+| `docs/standards/aef-bpmn-forward-compile-v1.md:21` | `tests/fixtures/aef-bpmn/*.bpmn` as **"the reference corpus"** | §5 at :106 is titled after the path |
+
+So a unilateral `git mv` would strand a reference inside a document this project may
+not edit under agent control, and would move a path AEF's forward-compile contract
+names as the corpus — a seam change dressed as housekeeping. **T-365 therefore does not
+rename.** A rename is a standard delta (two-party, operator-governed), offered to AEF
+alongside the v1.1 deltas drafted by T-189/T-195, not a refactor.
+
+`tools/_t365-normative-fixture-guard.py` enforces the half that can be enforced: every
+fixture path the standards name normatively must resolve. It fails if a rename strands
+the standard, and it derives the paths BY READING the standards, so it follows them
+rather than restating them.
 
 ## What it actually is
 
