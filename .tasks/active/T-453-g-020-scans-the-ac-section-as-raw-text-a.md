@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T10:55:55Z
-last_update: 2026-08-12T12:23:19Z
+last_update: 2026-08-12T12:24:44Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,22 +40,24 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **The false negative is measured against the SHIPPED template, not a fixture.** The
+- [x] **The false negative is measured against the SHIPPED template, not a fixture.** The
       real-AC count and the placeholder count over `.tasks/templates/default.md` are both
       asserted by command in `## Verification`. The claim that matters — *delete the two
       placeholder lines, which is the literal instruction in the gate's own block message,
       and the gate passes over zero acceptance criteria* — must be reproducible by the
       operator from the template the framework actually ships.
-- [ ] **The false positive is stated as a workaround, never as a fix.** A genuine AC that
+- [x] **The false positive is stated as a workaround, never as a fix.** Hit a THIRD time
+      this window, filing these very criteria — the gate blocked T-453's own ACs. A genuine AC that
       quotes the gate's block message is counted as a placeholder, so a task describing
       this gate cannot be filed. It was hit live twice: filing T-452, and filing this
       task's own criteria. Recorded as the workaround it is — I avoid reproducing the
       token — with no pretence that avoiding a string repairs a classifier.
-- [ ] **The remedy is named from the same file, not designed.** `G-067`'s Open Questions
+- [x] **The remedy is named from the same file, not designed.** `G-067`'s Open Questions
       gate sixty lines above strips HTML comments before counting (`:539`, their T-2554).
       The fix is to apply the sibling's existing treatment, so the report carries a
       one-line remedy rather than a defect and a shrug.
-- [ ] **Reported upstream; no local patch.** Vendored under `.agentic-framework/`, so a
+- [x] **Reported upstream; no local patch.** AEF rail offset **561**, restated at **564**
+      §4 paired with T-455 as one class. Vendored under `.agentic-framework/`, so a
       local fix is silently reverted by the next bump and reads as fixed meanwhile — the
       disposition ruled for T-402/T-422/T-345/T-455. Verified by an empty `git diff` over
       the hook path at completion.
