@@ -1,13 +1,13 @@
 ---
-id: T-443
-name: "Rename fixtures/aef-bpmn as a v1.2 standard delta - PENDING AEF ruling (T-365 option D)"
+id: T-446
+name: "PROVENANCE.md and the T-365 guard must survive AEF DM 549: unconfirmed co-authorship, cross-tree fixture evidence, line anchors that do not port"
 description: >
-  T-365 measured that tests/fixtures/aef-bpmn is normative in a FROZEN two-party standard: aef-bpmn-mapping-v1.md:142 names inception-gonogo.bpmn as a Reference fixture inside Part I (Part II begins at 146), and aef-bpmn-forward-compile-v1.md:21 names the corpus with section 5 titled after the path. So the rename is a standard delta, not a refactor, and is not the agent's to make. T-365 shipped option C (claim fixed at source in PROVENANCE.md + tools/_t365-normative-fixture-guard.py). This task carries option D. TRIGGER: AEF answers DM 548 section 5. If they want the delta it queues with the v1.1 deltas T-189/T-195 are drafting; if the path stays, close this with that as the reason. Also open at DM 548 section 6: confirmation that the three pair-drafts (session-handover, dispatch-loop, offpage-seam) are considered co-authored on their side - PROVENANCE.md currently asserts it on our evidence alone.
+  AEF DM 549 answers T-365 (keep the path, agreed) and raises three things that land on our artifacts. 1) 6-6: they will not confirm the three pair-drafts from memory, so PROVENANCE.md currently asserts co-authorship on 832 evidence alone and must say so. 2) 5: their frozen Part I names tests/fixtures/aef-bpmn/inception-gonogo.bpmn and that file does not exist in their tree - we hold it, and our provenance for it decides which of their two OBS-225 dispositions is right. 3) 5: their standards live at policy/standards and ours at docs/standards, so line anchors do not survive between trees; the 'Reference fixture:' clause string does.
 
-status: captured
-workflow_type: refactor
-owner: human
-horizon: later
+status: started-work
+workflow_type: build
+owner: agent
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-11T22:28:50Z
-last_update: 2026-08-11T22:28:58Z
+created: 2026-08-11T23:00:09Z
+last_update: 2026-08-11T23:00:09Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,43 +30,22 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-443: Rename fixtures/aef-bpmn as a v1.2 standard delta - PENDING AEF ruling (T-365 option D)
+# T-446: PROVENANCE.md and the T-365 guard must survive AEF DM 549: unconfirmed co-authorship, cross-tree fixture evidence, line anchors that do not port
 
 ## Context
 
-**AEF HAS RULED: KEEP THE PATH (DM 549 §5, 2026-08-12). This task's trigger has fired
-and the answer is "do not rename" — it is parked on the operator's ratification, not on
-AEF any more.**
-
-Their words: *"Recommendation: keep the path. Your reasoning is better than mine would
-have been — the failure mode was a reader treating a name as provenance; a new name is
-also a name. Renaming moves the ambiguity. PROVENANCE.md fixes the claim at the source,
-which protects both trees including the readers who never see the rename."*
-
-So both sides independently reached the same conclusion, from the same argument. The
-v1.2 delta this task exists to draft is **not needed** unless the operator overrules it.
-
-What the exchange raised INSTEAD, and it is bigger than the rename (recorded in
-`tests/fixtures/aef-bpmn/PROVENANCE.md` under "a reference that crosses the seam"):
-AEF's frozen Part I names `tests/fixtures/aef-bpmn/inception-gonogo.bpmn`, their tree
-does not hold that file at that path, and their AEF-side OBS-225 offers two dispositions
-— restore it, or delta the reference. Measured here (T-446), **neither fits**: the file
-is 832-authored (T-192), was delivered to them at rail offset 34, and they re-derived and
-re-pinned its current sha at offset 354. The real question is whether a `Reference
-fixture:` clause names a path each side must HOLD or a path in the tree that PRODUCES it.
-That question, not the rename, is what a v1.x delta would settle.
-
-**Recommended disposition:** close as "no rename — ruled by both sides", and let the
-clause-semantics question ride with the v1.1 deltas T-189/T-195 are drafting. Operator's
-call; agent initiative does not extend to closing a human-owned task or to ratifying a
-two-party standard decision.
+<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The three pair-draft rows in `PROVENANCE.md` are marked as asserted on **832 evidence alone**, unconfirmed by AEF, with the date and the DM 549 §6 citation — the table stops speaking for both sides
+- [x] `inception-gonogo.bpmn`'s provenance is **re-measured** with `git log --diff-filter=A`, not quoted from the table it is meant to check, and the number is whatever the measurement says
+- [x] The cross-tree consequence is stated in-file — and the measurement **overturned the framing**: neither of AEF's two OBS-225 dispositions fits, because the file is 832-authored, was delivered at rail offset 34, and AEF re-pinned its current sha at offset 354
+- [x] `PROVENANCE.md` records the **portable anchor** — the `Reference fixture:` clause string — and marks the line numbers as tree-local, because their standards sit at `policy/standards/` and ours at `docs/standards/`
+- [x] AEF's T-365 ruling (keep the path) is recorded where T-443 will be read, so the parked task is not re-derived from the rail
+- [x] `_t365-normative-fixture-guard.py` still passes and its ABSTAIN arm is unchanged — the guard is not weakened while its documentation is edited
+- [x] `docs/standards/` is untouched: `git diff --exit-code` clean on that path
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -100,6 +79,13 @@ two-party standard decision.
 -->
 
 ## Verification
+
+python3 tools/_t365-normative-fixture-guard.py
+git diff --exit-code -- docs/standards/
+grep -q "Unconfirmed by AEF as of that date" tests/fixtures/aef-bpmn/PROVENANCE.md
+grep -q "Reference fixture:" tests/fixtures/aef-bpmn/PROVENANCE.md
+grep -q "AEF HAS RULED: KEEP THE PATH" .tasks/active/T-443-rename-fixturesaef-bpmn-as-a-v12-standar.md
+test "$(sha256sum tests/fixtures/aef-bpmn/inception-gonogo.bpmn | cut -c1-16)" = "bbfbc5ec48356c3a"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -211,10 +197,7 @@ two-party standard decision.
 
 ## Updates
 
-### 2026-08-11T22:28:50Z — task-created [task-create-agent]
+### 2026-08-11T23:00:09Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-443-rename-fixturesaef-bpmn-as-a-v12-standar.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-446-provenancemd-and-the-t-365-guard-must-su.md
 - **Context:** Initial task creation
-
-### 2026-08-11T22:28:58Z — status-update [task-update-agent]
-- **Change:** horizon: now → later

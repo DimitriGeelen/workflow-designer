@@ -18,6 +18,12 @@ T-365, and the reason the rename was NOT performed):
 | `docs/standards/aef-bpmn-mapping-v1.md:142` | `tests/fixtures/aef-bpmn/inception-gonogo.bpmn` as a **Reference fixture** | line 142 — inside **Part I, Frozen** (Part II starts at 146) |
 | `docs/standards/aef-bpmn-forward-compile-v1.md:21` | `tests/fixtures/aef-bpmn/*.bpmn` as **"the reference corpus"** | §5 at :106 is titled after the path |
 
+**Cite the clause, not the line.** AEF keeps the same standard at `policy/standards/`
+and ours lives at `docs/standards/`; their copy carries the same sentence at **:113**
+where ours has **:142** (DM 549 §5). Line anchors do not survive between the two trees.
+The portable anchor is the literal string **`Reference fixture:`**, which is why
+`_t365-normative-fixture-guard.py` matches on path shape rather than position.
+
 So a unilateral `git mv` would strand a reference inside a document this project may
 not edit under agent control, and would move a path AEF's forward-compile contract
 names as the corpus — a seam change dressed as housekeeping. **T-365 therefore does not
@@ -50,8 +56,44 @@ BPMN fixtures **about the AEF seam, authored here (832)**. Measured 2026-08-04 v
 | `lane-geometry-partial-overflow`, `lane-geometry-unpositioned` | T-312 | 832-authored |
 | `lane-capacity-large-spill` | T-313 | 832-authored |
 
-**Not one file was handed to us by AEF.** Three are genuinely co-authored (labelled
-pair-draft in their own commit subjects); the rest are ours outright.
+**Not one file was handed to us by AEF.** The rest are ours outright.
+
+> **The three `pair-draft` rows are asserted on 832 evidence alone.** They are labelled
+> pair-draft in *our* commit subjects and nowhere else. Asked to confirm (DM 548 §6),
+> AEF declined to do it from memory — *"a confirmation given from memory is exactly the
+> 'name treated as evidence' failure this whole thread is about"* — and said to leave the
+> table marked as ours until they can check their own designer-project history
+> (DM 549 §6, 2026-08-12). **Unconfirmed by AEF as of that date.** If it stays
+> unconfirmed, these rows are a one-sided claim about a two-sided fact, which is the same
+> defect as the directory name — one degree smaller.
+
+## `inception-gonogo.bpmn` — a reference that crosses the seam
+
+AEF's frozen Part I (`policy/standards/aef-bpmn-mapping-v1-partI.md:113`, their tree)
+names `tests/fixtures/aef-bpmn/inception-gonogo.bpmn` as a Reference fixture, and their
+own directory census reports that file **absent** on their side (DM 549 §5). They filed
+it as OBS-225 with two dispositions: restore the missing fixture, or correct the
+reference by delta.
+
+**Measured here, and it supports neither.** Re-derived 2026-08-12 from git objects and
+the rail, not from the table above:
+
+| Fact | Evidence |
+|---|---|
+| Authored here, not by AEF | first commit `564e9aa2` (2026-07-12), T-192 |
+| Delivered to AEF the same day | rail offset **34**, sha `093858400716…`, 4314 B |
+| That sha is the original blob | `git show 564e9aa2:…` hashes to `093858400716…` |
+| Re-pinned by T-314 | `e133cf9e` (2026-07-31), laneSet reorder, size unchanged at 4314 B |
+| Current bytes | `bbfbc5ec48356c3a643efa21e37912994a3fff56532b7e0ef4815f91fbed00ab` |
+| **AEF holds and pins that sha** | rail offset **354**: re-derived from the public mirror at `e133cf9`, `T-2706 re-pinned to bbfbc5ec…` |
+
+So the fixture is not missing and the reference is not wrong. It is an **832-authored
+file that AEF has verified and pinned**, named by a path clause inside AEF's frozen
+standard — a reference that points across the seam into the producer's tree. The open
+question is not which of their two dispositions to take; it is whether a `Reference
+fixture:` clause names a path each side must **hold**, or a path in the tree that
+**produces** it. Nothing in either standard says, and the two readings disagree exactly
+where the two trees do.
 
 ## Why this note is not pedantry
 
