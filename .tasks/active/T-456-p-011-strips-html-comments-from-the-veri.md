@@ -4,7 +4,7 @@ name: "P-011 strips HTML comments from the Verification COMMAND text, mangling a
 description: >
   update-task.sh:981 runs re.sub(r'<!--.*?-->', '', text, flags=DOTALL) over the Verification block before executing each line. That is correct for stripping commented guidance, but it also rewrites EXECUTABLE commands: any verification line containing both markers has everything between them deleted. Discovered live 2026-08-12 while completing T-453, whose leg 2 was a comment-stripping assertion. The gate echoed what it actually ran: sed -E 's///g' file | sed '//d' | grep -c - the regex body removed. The leg passes standalone and FAILS under P-011, so the failure is invisible to anyone testing their verification commands before filing them, which is the recommended practice. Worse than a false red: a line of the form cmd-A ; cmd-B judged on B alone (T-352) could be mangled into something that still exits 0, producing a false GREEN over a check that no longer checks anything. Workaround in T-453 builds the markers from chr(60)+chr(33) so the extractor has nothing to match. Vendored AEF tooling, fix is theirs under G-008. Note the irony this was found by: a task about a gate that fails to strip HTML comments, blocked by a gate that strips them too aggressively.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T12:26:03Z
-last_update: 2026-08-12T12:26:03Z
+last_update: 2026-08-12T12:36:18Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,8 +40,30 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **Both the CAUSE and the EFFECT are asserted, separately.** The cause — a DOTALL
+      comment-strip applied to the Verification text in the vendored `update-task.sh` — is
+      asserted against the shipping file. The effect — that the strip rewrites a real
+      command into a harmless one — is demonstrated by reproducing the exact transformation
+      observed on T-453's leg. A defect report that shows only the cause leaves the reader
+      to believe the consequence; one that shows only the effect can be dismissed as a
+      quoting mistake in my own command.
+- [x] **The verification legs survive the defect they describe.** Every leg builds the
+      comment markers from `chr()` codes so no literal marker pair appears in a command
+      handed to `eval`. This is the recursive trap: the obvious way to test the mangling is
+      a command containing the markers, which the gate mangles before judging it. Legs that
+      quietly get eaten and still report PASS are the failure mode of this very ticket.
+- [x] **The false-GREEN direction is reported as a MECHANISM, not a sighting.** Rail 566:
+      *"I have not found an instance in my tree — I am reporting the mechanism, not a
+      sighting, and I want to be explicit about which of those two this is."* Composed
+      with the T-352 errexit swallow (`a ; b` is judged on `b` alone), a mangled leg can
+      still exit 0 over a check that no longer checks anything. No instance was found in
+      this tree, and the report says so — claiming a sighting I do not have would be the
+      same overreach as the caller-side count in T-451.
+- [x] **Reported upstream with a remedy shape; no local patch.** AEF rail offset **566**,
+      remedy named: strip comments only from lines being discarded as guidance, not from
+      lines handed to `eval` — the section already distinguishes them by the `#` prefix. Vendored under
+      `.agentic-framework/`, so the disposition ruled for T-402/T-422/T-345/T-453/T-455
+      applies. Verified by an empty `git diff` over `update-task.sh`.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -75,6 +97,29 @@ date_finished: null
 -->
 
 ## Verification
+
+# EVERY leg below builds the HTML comment markers from chr() codes. That is not style —
+# a leg containing the literal marker pair is rewritten by the very extractor these legs
+# assert against, before it is judged. See T-453, where the sed form of a comment-strip
+# assertion ran as `sed -E 's///g'` and failed while passing standalone.
+#
+# LEG A — the CAUSE, read off the shipping vendored file: a DOTALL comment-strip is
+# applied to the Verification text (update-task.sh:981).
+test 1 -le "$(python3 -c "print(sum(1 for l in open('.agentic-framework/agents/task-create/update-task.sh') if 're.sub' in l and 'DOTALL' in l and chr(60)+chr(33) in l))")"
+# LEG B — the EFFECT, reproducing the exact transformation observed on T-453's leg 2:
+# a real sed command containing the markers is rewritten into `sed -E 's///g'`, which
+# succeeds and asserts nothing.
+#
+# WHAT LEG B IS NOT. It applies the regex ITSELF, so it demonstrates the semantics and
+# will pass forever no matter what the vendored file does. It is a worked example, not a
+# gauge, and it must not be read as one — I first wrote a comment here claiming it "goes
+# red when the upstream fix lands", which is false and is exactly the caller-side
+# reasoning T-451 was about (asserting a property of a thing by testing something that
+# merely resembles it). LEG A is the one bound to the shipping file, and LEG A is what
+# goes red when this is fixed upstream.
+python3 -c "import re,sys; O=chr(60)+chr(33)+'--'; C='--'+chr(62); q=chr(39); cmd='sed -E '+q+'s/'+O+'([^-]|-[^-]|--[^>])*'+C+'//g'+q; out=re.sub(O+'.*?'+C,'',cmd,flags=re.S); sys.exit(0 if out=='sed -E '+q+'s///g'+q else 1)"
+# LEG C — NO local patch to the vendored file. Empty diff is the deliverable.
+test -z "$(git diff --name-only -- .agentic-framework/agents/task-create/update-task.sh)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -190,3 +235,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-456-p-011-strips-html-comments-from-the-veri.md
 - **Context:** Initial task creation
+
+### 2026-08-12T12:36:18Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
