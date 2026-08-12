@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-465: G-037 witness records a root-dependent verdict without recording its search root
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T19:21:50Z
+# ============================================================================
+
+task_id: T-465
+task_name: "G-037 witness records a root-dependent verdict without recording its search root"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T19:15:33Z
+completed: 2026-08-12T19:21:44Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-12T21:21:29+02:00
+last_commit: 2026-08-12T21:21:29+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the G-037 witness recorded a root-dependent verdict as a bare answer — recursive_sees_ignored is a property of (tree, SEARCH ROOT), not of the tree
+
+# Key outcomes
+outcomes:
+  - '**The witness records the search root it was taken from**, as a first-class field'
+  - '**The witness records BOTH roots, not one.** A single root plus a root label would'
+  - '**The root-dependence is measured by the probe, not asserted by me.** The probe builds'
+  - '**The probe fails loudly if its own fixture is vacuous** — if the fixture file is not'
+  - '**The predicate correction is recorded against G-037**, stating that gitignore-status'
+  - '**G-037''s `closure_check_command` still runs and still fails**, since neither axis is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.context/working/.grep-witness'
+  - '.tasks/active/T-465-g-037-witness-records-a-root-dependent-v.md'
+  - 'tools/_t465-witness-shape.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-12T21:21:29"
+    action: "T-465: the G-037 witness recorded a root-dependent verdict as a bare answer — recursive_sees_ignored is a property of (tree, SEARCH ROOT), not of the tree"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 4
+  lines_added: 488
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-465-g-037-witness-records-a-root-dependent-v.md
+generated_by: context-agent-hybrid

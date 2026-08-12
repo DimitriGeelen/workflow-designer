@@ -242,3 +242,17 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-035
+  text: "add"
+  captured: 2026-08-12T19:22:17Z
+  context_task: null
+  tags: []
+  status: dismissed
+  promoted_to: null
+- id: OBS-036
+  text: "The learning prompt printed by 'fw task update --status work-completed' recommends 'fw fix-learned T-XXX', but the same transition clears focus (T-354), so the recommended command is immediately blocked by check-active-task (P-002). Observed T-465, 2026-08-12. Prompt and gate disagree about whether a just-completed task is still a context you may write against. Consequence: learnings go uncaptured when freshest — T-463 and T-464 both show no learning reference, plausibly this. Remedy candidates: (a) fix-learned accepts a just-completed id without focus, (b) emit the prompt BEFORE clearing focus, (c) capture the learning inline in the transition."
+  captured: 2026-08-12T19:22:37Z
+  context_task: T-465
+  tags: [framework]
+  status: pending
+  promoted_to: null

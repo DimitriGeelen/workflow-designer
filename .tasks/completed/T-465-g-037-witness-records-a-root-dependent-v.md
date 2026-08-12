@@ -4,20 +4,20 @@ name: "G-037 witness records a root-dependent verdict without recording its sear
 description: >
   G-037 witness records a root-dependent verdict without recording its search root
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t465-witness-shape.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T19:15:33Z
-last_update: 2026-08-12T19:15:33Z
-date_finished: null
+last_update: 2026-08-12T19:21:44Z
+date_finished: 2026-08-12T19:21:44Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -287,3 +287,22 @@ G-037 remains open on both axes, verified by a leg in this task.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-465-g-037-witness-records-a-root-dependent-v.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-576f3a3b
+- **Timestamp:** 2026-08-12T19:21:48Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 56
+     - evidence: `D=$(mktemp -d) && /usr/bin/grep -v '^recursive_sees_ignored_search_root=' .context/working/.grep-witness > "$D/w" && ! WITNESS="$D/w" bash tools/_t465-witness-shape.sh >/dev/null 2>&1`
+  2. **empty-output-success** (partial, heuristic) @ Verification:line 57
+     - evidence: `D=$(mktemp -d) && sed 's/^recursive_sees_ignored_root_b=yes/recursive_sees_ignored_root_b=no/' .context/working/.grep-witness > "$D/w" && ! WITNESS="$D/w" bash tools/_t465-witness-shape.sh >/dev/null `
+
+### 2026-08-12T19:21:44Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
