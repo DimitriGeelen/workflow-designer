@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-476: Measure our exposure to the OBS-037 phantom-checkbox misalignment (vendored guard)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T21:24:42Z
+# ============================================================================
+
+task_id: T-476
+task_name: "Measure our exposure to the OBS-037 phantom-checkbox misalignment (vendored guard)"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T21:20:10Z
+completed: 2026-08-12T21:24:39Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-12T23:24:34+02:00
+last_commit: 2026-08-12T23:24:34+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  AEF's OBS-037 fix exposed the same defect in our vendored guard — 16 of 387 task files fabricate a Human-AC tick when an agent deletes a template comment; measured by executing the guard, not reading it; bump left to the operator (OBS-038)
+
+# Key outcomes
+outcomes:
+  - 'The four comment-handling sites AEF censused are looked up in our vendored tree by'
+  - 'Phantom-checkbox exposure measured over the **whole** `.tasks/` corpus with the'
+  - 'Reachability of the fabrication path decided by **executing** our vendored checkbox'
+  - 'Result registered where it outlives this task''s archival (concerns/gaps register),'
+  - '`docs/reports/T-476-obs037-exposure.md` written, stating the version bump as the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'AEF''s OBS-037 fix exposed the same defect in our vendored guard — 16 of 387 task files fabricate a Human-AC tick when an agent deletes a template comment; measured by executing the guard, not reading it; bump left to the operator (OBS-038)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - 'docs/reports/T-476-obs037-exposure.md'
+  - '.tasks/active/T-476-measure-our-exposure-to-the-obs-037-phan.md'
+  - 'tools/_t476-obs037-exposure-probe.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-12T23:24:34"
+    action: "T-476: AEF's OBS-037 fix exposed the same defect in our vendored guard — 16 of 387 task files fabricate a Human-AC tick when an agent deletes a template comment; measured by executing the guard, not reading it; bump left to the operator (OBS-038)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 4
+  lines_added: 514
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-476-measure-our-exposure-to-the-obs-037-phan.md
+generated_by: context-agent-hybrid

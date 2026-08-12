@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-480: Project aef:endpoint in the round-trip semantic fixed point so a future drop cannot be silent
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T22:32:25Z
+# ============================================================================
+
+task_id: T-480
+task_name: "Project aef:endpoint in the round-trip semantic fixed point so a future drop cannot be silent"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T22:28:00Z
+completed: 2026-08-12T22:32:20Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-13T00:32:19+02:00
+last_commit: 2026-08-13T00:32:19+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  project aef:endpoint in the round-trip fixed point (both METAKEYS copies) so a future drop cannot be silent — falsified both ways, and the counterfactual's red exit was my mutation breaking determinism, not the old guard catching it
+
+# Key outcomes
+outcomes:
+  - '`endpoint` is projected by the round-trip semantic fixed point, and **both**'
+  - 'The guard has **teeth on this specific field**: falsified by mutation — an emitted'
+  - 'The existing suite still passes — `test_roundtrip_serialization.py` green, and the'
+  - 'The remaining structured semantic elements are **censused** — which of'
+  - 'The comment at the projection records **why** `endpoint` is there despite the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'project aef:endpoint in the round-trip fixed point (both METAKEYS copies) so a future drop cannot be silent — falsified both ways, and the counterfactual''s red exit was my mutation breaking determinism, not the old guard catching it'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'docs/reports/T-357-di-adoption.md'
+  - '.tasks/active/T-480-project-aefendpoint-in-the-round-trip-se.md'
+  - '.tasks/completed/T-479-measure-whether-the-aefendpoint-misclass.md'
+  - 'tools/_roundtrip-serialization-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-13T00:32:19"
+    action: "T-480: project aef:endpoint in the round-trip fixed point (both METAKEYS copies) so a future drop cannot be silent — falsified both ways, and the counterfactual's red exit was my mutation breaking determinism, not the old guard catching it"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 4
+  lines_added: 301
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-480-project-aefendpoint-in-the-round-trip-se.md
+generated_by: context-agent-hybrid

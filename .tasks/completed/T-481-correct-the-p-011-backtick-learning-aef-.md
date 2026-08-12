@@ -4,10 +4,10 @@ name: "Correct the P-011 backtick learning: AEF measured single quotes DO protec
 description: >
   Correct the P-011 backtick learning: AEF measured single quotes DO protect under one eval
 
-status: started-work
+status: work-completed
 workflow_type: test
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T22:33:18Z
-last_update: 2026-08-12T22:33:18Z
-date_finished: null
+last_update: 2026-08-12T22:35:41Z
+date_finished: 2026-08-12T22:35:41Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -234,3 +234,15 @@ test -z "$(git diff --name-only HEAD -- .agentic-framework/)"
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-481-correct-the-p-011-backtick-learning-aef-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-8b0e5985
+- **Timestamp:** 2026-08-12T22:35:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-12T22:35:41Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

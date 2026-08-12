@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-12T20:38:20Z ===
+task_id: T-472
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-472.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: I told AEF an answered question was still open
+  Duration: 0 days (4 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 6 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-472-i-told-aef-an-answered-question-was-stil.md
+--- exit code: 0 ---

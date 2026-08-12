@@ -4,10 +4,10 @@ name: "Project aef:endpoint in the round-trip semantic fixed point so a future d
 description: >
   Project aef:endpoint in the round-trip semantic fixed point so a future drop cannot be silent
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T22:28:00Z
-last_update: 2026-08-12T22:28:00Z
-date_finished: null
+last_update: 2026-08-12T22:32:20Z
+date_finished: 2026-08-12T22:32:20Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -246,3 +246,15 @@ test ! -f tools/_t480-premutant.mjs
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-480-project-aefendpoint-in-the-round-trip-se.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-782ce3ef
+- **Timestamp:** 2026-08-12T22:32:23Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-12T22:32:20Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

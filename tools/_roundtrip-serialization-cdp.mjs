@@ -64,7 +64,11 @@ const PREFLIGHT_EXPR = `(function(){
     // self-test does not project it, the guard below asserts a property its own
     // teeth-proof never exercises. See the note at the second copy for why endpoint
     // is projected at all.
-    'endpoint'];
+    'endpoint',
+    // T-482: keep in step with the guard copy below. Same eight scalar keys; see the
+    // long note there for why aef:io is deliberately absent from both.
+    'contextReads','artifactsWrites','decisionInput','decisionOutputs',
+    'workflowRef','name','targetWorkflow','linkId'];
   function proj(m){
     if(!m) return null;
     var uidOf={}; m.nodes.forEach(function(n){ uidOf[n.id]=n.uid; });
@@ -123,6 +127,23 @@ const ROUNDTRIP_EXPR = `(function(){
     // attribute — it is in this list because proj() reads n.aef[k] off the parsed
     // model, where parseBpmnXml puts it (src:9957-9958), not because it is meta.
     'endpoint',
+    // T-482: the remaining SCALAR semantic keys carried by standalone aef elements.
+    // Parsed at src:9959-9979, emitted at src:9287-9308. Same reason as endpoint:
+    // proj() reads n.aef[k], so what matters is that parseBpmnXml lands the value on
+    // the model, not whether the wire form is an aef:meta attribute.
+    //
+    // The first four ride their own elements (aef:contextReads, aef:artifactsWrites,
+    // aef:decisionInput, aef:decisionOutputs). The last four are the aef:link binding
+    // attributes, which parse into four SEPARATE scalar keys — there is no aef.link.
+    // workflowRef is the off-page seam binding (S2/T-225); losing it silently on a
+    // round trip would unbind a cross-workflow jump with no error anywhere.
+    //
+    // NOT projected here, deliberately: aef:io. It is built from the inputs/outputs
+    // ARRAYS (src:9337-9345) and there is no aef.io scalar, so listing it would read
+    // as coverage while the projection body skipped it as undefined — a green that
+    // cannot go red. It needs a structured projection, filed as its own task.
+    'contextReads','artifactsWrites','decisionInput','decisionOutputs',
+    'workflowRef','name','targetWorkflow','linkId',
     // T-204 Slice 2: boundary attachment is governance-bearing — hostRef (the resolved
     // host uid) and interrupting (cancelActivity) must survive the fixed point. boundaryPos
     // is presentational (like position/waypoints) and is deliberately NOT projected.

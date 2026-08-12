@@ -5597,3 +5597,237 @@ scan_id: R-d87ee8c9
 task_id: T-469
 payload:
   task_file: .tasks/active/T-469-pre-negotiate-the-t-423-seam-re-pin-with.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T20:23:26Z'
+scan_id: R-2beb6739
+task_id: T-470
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T20:23:26Z'
+scan_id: R-2beb6739
+task_id: T-470
+payload:
+  task_file: .tasks/active/T-470-t-209-offers-the-operator-two-different-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T20:29:17Z'
+scan_id: R-0bd6aabe
+task_id: T-471
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T20:29:17Z'
+scan_id: R-0bd6aabe
+task_id: T-471
+payload:
+  task_file: .tasks/active/T-471-the-seam-re-pin-has-more-than-one-trigge.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T20:38:18Z'
+scan_id: R-c4f4898f
+task_id: T-472
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T20:38:18Z'
+scan_id: R-c4f4898f
+task_id: T-472
+payload:
+  task_file: .tasks/active/T-472-i-told-aef-an-answered-question-was-stil.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T20:46:06Z'
+scan_id: R-a24b61de
+task_id: T-473
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T20:46:06Z'
+scan_id: R-a24b61de
+task_id: T-473
+payload:
+  task_file: .tasks/active/T-473-t-423s-stated-seam-cost-is-false-aef-pin.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T20:59:50Z'
+scan_id: R-dbd1f56c
+task_id: T-474
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T20:59:50Z'
+scan_id: R-dbd1f56c
+task_id: T-474
+payload:
+  task_file: .tasks/active/T-474-aef-vendors-four-of-our-files-by-digest-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T21:05:02Z'
+scan_id: R-aafac92e
+task_id: T-475
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T21:05:02Z'
+scan_id: R-aafac92e
+task_id: T-475
+payload:
+  task_file: .tasks/active/T-475-the-false-re-pin-cost-has-document-layer.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T21:24:40Z'
+scan_id: R-5cbbd352
+task_id: T-476
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T21:24:40Z'
+scan_id: R-5cbbd352
+task_id: T-476
+payload:
+  task_file: .tasks/active/T-476-measure-our-exposure-to-the-obs-037-phan.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T22:00:08Z'
+scan_id: R-40273d09
+task_id: T-477
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T22:00:08Z'
+scan_id: R-40273d09
+task_id: T-477
+payload:
+  task_file: .tasks/active/T-477-close-t-357-spike-3-classify-aefanchors-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T22:10:13Z'
+scan_id: R-7fd60248
+task_id: T-478
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T22:10:13Z'
+scan_id: R-7fd60248
+task_id: T-478
+payload:
+  task_file: .tasks/active/T-478-resolve-iw-1-is-the-di-generation-claim-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T22:26:12Z'
+scan_id: R-cad78fcd
+task_id: T-479
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T22:26:12Z'
+scan_id: R-cad78fcd
+task_id: T-479
+payload:
+  task_file: .tasks/active/T-479-measure-whether-the-aefendpoint-misclass.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T22:32:23Z'
+scan_id: R-782ce3ef
+task_id: T-480
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T22:32:23Z'
+scan_id: R-782ce3ef
+task_id: T-480
+payload:
+  task_file: .tasks/active/T-480-project-aefendpoint-in-the-round-trip-se.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T22:35:42Z'
+scan_id: R-8b0e5985
+task_id: T-481
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T22:35:42Z'
+scan_id: R-8b0e5985
+task_id: T-481
+payload:
+  task_file: .tasks/active/T-481-correct-the-p-011-backtick-learning-aef-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T22:59:51Z'
+scan_id: R-48e522a3
+task_id: T-482
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T22:59:51Z'
+scan_id: R-48e522a3
+task_id: T-482
+payload:
+  task_file: .tasks/active/T-482-project-the-six-remaining-structured-sem.md

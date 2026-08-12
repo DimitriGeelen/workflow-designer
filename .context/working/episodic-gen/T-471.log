@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-12T20:29:19Z ===
+task_id: T-471
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-471.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: The seam re-pin has more than one trigger and I named only the blocked one to AEF
+  Duration: 0 days (3 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 6 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-471-the-seam-re-pin-has-more-than-one-trigge.md
+--- exit code: 0 ---

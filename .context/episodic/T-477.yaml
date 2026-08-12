@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-477: Close T-357 spike 3: classify aef:anchors and aef:waypoint as computed result or authored intent
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T22:00:12Z
+# ============================================================================
+
+task_id: T-477
+task_name: "Close T-357 spike 3: classify aef:anchors and aef:waypoint as computed result or authored intent"
+workflow_type: design
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T21:55:25Z
+completed: 2026-08-12T22:00:07Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-13T00:00:03+02:00
+last_commit: 2026-08-13T00:00:03+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  spike 3 closed — anchors and aef:waypoint are both authored intent, making it 5 of 8 not 3 of 8; di:waypoint is a FALSE equivalent (same values, different status) that would freeze every edge route; and the frozen standard misfiles aef:endpoint (an executable command) as diagram cosmetics (OBS-039)
+
+# Key outcomes
+outcomes:
+  - 'Every `aef:anchors` / `anchors` and `aef:waypoint` occurrence in `src` is enumerated'
+  - 'Each of the two is classified result-or-intent **against the criterion recorded in'
+  - 'Where the evidence does not settle a classification, that is recorded as unsettled'
+  - '`docs/reports/T-357-di-adoption.md` spike 3 updated: the incompleteness sentence is'
+  - 'The effect on the operator''s decision is stated explicitly — whether this changes'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - 'docs/reports/T-357-di-adoption.md'
+  - '.tasks/active/T-477-close-t-357-spike-3-classify-aefanchors-.md'
+  - '.tasks/completed/T-476-measure-our-exposure-to-the-obs-037-phan.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-13T00:00:03"
+    action: "T-477: spike 3 closed — anchors and aef:waypoint are both authored intent, making it 5 of 8 not 3 of 8; di:waypoint is a FALSE equivalent (same values, different status) that would freeze every edge route; and the frozen standard misfiles aef:endpoint (an executable command) as diagram cosmetics (OBS-039)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 4
+  lines_added: 367
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-477-close-t-357-spike-3-classify-aefanchors-.md
+generated_by: context-agent-hybrid
