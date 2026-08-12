@@ -277,3 +277,10 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-040
+  text: "T-361 corrected DI_TRAILER in src/ but did not correct the ALREADY-GENERATED corpus: 24 of 24 examples/aef-processes/rendered/*.bpmn still carry 'AEF generates it from node coordinates', a statement AEF confirmed false at rail 497 (A-020 invalidated). 0 corpus documents carry the corrected trailer. 17 of the 24 have been imported into AEF's corpus where the false sentence now reads as their content. MECHANISM NOTE for T-101: src:9710 interpolates ${DI_TRAILER}, so re-exporting the 24 maps through buildBpmnXml corrects all 24 for free; patching coordinates in place does NOT. Choose the mechanism deliberately before T-101 runs. Evidence: docs/reports/T-357-di-adoption.md §'IW-1 ANSWERED'"
+  captured: 2026-08-12T22:08:56Z
+  context_task: T-478
+  tags: [bug]
+  status: pending
+  promoted_to: null

@@ -90,6 +90,67 @@ Either answer changes the recommendation. **IW-1 is not closed by this spike; it
 re-aimed.** What the spike established is that the reason is *recorded* — which is
 what I said I would not assume either way.
 
+### IW-1 ANSWERED — and it was answered before this paragraph was last edited (T-478, 2026-08-13)
+
+**The answer is NO. AEF does not generate DI from our node coordinates.** Two
+independent lines, both already in the record:
+
+1. **AEF said so, rail offset 497:** the sentence `AEF generates it from node
+   coordinates` is *"a false sentence about my project [that] has been sitting in 17 of
+   my documents as my content."*
+2. **Their importer says so in its own words.** At offset 449 we measured that AEF's
+   import path does not preserve our trailer — it **replaces** it:
+
+       LOST : <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates -->
+       NEW  : <!-- BPMN DI (visual layout) omitted; node geometry travels as aef:position -->
+
+   Their replacement describes **transport**, not generation. That is their code's own
+   account of what happens to the geometry.
+
+Registered: **A-020 (`AEF generates BPMN DI from our aef:position`) — `invalidated`.**
+`src` was corrected by **T-361**: `DI_TRAILER` now reads *"node geometry travels as
+aef:position"*, with a comment recording the old sentence was *"AT BEST aspirational for
+two months."*
+
+**So why did this paragraph still say "Open, the sharpest question on this task"?**
+Because the answer went to the places where work feels finished — the code, and the
+assumption register — and **the document that poses the question is in no fix's blast
+radius.** Worse, at offset 523, *after* AEF's answer at 497, we posted to them that
+*"A-020 [is] still open on your side — whether you generate DI from our coordinates."*
+We re-asked a question that had been answered six offsets earlier.
+
+That is a distinct mechanism from the stale-frontmatter class (PL-171): nothing decayed
+here. **An answer arrived as a subordinate clause in a message about a different subject,
+and was never filed against the question it answered.** A question's carrier is not
+updated by fixing the thing the answer implies.
+
+### The consequence T-361 did not reach: the generator was fixed, the generated was not
+
+Measured 2026-08-13, whole populations, no sampling:
+
+| population | carries the false sentence |
+|---|---|
+| `src/` | **0** — corrected by T-361 |
+| `examples/aef-processes/rendered/*.bpmn` | **24 of 24** |
+| `examples/app-processes/rendered/*.bpmn` | 0 of 1 (`customer-refund.bpmn`) |
+| `dist/` releases | 11 of 13 |
+| corpus documents carrying the *corrected* trailer | **0** |
+
+**Those 24 are the arc's 24 corpus maps** — the same population T-101 rewrites and T-423
+was costed against. Every one still asserts a false statement about a peer project, and
+17 of them have been imported into AEF's corpus where the sentence now reads as *their*
+content.
+
+**A cheap correction may already be scheduled.** The emit site (`src:9710`) interpolates
+`${DI_TRAILER}`, which is now the corrected constant — so **if T-101 re-exports the 24
+maps through the designer's `buildBpmnXml`, all 24 are corrected as a side effect.** If
+T-101 instead patches coordinates in place with a script, they are not. **That is a
+mechanism choice worth making deliberately before T-101 runs, not discovering after** —
+it is the difference between this defect closing for free and persisting through the one
+operation that touches every affected file.
+
+`dist/` releases are immutable historical artifacts and are out of scope for correction.
+
 ---
 
 ## Spike 2 — Who reads `aef:position`? (IW-2)
