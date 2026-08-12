@@ -1,10 +1,10 @@
 ---
-id: T-453
-name: "G-020 scans the AC section as raw text: a quoted placeholder token blocks a real AC, and the templates commented Human examples make the zero-AC half inert"
+id: T-456
+name: "P-011 strips HTML comments from the Verification COMMAND text, mangling any command containing the markers"
 description: >
-  G-020 (check-active-task.sh:584) decides build-readiness with two greps over the raw AC section, with no structural parse and no HTML-comment stripping. Two consequences from one root. FALSE POSITIVE: the placeholder token quoted inside a genuine acceptance criterion counts as a placeholder, so a task describing this gate cannot be filed (hit live at T-452). FALSE NEGATIVE, the serious one: the task template ships two commented example checkboxes under Human, they match REAL_AC_COUNT, so every template-created task starts at REAL_AC_COUNT=2 and the zero-AC half of the gate can never fire. Deleting the two placeholder lines - the literal instruction in the block message - leaves the gate passing with zero acceptance criteria. Measured with the gates own two commands: HAS_PLACEHOLDER=0 REAL_AC_COUNT=2 ALLOWED. The remedy already exists sixty lines above in the same file: the G-067 Open Questions gate strips HTML comments before counting (line 539, T-2554). Vendored AEF tooling, so the fix is theirs and upstreamable under G-008; reported over the rail with the reproduction.
+  update-task.sh:981 runs re.sub(r'<!--.*?-->', '', text, flags=DOTALL) over the Verification block before executing each line. That is correct for stripping commented guidance, but it also rewrites EXECUTABLE commands: any verification line containing both markers has everything between them deleted. Discovered live 2026-08-12 while completing T-453, whose leg 2 was a comment-stripping assertion. The gate echoed what it actually ran: sed -E 's///g' file | sed '//d' | grep -c - the regex body removed. The leg passes standalone and FAILS under P-011, so the failure is invisible to anyone testing their verification commands before filing them, which is the recommended practice. Worse than a false red: a line of the form cmd-A ; cmd-B judged on B alone (T-352) could be mangled into something that still exits 0, producing a false GREEN over a check that no longer checks anything. Workaround in T-453 builds the markers from chr(60)+chr(33) so the extractor has nothing to match. Vendored AEF tooling, fix is theirs under G-008. Note the irony this was found by: a task about a gate that fails to strip HTML comments, blocked by a gate that strips them too aggressively.
 
-status: started-work
+status: captured
 workflow_type: build
 owner: agent
 horizon: now
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-12T10:55:55Z
-last_update: 2026-08-12T12:25:09Z
+created: 2026-08-12T12:26:03Z
+last_update: 2026-08-12T12:26:03Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,7 +30,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-453: G-020 scans the AC section as raw text: a quoted placeholder token blocks a real AC, and the templates commented Human examples make the zero-AC half inert
+# T-456: P-011 strips HTML comments from the Verification COMMAND text, mangling any command containing the markers
 
 ## Context
 
@@ -40,27 +40,8 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] **The false negative is measured against the SHIPPED template, not a fixture.** The
-      real-AC count and the placeholder count over `.tasks/templates/default.md` are both
-      asserted by command in `## Verification`. The claim that matters — *delete the two
-      placeholder lines, which is the literal instruction in the gate's own block message,
-      and the gate passes over zero acceptance criteria* — must be reproducible by the
-      operator from the template the framework actually ships.
-- [x] **The false positive is stated as a workaround, never as a fix.** Hit a THIRD time
-      this window, filing these very criteria — the gate blocked T-453's own ACs. A genuine AC that
-      quotes the gate's block message is counted as a placeholder, so a task describing
-      this gate cannot be filed. It was hit live twice: filing T-452, and filing this
-      task's own criteria. Recorded as the workaround it is — I avoid reproducing the
-      token — with no pretence that avoiding a string repairs a classifier.
-- [x] **The remedy is named from the same file, not designed.** `G-067`'s Open Questions
-      gate sixty lines above strips HTML comments before counting (`:539`, their T-2554).
-      The fix is to apply the sibling's existing treatment, so the report carries a
-      one-line remedy rather than a defect and a shrug.
-- [x] **Reported upstream; no local patch.** AEF rail offset **561**, restated at **564**
-      §4 paired with T-455 as one class. Vendored under `.agentic-framework/`, so a
-      local fix is silently reverted by the next bump and reads as fixed meanwhile — the
-      disposition ruled for T-402/T-422/T-345/T-455. Verified by an empty `git diff` over
-      the hook path at completion.
+- [ ] [First criterion]
+- [ ] [Second criterion]
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -94,30 +75,6 @@ date_finished: null
 -->
 
 ## Verification
-
-# 1. THE FALSE NEGATIVE, read off the template the framework SHIPS. G-020 counts 4 lines
-#    matching its real-AC pattern; only 2 survive comment-stripping, and those 2 ARE the
-#    placeholders it blocks on. The other 2 are the commented [REVIEW]/[REVIEWER] examples
-#    at :58 and :67 inside the Human guidance block.
-test 4 -eq "$(grep -cE '^[[:space:]]*- \[ \]' .tasks/templates/default.md)"
-# NOTE — this leg builds the HTML comment markers from chr() codes on purpose, and the
-# reason is a defect discovered by this very line. P-011's extractor strips HTML comments
-# from the COMMAND TEXT before executing it (update-task.sh:981,
-# `re.sub(r'<!--.*?-->', '', text, DOTALL)`). The sed form of this check therefore ran as
-# `sed -E 's///g' ... | sed '//d'` and failed, while passing standalone — the gate deleted
-# the middle of my regex. Filed as T-456. Writing the markers as chr(60)+chr(33) keeps the
-# literal out of the command so the extractor has nothing to eat.
-test 2 -eq "$(python3 -c "import re; s=open('.tasks/templates/default.md').read(); s=re.sub(chr(60)+chr(33)+'--.*?--'+chr(62),'',s,flags=re.S); print(sum(1 for l in s.splitlines() if re.match(r'\s*- \[ \]',l)))")"
-# 2. Consequence, stated as arithmetic rather than prose: delete the 2 placeholders — the
-#    literal instruction in G-020's own block message — and 2 pattern-matching lines remain,
-#    every one of them a comment. The ==0 half can never fire, so the gate passes over zero
-#    acceptance criteria.
-# 3. The remedy already exists SIXTY LINES UP in the same file: G-067's Open Questions gate
-#    strips HTML comments before counting (:539, their T-2554). This is "apply the sibling's
-#    existing treatment", not a design question.
-grep -q 'OQ_STRIPPED' .agentic-framework/agents/context/check-active-task.sh
-# 4. NO local patch to the vendored hook. Empty diff is the deliverable.
-test -z "$(git diff --name-only -- .agentic-framework/agents/context/check-active-task.sh)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -229,10 +186,7 @@ test -z "$(git diff --name-only -- .agentic-framework/agents/context/check-activ
 
 ## Updates
 
-### 2026-08-12T10:55:55Z — task-created [task-create-agent]
+### 2026-08-12T12:26:03Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-453-g-020-scans-the-ac-section-as-raw-text-a.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-456-p-011-strips-html-comments-from-the-veri.md
 - **Context:** Initial task creation
-
-### 2026-08-12T11:00:26Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work
