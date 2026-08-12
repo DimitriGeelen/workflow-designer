@@ -59,7 +59,12 @@ const PREFLIGHT_EXPR = `(function(){
   var text = window.__FIXTURE__;
   var METAKEYS = ['tier','agentType','decisionOwner','triggeredBy','terminalKind','state','note',
     'softFail','section','guard','external','exitCode','autoTrigger','trigger','gatewayKind',
-    'gate','scopeOf','horizon','workflowType','owner'];
+    'gate','scopeOf','horizon','workflowType','owner',
+    // T-480: 'endpoint' must appear in BOTH copies of this list. If the preflight
+    // self-test does not project it, the guard below asserts a property its own
+    // teeth-proof never exercises. See the note at the second copy for why endpoint
+    // is projected at all.
+    'endpoint'];
   function proj(m){
     if(!m) return null;
     var uidOf={}; m.nodes.forEach(function(n){ uidOf[n.id]=n.uid; });
@@ -97,6 +102,27 @@ const ROUNDTRIP_EXPR = `(function(){
     'softFail','section','guard','external','exitCode','autoTrigger','trigger','gatewayKind',
     'gate','scopeOf','horizon','workflowType','owner',
     'errorStatus','timerSpec','busTopic',
+    // T-480 (closes OBS-041): 'endpoint' is projected DESPITE the frozen standard
+    // listing aef:endpoint in its PRESENTATIONAL class. That listing is wrong and is
+    // registered as OBS-039: aef:endpoint carries the executable command a task node
+    // runs (e.g. "fw context build --task <task_id> --depth 2"), emitted beside
+    // aef:contextReads / aef:artifactsWrites, and the bridge lists it in META_KEYS.
+    //
+    // (This comment lives INSIDE a JS template literal: no backticks, no dollar-brace.
+    //  The first form used both and the harness died before evaluating anything —
+    //  the same class as the P-011 leg eval-expansion caught an hour earlier.)
+    //
+    // DO NOT REMOVE THIS KEY to make the harness conform to the standard. That is
+    // exactly how it went missing: the projection excludes presentational content by
+    // design, so following §1 faithfully left the executable command unguarded on this
+    // axis. T-479 measured no loss today (155 endpoints / 30 docs / 0 lossy) — this
+    // keeps a future drop from being silent. If a v1.2 reclassifies aef:endpoint as
+    // semantic, this comment becomes redundant, not wrong.
+    //
+    // NOTE: endpoint rides a STANDALONE <aef:endpoint> element, not an <aef:meta>
+    // attribute — it is in this list because proj() reads n.aef[k] off the parsed
+    // model, where parseBpmnXml puts it (src:9957-9958), not because it is meta.
+    'endpoint',
     // T-204 Slice 2: boundary attachment is governance-bearing — hostRef (the resolved
     // host uid) and interrupting (cancelActivity) must survive the fixed point. boundaryPos
     // is presentational (like position/waypoints) and is deliberately NOT projected.

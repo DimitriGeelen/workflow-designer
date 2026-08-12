@@ -347,6 +347,32 @@ passing test, which no scan finds because the suite defends it. Here it is milde
 is broken, but a future regression that drops `aef:endpoint` would be **silent**. Filed as
 its own item; adding `endpoint` to the projection is a fix and belongs to a fix task.
 
+**Closed by T-480 (2026-08-13).** `endpoint` is now projected by the round-trip semantic
+fixed point, in **both** `METAKEYS` definitions (the guard's and its preflight self-test's
+— patching only one would have left the guard asserting a property its own teeth-proof
+never exercised, the fix-one-of-N trap AEF reported at rail 588).
+
+Falsified both ways by mutating an emitted `aef:endpoint` value:
+
+    PRE-change    projEqual = True    <- drift invisible to the projection
+    POST-change   projEqual = False   <- caught, drift localised at the endpoint value
+
+**The counterfactual nearly reversed the conclusion.** Both runs *also* reported
+`deterministic = False`, so the pre-change mutant **exited red** — which reads as "the old
+harness caught it, the fix was unnecessary." It did not: the determinism flag broke because
+the mutation edits `emit1a` after `emit1b` was computed, an artifact of the probe, not a
+detection. **Judging on the exit code would have retired a real fix.** The verdict had to be
+read off the specific signal the change was about.
+
+**Census of what the round-trip fixed point still does not project** (so the follow-up is
+scoped, not guessed): `contextReads`, `artifactsWrites`, `decisionInput`, `decisionOutputs`,
+`io`, `link` — six structured semantic elements the editor parses and re-emits. They are
+**not** unguarded overall: `test_editor_bridge_field_coverage.py` (T-059) guards the
+editor↔**bridge** axis, and `test_editor_bridge_structured_parity.py` (T-063) covers a
+different set (`emits`, `compensates`, `aggregation`, `multiInstance`, `timer`). What no
+guard covers for these six is the **editor's own parse→build round trip**. Filed for a
+follow-up; not folded in here (one bug = one task).
+
 **Probe honesty note.** The first form of this measurement reported
 `tests/fixtures/aef-bpmn/offpage-seam.bpmn` as **lossy**. It was not: that endpoint
 contains `->`, which the fixture carries unescaped and the editor re-emits as `-&gt;`.
