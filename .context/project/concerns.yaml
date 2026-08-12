@@ -2182,3 +2182,56 @@ concerns:
   - T-448
   - T-422
   closure_check_command: python3 tools/_t451-unwired-guard-census.py --json
+
+- id: G-036
+  type: gap
+  status: watching
+  severity: medium
+  title: >-
+    Framework gates decide the HTML-comment boundary with a regex over whichever text is
+    nearest, with no notion of prose-to-discard versus code-to-run — three gates, two
+    opposite errors, one correct sibling
+  detected: 2026-08-12
+  origin_task: T-457
+  context: >-
+    Three separate defects found within one week are one mechanism. G-020
+    (check-active-task.sh) does NOT strip comments before counting acceptance criteria, so
+    the commented [REVIEW]/[REVIEWER] examples the shipped template carries under `### Human`
+    count as real ACs: over `.tasks/templates/default.md` the raw count is 4 and the
+    comment-stripped count is 2, and those 2 ARE the placeholders the gate blocks on — so
+    deleting them, which is the literal instruction in the gate's own block message, leaves
+    the gate passing over ZERO acceptance criteria (T-453). P-011 (update-task.sh:981)
+    strips comments from the Verification COMMAND text before `eval`, so any verification
+    line containing both markers has its middle deleted: a real `sed -E 's/<COMMENT>...//g'`
+    leg ran as `sed -E 's///g'`, which succeeds and asserts nothing (T-456). A third gate,
+    G-067's Open Questions check sixty lines from G-020 in the SAME FILE, does it correctly
+    (`:539`). So every instance is a divergence from an in-file precedent rather than an
+    unsolved design question. The two errors point in opposite directions — one under-strips
+    prose, one over-strips code — which is why they were filed as unrelated tickets and why
+    fixing either does not surface the other. Related but distinct: T-455, the same file
+    family failing to SUPPLY a section a gate demands.
+  evidence:
+    - "T-453: raw AC-pattern count over the shipped default.md = 4; comment-stripped = 2; the 2 survivors are the placeholders. The ==0 half of the gate can never fire."
+    - "T-456: leg written as `sed -E 's/<C>([^-]|-[^-]|--[^>])*<C>//g'` was EXECUTED as `sed -E 's///g'` — the gate deleted the regex body before judging it. Passes standalone, fails under P-011, so invisible to anyone who tests commands before filing them."
+    - "T-456 false-GREEN direction is a MECHANISM, not a sighting: composed with the T-352 errexit swallow (`a ; b` judged on `b` alone) a mangled leg can still exit 0 over a check that no longer checks anything. No instance found in this tree."
+    - "G-067 at check-active-task.sh:539 already strips HTML comments before counting (their T-2554) — the remedy for G-020 is sixty lines above the defect."
+    - "All three files are vendored under .agentic-framework/, so the fixes are AEF's under G-008. Reported at rail offsets 561, 564 §4, 566."
+  decision_trigger: >-
+    CLOSES only when the MECHANISM is gone, verified by running the closure command — not
+    when T-453/T-455/T-456 are closed. Those are reports; their closure records that AEF was
+    told, which is a different event from this tree no longer being exposed. Specifically
+    REFUSED as closure: deleting the commented examples from the template (removes today's
+    witness, leaves the gate unable to count), and any renaming or re-scoping that leaves a
+    comment boundary being decided by proximity. BOTH must hold: (1) the shipped template's
+    raw AC-pattern count equals its comment-stripped count, OR the G-020 hook strips comments
+    before counting; (2) update-task.sh no longer applies a DOTALL comment strip to text that
+    contains command lines. LIMIT, stated so a green cannot imply more than it measured:
+    condition (1) is satisfied by a hook that strips comments OR by a template that has none
+    to strip, and only the first is a repair — the command reports both numbers so the
+    difference is visible rather than collapsed into a verdict.
+  related_tasks:
+    - T-453
+    - T-455
+    - T-456
+    - T-457
+  closure_check_command: python3 -c "import re,json;O=chr(60)+chr(33)+'--';C='--'+chr(62);t=open('.tasks/templates/default.md').read();raw=sum(1 for l in t.splitlines() if re.match(r'\s*- \[ \]',l));st=sum(1 for l in re.sub(O+'.*?'+C,'',t,flags=re.S).splitlines() if re.match(r'\s*- \[ \]',l));u=open('.agentic-framework/agents/task-create/update-task.sh').read();eats=any(('re.sub' in l and 'DOTALL' in l and O[:2] in l) for l in u.splitlines());ok=(raw==st) and not eats;print(json.dumps({'verdict':'READY' if ok else 'NOT_READY','ready':ok,'template_raw_ac_count':raw,'template_comment_stripped_count':st,'p011_strips_command_text':eats}))"
