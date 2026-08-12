@@ -4,10 +4,10 @@ name: "Register the instrument-substitution class: agent shell grep is a ugrep s
 description: >
   Register the instrument-substitution class: agent shell grep is a ugrep shim, every gate runs GNU grep
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T14:20:11Z
-last_update: 2026-08-12T14:20:11Z
-date_finished: null
+last_update: 2026-08-12T14:23:37Z
+date_finished: 2026-08-12T14:23:37Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -152,8 +152,8 @@ date_finished: null
 # The register is parsed with yaml, not grepped, and every grep below is /usr/bin/grep by
 # absolute path — for the reason this gap exists.
 python3 -c 'import yaml,sys; d=yaml.safe_load(open(".context/project/concerns.yaml")); e=d if isinstance(d,list) else d.get("concerns",d); w=[x for x in e if x.get("status")=="watching"]; g=[x for x in e if x.get("id")=="G-037"]; print("register entries %d  watching %d  G-037 present %d" % (len(e), len(w), len(g))); sys.exit(0 if len(g)==1 and len(e)>=34 else 1)'
-python3 -c 'import yaml,sys; e=yaml.safe_load(open(".context/project/concerns.yaml")); g=[x for x in e if x.get("id")=="G-037"][0]; missing=[k for k in ("type","status","severity","title","detected","origin_task","context","evidence","decision_trigger","related_tasks","closure_check_command") if not g.get(k)]; print("G-037 required fields missing:", missing); sys.exit(0 if not missing else 1)'
-python3 -c 'import yaml,sys,subprocess; e=yaml.safe_load(open(".context/project/concerns.yaml")); c=[x for x in e if x.get("id")=="G-037"][0]["closure_check_command"]; r=subprocess.run(["bash","-lc",c],capture_output=True,text=True); print(r.stdout.strip()[:400]); import json; j=json.loads(r.stdout); sys.exit(0 if j["verdict"]=="NOT_READY" and j["agent_shell_grep_type"]=="function" and j["gate_shell_grep_type"]=="file" else 1)'
+python3 -c 'import yaml,sys; d=yaml.safe_load(open(".context/project/concerns.yaml")); e=d if isinstance(d,list) else d.get("concerns",d); g=[x for x in e if x.get("id")=="G-037"][0]; missing=[k for k in ("type","status","severity","title","detected","origin_task","context","evidence","decision_trigger","related_tasks","closure_check_command") if not g.get(k)]; print("G-037 required fields missing:", missing); sys.exit(0 if not missing else 1)'
+python3 -c 'import yaml,sys,subprocess; d=yaml.safe_load(open(".context/project/concerns.yaml")); e=d if isinstance(d,list) else d.get("concerns",d); c=[x for x in e if x.get("id")=="G-037"][0]["closure_check_command"]; r=subprocess.run(["bash","-lc",c],capture_output=True,text=True); print(r.stdout.strip()[:400]); import json; j=json.loads(r.stdout); sys.exit(0 if j["verdict"]=="NOT_READY" and j["agent_shell_grep_type"]=="function" and j["gate_shell_grep_type"]=="file" else 1)'
 test -f .context/working/.grep-witness && /usr/bin/grep -q 'type=function' .context/working/.grep-witness
 python3 tools/concerns-schema.py > /tmp/.t461-schema.out 2>&1; test 1 -eq "$(python3 -c 'import subprocess;print(subprocess.run(["python3","tools/concerns-schema.py"],capture_output=True).returncode)')"
 
@@ -224,3 +224,15 @@ python3 tools/concerns-schema.py > /tmp/.t461-schema.out 2>&1; test 1 -eq "$(pyt
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-461-register-the-instrument-substitution-cla.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-7c38beba
+- **Timestamp:** 2026-08-12T14:23:41Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-12T14:23:37Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

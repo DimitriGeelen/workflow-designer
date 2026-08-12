@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-461: Register the instrument-substitution class: agent shell grep is a ugrep shim, every gate runs GNU grep
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T14:23:43Z
+# ============================================================================
+
+task_id: T-461
+task_name: "Register the instrument-substitution class: agent shell grep is a ugrep shim, every gate runs GNU grep"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T14:20:11Z
+completed: 2026-08-12T14:23:37Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-12T16:23:16+02:00
+last_commit: 2026-08-12T16:23:16+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  register G-037 — my measuring instrument and the framework's execution environment are different programs, and nothing announces it.
+
+# Key outcomes
+outcomes:
+  - '**The class is registered in `concerns.yaml` as a gap, not left as a task finding.**'
+  - '**The closure condition names what must become TRUE, and explicitly refuses the two'
+  - '**The `closure_check_command` runs and reports NOT_READY today**, printing both sides of'
+  - '**The first gauge I wrote for this gap was blind in the gap''s own way, and that is'
+  - '**The register still parses and the schema check is no worse than before.** Entry count'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-460.yaml'
+  - '.context/locks/T-460.lock'
+  - '.context/project/concerns.yaml'
+  - '.context/working/episodic-gen/T-460.log'
+  - '.context/working/.grep-witness'
+  - '.tasks/active/T-461-register-the-instrument-substitution-cla.md'
+  - '.tasks/completed/T-459-rec-gate-exposure-on-our-tree-is-latent-.md'
+  - '.tasks/completed/T-460-grep-with-an-unescaped-name-pattern-is-u.md'
+  - 'tools/_t350-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-12T16:23:16"
+    action: "T-461: register G-037 — my measuring instrument and the framework's execution environment are different programs, and nothing announces it."
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 1
+  files_changed: 9
+  lines_added: 565
+  lines_removed: 89
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-461-register-the-instrument-substitution-cla.md
+generated_by: context-agent-hybrid

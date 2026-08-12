@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-12T14:23:43Z ===
+task_id: T-461
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-461.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Register the instrument-substitution class: agent shell grep is a ugrep shim, every gate runs GNU grep
+  Duration: 0 days (3 min)
+  Updates: 1
+  Commits: 1
+  Lines: +565 -89 across 9 files
+  Outcomes: 5 AC checked
+  Artifacts: 9 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-461-register-the-instrument-substitution-cla.md
+--- exit code: 0 ---
