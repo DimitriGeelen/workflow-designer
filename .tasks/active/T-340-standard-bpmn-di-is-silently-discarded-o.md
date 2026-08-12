@@ -497,6 +497,23 @@ saving makes that irreversible. So:
 neither addresses the symptom. My earlier note that (a)'s divergence appears "after a drag"
 was wrong — it is present the moment the file is saved.
 
+> **2026-08-12 (T-473) — half of that byte objection was imaginary, and the ruling below is
+> unaffected.** AEF measured their side at rail 584 Q1: `source_bpmn_sha` is a provenance
+> field *their* promote tool writes into *their* corpus meta; it pins nothing of ours, and
+> they hold no copy of `examples/aef-processes/rendered/` at all. So "re-pin AEF's fixtures"
+> named a cost that does not exist, here and everywhere else it appears in this file.
+>
+> **Why the recommendation still stands unchanged:** it is scoped (b), which changes **zero
+> bytes** — the disjoint-populations argument, not the cost argument, is what carries it.
+> A cost that was overstated for the *rejected maximal* variant cannot make the
+> *zero-byte* variant worse.
+>
+> **What does change, and only if you are reconsidering maximal (b):** it was rejected on
+> two grounds, and one has evaporated. The survivor — `_t308-export-byte-identity` goes
+> 24/24 drifted — is **entirely our own baseline**. What was recorded as a two-party seam
+> cost is a one-party housekeeping cost. That does not resurrect maximal (b), which is still
+> rejected for rewriting a peer's coordinate bytes; it means the price tag on it was wrong.
+
 **2. The byte objection that disqualified (b) applied only to a maximal form of it.** I
 rejected (b) as "changes exported bytes for all 24 maps → re-pin AEF's fixtures", which is
 true of *always* emitting regenerated DI. Scoped properly — **import: `aef:position` → else

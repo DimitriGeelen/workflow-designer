@@ -2,7 +2,7 @@
 id: T-423
 name: "T-357 step 2: emit BPMN DI additively alongside aef:position"
 description: >
-  Second of the three nested increments under T-357's GO. Emit bpmndi (dc:Bounds for shapes, di:waypoint for edges, label bounds) on export while continuing to write aef:position. Additive: no T-225 silent-migration question because nothing the author wrote is rewritten or dropped, and the intent extensions (forceStraight, routingHint, loopDetour) stay, so the spike-3 intent gap does not bite. Costs: all 24 corpus maps change bytes, so AEF's pinned source_bpmn_sha fixtures need a COORDINATED re-pin — this is the first step in the arc that touches the seam. Blocked on step 1 (T-340 option b) landing. NOT blocked on A-020 — that was answered NO at rail 417 (2026-08-03) and is recorded invalidated: AEF never parsed or emitted DI and holds no record of agreeing to. The consequence sharpens this task rather than gating it — with no downstream DI generator on either side of the seam, emitting DI is NET-NEW CAPABILITY on both sides, not the completion of a handoff someone else was already honouring. Nobody is waiting for these bytes, so the re-pin is the whole cost and the benefit is portability to standard viewers (bpmn.io, Camunda), not AEF interop.
+  Second of the three nested increments under T-357's GO. Emit bpmndi (dc:Bounds for shapes, di:waypoint for edges, label bounds) on export while continuing to write aef:position. Additive: no T-225 silent-migration question because nothing the author wrote is rewritten or dropped, and the intent extensions (forceStraight, routingHint, loopDetour) stay, so the spike-3 intent gap does not bite. Costs: all 24 corpus maps change bytes. [CORRECTED 2026-08-12 by T-473 — the clause that stood here, "so AEF's pinned source_bpmn_sha fixtures need a COORDINATED re-pin — this is the first step in the arc that touches the seam", is FALSE. Measured on AEF's side at rail 584 Q1: source_bpmn_sha is a provenance field THEIR promote tool writes into THEIR corpus meta, keyed by our IW-2 contract; it pins nothing of ours. They hold no copy of examples/aef-processes/rendered at all. The 24 maps are a ZERO-cost change at the seam. See ## Seam cost, corrected.] Blocked on step 1 (T-340 option b) landing. NOT blocked on A-020 — that was answered NO at rail 417 (2026-08-03) and is recorded invalidated: AEF never parsed or emitted DI and holds no record of agreeing to. The consequence sharpens this task rather than gating it — with no downstream DI generator on either side of the seam, emitting DI is NET-NEW CAPABILITY on both sides, not the completion of a handoff someone else was already honouring. Nobody is waiting for these bytes, and [CORRECTED by T-473: "the re-pin is the whole cost" was the conclusion drawn from the false premise above — there is no re-pin, so the seam cost is zero and the remaining cost is entirely one-party: our own _t308-export-byte-identity goes 24/24 drifted] the benefit is portability to standard viewers (bpmn.io, Camunda), not AEF interop.
 
 status: captured
 workflow_type: build
@@ -44,14 +44,66 @@ step is actually ready. It is not: it sits behind T-340's ruling.
 Why this is the first step that touches the seam: steps land in strict subset order, and
 step 1 (T-340 scoped `b`) is byte-neutral because the two populations are disjoint —
 121 of 126 files carry `aef:position` and none carry DI. Step 2 breaks that: **every**
-export gains a `bpmndi` sub-tree, so all 24 corpus maps change bytes and AEF's pinned
-`source_bpmn_sha` fixtures go red. That is a coordinated re-pin, not a unilateral change.
+export gains a `bpmndi` sub-tree, so all 24 corpus maps change bytes.
+
+> **CORRECTED 2026-08-12 (T-473).** This paragraph ended *"and AEF's pinned
+> `source_bpmn_sha` fixtures go red. That is a coordinated re-pin, not a unilateral
+> change."* Both sentences are false, and with them the claim that step 2 is the first step
+> that touches the seam. See **§ Seam cost, corrected** below.
 
 What A-020's answer changed: there is no DI generator anywhere — not on AEF's side (rail
 417: `bpmndi` occurs once in their source, a namespace declaration with no reader or
 writer) and not on ours. So emitting DI is net-new capability, and the beneficiary is any
 standard viewer (bpmn.io, Camunda), **not** AEF. Nobody is waiting for these bytes. That
-removes the urgency and clarifies the trade: pay a two-party re-pin, buy portability.
+removes the urgency and clarifies the trade: ~~pay a two-party re-pin~~ **pay a one-party
+byte churn on our own `_t308` baseline**, buy portability.
+
+## Seam cost, corrected (2026-08-12, T-473 — from AEF's measurement at rail 584)
+
+**The seam cost of this task is zero.** Not "small" — the mechanism it was attributed to
+does not exist:
+
+- `source_bpmn_sha` is a **provenance field AEF's own `bpmn_promote.py` writes into AEF's
+  corpus meta**, keyed `(uid, source_bpmn_sha)` per our IW-2 contract. It records the sha of
+  the staged BPMN *they* are promoting — their file. It has never pinned our bytes.
+- **AEF holds no copy of `examples/aef-processes/rendered/`.** Their own T-2522 report says
+  *"there is no rendered corpus in AEF"*; the only occurrences of our paths in their tree are
+  prose in two reports.
+
+So all 24 maps can change bytes with no coordination required and nothing of theirs going
+red. What survives is a **one-party** cost that was never AEF's: our own
+`_t308-export-byte-identity` goes 24/24 drifted. That is a baseline we own and refresh.
+
+### What AEF actually vendors — six artifacts, byte-digested, two of them ours
+
+| their constant | file | export-path output here? |
+|---|---|---|
+| `SHA_832_TYPED` | `tests/fixtures/aef-bpmn/typed-events.bpmn` | **no** |
+| `SHA_832_BOUNDARY` | `tests/fixtures/aef-bpmn/boundary-events.bpmn` | **no** |
+| `CANONICAL_SHA256` | their `inception-gonogo-canonical.bpmn` | their file |
+| `RESUME_STATUS_SHA256` | their `resume-status-canonical.bpmn` | their file |
+| `832/pair-draft-3.sha256` | their vendored copy | their file |
+| `832/s4-exemplar.sha256` | their vendored copy | their file |
+
+**Read the last row carefully before it scares a later reader.** We do have an
+`s4-exemplar.bpmn` and it *is* export-path output — but AEF's digest guards **their vendored
+copy at their path**. Regenerating ours does not touch their file and cannot turn their guard
+red. Only a **re-delivery** of new bytes would, and that is a deliberate act.
+
+The two rows that are genuinely ours-and-theirs (`typed-events`, `boundary-events`) are both
+**not** export-path output — the T-469 finding, now confirmed from the other end.
+
+### Announcement protocol (AEF's stated preference, rail 584 Q4)
+
+If any of the six ever moves: **a rail post, one line per changed artifact, `path + old →
+new` digest, inline.** Not a manifest (the digests *are* the payload, and there are at most
+six), not a version bump (it carries no per-file digests). Manifest only if a single change
+ever moves more than ~10 at once.
+
+**Lead time is wanted for notice, not for work.** Their cost is one constant edit plus one
+test run — minutes. The reason to announce *before* is that their guard's failure message
+tells the reader to conclude someone mutated a fixture locally; an unannounced change makes
+a true event read as tampering.
 
 ## Acceptance Criteria
 
@@ -75,10 +127,15 @@ removes the urgency and clarifies the trade: pay a two-party re-pin, buy portabi
 - [ ] Round-trip is lossless in both directions: export → re-import → export produces
       byte-identical output on all 24 corpus maps. A DI emitter that is not idempotent
       makes every save a spurious diff.
-- [ ] **Re-pin is coordinated, not announced.** AEF's `source_bpmn_sha` fixtures are pinned
-      over whole files; all 24 change. Agreed with AEF on the rail BEFORE the bytes change,
-      with the new shas supplied as refs (not via `file_send` — OBS-108 is open on their
-      side). Evidence: the rail offsets of the request and their agreement.
+- [ ] ~~**Re-pin is coordinated, not announced.**~~ **VOID 2026-08-12 (T-473)** — this AC
+      required agreement AEF has no stake in. It read: *"AEF's `source_bpmn_sha` fixtures are
+      pinned over whole files; all 24 change. Agreed with AEF on the rail BEFORE the bytes
+      change."* They pin none of the 24 and hold no copy of the corpus (rail 584 Q1/Q3).
+      **Replacement obligation, which is weaker and different in kind:** none of AEF's six
+      vendored digests is touched by this task, so nothing needs agreeing. *If* a future
+      change moves one of the six, announce per § Seam cost → Announcement protocol — a
+      rail post, one line per artifact, `path + old → new`, before the bytes change. Notice,
+      not permission.
 - [ ] A competing-carrier guard exists, in AEF's shape rather than ours: they pin
       `test_di_drop_has_a_competing_carrier`, which asserts the rival carrier *exists* —
       delete `aef:position` and the test goes red. Our equivalent must fail loudly the day

@@ -203,7 +203,12 @@ echo "== typed-event fixture contract: sha-pin + shape (T-212, browser-independe
 if python3 "$ROOT/tests/test_typed_event_fixture_contract.py"; then
   pass=$((pass + 1))
 else
-  report FAIL "typed-event fixture drifted from the pinned source_bpmn_sha or aef:eventDef shape (fixture edited? re-pin + notify AEF)"
+  # T-473: NOT source_bpmn_sha. That is a provenance field AEF's own promote tool writes
+  # into AEF's corpus meta (keyed by our IW-2 contract) — it pins nothing of ours. These are
+  # plain byte digests of two fixtures AEF vendored off the rail and guards by digest on
+  # their side (SHA_832_TYPED / SHA_832_BOUNDARY, rail 584 Q1). "Notify AEF" is right; the
+  # label was not, and this message is the plausible origin of T-423's false cost model.
+  report FAIL "typed-event fixture drifted from its pinned byte digest or aef:eventDef shape (fixture edited? re-pin here + announce on the rail: one line, path + old -> new — AEF vendors these two by digest)"
   fail=$((fail + 1))
 fi
 

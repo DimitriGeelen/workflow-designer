@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-473: T-423's stated seam cost is false: AEF pins nothing our exporter produces
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T20:46:08Z
+# ============================================================================
+
+task_id: T-473
+task_name: "T-423's stated seam cost is false: AEF pins nothing our exporter produces"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T20:41:16Z
+completed: 2026-08-12T20:46:05Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**Every occurrence of the false premise in T-423 is corrected, not just the'
+  - '**The corrected cost is DERIVED from AEF''s measurement and cites it.** Their rail-584'
+  - '**T-340''s decision brief is checked for dependence on the false cost.** The operator''s'
+  - '**AEF''s six pins are recorded on our side, with the one that matters flagged.**'
+  - '**The announcement protocol is recorded where the person announcing will look.** AEF'
+  - '**Nothing is started and nothing is ruled.** T-423 stays blocked, T-340 stays the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-473-t-423s-stated-seam-cost-is-false-aef-pin.md
+generated_by: context-agent-hybrid
