@@ -47,8 +47,8 @@ BPMN fixtures **about the AEF seam, authored here (832)**. Measured 2026-08-04 v
 | `boundary-events`, `typed-events` | T-204 | 832-authored |
 | `two-lane-joint` | T-208 | 832-authored |
 | `session-handover` | T-214 | **pair-draft** (AEF arc-014) |
-| `dispatch-loop` | T-215 | **pair-draft** (AEF arc-015) |
-| `offpage-seam` | T-219 | **pair-draft** |
+| `dispatch-loop` | T-215 | **pair-draft** (AEF arc-014 — was arc-015, corrected 2026-08-12) |
+| `offpage-seam` | T-219 | **pair-draft** (no AEF counterpart draft — see below) |
 | `s4-exemplar` | T-235 | 832-authored |
 | `bare-catch-event` | T-308 | 832-authored |
 | `lane-position-conflict` | T-310 | 832-authored |
@@ -58,14 +58,55 @@ BPMN fixtures **about the AEF seam, authored here (832)**. Measured 2026-08-04 v
 
 **Not one file was handed to us by AEF.** The rest are ours outright.
 
-> **The three `pair-draft` rows are asserted on 832 evidence alone.** They are labelled
-> pair-draft in *our* commit subjects and nowhere else. Asked to confirm (DM 548 §6),
-> AEF declined to do it from memory — *"a confirmation given from memory is exactly the
-> 'name treated as evidence' failure this whole thread is about"* — and said to leave the
-> table marked as ours until they can check their own designer-project history
-> (DM 549 §6, 2026-08-12). **Unconfirmed by AEF as of that date.** If it stays
-> unconfirmed, these rows are a one-sided claim about a two-sided fact, which is the same
-> defect as the directory name — one degree smaller.
+> **The three `pair-draft` rows are no longer one-sided — and what came back is that the
+> two sides never meant the same thing by the word.** Asked to confirm (DM 548 §6), AEF
+> declined to do it from memory — *"a confirmation given from memory is exactly the 'name
+> treated as evidence' failure this whole thread is about"* — and checked their records
+> instead (DM 556, 2026-08-12, their `docs/reports/T-2934-pair-draft-provenance.md`).
+>
+> **Two definitions, both coherent, never diffed.** Theirs is fixed in writing at arc-014's
+> inception — T-2553:101, recording their operator's choice of scope option 2d: *"pair:
+> 832/AEF draft, operator reviews+corrects in designer UI"*, and at :144 *"pair-draft BPMN
+> **(AEF or 832)** → operator reviews/corrects in designer UI"*. So on their side the pair
+> is **drafting-agent + their operator**, and the drafting agent is explicitly either of us:
+> a file drafted entirely here IS a pair-draft, and their contributing no bytes is the
+> design rather than an anomaly. Ours cannot be that reading, or the column would be empty —
+> this table contrasts the 15 "832-authored outright" with 3 "genuine pair-drafts", and that
+> contrast only does work if the three contain something of theirs.
+>
+> **Bytes: all three are ours, unmodified, zero AEF content.** Their pins match the shas we
+> delivered — `session-handover` rail 92 (11373 B, `d971a2fc…`), `dispatch-loop` rail 96
+> (18793 B, `95bc24cd…`), `offpage-seam` rails 120/121 (10014 B, `0bc15bfa…`) re-delivered
+> at rail 366 after our T-324 fix. One commit each touching them, two for `offpage-seam` and
+> both ours. Under a *"did AEF bytes go in"* reading, all three move to 832-authored and the
+> split becomes 18/0.
+>
+> **What is theirs is real and is not bytes.** For `session-handover` and `dispatch-loop`,
+> an independent AEF counterpart draft of the same process — `aef-session-lifecycle`
+> (`2640d597…`, T-2561/D3) committed **22 minutes** before intake, `aef-dispatch-loop`
+> (`e32a518c…`, T-2563/D4) **42 minutes** before. There, "pair" is carried by two drafts of
+> one process. For `offpage-seam` **there is no AEF counterpart draft at all** — they
+> searched all 13 designer projects and none was ever made — but its three legs exercise
+> *their* compile taxonomy, and the RESOLVED leg is not constructible without a live uuid
+> only they could supply (posted rail 118 with `1f9b5f0c…` RECOMMENDED plus a 3-uuid
+> avoid-list; confirmed rail 119 using exactly that). **That joint step exists precisely
+> because the T-559 boundary forbids us reaching into their :3001.** So the row this
+> ordinal calls #3 is the *weakest* of the three under a two-drafts reading and the
+> *strongest* under a joint-work reading — exactly inverted.
+>
+> **OPEN, and the operator's call — not applied here.** AEF recommends keeping the three
+> distinct from the 15 but labelling them by contribution rather than authorship:
+> `832-authored / AEF-paired` for the first two, `832-authored / AEF-specified` for
+> `offpage-seam`. They explicitly declined to assert it — *"I am deliberately not sending
+> you a 'confirmed' … it would have converted your evidence into agreement while adding
+> nothing"* — and noted their own tree never claimed co-authorship either: their commit
+> subjects read *"**832** pair-draft #1/#2/#3 intake"*. **No row has been relabelled and the
+> 15/3 split is unchanged**, because choosing which definition this file ratifies changes
+> the headline count and is a definition ruling rather than a measurement.
+>
+> The residual defect is not the label. It is that one word carried two readings across a
+> seam for months with nothing in either tree recording that a reading had been chosen —
+> the same shape as the directory name, and as OBS-230's HOLD-vs-PRODUCES question.
 
 ## `inception-gonogo.bpmn` — a reference that crosses the seam
 
