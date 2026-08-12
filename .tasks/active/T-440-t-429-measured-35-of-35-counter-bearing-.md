@@ -17,7 +17,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T22:02:17Z
-last_update: 2026-08-12T09:42:34Z
+last_update: 2026-08-12T09:42:50Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -65,7 +65,7 @@ proves the drive moved something:
 | Instrument | What it printed on an empty tree | rc |
 |---|---|---|
 | ~~`bake-clean-layout.py`~~ | `Baked Clean into 0 maps; 0 store versions minted; gallery mirror synced.` | 0 | **REPAIRED — T-447** |
-| `_norec-verify.py` | `0 task(s) with pending Human ACs lack a Recommendation verdict` | 0 |
+| ~~`_norec-verify.py`~~ | `0 task(s) with pending Human ACs lack a Recommendation verdict` | 0 | **REPAIRED — T-450** |
 | `_clean-layout-cdp.mjs` | `{}` | 0 |
 | `_node-cuts-cdp.mjs` | `{}` | 0 |
 | `_t125-lane-compaction-cdp.mjs` | `}` | 0 |
@@ -228,8 +228,14 @@ grep -qE "examined +[0-9]+ of [0-9]+" /tmp/.t440-census.out
 D=$(mktemp -d) && mkdir -p "$D/tools" && T440_ROOT="$D" python3 tools/_t440-zero-population-census.py > /dev/null 2>&1; test $? -eq 2
 # 4. The drive harness ABSTAINS (rc 2) when its filter drives nothing — T-430 discipline.
 bash tools/_t440-drive-empty.sh __no_such_instrument__ > /dev/null 2>&1; test $? -eq 2
-# 5. The finding reproduces: the approvals-queue guard reports success having read no tasks.
-R="$PWD" && D=$(mktemp -d) && cd "$D" && python3 "$R/tools/_norec-verify.py" > /tmp/.t440-norec.out 2>&1 && grep -q "^0 task(s)" /tmp/.t440-norec.out
+# 5. The approvals-queue guard REFUSES a corpus it cannot read (was: reported success over it).
+#    Rewritten by T-450, which repaired it. The original leg asserted the DEFECT —
+#    `grep -q "^0 task(s)"` at rc 0 — and would now be red for the right reason. A leg
+#    that pins a defect has to be re-pointed at the repair, not deleted, or the corpus
+#    loses its record that the defect was ever real. rc is read from the process, never
+#    through a pipeline (rail 553/557).
+R="$PWD"; D=$(mktemp -d); (cd "$D" && python3 "$R/tools/_norec-verify.py" > /tmp/.t440-norec.out 2>&1); test $? -eq 2
+grep -q "REFUSING" /tmp/.t440-norec.out
 # 6. The class is registered where it survives this task's archival.
 python3 -c "import yaml,sys; d=yaml.safe_load(open('.context/project/concerns.yaml')); sys.exit(0 if any(c['id']=='G-034' and c['status']=='watching' for c in d['concerns']) else 1)"
 

@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-450: G-034 repair 2 of 5: _norec-verify.py reports a silent zero over an empty approvals queue
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T10:44:21Z
+# ============================================================================
+
+task_id: T-450
+task_name: "G-034 repair 2 of 5: _norec-verify.py reports a silent zero over an empty approvals queue"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T10:38:20Z
+completed: 2026-08-12T10:44:11Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'An emptied corpus (both task dirs present, zero `*.md`) refuses at **rc 2**, with'
+  - 'A **missing** task directory refuses at rc 2 and names which directory is missing'
+  - 'The verdict on the REAL corpus is unchanged by the repair — same exit code and the'
+  - 'The success line carries **three** counts (task files examined · carrying pending'
+  - 'The denominator DERIVES: adding a task file to a throwaway corpus moves the examined'
+  - '`bash tools/_t440-drive-empty.sh _norec-verify` reports **driven 1 / BLIND 0 /'
+  - 'The docstring documents rc 2 as abstention and states no corpus size'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-450-g-034-repair-2-of-5-norec-verifypy-repor.md
+generated_by: context-agent-hybrid
