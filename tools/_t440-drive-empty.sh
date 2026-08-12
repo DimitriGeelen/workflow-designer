@@ -9,17 +9,36 @@
 # helper is ever called is decided in another function. A classifier that guesses there
 # produces the confident-but-unfounded verdict this whole task is about.
 #
-# THE DRIVE
-# Each instrument's population comes from somewhere nameable — a corpus directory, a
-# fixture dir, an argv file list. Point that somewhere at an EMPTY directory and run it.
-#   exit 0 + success-shaped output  -> BLIND. Proven, not inferred.
-#   non-zero, or an abstention line -> GUARDED against this drive.
-#   no knob to empty                -> CANNOT-DRIVE. Reported by name, never as clean.
+# THE KNOB IS THE TREE, AND FINDING THAT OUT COST A WHOLE SWEEP
+# The first version drove instruments through env vars, argv and cwd. It could drive 2 of
+# 73 and reported the other 71 as CANNOT-DRIVE — a measurement that answers almost nothing.
+# The reason is in the probes themselves: `const REPO = join(HERE, '..')`. Their population
+# is resolved from THEIR OWN FILE PATH, so no environment variable can move it. What moves
+# it is which copy of the repository they are executed from.
+#
+# So the drive is: build a HOLLOW copy of the tree with every population directory emptied,
+# and run each instrument out of that copy. `REPO` then points at the hollow tree, the
+# corpus globs return nothing, and whatever the instrument prints is what it prints when
+# it has examined nothing.
+#
+# THE POSITIVE CONTROL, AND WHY IT IS NOT OPTIONAL
+# Emptying a directory is not the same as emptying an instrument's population — the
+# instrument may not read that directory at all. Without a control, "it passed" is
+# unreadable: it could mean blind, or it could mean the drive missed. The first harness
+# set GALLERY_DIR on `_serve-gallery-verify.py`, which overrides GALLERY_DIR itself at :74,
+# ran the script's normal full pass, and filed that green as proof of blindness.
+#
+# So every instrument is run TWICE — once from the hollow tree, once from a POISONED copy
+# whose population directories hold exactly one item that must produce a different result.
+# Identical rc/line/verdict signatures mean the drive moved nothing, and the run is
+# reported as CANNOT-DRIVE rather than scored. Signatures rather than text, because
+# `_serve-gallery-verify.py` binds ephemeral ports and prints PIDs: two runs of the SAME
+# configuration already differ, which made an inert knob look load-bearing.
 #
 # CANNOT-DRIVE IS A FINDING, NOT A GAP IN THE HARNESS
 # An instrument whose population cannot be emptied from outside is one nobody can test for
-# this defect — including the person who will inherit it. It is reported in its own bucket
-# and counted, so the headline number can never quietly absorb it.
+# this defect — including whoever inherits it. It is counted in its own bucket so the
+# headline can never quietly absorb it.
 #
 # EXIT
 #   0  every instrument driven refused to pass on an empty population
@@ -28,116 +47,102 @@
 set -uo pipefail
 
 cd "$(dirname "$0")/.." || exit 2
+REPO="$PWD"
 CENSUS="tools/_t440-zero-population-census.py"
 [ -f "$CENSUS" ] || { echo "UNKNOWN — no $CENSUS. Cannot answer."; exit 2; }
 
-ONLY="${1:-}"                       # optional substring filter, for iterating on one file
-EMPTY="$(mktemp -d)"; trap 'rm -rf "$EMPTY"' EXIT
-mkdir -p "$EMPTY/rendered"          # some probes expect a subdir shape, not just a path
+ONLY="${1:-}"
+PER_RUN_TIMEOUT="${T440_TIMEOUT:-90}"
+
+# Directories that hold a population an instrument can range over. Emptying these is the
+# drive; anything not listed here is a population this harness cannot empty, which shows
+# up honestly as an inert-knob CANNOT-DRIVE rather than as a pass.
+POP_DIRS=(
+  "examples/aef-processes/rendered"
+  "examples/aef-processes"
+  "tests/fixtures/aef-bpmn"
+  "tests/fixtures"
+  ".tasks/active"
+  ".tasks/completed"
+  ".context/episodic"
+)
+
+STAGE="$(mktemp -d)"; trap 'rm -rf "$STAGE"' EXIT
+HOLLOW="$STAGE/hollow"; POISON="$STAGE/poison"
+
+echo "building hollow + poisoned copies of the tree ..." >&2
+for dest in "$HOLLOW" "$POISON"; do
+  cp -a "$REPO" "$dest" 2>/dev/null || { echo "UNKNOWN — could not copy the tree. Cannot answer."; exit 2; }
+  rm -rf "$dest/.git"                       # keep the copies small; git-reading probes
+                                            # will fail loudly there, which is not a pass
+  # Delete FILES, keep the directory tree. Removing directories instead looked equivalent
+  # and was not: emptying `tests/fixtures` at depth 1 deletes `tests/fixtures/aef-bpmn`,
+  # so the poison written there afterwards landed nowhere, every control came back
+  # identical, and all five smoke-test instruments were filed CANNOT-DRIVE. A drive that
+  # silently fails to place its own control reports the same thing as a sealed instrument.
+  for d in "${POP_DIRS[@]}"; do
+    [ -d "$dest/$d" ] || continue
+    find "$dest/$d" -type f -delete 2>/dev/null
+  done
+done
+# The poisoned copy holds exactly one item per population — enough that any instrument
+# actually reading that population produces a different result than it does on the hollow.
+# EVERY directory under a population, not just its top. Dropping one poison file at
+# `tests/fixtures/` leaves `tests/fixtures/lane-provenance/` empty in BOTH copies, so an
+# instrument reading that subdirectory produces identical signatures and is filed as
+# sealed when in fact the control never reached it. Under-placed controls do not report
+# as under-placed; they report as "nothing to see".
+for d in "${POP_DIRS[@]}"; do
+  [ -d "$POISON/$d" ] || continue
+  while IFS= read -r sub; do
+    case "$d" in
+      *.tasks*)   printf -- '---\nid: T-000\nname: "t440 poison"\n---\n## Acceptance Criteria\n### Human\n- [ ] unverified\n' \
+                    > "$sub/T-000-t440-poison.md" ;;
+      *episodic*) printf -- 'task_id: T-000\nsummary: t440 poison\n' > "$sub/T-000.yaml" ;;
+      *)          printf -- 'not a well-formed bpmn document\n' > "$sub/_t440-poison.bpmn"
+                  printf -- 'not: [a, well, formed\n'            > "$sub/_t440-poison.yaml" ;;
+    esac
+  done < <(find "$POISON/$d" -type d)
+done
 
 mapfile -t POP < <(T440_LIST=1 python3 "$CENSUS")
 [ "${#POP[@]}" -gt 0 ] || { echo "UNKNOWN — census returned an empty population."; exit 2; }
 
 blind=(); guarded=(); undrivable=(); driven=0
 
-# The knob an instrument exposes for its own population. Read from the file, because a
-# hard-coded table here would go stale silently — the exact failure mode being audited.
-knobs_of() { grep -o -E '\b[A-Z][A-Z0-9_]*_(CORPUS|FIXDIR|DIR|ROOT|SRC)\b' "tools/$1" | sort -u; }
+# What a population change must move and port/PID noise cannot: the exit code, how many
+# lines were emitted, and how many carried a per-leg verdict.
+sig() { printf '%s|%s|%s' "$2" "$(wc -l <<<"$1")" "$(grep -ciE '\b(pass|fail|ok|error)\b' <<<"$1")"; }
 
 for f in "${POP[@]}"; do
   [ -n "$ONLY" ] && [[ "$f" != *"$ONLY"* ]] && continue
+  case "$f" in *.py) runner=python3 ;; *) runner=node ;; esac
 
-  env_args=(); why=""
-  while read -r k; do
-    [ -z "$k" ] && continue
-    case "$k" in
-      *_SRC)  continue ;;           # a source FILE, not a population — emptying it is a
-                                    # different experiment (corrupt input, not no input)
-      *)      env_args+=("$k=$EMPTY"); why="$why $k" ;;
-    esac
-  done < <(knobs_of "$f")
-
-  workdir="$PWD"
-  if [ "${#env_args[@]}" -eq 0 ]; then
-    # second chance: an argv-taking probe is driven with an empty dir as its only argument
-    if grep -qE 'process\.argv\.slice|sys\.argv\[1:\]|argparse' "tools/$f"; then
-      why=" argv"
-    # third: a probe that globs RELATIVE paths has cwd as its population knob. `_norec-
-    # verify.py` globs `.tasks/active/*.md` with no env override — run it from an empty
-    # directory and its world is empty. This is a real drive, not a trick: any caller
-    # invoking it from the wrong directory gets exactly this run.
-    elif grep -qE "['\"]\.?(tasks|context|examples|tools|src|docs)/" "tools/$f"; then
-      why=" cwd"
-      workdir="$EMPTY"
-    else
-      undrivable+=("$f — exposes no corpus/dir knob, no argv, no relative-path population")
-      continue
-    fi
+  h_out="$(cd "$HOLLOW" && timeout "$PER_RUN_TIMEOUT" "$runner" "$HOLLOW/tools/$f" 2>&1)"; h_rc=$?
+  if [ "$h_rc" -eq 124 ]; then
+    undrivable+=("$f — timed out at ${PER_RUN_TIMEOUT}s on the hollow tree; verdict unknown")
+    continue
   fi
-
-  case "$f" in *.py) run=(python3 "$PWD/tools/$f") ;; *) run=(node "$PWD/tools/$f") ;; esac
-  [ "$why" = " argv" ] && run+=("$EMPTY")
-
-  out="$(cd "$workdir" && timeout 90 env "${env_args[@]}" "${run[@]}" 2>&1)"; rc=$?
-
-  if [ "$rc" -eq 124 ]; then
-    undrivable+=("$f — timed out at 90s under the empty drive; verdict unknown")
+  p_out="$(cd "$POISON" && timeout "$PER_RUN_TIMEOUT" "$runner" "$POISON/tools/$f" 2>&1)"; p_rc=$?
+  if [ "$p_rc" -eq 124 ]; then
+    undrivable+=("$f — timed out at ${PER_RUN_TIMEOUT}s on the poisoned tree; control inconclusive")
     continue
   fi
 
-  # ---------------------------------------------------------- POSITIVE CONTROL ON THE DRIVE
-  # Setting a knob is not the same as emptying a population, and the first version of this
-  # harness could not tell the difference. It set GALLERY_DIR for `_serve-gallery-verify.py`
-  # — which at :74 builds its own temp dir and overrides GALLERY_DIR for the subprocess it
-  # actually measures. The knob was inert, the script ran its normal full run, passed, and
-  # was reported BLIND. A green from an instrument that examined everything, recorded as
-  # proof it examines nothing: the exact inversion this task is about, committed by the
-  # instrument auditing for it.
-  #
-  # So before scoring an exit 0, prove the knob is LOAD-BEARING: run again with the same
-  # knob pointing at a POISONED population — one item that must produce a different result.
-  # Identical output under empty and poisoned means the knob changes nothing, so nothing
-  # was driven and the run says nothing about blindness.
-  #
-  # Note this control also settles the ambiguous case correctly. For a genuinely blind
-  # instrument, empty and poisoned DIFFER (poisoned yields a finding), so it scores BLIND.
-  # For an inert knob they MATCH. Output-equality alone would have conflated the two.
-  poison="$(mktemp -d)"; mkdir -p "$poison/rendered"
-  printf 'not a valid fixture\n' > "$poison/_t440-poison.bpmn"
-  printf 'not a valid fixture\n' > "$poison/rendered/_t440-poison.bpmn"
-  mkdir -p "$poison/.tasks/active"
-  printf -- '---\nid: T-000\n---\n## Acceptance Criteria\n### Human\n- [ ] unverified\n' \
-    > "$poison/.tasks/active/T-000-t440-poison.md"
-  p_env=(); for kv in "${env_args[@]}"; do p_env+=("${kv%%=*}=$poison"); done
-  p_work="$workdir"; [ "$workdir" = "$EMPTY" ] && p_work="$poison"
-  p_run=("${run[@]}"); [ "$why" = " argv" ] && p_run=("${run[@]:0:${#run[@]}-1}" "$poison")
-  pout="$(cd "$p_work" && timeout 90 env "${p_env[@]}" "${p_run[@]}" 2>&1)"; prc=$?
-  rm -rf "$poison"
-
-  # Compare a SIGNATURE, not the text. Text comparison — even with digits normalized —
-  # is defeated by output that varies for reasons unrelated to the population:
-  # `_serve-gallery-verify.py` binds ephemeral ports and prints PIDs, so two runs of the
-  # SAME configuration already differ. That made an inert knob look load-bearing and put
-  # a fully-executed green in the BLIND column.
-  #
-  # The signature is what a population change must move and noise cannot: the exit code,
-  # how many lines were emitted, and how many of them carried a per-leg verdict. A port
-  # number changing moves none of the three. One fewer leg examined moves at least two.
-  sig() { local t="$1"; printf '%s|%s|%s' "$2" "$(wc -l <<<"$t")" "$(grep -ciE '\b(pass|fail|ok|error)\b' <<<"$t")"; }
-  if [ "$(sig "$out" "$rc")" = "$(sig "$pout" "$prc")" ]; then
-    undrivable+=("$f — knob '${why# }' is inert: empty and poisoned populations give the same rc/line/verdict signature (rc=$rc). Nothing was driven.")
+  if [ "$(sig "$h_out" "$h_rc")" = "$(sig "$p_out" "$p_rc")" ]; then
+    undrivable+=("$f — emptying the tree's populations changes nothing (both rc=$h_rc, same signature). Its population is not in the directories this harness can empty.")
     continue
   fi
 
   driven=$((driven + 1))
 
-  # Success-shaped: exit 0 AND nothing that reads as an abstention or an error. Exit 0
-  # alone is not enough — a probe may exit 0 while printing "cannot answer", and calling
-  # that blind would be the same mention-vs-instance mistake one level out.
-  if [ "$rc" -eq 0 ] && ! grep -qiE 'abstain|unknown|cannot|no corpus|empty|nothing' <<<"$out"; then
-    blind+=("$f — exit 0 on an empty population (knob:${why# }) | $(head -1 <<<"$out" | cut -c1-70)")
+  # Success-shaped: exit 0 AND nothing that reads as an abstention. Exit 0 alone is not
+  # enough — an instrument may exit 0 while printing "cannot answer", and scoring that as
+  # blind would be the mention-vs-instance mistake one level out.
+  if [ "$h_rc" -eq 0 ] && ! grep -qiE 'abstain|unknown|cannot|no corpus|corpus empty|nothing (was )?(measured|examined)' <<<"$h_out"; then
+    blind+=("$f — exit 0 on an emptied tree | $(grep -viE '^\s*$' <<<"$h_out" | tail -1 | cut -c1-80)")
   else
-    guarded+=("$f — rc=$rc (knob:${why# })")
+    guarded+=("$f — rc=$h_rc on an emptied tree")
   fi
 done
 
@@ -152,8 +157,15 @@ echo "  CANNOT-DRIVE        ${#undrivable[@]}"
 echo
 
 if [ "${#undrivable[@]}" -gt 0 ]; then
-  echo "CANNOT-DRIVE — no way to empty the population from outside. Not a clean bill:"
+  echo "CANNOT-DRIVE — the drive provably moved nothing, so these are NOT covered by any"
+  echo "verdict below. Not a clean bill:"
   printf '  %s\n' "${undrivable[@]}"
+  echo
+fi
+
+if [ "${#guarded[@]}" -gt 0 ]; then
+  echo "guarded — refused to report success on an emptied tree:"
+  printf '  %s\n' "${guarded[@]}"
   echo
 fi
 

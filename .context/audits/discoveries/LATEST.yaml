@@ -1,4 +1,4 @@
-timestamp: 2026-08-12T06:00:02Z
+timestamp: 2026-08-12T06:30:01Z
 findings:
   - id: D1
     level: PASS
@@ -16,41 +16,9 @@ findings:
   - id: D11
     level: PASS
     check: "D11: Gap register staleness — all gaps fresh"
-  - id: D4
-    level: PASS
-    check: "D4: Audit trend — insufficient history (<3 entries)"
-  - id: D5
-    level: WARN
-    check: "D5: Task lifecycle — 12 anomaly(s): T-105(37d-active) T-189(31d-active) T-195(30d-active) T-228(21d-active) T-265(15d-active) T-286(14d-active) T-309(13d-active) T-347(9d-active) T-341(9d-active) T-358(8d-active) (+2 more)"
-    mitigation: "Review flagged tasks for process issues"
-  - id: D13
-    level: WARN
-    check: "D13: Inception limbo — 2 task(s): A=0/B=2 T-309(B) T-357(B)"
-    mitigation: "Recover both classes with: bin/fw inception sweep (T-1514)"
-  - id: D3
-    level: PASS
-    check: "D3: Commit velocity — normal (PASS today=15 avg=45 ratio=0.3x)"
-  - id: D7
-    level: PASS
-    check: "D7: Commit bunching — detected (INFO 1_bunch(es) 60_commits_24h)"
-  - id: D6
-    level: PASS
-    check: "D6: Completion velocity — normal (PASS recent=6.0 earlier=8.4)"
-  - id: D12
-    level: PASS
-    check: "D12: Bypass log — no log file"
-  - id: D9
-    level: PASS
-    check: "D9: Control drift — normal (PASS 10_audits_checked)"
-  - id: D14
-    level: PASS
-    check: "D14: Empty inception Recommendation — none (PASS no_empty_recommendations)"
-  - id: D15
-    level: PASS
-    check: "D15: Inception limbo state — none (PASS no_limbo)"
 
 summary:
-  pass: 12
-  warn: 2
+  pass: 4
+  warn: 0
   fail: 1
-  total: 15
+  total: 5
