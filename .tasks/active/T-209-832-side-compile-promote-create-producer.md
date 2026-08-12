@@ -133,6 +133,16 @@ state) rather than merely mentioning it — and it emits none.
 **Verdict: the original finding survives re-measurement.** The recommendation below now
 rests on a dated measurement rather than a dated reading.
 
+> **Addendum 2026-08-12 (T-470) — what this pass did not re-measure.** This section is
+> titled "the premise, not the conclusion" and it did re-run both suites. But the rows it
+> re-measured were the *finding's* evidence ("already covered"), which had not moved. The
+> thing that had moved was the **recommendation's** premise — option C's claim that the
+> typed-event gap was unfiled — which was already false when this pass ran, and which this
+> pass did not touch. A re-measurement is scoped to whatever the author suspected; here the
+> suspicion was aimed at the conclusion that turned out to be durable, and away from the
+> action item that had quietly been executed. **Re-measuring the part you doubt is not the
+> same as re-measuring the part that can expire.**
+
 ## Acceptance Criteria
 
 ### Agent
@@ -184,12 +194,30 @@ rests on a dated measurement rather than a dated reading.
     file typed-event byte-exact cross-validation (`typed-events.bpmn` /
     `boundary-events.bpmn`, rail offsets 82–83) as its own task — a genuinely uncovered
     producer surface that the offset-78 proposal did not name.
+    **~~Live option~~ — DISCHARGED 2026-07-19, five hours after this paragraph was
+    written (measured 2026-08-12, T-470).** The task C asks you to file is **T-212**
+    (`work-completed`, commit `39f69bcb`), which pins both fixture shas and asserts the
+    `aef:eventDef` shape in pure stdlib Python so it runs browser-less; it is wired into
+    `tests/run-bridge-tests.sh:203` and is green today:
+    `python3 tests/test_typed_event_fixture_contract.py` → rc 0,
+    `typed-events.bpmn (sha 5467071b3a39), boundary-events.bpmn (sha 37eec1b0f10a)`.
+    **C therefore prescribes no work that is not already done, and collapses into A.**
+    Kept visible rather than deleted, because "this option was live and is now spent" is
+    information; a silently shortened option list is not.
 
-  **Recommendation: C.** A is correct and incomplete: it closes the item and leaves the
-  one real gap unfiled, which is how a satisfied-contract finding turns into a blind
-  spot. The typed-event surface is a different contract, and AEF already shipped a WARN
-  detector for it (T-2552) — so declining the proposal while filing that gap answers
-  their proposal in the spirit it was made.
+  **Recommendation: A** (was **C** until 2026-08-12; the letter changed because C's
+  premise dissolved, not because the judgement did). A and C differ by exactly one action
+  — filing the typed-event gap — and that action was taken on 2026-07-19. What C was
+  protecting against, "a satisfied-contract finding turning into a blind spot", is a real
+  hazard and was the right instinct; it simply is not open. AEF's WARN detector (T-2552)
+  and our sha pin are both in place, so declining the offset-78 proposal now leaves
+  nothing unfiled.
+
+  **What is NOT claimed (PL-033/PL-034):** T-212 pins the bytes *we* hold and asserts the
+  shape *we* emit. That is producer-side self-consistency. Whether AEF's cross-validation
+  is green against those shas is on their side of the seam and **is not observable from
+  here** — the fixtures were delivered at rail offsets 88/89, and no confirmation is
+  asserted in their absence.
 
   **Steps:**
   1. `python3 tests/test_promote_contract.py && python3 tests/test_two_lane_joint_contract.py`
@@ -238,8 +266,23 @@ relationship call. Ruling A closes T-209; ruling B (build it anyway) re-opens th
 Agent ACs.
 
 **Known limit:** this covers the promote/manifest contract only. The typed-event
-serialization (T-204) is a different producer surface, still in motion on the rail, and is
-deliberately not folded in here.
+serialization (T-204) is a different producer surface and is deliberately not folded in
+here.
+
+> **Correction 2026-08-12 (T-470).** This paragraph read "still in motion on the rail"
+> until today. It was not: the 832-side half shipped as **T-212** on 2026-07-19 — sha pin
+> + `aef:eventDef` shape assertion, green, wired into the bridge suite. The phrase was
+> written on the day the surface *was* in motion and kept its present tense through a
+> re-measurement pass (2026-08-10) and a promotion pass (2026-08-12) without either
+> catching it. What remains genuinely open is the half that is **not ours to observe** —
+> AEF's cross-validation against the delivered shas (rail 88/89).
+>
+> **The two halves of this file disagreed, and that is what surfaced it.** The `### Human`
+> AC said "Recommendation: C"; this section said "GO on option A". Same ruling, same file,
+> two letters. Neither was reached by re-deriving C's premise — A happened to be right,
+> and its own "Known limit" sentence still described C's action as pending work. A
+> disagreement between two copies of a claim is cheaper to notice than a stale claim
+> stated once, which is an argument for *not* silently harmonising the second copy.
 
 ## Verification
 
