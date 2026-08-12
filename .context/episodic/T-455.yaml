@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-455: Recommendation block: the guard requires a section default.md never supplies
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T12:22:27Z
+# ============================================================================
+
+task_id: T-455
+task_name: "Recommendation block: the guard requires a section default.md never supplies"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T12:19:19Z
+completed: 2026-08-12T12:22:25Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-12T14:20:54+02:00
+last_commit: 2026-08-12T14:22:24+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the guard requires a section the shipped template never supplies. .tasks/templates/default.md has 0 '## Recommendation' sections; inception.md has 1 and documents the verdict line at :117. Measured with the guard's own parser rather than a grep: 133 task files carry the heading, 132 parse, and 4 files carry a verdict line the guard structurally cannot see. So the convention is 132/133 correct by pure imitation, and the cost is not hypothetical — 3 of the 14 NO-REC tasks T-454 repaired had already been ANALYSED and carried a decided verdict, invisible to the operator's queue only because the author invented a different shape. Corroborates PL-145 ('a ruling filed as PROSE is invisible to every instrument that looks for rulings', from T-209) which existed already but had no denominator. Same class as T-453: a gate measured against the shipped template rather than a fixture. Vendored file, so no local patch — the empty git diff over that path is an executable AC. ACs 4/4 — gap read off the shipped template (default.md 0 sections, inception.md 1 + verdict-line guidance at :117), harm re-derived with the guard's own parser (133 heading / 132 parse / 4 with a verdict the guard cannot see), reported upstream at rail 564 with the remedy named as 'copy the section that already works', and the vendored template left untouched with the empty git diff as an executable AC
+
+# Key outcomes
+outcomes:
+  - '**The gap is measured against the SHIPPED template, not a fixture** — the count of'
+  - '**The harm is quantified, not asserted.** Re-derived 2026-08-12 with the guard''s own'
+  - '**Reported upstream with the remedy named, not just the defect.** AEF rail offset'
+  - '**No local edit to `.tasks/templates/default.md`.** Verified by `git diff` over that'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the guard requires a section the shipped template never supplies. .tasks/templates/default.md has 0 ''## Recommendation'' sections; inception.md has 1 and documents the verdict line at :117. Measured with the guard''s own parser rather than a grep: 133 task files carry the heading, 132 parse, and 4 files carry a verdict line the guard structurally cannot see. So the convention is 132/133 correct by pure imitation, and the cost is not hypothetical — 3 of the 14 NO-REC tasks T-454 repaired had already been ANALYSED and carried a decided verdict, invisible to the operator''s queue only because the author invented a different shape. Corroborates PL-145 (''a ruling filed as PROSE is invisible to every instrument that looks for rulings'', from T-209) which existed already but had no denominator. Same class as T-453: a gate measured against the shipped template rather than a fixture. Vendored file, so no local patch — the empty git diff over that path is an executable AC'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-455-recommendation-block-the-guard-requires-.md'
+  - '.tasks/completed/T-454-approvals-queue-regrew-to-14-no-rec-of-3.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-12T14:20:54"
+    action: "T-455: the guard requires a section the shipped template never supplies. .tasks/templates/default.md has 0 '## Recommendation' sections; inception.md has 1 and documents the verdict line at :117. Measured with the guard's own parser rather than a grep: 133 task files carry the heading, 132 parse, and 4 files carry a verdict line the guard structurally cannot see. So the convention is 132/133 correct by pure imitation, and the cost is not hypothetical — 3 of the 14 NO-REC tasks T-454 repaired had already been ANALYSED and carried a decided verdict, invisible to the operator's queue only because the author invented a different shape. Corroborates PL-145 ('a ruling filed as PROSE is invisible to every instrument that looks for rulings', from T-209) which existed already but had no denominator. Same class as T-453: a gate measured against the shipped template rather than a fixture. Vendored file, so no local patch — the empty git diff over that path is an executable AC"
+  - time: "2026-08-12T14:22:24"
+    action: "T-455: ACs 4/4 — gap read off the shipped template (default.md 0 sections, inception.md 1 + verdict-line guidance at :117), harm re-derived with the guard's own parser (133 heading / 132 parse / 4 with a verdict the guard cannot see), reported upstream at rail 564 with the remedy named as 'copy the section that already works', and the vendored template left untouched with the empty git diff as an executable AC"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 2
+  files_changed: 2
+  lines_added: 229
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-455-recommendation-block-the-guard-requires-.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,81 @@
+# ============================================================================
+# EPISODIC MEMORY - T-457: Register the gate comment-boundary class as a gap
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T12:39:57Z
+# ============================================================================
+
+task_id: T-457
+task_name: "Register the gate comment-boundary class as a gap"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T12:36:57Z
+completed: 2026-08-12T12:39:54Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-12T14:39:30+02:00
+last_commit: 2026-08-12T14:39:54+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  G-036 registered — the three gate defects are one mechanism, and tasks archive while gaps persist. G-020 does not strip comments and counts the template's commented REVIEW examples as real ACs (raw 4, stripped 2, and the 2 survivors ARE the placeholders, so deleting them as instructed leaves the gate passing over zero criteria). P-011 strips comments from the COMMAND text and eats live commands. G-067, sixty lines from G-020 in the same file, does it correctly — which makes every instance a divergence from an in-file precedent rather than an open design question. Closure condition refuses the two fake-progress paths explicitly: closing the three report tickets (that records AEF was told, a different event from this tree being unexposed) and deleting the commented examples (removes today's witness, leaves the gate unable to count). Gauge runs, reports NOT_READY, and prints both numbers rather than collapsing them; it is referenced from concerns.yaml closure_check_command, which the T-451 census treats as a live source, so it does not join the 30 instruments that gap counts. corrected an inherited number in my own AC — I wrote that concerns-schema.py exits 1 on the pre-existing T-441 issue, from memory. Measured it is rc 2 with one line, identical before and after the edit (diff clean, register parses at 33 entries / 29 watching). The criterion holds; the number in it was inherited rather than read, which is the same defect this window has been chasing at larger scale
+
+# Key outcomes
+outcomes:
+  - '**The register entry names the CLASS, not the three tickets.** A gap that reads'
+  - '**The closure condition names what must MOVE, in which direction, and is'
+  - '**The entry records that one sibling already does it correctly.** `G-067` strips'
+  - '**`concerns.yaml` still parses and the register''s own schema check is no worse than'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'corrected an inherited number in my own AC — I wrote that concerns-schema.py exits 1 on the pre-existing T-441 issue, from memory. Measured it is rc 2 with one line, identical before and after the edit (diff clean, register parses at 33 entries / 29 watching). The criterion holds; the number in it was inherited rather than read, which is the same defect this window has been chasing at larger scale'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.tasks/active/T-457-register-the-gate-comment-boundary-class.md'
+  - '.tasks/completed/T-456-p-011-strips-html-comments-from-the-veri.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-12T14:39:30"
+    action: "T-457: G-036 registered — the three gate defects are one mechanism, and tasks archive while gaps persist. G-020 does not strip comments and counts the template's commented REVIEW examples as real ACs (raw 4, stripped 2, and the 2 survivors ARE the placeholders, so deleting them as instructed leaves the gate passing over zero criteria). P-011 strips comments from the COMMAND text and eats live commands. G-067, sixty lines from G-020 in the same file, does it correctly — which makes every instance a divergence from an in-file precedent rather than an open design question. Closure condition refuses the two fake-progress paths explicitly: closing the three report tickets (that records AEF was told, a different event from this tree being unexposed) and deleting the commented examples (removes today's witness, leaves the gate unable to count). Gauge runs, reports NOT_READY, and prints both numbers rather than collapsing them; it is referenced from concerns.yaml closure_check_command, which the T-451 census treats as a live source, so it does not join the 30 instruments that gap counts"
+  - time: "2026-08-12T14:39:54"
+    action: "T-457: corrected an inherited number in my own AC — I wrote that concerns-schema.py exits 1 on the pre-existing T-441 issue, from memory. Measured it is rc 2 with one line, identical before and after the edit (diff clean, register parses at 33 entries / 29 watching). The criterion holds; the number in it was inherited rather than read, which is the same defect this window has been chasing at larger scale"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 2
+  files_changed: 3
+  lines_added: 284
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-457-register-the-gate-comment-boundary-class.md
+generated_by: context-agent-hybrid

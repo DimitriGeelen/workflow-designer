@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-456: P-011 strips HTML comments from the Verification COMMAND text, mangling any command containing the markers
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T12:36:24Z
+# ============================================================================
+
+task_id: T-456
+task_name: "P-011 strips HTML comments from the Verification COMMAND text, mangling any command containing the markers"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T12:26:03Z
+completed: 2026-08-12T12:36:20Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-12T14:36:20+02:00
+last_commit: 2026-08-12T14:36:20+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  ACs 4/4 and verification legs that survive the defect they assert. Leg A binds the CAUSE to the shipping vendored file (a DOTALL comment-strip over the Verification text, update-task.sh:981); leg B reproduces the EFFECT exactly as observed on T-453 — a real sed command rewritten into sed -E 's///g', which succeeds and asserts nothing. Every leg builds the comment markers from chr() codes, because a leg containing the literal pair is rewritten by the extractor it is testing before being judged. Corrected my own comment on leg B: I had written that it goes red when the upstream fix lands, which is false — it applies the regex itself and passes forever regardless of the vendored file. It is a worked example, not a gauge, and calling it one was the same caller-side reasoning T-451 was about. Leg A is the gauge
+
+# Key outcomes
+outcomes:
+  - '**Both the CAUSE and the EFFECT are asserted, separately.** The cause — a DOTALL'
+  - '**The verification legs survive the defect they describe.** Every leg builds the'
+  - '**The false-GREEN direction is reported as a MECHANISM, not a sighting.** Rail 566:'
+  - '**Reported upstream with a remedy shape; no local patch.** AEF rail offset **566**,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'ACs 4/4 and verification legs that survive the defect they assert. Leg A binds the CAUSE to the shipping vendored file (a DOTALL comment-strip over the Verification text, update-task.sh:981); leg B reproduces the EFFECT exactly as observed on T-453 — a real sed command rewritten into sed -E ''s///g'', which succeeds and asserts nothing. Every leg builds the comment markers from chr() codes, because a leg containing the literal pair is rewritten by the extractor it is testing before being judged. Corrected my own comment on leg B: I had written that it goes red when the upstream fix lands, which is false — it applies the regex itself and passes forever regardless of the vendored file. It is a worked example, not a gauge, and calling it one was the same caller-side reasoning T-451 was about. Leg A is the gauge'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-456-p-011-strips-html-comments-from-the-veri.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-12T14:36:20"
+    action: "T-456: ACs 4/4 and verification legs that survive the defect they assert. Leg A binds the CAUSE to the shipping vendored file (a DOTALL comment-strip over the Verification text, update-task.sh:981); leg B reproduces the EFFECT exactly as observed on T-453 — a real sed command rewritten into sed -E 's///g', which succeeds and asserts nothing. Every leg builds the comment markers from chr() codes, because a leg containing the literal pair is rewritten by the extractor it is testing before being judged. Corrected my own comment on leg B: I had written that it goes red when the upstream fix lands, which is false — it applies the regex itself and passes forever regardless of the vendored file. It is a worked example, not a gauge, and calling it one was the same caller-side reasoning T-451 was about. Leg A is the gauge"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 10 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 10
+  commits: 1
+  files_changed: 1
+  lines_added: 52
+  lines_removed: 4
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-456-p-011-strips-html-comments-from-the-veri.md
+generated_by: context-agent-hybrid

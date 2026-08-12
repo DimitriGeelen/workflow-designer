@@ -42,7 +42,12 @@ assert_safe() {
   local f="$1" live guard
   guard="$(grep -c 'refusing to recursively delete' "$f")"
   live="$(grep -nE '^[[:space:]]*rm[[:space:]]+-[a-zA-Z]*r' "$f" | grep -v '^[0-9]*:[[:space:]]*#')"
-  if [ "$guard" -ge 1 ] && grep -q 'case "${OUT%/}" in' "$f"; then
+  # -F is load-bearing (T-460): as a BRE/ERE the unescaped `$` in `${OUT%/}` is read as an
+  # anchor, so this pattern matched NOTHING on a file that contains the literal (measured:
+  # BRE 0, -E 0, -P 0, -F 1). The `&&` therefore never held and the `guard intact` return
+  # below was unreachable for every input — including the correct, unmutated file, which the
+  # harness then reported as SAFETY PRECONDITION FAILED. Do not drop the -F.
+  if [ "$guard" -ge 1 ] && grep -qF 'case "${OUT%/}" in' "$f"; then
     return 0                      # guard intact — the dangerous inputs are refused
   fi
   if [ -z "$live" ]; then

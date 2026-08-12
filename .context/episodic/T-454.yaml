@@ -1,0 +1,111 @@
+# ============================================================================
+# EPISODIC MEMORY - T-454: Approvals queue regrew to 14 NO-REC of 32 handed-over tasks while its guard could not run
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T12:18:57Z
+# ============================================================================
+
+task_id: T-454
+task_name: "Approvals queue regrew to 14 NO-REC of 32 handed-over tasks while its guard could not run"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T10:59:28Z
+completed: 2026-08-12T12:18:52Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-12T13:00:39+02:00
+last_commit: 2026-08-12T14:18:44+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the consequence T-450 uncovered — the approvals queue regrew to 14 NO-REC of 32 handed-over tasks during the three weeks its guard could not run. _norec-verify.py last ran 2026-07-22 at 0 NO-REC and could not run again, because its only call site is that completed task's Verification block. Measured now: 450 task files, 32 carry pending Human ACs, 14 of those offer the operator nothing actionable. Four are arc blockers whose Agent ACs are literally marked BLOCKED pending a REVIEW ruling (T-340 T-341 T-358 T-209), so the missing verdict is load-bearing for designer-authoring-surface rather than administrative. Deliverable is one evidence-based Recommendation per task in the T-236 style, agent-written and operator-ruled — explicitly NOT a batch-close, since CLAUDE.md's Human Task Completion Rule requires individual evidence per task. Sized for a fresh window. register the T-451 census in the component fabric; write real ACs for the queue-recovery task so the next window starts scoped. The ACs pin the trap in this particular deliverable: rc 0 from the guard is only a win if the 'with pending Human ACs' count HOLDS — an rc 0 whose subject count has fallen means tasks were closed rather than given verdicts, which is the batch-close the whole finding argues against. three of the 14 NO-REC already carried a decided verdict, invisible for the shape of one line — T-209's lived as a ### sub-heading inside Context, T-286's opened **[GO]**, T-341's opened 'Option (2)'. Promoted to parseable form with today's re-run evidence (both promote-contract suites green, aef:provenance count 0). Caught myself mid-repair on T-341: re-tokenising its 2026-08-03 proposal to GO would have promoted a position the 2026-08-08 consolidated brief deliberately withholds ('operator only — no agent recommendation', Q2 has no ratified precedent and should not acquire one from an agent). Reverted; T-341 now reads ABSTAIN with BOTH dated positions surfaced, because deciding which of my own two positions is current IS the sovereignty question. That exposed a vocabulary gap: GO/NO-GO/DEFER has no token for deliberate agent abstention, so a task where withholding is correct could satisfy the guard only by manufacturing a recommendation — a gate paying for its own green. _norec-verify.py now parses ABSTAIN and counts it on its OWN line, never folded into the verdict count, because the obvious failure mode of an escape token is that it becomes the cheap way to empty a queue. the other two arc blockers. T-340 GO on scoped (b) consume-DI-as-layout — disjointness re-measured today at 144 tracked .bpmn (aef:position 125, DI 10, BOTH 0, NEITHER 9); the brief had 142 and the filing had 126, so the claim has now survived two third-party intakes, which is worth more than the zero itself. Zero bytes change, _t308 stays 24/24, no seam event. Explicitly NOT treating your T-357 GO as having ruled here even though its approved rationale names 'T-340 scoped (b)' by name — an inception GO approves a direction, it does not tick another task's Human AC. T-358 ABSTAIN, coupled to T-341: the brief files it as Q2b-follows-from-Q2a and Q2 as operator-only, because every candidate changes what we assert about a peer's document on the sovereignty axis. Carries one measured EXCLUSION that is not a preference — option A cannot be taken in the importer half alone, or lanes=0 meets an emitter that still opens laneSet unconditionally and we emit the empty-laneSet shape our own partition calls a third-party defect. All five candidates leave corpus bytes identical, so byte cost cannot be used to smuggle in a preference. T-347 GO on (a) preserve-and-re-emit — probe re-run today, positive control clean, every loss to exactly zero (caseagile-local-ns drops 405 extension children and 45 properties). One number moved since the brief and it strengthens the case: extChildren is 6/7 not 6/6, and the single survivor keeps 87 of 87 because its extension children are aef:uid/position/meta, OUR namespace which the importer enumerates, while the loser's are zeebe:. That is the mechanism stated exactly — what the importer enumerates survives, what it does not goes to zero — so a rule holding 6/7 for a reason you can point at is better evidence than one holding 6/6. Also surfaced the row most likely to make a uniform answer wrong (second-process: two-pool in, one-pool out, every count on the survivor green). T-433 GO on (c) take-the-bump-in-a-branch-and-diff: the one thing making it uncomfortable is that nothing verifies direction (resetting counter, no version_sha, no upstream tag), and a branch diff is exactly the missing second channel — it decides from bytes what the labels cannot. Blast radius replaces .tasks/templates wholesale, which is where T-453's zero-AC defect lives, so the diff has three concrete acceptance questions rather than being merely prudent. Decision stays the operator's per AEF DM 536. T-402 GO on A (wait for upstream) but COUPLED to T-433 — the task names its own failure mode, 'A by choice and A by nobody deciding are the same observable', so ruling A while T-433 is unresolved IS A-by-nobody-deciding wearing a decision's clothes; if T-433 is ruled defer, this recommendation withdraws and the answer becomes B. Probe evidence re-quoted: 5 of 9 misclassified, and two of the five are neither compound nor commands (allowlisted phrase inside a comment, and inside a string literal) — the gate matches English, not shell structure. T-432 GO on (c) widen fully, sequenced backfill-then-widen, with (b) rejected on measured grounds: a section run ALONE is a different instrument from the same section inside a full run (oe-daily alone reports 0 fail and never emits D2), so a section-list gate can be green while the full audit is not. Left the D2 sub-decision explicitly to the operator — under full (c) a stale review queue blocks every push, i.e. the gate would fail on operator latency rather than on code, and choosing that is not mine to do. the last five. T-344 NO-GO on approving the fabric watch scope as it stands — measured the 206 and it is not a scope anyone chose: 154 of 206 are tools/, 83 are one-shot instruments that ran once and will never be edited, and exactly 1 is the product; the fabric answers 'what breaks if I change this', which is meaningless for a mutation-check, and 34 of the existing 38 cards already have no edges so the problem is depth not breadth. T-345 GO on remove-as-duplicate reported upstream — its third defect (both verdict branches call pass()) is G-034 exactly, the fourth instance in this tree and the FIRST found in vendored code. T-392 GO on AEF's shape C (B's mechanism with A's failure direction, already landed as their T-2880), while stating plainly why it still needs the operator: it is the hook gating every Write/Edit/Bash call and its failure mode is failing open silently. T-422 GO on C with the earlier A recommendation explicitly WITHDRAWN — 24 hooks here vs 17 in any fresh consumer, measured by AEF on a population we cannot see. T-426 GO on registering the claim-drift detector as a Stop hook — a detector about wrongly-firing instruments must not itself be able to fail closed. Queue now rc 0 with pending HELD at 32: clean, not emptied. agent ACs 5/5 + verification block with the trap-pin as an executable leg. Verdict distribution stated rather than hidden behind rc 0: GO 11 / NO-GO 1 / ABSTAIN 2 / DEFER 0 — added as its own AC during the work, because an all-GO sweep and a considered sweep are indistinguishable from an exit code, and 14-for-14 GO would have been the signal I was clearing a queue rather than reading it. The revisit_at AC is ticked VACUOUS and labelled so: zero DEFERs were issued, so it ranges over an empty set, and closing this particular task by committing a green computed from a population of nothing would be a poor joke
+
+# Key outcomes
+outcomes:
+  - 'Each of the 14 carries a `## Recommendation` block with a parseable verdict'
+  - 'The four arc blockers (T-340, T-341, T-358, T-209) are done FIRST and each states'
+  - 'Every DEFER carries a `revisit_at` date — a DEFER without one is invisible to the'
+  - '**The verdict distribution is stated, not just the pass count.** GO 11 / NO-GO 1 /'
+  - '`python3 tools/_norec-verify.py` returns rc 0 with a line naming the scope, and the'
+  - 'No `### Human` AC is ticked and no task is closed by this work — writing the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'agent ACs 5/5 + verification block with the trap-pin as an executable leg. Verdict distribution stated rather than hidden behind rc 0: GO 11 / NO-GO 1 / ABSTAIN 2 / DEFER 0 — added as its own AC during the work, because an all-GO sweep and a considered sweep are indistinguishable from an exit code, and 14-for-14 GO would have been the signal I was clearing a queue rather than reading it. The revisit_at AC is ticked VACUOUS and labelled so: zero DEFERs were issued, so it ranges over an empty set, and closing this particular task by committing a green computed from a population of nothing would be a poor joke'
+    source: git-mined
+  - description: 'three of the 14 NO-REC already carried a decided verdict, invisible for the shape of one line — T-209''s lived as a ### sub-heading inside Context, T-286''s opened **[GO]**, T-341''s opened ''Option (2)''. Promoted to parseable form with today''s re-run evidence (both promote-contract suites green, aef:provenance count 0). Caught myself mid-repair on T-341: re-tokenising its 2026-08-03 proposal to GO would have promoted a position the 2026-08-08 consolidated brief deliberately withholds (''operator only — no agent recommendation'', Q2 has no ratified precedent and should not acquire one from an agent). Reverted; T-341 now reads ABSTAIN with BOTH dated positions surfaced, because deciding which of my own two positions is current IS the sovereignty question. That exposed a vocabulary gap: GO/NO-GO/DEFER has no token for deliberate agent abstention, so a task where withholding is correct could satisfy the guard only by manufacturing a recommendation — a gate paying for its own green. _norec-verify.py now parses ABSTAIN and counts it on its OWN line, never folded into the verdict count, because the obvious failure mode of an escape token is that it becomes the cheap way to empty a queue'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t451-unwired-guard-census.yaml'
+  - '.tasks/active/T-209-832-side-compile-promote-create-producer.md'
+  - '.tasks/active/T-286-edge-arrowheads-render-above-node-id-bad.md'
+  - '.tasks/active/T-340-standard-bpmn-di-is-silently-discarded-o.md'
+  - '.tasks/active/T-341-an-unresolvable-flownoderef-silently-rea.md'
+  - '.tasks/active/T-344-fabric-watch-patternsyaml-is-the-untailo.md'
+  - '.tasks/active/T-345-audit-fabric-coverage-check-is-a-broken-.md'
+  - '.tasks/active/T-347-content-inside-an-accepted-element-is-si.md'
+  - '.tasks/active/T-358-importer-fabricates-lane-and-pool-struct.md'
+  - '.tasks/active/T-392-safe-list-early-return-shadows-the-focus.md'
+  - '.tasks/active/T-402-budget-gate-allow-regex-matches-anywhere.md'
+  - '.tasks/active/T-422-check-arc-id-register-the-hook-or-delete.md'
+  - '.tasks/active/T-426-obs-017-misfire-audit-what-t-420-and-t-4.md'
+  - '.tasks/active/T-432-full-fw-audit-reports-60-fail-across-non.md'
+  - '.tasks/active/T-433-fw-upgrade-refuses-the-sanctioned-consum.md'
+  - '.tasks/active/T-454-approvals-queue-regrew-to-14-no-rec-of-3.md'
+  - 'tools/_norec-verify.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-12T13:00:39"
+    action: "T-454: the consequence T-450 uncovered — the approvals queue regrew to 14 NO-REC of 32 handed-over tasks during the three weeks its guard could not run. _norec-verify.py last ran 2026-07-22 at 0 NO-REC and could not run again, because its only call site is that completed task's Verification block. Measured now: 450 task files, 32 carry pending Human ACs, 14 of those offer the operator nothing actionable. Four are arc blockers whose Agent ACs are literally marked BLOCKED pending a REVIEW ruling (T-340 T-341 T-358 T-209), so the missing verdict is load-bearing for designer-authoring-surface rather than administrative. Deliverable is one evidence-based Recommendation per task in the T-236 style, agent-written and operator-ruled — explicitly NOT a batch-close, since CLAUDE.md's Human Task Completion Rule requires individual evidence per task. Sized for a fresh window"
+  - time: "2026-08-12T13:01:15"
+    action: "T-454: register the T-451 census in the component fabric; write real ACs for the queue-recovery task so the next window starts scoped. The ACs pin the trap in this particular deliverable: rc 0 from the guard is only a win if the 'with pending Human ACs' count HOLDS — an rc 0 whose subject count has fallen means tasks were closed rather than given verdicts, which is the batch-close the whole finding argues against"
+  - time: "2026-08-12T14:05:05"
+    action: "T-454: three of the 14 NO-REC already carried a decided verdict, invisible for the shape of one line — T-209's lived as a ### sub-heading inside Context, T-286's opened **[GO]**, T-341's opened 'Option (2)'. Promoted to parseable form with today's re-run evidence (both promote-contract suites green, aef:provenance count 0). Caught myself mid-repair on T-341: re-tokenising its 2026-08-03 proposal to GO would have promoted a position the 2026-08-08 consolidated brief deliberately withholds ('operator only — no agent recommendation', Q2 has no ratified precedent and should not acquire one from an agent). Reverted; T-341 now reads ABSTAIN with BOTH dated positions surfaced, because deciding which of my own two positions is current IS the sovereignty question. That exposed a vocabulary gap: GO/NO-GO/DEFER has no token for deliberate agent abstention, so a task where withholding is correct could satisfy the guard only by manufacturing a recommendation — a gate paying for its own green. _norec-verify.py now parses ABSTAIN and counts it on its OWN line, never folded into the verdict count, because the obvious failure mode of an escape token is that it becomes the cheap way to empty a queue"
+  - time: "2026-08-12T14:09:23"
+    action: "T-454: the other two arc blockers. T-340 GO on scoped (b) consume-DI-as-layout — disjointness re-measured today at 144 tracked .bpmn (aef:position 125, DI 10, BOTH 0, NEITHER 9); the brief had 142 and the filing had 126, so the claim has now survived two third-party intakes, which is worth more than the zero itself. Zero bytes change, _t308 stays 24/24, no seam event. Explicitly NOT treating your T-357 GO as having ruled here even though its approved rationale names 'T-340 scoped (b)' by name — an inception GO approves a direction, it does not tick another task's Human AC. T-358 ABSTAIN, coupled to T-341: the brief files it as Q2b-follows-from-Q2a and Q2 as operator-only, because every candidate changes what we assert about a peer's document on the sovereignty axis. Carries one measured EXCLUSION that is not a preference — option A cannot be taken in the importer half alone, or lanes=0 meets an emitter that still opens laneSet unconditionally and we emit the empty-laneSet shape our own partition calls a third-party defect. All five candidates leave corpus bytes identical, so byte cost cannot be used to smuggle in a preference"
+  - time: "2026-08-12T14:12:06"
+    action: "T-454: T-347 GO on (a) preserve-and-re-emit — probe re-run today, positive control clean, every loss to exactly zero (caseagile-local-ns drops 405 extension children and 45 properties). One number moved since the brief and it strengthens the case: extChildren is 6/7 not 6/6, and the single survivor keeps 87 of 87 because its extension children are aef:uid/position/meta, OUR namespace which the importer enumerates, while the loser's are zeebe:. That is the mechanism stated exactly — what the importer enumerates survives, what it does not goes to zero — so a rule holding 6/7 for a reason you can point at is better evidence than one holding 6/6. Also surfaced the row most likely to make a uniform answer wrong (second-process: two-pool in, one-pool out, every count on the survivor green). T-433 GO on (c) take-the-bump-in-a-branch-and-diff: the one thing making it uncomfortable is that nothing verifies direction (resetting counter, no version_sha, no upstream tag), and a branch diff is exactly the missing second channel — it decides from bytes what the labels cannot. Blast radius replaces .tasks/templates wholesale, which is where T-453's zero-AC defect lives, so the diff has three concrete acceptance questions rather than being merely prudent. Decision stays the operator's per AEF DM 536"
+  - time: "2026-08-12T14:14:32"
+    action: "T-454: T-402 GO on A (wait for upstream) but COUPLED to T-433 — the task names its own failure mode, 'A by choice and A by nobody deciding are the same observable', so ruling A while T-433 is unresolved IS A-by-nobody-deciding wearing a decision's clothes; if T-433 is ruled defer, this recommendation withdraws and the answer becomes B. Probe evidence re-quoted: 5 of 9 misclassified, and two of the five are neither compound nor commands (allowlisted phrase inside a comment, and inside a string literal) — the gate matches English, not shell structure. T-432 GO on (c) widen fully, sequenced backfill-then-widen, with (b) rejected on measured grounds: a section run ALONE is a different instrument from the same section inside a full run (oe-daily alone reports 0 fail and never emits D2), so a section-list gate can be green while the full audit is not. Left the D2 sub-decision explicitly to the operator — under full (c) a stale review queue blocks every push, i.e. the gate would fail on operator latency rather than on code, and choosing that is not mine to do"
+  - time: "2026-08-12T14:17:37"
+    action: "T-454: the last five. T-344 NO-GO on approving the fabric watch scope as it stands — measured the 206 and it is not a scope anyone chose: 154 of 206 are tools/, 83 are one-shot instruments that ran once and will never be edited, and exactly 1 is the product; the fabric answers 'what breaks if I change this', which is meaningless for a mutation-check, and 34 of the existing 38 cards already have no edges so the problem is depth not breadth. T-345 GO on remove-as-duplicate reported upstream — its third defect (both verdict branches call pass()) is G-034 exactly, the fourth instance in this tree and the FIRST found in vendored code. T-392 GO on AEF's shape C (B's mechanism with A's failure direction, already landed as their T-2880), while stating plainly why it still needs the operator: it is the hook gating every Write/Edit/Bash call and its failure mode is failing open silently. T-422 GO on C with the earlier A recommendation explicitly WITHDRAWN — 24 hooks here vs 17 in any fresh consumer, measured by AEF on a population we cannot see. T-426 GO on registering the claim-drift detector as a Stop hook — a detector about wrongly-firing instruments must not itself be able to fail closed. Queue now rc 0 with pending HELD at 32: clean, not emptied"
+  - time: "2026-08-12T14:18:44"
+    action: "T-454: agent ACs 5/5 + verification block with the trap-pin as an executable leg. Verdict distribution stated rather than hidden behind rc 0: GO 11 / NO-GO 1 / ABSTAIN 2 / DEFER 0 — added as its own AC during the work, because an all-GO sweep and a considered sweep are indistinguishable from an exit code, and 14-for-14 GO would have been the signal I was clearing a queue rather than reading it. The revisit_at AC is ticked VACUOUS and labelled so: zero DEFERs were issued, so it ranges over an empty set, and closing this particular task by committing a green computed from a population of nothing would be a poor joke"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 8 commit(s), 79 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 79
+  commits: 8
+  files_changed: 17
+  lines_added: 912
+  lines_removed: 20
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-454-approvals-queue-regrew-to-14-no-rec-of-3.md
+generated_by: context-agent-hybrid

@@ -1,0 +1,23 @@
+=== episodic-gen invocation: 2026-08-12T12:26:17Z ===
+task_id: T-453
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-453.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: G-020 scans the AC section as raw text: a quoted placeholder token blocks a real AC, and the templates commented Human examples make the zero-AC half inert
+  Duration: 0 days (90 min)
+  Updates: 2
+  Commits: 5
+  Lines: +694 -132 across 7 files
+  Outcomes: 4 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 6 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-453-g-020-scans-the-ac-section-as-raw-text-a.md
+--- exit code: 0 ---

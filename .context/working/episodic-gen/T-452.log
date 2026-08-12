@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-12T10:57:32Z ===
+task_id: T-452
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-452.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Reciprocal check of AEF's gate-metacharacter deadlock (DM 559 4) against 832's task gate
+  Duration: 0 days (5 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 6 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-452-reciprocal-check-of-aefs-gate-metacharac.md
+--- exit code: 0 ---

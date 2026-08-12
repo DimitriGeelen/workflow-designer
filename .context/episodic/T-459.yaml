@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-459: Rec-gate exposure on our tree is latent not live, and the template remedy is upstream — both measured
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T14:08:33Z
+# ============================================================================
+
+task_id: T-459
+task_name: "Rec-gate exposure on our tree is latent not live, and the template remedy is upstream — both measured"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T14:02:38Z
+completed: 2026-08-12T14:08:29Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**The census uses the SHIPPING predicate, not a paraphrase, and both controls are'
+  - '**The finding is reported with its denominator AND its latency (PL-084).** 21 of 65'
+  - '**The template''s immunity is identified as ACCIDENTAL, not designed.** review.sh escapes'
+  - '**Template ownership answered from the shipping upgrade path, not from T-455''s prior'
+  - '**My own first census was wrong in the exact class it was measuring, and it is recorded'
+  - '**The second broken leg generalised into a class, and the class is filed separately.**'
+  - '**Reported to AEF on the rail** with the census, both controls, the upgrade.sh file:line,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-459-rec-gate-exposure-on-our-tree-is-latent-.md
+generated_by: context-agent-hybrid

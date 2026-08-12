@@ -1,0 +1,88 @@
+# ============================================================================
+# EPISODIC MEMORY - T-453: G-020 scans the AC section as raw text: a quoted placeholder token blocks a real AC, and the templates commented Human examples make the zero-AC half inert
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T12:26:18Z
+# ============================================================================
+
+task_id: T-453
+task_name: "G-020 scans the AC section as raw text: a quoted placeholder token blocks a real AC, and the templates commented Human examples make the zero-AC half inert"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T10:55:55Z
+completed: 2026-08-12T12:26:15Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-12T13:00:27+02:00
+last_commit: 2026-08-12T14:26:14+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  G-020 decides build-readiness with two greps over the raw AC section, and both halves are wrong. FALSE POSITIVE: the placeholder token quoted inside a genuine acceptance criterion counts as a placeholder, so a task describing this gate cannot be filed — hit live while filing T-452. FALSE NEGATIVE and the serious one, measured against the SHIPPED template rather than a fixture: .tasks/templates/default.md carries 4 lines matching the real-AC pattern of which only 2 are the placeholders it blocks on, the other 2 being the commented REVIEW/REVIEWER examples inside the Human guidance block. So every template-created task starts at REAL_AC_COUNT=2 and the ==0 half can never fire; deleting the 2 placeholder lines, which is the literal instruction in the block message, leaves the gate passing over zero acceptance criteria. The remedy already exists sixty lines up in the same file — the G-067 Open Questions gate strips HTML comments before counting (:539, T-2554). Vendored AEF tooling so the fix is theirs, reported at rail 561 with the reproduction. Learnings recorded: prose about a string-matching gate reliably contains the string (AEF's 554 class, committed by me 48h after saying I had adopted it), and an exemption channel is a fake-progress channel unless the closure condition names what must move the other way. real ACs and an executable proof of the false negative. G-020 counts 4 lines matching its real-AC pattern over the SHIPPED template; only 2 survive comment-stripping and those 2 ARE the placeholders it blocks on, the other 2 being the commented REVIEW/REVIEWER examples at :58 and :67. So deleting the placeholders — the literal instruction in the gate's own block message — leaves 2 pattern-matching lines, every one a comment, and the ==0 half can never fire. Remedy named from sixty lines up in the same file: G-067 strips HTML comments before counting at :539. Verification pins raw=4 and stripped=2 as commands, plus an empty git diff over the vendored hook. Also carries this window's three learnings and one success pattern. ACs 4/4. The false positive fired a third time this window — on T-453's own acceptance criteria — which is the cleanest possible statement of the defect: the task describing the gate cannot be filed through the gate. P-011 mangled its own verification leg — new defect, filed T-456. update-task.sh:981 strips HTML comments from the Verification COMMAND text before executing it, so a leg asserting comment-stripping had its regex body deleted and ran as sed -E 's///g'. The leg passes standalone and fails under the gate, which makes the failure invisible to anyone testing their commands before filing them. Worse than a false red: under the T-352 errexit-swallow a mangled 'a ; b' line judged on b alone could still exit 0, producing a false GREEN over a check that no longer checks anything. Leg rewritten to build the markers from chr(60)+chr(33) so the extractor has nothing to match
+
+# Key outcomes
+outcomes:
+  - '**The false negative is measured against the SHIPPED template, not a fixture.** The'
+  - '**The false positive is stated as a workaround, never as a fix.** Hit a THIRD time'
+  - '**The remedy is named from the same file, not designed.** `G-067`''s Open Questions'
+  - '**Reported upstream; no local patch.** AEF rail offset **561**, restated at **564**'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'G-020 decides build-readiness with two greps over the raw AC section, and both halves are wrong. FALSE POSITIVE: the placeholder token quoted inside a genuine acceptance criterion counts as a placeholder, so a task describing this gate cannot be filed — hit live while filing T-452. FALSE NEGATIVE and the serious one, measured against the SHIPPED template rather than a fixture: .tasks/templates/default.md carries 4 lines matching the real-AC pattern of which only 2 are the placeholders it blocks on, the other 2 being the commented REVIEW/REVIEWER examples inside the Human guidance block. So every template-created task starts at REAL_AC_COUNT=2 and the ==0 half can never fire; deleting the 2 placeholder lines, which is the literal instruction in the block message, leaves the gate passing over zero acceptance criteria. The remedy already exists sixty lines up in the same file — the G-067 Open Questions gate strips HTML comments before counting (:539, T-2554). Vendored AEF tooling so the fix is theirs, reported at rail 561 with the reproduction. Learnings recorded: prose about a string-matching gate reliably contains the string (AEF''s 554 class, committed by me 48h after saying I had adopted it), and an exemption channel is a fake-progress channel unless the closure condition names what must move the other way'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/project/patterns.yaml'
+  - '.tasks/active/T-453-g-020-scans-the-ac-section-as-raw-text-a.md'
+  - '.tasks/active/T-456-p-011-strips-html-comments-from-the-veri.md'
+  - '.tasks/completed/T-455-recommendation-block-the-guard-requires-.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-12T13:00:27"
+    action: "T-453: G-020 decides build-readiness with two greps over the raw AC section, and both halves are wrong. FALSE POSITIVE: the placeholder token quoted inside a genuine acceptance criterion counts as a placeholder, so a task describing this gate cannot be filed — hit live while filing T-452. FALSE NEGATIVE and the serious one, measured against the SHIPPED template rather than a fixture: .tasks/templates/default.md carries 4 lines matching the real-AC pattern of which only 2 are the placeholders it blocks on, the other 2 being the commented REVIEW/REVIEWER examples inside the Human guidance block. So every template-created task starts at REAL_AC_COUNT=2 and the ==0 half can never fire; deleting the 2 placeholder lines, which is the literal instruction in the block message, leaves the gate passing over zero acceptance criteria. The remedy already exists sixty lines up in the same file — the G-067 Open Questions gate strips HTML comments before counting (:539, T-2554). Vendored AEF tooling so the fix is theirs, reported at rail 561 with the reproduction. Learnings recorded: prose about a string-matching gate reliably contains the string (AEF's 554 class, committed by me 48h after saying I had adopted it), and an exemption channel is a fake-progress channel unless the closure condition names what must move the other way"
+  - time: "2026-08-12T14:24:44"
+    action: "T-453: real ACs and an executable proof of the false negative. G-020 counts 4 lines matching its real-AC pattern over the SHIPPED template; only 2 survive comment-stripping and those 2 ARE the placeholders it blocks on, the other 2 being the commented REVIEW/REVIEWER examples at :58 and :67. So deleting the placeholders — the literal instruction in the gate's own block message — leaves 2 pattern-matching lines, every one a comment, and the ==0 half can never fire. Remedy named from sixty lines up in the same file: G-067 strips HTML comments before counting at :539. Verification pins raw=4 and stripped=2 as commands, plus an empty git diff over the vendored hook. Also carries this window's three learnings and one success pattern"
+  - time: "2026-08-12T14:25:08"
+    action: "T-453: ACs 4/4. The false positive fired a third time this window — on T-453's own acceptance criteria — which is the cleanest possible statement of the defect: the task describing the gate cannot be filed through the gate"
+  - time: "2026-08-12T14:26:14"
+    action: "T-453: P-011 mangled its own verification leg — new defect, filed T-456. update-task.sh:981 strips HTML comments from the Verification COMMAND text before executing it, so a leg asserting comment-stripping had its regex body deleted and ran as sed -E 's///g'. The leg passes standalone and fails under the gate, which makes the failure invisible to anyone testing their commands before filing them. Worse than a false red: under the T-352 errexit-swallow a mangled 'a ; b' line judged on b alone could still exit 0, producing a false GREEN over a check that no longer checks anything. Leg rewritten to build the markers from chr(60)+chr(33) so the extractor has nothing to match"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 5 commit(s), 90 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 90
+  commits: 5
+  files_changed: 7
+  lines_added: 694
+  lines_removed: 132
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-453-g-020-scans-the-ac-section-as-raw-text-a.md
+generated_by: context-agent-hybrid

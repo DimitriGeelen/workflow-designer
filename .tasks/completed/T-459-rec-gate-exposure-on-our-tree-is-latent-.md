@@ -1,13 +1,13 @@
 ---
-id: T-458
-name: "Completion transition leaves task-file state uncommitted"
+id: T-459
+name: "Rec-gate exposure on our tree is latent not live, and the template remedy is upstream — both measured"
 description: >
-  Observed 2026-08-12 at the end of a five-completion window: fw task update --status work-completed rewrites the task file (status, horizon null per CTL-030, date_finished, Updates entry) and moves it to .tasks/completed/, but those content edits land AFTER the commit that staged the file. Five task files (T-453 T-454 T-455 T-456 T-457) were left dirty in the working tree even after fw handover --commit ran and pushed, so the completion state of five tasks was not in the repository while the handover describing them was. Not yet established whether this is ordering-specific to how this window interleaved commit-then-complete, or general - recording the observation with the evidence rather than asserting a defect. Deliverable is the commit itself plus the honest note; investigation is a separate task if it recurs.
+  Rec-gate exposure on our tree is latent not live, and the template remedy is upstream — both measured
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-12T13:43:07Z
-last_update: 2026-08-12T13:44:01Z
-date_finished: null
+created: 2026-08-12T14:02:38Z
+last_update: 2026-08-12T14:08:29Z
+date_finished: 2026-08-12T14:08:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,7 +30,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-458: Completion transition leaves task-file state uncommitted
+# T-459: Rec-gate exposure on our tree is latent not live, and the template remedy is upstream — both measured
 
 ## Context
 
@@ -40,15 +40,47 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **The five completion-state deltas are committed**, so the repository holds the same
-      completion facts the handover already describes. Verified by `git status --porcelain`
-      being clean over `.tasks/`.
-- [ ] **The observation is recorded as an OBSERVATION, not a defect.** Whether this is
-      ordering-specific to how this window interleaved commit-then-complete, or general to
-      every completion, is not established. Asserting a framework defect from a single
-      window would be the inferred-rather-than-measured move this window has corrected
-      itself on twice already (the caller-side count in T-451, the schema exit code in
-      T-457). If it recurs, that is the trigger for a real investigation task.
+- [x] **The census uses the SHIPPING predicate, not a paraphrase, and both controls are
+      stated.** `lib/review.sh:137-168` counts a Human AC only when the line begins
+      `- [ ]` / `- [x]` at **column 0**, inside `### Human`, inside `## Acceptance Criteria`.
+      Positive control: the four arc blockers (T-340, T-341, T-358, T-209) each return
+      `human 0/1` — the counter finds real ACs. Negative control: the shipped template's two
+      example ACs sit **indented seven spaces**, so the same counter skips them.
+- [x] **The finding is reported with its denominator AND its latency (PL-084).** 21 of 65
+      active tasks carry no `## Recommendation` section; **0 of them trip the T-2421
+      rec-gate today**, because none has a real Human AC. The exposure is LATENT, not live —
+      and it becomes live the moment any of those 21 gains a Human AC, which is exactly what
+      happens when an agent replaces the template comment with real criteria at column 0.
+- [x] **The template's immunity is identified as ACCIDENTAL, not designed.** review.sh escapes
+      the G-036 comment-boundary class only because its glob is whitespace-intolerant and the
+      template's examples happen to be indented. De-indenting them — a formatting change no
+      reviewer would flag — makes the gate count two phantom Human ACs on every task built
+      from the template. Recorded as a fourth site of the G-036 class with an inverted sign:
+      the other three mis-strip comments, this one is saved by an unrelated accident.
+- [x] **Template ownership answered from the shipping upgrade path, not from T-455's prior
+      assertion.** `lib/upgrade.sh:986-991` copies the framework's `.tasks/templates/*.md`
+      over the project's whenever `diff -q` reports a difference — unconditionally, with no
+      local-modification check. A local fix to `default.md` is therefore reverted by the next
+      bump. T-455 declined the local edit on this ground; that ground is now measured rather
+      than asserted, and it makes AEF's "remedy is yours" (rail 568 §2) incorrect.
+- [x] **My own first census was wrong in the exact class it was measuring, and it is recorded
+      rather than quietly replaced.** The first pass used `grep -cE '^[[:space:]]*- \[[ x]\]'`,
+      which tolerates leading whitespace, and so counted the two commented template examples
+      as real Human ACs — producing 20 false `WOULD BLOCK` rows. That is the T-453 raw-text
+      class, committed inside the measurement intended to quantify it, and the second such
+      instance in two windows. The controls above exist because of it.
+- [x] **The second broken leg generalised into a class, and the class is filed separately.**
+      My `grep -q 'diff -q "$tmpl" "$target_tmpl"' …` leg returned 0 while `grep -F` on the
+      same pattern and file returned 1. GNU grep treats an unescaped `$` in a BRE **or ERE**
+      pattern as an anchor, so any pattern of the form `…$name…` is unsatisfiable and matches
+      nothing — measured across all four modes: BRE 0, `-E` 0, `-P` 0, `-F` 1. A sweep of
+      `.tasks/**` and `tools/**` found 5 such sites; 3 correctly escape the `$`, and 2 do not:
+      `.tasks/completed/T-148:68` (a completed task whose leg can never match) and
+      `tools/_t350-teeth.sh:45`, where the unmatchable pattern makes the `guard intact` branch
+      of `assert_safe()` **unreachable** — `tools/serve-gallery.sh` contains the literal
+      (`-F` 1) and the check reads 0. Filed as its own task per the one-bug-one-task rule.
+- [x] **Reported to AEF on the rail** with the census, both controls, the upgrade.sh file:line,
+      and the correction to §2's remedy assignment.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -129,6 +161,22 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# NOTE ON LEG 1 (the census). It asserts `live rec-gate blocked == 0`, which is TODAY's
+# measured state, not an invariant. If a future task gains a real column-0 Human AC while
+# lacking a `## Recommendation` section, this leg goes red — correctly, because that is the
+# moment the latent exposure becomes live. It is a gauge, not a worked example (T-456).
+#
+# Every leg below is single-quoted at the shell level so `$(.*?)` inside the regex is NOT
+# read as command substitution, and none of them contains an HTML comment delimiter, so the
+# P-011 extractor's DOTALL comment strip (T-456) cannot eat the middle of the command.
+python3 -c 'import glob,re,sys; S=lambda p: (re.findall(r"(?ms)^### Human$(.*?)(?=^#{2,3} |\Z)", open(p).read()) or [""])[0]; T=lambda p: [l for l in S(p).splitlines() if l.startswith(("- [ ]","- [x]","- [X]"))]; F=[p for p in glob.glob(".tasks/active/T-*.md") if not re.search(r"^## Recommendation", open(p).read(), re.M) and re.search(r"^workflow_type:\s*(build|refactor|test|decommission)", open(p).read(), re.M)]; B=[p for p in F if len(T(p)) > 0 and sum(1 for l in T(p) if l.startswith(("- [x]","- [X]"))) < len(T(p))]; print("build-class active tasks with no ## Recommendation: %d  ·  of those, live rec-gate blocked (human_checked < human_total): %d" % (len(F), len(B))); sys.exit(0 if len(B)==0 else 1)'
+python3 -c 'import re,glob,sys; p=glob.glob(".tasks/active/T-340-*.md")[0]; s=(re.findall(r"(?ms)^### Human$(.*?)(?=^#{2,3} |\Z)", open(p).read()) or [""])[0]; n=sum(1 for l in s.splitlines() if l.startswith(("- [ ]","- [x]","- [X]"))); print("POSITIVE CONTROL — T-340 column-0 Human ACs:", n); sys.exit(0 if n >= 1 else 1)'
+python3 -c 'import re,sys; sec=(re.findall(r"(?ms)^### Human$(.*?)(?=^## )", open(".tasks/templates/default.md").read()) or [""])[0]; bad=[l for l in sec.splitlines() if l.startswith(("- [ ]","- [x]"))]; ind=[l for l in sec.splitlines() if l.lstrip().startswith("- [ ]") and l != l.lstrip()]; print("NEGATIVE CONTROL — template Human section: column-0 checkboxes %d, indented example checkboxes %d" % (len(bad), len(ind))); sys.exit(0 if len(bad) == 0 and len(ind) >= 2 else 1)'
+grep -qF 'diff -q "$tmpl" "$target_tmpl"' .agentic-framework/lib/upgrade.sh
+test 1 -eq "$(grep -c '^## Recommendation' .tasks/templates/inception.md)"
+test 0 -eq "$(grep -c '^## Recommendation' .tasks/templates/default.md)"
+test -z "$(git diff --name-only -- .tasks/templates/default.md)"
 
 ## RCA
 
@@ -193,7 +241,19 @@ date_finished: null
 
 ## Updates
 
-### 2026-08-12T13:43:07Z — task-created [task-create-agent]
+### 2026-08-12T14:02:38Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-458-completion-transition-leaves-task-file-s.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-459-rec-gate-exposure-on-our-tree-is-latent-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6dc72292
+- **Timestamp:** 2026-08-12T14:08:31Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-12T14:08:29Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
