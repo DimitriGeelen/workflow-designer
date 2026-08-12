@@ -321,6 +321,40 @@ control" requires a version bump plus a conformance-test update. Registered as a
 observation and raised with AEF on the rail. **The correction is a v1.2 item for the
 operator and AEF, not for this task.**
 
+### Severity, measured (T-479, 2026-08-13): LATENT, not live — but unguarded
+
+OBS-039 established an *entitlement* to discard. Whether anything *does* was measured by
+executing the round trip in the real editor (`tools/_t479-endpoint-roundtrip-cdp.mjs`),
+not by reading code:
+
+    population : 30 documents carrying >=1 <aef:endpoint>   (examples/ + tests/fixtures/)
+    endpoints  : 155 in  ->  155 out
+    lossy      : 0
+    control    : fired (one endpoint stripped from a real document was detected as lost)
+
+**No commands are being lost today.** The editor's parse→build preserves every endpoint,
+value included. So the v1.2 correction is a calm fix, not an incident.
+
+**But nothing is watching it.** The strongest guard we have —
+`_roundtrip-serialization-cdp.mjs`, the only true semantic fixed-point test — projects a
+fixed `METAKEYS` list and **`endpoint` appears nowhere in that harness**. Presentational
+content is excluded from the projection *by design*, following the standard's classes. So
+**the misclassification has already propagated out of the standard and into our
+verification: the one guard that would catch endpoint loss is configured not to look.**
+
+That is the same shape AEF reported this round in their own guard — a defect encoded in a
+passing test, which no scan finds because the suite defends it. Here it is milder: nothing
+is broken, but a future regression that drops `aef:endpoint` would be **silent**. Filed as
+its own item; adding `endpoint` to the projection is a fix and belongs to a fix task.
+
+**Probe honesty note.** The first form of this measurement reported
+`tests/fixtures/aef-bpmn/offpage-seam.bpmn` as **lossy**. It was not: that endpoint
+contains `->`, which the fixture carries unescaped and the editor re-emits as `-&gt;`.
+Semantically identical, textually different — the comparison was on raw serialized text,
+so it was comparing *encodings*, not values. **That false positive was one step from being
+reported to AEF as data loss in a fixture they pin.** Fixed by decoding entities before
+comparison; the corrected probe is what produced the numbers above.
+
 Scope note: this is outside T-477's stated scope (classify `anchors` and `waypoint`). It
 is recorded rather than pursued, per "one bug = one task".
 

@@ -284,3 +284,17 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-041
+  text: "aef:endpoint is unguarded on the seam: tools/_roundtrip-serialization-cdp.mjs is our only true semantic fixed-point test and 'endpoint' appears NOWHERE in it — its projection is a fixed METAKEYS list and presentational content is excluded by design, following the standard's classes. So the OBS-039 misclassification has propagated out of the standard into our verification. T-479 measured no loss today (30 docs, 155 endpoints in/out, 0 lossy, positive control fired), so this is latent not live — but a future regression dropping aef:endpoint would be SILENT. Fix = add endpoint to the round-trip projection (a fix task, not a measurement). Evidence: docs/reports/T-357-di-adoption.md §'Severity, measured'"
+  captured: 2026-08-12T22:25:47Z
+  context_task: T-479
+  tags: [bug]
+  status: pending
+  promoted_to: null
+- id: OBS-042
+  text: "bake-clean-layout.py:110 docstring claims the committed corpus is 'editor node ids, bpmndi DI, hand-carried aef:meta notes'. The bpmndi DI clause is false: all 24 examples/aef-processes/rendered/*.bpmn declare xmlns:bpmndi but contain ZERO bpmndi:BPMNDiagram / BPMNShape / BPMNEdge elements (measured T-479). Low severity (justification comment, not logic) but it is in the very tool T-101 runs, and it would mislead exactly the person deciding whether the corpus already carries DI — which is the arc's central question."
+  captured: 2026-08-12T22:25:47Z
+  context_task: T-479
+  tags: [bug]
+  status: pending
+  promoted_to: null
