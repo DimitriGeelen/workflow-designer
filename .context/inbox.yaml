@@ -298,3 +298,10 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-043
+  text: "P-011 verification gate silently REWRITES executable commands: update-task.sh:978-983 strips HTML comment spans (re.sub(r'<!--.*?-->','')) from the ## Verification block before running it. The strip is span-based over raw block text with no command-boundary or quote awareness, so a LIVE command carrying '<!--' and '-->' as literal data has its middle deleted. Reproduced byte-exact: leg \"grep -q 'lines.push(`  <!-- ${DI_TRAILER} -->`)' src/...\" became \"grep -q 'lines.push(`  `)' src/...\". Mine went RED so I saw it; had the collapsed pattern still matched it would have PASSED while checking nothing — a false green in the verification gate itself. Fifth site in AEF's comment-rule census (rail 588) and a new semantic: strips comment spans from EXECUTED content. Vendored framework — fix belongs upstream, not local. NOTE: this supersedes the T-478 learning blaming backticks; AEF measured (593 s2) that single quotes DO protect backticks under a single eval, and our gate is a single eval (update-task.sh:1101)."
+  captured: 2026-08-12T22:34:55Z
+  context_task: T-481
+  tags: [bug]
+  status: pending
+  promoted_to: null

@@ -1212,3 +1212,45 @@ learnings:
   date: 2026-08-12
   context: Added via context agent
   application: TBD
+- id: PL-169
+  learning: "A search anchor that describes a defect will be found inside the artifact documenting that defect. Four instances this session: a P-011 leg matching its own explanatory comment (T-468), a stale-phrase leg that would have matched the correction quoting the phrase (T-470, caught pre-write), and a tick script whose '### Human' anchor matched the task description explaining the '### Human' bug (T-470, corrupted the file). Remedy: anchor on STRUCTURE (heading position, after-frontmatter offset) not on a bare string that prose is free to contain."
+  source: P-001
+  task: T-470
+  date: 2026-08-12
+  context: Added via context agent
+  application: TBD
+- id: PL-170
+  learning: "A finding does not reach the instruments of the task that found it unless someone walks it there. T-469's headline was that a shell glob does not descend (it had hidden a subdirectory from a corpus count); the verification leg written later in that same task pinned the corpus with the same glob, 42 of 47 paths, missing the two files T-469 had just called most seam-relevant. Once the prose reads correctly the finding FEELS discharged, and guards written afterwards inherit the habit rather than the correction. Check: after fixing a claim, grep the same task's own Verification block for the construct the claim was about."
+  source: P-001
+  task: T-471
+  date: 2026-08-12
+  context: Added via context agent
+  application: TBD
+- id: PL-171
+  learning: "A task's frontmatter description: outlives the body's corrections, because correcting the body is where the work feels finished — and the field is what every listing, handover and task view renders. T-443's description said 'TRIGGER: AEF answers DM 548 s5'; its ## Context four lines below opened 'AEF HAS RULED: KEEP THE PATH'. The stale field was read as current state 32 rails later and the answered question was put back to the peer who answered it. Frontmatter is a cache with no invalidation. Third instance this session (T-466, T-209, T-472). Detector: tools/_t472-stale-trigger-field.py."
+  source: P-001
+  task: T-472
+  date: 2026-08-12
+  context: Added via context agent
+  application: TBD
+- id: PL-172
+  learning: "A census written with 'grep | head -N' is a sample presented as a complete set, and it reads as complete in the write-up. T-475's census of a false-premise carrier used head -3, found the two occurrences it expected, and missed three more in the same file (a GO rationale reproduced verbatim in three record blocks). They surfaced only because a verification leg asserted 'no unannotated occurrence' and went red. Rule: when the deliverable is completeness, the measuring command must not be truncated - and pin the count, so a later addition cannot slip in unnoticed."
+  source: P-001
+  task: T-475
+  date: 2026-08-12
+  context: Added via context agent
+  application: TBD
+- id: PL-173
+  learning: "P-011 verification legs must contain no backticks: the gate eval-expands each line, so backticks are command-substituted even inside single quotes. A leg like grep -q 'lines.push(`  <!-- ${DI_TRAILER} -->`)' silently collapses to grep -q 'lines.push(  )' and goes RED for the wrong reason — the leg reports a failure that has nothing to do with the property it was written to check. Escaped \\${...} survives; backticks do not. Prefer a backtick-free substring (here: 'DI_TRAILER} -->')."
+  source: P-011
+  task: T-478
+  date: 2026-08-12
+  context: Added via context agent
+  application: TBD
+- id: PL-174
+  learning: "SUPERSEDES the T-478 backtick learning, which was wrong. A P-011 leg is not mangled by backticks: our gate is a single eval (update-task.sh:1101) and single quotes protect backticks (measured by AEF, rail 593). The real mechanism is update-task.sh:978-983, which strips HTML comment SPANS from the Verification block before executing it — so any live command containing '<!--' ... '-->' as literal data loses its middle. Rule: a P-011 leg must not contain an HTML comment span; anchor on a fragment without '<!--'. The general form is the one this session kept finding — a stripper that matches a token without asking which sense of it, applied to content the consumer EXECUTES."
+  source: P-011
+  task: T-481
+  date: 2026-08-12
+  context: Added via context agent
+  application: TBD
