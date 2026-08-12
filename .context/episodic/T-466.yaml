@@ -1,0 +1,100 @@
+# ============================================================================
+# EPISODIC MEMORY - T-466: The arc view cannot see what blocks the arc
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T19:46:38Z
+# ============================================================================
+
+task_id: T-466
+task_name: "The arc view cannot see what blocks the arc"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T19:37:23Z
+completed: 2026-08-12T19:46:33Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-12T21:46:27+02:00
+last_commit: 2026-08-12T21:46:27+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the arc is blocked on ONE ruling, not five — three windows of a co-occurrence list restated as a causal claim
+
+# Key outcomes
+outcomes:
+  - 'No duplicate brief is produced. `docs/reports/T-397-import-repair-semantics-brief.md`'
+  - 'T-340 carries `arc_id: designer-authoring-surface` and appears in'
+  - 'The denominator is stated and derived, not asserted (PL-084): how many active tasks'
+  - '`docs/reports/T-466-arc-blockage.md` records the correction with its evidence: the arc'
+  - 'Every operator command in that document is single-line, `cd`-prefixed, uses'
+  - 'Per PL-145 — which comes from T-209, one of the four now shown NOT to block the arc —'
+  - 'OUT OF SCOPE, stated rather than silently dropped: T-209 is the one ruling of the five'
+  - 'No `### Human` AC on any of the five tasks is ticked, no ruling is recorded, and no'
+  - '[REVIEW] Dashboard renders correctly'
+  - '[REVIEWER] Block message names both bypass mechanisms'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-464.log'
+  - '.context/working/episodic-gen/T-465.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.pre-compact.handover.stderr'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - 'docs/reports/T-466-arc-blockage.md'
+  - '.tasks/active/T-340-standard-bpmn-di-is-silently-discarded-o.md'
+  - '.tasks/active/T-466-operator-decision-brief-for-the-five-arc.md'
+  - '.tasks/active/T-467-fw-arc-tag-writes-the-deprecated-tags-fo.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-12T21:46:27"
+    action: "T-466: the arc is blocked on ONE ruling, not five — three windows of a co-occurrence list restated as a causal claim"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 1
+  files_changed: 19
+  lines_added: 1001
+  lines_removed: 39
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-466-operator-decision-brief-for-the-five-arc.md
+generated_by: context-agent-hybrid

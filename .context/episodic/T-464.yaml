@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-464: T-400 teeth RECIPROC leg hardcodes a 25-entry population the register outgrew
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T18:44:55Z
+# ============================================================================
+
+task_id: T-464
+task_name: "T-400 teeth RECIPROC leg hardcodes a 25-entry population the register outgrew"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T18:37:58Z
+completed: 2026-08-12T18:44:41Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'The RECIPROC leg carries no hardcoded entry-count literal — the expected'
+  - 'The derivation is INDEPENDENT of the subject. It does not invoke'
+  - 'The leg still has TEETH against truncation — and the mutation is applied to the'
+  - 'The leg TRACKS growth: one genuine entry appended → 35, leg stays green and'
+  - '`tools/_t400-schema-teeth.sh` exits 0 over the live register — 10/10 legs, and'
+  - 'Swept for other stale population literals: **49 harness files / 8280 lines**,'
+  - 'The proof is durable, not one-shot: `tools/_t464-derivation-probe.sh` runs all'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-464-t-400-teeth-reciproc-leg-hardcodes-a-25-.md
+generated_by: context-agent-hybrid

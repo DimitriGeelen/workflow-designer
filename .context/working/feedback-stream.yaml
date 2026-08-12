@@ -5543,3 +5543,21 @@ scan_id: R-576f3a3b
 task_id: T-465
 payload:
   task_file: .tasks/active/T-465-g-037-witness-records-a-root-dependent-v.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T19:46:35Z'
+scan_id: R-88bcb45a
+task_id: T-466
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T19:46:35Z'
+scan_id: R-88bcb45a
+task_id: T-466
+payload:
+  task_file: .tasks/active/T-466-operator-decision-brief-for-the-five-arc.md
