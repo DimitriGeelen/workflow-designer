@@ -2235,3 +2235,49 @@ concerns:
     - T-456
     - T-457
   closure_check_command: python3 -c "import re,json;O=chr(60)+chr(33)+'--';C='--'+chr(62);t=open('.tasks/templates/default.md').read();raw=sum(1 for l in t.splitlines() if re.match(r'\s*- \[ \]',l));st=sum(1 for l in re.sub(O+'.*?'+C,'',t,flags=re.S).splitlines() if re.match(r'\s*- \[ \]',l));u=open('.agentic-framework/agents/task-create/update-task.sh').read();eats=any(('re.sub' in l and 'DOTALL' in l and O[:2] in l) for l in u.splitlines());ok=(raw==st) and not eats;print(json.dumps({'verdict':'READY' if ok else 'NOT_READY','ready':ok,'template_raw_ac_count':raw,'template_comment_stripped_count':st,'p011_strips_command_text':eats}))"
+- id: G-037
+  type: gap
+  status: watching
+  severity: high
+  title: >-
+    The agent's measuring instrument and the framework's execution environment are different
+    programs — `grep` in the agent tool shell is a ugrep shim, every gate/hook/script runs GNU
+    grep, and nothing announces the substitution
+  detected: 2026-08-12
+  origin_task: T-460
+  context: >-
+    `grep` in the agent's interactive tool shell is a SHELL FUNCTION that routes to ugrep
+    7.5.0. Every subshell, script, hook and P-011 verification leg runs /usr/bin/grep (GNU).
+    The two disagree on regex semantics — most sharply on an unescaped mid-pattern `$`, which
+    GNU grep reads as a literal (documented, correct) and ugrep reads as an anchor. Same
+    command, same file, same second: 1 versus 0. Direction of harm is a FALSE ABSENCE: the
+    shim's extra anchoring makes patterns match LESS, so agent-side sweeps under-report, and
+    the sentence it corrupts is "I searched and found nothing" — which is the load-bearing
+    sentence of every census, sweep and negative finding this project has produced. It is
+    invisible by construction: not on $PATH, absent from `command -v` in every shell that
+    matters, visible only to `type -t grep` in the one shell that has it, and the code is
+    correct in both trees so no amount of reading finds it. This is a third distinct way for
+    an instrument to report something other than what it means, beside G-034 (verdict
+    computed from an empty population) and G-035 (instrument with no live caller).
+  evidence:
+    - "T-460: `grep -c 'case \"${OUT%/}\" in' tools/serve-gallery.sh` returns 0 through the agent shell and 1 through /usr/bin/grep. Same pattern, same file."
+    - "`type grep` in the agent tool shell prints a function body referencing CLAUDE_CODE_EXECPATH and /root/.local/bin/claude; `grep --version` there reports ugrep 7.5.0."
+    - "`bash -c 'type -t grep; command -v grep'` returns `file` and `/usr/bin/grep` — the shim exists only in the instrument, never in the subject."
+    - "Three findings were produced from the divergence and all three were wrong: the _t350-teeth.sh:45 dead branch, T-459's leg-6 'unsatisfiable grep' class, and the completed/T-148:68 unmatchable leg. All three were sent to AEF at rail 570 §5 with a request that they sweep their tree. Retracted at rail 571."
+    - "Discovery path is the finding's own mitigation: P-011 refused to complete T-460 on a leg asserting a count. The disagreement was NOT reproducible by hand, because 'by hand' was the corrupted path. Rewriting the leg to PRINT its numbers instead of only asserting them resolved it in one run: `BRE=1 FIXED=1 cwd=/opt/832-Workflow-designer grep=/usr/bin/grep opts=[unset]`."
+  decision_trigger: >-
+    CLOSES only when a future divergence would be NOTICED, not when today's is known.
+    Specifically REFUSED as closure: (a) closing T-460 — that records that one wrong belief
+    was corrected, not that the next one would be caught; (b) removing or overriding the shim
+    in one shell — the gap is that instrument and subject CAN diverge silently, and a
+    hand-fixed shell is neither durable nor detectable; (c) a habit or a note in CLAUDE.md
+    telling agents to remember — an instruction is not an instrument. Closure requires a
+    mechanical check that compares the agent-visible tool against the gate-visible one and
+    fails when they differ. LIMIT, stated so a green cannot imply more than it measured: the
+    command below tests `grep` only. Other tools may be shimmed the same way and are NOT
+    covered; a READY verdict here means grep specifically agrees, not that the class is gone.
+  related_tasks:
+    - T-459
+    - T-460
+    - T-461
+  closure_check_command: python3 -c "import json,os,time,subprocess as s;w='.context/working/.grep-witness';have=os.path.exists(w);d=dict(l.split('=',1) for l in open(w).read().splitlines() if '=' in l and not l.startswith('#')) if have else {};age=(time.time()-os.path.getmtime(w))/86400 if have else None;gnu=s.run(['bash','-lc','/usr/bin/grep --version | head -1'],capture_output=True,text=True).stdout.strip();sub=s.run(['bash','-lc','type -t grep'],capture_output=True,text=True).stdout.strip();agree=have and age is not None and age<30 and d.get('type')=='file' and d.get('version','').startswith(gnu[:20]);print(json.dumps({'verdict':'READY' if agree else 'NOT_READY','ready':bool(agree),'witness_present':have,'witness_age_days':None if age is None else round(age,2),'agent_shell_grep_type':d.get('type'),'agent_shell_grep_version':d.get('version'),'gate_shell_grep_type':sub,'gate_shell_grep_version':gnu,'why':'the agent-side value CANNOT be obtained by spawning anything — spawning is what escapes the shim — so it is supplied by a witness file written from the agent tool shell; a missing or stale witness is NOT_READY, never READY','limit':'grep only; other tools may be shimmed and are not covered'}))"

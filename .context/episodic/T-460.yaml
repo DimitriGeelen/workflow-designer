@@ -1,0 +1,106 @@
+# ============================================================================
+# EPISODIC MEMORY - T-460: grep with an unescaped $name pattern is unsatisfiable: _t350-teeth assert_safe guard-intact branch is unreachable
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T14:20:03Z
+# ============================================================================
+
+task_id: T-460
+task_name: "grep with an unescaped $name pattern is unsatisfiable: _t350-teeth assert_safe guard-intact branch is unreachable"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T14:08:42Z
+completed: 2026-08-12T14:19:59Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-12T16:13:31+02:00
+last_commit: 2026-08-12T16:13:31+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  revive a dead arm in the delete-guard harness, and name the class that killed it.
+
+# Key outcomes
+outcomes:
+  - '**The premise is disproven with both implementations named, not just the counts.**'
+  - '**The environment split is measured, not assumed.** `bash -c ''type -t grep; command -v'
+  - '**Three prior findings are withdrawn by name.** (a) `_t350-teeth.sh:45` unreachable'
+  - '**The `-F` change is KEPT and re-justified, and the wrong reason is removed from the'
+  - '**The real class is named and distinguished from the two already registered.**'
+  - '**The correction path is recorded, because the gate outperformed the agent.** P-011'
+  - '**T-459''s record is corrected by appending, not by editing its checkbox.** T-459 is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-453.yaml'
+  - '.context/episodic/T-454.yaml'
+  - '.context/episodic/T-455.yaml'
+  - '.context/episodic/T-456.yaml'
+  - '.context/episodic/T-457.yaml'
+  - '.context/episodic/T-459.yaml'
+  - '.context/locks/T-450.lock'
+  - '.context/locks/T-451.lock'
+  - '.context/locks/T-452.lock'
+  - '.context/locks/T-453.lock'
+  - '.context/locks/T-454.lock'
+  - '.context/locks/T-455.lock'
+  - '.context/locks/T-456.lock'
+  - '.context/locks/T-457.lock'
+  - '.context/locks/T-459.lock'
+  - '.context/working/episodic-gen/T-450.log'
+  - '.context/working/episodic-gen/T-451.log'
+  - '.context/working/episodic-gen/T-452.log'
+  - '.context/working/episodic-gen/T-453.log'
+  - '.context/working/episodic-gen/T-454.log'
+  - '.context/working/episodic-gen/T-455.log'
+  - '.context/working/episodic-gen/T-456.log'
+  - '.context/working/episodic-gen/T-457.log'
+  - '.context/working/episodic-gen/T-459.log'
+  - '.tasks/active/T-458-completion-transition-leaves-task-file-s.md'
+  - '.tasks/active/T-460-grep-with-an-unescaped-name-pattern-is-u.md'
+  - '.tasks/completed/T-459-rec-gate-exposure-on-our-tree-is-latent-.md'
+  - 'tools/_t350-teeth.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-12T16:13:31"
+    action: "T-460: revive a dead arm in the delete-guard harness, and name the class that killed it."
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 11 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 11
+  commits: 1
+  files_changed: 28
+  lines_added: 1245
+  lines_removed: 2
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-460-grep-with-an-unescaped-name-pattern-is-u.md
+generated_by: context-agent-hybrid

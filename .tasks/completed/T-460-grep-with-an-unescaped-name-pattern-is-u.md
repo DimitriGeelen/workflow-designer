@@ -1,8 +1,8 @@
 ---
-id: T-459
-name: "Rec-gate exposure on our tree is latent not live, and the template remedy is upstream — both measured"
+id: T-460
+name: "grep with an unescaped $name pattern is unsatisfiable: _t350-teeth assert_safe guard-intact branch is unreachable"
 description: >
-  Rec-gate exposure on our tree is latent not live, and the template remedy is upstream — both measured
+  grep with an unescaped $name pattern is unsatisfiable: _t350-teeth assert_safe guard-intact branch is unreachable
 
 status: work-completed
 workflow_type: build
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-12T14:02:38Z
-last_update: 2026-08-12T14:08:29Z
-date_finished: 2026-08-12T14:08:29Z
+created: 2026-08-12T14:08:42Z
+last_update: 2026-08-12T14:19:59Z
+date_finished: 2026-08-12T14:19:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,7 +30,7 @@ date_finished: 2026-08-12T14:08:29Z
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-459: Rec-gate exposure on our tree is latent not live, and the template remedy is upstream — both measured
+# T-460: grep with an unescaped $name pattern is unsatisfiable: _t350-teeth assert_safe guard-intact branch is unreachable
 
 ## Context
 
@@ -40,47 +40,60 @@ date_finished: 2026-08-12T14:08:29Z
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] **The census uses the SHIPPING predicate, not a paraphrase, and both controls are
-      stated.** `lib/review.sh:137-168` counts a Human AC only when the line begins
-      `- [ ]` / `- [x]` at **column 0**, inside `### Human`, inside `## Acceptance Criteria`.
-      Positive control: the four arc blockers (T-340, T-341, T-358, T-209) each return
-      `human 0/1` — the counter finds real ACs. Negative control: the shipped template's two
-      example ACs sit **indented seven spaces**, so the same counter skips them.
-- [x] **The finding is reported with its denominator AND its latency (PL-084).** 21 of 65
-      active tasks carry no `## Recommendation` section; **0 of them trip the T-2421
-      rec-gate today**, because none has a real Human AC. The exposure is LATENT, not live —
-      and it becomes live the moment any of those 21 gains a Human AC, which is exactly what
-      happens when an agent replaces the template comment with real criteria at column 0.
-- [x] **The template's immunity is identified as ACCIDENTAL, not designed.** review.sh escapes
-      the G-036 comment-boundary class only because its glob is whitespace-intolerant and the
-      template's examples happen to be indented. De-indenting them — a formatting change no
-      reviewer would flag — makes the gate count two phantom Human ACs on every task built
-      from the template. Recorded as a fourth site of the G-036 class with an inverted sign:
-      the other three mis-strip comments, this one is saved by an unrelated accident.
-- [x] **Template ownership answered from the shipping upgrade path, not from T-455's prior
-      assertion.** `lib/upgrade.sh:986-991` copies the framework's `.tasks/templates/*.md`
-      over the project's whenever `diff -q` reports a difference — unconditionally, with no
-      local-modification check. A local fix to `default.md` is therefore reverted by the next
-      bump. T-455 declined the local edit on this ground; that ground is now measured rather
-      than asserted, and it makes AEF's "remedy is yours" (rail 568 §2) incorrect.
-- [x] **My own first census was wrong in the exact class it was measuring, and it is recorded
-      rather than quietly replaced.** The first pass used `grep -cE '^[[:space:]]*- \[[ x]\]'`,
-      which tolerates leading whitespace, and so counted the two commented template examples
-      as real Human ACs — producing 20 false `WOULD BLOCK` rows. That is the T-453 raw-text
-      class, committed inside the measurement intended to quantify it, and the second such
-      instance in two windows. The controls above exist because of it.
-- [x] **The second broken leg generalised into a class, and the class is filed separately.**
-      My `grep -q 'diff -q "$tmpl" "$target_tmpl"' …` leg returned 0 while `grep -F` on the
-      same pattern and file returned 1. GNU grep treats an unescaped `$` in a BRE **or ERE**
-      pattern as an anchor, so any pattern of the form `…$name…` is unsatisfiable and matches
-      nothing — measured across all four modes: BRE 0, `-E` 0, `-P` 0, `-F` 1. A sweep of
-      `.tasks/**` and `tools/**` found 5 such sites; 3 correctly escape the `$`, and 2 do not:
-      `.tasks/completed/T-148:68` (a completed task whose leg can never match) and
-      `tools/_t350-teeth.sh:45`, where the unmatchable pattern makes the `guard intact` branch
-      of `assert_safe()` **unreachable** — `tools/serve-gallery.sh` contains the literal
-      (`-F` 1) and the check reads 0. Filed as its own task per the one-bug-one-task rule.
-- [x] **Reported to AEF on the rail** with the census, both controls, the upgrade.sh file:line,
-      and the correction to §2's remedy assignment.
+> **This task was filed on a false premise and is being completed as its own retraction.**
+> It began as "an unescaped `$` makes a `grep` pattern unsatisfiable, and that killed a branch
+> in the delete-guard harness." That is wrong. GNU grep reads a mid-pattern `$` as a literal;
+> the branch was always reachable; nothing was broken. The ACs below are the corrected ones.
+> The original claim is preserved in `## RCA` rather than deleted, because a task that quietly
+> changes what it found is a worse artefact than one that carries its own retraction.
+
+- [x] **The premise is disproven with both implementations named, not just the counts.**
+      Same pattern, same file, same moment:
+
+          grep -c 'case "${OUT%/}" in' tools/serve-gallery.sh
+            through my shell        0
+            through /usr/bin/grep   1
+
+      `grep` in the agent's interactive shell is a **shell function** — a harness shim that
+      routes to **ugrep 7.5.0** — and ugrep anchors on the `$`. GNU grep does not. The
+      documented GNU behaviour (mid-pattern `$` is literal) is the correct one, so
+      `_t350-teeth.sh:45` was never dead and `assert_safe()`'s `guard intact` branch was always
+      reachable.
+- [x] **The environment split is measured, not assumed.** `bash -c 'type -t grep; command -v
+      grep'` returns `file` and `/usr/bin/grep`. Every subshell, script, hook and P-011 leg
+      therefore runs GNU grep. The shim exists **only** in the agent's own tool shell — that
+      is, only in the instrument, never in the subject.
+- [x] **Three prior findings are withdrawn by name.** (a) `_t350-teeth.sh:45` unreachable
+      branch — false. (b) T-459's `grep -q 'diff -q "$tmpl" "$target_tmpl"'` leg "returning 0
+      on a file that contains the text" — false; GNU grep returns 1. (c)
+      `.tasks/completed/T-148:68` carrying an unmatchable leg — false; it matches. All three
+      were artefacts of the same shim, and all three were reported to AEF at rail 570 §5 with
+      a request that they sweep their tree. Retracted at rail 571.
+- [x] **The `-F` change is KEPT and re-justified, and the wrong reason is removed from the
+      tree.** `-q` → `-qF` on `_t350-teeth.sh:45` stays: it is the correct flag for a wholly
+      literal pattern and it makes the check agree under both implementations. The call-site
+      comment no longer claims the branch was dead — it states that the plain form was correct
+      and that `-F` buys implementation-independence on purpose.
+- [x] **The real class is named and distinguished from the two already registered.**
+      G-034 is a verdict computed from an empty population; G-035 is an instrument with no
+      live caller. This is a third: **the instrument and the subject run different
+      implementations of the same tool, and nothing announces it.** It cannot be found by
+      reading code, because the code is correct in both trees. Its direction of harm is a
+      **false absence** — ugrep's extra anchoring makes patterns match *less*, so agent-side
+      sweeps under-report, and "I swept and found nothing" is precisely the sentence it
+      corrupts.
+- [x] **The correction path is recorded, because the gate outperformed the agent.** P-011
+      refused to complete this task on a leg asserting `BRE == 0`. The failure was not
+      reproducible by hand — "by hand" being the corrupted path — so the leg was rewritten to
+      **print its own numbers instead of only asserting them**, and the gate answered
+      `BRE=1 FIXED=1 cwd=/opt/832-Workflow-designer grep=/usr/bin/grep opts=[unset]`. One line
+      of output ended it. A gate that runs somewhere the agent cannot reach was the more
+      reliable instrument, and an assertion that prints its evidence is worth more than one
+      that only passes or fails.
+- [x] **T-459's record is corrected by appending, not by editing its checkbox.** T-459 is
+      completed and committed with an AC asserting the false class. A dated correction is
+      appended to that file; the AC text and its tick are left as they were so the mistake
+      remains legible in the record it was made in.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -162,21 +175,21 @@ date_finished: 2026-08-12T14:08:29Z
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 #
-# NOTE ON LEG 1 (the census). It asserts `live rec-gate blocked == 0`, which is TODAY's
-# measured state, not an invariant. If a future task gains a real column-0 Human AC while
-# lacking a `## Recommendation` section, this leg goes red — correctly, because that is the
-# moment the latent exposure becomes live. It is a gauge, not a worked example (T-456).
+# Every leg calls /usr/bin/grep BY ABSOLUTE PATH, deliberately. A bare `grep` here would
+# resolve to GNU grep under this gate and to the ugrep shim in an agent's tool shell, and
+# those two disagree on the very pattern under test — which is the whole finding. Pinning the
+# binary is what makes these legs mean the same thing wherever they are run.
 #
-# Every leg below is single-quoted at the shell level so `$(.*?)` inside the regex is NOT
-# read as command substitution, and none of them contains an HTML comment delimiter, so the
-# P-011 extractor's DOTALL comment strip (T-456) cannot eat the middle of the command.
-python3 -c 'import glob,re,sys; S=lambda p: (re.findall(r"(?ms)^### Human$(.*?)(?=^#{2,3} |\Z)", open(p).read()) or [""])[0]; T=lambda p: [l for l in S(p).splitlines() if l.startswith(("- [ ]","- [x]","- [X]"))]; F=[p for p in glob.glob(".tasks/active/T-*.md") if not re.search(r"^## Recommendation", open(p).read(), re.M) and re.search(r"^workflow_type:\s*(build|refactor|test|decommission)", open(p).read(), re.M)]; B=[p for p in F if len(T(p)) > 0 and sum(1 for l in T(p) if l.startswith(("- [x]","- [X]"))) < len(T(p))]; print("build-class active tasks with no ## Recommendation: %d  ·  of those, live rec-gate blocked (human_checked < human_total): %d" % (len(F), len(B))); sys.exit(0 if len(B)==0 else 1)'
-python3 -c 'import re,glob,sys; p=glob.glob(".tasks/active/T-340-*.md")[0]; s=(re.findall(r"(?ms)^### Human$(.*?)(?=^#{2,3} |\Z)", open(p).read()) or [""])[0]; n=sum(1 for l in s.splitlines() if l.startswith(("- [ ]","- [x]","- [X]"))); print("POSITIVE CONTROL — T-340 column-0 Human ACs:", n); sys.exit(0 if n >= 1 else 1)'
-python3 -c 'import re,sys; sec=(re.findall(r"(?ms)^### Human$(.*?)(?=^## )", open(".tasks/templates/default.md").read()) or [""])[0]; bad=[l for l in sec.splitlines() if l.startswith(("- [ ]","- [x]"))]; ind=[l for l in sec.splitlines() if l.lstrip().startswith("- [ ]") and l != l.lstrip()]; print("NEGATIVE CONTROL — template Human section: column-0 checkboxes %d, indented example checkboxes %d" % (len(bad), len(ind))); sys.exit(0 if len(bad) == 0 and len(ind) >= 2 else 1)'
-grep -qF 'diff -q "$tmpl" "$target_tmpl"' .agentic-framework/lib/upgrade.sh
-test 1 -eq "$(grep -c '^## Recommendation' .tasks/templates/inception.md)"
-test 0 -eq "$(grep -c '^## Recommendation' .tasks/templates/default.md)"
-test -z "$(git diff --name-only -- .tasks/templates/default.md)"
+# Every leg also PRINTS what it saw before asserting on it. The original version of leg 2
+# asserted a count and nothing else; when the gate disagreed with the agent there was no way
+# to tell which of them was wrong without a separate investigation. An assertion that shows
+# its evidence turns a disagreement into an answer in one run.
+test 1 -eq "$(/usr/bin/grep -cF -e "-qF 'case" tools/_t350-teeth.sh)"
+c=$(/usr/bin/grep -c 'case "${OUT%/}" in' tools/serve-gallery.sh); echo "GNU grep reads mid-pattern dollar as LITERAL: count=$c (the withdrawn premise required 0)"; test "$c" -eq 1
+test -n "$(/usr/bin/grep -nE '^[[:space:]]*rm[[:space:]]+-[a-zA-Z]*r' tools/serve-gallery.sh | /usr/bin/grep -v '^[0-9]*:[[:space:]]*#')" && test "$(/usr/bin/grep -c 'refusing to recursively delete' tools/serve-gallery.sh)" -ge 1 && /usr/bin/grep -qF 'case "${OUT%/}" in' tools/serve-gallery.sh
+t=$(bash -c 'type -t grep'); p=$(bash -c 'command -v grep'); echo "subshell grep: type=$t path=$p — the shim exists only in the agent tool shell"; test "$t" = file && test "$p" = /usr/bin/grep
+/usr/bin/grep -qF 'NOT a bug fix' tools/_t350-teeth.sh && /usr/bin/grep -qF 'always reachable' tools/_t350-teeth.sh
+test 0 -eq "$(/usr/bin/grep -cF 'unreachable for every input' tools/_t350-teeth.sh)"
 
 ## RCA
 
@@ -193,6 +206,44 @@ test -z "$(git diff --name-only -- .tasks/templates/default.md)"
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**The withdrawn claim, preserved verbatim so the retraction has something to point at.** This
+task was filed asserting: *"GNU grep treats the unescaped `$` as an anchor in BRE, ERE and PCRE
+alike, making the pattern unsatisfiable — measured BRE 0, `-E` 0, `-P` 0, `-F` 1; the `&&` never
+held, so `assert_safe()`'s guard-intact branch was unreachable for every input."* Every sentence
+of that is wrong. It was also sent to AEF at rail 570 §5 with a request that they sweep their
+tree for the same class. Retracted at rail 571.
+
+**Symptom (the real one):** P-011 refused to complete this task. A verification leg asserting
+`grep -c 'case "${OUT%/}" in' == 0` failed under the gate and passed in the agent's shell, and
+the disagreement was not reproducible by hand.
+
+**Root cause:** `grep` in the agent's interactive tool shell is a **shell function** — a harness
+shim routing to **ugrep 7.5.0** — while every subshell, script, hook and P-011 leg runs
+`/usr/bin/grep`. The two disagree on a mid-pattern `$`: GNU grep reads it as a literal (correct,
+documented), ugrep anchors on it. Same command, same file, same second: 1 versus 0. The original
+"defect" was the shim, observed and mistaken for the subject.
+
+**Why structurally allowed:** nothing announces the substitution. It is not on `$PATH`, it does
+not appear in `command -v` in any shell that matters, and it is visible only to `type -t grep`
+in the one shell that has it. The agent's measuring instrument and the environment under
+measurement were different programs, and every prior finding taken with `grep` inherited that
+gap silently. Direction of harm is a **false absence**: the shim's extra anchoring makes
+patterns match *less*, so agent-side sweeps under-report — and "I swept and found nothing" is
+exactly the sentence being corrupted.
+
+**Prevention:** every leg in `## Verification` now calls `/usr/bin/grep` by absolute path, so
+the legs mean the same thing in both environments, and one leg asserts the split itself
+(`bash -c 'type -t grep'` is `file` at `/usr/bin/grep`) so a change in the harness surfaces
+here rather than in a wrong finding. Every leg also **prints what it saw before asserting on
+it** — the original leg asserted a bare count, and when the gate disagreed with the agent there
+was no way to tell which was wrong without a separate investigation. The general rule this
+earns: *when a gate and your own shell disagree, the gate is the environment that matters, and
+the fastest route to the truth is to make the assertion show its evidence rather than to
+re-run it by hand.* The class belongs beside G-034 (verdict computed from an empty population)
+and G-035 (instrument with no live caller) as a third way an instrument reports something other
+than what it means — **instrument and subject running different implementations of the same
+tool** — and it cannot be found by reading code, because the code is correct in both trees.
 
 ## Evolution
 
@@ -241,46 +292,19 @@ test -z "$(git diff --name-only -- .tasks/templates/default.md)"
 
 ## Updates
 
-### 2026-08-12T14:02:38Z — task-created [task-create-agent]
+### 2026-08-12T14:08:42Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-459-rec-gate-exposure-on-our-tree-is-latent-.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-460-grep-with-an-unescaped-name-pattern-is-u.md
 - **Context:** Initial task creation
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-6dc72292
-- **Timestamp:** 2026-08-12T14:08:31Z
+- **Scan ID:** R-aa409670
+- **Timestamp:** 2026-08-12T14:20:00Z
 - **Catalogue:** v1.3-seed
 - **Overall:** PASS
 - **Needs Human:** no
 - **Findings:** none
 
-### 2026-08-12T14:08:29Z — status-update [task-update-agent]
+### 2026-08-12T14:19:59Z — status-update [task-update-agent]
 - **Change:** status: started-work → work-completed
-
-### 2026-08-12 — CORRECTION (T-460): the sixth Agent AC on this task is WRONG
-
-The AC beginning *"The second broken leg generalised into a class"* asserts that GNU grep reads
-an unescaped mid-pattern `$` as an anchor, making `grep '…$name…'` unsatisfiable, and cites
-`BRE 0, -E 0, -P 0, -F 1`. That is false. GNU grep reads a mid-pattern `$` as a **literal**,
-which is the documented and correct behaviour:
-
-    grep -c 'diff -q "$tmpl" "$target_tmpl"' .agentic-framework/lib/upgrade.sh
-      through the agent shell   0
-      through /usr/bin/grep     1
-
-`grep` in the agent's interactive tool shell is a shell function routing to **ugrep 7.5.0**,
-and ugrep anchors on that `$`. Every subshell, hook, script and P-011 leg runs `/usr/bin/grep`.
-The leg was never broken; the measurement was taken with the wrong program.
-
-**The AC text and its tick are deliberately left as they were.** Flipping the checkbox would
-make this task read as though it had found something true, and the record of a wrong finding is
-more useful than a tidy one. What the AC actually established — that the leg failed and that
-chasing the failure was worthwhile — still holds; the explanation it reached does not.
-
-The change this task made on the strength of that AC (`grep -q` → `grep -qF` in
-`tools/_t350-teeth.sh`) is **kept** but re-justified in T-460: `-F` is the right flag for a
-wholly literal pattern and it makes the check agree under both implementations. It was not a
-bug fix, and the call-site comment no longer says it was.
-
-Reported to AEF at rail 571, retracting rail 570 §5. Full account in T-460.
