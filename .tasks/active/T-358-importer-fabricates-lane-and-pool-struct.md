@@ -430,6 +430,48 @@ green 24/24 here says nothing about the population this repair is aimed at — u
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Recommendation
+
+**Recommendation:** ABSTAIN — the choice among A · B · C · AB · no-repair is yours, and
+this block exists to make that decidable rather than to pick one.
+
+**Why abstention rather than a preference.** The consolidated brief
+(`docs/reports/T-397-import-repair-semantics-brief.md:35,238`) files this as **Q2b, which
+follows from Q2a (T-341)**, and files Q2 as *"operator only — no agent recommendation"*:
+Q1 (what we do with content we failed to read) has a ratified precedent to reason from,
+Q2 (what we are permitted to *invent*) has none, and it should not acquire one from an
+agent. Every candidate here changes what we assert about a **peer's** document on the
+**sovereignty axis** — whether a third-party file naming no lanes comes back claiming a
+`sovereignty` lane it never had. An agent proposing where sovereignty defaults is an agent
+proposing its own authority.
+
+**Ruling this without ruling T-341 is the specific hazard.** The brief's constraint §262:
+*"Q2a and Q2b must agree — both decide what the importer may invent."* They are one
+decision wearing two task IDs, and the way they acquire inconsistent policies is being
+ruled on separately, weeks apart.
+
+**One measured EXCLUSION, which is not a recommendation.** Whatever you rule, **option A
+cannot be taken in the importer half alone.** Dropping only the importer default yields
+`lanes=0` while the emitter still opens `<bpmn:laneSet>` unconditionally, so we emit the
+empty-laneSet shape our own partition classifies as a third-party *defect*, and our output
+re-imports as `defaulted:empty-laneset`. Rendering survives, so nothing announces it. That
+is the task's own established constraint — *"repair must not silently reverse into the
+opposite defect"* — and it excludes a half-move without preferring any whole one.
+
+**Evidence:** `tools/_t358-repair-options-cdp.mjs`, measured 2026-08-04 — every candidate
+applied to a temp copy and round-tripped through the real importer/emitter. All five leave
+**corpus bytes identical**, so byte cost does not discriminate between them and cannot be
+used to smuggle in a preference. Diagnosis is complete: 3 of 6 Agent ACs are ticked (the
+fabrication reproduced, its site named, the two causes separated, and a negative control
+proving the probe can report *no* fabrication). The remaining three are all repair, and
+they are BLOCKED on this ruling — not on further measurement.
+
+**Seam context you may want:** AEF measured their own importer (rail 484/486, our T-403)
+and does **not** fabricate. On this axis we are currently the outlier at the seam. I record
+that as a fact about their position, not as an argument for adopting it — "the peer does
+X" is not a reason, and treating it as one would let the seam decide a sovereignty question
+by drift.
+
 ## Verification
 
 bash tests/run-bridge-tests.sh

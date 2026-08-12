@@ -216,6 +216,56 @@ tickable AC out of it would make a blocked task read as progressing.
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Recommendation
+
+**Recommendation:** GO on **(b) consume DI as layout — scoped, not maximal.**
+
+    on import   aef:position  →  else DI  →  else auto-layout
+    on export   emit DI only when the input carried it
+
+**Rationale:** (b) is the only option under which an author who opens their own diagram
+sees their own diagram. (a) preserve-and-re-emit leaves the importer blind and hands the
+export two carriers for one geometry with no user action to reconcile them — the
+competing-carrier case PL-114 exists to name. (c) refuse makes the designer unable to open
+a document it could otherwise read correctly, which is the failure mode already rejected as
+option (c) in T-337. The byte objection that once disqualified (b) applies only to a
+*maximal* form that always emits regenerated DI; scoped as above, the precedence rule never
+fires on our corpus at all.
+
+**Evidence — re-measured today, 2026-08-12, over the tracked corpus:**
+
+    tracked .bpmn files      144
+      carry aef:position     125
+      carry BPMN DI           10
+      carry BOTH               0   <- load-bearing: the precedence rule can never fire
+      carry NEITHER            9
+
+The brief measured this at 142 files on 2026-08-08 and T-340 at 126 when filed; the intake
+has since added two more and `BOTH` is still 0. That matters more than the zero itself — a
+disjointness claim is exactly the kind a new third-party intake can break, and this one has
+now survived two intakes. Zero bytes change for existing maps, `_t308` stays 24/24, no
+fixture re-pin, no seam event, no AEF coordination.
+
+**Independent corroboration, not agreement:** AEF measured their own round-trip importer
+(rail 487, their T-2882) and reached the same position from a different codebase, before
+reading ours — they drop `bpmndi` because they emit `aef:position` on every node, our exact
+reasoning. Two independent derivations of PL-114 removes the worry that the rule was
+reasoned backwards from a conclusion we already liked. It does not make the ruling
+ours-by-default.
+
+**What your ruling unblocks:** all three of T-340's Agent ACs, which are marked BLOCKED and
+unticked precisely because they are downstream of this. It is also the first increment of
+T-357 — on which you already recorded GO, and whose approved rationale names *"Read DI when
+`aef:position` is absent. = T-340 scoped (b)"* by name. **I am deliberately not treating
+that as having ruled here:** an inception GO approves a direction, it does not tick another
+task's Human AC, and reading an implication as an authorisation is the move the sovereignty
+gate exists to prevent. If endorsing (b) is what you meant, this ruling is all that is left.
+
+**Consistency constraint (brief §255):** Q1a (T-347) and Q1b (T-340) *may* differ and
+should. Ruling both (a) makes DI produce contradictory geometry; ruling both (b) starts us
+typing content we have no fields for. The competing-carrier rule is what makes the different
+answers principled rather than arbitrary.
+
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.
