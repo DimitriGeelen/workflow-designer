@@ -15,6 +15,22 @@ EXIT CODES (T-450)
   1  at least one task with pending Human ACs has no verdict
   2  the corpus could not be enumerated. Nothing was examined; NOT a pass.
 
+ABSTAIN IS A VERDICT (T-454)
+The vocabulary was GO/NO-GO/DEFER, and that set has no token for the case where the
+agent has *deliberately decided not to recommend*. T-341 is one: the consolidated brief
+rules it "operator only — no agent recommendation", because which lane authority falls
+to when a reference fails is a question about where power lands, and an agent proposing
+an answer is the agent proposing its own authority. Under the old vocabulary such a task
+could satisfy this guard only by MANUFACTURING a recommendation. That is a gate paying
+for its own green, and it was caught live: T-454 re-tokenised T-341's superseded
+proposal to `GO` purely to clear this check, then reverted it.
+
+So ABSTAIN parses. But it is reported on its OWN line, never folded into the verdict
+count, because the obvious failure mode of adding an escape token is that it becomes the
+cheap way to empty a queue. An abstention wave and a well-served queue must not print the
+same number — the same reason (2) below is named rather than silently passed. Three
+populations, three counts (PL-084, PL-160).
+
 Why 2 has to exist. Until T-450 this tool printed
 
     0 task(s) with pending Human ACs lack a Recommendation verdict
@@ -78,7 +94,7 @@ def corpus():
 
 
 files = corpus()
-pending, bad = [], []
+pending, bad, abstained = [], [], []
 for p in files:
     s = open(p, encoding='utf-8', errors='replace').read()
     s = re.sub(r'<!--.*?-->', '', s, flags=re.S)
@@ -87,8 +103,11 @@ for p in files:
         continue                                   # no live (uncommented) Human ACs pending
     pending.append(p)                              # handed over — the subject population
     r = re.search(r'^## Recommendation\s*$(.*?)(?=^#{2,} |\Z)', s, re.M | re.S)
-    if r and re.search(r'\*\*Recommendation:\*\*\s*(GO|NO-GO|DEFER)', r.group(1)):
-        continue                                   # verdict present
+    v = re.search(r'\*\*Recommendation:\*\*\s*(GO|NO-GO|DEFER|ABSTAIN)', r.group(1)) if r else None
+    if v:
+        if v.group(1) == 'ABSTAIN':
+            abstained.append(p)                    # a verdict, but counted apart — see docstring
+        continue
     bad.append(p)
 
 for p in bad:
@@ -99,9 +118,16 @@ for p in bad:
 # operator actually needs, because it is the one they got wrong (T-228). Printing the
 # denominator alongside the finding is what makes "clean" and "empty" different
 # sentences (PL-084); the same fix T-447 applied to bake-clean-layout's scope line.
-print('examined %d task file(s) under %s  ·  %d with pending Human ACs  ·  %d without '
-      'a Recommendation verdict'
-      % (len(files), ' + '.join(TASK_DIRS), len(pending), len(bad)))
+for p in abstained:
+    print('ABSTAIN:', p)
+
+print('examined %d task file(s) under %s  ·  %d with pending Human ACs  ·  %d agent '
+      'ABSTAIN (declined to recommend, explicitly)  ·  %d without a Recommendation verdict'
+      % (len(files), ' + '.join(TASK_DIRS), len(pending), len(abstained), len(bad)))
+if abstained and not bad:
+    print('Queue is clear of SILENT gaps, but %d task(s) carry an explicit abstention: the '
+          'agent declined\nto recommend and the ruling is entirely yours. That is a smaller '
+          'handover than a verdict,\nnot a completed one.' % len(abstained))
 if not pending:
     print('Queue is EMPTY, not merely clean: no task in that corpus has a pending Human AC.')
 sys.exit(1 if bad else 0)

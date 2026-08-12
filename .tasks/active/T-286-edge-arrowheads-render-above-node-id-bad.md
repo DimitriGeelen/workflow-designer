@@ -186,7 +186,7 @@ bash tests/run-bridge-tests.sh > /tmp/.t286-bridge 2>&1
 
 ## Recommendation
 
-**[GO]** — the requested behaviour is implemented exactly as described (arrows above badges by default, selected element's badge foregrounded), all six agent ACs verified with CDP assertions + read screenshots, zero regression across geometry/node-cuts/bridge suites. The mechanism (paint-order layer split, pointer-events:none) is the minimal structural fix for both reported symptoms — occluded arrowheads and unreachable endpoint handles.
+**Recommendation:** GO — the requested behaviour is implemented exactly as described (arrows above badges by default, selected element's badge foregrounded), all six agent ACs verified with CDP assertions + read screenshots, zero regression across geometry/node-cuts/bridge suites. The mechanism (paint-order layer split, pointer-events:none) is the minimal structural fix for both reported symptoms — occluded arrowheads and unreachable endpoint handles.
 
 ## Decisions
 

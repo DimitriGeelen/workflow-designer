@@ -114,9 +114,36 @@ measurement moves it from *the wrong lane* to *no lane policy at all*.
 
 ## Recommendation
 
-**Recommendation:** Option **(2) fixed lane by authority** — orphans land in the lowest-authority
-lane present in the document — **plus announce**. Ruling is yours; this is a proposal, and the
-task stays blocked until you record one.
+**Recommendation:** ABSTAIN — the agent declines to recommend, and the two positions below
+are what you are being asked to reconcile.
+
+> **2026-08-12 (T-454) — I tried to make this parseable and nearly got it wrong.** This block
+> opened with "Option **(2) fixed lane by authority**", which `tools/_norec-verify.py` cannot
+> read, so the task showed in your queue as having nothing to act on. My first edit simply
+> re-tokenised it to `GO on option (2)`. That was wrong, and I reverted it:
+>
+> **Two positions exist in this tree, five days apart, and they disagree about whether an
+> agent should recommend here at all.**
+>
+> - **2026-08-03** (`fc8e7cc7`, below, unchanged) — proposes option (2) + announce, explicitly
+>   framed as *"a proposal, ruling is yours"*.
+> - **2026-08-08** (`e361047c`, `docs/reports/T-397-import-repair-semantics-brief.md:34,211`)
+>   — the consolidated brief lists Q2a as **"operator only — no agent recommendation"**, on
+>   the ground that *"Q1 has a ratified precedent. Q2 has none, and should not acquire one
+>   from an agent."* The brief reproduces the three options *without* endorsing one.
+>
+> The later position is the more restrictive one, and it is restrictive about sovereignty:
+> which lane authority defaults to when a reference fails is a question about where power
+> lands, not an implementation choice. Promoting the earlier proposal to a machine-readable
+> GO would have put a superseded verdict in front of you wearing the same badge as a live
+> one — the precise failure this whole task exists to stop.
+>
+> **What I am NOT doing:** deciding which of my own two positions is current. That choice is
+> the sovereignty question itself, so resolving it silently would beg it.
+>
+> The 2026-08-03 analysis is preserved verbatim below because it is good evidence *for* a
+> ruling even where it is not a recommendation — the probe results and code anchors hold
+> regardless of who decides.
 
 **Rationale:** The three options differ in what happens when a reference fails, and only one of
 them cannot make things *worse* than the author wrote. (1) positional lets a presentation-level

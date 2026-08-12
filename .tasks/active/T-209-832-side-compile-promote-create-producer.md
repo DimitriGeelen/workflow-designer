@@ -205,6 +205,42 @@ rests on a dated measurement rather than a dated reading.
   declining a peer's proposal without this decision recorded.
 
 
+## Recommendation
+
+**Recommendation:** GO on **option A — decline AEF's offset-78 proposal as already satisfied.**
+
+> This verdict has existed since the task was filed, as a `### Recommendation` sub-heading
+> inside `## Context`. `tools/_norec-verify.py` anchors on `^## Recommendation`, so it could
+> never see it, and your queue has shown this task as having nothing to act on. Promoted to a
+> real section 2026-08-12 (T-454); the analysis below is re-measured, not inherited.
+
+**Rationale:** Every producer-INPUT row of AEF's proposal is already asserted by two green
+suites with working teeth. Building a third would assert what two already assert, and its
+AEF-OUTPUT half would necessarily encode *our guess at their behaviour* and call it a
+contract — the exact inversion the T-559 symmetric boundary exists to prevent. Declining is
+not "no test"; it is "the test exists, on the correct side of the seam."
+
+**Evidence — re-run today, 2026-08-12, not read off a checkbox:**
+- `python3 tests/test_promote_contract.py` → rc 0:
+  `OK: designer→AEF promote contract — inception-gonogo.bpmn (sha bbfbc5ec4835)`
+  `manifest owner-bearing uids: n_inception {owner:human←sovereignty, workflow_type:inception};`
+  `uid totality + byte-determinism + teeth verified`
+- `python3 tests/test_two_lane_joint_contract.py` → rc 0, covering the second derivation:
+  `n_inception {owner:human←sovereignty, wf:inception}; n_plan {owner:agent←initiative, wf:build}`
+- The AEF-OUTPUT half has not crossed the seam since the proposal:
+  `grep -cE '<aef:(provenance)|status="captured"' src/aef-workflow-designer.html` → **0**.
+  Our exporter emits none of those fields, so no row has moved from their side to ours.
+
+**What your ruling unblocks:** a reply on the rail telling a cooperating peer their proposed
+test is unnecessary. That is a statement about *their* work, which is why it is yours and not
+mine — I can measure that our side is covered, but declining a peer's offer is a seam
+relationship call. Ruling A closes T-209; ruling B (build it anyway) re-opens the three
+Agent ACs.
+
+**Known limit:** this covers the promote/manifest contract only. The typed-event
+serialization (T-204) is a different producer surface, still in motion on the rail, and is
+deliberately not folded in here.
+
 ## Verification
 
 python3 tests/test_promote_contract.py
