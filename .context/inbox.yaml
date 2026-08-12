@@ -305,3 +305,17 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-044
+  text: "add"
+  captured: 2026-08-12T23:00:17Z
+  context_task: null
+  tags: []
+  status: dismissed
+  promoted_to: null
+- id: OBS-045
+  text: "The round-trip harness preflight self-test proves the MECHANISM detects drift, not any individual key: it perturbs the FIRST key whose regex matches and then breaks, reporting hit='tier' on every run because 'tier' is first in the list. So 'harness green and selftest passes' carries ZERO information about any key added after 'tier' — including endpoint (T-480) and the eight scalar keys (T-482), each of which needed a separate probe to falsify. Compounding it: the two METAKEYS copies are ALREADY divergent — the guard carries errorStatus/timerSpec/busTopic/hostRef/interrupting and the preflight does not — so the teeth-proof exercises a strict SUBSET of what the guard projects. Per-key P-011 legs pin individual keys at count 2 and must NOT be read as evidence the two lists agree. Evidence: tools/_roundtrip-serialization-cdp.mjs, .tasks/completed/T-482-project-the-six-remaining-structured-sem.md findings."
+  captured: 2026-08-12T23:00:37Z
+  context_task: T-482
+  tags: [verification]
+  status: pending
+  promoted_to: null
