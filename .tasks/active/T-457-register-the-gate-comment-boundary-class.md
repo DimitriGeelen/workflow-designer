@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T12:36:57Z
-last_update: 2026-08-12T12:36:57Z
+last_update: 2026-08-12T12:39:30Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -58,9 +58,13 @@ date_finished: null
       in-file precedent rather than an unsolved design question, and it is what turns the
       upstream report into "apply the treatment you already wrote".
 - [x] **`concerns.yaml` still parses and the register's own schema check is no worse than
-      before the edit.** Measured by running it before and after — `concerns-schema.py`
-      exits 1 on a pre-existing `context`-field issue (T-441), so "it exits 1" is not
-      evidence I broke something and must not be reported as either pass or damage.
+      before the edit.** Measured by running it before and after. **Correction, and the
+      reason this AC was written the way it was:** I stated the pre-existing failure as
+      `exit 1` from memory of T-441. Measured, it is **rc 2, one line of output** — and
+      identical before and after my edit (`diff -q` clean). The register parses (33 entries,
+      29 watching). So the criterion holds, but the number in it was inherited rather than
+      read, which is the same defect this window has been chasing at larger scale; recorded
+      rather than quietly amended.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
