@@ -1156,3 +1156,31 @@ learnings:
   date: 2026-08-12
   context: Added via context agent
   application: TBD
+- id: PL-161
+  learning: "A '## Verification' block is a ONE-SHOT COMPLETION GATE, not a standing guard. P-011 runs it on the work-completed transition and at no other time, so an instrument whose only call site is a Verification block runs exactly once and then sits in .tasks/completed/ still reading as a live call site to any grep. Both halves are silent: the guard cannot go red, and its not-going-red looks like evidence. Measured 2026-08-12 across 832: 30 of 154 tools read as standing guards with no caller that re-executes, 11 referenced by no task at all. The load-bearing instance was the operator's approvals-queue guard, which last ran 2026-07-22 at 0 NO-REC while the queue regrew to 14. PL-148 named this mechanism from three anecdotes a month earlier; what was missing was a denominator, so its prescribed remedy was applied to the three files that motivated it and nowhere else. Remedy: wire standing guards to something that re-executes (hook, cron, tests/, tool-chain, or a gap closure_check_command) and derive the unwired count rather than asserting it."
+  source: P-011
+  task: T-451
+  date: 2026-08-12
+  context: Added via context agent
+  application: TBD
+- id: PL-162
+  learning: "When measuring a class, enumerate from the POPULATION side, never the caller side. My first count of unwired instruments was 39, taken from the callers (tools named by some completed task, minus those with a live caller). That query structurally cannot see an instrument NO caller references at all, and 11 were invisible to it by construction; the population-side census (tools/* on disk) found them. A caller-side denominator silently excludes exactly the worst cases - the fully orphaned ones - and it reads as a complete measurement. Same wrong-authority defect as PL-158, committed inside the measurement of that defect."
+  source: P-011
+  task: T-451
+  date: 2026-08-12
+  context: Added via context agent
+  application: TBD
+- id: PL-163
+  learning: "An exemption channel in a census is a fake-progress channel unless the closure condition forbids it. The T-451 census excuses *-teeth and *-mutation-check by NAMING CONVENTION, which means the findings count can be lowered by renaming a file rather than wiring one. G-035's trigger therefore requires any drop in FINDINGS to be matched by a RISE in live-callable, not by a rise in the excused column. General form: whenever a verdict has a legitimate 'does not count' bucket, state what must move in the OTHER direction, or the bucket becomes the cheapest way to go green."
+  source: P-011
+  task: T-451
+  date: 2026-08-12
+  context: Added via context agent
+  application: TBD
+- id: PL-164
+  learning: "Prose ABOUT a string-matching gate reliably contains the string the gate matches on - so a task describing the gate is unfileable. Live instance 2026-08-12: I quoted G-020's own block message inside a genuine acceptance criterion; the message contains the placeholder token G-020 greps for, so the gate read a fully-written AC block as placeholders. AEF reported this exact class at rail 554 (their OBS-233 quoting 'status: pending' and pushing their own count 118->119), I replied at 558 that 'grep the text you are about to file, first' was now how I file, and I committed it 48 hours later. Two independent trees, one class, near-zero behavioural transfer from reading it. What catches it is the number or the block looking wrong, never recall - so the durable remedy is a gate that parses structurally (strip HTML comments, distinguish an AC line from prose quoting one), not an agent that remembers."
+  source: P-011
+  task: T-452
+  date: 2026-08-12
+  context: Added via context agent
+  application: TBD
