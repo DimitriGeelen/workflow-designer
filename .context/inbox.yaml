@@ -254,7 +254,7 @@ observations:
   captured: 2026-08-12T19:22:37Z
   context_task: T-465
   tags: [framework]
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-037
   text: "check-human-ac-tick (T-1731) is symmetric: it blocks [x] -> [ ] as well as [ ] -> [x] under ### Human. Consequence: an agent that wrongly ticks a Human-AC-shaped line cannot restore the invariant the guard protects without FW_ALLOW_HUMAN_AC_TICK=1 - the same Tier-2 override as violating it. Hit in T-466 after a blanket tick caught two [REVIEW] EXAMPLE lines inside the ### Human template comment. Not bypassed; left ticked and reported. Two sub-findings: (1) the guard matches example text inside HTML comments, so the template ships lines that look like Human ACs to the guard but are read as ACs by nothing else; (2) PL-165's shape - a gate that cannot accept a correction in the safe direction. Candidate remedy: allow [x] -> [ ] unconditionally (un-ticking cannot fabricate human approval), or exclude commented regions from the match."
