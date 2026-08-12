@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T12:19:19Z
-last_update: 2026-08-12T12:19:37Z
+last_update: 2026-08-12T12:20:54Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,19 +40,24 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **The gap is measured against the SHIPPED template, not a fixture** — the count of
+- [x] **The gap is measured against the SHIPPED template, not a fixture** — the count of
       `## Recommendation` sections in `.tasks/templates/default.md` is asserted to be 0 and
       the count in `inception.md` asserted to be non-zero, by command, in `## Verification`.
       Same discipline as T-453: a claim about a template must be read off the template.
-- [ ] **The harm is quantified, not asserted.** The claim "authors invent the shape" is
+- [x] **The harm is quantified, not asserted.** Re-derived 2026-08-12 with the guard's own
+      parser, not a grep: **133** task files carry the `## Recommendation` heading, **132**
+      have a verdict that parses inside it, and **4** carry a verdict line the guard
+      structurally cannot see. 132/133 by imitation. The claim "authors invent the shape" is
       backed by the tree-wide split — tasks carrying the heading vs tasks whose verdict
       line actually parses — re-derived at completion rather than copied from this
       description, since both numbers move as tasks are written.
-- [ ] **Reported upstream with the remedy named, not just the defect.** The rail post cites
+- [x] **Reported upstream with the remedy named, not just the defect.** AEF rail offset
+      **564** §4, citing `inception.md:117` as the existing correct shape and pairing it
+      with T-453 as one class. The rail post cites
       `inception.md:117` as the existing correct shape, so the fix is "copy the section that
       already works" rather than a design question. Vendored file: no local patch, per the
       same disposition as T-402/T-422/T-345.
-- [ ] **No local edit to `.tasks/templates/default.md`.** Verified by `git diff` over that
+- [x] **No local edit to `.tasks/templates/default.md`.** Verified by `git diff` over that
       path being empty at completion. A local fix here is silently reverted by the next
       vendor bump, and would then read as fixed in our history while not being — the
       failure mode T-402's recommendation turns on.
