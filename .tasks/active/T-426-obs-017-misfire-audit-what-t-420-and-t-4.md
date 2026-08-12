@@ -302,6 +302,53 @@ it is the reason this audit is not academic.
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Recommendation
+
+**Recommendation:** GO on **A — register the T-421 claim-drift detector as a `Stop`
+hook.**
+
+**Rationale.** `Stop` is the event that matches what the detector is: it reports once per
+response and **cannot block a tool call**. A detector whose whole subject is *"what does an
+instrument print when it fires wrongly"* must not itself be able to fail closed on a false
+positive — registering it on a PreToolUse event would give it exactly the authority this
+task was written to be suspicious of. Today the detector is **correct and reaches
+nothing**, which is the one finding of this audit I fixed the logic for and deliberately
+did not close, because closing it means editing `.claude/settings.json` and changing
+session behaviour — authority, not initiative.
+
+**Evidence:** the audit examined both instruments for the three laundering shapes
+(FP-unfollowable, and the two where a wrong remedy is followed *because* a block message
+is the most authoritative text an agent sees). The detector's current output is
+`PASS (with 1 upstream item(s))` — the one item being `check-arc-id`, which T-422 rules
+is AEF's (their T-2911). So on the day it is registered it reports a true, attributed
+finding rather than noise, which is the right condition to switch a detector on in.
+
+**Two things your ruling must carry with it, or it half-lands:**
+
+1. `fw enforcement baseline` is **required** after any `settings.json` change, or
+   `fw doctor` begins reporting *"Enforcement baseline CHANGED"* and it accumulates
+   silently (L-398 — T-1849/T-1730/T-1731 each added a legitimate hook without it and the
+   FAIL sat for multiple sessions).
+2. `.claude/settings.json` is itself guarded by `check-settings-edit` — which, per T-422's
+   evidence, is one of the seven hooks that **has never shipped to any consumer**. So the
+   guard on the file you are about to change is not present in this tree. That is not a
+   reason to hesitate; it is a reason to run `fw doctor` after, rather than assuming a
+   gate caught it.
+
+**Option B — leave it manual — is legitimate,** and I want to be clear it is not a
+consolation prize: the detector is slow-moving, its subject changes only when hooks change,
+and running it by hand at session start costs one command. What B gives up is that
+"nobody ran it" and "it ran and found nothing" become the same observable again — the
+precise failure this task exists to name.
+
+**What I am not claiming:** that a registered detector would have caught the misfires this
+audit found. It would not have. It catches *claim drift* — the tree promising an
+enforcement it does not have — which is a different failure from a remedy that launders.
+The misfire audit's own findings are fixed in the instruments themselves.
+
+**What your ruling unblocks:** the last open item of OBS-017; the rest of the audit is
+closed.
+
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.

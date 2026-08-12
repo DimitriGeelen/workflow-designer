@@ -110,6 +110,40 @@ date_finished: null
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Recommendation
+
+**Recommendation:** GO on **shape C** — AEF's, arrived at rail 482 after this task was
+filed.
+
+**Rationale.** C changes no ordering at all. Drift-target *extraction* is pure string
+work, so it runs in the fast path and only the early return becomes conditional. That
+gives it **B's mechanism with A's failure direction** — the combination neither of our own
+two shapes had. It is already landed and measured on AEF's side (their T-2880), so we
+would be adopting a shape with a second population's operating evidence behind it rather
+than our own reasoning about a hook we cannot afford to be wrong about.
+
+**Evidence:** the defect is reproduced here under 11 legs; the safe-list early return in
+`check-active-task.sh` returns before the focus read, so drift pattern 2 — exempted by
+T-390 — is never examined. AEF's C is source-verified at rail 482 and shipped under
+T-2880.
+
+**Why this still needs you even though C is clearly the better shape.** The question is no
+longer "which of two risky shapes"; C removes most of that risk. What remains is that this
+is **the hook gating every Write/Edit/Bash call in every session, and a defect in it fails
+open silently** — the failure mode is that nothing appears to happen, forever. Approving a
+change to the central enforcement path is authority, not initiative, and a broad
+"proceed as you see fit" does not reach it. That is the whole reason this AC exists and
+why both AEF and 832 deferred it once already.
+
+**If you would rather not spend the risk now:** leaving the shadow open and documenting it
+is a legitimate ruling, and the task's own fallback — re-raise at the start of a session
+with full budget — is the right shape for it. What is *not* legitimate is the present
+state, where the shadow is open and undocumented and the hook reads as enforcing something
+it does not.
+
+**What your ruling unblocks:** the implementation ACs of T-392, which are held unticked
+behind it.
+
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.

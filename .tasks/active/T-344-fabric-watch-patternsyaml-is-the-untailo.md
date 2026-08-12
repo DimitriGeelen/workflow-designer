@@ -216,6 +216,58 @@ default at any time.
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Recommendation
+
+**Recommendation:** NO-GO on approving the scope as it stands. **Tailor
+`.fabric/watch-patterns.yaml` first, then approve the debt the tailored scope reports.**
+
+**Rationale — the current 206 is not a scope anyone chose.** The file is the untailored
+`fw context init` default, and against this repo most of its globs match nothing:
+`web/`, `agents/`, `bin/` and `crates/` do not exist here (our agents live under
+`.agentic-framework/agents/`), `src/` holds exactly one file and it is `.html` not
+`.py`/`.rs`, `lib/` is empty, and nothing here is Go or TypeScript. What the file
+actually selects is the residue of its two generic globs. Approving a debt figure
+produced by patterns aimed at a different project's layout would ratify an accident.
+
+**Evidence — both AC steps run today, 2026-08-12:**
+
+    expand_patterns.py .fabric/watch-patterns.yaml   ->  206 files
+    fw audit --section structure | grep -i fabric    ->  38 registered, 171 unregistered
+                                                         34/38 cards have no edges
+
+Composition of the 206, which is the part that decides the ruling:
+
+    tools    154        <- 75% of the watch scope
+    tests     48
+    scripts    3
+    src        1        <- the product. One file in 206.
+
+    of the 206, one-shot instruments (*-teeth / *-probe / *-mutation-check / *-cdp):  83
+
+**So 83 of the 171 unregistered are instruments that ran once and will never be edited
+again.** The Component Fabric exists to answer *"what depends on this file, and what
+breaks if I change it"* (CLAUDE.md §Component Fabric). That question is not meaningful for
+a mutation-check written to prove a guard had teeth on the day it was authored. Writing
+cards for them buys nothing and dilutes the 38 real ones — and note the second WARN:
+34 of the existing 38 cards already have **no edges**, so the fabric's problem is depth,
+not breadth. Adding 171 shallow cards makes that ratio worse, not better.
+
+**Suggested narrowing** (yours to set — I am recommending that a line be *chosen*, not
+that this exact line is the right one):
+
+    exclude   tools/*-teeth.*  tools/*-probe.*  tools/*-mutation-check.*
+    keep      src/**  tests/**  scripts/**  and standing guards under tools/
+
+**Why this is worth your minute rather than a WARN you learn to scroll past.** These three
+fabric lines are the **only** WARNs in the structure audit — Pass 19 / Warn 3 / Fail 0 —
+so they are the entire standing noise floor of the gate that runs before every push. A
+permanent WARN nobody intends to clear trains everyone to read "Warn: 3" as "clean", and
+the next real warning arrives into that habit.
+
+**What your ruling unblocks:** either a bounded card-writing campaign against a scope that
+means something, or a documented decision to carry the debt knowingly. Both are better
+than the present state, which is neither.
+
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.

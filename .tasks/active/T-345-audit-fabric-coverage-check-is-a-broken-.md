@@ -200,6 +200,51 @@ makes a future divergence red rather than invisible.
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Recommendation
+
+**Recommendation:** GO on **remove-as-duplicate — reported upstream, not patched here.**
+
+**Rationale.** The two blocks answer the same question and the second one answers it
+correctly. Repairing the first would leave two checks computing the same figure, which is
+how they drift into disagreeing and how a reader learns to trust whichever is quieter.
+Nothing is lost by deletion: the sibling at `:1499` already ranges over the same watch
+patterns with the joins the first block is missing.
+
+**The three defects are not independent bugs — they compound into a check that cannot
+report anything:**
+
+1. **No `PROJECT_ROOT` join** — `glob.glob(p['glob'])` resolves against the process CWD,
+   not the project.
+2. **No `recursive=True`** — in Python's `glob`, `**` without it does not recurse. Every
+   pattern in the shipped watch file uses `**` except `bin/*`, so even from the right
+   directory `src/**/*.py` would match one level.
+3. **Both verdict branches call `pass()`** — so whatever the count, the check reports
+   PASS.
+
+**Defect 3 is the one that matters, and it is G-034 exactly.** A check whose every branch
+is a pass has no failing state, so a green from it and a green from a working check are
+the same string. This is the fourth instance of that class in this tree
+(`_norec-verify.py` T-450, `bake-clean-layout.py` T-447, the five T-440 measured BLIND,
+and this) and the first found in **vendored** code. Worth saying on the rail as a class,
+not just as a file — AEF ran our census against their tree last week and found the sibling
+shape there.
+
+**Evidence:** `.agentic-framework/agents/audit/audit.sh` ≈`:1405` (broken) vs `:1499`
+(correct), the two reachable by the AC's own two `sed` commands. The block is **inert
+today** — with defects 1 and 2 it matches nothing, and with defect 3 it could not report
+it if it did — which is why deferring this costs nothing operationally and why it went
+unnoticed.
+
+**Why upstream and not here.** `agents/audit/audit.sh` is vendored
+(`.agentic-framework/`), and a local patch is silently reverted by the next bump — the
+gate would then read as fixed in our history and not be. Same disposition as T-402 and
+T-422, and AEF's instruction at DM 522 §5. **G-008 makes this the upstreamable kind**, so
+the deliverable of your ruling is a rail report with the two line numbers, not an edit.
+
+**What your ruling unblocks:** nothing blocking here — the value is entirely that a
+peer's audit stops carrying a check that cannot fail. If you rule remove, I post it; if
+you rule retain-and-fix, I post that instead with the repair shape.
+
 ## Verification
 
 ```

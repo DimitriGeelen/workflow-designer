@@ -172,6 +172,54 @@ project cannot keep and did not make.
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Recommendation
+
+**Recommendation:** GO on **C — record it as theirs, keep it visible, wait for AEF
+T-2911.**
+
+**⚠ This supersedes an earlier recommendation of A (register it), which is WITHDRAWN.**
+If you already acted on A, say so and I will unwind it. The evidence that overturned it
+arrived on the AEF rail at offset 522 and **could not have been produced from inside this
+repo** — it needed a second population.
+
+**Rationale.** Both A and B are local edits to files whose entire value is being the
+unmodified vendored default; each fixes today's sentence by creating tomorrow's
+divergence. A registers a hook and forks our `.claude/settings.json`, so AEF's next hook
+addition diverges us **silently** — trading a visible false promise for an invisible one.
+B deletes the promise from `.tasks/templates/`, and then when AEF's parity fix lands and
+the hook actually ships, our template no longer documents a gate that has become real.
+C is the only option that leaves the defect where its fix lives, and it keeps the claim
+under detection rather than under a patch.
+
+**Evidence — AEF measured it on a real `fw init`'d consumer under `env -i`, rail 522 §1,
+2026-08-10:**
+
+    this framework repo   24 hooks
+    any fresh consumer    17 hooks
+
+Our 17 is the vendored default **exactly**. Seven hooks have never shipped to any
+consumer: `check-arc-id`, `check-onboarding-gate`, `check-inception-decisions`,
+`check-inception-schema`, `check-active-completed-dup`, `check-heredoc-cmd-sub`,
+`check-settings-edit`. Root cause is on their side and was predicted in their own source:
+`fw hook-enable` writes only `.claude/settings.json`, while a consumer's file is generated
+from a separate hardcoded list in `lib/init.sh generate_claude_code_config`. It is their
+shipping defect (T-2911), reproduced identically in every consumer, and they have asked us
+not to hand-patch it.
+
+**The cost of C, stated rather than glossed:** `arc_id` typos stay unvalidated. Against a
+corpus of 3 arc files with 0 typos, that is a real but small exposure, and the claim-drift
+detector still fails if a **second** unbacked claim appears — so C does not blind us, it
+attributes one known blindness.
+
+**Note for the record:** this is the second finding in the last week that only existed
+because a peer could see a population we cannot. AEF ran our own unwired-instrument census
+against their tree and found the mirror of `check-onboarding-gate` — four hook-shaped
+scripts in their live hook directory with zero references in `settings.json`. Neither
+project could have found its own instance alone.
+
+**What your ruling unblocks:** the disposition is a one-line decision record; I execute it
+and close T-422 either way.
+
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.
