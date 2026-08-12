@@ -1,13 +1,13 @@
 ---
-id: T-457
-name: "Register the gate comment-boundary class as a gap"
+id: T-463
+name: "The register's own schema check has been red since G-029 was registered, and the one measurement that would have caught it was taken on a file that does not exist"
 description: >
-  T-453, T-455 and T-456 are three separate tickets against .agentic-framework gates, and they are one class: each decides where an HTML comment boundary lies by applying a regex to whichever text is nearest, with no notion of whether that text is prose to be discarded or code to be run. G-020 does not strip comments and so counts commented template examples as real ACs (passes over zero criteria). P-011 strips them from the COMMAND text and so eats live commands (can produce a false green under the T-352 errexit swallow). G-067 sixty lines from G-020 does it correctly. Tasks archive to .tasks/completed/ and become invisible; gaps persist in the register, are visible in Watchtower and are checked by audit - per CLAUDE.md, register the flaw BEFORE or alongside the fix. All three fixes are AEF's under G-008, so the local deliverable is the register entry with a closure condition that names what must move.
+  The register's own schema check has been red since it shipped, and the one measurement that would have caught it was taken on a file that does not exist
 
-status: work-completed
+status: started-work
 workflow_type: build
 owner: agent
-horizon: null
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-12T12:36:57Z
-last_update: 2026-08-12T12:39:54Z
-date_finished: 2026-08-12T12:39:54Z
+created: 2026-08-12T17:01:56Z
+last_update: 2026-08-12T17:01:56Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,73 +30,63 @@ date_finished: 2026-08-12T12:39:54Z
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-457: Register the gate comment-boundary class as a gap
+# T-463: The register's own schema check has been red since G-029 was registered, and the one measurement that would have caught it was taken on a file that does not exist
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+`python3 tools/concerns-schema.py` returns **rc 1 with a SCHEMA FAIL**: the field `context`
+is carried by 9 entries (G-029..G-037) and read by no code — the G-027 shape, sitting in the
+register that catalogues G-027.
+
+It was found by accident. T-462 ran the validator, got rc 1, and that contradicted T-457's
+recorded measurement of "rc 2, one line of output". The only `sys.exit(2)` in the script is
+`PyYAML unavailable`, and PyYAML imports fine in every interpreter on this host — so rc 2
+could not have come from the script at all. It came from `python3` refusing to open a path
+that does not exist: `python3 .agentic-framework/tools/concerns-schema.py` returns **rc 2,
+one line**, and that is the path T-457 guessed.
+
+So T-457's AC — *"the register's own schema check is no worse than before the edit… identical
+before and after my edit"* — is true and worthless: it was identical because the checker never
+ran, both times. This is the class already named in `tools/_t350-teeth.sh`'s header ("a leg
+that accepts any non-zero exit banks syntax errors as evidence", T-338/T-343/T-348) and it is
+the fourth instance on this arc — this time inside a task whose entire subject was correcting
+a number taken from memory rather than measurement.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] **The register entry names the CLASS, not the three tickets.** A gap that reads
-      "T-453, T-455 and T-456 are open" closes when they are closed, which is the wrong
-      trigger — the fixes are AEF's and their landing is not the same event as this tree
-      no longer being exposed. The entry states the shared mechanism: a comment boundary
-      decided by a regex over whichever text is nearest, with no notion of prose-to-discard
-      versus code-to-run.
-- [x] **The closure condition names what must MOVE, in which direction, and is
-      executable.** Per the G-035 precedent: a condition satisfiable by reclassification,
-      by closing tickets, or by any change that leaves the mechanism intact is a
-      fake-progress channel. It must be checkable by command, and the command must be
-      runnable by something other than this task's own Verification block — otherwise the
-      gauge joins the 30 instruments G-035 counts.
-- [x] **The entry records that one sibling already does it correctly.** `G-067` strips
-      HTML comments before counting, sixty lines from the gate that does not. That is the
-      strongest single fact in the class: it makes every instance a divergence from an
-      in-file precedent rather than an unsolved design question, and it is what turns the
-      upstream report into "apply the treatment you already wrote".
-- [x] **`concerns.yaml` still parses and the register's own schema check is no worse than
-      before the edit.** Measured by running it before and after. **Correction, and the
-      reason this AC was written the way it was:** I stated the pre-existing failure as
-      `exit 1` from memory of T-441. Measured, it is **rc 2, one line of output** — and
-      identical before and after my edit (`diff -q` clean). The register parses (33 entries,
-      29 watching). So the criterion holds, but the number in it was inherited rather than
-      read, which is the same defect this window has been chasing at larger scale; recorded
-      rather than quietly amended.
-
-### 2026-08-12 — CORRECTION (T-463): the rc-2 baseline above was not the checker
-
-The AC directly above corrects an inherited number by measuring it. The measurement was
-taken on a path that does not exist.
-
-    python3 .agentic-framework/tools/concerns-schema.py   -> rc 2, one line
-      "python3: can't open file '/opt/832-Workflow-designer/.agentic-framework/tools/
-       concerns-schema.py': [Errno 2] No such file or directory"
-
-    python3 tools/concerns-schema.py                      -> rc 1, 24 lines
-      "SCHEMA FAIL — 1 field name(s) nothing accounts for:  - context (in 9 entries)"
-
-The script's ONLY `sys.exit(2)` is `PyYAML unavailable`, and PyYAML imports in every
-interpreter on this host — so rc 2 could not have come from the checker under any
-circumstances. It was `python3` declining to open a missing file.
-
-This makes the AC's claim — *"identical before and after my edit"* — true and empty. It was
-identical because the checker never ran, both times. Re-measured at T-457's own commit
-(129740c7) with the validator relocated rather than the register clobbered: **rc 1, 24 lines**,
-the same FAIL that has stood at every commit since 2026-08-09.
-
-The class is the one `tools/_t350-teeth.sh` names in its own header — *a leg that accepts any
-non-zero exit banks syntax errors as evidence* (T-338 leg (d), T-343 leg (d), T-348 leg (c)) —
-and this is its fourth instance on this arc. Here it took a sharper form: not a non-zero exit
-accepted as a red, but a **tool-crash accepted as a baseline**, in the one task of the window
-whose subject was that numbers must be read rather than remembered.
-
-**The AC text and its `[x]` are deliberately left as they were.** The register-parses half of
-the criterion did hold and was separately verified. What failed was the schema-check half, and
-striking the tick would erase the evidence that a correction can be as unmeasured as the thing
-it corrects.
+- [x] **How long the check has been red is MEASURED, not asserted.** The task title says
+      "since it shipped" and that is a hypothesis until the validator is run against the
+      register as it stood at the validator's own introducing commit (`c7d0dedd`, T-400) and
+      at each commit that changed the `context` field count. If it was green at introduction
+      the title is wrong and gets corrected rather than quietly kept.
+- [x] **The measurement runs the script against historical registers WITHOUT clobbering the
+      live one.** Earlier in this window I twice overwrote `.context/project/concerns.yaml`
+      with a historical version and restored it, verifying the sha256 both times. It worked
+      and it was still the wrong shape: a check that requires damaging the artefact it
+      inspects will eventually be run by someone who skips the restore. Copy the script and
+      the historical register into a scratch tree instead — the script derives `REGISTER`
+      from its own `__file__`, so relocating it is sufficient.
+- [x] **The `context` FAIL is resolved by the validator's own prescribed route, and which
+      route is a judgment recorded here.** The script offers two: rename to a field code
+      reads, or add to `PROSE` with a one-line note saying what it is for. `context` is
+      genuinely explanatory prose for a human reading the register — same standing as
+      `evidence`, which is already in `PROSE`. So `PROSE` is the honest answer and renaming
+      would be making the field pretend to a readership it does not have.
+- [x] **The fix is falsified before it is believed.** With `context` added to `PROSE` the
+      validator must return rc 0; with the line reverted it must return rc 1 naming `context`
+      again. A green that cannot be made red proves nothing, which is the whole T-350 teeth
+      lesson applied to a one-line change.
+- [x] **Whether anything CALLS this validator is established and stated.** If no gate, hook,
+      audit section or P-011 block invokes it, then fixing the FAIL changes nothing that runs
+      and the entry belongs in G-035's population (instrument with no live caller) — and that
+      must be said plainly rather than left implied by a green.
+- [x] **T-457 is corrected by APPENDING, not by editing its checkbox.** Its AC text and its
+      `[x]` stay exactly as they are; a dated correction goes underneath recording that the
+      rc-2 baseline was `python3` failing to open a nonexistent path. Same treatment T-459
+      received in this window and for the same reason: a completed task that silently changes
+      its findings is a worse artefact than one carrying its own retraction.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -130,18 +120,6 @@ it corrects.
 -->
 
 ## Verification
-
-# 1. The register still parses and G-036 is in it.
-python3 -c "import yaml; d=yaml.safe_load(open('.context/project/concerns.yaml')); gs=d.get('gaps',d.get('concerns',[])) or []; assert any(g.get('id')=='G-036' for g in gs), 'G-036 missing'"
-# 2. The closure gauge RUNS and reports NOT_READY today, with both numbers visible rather
-#    than collapsed into a verdict. A gap whose closure command cannot execute is a
-#    condition nobody can check — G-035's whole finding, one level out. Note the gauge is
-#    referenced from concerns.yaml's closure_check_command, which the T-451 census counts
-#    as a LIVE source, so this instrument does not join the 30 it reports.
-out=$(python3 -c "import re,json;O=chr(60)+chr(33)+'--';C='--'+chr(62);t=open('.tasks/templates/default.md').read();raw=sum(1 for l in t.splitlines() if re.match(r'\s*- \[ \]',l));st=sum(1 for l in re.sub(O+'.*?'+C,'',t,flags=re.S).splitlines() if re.match(r'\s*- \[ \]',l));u=open('.agentic-framework/agents/task-create/update-task.sh').read();eats=any(('re.sub' in l and 'DOTALL' in l and O[:2] in l) for l in u.splitlines());ok=(raw==st) and not eats;print(json.dumps({'verdict':'READY' if ok else 'NOT_READY','ready':ok,'template_raw_ac_count':raw,'template_comment_stripped_count':st,'p011_strips_command_text':eats}))" 2>&1); echo "$out" | grep -q 'template_raw_ac_count'
-# 3. The correct sibling is still present — it is what makes every instance a divergence
-#    from an in-file precedent rather than an open design question.
-grep -q 'OQ_STRIPPED' .agentic-framework/agents/context/check-active-task.sh
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -189,6 +167,23 @@ grep -q 'OQ_STRIPPED' .agentic-framework/agents/context/check-active-task.sh
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+python3 tools/concerns-schema.py
+d=$(mktemp -d) && mkdir -p "$d/tools" "$d/.context/project" && cp .context/project/concerns.yaml "$d/.context/project/" && python3 -c "import re,sys;s=open('tools/concerns-schema.py').read();s2=re.sub(r'\n    \"context\":.*?\n.*?red since 2026-08-09\)\",','',s,flags=re.S);sys.exit(9) if s2==s else open(sys.argv[1],'w').write(s2)" "$d/tools/concerns-schema.py" && out=$(cd "$d" && python3 tools/concerns-schema.py 2>&1); rc=$?; rm -rf "$d"; echo "falsified: without the PROSE line rc=$rc and the message names: $(echo "$out" | /usr/bin/grep -o 'context' | head -1)"; test "$rc" -eq 1 && echo "$out" | /usr/bin/grep -q 'context'
+# The historical verdict must be taken with the validator AS IT STOOD, not with today's fix
+# applied. The first version of this leg copied the CURRENT script over each historical
+# register and reported ab1f111b as green — because the fix was in it. That is the same
+# instrument-vs-subject error the whole window is about, committed inside the leg measuring
+# how long the subject went unnoticed. tools/concerns-schema.py has exactly one commit
+# before today (c7d0dedd, T-400), so pinning the script to that commit is the true baseline.
+d=$(mktemp -d) && mkdir -p "$d/tools" "$d/.context/project" && git show c7d0dedd:tools/concerns-schema.py > "$d/tools/concerns-schema.py" && git show c7d0dedd:.context/project/concerns.yaml > "$d/.context/project/concerns.yaml" && (cd "$d" && python3 tools/concerns-schema.py > /dev/null 2>&1); a=$?; git show ab1f111b:.context/project/concerns.yaml > "$d/.context/project/concerns.yaml" && (cd "$d" && python3 tools/concerns-schema.py > /dev/null 2>&1); b=$?; rm -rf "$d"; echo "validator pinned to its own introducing commit: at c7d0dedd rc=$a (expect 0 = GREEN at ship, 0 context-carriers); at ab1f111b, the first commit carrying a context field, rc=$b (expect 1 = RED). So 'since it shipped' was WRONG by two commits and the title was corrected to 'since G-029 was registered'"; test "$a" -eq 0 && test "$b" -eq 1
+# A mention is not a call. The first version of this leg counted FILES containing the string
+# and excluded the two it expected, which left tools/tracked-secret-artifacts.py looking like
+# a caller when the hit is one word inside a docstring. Count INVOCATIONS instead, and print
+# every reference so the classification is checkable rather than asserted.
+refs=$(/usr/bin/grep -rn 'concerns-schema' --include='*.sh' --include='*.py' --include='*.json' . 2>/dev/null | /usr/bin/grep -v '^\./\.git/' | /usr/bin/grep -vE '^\./\.context/'); calls=$(echo "$refs" | /usr/bin/grep -E '(python3?|bash|sh)[[:space:]]+[^[:space:]]*concerns-schema' | /usr/bin/grep -v '_t400-schema-teeth\.sh:'); echo "references outside .context records: $(echo "$refs" | /usr/bin/grep -c .) — of which INVOCATIONS outside its own one-shot teeth: $(test -z "$calls" && echo 0 || echo "$calls" | /usr/bin/grep -c .). No gate, hook or audit section runs this validator, so fixing its FAIL changes nothing that RUNS: it belongs in G-035's population."; test -z "$calls"
+/usr/bin/grep -q 'CORRECTION (T-463)' .tasks/completed/T-457-*.md && test 0 -eq "$(/usr/bin/grep -c 'rc 2, one line of output\*\* — and' .tasks/completed/T-457-*.md | /usr/bin/grep -c '^0$')" && echo "T-457 carries the dated correction and its original AC text is untouched"
+python3 -c "import glob,re;p=glob.glob('.tasks/completed/T-457-*.md')[0];s=open(p).read();assert 'rc 2, one line of output' in s, 'the withdrawn claim was deleted rather than preserved';i=s.index('rc 2, one line of output');assert s[:i].rfind('- [x]') > s[:i].rfind('- [ ]'), 'the AC carrying the corrected claim is no longer ticked — it must stay exactly as it was';print('T-457 unchanged: withdrawn claim preserved verbatim, checkbox still [x]')"
 
 ## RCA
 
@@ -253,19 +248,7 @@ grep -q 'OQ_STRIPPED' .agentic-framework/agents/context/check-active-task.sh
 
 ## Updates
 
-### 2026-08-12T12:36:57Z — task-created [task-create-agent]
+### 2026-08-12T17:01:56Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-457-register-the-gate-comment-boundary-class.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-463-the-registers-own-schema-check-has-been-.md
 - **Context:** Initial task creation
-
-## Reviewer Verdict (v1.5)
-
-- **Scan ID:** R-8a69b1ef
-- **Timestamp:** 2026-08-12T12:39:55Z
-- **Catalogue:** v1.3-seed
-- **Overall:** PASS
-- **Needs Human:** no
-- **Findings:** none
-
-### 2026-08-12T12:39:54Z — status-update [task-update-agent]
-- **Change:** status: started-work → work-completed

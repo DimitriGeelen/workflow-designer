@@ -72,6 +72,8 @@ PROSE = {
     "related_tasks":     "near-synonym of `related`; neither is read",
     "description":       "long-form statement",
     "detail":            "near-synonym of `description`; neither is read",
+    "context":           "the mechanism, in prose — how the gap works and why it is invisible "
+                         "(T-463: carried by G-029 onward, red since 2026-08-09)",
     "evidence":          "measurements supporting the entry",
     "closure_evidence":  "measurements supporting closure",
     "resolution":        "what closed it",
