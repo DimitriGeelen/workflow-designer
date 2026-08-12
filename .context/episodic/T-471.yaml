@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-471: The seam re-pin has more than one trigger and I named only the blocked one to AEF
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T20:29:19Z
+# ============================================================================
+
+task_id: T-471
+task_name: "The seam re-pin has more than one trigger and I named only the blocked one to AEF"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T20:25:45Z
+completed: 2026-08-12T20:29:16Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**The trigger inventory is measured over ALL active work, not just the arc.** Rail'
+  - '**Each candidate is classified MOVES-BYTES vs MENTIONS-ONLY, by reading it.** A task'
+  - '**Path-identity changes are looked for separately from byte changes.** A rename or'
+  - '**The rail correction is posted, and it corrects rather than supplements.** AEF is'
+  - '**No corpus byte is written and no blocked task is started.** T-101, T-423 and any'
+  - '**Where the inventory changes T-469''s conclusions, T-469''s document is corrected in'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-471-the-seam-re-pin-has-more-than-one-trigge.md
+generated_by: context-agent-hybrid

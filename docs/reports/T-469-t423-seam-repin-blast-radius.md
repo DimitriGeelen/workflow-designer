@@ -122,3 +122,30 @@ needs. Four things, all measurable on their side:
 seam-touching step is blocked on a round trip that could have happened while it was already
 blocked on something else. This is the only part of T-423 that can be de-risked without
 pre-empting the operator's decision.
+
+---
+
+## 5. Correction 2026-08-12 (T-471) — the premise of §4 was arc-scoped
+
+Everything above is scoped to T-423 because T-423 is the arc step. Measured across **all**
+active work, T-423 is not the trigger most likely to fire first — it is the only one that
+**cannot** fire, being blocked on T-340.
+
+- **T-101** (`started-work`, `horizon: now`, owner human, unblocked) runs `cleanLayout()`
+  over the same 24 rendered maps and mirrors to `build/gallery/rendered/`. Same bytes,
+  no gate.
+- **T-443** changes the fixture corpus **path identity** (rename as a v1.2 standard delta)
+  and is already queued behind AEF's answer at **DM 548 §5** — so the rail carries two
+  unlinked threads about the same files.
+
+So §4's four questions are right and their attribution was wrong: AEF was asked to cost a
+change gated behind an unschedulable ruling, while the change that can land tomorrow went
+unmentioned. Corrected on the rail as a correction, not an addendum.
+
+**And the pin in this task's own Verification covered 42 of 47 paths.** Leg 2 used
+`…/*.bpmn` globs — the very construct §1's callout identifies as having hidden
+`t257-eventdef-roundtrip/`. The prose was fixed; the leg was not. The five paths outside it
+include both halves of the round-trip pair §2a calls the most seam-relevant artifact here,
+and `PROVENANCE.md`. Recursive form: `882ce395ad5d00b6` over 47 paths, pinned by T-471.
+
+Full inventory: `docs/reports/T-471-seam-repin-trigger-inventory.md`.
