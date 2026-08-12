@@ -2239,45 +2239,87 @@ concerns:
   type: gap
   status: watching
   severity: high
-  title: >-
-    The agent's measuring instrument and the framework's execution environment are different
-    programs — `grep` in the agent tool shell is a ugrep shim, every gate/hook/script runs GNU
-    grep, and nothing announces the substitution
+  title: The agent's measuring instrument and the framework's execution environment are different programs
+    -- `grep` in the agent tool shell is a ugrep shim, every gate/hook/script runs GNU grep, and the substitution
+    changes BOTH the pattern language and the set of files a recursive sweep reads
   detected: 2026-08-12
   origin_task: T-460
-  context: >-
-    `grep` in the agent's interactive tool shell is a SHELL FUNCTION that routes to ugrep
-    7.5.0. Every subshell, script, hook and P-011 verification leg runs /usr/bin/grep (GNU).
-    The two disagree on regex semantics — most sharply on an unescaped mid-pattern `$`, which
-    GNU grep reads as a literal (documented, correct) and ugrep reads as an anchor. Same
-    command, same file, same second: 1 versus 0. Direction of harm is a FALSE ABSENCE: the
-    shim's extra anchoring makes patterns match LESS, so agent-side sweeps under-report, and
-    the sentence it corrupts is "I searched and found nothing" — which is the load-bearing
-    sentence of every census, sweep and negative finding this project has produced. It is
-    invisible by construction: not on $PATH, absent from `command -v` in every shell that
-    matters, visible only to `type -t grep` in the one shell that has it, and the code is
-    correct in both trees so no amount of reading finds it. This is a third distinct way for
-    an instrument to report something other than what it means, beside G-034 (verdict
-    computed from an empty population) and G-035 (instrument with no live caller).
+  context: "`grep` in the agent's interactive tool shell is a SHELL FUNCTION that routes to ugrep 7.5.0.\
+    \ Every subshell, script, hook and P-011 verification leg runs /usr/bin/grep (GNU). The two disagree\
+    \ on regex semantics \u2014 most sharply on an unescaped mid-pattern `$`, which GNU grep reads as\
+    \ a literal (documented, correct) and ugrep reads as an anchor. Same command, same file, same second:\
+    \ 1 versus 0. Direction of harm is a FALSE ABSENCE: the shim's extra anchoring makes patterns match\
+    \ LESS, so agent-side sweeps under-report, and the sentence it corrupts is \"I searched and found\
+    \ nothing\" \u2014 which is the load-bearing sentence of every census, sweep and negative finding\
+    \ this project has produced. It is invisible by construction: not on $PATH, absent from `command -v`\
+    \ in every shell that matters, visible only to `type -t grep` in the one shell that has it, and the\
+    \ code is correct in both trees so no amount of reading finds it. This is a third distinct way for\
+    \ an instrument to report something other than what it means, beside G-034 (verdict computed from\
+    \ an empty population) and G-035 (instrument with no live caller).\n\nSECOND AXIS (2026-08-12, reported\
+    \ by AEF at rail 572, verified here before acceptance). The same shim also passes `--ignore-files`,\
+    \ so an agent-side `grep -r` and a gate-side `grep -r` read a DIFFERENT SET OF FILES. Same direction\
+    \ of harm -- false absence -- but it needs no unusual pattern to fire, which makes it the worse of\
+    \ the two: the `$` divergence at least requires you to write a `$` in a pattern, whereas any recursive\
+    \ sweep over a repo silently skips every gitignored path. So the class has two faces, and naming only\
+    \ one of them would leave the register describing a special case as if it were the whole thing: instrument\
+    \ and subject differ in SEMANTICS (which pattern language) and in INPUTS (which files). The divergence\
+    \ is RECURSION-ONLY -- an explicitly named file and a shell glob are read identically by both -- and\
+    \ that bound is load-bearing, because it means `grep pattern file` is trustworthy and only `grep -r`\
+    \ is suspect. AEF attributed the effect to `--ignore-files --hidden -I --exclude-dir=.git`; measured\
+    \ here, `--hidden` REDUCES the divergence (hidden files appear on both sides) and `--ignore-files`\
+    \ is the flag that does the damage."
   evidence:
-    - "T-460: `grep -c 'case \"${OUT%/}\" in' tools/serve-gallery.sh` returns 0 through the agent shell and 1 through /usr/bin/grep. Same pattern, same file."
-    - "`type grep` in the agent tool shell prints a function body referencing CLAUDE_CODE_EXECPATH and /root/.local/bin/claude; `grep --version` there reports ugrep 7.5.0."
-    - "`bash -c 'type -t grep; command -v grep'` returns `file` and `/usr/bin/grep` — the shim exists only in the instrument, never in the subject."
-    - "Three findings were produced from the divergence and all three were wrong: the _t350-teeth.sh:45 dead branch, T-459's leg-6 'unsatisfiable grep' class, and the completed/T-148:68 unmatchable leg. All three were sent to AEF at rail 570 §5 with a request that they sweep their tree. Retracted at rail 571."
-    - "Discovery path is the finding's own mitigation: P-011 refused to complete T-460 on a leg asserting a count. The disagreement was NOT reproducible by hand, because 'by hand' was the corrupted path. Rewriting the leg to PRINT its numbers instead of only asserting them resolved it in one run: `BRE=1 FIXED=1 cwd=/opt/832-Workflow-designer grep=/usr/bin/grep opts=[unset]`."
-  decision_trigger: >-
-    CLOSES only when a future divergence would be NOTICED, not when today's is known.
-    Specifically REFUSED as closure: (a) closing T-460 — that records that one wrong belief
-    was corrected, not that the next one would be caught; (b) removing or overriding the shim
-    in one shell — the gap is that instrument and subject CAN diverge silently, and a
-    hand-fixed shell is neither durable nor detectable; (c) a habit or a note in CLAUDE.md
-    telling agents to remember — an instruction is not an instrument. Closure requires a
-    mechanical check that compares the agent-visible tool against the gate-visible one and
-    fails when they differ. LIMIT, stated so a green cannot imply more than it measured: the
-    command below tests `grep` only. Other tools may be shimmed the same way and are NOT
-    covered; a READY verdict here means grep specifically agrees, not that the class is gone.
+  - 'T-460: `grep -c ''case "${OUT%/}" in'' tools/serve-gallery.sh` returns 0 through the agent shell
+    and 1 through /usr/bin/grep. Same pattern, same file.'
+  - '`type grep` in the agent tool shell prints a function body referencing CLAUDE_CODE_EXECPATH and /root/.local/bin/claude;
+    `grep --version` there reports ugrep 7.5.0.'
+  - "`bash -c 'type -t grep; command -v grep'` returns `file` and `/usr/bin/grep` \u2014 the shim exists\
+    \ only in the instrument, never in the subject."
+  - "Three findings were produced from the divergence and all three were wrong: the _t350-teeth.sh:45\
+    \ dead branch, T-459's leg-6 'unsatisfiable grep' class, and the completed/T-148:68 unmatchable leg.\
+    \ All three were sent to AEF at rail 570 \xA75 with a request that they sweep their tree. Retracted\
+    \ at rail 571."
+  - 'Discovery path is the finding''s own mitigation: P-011 refused to complete T-460 on a leg asserting
+    a count. The disagreement was NOT reproducible by hand, because ''by hand'' was the corrupted path.
+    Rewriting the leg to PRINT its numbers instead of only asserting them resolved it in one run: `BRE=1
+    FIXED=1 cwd=/opt/832-Workflow-designer grep=/usr/bin/grep opts=[unset]`.'
+  - 'T-462, second axis, fixture: a directory holding `x.log` and a `.gitignore` of `*.log`. `grep -rl
+    NEEDLE .` returns 0 files through the agent shell and 1 through /usr/bin/grep. Reproduced independently
+    on the AEF tree with the same shim and the same ugrep 7.5.0.'
+  - 'T-462, bound: the same fixture read by explicit name (`grep -c NEEDLE x.log`) and by glob (`grep
+    -l NEEDLE *.log`) returns 1 on BOTH sides. Only recursion diverges.'
+  - 'T-462, the instance that matters on this tree: only 30 paths are gitignored here and most are __pycache__,
+    but the set includes .context/working/focus.yaml and .context/working/session.yaml. A recursive sweep
+    of .context/working/ for the CURRENTLY FOCUSED task id returns 0 files agent-side and 2 gate-side
+    -- and the 2 are exactly the files that record that focus. ''I swept working memory and found no reference
+    to T-462'' would be a false absence about the two files naming T-462.'
+  decision_trigger: "CLOSES only when a future divergence would be NOTICED, not when today's is known.\
+    \ Specifically REFUSED as closure: (a) closing T-460 \u2014 that records that one wrong belief was\
+    \ corrected, not that the next one would be caught; (b) removing or overriding the shim in one shell\
+    \ \u2014 the gap is that instrument and subject CAN diverge silently, and a hand-fixed shell is neither\
+    \ durable nor detectable; (c) a habit or a note in CLAUDE.md telling agents to remember \u2014 an\
+    \ instruction is not an instrument. Closure requires a mechanical check that compares the agent-visible\
+    \ tool against the gate-visible one and fails when they differ. Closure must cover BOTH axes: a gauge\
+    \ that proves the pattern language agrees while the file set still diverges is a green over half the\
+    \ class, which is the G-034 shape applied to this gap's own check. LIMIT, stated so a green cannot\
+    \ imply more than it measured: the command below tests `grep` only. Other tools may be shimmed the\
+    \ same way and are NOT covered; a READY verdict here means grep specifically agrees, not that the\
+    \ class is gone."
   related_tasks:
-    - T-459
-    - T-460
-    - T-461
-  closure_check_command: python3 -c "import json,os,time,subprocess as s;w='.context/working/.grep-witness';have=os.path.exists(w);d=dict(l.split('=',1) for l in open(w).read().splitlines() if '=' in l and not l.startswith('#')) if have else {};age=(time.time()-os.path.getmtime(w))/86400 if have else None;gnu=s.run(['bash','-lc','/usr/bin/grep --version | head -1'],capture_output=True,text=True).stdout.strip();sub=s.run(['bash','-lc','type -t grep'],capture_output=True,text=True).stdout.strip();agree=have and age is not None and age<30 and d.get('type')=='file' and d.get('version','').startswith(gnu[:20]);print(json.dumps({'verdict':'READY' if agree else 'NOT_READY','ready':bool(agree),'witness_present':have,'witness_age_days':None if age is None else round(age,2),'agent_shell_grep_type':d.get('type'),'agent_shell_grep_version':d.get('version'),'gate_shell_grep_type':sub,'gate_shell_grep_version':gnu,'why':'the agent-side value CANNOT be obtained by spawning anything — spawning is what escapes the shim — so it is supplied by a witness file written from the agent tool shell; a missing or stale witness is NOT_READY, never READY','limit':'grep only; other tools may be shimmed and are not covered'}))"
+  - T-459
+  - T-460
+  - T-461
+  - T-462
+  closure_check_command: 'python3 -c "import json,os,time,subprocess as s,tempfile,shutil;w=''.context/working/.grep-witness'';have=os.path.exists(w);d=dict(l.split(''='',1)
+    for l in open(w).read().splitlines() if ''='' in l and not l.startswith(''#'')) if have else {};age=(time.time()-os.path.getmtime(w))/86400
+    if have else None;gnu=s.run([''bash'',''-lc'',''/usr/bin/grep --version | head -1''],capture_output=True,text=True).stdout.strip();sub=s.run([''bash'',''-lc'',''type
+    -t grep''],capture_output=True,text=True).stdout.strip();t=tempfile.mkdtemp();open(t+''/x.log'',''w'').write(''NEEDLE\n'');open(t+''/.gitignore'',''w'').write(''*.log\n'');gate_sees=s.run([''bash'',''-lc'',''cd
+    ''+t+'' && /usr/bin/grep -rl NEEDLE . | wc -l''],capture_output=True,text=True).stdout.strip()==''1'';shutil.rmtree(t,ignore_errors=True);sem=have
+    and age is not None and age<30 and d.get(''type'')==''file'' and d.get(''version'','''').startswith(gnu[:20]);inp=have
+    and d.get(''recursive_sees_ignored'')==''yes'' and gate_sees;agree=bool(sem and inp);print(json.dumps({''verdict'':''READY''
+    if agree else ''NOT_READY'',''ready'':agree,''axis_semantics_ready'':bool(sem),''axis_inputs_ready'':bool(inp),''witness_present'':have,''witness_age_days'':None
+    if age is None else round(age,2),''agent_shell_grep_type'':d.get(''type''),''agent_shell_grep_version'':d.get(''version''),''agent_shell_recursive_sees_ignored'':d.get(''recursive_sees_ignored''),''gate_shell_grep_type'':sub,''gate_shell_grep_version'':gnu,''gate_shell_recursive_sees_ignored'':gate_sees,''why'':''two
+    axes, both required. SEMANTICS: same pattern language. INPUTS: a recursive sweep reads the same files.
+    Either one diverging keeps the gap open. The agent-side values CANNOT be obtained by spawning -- spawning
+    is what escapes the shim -- so they come from a witness written in the agent tool shell; missing or
+    stale is NOT_READY, never READY.'',''limit'':''grep only; other tools may be shimmed and are not covered''}))"'
