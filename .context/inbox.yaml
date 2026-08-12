@@ -263,3 +263,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-038
+  text: "Vendored Human-AC tick guard (.agentic-framework/agents/context/check-human-ac-tick.py, v1.6.354) counts checkboxes inside HTML guidance comments and zips old/new positionally, so deleting a template comment is reported as a Human-AC tick. MEASURED: 16 of 387 task files with a commented ### Human section fabricate a (0,' ','x') toggle; 343 of 440 carry phantom boxes. Under agent control the effect is a spurious BLOCK (safe); with FW_ALLOW_HUMAN_AC_TICK=1 log_bypass() writes a tick that never happened into the Tier-2 audit trail. AEF fixed this upstream as T-2954 (lib/comment_strip.py, absent here) — remedy is an operator-decided version bump, not a local patch. Evidence: docs/reports/T-476-obs037-exposure.md"
+  captured: 2026-08-12T21:23:07Z
+  context_task: T-476
+  tags: [bug]
+  status: pending
+  promoted_to: null
