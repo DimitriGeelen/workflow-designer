@@ -270,3 +270,10 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-039
+  text: "Frozen standard docs/standards/aef-bpmn-mapping-v1.md §1 lists aef:endpoint under the PRESENTATIONAL class ('diagram cosmetics', 'derived, never authoritative', 'change alone MUST be a no-op for the task graph'). It is not cosmetic: it is the executable command a task node runs (src:1867 properties field 'fw … | agent prompt | watchtower view'; src:1958 seed 'fw context build --task ${task_id} --depth 2'; src:9286 emitted beside contextReads/artifactsWrites; tools/yaml-to-bpmn.py:56 lists endpoint in META_KEYS). Both reference implementations treat it as semantic, and §1's semantic class covers governance meta-keys — so the standard contradicts itself within one section. Consequence: a conforming consumer may DISCARD aef:endpoint, dropping the command from every service task. Probable cause: name collision with the edge-endpoint drag handle (80+ presentational sites vs 1 semantic). Part I is frozen and two-party — correction is a v1.2 item for operator + AEF, NOT agent-editable. Evidence: docs/reports/T-357-di-adoption.md §'Standard defect'"
+  captured: 2026-08-12T21:59:23Z
+  context_task: T-477
+  tags: [bug]
+  status: pending
+  promoted_to: null

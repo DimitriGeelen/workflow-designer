@@ -160,10 +160,108 @@ This is the first finding that pushes toward NO-GO on the *maximal* form — and
 should be watched carefully, because **the last time I let a property of a maximal
 variant settle a whole option, I was wrong** (T-340 option (b); RAIL-416). Recorded
 here as bounding the *scope* of adoption, explicitly **not** as a disqualification
-of adoption. Spike 3 is incomplete: `anchors` and `aef:waypoint` are not yet
-classified as result-or-intent.
+of adoption.
+
+### Spike 3 completed 2026-08-12 (T-477) — both remaining elements are intent
+
+`anchors` and `aef:waypoint` were left unclassified. Both are now classified, against a
+criterion fixed **before** looking: an attribute is a *computed result* iff its value is
+recoverable from the rendered geometry alone; it is *authored intent* iff it survives as
+an input that changes what geometry gets recomputed on the next layout pass.
+
+**`aef:anchors` (sourcePort/targetPort) — INTENT.** All 19 `anchors` sites enumerated.
+Every write is a user gesture: endpoint drag onto a port (`:3737-3738`), properties-panel
+select (`:5282/:5287`), drag-snap (`:6526/:6534/:6537`), reverse-edge port swap (`:5358`),
+explicit reset to `auto` (`:3760-3761`), plus construction (`:8042-8043`) and file
+read-back (`:10126-10127`). It is emitted **only when the port is not `auto`**
+(`:9674-9682`) — i.e. only when the author actually pinned it. Not recoverable from
+geometry: an edge meeting a node's left side looks identical whether the author pinned
+`left` or the router chose it, and the two behave differently on the next pass because
+the router branches on `auto` (`:3524`, `:3570`).
+
+**`aef:waypoint` — INTENT, and the sharper of the two.** Author-placed bend points:
+created by drag-insert (`:6447-6448`) and moved by drag (`:6441`). They **override** the
+router — proven by `:7836-7844`, which temporarily clears `edge.waypoints` so the router
+computes *"the natural polyline rather than honoring stale overrides"*, then restores
+them. They are cleared wholesale whenever the geometry they were authored against stops
+holding (`:3740`, `:3762`, `:5283-5345`, `:6528`, `:6539`, `:8104`, `:8122` — *"old
+waypoints made sense for the old geometry"*).
+
+There is **no router→waypoint path at all**: the only function that computes corners for
+assignment to `edge.waypoints` (`currentRenderedMiddleCorners`, `:7828`) has **zero
+callers**. Its doc comment (`:7821-7827`) describes assigning router output to
+`edge.waypoints` — so reading the comment alone yields the *opposite* classification.
+The caller census is what settled it. (Recorded because it is this arc's recurring shape:
+a comment describing a mechanism that no longer has a caller.)
+
+### The consequence, which is worse than "no DI equivalent"
+
+Spike 3's original finding was that DI has no vocabulary for intent. For `aef:waypoint`
+the problem is not absence but **false equivalence**: `di:waypoint` carries the same
+`x`/`y` values, so a swap *looks* lossless. But `aef:waypoint` records **only the
+author's middle overrides**, while `di:waypoint` records the **entire computed polyline**.
+Round-tripping through DI would promote every router-computed corner into an author
+override — silently freezing every edge's route, so the router stops adapting on the next
+layout change.
+
+**A missing carrier fails loudly; a false equivalent round-trips clean and changes the
+meaning.** That is the more dangerous of the two, and it was invisible while the element
+sat unclassified.
+
+**Revised tally of the eight-element presentational family:** `routingHint`,
+`forceStraight`, `loopDetour`, `anchors`, `waypoint` = **five are intent**; `aef:routing`
+is their container; **`aef:position` is the only true computed result**. Spike 3 costed
+depth 3 on three-of-eight. It is five-of-eight, plus one false equivalent.
+
+**`aef:endpoint` is not presentational at all** — see §"Standard defect" below. It is
+excluded from this tally.
 
 ---
+
+## Standard defect found while completing spike 3 (T-477, 2026-08-12)
+
+Classifying the family required reading the frozen standard's presentational list
+element by element. It names **`aef:endpoint`** as "diagram cosmetics".
+
+**`aef:endpoint` is not cosmetic. It is the executable command a task node runs.**
+
+- `src:1867` — the properties-panel field: `{ label: 'Endpoint', hint: 'fw … | agent
+  prompt | watchtower view', textarea: true }`
+- `src:1790-1805` — offered on `serviceTask`, `userTask`, `scriptTask`, `subProcess`,
+  alongside `tier`, `agentType`, `contextReads`, `artifactsWrites`
+- `src:1958-2019` — seed data holds real commands, e.g.
+  `endpoint: 'fw context build --task ${task_id} --depth 2'`
+- `src:9286` — emitted as a standalone `<aef:endpoint>` element, immediately beside
+  `aef:contextReads`, `aef:artifactsWrites`, `aef:decisionInput/Outputs`
+- `tools/yaml-to-bpmn.py:56` — the bridge lists `endpoint` in **`META_KEYS`**, i.e. treats
+  it as a governance meta-key
+
+So **both** reference implementations treat it as semantic, and the standard's own §1
+semantic class covers "the scalar governance meta-keys" — which the bridge's `META_KEYS`
+defines, and which contains `endpoint`. The standard contradicts itself about this one
+element **within a single section**.
+
+**Why it is consequential, not pedantic.** §1 says presentational content is "derived,
+never authoritative" and "a change to a presentational attribute alone MUST be a no-op
+for the task graph." A conforming consumer is therefore **entitled to discard
+`aef:endpoint`** — silently dropping the command from every service task in a map. That
+is the opposite of a no-op.
+
+**Probable cause — a name collision, not a judgment error.** The editor uses "endpoint"
+for two unrelated things: the *edge-endpoint drag handle* (genuinely presentational —
+`edgeDrag.kind === 'endpoint'`, `.edge-handle-endpoint`, 80+ sites) and the *node's
+command field* (semantic — 1 site). Anyone enumerating presentational concerns would meet
+the drag-handle sense dozens of times first. The list is right about the word and wrong
+about the element.
+
+**Not fixed here, deliberately.** `docs/standards/aef-bpmn-mapping-v1.md` Part I is frozen
+and two-party; it must not be edited under agent control, and §"Versioning & change
+control" requires a version bump plus a conformance-test update. Registered as an
+observation and raised with AEF on the rail. **The correction is a v1.2 item for the
+operator and AEF, not for this task.**
+
+Scope note: this is outside T-477's stated scope (classify `anchors` and `waypoint`). It
+is recorded rather than pursued, per "one bug = one task".
 
 ## Spike 4 — T-225 compatibility (IW-4)
 
@@ -242,6 +340,15 @@ considerably. What began as one question is now three, in increasing cost order:
    does not name, which is additive rather than contradictory.
 3. **Retire `aef:position`** — needs a T-225 scope ruling, a v1.1 standard
    revision, and an answer to the intent-expressiveness gap in spike 3.
+   **[T-477, 2026-08-12 — the gap is bigger than costed here, and depth 3 alone is
+   affected.]** Spike 3 costed this on three intent elements of eight; completing the
+   classification makes it **five of eight**, and adds a failure mode that is not a gap
+   at all: `di:waypoint` is a *false equivalent* for `aef:waypoint` — same values,
+   different status — so a swap round-trips clean while silently freezing every edge's
+   route. Depth 3 gets **more** expensive and less safe. **Depths 1 and 2 are untouched:
+   both retain `aef:position` and the whole extension family alongside any DI, so no
+   intent is lost at either. T-340's scoped (b) is unaffected — it reads DI, writes
+   nothing, and moves no bytes.**
 
 **Each is a strict subset of the next**, so none of the work is thrown away
 whichever depth the operator picks. That is the useful result of this inception,
