@@ -37,8 +37,20 @@ def _q(ns, tag):
     return "{%s}%s" % (ns, tag)
 
 
-# source_bpmn_sha reconcile keys — pinned; AEF cross-validates byte-exact against these
-# (rail offsets 88/89). If a fixture is edited, re-pin HERE + notify AEF on the rail.
+# Plain byte digests of the two fixtures AEF vendored off the rail (offsets 88/89) and
+# guards on their side as SHA_832_TYPED / SHA_832_BOUNDARY.
+#
+# T-474 — these are NOT `source_bpmn_sha`, which this comment called them until 2026-08-12.
+# `source_bpmn_sha` is a provenance field AEF's own `bpmn_promote.py` writes into AEF's
+# corpus meta, keyed (uid, source_bpmn_sha) per our IW-2 contract: the sha of the staged
+# BPMN *they* are promoting. It has never pinned our bytes (measured on their side, rail
+# 584 Q1). The mislabel propagated: T-423 inherited it as a false "coordinated re-pin"
+# cost that blocked reasoning about the arc for three weeks (T-473).
+#
+# If a fixture is edited: re-pin HERE, then ANNOUNCE on the rail before the bytes land —
+# one line, path + old -> new digest. Notice, not permission; their cost is one constant
+# edit. Announce anyway, because their guard's message tells a reader that an unexpected
+# digest means someone mutated a fixture locally.
 TYPED = "typed-events.bpmn"
 TYPED_SHA = "5467071b3a3909629b224ed6357abb5fc8a57c12e18e402106307dd91d2ca5ff"
 BOUNDARY = "boundary-events.bpmn"
@@ -150,8 +162,10 @@ def failures():
         h2 = hashlib.sha256(_read_bytes(name)).hexdigest()
         if h1 != pinned:
             fails.append(
-                "(1) %s sha256 %s != pinned %s — source_bpmn_sha changed (fixture "
-                "edited? re-pin in this test + notify AEF on the rail)" % (name, h1, pinned)
+                # T-474: NOT source_bpmn_sha — see the note at TYPED_SHA above.
+                "(1) %s sha256 %s != pinned %s — pinned byte digest changed (fixture "
+                "edited? re-pin in this test, then ANNOUNCE on the rail before the bytes "
+                "land: one line, path + old -> new)" % (name, h1, pinned)
             )
         if h1 != h2:
             fails.append("(1) %s sha256 not recompute-stable: %s vs %s" % (name, h1, h2))

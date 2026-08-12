@@ -114,8 +114,13 @@ def failures():
         h2 = _sha(_read_bytes(name))
         if h1 != pinned:
             fails.append(
-                "(1) %s sha256\n     got    %s\n     pinned %s — source_bpmn_sha changed "
-                "(fixture edited? re-pin FULL_SHA[%r] + notify AEF on the rail)"
+                # T-474: NOT source_bpmn_sha (that is a provenance field AEF's own promote
+                # tool writes into AEF's corpus meta; it pins nothing of ours — rail 584 Q1).
+                # This is a plain byte digest of a file AEF vendored off the rail.
+                "(1) %s sha256\n     got    %s\n     pinned %s — pinned byte digest changed "
+                "(fixture edited? re-pin FULL_SHA[%r], then ANNOUNCE on the rail before the "
+                "bytes land: one line, path + old -> new. AEF vendors this file by digest; "
+                "an unannounced change reads on their side as local tampering.)"
                 % (name, h1, pinned, name)
             )
         if h1 != h2:

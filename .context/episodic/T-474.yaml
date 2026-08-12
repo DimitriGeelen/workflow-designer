@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-474: AEF vendors four of our files by digest and we pin two: the other two can diverge silently
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T20:59:53Z
+# ============================================================================
+
+task_id: T-474
+task_name: "AEF vendors four of our files by digest and we pin two: the other two can diverge silently"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T20:54:09Z
+completed: 2026-08-12T20:59:48Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**The dissolved premise is recorded with the evidence that dissolved it**, including'
+  - '**Every remaining carrier of the `source_bpmn_sha` mislabel is found and fixed.** T-473'
+  - '**The legitimate uses are NOT touched, and the distinction is stated.** In'
+  - '**Each corrected message names what it IS, not just what it is not**, and carries the'
+  - '**The full bridge suite is run after the edits and reported**, not just the touched'
+  - '**No corpus byte is written and no digest is altered.** Only message text changes.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 5 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 5
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-474-aef-vendors-four-of-our-files-by-digest-.md
+generated_by: context-agent-hybrid

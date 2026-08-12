@@ -221,7 +221,9 @@ echo "== pair-draft corpus fixture pins: sha + validator-clean (T-216, browser-i
 if python3 "$ROOT/tests/test_corpus_fixture_pins.py"; then
   pass=$((pass + 1))
 else
-  report FAIL "pair-draft corpus fixture drifted from its pinned source_bpmn_sha or stopped validating clean (fixture edited? re-pin + notify AEF)"
+  # T-474: NOT source_bpmn_sha — see the note at :206. Plain byte digests; AEF vendors
+  # offpage-seam (their 832/pair-draft-3) and s4-exemplar by digest on their side.
+  report FAIL "pair-draft corpus fixture drifted from its pinned byte digest or stopped validating clean (fixture edited? re-pin here + announce on the rail before the bytes land: one line, path + old -> new)"
   fail=$((fail + 1))
 fi
 
