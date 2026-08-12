@@ -1254,3 +1254,10 @@ learnings:
   date: 2026-08-12
   context: Added via context agent
   application: TBD
+- id: PL-175
+  learning: "A name in a coverage list is a CLAIM; only a value that varies is EVIDENCE. An enumeration (METAKEYS, META_KEYS, a bats leg list, a census-by-file) can be audited by MEMBERSHIP or by BEHAVIOUR, and membership always answers — the same reflex as reaching for grep when you mean parse. Measured in T-483: appending the seven non-scalar semantic values to METAKEYS (body: String(aef[k])) would have satisfied every membership leg and every reviewer reading the list, while moving detection from 0/7 to 2/7 — because String() on a dict AND on an array of dicts yields the constant '[object Object]', which compares equal to itself for every possible mutation. A key present with a constant projection is worse than an absent key: absent is a known hole, constant is a hole that reports itself CLOSED, and it is invisible to the audit method most natural to apply. Cheap test for any coverage list: mutate one member's underlying value and confirm the artefact's OUTPUT changes; anything whose projection is constant is decoration. Third instance of the class (T-482 io-would-be-undefined, T-483 String()-constant, AEF 597 section 5 census-run-by-file-not-behaviour)."
+  source: P-001
+  task: T-483
+  date: 2026-08-12
+  context: Added via context agent
+  application: TBD

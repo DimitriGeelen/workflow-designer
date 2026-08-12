@@ -5849,3 +5849,21 @@ scan_id: R-16541266
 task_id: T-483
 payload:
   task_file: .tasks/active/T-483-structured-round-trip-projection-for-aef.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T23:12:22Z'
+scan_id: R-22d74c3b
+task_id: T-484
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T23:12:22Z'
+scan_id: R-22d74c3b
+task_id: T-484
+payload:
+  task_file: .tasks/active/T-484-audit-the-bridge-and-editor-coverage-enu.md

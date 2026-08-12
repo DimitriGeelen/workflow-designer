@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-484: Audit the bridge and editor coverage enumerations by behaviour, not membership
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T23:12:25Z
+# ============================================================================
+
+task_id: T-484
+task_name: "Audit the bridge and editor coverage enumerations by behaviour, not membership"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T23:09:02Z
+completed: 2026-08-12T23:12:21Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'AC1 — Enumerate the seam-bearing coverage lists with their member counts, measured'
+  - 'AC2 — For each member of each in-scope list, determine BEHAVIOURALLY whether the'
+  - 'AC3 — The probe carries a positive control: at least one member known to be live must'
+  - 'AC4 — Every member is classified LIVE / INERT / NOT-EXERCISABLE with its reason.'
+  - 'AC5 — Any member found INERT is registered as an observation and filed as its own'
+  - 'AC6 — The published claim is settled either way: the rail-599 generalisation is'
+  - 'AC7 — Read-only with respect to product code: `git diff` empty on `src/`,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-484-audit-the-bridge-and-editor-coverage-enu.md
+generated_by: context-agent-hybrid
