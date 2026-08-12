@@ -17,7 +17,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T22:02:17Z
-last_update: 2026-08-12T09:40:05Z
+last_update: 2026-08-12T09:42:34Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -98,9 +98,11 @@ provenance instead of grepped for. What replaced the false urgency is filed as T
 tool's `--check` is documented as the corpus fixpoint assertion, is invoked by nothing, and
 returns `0/24` on the real corpus — un-wired and red, each fact concealing the other.
 
-`bake-clean-layout.py` is the sharpest: it says **synced** in the same sentence as **0
-maps**, and T-101 ("Bake Clean layout into the rendered corpus (24 maps)") is an open arc
-task that reads its exit code. `_norec-verify.py` is the second: it is the operator's
+`bake-clean-layout.py` is the sharpest *sentence*: it says **synced** in the same sentence
+as **0 maps**. ~~and T-101 … is an open arc task that reads its exit code~~ — struck, see
+the correction above: nothing reads it, and I inferred that caller rather than grepping for
+one. Sharpest wording, not the most load-bearing.
+`_norec-verify.py` takes that title instead — it is the operator's
 approvals-queue guard, built *because* a silent zero once misled the operator into
 believing there was nothing to approve, and it reports its own zero the same way.
 `_t125-lane-compaction-cdp.mjs` is the probe for open task T-125.
