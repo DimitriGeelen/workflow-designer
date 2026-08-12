@@ -17,7 +17,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T22:02:17Z
-last_update: 2026-08-12T06:23:45Z
+last_update: 2026-08-12T06:38:26Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -50,23 +50,65 @@ checks, and does not say over what population, is itself a PASS on an unstated d
 (PL-084). So the census states its denominator, and abstains (rc 2) rather than passing when
 it cannot classify — the T-430 rule applied to the instrument doing the counting.
 
+## Findings (measured 2026-08-12)
+
+    population    73 of 101 .mjs/.py files in tools/ compute their exit code from a tally
+    driven        14
+    BLIND          5
+    guarded        9
+    CANNOT-DRIVE  59
+
+**The five that report success having examined nothing.** Each was run out of a copy of
+this tree with every population directory emptied, against a poisoned control copy that
+proves the drive moved something:
+
+| Instrument | What it printed on an empty tree | rc |
+|---|---|---|
+| `bake-clean-layout.py` | `Baked Clean into 0 maps; 0 store versions minted; gallery mirror synced.` | 0 |
+| `_norec-verify.py` | `0 task(s) with pending Human ACs lack a Recommendation verdict` | 0 |
+| `_clean-layout-cdp.mjs` | `{}` | 0 |
+| `_node-cuts-cdp.mjs` | `{}` | 0 |
+| `_t125-lane-compaction-cdp.mjs` | `}` | 0 |
+
+`bake-clean-layout.py` is the sharpest: it says **synced** in the same sentence as **0
+maps**, and T-101 ("Bake Clean layout into the rendered corpus (24 maps)") is an open arc
+task that reads its exit code. `_norec-verify.py` is the second: it is the operator's
+approvals-queue guard, built *because* a silent zero once misled the operator into
+believing there was nothing to approve, and it reports its own zero the same way.
+`_t125-lane-compaction-cdp.mjs` is the probe for open task T-125.
+
+**The nine that refused** — `_t338`, `_t341`, `_t367`(+teeth), `_t308-export-byte-identity`
+exit **2** on an emptied tree, not 1. They abstain rather than fail, which is the shape
+T-430 argued for. That discrimination is what makes the 5 above a finding rather than a
+property of the harness.
+
+**59 could not be driven, and that is the larger number.** Their populations are not in any
+directory this harness can empty — they hit a live URL, read `src/`, or derive the set from
+somewhere else entirely. They are not covered by any verdict here. An instrument whose
+population cannot be emptied from outside cannot be tested for this defect by anyone,
+which is why they are counted in their own bucket instead of folded into "no findings".
+
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] Population named and counted, not sampled: every `.mjs` and `.py` check under `tools/`
+- [x] Population named and counted, not sampled: every `.mjs` and `.py` check under `tools/`
       is classified counter-bearing / not, and the census prints both the numerator and the
-      denominator it ranged over
-- [ ] Blindness is **measured by execution**, not inferred from source reading — a check
+      denominator it ranged over — 73 in population, 28 NO-VERDICT, 101 of 102 examined
+- [x] Blindness is **measured by execution**, not inferred from source reading — a check
       counts as blind only when it was driven to a zero-population state and observed to
-      report success
-- [ ] The census abstains (rc 2, `ABSTAINED` line) rather than reporting 0 blind when it
+      report success. All 5 were driven; static classification was abandoned mid-task
+      because it is not decidable here (see Context)
+- [x] The census abstains (rc 2, `ABSTAINED` line) rather than reporting 0 blind when it
       cannot classify or cannot drive a file, so "no findings" and "could not look" stay
-      distinguishable
-- [ ] Every instrument found blind is recorded by name in this task, with the evidence line
-      that proved it — a count alone is not actionable
-- [ ] The finding is escalated where it can be acted on after this task closes: a concerns
-      register entry if the class is systemic, or an explicit statement here of why it is not
+      distinguishable — both instruments abstain, and the drive harness's PASS line names
+      the CANNOT-DRIVE count so it can never be read as coverage
+- [x] Every instrument found blind is recorded by name in this task, with the evidence line
+      that proved it — a count alone is not actionable (table above)
+- [x] The finding is escalated where it can be acted on after this task closes — registered
+      as **G-034**, because the class now has four independent instances in the register
+      (G-016, G-017, G-031, plus T-429's 35-of-35 bash suites) and no entry describing the
+      class itself
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -148,7 +190,46 @@ it cannot classify — the T-430 rule applied to the instrument doing the counti
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# 1. The census names a non-empty population and states the denominator it drew from.
+python3 tools/_t440-zero-population-census.py > /tmp/.t440-census.out 2>&1 && grep -qE "IN-POPULATION +[1-9]" /tmp/.t440-census.out
+# 2. The denominator is printed, not implied — PL-084, and the reason the tally-regex bug was caught.
+grep -qE "examined +[0-9]+ of [0-9]+" /tmp/.t440-census.out
+# 3. The census ABSTAINS (rc 2) on a tools/ dir with no population, rather than printing PASS.
+D=$(mktemp -d) && mkdir -p "$D/tools" && T440_ROOT="$D" python3 tools/_t440-zero-population-census.py > /dev/null 2>&1; test $? -eq 2
+# 4. The drive harness ABSTAINS (rc 2) when its filter drives nothing — T-430 discipline.
+bash tools/_t440-drive-empty.sh __no_such_instrument__ > /dev/null 2>&1; test $? -eq 2
+# 5. The finding reproduces: the approvals-queue guard reports success having read no tasks.
+R="$PWD" && D=$(mktemp -d) && cd "$D" && python3 "$R/tools/_norec-verify.py" > /tmp/.t440-norec.out 2>&1 && grep -q "^0 task(s)" /tmp/.t440-norec.out
+# 6. The class is registered where it survives this task's archival.
+python3 -c "import yaml,sys; d=yaml.safe_load(open('.context/project/concerns.yaml')); sys.exit(0 if any(c['id']=='G-034' and c['status']=='watching' for c in d['concerns']) else 1)"
+
 ## RCA
+
+**Symptom:** T-429 measured 35 of 35 bash suites able to exit 0 having run no legs, and
+stopped at bash. The `.mjs` CDP probes — the instruments behind every "bridge green" count
+reported across the AEF seam — and the `.py` checks cited in P-011 Verification blocks had
+never been asked the question. Measured now: 5 of 14 drivable instruments report success on
+an emptied tree, and 59 of 73 cannot be driven at all.
+
+**Root cause:** a verdict computed from a tally of failures alone is arithmetically correct
+and semantically empty. `bake-clean-layout.py` prints `Baked Clean into 0 maps; … gallery
+mirror synced.` and exits 0 — every clause true, the sentence false. Nothing in the shape of
+the code distinguishes "found no problems" from "looked at nothing", so nothing in the
+output can either.
+
+**Why structurally allowed:** the register held four instances of this class (G-016, G-017,
+G-031, T-429) and no entry describing the class, so each new instance was findable only by
+someone who happened to be looking. Worse, the property is not testable from outside for 59
+of 73 instruments: they resolve their population from their own file path
+(`const REPO = join(HERE, '..')`), so no caller can hand them an empty world. A sealed
+instrument and a correct one are indistinguishable — the same can't-tell-empty-from-clean
+failure, one level up.
+
+**Prevention** (distinct from the fix, which is per-instrument and filed separately):
+G-034 registers the class with a closure condition that runs (`_t440-drive-empty.sh`) rather
+than one that is read, and that condition refuses two false finishes explicitly — BLIND 0
+over a *shrinking* driven count, and fixing the five while leaving the 59 untestable. Both
+of those read as progress on the summary line, which is how this class survives.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).

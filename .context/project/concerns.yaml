@@ -1901,3 +1901,73 @@ concerns:
       Explicitly NOT closure: AEF acknowledging receipt; this concern being read;
       or re-filing the four as fresh observations, which would restart the same
       cycle with the same discard.
+
+  - id: G-034
+    type: gap
+    status: watching
+    severity: high
+    title: "Zero-population blindness is a class, not four incidents: 5 of 14 drivable instruments report success having examined nothing, and 59 of 73 cannot be driven at all"
+    detected: '2026-08-12'
+    origin_task: T-440
+    context: |
+      The register already carried four instances of one shape — a verdict computed from a
+      tally of FAILURES alone, which reads "clean" when it means "empty":
+
+        G-016  a corpus zero standing in for a population that could not express the defect
+        G-017  the audit's fabric coverage verdict computed from an EMPTY denominator
+        G-031  the push gate's PASS and its could-not-evaluate share an exit code
+        T-429  35 of 35 counter-bearing bash suites can exit 0 having run no legs
+
+      Four entries describing four incidents, none describing the class. T-440 asked the
+      T-429 question of the two languages it never covered and measured, by execution:
+
+        population    73 of 101 .mjs/.py files in tools/ compute an exit code from a tally
+        driven        14
+        BLIND          5   report success on an emptied tree
+        guarded        9   exit 1 or 2 — four of them exit 2, i.e. they abstain
+        CANNOT-DRIVE  59   the drive provably moved nothing; not covered by any verdict
+
+      The five, with what each printed on a tree whose populations were emptied:
+
+        bake-clean-layout.py           "Baked Clean into 0 maps; 0 store versions minted;
+                                        gallery mirror synced."                      rc 0
+        _norec-verify.py               "0 task(s) with pending Human ACs lack a
+                                        Recommendation verdict"                      rc 0
+        _clean-layout-cdp.mjs          "{}"                                          rc 0
+        _node-cuts-cdp.mjs             "{}"                                          rc 0
+        _t125-lane-compaction-cdp.mjs  "}"                                           rc 0
+
+      Two of them are load-bearing right now. `bake-clean-layout.py` says **synced** in the
+      same sentence as **0 maps**, and open arc task T-101 reads its exit code.
+      `_norec-verify.py` is the operator's approvals-queue guard — built because a silent
+      zero once convinced the operator there was nothing to approve — and it reports its
+      own zero in exactly that voice.
+
+      THE 59 ARE THE BIGGER HALF. Their populations are not in any directory the harness
+      can empty: they hit a live URL, read `src/`, or derive the set elsewhere. Nobody can
+      test them for this defect without editing them first. A sealed instrument and a
+      correct instrument are indistinguishable from outside, which is the same
+      can't-tell-empty-from-clean failure one level up.
+
+    evidence:
+      - "tools/_t440-zero-population-census.py — population 73 of 101, denominator printed"
+      - "tools/_t440-drive-empty.sh — hollow tree + poisoned control copy; 14 driven, 5 BLIND"
+      - "Nine guarded instruments (_t338, _t341, _t367, _t308-export-byte-identity, …) exit 2
+         on an emptied tree, which is what makes the five a finding rather than a harness
+         artifact — the instrument discriminates."
+
+    decision_trigger: |
+      CLOSES when BOTH hold, verified by running the harness, not by reading it:
+
+        1. `tools/_t440-drive-empty.sh` reports BLIND 0 over a driven count that is not
+           smaller than the 14 measured on 2026-08-12. A zero over a shrinking driven count
+           is the defect wearing the fix's clothes.
+        2. CANNOT-DRIVE is materially below 59 — each instrument moved out of that bucket
+           by gaining a population knob its caller can empty, NOT by being dropped from the
+           census population.
+
+      NOT CLOSURE: fixing the five and leaving 59 untestable. That converts a measured
+      finding into an unmeasurable one and reads, from the summary line, as progress.
+
+      Repairs are separate tasks, one per instrument (one bug, one task). This entry tracks
+      the class and stays open while the class is open.
