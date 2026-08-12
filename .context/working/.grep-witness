@@ -1,7 +1,49 @@
 # G-037 witness — written FROM the agent's own tool shell, which is the only place the shim exists.
 # Two axes. SEMANTICS: which pattern language. INPUTS: which files a recursive sweep reads.
 # Neither value can be obtained by spawning — spawning is what escapes the shim.
-written_utc=2026-08-12T16:55:46Z
+#
+# T-465: the INPUTS axis is ROOT-DEPENDENT. `recursive_sees_ignored` is NOT a property of the
+# tree; it is a property of (tree, SEARCH ROOT). ugrep applies ignore files at or below the
+# search root and never above it, so the same needle in the same tree answers differently
+# depending on where the sweep starts. The single bare `no` this file used to carry was one
+# root's answer presented as the tree's answer. Peer-reported by AEF (rail 575 §3-ii);
+# measured here rather than inherited, on a synthetic fixture AND on this repo.
+#
+# The predicate is also NOT "is it gitignored" (AEF, rail 575 §3-i). ugrep applies ignore
+# PATTERNS textually and knows nothing about git's index, so a TRACKED file that any in-scope
+# pattern matches is still invisible agent-side while `git check-ignore` reports it fine. On
+# THIS tree the two conditions coincide (focus.yaml/session.yaml are untracked AND ignored),
+# so T-462's numbers stand — but they stand by coincidence of this tree, not by mechanism.
+written_utc=2026-08-12T19:17:19Z
 type=function
 version=ugrep 7.5.0 x86_64-pc-linux-gnu +sse2; -P:pcre2jit; -z:zlib,bzip2,zstd,brotli,7z,tar/pax/cpio/zip
+
+# --- INPUTS axis, measured at TWO roots on a fixture whose ignore rule sits at the top ---
+# fixture: .gitignore holds `sub/pyc/`; NEEDLE in sub/pyc/x.txt (rule-matched) and sub/other.txt (not).
+fixture_ignore_rule=sub/pyc/
+# Root A — the rule is IN SCOPE (sweep starts at the fixture top, where .gitignore lives).
+probe_root_a=<fixture-top>
+agent_hits_root_a=1
+gate_hits_root_a=2
+recursive_sees_ignored_root_a=no
+# Root B — the rule is ABOVE the search root (sweep starts at sub/), so it does not apply.
+probe_root_b=<fixture-top>/sub
+agent_hits_root_b=2
+gate_hits_root_b=2
+recursive_sees_ignored_root_b=yes
+
+# Same divergence on the LIVE repo, not only the fixture. `tools/__pycache__/` is path-anchored
+# in the ROOT .gitignore, so it is out of scope when the sweep is rooted at tools/:
+#   grep -rla census tools/  -> agent 5, gate 5   (rule above root: AGREE)
+#   grep -rla census .       -> agent 0, gate 6   (rule in scope: DIVERGE)
+live_repo_root_in_scope_agent=0
+live_repo_root_in_scope_gate=6
+live_subdir_root_agent=5
+live_subdir_root_gate=5
+
+# Canonical answer for the closure check: taken at the REPO ROOT, the root every gate,
+# hook and P-011 leg actually runs from. Kept under the original key so the G-037 closure
+# command keeps reading the same question it was written to ask — this task widens the
+# witness, it does not renegotiate the gap's closure criterion.
 recursive_sees_ignored=no
+recursive_sees_ignored_search_root=<repo-root>

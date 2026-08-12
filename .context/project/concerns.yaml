@@ -2293,6 +2293,24 @@ concerns:
     of .context/working/ for the CURRENTLY FOCUSED task id returns 0 files agent-side and 2 gate-side
     -- and the 2 are exactly the files that record that focus. ''I swept working memory and found no reference
     to T-462'' would be a false absence about the two files naming T-462.'
+  evidence_2026_08_12_T465: 'ROOT-DEPENDENCE, a second variable on the INPUTS axis. Peer-reported
+    by AEF (rail 575 section 3-ii), measured here rather than inherited. ugrep applies ignore files
+    at or below the SEARCH ROOT and never above it, so the same needle in the same tree answers
+    differently depending on where the sweep starts. On this repo: `grep -rla census tools/` returns
+    5 agent-side and 5 gate-side (AGREE -- the rule `tools/__pycache__/` is path-anchored in the ROOT
+    .gitignore and is therefore ABOVE that search root), while `grep -rla census .` returns 0
+    agent-side and 6 gate-side (DIVERGE). Two agent-side sweeps for the same string, differing only
+    in start directory, disagree with each other. Consequence: `recursive_sees_ignored` is not a
+    property of the tree, it is a property of (tree, search root), and the witness carried it as a
+    bare verdict until T-465. ALSO a correction to the PREDICATE stated above: it is not "is it
+    gitignored". AEF measured on their tree that focus.yaml/session.yaml are TRACKED and
+    `git check-ignore` reports them not-ignored, yet they are still invisible agent-side, because
+    ugrep applies ignore PATTERNS textually and knows nothing about git''s index. The real predicate
+    is "does any in-scope ignore pattern match it". On THIS tree both conditions coincide (measured:
+    both files untracked, both check-ignore IGNORED, rule sourced from .context/working/.gitignore),
+    so T-462''s numbers above stand as written -- but they stand by a coincidence of this tree, not
+    by the mechanism, and instance counts are transferable between neither our trees nor two search
+    roots inside one tree.'
   decision_trigger: "CLOSES only when a future divergence would be NOTICED, not when today's is known.\
     \ Specifically REFUSED as closure: (a) closing T-460 \u2014 that records that one wrong belief was\
     \ corrected, not that the next one would be caught; (b) removing or overriding the shim in one shell\
