@@ -1,0 +1,11 @@
+command_hash: 0f79d867cbc503e86edb548d86dcb913968ead4bbd4ff9d66f5166614e3cc8b0
+command_preview: 'cd /opt/832-Workflow-designer
+
+  S=$(mktemp -d); cp -a . "$S/repo" 2>/dev/null; rm -rf "$S/repo/.git"
+
+  run() { ( cd "$S/repo" && python3 tools/bake-clean-layout.py "$@" >/tmp/.o 2>&1;
+  echo "rc=$?" ); head'
+risk: 'FIND DELETE: Recursively deletes matching files'
+status: pending
+timestamp: '2026-08-12T09:28:11Z'
+type: tier0

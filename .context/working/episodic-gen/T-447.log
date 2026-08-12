@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-12T09:33:14Z ===
+task_id: T-447
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-447.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: bake-clean-layout reports success on an empty corpus: --check prints '0/0 maps are a Clean fixpoint' and exits 0 over a denominator it never asserts (title corrected — the original named T-101 as the caller; measured, T-101 does not invoke it and nothing does, see T-448)
+  Duration: 0 days (8 min)
+  Updates: 1
+  Commits: 1
+  Lines: +625 -8 across 5 files
+  Outcomes: 7 AC checked
+  Artifacts: 5 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-447-bake-clean-layout---check-passes-on-an-e.md
+--- exit code: 0 ---

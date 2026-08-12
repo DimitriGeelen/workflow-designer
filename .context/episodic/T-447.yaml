@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-447: bake-clean-layout reports success on an empty corpus: --check prints '0/0 maps are a Clean fixpoint' and exits 0 over a denominator it never asserts (title corrected — the original named T-101 as the caller; measured, T-101 does not invoke it and nothing does, see T-448)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T09:33:14Z
+# ============================================================================
+
+task_id: T-447
+task_name: "bake-clean-layout reports success on an empty corpus: --check prints '0/0 maps are a Clean fixpoint' and exits 0 over a denominator it never asserts (title corrected — the original named T-101 as the caller; measured, T-101 does not invoke it and nothing does, see T-448)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T09:24:23Z
+completed: 2026-08-12T09:33:00Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-12T11:32:51+02:00
+last_commit: 2026-08-12T11:32:51+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  bake-clean-layout refuses an empty corpus instead of reporting success over it — first of G-034's five repaired, measured driven 1 / BLIND 0 / CANNOT-DRIVE 0. The floor is DERIVED from examples/aef-processes/*.workflow.yaml, never restated (PL-158): proven by growing a throwaway corpus to 25 and watching the tool follow with no edit, which a grep for '24' could not have shown. Partial loss and a mistyped map name refuse too, at rc 2 — abstention, not a milder failure. Two corrections of mine recorded: T-440's claim that T-101 reads this exit code is FALSE (nothing invokes it — filed as T-448, which is also red at 0/24 and un-wired, each fact hiding the other), and I first read a refusal as rc=0 through a pipe to tail, the same swallow AEF reported at rail 553. First harness run returned BLIND 0 over driven 0 — the false finish G-034 names — because the poison wrote _t440-poison.yaml where the population is *.workflow.yaml: PL-160 committed by the file that records PL-160
+
+# Key outcomes
+outcomes:
+  - 'The corpus expectation is DERIVED from `examples/aef-processes/*.workflow.yaml`, not'
+  - '`--check` over an empty rendered corpus exits NON-ZERO and says what it examined,'
+  - 'The bake path over an empty rendered corpus exits NON-ZERO instead of printing'
+  - 'A PARTIAL corpus (sources present, some rendered counterparts missing) is refused too —'
+  - 'An explicitly named map that does not exist is refused by name, rather than silently'
+  - 'The instrument''s verdict on the REAL corpus is byte-for-byte unchanged by this repair.'
+  - '`tools/_t440-drive-empty.sh bake-clean-layout` no longer files it BLIND, and the run is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-447-bake-clean-layout---check-passes-on-an-e.md'
+  - '.tasks/active/T-448-bake-clean-layout---check-is-a-documente.md'
+  - 'tools/bake-clean-layout.py'
+  - 'tools/README.md'
+  - 'tools/_t440-drive-empty.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-12T11:32:51"
+    action: "T-447: bake-clean-layout refuses an empty corpus instead of reporting success over it — first of G-034's five repaired, measured driven 1 / BLIND 0 / CANNOT-DRIVE 0. The floor is DERIVED from examples/aef-processes/*.workflow.yaml, never restated (PL-158): proven by growing a throwaway corpus to 25 and watching the tool follow with no edit, which a grep for '24' could not have shown. Partial loss and a mistyped map name refuse too, at rc 2 — abstention, not a milder failure. Two corrections of mine recorded: T-440's claim that T-101 reads this exit code is FALSE (nothing invokes it — filed as T-448, which is also red at 0/24 and un-wired, each fact hiding the other), and I first read a refusal as rc=0 through a pipe to tail, the same swallow AEF reported at rail 553. First harness run returned BLIND 0 over driven 0 — the false finish G-034 names — because the poison wrote _t440-poison.yaml where the population is *.workflow.yaml: PL-160 committed by the file that records PL-160"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 8
+  commits: 1
+  files_changed: 5
+  lines_added: 625
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-447-bake-clean-layout---check-passes-on-an-e.md
+generated_by: context-agent-hybrid

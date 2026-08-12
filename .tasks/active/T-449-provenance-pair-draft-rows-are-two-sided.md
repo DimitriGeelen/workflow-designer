@@ -4,9 +4,9 @@ name: "PROVENANCE pair-draft rows are two-sided at last: AEF's records land, dis
 description: >
   PROVENANCE pair-draft rows are two-sided at last: AEF's records land, dispatch-loop's arc ref is wrong, and the two sides define pair-draft differently
 
-status: started-work
+status: work-completed
 workflow_type: refactor
-owner: agent
+owner: human
 horizon: now
 tags: []
 components: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T09:35:39Z
-last_update: 2026-08-12T09:35:39Z
-date_finished: null
+last_update: 2026-08-12T09:38:53Z
+date_finished: 2026-08-12T09:38:53Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -239,6 +239,38 @@ test -z "$(git diff --name-only HEAD -- tests/fixtures/aef-bpmn/ | grep -v PROVE
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
 
+## Recommendation
+
+**Recommendation:** GO on the file change; the Human AC is a separate ruling and stays open.
+
+**Rationale:** Everything landed here is a measurement or a quotation, and the one factual
+error (arc-015) is corrected against a citable source on AEF's side. Nothing in the rewrite
+depends on my judgment. The part that *does* require judgment — which definition of
+"pair-draft" this table ratifies — was deliberately not exercised: no row was relabelled,
+the 15/3 split is unchanged, and both readings sit in the file with their sources.
+
+On the open question, if you want my read rather than a neutral presentation: **option (b)**.
+It is the only one of the three that survives both definitions. (a) leaves the table
+asserting a contrast the byte evidence does not support. (c) is factually clean but throws
+away the real thing AEF contributed — two independent counterpart drafts and, for
+`offpage-seam`, a live uuid we structurally could not obtain ourselves. (b) records
+contribution instead of authorship, which is what the evidence actually distinguishes.
+I have not applied it, because "which taxonomy does this file use" is a sovereignty call
+and my preferring one does not make it a measurement.
+
+**Evidence:**
+- `tests/fixtures/aef-bpmn/PROVENANCE.md` — the rewritten block; 8/8 Verification legs pass,
+  including one asserting the table still carries exactly 3 pair-draft rows (a relabel would
+  change that count, so the leg fails if the taxonomy were silently adopted)
+- AEF DM 556 + their `docs/reports/T-2934-pair-draft-provenance.md` — the records check,
+  owed since DM 549 §6 and promised across four rails
+- arc correction: their T-2568 carries `arc:designer-corpus` (arc-014); their arc-015 is
+  `onboarding-shape-detection`
+- `python3 tools/_t365-normative-fixture-guard.py` → PASS, every normatively-named path
+  still resolves after the edit
+- `git diff --name-only HEAD -- tests/fixtures/aef-bpmn/` → PROVENANCE.md only; no fixture
+  byte was touched by a change to a claim *about* those bytes
+
 ## Evolution
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
@@ -290,3 +322,15 @@ test -z "$(git diff --name-only HEAD -- tests/fixtures/aef-bpmn/ | grep -v PROVE
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-449-provenance-pair-draft-rows-are-two-sided.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a12f0af5
+- **Timestamp:** 2026-08-12T09:38:54Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-12T09:38:53Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

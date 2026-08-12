@@ -220,3 +220,25 @@ observations:
   tags: [tooling]
   status: pending
   promoted_to: null
+- id: OBS-032
+  text: "add"
+  captured: 2026-08-12T09:40:19Z
+  context_task: T-440
+  tags: []
+  status: dismissed
+  promoted_to: null
+  urgent: true
+- id: OBS-033
+  text: "P-002 makes a partial-complete task unable to commit its own state change under its own id. Reproduced on T-449: 'fw task update T-449 --status work-completed' writes the frontmatter, the Recommendation block and .context/working/.reviewed-T-449, then P-002 blocks 'fw git commit -a -m T-449:...' with 'Task T-449 has status work-completed'. Plain 'fw git commit' passes the gate but stages nothing, and 'git add' is blocked too. The focus-drift gate (T-1730) simultaneously refuses the commit under any other task's focus, so the only remaining paths are a Tier 2 bypass or letting the handover sweep it up under T-005 - both weakening the traceability P-002 exists to protect, since the artefacts of completing T-449 land in a commit whose subject says T-005. This is the ordinary end-state of EVERY partial-complete task, not an edge case."
+  captured: 2026-08-12T09:40:56Z
+  context_task: T-449
+  tags: []
+  status: pending
+  promoted_to: null
+- id: OBS-034
+  text: "fw note silently discards its payload when the first argument is an unrecognised subcommand. 'fw note add \"<1200 chars>\" --urgent' captured text='add', urgent=true, exit 0, no warning - the entire observation was lost and the inbox gained a one-word URGENT row. There is no 'add' subcommand (usage is 'fw note \"text\"'), so it fell through to the capture path with the subcommand as content and every remaining positional argument dropped. Two harms, and the second is the worse one: the payload is lost silently, and the urgency signal is inflated by a row that says nothing - an urgency signal dies by inflation, not by silence. This lives in the vendored .agentic-framework (AEF's tool), so the fix is theirs; reported across the seam. Suggested shape: reject an unrecognised first token that is followed by further positional args, rather than treating it as content."
+  captured: 2026-08-12T09:41:04Z
+  context_task: T-440
+  tags: [bug]
+  status: pending
+  promoted_to: null

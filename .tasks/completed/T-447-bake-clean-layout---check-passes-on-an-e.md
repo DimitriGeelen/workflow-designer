@@ -4,10 +4,10 @@ name: "bake-clean-layout reports success on an empty corpus: --check prints '0/0
 description: >
   bake-clean-layout reports success on an empty corpus: --check prints '0/0 maps are a Clean fixpoint' and exits 0 over a denominator it never asserts (title corrected — the original named T-101 as the caller; measured, T-101 does not invoke it and nothing does, see T-448)
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T09:24:23Z
-last_update: 2026-08-12T09:24:23Z
-date_finished: null
+last_update: 2026-08-12T09:33:00Z
+date_finished: 2026-08-12T09:33:00Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -320,3 +320,15 @@ Python or .mjs check against an empty population until T-440 built one.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-447-bake-clean-layout---check-passes-on-an-e.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d93b79c3
+- **Timestamp:** 2026-08-12T09:33:12Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-12T09:33:00Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -5237,3 +5237,39 @@ scan_id: R-c2aa169d
 task_id: T-446
 payload:
   task_file: .tasks/active/T-446-provenancemd-and-the-t-365-guard-must-su.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T09:33:12Z'
+scan_id: R-d93b79c3
+task_id: T-447
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T09:33:12Z'
+scan_id: R-d93b79c3
+task_id: T-447
+payload:
+  task_file: .tasks/active/T-447-bake-clean-layout---check-passes-on-an-e.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T09:38:54Z'
+scan_id: R-a12f0af5
+task_id: T-449
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T09:38:54Z'
+scan_id: R-a12f0af5
+task_id: T-449
+payload:
+  task_file: .tasks/active/T-449-provenance-pair-draft-rows-are-two-sided.md

@@ -17,7 +17,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T22:02:17Z
-last_update: 2026-08-12T06:51:20Z
+last_update: 2026-08-12T09:40:05Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -64,11 +64,39 @@ proves the drive moved something:
 
 | Instrument | What it printed on an empty tree | rc |
 |---|---|---|
-| `bake-clean-layout.py` | `Baked Clean into 0 maps; 0 store versions minted; gallery mirror synced.` | 0 |
+| ~~`bake-clean-layout.py`~~ | `Baked Clean into 0 maps; 0 store versions minted; gallery mirror synced.` | 0 | **REPAIRED — T-447** |
 | `_norec-verify.py` | `0 task(s) with pending Human ACs lack a Recommendation verdict` | 0 |
 | `_clean-layout-cdp.mjs` | `{}` | 0 |
 | `_node-cuts-cdp.mjs` | `{}` | 0 |
 | `_t125-lane-compaction-cdp.mjs` | `}` | 0 |
+
+### Re-measured 2026-08-12, after the first repair (T-447)
+
+    population    73        driven  14        BLIND  4        guarded  10        CANNOT-DRIVE  59
+                            (was 14)         (was 5)         (was 9)            (was 59)
+
+**The denominator did not move.** That is the whole point of re-running the full sweep
+rather than the single instrument: G-034's closure condition refuses a falling BLIND count
+over a *shrinking* driven count, because an instrument that becomes untestable leaves the
+same trace as one that got fixed. 14 → 14 with BLIND 5 → 4 is the one shape that means a
+repair actually happened.
+
+It did not come for free. The first post-repair run of the harness reported **BLIND 0 over
+driven 0** — the false finish, fired by the very first repair the gap was written to govern.
+The harness's poison wrote `_t440-poison.yaml` while `bake-clean-layout.py`'s population is
+`*.workflow.yaml`, so the control never landed in the population it was controlling for and
+the repair emitted a signature identical to a sealed instrument. **PL-160, committed by the
+file that records PL-160, one week after recording it.** Fixed under T-447 by having the
+poison also write the `*.workflow.yaml` spelling, with a matching basename so a tool checking
+source↔rendered correspondence sees a complete corpus of one rather than a second flavour of
+emptiness.
+
+Also corrected here: this task claimed `bake-clean-layout.py` was load-bearing because
+**T-101 reads that exit code**. Measured under T-447, **nothing reads it** — T-101's
+Verification block runs five other checks and never invokes it. A caller was inferred from
+provenance instead of grepped for. What replaced the false urgency is filed as T-448: the
+tool's `--check` is documented as the corpus fixpoint assertion, is invoked by nothing, and
+returns `0/24` on the real corpus — un-wired and red, each fact concealing the other.
 
 `bake-clean-layout.py` is the sharpest: it says **synced** in the same sentence as **0
 maps**, and T-101 ("Bake Clean layout into the rendered corpus (24 maps)") is an open arc
