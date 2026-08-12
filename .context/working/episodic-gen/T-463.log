@@ -1,0 +1,23 @@
+=== episodic-gen invocation: 2026-08-12T17:07:28Z ===
+task_id: T-463
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-463.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: The register's own schema check has been red since G-029 was registered, and the one measurement that would have caught it was taken on a file that does not exist
+  Duration: 0 days (5 min)
+  Updates: 1
+  Commits: 1
+  Lines: +288 -0 across 3 files
+  Outcomes: 6 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 3 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-463-the-registers-own-schema-check-has-been-.md
+--- exit code: 0 ---

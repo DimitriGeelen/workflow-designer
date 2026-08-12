@@ -5489,3 +5489,21 @@ scan_id: R-a9d7b200
 task_id: T-462
 payload:
   task_file: .tasks/active/T-462-g-037-second-axis-agent-side-recursive-g.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T17:07:26Z'
+scan_id: R-24b428d4
+task_id: T-463
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T17:07:26Z'
+scan_id: R-24b428d4
+task_id: T-463
+payload:
+  task_file: .tasks/active/T-463-the-registers-own-schema-check-has-been-.md
