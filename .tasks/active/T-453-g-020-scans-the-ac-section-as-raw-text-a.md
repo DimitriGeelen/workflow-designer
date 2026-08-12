@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T10:55:55Z
-last_update: 2026-08-12T11:00:26Z
+last_update: 2026-08-12T12:23:19Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,8 +40,25 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] **The false negative is measured against the SHIPPED template, not a fixture.** The
+      real-AC count and the placeholder count over `.tasks/templates/default.md` are both
+      asserted by command in `## Verification`. The claim that matters — *delete the two
+      placeholder lines, which is the literal instruction in the gate's own block message,
+      and the gate passes over zero acceptance criteria* — must be reproducible by the
+      operator from the template the framework actually ships.
+- [ ] **The false positive is stated as a workaround, never as a fix.** A genuine AC that
+      quotes the gate's block message is counted as a placeholder, so a task describing
+      this gate cannot be filed. It was hit live twice: filing T-452, and filing this
+      task's own criteria. Recorded as the workaround it is — I avoid reproducing the
+      token — with no pretence that avoiding a string repairs a classifier.
+- [ ] **The remedy is named from the same file, not designed.** `G-067`'s Open Questions
+      gate sixty lines above strips HTML comments before counting (`:539`, their T-2554).
+      The fix is to apply the sibling's existing treatment, so the report carries a
+      one-line remedy rather than a defect and a shrug.
+- [ ] **Reported upstream; no local patch.** Vendored under `.agentic-framework/`, so a
+      local fix is silently reverted by the next bump and reads as fixed meanwhile — the
+      disposition ruled for T-402/T-422/T-345/T-455. Verified by an empty `git diff` over
+      the hook path at completion.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -75,6 +92,23 @@ date_finished: null
 -->
 
 ## Verification
+
+# 1. THE FALSE NEGATIVE, read off the template the framework SHIPS. G-020 counts 4 lines
+#    matching its real-AC pattern; only 2 survive comment-stripping, and those 2 ARE the
+#    placeholders it blocks on. The other 2 are the commented [REVIEW]/[REVIEWER] examples
+#    at :58 and :67 inside the Human guidance block.
+test 4 -eq "$(grep -cE '^[[:space:]]*- \[ \]' .tasks/templates/default.md)"
+test 2 -eq "$(sed -E 's/<!--([^-]|-[^-]|--[^>])*-->//g' .tasks/templates/default.md | sed '/<!--/,/-->/d' | grep -cE '^[[:space:]]*- \[ \]')"
+# 2. Consequence, stated as arithmetic rather than prose: delete the 2 placeholders — the
+#    literal instruction in G-020's own block message — and 2 pattern-matching lines remain,
+#    every one of them a comment. The ==0 half can never fire, so the gate passes over zero
+#    acceptance criteria.
+# 3. The remedy already exists SIXTY LINES UP in the same file: G-067's Open Questions gate
+#    strips HTML comments before counting (:539, their T-2554). This is "apply the sibling's
+#    existing treatment", not a design question.
+grep -q 'OQ_STRIPPED' .agentic-framework/agents/context/check-active-task.sh
+# 4. NO local patch to the vendored hook. Empty diff is the deliverable.
+test -z "$(git diff --name-only -- .agentic-framework/agents/context/check-active-task.sh)"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.

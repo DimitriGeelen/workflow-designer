@@ -162,6 +162,14 @@ success_patterns:
     learned_from: T-061
     context: "Investigation (detective) provided evidence for PreToolUse hook (preventive). Both layers needed."
 
+  - id: SP-005
+    pattern: "Trap-pin an AC on the SUBJECT population, not just the verdict"
+    description: "Trap-pin an AC on the SUBJECT population, not just the verdict"
+    scope: project
+    learned_from: T-454
+    date_learned: 2026-08-12
+    context: "Added via context agent"
+
 antifragile_patterns:
   - id: AF-001
     pattern: "Failure-driven capability acquisition"

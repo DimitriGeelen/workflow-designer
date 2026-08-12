@@ -1184,3 +1184,24 @@ learnings:
   date: 2026-08-12
   context: Added via context agent
   application: TBD
+- id: PL-165
+  learning: "A gate that cannot accept a refusal does not enforce rigour, it buys compliance. _norec-verify accepted GO/NO-GO/DEFER, so a task where WITHHOLDING a recommendation was the correct agent behaviour (a sovereignty question my own brief had ruled operator-only) could satisfy the gate only by manufacturing a verdict. I did exactly that, re-tokenising a superseded proposal to GO, and caught it only because the two positions were five days apart and I checked the dates. Remedy: ABSTAIN parses, and is counted on its OWN line so an abstention wave and a well-served queue cannot print the same number. Test for any gate: is there a legitimate answer the gate makes unsayable?"
+  source: P-001
+  task: T-454
+  date: 2026-08-12
+  context: Added via context agent
+  application: TBD
+- id: PL-166
+  learning: "Tick a vacuously-satisfied AC only with the word VACUOUS beside it. T-454's 'every DEFER carries a revisit_at' was satisfied by issuing zero DEFERs - a green computed from an empty population, which is G-034 at the acceptance-criteria level rather than the instrument level. The tick is indistinguishable from one earned over a real population, and in a task about zero-population blindness it would have been the defect closing itself"
+  source: P-001
+  task: T-454
+  date: 2026-08-12
+  context: Added via context agent
+  application: TBD
+- id: PL-167
+  learning: "When a gate demands a shape, the SHIPPED template must supply it. _norec-verify demands a '## Recommendation' section that .tasks/templates/default.md does not contain, while inception.md does at :117. 132 of 133 task files got it right purely by imitation - and the 3 that did not had each ALREADY reached a verdict, so the operator saw nothing actionable on tasks whose analysis was complete. Second instance of the class in one week (T-453: G-020 measured against the shipped template passes over zero ACs). Check gates against the template the framework ships, not against a fixture"
+  source: P-001
+  task: T-455
+  date: 2026-08-12
+  context: Added via context agent
+  application: TBD
