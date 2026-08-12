@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T22:05:50Z
-last_update: 2026-08-12T22:05:50Z
+last_update: 2026-08-12T22:09:28Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -166,7 +166,10 @@ test "$(find examples/aef-processes/rendered -name '*.bpmn' | wc -l)" = "24"
 # ...and the corrected wording has reached zero corpus documents (the gap, stated as a count).
 test "$(/usr/bin/grep -rl 'node geometry travels as aef:position' examples/ 2>/dev/null | wc -l)" = "0"
 # The emit site interpolates the constant — this is what makes a re-export self-correcting.
-/usr/bin/grep -q 'lines.push(`  <!-- \${DI_TRAILER} -->`)' src/aef-workflow-designer.html
+# NOTE: pattern deliberately contains NO backticks. P-011 eval-expands each line, and
+# backticks are command-substituted even inside single quotes — the first form of this leg
+# silently collapsed to `grep -q 'lines.push(  )'` and went red for the wrong reason.
+/usr/bin/grep -q 'DI_TRAILER} -->' src/aef-workflow-designer.html
 # The T-101 mechanism warning is present — it must not be left for someone to infer.
 /usr/bin/grep -q 'if T-101 re-exports the 24' docs/reports/T-357-di-adoption.md
 # Scope held: no src change under this task.
