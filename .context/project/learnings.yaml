@@ -1142,3 +1142,10 @@ learnings:
   date: 2026-08-11
   context: Added via context agent
   application: TBD
+- id: PL-159
+  learning: "A bar stated in a failure-message string is not a bar the instrument holds: _t436 leg A tested rows==0 while naming count-equality in its FAIL text, so register and probe demanded different things for as long as both existed. It survived because the local tree can only occupy ONE state of the machine - with the vendored file unfixed, leg A is pinned at 0 and the other arms are unreachable, and an arm that has never fired is indistinguishable from one that cannot. Drive every state from fixtures through the real entry point. Second half: check a peer report against your own artifact BEFORE repairing it - AEF's claim that G-032's closure condition was satisfiable was wrong, and building the repair would have recorded a fix for a defect that was not there."
+  source: P-001
+  task: T-445
+  date: 2026-08-11
+  context: Added via context agent
+  application: TBD

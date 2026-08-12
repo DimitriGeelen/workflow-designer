@@ -5201,3 +5201,39 @@ scan_id: R-631e409d
 task_id: T-444
 payload:
   task_file: .tasks/active/T-444-session-capture-upstream-reports-have-no.md
+---
+kind: scan_emitted
+timestamp: '2026-08-11T22:59:32Z'
+scan_id: R-d003c766
+task_id: T-445
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-11T22:59:32Z'
+scan_id: R-d003c766
+task_id: T-445
+payload:
+  task_file: .tasks/active/T-445-g-032-closure-condition-is-satisfiable-w.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T05:54:25Z'
+scan_id: R-c2aa169d
+task_id: T-446
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T05:54:25Z'
+scan_id: R-c2aa169d
+task_id: T-446
+payload:
+  task_file: .tasks/active/T-446-provenancemd-and-the-t-365-guard-must-su.md

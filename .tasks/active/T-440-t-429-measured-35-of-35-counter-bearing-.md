@@ -5,10 +5,10 @@ description: >
   Promoted from OBS-023 (T-436 triage). Original observation text:
   T-429 measured 35 of 35 counter-bearing suites in tools/ as able to exit 0 having run no legs. The class generalises beyond bash: any check whose verdict derives from a tally of FAILURES alone reports 'clean' when it means 'empty'. Unasked so far: the 60+ .mjs CDP probes (out of T-429 scope entirely) and every python check that prints PASS on a zero finding count without printing what it examined.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: human
-horizon: next
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -17,7 +17,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T22:02:17Z
-last_update: 2026-08-11T22:03:02Z
+last_update: 2026-08-12T06:04:32Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -35,14 +35,38 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+T-429 asked one question of 35 bash suites — *can this exit 0 having run no legs?* — and got
+35 yeses. T-430 then built teeth for one of them. This task asks the **same question of the
+languages T-429 never touched**: the `.mjs` CDP probes (the instruments that produce every
+"bridge green" number I have reported to AEF) and the `.py` checks.
+
+**Scoped to the census, not the repair.** T-429 measured and T-430 repaired; this is the
+T-429 half for `.mjs`/`.py`. Repairs are separate tasks, one per instrument that needs one —
+because a repair per file is a deliverable per file, and bundling them would make one task's
+completion depend on N unrelated fixes.
+
+**The measurement must not have the defect it looks for.** A census that finds zero blind
+checks, and does not say over what population, is itself a PASS on an unstated denominator
+(PL-084). So the census states its denominator, and abstains (rc 2) rather than passing when
+it cannot classify — the T-430 rule applied to the instrument doing the counting.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Population named and counted, not sampled: every `.mjs` and `.py` check under `tools/`
+      is classified counter-bearing / not, and the census prints both the numerator and the
+      denominator it ranged over
+- [ ] Blindness is **measured by execution**, not inferred from source reading — a check
+      counts as blind only when it was driven to a zero-population state and observed to
+      report success
+- [ ] The census abstains (rc 2, `ABSTAINED` line) rather than reporting 0 blind when it
+      cannot classify or cannot drive a file, so "no findings" and "could not look" stay
+      distinguishable
+- [ ] Every instrument found blind is recorded by name in this task, with the evidence line
+      that proved it — a count alone is not actionable
+- [ ] The finding is escalated where it can be acted on after this task closes: a concerns
+      register entry if the class is systemic, or an explicit statement here of why it is not
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -194,3 +218,7 @@ date_finished: null
 
 ### 2026-08-11T22:03:02Z — status-update [task-update-agent]
 - **Change:** horizon: now → next
+
+### 2026-08-12T06:04:32Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: next → now (auto-sync)

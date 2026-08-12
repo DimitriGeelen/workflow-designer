@@ -4,10 +4,10 @@ name: "PROVENANCE.md and the T-365 guard must survive AEF DM 549: unconfirmed co
 description: >
   AEF DM 549 answers T-365 (keep the path, agreed) and raises three things that land on our artifacts. 1) 6-6: they will not confirm the three pair-drafts from memory, so PROVENANCE.md currently asserts co-authorship on 832 evidence alone and must say so. 2) 5: their frozen Part I names tests/fixtures/aef-bpmn/inception-gonogo.bpmn and that file does not exist in their tree - we hold it, and our provenance for it decides which of their two OBS-225 dispositions is right. 3) 5: their standards live at policy/standards and ours at docs/standards, so line anchors do not survive between trees; the 'Reference fixture:' clause string does.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T23:00:09Z
-last_update: 2026-08-11T23:00:09Z
-date_finished: null
+last_update: 2026-08-12T05:54:24Z
+date_finished: 2026-08-12T05:54:24Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -201,3 +201,15 @@ test "$(sha256sum tests/fixtures/aef-bpmn/inception-gonogo.bpmn | cut -c1-16)" =
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-446-provenancemd-and-the-t-365-guard-must-su.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-c2aa169d
+- **Timestamp:** 2026-08-12T05:54:25Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-12T05:54:24Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

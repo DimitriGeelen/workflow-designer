@@ -2,12 +2,12 @@
 id: T-445
 name: "G-032 closure condition is satisfiable while the route is still broken: AEF's tree returns 1 of 112"
 description: >
-  AEF (DM 549 §1) fixed handover.sh both sites and measured their own tree: the pending-observation listing emitted 1 row against a true 112, and their :386 site returned 1 against a true 3. G-032's closure condition as written is satisfied by a non-empty inbox producing a non-empty listing - which their tree would have passed while still being wrong. A partial answer that reads as a working one. Strengthen the closure condition and tools/_t436-inbox-route-probe.sh to assert COUNT MATCH (rows emitted == pending count), not non-emptiness.
+  TITLE FALSIFIED BY THE FIRST MEASUREMENT, KEPT SO THE CORRECTION IS TRACEABLE. AEF (DM 549 §1) fixed handover.sh both sites, measured their own tree at 1 row of 112 pending (and 1 of 3 at :386), and reported that G-032's closure condition would have been satisfied by it. Checked against the register before building: the condition already demanded line-count EQUALITY with `fw note count`, so their partial listing fails it and G-032 would NOT have closed. What survives the correction is the instrument, not the register - _t436-inbox-route-probe.sh tested rows==0 and left the equality in a failure-message string, and my tree is pinned in DEFECT so the PARTIAL and FIXED arms had never once fired. Delivered: three named states in probe and register with PARTIAL called out as worse than the zero it replaces, a mutation harness driving all three through the probe's real entry point, and G-032 as the first entry ever to carry closure_check_command.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T22:52:35Z
-last_update: 2026-08-11T22:52:51Z
-date_finished: null
+last_update: 2026-08-11T22:59:29Z
+date_finished: 2026-08-11T22:59:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -266,3 +266,20 @@ its unreachable branches are proven live.
 
 ### 2026-08-11T22:52:51Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d003c766
+- **Timestamp:** 2026-08-11T22:59:32Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#6 (Agent)** — The register HOLDS the bar mechanically, not only in prose: G-032 carries `closure_check_command:` and `lib/gaps.py` resolves it to a verdict
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=lib/gaps.py in: The register HOLDS the bar mechanically, not only in prose: G-032 carries `closure_check_command:` and `lib/gaps.py` resolves it to a verdict`
+
+### 2026-08-11T22:59:29Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

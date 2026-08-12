@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-446: PROVENANCE.md and the T-365 guard must survive AEF DM 549: unconfirmed co-authorship, cross-tree fixture evidence, line anchors that do not port
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T05:54:27Z
+# ============================================================================
+
+task_id: T-446
+task_name: "PROVENANCE.md and the T-365 guard must survive AEF DM 549: unconfirmed co-authorship, cross-tree fixture evidence, line anchors that do not port"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-11T23:00:09Z
+completed: 2026-08-12T05:54:24Z
+duration_days: 1
+updates_count: 1
+first_commit: 2026-08-12T07:54:18+02:00
+last_commit: 2026-08-12T07:54:18+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  AEF ruled keep-the-path on T-365, and the question underneath it is bigger than the rename. PROVENANCE.md now marks the three pair-draft rows as asserted on 832 evidence ALONE — AEF declined to confirm from memory (DM 549 6) and a one-sided claim about a two-sided fact is the directory-name defect one degree smaller. Their frozen Part I names inception-gonogo.bpmn and their tree does not hold it; measured here rather than inferred, NEITHER of their two OBS-225 dispositions fits: authored T-192 at 564e9aa2, delivered to them at rail offset 34 as 093858, re-pinned by T-314 at e133cf9 to bbfbc5ec, and AEF re-derived and re-pinned that exact sha from the public mirror at offset 354. So it is neither missing nor misnamed — it is an 832 file their frozen standard names across the seam, and the undecided question is whether a Reference fixture clause names a path each side must HOLD or the tree that PRODUCES it. Portable anchor recorded too: their copy carries the clause at :113, ours at :142, so line anchors do not port between trees
+
+# Key outcomes
+outcomes:
+  - 'The three pair-draft rows in `PROVENANCE.md` are marked as asserted on **832 evidence alone**, unconfirmed by AEF, with the date and the DM 549 §6 citation — the table stops speaking for both sides'
+  - '`inception-gonogo.bpmn`''s provenance is **re-measured** with `git log --diff-filter=A`, not quoted from the table it is meant to check, and the number is whatever the measurement says'
+  - 'The cross-tree consequence is stated in-file — and the measurement **overturned the framing**: neither of AEF''s two OBS-225 dispositions fits, because the file is 832-authored, was delivered at rail offset 34, and AEF re-pinned its current sha at offset 354'
+  - '`PROVENANCE.md` records the **portable anchor** — the `Reference fixture:` clause string — and marks the line numbers as tree-local, because their standards sit at `policy/standards/` and ours at `docs/standards/`'
+  - 'AEF''s T-365 ruling (keep the path) is recorded where T-443 will be read, so the parked task is not re-derived from the rail'
+  - '`_t365-normative-fixture-guard.py` still passes and its ABSTAIN arm is unchanged — the guard is not weakened while its documentation is edited'
+  - '`docs/standards/` is untouched: `git diff --exit-code` clean on that path'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'AEF ruled keep-the-path on T-365, and the question underneath it is bigger than the rename. PROVENANCE.md now marks the three pair-draft rows as asserted on 832 evidence ALONE — AEF declined to confirm from memory (DM 549 6) and a one-sided claim about a two-sided fact is the directory-name defect one degree smaller. Their frozen Part I names inception-gonogo.bpmn and their tree does not hold it; measured here rather than inferred, NEITHER of their two OBS-225 dispositions fits: authored T-192 at 564e9aa2, delivered to them at rail offset 34 as 093858, re-pinned by T-314 at e133cf9 to bbfbc5ec, and AEF re-derived and re-pinned that exact sha from the public mirror at offset 354. So it is neither missing nor misnamed — it is an 832 file their frozen standard names across the seam, and the undecided question is whether a Reference fixture clause names a path each side must HOLD or the tree that PRODUCES it. Portable anchor recorded too: their copy carries the clause at :113, ours at :142, so line anchors do not port between trees'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-443-rename-fixturesaef-bpmn-as-a-v12-standar.md'
+  - '.tasks/active/T-446-provenancemd-and-the-t-365-guard-must-su.md'
+  - '.tasks/completed/T-445-g-032-closure-condition-is-satisfiable-w.md'
+  - 'tests/fixtures/aef-bpmn/PROVENANCE.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-12T07:54:18"
+    action: "T-446: AEF ruled keep-the-path on T-365, and the question underneath it is bigger than the rename. PROVENANCE.md now marks the three pair-draft rows as asserted on 832 evidence ALONE — AEF declined to confirm from memory (DM 549 6) and a one-sided claim about a two-sided fact is the directory-name defect one degree smaller. Their frozen Part I names inception-gonogo.bpmn and their tree does not hold it; measured here rather than inferred, NEITHER of their two OBS-225 dispositions fits: authored T-192 at 564e9aa2, delivered to them at rail offset 34 as 093858, re-pinned by T-314 at e133cf9 to bbfbc5ec, and AEF re-derived and re-pinned that exact sha from the public mirror at offset 354. So it is neither missing nor misnamed — it is an 832 file their frozen standard names across the seam, and the undecided question is whether a Reference fixture clause names a path each side must HOLD or the tree that PRODUCES it. Portable anchor recorded too: their copy carries the clause at :113, ours at :142, so line anchors do not port between trees"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 414 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 414
+  commits: 1
+  files_changed: 4
+  lines_added: 273
+  lines_removed: 3
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-446-provenancemd-and-the-t-365-guard-must-su.md
+generated_by: context-agent-hybrid

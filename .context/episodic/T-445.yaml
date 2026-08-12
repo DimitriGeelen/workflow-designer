@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-445: G-032 closure condition is satisfiable while the route is still broken: AEF's tree returns 1 of 112
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-11T22:59:34Z
+# ============================================================================
+
+task_id: T-445
+task_name: "G-032 closure condition is satisfiable while the route is still broken: AEF's tree returns 1 of 112"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-11T22:52:35Z
+completed: 2026-08-11T22:59:29Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-12T00:59:12+02:00
+last_commit: 2026-08-12T00:59:12+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the peer's report was wrong and the half that survives is the instrument. AEF said G-032's closure condition was satisfiable by a non-empty inbox; checked against the register before building anything — it already demanded count EQUALITY, so their 1-of-112 would not have closed it. What was real: the probe did not hold that bar (tested rows==0, put the equality in a failure-message string), and my tree can never leave DEFECT so the PARTIAL and FIXED arms had never fired. Three states now named in both register and probe, PARTIAL called out as worse than the zero it replaces; _t445 mutation harness drives all three through the probe's real entry point. G-032 becomes the first entry ever to carry closure_check_command — a field lib/gaps.py has read since T-2185 with zero users, so every closure condition in this register has been eye-compared prose
+
+# Key outcomes
+outcomes:
+  - 'G-032''s closure condition names the **partial** state explicitly as non-closing, with AEF''s 1-of-112 as the specimen — the count-equality bar was already there and is recorded as already-there, not as a fix'
+  - '`_t436-inbox-route-probe.sh` distinguishes three states, not two: DEFECT (0 rows), PARTIAL (0 < rows < pending), FIXED (rows == pending); PARTIAL exits non-zero and says in words that it reads as working'
+  - 'The PARTIAL arm is mutation-proven — driven against a synthetic inbox that produces strictly fewer rows than pending, the probe reports PARTIAL rather than the fix landing'
+  - 'The FIXED arm is mutation-proven — driven against an inbox the block fully matches, the probe reports FIXED'
+  - 'Attribution recorded in-file: the partial state was measured by AEF, not by me, and my tree cannot exhibit it while the vendored bytes are unfixed'
+  - 'The register HOLDS the bar mechanically, not only in prose: G-032 carries `closure_check_command:` and `lib/gaps.py` resolves it to a verdict'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the peer''s report was wrong and the half that survives is the instrument. AEF said G-032''s closure condition was satisfiable by a non-empty inbox; checked against the register before building anything — it already demanded count EQUALITY, so their 1-of-112 would not have closed it. What was real: the probe did not hold that bar (tested rows==0, put the equality in a failure-message string), and my tree can never leave DEFECT so the PARTIAL and FIXED arms had never fired. Three states now named in both register and probe, PARTIAL called out as worse than the zero it replaces; _t445 mutation harness drives all three through the probe''s real entry point. G-032 becomes the first entry ever to carry closure_check_command — a field lib/gaps.py has read since T-2185 with zero users, so every closure condition in this register has been eye-compared prose'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.tasks/active/T-445-g-032-closure-condition-is-satisfiable-w.md'
+  - 'tools/_t436-inbox-route-probe.sh'
+  - 'tools/_t445-partial-state-mutation.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-12T00:59:12"
+    action: "T-445: the peer's report was wrong and the half that survives is the instrument. AEF said G-032's closure condition was satisfiable by a non-empty inbox; checked against the register before building anything — it already demanded count EQUALITY, so their 1-of-112 would not have closed it. What was real: the probe did not hold that bar (tested rows==0, put the equality in a failure-message string), and my tree can never leave DEFECT so the PARTIAL and FIXED arms had never fired. Three states now named in both register and probe, PARTIAL called out as worse than the zero it replaces; _t445 mutation harness drives all three through the probe's real entry point. G-032 becomes the first entry ever to carry closure_check_command — a field lib/gaps.py has read since T-2185 with zero users, so every closure condition in this register has been eye-compared prose"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 4
+  lines_added: 481
+  lines_removed: 9
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-445-g-032-closure-condition-is-satisfiable-w.md
+generated_by: context-agent-hybrid
