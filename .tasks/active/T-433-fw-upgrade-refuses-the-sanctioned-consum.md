@@ -150,6 +150,67 @@ falsified prediction stays in this section rather than being edited out. A task 
 that silently repairs its own wrong turns teaches nothing to the next reader — and the
 next reader is me.
 
+## Recommendation
+
+**Recommendation:** GO on **option (c) — take it in a branch and diff the governance
+surface before merging.** Not (a), not (b).
+
+**This is a recommendation about a decision that remains entirely yours.** AEF stated it
+at DM 536 §1 — *"the bump is your operator's call, not mine and not yours"* — and a vendor
+bump changes governance behaviour in this tree, which is the fork boundary both projects
+withdrew work over. I have not run `fw upgrade` and will not under an autonomous
+directive.
+
+**Rationale.** The single thing that makes this bump uncomfortable is that **nothing
+verifies it moves forward**: `VERSION` is a resetting counter, no `version_sha` is
+recorded, and no tag `v1.6.354` exists upstream, so `fw upgrade` correctly reports the
+relation as *undecidable* rather than pretending `sort -V` settles it. A branch diff is
+exactly the missing second channel — it decides from **bytes** what the version string
+cannot decide from labels. Option (c) costs one branch and converts an unverifiable step
+into a verifiable one.
+
+(a) take-now spends the one bump that cannot be checked without checking it, across a
+surface this large. (b) defer-until-AEF-tags parks a real dependency on a peer's release
+process that nobody has committed to a date for, and leaves T-402 open indefinitely — its
+close condition is bytes only this decision can deliver.
+
+**Evidence — measured in this task against a read-only clone:**
+
+    285   files differ
+    502   exist only upstream (arriving)
+     14   exist only here
+    ~29MB replaced wholesale: bin lib agents web docs policy .tasks/templates
+          metrics.sh status-transitions.yaml .secret-scan-*
+
+What arrives that this tree is waiting on: `lib/cmd_classify.py` (T-2919, the T-402 fix),
+`strip_heredocs` (T-2923), and `is_valid_owner` enforced on both create and update paths
+(T-2924).
+
+**Why the blast radius argues for (c) specifically, and not merely for caution.**
+`.tasks/templates` is inside the wholesale-replaced set, and that directory is where two
+live defects of ours sit: **T-453** (G-020 counts the commented `[REVIEW]`/`[REVIEWER]`
+examples in `default.md` as real ACs, so deleting the two placeholders — the literal
+instruction in its own block message — leaves the gate passing over **zero** acceptance
+criteria), and the gap this very task's queue exposed (**`default.md` supplies no
+`## Recommendation` section at all**, while `inception.md` does; 120 of 121 tasks got the
+verdict shape right purely by imitation). A bump either fixes those or overwrites our
+knowledge of them. **A diff answers which; taking it blind does not.**
+
+**Concrete acceptance question for the branch diff** — this is what makes (c) actionable
+rather than just prudent:
+
+1. Does the incoming `.tasks/templates/default.md` still carry uncommented-looking
+   `- [ ]` examples inside the `### Human` guidance block? (If yes, T-453's false-negative
+   survives the bump and should be upstreamed, not re-discovered.)
+2. Does the incoming G-020 hook strip HTML comments before counting, the way the G-067
+   Open Questions gate sixty lines above it already does?
+3. Does the incoming `default.md` gain a `## Recommendation` section?
+
+**What your ruling unblocks:** T-402 directly (its fix is `lib/cmd_classify.py`), plus
+T-2919/T-2923/T-2924. It also closes OBS-034. Whichever you rule, **the next comparison
+becomes decidable** — the upgrade records a `version_sha`, so this is the last bump that
+has to be decided on evidence instead of a version relation.
+
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.

@@ -328,6 +328,70 @@ pair of readings in buckets nobody has shown can fill.
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
 
+## Recommendation
+
+**Recommendation:** GO on **(a) preserve and re-emit** unconsumed content inside an
+element we accept.
+
+**Rationale:** It matches T-337 at the granularity directly above (unknown *tag*, ruled
+`(a)` and now completed) and T-259 directly below, so ruling `(a)` here makes three
+adjacent granularities consistent rather than inventing a policy. It is the only option
+that also covers content nobody has thought of yet — the shapes below are the ones we
+found, not the ones that exist. And **no competing carrier exists** for element content,
+so preservation cannot self-contradict; that is precisely why this ruling can be `(a)`
+while T-340 is `(b)`, and why "different answers" here is principled rather than
+arbitrary (brief §255).
+
+**Evidence — probe re-run today, 2026-08-12, `node tools/_t347-accepted-element-content-cdp.mjs`, rc 0.**
+Positive control (`arc-lifecycle`, designer-produced) loses no shape, so the round-trip
+path is sound and the subject results are real:
+
+    documentation  2/2 carriers LOSE it   witnesses: bizagi-nested-ns, i18n-documentation
+    extChildren    6/7 carriers LOSE it   witnesses: bizagi-nested-ns, caseagile-local-ns,
+                                          i18n-documentation, kitchen-sink,
+                                          multiple-diagrams, zeebe-service-task
+    property       2/2 carriers LOSE it   witnesses: caseagile-local-ns, kitchen-sink
+    loopChars      2/2 carriers LOSE it   witnesses: caseagile-local-ns, kitchen-sink
+    unknownAttrs   3/3 carriers LOSE it   witnesses: i18n-documentation, kitchen-sink,
+                                          zeebe-service-task
+
+Every loss is **to exactly zero, never a reduction** — `caseagile-local-ns` drops
+`405 -> 0` extension children and `45 -> 0` properties.
+
+**One number has changed since the brief, and it is worth the sentence.** The brief
+recorded `extChildren 6/6`; it is now **6/7**. The new denominator is
+`aef-draft-inception-readiness-v2`, which keeps `87 -> 87` — and it survives because its
+extension children are **`aef:uid` / `aef:position` / `aef:meta`, our own namespace, which
+the importer enumerates**, whereas the loser's are `zeebe:`. So the one survivor is not a
+counterexample to the rule; it is the mechanism stated exactly: *what the importer
+enumerates survives, what it does not enumerate goes to zero.* A rule that had held 6/6
+would have been weaker evidence than one that holds 6/7 for a reason you can point at.
+
+**The trap this ruling protects you from.** `caseagile-local-ns` loses **one** thing under
+a structural census and **hundreds** under the content census. Node, flow and lane counts
+are unchanged throughout — an element that survives with its body stripped keeps all
+three. Every count-based instrument in this tree stayed green over documents being gutted,
+for the entire time the defect existed. *"Our suites are green"* is not evidence here, and
+that is the reason this ruling should not wait on more of them.
+
+**Seam context, recorded as a fact and not as an argument:** AEF's round-trip importer
+also drops loose text inside a node, silently (rail 487, their T-2882) — our exact shape.
+That settles the question asked at rail 484: the behaviour is a property of the seam, not
+a defect peculiar to us. It **does not strengthen the case for `(a)`** and should not be
+read as doing so. *"Both sides do it"* is a description; if anything it argues for `(b)`,
+since preservation is only end-to-end when both ends preserve and today neither does. One
+counter-argument was removed ("we are uniquely lossy"), nothing was added.
+
+**The row most likely to make a uniform answer wrong.** The T-348 fold-in includes
+`second-process`: a two-pool collaboration opened and saved returns as a **one-pool
+document** — an entire pool's nodes gone — while every count on the surviving pool stays
+green. Option `(c) refuse` is far more defensible for that row than for a `documentation`
+string. If you rule Q1a uniformly, that row deserves an explicit sentence either way,
+rather than being swept in.
+
+**What your ruling unblocks:** T-347's four Agent ACs, plus the T-348 fold-in covering
+seven further shapes.
+
 ## Verification
 
 # Shell commands that MUST pass before work-completed. One per line.
