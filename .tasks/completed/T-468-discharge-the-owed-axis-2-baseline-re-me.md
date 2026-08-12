@@ -4,10 +4,10 @@ name: "Discharge the owed axis-2 baseline re-measure: which recorded numbers cou
 description: >
   Discharge the owed axis-2 baseline re-measure: which recorded numbers could a repo-root agent-side grep -r have undercounted
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T19:49:01Z
-last_update: 2026-08-12T19:49:01Z
-date_finished: null
+last_update: 2026-08-12T19:55:34Z
+date_finished: 2026-08-12T19:55:34Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -251,3 +251,15 @@ test "$(/usr/bin/grep -rhE '^[^#].*grep -r' .tasks/completed/ 2>/dev/null | wc -
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-468-discharge-the-owed-axis-2-baseline-re-me.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4ecc4755
+- **Timestamp:** 2026-08-12T19:55:35Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-12T19:55:34Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

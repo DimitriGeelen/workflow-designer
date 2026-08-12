@@ -5561,3 +5561,21 @@ scan_id: R-88bcb45a
 task_id: T-466
 payload:
   task_file: .tasks/active/T-466-operator-decision-brief-for-the-five-arc.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T19:55:35Z'
+scan_id: R-4ecc4755
+task_id: T-468
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T19:55:35Z'
+scan_id: R-4ecc4755
+task_id: T-468
+payload:
+  task_file: .tasks/active/T-468-discharge-the-owed-axis-2-baseline-re-me.md
