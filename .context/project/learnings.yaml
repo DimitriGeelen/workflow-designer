@@ -1261,3 +1261,10 @@ learnings:
   date: 2026-08-12
   context: Added via context agent
   application: TBD
+- id: PL-176
+  learning: "A flat enumeration over HETEROGENEOUS shapes has nowhere to put the shape, so a universal handler fills the gap silently and the list still reads complete. Measured across two artefacts in T-483/T-484: the round-trip harness has ONE list (METAKEYS) plus ONE projection body String(aef[k]) — 5 of 7 structured values would have been inert if added there. The bridge has FOUR lists, one PER SHAPE, each with a shape-specific emitter — 35/35 members LIVE, 0 INERT, controls held. The bridge cannot express the bug: adding a key forces you to choose its shape-list first, so the shape check happens at REGISTRATION time instead of never. Sharpened rule (supersedes the broader 'a name in a coverage list is a claim' framing published at rail 599, which measurement narrowed): one list per shape forces the emitter to match the shape; one list for all shapes invites a universal stringifier, and a universal stringifier always answers — same family as grep always answering and sort -V always answering. CHEAP STATIC SCREEN, no mutation needed: does this enumeration contain members of more than one shape? If yes, find the universal handler. If shape-homogeneous, the stringifier has nothing to hide."
+  source: P-001
+  task: T-484
+  date: 2026-08-12
+  context: Added via context agent
+  application: TBD
