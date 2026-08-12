@@ -80,8 +80,11 @@ coverage, and an incident directs attention rather than distributing it.
   claims (our exports are DI-less only until AEF processes them), and the honest
   T-357 framing becomes "should the *designer* also do what AEF already does?"
 - If **no** — the trailer has been shipping a false statement about the pipeline
-  for two months, inside bytes AEF pins by sha, and the deferral was never
-  collected. That is a gap, not just a task.
+  for two months, inside bytes ~~AEF pins by sha~~ **[T-475: not these bytes. AEF's six
+  digest-guarded artifacts include two of ours — `typed-events`, `boundary-events` — and
+  neither is export-path output, so the trailer does not ride in anything they pin. The
+  false statement is still shipping; the aggravating clause was wrong.]**, and the deferral
+  was never collected. That is a gap, not just a task.
 
 Either answer changes the recommendation. **IW-1 is not closed by this spike; it is
 re-aimed.** What the spike established is that the reason is *recorded* — which is
@@ -232,7 +235,10 @@ considerably. What began as one question is now three, in increasing cost order:
    user-facing defect (a foreign author's diagram survives being opened).
 2. **Emit DI additively, keep writing `aef:position`** — no T-225 question, no
    intent-expressiveness problem (the extensions stay). Costs: 24 corpus maps
-   change bytes → coordinated re-pin with AEF; the standard gains a carrier it
+   change bytes → ~~coordinated re-pin with AEF~~ **[CORRECTED 2026-08-12, T-475: there is
+   no re-pin. AEF pins none of the 24 and holds no copy of the rendered corpus — measured
+   on their side, rail 584 Q1/Q3. The surviving cost is one-party: our own `_t308`
+   baseline goes 24/24 drifted.]**; the standard gains a carrier it
    does not name, which is additive rather than contradictory.
 3. **Retire `aef:position`** — needs a T-225 scope ruling, a v1.1 standard
    revision, and an answer to the intent-expressiveness gap in spike 3.

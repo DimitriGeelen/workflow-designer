@@ -68,7 +68,11 @@ Registered via `fw assumption add`:
   consumes, not against the spec.)
 - **A-3:** No consumer outside this repo reads `aef:position` as a contract. The
   known consumers are `tools/yaml-to-bpmn.py` and the bridge parity assertions;
-  AEF pins `source_bpmn_sha` over whole files, not over this element.
+  ~~AEF pins `source_bpmn_sha` over whole files, not over this element.~~
+  **[T-475: AEF pins nothing of ours by `source_bpmn_sha` — see the correction at "The
+  seam" below. The assumption A-3 states still holds, and holds more strongly: no consumer
+  outside this repo reads `aef:position`, and the pin that was offered as the reason is not
+  a pin of ours at all.]**
 
 ## Open Questions
 
@@ -184,10 +188,26 @@ task ID; on GO, implementation is filed as separate build tasks.
 - **Reading must stay dual indefinitely.** 126 existing `.bpmn` files carry
   `aef:position` and no DI. An adoption that drops the `aef:position` reader
   stops all of them loading. Retirement is of the *writer*, not the reader.
-- **The seam.** All 24 corpus maps change bytes if we emit DI, so AEF's pinned
+- **The seam.** All 24 corpus maps change bytes if we emit DI. ~~so AEF's pinned
   `source_bpmn_sha` fixtures need coordinated re-pinning — a two-party event, not
-  an operator's call alone. (This constraint applies to *adoption*; it does NOT
+  an operator's call alone.~~ (This constraint applies to *adoption*; it does NOT
   apply to T-340's scoped option (b), which is byte-neutral.)
+
+  > **CORRECTED 2026-08-12 (T-475), from AEF's measurement at rail 584 Q1/Q3.** The struck
+  > clause is false and it is the arc's parent statement of this cost. `source_bpmn_sha` is
+  > a provenance field **AEF's** promote tool writes into **AEF's** corpus meta, keyed by our
+  > IW-2 contract; it pins nothing of ours. They hold **no copy** of
+  > `examples/aef-processes/rendered/` at all.
+  >
+  > **It is not a two-party event.** The 24 maps are a zero-cost change at the seam. What
+  > survives is one-party: our own `_t308-export-byte-identity` goes 24/24 drifted, a
+  > baseline we own and refresh. AEF vendors six byte-digested artifacts, two of them ours
+  > (`typed-events`, `boundary-events`) — and neither is export-path output, so neither
+  > moves.
+  >
+  > **What does NOT change:** the GO recorded in this task, and the ordering of its three
+  > steps. This corrects an input, not a conclusion. The parenthetical about T-340's scoped
+  > (b) being byte-neutral was correct then and is correct now.
 - **Blast radius exceeds the editor.** `tools/yaml-to-bpmn.py` and the bridge
   parity assertions both sit on this geometry.
 - **T-225.** `src:8201` ratifies that diagram XML is never silently migrated.
@@ -261,6 +281,28 @@ must not become T-340's blocker.
 # mvn compile) to that build task's ## Verification — P-011 only runs what you write.
 
 ## Recommendation
+
+> **DECISION-RECORD CORRECTION (T-475), 2026-08-12.** The rationale below is reproduced
+> verbatim three times in this file (here, and in two later record blocks) and is **left
+> unedited on purpose** — it is what was decided and why, and rewriting a decision record
+> to match later knowledge destroys the evidence of how the decision was reached.
+>
+> **One of its "Real costs to scope" is false:** *"all 24 corpus maps change bytes so AEF's
+> pinned `source_bpmn_sha` fixtures need coordinated re-pinning"*. Measured on AEF's side at
+> rail 584 Q1/Q3: `source_bpmn_sha` is a provenance field **their** promote tool writes into
+> **their** corpus meta; it pins nothing of ours, and they hold no copy of
+> `examples/aef-processes/rendered/`. **The seam cost is zero.** What survives is one-party —
+> our own `_t308-export-byte-identity` goes 24/24 drifted.
+>
+> **The GO is unaffected.** It was recommended on portability (the fourth constitutional
+> directive) and on the symmetric-injury measurement, with the re-pin listed as a cost *to
+> scope*, not as a reason against. A cost that turned out to be smaller cannot weaken a GO.
+> The other three listed costs are untouched and still real.
+>
+> **How this was found:** by a verification leg, not by reading. The census behind T-475
+> used `grep | head -3`, saw the two occurrences it expected, and stopped — these three were
+> outside the window. The leg asserting "no unannotated occurrence" went red and produced
+> them. Fifth instance this session of a first-form measurement that read like a result.
 
 **Recommendation:** GO
 
