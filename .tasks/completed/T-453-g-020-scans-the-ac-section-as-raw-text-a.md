@@ -4,10 +4,10 @@ name: "G-020 scans the AC section as raw text: a quoted placeholder token blocks
 description: >
   G-020 (check-active-task.sh:584) decides build-readiness with two greps over the raw AC section, with no structural parse and no HTML-comment stripping. Two consequences from one root. FALSE POSITIVE: the placeholder token quoted inside a genuine acceptance criterion counts as a placeholder, so a task describing this gate cannot be filed (hit live at T-452). FALSE NEGATIVE, the serious one: the task template ships two commented example checkboxes under Human, they match REAL_AC_COUNT, so every template-created task starts at REAL_AC_COUNT=2 and the zero-AC half of the gate can never fire. Deleting the two placeholder lines - the literal instruction in the block message - leaves the gate passing with zero acceptance criteria. Measured with the gates own two commands: HAS_PLACEHOLDER=0 REAL_AC_COUNT=2 ALLOWED. The remedy already exists sixty lines above in the same file: the G-067 Open Questions gate strips HTML comments before counting (line 539, T-2554). Vendored AEF tooling, so the fix is theirs and upstreamable under G-008; reported over the rail with the reproduction.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T10:55:55Z
-last_update: 2026-08-12T12:25:09Z
-date_finished: null
+last_update: 2026-08-12T12:26:15Z
+date_finished: 2026-08-12T12:26:15Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -236,3 +236,15 @@ test -z "$(git diff --name-only -- .agentic-framework/agents/context/check-activ
 
 ### 2026-08-12T11:00:26Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ae8d8cd1
+- **Timestamp:** 2026-08-12T12:26:16Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-12T12:26:15Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

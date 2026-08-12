@@ -4,10 +4,10 @@ name: "Recommendation block: the guard requires a section default.md never suppl
 description: >
   tools/_norec-verify.py blocks handover on a parseable '## Recommendation' block carrying **Recommendation:** GO/NO-GO/DEFER/ABSTAIN, but .tasks/templates/default.md - the template every build task is stamped from - has no ## Recommendation section at all. Only inception.md documents the verdict line (:117). Measured 2026-08-12: 121 task files carry the heading and 120 spell the verdict parseably, i.e. the convention is near-universal and was acquired entirely by imitation. The cost is not hypothetical: 3 of the 14 NO-REC tasks T-454 repaired had already been ANALYSED and carried a decided verdict, invisible to the operator's queue purely because the author invented a different shape - T-209 nested it as '### Recommendation' inside ## Context, T-286 opened '**[GO]**', T-341 opened 'Option **(2)**'. Same class as T-453: a gate measured against the shipped template rather than against a fixture. Vendored file, so the fix is AEF's under G-008.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T12:19:19Z
-last_update: 2026-08-12T12:20:54Z
-date_finished: null
+last_update: 2026-08-12T12:22:25Z
+date_finished: 2026-08-12T12:22:25Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -222,3 +222,15 @@ test -z "$(git diff --name-only -- .tasks/templates/default.md)"
 
 ### 2026-08-12T12:19:37Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-b1e611be
+- **Timestamp:** 2026-08-12T12:22:25Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-12T12:22:25Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

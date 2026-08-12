@@ -4,20 +4,20 @@ name: "Approvals queue regrew to 14 NO-REC of 32 handed-over tasks while its gua
 description: >
   The consequence T-450/T-451 uncovered rather than the defect. tools/_norec-verify.py last ran 2026-07-22 at 0 NO-REC (T-236's sweep) and could not run again, because its only call site is that completed task's Verification block. Measured 2026-08-12: 450 task files examined, 32 carry pending Human ACs, 14 of those have no parseable Recommendation verdict - so the operator's review queue shows 32 items of which 14 offer nothing actionable. The list: T-209 T-286 T-340 T-341 T-344 T-345 T-347 T-358 T-392 T-402 T-422 T-426 T-432 T-433. Four are arc blockers whose Agent ACs are literally marked BLOCKED pending a REVIEW ruling (T-340 T-341 T-358 T-209), so the missing verdict is load-bearing for arc designer-authoring-surface. Deliverable is an evidence-based Recommendation block per task in the T-236 style - GO with cited evidence, NO-GO, or DEFER with a revisit_at - written by the agent and RULED by the operator. Not a batch-close: each needs its own evidence per CLAUDE.md Human Task Completion Rule. Sized for a fresh window; 14 tasks each needing their own evidence read is not a tail-end-of-session job.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_norec-verify.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T10:59:28Z
-last_update: 2026-08-12T12:17:37Z
-date_finished: null
+last_update: 2026-08-12T12:18:52Z
+date_finished: 2026-08-12T12:18:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -231,3 +231,15 @@ grep -q "REFUSING" /tmp/.t454-refuse.out
 
 ### 2026-08-12T11:00:37Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-4c506099
+- **Timestamp:** 2026-08-12T12:18:54Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-12T12:18:52Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
