@@ -106,10 +106,23 @@ into the source means a naive `yaml-to-bpmn.py` regen can never silently un-tidy
 the corpus.
 
 ```bash
-python3 tools/bake-clean-layout.py            # re-bake all 24 maps (run after Clean logic changes)
+python3 tools/bake-clean-layout.py            # re-bake every map derived from *.workflow.yaml
 python3 tools/bake-clean-layout.py --check    # assert the corpus is a Clean fixpoint (mapMessiness < 3, moves 0)
 python3 tools/bake-clean-layout.py <map ...>  # limit to named maps
 ```
+
+Exit codes (T-447): `0` fixpoint / bake done, `1` maps are not a fixpoint, **`2` the corpus
+could not be enumerated** — no `*.workflow.yaml` sources, a source with no rendered
+counterpart, or a named map that does not exist. 2 is not a milder 1: it means no verdict
+was reached. Before T-447 all three of those cases printed a success sentence and exited 0
+(`Baked Clean into 0 maps; 0 store versions minted; gallery mirror synced.`). The map count
+is deliberately not written down here or in the tool — it is derived from the sources, so
+this line does not go stale when the corpus grows (PL-158).
+
+**`--check` is currently red and nothing runs it** — see T-448. It reports `0/24` on the
+real corpus (byte drift between the editor's `buildBpmnXml()` and the committed bytes, not
+geometry: 22 of 24 maps move nothing and score messiness 0), and no Verification block,
+test or hook invokes it. Do not read its silence as a green.
 
 Re-run the bake whenever `cleanLayout()` (or its sub-passes) changes, so the
 shipped corpus tracks the editor's current tidy standard.

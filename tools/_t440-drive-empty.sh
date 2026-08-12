@@ -100,7 +100,16 @@ for d in "${POP_DIRS[@]}"; do
                     > "$sub/T-000-t440-poison.md" ;;
       *episodic*) printf -- 'task_id: T-000\nsummary: t440 poison\n' > "$sub/T-000.yaml" ;;
       *)          printf -- 'not a well-formed bpmn document\n' > "$sub/_t440-poison.bpmn"
-                  printf -- 'not: [a, well, formed\n'            > "$sub/_t440-poison.yaml" ;;
+                  printf -- 'not: [a, well, formed\n'            > "$sub/_t440-poison.yaml"
+                  # ...and the SOURCE spelling. `*.yaml` is not `*.workflow.yaml`, and an
+                  # instrument whose population is the latter saw no control at all: T-447
+                  # made bake-clean-layout refuse on an empty corpus, and this harness then
+                  # reported BLIND 0 over driven 0 — the repair looking identical to a
+                  # sealed instrument, which is PL-160 committed by the file that records
+                  # PL-160. The basename matches the .bpmn poison above on purpose, so a
+                  # tool checking source↔rendered correspondence sees a COMPLETE corpus of
+                  # one rather than a second flavour of emptiness.
+                  printf -- 'not: [a, well, formed\n'            > "$sub/_t440-poison.workflow.yaml" ;;
     esac
   done < <(find "$POISON/$d" -type d)
 done

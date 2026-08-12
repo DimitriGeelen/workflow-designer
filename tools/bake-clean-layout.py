@@ -34,7 +34,14 @@ Check the corpus is a Clean fixpoint (idempotent, no writes):  --check
 
 Usage:
   tools/bake-clean-layout.py [--check] [map ...]
-    (no map args → all 24 rendered maps)
+    (no map args → every map derived from examples/aef-processes/*.workflow.yaml)
+
+Refusal (T-447): this tool exits 2 rather than reporting on a corpus it could not
+enumerate — no sources, a rendered set missing counterparts, or a named map that does
+not exist. Until T-447 it printed `Baked Clean into 0 maps; ...; gallery mirror synced.`
+and `--check: 0/0 maps are a Clean fixpoint` at exit 0, and T-101 reads that exit code.
+The denominator is never written down as a number here; it is derived from the sources,
+because a restated one goes stale the day the corpus grows (PL-158).
 """
 import base64
 import json
@@ -111,14 +118,83 @@ def write_back(base, xml):
     shutil.copyfile(out, os.path.join(GALLERY, base + ".bpmn"))
 
 
+def refuse(msg):
+    """Stop without a verdict. Exit 2, never 0, never 1.
+
+    2 is deliberate and is the T-430 abstention discipline: 1 means "I looked and it is
+    bad", 0 means "I looked and it is fine", and a run that examined nothing is neither.
+    Collapsing it into 0 is the defect this whole repair exists for (T-440, G-034);
+    collapsing it into 1 would send someone hunting for a corpus defect that is not there.
+    """
+    sys.stderr.write("REFUSING: " + msg + "\nNothing was examined; this is not a pass.\n")
+    raise SystemExit(2)
+
+
+def _basenames(d, suffix):
+    if not os.path.isdir(d):
+        refuse("%s does not exist, so the corpus cannot be enumerated." % os.path.relpath(d, ROOT))
+    return sorted(b[:-len(suffix)] for b in os.listdir(d) if b.endswith(suffix))
+
+
+def sources():
+    """The AUTHORITY the rendered corpus is measured against.
+
+    Not a constant. The docstring used to state the denominator as prose — "all 24 rendered
+    maps" — and a guard that restates it as `24` rots the day the corpus grows to 25, which
+    is PL-158 (T-444): derive the checked set from the authority you guard, never restate it.
+    rendered/*.bpmn is generated one-for-one from these sources, so the source set IS the
+    denominator and it stays correct without anyone maintaining it.
+    """
+    return _basenames(CORPUS, ".workflow.yaml")
+
+
 def all_maps():
-    return sorted(b[:-len(".bpmn")] for b in os.listdir(RENDERED) if b.endswith(".bpmn"))
+    return _basenames(RENDERED, ".bpmn")
+
+
+def resolve_corpus(names):
+    """Return the maps to operate on, or refuse and say what was examined.
+
+    Every path out of here either hands back a non-empty corpus or exits 2. There is no
+    route by which an empty corpus reaches a verdict — which was the bug: `--check` over
+    zero maps printed `0/0 maps are a Clean fixpoint` and returned 0, and T-101 reads that
+    exit code. A fixpoint assertion over an empty set is vacuously true (PL-081).
+    """
+    rendered = all_maps()
+
+    # An explicitly named map that does not exist must be refused BY NAME. Previously
+    # `maps = names or all_maps()` passed the names straight through, so a typo shrank the
+    # corpus to whatever happened to match and the run reported success over the remainder.
+    if names:
+        missing = [n for n in names if n not in rendered]
+        if missing:
+            refuse("named map(s) not present in %s: %s. Named %d, %d exist — a typo must "
+                   "not silently shrink the corpus to the names that happen to match."
+                   % (os.path.relpath(RENDERED, ROOT), ", ".join(missing),
+                      len(names), len(names) - len(missing)))
+        return names
+
+    src = sources()
+    if not src:
+        refuse("no *.workflow.yaml sources under %s, so there is no denominator to check "
+               "the rendered corpus against." % os.path.relpath(CORPUS, ROOT))
+
+    # The partial case, which is the one a zero-guard alone would miss: 3 rendered against
+    # 24 sources is not "3 maps are a fixpoint", it is a corpus that quietly lost 21.
+    lost = [b for b in src if b not in rendered]
+    if lost:
+        refuse("%d of %d source(s) have no rendered counterpart under %s: %s. A verdict "
+               "over the %d that survive would report on a corpus that shrank."
+               % (len(lost), len(src), os.path.relpath(RENDERED, ROOT),
+                  ", ".join(lost[:5]) + (" ..." if len(lost) > 5 else ""), len(rendered)))
+
+    return rendered
 
 
 def main(argv):
     check = "--check" in argv
     names = [a for a in argv if not a.startswith("--")]
-    maps = names or all_maps()
+    maps = resolve_corpus(names)
 
     results = run_driver(maps)
 
@@ -158,8 +234,12 @@ def main(argv):
                 print("  NOT A FIXPOINT: %s (byte_stable=%s moved=%s messinessBefore=%s)"
                       % (base, byte_stable, r["moved"], r["messinessBefore"]))
                 fail += 1
-        print("\n--check: %d/%d maps are a Clean fixpoint"
-              % (len(maps) - fail, len(maps)))
+        # Name the scope in the verdict line. `0/0 maps are a Clean fixpoint` was a true
+        # sentence about nothing, and printing the denominator it was drawn from is what
+        # makes the difference between "clean" and "empty" visible to a reader (PL-084).
+        scope = ("%d named map(s)" % len(maps)) if names else ("all %d source(s)" % len(sources()))
+        print("\n--check: %d/%d maps are a Clean fixpoint  [scope: %s]"
+              % (len(maps) - fail, len(maps), scope))
         return 1 if fail else 0
 
     if bad:
@@ -175,8 +255,9 @@ def main(argv):
         m = mint_store_version(base, r["xml"], r.get("thumb"))
         minted += 1 if m else 0
         print("  baked %-24s%s" % (base, "  (store v%d minted)" % m if m else ""))
+    scope = ("%d named map(s)" % len(maps)) if names else ("all %d source(s)" % len(sources()))
     print("\nBaked Clean into %d maps; %d store versions minted; gallery mirror synced."
-          % (len(maps), minted))
+          "  [scope: %s]" % (len(maps), minted, scope))
     return 0
 
 
