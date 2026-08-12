@@ -1149,3 +1149,10 @@ learnings:
   date: 2026-08-11
   context: Added via context agent
   application: TBD
+- id: PL-160
+  learning: "A control that fails to place itself reports the same thing as a subject that cannot be moved. Twice in T-440 the poisoned control copy never landed where the instrument looked — first because emptying a parent directory deleted the child the poison was written into, then because the poison sat only at each population's top level while probes read subdirectories. Both times every instrument came back 'CANNOT-DRIVE: emptying the tree changes nothing', which is exactly what a genuinely sealed instrument looks like. When a control run and a null result are indistinguishable, verify the control landed before believing the null."
+  source: P-001
+  task: T-440
+  date: 2026-08-12
+  context: Added via context agent
+  application: TBD
