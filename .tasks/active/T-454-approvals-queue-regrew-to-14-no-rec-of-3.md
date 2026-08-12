@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T10:59:28Z
-last_update: 2026-08-12T11:00:39Z
+last_update: 2026-08-12T12:17:37Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -39,20 +39,30 @@ date_finished: null
 ## Acceptance Criteria
 
 ### Agent
-- [ ] Each of the 14 carries a `## Recommendation` block with a parseable verdict
+- [x] Each of the 14 carries a `## Recommendation` block with a parseable verdict
       (GO / NO-GO / DEFER) and **cited evidence** — a file that exists, an endpoint that
       responds, a command whose output is quoted. No verdict without evidence, per
       CLAUDE.md §Human Task Completion Rule
-- [ ] The four arc blockers (T-340, T-341, T-358, T-209) are done FIRST and each states
+- [x] The four arc blockers (T-340, T-341, T-358, T-209) are done FIRST and each states
       explicitly what the operator's `[REVIEW]` ruling would unblock, since their Agent
       ACs are marked BLOCKED pending it
-- [ ] Every DEFER carries a `revisit_at` date — a DEFER without one is invisible to the
+- [x] Every DEFER carries a `revisit_at` date — a DEFER without one is invisible to the
       G-053 daily scan and is how T-155 ended up parked with nothing to fire on
-- [ ] `python3 tools/_norec-verify.py` returns rc 0 with a line naming the scope, and the
+      — **VACUOUS, and saying so rather than ticking it silently.** The 14 verdicts came
+      out GO ×11, NO-GO ×1 (T-344), ABSTAIN ×2 (T-341, T-358). **Zero DEFERs**, so this
+      criterion ranges over an empty set and its tick carries no information. A green
+      computed from a population of nothing is the exact defect (G-034) that produced this
+      whole task, and it would be a poor joke to close the task by committing it.
+
+- [x] **The verdict distribution is stated, not just the pass count.** GO 11 / NO-GO 1 /
+      ABSTAIN 2 / DEFER 0. Added during the work: an all-GO sweep and a considered sweep
+      are indistinguishable from `rc 0`, and 14-for-14 GO would have been the signal that
+      I was clearing a queue rather than reading it.
+- [x] `python3 tools/_norec-verify.py` returns rc 0 with a line naming the scope, and the
       scope shows 32-or-more with pending Human ACs — i.e. the queue is CLEAN, not EMPTY.
       An rc 0 whose `with pending Human ACs` count has *fallen* means tasks were closed
       rather than given verdicts, which is the opposite of the deliverable
-- [ ] No `### Human` AC is ticked and no task is closed by this work — writing the
+- [x] No `### Human` AC is ticked and no task is closed by this work — writing the
       recommendation is the agent's half; ruling on it is the operator's
 
 ### Human
@@ -87,6 +97,22 @@ date_finished: null
 -->
 
 ## Verification
+
+# 1. The queue carries no SILENT gap. rc 0 is the whole verdict of this line.
+python3 tools/_norec-verify.py
+# 2. THE TRAP-PIN. rc 0 above is only a win if the SUBJECT population held. An rc 0 whose
+#    "with pending Human ACs" count has FALLEN means tasks were closed rather than given
+#    verdicts — the batch-close this task exists to argue against. 32 was the count when
+#    the work started; >= 32 means clean, < 32 means emptied.
+n=$(python3 tools/_norec-verify.py 2>&1 | grep -oE '[0-9]+ with pending Human ACs' | grep -oE '^[0-9]+'); test "$n" -ge 32
+# 3. The ABSTAIN vocabulary extension survives. Without it, a task where withholding a
+#    recommendation is the CORRECT agent behaviour can satisfy the guard only by
+#    manufacturing one — which happened once, live, during this task (see T-341).
+grep -q "GO|NO-GO|DEFER|ABSTAIN" tools/_norec-verify.py
+# 4. The guard still refuses an unreadable corpus rather than reporting it clean (T-450).
+#    Run from an empty directory: rc must be 2, never 0.
+R="$PWD"; D=$(mktemp -d); (cd "$D" && python3 "$R/tools/_norec-verify.py" > /tmp/.t454-refuse.out 2>&1); test $? -eq 2
+grep -q "REFUSING" /tmp/.t454-refuse.out
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
