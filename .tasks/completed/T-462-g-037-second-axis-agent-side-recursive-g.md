@@ -4,10 +4,10 @@ name: "G-037 second axis: agent-side recursive grep skips gitignored paths, and 
 description: >
   G-037 second axis: agent-side recursive grep skips gitignored paths, and focus.yaml is one of them
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T16:55:19Z
-last_update: 2026-08-12T16:55:19Z
-date_finished: null
+last_update: 2026-08-12T17:01:32Z
+date_finished: 2026-08-12T17:01:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -234,3 +234,19 @@ python3 -c "import yaml,subprocess;d=yaml.safe_load(open('.context/project/conce
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-462-g-037-second-axis-agent-side-recursive-g.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a9d7b200
+- **Timestamp:** 2026-08-12T17:01:34Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** yes
+- **Findings:** none
+
+- **Layer-1 escalations:** 1
+  1. **destructive-action** (high) — Destructive operation in verification or AC
+     - matched: `rm -rf`
+
+### 2026-08-12T17:01:32Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1205,3 +1205,10 @@ learnings:
   date: 2026-08-12
   context: Added via context agent
   application: TBD
+- id: PL-168
+  learning: "A peer's finding about YOUR OWN environment is still a claim until you run it — and running it is what bounds it. AEF reported the harness grep shim also diverges on file SET (--ignore-files), which reproduced here exactly; but verifying rather than inheriting produced two corrections their report did not carry: the divergence is RECURSION-ONLY (an explicitly named file and a glob agree 1==1 both ways, so 'grep pattern file' is trustworthy and only 'grep -r' is suspect), and --hidden REDUCES the divergence rather than causing it. An accepted finding with a wrong mechanism attached becomes folklore faster than a rejected one."
+  source: P-001
+  task: T-462
+  date: 2026-08-12
+  context: Added via context agent
+  application: TBD

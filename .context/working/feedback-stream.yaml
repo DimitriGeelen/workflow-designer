@@ -5273,3 +5273,219 @@ scan_id: R-a12f0af5
 task_id: T-449
 payload:
   task_file: .tasks/active/T-449-provenance-pair-draft-rows-are-two-sided.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T10:44:18Z'
+scan_id: R-415a0655
+task_id: T-450
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T10:44:18Z'
+scan_id: R-415a0655
+task_id: T-450
+payload:
+  task_file: .tasks/active/T-450-g-034-repair-2-of-5-norec-verifypy-repor.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T10:51:19Z'
+scan_id: R-bcd63c84
+task_id: T-451
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T10:51:19Z'
+scan_id: R-bcd63c84
+task_id: T-451
+payload:
+  task_file: .tasks/active/T-451-a-verification-block-is-a-one-shot-compl.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T10:57:29Z'
+scan_id: R-d29a49e3
+task_id: T-452
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T10:57:29Z'
+scan_id: R-d29a49e3
+task_id: T-452
+payload:
+  task_file: .tasks/active/T-452-reciprocal-check-of-aefs-gate-metacharac.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T12:18:54Z'
+scan_id: R-4c506099
+task_id: T-454
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T12:18:54Z'
+scan_id: R-4c506099
+task_id: T-454
+payload:
+  task_file: .tasks/active/T-454-approvals-queue-regrew-to-14-no-rec-of-3.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T12:22:25Z'
+scan_id: R-b1e611be
+task_id: T-455
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T12:22:25Z'
+scan_id: R-b1e611be
+task_id: T-455
+payload:
+  task_file: .tasks/active/T-455-recommendation-block-the-guard-requires-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T12:26:16Z'
+scan_id: R-ae8d8cd1
+task_id: T-453
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T12:26:16Z'
+scan_id: R-ae8d8cd1
+task_id: T-453
+payload:
+  task_file: .tasks/active/T-453-g-020-scans-the-ac-section-as-raw-text-a.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T12:36:21Z'
+scan_id: R-8ad0b066
+task_id: T-456
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T12:36:21Z'
+scan_id: R-8ad0b066
+task_id: T-456
+payload:
+  task_file: .tasks/active/T-456-p-011-strips-html-comments-from-the-veri.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T12:39:55Z'
+scan_id: R-8a69b1ef
+task_id: T-457
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T12:39:55Z'
+scan_id: R-8a69b1ef
+task_id: T-457
+payload:
+  task_file: .tasks/active/T-457-register-the-gate-comment-boundary-class.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T14:08:31Z'
+scan_id: R-6dc72292
+task_id: T-459
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T14:08:31Z'
+scan_id: R-6dc72292
+task_id: T-459
+payload:
+  task_file: .tasks/active/T-459-rec-gate-exposure-on-our-tree-is-latent-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T14:20:00Z'
+scan_id: R-aa409670
+task_id: T-460
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T14:20:00Z'
+scan_id: R-aa409670
+task_id: T-460
+payload:
+  task_file: .tasks/active/T-460-grep-with-an-unescaped-name-pattern-is-u.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T14:23:41Z'
+scan_id: R-7c38beba
+task_id: T-461
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T14:23:41Z'
+scan_id: R-7c38beba
+task_id: T-461
+payload:
+  task_file: .tasks/active/T-461-register-the-instrument-substitution-cla.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T17:01:34Z'
+scan_id: R-a9d7b200
+task_id: T-462
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T17:01:34Z'
+scan_id: R-a9d7b200
+task_id: T-462
+payload:
+  task_file: .tasks/active/T-462-g-037-second-axis-agent-side-recursive-g.md
