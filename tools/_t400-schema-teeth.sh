@@ -163,18 +163,38 @@ fi
 # --- RECIPROCAL CONTROL: the REAL register passes ----------------------------
 # Every leg above proves the guard CAN refuse. Only this proves it does not refuse the
 # register we actually keep — a guard that reds on the live file would be reverted, not
-# obeyed, and 14 of its 20 field names are prose.
+# obeyed, and most of its field names are prose.
+#
+# T-464: the expected population is DERIVED, never restated. This leg used to spell it
+# `schema ok: 25 entries`. The register reached 34 and the leg went red on a stale
+# literal — through nine consecutive gap registrations, none of which had any reason to
+# come and edit this file. That is the distinction that matters: the population changes
+# from OUTSIDE this script, so a literal here has no adjacent prompt to update it.
+#
+# It is derived TEXTUALLY, and deliberately NOT by asking the subject. Deriving the
+# expectation from the subject's own parse would compare the subject to itself — a
+# truncated read would yield a matching truncated expectation and the leg would go green
+# over precisely the failure its own text warns about (PL-158: derive from the authority
+# you guard, not from the thing you are guarding). Column-0 `- id:` can only be a
+# top-level list item — YAML block scalars and nested lists are all indented — so this
+# counts entries with no YAML parser in the path at all.
+REG_REAL="$ROOT/.context/project/concerns.yaml"
+expect="$(grep -c '^- id: ' "$REG_REAL")"   # grep -c exits 1 on zero; guarded below (L-387)
 out="$(python3 "$SUBJECT" 2>&1)"; rc=$?
-if [ "$rc" -ne 0 ]; then
+if [ "${expect:-0}" -lt 2 ]; then
+  fail "RECIPROC: the DERIVATION is broken, not the subject — counted ${expect:-0} column-0
+     '- id:' line(s) in $REG_REAL. An expectation of 0 or 1 would make the comparison
+     below pass over an almost-empty register, so it is refused here rather than used."
+elif [ "$rc" -ne 0 ]; then
   fail "RECIPROC: the real register must pass. A guard that reds on the live file gets
      reverted rather than obeyed. rc=$rc
 $out"
-elif ! echo "$out" | grep -q "schema ok: 25 entries"; then
-  fail "RECIPROC: passed, but not over the expected population (25 entries) — a pass over
-     a truncated read would look identical
+elif ! echo "$out" | grep -q "schema ok: $expect entries"; then
+  fail "RECIPROC: passed, but not over the derived population ($expect entries counted
+     textually in the register) — a pass over a truncated read would look identical
 $out"
 else
-  ok "RECIPROC the real 25-entry register passes"
+  ok "RECIPROC the real register passes over all $expect entries (count derived, not restated)"
 fi
 
 echo

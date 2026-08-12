@@ -20,6 +20,15 @@
 # read the corpse as a verdict. Same class as the defect T-429 was built to find: it asks
 # *did this process exit non-zero* when the question is *did the abstention guard fire*.
 #
+# 2026-08-12 (T-464) — the demonstration above is now HISTORY, not a reproducible setup.
+# _t400-schema-teeth.sh's RECIPROC leg was red for two stacked reasons: the register
+# carried a field the schema did not account for (fixed in T-463) and the leg restated its
+# expected population as a literal that went stale (fixed in T-464). It is green today, so
+# re-running the T-429 probe against it would no longer show the false GUARDED. The
+# argument in this header stands on its own — a probe that reads a process corpse as a
+# verdict is unsound whether or not this particular suite is currently red — but a reader
+# trying to reproduce the measurement should know why it will not reproduce.
+#
 # TWO DIFFERENCES, BOTH LOad-BEARING
 # ----------------------------------
 # 1. EVERY increment-bearing helper is neutered, not just the first. In the shape T-430

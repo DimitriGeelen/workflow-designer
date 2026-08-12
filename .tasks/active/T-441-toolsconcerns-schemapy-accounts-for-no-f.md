@@ -194,3 +194,27 @@ date_finished: null
 
 ### 2026-08-11T22:03:02Z — status-update [task-update-agent]
 - **Change:** horizon: now → next
+
+### 2026-08-12 — cross-reference (T-463 + T-464): both halves of this capture are now fixed
+
+This task was captured from the inbox while baselining T-430. It names one symptom with
+two independent causes underneath, which is why it took two tasks:
+
+1. **"accounts for no field named `context`"** — fixed in **T-463**. Decided as PROSE, not
+   load-bearing: `context` is human prose in the same family as `evidence` and `detail`,
+   so it was declared in `PROSE` rather than given a reader. T-463 also found the count in
+   this capture was understated — `context` was carried by **9** entries, not 2, and the
+   check had been red since 2026-08-09 rather than since it shipped.
+2. **"so _t400-schema-teeth's RECIPROC leg has been red on the real register"** — only
+   half-fixed by the above. The leg stayed red on a second, unrelated cause: it restated
+   its expected population as the literal `schema ok: 25 entries` and the register had
+   reached 34. Fixed in **T-464** by deriving the count instead.
+
+Evidence as of 2026-08-12:
+
+    bash tools/_t400-schema-teeth.sh    -> rc 0, "TEETH PASS — 10/10 legs recorded"
+                                           "RECIPROC the real register passes over all 34 entries"
+    bash tools/_t464-derivation-probe.sh -> rc 0, 6/6 legs (M0-M3 + integrity)
+
+**This task is `owner: human` and is left untouched — no AC ticked, no status changed.**
+The note is here so whoever triages it can see the work is done and by which tasks.
