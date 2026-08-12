@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-451: A `## Verification` block is a one-shot completion gate, not a standing guard: 30 instruments have no live caller
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T10:51:22Z
+# ============================================================================
+
+task_id: T-451
+task_name: "A `## Verification` block is a one-shot completion gate, not a standing guard: 30 instruments have no live caller"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T10:44:58Z
+completed: 2026-08-12T10:51:16Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'A census instrument derives BOTH sides from the tree — population from `tools/*`,'
+  - 'It refuses at **rc 2** when a side cannot be enumerated (no `tools/`, or a missing'
+  - 'It separates one-shot-BY-DESIGN (`*-teeth`, `*-mutation-check`, `*-probe`) from'
+  - 'It states its reachability LIMIT in its own output (textual reference only), so a'
+  - 'A tool referenced ONLY by an active task''s Verification block is NOT counted live;'
+  - 'The class is registered in `concerns.yaml` with a closure condition that RUNS'
+  - 'The census itself has a live caller — it is named by its own gap''s closure'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-451-a-verification-block-is-a-one-shot-compl.md
+generated_by: context-agent-hybrid
