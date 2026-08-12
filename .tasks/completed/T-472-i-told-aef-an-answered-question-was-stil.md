@@ -1,13 +1,13 @@
 ---
-id: T-443
-name: "Rename fixtures/aef-bpmn as a v1.2 standard delta - PENDING AEF ruling (T-365 option D)"
+id: T-472
+name: "I told AEF an answered question was still open"
 description: >
-  T-365 measured that tests/fixtures/aef-bpmn is normative in a FROZEN two-party standard: aef-bpmn-mapping-v1.md:142 names inception-gonogo.bpmn as a Reference fixture inside Part I (Part II begins at 146), and aef-bpmn-forward-compile-v1.md:21 names the corpus with section 5 titled after the path. So the rename is a standard delta, not a refactor, and is not the agent's to make. T-365 shipped option C (claim fixed at source in PROVENANCE.md + tools/_t365-normative-fixture-guard.py). This task carries option D. TRIGGER (FIRED — superseded, read ## Context): AEF answers DM 548 section 5. If they want the delta it queues with the v1.1 deltas T-189/T-195 are drafting; if the path stays, close this with that as the reason. Also open at DM 548 section 6 (ALSO ANSWERED — DM 556, landed by T-449): confirmation that the three pair-drafts (session-handover, dispatch-loop, offpage-seam) are considered co-authored on their side - PROVENANCE.md currently asserts it on our evidence alone. || STALE-FIELD MARKER 2026-08-12 (T-472) — both triggers fired. AEF ruled KEEP THE PATH at DM 549 section 5; section 6 was answered from records at DM 556. The body's ## Context has carried the ruling since DM 550. This field was read as current state 32 rails later and reported to AEF as an outstanding question they had already answered. Read the Context, not this field. Disposition by this field's own instruction — "if the path stays, close this with that as the reason" — is CLOSE, pending operator ratification only.
+  Rail 582 told AEF that DM 548 s6 (are the three pair-drafts co-authored on your side?) is still open and that PROVENANCE.md asserts co-authorship on our evidence alone. Both false: AEF answered from records at DM 556 and T-449 (work-completed) replaced the one-sided block. Source of the error was T-443's frontmatter description, written before DM 556 landed and never re-derived. Correct on the rail, re-measure whether T-443's OTHER premise (DM 548 s5, the rename ruling) is also stale, and make the staleness detectable rather than trusting the next reader to notice.
 
-status: captured
-workflow_type: refactor
-owner: human
-horizon: later
+status: work-completed
+workflow_type: build
+owner: agent
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-11T22:28:50Z
-last_update: 2026-08-11T22:28:58Z
-date_finished: null
+created: 2026-08-12T20:33:24Z
+last_update: 2026-08-12T20:38:17Z
+date_finished: 2026-08-12T20:38:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,43 +30,101 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-443: Rename fixtures/aef-bpmn as a v1.2 standard delta - PENDING AEF ruling (T-365 option D)
+# T-472: I told AEF an answered question was still open
 
 ## Context
 
-**AEF HAS RULED: KEEP THE PATH (DM 549 §5, 2026-08-12). This task's trigger has fired
-and the answer is "do not rename" — it is parked on the operator's ratification, not on
-AEF any more.**
+Rail correction at **offset 583**. Inventory correction in
+`docs/reports/T-471-seam-repin-trigger-inventory.md` §5.
 
-Their words: *"Recommendation: keep the path. Your reasoning is better than mine would
-have been — the failure mode was a reader treating a name as provenance; a new name is
-also a name. Renaming moves the ambiguity. PROVENANCE.md fixes the claim at the source,
-which protects both trees including the readers who never see the rename."*
+At rail 582 I told AEF two things, both false, both about questions they had answered:
 
-So both sides independently reached the same conclusion, from the same argument. The
-v1.2 delta this task exists to draft is **not needed** unless the operator overrules it.
+| claim at 582 | reality | answered at |
+|---|---|---|
+| "DM 548 §6 still open — PROVENANCE.md asserts co-authorship on our evidence alone" | answered from their records; T-449 replaced the one-sided block and is `work-completed` | **DM 556** |
+| "T-443 is a pending path-identity trigger, blocked on AEF's DM 548 §5" | **they ruled: keep the path.** Not pending, not blocked, nothing owed by them | **DM 549 §5** |
 
-What the exchange raised INSTEAD, and it is bigger than the rename (recorded in
-`tests/fixtures/aef-bpmn/PROVENANCE.md` under "a reference that crosses the seam"):
-AEF's frozen Part I names `tests/fixtures/aef-bpmn/inception-gonogo.bpmn`, their tree
-does not hold that file at that path, and their AEF-side OBS-225 offers two dispositions
-— restore it, or delta the reference. Measured here (T-446), **neither fits**: the file
-is 832-authored (T-192), was delivered to them at rail offset 34, and they re-derived and
-re-pinned its current sha at offset 354. The real question is whether a `Reference
-fixture:` clause names a path each side must HOLD or a path in the tree that PRODUCES it.
-That question, not the rename, is what a v1.x delta would settle.
+**I acknowledged the §5 ruling at the time.** At offset 550 I replied "keep the path —
+agreed" and wrote that T-443 now records the ruling *in its own Context so nobody
+re-derives it off the rail*. It does — in bold, as the first line of the body. I then
+re-derived it off a stale field 32 rails later.
 
-**Recommended disposition:** close as "no rename — ruled by both sides", and let the
-clause-semantics question ride with the v1.1 deltas T-189/T-195 are drafting. Operator's
-call; agent initiative does not extend to closing a human-owned task or to ratifying a
-two-party standard decision.
+### The mechanism, which is narrower than "summaries decay"
+
+T-443's frontmatter `description:` read `TRIGGER: AEF answers DM 548 section 5`. True when
+written, never re-derived. Its `## Context`, four lines below, opens
+`AEF HAS RULED: KEEP THE PATH (DM 549 §5)`. **The correct fact was in the same file,
+immediately underneath the wrong one, and I read the wrong one.**
+
+That is the difference from T-466 and T-209: there, a claim decayed and nothing contradicted
+it. Here the contradiction was already written and adjacent. **A task's summary FIELD
+outlives the body's corrections, because correcting the body is where the work feels
+finished** — and the field is what every listing, handover and task view renders. Frontmatter
+is a cache with no invalidation.
+
+Third instance of the class in one session (T-466 five-blockers → one; T-209 option C,
+discharged five hours after being recommended and restated as live for 24 days; this).
+Registered as **PL-171** rather than filed as a fresh one-off, so the recurrence is visible.
+
+### Prevention, not just mitigation (G-019)
+
+Annotating T-443 fixes one file and leaves the trap set everywhere else, so
+`tools/_t472-stale-trigger-field.py` sweeps all active tasks for the shape: a
+pending-flavoured `description:` over a body that records the trigger as fired. It reports,
+never gates; false positives are the expected cost of catching the one that costs a rail
+message.
+
+**Its first form scored 0 real findings out of 4 flags**, and each miss was instructive
+rather than random:
+
+| flagged | matched on | why it is noise |
+|---|---|---|
+| T-184, T-185, T-186 | `disposition: answered \| deferred \| dissolved` | template boilerplate inside an HTML comment — present in every task |
+| T-184, T-185, T-186 | `**Expected:** Decision recorded, task completed` | a Human AC's Expected clause: a statement about the *future* |
+| T-228 | "completing the note dialog **fired** the claim" | homonym — a UI claim firing, not a trigger |
+
+Tightened by stripping HTML comments and requiring the past-tense ruling sense; the four
+drop out and T-443 is correctly suppressed as already-marked. The first form of any
+instrument is a draft, which this session keeps re-learning — this time on an instrument
+built to catch exactly that.
+
+**T-472 flags itself** (its description says "still open", its body says "was answered").
+Left as-is: it is a true positive on shape, and it self-resolves — the scanner reads
+`.tasks/active/`, and this task leaves on completion.
+
+### Not done here
+
+T-443's disposition, by its own stated rule — *"if the path stays, close this with that as
+the reason"* — is **close**. It is `owner: human`; the evidence is cited for the operator
+and the task is left exactly where it is.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **The false claim is established from the record, not from memory.** DM 556 (AEF's
+      records answer) and T-449's completed state are both cited, showing §6 was answered
+      and that `PROVENANCE.md` no longer carries the one-sided block I told AEF it carries.
+- [x] **T-443's OTHER premise is re-measured on the same rail, not assumed live.** Its
+      stated trigger is "AEF answers DM 548 §5" (the rename ruling). The same staleness
+      that killed §6 may have killed §5. Answered by reading the rail, with the offset
+      cited either way — if §5 is also answered, T-443 is unblocked and mis-filed as
+      waiting on a peer.
+- [x] **The rail correction is posted before anything else is built.** Telling a
+      cooperating peer that their answer is missing when they gave it is the error with
+      the shortest useful half-life; PL-040 satisfied (latest inbound read first — no new
+      inbound since 582).
+- [x] **The carrier is fixed, not just the claim.** The error came from a frontmatter
+      `description:` that was true when written and never re-derived. Correcting only the
+      rail post leaves the same trap set for the next reader of T-443. The stale premise is
+      annotated in T-443 itself, dated, with the superseding offset.
+- [x] **The class is recorded as recurrence, not as a fresh mistake.** This is the third
+      instance in one session of a claim restated from a record whose basis had dissolved
+      (T-466 five-blockers, T-209 option C, this). It is registered against the existing
+      learning rather than filed as a new one-off, so the count is visible.
+- [x] **No ruling is made and no blocked task is started.** T-443 stays `captured`/`later`
+      whatever the §5 measurement shows; if it is unblocked, that is reported to the
+      operator, not acted on.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -100,6 +158,25 @@ two-party standard decision.
 -->
 
 ## Verification
+
+# Rail correction posted at offset 583 (retracting two claims from 582).
+#
+# Leg 3 is the regression leg for the detector's FIRST form, which scored 0/4: it matched
+# template boilerplate inside HTML comments (`disposition: answered | deferred |
+# dissolved`), a Human AC's forward-looking `**Expected:** Decision recorded`, and the
+# homonym "completing the note dialog fired the claim". Without this leg, a future
+# loosening of RESOLVED silently restores the noise that made the tool useless.
+# Leg 2 is its positive control (PL-084): a pattern tightened until it matches nothing
+# would pass leg 3 trivially.
+
+python3 tools/_t472-stale-trigger-field.py
+out=$(python3 tools/_t472-stale-trigger-field.py 2>&1); echo "$out" | grep -q 'T-443'
+out=$(python3 tools/_t472-stale-trigger-field.py 2>&1); ! echo "$out" | grep -qE 'T-18[456]|T-228'
+/usr/bin/grep -q 'STALE-FIELD MARKER 2026-08-12 (T-472)' .tasks/active/T-443-rename-fixturesaef-bpmn-as-a-v12-standar.md
+/usr/bin/grep -q 'AEF HAS RULED: KEEP THE PATH' .tasks/active/T-443-rename-fixturesaef-bpmn-as-a-v12-standar.md
+/usr/bin/grep -q '^## 5. Correction 2026-08-12 (T-472)' docs/reports/T-471-seam-repin-trigger-inventory.md
+/usr/bin/grep -q '^status: work-completed' .tasks/active/T-449-provenance-pair-draft-rows-are-two-sided.md
+git diff --quiet HEAD -- examples/aef-processes/rendered tests/fixtures/aef-bpmn
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
@@ -211,10 +288,24 @@ two-party standard decision.
 
 ## Updates
 
-### 2026-08-11T22:28:50Z — task-created [task-create-agent]
+### 2026-08-12T20:33:24Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-443-rename-fixturesaef-bpmn-as-a-v12-standar.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-472-i-told-aef-an-answered-question-was-stil.md
 - **Context:** Initial task creation
 
-### 2026-08-11T22:28:58Z — status-update [task-update-agent]
-- **Change:** horizon: now → later
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-c4f4898f
+- **Timestamp:** 2026-08-12T20:38:18Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 13
+     - evidence: `out=$(python3 tools/_t472-stale-trigger-field.py 2>&1); ! echo "$out" | grep -qE 'T-18[456]|T-228'`
+
+### 2026-08-12T20:38:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

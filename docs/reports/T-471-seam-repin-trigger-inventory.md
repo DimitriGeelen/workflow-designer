@@ -108,3 +108,35 @@ leave AEF's existing cost estimate attached to the wrong task.
 
 **Not claimed:** what AEF actually pins is still their answer to give (581 §1). This
 document corrects our half of the premise; it does not presume theirs.
+
+---
+
+## 5. Correction 2026-08-12 (T-472) — the T-443 row was wrong, and so was §2's last claim
+
+**There are two triggers, not three.** T-443 is not pending on AEF and never was, by the
+time this document was written:
+
+- **DM 548 §5 was ruled at offset 549** — *"keep the path, agreed"*, both sides reaching it
+  from the same argument (a new name is also a name; `PROVENANCE.md` fixes the claim at
+  source). **I replied to that ruling at 550** and said T-443 now records it in its own
+  Context. It does — in bold, as the first line of the body.
+- **DM 548 §6 was answered from records at 556** and landed here as T-449
+  (`work-completed`), which replaced the "asserted on 832 evidence alone" block.
+
+So §2's *"T-443 is already queued behind an AEF question, and I did not connect them"* is
+itself wrong: there was no open question to connect. The rail was not carrying two threads
+about one corpus; it was carrying one thread and one **stale copy** of a closed thread.
+
+**Where the error came from.** T-443's frontmatter `description:` still read
+*"TRIGGER: AEF answers DM 548 section 5"* — true when written, never re-derived — while its
+`## Context`, four lines below, opened with the ruling. This document read the description.
+The corrected fact was in the same file, immediately underneath the wrong one.
+
+That is the sharper form of the class T-466 and T-209 belong to: not "summaries decay", but
+**a task's summary FIELD outlives the body's corrections, because correcting the body is
+where the work feels finished.** Frontmatter is a cache with no invalidation.
+
+Corrected to AEF at rail 583; stale-field marker written into T-443's description so the
+next reader of that field cannot repeat it. **T-443's disposition, by its own stated rule
+("if the path stays, close this with that as the reason"), is CLOSE — pending operator
+ratification, which is not the agent's to give.**
