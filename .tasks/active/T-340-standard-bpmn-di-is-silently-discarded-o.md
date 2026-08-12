@@ -11,12 +11,13 @@ horizon: now
 tags: []
 components: []
 related_tasks: []
+arc_id: designer-authoring-surface
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T10:39:05Z
-last_update: 2026-08-10T18:41:27Z
+last_update: 2026-08-12T19:40:09Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -548,3 +549,6 @@ assumption rather than asserted as an oversight.
 
 ### 2026-08-03T12:04:46Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-08-12T19:40:09Z — status-update [task-update-agent]
+- **Change:** tags: +arc:designer-authoring-surface
