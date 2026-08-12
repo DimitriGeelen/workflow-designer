@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T10:59:28Z
-last_update: 2026-08-12T11:00:37Z
+last_update: 2026-08-12T11:00:39Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -39,9 +39,21 @@ date_finished: null
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] Each of the 14 carries a `## Recommendation` block with a parseable verdict
+      (GO / NO-GO / DEFER) and **cited evidence** — a file that exists, an endpoint that
+      responds, a command whose output is quoted. No verdict without evidence, per
+      CLAUDE.md §Human Task Completion Rule
+- [ ] The four arc blockers (T-340, T-341, T-358, T-209) are done FIRST and each states
+      explicitly what the operator's `[REVIEW]` ruling would unblock, since their Agent
+      ACs are marked BLOCKED pending it
+- [ ] Every DEFER carries a `revisit_at` date — a DEFER without one is invisible to the
+      G-053 daily scan and is how T-155 ended up parked with nothing to fire on
+- [ ] `python3 tools/_norec-verify.py` returns rc 0 with a line naming the scope, and the
+      scope shows 32-or-more with pending Human ACs — i.e. the queue is CLEAN, not EMPTY.
+      An rc 0 whose `with pending Human ACs` count has *fallen* means tasks were closed
+      rather than given verdicts, which is the opposite of the deliverable
+- [ ] No `### Human` AC is ticked and no task is closed by this work — writing the
+      recommendation is the agent's half; ruling on it is the operator's
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
