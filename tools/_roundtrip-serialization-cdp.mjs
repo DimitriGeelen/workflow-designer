@@ -69,12 +69,30 @@ const PREFLIGHT_EXPR = `(function(){
     // long note there for why aef:io is deliberately absent from both.
     'contextReads','artifactsWrites','decisionInput','decisionOutputs',
     'workflowRef','name','targetWorkflow','linkId'];
+  // T-483: structured values, kept in step with the guard copy below. See the long note
+  // there for why these must NOT go into METAKEYS (String() on a dict is the constant
+  // "[object Object]" — coverage in the output, blindness in the behaviour).
+  var STRUCTKEYS = ['emits','compensates','aggregation','multiInstance','timer','constituents'];
+  function canon(v){
+    if(v===null || typeof v!=='object') return v;
+    if(Object.prototype.toString.call(v)==='[object Array]') return v.map(canon);
+    var o={}; Object.keys(v).sort().forEach(function(k){ o[k]=canon(v[k]); });
+    return o;
+  }
+  function structOf(n){
+    var aef=n.aef||{}, s={};
+    STRUCTKEYS.forEach(function(k){ if(aef[k]!=null) s[k]=canon(aef[k]); });
+    var io=n.io||{};
+    var ins=io.inputs||[], outs=io.outputs||[];
+    if(ins.length||outs.length) s.io={ inputs:canon(ins), outputs:canon(outs) };
+    return s;
+  }
   function proj(m){
     if(!m) return null;
     var uidOf={}; m.nodes.forEach(function(n){ uidOf[n.id]=n.uid; });
     var nodes=m.nodes.map(function(n){ var aef=n.aef||{},meta={};
       METAKEYS.forEach(function(k){ if(aef[k]!=null&&aef[k]!=='') meta[k]=String(aef[k]); });
-      return {uid:n.uid,meta:meta}; }).sort(function(a,b){return a.uid<b.uid?-1:a.uid>b.uid?1:0;});
+      return {uid:n.uid,meta:meta,struct:structOf(n)}; }).sort(function(a,b){return a.uid<b.uid?-1:a.uid>b.uid?1:0;});
     return JSON.stringify(nodes);
   }
   try{
@@ -148,6 +166,40 @@ const ROUNDTRIP_EXPR = `(function(){
     // host uid) and interrupting (cancelActivity) must survive the fixed point. boundaryPos
     // is presentational (like position/waypoints) and is deliberately NOT projected.
     'hostRef','interrupting'];
+  // T-483: the STRUCTURED semantic values. These are NOT scalars and must never be added
+  // to METAKEYS. The projection body there is String(aef[k]), and for these members that
+  // is actively worse than leaving them out:
+  //   array-valued (emits, compensates, constituents) -> comma-joined, ambiguous
+  //   dict-valued  (aggregation, multiInstance, timer) -> the CONSTANT "[object Object]"
+  // A dict projected through String() sits in the output looking like coverage while
+  // comparing equal to itself for every possible mutation. Absent is a known gap; that is
+  // a gap that reports itself as closed. T-483 AC4 falsifies this explicitly rather than
+  // asserting it.
+  var STRUCTKEYS = ['emits','compensates','aggregation','multiInstance','timer','constituents'];
+  // Key-order-independent. projEqual compares JSON.stringify output, so without canon() a
+  // pure attribute-order difference would read as semantic drift.
+  function canon(v){
+    if(v===null || typeof v!=='object') return v;
+    if(Object.prototype.toString.call(v)==='[object Array]') return v.map(canon);
+    var o={}; Object.keys(v).sort().forEach(function(k){ o[k]=canon(v[k]); });
+    return o;
+  }
+  // io is a SIBLING of aef on the node (node.io), not an aef key at all — a third shape
+  // beyond scalar and structured-aef. Parsed at src:10029-10044, emitted at src:9337-9345.
+  //
+  // Deliberately NOT mirroring the emitter's name-filter (src:9263-9264) here.
+  // Filtering both sides to what the emitter keeps would restrict the comparison to what
+  // already survives, which is exactly the trap PL-031 names: the guard stops being able
+  // to see a class of loss because it adopted the lossy step's own definition of content.
+  // If a nameless io entry exists in the corpus it SHOULD surface as drift and get a task.
+  function structOf(n){
+    var aef=n.aef||{}, s={};
+    STRUCTKEYS.forEach(function(k){ if(aef[k]!=null) s[k]=canon(aef[k]); });
+    var io=n.io||{};
+    var ins=io.inputs||[], outs=io.outputs||[];
+    if(ins.length||outs.length) s.io={ inputs:canon(ins), outputs:canon(outs) };
+    return s;
+  }
   function proj(m){
     if(!m) return null;
     var laneAuth = {}; (m.lanes||[]).forEach(function(l){ laneAuth[l.id]=l.authority; });
@@ -155,7 +207,8 @@ const ROUNDTRIP_EXPR = `(function(){
     var nodes = m.nodes.map(function(n){
       var aef=n.aef||{}, meta={};
       METAKEYS.forEach(function(k){ if(aef[k]!=null && aef[k]!=='') meta[k]=String(aef[k]); });
-      return { uid:n.uid, type:n.type, name:(n.name==null?'':n.name), lane:laneAuth[n.lane]||null, meta:meta };
+      return { uid:n.uid, type:n.type, name:(n.name==null?'':n.name), lane:laneAuth[n.lane]||null,
+               meta:meta, struct:structOf(n) };
     }).sort(function(a,b){ return a.uid<b.uid?-1:a.uid>b.uid?1:0; });
     var edges = m.edges.map(function(e){
       return { uid:(e.uid==null?'':e.uid), src:uidOf[e.source]||e.source, tgt:uidOf[e.target]||e.target,

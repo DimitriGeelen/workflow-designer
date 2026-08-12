@@ -1,0 +1,77 @@
+# ============================================================================
+# EPISODIC MEMORY - T-483: Structured round-trip projection for the seven non-scalar semantic values (filed as aef:io alone; the census found seven)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-12T23:07:41Z
+# ============================================================================
+
+task_id: T-483
+task_name: "Structured round-trip projection for the seven non-scalar semantic values (filed as aef:io alone; the census found seven)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T22:59:02Z
+completed: 2026-08-12T23:07:34Z
+duration_days: 0
+updates_count: 3
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'AC1 — Census of the STRUCTURED (non-scalar) values the round-trip fixed point does'
+  - 'AC2 — Each structured value is projected by a projection that VARIES WITH ITS'
+  - 'AC3 — Projected in BOTH copies of the harness list/projection in'
+  - 'AC4 — The naive fix is falsified explicitly: a run projecting a dict-valued member'
+  - 'AC5 — Every structured value with a non-zero corpus population is falsified both'
+  - 'AC6 — Projecting more does not turn the EXISTING guard red on the current corpus. If'
+  - 'AC7 — The T-482 leg asserting `''io'',` is ABSENT from the list is REPLACED by a leg'
+  - 'AC8 — Zero bytes moved outside `tools/`: `git diff` empty on `src/`,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 8 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 8
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-483-structured-round-trip-projection-for-aef.md
+generated_by: context-agent-hybrid

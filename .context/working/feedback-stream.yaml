@@ -5831,3 +5831,21 @@ scan_id: R-48e522a3
 task_id: T-482
 payload:
   task_file: .tasks/active/T-482-project-the-six-remaining-structured-sem.md
+---
+kind: scan_emitted
+timestamp: '2026-08-12T23:07:38Z'
+scan_id: R-16541266
+task_id: T-483
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-12T23:07:38Z'
+scan_id: R-16541266
+task_id: T-483
+payload:
+  task_file: .tasks/active/T-483-structured-round-trip-projection-for-aef.md
