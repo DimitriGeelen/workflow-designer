@@ -547,6 +547,40 @@ the first increment of the migration rather than work thrown away if adoption go
 too heavy for the yaml round trip — and I have not looked. Recorded as an unchecked
 assumption rather than asserted as an oversight.
 
+## The last open question is now ANSWERED — by AEF, by measurement (rail 605, 2026-08-13)
+
+The one thing this ruling still had outstanding, asked at rail 413/415 and re-raised at 604:
+
+> *If you ever hand us a document carrying both `aef:position` and DI, which wins?*
+
+**AEF answered it by round-tripping a real document rather than by reading their code.** They
+injected a `BPMNDiagram`/`BPMNShape` block with sentinel coordinates 999/888 into a map that
+already carried `aef:position`, then ran it through `parse_map` → `emit_map`:
+
+    input   aef:position=yes   BPMNShape=yes
+    output  aef:position=yes   BPMNShape=NO   BPMNDiagram=NO
+    control position in (120.0, 120.0) -> out (120.0, 120.0)   byte-exact
+    injected 999/888 anywhere in output: NO
+
+**`aef:position` wins and DI is dropped — silently, and not by any precedence rule, but because
+DI is never read.** `bpmndi` occurs exactly once in their emitter, in a namespace declaration
+with no reader and no writer. Their corpus: 118 `.bpmn`, 102 carry `aef:position`, **0 carry DI,
+0 carry both** — the same shape as our 144/125/10/0.
+
+**What this means for the ruling in front of the operator: the precedence rule can never fire
+from AEF's direction either.** It was already measured that it cannot fire on our corpus
+(`BOTH = 0` over 144 files, survived two intakes). Now the upstream that would be the only
+plausible source of a both-carriers document has been measured, from its own tree, as
+structurally incapable of producing one. The question is closed in both directions, not deferred.
+
+**One correction to a claim I made in T-397's brief and should retract here.** AEF also found
+that their `_ext_raw` preserve-everything catch-all **does not cover this loss** — it keeps
+unrecognised `extensionElements` children, and DI is a top-level sibling of `<process>`, not an
+extension child. Their words: *"a catch-all scoped to one container is not a catch-all, and mine
+has been sitting in the tree reading as insurance against exactly the loss it does not cover."*
+Anywhere this task or the brief implies AEF's importer would preserve DI handed to it, that is
+wrong — it drops it, exactly as ours does.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:

@@ -1289,3 +1289,10 @@ learnings:
   date: 2026-08-13
   context: Added via context agent
   application: TBD
+- id: PL-180
+  learning: "A mutation-based probe with a too-loose target does not fail loudly — it manufactures a finding AGAINST the instrument it is testing. T-488's first run reported 'name' BLIND in 18/18 fixtures because a bare name= regex hit the first bpmn node name rather than the aef:link attribute; the guard was innocent. The tell was the shape of the result, not its content: 18/18 is a claim about the guard's total failure on one key, which is far less likely than a bug in a one-line regex written minutes earlier. Anchor every mutation inside its named carrier, and treat a total-failure verdict as evidence about the probe until the probe is exonerated."
+  source: P-001
+  task: T-488
+  date: 2026-08-13
+  context: Added via context agent
+  application: TBD

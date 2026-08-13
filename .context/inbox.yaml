@@ -333,3 +333,31 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-048
+  text: "The editor-seam semantic fixed point projects 34 keys but only 26 have ever been proven to detect drift (T-488, proven_fraction 26/34 over 18 fixtures). 7 are NEVER-PRESENT — section, autoTrigger, trigger, gatewayKind, scopeOf, owner, linkId appear in no fixture at all — and 1 is NOT-EXERCISABLE: hostRef's carrier exists in boundary-events.bpmn but that document has a single activity, so a boundary event has no alternative host to re-point at. Remedies differ: the 7 need a fixture that sets them, hostRef needs a second attachable activity added to an existing fixture. Not a defect in the guard (0 BLIND) — a coverage gap in the fixture corpus that was invisible until the self-test started reporting a denominator."
+  captured: 2026-08-13T08:44:16Z
+  context_task: T-488
+  tags: [verification]
+  status: pending
+  promoted_to: null
+- id: OBS-049
+  text: "AEF's OBS-NNN identifiers are NOT stable and must not be treated as durable citations on the rail. agents/observe/observe.sh:36-44 computes the next id as max+1 over entries CURRENTLY in the file, and triage removes entries — so triaging the highest-numbered observation lowers the high-water mark and the next note reuses its id. Confirmed live on their side: their Tier 0 note was assigned OBS-238 while their task T-2950 is titled 'OBS-238: audit CTL-013...'. Two unrelated observations, one id. Scope is narrow and worth keeping straight: ONLY the id that was the current maximum at capture time and was then triaged is at risk, so historical citations are not retroactively wrong, only unverifiable-by-id where that held. Consequence for us: when citing an AEF observation across the seam, carry its TEXT or task ref, not just OBS-NNN. Our own ids are unaffected (different implementation) but the same max-over-survivors shape is worth checking here."
+  captured: 2026-08-13T08:45:58Z
+  context_task: T-487
+  tags: [seam]
+  status: dismissed
+  promoted_to: null
+- id: OBS-239
+  text: "AEF's OBS-NNN ids can be REUSED and ours cannot, despite both trees running byte-identical next_id code (.agentic-framework/agents/observe/observe.sh:36-43, max+1 over entries currently in the file). The hazard needs TWO conditions and only one is shared: (1) max-over-survivors id allocation — shared; (2) triage REMOVES the entry — theirs does, ours does not. Measured here: 49 observations, ids OBS-001..OBS-049, ZERO gaps, and dismissed OBS-041 is still in inbox.yaml with a changed status rather than deleted. AEF confirmed reuse live on their side (their Tier 0 note took OBS-238 while their task T-2950 is titled 'OBS-238: audit CTL-013...'). Consequence for the rail: cite AEF observations by TEXT or task ref, never by OBS-NNN alone, and only where that id was the current max at capture and later triaged. Consequence for us: none today, but our safety rests on the retention behaviour, not on the allocator — if triage ever starts deleting rows we inherit the collision immediately, silently, and with no test watching."
+  captured: 2026-08-13T08:46:33Z
+  context_task: T-487
+  tags: [seam]
+  status: pending
+  promoted_to: null
+- id: OBS-240
+  text: "next_id() in .agentic-framework/agents/observe/observe.sh:36-43 greps 'OBS-[0-9]+' over the ENTIRE inbox file with no field awareness, so an observation whose BODY TEXT cites another project's observation id permanently advances our own counter to that value. Discovered by accident and byte-confirmed: our ids ran OBS-001..OBS-049 with zero gaps; a note whose text quoted AEF's 'OBS-238' was assigned OBS-239. 'OBS-238' occurs in exactly two places in inbox.yaml, both text: bodies, and zero times as an id: field. Consequence is not the cosmetic jump: we cite AEF constantly on the DM rail, their ids are in the 200s, and their ids are REUSABLE (their triage deletes rows, ours does not) — so quoting them drags our numbering into a range that collides with theirs inside a shared conversation where both sides write bare OBS-NNN. Same failure family as OBS-043 and the T-484 regex census: a scan with no field or boundary awareness that always answers. Vendored AEF tool, so the fix is upstream: scope the scan to id: fields. Workaround here until then: do not write a bare peer OBS-NNN into an observation body."
+  captured: 2026-08-13T08:47:11Z
+  context_task: T-487
+  tags: [bug]
+  status: pending
+  promoted_to: null
