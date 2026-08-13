@@ -361,3 +361,24 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-241
+  text: "add"
+  captured: 2026-08-13T11:47:57Z
+  context_task: T-490
+  tags: []
+  status: dismissed
+  promoted_to: null
+- id: OBS-242
+  text: "Our only true semantic fixed-point guard across the editor seam (tools/_roundtrip-serialization-cdp.mjs) was invoked by NO test runner. Written for T-187, sharpened by T-480/T-482/T-483, rebuilt by T-488, extended by T-489 — every green it ever produced was a hand-run invocation that expired with the session. Three tasks in two days reported results from it and none noticed; I stated in a handover and on the AEF rail that it was wired at run-bridge-tests.sh:603, which is a DIFFERENT probe (_t338-input-fidelity-cdp.mjs). The tell was available throughout: every defect ever found in it was found by an agent READING the file, never by the file failing. PL-161 names the shape. Wired into the suite by T-490 as leg 72. Open generalisation: how many other tools/_*-cdp.mjs probes are cited as standing evidence but invoked by no runner?"
+  captured: 2026-08-13T11:48:35Z
+  context_task: T-490
+  tags: []
+  status: pending
+  promoted_to: null
+- id: OBS-243
+  text: "fw note swallows extra positional arguments silently. 'fw note add \"real text\"' captured the literal word add as the observation body and discarded the real text with no warning and exit 0 — the usage is 'fw note \"text\"' with no subcommand, and 'add' is a plausible guess because every sibling command (fw context add-learning, fw task create) takes a verb. The failure is silent and the artifact looks successful: an id is allocated and reported, so the capture reads as done. Cost is a lost observation that nobody knows is lost. Fix: error on unconsumed positional args rather than taking the first as the body. Vendored-framework fix (G-008 upstreamable)."
+  captured: 2026-08-13T11:48:50Z
+  context_task: T-490
+  tags: []
+  status: pending
+  promoted_to: null

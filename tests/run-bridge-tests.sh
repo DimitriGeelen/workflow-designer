@@ -608,6 +608,29 @@ else
 fi
 
 echo
+echo "== Editor seam is a semantic fixed point, per-key (T-187/T-488/T-489/T-490, G-002) =="
+# This is the tree's ONLY true semantic round trip through the real editor runtime
+# (parse→emit→parse→emit, asserting proj(m1)===proj(m2)), and until T-490 it ran in no
+# suite at all. It was written for T-187, sharpened by T-480/T-482/T-483, rebuilt by
+# T-488 and extended by T-489 — every one of those a hand-run invocation whose green
+# expired the moment the session ended. PL-161 names the shape: a probe that only ever
+# runs when someone remembers it is a completion-gate artifact, not a guard. The tell was
+# that its own inbox entries (OBS on the `break`, on the divergent METAKEYS copies) were
+# written by agents reading the file, never by the file failing.
+#
+# It carries its own negative controls and refuses to publish a verdict when they do not
+# hold, so a green here is not vacuous. Three gated conditions: the denominator is DERIVED
+# from the emitter and must have no orphans (T-490), no projected key may survive mutation
+# of its own wire carrier without moving the projection (BLIND), and at least one key must
+# actually be exercised (PL-084 — zero LIVE is vacuity, not safety).
+if node "$ROOT/tools/_roundtrip-serialization-cdp.mjs" > /dev/null; then
+  pass=$((pass + 1))
+else
+  report FAIL "the editor↔bridge semantic fixed point broke, or the guard's key denominator no longer matches what the emitter projects (T-490: an emitter-projected key outside KEYSPEC makes the coverage fraction a claim about the list, not the seam — run 'node tools/_roundtrip-serialization-cdp.mjs' and read denominator.problems)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Lane-origin partition is total and separable (T-358) =="
 # The import-loss instruments above all measure SUBTRACTION — content that went in
 # and did not come out. This measures the opposite direction: structure that comes

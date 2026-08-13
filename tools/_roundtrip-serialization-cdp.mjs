@@ -112,6 +112,12 @@ const KEYSPEC = [
   // aef element — boundaryPos is the only cosmetic fraction that needs one, and it is
   // deliberately not projected (presentational).
   { k: 'hostRef',         shape: 'attachedref' }, { k: 'interrupting',    shape: 'cancelact' },
+  // T-490: the T-259 preservation passthrough (src:9318-9325). These two were not excluded from
+  // this list — they were simply never in it, which is the distinction the whole task turns on.
+  // An exclusion with a reason is a decision; an absence is a hole, and this one was wearing
+  // "34/34" as if it were a total. eventDefBinding shares the eventbind carrier and is separated
+  // from the trio the same way they are separated from each other: by which key actually moved.
+  { k: 'eventDefKind',    shape: 'eventkind'   }, { k: 'eventDefBinding', shape: 'eventbind' },
 ];
 const METAKEYS = KEYSPEC.map(s => s.k);
 // T-483: the STRUCTURED semantic values. These must NEVER be added to METAKEYS. The scalar
@@ -124,6 +130,102 @@ const STRUCTKEYS = ['emits', 'compensates', 'aggregation', 'multiInstance', 'tim
 // (src:9337-9345) and there is no aef.io scalar, so listing it in METAKEYS would read as coverage
 // while the projection body skipped it as undefined — a green that cannot go red. It is projected
 // structurally by structOf() instead.
+
+// ── T-490: the denominator is DERIVED, not asserted ─────────────────────────────────────────
+// KEYSPEC above is a list I typed by reading the emitter. So was AEF's `_KNOWN_EXT`; so were the
+// two METAKEYS copies T-488 found already divergent by five keys (OBS-045). A hand-typed list can
+// only ever be checked by the person who typed it re-reading the same source, which is the one
+// check guaranteed to reproduce the original omission. `proven_fraction: 34/34` was true of the
+// 34 and silent about whether 34 was the total; eventDefKind/eventDefBinding were outside it.
+//
+// This derives the emitter's projected-scalar set FROM THE EMITTER and fails on any identifier
+// that is in neither KEYSPEC nor a documented exclusion. Anchored on the function NAME
+// (aefExtensionXml, src:9259) rather than a line range, because a range that silently slides off
+// its subject is the same failure one level up: a check that scans the wrong region reports clean.
+//
+// EXCLUSIONS ARE DATA AND CARRY A REASON. A bare name with an empty reason fails the check — the
+// point is that removing a key from coverage has to cost a sentence, so it stays a decision
+// instead of decaying into an absence.
+const SRC_HTML = join(REPO, 'src', 'aef-workflow-designer.html');
+const PROJECTION_FN = 'aefExtensionXml';
+const EXCLUDED = {
+  emits:         'STRUCTURED (T-483): array/dict-valued, String() gives "[object Object]" which compares equal to itself for every mutation — covered structurally by structOf(), not as a scalar',
+  compensates:   'STRUCTURED (T-483): as emits',
+  aggregation:   'STRUCTURED (T-483): as emits',
+  multiInstance: 'STRUCTURED (T-483): as emits',
+  timer:         'STRUCTURED (T-483): as emits',
+  constituents:  'STRUCTURED (T-483): as emits',
+  boundaryPos:   'PRESENTATIONAL (v1 §1, like aef:position): the cosmetic perimeter fraction, deliberately outside the semantic projection this guard is a fixed point over',
+};
+// Computed accesses — aef[<var>] — cannot be read as literal keys. Each must name the source it
+// iterates, so a new computed access cannot enter the emitter unnoticed by reading as a variable.
+const COMPUTED_SOURCES = {
+  k:         'metaKeys',            // metaAttrs .map over the metaKeys literal
+  key:       'metaKeys',
+  bindField: 'EVENT_BINDING_FIELD', // typed-event binding field, chosen by node type
+};
+function deriveProjectedKeys() {
+  const html = readFileSync(SRC_HTML, 'utf8').split('\n');
+  const start = html.findIndex(l => l.startsWith(`function ${PROJECTION_FN}(`));
+  if (start < 0) throw new Error(`denominator: ${PROJECTION_FN} not found in ${SRC_HTML} — the anchor moved, fix the anchor rather than the expectation`);
+  let end = -1;
+  for (let i = start + 1; i < html.length; i++) if (html[i] === '}') { end = i; break; }
+  if (end < 0) throw new Error(`denominator: no column-0 close for ${PROJECTION_FN}`);
+  const body = html.slice(start, end + 1).join('\n');
+
+  const dot = new Set([...body.matchAll(/aef\.([A-Za-z_][A-Za-z0-9_]*)/g)].map(m => m[1]));
+  const computed = new Set([...body.matchAll(/aef\[([A-Za-z_][A-Za-z0-9_]*)\]/g)].map(m => m[1]));
+
+  // The metaKeys array literal, read from the emitter rather than re-typed.
+  const mk = /const metaKeys\s*=\s*\[([\s\S]*?)\]/.exec(body);
+  if (!mk) throw new Error('denominator: metaKeys literal not found inside ' + PROJECTION_FN);
+  const metaKeys = [...mk[1].matchAll(/'([A-Za-z_][A-Za-z0-9_]*)'/g)].map(m => m[1]);
+
+  // EVENT_BINDING_FIELD lives just above the function; its VALUES are projected keys.
+  const ebf = /const EVENT_BINDING_FIELD\s*=\s*\{([^}]*)\}/.exec(readFileSync(SRC_HTML, 'utf8'));
+  if (!ebf) throw new Error('denominator: EVENT_BINDING_FIELD not found');
+  const bindFields = [...ebf[1].matchAll(/:\s*'([A-Za-z_][A-Za-z0-9_]*)'/g)].map(m => m[1]);
+
+  return { dot, computed, metaKeys, bindFields };
+}
+// hostRef / interrupting are NOT aef.* accesses — they ride native bpmn:boundaryEvent attributes
+// emitted in buildBpmnXml (src:9643). Assert the mechanism still exists, so if the emitter stops
+// writing them the denominator notices instead of the pair quietly becoming NEVER-PRESENT.
+const NATIVE_KEYS = { hostRef: 'attachedToRef="', interrupting: 'cancelActivity="' };
+function checkDenominator() {
+  const { dot, computed, metaKeys, bindFields } = deriveProjectedKeys();
+  const covered = new Set(METAKEYS);
+  const problems = [];
+
+  for (const [name, reason] of Object.entries(EXCLUDED))
+    if (!reason || !reason.trim()) problems.push(`exclusion "${name}" has no reason — an exclusion without a reason is an absence wearing a decision's clothes`);
+  for (const name of Object.keys(EXCLUDED))
+    if (covered.has(name)) problems.push(`"${name}" is both in KEYSPEC and in EXCLUDED — one of the two is wrong`);
+
+  const projected = new Set([...dot, ...metaKeys, ...bindFields]);
+  for (const v of computed) {
+    if (!COMPUTED_SOURCES[v]) { problems.push(`aef[${v}] is a computed access with no declared source — add it to COMPUTED_SOURCES naming the list it iterates`); continue; }
+    projected.delete(v); // the variable itself is not a key
+  }
+  for (const v of Object.keys(COMPUTED_SOURCES)) projected.delete(v);
+
+  const orphans = [...projected].filter(k => !covered.has(k) && !(k in EXCLUDED)).sort();
+  if (orphans.length) problems.push(`${orphans.length} emitter-projected key(s) in NEITHER KEYSPEC nor EXCLUDED: ${orphans.join(', ')}`);
+
+  const srcAll = readFileSync(SRC_HTML, 'utf8');
+  for (const [k, needle] of Object.entries(NATIVE_KEYS)) {
+    if (!covered.has(k)) problems.push(`native key "${k}" missing from KEYSPEC`);
+    if (!srcAll.includes(needle)) problems.push(`native key "${k}": emitter no longer writes ${needle} — carrier changed, KEYSPEC shape is stale`);
+  }
+  // Total = everything the emitter projects, minus reasoned exclusions, plus the native pair.
+  const total = new Set([...projected].filter(k => !(k in EXCLUDED)));
+  for (const k of Object.keys(NATIVE_KEYS)) total.add(k);
+  const missingFromSpec = [...total].filter(k => !covered.has(k)).sort();
+  const specNotProjected = [...covered].filter(k => !total.has(k)).sort();
+  if (specNotProjected.length) problems.push(`KEYSPEC contains key(s) the emitter does not project: ${specNotProjected.join(', ')} — dead coverage reads as real coverage`);
+
+  return { problems, derivedTotal: total.size, missingFromSpec, orphans, specSize: covered.size };
+}
 
 // Self-test: perturb EVERY projected key in its own wire form and confirm the projection
 // comparison detects each drift. Proves the guard bites per key — a green that cannot go red is
@@ -232,6 +334,22 @@ const PREFLIGHT_EXPR = `(function(){
       // document with TWO attachable hosts, not a document with boundary events.
       if(!ids.length) return {unexercisable:'boundaryEvent present but no alternative host activity to re-point at'};
       return xml.slice(0,m.index)+m[0].replace('attachedToRef="'+m[1]+'"','attachedToRef="'+ids[0]+'"')+xml.slice(m.index+m[0].length);
+    }
+    if(spec.shape==='eventkind'){
+      // kind= on aef:eventDef. Sentinel rather than another VALID kind, deliberately: an
+      // error->timer swap keeps the eventDef CONSUMED by the typed-catch override (src:9994), so
+      // the value lands in errorStatus/timerSpec and this key never moves — DRIFT-ELSEWHERE, and
+      // a reader would wrongly conclude kind= is not load-bearing. An unmappable sentinel leaves
+      // the eventDef unconsumed, which is exactly the passthrough branch these two keys exist
+      // for. Note what that means for the verdict: this proves kind= is load-bearing across the
+      // round trip, which is the guard's job, NOT that a genuinely-unconsumed eventDef survives
+      // faithfully. The corpus has no start/throw carrier to ask that second question of.
+      var out=[],rx=/<aef:eventDef\\s[^>]*kind="[^"]*"[^>]*\\/>/g,g;
+      while((g=rx.exec(xml))!==null){
+        var one=g[0].replace(/(kind=")([^"]*)(")/,'$1'+MARK+'$3');
+        if(one!==g[0]) out.push(xml.slice(0,g.index)+one+xml.slice(g.index+g[0].length));
+      }
+      return out.length?out:null;
     }
     if(spec.shape==='cancelact'){
       // Boolean carrier: a sentinel string would not be a legal value, so FLIP it.
@@ -368,6 +486,23 @@ async function main() {
   const fixtures = readdirSync(FIXturesDir).filter(f => f.endsWith('.bpmn')).sort();
   if (!fixtures.length) { process.stdout.write(JSON.stringify({ pass: false, error: 'no *.bpmn fixtures in ' + FIXturesDir }) + '\n'); process.exitCode = 1; return; }
 
+  // T-490: derive the denominator BEFORE spending a browser on the self-test. This is a pure
+  // static check against the emitter, and it answers the question the self-test cannot ask of
+  // itself — whether the list it exercises is the whole list. Failing here rather than after a
+  // green run matters: a coverage number published alongside a known-incomplete denominator is
+  // worse than no number, because it is the number a reader will quote.
+  let DENOM;
+  try { DENOM = checkDenominator(); }
+  catch (e) { process.stdout.write(JSON.stringify({ pass: false, denominator_failed: true, error: 'denominator derivation threw: ' + (e && e.message || e) }, null, 2) + '\n'); process.exitCode = 2; return; }
+  if (DENOM.problems.length) {
+    process.stdout.write(JSON.stringify({
+      pass: false, denominator_failed: true,
+      error: 'the emitter projects keys this guard does not cover — "N/N" would be a claim about the list, not about the seam',
+      denominator: DENOM,
+    }, null, 2) + '\n');
+    process.exitCode = 2; return;
+  }
+
   const doc = mkdtempSync(join(tmpdir(), 'rt-doc-'));
   const repo = mkdtempSync(join(tmpdir(), 'rt-repo-'));
   copyFileSync(join(REPO, 'src/aef-workflow-designer.html'), join(doc, 'designer.html'));
@@ -443,7 +578,13 @@ async function main() {
     selftest.controls.held = selftest.controls.positive_tier_expected_LIVE === 'LIVE'
       && selftest.controls.negative_synthetic_expected_ABSENT === 'ABSENT';
     selftest.summary = `${selftest.keys_total} keys / ${selftest.live.length} LIVE / ${selftest.blind.length} BLIND / ${selftest.drift_elsewhere.length} DRIFT-ELSEWHERE / ${selftest.not_exercisable.length} NOT-EXERCISABLE / ${selftest.never_present.length} NEVER-PRESENT over ${selftest.fixtures_exercised} fixtures`;
-    selftest.proven_fraction = `${selftest.live.length}/${selftest.keys_total}`;
+    // T-490: the fraction's DENOMINATOR is the emitter's derived total, not KEYSPEC's length.
+    // Reporting live/keys_total made the number self-referential — it could only ever describe
+    // the list it was computed from, so a key missing from that list was invisible to the very
+    // ratio meant to express coverage. If the two disagree, the derived total is the honest one
+    // and the disagreement is itself the finding.
+    selftest.denominator = DENOM;
+    selftest.proven_fraction = `${selftest.live.length}/${selftest.denominator.derivedTotal ?? selftest.keys_total}`;
     verdict.selftest = selftest;
     // PL-084: a clean result over an empty population is vacuity, not safety. Zero LIVE keys
     // means the self-test proved nothing at all, however green everything downstream looks.

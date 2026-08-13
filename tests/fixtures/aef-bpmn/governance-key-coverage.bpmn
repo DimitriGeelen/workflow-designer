@@ -110,6 +110,21 @@
         <aef:uid value="k_lnk"/>
         <aef:position x="780.0" y="140.0"/>
         <aef:link linkId="cov-link-1"/>
+        <!-- T-490: an UNCONSUMED aef:eventDef. The typed-catch override (src:9994) consumes an
+             eventDef only on a catch host; this is a THROW host, so it falls to the T-259
+             preservation passthrough and lands in aef.eventDefKind / aef.eventDefBinding.
+
+             It is here because those two keys were outside the round-trip guard's key list
+             entirely — not excluded, absent — and once added they classified DRIFT-ELSEWHERE in
+             every document: all 7 eventDef carriers in the corpus are catch/boundary hosts, so
+             the binding always moved errorStatus/timerSpec/busTopic and never the passthrough
+             field. DRIFT-ELSEWHERE sends a reader to fix the mutation regex, which would never
+             have worked. The corpus simply could not pose the question.
+
+             This is also the shape the T-259 defect was about: rail-201 reported a layout-only
+             open→save silently destroying start/throw typed-event semantics. Until now nothing
+             in the corpus exercised the fix for it. -->
+        <aef:eventDef kind="message" binding="bus:cov-throw"/>
       </bpmn:extensionElements>
       <bpmn:incoming>kflow_4</bpmn:incoming>
       <bpmn:outgoing>kflow_5</bpmn:outgoing>
