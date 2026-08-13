@@ -1,22 +1,22 @@
 === Handover Agent ===
-Session: S-2026-0808-2041
-Timestamp: 2026-08-08T18:41:44Z
+Session: S-2026-0813-1006
+Timestamp: 2026-08-13T08:06:37Z
 
 Gathering state...
 
 Checking episodic completeness...
 ✓ All recent completed tasks have enriched episodics
-Observation inbox: 3 pending
+Observation inbox: 12 pending
   Run: cd /opt/832-Workflow-designer && fw note triage
-Concerns register: 20 watching
-Session metrics extracted: 35362 turns, 963 commits, 964 errors, 942 edit bursts
-  Cumulative — CPT: 0.0272 | FTC rate: 0.056 | PTR: 0.3217
-  Per-session (20 turns) — CPT: 0.0 | FTC rate: 0.0909 | PTR: 0.3
+Concerns register: 30 watching
+Session metrics extracted: 42428 turns, 1179 commits, 1204 errors, 1099 edit bursts
+  Cumulative — CPT: 0.0278 | FTC rate: 0.0573 | PTR: 0.3352
+  Per-session (0 turns) — CPT: 0 | FTC rate: 0 | PTR: 0
   Output: /opt/832-Workflow-designer/.context/working/.session-metrics.yaml
 Creating handover document...
 
 === Handover Created ===
-File: /opt/832-Workflow-designer/.context/handovers/S-2026-0808-2041.md
+File: /opt/832-Workflow-designer/.context/handovers/S-2026-0813-1006.md
 Latest: /opt/832-Workflow-designer/.context/handovers/LATEST.md
 
 Auto-committing handover...
@@ -25,15 +25,69 @@ WARNING: Task T-005 is closed (in .tasks/completed/)
   Consider: create a new task, or reopen this one.
   Commit allowed (Tier 1 warning).
 
-[master f18ad6ec] T-005: Session handover S-2026-0808-2041
- 2 files changed, 481 insertions(+), 1 deletion(-)
- create mode 100644 .context/handovers/S-2026-0808-2041.md
+[master c7e16830] T-005: Session handover S-2026-0813-1006
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
 Pushing to remotes...
-ssh: connect to host 192.168.10.201 port 6611: No route to host
-fatal: Could not read from remote repository.
 
-Please make sure you have the correct access rights
-and the repository exists.
-  WARNING: Push to origin failed (non-blocking)
-Some pushes failed. Run 'git push' manually after resolving.
+=== Pre-Push Audit Check ===
+
+=== AUDIT REPORT ===
+Timestamp: 2026-08-13T10:06:51+02:00
+Project: /opt/832-Workflow-designer
+Sections: structure
+
+=== STRUCTURE CHECKS ===
+[PASS] Tasks directory exists
+[PASS] Tasks/active directory exists
+[PASS] Tasks/completed directory exists
+[PASS] Tasks/templates directory exists
+[PASS] Task template exists
+[PASS] No duplicate task IDs across active/ and completed/
+[PASS] All 10 project YAML files parse correctly
+[PASS] All 1 arc anchor_task references resolve to existing tasks
+[PASS] All 1 in-progress arc(s) had task commits within 30 days
+[PASS] No inline arc:<slug> tag-only scans outside canonical lib (T-1881)
+[PASS] No PROJECT_ROOT resolution of framework-owned assets in web/ + lib/ Python (T-2648, OBS-097)
+[PASS] No stale-slice-references (L-417)
+[PASS] No GO-scope-not-propagated inception(s) (sibling to L-417)
+[WARN] Fabric: 40 registered, 180 unregistered (of 217 watched)
+       Evidence: 180 file(s) matching watch-patterns.yaml have no component card
+       Mitigation: Run: fw fabric scan
+[WARN] Fabric: 36/40 cards have no edges
+       Evidence: Graph coverage below target
+       Mitigation: Run: fw fabric enrich
+[WARN] Fabric drift: 180 source file(s) have no fabric card
+       Evidence: 180 of 217 watched files matching watch-patterns.yaml are unregistered
+       Mitigation: Run: fw fabric scan
+[PASS] Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer
+[PASS] Hook threshold: no hooks failing over threshold
+[PASS] Secret scan: tracked tree clean
+[PASS] Designer ghost registry: ghost↔task joins clean
+[PASS] Release lag: src, released artifact and peer pin are in step
+[PASS] Gap register: every watching gap has a renderable closure condition
+
+=== SUMMARY ===
+Pass: 19
+Warn: 3
+Fail: 0
+
+=== PRIORITY ACTIONS ===
+     1	Run: fw fabric enrich
+     2	Run: fw fabric scan
+
+=== TREND ANALYSIS ===
+No repeated issues in last 14 days (across 9 audits).
+
+Audit history: 9 audit(s) in last 14 days + today
+
+Audit saved to: /opt/832-Workflow-designer/.context/audits/2026-08-13.yaml
+
+=== END AUDIT ===
+
+WARNING: Audit has warnings (push allowed)
+Consider addressing the issues above.
+
+To ssh://192.168.10.201:6611/workflow-designer
+   12d75b71..c7e16830  HEAD -> master
+  Pushed to origin ✓
