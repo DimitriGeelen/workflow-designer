@@ -1275,3 +1275,10 @@ learnings:
   date: 2026-08-13
   context: Added via context agent
   application: TBD
+- id: PL-178
+  learning: "A P-011 leg can be GREEN while asserting nothing, and the gate cannot tell. T-486's first leg read the inception decision from a frontmatter field 'inception_decision:' that does not exist on our tasks (decisions live in the ## Decision section), so it found ZERO GO tasks and exited 0 — a clean pass over an empty population, inside the gate whose entire job is to be unarguable. It was caught only because the self-check printed the population alongside the verdict; nothing else in the chain could have. RULE: any leg whose verdict is 'no bad instances found' MUST assert its own DENOMINATOR, not just its result — grep the population count, or have the probe exit non-zero when the population is empty (T-486's replacement exits 2 on an empty GO set, because a zero over nothing is a broken probe and not a clean tree). This is PL-084 applied to the verification gate itself rather than to reported findings. Committed by me one hour after publishing the denominator rule to AEF, alongside a second self-inflicted instance (classifying a GO as carried by REFERENCE COUNT, the exact membership-one-level-deeper critique I had just sent them) — the pattern being that every rule published this round was then violated by its publisher, because a rule is invisible to the person applying it and only surfaces when someone else acts on it."
+  source: P-001
+  task: T-486
+  date: 2026-08-13
+  context: Added via context agent
+  application: TBD
