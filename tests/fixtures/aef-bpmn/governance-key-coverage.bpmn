@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:aef="http://anchorpoint.framework/aef/extensions"
+                  id="Definitions_governance-key-coverage"
+                  targetNamespace="https://aef.anchorpoint.dev/workflows">
+
+  <!-- T-489 coverage fixture, created because T-488 measured that the editor round-trip
+       harness (tools/_roundtrip-serialization-cdp.mjs) projects 34 governance keys but the
+       fixture corpus could only ever exercise 26 of them. The other eight were reported
+       "never proven" — the guard was sound, nothing simply put those keys in front of it.
+
+       This document exists to carry the eight, each with a DISTINCT non-empty value so a
+       mutation of it is observable:
+
+         section autoTrigger trigger gatewayKind scopeOf owner   aef:meta attributes
+         linkId                                                  aef:link attribute
+         hostRef                                                 native attachedToRef
+
+       WHY A NEW FILE RATHER THAN AN EDIT. hostRef needs a boundary event AND a second
+       attachable activity to re-point at; boundary-events.bpmn has exactly one activity, so
+       the one-line fix is to add a task there. That file is digest-pinned by AEF as
+       SHA_832_BOUNDARY, and typed-events.bpmn as SHA_832_TYPED. Editing either turns their
+       guard red, and per their rail-584 protocol an unannounced change makes a legitimate
+       edit read as local fixture tampering. A new file costs nothing and announces nothing,
+       so task_a and task_b below both exist to give the boundary event a choice of host.
+
+       It is a legitimate workflow, not a key-bag: it parses, it round-trips, and the
+       gateway genuinely branches. A file that moved the coverage metric while weakening the
+       corpus it joined would be the same trade this whole line of work exists to refuse. -->
+
+  <bpmn:collaboration id="Collaboration_governance-key-coverage">
+    <bpmn:participant id="Pool_governance_key_coverage" name="governance-key-coverage" processRef="Process_governance-key-coverage"/>
+  </bpmn:collaboration>
+
+  <bpmn:process id="Process_governance-key-coverage" isExecutable="true">
+    <bpmn:extensionElements>
+      <aef:workflowMeta id="governance-key-coverage" version="1" schemaVersion="2" title="governance key coverage (round-trip)" tier_default="1"/>
+    </bpmn:extensionElements>
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="agent" name="Agent · Initiative">
+        <bpmn:extensionElements>
+          <aef:laneMeta abbr="agt" authority="initiative" height="280"/>
+        </bpmn:extensionElements>
+        <bpmn:flowNodeRef>agt_start</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_a</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>task_b</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>bnd_a</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_split</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>lnk_throw</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>agt_end</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>bnd_end</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>gw_end</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+
+    <bpmn:startEvent id="agt_start" name="begin">
+      <bpmn:extensionElements>
+        <aef:uid value="k_start"/>
+        <aef:position x="140.0" y="140.0"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>kflow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:serviceTask id="task_a" name="first host">
+      <bpmn:extensionElements>
+        <aef:uid value="k_a"/>
+        <aef:position x="300.0" y="120.0"/>
+        <aef:meta section="intake" scopeOf="k_b" owner="agent"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>kflow_1</bpmn:incoming>
+      <bpmn:outgoing>kflow_2</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:serviceTask id="task_b" name="second host">
+      <bpmn:extensionElements>
+        <aef:uid value="k_b"/>
+        <aef:position x="480.0" y="120.0"/>
+        <aef:meta autoTrigger="on-intake" trigger="manual"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>kflow_2</bpmn:incoming>
+      <bpmn:outgoing>kflow_3</bpmn:outgoing>
+    </bpmn:serviceTask>
+
+    <bpmn:boundaryEvent id="bnd_a" name="on error" attachedToRef="task_a" cancelActivity="true">
+      <bpmn:extensionElements>
+        <aef:uid value="k_bnd"/>
+        <aef:position x="340.0" y="180.0"/>
+        <aef:eventDef kind="error" binding="status:issues"/>
+        <aef:boundaryPos value="0.75"/>
+      </bpmn:extensionElements>
+      <bpmn:outgoing>kflow_6</bpmn:outgoing>
+    </bpmn:boundaryEvent>
+
+    <bpmn:exclusiveGateway id="gw_split" name="ready?">
+      <bpmn:extensionElements>
+        <aef:uid value="k_gw"/>
+        <aef:position x="640.0" y="130.0"/>
+        <aef:meta gatewayKind="exclusive"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>kflow_3</bpmn:incoming>
+      <bpmn:outgoing>kflow_4</bpmn:outgoing>
+      <bpmn:outgoing>kflow_7</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:intermediateThrowEvent id="lnk_throw" name="continue elsewhere">
+      <bpmn:extensionElements>
+        <aef:uid value="k_lnk"/>
+        <aef:position x="780.0" y="140.0"/>
+        <aef:link linkId="cov-link-1"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>kflow_4</bpmn:incoming>
+      <bpmn:outgoing>kflow_5</bpmn:outgoing>
+    </bpmn:intermediateThrowEvent>
+
+    <bpmn:endEvent id="agt_end" name="done">
+      <bpmn:extensionElements>
+        <aef:uid value="k_end"/>
+        <aef:position x="920.0" y="140.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>kflow_5</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="bnd_end" name="handle issue">
+      <bpmn:extensionElements>
+        <aef:uid value="k_bndend"/>
+        <aef:position x="340.0" y="280.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>kflow_6</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:endEvent id="gw_end" name="not ready">
+      <bpmn:extensionElements>
+        <aef:uid value="k_gwend"/>
+        <aef:position x="640.0" y="280.0"/>
+      </bpmn:extensionElements>
+      <bpmn:incoming>kflow_7</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <bpmn:sequenceFlow id="kflow_1" sourceRef="agt_start" targetRef="task_a">
+      <bpmn:extensionElements><aef:uid value="ke_1"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="kflow_2" sourceRef="task_a" targetRef="task_b">
+      <bpmn:extensionElements><aef:uid value="ke_2"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="kflow_3" sourceRef="task_b" targetRef="gw_split">
+      <bpmn:extensionElements><aef:uid value="ke_3"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="kflow_4" sourceRef="gw_split" targetRef="lnk_throw">
+      <bpmn:extensionElements><aef:uid value="ke_4"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="kflow_5" sourceRef="lnk_throw" targetRef="agt_end">
+      <bpmn:extensionElements><aef:uid value="ke_5"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="kflow_6" sourceRef="bnd_a" targetRef="bnd_end">
+      <bpmn:extensionElements><aef:uid value="ke_6"/></bpmn:extensionElements>
+    </bpmn:sequenceFlow>
+    <!-- kflow_4 is the DEFAULT branch and kflow_7 carries the condition. Both were
+         unconditioned when this fixture was first written, and T-317's census guard caught
+         it: an exclusiveGateway with two unconditioned outgoing flows has no defined choice
+         at runtime (W-XML-GW-AMBIGUOUS, at most one may be the default). That guard's failure
+         message says "a new hit is a real finding to report, not a number to update", and it
+         was right — the defect was in this fixture, not in the census. -->
+    <bpmn:sequenceFlow id="kflow_7" sourceRef="gw_split" targetRef="gw_end">
+      <bpmn:extensionElements><aef:uid value="ke_7"/></bpmn:extensionElements>
+      <bpmn:conditionExpression>not ready</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+  </bpmn:process>
+</bpmn:definitions>
