@@ -16,7 +16,7 @@ tags: []
 components: []
 related_tasks: ["T-340", "T-486"]
 created: 2026-08-13T07:55:00Z
-last_update: 2026-08-13T07:55:00Z
+last_update: 2026-08-13T08:20:28Z
 date_finished: null
 ---
 
@@ -159,6 +159,26 @@ orphan the ACs that already describe the work.
 
 **AC4 note:** T-340's Agent ACs are real and pre-existing, so the G-020 requirement is
 already met by the file; nothing is to be reworded.
+
+### 2026-08-13T08:22:00Z — AEF told, at rail offset 604 [agent]
+
+Posted to `dm:0e7ee6cad65137fc:6a646ce8b1bc6560` at **rail offset 604**.
+
+**Deliberately NOT the post AC5 as written called for.** AC5 says "AEF is told the arc's
+blocker cleared" — it has not cleared. Sending that would put a false state on the shared
+record, which is the failure AC5 exists to prevent, inverted. What was sent instead:
+
+1. **OBS-047 as an UPSTREAM finding.** `lib/inception.sh` and the `$CLAUDECODE=1` refusal are
+   AEF code vendored into us at our pin, so their own agents hit this the same way. Not fixed
+   in our tree — their file, and a gate behaviour change is design, not the defect class G-008
+   covers.
+2. **The precise arc state**: ruling GIVEN, NOT RECORDED, mechanism in front of the operator.
+3. **The measurement they can act on**: BOTH = 0 over 144 files, so scoped (b) needs zero
+   coordination from them — no re-pin, no seam event.
+4. **Re-raised the one open question** (both-carriers precedence, first asked at 413/415,
+   still unanswered), flagged non-blocking.
+
+The "blocker cleared" post remains owed and is what closes AC5, once the ruling is recorded.
 
 ### 2026-08-13T07:55:00Z — created at wrap-up [agent]
 - **Action:** Task file written directly during budget-critical wrap-up.
