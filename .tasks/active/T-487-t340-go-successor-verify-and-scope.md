@@ -101,6 +101,65 @@ grep -q "rail offset" .tasks/active/T-487-t340-go-successor-verify-and-scope.md
 
 ## Updates
 
+### 2026-08-13T08:20:00Z — AC1 answered: NOT RECORDED, and the command was wrong [agent]
+
+**Verdict: the GO is NOT RECORDED.** Four independent checks, all negative:
+
+    workflow_type                      build          <- NOT inception
+    fw inception status                T-340 absent   <- 12 active / 24 completed, not among them
+    ## Decision section (line 550)     empty template boilerplate only
+    decisions.yaml entries for T-340   0
+    Human AC [REVIEW] checkbox         unticked
+
+**The finding that matters more than the verdict: `fw inception decide T-340 go` was never
+the right command.** T-340 is a BUILD task. The ruling it carries is a Human AC
+(`[REVIEW] Repair semantics for standard BPMN DI on import`), not an inception decision.
+Had the command run it would have written an inception decision onto a task that is not an
+inception.
+
+**Why three sessions of gate refusals never revealed that.** Two gates refused in series —
+the Tier 0 hook (destructive-command class) and the command's own `$CLAUDECODE=1` check
+(T-679/T-1259). Both fire on the command NAME, before any validation of the task's type. So
+both refused for reasons entirely unrelated to the actual defect in the request, and the
+conclusion I drew from them — "this is sovereignty, hand it to the operator" — was the wrong
+lesson from a correct block. The operator then ran the same wrong command themselves and got
+the same uninformative refusal. Then I inferred a `/inception/T-340` URL from the error
+text, which 404'd because there is no inception to review.
+
+**This is the T-485 class one turn further on.** T-485: a probe returning the RIGHT answer
+for a broken reason is the only kind nothing downstream can catch. Here: a gate producing the
+RIGHT behaviour (block) for a reason unrelated to the fault. Two refusals in a row read as
+strong confirmation that the route was sovereignty-blocked, when the route did not exist.
+**Agreement between two instruments that share a blind spot is not corroboration.**
+
+**The correct mechanism is stated in T-340's own AC, step 4** — and has been since the AC was
+written:
+
+    fw context add-decision "T-340 DI repair semantics: <a|a-prime|b|c>" --task T-340 --rationale "<why>"
+
+Not agent-gated. Not Tier 0. Left to the operator anyway: the AC's Expected clause is *"one
+option recorded"*, so recording it IS satisfying the Human AC, and an agent must not do that
+on the human's behalf.
+
+**AC2 — scoped from the file, not from recall.** The carried claim *"scoped option (b) is
+byte-neutral"* is CONFIRMED by T-340's `## Recommendation`, re-measured 2026-08-12 over 144
+tracked `.bpmn` files: 125 carry `aef:position`, 10 carry DI, **BOTH = 0**, 9 neither. The
+disjointness is load-bearing (the precedence rule can never fire on our corpus) and has now
+survived two intakes — 126 → 142 → 144 files. Scope:
+
+    on import   aef:position  →  else DI  →  else auto-layout
+    on export   emit DI only when the input carried it
+
+**AC3 — build, not inception.** Two files edited, zero new: `src/aef-workflow-designer.html`
+(`parseBpmnXml` src:9595, `buildBpmnXml` src:9439, position resolution src:9742) and
+`tools/_t338-input-fidelity-cdp.mjs` (`EXPECTED_DI`). No new subsystem, CLI route or
+Watchtower page. **The successor is T-340 itself** — its three Agent ACs are already written
+and marked BLOCKED for exactly this ruling. No new task is needed and creating one would
+orphan the ACs that already describe the work.
+
+**AC4 note:** T-340's Agent ACs are real and pre-existing, so the G-020 requirement is
+already met by the file; nothing is to be reworded.
+
 ### 2026-08-13T07:55:00Z — created at wrap-up [agent]
 - **Action:** Task file written directly during budget-critical wrap-up.
 - **Context:** Operator ruled GO on T-340; recording status unverified; successor did not
