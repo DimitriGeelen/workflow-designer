@@ -1296,3 +1296,10 @@ learnings:
   date: 2026-08-13
   context: Added via context agent
   application: TBD
+- id: PL-181
+  learning: "A coverage fraction whose denominator is a hand-typed list is self-referential: it can only ever describe the list it was computed from, so a key missing from that list is invisible to the very ratio meant to express completeness. 'proven_fraction 34/34' was true of the 34 and silent about whether 34 was the total — two emitter-projected keys (eventDefKind/eventDefBinding) sat outside it. Distinguish an EXCLUSION (name plus written reason: a decision) from an ABSENCE (name simply not present: a hole), because in the file they look identical — both are just missing. Remedy has two parts: derive the denominator from the source of truth (anchored on a FUNCTION NAME, never a line range, since a range that slides off its subject reports clean), and make exclusions data that must carry a reason string, so dropping coverage costs a sentence. Corollary measured the same day: when generalising a finding into a census, refine the denominator before publishing the count — 'unwired probes' went 45 to 27 to 12 to 0 as the runner set widened and the claim verb was checked, and the alarming first number would have been the same error in the opposite direction."
+  source: P-011
+  task: T-490
+  date: 2026-08-13
+  context: Added via context agent
+  application: TBD

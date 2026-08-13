@@ -5939,3 +5939,21 @@ scan_id: R-3dc2ca29
 task_id: T-489
 payload:
   task_file: .tasks/active/T-489-close-the-seam-fixed-point-coverage-gap-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-13T11:51:27Z'
+scan_id: R-01e1e076
+task_id: T-490
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-13T11:51:27Z'
+scan_id: R-01e1e076
+task_id: T-490
+payload:
+  task_file: .tasks/active/T-490-round-trip-guard-denominator-is-hand-der.md

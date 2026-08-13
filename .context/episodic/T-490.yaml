@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-490: Round-trip guard denominator is hand-derived: 2 emitter-projected keys sit outside it
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-13T11:51:30Z
+# ============================================================================
+
+task_id: T-490
+task_name: "Round-trip guard denominator is hand-derived: 2 emitter-projected keys sit outside it"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-13T11:25:11Z
+completed: 2026-08-13T11:51:24Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-13T13:49:04+02:00
+last_commit: 2026-08-13T13:49:04+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the seam guard's denominator is derived from the emitter, not typed by hand — and the guard itself ran in no suite. 34/34 was a claim about a hand-written list: eventDefKind/eventDefBinding (T-259 passthrough) were not excluded, they were absent, so a drop in either moved nothing and the run still reported total coverage. checkDenominator() extracts the emitter's projected scalars anchored on the FUNCTION NAME (a line range that slides off its subject is the same failure one level up), fails on any key in neither KEYSPEC nor a reasoned exclusion, and requires exclusions to carry a reason so dropping coverage costs a sentence. Three negative controls all exit 2. proven_fraction now divides by the derived total: 36/36, 0 BLIND, 0 orphans over 19 fixtures. Separately and worse: _roundtrip-serialization-cdp.mjs was invoked by NO runner — I had cited run-bridge-tests.sh:603, which is a different probe. Every green it produced since T-187 was hand-run and expired with the session; every defect in it was found by an agent reading it, never by it failing. Now suite leg 72 (72 passed, 0 failed; geometry 24 clean)
+
+# Key outcomes
+outcomes:
+  - 'The emitter''s projected-scalar set is derived MECHANICALLY from `src/aef-workflow-designer.html`, not asserted: a check extracts `aef.<ident>` from the projection block and compares it against `KEYSPEC ∪ STRUCTKEYS ∪ <documented exclusions>`, failing on any identifier in neither'
+  - 'The check''s exclusion list is DATA carrying a reason string per entry, so a future exclusion cannot be added silently — a bare name with no reason fails the check'
+  - '`eventDefKind` and `eventDefBinding` are either in `KEYSPEC` with a working wire-form shape, or excluded with a written reason — whichever the measurement supports, decided by evidence not convenience'
+  - 'Each newly-covered key is classified with T-488''s vocabulary (LIVE / BLIND / DRIFT-ELSEWHERE / NOT-EXERCISABLE / NEVER-PRESENT); NOT-EXERCISABLE is reported as unproven, never folded into the proven count'
+  - 'The reported `proven_fraction` denominator equals the mechanically-derived total, so the number cannot again describe a hand-typed subset'
+  - 'The new check runs inside the existing suite (`tests/run-bridge-tests.sh`), not as a one-shot script'
+  - 'Full bridge suite green and the geometry corpus clean; zero bytes changed in `src/`, `docs/standards/`, `examples/`, `.agentic-framework/`, or any AEF digest-pinned fixture'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the seam guard''s denominator is derived from the emitter, not typed by hand — and the guard itself ran in no suite. 34/34 was a claim about a hand-written list: eventDefKind/eventDefBinding (T-259 passthrough) were not excluded, they were absent, so a drop in either moved nothing and the run still reported total coverage. checkDenominator() extracts the emitter''s projected scalars anchored on the FUNCTION NAME (a line range that slides off its subject is the same failure one level up), fails on any key in neither KEYSPEC nor a reasoned exclusion, and requires exclusions to carry a reason so dropping coverage costs a sentence. Three negative controls all exit 2. proven_fraction now divides by the derived total: 36/36, 0 BLIND, 0 orphans over 19 fixtures. Separately and worse: _roundtrip-serialization-cdp.mjs was invoked by NO runner — I had cited run-bridge-tests.sh:603, which is a different probe. Every green it produced since T-187 was hand-run and expired with the session; every defect in it was found by an agent reading it, never by it failing. Now suite leg 72 (72 passed, 0 failed; geometry 24 clean)'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.tasks/active/T-490-round-trip-guard-denominator-is-hand-der.md'
+  - 'tests/fixtures/aef-bpmn/governance-key-coverage.bpmn'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_roundtrip-serialization-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-13T13:49:04"
+    action: "T-490: the seam guard's denominator is derived from the emitter, not typed by hand — and the guard itself ran in no suite. 34/34 was a claim about a hand-written list: eventDefKind/eventDefBinding (T-259 passthrough) were not excluded, they were absent, so a drop in either moved nothing and the run still reported total coverage. checkDenominator() extracts the emitter's projected scalars anchored on the FUNCTION NAME (a line range that slides off its subject is the same failure one level up), fails on any key in neither KEYSPEC nor a reasoned exclusion, and requires exclusions to carry a reason so dropping coverage costs a sentence. Three negative controls all exit 2. proven_fraction now divides by the derived total: 36/36, 0 BLIND, 0 orphans over 19 fixtures. Separately and worse: _roundtrip-serialization-cdp.mjs was invoked by NO runner — I had cited run-bridge-tests.sh:603, which is a different probe. Every green it produced since T-187 was hand-run and expired with the session; every defect in it was found by an agent reading it, never by it failing. Now suite leg 72 (72 passed, 0 failed; geometry 24 clean)"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 26 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 26
+  commits: 1
+  files_changed: 5
+  lines_added: 461
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-490-round-trip-guard-denominator-is-hand-der.md
+generated_by: context-agent-hybrid

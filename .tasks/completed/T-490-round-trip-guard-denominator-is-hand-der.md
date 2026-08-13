@@ -4,10 +4,10 @@ name: "Round-trip guard denominator is hand-derived: 2 emitter-projected keys si
 description: >
   Round-trip guard denominator is hand-derived: 2 emitter-projected keys sit outside it
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-13T11:25:11Z
-last_update: 2026-08-13T11:25:11Z
-date_finished: null
+last_update: 2026-08-13T11:51:24Z
+date_finished: 2026-08-13T11:51:24Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -231,6 +231,63 @@ git diff --quiet HEAD -- src/ docs/standards/ examples/ .agentic-framework/
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
 
+### 2026-08-13 — the task was filed against the wrong defect
+
+- **What changed:** T-490 was filed to close a 2-key hole in a guard's coverage list. The
+  serious defect turned out to be one level up and was found only because AC6 made me check a
+  claim I had already published as fact: the guard **ran in no test runner at all**. I had
+  written "wired into tests/run-bridge-tests.sh:603" into a handover and onto the AEF rail;
+  :603 is `_t338-input-fidelity-cdp.mjs`. Every green `_roundtrip-serialization-cdp.mjs` has
+  produced since T-187 — through T-480, T-482, T-483, T-488, T-489 — was a hand-run invocation
+  that expired when the session did.
+- **Plan impact:** the denominator fix stands, but it was the smaller half. Wiring the probe in
+  (suite leg 72) is what makes T-488's and T-489's work durable rather than anecdotal.
+- **Triggered:** OBS-242. Correction issued to AEF on the rail, since I had cited the false
+  wiring to them as evidence.
+
+### 2026-08-13 — an absence is not an exclusion
+
+- **What changed:** three keys sit outside this guard's coverage WITH written reasons
+  (STRUCTKEYS, `aef:io`, `boundaryPos`) and two sat outside with none. Only the second kind is a
+  defect, and nothing in the file distinguished them — both simply did not appear. So the fix is
+  not "add two keys"; it is to make the denominator derived from the emitter and to make every
+  exclusion carry a reason string, so removing coverage costs a sentence and stays a decision
+  instead of decaying into an absence.
+- **Plan impact:** `proven_fraction` now divides by the derived total rather than by
+  `KEYSPEC.length`. The old ratio was self-referential — computed from the very list whose
+  incompleteness it was supposed to express, so a missing key was invisible to it by construction.
+- **Triggered:** three negative controls, all exiting 2 (missing key, exclusion with no reason,
+  KEYSPEC key the emitter does not project).
+
+### 2026-08-13 — DRIFT-ELSEWHERE sent the reader to the wrong remedy
+
+- **What changed:** once added, `eventDefBinding` classified DRIFT-ELSEWHERE in all four documents
+  that carry an `aef:eventDef`. That verdict says "your mutation hit a different key — aim
+  better", and aiming better would never have worked: all 7 eventDef carriers in the corpus are
+  catch/boundary hosts, so the typed-catch override consumes every one and the passthrough field
+  is never populated. The corpus could not pose the question. T-488 built the
+  NOT-EXERCISABLE/NEVER-PRESENT split for exactly this and the new key landed outside it.
+- **Plan impact:** made it exercisable rather than reclassifying it — added an unconsumed
+  `aef:eventDef` on the throw event in our own unpinned coverage fixture. That shape is also the
+  rail-201 defect T-259 was written to fix (layout-only open→save destroying start/throw typed-event
+  semantics), which until now nothing in the corpus exercised.
+- **Triggered:** 36/36 LIVE, 0 NOT-EXERCISABLE.
+
+### 2026-08-13 — the generalisation did not survive its own census
+
+- **What changed:** OBS-242 asked how many other `tools/_*-cdp.mjs` probes are cited as standing
+  evidence but invoked by nothing. First pass: 45 of 55 — alarming. Widening the runner
+  denominator from one glob to every tracked text file dropped it to 27 (18 were invoked by
+  something I had not looked in). Of those 27, twelve cite a `G-0NN`, but eleven cite **G-006**,
+  which is the isolated-browser constraint they COMPLY with, not a gap they close. Filtering on
+  the claim verb: **0 of 27** claim to close a gap.
+- **Plan impact:** no follow-up task. The unwired 27 are one-shot completion artifacts, which is
+  what PL-161 says they legitimately are. `_roundtrip-serialization-cdp.mjs` was singular — the
+  only probe claiming to close a gap (G-002) while running nowhere.
+- **Triggered:** nothing, deliberately. Publishing "45 unwired probes" would have been the same
+  error as `34/34` in the opposite direction — a number whose denominator I had not examined.
+  Each refinement shrank it, and the last one shrank it to zero.
+
 ## Decisions
 
 <!-- Record decisions ONLY when choosing between alternatives.
@@ -258,3 +315,24 @@ git diff --quiet HEAD -- src/ docs/standards/ examples/ .agentic-framework/
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-490-round-trip-guard-denominator-is-hand-der.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-01e1e076
+- **Timestamp:** 2026-08-13T11:51:27Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** yes
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — The emitter's projected-scalar set is derived MECHANICALLY from `src/aef-workflow-designer.html`, not asserted: a check extracts `aef.<ident>` from the projection block and compares it against `KEYSPE
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=src/aef-workflow-designer.html in: The emitter's projected-scalar set is derived MECHANICALLY from `src/aef-workflow-designer.html`, not asserted: a check extracts `aef.<ident>` from th`
+
+- **Layer-1 escalations:** 1
+  1. **destructive-action** (high) — Destructive operation in verification or AC
+     - matched: `rm -f`
+
+### 2026-08-13T11:51:24Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
