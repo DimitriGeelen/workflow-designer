@@ -319,3 +319,10 @@ observations:
   tags: [verification]
   status: pending
   promoted_to: null
+- id: OBS-046
+  text: "Our editor SILENTLY DROPS all extension content it does not know, measured behaviourally across 23 corpus documents with the positive control holding 23/23: (a) an unknown aef:-namespaced element, (b) an unknown foreign-namespace element, (c) an unknown ATTRIBUTE on a known element — all three DROPPED in every document. parseBpmnXml is a strict allowlist reading specific named elements with no preserve-everything catch-all (the only passthrough, T-259 src:9318-9325, is narrow: eventDefKind/eventDefBinding). CONSEQUENCE FOR THE SEAM: when AEF ships a v1.2 aef: element, any round trip through a pinned editor — open, move one node, save — eats it with no error and no warning. This constrains their v1.2 rollout and is theirs to know. Inverse polarity of AEF's _KNOWN_EXT (rail 601 section 3): theirs preserves-except-a-skip-list so a member handled nowhere is dropped; ours parses-only-what-it-names so anything unnamed is dropped. Evidence: tools/_t485-unknown-extension-survival.mjs, .tasks/completed/T-485."
+  captured: 2026-08-13T07:05:58Z
+  context_task: T-485
+  tags: [seam]
+  status: pending
+  promoted_to: null
