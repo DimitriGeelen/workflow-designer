@@ -5885,3 +5885,21 @@ scan_id: R-84258e07
 task_id: T-485
 payload:
   task_file: .tasks/active/T-485-audit-our-inverse-polarity-skip-lists-by.md
+---
+kind: scan_emitted
+timestamp: '2026-08-13T07:30:54Z'
+scan_id: R-9978b883
+task_id: T-486
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-13T07:30:54Z'
+scan_id: R-9978b883
+task_id: T-486
+payload:
+  task_file: .tasks/active/T-486-find-closed-inception-go-decisions-whose.md
