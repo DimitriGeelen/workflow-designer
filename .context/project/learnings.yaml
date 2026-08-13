@@ -1268,3 +1268,10 @@ learnings:
   date: 2026-08-12
   context: Added via context agent
   application: TBD
+- id: PL-177
+  learning: "A probe that produces the RIGHT answer for a BROKEN reason is the only failure class nothing downstream can catch, because there is nothing downstream to disagree with. Measured in T-485: the first form of the unknown-extension probe injected its payloads into the document's process-level extensionElements while the parser reads those elements off flow nodes, so nothing was ever measured — yet its verdict (unknown aef element / foreign namespace / unknown attribute all DROPPED) was IDENTICAL to the verdict the corrected probe produced, and over a larger-looking population (45 vs 23). It would have been sent to AEF as a finding about their seam. Every other instrument failure this arc produced a WRONG answer, and a wrong answer eventually collides with something; a right answer from a broken measurement collides with nothing, ever. THE ONLY DEFENCE IS A POSITIVE CONTROL that fails when the measurement is misaimed — here, exit 2 with no verdict published when the injected known value did not survive. Corollary for re-aiming: fix by REMOVING WAYS TO BE WRONG (anchor on a structure that only exists where you need it; make the control a mutation of an existing known value, which cannot land in the wrong place and cannot be shadowed) rather than by adjusting until it passes."
+  source: P-001
+  task: T-485
+  date: 2026-08-13
+  context: Added via context agent
+  application: TBD
