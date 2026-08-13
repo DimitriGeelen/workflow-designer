@@ -231,8 +231,30 @@ def main(argv):
                 on_disk = fh.read()
             byte_stable = r.get("xml") is not None and r["xml"] == on_disk
             if not byte_stable or r["messinessBefore"] >= MESSINESS_MAX:
-                print("  NOT A FIXPOINT: %s (byte_stable=%s moved=%s messinessBefore=%s)"
-                      % (base, byte_stable, r["moved"], r["messinessBefore"]))
+                # T-448: name WHICH subsystem is implicated. This gate fails for two
+                # unrelated reasons and used to print one sentence for both. Measured
+                # 2026-08-13: all 24 maps read `NOT A FIXPOINT ... moved=0
+                # messinessBefore=0` — the layout algorithm moved nothing and nothing was
+                # messy, so the layout was already a fixpoint and only the SERIALIZATION
+                # differed (exporter= identity from T-399, DI comment rewording from
+                # T-361, neither ever re-baked). A reader trusting the gate's name would
+                # have gone into the layout engine looking for a byte problem.
+                #
+                # The distinction is mechanical, not cosmetic: layout drift means re-run
+                # the bake, serialization drift means the emitter changed under a corpus
+                # nobody re-baked, and those have different owners and different risk.
+                layout_bad = r["moved"] != 0 or r["messinessBefore"] >= MESSINESS_MAX
+                if layout_bad and not byte_stable:
+                    why = "LAYOUT+SERIALIZATION"
+                elif layout_bad:
+                    why = "LAYOUT (geometry moved or map is messy — re-run the bake)"
+                else:
+                    why = ("SERIALIZATION ONLY (layout is already a fixpoint: moved=0, "
+                           "not messy — the emitter changed under a corpus that was never "
+                           "re-baked; diff the committed bytes against the re-emission "
+                           "before touching the layout engine)")
+                print("  NOT A FIXPOINT: %s [%s] (byte_stable=%s moved=%s messinessBefore=%s)"
+                      % (base, why, byte_stable, r["moved"], r["messinessBefore"]))
                 fail += 1
         # Name the scope in the verdict line. `0/0 maps are a Clean fixpoint` was a true
         # sentence about nothing, and printing the denominator it was drawn from is what
