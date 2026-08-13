@@ -4,10 +4,10 @@ name: "Close the seam fixed-point coverage gap: author one fixture that exercise
 description: >
   T-488 measured proven_fraction 26/34: seven projected keys (section, autoTrigger, trigger, gatewayKind, scopeOf, owner, linkId) appear in no fixture at all, and hostRef's carrier exists but boundary-events.bpmn has a single activity so a boundary event has no alternative host to re-point at. The guard is sound (0 BLIND) — the corpus simply cannot exercise 8 of the 34 keys it projects. Remedy is ONE NEW fixture, not an edit to an existing one: AEF digest-pins tests/fixtures/aef-bpmn/typed-events.bpmn and boundary-events.bpmn (SHA_832_TYPED / SHA_832_BOUNDARY), so mutating either would break their guard and trigger the rail announcement protocol for no reason. OBS-048.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: ["T-488"]
@@ -17,8 +17,8 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-13T08:50:32Z
-last_update: 2026-08-13T08:50:32Z
-date_finished: null
+last_update: 2026-08-13T09:04:17Z
+date_finished: 2026-08-13T09:04:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -227,6 +227,26 @@ test -z "$(git diff --name-only -- src docs/standards examples .agentic-framewor
 
 ## Evolution
 
+### 2026-08-13 — the cheapest fix was the one that costs the peer
+- **What changed:** `hostRef` needs a second attachable activity, and `boundary-events.bpmn` is one
+  line away from having one. That file is AEF-digest-pinned (`SHA_832_BOUNDARY`), so the one-line edit
+  would turn their guard red and, unannounced, read as fixture tampering under their rail-584 protocol.
+- **Plan impact:** Scope moved from "enrich a fixture" to "author a new one" before any byte was
+  written. Nothing in our tree marks those two files as pinned — it was known only because T-423's
+  vendoring table happened to be in front of me an hour earlier. That is luck, not process.
+- **Triggered:** a P-011 leg pinning both files at zero changed lines, so a future one-line edit goes
+  red instead of silently owing an announcement; the rule sent to AEF at rail 608.
+
+### 2026-08-13 — a census that updates when it fires stops being a census
+- **What changed:** The first draft failed T-317's gateway-ambiguity census: two unconditioned outgoing
+  flows, so the runtime has no defined choice. The one-line green was to add the fixture to the expected
+  census; the correct move was to condition the branch, because the guard was right.
+- **Plan impact:** No AC anticipated the fixture itself being defective. AC6 ("legitimate document, not
+  a key-bag") turned out to be the load-bearing one rather than boilerplate.
+- **Triggered:** conditionExpression on the branch; the unreachable-node warnings checked against
+  `boundary-events.bpmn` rather than assumed benign — "my file warns" and "my file is wrong" are
+  indistinguishable from the warning text.
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -276,3 +296,20 @@ test -z "$(git diff --name-only -- src docs/standards examples .agentic-framewor
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-489-close-the-seam-fixed-point-coverage-gap-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3dc2ca29
+- **Timestamp:** 2026-08-13T09:05:55Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 21
+     - evidence: `! python3 tools/validate-workflow.py tests/fixtures/aef-bpmn/governance-key-coverage.bpmn 2>&1 | grep -q 'gw_ambiguous'`
+
+### 2026-08-13T09:04:17Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

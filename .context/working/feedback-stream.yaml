@@ -5903,3 +5903,39 @@ scan_id: R-9978b883
 task_id: T-486
 payload:
   task_file: .tasks/active/T-486-find-closed-inception-go-decisions-whose.md
+---
+kind: scan_emitted
+timestamp: '2026-08-13T09:04:11Z'
+scan_id: R-a471a617
+task_id: T-488
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-13T09:04:11Z'
+scan_id: R-a471a617
+task_id: T-488
+payload:
+  task_file: .tasks/active/T-488-round-trip-harness-self-test-give-every-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-13T09:05:55Z'
+scan_id: R-3dc2ca29
+task_id: T-489
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-13T09:05:55Z'
+scan_id: R-3dc2ca29
+task_id: T-489
+payload:
+  task_file: .tasks/active/T-489-close-the-seam-fixed-point-coverage-gap-.md

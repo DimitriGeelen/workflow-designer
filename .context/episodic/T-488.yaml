@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-488: Round-trip harness self-test: give every projected key teeth, and make the two METAKEYS copies structurally incapable of diverging
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-13T09:04:13Z
+# ============================================================================
+
+task_id: T-488
+task_name: "Round-trip harness self-test: give every projected key teeth, and make the two METAKEYS copies structurally incapable of diverging"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-13T08:32:12Z
+completed: 2026-08-13T09:02:32Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-13T10:43:59+02:00
+last_commit: 2026-08-13T10:43:59+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  round-trip self-test now proves every projected key, not one — 34 keys / 26 LIVE / 0 BLIND over 18 fixtures, proven_fraction 26/34 where it used to report hit='tier' forever. Single KEYSPEC replaces two hand-copied METAKEYS lists that had already diverged by 5 keys (OBS-045); mutation is wire-form aware across all 7 carriers (14 of 34 keys were unreachable by the old key= regex regardless of the break); NOT-EXERCISABLE split from NEVER-PRESENT because the remedies differ. Two probe errors caught before publishing: a loose name= regex manufactured 18/18 BLIND against an innocent guard, and hostRef read absent when only a second host was missing
+
+# Key outcomes
+outcomes:
+  - 'AC1 — **The single-source list.** `METAKEYS` and `STRUCTKEYS` are defined ONCE on the Node'
+  - 'AC2 — **Per-key teeth, no `break`.** The self-test attempts every key in the list and'
+  - 'AC3 — **Wire-form aware mutation (PL-176).** Each key declares its carrier shape — meta'
+  - 'AC4 — **Corpus-wide denominator, and the vacuity check (PL-084).** Verdicts aggregate over'
+  - 'AC5 — **The controls hold.** A positive control (`tier`, known live) must report LIVE and a'
+  - 'AC6 — **The guard still guards.** `tests/run-bridge-tests.sh` is green and the harness''s own'
+  - 'AC7 — **Byte-neutral outside `tools/`.** `git diff` is empty for `src/`, `docs/standards/`,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'round-trip self-test now proves every projected key, not one — 34 keys / 26 LIVE / 0 BLIND over 18 fixtures, proven_fraction 26/34 where it used to report hit=''tier'' forever. Single KEYSPEC replaces two hand-copied METAKEYS lists that had already diverged by 5 keys (OBS-045); mutation is wire-form aware across all 7 carriers (14 of 34 keys were unreachable by the old key= regex regardless of the break); NOT-EXERCISABLE split from NEVER-PRESENT because the remedies differ. Two probe errors caught before publishing: a loose name= regex manufactured 18/18 BLIND against an innocent guard, and hostRef read absent when only a second host was missing'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-487-t340-go-successor-verify-and-scope.md'
+  - '.tasks/active/T-488-round-trip-harness-self-test-give-every-.md'
+  - 'tools/_roundtrip-serialization-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-13T10:43:59"
+    action: "T-488: round-trip self-test now proves every projected key, not one — 34 keys / 26 LIVE / 0 BLIND over 18 fixtures, proven_fraction 26/34 where it used to report hit='tier' forever. Single KEYSPEC replaces two hand-copied METAKEYS lists that had already diverged by 5 keys (OBS-045); mutation is wire-form aware across all 7 carriers (14 of 34 keys were unreachable by the old key= regex regardless of the break); NOT-EXERCISABLE split from NEVER-PRESENT because the remedies differ. Two probe errors caught before publishing: a loose name= regex manufactured 18/18 BLIND against an innocent guard, and hostRef read absent when only a second host was missing"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 30 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 30
+  commits: 1
+  files_changed: 5
+  lines_added: 601
+  lines_removed: 96
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-488-round-trip-harness-self-test-give-every-.md
+generated_by: context-agent-hybrid

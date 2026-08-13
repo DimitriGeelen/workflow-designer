@@ -4,10 +4,10 @@ name: "Round-trip harness self-test: give every projected key teeth, and make th
 description: >
   The preflight self-test breaks on the first regex match, so it reports hit='tier' on every run and proves the drift mechanism for exactly one key. Every key added since — endpoint (T-480) and the eight scalars (T-482) — has teeth only from one-shot task probes, not from the standing guard. Compounding it, the two METAKEYS copies are already divergent (guard carries errorStatus/timerSpec/busTopic, preflight does not), so the teeth-proof exercises a strict subset of what the guard projects. Third defect found on reading: the mutation regex assumes key=" attribute form, but endpoint rides a standalone element, contextReads/artifactsWrites ride paths= on their own elements, decisionInput/decisionOutputs ride text content, and the link keys ride aef:link attributes — so several keys could never be perturbed by that regex even without the break. OBS-045.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: ["T-480", "T-482", "T-483", "T-484", "T-485"]
@@ -17,8 +17,8 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-13T08:32:12Z
-last_update: 2026-08-13T08:44:00Z
-date_finished: null
+last_update: 2026-08-13T09:02:32Z
+date_finished: 2026-08-13T09:02:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -278,6 +278,26 @@ test -z "$(git diff --name-only -- src docs/standards examples tests/fixtures .a
 
 ## Evolution
 
+### 2026-08-13 — the `break` was the least of it
+- **What changed:** Filing blamed two defects (break-on-first, divergent copies). Reading the emitter
+  found a third that dominates both: the mutation assumed `key="V"` and **14 of 34 keys do not ride an
+  attribute named after themselves** — three ride `<aef:eventDef binding=>`, two ride native
+  `bpmn:boundaryEvent` attributes. Removing the break would have left those fourteen visited,
+  unmutatable, and recorded as benign.
+- **Plan impact:** "Remove the break, sync the lists" was not a fix. The list had to gain a per-key
+  wire carrier (PL-176), and the self-test had to gain a third verdict beyond LIVE/absent.
+- **Triggered:** the KEYSPEC shape; NOT-EXERCISABLE split out as its own state; T-489 for the fixture
+  gap the denominator exposed.
+
+### 2026-08-13 — the probe accused the guard, twice, and was wrong both times
+- **What changed:** First run reported `name` BLIND in 18/18 fixtures. Not a finding — a bare `name=`
+  regex hitting the first `bpmn:` node name. Second: `hostRef` reported absent while its carrier was
+  demonstrably in a fixture. Both were mine.
+- **Plan impact:** No AC covered "the probe is innocent until exonerated". The verdict shape had to
+  become evidence: 18/18 is a claim of total failure, less likely than a bug in a four-minute-old regex.
+- **Triggered:** mutation anchored inside its named carrier; per-key attribution by reading which key's
+  value actually moved; the learning recorded under T-488.
+
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
      filing, what in the original plan no longer fits, what triggered pivots
@@ -327,3 +347,15 @@ test -z "$(git diff --name-only -- src docs/standards examples tests/fixtures .a
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-488-round-trip-harness-self-test-give-every-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-a471a617
+- **Timestamp:** 2026-08-13T09:04:11Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-13T09:02:32Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
