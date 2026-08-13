@@ -1282,3 +1282,10 @@ learnings:
   date: 2026-08-13
   context: Added via context agent
   application: TBD
+- id: PL-179
+  learning: "A gate that refuses on a command NAME, before validating the command applies to the target, produces the right behaviour for the wrong reason — and two such gates in series read as corroboration. 'fw inception decide T-340' was blocked by Tier 0 and again by the CLAUDECODE=1 check; neither checks whether T-340 is an inception (it is a build task). Both blocks were correct, and the lesson drawn from them — 'this is sovereignty-gated, hand it to the operator' — was wrong. Sibling of T-485: agreement between instruments sharing a blind spot is not corroboration."
+  source: P-001
+  task: T-487
+  date: 2026-08-13
+  context: Added via context agent
+  application: TBD

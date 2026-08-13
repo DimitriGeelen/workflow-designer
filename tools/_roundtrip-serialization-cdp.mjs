@@ -52,27 +52,93 @@ async function waitPortFile(f) { const t0 = Date.now(); while (Date.now() - t0 <
 function cdp(ws) { const s = new WebSocket(ws); let id = 0; const p = new Map(); s.addEventListener('message', ev => { const m = JSON.parse(ev.data); if (m.id && p.has(m.id)) { p.get(m.id)(m); p.delete(m.id); } }); const ready = new Promise((res, rej) => { s.addEventListener('open', res); s.addEventListener('error', rej); }); const cmd = (me, pa = {}) => new Promise((res, rej) => { const mid = ++id; p.set(mid, m => m.error ? rej(new Error(me + ': ' + JSON.stringify(m.error))) : res(m.result)); s.send(JSON.stringify({ id: mid, method: me, params: pa })); }); return { ready, cmd, close: () => s.close() }; }
 async function ev(cmd, e) { const r = await cmd('Runtime.evaluate', { expression: e, returnByValue: true, awaitPromise: true }); if (r.exceptionDetails) throw new Error('eval: ' + JSON.stringify(r.exceptionDetails)); return r.result.value; }
 
-// Self-test: perturb ONE governance attribute in the emission and confirm the projection
-// comparison detects the drift. Proves the guard bites — a green that cannot go red is worthless
-// (PL-022 stance; mirrors test_forward_fixtures.py::_selftest). Returns {perturbable, detectsDrift}.
+// ── T-488: the SINGLE SOURCE for what the fixed point projects ────────────────────────────
+//
+// These lists used to be duplicated verbatim inside the two browser expressions below, and
+// they had DIVERGED: the guard copy carried errorStatus/timerSpec/busTopic/hostRef/interrupting
+// and the preflight copy did not, so the teeth-proof exercised a strict SUBSET of what the
+// guard projected (OBS-045). Nothing detected that, because nothing compared the two copies —
+// they were prose-coupled by a comment saying "keep in step with the copy below".
+//
+// Defined once here and interpolated into both expressions, so divergence is now structurally
+// impossible rather than merely detectable. That is the T-484 distinction applied to our own
+// instrument: a comment asking for agreement is a CLAIM, one definition is EVIDENCE.
+//
+// `shape` is the WIRE CARRIER, and it is here because the keys do not share one. A flat
+// enumeration over heterogeneous shapes has nowhere to put the shape (PL-176), which is how
+// the old self-test came to assume every key rides `key="..."`. Fourteen of these thirty-four
+// do not, and were unreachable by that regex no matter how the loop was written:
+//
+//   metaattr    <aef:meta KEY="V"/>                   src:9278-9285   the twenty base keys
+//   elemtext    <aef:KEY>V</aef:KEY>                  src:9286,9289-9290
+//   elempaths   <aef:KEY paths="V"/>                  src:9287-9288
+//   linkattr    <aef:link KEY="V"/>                   src:9296-9308
+//   eventbind   <aef:eventDef binding="V"/>           src:9314-9317   ATTRIBUTE IS 'binding',
+//                                                                     NOT the key name — which
+//                                                                     is why `key="` never
+//                                                                     matched these three
+//   attachedref bpmn:boundaryEvent attachedToRef="V"  src:9327-9330   native BPMN attribute
+//   cancelact   bpmn:boundaryEvent cancelActivity="V" src:9327-9330   native BPMN attribute
+//
+// The three `eventbind` keys are distinguished by NODE TYPE, not by attribute name
+// (EVENT_BINDING_FIELD, src:9257), so the self-test attributes a binding mutation to whichever
+// key actually moved in the projection rather than guessing which of the three it hit.
+const KEYSPEC = [
+  { k: 'tier',            shape: 'metaattr'    }, { k: 'agentType',      shape: 'metaattr' },
+  { k: 'decisionOwner',   shape: 'metaattr'    }, { k: 'triggeredBy',    shape: 'metaattr' },
+  { k: 'terminalKind',    shape: 'metaattr'    }, { k: 'state',          shape: 'metaattr' },
+  { k: 'note',            shape: 'metaattr'    }, { k: 'softFail',       shape: 'metaattr' },
+  { k: 'section',         shape: 'metaattr'    }, { k: 'guard',          shape: 'metaattr' },
+  { k: 'external',        shape: 'metaattr'    }, { k: 'exitCode',       shape: 'metaattr' },
+  { k: 'autoTrigger',     shape: 'metaattr'    }, { k: 'trigger',        shape: 'metaattr' },
+  { k: 'gatewayKind',     shape: 'metaattr'    }, { k: 'gate',           shape: 'metaattr' },
+  { k: 'scopeOf',         shape: 'metaattr'    }, { k: 'horizon',        shape: 'metaattr' },
+  { k: 'workflowType',    shape: 'metaattr'    }, { k: 'owner',          shape: 'metaattr' },
+  // T-204 typed-event binding fields. Ride <aef:eventDef binding="V"/>.
+  { k: 'errorStatus',     shape: 'eventbind'   }, { k: 'timerSpec',      shape: 'eventbind' },
+  { k: 'busTopic',        shape: 'eventbind'   },
+  // T-480 (closed OBS-041): projected DESPITE the frozen standard listing aef:endpoint in its
+  // PRESENTATIONAL class. That listing is wrong and is registered as OBS-039 — aef:endpoint
+  // carries the executable command a task node runs. DO NOT REMOVE THIS KEY to make the harness
+  // conform to the standard; following section 1 faithfully is exactly how it went unguarded.
+  { k: 'endpoint',        shape: 'elemtext'    },
+  // T-482 scalars carried by standalone aef elements. workflowRef is the off-page seam binding
+  // (S2/T-225); losing it silently on a round trip would unbind a cross-workflow jump.
+  { k: 'contextReads',    shape: 'elempaths'   }, { k: 'artifactsWrites', shape: 'elempaths' },
+  { k: 'decisionInput',   shape: 'elemtext'    }, { k: 'decisionOutputs', shape: 'elemtext' },
+  { k: 'workflowRef',     shape: 'linkattr'    }, { k: 'name',            shape: 'linkattr' },
+  { k: 'targetWorkflow',  shape: 'linkattr'    }, { k: 'linkId',          shape: 'linkattr' },
+  // T-204 Slice 2: boundary attachment. These ride NATIVE bpmn:boundaryEvent attributes, not any
+  // aef element — boundaryPos is the only cosmetic fraction that needs one, and it is
+  // deliberately not projected (presentational).
+  { k: 'hostRef',         shape: 'attachedref' }, { k: 'interrupting',    shape: 'cancelact' },
+];
+const METAKEYS = KEYSPEC.map(s => s.k);
+// T-483: the STRUCTURED semantic values. These must NEVER be added to METAKEYS. The scalar
+// projection body is String(aef[k]), and for these that is actively worse than leaving them out:
+// array-valued members comma-join ambiguously, and dict-valued members become the CONSTANT
+// "[object Object]", which compares equal to itself for every possible mutation. Absent is a
+// known gap; that is a gap that reports itself as closed.
+const STRUCTKEYS = ['emits', 'compensates', 'aggregation', 'multiInstance', 'timer', 'constituents'];
+// aef:io is deliberately in NEITHER list. It is built from the inputs/outputs ARRAYS
+// (src:9337-9345) and there is no aef.io scalar, so listing it in METAKEYS would read as coverage
+// while the projection body skipped it as undefined — a green that cannot go red. It is projected
+// structurally by structOf() instead.
+
+// Self-test: perturb EVERY projected key in its own wire form and confirm the projection
+// comparison detects each drift. Proves the guard bites per key — a green that cannot go red is
+// worthless (PL-022 stance; mirrors test_forward_fixtures.py::_selftest).
+//
+// It used to `break` on the first key that matched, and `tier` is both first in the list and
+// present in every document, so it reported hit:'tier' on EVERY run and proved the mechanism for
+// exactly one key. Every key added afterwards had teeth only from one-shot task probes
+// (tools/_t482-*, tools/_t483-*), which are completion-gate artifacts, not standing guards —
+// PL-161. This folds that per-key knowledge into the gate that actually runs.
 const PREFLIGHT_EXPR = `(function(){
   var text = window.__FIXTURE__;
-  var METAKEYS = ['tier','agentType','decisionOwner','triggeredBy','terminalKind','state','note',
-    'softFail','section','guard','external','exitCode','autoTrigger','trigger','gatewayKind',
-    'gate','scopeOf','horizon','workflowType','owner',
-    // T-480: 'endpoint' must appear in BOTH copies of this list. If the preflight
-    // self-test does not project it, the guard below asserts a property its own
-    // teeth-proof never exercises. See the note at the second copy for why endpoint
-    // is projected at all.
-    'endpoint',
-    // T-482: keep in step with the guard copy below. Same eight scalar keys; see the
-    // long note there for why aef:io is deliberately absent from both.
-    'contextReads','artifactsWrites','decisionInput','decisionOutputs',
-    'workflowRef','name','targetWorkflow','linkId'];
-  // T-483: structured values, kept in step with the guard copy below. See the long note
-  // there for why these must NOT go into METAKEYS (String() on a dict is the constant
-  // "[object Object]" — coverage in the output, blindness in the behaviour).
-  var STRUCTKEYS = ['emits','compensates','aggregation','multiInstance','timer','constituents'];
+  var KEYSPEC = ${JSON.stringify(KEYSPEC)};
+  var METAKEYS = ${JSON.stringify(METAKEYS)};
+  var STRUCTKEYS = ${JSON.stringify(STRUCTKEYS)};
   function canon(v){
     if(v===null || typeof v!=='object') return v;
     if(Object.prototype.toString.call(v)==='[object Array]') return v.map(canon);
@@ -95,20 +161,118 @@ const PREFLIGHT_EXPR = `(function(){
       return {uid:n.uid,meta:meta,struct:structOf(n)}; }).sort(function(a,b){return a.uid<b.uid?-1:a.uid>b.uid?1:0;});
     return JSON.stringify(nodes);
   }
+  // Per-key projected value, so a mutation can be attributed to the key it was aimed at rather
+  // than merely to "something moved". This is what makes the eventbind trio separable: all three
+  // ride the same binding= attribute and are told apart by node type, so the only honest way to
+  // say WHICH key a binding mutation exercised is to read which key's value actually changed.
+  function valuesOf(m,k){
+    if(!m) return null;
+    var out=[];
+    m.nodes.forEach(function(n){ var a=n.aef||{}; if(a[k]!=null&&a[k]!=='') out.push(n.uid+'='+String(a[k])); });
+    return out.sort().join('|');
+  }
+  // Mutate ONE key in its own wire carrier. Returns the mutated XML, or null when the key's
+  // carrier is not present in this document (which is NOT-PRESENT, not a pass).
+  var MARK='__DRIFT__';
+  // Replace attr= INSIDE a named element only. An unanchored /k="/ is wrong for at least two
+  // keys and silently so: a bare name= matches the first bpmn node or process name in the
+  // document, and workflowType= matches the PROCESS-level aef:workflowMeta. Both mutate
+  // something real, neither is the key under test, and because proj() covers nodes only,
+  // neither moves the projection — so the key reports BLIND. A too-loose regex does not fail
+  // loudly here, it manufactures a finding AGAINST THE GUARD. Measured: name read BLIND in
+  // 18 of 18 fixtures on this probe's first run, and the guard was innocent.
+  //
+  // (No backticks in this comment. It lives inside a JS template literal, where a backtick
+  //  ends the literal and the harness dies before evaluating anything. That is now the THIRD
+  //  time this file has been broken this way — T-480, T-483, and again writing this note.
+  //  Reading the warning two lines up is not the same as being protected by it.)
+  function inElement(xml,elem,attr){
+    var rx=new RegExp('<aef:'+elem+'\\\\s[^>]*>','g'),m;
+    while((m=rx.exec(xml))!==null){
+      var re=new RegExp('(\\\\s'+attr+'=")([^"]*)(")');
+      if(re.test(m[0])) return xml.slice(0,m.index)+m[0].replace(re,'$1'+MARK+'$3')+xml.slice(m.index+m[0].length);
+    }
+    return null;
+  }
+  function mutate(xml,spec){
+    var k=spec.k, re, m;
+    if(spec.shape==='metaattr') return inElement(xml,'meta',k);
+    if(spec.shape==='linkattr') return inElement(xml,'link',k);
+    if(spec.shape==='elempaths'){
+      re=new RegExp('(<aef:'+k+'\\\\s+paths=")([^"]*)(")');
+      return re.test(xml) ? xml.replace(re,'$1'+MARK+'$3') : null;
+    }
+    if(spec.shape==='elemtext'){
+      re=new RegExp('(<aef:'+k+'>)([^<]*)(</aef:'+k+'>)');
+      return re.test(xml) ? xml.replace(re,'$1'+MARK+'$3') : null;
+    }
+    if(spec.shape==='eventbind'){
+      // errorStatus / timerSpec / busTopic all ride the SAME binding= attribute and are told
+      // apart by the node's type (EVENT_BINDING_FIELD, src:9257). So there is no regex that
+      // targets one of them. Return every eventDef occurrence as a separate candidate and let
+      // the caller keep the one that moved the key under test; mutating only the first reports
+      // DRIFT-ELSEWHERE whenever the document's first typed event is not the wanted kind.
+      var out=[],rx=/<aef:eventDef\\s[^>]*binding="[^"]*"[^>]*\\/>/g,g;
+      while((g=rx.exec(xml))!==null){
+        var one=g[0].replace(/(binding=")([^"]*)(")/,'$1'+MARK+'$3');
+        if(one!==g[0]) out.push(xml.slice(0,g.index)+one+xml.slice(g.index+g[0].length));
+      }
+      return out.length?out:null;
+    }
+    if(spec.shape==='attachedref'){
+      // Re-point the boundary event at a DIFFERENT existing flow node. A sentinel would be an
+      // unresolvable ref, which exercises the T-341 rehome path rather than the projection.
+      m=/<bpmn:boundaryEvent\\s[^>]*attachedToRef="([^"]*)"/.exec(xml);
+      if(!m) return null;
+      var ids=[],rx=/<bpmn:(?:serviceTask|task|userTask|scriptTask|businessRuleTask|manualTask|sendTask|receiveTask|subProcess)\\s[^>]*id="([^"]*)"/g,g;
+      while((g=rx.exec(xml))!==null) if(g[1]!==m[1]) ids.push(g[1]);
+      // The carrier IS here; there is just no second activity to re-point at. Reporting that as
+      // NOT-PRESENT would file it beside keys genuinely missing from the corpus and send the
+      // reader to write the wrong fixture. Distinct state, distinct remedy: this one needs a
+      // document with TWO attachable hosts, not a document with boundary events.
+      if(!ids.length) return {unexercisable:'boundaryEvent present but no alternative host activity to re-point at'};
+      return xml.slice(0,m.index)+m[0].replace('attachedToRef="'+m[1]+'"','attachedToRef="'+ids[0]+'"')+xml.slice(m.index+m[0].length);
+    }
+    if(spec.shape==='cancelact'){
+      // Boolean carrier: a sentinel string would not be a legal value, so FLIP it.
+      m=/(<bpmn:boundaryEvent\\s[^>]*cancelActivity=")(true|false)(")/.exec(xml);
+      if(!m) return null;
+      return xml.replace(m[0], m[1]+(m[2]==='true'?'false':'true')+m[3]);
+    }
+    return null;
+  }
   try{
     var m1=parseBpmnXml(text); if(!m1) return {perturbable:false,reason:'parse-null'};
     state=m1; refreshDisplayIds();
     var emit1=buildBpmnXml(state);
-    // Flip the first governance attr we can find to a sentinel value.
-    var mutated=emit1, hit=null;
-    for(var i=0;i<METAKEYS.length;i++){
-      var re=new RegExp('('+METAKEYS[i]+'=")([^"]*)(")');
-      if(re.test(emit1)){ mutated=emit1.replace(re,'$1__DRIFT__$3'); hit=METAKEYS[i]; break; }
+    var p1=proj(m1);
+    var results=[];
+    for(var i=0;i<KEYSPEC.length;i++){
+      var spec=KEYSPEC[i];
+      var cands=mutate(emit1,spec);
+      if(cands===null){ results.push({key:spec.k,shape:spec.shape,verdict:'NOT-PRESENT'}); continue; }
+      if(cands&&cands.unexercisable){ results.push({key:spec.k,shape:spec.shape,verdict:'NOT-EXERCISABLE',reason:cands.unexercisable}); continue; }
+      if(typeof cands==='string') cands=[cands];
+      cands=cands.filter(function(c){ return c!==emit1; });
+      if(!cands.length){ results.push({key:spec.k,shape:spec.shape,verdict:'NOT-PRESENT'}); continue; }
+      // Best verdict across candidates: LIVE beats DRIFT-ELSEWHERE beats BLIND. Only the
+      // eventbind shape yields more than one candidate, and there the wanted key is reachable
+      // through exactly one of them.
+      var best=null,bestMoved=null;
+      for(var c=0;c<cands.length;c++){
+        var m2=parseBpmnXml(cands[c]);
+        if(!m2){ best='LIVE'; bestMoved=['<parse broke>']; break; }
+        if(p1===proj(m2)){ if(best===null) best='BLIND'; continue; }
+        var moved=[];
+        for(var j=0;j<METAKEYS.length;j++) if(valuesOf(m1,METAKEYS[j])!==valuesOf(m2,METAKEYS[j])) moved.push(METAKEYS[j]);
+        if(moved.indexOf(spec.k)>=0){ best='LIVE'; bestMoved=moved; break; }
+        if(best!=='LIVE'){ best='DRIFT-ELSEWHERE'; bestMoved=moved; }
+      }
+      results.push({key:spec.k,shape:spec.shape,verdict:best,moved:bestMoved,candidates:cands.length});
     }
-    if(hit===null) return {perturbable:false,reason:'no governance attr in emission'};
-    var m2=parseBpmnXml(mutated); if(!m2) return {perturbable:true,detectsDrift:true,note:'mutation broke parse (also a detection)'};
-    state=m2; refreshDisplayIds();
-    return { perturbable:true, hit:hit, detectsDrift: proj(m1)!==proj(m2) };
+    // Restore the page's state so the per-fixture round trip that follows is unaffected.
+    state=m1; refreshDisplayIds();
+    return { perturbable:true, results:results };
   }catch(e){ return {perturbable:false,reason:'exception: '+(e&&e.message||e)}; }
 })()`;
 async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = await ev(cmd, `(typeof parseBpmnXml==='function'&&typeof buildBpmnXml==='function'&&typeof refreshDisplayIds==='function'&&_appReady===true)`).catch(() => false); if (ok) return; if (Date.now() - t0 > 20000) throw new Error('editor not ready'); await sleep(150); } }
@@ -116,66 +280,11 @@ async function waitReady(cmd) { const t0 = Date.now(); for (;;) { const ok = awa
 // The round-trip, executed inside the editor for one fixture (text pre-set as window.__FIXTURE__).
 const ROUNDTRIP_EXPR = `(function(){
   var text = window.__FIXTURE__;
-  // aef scalar keys projected per node. The first group are <aef:meta> attributes
-  // (buildBpmnXml metaKeys); the T-204 trailing group are the typed-event binding
-  // fields (which ride <aef:eventDef binding=…>, not <aef:meta>) — included here so
-  // the semantic fixed point has teeth on the binding value, not just node.type.
-  var METAKEYS = ['tier','agentType','decisionOwner','triggeredBy','terminalKind','state','note',
-    'softFail','section','guard','external','exitCode','autoTrigger','trigger','gatewayKind',
-    'gate','scopeOf','horizon','workflowType','owner',
-    'errorStatus','timerSpec','busTopic',
-    // T-480 (closes OBS-041): 'endpoint' is projected DESPITE the frozen standard
-    // listing aef:endpoint in its PRESENTATIONAL class. That listing is wrong and is
-    // registered as OBS-039: aef:endpoint carries the executable command a task node
-    // runs (e.g. "fw context build --task <task_id> --depth 2"), emitted beside
-    // aef:contextReads / aef:artifactsWrites, and the bridge lists it in META_KEYS.
-    //
-    // (This comment lives INSIDE a JS template literal: no backticks, no dollar-brace.
-    //  The first form used both and the harness died before evaluating anything —
-    //  the same class as the P-011 leg eval-expansion caught an hour earlier.)
-    //
-    // DO NOT REMOVE THIS KEY to make the harness conform to the standard. That is
-    // exactly how it went missing: the projection excludes presentational content by
-    // design, so following §1 faithfully left the executable command unguarded on this
-    // axis. T-479 measured no loss today (155 endpoints / 30 docs / 0 lossy) — this
-    // keeps a future drop from being silent. If a v1.2 reclassifies aef:endpoint as
-    // semantic, this comment becomes redundant, not wrong.
-    //
-    // NOTE: endpoint rides a STANDALONE <aef:endpoint> element, not an <aef:meta>
-    // attribute — it is in this list because proj() reads n.aef[k] off the parsed
-    // model, where parseBpmnXml puts it (src:9957-9958), not because it is meta.
-    'endpoint',
-    // T-482: the remaining SCALAR semantic keys carried by standalone aef elements.
-    // Parsed at src:9959-9979, emitted at src:9287-9308. Same reason as endpoint:
-    // proj() reads n.aef[k], so what matters is that parseBpmnXml lands the value on
-    // the model, not whether the wire form is an aef:meta attribute.
-    //
-    // The first four ride their own elements (aef:contextReads, aef:artifactsWrites,
-    // aef:decisionInput, aef:decisionOutputs). The last four are the aef:link binding
-    // attributes, which parse into four SEPARATE scalar keys — there is no aef.link.
-    // workflowRef is the off-page seam binding (S2/T-225); losing it silently on a
-    // round trip would unbind a cross-workflow jump with no error anywhere.
-    //
-    // NOT projected here, deliberately: aef:io. It is built from the inputs/outputs
-    // ARRAYS (src:9337-9345) and there is no aef.io scalar, so listing it would read
-    // as coverage while the projection body skipped it as undefined — a green that
-    // cannot go red. It needs a structured projection, filed as its own task.
-    'contextReads','artifactsWrites','decisionInput','decisionOutputs',
-    'workflowRef','name','targetWorkflow','linkId',
-    // T-204 Slice 2: boundary attachment is governance-bearing — hostRef (the resolved
-    // host uid) and interrupting (cancelActivity) must survive the fixed point. boundaryPos
-    // is presentational (like position/waypoints) and is deliberately NOT projected.
-    'hostRef','interrupting'];
-  // T-483: the STRUCTURED semantic values. These are NOT scalars and must never be added
-  // to METAKEYS. The projection body there is String(aef[k]), and for these members that
-  // is actively worse than leaving them out:
-  //   array-valued (emits, compensates, constituents) -> comma-joined, ambiguous
-  //   dict-valued  (aggregation, multiInstance, timer) -> the CONSTANT "[object Object]"
-  // A dict projected through String() sits in the output looking like coverage while
-  // comparing equal to itself for every possible mutation. Absent is a known gap; that is
-  // a gap that reports itself as closed. T-483 AC4 falsifies this explicitly rather than
-  // asserting it.
-  var STRUCTKEYS = ['emits','compensates','aggregation','multiInstance','timer','constituents'];
+  // T-488: interpolated from the single KEYSPEC above — see the long note there for the
+  // seven wire carriers these thirty-four keys ride, and for why the two hand-maintained
+  // copies this replaces had already diverged by five keys without anything noticing.
+  var METAKEYS = ${JSON.stringify(METAKEYS)};
+  var STRUCTKEYS = ${JSON.stringify(STRUCTKEYS)};
   // Key-order-independent. projEqual compares JSON.stringify output, so without canon() a
   // pure attribute-order difference would read as semantic drift.
   function canon(v){
@@ -282,17 +391,70 @@ async function main() {
     await cmd('Page.navigate', { url: `${BASE}/designer.html` });
     await waitReady(cmd); await sleep(300);
 
-    // Preflight self-test: prove the projection guard detects an injected governance drift.
-    let proven = false, preflight = null;
+    // Preflight self-test (T-488): prove the projection guard detects an injected drift FOR EVERY
+    // PROJECTED KEY, in that key's own wire carrier, aggregated over the WHOLE corpus.
+    //
+    // It used to break on the first perturbable fixture AND the first matching key, so it ran one
+    // mutation on one document and reported hit:'tier' forever. Aggregating over the corpus is not
+    // thoroughness for its own sake: a key absent from one fixture may be the only live one in
+    // another, and a per-document verdict cannot tell "this document has no boundary events" from
+    // "this key is unguarded".
+    const perKey = new Map(KEYSPEC.map(s => [s.k, { key: s.k, shape: s.shape, LIVE: 0, BLIND: 0, ELSEWHERE: 0, absent: 0, unexercisable: 0, unexercisable_reason: null, witnesses: [] }]));
+    const selftest = { fixtures_exercised: 0, unperturbable: [] };
     for (const name of fixtures) {
       const text = readFileSync(join(FIXturesDir, name), 'utf8');
       await ev(cmd, `window.__FIXTURE__ = ${JSON.stringify(text)};`);
       const r = await ev(cmd, PREFLIGHT_EXPR);
-      if (r && r.perturbable) { preflight = { fixture: name, ...r }; if (r.detectsDrift) proven = true; break; }
+      if (!r || !r.perturbable) { selftest.unperturbable.push({ fixture: name, reason: r && r.reason }); continue; }
+      selftest.fixtures_exercised++;
+      for (const res of r.results) {
+        const agg = perKey.get(res.key); if (!agg) continue;
+        if (res.verdict === 'LIVE') { agg.LIVE++; if (agg.witnesses.length < 2) agg.witnesses.push(name); }
+        else if (res.verdict === 'BLIND') { agg.BLIND++; if (agg.witnesses.length < 2) agg.witnesses.push(name); }
+        else if (res.verdict === 'DRIFT-ELSEWHERE') { agg.ELSEWHERE++; if (agg.witnesses.length < 2) agg.witnesses.push(name); }
+        else if (res.verdict === 'NOT-EXERCISABLE') { agg.unexercisable++; agg.unexercisable_reason = res.reason; if (agg.witnesses.length < 2) agg.witnesses.push(name); }
+        else agg.absent++;
+      }
     }
-    verdict.selftest = preflight;
-    if (!proven) {
-      process.stdout.write(JSON.stringify({ pass: false, selftest_failed: true, error: 'guard did not detect an injected governance drift — vacuous', selftest: preflight }, null, 2) + '\n');
+    const keys = [...perKey.values()];
+    // A key is LIVE if it went live in ANY document; BLIND anywhere is a finding even if it is
+    // live elsewhere, because it means some carrier shape reaches the emission without reaching
+    // the projection.
+    selftest.keys_total = keys.length;
+    selftest.live = keys.filter(k => k.LIVE > 0).map(k => k.key);
+    selftest.blind = keys.filter(k => k.BLIND > 0).map(k => ({ key: k.key, shape: k.shape, docs: k.BLIND, witnesses: k.witnesses }));
+    selftest.drift_elsewhere = keys.filter(k => k.ELSEWHERE > 0).map(k => ({ key: k.key, shape: k.shape, docs: k.ELSEWHERE }));
+    // Three distinct unproven states, kept apart because they have three different remedies:
+    //   NEVER-PRESENT    no fixture carries the key          -> author a fixture that sets it
+    //   NOT-EXERCISABLE  carrier present, no legal mutation  -> enrich an existing fixture
+    //   BLIND            mutated and the projection did not move -> the GUARD is at fault
+    // Collapsing the first two sends the reader to write the wrong fixture; collapsing any of
+    // them into a single "unproven" count loses which of the three is a defect in the guard.
+    selftest.not_exercisable = keys.filter(k => k.LIVE === 0 && k.BLIND === 0 && k.ELSEWHERE === 0 && k.unexercisable > 0)
+      .map(k => ({ key: k.key, shape: k.shape, docs: k.unexercisable, reason: k.unexercisable_reason }));
+    selftest.never_present = keys.filter(k => k.LIVE === 0 && k.BLIND === 0 && k.ELSEWHERE === 0 && k.unexercisable === 0).map(k => ({ key: k.key, shape: k.shape }));
+    // Controls (T-485): a probe that cannot tell the two states apart proves nothing by finding
+    // nothing. `tier` is known live in every corpus document; a synthetic key is in no list and
+    // must never be exercised. If either control fails, refuse to publish a verdict.
+    selftest.controls = {
+      positive_tier_expected_LIVE: selftest.live.includes('tier') ? 'LIVE' : 'NOT-LIVE',
+      negative_synthetic_expected_ABSENT: perKey.has('__t488_synthetic__') ? 'PRESENT' : 'ABSENT',
+    };
+    selftest.controls.held = selftest.controls.positive_tier_expected_LIVE === 'LIVE'
+      && selftest.controls.negative_synthetic_expected_ABSENT === 'ABSENT';
+    selftest.summary = `${selftest.keys_total} keys / ${selftest.live.length} LIVE / ${selftest.blind.length} BLIND / ${selftest.drift_elsewhere.length} DRIFT-ELSEWHERE / ${selftest.not_exercisable.length} NOT-EXERCISABLE / ${selftest.never_present.length} NEVER-PRESENT over ${selftest.fixtures_exercised} fixtures`;
+    selftest.proven_fraction = `${selftest.live.length}/${selftest.keys_total}`;
+    verdict.selftest = selftest;
+    // PL-084: a clean result over an empty population is vacuity, not safety. Zero LIVE keys
+    // means the self-test proved nothing at all, however green everything downstream looks.
+    if (!selftest.controls.held || selftest.blind.length || selftest.live.length === 0) {
+      process.stdout.write(JSON.stringify({
+        pass: false, selftest_failed: true,
+        error: !selftest.controls.held ? 'self-test controls did not hold — any verdict would be vacuous'
+          : selftest.blind.length ? 'a projected key survived mutation of its own wire carrier without moving the projection — that key is unguarded'
+          : 'no projected key could be exercised — the self-test proved nothing',
+        selftest,
+      }, null, 2) + '\n');
       process.exitCode = 2; return;
     }
 

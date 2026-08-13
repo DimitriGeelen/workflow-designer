@@ -289,7 +289,7 @@ observations:
   captured: 2026-08-12T22:25:47Z
   context_task: T-479
   tags: [bug]
-  status: pending
+  status: dismissed
   promoted_to: null
 - id: OBS-042
   text: "bake-clean-layout.py:110 docstring claims the committed corpus is 'editor node ids, bpmndi DI, hand-carried aef:meta notes'. The bpmndi DI clause is false: all 24 examples/aef-processes/rendered/*.bpmn declare xmlns:bpmndi but contain ZERO bpmndi:BPMNDiagram / BPMNShape / BPMNEdge elements (measured T-479). Low severity (justification comment, not logic) but it is in the very tool T-101 runs, and it would mislead exactly the person deciding whether the corpus already carries DI — which is the arc's central question."
@@ -324,5 +324,12 @@ observations:
   captured: 2026-08-13T07:05:58Z
   context_task: T-485
   tags: [seam]
+  status: pending
+  promoted_to: null
+- id: OBS-047
+  text: "fw inception decide does not validate that the target task is workflow_type: inception. Run against a build task it is refused by Tier 0 and by the CLAUDECODE=1 check — both on the command name — so the operator never learns the command is categorically inapplicable. Cost this time: three failed routes, one 404 from an inferred /inception/ URL, and one session ending with the ruling unrecorded. Candidate fix: validate task type first and print the applicable mechanism (Human AC / fw context add-decision) in the refusal."
+  captured: 2026-08-13T08:20:40Z
+  context_task: T-487
+  tags: []
   status: pending
   promoted_to: null
