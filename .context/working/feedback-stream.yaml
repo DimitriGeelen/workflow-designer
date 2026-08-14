@@ -5993,3 +5993,21 @@ scan_id: R-360cdebb
 task_id: T-492
 payload:
   task_file: .tasks/active/T-492-termlink-sender-id-drift-my-rail-posts-n.md
+---
+kind: scan_emitted
+timestamp: '2026-08-14T07:11:22Z'
+scan_id: R-4462a609
+task_id: T-493
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-14T07:11:22Z'
+scan_id: R-4462a609
+task_id: T-493
+payload:
+  task_file: .tasks/active/T-493-unwired-guard-census-computes-liveness-o.md

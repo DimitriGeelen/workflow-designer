@@ -1331,3 +1331,17 @@ learnings:
   date: 2026-08-14
   context: Added via context agent
   application: TBD
+- id: PL-186
+  learning: "A LIMIT statement that names only one direction has the same shape as the defect it warns about: the census documented textual reachability as a false-POSITIVE risk (runtime-composed paths read unwired) while the false-NEGATIVE half went unmentioned — a tool merely discussed in a live tool's comment reads as wired, which is the direction that hides an unwatched instrument"
+  source: P-001
+  task: T-493
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD
+- id: PL-187
+  learning: "When a ratchet fires for the first time, the firing is the artifact — record the direction, the delta and the cause in the regenerated baseline BEFORE refreshing it, because a first movement absorbed by a same-commit refresh leaves no evidence the ratchet ever worked"
+  source: P-001
+  task: T-493
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD

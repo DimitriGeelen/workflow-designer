@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-493: unwired-guard census computes liveness one-hop, so dead tools vouch for each other
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-14T07:11:24Z
+# ============================================================================
+
+task_id: T-493
+task_name: "unwired-guard census computes liveness one-hop, so dead tools vouch for each other"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-14T06:58:01Z
+completed: 2026-08-14T07:11:21Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-14T09:11:15+02:00
+last_commit: 2026-08-14T09:11:15+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  liveness is a closure from roots outside the population, not a one-hop union — and the ratchet fired for the first time, on my own change. tools/* was a ROOT, so any tool named inside any tool read as reachable and dead tools vouched for each other; _t400-schema-teeth.sh was referenced by nine dead teeth scripts. It is now a traversal edge walked only from tools already live. Separately the gap register was grepped whole-file while its own comment said 'closure conditions that RUN' — lib/gaps.py executes exactly one field, closure_check_command, and 4 of 34 concerns have one, so a tool named in 2362 characters of narrative read as wired. That is AEF's next_id body-grep in our file one day after I reported it to them. Findings 37 -> 66 over population 165, roots 29, 9 live only via a chain. RATCHET GREW by 29, rc=1, recorded in the baseline header before regeneration because a ratchet whose first movement is absorbed by a same-commit refresh has never been shown to work. Four negative controls, and (a) and (b) were re-run against git show HEAD: of the old file, which returned only dead_voucher — so they go red for their own reason, not by accident, which is the check yesterday's control C did not survive. Third defect found and deliberately NOT fixed: _t418-producer-attribution.py STILL reads live, reached from the settings.json-rooted gate by a docstring sentence naming it as a compensating control. The LIMIT was stated in one direction only, which is the same shape as the defect it warns about; both directions now stated, 46 of 115 reference lines are comments, filed T-495. Suite 73 passed, 0 failed
+
+# Key outcomes
+outcomes:
+  - 'Liveness is a **closure from roots outside the population**, not a one-hop union:'
+  - 'The `concerns.yaml` source is **field-scoped to `closure_check_command`**, the'
+  - '**Negative controls, each proving the new logic can go red for its own reason:**'
+  - 'The baseline is **regenerated from `--json`, never hand-edited**, and its header'
+  - '`--ratchet` is confirmed to have actually FIRED in the GREW direction against the'
+  - 'Bridge suite green after the change (legs 72 and 73 included), and the new finding'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'liveness is a closure from roots outside the population, not a one-hop union — and the ratchet fired for the first time, on my own change. tools/* was a ROOT, so any tool named inside any tool read as reachable and dead tools vouched for each other; _t400-schema-teeth.sh was referenced by nine dead teeth scripts. It is now a traversal edge walked only from tools already live. Separately the gap register was grepped whole-file while its own comment said ''closure conditions that RUN'' — lib/gaps.py executes exactly one field, closure_check_command, and 4 of 34 concerns have one, so a tool named in 2362 characters of narrative read as wired. That is AEF''s next_id body-grep in our file one day after I reported it to them. Findings 37 -> 66 over population 165, roots 29, 9 live only via a chain. RATCHET GREW by 29, rc=1, recorded in the baseline header before regeneration because a ratchet whose first movement is absorbed by a same-commit refresh has never been shown to work. Four negative controls, and (a) and (b) were re-run against git show HEAD: of the old file, which returned only dead_voucher — so they go red for their own reason, not by accident, which is the check yesterday''s control C did not survive. Third defect found and deliberately NOT fixed: _t418-producer-attribution.py STILL reads live, reached from the settings.json-rooted gate by a docstring sentence naming it as a compensating control. The LIMIT was stated in one direction only, which is the same shape as the defect it warns about; both directions now stated, 46 of 115 reference lines are comments, filed T-495. Suite 73 passed, 0 failed'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-493-unwired-guard-census-computes-liveness-o.md'
+  - '.tasks/active/T-495-unwired-guard-census-counts-a-tool-named.md'
+  - 'tools/_t451-unwired-guard-census.py'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-14T09:11:15"
+    action: "T-493: liveness is a closure from roots outside the population, not a one-hop union — and the ratchet fired for the first time, on my own change. tools/* was a ROOT, so any tool named inside any tool read as reachable and dead tools vouched for each other; _t400-schema-teeth.sh was referenced by nine dead teeth scripts. It is now a traversal edge walked only from tools already live. Separately the gap register was grepped whole-file while its own comment said 'closure conditions that RUN' — lib/gaps.py executes exactly one field, closure_check_command, and 4 of 34 concerns have one, so a tool named in 2362 characters of narrative read as wired. That is AEF's next_id body-grep in our file one day after I reported it to them. Findings 37 -> 66 over population 165, roots 29, 9 live only via a chain. RATCHET GREW by 29, rc=1, recorded in the baseline header before regeneration because a ratchet whose first movement is absorbed by a same-commit refresh has never been shown to work. Four negative controls, and (a) and (b) were re-run against git show HEAD: of the old file, which returned only dead_voucher — so they go red for their own reason, not by accident, which is the check yesterday's control C did not survive. Third defect found and deliberately NOT fixed: _t418-producer-attribution.py STILL reads live, reached from the settings.json-rooted gate by a docstring sentence naming it as a compensating control. The LIMIT was stated in one direction only, which is the same shape as the defect it warns about; both directions now stated, 46 of 115 reference lines are comments, filed T-495. Suite 73 passed, 0 failed"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 13 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 13
+  commits: 1
+  files_changed: 4
+  lines_added: 508
+  lines_removed: 39
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-493-unwired-guard-census-computes-liveness-o.md
+generated_by: context-agent-hybrid
