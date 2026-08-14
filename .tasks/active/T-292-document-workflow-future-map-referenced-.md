@@ -18,6 +18,8 @@ related_tasks: []
 created: 2026-07-28T20:02:13Z
 last_update: 2026-07-28T20:02:13Z
 date_finished: null
+revisit_at: 2026-08-28
+revisit_evidence_needed: "same decision as T-291 for the 'future-map' ghost (uuid-pinned, T-235 picker exemplar)"
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──

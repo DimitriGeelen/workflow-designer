@@ -4,7 +4,7 @@ name: "T-357 step 2: emit BPMN DI additively alongside aef:position"
 description: >
   Second of the three nested increments under T-357's GO. Emit bpmndi (dc:Bounds for shapes, di:waypoint for edges, label bounds) on export while continuing to write aef:position. Additive: no T-225 silent-migration question because nothing the author wrote is rewritten or dropped, and the intent extensions (forceStraight, routingHint, loopDetour) stay, so the spike-3 intent gap does not bite. Costs: all 24 corpus maps change bytes. [CORRECTED 2026-08-12 by T-473 — the clause that stood here, "so AEF's pinned source_bpmn_sha fixtures need a COORDINATED re-pin — this is the first step in the arc that touches the seam", is FALSE. Measured on AEF's side at rail 584 Q1: source_bpmn_sha is a provenance field THEIR promote tool writes into THEIR corpus meta, keyed by our IW-2 contract; it pins nothing of ours. They hold no copy of examples/aef-processes/rendered at all. The 24 maps are a ZERO-cost change at the seam. See ## Seam cost, corrected.] Blocked on step 1 (T-340 option b) landing. NOT blocked on A-020 — that was answered NO at rail 417 (2026-08-03) and is recorded invalidated: AEF never parsed or emitted DI and holds no record of agreeing to. The consequence sharpens this task rather than gating it — with no downstream DI generator on either side of the seam, emitting DI is NET-NEW CAPABILITY on both sides, not the completion of a handoff someone else was already honouring. Nobody is waiting for these bytes, and [CORRECTED by T-473: "the re-pin is the whole cost" was the conclusion drawn from the false premise above — there is no re-pin, so the seam cost is zero and the remaining cost is entirely one-party: our own _t308-export-byte-identity goes 24/24 drifted] the benefit is portability to standard viewers (bpmn.io, Camunda), not AEF interop.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: claude-code
 horizon: now
@@ -17,7 +17,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:27Z
-last_update: 2026-08-10T20:31:12Z
+last_update: 2026-08-14T15:24:27Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -105,13 +105,52 @@ test run — minutes. The reason to announce *before* is that their guard's fail
 tells the reader to conclude someone mutated a fixture locally; an unannounced change makes
 a true event read as tampering.
 
+## Ordering satisfied, and two obstacles the ACs did not anticipate (2026-08-14)
+
+**The gate this task was waiting on is open.** Operator recorded ruling (b) as PD-200 and
+step 1 landed at `fc7f7263`: the importer now reads DI behind `aef:position`, and the
+emitter re-emits DI when the input carried it. So the first AC below is satisfied and the
+two-contradictory-geometries risk it names is gone — DI written by step 2 is now readable.
+
+Two things block the rest, neither of which is in the ACs:
+
+**(1) The `DI_TRAILER` disposition is unowned, and step 2 forces it.**
+Step 1 left the emitter as `if (sourceCarriedDi) { DI block } else { trailer }`. Step 2
+makes DI unconditional, so the `else` never fires and `DI_TRAILER_PREFIX` stops being
+emitted — permanently, on every export. That prefix is documented at `src:9430` as
+load-bearing: *"documents exported by all 11 prior releases carry it, and both readers
+match on it."*
+
+- **Our reader is fine.** `src:9540` uses it only to decide that a comment consisting of
+  nothing but the trailer is not an authored doc comment. Absent trailer → null doc
+  comment, which is the same outcome. Checked, not assumed.
+- **AEF's reader is not visible from here** and is the reason this is a rail question
+  rather than a code question.
+
+The task that would have owned this is **T-425, closed `work-completed` as a duplicate** —
+correctly, because the defect it was filed against had already been fixed by T-361. But
+withdrawing it retired the ticket and not the obligation, and step 2 is where that
+surfaces. Same shape as this week's others: something closed for a good reason leaves an
+adjacent question with no owner, and the next step walks into it.
+
+**(2) The schema-validation AC cannot be satisfied in this environment.**
+It requires validating an exported map against the BPMN 2.0 DI schema and explicitly rules
+out the cheap substitute (*"not by grepping for the element names"* — which is the right
+instruction and is exactly what this week says about mention-vs-instance). There is no
+`xmllint` on this host and no `.xsd` anywhere in the tree. The AC is not wrong; it is
+unbuildable until a validator exists. Left unticked and stated rather than downgraded into
+a grep, which is the failure it was written to prevent.
+
+**Status: still `captured`. No source edited under this task.**
+
 ## Acceptance Criteria
 
 ### Agent
-- [ ] **Ordering respected: this task does not start until T-340 is ruled and step 1 has
+- [x] **Ordering respected: this task does not start until T-340 is ruled and step 1 has
       landed.** Step 2's precedence rule (`aef:position` → else DI) is step 1's deliverable;
       building step 2 first means writing DI that the importer cannot yet read, which is
       the two-contradictory-geometries state PL-114 exists to prevent, self-inflicted.
+      **Satisfied 2026-08-14: PD-200 ruled, step 1 landed at `fc7f7263`.**
 - [ ] `bpmndi:BPMNDiagram` / `bpmndi:BPMNPlane` emitted on export with `dc:Bounds` for every
       shape, `di:waypoint` for every edge, and label bounds where a label position is
       persisted. Verified by validating one exported map against the BPMN 2.0 DI schema —
@@ -296,3 +335,6 @@ a true event read as tampering.
 
 ### 2026-08-10T20:31:11Z — status-update [task-update-agent]
 - **Change:** status: started-work → captured
+
+### 2026-08-14T15:24:27Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

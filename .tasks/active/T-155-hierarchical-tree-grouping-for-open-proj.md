@@ -18,6 +18,8 @@ related_tasks: []
 created: 2026-07-09T15:01:59Z
 last_update: 2026-07-29T05:31:28Z
 date_finished: null
+revisit_at: 2026-08-21
+revisit_evidence_needed: "operator answers IW-1/IW-2; the recommendation (A1+B1+C1) is already written, so the only missing input is ratification"
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──

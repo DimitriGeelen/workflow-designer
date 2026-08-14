@@ -7,7 +7,7 @@ description: >
 status: captured
 workflow_type: build
 owner: human
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: [T-357, T-423]
@@ -17,7 +17,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:36Z
-last_update: 2026-08-10T20:23:36Z
+last_update: 2026-08-14T15:25:49Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -191,3 +191,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-424-t-357-step-3-retire-aefposition.md
 - **Context:** Initial task creation
+
+### 2026-08-14T15:25:49Z — status-update [task-update-agent]
+- **Change:** horizon: later → now
