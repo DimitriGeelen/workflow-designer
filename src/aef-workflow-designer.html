@@ -9707,7 +9707,33 @@ function buildBpmnXml(s) {
 
   lines.push(`  </bpmn:process>`);
   lines.push(``);
-  lines.push(`  <!-- ${DI_TRAILER} -->`);   // T-361: was a hardcoded duplicate of DI_TRAILER
+  // T-340 ruling (b), export half: re-emit DI ONLY when the document we imported
+  // carried it. Not "always emit DI" — that would rewrite all 126 aef:position-only
+  // documents in the corpus and force AEF to re-pin bytes for a change none of their
+  // readers asked for.
+  //
+  // The trailer and the DI block are mutually exclusive by construction, and that is
+  // load-bearing rather than tidiness: DI_TRAILER states in prose that DI is OMITTED.
+  // Emitting both would ship a sentence that contradicts the bytes three lines below
+  // it — which is precisely the T-361 defect (a trailer whose claim had no referent)
+  // committed a second time, in the same constant, by the change that was supposed to
+  // make the claim true.
+  if (s.sourceCarriedDi) {
+    const wfId = escAttr(s.workflowMeta.id);
+    lines.push(`  <bpmndi:BPMNDiagram id="BPMNDiagram_${wfId}">`);
+    lines.push(`    <bpmndi:BPMNPlane id="BPMNPlane_${wfId}" bpmnElement="Process_${wfId}">`);
+    for (const n of s.nodes) {
+      const def = NODE_DEFAULTS[n.type] || { w: 120, h: 48 };
+      if (typeof n.x !== 'number' || typeof n.y !== 'number') continue;
+      lines.push(`      <bpmndi:BPMNShape id="BPMNShape_${escAttr(displayIdOf(n))}" bpmnElement="${escAttr(displayIdOf(n))}">`);
+      lines.push(`        <dc:Bounds x="${n.x.toFixed(1)}" y="${n.y.toFixed(1)}" width="${def.w}" height="${def.h}"/>`);
+      lines.push(`      </bpmndi:BPMNShape>`);
+    }
+    lines.push(`    </bpmndi:BPMNPlane>`);
+    lines.push(`  </bpmndi:BPMNDiagram>`);
+  } else {
+    lines.push(`  <!-- ${DI_TRAILER} -->`);   // T-361: was a hardcoded duplicate of DI_TRAILER
+  }
   lines.push(`</bpmn:definitions>`);
   return lines.join('\n');
 }
@@ -9735,6 +9761,41 @@ function parseBpmnXml(text) {
   const AEF_NS  = 'http://anchorpoint.framework/aef/extensions';
   const byBpmn = (parent, local) => Array.from(parent.getElementsByTagNameNS(BPMN_NS, local));
   const byAef  = (parent, local) => Array.from(parent.getElementsByTagNameNS(AEF_NS, local));
+
+  // ---- BPMN DI intake (T-340, operator ruling 2026-08-14, candidate (b)) ----
+  //
+  // Position precedence on import is: aef:position -> BPMN DI -> auto-layout. Before
+  // this, the entire bpmndi sub-tree was read by NOTHING and every DI-only document
+  // imported as auto-layout — a document authored in a standard BPMN editor lost its
+  // real geometry silently, which is the defect this task is named for.
+  //
+  // GEOMETRY CONVENTION, checked rather than assumed: dc:Bounds x/y is the shape's
+  // TOP-LEFT corner, and so is our node x/y — every renderer computes centres as
+  // `n.x + def.w / 2` (see :2977, :3000). The two conventions coincide, so this is a
+  // COPY and not a conversion. Worth stating because the failure mode of getting it
+  // wrong is a uniform half-node offset: everything still renders, nothing throws,
+  // and the diagram just sits slightly wrong.
+  const DI_NS = 'http://www.omg.org/spec/BPMN/20100524/DI';
+  const DC_NS = 'http://www.omg.org/spec/DD/20100524/DC';
+  const diBounds = new Map();
+  for (const shape of Array.from(doc.getElementsByTagNameNS(DI_NS, 'BPMNShape'))) {
+    const ref = shape.getAttribute('bpmnElement');
+    const b = Array.from(shape.getElementsByTagNameNS(DC_NS, 'Bounds'))[0];
+    if (!ref || !b) continue;
+    const x = parseFloat(b.getAttribute('x'));
+    const y = parseFloat(b.getAttribute('y'));
+    // A shape carrying a non-numeric or absent x/y is skipped rather than defaulted
+    // to 0 — a node silently stacked at the origin is worse than one auto-laid-out.
+    if (Number.isFinite(x) && Number.isFinite(y)) diBounds.set(ref, { x, y });
+  }
+  // Did the INPUT carry DI? The export side re-emits DI only when this is true, which
+  // is the whole of ruling (b)'s export half. Corpus measurement 2026-08-14, 145 .bpmn
+  // files: 126 carry aef:position only, 10 carry DI only, 9 carry neither, and
+  // BOTH = 0. So (i) output stays byte-identical for the 126, and (ii) the precedence
+  // rule above never actually has to arbitrate in the corpus as it stands today — it
+  // is written down for the document that will eventually carry both, not for one
+  // that exists now.
+  const sourceCarriedDi = diBounds.size > 0;
 
   const processes = byBpmn(doc, 'process');
   if (!processes.length) return null;
@@ -9933,12 +9994,19 @@ function parseBpmnXml(text) {
       // uid from aef:uid extension, else derive it from the element id (T-364)
       const uidEl = byAef(el, 'uid')[0];
       const uid = uidEl?.getAttribute('value') || deriveUid('n', displayId);
-      // Position from aef:position extension if present, else lay out automatically
+      // Position: aef:position, else BPMN DI, else lay out automatically (T-340
+      // ruling (b)). aef:position wins when both are present — DI is the SECOND
+      // source, not a replacement, because aef:position is what our own exports
+      // carry and a document holding both is most likely ours re-tooled elsewhere.
       const posEl = byAef(el, 'position')[0];
       let x, y;
       if (posEl) {
         x = parseFloat(posEl.getAttribute('x'));
         y = parseFloat(posEl.getAttribute('y'));
+      } else if (diBounds.has(displayId)) {
+        const b = diBounds.get(displayId);
+        x = b.x;
+        y = b.y;
       }
 
       // Lane membership: look up which laneSet entry references this displayId
@@ -10167,6 +10235,12 @@ function parseBpmnXml(text) {
     // must reach buildBpmnXml. Kept here rather than module-level (the T-308
     // reconcile-counter pattern) because it is per-document, not per-session.
     laneProvenance,
+    // T-340: did the document we parsed carry BPMN DI? This one MUST reach
+    // buildBpmnXml (like docComment below, unlike laneProvenance above) — it is the
+    // input half of "emit DI only when the input carried it". Losing it across a
+    // save/reload would turn a DI-carrying document into a DI-dropping one on its
+    // second export, which is the original defect wearing a different hat.
+    sourceCarriedDi,
     // T-311: the authored rationale. Unlike T-308's reconcile counter — which lives
     // module-level precisely so it CANNOT reach the exporter — this value must reach
     // it, so it belongs on state. Carried verbatim; buildBpmnXml re-emits it as the

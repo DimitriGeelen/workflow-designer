@@ -192,7 +192,19 @@ const EXPECTED_REFS = {
 // mainstream BPMN modeller emits DI, so this is the shape a real third-party file
 // would arrive in. Filed as its own task; measured here because it is the same
 // class the instrument exists to watch.
-const EXPECTED_DI = 'DI-DROPPED';
+// T-340 (operator ruling 2026-08-14, candidate (b)): was 'DI-DROPPED' for the whole
+// life of this probe. The importer now reads dc:Bounds as a position source behind
+// aef:position, and the emitter re-emits DI when — and only when — the input carried
+// it. Measured 24/24 injected, 24/24 survived, by THIS probe still expecting the old
+// value: the FAIL that reported the improvement is the reason this line changed, in
+// that order. Recorded, not absorbed (:933).
+//
+// Note for whoever reads this next: a map that arrives with aef:position AND injected
+// DI now exports BOTH carriers. They cannot drift apart — each is written from the
+// same `n.x`/`n.y` on the same pass — but "geometry has one carrier" stopped being
+// true here, and the carriers leg below is the thing that would notice if that ever
+// stops holding.
+const EXPECTED_DI = 'DI-PRESERVED';
 
 // --- population 5: CONTENT of an ACCEPTED element (T-346) -------------------
 // Populations 1-4 all ask whether the importer accepts a THING. This one asks

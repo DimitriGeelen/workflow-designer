@@ -17,7 +17,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T10:39:05Z
-last_update: 2026-08-14T12:08:32Z
+last_update: 2026-08-14T15:12:47Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -73,9 +73,9 @@ Each changes what we emit for a peer's content, which is the T-559 product seam.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **BLOCKED** — Chosen semantics implemented in `parseBpmnXml`/`buildBpmnXml`
-- [ ] **BLOCKED** — `EXPECTED_DI` in `tools/_t338-input-fidelity-cdp.mjs` updated to record the improvement
-- [ ] **BLOCKED** — Bridge suite green with the changed expectation
+- [x] Chosen semantics implemented in `parseBpmnXml`/`buildBpmnXml` (ruling (b), PD-200)
+- [x] `EXPECTED_DI` in `tools/_t338-input-fidelity-cdp.mjs` updated to record the improvement — DI-DROPPED → DI-PRESERVED, after measuring 24/24 injected & 24/24 survived
+- [x] Bridge suite green with the changed expectation — 75 passed, 0 failed; geometry sweep 24 clean
 
 All three are downstream of the ruling below and are left **unticked and marked BLOCKED**
 rather than reworded into something satisfiable. A task whose scope is blocked should look
@@ -393,6 +393,45 @@ population problem, not a rule problem, and is bigger than this task.
 - **Triggered:** no new task. The "no third-party BPMN in the tree" gap is named in the RCA
   rather than filed, because it is a property of the whole import-loss class (T-337, T-340,
   T-347, T-348), not of this task — filing it here would scope it to DI.
+
+### 2026-08-14 — ruling landed, semantics built, and the probe reported its own improvement
+- **What changed:** the operator recorded (b) as PD-200, so the three ACs that had been
+  left visibly `**BLOCKED**` rather than reworded into something satisfiable became
+  buildable. Implemented in three places:
+  - `parseBpmnXml` — a `BPMNShape`→`dc:Bounds` index, position precedence
+    `aef:position` → DI → auto-layout, and `sourceCarriedDi` on the returned state.
+  - `buildBpmnXml` — a `bpmndi:BPMNDiagram` block emitted **only** when
+    `sourceCarriedDi`, in an if/else with the `DI_TRAILER` comment.
+  - `tools/_t338-input-fidelity-cdp.mjs` — `EXPECTED_DI` DI-DROPPED → DI-PRESERVED.
+- **Confirmed by an instrument that expected the old answer.** The probe was written
+  before the fix, still expecting DI-DROPPED, and FAILED with
+  *"expected DI-DROPPED, measured DI-PRESERVED"* — 24/24 injected, 24/24 survived. The
+  failure IS the evidence; the constant was changed after it, not before. Then green,
+  and the suite at 75 passed / 0 failed, geometry sweep 24 clean.
+- **The geometry convention was checked, not assumed.** `dc:Bounds` x/y is top-left and
+  so is our `n.x`/`n.y` (renderers compute centres as `n.x + def.w/2`). Had they
+  differed, every imported diagram would have been offset by half a node — rendering
+  fine, throwing nothing, just quietly wrong.
+- **Trailer and DI block are mutually exclusive by construction.** `DI_TRAILER` says in
+  prose that DI is omitted. Emitting both would ship a sentence contradicting the bytes
+  three lines below it — the T-361 defect committed a second time, in the same constant,
+  by the change meant to make its claim true.
+- **Two limits, stated rather than left to be discovered:**
+  1. **Edge waypoints are not preserved.** Only `BPMNShape` is indexed on import and
+     only shapes are emitted. A DI-only document's `BPMNEdge` routing is still dropped.
+     Node geometry was the ruling's subject; edge geometry is a separate question and
+     is not silently claimed here.
+  2. **Geometry now has two carriers** on any document that arrives with both
+     `aef:position` and DI. They cannot drift — both are written from the same `n.x`/
+     `n.y` on the same pass — but "geometry has one carrier" stopped being true, and
+     PL-114's carriers leg is what would notice if that ever stops holding.
+- **Plan impact:** the RCA's note that a DI-specific verification assertion "cannot be
+  written yet, its shape depends on which semantics the operator rules for" is now
+  discharged — `EXPECTED_DI` is that assertion, and it lives in the probe rather than
+  in a grep over source.
+- **Triggered:** nothing filed yet. Edge-waypoint DI is the honest candidate; T-423's
+  premise ("emit DI **additively** alongside aef:position") is contradicted by ruling
+  (b) and needs re-scoping or retiring — flagged, not acted on.
 
 <!-- REQUIRED for arc-tagged build tasks (tags include arc:*). Captures how
      understanding evolved during build — what was learned that wasn't known at
