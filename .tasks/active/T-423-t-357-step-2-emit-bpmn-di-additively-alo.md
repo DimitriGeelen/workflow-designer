@@ -133,6 +133,39 @@ withdrawing it retired the ticket and not the obligation, and step 2 is where th
 surfaces. Same shape as this week's others: something closed for a good reason leaves an
 adjacent question with no owner, and the next step walks into it.
 
+> ### RESOLVED 2026-08-14 — AEF answered, and the answer inverts the assumption
+>
+> Their reader **does** match on the string, and it does not matter, because of a
+> distinction I had no way to see from here: `tools/corpus_spec.py:153` defines
+> `_DI_TRAILER_PREFIX`, used at `:194` inside `_is_boilerplate_comment()` as a **negative
+> filter, not a positive requirement.** Its job is to stop the trailer being laundered into
+> a map's doc slot — their position-blind reader adopted a trailing comment, `generate()`
+> re-emitted it in leading position, and the corruption became indistinguishable from
+> authored doc (their T-2682, which hit two already-promoted maps).
+>
+> **So nothing in their tree requires the trailer to be EMITTED — only RECOGNISED when
+> present.** New exports carrying no trailer match nothing and land correctly. They said
+> explicitly: proceed, no sequencing needed against them.
+>
+> Two constraints, recorded as constraints rather than preferences:
+>
+> 1. **Their constant stays.** All 11 prior releases' documents carry the trailer and their
+>    fixtures encode them as historical-document regressions. Nothing here touches those.
+> 2. **Dropping it is safe; changing its wording is not.** They pin three live wordings, and
+>    the prefix match exists precisely because the tail drifts; a *fourth* phrasing would
+>    reopen T-2682's hole on that variant. **This task makes the `else` unreachable and
+>    rewords nothing** — the string stops being emitted, it does not become a different
+>    string. That distinction is now a constraint on the implementation, not a detail.
+>
+> Also recorded because it is the more interesting half: their guard is deliberately **not**
+> producer-gated, and their source says in as many words *"do not 'correct' this to match
+> theirs."* Our T-406 inference works because the boilerplate is *our* text, so a document
+> naming another producer cannot carry it. Theirs arrives through their own reader and
+> leaves stamped `exporter="aef-corpus-spec"` — a laundered document names **them**, so
+> producer-gating would blind the guard in exactly the case it exists for. Two correct
+> answers with opposite shapes because the threat models are mirror images. Not to be
+> "aligned" in either direction.
+
 **(2) The schema-validation AC cannot be satisfied in this environment.**
 It requires validating an exported map against the BPMN 2.0 DI schema and explicitly rules
 out the cheap substitute (*"not by grepping for the element names"* — which is the right
@@ -140,6 +173,24 @@ instruction and is exactly what this week says about mention-vs-instance). There
 `xmllint` on this host and no `.xsd` anywhere in the tree. The AC is not wrong; it is
 unbuildable until a validator exists. Left unticked and stated rather than downgraded into
 a grep, which is the failure it was written to prevent.
+
+> **Re-measured 2026-08-14, and it still stands — this is now the ONLY blocker.**
+> `find . -iname '*.xsd'` → nothing in the tree; `command -v xmllint` → absent. With
+> obstacle (1) resolved above, the blocker list went from two to one, and the survivor is
+> the one that needs no other party.
+>
+> **It is a decision, not a task.** Satisfying AC2 means vendoring a third-party XSD into
+> this repo or installing a system validator — both scoping choices that a "proceed as you
+> see fit" directive does not carry, since that delegates initiative and not authority. In
+> front of the operator.
+>
+> **Deliberately not done: rewording AC2 into something satisfiable.** A structural check —
+> assert every `BPMNShape/@bpmnElement` resolves to a real node id, every `BPMNEdge` carries
+> at least two waypoints — is far stronger than a grep and arguably honours the intent. It
+> is still not what the AC says. T-340's own file carries the argument: *"a task whose scope
+> is blocked should look blocked, rather than reworded into something satisfiable."*
+> Building the emitter and verifying it by the one method the AC excludes would produce a
+> green task and an unvalidated emitter, which is the worst of the three outcomes available.
 
 **Status: `started-work` (set by `fw work-on` when I opened it to record this). No source
 edited under this task, and none will be until §2's rail question is answered.** An earlier
