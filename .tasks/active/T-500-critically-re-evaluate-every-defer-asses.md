@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-14T12:11:01Z
-last_update: 2026-08-14T15:28:08Z
+last_update: 2026-08-14T15:28:25Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -111,6 +111,13 @@ Verdict per AC-4. A fourth bucket was required and its existence is itself a fin
 four items cannot be settled by static evidence at all, because the deferred claim is a
 RUNTIME property (a render, a click) or its subject is not in this tree.
 
+> **SUPERSEDED by §9 — the fourth bucket is now empty, and its framing was partly wrong.**
+> Three of the four did need a running browser. The fourth, T-241, was settleable from
+> source the whole time; it landed in this bucket because my search filtered by file
+> extension and the whole application is one `.html`. "Cannot be settled statically" was
+> true of three and false of one, and the false one is the one I asserted most strongly
+> ("subject not in this tree"). Final verdicts for all four are in §9.
+
     STALE (justification no longer holds) — 2
 
     T-443  Rename fixtures/aef-bpmn        TRIGGER ALREADY FIRED, 2 days unnoticed.
@@ -173,6 +180,59 @@ RUNTIME property (a render, a click) or its subject is not in this tree.
 reads exactly like "not implemented". Caught by checking the search population before
 the finding, not after.
 
+### 9. The fourth bucket is now empty — all four settled, three of them not as I guessed
+
+Served the designer from `tools/gallery-serve.py` on :3099 and drove it with Playwright.
+Server stopped afterwards, port free, and it wrote nothing to the tree despite being the
+write-capable one.
+
+    T-241  api/thumb graceful fallback        DISSOLVED
+           Already built, under T-149/T-144, not T-241. `img.onerror` →
+           `makeThumbPlaceholder` at src:8598, commented "404 → ▦ placeholder, not blank
+           gap (T-149 F2)". Confirmed at RUNTIME as well as in source: of 29 thumbnails
+           the gallery requested, 4 returned 404 and rendered as ▦ tiles — visible in the
+           screenshot, not inferred. Same shape as T-246: the deliverable arrived under a
+           different task and the park never noticed.
+
+    T-294  port-indicator pin click           DISSOLVED
+           A REAL Playwright click (not a synthetic dispatchEvent — the reported defect is
+           precisely that a real mousedown intercepts it) moved the edge's `sourcePort`
+           from `(undefined)` to `NW` and cleared its waypoints, edge still selected.
+           Likely taken out by T-293's z-order fix, which post-dates the filing. The canvas
+           mousedown at src:2429 also ignores plain left-clicks — middle-button or
+           pan-key only — so there is nothing left to bubble into.
+
+    T-233  gallery ghost cards                STILL VALID — symptom confirmed present
+           The Open-project card browser contains NO ghost entry at all: `future-map` is
+           absent from the rendered text and the word "ghost" appears nowhere in it.
+           Ghosts surface only in the separate "Pending refs" modal. `/api/list` returns
+           1 live ghost, so the subject exists and the deliverable is simply unbuilt.
+
+    T-301  store-card id vs workflowMeta id   DISSOLVED BY OCCUPANCY, not by construction
+           Versions panel populated correctly (v5…v1, matching the API) for the map I
+           opened — but there the two ids were IDENTICAL, so the failure condition was
+           absent and that single case proves nothing. Measured the whole corpus instead:
+           33 maps, 24 with saved versions, and store-card id == `workflowMeta.id` in
+           **all 24**. Zero instances of the mismatch this task describes. That is an
+           occupancy zero of exactly the kind T-340's own filing corrections warned about
+           — the code path could still be wrong for a map that arrives mismatched, and
+           nothing here has produced one.
+
+**Two more broken instruments, both mine, both caught before they became findings.**
+
+1. My first probe for T-241 filtered `--include=*.py --include=*.js` over `web/ src/ lib/`.
+   Two of those directories do not exist here, and the entire application is ONE `.html`
+   file — so the filter excluded the only file that could have answered. It returned a
+   confident nothing, and I wrote "subject not in this tree" into §6 on the strength of it.
+2. The corpus sweep first reported **33 of 33 maps have no versions**, which contradicted
+   a result I had printed ninety seconds earlier. `/api/versions` returns a BARE ARRAY;
+   I read `raw.versions`, got `undefined`, and defaulted it to `[]` — 33 empty answers
+   generated by my own accessor. The earlier output had already shown the shape (its JSON
+   began `[{"v":1`) and I did not read it.
+
+Both are the week's class: the instrument answered confidently about the wrong subject.
+The only reason neither shipped is that each contradicted something already on screen.
+
 ### 8. CORRECTION — T-424's trigger had not fired, and I promoted it before reading it
 
 Sections 4 and 6 both called T-424 *"the one defer whose re-entry condition is genuinely
@@ -224,7 +284,7 @@ worst.
       must be said, not implied absent
 - [x] Each defer is re-evaluated against the question that actually matters: has the
       evidence that justified deferring CHANGED? Not "is it still deferred"
-- [ ] Every defer gets one of: STILL VALID (with what would change it), STALE (the
+- [x] Every defer gets one of: STILL VALID (with what would change it), STALE (the
       justification no longer holds), or DISSOLVED (the thing deferred no longer exists)
 - [x] Defers with no revisit date are named individually — a defer with no trigger is
       indistinguishable from an abandonment, which is the exclusion-vs-hole distinction
