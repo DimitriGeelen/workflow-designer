@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T13:43:07Z
-last_update: 2026-08-12T16:54:02Z
+last_update: 2026-08-14T17:28:57Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -169,6 +169,39 @@ date_finished: null
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-08-14 — it is not "left uncommitted", it is structurally uncommittable
+
+- **What changed:** This task's title says the completion transition *leaves* task-file
+  state uncommitted, which reads as an omission — someone forgot to commit. It is stronger
+  than that. Two gates close behind the transition and leave no non-Tier-2 exit.
+
+  Observed end to end on T-233 today. `fw task update T-233 --status work-completed`
+  rewrote the frontmatter (`status`, `owner: human`, `date_finished`, `components` resolved
+  from git history) and wrote `.context/working/.reviewed-T-233`. The next `git add` of
+  that same file was refused:
+
+  1. Focus still on T-233 → `check-active-task`: *"Task T-233 has status 'work-completed'
+     … Cannot modify files under a completed task"* (P-002).
+  2. So move focus to T-458, which owns this defect → **focus-drift gate** (T-1730): focus
+     is T-458, the action target parsed from the path is T-233, refused.
+
+  Focus on the task and it is complete; focus off it and you have drifted. The listed ways
+  through are `--switch-focus` and `FW_SWITCH_FOCUS=1`, both logged Tier 2 — an operator's
+  authorisation, not something an agent may take on a broad "proceed" directive. So an
+  agent working autonomously **cannot** commit the state the framework itself just wrote,
+  by any sanctioned path.
+
+- **Plan impact:** The fix cannot be "remember to commit first" — there is no ordering that
+  works, because the state does not exist until the transition creates it, and the
+  transition is what revokes the permission. It has to be either (a) the transition commits
+  its own output, or (b) P-002 admits a task's own file during the completion transition
+  that produced it. (a) is the smaller change and matches how the handover agent already
+  auto-commits what it writes.
+
+- **Triggered:** Nothing new filed — this is the same defect, now with a reproduction and a
+  sharper statement of why the obvious workaround is not one. T-233's file is sitting
+  modified-and-unstaged as the live artefact; it needs the operator's Tier 2 or the fix.
 
 ## Decisions
 

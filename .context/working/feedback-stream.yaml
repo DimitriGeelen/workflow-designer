@@ -6083,3 +6083,39 @@ scan_id: R-ab024d45
 task_id: T-497
 payload:
   task_file: .tasks/active/T-497-measure-the-shell-half-of-the-derived-ro.md
+---
+kind: scan_emitted
+timestamp: '2026-08-14T16:51:54Z'
+scan_id: R-b0538870
+task_id: T-500
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-14T16:51:54Z'
+scan_id: R-b0538870
+task_id: T-500
+payload:
+  task_file: .tasks/active/T-500-critically-re-evaluate-every-defer-asses.md
+---
+kind: scan_emitted
+timestamp: '2026-08-14T17:28:27Z'
+scan_id: R-6a270acb
+task_id: T-233
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-14T17:28:27Z'
+scan_id: R-6a270acb
+task_id: T-233
+payload:
+  task_file: .tasks/active/T-233-s5b-gallery-ghost-cards-render-ghosts-as.md
