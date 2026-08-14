@@ -114,9 +114,15 @@ LIMIT — measured edges, not assertions:
   * Rule 0 / Rule 2 lists are DECLARED against schemas read 2026-08-11. Any termlink
     tool not probed above and carrying payload/payload_b64/text still BLOCKS. That is
     the deliberate direction: an unknown tool is treated as a possible producer.
-  * agent_contact is caught by name (Rule 2), not by content key. A future tool using
-    `message`/`body_file` would be a fresh false negative — the FN class is not closed,
-    only this instance of it.
+  * agent_contact is caught by name (Rule 2) AND, since T-494, by content key. This
+    LIMIT used to end "the FN class is not closed, only this instance of it" — a
+    correct prediction, printed by this tool on every single run, that nobody turned
+    into a task. Four days later agent_send_auto_discover WAS that predicted fresh
+    false negative: live, posting to a dm topic, allowed at exit 0. `message` and
+    `body_file` are now in CONTENT_KEYS, so the class is closed by shape, not by name.
+    The lesson outlives the fix: a known-open class recorded only in a LIMIT string is
+    a prediction with no schedule. If it is worth printing on every run, it is worth
+    a task id.
   * This matrix probes the gate's DECISION. It does not prove the hook is registered in
     .claude/settings.json; a green matrix over an unregistered gate is PL-147 exactly.
     Registration is asserted separately in T-426's Verification block.

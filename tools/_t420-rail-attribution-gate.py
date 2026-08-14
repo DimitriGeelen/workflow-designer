@@ -121,7 +121,23 @@ EXPECTED_LABEL = os.path.basename(PROJECT_ROOT)
 TERMLINK_PREFIX = "mcp__termlink__"
 
 # Rule 1 (DERIVED): keys under which a termlink call puts content on the wire.
-CONTENT_KEYS = ("payload", "payload_b64", "text")
+#
+# T-494 added `message`. T-426 had already MEASURED that agent_contact carries content
+# under `message` and is invisible to this list — and closed that by naming the tool in
+# Rule 2 rather than by widening the list. The class stayed open, and
+# agent_send_auto_discover walked straight through it four days later at exit 0.
+# Widening here is the safe direction: a non-producer that happens to take a `message`
+# parameter now gets a false positive, which is loud and fixable, versus an unattributed
+# envelope, which is silent and unrecoverable. That asymmetry is the gate's own doctrine
+# and it should have been applied to the list, not just to the member.
+CONTENT_KEYS = ("payload", "payload_b64", "text", "message", "body_file")
+
+# T-494, DELIBERATELY NOT DONE: `termlink_emit_to` is NOT excused in Rule 0 beside its
+# sibling `termlink_emit`. `emit` is session-local; `emit_to`'s own description says it
+# pushes "via the hub", and whether that produces a hub envelope cannot be determined
+# from the schema alone. Excusing it would be LOOSENING on an uncertainty, against the
+# asymmetry above. It stays blocked by Rule 1 until someone measures it. An open
+# question recorded is not the same as a gap left unnoticed.
 
 # Rule 1 (DERIVED): the two attribution channels measured in use on this surface.
 #   metadata.from_project  — channel_post family
@@ -176,6 +192,52 @@ UNATTRIBUTABLE_PRODUCERS = {
         "RECIPIENT) and `sender_id` only overrides the host fingerprint.\n"
         "  Resolve the dm topic (`dm:<sorted_a>:<sorted_b>`) and use "
         "termlink_channel_post with metadata={'from_project': '%s', ...} instead."
+    ),
+    # Added 2026-08-14 (T-494). SAME CONTENT KEY AS agent_contact, and that is the point.
+    # T-426 discovered `message` was not in CONTENT_KEYS and closed the MEMBER by naming
+    # agent_contact here. It did not add `message` to CONTENT_KEYS and did not file the
+    # class, so the next tool spelling its content `message` was open again four days
+    # later — PL-139 stated exactly this: a remedy keyed to the offending value in hand
+    # closes the member and leaves the class. Both halves are closed now: this entry, and
+    # `message` added to CONTENT_KEYS below.
+    #
+    # agent_send_auto_discover resolves a peer's dm:* topic from presence heartbeats and
+    # drives channel.post into it ("WRITES state" in its own schema). Its parameters are
+    # to_agent_id, message, dry_run, hub, conversation_id, timeout_secs — no metadata, no
+    # project. So it was a real producer on a shared topic, waved through at exit 0.
+    "termlink_agent_send_auto_discover": (
+        "agent_send_auto_discover posts to a peer's dm topic via channel.post and has "
+        "no attribution channel — its parameters are to_agent_id, message, dry_run, "
+        "hub, conversation_id, timeout_secs.\n"
+        "  Resolve the dm topic and use termlink_channel_post with "
+        "metadata={'from_project': '%s', ...} instead."
+    ),
+    # Added 2026-08-14 (T-494). These three were ALREADY blocked — by Rule 1, with a
+    # remedy naming `metadata=` and `project=`, NEITHER OF WHICH EXISTS on any of their
+    # schemas. T-426 established that an unfollowable remedy is not a smaller version of
+    # a correct one: its only exits are abandon-the-tool or bypass-the-gate, and neither
+    # leaves a record. Moving them to Rule 2 changes nothing about WHETHER they are
+    # refused and everything about whether the refusal can be acted on.
+    "termlink_channel_edit": (
+        "channel_edit posts a msg_type=edit envelope whose only parameters are topic, "
+        "offset, sender_id and text — there is no attribution channel, so an edit is "
+        "indistinguishable from a co-resident peer's edit of our own post.\n"
+        "  Post a correction with termlink_channel_post carrying "
+        "metadata={'from_project': '%s', 'corrects': '<offset>'}. Edits are append-only "
+        "anyway, so a correction post loses nothing and can be attributed."
+    ),
+    "termlink_agent_edit": (
+        "agent_edit posts a msg_type=edit envelope with only offset, sender_id and "
+        "text — no attribution channel.\n"
+        "  Post a correction with termlink_channel_post carrying "
+        "metadata={'from_project': '%s', 'corrects': '<offset>'} instead."
+    ),
+    "termlink_chat_arc_broadcast": (
+        "chat_arc_broadcast writes one real envelope PER HUB with no undo, and its "
+        "`from` parameter stamps metadata.agent_id/_from — a sender identity, not a "
+        "producer label, so it cannot carry from_project.\n"
+        "  Post to the specific topic with termlink_channel_post and "
+        "metadata.from_project='%s'."
     ),
     "termlink_channel_reply": (
         "channel_reply takes no metadata and no project parameter, so its envelope "

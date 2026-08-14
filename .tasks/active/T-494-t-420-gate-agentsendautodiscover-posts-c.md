@@ -4,7 +4,7 @@ name: "T-420 gate: agent_send_auto_discover posts content under key 'message' an
 description: >
   CONTENT_KEYS is (payload,payload_b64,text); agent_send_auto_discover carries content in 'message', so decide() finds carried empty and returns 0. It drives channel.post to a dm:* topic and its schema says WRITES state, so an unattributed content envelope reaches a shared topic silently. Also in the same re-measure: emit_to is missing from Rule 0 beside its sibling emit; channel_edit, agent_edit and chat_arc_broadcast are blocked with a remedy naming metadata=/project=, neither of which exists on their schemas (T-426 unfollowable-remedy class). The gate's DECLARED lists are dated 2026-08-10/11 and the docstring asks for exactly this re-measure. Found via T-492.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-14T06:59:46Z
-last_update: 2026-08-14T06:59:46Z
+last_update: 2026-08-14T07:12:51Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,112 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+`tools/_t420-rail-attribution-gate.py` labels both its DECLARED lists as facts dated
+2026-08-10/11 and instructs a future reader to re-measure rather than trust them. T-492
+took that instruction four days later. Result:
+
+    tool                        content key   attribution param        verdict
+    agent_send_auto_discover    message       (none)                   ALLOW ← silent
+    emit_to                     payload       (none)                   not in Rule 0
+    channel_edit                text          (none)                   unfollowable remedy
+    agent_edit                  text          (none)                   unfollowable remedy
+    chat_arc_broadcast          payload       from (unknown to gate)   unfollowable remedy
+
+**The severe one is `agent_send_auto_discover`.** `CONTENT_KEYS` is
+`("payload","payload_b64","text")`; its content parameter is `message`, so `carried` is
+empty and `decide()` returns 0. Its own schema says WRITES state and it drives
+`channel.post` to a `dm:*` topic. That is an unattributed content envelope on a shared
+topic at exit 0 — the direction the gate's author called unrecoverable, because *an
+absent label cannot be reconstructed later*.
+
+The other three are T-426's unfollowable-remedy class recurring: blocked by Rule 1 with
+a message naming `metadata=` and `project=`, **neither of which exists on their
+schemas**. T-426 established that an unfollowable remedy is not a smaller version of a
+correct one — its only exits are abandon-the-tool or bypass-the-gate, and neither leaves
+a record.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `agent_send_auto_discover` is refused by Rule 2 with a remedy that names a tool
+      that can actually carry attribution. Rule 2 is checked BEFORE Rule 1, so the fix
+      does not depend on `message` being added to `CONTENT_KEYS` — closing it by content
+      key alone would leave the next content-key spelling open.
+- [x] `channel_edit`, `agent_edit` and `chat_arc_broadcast` are refused with **followable**
+      remedies — each naming a compliant alternative that exists on the current schema.
+      For the two edit verbs the honest remedy is a correction post referencing the
+      offset, because the edit envelope has no attribution channel at all.
+- [x] **`emit_to` is NOT added to Rule 0.** Its sibling `emit` is excused as
+      session-local, but `emit_to`'s own description says "via the hub", and I cannot
+      determine from outside whether that produces a hub envelope. Adding it would be
+      LOOSENING on an uncertainty, against the gate's own stated asymmetry: an unknown
+      tool must be treated as a possible producer, because a false positive is loud and
+      fixable while an unattributed envelope is silent and unrecoverable. Recorded as an
+      open question with the evidence needed, not resolved by guessing.
+- [x] **Teeth:** a driver proves the gate returns 2 for `agent_send_auto_discover`, and
+      that the SAME driver returned 0 against the pre-change file. A block that was never
+      observed as an allow proves nothing about the fix.
+- [x] Every remedy string is checked against the tool's live schema — no remedy names a
+      parameter that does not exist, which is the defect being repaired.
+- [x] `_t420-gate-mutation-check.sh` and `_t426-gate-misfire-matrix.sh` still pass, and
+      the bridge suite is green.
+
+
+## Results
+
+    case                        OLD    NEW    meaning
+    agent_send_auto_discover      0      2    THE FIX — the silent miss is closed
+    channel_edit                  2      2    still refused, remedy now followable
+    chat_arc_broadcast            2      2    still refused, remedy now followable
+    compliant channel_post        0      0    no regression
+    unlabelled channel_post       2      2    still caught
+    read-side channel_state       0      0    still not treated as a producer
+    agent_contact(body_file)      -      2    class closed by shape, not by name
+
+`_t420-gate-mutation-check.sh` 15/15, `_t426-gate-misfire-matrix.sh` pass=23 fail=0,
+bridge suite 73 passed / 0 failed.
+
+## The finding that outlived the fix
+
+`_t426-gate-misfire-matrix.sh` printed this in its LIMIT block on **every run** since
+2026-08-11:
+
+    agent_contact is caught by name (Rule 2), not by content key. A future tool using
+    `message`/`body_file` would be a fresh false negative — the FN class is not closed,
+    only this instance of it.
+
+That is a correct, specific, written-down prediction. `agent_send_auto_discover` is
+exactly the tool it predicted, it was live, and it was allowed at exit 0. Nothing was
+missed by anyone's reading — the class was **named, printed, and left without a task
+id**. PL-139 (from T-418, the same lineage) says a remedy keyed to the value in hand
+closes the member and leaves the class; this is the sharper case, because the author
+*knew* and said so.
+
+**A known-open class recorded only in a LIMIT string is a prediction with no schedule.
+If it is worth printing on every run, it is worth a task id.** Both halves are now
+closed: the members are in Rule 2, and `message`/`body_file` are in `CONTENT_KEYS`.
+
+## A control that was passing for the wrong reason, caught mid-task
+
+The first teeth run reported `compliant channel_post: OLD 2 → NEW 0`, which reads as
+"the old gate blocked valid posts" — a dramatic and false finding. Cause: the gate
+derives `EXPECTED_LABEL` from `basename(dirname(dirname(__file__)))`, and I had copied
+the pre-change file into the scratchpad, so it expected the session UUID as the project
+label. The comparison was real; its subject was not. Re-run from a path shaped
+`.../832-Workflow-designer/tools/`, and the row became `0 → 0`.
+
+Third instance this week of a control producing a confident result through a mechanism
+unrelated to its subject — and this one would have been *published* as a regression.
+
+## Deliberately not done
+
+`termlink_emit_to` is **not** excused in Rule 0 beside its sibling `emit`. `emit` is
+session-local; `emit_to` says it pushes "via the hub", and whether that yields a hub
+envelope cannot be settled from the schema. Excusing it would be loosening on an
+uncertainty, against the gate's own asymmetry: a false positive is loud and fixable, an
+unattributed envelope is silent and unrecoverable. It stays blocked, and the open
+question is recorded in the source rather than resolved by guessing.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -115,6 +213,16 @@ date_finished: null
 # the capture step closed off — the middle stage is what `grep -q` slams its
 # stdin on. `echo "$out"` is small and immediate; grep scans the whole captured
 # string anyway, so the tail-3 was cosmetic. Drop it: `echo "$out" | grep -q PAT`.
+#
+# ── T-494 ─────────────────────────────────────────────────────────────────────
+python3 -c "import ast; ast.parse(open('tools/_t420-rail-attribution-gate.py').read())"
+bash -n tools/_t426-gate-misfire-matrix.sh
+bash tools/_t420-gate-mutation-check.sh
+bash tools/_t426-gate-misfire-matrix.sh
+# The fix itself: the previously-allowed producer is now refused (exit 2).
+sh -c 'printf %s "{\"tool_name\":\"mcp__termlink__termlink_agent_send_auto_discover\",\"tool_input\":{\"to_agent_id\":\"p\",\"message\":\"m\"}}" | python3 tools/_t420-rail-attribution-gate.py >/dev/null 2>&1; test $? -eq 2'
+# No regression: a compliant, correctly-labelled post is still allowed (exit 0).
+sh -c 'printf %s "{\"tool_name\":\"mcp__termlink__termlink_channel_post\",\"tool_input\":{\"topic\":\"t\",\"payload\":\"x\",\"metadata\":{\"from_project\":\"832-Workflow-designer\"}}}" | python3 tools/_t420-rail-attribution-gate.py >/dev/null 2>&1; test $? -eq 0'
 #
 # Enforcement-baseline hint (L-398, T-1886): if you edited `.claude/settings.json`
 # (added/removed/reorganised hooks), add `bin/fw enforcement baseline` to your
@@ -190,3 +298,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-494-t-420-gate-agentsendautodiscover-posts-c.md
 - **Context:** Initial task creation
+
+### 2026-08-14T07:12:51Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
