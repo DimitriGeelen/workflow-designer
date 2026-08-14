@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-14T19:15:25Z
-last_update: 2026-08-14T19:15:25Z
+last_update: 2026-08-14T19:33:09Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,19 +40,19 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **Every command in the `## Verification` block of T-041, T-101 and T-102 is executed
+- [x] **Every command in the `## Verification` block of T-041, T-101 and T-102 is executed
       as the completion gate would execute it**, and the per-command result is recorded in
       this task with the command text next to its exit status. Not "the tests pass" —
       *those* commands, the ones the operator's `work-completed` will actually run.
-- [ ] **Each of the three is routed with an explicit verdict: close-ready, or blocked with
+- [x] **Each of the three is routed with an explicit verdict: close-ready, or blocked with
       the failing command named.** A green pre-flight yields one copy-pasteable
       `fw task update T-XXX --status work-completed` per task. A red one yields the command
       that failed and what it means — never a suggestion to `--force` past it, which would
       skip the verification the gate exists to perform.
-- [ ] **No Human AC is ticked, no owner is changed, and no task is completed by me.** All
+- [x] **No Human AC is ticked, no owner is changed, and no task is completed by me.** All
       three are `owner: human` with their `[REVIEW]` boxes already ticked by the operator;
       the close transition is theirs. This task produces evidence and commands, nothing else.
-- [ ] **The staleness question is answered, not assumed:** these Verification blocks were
+- [x] **The staleness question is answered, not assumed:** these Verification blocks were
       written weeks ago and the source has moved under them (T-337, T-355, T-361 all touched
       the export path since). Re-running them is the point — a block that passed when it was
       written is not evidence it passes now (PL-161: a Verification block is a one-shot
@@ -138,6 +138,13 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# The two conditions that were red at first pass, pinned so this task cannot report a
+# green pre-flight while either is back. Each line's own exit code is the verdict.
+# "passed, 0 failed" and not "0 failed" — the short form is a substring of
+# "passed, 10 failed" and would read green on ten failures (T-352 substring trap).
+out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "passed, 0 failed"
+diff -q src/aef-workflow-designer.html build/gallery/designer.html
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -177,6 +184,44 @@ date_finished: null
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-08-14 — two of the three were blocked by the same line, and neither was flaky
+
+- **What changed:** The premise was that these three only needed a transition. Measuring
+  the gates instead of reading them found all three would have bounced.
+
+  First pass, run through the gate's own execution shape (`if ( set -o pipefail; eval … )`,
+  update-task.sh:1018 — errexit-neutralised, faithfully reproduced rather than tightened):
+
+  | Task | line | verdict | cause |
+  |---|---|---|---|
+  | T-041 | 4 of 4 | **FAIL** on 4 | `run-bridge-tests.sh` — suite red, 74/1 |
+  | T-101 | 5 of 5 | **FAIL** on 2 | same suite line |
+  | T-102 | 2 of 2 | **FAIL** on 1 | `build/gallery/designer.html` absent |
+
+  The suite was red because of T-491's unwired-guard ratchet, and the entry it named was
+  mine from the day before: `_t355-foreign-tag-render-cdp.mjs` had been "wired" into
+  T-355's own `## Verification` block, which the census scores `pending`, not `live`.
+  Completing T-355 spent the single run and the guard went unwired the same hour. Fixed
+  under **T-503** by giving it a caller in `tests/run-bridge-tests.sh` — a ROOT_SOURCE —
+  after which the ratchet reads 69/69 and the suite reads 76/0.
+
+  T-102's blocker was different in kind and not a defect: `build/gallery/` is a gitignored
+  build artifact, so its `diff -q` line has nothing to compare against on a clean checkout.
+  Rebuilt via the sanctioned path, `tools/serve-gallery.sh --build-only` (T-350/G-015 added
+  that mode precisely so refreshing the serve root does not require binding a port — :8834
+  is retired under T-253 and stayed unbound; verified 0 listeners).
+
+  Second pass: **4/4, 5/5, 2/2 — all three green.**
+
+- **Plan impact:** None; this is what the task was for. Worth noting that the two
+  Verification blocks weakest to time were the ones invoking a whole suite: they were
+  written weeks ago and went red for a reason with no connection to the task they gate.
+  That is not an argument against suite lines, but it is the reason a pre-flight is not
+  redundant with the gate — the gate tells the operator "no" without telling them why.
+
+- **Triggered:** T-503 (filed and completed). No change to any of the three tasks
+  themselves — no AC ticked, no owner changed, no transition run.
 
 ## Decisions
 
