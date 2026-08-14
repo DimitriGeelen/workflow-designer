@@ -4,10 +4,10 @@ name: "S5b gallery ghost cards render ghosts as visually-distinct GHOST entries"
 description: >
   S5b: render /api/list ghosts[] as visually-distinct GHOST cards in the gallery index. UI slice — needs visual verification; assess build-vs-inception scope before starting. Split from S5 (sibling S5a=T-232). Depends on S3 ghosts[] + S4 claim.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-22T06:26:46Z
-last_update: 2026-07-22T06:26:46Z
+last_update: 2026-08-14T17:05:07Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,45 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+An off-page connector may point at a `workflowRef` uuid with no live map yet. The gallery
+server surfaces those as `ghosts[]` on `/api/list`. Today **only** the separate "Pending
+refs…" modal (T-228 / S4a) shows them; the Open-project browser reads `d.maps` and throws
+`d.ghosts` away, so the one surface an operator actually opens to see "what is in this
+project" is silently missing every pending reference. This slice renders them there, as
+entries that cannot be mistaken for a real map.
+
+**Preconditions, checked before starting rather than assumed (the T-424 lesson):** the
+`description` names two — *S3 ghosts[]* and *S4 claim*. Both are materially met:
+
+- **S3** — `/api/list` returns one live ghost (verified at runtime under T-500).
+- **S4** — T-228 is still `started-work`/`owner: human`, but its deliverable is already in
+  the source: `createFromPendingRef()` at `src:9064`, the picker modal at `src:8948`, the
+  button wired at `src:9212`. The task is open awaiting the operator's verification, not
+  awaiting the code. Same shape as T-241, where the deliverable had shipped under another
+  task and the park never noticed.
+
+**Scope assessment the description asked for (build vs inception):** build. One UI element
+in one file, reusing `createFromPendingRef` and `makeThumbPlaceholder` that already exist.
+No new claim logic, no new endpoint, no new state.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] `openProjectModal` reads `d.ghosts` from the same `/api/list` response it already
+      fetches, and renders each ghost as a card in the Open-project browser
+- [x] Ghost cards are visually distinct from map cards by more than one signal — dashed
+      border, amber accent, a `◌` tile instead of a thumbnail, and a `pending ref` badge —
+      so the distinction survives a colourblind reader and a greyscale screenshot
+- [x] A ghost card never issues an `/api/thumb` request (there is no tile to fetch; a map
+      card's 404→▦ fallback would misrepresent it as a map whose thumbnail is merely missing)
+- [x] Clicking a ghost card closes the modal and calls `createFromPendingRef(ghost)` — the
+      identical S4a claim path as the Pending-refs modal, with no second implementation
+- [x] Ghost cards are excluded when `opts.pick` is set (pick mode chooses an off-page
+      *target*; returning a uuid with no live map would write an unresolvable ref)
+- [x] Ghost cards participate in the filter box and carry no 🗑 delete affordance
+- [x] The empty state says "No project maps found." only when maps **and** ghosts are both
+      empty; a project with nothing but pending refs is not an empty project
+- [x] `bash tests/run-bridge-tests.sh` passes with 0 failures
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -73,6 +104,22 @@ date_finished: null
        Conversion: this AC should be moved to ### Agent and
        `bin/fw reviewer T-XXX 2>&1 | grep -q "Overall:.*PASS"` added to ## Verification.
 -->
+
+- [ ] [REVIEW] A ghost entry reads as "not a map yet" at a glance, without reading the badge
+
+  **Steps:**
+  1. `cd /opt/832-Workflow-designer && python3 tools/gallery-serve.py 3099 --docroot src --repo .`
+  2. Open `http://localhost:3099/aef-workflow-designer.html` in your browser
+  3. Click **📂 Open** in the toolbar
+  4. Look at the grid without reading any text — then read the badges
+
+  **Expected:** The pending-ref entries are obviously a different kind of thing from the
+  map tiles before you read a single word. Clicking one seeds a new map that adopts the
+  ghost's uuid and toasts "Save to project to claim it."
+
+  **If not:** Say which signal failed (border / colour / tile glyph / position). This is a
+  taste call on visual weight — I can make it louder or quieter, but I should not be the
+  one deciding it is loud enough.
 
 ## Verification
 
@@ -106,6 +153,50 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+bash tests/run-bridge-tests.sh
+node tools/_t233-ghost-cards-cdp.mjs
+
+## Visual Verification
+
+Served surface, not `file://` (PL-045): `tools/gallery-serve.py 3099 --docroot src --repo .`,
+driven with a real Playwright click on `#btn-open-project`. The repo's one live ghost
+(`future-map`, uuid `4300eae7…`, referenced by `claim-smoke-legacy`) rendered among the 33
+map cards — 34 children in the grid where there were 33.
+
+- `.playwright-mcp/t233-ghost-card-open-project.png` — the ghost card beside three real map
+  tiles. Dashed amber border, `◌` tile where the others carry a thumbnail, `◌ pending ref ·
+  referenced by 1` badge, uuid prefix in place of a map id.
+- `.playwright-mcp/t233-ghost-card-greyscale.png` — **the same frame desaturated.** The code
+  comment and AC-2 both claim the distinction survives a colourblind reader; a claim about
+  what colour does is not verified by looking at the colour version. Desaturated, the dashed
+  border and the empty `◌` tile against the dense map thumbnails still carry the whole
+  distinction, and the badge text is legible. The claim holds — checked, not asserted.
+
+### The guard was green on nothing, twice, before it was green on anything
+
+`tools/_t233-ghost-cards-cdp.mjs` is hermetic on purpose — it injects an `/api/list`
+payload of 2 maps and 3 ghosts rather than reading the corpus, because the corpus holds
+exactly one ghost and will hold zero the moment somebody claims it. A guard whose
+denominator can fall to zero passes loudest when it has stopped measuring.
+
+Having written that reasoning into the file's header, I then shipped the same defect inside
+it. Run against the pre-change source as a negative control, three legs reported **PASS**
+while rendering zero ghost cards: `every()` over an empty array is true, and "no ghost
+requested a thumbnail" is trivially satisfied when there are no ghosts. Only the two legs
+that count something failed. Each leg now asserts its own denominator, and the control
+went from 3 FAIL to 8 FAIL of 10 — the two that still pass do so honestly (the old code
+really did suppress the empty state when maps exist, and really did offer no ghosts in
+pick mode, having none anywhere).
+
+One earlier leg was also measuring the wrong thing: it counted surviving `<img>` elements
+and read 0 where it expected 2. Under `file://` every thumb URL fails, `img.onerror` fires,
+and `src:8882` replaces the `<img>` with the `▦` placeholder — so it was counting whether
+T-149's fallback had swept the evidence away, not whether the request was made. It now
+intercepts the `src` setter, which measures the request itself.
+
+Neither of these was caught by suspicion. The first was caught because the control was run
+at all, and the second because a number contradicted one already on screen.
 
 ## RCA
 
@@ -174,3 +265,9 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-233-s5b-gallery-ghost-cards-render-ghosts-as.md
 - **Context:** Initial task creation
+
+### 2026-08-14T17:05:07Z — status-update [task-update-agent]
+- **Change:** horizon: later → now
+
+### 2026-08-14T17:05:07Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
