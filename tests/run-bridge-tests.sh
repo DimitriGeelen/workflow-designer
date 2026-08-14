@@ -652,6 +652,33 @@ else
 fi
 
 echo
+echo "== Foreign nodes disclose rather than impersonate (T-355, T-337) =="
+# T-337 made the importer PRESERVE elements outside our allowlist and re-emit them
+# verbatim. The canvas then drew them through the ordinary type branches, so a
+# <bpmn:callActivity> acquired the serviceTask's blue dot and an <inclusiveGateway>
+# the exclusive X — the reader was told what the element IS by marks this editor had
+# no basis to paint. Preservation shipped without disclosure. T-355 gave foreign nodes
+# their own branch, ahead of every type branch, so the misleading marks are never
+# painted rather than painted and covered.
+#
+# WHY THIS LEG EXISTS AT ALL, which is the part worth reading (T-503):
+# this probe was first "wired" into T-355's own `## Verification` block. That satisfies
+# the ratchet's report but not its point: P-011 runs a Verification block ONCE, at
+# `--status work-completed`, so completing T-355 SPENT the only run and the guard went
+# unwired again the same hour. The census classifies that state `pending`, never `live`
+# (tools/_t451-unwired-guard-census.py — ROOT_SOURCES is the authority, and a task file
+# is not in it). This runner already carries the identical lesson forty lines up for
+# _roundtrip-serialization-cdp.mjs (T-490, PL-161) and the mistake was repeated anyway.
+# Two instances is a pattern: a completion gate is not a guard, and the only durable
+# remedy is a caller that re-executes without a task completing.
+if node "$ROOT/tools/_t355-foreign-tag-render-cdp.mjs" > /dev/null; then
+  pass=$((pass + 1))
+else
+  report FAIL "a BPMN element this editor does not implement is being drawn with marks that claim a type it was never given, or the foreign branch stopped running ahead of the type branches, or export stopped re-emitting the foreign tag verbatim (T-355/T-337 — run 'node tools/_t355-foreign-tag-render-cdp.mjs' for the per-leg verdict; the CONTROL leg failing instead means a NATIVE serviceTask lost its dot, which is the opposite defect)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Runner-orphan guard (T-316) =="
 # The guard for the class above: any collectable test file (test_*.py, *_test.py,
 # *.bats) that this runner does not invoke is a finding. Checks membership in
