@@ -1,11 +1,8 @@
-# unwired-guard-baseline.txt — T-491
+# unwired-guard-baseline.txt — T-491, regenerated under T-493
 #
-# The standing guards that had no live caller on the day this ratchet was wired — the count
-# is stated once, at the bottom, by the generator. (It said "38" here in the first draft,
-# hand-typed, and was wrong within the minute: deleting one file made it 37. In a file whose
-# entire subject is that asserted numbers go stale, that is the joke writing itself.)
-# DERIVED from tools/_t451-unwired-guard-census.py --json, never hand-typed: a baseline
-# typed by a human is a denominator nobody will question later (PL-181).
+# The standing guards that had no live caller on the day this ratchet was wired — the
+# count is stated once, at the bottom, by the generator. DERIVED from
+# tools/_t451-unwired-guard-census.py --json, never hand-typed.
 #
 # THIS IS NOT AN APPROVAL LIST. Every line is a guard that reads as standing and runs at
 # most once, at the completion of the task named beside it in the census output. The file
@@ -16,7 +13,30 @@
 #
 # To remove a line: wire the instrument to a live caller, or delete it. Not by editing here.
 #
-# Generated 2026-08-14 from 37 findings / 165 population.
+# ── WHY THIS FILE MOVED, 2026-08-14 ─────────────────────────────────────────
+# The ratchet FIRED, in the GREW direction, rc=1, and this regeneration is the response
+# to that firing — not a way to silence it. Recorded because a ratchet whose first real
+# movement is absorbed by a same-commit refresh has never been shown to work:
+#
+#     RATCHET: baseline 37, current findings 66
+#       GREW by 29 — a standing guard lost its last live caller
+#
+# NOTHING WENT DARK. The instrument got better at seeing. T-493 replaced a one-hop
+# liveness union with a reachability CLOSURE from roots outside the population (dead
+# tools were vouching for each other — `_t400-schema-teeth.sh` was referenced by nine
+# dead teeth scripts) and field-scoped the gap register to `closure_check_command:`, the
+# only field lib/gaps.py executes, instead of grepping 2,362-character prose narratives.
+#
+# The previous baseline was DERIVED, faithfully, from an instrument whose definition was
+# wrong. That is the lesson worth keeping: derived-not-typed protects against
+# transcription error, not against the source being wrong. A wrong number computed
+# honestly still reads as authoritative.
+#
+# The census's LIMIT is now stated in BOTH directions, and the false-negative half
+# (a tool named in a COMMENT counts as a live edge — 40% of tool-to-tool reference
+# lines) is filed as T-495, unfixed. This count will move again when that lands.
+#
+# Generated 2026-08-14 from 66 findings / 165 population.
 _align-distribute-diag.mjs
 _autoload-verify-cdp.mjs
 _autosave-verify-cdp.mjs
@@ -36,15 +56,36 @@ _t251-visual-shots.mjs
 _t255-visual-shots.mjs
 _t263-save-target-cdp.mjs
 _t343-write-equivalence.py
+_t350-verification-hygiene.py
+_t352-member-scan.py
+_t358-empty-lanes-blast-radius.mjs
+_t358-export-determinism.mjs
+_t358-repair-options-cdp.mjs
+_t361-export-trailer-cdp.mjs
+_t364-aef-ext-roundtrip.mjs
+_t364-tie-permutes-ids.mjs
+_t366-uid-shape-agnostic.mjs
+_t367-aef-injection-footprint.mjs
+_t373-defer-revisit-blindspot.sh
+_t374-audit-honors-exclude.sh
+_t377-rail-payload-fidelity.sh
+_t379-rendered-as-wire-sweep.py
 _t381-focus-gate-wedge.sh
+_t385-python-c-gate-bypass.sh
 _t386-drift-remedy-reachable.sh
 _t387-manifest-fields.sh
 _t389-release-envelope.sh
 _t390-capture-verbs-nulltask.sh
 _t391-p011-multiline-guard.sh
 _t396-release-tag-state.sh
+_t407-exporter-passthrough-cdp.mjs
 _t418-capture-attribution.sh
+_t421-enforcement-claim-drift.py
+_t428-assumption-disposition-check.py
+_t429-abstention-census.py
+_t429-apply-abstention-guard.py
 _t465-witness-shape.sh
+_t472-stale-trigger-field.py
 _t479-endpoint-roundtrip-cdp.mjs
 _t482-scalar-projection-falsify.mjs
 _t483-structured-projection-falsify.mjs
@@ -53,4 +94,12 @@ _t485-unknown-extension-survival.mjs
 _t486-orphaned-go-scan.py
 _undo-verify-cdp.mjs
 _versions-verify-cdp.mjs
+bpmn-cli.py
+census-dead-legs.py
+concerns-schema.py
+gallery-serve.py
+gen-rendered-thumbs.mjs
+memory-application-census.py
+rail-sweep.py
 t404-gate-e2e.sh
+verification-hygiene.py
