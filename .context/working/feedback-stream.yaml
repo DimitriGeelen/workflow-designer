@@ -6119,3 +6119,21 @@ scan_id: R-6a270acb
 task_id: T-233
 payload:
   task_file: .tasks/active/T-233-s5b-gallery-ghost-cards-render-ghosts-as.md
+---
+kind: scan_emitted
+timestamp: '2026-08-14T18:30:24Z'
+scan_id: R-32e1776e
+task_id: T-355
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-14T18:30:24Z'
+scan_id: R-32e1776e
+task_id: T-355
+payload:
+  task_file: .tasks/active/T-355-foreign-tag-nodes-render-identically-to-.md

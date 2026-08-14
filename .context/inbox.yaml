@@ -382,3 +382,10 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-244
+  text: "tools/_t258-annotation-seam-cdp.mjs regenerates the TRACKED artefact .playwright-mcp/t258-annotation-badges.png non-deterministically: it alternates between exactly two renderings, flipping on every run. Measured, not inferred — two consecutive runs with zero source change differed by 14743 of 146496 pixels, and the second run came back byte-identical to HEAD. Two consequences. (1) Whether 'git status' is clean after running the bridge suite is a coin flip on run parity, so a dirty tree after a test run carries no information. (2) The image exists to be READ as T-258's visual verification, so a reviewer diffing it sees a change that is not one, which is the credibility cost the artefact was created to avoid. Not caused by T-355: the corpus contains no out-of-allowlist direct child of bpmn:process (only conditionExpression, which is a sequenceFlow child and outside the foreign-node population), so no corpus map can render a foreign node at all. Suspect the harness screenshots without awaiting a settled state — badges applied vs stripped would explain a two-state flip. Found while investigating why a tracked png I never touched showed modified before a commit."
+  captured: 2026-08-14T18:33:28Z
+  context_task: T-458
+  tags: [bug]
+  status: pending
+  promoted_to: null

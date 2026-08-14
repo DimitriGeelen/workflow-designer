@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-355: Foreign-tag nodes render identically to service tasks (no visual marker)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-14T18:30:26Z
+# ============================================================================
+
+task_id: T-355
+task_name: "Foreign-tag nodes render identically to service tasks (no visual marker)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-03T11:45:58Z
+completed: 2026-08-14T18:28:36Z
+duration_days: 11
+updates_count: 3
+first_commit: 2026-08-14T20:28:31+02:00
+last_commit: 2026-08-14T20:28:31+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a callActivity was drawn as a serviceTask, dot and all — preservation shipped without disclosure.
+
+# Key outcomes
+outcomes:
+  - 'A node carrying `foreignTag` is drawn by its own branch, placed **before** every'
+  - 'The shape is neutral and dashed, in the muted palette (`--text-dim`) — the T-308'
+  - 'Neither the serviceTask service-dot nor the gateway `X` appears on a foreign node'
+  - '**The actual tag name is displayed** (`⟨callActivity⟩`), because "this is not a'
+  - 'An SVG `<title>` states that the element is preserved verbatim on export and that'
+  - 'A long foreign tag is truncated, never wrapped, and does not change node geometry'
+  - 'Round-trip is untouched: a foreign node still exports its original tag verbatim, and'
+  - '`bash tests/run-bridge-tests.sh` passes with 0 failures'
+  - '`node tools/_t355-foreign-tag-render-cdp.mjs` passes, and fails against the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.playwright-mcp/t355-foreign-vs-native-greyscale.png'
+  - '.playwright-mcp/t355-foreign-vs-native.png'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-355-foreign-tag-nodes-render-identically-to-.md'
+  - 'tools/_t355-foreign-tag-render-cdp.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-14T20:28:31"
+    action: "T-355: a callActivity was drawn as a serviceTask, dot and all — preservation shipped without disclosure."
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 16242 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 16242
+  commits: 1
+  files_changed: 5
+  lines_added: 364
+  lines_removed: 8
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-355-foreign-tag-nodes-render-identically-to-.md
+generated_by: context-agent-hybrid

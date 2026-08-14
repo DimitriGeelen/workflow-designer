@@ -4,20 +4,20 @@ name: "Foreign-tag nodes render identically to service tasks (no visual marker)"
 description: >
   T-337 preserves an out-of-allowlist BPMN flow node by importing it with foreignTag and re-emitting that tag verbatim, but the canvas draws it with the ordinary task/gateway shape. The author cannot tell a callActivity from a serviceTask, so a node whose semantics the designer does not implement looks like one it does. Preservation is correct and shipped; DISCLOSURE is the missing half. T-233 (ghost cards) is the house precedent for a visually-distinct entry.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t338-input-fidelity-cdp.mjs]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T11:45:58Z
-last_update: 2026-08-14T17:34:51Z
-date_finished: null
+last_update: 2026-08-14T18:28:36Z
+date_finished: 2026-08-14T18:28:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -274,3 +274,15 @@ quietly accepted; if it bothers you in a dense map, that is a real finding, not 
 
 ### 2026-08-14T17:34:51Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-32e1776e
+- **Timestamp:** 2026-08-14T18:30:24Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-14T18:28:36Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
