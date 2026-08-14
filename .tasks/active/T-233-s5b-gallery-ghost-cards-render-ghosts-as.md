@@ -4,20 +4,20 @@ name: "S5b gallery ghost cards render ghosts as visually-distinct GHOST entries"
 description: >
   S5b: render /api/list ghosts[] as visually-distinct GHOST cards in the gallery index. UI slice — needs visual verification; assess build-vs-inception scope before starting. Split from S5 (sibling S5a=T-232). Depends on S3 ghosts[] + S4 claim.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
-components: []
+components: [tools/_offpage-seam-parity-verify.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-22T06:26:46Z
-last_update: 2026-08-14T17:05:07Z
-date_finished: null
+last_update: 2026-08-14T17:26:41Z
+date_finished: 2026-08-14T17:26:41Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -157,6 +157,31 @@ No new claim logic, no new endpoint, no new state.
 bash tests/run-bridge-tests.sh
 node tools/_t233-ghost-cards-cdp.mjs
 
+## Recommendation
+
+**Recommendation:** GO
+
+**Rationale:** Every agent-verifiable criterion is met and mechanically re-checkable, and
+the one open criterion is a genuine taste call I should not settle for you: whether the
+ghost card is visually loud *enough*. I can show that it is visually *different* — that is
+what the greyscale frame proves — but "obvious at a glance" is a judgment about your eye,
+not about the DOM. Nothing else is waiting on it; the slice is additive and the pre-change
+export/import paths are untouched.
+
+**Evidence:**
+- `src/aef-workflow-designer.html` — `openProjectModal` reads `d.ghosts` from the response
+  it already fetched; ghost cards appended after the maps; pick mode excluded; empty state
+  gated on both populations.
+- `tools/_t233-ghost-cards-cdp.mjs` — 10/10 legs pass on the working tree. Negative control
+  (`T233_EDITOR` → the pre-change source from `git show HEAD:`) fails 8 of 10; the 2 that
+  pass do so honestly, not vacuously.
+- `bash tests/run-bridge-tests.sh` — 75 passed, 0 failed; geometry sweep 24 clean, 0 new-fail.
+- `.playwright-mcp/t233-ghost-card-open-project.png` — served surface, real click, the
+  repo's one live ghost among 33 maps (34 grid children where there were 33).
+- `.playwright-mcp/t233-ghost-card-greyscale.png` — the colourblind claim, desaturated.
+- No change to `docs/standards/`, `examples/`, `.agentic-framework/`, or any AEF-pinned
+  fixture. The write-capable gallery server was stopped and wrote nothing to the tree.
+
 ## Visual Verification
 
 Served surface, not `file://` (PL-045): `tools/gallery-serve.py 3099 --docroot src --repo .`,
@@ -271,3 +296,15 @@ at all, and the second because a number contradicted one already on screen.
 
 ### 2026-08-14T17:05:07Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6a270acb
+- **Timestamp:** 2026-08-14T17:28:27Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-14T17:26:41Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
