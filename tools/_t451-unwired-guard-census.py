@@ -190,6 +190,57 @@ def main():
     print('  that composes the path at runtime is invisible here and its tool is reported')
     print('  unwired. That false-positive direction cannot be closed from outside, and is')
     print('  stated so a clean run cannot imply coverage it does not have (PL-148).')
+
+    # ── T-491: --ratchet ────────────────────────────────────────────────────────────────
+    # This census has been correct and unscheduled since T-451. Its only live caller is the
+    # gap gauge in lib/gaps.py, which runs when somebody asks to close G-034 — so the count
+    # it produces is real and nobody is told when it grows. That is one step milder than the
+    # class it measures: not unrunnable, just unwatched.
+    #
+    # Wiring the raw exit code into the suite is not available: it exits 1 on a pre-existing
+    # backlog, so the suite would be permanently red and the redness would carry no
+    # information. PL-004 (T-052) prescribed the alternative in the same sentence that named
+    # the class — "wire every gate into CI over its full subject set, with a legacy allowlist
+    # (with stale-entry detection)" — and only the first half was ever built.
+    #
+    # So the ratchet fails on MOVEMENT, in both directions:
+    #   a finding not in the baseline   -> the class GREW; a new standing guard went dark
+    #   a baseline entry not in findings -> it got wired or deleted; tighten the baseline
+    # The second direction is the one that matters over time. Without it the baseline decays
+    # into a permanent amnesty: entries that were fixed years ago keep excusing themselves,
+    # and the file stops describing the tree. A baseline that never shrinks is a hand-typed
+    # denominator wearing a different hat (PL-181).
+    if '--ratchet' in sys.argv:
+        base_path = os.path.join('tools', 'unwired-guard-baseline.txt')
+        if not os.path.exists(base_path):
+            print('\nRATCHET: no baseline at %s — refusing rather than minting one silently.'
+                  % base_path)
+            print('  A baseline created on the fly would record whatever today happens to be')
+            print('  and call it approved. Create it deliberately.')
+            return 2
+        with open(base_path) as fh:
+            baseline = {l.strip() for l in fh
+                        if l.strip() and not l.lstrip().startswith('#')}
+        cur = set(findings)
+        grew = sorted(cur - baseline)
+        fixed = sorted(baseline - cur)
+        print('\nRATCHET: baseline %d, current findings %d' % (len(baseline), len(cur)))
+        if not grew and not fixed:
+            print('  no movement — the backlog neither grew nor shrank.')
+            return 0
+        if grew:
+            print('  GREW by %d — a standing guard lost its last live caller:' % len(grew))
+            for t in grew:
+                print('    + %s' % t)
+        if fixed:
+            print('  SHRANK by %d — now wired or gone, so remove from the baseline:'
+                  % len(fixed))
+            for t in fixed:
+                print('    - %s' % t)
+            print('  (A stale baseline entry is a standing exemption for a problem that no')
+            print('   longer exists. Leaving it costs nothing today and hides the next one.)')
+        return 1
+
     return 1 if findings else 0
 
 

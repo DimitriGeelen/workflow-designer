@@ -1,0 +1,56 @@
+# unwired-guard-baseline.txt — T-491
+#
+# The standing guards that had no live caller on the day this ratchet was wired — the count
+# is stated once, at the bottom, by the generator. (It said "38" here in the first draft,
+# hand-typed, and was wrong within the minute: deleting one file made it 37. In a file whose
+# entire subject is that asserted numbers go stale, that is the joke writing itself.)
+# DERIVED from tools/_t451-unwired-guard-census.py --json, never hand-typed: a baseline
+# typed by a human is a denominator nobody will question later (PL-181).
+#
+# THIS IS NOT AN APPROVAL LIST. Every line is a guard that reads as standing and runs at
+# most once, at the completion of the task named beside it in the census output. The file
+# exists so the backlog cannot GROW unnoticed while the pre-existing entries are worked
+# down. `--ratchet` fails in both directions: a new finding means a guard just went dark,
+# and a baseline entry that is no longer a finding means this file is now lying and must
+# be tightened. A baseline that only ever grows is an amnesty (PL-004's stale-entry half).
+#
+# To remove a line: wire the instrument to a live caller, or delete it. Not by editing here.
+#
+# Generated 2026-08-14 from 37 findings / 165 population.
+_align-distribute-diag.mjs
+_autoload-verify-cdp.mjs
+_autosave-verify-cdp.mjs
+_bpmn-claim-cli-verify.py
+_edge-straighten-verify-cdp.mjs
+_endpoint-hover-verify-cdp.mjs
+_endpoint-overlap-verify-cdp.mjs
+_gallery-save-allowlist-verify.py
+_horizontal-spacing-verify-cdp.mjs
+_offpage-seam-parity-verify.py
+_save-api-verify.mjs
+_saveproject-verify-cdp.mjs
+_selection-align-verify-cdp.mjs
+_serve-gallery-verify.py
+_t249-spike-zoom-cdp.mjs
+_t251-visual-shots.mjs
+_t255-visual-shots.mjs
+_t263-save-target-cdp.mjs
+_t343-write-equivalence.py
+_t381-focus-gate-wedge.sh
+_t386-drift-remedy-reachable.sh
+_t387-manifest-fields.sh
+_t389-release-envelope.sh
+_t390-capture-verbs-nulltask.sh
+_t391-p011-multiline-guard.sh
+_t396-release-tag-state.sh
+_t418-capture-attribution.sh
+_t465-witness-shape.sh
+_t479-endpoint-roundtrip-cdp.mjs
+_t482-scalar-projection-falsify.mjs
+_t483-structured-projection-falsify.mjs
+_t484-coverage-list-behaviour-audit.py
+_t485-unknown-extension-survival.mjs
+_t486-orphaned-go-scan.py
+_undo-verify-cdp.mjs
+_versions-verify-cdp.mjs
+t404-gate-e2e.sh

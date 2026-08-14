@@ -666,6 +666,31 @@ else
 fi
 
 echo
+echo "== Unwired-guard ratchet over tools/ (T-451 census, T-491 ratchet) =="
+# The complement of T-316 above: that leg guards test FILES this runner collects, this
+# one guards tools/ INSTRUMENTS — the things a task's Verification block calls once, at
+# completion, after which nothing in the tree can re-run them (PL-161).
+#
+# The census has been correct and unscheduled since T-451. Its only live caller was the
+# G-034 gap gauge in lib/gaps.py, which runs when somebody asks — so it measured a real
+# and growing backlog and told nobody. One step milder than the class it measures: not
+# unrunnable, just unwatched. T-490 and T-448 are two instances found by hand in the
+# interval; the census had both.
+#
+# Gated on MOVEMENT, not on the count: the raw exit code is 1 on a pre-existing backlog,
+# so wiring that directly would paint the suite permanently red and the red would carry no
+# information. Fails when the backlog GROWS (a standing guard just lost its last caller)
+# and equally when it SHRINKS (the baseline now lies and must be tightened) — PL-004
+# prescribed exactly this, allowlist WITH stale-entry detection, and only the allowlist
+# half was ever built.
+if python3 "$ROOT/tools/_t451-unwired-guard-census.py" --ratchet > /dev/null; then
+  pass=$((pass + 1))
+else
+  report FAIL "the unwired-guard backlog MOVED — either a standing guard lost its last live caller, or a baseline entry is now wired and tools/unwired-guard-baseline.txt is stale (run 'python3 tools/_t451-unwired-guard-census.py --ratchet' for the direction; do not silently re-baseline, a new entry is a finding to report)"
+  fail=$((fail + 1))
+fi
+
+echo
 # Corpus geometry sweep (T-052): every authored map's nodes must sit inside their
 # lane bands, modulo the exact legacy allowlist. Guards against new maps silently
 # straddling bands — the G-019 blindness found in T-050.
