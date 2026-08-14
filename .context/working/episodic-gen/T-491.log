@@ -1,0 +1,23 @@
+=== episodic-gen invocation: 2026-08-14T06:14:14Z ===
+task_id: T-491
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-491.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Assert instrument REACHABILITY population-wide: PL-148's remedy has never been built and the class has recurred five times
+  Duration: 1 days (1094 min)
+  Updates: 2
+  Commits: 2
+  Lines: +472 -19 across 9 files
+  Outcomes: 10 AC checked
+  Challenges: 2 detected from git
+  Artifacts: 9 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-491-assert-instrument-reachability-populatio.md
+--- exit code: 0 ---

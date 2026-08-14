@@ -1459,3 +1459,17 @@ decisions:
     date: 2026-08-11
     task: T-365
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-188
+    decision: "replace the `~/.termlink/` directory inventory with \"no call in this task"
+    scope: project
+    date: 2026-08-14
+    task: T-492
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-189
+    decision: "record F4 here, fix it under its own task."
+    scope: project
+    date: 2026-08-14
+    task: T-492
+    rationale: "Auto-captured from task file on completion"

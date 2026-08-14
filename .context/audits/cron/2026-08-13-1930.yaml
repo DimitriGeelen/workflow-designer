@@ -1,0 +1,150 @@
+# Audit Results - 2026-08-13-1930
+timestamp: 2026-08-13T17:30:01Z
+sections: "structure,compliance,quality,discovery"
+summary:
+  pass: 29
+  warn: 27
+  fail: 1
+findings:
+  - level: PASS
+    check: "Tasks directory exists"
+  - level: PASS
+    check: "Tasks/active directory exists"
+  - level: PASS
+    check: "Tasks/completed directory exists"
+  - level: PASS
+    check: "Tasks/templates directory exists"
+  - level: PASS
+    check: "Task template exists"
+  - level: PASS
+    check: "No duplicate task IDs across active/ and completed/"
+  - level: PASS
+    check: "All 10 project YAML files parse correctly"
+  - level: PASS
+    check: "All 1 arc anchor_task references resolve to existing tasks"
+  - level: PASS
+    check: "All 1 in-progress arc(s) had task commits within 30 days"
+  - level: PASS
+    check: "No inline arc:<slug> tag-only scans outside canonical lib (T-1881)"
+  - level: PASS
+    check: "No PROJECT_ROOT resolution of framework-owned assets in web/ + lib/ Python (T-2648, OBS-097)"
+  - level: PASS
+    check: "No stale-slice-references (L-417)"
+  - level: PASS
+    check: "No GO-scope-not-propagated inception(s) (sibling to L-417)"
+  - level: WARN
+    check: "Fabric: 40 registered, 180 unregistered (of 217 watched)"
+    mitigation: "Run: fw fabric scan"
+  - level: WARN
+    check: "Fabric: 36/40 cards have no edges"
+    mitigation: "Run: fw fabric enrich"
+  - level: WARN
+    check: "Fabric drift: 180 source file(s) have no fabric card"
+    mitigation: "Run: fw fabric scan"
+  - level: PASS
+    check: "Cron registry in sync with /etc/cron.d/agentic-audit-832-workflow-designer"
+  - level: PASS
+    check: "Hook threshold: no hooks failing over threshold"
+  - level: PASS
+    check: "Secret scan: tracked tree clean"
+  - level: PASS
+    check: "Designer ghost registry: ghost↔task joins clean"
+  - level: PASS
+    check: "Release lag: src, released artifact and peer pin are in step"
+  - level: PASS
+    check: "Gap register: every watching gap has a renderable closure condition"
+  - level: PASS
+    check: "All 68 active tasks are valid"
+  - level: PASS
+    check: "All active tasks meet quality thresholds"
+  - level: PASS
+    check: "CTL-026: Human sovereignty gate present (completion + owner protection)"
+  - level: WARN
+    check: "CTL-028: T-335 is in .tasks/completed/ but frontmatter status='started-work' (expected: work-completed)"
+    mitigation: "Fix: bin/fw task update T-335 --status work-completed --force, or hand-edit frontmatter to status: work-completed + set date_finished"
+  - level: WARN
+    check: "CTL-028: T-336 is in .tasks/completed/ but frontmatter status='started-work' (expected: work-completed)"
+    mitigation: "Fix: bin/fw task update T-336 --status work-completed --force, or hand-edit frontmatter to status: work-completed + set date_finished"
+  - level: WARN
+    check: "CTL-028: T-338 is in .tasks/completed/ but frontmatter status='started-work' (expected: work-completed)"
+    mitigation: "Fix: bin/fw task update T-338 --status work-completed --force, or hand-edit frontmatter to status: work-completed + set date_finished"
+  - level: WARN
+    check: "CTL-028: T-348 is in .tasks/completed/ but frontmatter status='started-work' (expected: work-completed)"
+    mitigation: "Fix: bin/fw task update T-348 --status work-completed --force, or hand-edit frontmatter to status: work-completed + set date_finished"
+  - level: PASS
+    check: "CTL-030: All completed/ tasks have null/absent stored horizon (arc-009)"
+  - level: WARN
+    check: "CTL-029: T-041 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-041 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-101 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-101 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-102 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-102 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-105 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-105 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-125 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-125 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-189 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-189 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-195 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-195 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-200 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-200 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-209 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-209 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-228 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-228 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-264 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-264 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-286 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-286 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-293 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-293 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-309 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-309 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-344 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-344 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-345 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-345 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-357 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-357 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-402 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-402 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-432 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-432 --status work-completed"
+  - level: WARN
+    check: "CTL-029: T-440 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-440 --status work-completed"
+  - level: PASS
+    check: "CTL-012: All 423 completed tasks have checked ACs"
+  - level: PASS
+    check: "D1: Episodic quality — 0% [TODO] (0/423)"
+  - level: FAIL
+    check: "D2: Human review queue — 2 task(s) waiting >30d: T-093(39d) T-178(33d) T-308(14d) T-310(14d)"
+    mitigation: "Review with: fw task verify (lists unchecked Human ACs)"
+  - level: PASS
+    check: "D8: Handover quality — no [TODO] in LATEST.md"
+  - level: PASS
+    check: "D8b: Handover archive — 0/10 recent handovers have [TODO]s"
+  - level: PASS
+    check: "D10: Decision-without-dialogue — none detected"
+  - level: PASS
+    check: "D11: Gap register staleness — all gaps fresh"

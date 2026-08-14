@@ -5957,3 +5957,39 @@ scan_id: R-01e1e076
 task_id: T-490
 payload:
   task_file: .tasks/active/T-490-round-trip-guard-denominator-is-hand-der.md
+---
+kind: scan_emitted
+timestamp: '2026-08-14T06:14:12Z'
+scan_id: R-fe828efb
+task_id: T-491
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-14T06:14:12Z'
+scan_id: R-fe828efb
+task_id: T-491
+payload:
+  task_file: .tasks/active/T-491-assert-instrument-reachability-populatio.md
+---
+kind: scan_emitted
+timestamp: '2026-08-14T07:02:13Z'
+scan_id: R-360cdebb
+task_id: T-492
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-14T07:02:13Z'
+scan_id: R-360cdebb
+task_id: T-492
+payload:
+  task_file: .tasks/active/T-492-termlink-sender-id-drift-my-rail-posts-n.md

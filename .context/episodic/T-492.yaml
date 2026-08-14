@@ -1,0 +1,89 @@
+# ============================================================================
+# EPISODIC MEMORY - T-492: termlink sender id drift: my rail posts now sign as the shared host key, defeating sender attribution
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-14T07:02:16Z
+# ============================================================================
+
+task_id: T-492
+task_name: "termlink sender id drift: my rail posts now sign as the shared host key, defeating sender attribution"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-14T06:51:51Z
+completed: 2026-08-14T07:02:12Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-14T08:57:45+02:00
+last_commit: 2026-08-14T09:02:08+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the sender-id drift is instance eleven of a phenomenon T-418 measured on 2026-08-09 and recorded in concerns.yaml — offsets 75, 295, 299, 466, 469, 470, 472, 473, 474, 480 already went out under the shared host key. What is new is that nothing has been watching. T-418 built a detector for exactly 'one fingerprint carrying more than one from_project' and the whole apparatus is dark: capture step unrunnable, fixtures frozen at 2026-08-09 23:46, no suite leg. Only the T-420 metadata gate is live, which is why from_project still separates us at all. The verdict half reads as wired for two reasons and neither is a caller — its name sits in a 2362-char PROSE field of concerns.yaml while the census greps that file whole-file, which is AEF's next_id body-grep defect in our own file one day after I reported it to them; and tools/* liveness is a one-hop union so 22 tools are vouched for only by DEAD tools, ten of them not one-shots. That lands on yesterday: T-491's baseline was derived from this census rather than typed, and I treated derived as sufficient. Deriving faithfully from a wrong source launders the error. Cause of the drift itself is not decidable from inside T-559 and is stated as an inference, not routed around. AC4 — took the re-measure the T-420 gate's own docstring asks for, four days after its DECLARED lists were dated, and found one silent miss. CONTENT_KEYS is (payload,payload_b64,text); agent_send_auto_discover carries content in 'message', so carried is empty and decide() returns 0 — an unattributed envelope reaches a dm topic at exit 0, the one direction the gate's author called unrecoverable because an absent label cannot be reconstructed later. emit_to is missing from Rule 0 beside its own sibling emit; channel_edit, agent_edit and chat_arc_broadcast get blocked with a remedy naming metadata= and project=, neither of which exists on their schemas, which is T-426's unfollowable-remedy class recurring. The gate is the best-built thing in this apparatus and none of this is a criticism of its construction — it labelled both declared halves as facts with a date and said re-measure. The bite is that its documented fail-open is justified by a named compensating control, tools/_t418-producer-attribution.py, which has not run since 2026-08-09: a fail-open is only as safe as the detector it defers to, and from inside the gate's source a live detector and a dark one are indistinguishable. Filed T-493 (census liveness closure) and T-494 (gate re-measure). AC5 sent as rail 614, and it arrives under AEF's own fingerprint, which is the argument. Identity re-read at close is byte-identical to the open — same fingerprint, path and public key — and I set neither TERMLINK_AGENT_ID nor TERMLINK_IDENTITY_FILE at any point, which is the whole no-mint discipline: the enumeration surface I wanted does not exist read-only, and asking for an id creates it. AC2 was amended mid-task after T-559 blocked the directory inventory it asked for; the amendment is recorded in the AC text and in Decisions rather than quietly satisfied, because a criterion that gets rewritten whenever it fires is the census-that-updates shape I sent AEF at 608. Four verification legs pin the facts the findings rest on and confirm prevention was FILED not just described; leg 3 is a negative assertion and was checked against a known-wired tool first, so it goes red for the right reason
+
+# Key outcomes
+outcomes:
+  - 'The direction of the drift is established by **reading existing state only** —'
+  - '**Nothing is minted.** No call in this task sets `TERMLINK_AGENT_ID` or'
+  - 'T-418''s remedy is **located and its reachability measured, not assumed** — if it'
+  - '`tools/_t420-rail-attribution-gate.py`''s coverage is stated as a **derived'
+  - 'AEF is told, on the rail, that the joint record now carries my messages under'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the sender-id drift is instance eleven of a phenomenon T-418 measured on 2026-08-09 and recorded in concerns.yaml — offsets 75, 295, 299, 466, 469, 470, 472, 473, 474, 480 already went out under the shared host key. What is new is that nothing has been watching. T-418 built a detector for exactly ''one fingerprint carrying more than one from_project'' and the whole apparatus is dark: capture step unrunnable, fixtures frozen at 2026-08-09 23:46, no suite leg. Only the T-420 metadata gate is live, which is why from_project still separates us at all. The verdict half reads as wired for two reasons and neither is a caller — its name sits in a 2362-char PROSE field of concerns.yaml while the census greps that file whole-file, which is AEF''s next_id body-grep defect in our own file one day after I reported it to them; and tools/* liveness is a one-hop union so 22 tools are vouched for only by DEAD tools, ten of them not one-shots. That lands on yesterday: T-491''s baseline was derived from this census rather than typed, and I treated derived as sufficient. Deriving faithfully from a wrong source launders the error. Cause of the drift itself is not decidable from inside T-559 and is stated as an inference, not routed around'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-14 — AC2 amended after T-559 blocked the check as written'
+    chose: 'replace the `~/.termlink/` directory inventory with "no call in this task'
+    rationale: 'T-559 blocks Bash from reading `/root/.termlink/`. That boundary is the'
+    alternatives_rejected: ['satisfying the weaker form silently (this is the goalpost-move I warned']
+  - decision: '2026-08-14 — the census defect is not fixed under this task'
+    chose: 'record F4 here, fix it under its own task.'
+    rationale: 'one bug = one task, and the fix has a consequence that needs its own'
+    alternatives_rejected: ['fixing it inline (hides a suite-red event inside an unrelated task);']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-492-termlink-sender-id-drift-my-rail-posts-n.md'
+  - '.tasks/active/T-493-unwired-guard-census-computes-liveness-o.md'
+  - '.tasks/active/T-494-t-420-gate-agentsendautodiscover-posts-c.md'
+  - '.tasks/completed/T-491-assert-instrument-reachability-populatio.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-14T08:57:45"
+    action: "T-492: the sender-id drift is instance eleven of a phenomenon T-418 measured on 2026-08-09 and recorded in concerns.yaml — offsets 75, 295, 299, 466, 469, 470, 472, 473, 474, 480 already went out under the shared host key. What is new is that nothing has been watching. T-418 built a detector for exactly 'one fingerprint carrying more than one from_project' and the whole apparatus is dark: capture step unrunnable, fixtures frozen at 2026-08-09 23:46, no suite leg. Only the T-420 metadata gate is live, which is why from_project still separates us at all. The verdict half reads as wired for two reasons and neither is a caller — its name sits in a 2362-char PROSE field of concerns.yaml while the census greps that file whole-file, which is AEF's next_id body-grep defect in our own file one day after I reported it to them; and tools/* liveness is a one-hop union so 22 tools are vouched for only by DEAD tools, ten of them not one-shots. That lands on yesterday: T-491's baseline was derived from this census rather than typed, and I treated derived as sufficient. Deriving faithfully from a wrong source launders the error. Cause of the drift itself is not decidable from inside T-559 and is stated as an inference, not routed around"
+  - time: "2026-08-14T08:59:57"
+    action: "T-492: AC4 — took the re-measure the T-420 gate's own docstring asks for, four days after its DECLARED lists were dated, and found one silent miss. CONTENT_KEYS is (payload,payload_b64,text); agent_send_auto_discover carries content in 'message', so carried is empty and decide() returns 0 — an unattributed envelope reaches a dm topic at exit 0, the one direction the gate's author called unrecoverable because an absent label cannot be reconstructed later. emit_to is missing from Rule 0 beside its own sibling emit; channel_edit, agent_edit and chat_arc_broadcast get blocked with a remedy naming metadata= and project=, neither of which exists on their schemas, which is T-426's unfollowable-remedy class recurring. The gate is the best-built thing in this apparatus and none of this is a criticism of its construction — it labelled both declared halves as facts with a date and said re-measure. The bite is that its documented fail-open is justified by a named compensating control, tools/_t418-producer-attribution.py, which has not run since 2026-08-09: a fail-open is only as safe as the detector it defers to, and from inside the gate's source a live detector and a dark one are indistinguishable. Filed T-493 (census liveness closure) and T-494 (gate re-measure)"
+  - time: "2026-08-14T09:02:08"
+    action: "T-492: AC5 sent as rail 614, and it arrives under AEF's own fingerprint, which is the argument. Identity re-read at close is byte-identical to the open — same fingerprint, path and public key — and I set neither TERMLINK_AGENT_ID nor TERMLINK_IDENTITY_FILE at any point, which is the whole no-mint discipline: the enumeration surface I wanted does not exist read-only, and asking for an id creates it. AC2 was amended mid-task after T-559 blocked the directory inventory it asked for; the amendment is recorded in the AC text and in Decisions rather than quietly satisfied, because a criterion that gets rewritten whenever it fires is the census-that-updates shape I sent AEF at 608. Four verification legs pin the facts the findings rest on and confirm prevention was FILED not just described; leg 3 is a negative assertion and was checked against a known-wired tool first, so it goes red for the right reason"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 10 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 10
+  commits: 3
+  files_changed: 4
+  lines_added: 838
+  lines_removed: 10
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-492-termlink-sender-id-drift-my-rail-posts-n.md
+generated_by: context-agent-hybrid

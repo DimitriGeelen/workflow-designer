@@ -1,0 +1,95 @@
+# ============================================================================
+# EPISODIC MEMORY - T-491: Assert instrument REACHABILITY population-wide: PL-148's remedy has never been built and the class has recurred five times
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-14T06:14:14Z
+# ============================================================================
+
+task_id: T-491
+task_name: "Assert instrument REACHABILITY population-wide: PL-148's remedy has never been built and the class has recurred five times"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-13T11:59:31Z
+completed: 2026-08-14T06:14:10Z
+duration_days: 1
+updates_count: 2
+first_commit: 2026-08-13T13:59:48+02:00
+last_commit: 2026-08-14T08:14:06+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture the class-level prevention PL-148 prescribed and nobody built — instrument reachability asserted population-wide. Five instances across two projects, each repaired by hand, none making the next detectable (PL-145's fix-on-discovery shape). Records the population trap T-490 measured: a census scoped to tools/_*.mjs answered 0 of 27 while T-448 is a live instance outside that glob, so the population must derive from what CLAIMS to guard, not a file extension. the population check already existed and was better than my replacement — deleted the reimplementation and gave the real one a schedule. T-451's census knows every distinction I was rediscovering (one-shot Verification semantics, teeth-by-convention, derived denominators, its own stated LIMIT); I found it because my draft's orphan list printed its filename, after two wrong population definitions and a '115 orphans' headline. Its only live caller was the on-demand G-034 gap gauge, so it has measured a real backlog since T-451 and told nobody — unwatched, which is a distinct state from unrunnable and was worth naming. T-490 and T-448 were both found by hand in that interval and the census had both. Raw exit 1 on a pre-existing backlog cannot be wired without painting the suite permanently red, so --ratchet gates on MOVEMENT: fails when the backlog GROWS and equally when it SHRINKS, PL-004's stale-entry half that was never built anywhere here. Baseline derived from --json, never hand-typed, and refuses to mint itself. Three negative controls; control C passed for the wrong reason first (set -e aborted before the assertion) and is fixed with a comment saying why. Suite 73 passed, 0 failed
+
+# Key outcomes
+outcomes:
+  - 'The premise is VERIFIED against the current tree before building — the existing instrument is found, read, and run, rather than a second one shipped beside it (PL-023)'
+  - 'The reimplementation is DELETED, not kept "for comparison" — two censuses of one population is the reintroduction shape, and the second one is always the one that rots'
+  - 'The census''s true reachability is established by measurement: its only live caller is the on-demand gap gauge, so it is unwatched rather than unrunnable, and that distinction is stated rather than flattened'
+  - 'A ratchet gates on MOVEMENT rather than on the count, so a real pre-existing backlog can be wired without painting the suite permanently red'
+  - 'The ratchet fails when the backlog GROWS — a standing guard that loses its last live caller is detected'
+  - 'The ratchet fails when the backlog SHRINKS — a stale baseline entry is refused, because an allowlist without stale-entry detection becomes an amnesty (PL-004''s unbuilt half)'
+  - 'The baseline is DERIVED from the census''s own `--json`, never hand-typed, and the tool REFUSES to mint a baseline on the fly rather than silently recording whatever today happens to be'
+  - 'Wired into `tests/run-bridge-tests.sh` over the full population, with a failure message that names the direction and forbids silent re-baselining'
+  - 'Negative controls prove both directions bite, and the restored baseline returns to green'
+  - 'Full bridge suite green; zero bytes changed in `src/`, `docs/standards/`, `examples/`, `.agentic-framework/`, or any AEF digest-pinned fixture'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the population check already existed and was better than my replacement — deleted the reimplementation and gave the real one a schedule. T-451''s census knows every distinction I was rediscovering (one-shot Verification semantics, teeth-by-convention, derived denominators, its own stated LIMIT); I found it because my draft''s orphan list printed its filename, after two wrong population definitions and a ''115 orphans'' headline. Its only live caller was the on-demand G-034 gap gauge, so it has measured a real backlog since T-451 and told nobody — unwatched, which is a distinct state from unrunnable and was worth naming. T-490 and T-448 were both found by hand in that interval and the census had both. Raw exit 1 on a pre-existing backlog cannot be wired without painting the suite permanently red, so --ratchet gates on MOVEMENT: fails when the backlog GROWS and equally when it SHRINKS, PL-004''s stale-entry half that was never built anywhere here. Baseline derived from --json, never hand-typed, and refuses to mint itself. Three negative controls; control C passed for the wrong reason first (set -e aborted before the assertion) and is fixed with a comment saying why. Suite 73 passed, 0 failed'
+    source: git-mined
+  - description: 'capture the class-level prevention PL-148 prescribed and nobody built — instrument reachability asserted population-wide. Five instances across two projects, each repaired by hand, none making the next detectable (PL-145''s fix-on-discovery shape). Records the population trap T-490 measured: a census scoped to tools/_*.mjs answered 0 of 27 while T-448 is a live instance outside that glob, so the population must derive from what CLAIMS to guard, not a file extension'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/locks/T-448.lock'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.hook-counter'
+  - '.tasks/active/T-448-bake-clean-layout---check-is-a-documente.md'
+  - '.tasks/active/T-491-assert-instrument-reachability-populatio.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t451-unwired-guard-census.py'
+  - 'tools/unwired-guard-baseline.txt'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-13T13:59:48"
+    action: "T-491: capture the class-level prevention PL-148 prescribed and nobody built — instrument reachability asserted population-wide. Five instances across two projects, each repaired by hand, none making the next detectable (PL-145's fix-on-discovery shape). Records the population trap T-490 measured: a census scoped to tools/_*.mjs answered 0 of 27 while T-448 is a live instance outside that glob, so the population must derive from what CLAIMS to guard, not a file extension"
+  - time: "2026-08-14T08:14:06"
+    action: "T-491: the population check already existed and was better than my replacement — deleted the reimplementation and gave the real one a schedule. T-451's census knows every distinction I was rediscovering (one-shot Verification semantics, teeth-by-convention, derived denominators, its own stated LIMIT); I found it because my draft's orphan list printed its filename, after two wrong population definitions and a '115 orphans' headline. Its only live caller was the on-demand G-034 gap gauge, so it has measured a real backlog since T-451 and told nobody — unwatched, which is a distinct state from unrunnable and was worth naming. T-490 and T-448 were both found by hand in that interval and the census had both. Raw exit 1 on a pre-existing backlog cannot be wired without painting the suite permanently red, so --ratchet gates on MOVEMENT: fails when the backlog GROWS and equally when it SHRINKS, PL-004's stale-entry half that was never built anywhere here. Baseline derived from --json, never hand-typed, and refuses to mint itself. Three negative controls; control C passed for the wrong reason first (set -e aborted before the assertion) and is fixed with a comment saying why. Suite 73 passed, 0 failed"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 1094 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1094
+  commits: 2
+  files_changed: 9
+  lines_added: 472
+  lines_removed: 19
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-491-assert-instrument-reachability-populatio.md
+generated_by: context-agent-hybrid

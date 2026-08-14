@@ -1303,3 +1303,31 @@ learnings:
   date: 2026-08-13
   context: Added via context agent
   application: TBD
+- id: PL-182
+  learning: "REACHABILITY IS NOT BINARY: between 'runs on a schedule' and 'nothing can run it' sits UNWATCHED — a live call path exists but only fires when somebody asks. T-451's unwired-guard census was reachable solely through the on-demand G-034 gap gauge, so it correctly measured a growing backlog for weeks and reported to nobody; T-490 and T-448 were both found by hand in that interval and the census had both the whole time. A binary reached/unreached model calls this either 'reached' (hiding that nobody watches) or 'unreached' (false, there IS a caller), and both answers lose the thing that matters. Corollary on wiring: an instrument that exits non-zero on a real pre-existing backlog cannot have its raw exit code wired into a suite — the suite goes permanently red and the red carries no information. Gate on MOVEMENT against a derived baseline instead, failing in BOTH directions: growth means a guard just went dark, and shrinkage means the baseline now lies. PL-004 prescribed exactly this ('legacy allowlist WITH stale-entry detection') and only the allowlist half was ever built; without the stale half a baseline decays into permanent amnesty, which is a hand-typed denominator wearing a different hat. Meta, and the expensive part: this task was FILED on the claim that no such census existed. It did, it was better than the replacement I started, and I found it only because my draft's own orphan list printed its filename. Verify the premise against the tree before building what a task says is missing (PL-023) — the cost of not checking was two wrong population definitions and a bogus '115 orphans' headline; the cost of checking was one grep."
+  source: P-011
+  task: T-491
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD
+- id: PL-183
+  learning: "A fail-open is only as safe as the detector it defers to, and nothing checks that the detector still runs — a source comment naming a compensating control is an assertion about a SCHEDULE, and from inside that file a live detector and a dark one are byte-identical"
+  source: P-001
+  task: T-492
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD
+- id: PL-184
+  learning: "Derived-not-typed protects against transcription error, not against the source being wrong: deriving a baseline faithfully from an instrument whose own definition is broken launders the error into a file that then reads as authoritative"
+  source: P-001
+  task: T-492
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD
+- id: PL-185
+  learning: "Reachability is not transitive through dead nodes — a liveness check that unions every reference found inside the population lets dead instruments vouch for each other; compute a closure from roots OUTSIDE the population instead (measured: 71 flat vs 49 closure over 165 tools)"
+  source: P-001
+  task: T-492
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD
