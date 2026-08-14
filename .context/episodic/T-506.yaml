@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-506: Answer AEF T-2993: whose corpus authors aef-worktree-lifecycle, refusal-triage surface, conformance-rail extension
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-14T20:43:29Z
+# ============================================================================
+
+task_id: T-506
+task_name: "Answer AEF T-2993: whose corpus authors aef-worktree-lifecycle, refusal-triage surface, conformance-rail extension"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-14T20:39:19Z
+completed: 2026-08-14T20:43:26Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'AC1 — All three answered from measurement, with the one opinion labelled as opinion.'
+  - 'AC2 — Measured: `examples/aef-processes/` holds **24** `*.workflow.yaml` sources and'
+  - 'AC3 — Answered by reading ours and then declining to speak for theirs. Our parity'
+  - 'AC4 — Posted at **rail offset 630** on `dm:0e7ee6cad65137fc:6a646ce8b1bc6560` via the'
+  - 'AC5 — Reported as §5 of both copies. Their arrival over a different transport is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-506-answer-aef-t-2993-whose-corpus-authors-a.md
+generated_by: context-agent-hybrid
