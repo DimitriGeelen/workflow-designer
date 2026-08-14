@@ -1408,3 +1408,17 @@ learnings:
   date: 2026-08-14
   context: Added via context agent
   application: TBD
+- id: PL-197
+  learning: "Two readers of one state file, and the PUBLIC accessor is the unverified one. AEF's T-1106 RCA (2026-04-11, ULTRA-HIGH) fixed the Watchtower URL emitter with an /api/_identity handshake and 3-layer fail-loud discovery in lib/watchtower.sh:_watchtower_url. bin/watchtower.sh:do_url — what 'fw watchtower url' actually execs — still cats the triple file verbatim with no owner check. Measured: with a dead pid and a stale url, the verified reader refuses and the public one returns a FOREIGN project's URL at rc=0. Callers of the unverified path include handover.sh:16, so handover documents can carry another project's Watchtower link and outlive the session. This is the reintroduction shape in its second-reader form: the reader that burned someone got fixed, the reader that had not yet burned anyone was out of scope, and re-reading never finds it because re-reading finds what IS there."
+  source: P-001
+  task: T-499
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD
+- id: PL-198
+  learning: "HTTP 200 is not evidence of identity — it is the shape of the right answer. Handed the operator a Watchtower link that served another project's dashboard, having curled the URL and treated the 200 as confirmation. The disconfirming evidence was already printed two lines earlier ('pid 8448 NOT running') and I reasoned it away as a stale pid rather than reading it as 'this is not our server'. Verify identity with something the wrong server cannot also satisfy (here: /api/_identity returning project_root), never with reachability. Related failure the same hour: testing that matcher in a bare shell without exporting PROJECT_ROOT made it reject our OWN server, and I nearly filed that as an upstream defect — the harness, not the subject."
+  source: P-001
+  task: T-499
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD
