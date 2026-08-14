@@ -1550,3 +1550,10 @@ decisions:
     date: 2026-08-14
     task: T-340
     rationale: "Scoped (b): import aef:position -> else DI -> else auto-layout; export emit DI only when the input carried it. Byte-neutral (BOTH=0 over 145 files, re-derived 2026-08-14), no re-pin, no AEF coordination."
+
+  - id: PD-201
+    decision: "hand-write the task file into `.tasks/active/` during session wrap-up."
+    scope: project
+    date: 2026-08-14
+    task: T-487
+    rationale: "Auto-captured from task file on completion"

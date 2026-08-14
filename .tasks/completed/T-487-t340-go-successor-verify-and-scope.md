@@ -8,16 +8,16 @@ description: >
   vulnerable to exactly AEF's T-2925 failure (a GO recorded against an inception that then
   closes, with no build slice ever created). Step 1 is verification, step 2 is scoping from
   the task file rather than from recall.
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: ["T-340", "T-486"]
 created: 2026-08-13T07:55:00Z
-last_update: 2026-08-13T08:21:37Z
-date_finished: null
+last_update: 2026-08-14T20:24:40Z
+date_finished: 2026-08-14T20:24:40Z
 ---
 
 # T-487: T-340 GO successor — verify, then scope
@@ -47,25 +47,43 @@ survives only in a conversation is the failure AEF hit in T-2925 and described a
 ## Acceptance Criteria
 
 ### Agent
-- [ ] AC1 — Read T-340's `## Decision` section and report whether a GO is RECORDED. Do not
+- [x] AC1 — **RECORDED.** `.context/project/decisions.yaml:1547` carries `PD-200`,
+      `task: T-340`, `date: 2026-08-14`, `decision: "T-340 DI repair semantics: b"`. Read from
+      the register, not inferred from this file, the handover or recall. See the 2026-08-14
+      update below for the one thing that is *not* settled by it.
+      Read T-340's `## Decision` section and report whether a GO is RECORDED. Do not
       infer it from this task file, from the handover, or from the fact that the ruling was
       given. If it is unrecorded, stop and put the copy-pasteable command in front of the
       operator; an agent must not record an inception decision, and Tier 0 approval does not
       clear the separate `--i-am-human` refusal.
-- [ ] AC2 — Read T-340 in full and scope the successor from THAT, not from recall. Every
+- [x] AC2 — Done 2026-08-13 (update below) and the scoping proved out: the carried claim
+      "scoped (b) is byte-neutral" was re-derived from the file (BOTH=0), and the shipped
+      change at `fc7f7263` changed zero bytes for the 126 `aef:position`-only documents.
+      Read T-340 in full and scope the successor from THAT, not from recall. Every
       claim carried into this session about the decision — notably "scoped option (b) is
       byte-neutral" — is recall from a compacted window. The agent's attempt to re-read
       T-340 was blocked by the task gate and the claim was never re-verified. A build task
       scoped from remembered prose is the pattern CLAUDE.md warns about under Pickup Message
       Handling.
-- [ ] AC3 — If T-340's scope describes more than three new files, a new subsystem, a new CLI
+- [x] AC3 — Build, not inception: two files edited, zero new. Confirmed by what actually
+      shipped, not only by the estimate.
+      If T-340's scope describes more than three new files, a new subsystem, a new CLI
       route or a new Watchtower page, file an INCEPTION rather than continuing to build
       under this task (G-020 / Pickup Message Handling).
-- [ ] AC4 — Real acceptance criteria for the actual build are written into the successor
+- [x] AC4 — Satisfied by T-340's own pre-existing Agent ACs; nothing was reworded to fit the
+      work. All three are now ticked with measurements attached.
+      Real acceptance criteria for the actual build are written into the successor
       task (this one, or a new one if AC3 routes to inception) BEFORE any source file is
       edited. The G-020 gate enforces this and blocked six tasks this session; do not treat
       it as friction.
-- [ ] AC5 — AEF is told the arc's blocker cleared. T-340 was named as the only thing
+- [x] AC5 — Told at **rail offset 626** on `dm:0e7ee6cad65137fc:6a646ce8b1bc6560`, posted via
+      the MCP surface with `from_project` attribution. §1 is the blocker-cleared notice: ruling
+      (b)/PD-200, shipped `fc7f7263`, import indexes `bpmndi:BPMNShape` → `dc:Bounds`, export
+      re-emits conditionally, and the byte-neutrality stated as a measurement (145 files,
+      BOTH=0) rather than a reassurance. This is the post that rail 604 recorded as still owed.
+      **They have not acknowledged it** — their last genuine message on that topic is offset
+      612 and eleven of mine are unanswered — but AC5 is "AEF is told", not "AEF replied".
+      AEF is told the arc's blocker cleared. T-340 was named as the only thing
       blocking the arc in six consecutive rail messages (598-603) on
       `dm:0e7ee6cad65137fc:6a646ce8b1bc6560`. Post via the MCP surface with
       `metadata={'from_project': '832-Workflow-designer', ...}` — the T-420 attribution gate
@@ -78,13 +96,23 @@ survives only in a conversation is the failure AEF hit in T-2925 and described a
 # this block before executing it, with no quote or command-boundary awareness. No leg below
 # carries those delimiters as data, deliberately.
 
-# AC1 — T-340 carries a recorded decision. This leg is expected to FAIL until it does; that
-# failure is the point, and it is what stops this task closing on a ruling that never landed.
-grep -qi "GO" .tasks/completed/T-340-*.md .tasks/active/T-340-*.md 2>/dev/null
+# AC1 — T-340 carries a recorded decision, asserted against the REGISTER, which is where a
+# ruling has to land to be visible to anything.
+#
+# REPLACED 2026-08-14, and the reason is the point of the leg. It used to read:
+#     grep -qi "GO" .tasks/completed/T-340-*.md .tasks/active/T-340-*.md 2>/dev/null
+# Case-insensitive "GO" matches "go", "gone", "going", "ago" and "algorithm". T-340's file
+# contained all of those on 2026-08-13, the day this task's own verdict was NOT RECORDED —
+# so the leg written to stop the task closing on a ruling that never landed would have
+# passed on exactly that ruling. It was not a weak check, it was a check of nothing, and it
+# was pointed at the task file rather than at the register the ruling has to reach.
+grep -q "id: PD-200" .context/project/decisions.yaml
+grep -A4 "id: PD-200" .context/project/decisions.yaml | grep -q "task: T-340"
 
-# AC5 — the rail was told. Asserted against this task file's own record of the offset, so a
-# closed task cannot claim it silently.
-grep -q "rail offset" .tasks/active/T-487-t340-go-successor-verify-and-scope.md
+# AC5 — the rail was told, asserted against the specific offset. The previous form grepped
+# for the bare string "rail offset", which was already present from the 604 entry before 626
+# existed: a leg that was green while the thing it certifies was still owed.
+grep -q "rail offset 626" .tasks/active/T-487-t340-go-successor-verify-and-scope.md
 
 ## Decisions
 
@@ -100,6 +128,48 @@ grep -q "rail offset" .tasks/active/T-487-t340-go-successor-verify-and-scope.md
   to the next session than handover prose, because it appears in Work in Progress.
 
 ## Updates
+
+### 2026-08-14 — AC1 re-answered: RECORDED. And the ruling landed in a task nobody can reach [agent]
+
+**AC1 flips.** Yesterday's verdict was NOT RECORDED and it was correct on the day. It is now
+recorded, by the mechanism this task identified as the right one after three sessions of
+gate refusals sent everyone at `fw inception decide`:
+
+    .context/project/decisions.yaml:1547   PD-200   task: T-340   date: 2026-08-14
+                                           "T-340 DI repair semantics: b"
+
+The build shipped at `fc7f7263`; T-340's three Agent ACs are ticked with measurements
+(24/24 DI injected and survived, bridge 75/0). Read from the register, per AC1's own
+instruction not to infer it from this file or from recall.
+
+**What is NOT settled, and it is the reason this update exists rather than a tick alone.**
+T-340 right now:
+
+    status: started-work        owner: agent        Agent ACs 3/3 ticked
+    Human AC  [REVIEW] Repair semantics for standard BPMN DI on import   — UNTICKED
+
+Partial-complete is supposed to move a task to `owner: human` once the Agent ACs pass, so it
+surfaces in the operator's queue. T-340 did not make that transition — it is agent-owned with
+nothing left for an agent to do, and human-gated with no marker saying so. `fw task verify`
+lists tasks by their Human ACs; a task the operator never sees is not a task they can close.
+
+**And the AC's own Expected clause is already satisfied.** It reads *"one option recorded"*.
+One option is recorded: PD-200, option (b), with the byte-neutrality rationale attached. So
+the evidence for closing it exists and I am stating it here rather than acting on it — the
+checkbox is the operator's mark and ticking it is not delegated, no matter how strong the
+evidence is. This is a suggestion with evidence, which is the only shape the rule permits.
+
+**Provenance limit, stated because I cannot close it.** PD-200's file write rides in commit
+`f4adabc4`, which is agent-authored (T-500). That establishes when the line entered the tree,
+not who ran `fw context add-decision`. The ruling itself was given in-session on 2026-08-14
+and I reported it to AEF at rail 626 as the operator's. I am recording the ambiguity rather
+than resolving it by assertion — the unticked `[REVIEW]` box is the operator's own mark and
+it is the one piece of this that is unambiguous.
+
+**Same class as the defer review run earlier today.** T-209 and T-353 carry DEFER rulings as
+prose that no instrument can see; T-340 carries a recorded ruling in a task no queue lists.
+Both are PL-145 — a ruling is only as good as the surface that shows it — and this one is the
+inverted case: the ruling was filed correctly and the *task* went dark instead.
 
 ### 2026-08-13T08:20:00Z — AC1 answered: NOT RECORDED, and the command was wrong [agent]
 
@@ -184,3 +254,20 @@ The "blocker cleared" post remains owed and is what closes AC5, once the ruling 
 - **Action:** Task file written directly during budget-critical wrap-up.
 - **Context:** Operator ruled GO on T-340; recording status unverified; successor did not
   exist. AC1 is deliberately expected to fail until the decision is actually recorded.
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0f32bd0e
+- **Timestamp:** 2026-08-14T20:24:41Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **l387-sigpipe-risk** (partial, heuristic) @ Verification:line 16
+     - evidence: `grep -A4 "id: PD-200" .context/project/decisions.yaml | grep -q "task: T-340"`
+
+### 2026-08-14T20:24:40Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

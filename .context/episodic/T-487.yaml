@@ -1,0 +1,99 @@
+# ============================================================================
+# EPISODIC MEMORY - T-487: T-340 GO successor — verify the decision was recorded, then scope the build from the task file
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-14T20:24:42Z
+# ============================================================================
+
+task_id: T-487
+task_name: "T-340 GO successor — verify the decision was recorded, then scope the build from the task file"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-13T07:55:00Z
+completed: 2026-08-14T20:24:40Z
+duration_days: 1
+updates_count: 4
+first_commit: 2026-08-13T10:08:15+02:00
+last_commit: 2026-08-13T10:21:37+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  capture the T-340 GO ruling as a task before context runs out — decision recording UNVERIFIED (three gates refused three routes, operator's 'approved' never disambiguated), successor scoping deferred to a read of T-340 rather than recall; T-486 measured this exact orphaned-GO exposure an hour earlier. AC1 answered — the T-340 GO is NOT RECORDED, and 'fw inception decide' was never the right command (T-340 is a build task; the ruling is a Human AC). Both refusals fired on the command name before any task-type validation, so two correct blocks taught the wrong lesson — T-485's class one turn on: agreement between instruments sharing a blind spot is not corroboration. AC2/AC3 scoped from the file: byte-neutral (b) confirmed at BOTH=0 over 144 files, 2 files edited / 0 new, successor is T-340 itself. AEF told at rail offset 604 — OBS-047 routed upstream (lib/inception.sh + the CLAUDECODE refusal are their code, vendored at our pin), arc state stated precisely as ruling-given-not-recorded rather than 'cleared', BOTH=0 over 144 files re-confirmed so scoped (b) needs zero coordination from them; PL-179 recorded
+
+# Key outcomes
+outcomes:
+  - 'AC1 — **RECORDED.** `.context/project/decisions.yaml:1547` carries `PD-200`,'
+  - 'AC2 — Done 2026-08-13 (update below) and the scoping proved out: the carried claim'
+  - 'AC3 — Build, not inception: two files edited, zero new. Confirmed by what actually'
+  - 'AC4 — Satisfied by T-340''s own pre-existing Agent ACs; nothing was reworded to fit the'
+  - 'AC5 — Told at **rail offset 626** on `dm:0e7ee6cad65137fc:6a646ce8b1bc6560`, posted via'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-13 — creating this task file directly rather than via fw task create'
+    chose: 'hand-write the task file into `.tasks/active/` during session wrap-up.'
+    rationale: 'the budget gate had already blocked Bash (296,793 tokens, ~98%), so'
+    alternatives_rejected: ['appending to the handover — `.context/handovers/LATEST.md` is a symlink and']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/approvals/resolved-4023d614d6de.yaml'
+  - '.context/audits/2026-08-13.yaml'
+  - '.context/audits/cron/2026-08-13-0945.yaml'
+  - '.context/audits/cron/2026-08-13-1000.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.checkpoint.handover.stderr'
+  - '.context/working/.compact-log'
+  - '.context/working/.handover-cooldown'
+  - '.context/working/.hook-counter'
+  - '.context/working/.restart-requested'
+  - '.context/working/.reviewed-T-340'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-487-t340-go-successor-verify-and-scope.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-13T10:08:15"
+    action: "T-487: capture the T-340 GO ruling as a task before context runs out — decision recording UNVERIFIED (three gates refused three routes, operator's 'approved' never disambiguated), successor scoping deferred to a read of T-340 rather than recall; T-486 measured this exact orphaned-GO exposure an hour earlier"
+  - time: "2026-08-13T10:20:28"
+    action: "T-487: AC1 answered — the T-340 GO is NOT RECORDED, and 'fw inception decide' was never the right command (T-340 is a build task; the ruling is a Human AC). Both refusals fired on the command name before any task-type validation, so two correct blocks taught the wrong lesson — T-485's class one turn on: agreement between instruments sharing a blind spot is not corroboration. AC2/AC3 scoped from the file: byte-neutral (b) confirmed at BOTH=0 over 144 files, 2 files edited / 0 new, successor is T-340 itself"
+  - time: "2026-08-13T10:21:37"
+    action: "T-487: AEF told at rail offset 604 — OBS-047 routed upstream (lib/inception.sh + the CLAUDECODE refusal are their code, vendored at our pin), arc state stated precisely as ruling-given-not-recorded rather than 'cleared', BOTH=0 over 144 files re-confirmed so scoped (b) needs zero coordination from them; PL-179 recorded"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 3 commit(s), 2189 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2189
+  commits: 3
+  files_changed: 19
+  lines_added: 600
+  lines_removed: 86
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-487-t340-go-successor-verify-and-scope.md
+generated_by: context-agent-hybrid
