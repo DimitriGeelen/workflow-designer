@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-14T12:11:01Z
-last_update: 2026-08-14T12:11:01Z
+last_update: 2026-08-14T12:13:11Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -94,7 +94,83 @@ T-424 is the one defer whose re-entry condition is genuinely known (T-340's ruli
 it still carries no `revisit_at`. That is the cheapest correction available and it is
 one field.
 
-### 5. What I did NOT do
+### 5. CORRECTION to §0 and §2 — I double-counted the population
+
+T-155 is in BOTH buckets: it is the one formal DEFER *and* it carries `horizon: later`.
+The union is **20 distinct tasks, not 21**. §2's "understates it 21×" is therefore **20×**,
+and "zero of 21" is **zero of 20**. Same double-count shape as the rest of this class —
+two views of one register, summed as if disjoint, without checking the overlap.
+
+### 6. Per-item verdicts — all 20
+
+Verdict per AC-4. A fourth bucket was required and its existence is itself a finding:
+four items cannot be settled by static evidence at all, because the deferred claim is a
+RUNTIME property (a render, a click) or its subject is not in this tree.
+
+    STALE (justification no longer holds) — 2
+
+    T-443  Rename fixtures/aef-bpmn        TRIGGER ALREADY FIRED, 2 days unnoticed.
+           AEF ruled "keep the path" at DM 549 §5 on 2026-08-12; corroborated
+           independently by episodic T-446 ("AEF ruled keep-the-path on T-365").
+           The task's own TITLE still reads "PENDING AEF ruling". It is parked on
+           operator ratification now, not on AEF.
+    T-155  Tree grouping for Open-project  Label wrong, not stale content. Rationale
+           reads "pending operator input on IW-1/IW-2" — blocked on a question, not a
+           decision to wait — and states a full positive recommendation (A1+B1+C1).
+           Should read GO-awaiting-ratification. Parked 16 days.
+
+    PARTLY DISSOLVED — 1
+
+    T-246  Changelog + structured capabilities. The capabilities HALF shipped under
+           T-258: dist/MANIFEST.yaml carries `capabilities: annotation_seam: 1` under
+           the comment `# T-258/T-246`, released 0.9.0 on 2026-08-08. The changelog
+           half is still absent (no CHANGELOG in dist/, docs/ or root). The park never
+           noticed half its deliverable arrived. Re-scope to changelog-only.
+
+    STILL VALID (subject confirmed to exist, evidence unchanged) — 13
+
+    T-424  retire aef:position          Trigger KNOWN and unfired: T-340's ruling is
+                                        still unrecorded (0 hits in decisions.yaml,
+                                        re-checked today). Cheapest correction on the
+                                        board: one revisit_at field.
+    T-184/185/186  arc children 3/4/5   owner human, 34 d, oldest in the register.
+    T-277  conformance key ratification blocked on AEF's T-2652 landing. NOTE: T-443
+                                        proves rulings arrive without our parks
+                                        noticing, so this one needs an explicit rail
+                                        check, not passive waiting.
+    T-279/280/281/282  revive-or-retire inceptions, owner human, no evidence moved.
+    T-289  mapping-v1 vocab alignment   cannot be resolved by editing the standard —
+                                        Part I is frozen under agent control.
+    T-291/292  ghost workflows          subject CONFIRMED PRESENT: both 'review-map'
+                                        and 'future-map' are still live rows in
+                                        .context/designer/registry.yaml. Not dissolved.
+    T-355  foreign-tag nodes unmarked   symptom CONFIRMED PRESENT: `foreignTag` occurs
+                                        in src/aef-workflow-designer.html only on the
+                                        parse/emit paths (:9629, :9631, :9872, :9891);
+                                        no occurrence on any render/class path.
+
+    UNVERIFIABLE BY STATIC EVIDENCE — 4  (this bucket is the finding, not a gap)
+
+    T-233  ghost cards visually distinct   render property. The ghost modal exists
+                                           (:8943) but "visually distinct" is not a
+                                           grep result — CLAUDE.md's own rule: DOM
+                                           math is not rendered output.
+    T-294  port-indicator pin click        interaction property. .port-indicator
+                                           exists (:675, :3729); whether mousedown
+                                           bubbles needs a real click.
+    T-301  Versions panel empty            runtime property.
+    T-241  api/thumb fallback              SUBJECT NOT IN THIS TREE. `api/thumb`
+                                           appears in no source file here — only in
+                                           .context prose. The gallery server is
+                                           elsewhere. Verdict withheld pending
+                                           locating it; may be DISSOLVED-HERE.
+
+**Method note against myself (ninth this week).** My first probe for these searched
+`web/` and `lib/` — neither directory exists in this repo. It returned nothing, which
+reads exactly like "not implemented". Caught by checking the search population before
+the finding, not after.
+
+### 7. What I did NOT do
 
 No defer was flipped. Re-evaluation produces a recommendation; converting a DEFER to
 GO/NO-GO is an operator ruling, and T-155's case is precisely one where the agent
@@ -105,21 +181,21 @@ worst.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The DEFER population is enumerated STRUCTURALLY, not by grepping the word —
+- [x] The DEFER population is enumerated STRUCTURALLY, not by grepping the word —
       a word-search already produced a false positive (T-121's `n_end_defer` is a
       node name). Population derived from: `## Decision` blocks recording defer,
       `horizon: later`, and `revisit_at` fields
-- [ ] The denominator is stated, and the search's own blind spots named — a defer
+- [x] The denominator is stated, and the search's own blind spots named — a defer
       recorded only in prose is invisible to a structural scan (PL-145) and that
       must be said, not implied absent
-- [ ] Each defer is re-evaluated against the question that actually matters: has the
+- [x] Each defer is re-evaluated against the question that actually matters: has the
       evidence that justified deferring CHANGED? Not "is it still deferred"
 - [ ] Every defer gets one of: STILL VALID (with what would change it), STALE (the
       justification no longer holds), or DISSOLVED (the thing deferred no longer exists)
-- [ ] Defers with no revisit date are named individually — a defer with no trigger is
+- [x] Defers with no revisit date are named individually — a defer with no trigger is
       indistinguishable from an abandonment, which is the exclusion-vs-hole distinction
       applied to time
-- [ ] No defer is flipped under agent initiative. Re-evaluation produces a
+- [x] No defer is flipped under agent initiative. Re-evaluation produces a
       recommendation; changing a DEFER to GO/NO-GO is an operator ruling
 
 ### Human
