@@ -4,10 +4,10 @@ name: "A pending Tier 0 approval disappeared from disk unactioned — find out w
 description: >
   A pending Tier 0 approval disappeared from disk unactioned — find out what removed it
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-14T19:41:01Z
-last_update: 2026-08-14T19:41:01Z
-date_finished: null
+last_update: 2026-08-14T19:43:53Z
+date_finished: 2026-08-14T19:43:53Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -261,3 +261,20 @@ grep -q "OBS-246" .context/inbox.yaml
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-504-a-pending-tier-0-approval-disappeared-fr.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-71a3383a
+- **Timestamp:** 2026-08-14T19:43:53Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#1 (Agent)** — **The mechanism that removed `.context/approvals/pending-c9b81f71ff18.yaml` is
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=context/approvals/pending-c9b81f71ff18.yaml in: **The mechanism that removed `.context/approvals/pending-c9b81f71ff18.yaml` is`
+
+### 2026-08-14T19:43:53Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
