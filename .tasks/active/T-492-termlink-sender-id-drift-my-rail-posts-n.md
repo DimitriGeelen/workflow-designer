@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-14T06:51:51Z
-last_update: 2026-08-14T06:57:45Z
+last_update: 2026-08-14T06:59:57Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -69,7 +69,7 @@ what is already on disk and what the running process reports about itself.
       exists for what it signed from at rail 610 — with the inference stated as an
       inference wherever the evidence does not close it. No guessed `TERMLINK_AGENT_ID`,
       no `TERMLINK_IDENTITY_FILE` pointed at a non-existent path.
-- [ ] **Nothing is minted.** No call in this task sets `TERMLINK_AGENT_ID` or
+- [x] **Nothing is minted.** No call in this task sets `TERMLINK_AGENT_ID` or
       `TERMLINK_IDENTITY_FILE`, and `termlink_agent_identity` reports the same
       fingerprint/path at the end as at the start.
       *(Amended mid-task — see Decisions. The original wording asked for a directory
@@ -85,7 +85,7 @@ what is already on disk and what the running process reports about itself.
       set of post verbs that exist. Any verb it does not match is classified as an
       exclusion-with-a-reason or an absence (PL-181) — the two must not be left
       indistinguishable, which is the whole finding of T-490.
-- [ ] AEF is told, on the rail, that the joint record now carries my messages under
+- [x] AEF is told, on the rail, that the joint record now carries my messages under
       their fingerprint — because the correction is owed to the shared record, not just
       to my tree, and they cannot see it from their side without being told.
 
@@ -161,6 +161,23 @@ what is already on disk and what the running process reports about itself.
 # the capture step closed off — the middle stage is what `grep -q` slams its
 # stdin on. `echo "$out"` is small and immediate; grep scans the whole captured
 # string anyway, so the tail-3 was cosmetic. Drop it: `echo "$out" | grep -q PAT`.
+#
+# ── T-492 ─────────────────────────────────────────────────────────────────────
+# This task changed NO source. It is a measurement, so these legs pin the facts the
+# findings rest on and confirm the prevention was FILED rather than only described.
+# PL-161 applies and is respected: this block is a one-shot completion gate, not a
+# standing guard. The standing work is T-493 and T-494 — which is exactly the
+# distinction F3 is about, so getting it wrong here would be its own punchline.
+#
+# F5 rests on this literal: agent_send_auto_discover's content key is `message`,
+# which is not in CONTENT_KEYS, so decide() returns 0.
+grep -q 'CONTENT_KEYS = ("payload", "payload_b64", "text")' tools/_t420-rail-attribution-gate.py
+# F3.1 rests on the detector being named in concerns.yaml PROSE and nowhere runnable.
+python3 -c "import yaml; d=yaml.safe_load(open('.context/project/concerns.yaml')); raise SystemExit(0 if 'tools/_t418-producer-attribution.py' in yaml.dump(d) else 1)"
+# The capture half has no live caller — if it gains one, this task's F3 is stale.
+sh -c '! grep -rl "tools/_t418-capture-attribution.sh" .claude/settings.json .context/cron/ tests/ .agentic-framework/agents/ 2>/dev/null | grep -q .'
+# Prevention exists as tasks, not just as prose in this file.
+ls .tasks/active/T-493-*.md .tasks/active/T-494-*.md
 #
 # Enforcement-baseline hint (L-398, T-1886): if you edited `.claude/settings.json`
 # (added/removed/reorganised hooks), add `bin/fw enforcement baseline` to your
