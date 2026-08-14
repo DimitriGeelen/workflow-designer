@@ -4,10 +4,10 @@ name: "Completion transition leaves task-file state uncommitted"
 description: >
   Observed 2026-08-12 at the end of a five-completion window: fw task update --status work-completed rewrites the task file (status, horizon null per CTL-030, date_finished, Updates entry) and moves it to .tasks/completed/, but those content edits land AFTER the commit that staged the file. Five task files (T-453 T-454 T-455 T-456 T-457) were left dirty in the working tree even after fw handover --commit ran and pushed, so the completion state of five tasks was not in the repository while the handover describing them was. Not yet established whether this is ordering-specific to how this window interleaved commit-then-complete, or general - recording the observation with the evidence rather than asserting a defect. Deliverable is the commit itself plus the honest note; investigation is a separate task if it recurs.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T13:43:07Z
-last_update: 2026-08-14T19:11:49Z
-date_finished: null
+last_update: 2026-08-14T19:12:47Z
+date_finished: 2026-08-14T19:12:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -297,3 +297,15 @@ grep -q "OBS-245" .context/inbox.yaml
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-458-completion-transition-leaves-task-file-s.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-c094e980
+- **Timestamp:** 2026-08-14T19:12:48Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-14T19:12:47Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

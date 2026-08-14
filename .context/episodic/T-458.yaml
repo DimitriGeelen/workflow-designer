@@ -1,0 +1,138 @@
+# ============================================================================
+# EPISODIC MEMORY - T-458: Completion transition leaves task-file state uncommitted
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-14T19:12:50Z
+# ============================================================================
+
+task_id: T-458
+task_name: "Completion transition leaves task-file state uncommitted"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-12T13:43:07Z
+completed: 2026-08-14T19:12:47Z
+duration_days: 2
+updates_count: 1
+first_commit: 2026-08-12T15:43:41+02:00
+last_commit: 2026-08-14T21:12:42+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  commit the completion-state deltas the transition left in the working tree. fw task update --status work-completed rewrites each task file (status, horizon null per CTL-030, date_finished, Updates) after the commit that staged it, so T-453 through T-457 sat dirty even after handover ran and pushed — the handover describing five completions was in the repository while the completions themselves were not. Recorded as an observation with evidence, not asserted as a defect: whether this is ordering-specific to how this window interleaved commit-then-complete or general to every completion is not established, and claiming either would be inferred rather than measured. second instance within minutes — T-458's own file was rewritten after being staged, exactly as T-453..T-457 were. Two instances in one window is not yet 'general', but it is no longer 'a one-off ordering quirk' either, and the task's ACs record which of those two it is allowed to claim. Left open deliberately: the deltas are committed and .tasks/ is clean, but the question of whether every completion does this needs a second window to answer rather than a confident sentence from this one. fourth instance, and this time the ordering knot has a second face — completing before committing makes the commit un-referenceable without a Tier-2 bypass.. commit the completion-state edit before it becomes the fifth instance of its own subject. reproduced end to end, and it is stronger than the title says — the state is not left uncommitted, it is uncommittable.. a tracked visual artefact flips between two renderings on every suite run (OBS-244), found because it dirtied the tree before a commit.. sweep this task's own Updates entry, the one file in the pair that is committable.. commit the completion-state deltas the transition wrote. the second gate was never measured — I asked the operator to authorise a bypass that was not needed. both ACs verified — wire the Verification block to the two claims
+
+# Key outcomes
+outcomes:
+  - '**The five completion-state deltas are committed**, so the repository holds the same'
+  - '**The observation is recorded as an OBSERVATION, not a defect.** Whether this is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/approvals/pending-0f79d867cbc5.yaml'
+  - '.context/approvals/pending-c9b81f71ff18.yaml'
+  - '.context/audits/2026-08-14.yaml'
+  - '.context/audits/cron/2026-08-14-1900.yaml'
+  - '.context/audits/cron/2026-08-14-1915.yaml'
+  - '.context/audits/cron/2026-08-14-1930.yaml'
+  - '.context/audits/cron/2026-08-14-1945.yaml'
+  - '.context/audits/cron/2026-08-14-2000.yaml'
+  - '.context/audits/cron/2026-08-14-2015.yaml'
+  - '.context/audits/cron/2026-08-14-2030.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/episodic/T-355.yaml'
+  - '.context/episodic/T-461.yaml'
+  - '.context/inbox.yaml'
+  - '.context/locks/T-233.lock'
+  - '.context/locks/T-355.lock'
+  - '.context/locks/T-458.lock'
+  - '.context/locks/T-461.lock'
+  - '.context/locks/T-500.lock'
+  - '.context/locks/T-501.lock'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/episodic-gen/T-355.log'
+  - '.context/working/episodic-gen/T-461.log'
+  - '.context/working/episodic-gen/T-500.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.reviewed-T-233'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-233-s5b-gallery-ghost-cards-render-ghosts-as.md'
+  - '.tasks/active/T-458-completion-transition-leaves-task-file-s.md'
+  - '.tasks/completed/T-355-foreign-tag-nodes-render-identically-to-.md'
+  - '.tasks/completed/T-453-g-020-scans-the-ac-section-as-raw-text-a.md'
+  - '.tasks/completed/T-454-approvals-queue-regrew-to-14-no-rec-of-3.md'
+  - '.tasks/completed/T-455-recommendation-block-the-guard-requires-.md'
+  - '.tasks/completed/T-456-p-011-strips-html-comments-from-the-veri.md'
+  - '.tasks/completed/T-457-register-the-gate-comment-boundary-class.md'
+  - '.tasks/completed/T-461-register-the-instrument-substitution-cla.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-12T15:43:41"
+    action: "T-458: commit the completion-state deltas the transition left in the working tree. fw task update --status work-completed rewrites each task file (status, horizon null per CTL-030, date_finished, Updates) after the commit that staged it, so T-453 through T-457 sat dirty even after handover ran and pushed — the handover describing five completions was in the repository while the completions themselves were not. Recorded as an observation with evidence, not asserted as a defect: whether this is ordering-specific to how this window interleaved commit-then-complete or general to every completion is not established, and claiming either would be inferred rather than measured"
+  - time: "2026-08-12T15:44:01"
+    action: "T-458: second instance within minutes — T-458's own file was rewritten after being staged, exactly as T-453..T-457 were. Two instances in one window is not yet 'general', but it is no longer 'a one-off ordering quirk' either, and the task's ACs record which of those two it is allowed to claim. Left open deliberately: the deltas are committed and .tasks/ is clean, but the question of whether every completion does this needs a second window to answer rather than a confident sentence from this one"
+  - time: "2026-08-12T16:24:07"
+    action: "T-458: fourth instance, and this time the ordering knot has a second face — completing before committing makes the commit un-referenceable without a Tier-2 bypass."
+  - time: "2026-08-12T18:54:02"
+    action: "T-458: commit the completion-state edit before it becomes the fifth instance of its own subject"
+  - time: "2026-08-14T19:29:57"
+    action: "T-458: reproduced end to end, and it is stronger than the title says — the state is not left uncommitted, it is uncommittable."
+  - time: "2026-08-14T20:33:39"
+    action: "T-458: a tracked visual artefact flips between two renderings on every suite run (OBS-244), found because it dirtied the tree before a commit."
+  - time: "2026-08-14T20:33:55"
+    action: "T-458: sweep this task's own Updates entry, the one file in the pair that is committable."
+  - time: "2026-08-14T21:09:08"
+    action: "T-458: commit the completion-state deltas the transition wrote"
+  - time: "2026-08-14T21:11:49"
+    action: "T-458: the second gate was never measured — I asked the operator to authorise a bypass that was not needed"
+  - time: "2026-08-14T21:12:42"
+    action: "T-458: both ACs verified — wire the Verification block to the two claims"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 10 commit(s), 3209 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3209
+  commits: 10
+  files_changed: 46
+  lines_added: 1713
+  lines_removed: 277
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-458-completion-transition-leaves-task-file-s.md
+generated_by: context-agent-hybrid
