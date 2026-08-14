@@ -129,10 +129,9 @@ RUNTIME property (a render, a click) or its subject is not in this tree.
 
     STILL VALID (subject confirmed to exist, evidence unchanged) — 13
 
-    T-424  retire aef:position          Trigger KNOWN and unfired: T-340's ruling is
-                                        still unrecorded (0 hits in decisions.yaml,
-                                        re-checked today). Cheapest correction on the
-                                        board: one revisit_at field.
+    T-424  retire aef:position          [CORRECTED — see §8. The trigger I named for
+                                        this one was WRONG, and I acted on it before
+                                        checking.]
     T-184/185/186  arc children 3/4/5   owner human, 34 d, oldest in the register.
     T-277  conformance key ratification blocked on AEF's T-2652 landing. NOTE: T-443
                                         proves rulings arrive without our parks
@@ -169,6 +168,37 @@ RUNTIME property (a render, a click) or its subject is not in this tree.
 `web/` and `lib/` — neither directory exists in this repo. It returned nothing, which
 reads exactly like "not implemented". Caught by checking the search population before
 the finding, not after.
+
+### 8. CORRECTION — T-424's trigger had not fired, and I promoted it before reading it
+
+Sections 4 and 6 both called T-424 *"the one defer whose re-entry condition is genuinely
+known — T-340's ruling"* and *"the cheapest correction on the board"*. When the operator
+recorded PD-200 I promoted it `later` → `now` on that basis, told them the trigger had
+fired, and only then opened the task.
+
+**T-424's own description names three preconditions and T-340's ruling is none of them:**
+
+1. a **T-225 scope ruling** on whether the never-silently-migrated principle covers
+   *presentational* content — T-225's four invocation sites in src are all semantic, so
+   the principle's reach over presentation is stated and never tested;
+2. a **v1.1 revision of the FROZEN two-party standard** `docs/standards/aef-bpmn-mapping-v1.md`,
+   which names `aef:position` — so this is AEF's decision as much as ours;
+3. **spike 3's unresolved intent gap** — DI has no vocabulary for `forceStraight`,
+   `routingHint`, `loopDetour`, and `anchors`/`aef:waypoint` are still unclassified.
+
+Plus the ordering constraint: step 3 lands after step 2, and step 2 is itself now parked
+on a rail question.
+
+Reverted to `horizon: later`, with `revisit_evidence_needed` recording the real
+preconditions so the next reader does not have to re-derive them.
+
+**How the error was made, because it is the week's class turned on myself.** T-424 sits
+adjacent to T-340 in T-357's decomposition, so I read *adjacency in a sequence* as
+*dependency on the previous step*. That is mention-vs-instance one more time: "T-340 is
+named near T-424" is not "T-424 waits on T-340". The whole point of this task was that
+a park's justification must be READ rather than inferred, and the one park I singled out
+as exemplary is the one whose justification I never opened. It was also the cheapest
+possible check — the answer was in the `description:` field.
 
 ### 7. What I did NOT do
 
