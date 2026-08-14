@@ -573,6 +573,11 @@ font-family: 'Outfit';
   svg[data-lsize="l"] .lane-label { font-size: 11.5px; }
   .node-io-badge { fill: var(--text-dim); font-family: var(--mono); font-size: 8px; pointer-events: none; }
   .node-id-badge { fill: var(--text-faint); font-family: var(--mono); font-size: 9px; pointer-events: none; letter-spacing: 0.02em; }
+  /* T-355: the real tag of a foreign (out-of-allowlist) flow node, drawn above the shape.
+     Mono because it is a literal from the source document, not prose; --text-dim rather
+     than --text-faint so it stays legible — this is the one mark that says what the
+     element actually is. */
+  .node-foreign-tag { fill: var(--text-dim); font-family: var(--mono); font-size: 9px; pointer-events: none; letter-spacing: 0.02em; }
   /* T-258: annotation seam v0 (T-250 GO) — read-only badge layer driven by the
      embedding parent via postMessage. Never serialized; wiped on every render. */
   .aef-annotation { pointer-events: none; }
@@ -2973,7 +2978,42 @@ function renderNodes() {
     g.addEventListener('click', e => { e.stopPropagation(); onNodeClick(n, e); });
     g.addEventListener('dblclick', e => { e.stopPropagation(); onNodeDblClick(n, e); });   // T-160: handoff jump
 
-    if (n.type === 'startEvent') {
+    // T-355: a FOREIGN flow node — an element outside the import allowlist, preserved
+    // verbatim by T-337 and re-emitted unchanged on export. Drawn here, BEFORE every
+    // type branch, rather than corrected afterwards.
+    //
+    // foreignDisplayTag() (:10027) maps an unknown local name to serviceTask, or to
+    // exclusiveGateway when it ends in "Gateway", purely so the canvas has a shape. Its
+    // comment says the choice is "presentation only" and "moves no bytes", which is true
+    // of the export and false of the reader: the serviceTask branch stamps the blue
+    // service dot (:2982) and the gateway branch stamps the exclusive X (:3002). Those
+    // are the BPMN conventions for "this IS a service task" / "this IS an exclusive
+    // gateway" — a semantics the document never claimed and this designer does not
+    // implement. Painting them and then adding a warning would leave both marks on the
+    // canvas at once, so the branch order is the fix.
+    //
+    // Neutral-and-muted rather than a new colour, following T-308's bare catch event:
+    // the honest reading is "an element of a kind this editor does not model", which is
+    // what --text-dim + dashed says. A fresh accent colour would invent a category.
+    // Three signals, none of them colour alone (T-233's rule): dashed outline, the tag
+    // name rendered verbatim, and a <title> saying what will happen to it on save.
+    if (n.foreignTag) {
+      const cx = n.x + def.w / 2, cy = n.y + def.h / 2;
+      const stroke = 'var(--text-dim)';
+      g.appendChild(/Gateway$/.test(n.foreignTag)
+        ? el('path', { d: `M${cx} ${n.y} L${n.x + def.w} ${cy} L${cx} ${n.y + def.h} L${n.x} ${cy} Z`, class: 'node-shape', fill: 'var(--surface-2)', stroke, 'stroke-width': '1.5', 'stroke-dasharray': '4 3' })
+        : el('rect', { x: n.x, y: n.y, width: def.w, height: def.h, rx: 8, class: 'node-shape', fill: 'var(--surface-2)', stroke, 'stroke-width': '1.5', 'stroke-dasharray': '4 3' }));
+      // The tag itself. "Not a serviceTask" is only half the disclosure — the author
+      // still has to be able to tell a callActivity from a transaction. Truncated and
+      // never wrapped: a long foreign tag must not reflow the node it labels.
+      const tag = String(n.foreignTag);
+      g.appendChild(el('text', { x: n.x, y: n.y - 5, class: 'node-foreign-tag' },
+        [text(`⟨${tag.length > 18 ? tag.slice(0, 17) + '…' : tag}⟩`)]));
+      g.appendChild(el('title', {}, [text(
+        `Foreign BPMN element <bpmn:${tag}> — preserved verbatim on export (T-337). `
+        + `This editor does not implement its semantics, so it is drawn with a neutral `
+        + `dashed shape and none of the marks that would claim it is a task or a gateway.`)]));
+    } else if (n.type === 'startEvent') {
       g.appendChild(el('circle', { cx: n.x + def.w / 2, cy: n.y + def.h / 2, r: def.w / 2, class: 'node-shape', fill: 'var(--green-soft)', stroke: 'var(--green)', 'stroke-width': '1.5' }));
     } else if (n.type === 'endEvent') {
       g.appendChild(el('circle', { cx: n.x + def.w / 2, cy: n.y + def.h / 2, r: def.w / 2, class: 'node-shape', fill: 'var(--red-soft)', stroke: 'var(--red)', 'stroke-width': '3' }));

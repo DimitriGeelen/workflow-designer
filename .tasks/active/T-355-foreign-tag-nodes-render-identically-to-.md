@@ -4,10 +4,10 @@ name: "Foreign-tag nodes render identically to service tasks (no visual marker)"
 description: >
   T-337 preserves an out-of-allowlist BPMN flow node by importing it with foreignTag and re-emitting that tag verbatim, but the canvas draws it with the ordinary task/gateway shape. The author cannot tell a callActivity from a serviceTask, so a node whose semantics the designer does not implement looks like one it does. Preservation is correct and shipped; DISCLOSURE is the missing half. T-233 (ghost cards) is the house precedent for a visually-distinct entry.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T11:45:58Z
-last_update: 2026-08-03T11:45:58Z
+last_update: 2026-08-14T17:34:51Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,51 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+T-337 made the importer *preserve* an out-of-allowlist BPMN flow node: the element is
+imported carrying `foreignTag` (`src:10213`) and re-emitted verbatim on export
+(`src:9685`). Preservation shipped and is not in question here.
+
+The canvas then draws it with an ordinary shape, because `foreignDisplayTag()`
+(`src:10027`) maps any unknown local name to `serviceTask`, or to `exclusiveGateway` when
+it ends in `Gateway` — purely so there is something to draw. Its own comment is explicit
+that this is *"presentation only"* and *"moves no bytes"*, which is true of the export and
+false of the reader: the serviceTask branch stamps a blue service dot on it (`src:2982`)
+and the gateway branch stamps the exclusive `X` (`src:3002`). Those marks are not neutral
+padding — they are the BPMN convention for *"this is a service task"* and *"this is an
+exclusive gateway"*. So a `callActivity` is drawn asserting a semantics the document never
+claimed and the designer does not implement.
+
+**Preservation is correct and shipped; DISCLOSURE is the missing half** — the task's own
+framing, and the reason this is additive rather than a repair.
+
+**Precondition, checked rather than assumed (the T-424 lesson):** the description names
+T-337's `foreignTag`. Verified present at both ends — written at `src:10213`, consumed at
+`src:9685`. Nothing here is waiting on an operator ruling, unlike its neighbours T-341 and
+T-358, which are explicitly blocked on one.
+
+**House precedent, named in the description:** T-233's ghost cards. Same rule applies —
+more than one signal, and no signal that a greyscale reader loses.
 
 ## Acceptance Criteria
 
 ### Agent
-<!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] A node carrying `foreignTag` is drawn by its own branch, placed **before** every
+      type branch, so the misleading marks are never painted rather than painted and
+      covered
+- [x] The shape is neutral and dashed, in the muted palette (`--text-dim`) — the T-308
+      precedent, where a bare catch event reads as "an event of unspecified kind" instead
+      of a specific kind it is not
+- [x] Neither the serviceTask service-dot nor the gateway `X` appears on a foreign node
+- [x] **The actual tag name is displayed** (`⟨callActivity⟩`), because "this is not a
+      serviceTask" is only half the disclosure — the author still needs to know what it is
+- [x] An SVG `<title>` states that the element is preserved verbatim on export and that
+      its semantics are not implemented
+- [x] A long foreign tag is truncated, never wrapped, and does not change node geometry
+- [x] Round-trip is untouched: a foreign node still exports its original tag verbatim, and
+      `tools/_t308-export-byte-identity-cdp.mjs` stays 24/24 identical
+- [x] `bash tests/run-bridge-tests.sh` passes with 0 failures
+- [x] `node tools/_t355-foreign-tag-render-cdp.mjs` passes, and fails against the
+      pre-change source (negative control), with no leg passing on an empty population
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -123,6 +160,47 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+bash tests/run-bridge-tests.sh
+node tools/_t355-foreign-tag-render-cdp.mjs
+node tools/_t308-export-byte-identity-cdp.mjs
+
+## Recommendation
+
+**Recommendation:** GO
+
+**Rationale:** Additive disclosure only — no import path, no export byte, no other node type
+changed. `_t308` still reports 24/24 identical, and the probe asserts the export still
+re-emits all three foreign tags verbatim, so T-337's preservation is demonstrably intact.
+The one thing I cannot settle is whether the disclosure is *loud enough* for an author
+skimming a large map, which is a judgment about your eye.
+
+**Evidence:** probe 10/10 on the working tree, 7 of 10 FAIL on the pre-change source;
+suite 75 passed / 0 failed; `_t308` 24/24 identical / 0 drifted; screenshots below, read in
+colour and desaturated.
+
+## Visual Verification
+
+Served surface (`gallery-serve.py 3099`), fixture imported through `adoptImportedXml`, one
+foreign element of each shape placed **next to its native counterpart in the same document**
+— a `callActivity` beside a real `serviceTask`, an `inclusiveGateway` beside a real
+`exclusiveGateway` — because "looks different" is only meaningful against the thing it is
+supposed to differ from.
+
+- `.playwright-mcp/t355-foreign-vs-native.png` — the real serviceTask keeps its solid blue
+  outline and service dot; the `callActivity` is dashed, muted, dotless, and captioned
+  `⟨callActivity⟩`. The real exclusiveGateway keeps its orange diamond and `X`; the
+  `inclusiveGateway` is a dashed muted diamond with no `X`, captioned `⟨inclusiveGateway⟩`.
+- `.playwright-mcp/t355-foreign-vs-native-greyscale.png` — desaturated. Every signal
+  survives: solid vs dashed, dot present vs absent, `X` present vs absent, and the caption.
+  Nothing here depends on colour, which is why the muted palette was chosen over a new
+  accent.
+
+**Known limit, seen rather than inferred:** the caption sits above the shape and can cross
+an edge routing line — visible in the colour frame where `⟨callActivity⟩` overlaps a routed
+edge. It stays legible, and the alternatives (inside the shape, or below) collide with the
+node label, the I/O badge and the id badge respectively. Left as-is and recorded rather than
+quietly accepted; if it bothers you in a dense map, that is a real finding, not a nitpick.
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -190,3 +268,9 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-355-foreign-tag-nodes-render-identically-to-.md
 - **Context:** Initial task creation
+
+### 2026-08-14T17:34:51Z — status-update [task-update-agent]
+- **Change:** horizon: later → now
+
+### 2026-08-14T17:34:51Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
