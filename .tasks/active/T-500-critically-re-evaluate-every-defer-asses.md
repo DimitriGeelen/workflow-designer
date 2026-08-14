@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-14T12:11:01Z
-last_update: 2026-08-14T14:24:32Z
+last_update: 2026-08-14T15:28:08Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -90,9 +90,13 @@ changed?" unanswerable at scale. That is the finding, not a side note.
      4 d   T-424                 downstream of T-340's ruling — trigger EXISTS, unrecorded
      3 d   T-443
 
-T-424 is the one defer whose re-entry condition is genuinely known (T-340's ruling) and
+~~T-424 is the one defer whose re-entry condition is genuinely known (T-340's ruling) and
 it still carries no `revisit_at`. That is the cheapest correction available and it is
-one field.
+one field.~~
+
+**FALSE — see §8.** Left struck through rather than deleted, because this sentence is the
+one I acted on. The line above it in the age table (`4 d T-424 downstream of T-340's
+ruling — trigger EXISTS, unrecorded`) is wrong for the same reason.
 
 ### 5. CORRECTION to §0 and §2 — I double-counted the population
 
