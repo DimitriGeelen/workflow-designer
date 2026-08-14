@@ -118,6 +118,25 @@ import sys
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EXPECTED_LABEL = os.path.basename(PROJECT_ROOT)
 
+
+# T-496. The derivation above is correct and load-bearing — see THE LABEL IS DERIVED above.
+# What it cannot survive is being COPIED, and copying it is exactly what a counterfactual
+# harness does. Under T-494 a pre-change copy of this file ran from a scratchpad, derived
+# the session UUID as the project label, and reported that the old gate had blocked valid
+# posts. Real comparison, wrong subject, and the result was one step from being published
+# as a regression against this gate.
+#
+# It cannot REFUSE on this: the exit contract has only allow(0) and block(2), and blocking
+# every call because the gate doubts its own location is the session wedge the fail-open
+# doctrine exists to prevent. So it says so on stderr, every call, and keeps its contract.
+# A harness capturing stderr sees it; the live hook path is unaffected because a real
+# checkout is never implausible.
+def root_is_implausible(root):
+    """A project checkout has a tools/ dir and a repo/agent marker. A temp copy has neither."""
+    return not (os.path.isdir(os.path.join(root, 'tools'))
+                and (os.path.isdir(os.path.join(root, '.git'))
+                     or os.path.isdir(os.path.join(root, '.claude'))))
+
 TERMLINK_PREFIX = "mcp__termlink__"
 
 # Rule 1 (DERIVED): keys under which a termlink call puts content on the wire.
@@ -338,6 +357,17 @@ def decide(tool_name, tool_input):
 
 
 def main():
+    if root_is_implausible(PROJECT_ROOT):
+        print("WARNING (T-496): this gate derived its project label from its own file "
+              "location, and that location does not look like a project checkout.",
+              file=sys.stderr)
+        print("  derived root : %s" % PROJECT_ROOT, file=sys.stderr)
+        print("  derived label: %r  <- every ALLOW/BLOCK below is measured against THIS"
+              % EXPECTED_LABEL, file=sys.stderr)
+        print("  If you are running a counterfactual, put the copy at "
+              "<project>/tools/ so the subject is the real one. Verdicts from here "
+              "are about the wrong project (T-494 nearly published one as a regression).",
+              file=sys.stderr)
     try:
         raw = sys.stdin.read()
         hook = json.loads(raw) if raw.strip() else {}

@@ -6047,3 +6047,21 @@ scan_id: R-4b6b1074
 task_id: T-495
 payload:
   task_file: .tasks/active/T-495-unwired-guard-census-counts-a-tool-named.md
+---
+kind: scan_emitted
+timestamp: '2026-08-14T08:04:42Z'
+scan_id: R-52ee5650
+task_id: T-496
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-14T08:04:42Z'
+scan_id: R-52ee5650
+task_id: T-496
+payload:
+  task_file: .tasks/active/T-496-harness-subject-derived-from-file-answer.md

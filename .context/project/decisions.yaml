@@ -1501,3 +1501,24 @@ decisions:
     date: 2026-08-14
     task: T-495
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-194
+    decision: "Guard the two known instances; measure and register the class; do NOT build a"
+    scope: project
+    date: 2026-08-14
+    task: T-496
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-195
+    decision: "Different remedies for the two instances."
+    scope: project
+    date: 2026-08-14
+    task: T-496
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-196
+    decision: "The probe abstains with 2."
+    scope: project
+    date: 2026-08-14
+    task: T-496
+    rationale: "Auto-captured from task file on completion"

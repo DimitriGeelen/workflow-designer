@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-496: harness subject derived from __file__ answers confidently about the wrong subject when moved
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-14T08:04:44Z
+# ============================================================================
+
+task_id: T-496
+task_name: "harness subject derived from __file__ answers confidently about the wrong subject when moved"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-14T08:00:16Z
+completed: 2026-08-14T08:04:37Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'The exposed population is MEASURED and the denominator stated: how many harnesses'
+  - 'The two known instances refuse instead of answering: `_t420-rail-attribution-gate.py`'
+  - 'Negative controls, each red for its own reason: the guarded harness refuses when run'
+  - 'The class-level gap is REGISTERED with its measurement, and it is stated plainly'
+  - 'Bridge suite still green (74 passed / 0 failed at T-495).'
+  - 'My own control instrument was wrong, in the task about instruments being wrong.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-14 — no population-wide guard, and saying so is the point'
+    chose: 'Guard the two known instances; measure and register the class; do NOT build a'
+    rationale: 'A guard here would have to decide, per file, whether a resolved path is a'
+    alternatives_rejected: ['Adding `--assert-subject` to all 28. Also rejected: a shared helper module']
+  - decision: '2026-08-14 — the gate warns, the probe refuses, and the difference is its exit contract'
+    chose: 'Different remedies for the two instances.'
+    rationale: 'The probe''s exit codes are its own, so it can take 2 as abstention. The gate''s'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-496-harness-subject-derived-from-file-answer.md
+generated_by: context-agent-hybrid

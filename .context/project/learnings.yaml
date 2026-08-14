@@ -1380,3 +1380,10 @@ learnings:
   date: 2026-08-14
   context: Added via context agent
   application: TBD
+- id: PL-193
+  learning: "A harness that derives its subject from its own file location answers confidently about the WRONG subject the moment it is copied — and copying it is exactly what proving a control discriminates requires. Four instances in one week across two projects (T-494 gate label, T-495 probe x2, AEF rail 617). The class only fires when someone is being careful, and the wrong answer is shaped like the right one because 'differs from the current version' is what a counterfactual is supposed to return. Remedy: derive-then-ASSERT, and abstain with an exit code the answer under test cannot produce (2, never 1). Run counterfactuals from a path SHAPED like the real one, never from a scratchpad."
+  source: P-001
+  task: T-496
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD

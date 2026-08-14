@@ -125,6 +125,14 @@ failure_patterns:
     date_learned: 2026-08-12
     mitigation: "Strip HTML comments before counting, as the sibling G-067 gate in the same file already does at :539. Measured on the SHIPPED template: REAL_AC_COUNT=4, placeholders=2 - delete the 2 placeholder lines (the literal instruction in the block message) and the gate passes over zero acceptance criteria."
 
+  - id: FP-017
+    pattern: "Measurement instrument answered through a mechanism unrelated to its subject"
+    description: "Measurement instrument answered through a mechanism unrelated to its subject"
+    scope: project
+    learned_from: T-496
+    date_learned: 2026-08-14
+    mitigation: "PIPESTATUS[0] in a three-stage pipeline reports the FIRST stage, so 'echo | gate | head' reported echo's exit code as the gate's verdict. Fourth instance this week of a harness answering confidently about the wrong thing — this one inside the task about that exact class. Read the exit code from the stage under test, or drop the pipeline."
+
 success_patterns:
   - id: SP-001
     pattern: "Phased implementation"

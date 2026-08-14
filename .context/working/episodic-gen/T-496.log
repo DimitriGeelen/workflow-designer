@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-14T08:04:44Z ===
+task_id: T-496
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-496.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: harness subject derived from __file__ answers confidently about the wrong subject when moved
+  Duration: 0 days (4 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 6 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-496-harness-subject-derived-from-file-answer.md
+--- exit code: 0 ---

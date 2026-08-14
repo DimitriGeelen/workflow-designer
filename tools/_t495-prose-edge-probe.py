@@ -63,6 +63,28 @@ def load(path, name):
     return mod
 
 
+def refuse_if_subject_missing():
+    """T-496: derive-then-ASSERT. Exit 2 is an abstention, deliberately not 1.
+
+    ROOT comes from this file's own location, which is correct in place and wrong the
+    moment the file is copied — and copying it is exactly what proving a leg discriminates
+    requires. Both times this happened under T-495 the copy exited 1 on an ImportError:
+    the code the counterfactual WANTED, produced by the census being absent rather than by
+    any assertion. 1 is the answer under test, so 1 can never mean "I could not run".
+    """
+    if os.path.isfile(CENSUS):
+        return
+    sys.stderr.write(
+        'REFUSING (T-496): no census at the derived path, so nothing was measured.\n'
+        '  this file : %s\n'
+        '  derived   : %s\n'
+        '  ROOT comes from this file\'s location. Run the probe from <project>/tools/;\n'
+        '  a copy elsewhere resolves a different subject and exits 1 on the import,\n'
+        '  which is indistinguishable from a leg legitimately failing.\n'
+        % (os.path.abspath(__file__), CENSUS))
+    raise SystemExit(2)
+
+
 def refs(mod, filename, text):
     """Names the census would extract from `text` if it were saved as `filename`."""
     d = tempfile.mkdtemp()
@@ -173,6 +195,7 @@ def run(mod):
 
 
 def main():
+    refuse_if_subject_missing()
     cur = load(CENSUS, 'census_cur')
 
     # E: the parse fallback must be COUNTED, not silently dropped.
