@@ -4,20 +4,20 @@ name: "T-420 gate: agent_send_auto_discover posts content under key 'message' an
 description: >
   CONTENT_KEYS is (payload,payload_b64,text); agent_send_auto_discover carries content in 'message', so decide() finds carried empty and returns 0. It drives channel.post to a dm:* topic and its schema says WRITES state, so an unattributed content envelope reaches a shared topic silently. Also in the same re-measure: emit_to is missing from Rule 0 beside its sibling emit; channel_edit, agent_edit and chat_arc_broadcast are blocked with a remedy naming metadata=/project=, neither of which exists on their schemas (T-426 unfollowable-remedy class). The gate's DECLARED lists are dated 2026-08-10/11 and the docstring asks for exactly this re-measure. Found via T-492.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t420-rail-attribution-gate.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-14T06:59:46Z
-last_update: 2026-08-14T07:12:51Z
-date_finished: null
+last_update: 2026-08-14T07:17:55Z
+date_finished: 2026-08-14T07:17:55Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -301,3 +301,15 @@ sh -c 'printf %s "{\"tool_name\":\"mcp__termlink__termlink_channel_post\",\"tool
 
 ### 2026-08-14T07:12:51Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-09abc28a
+- **Timestamp:** 2026-08-14T07:17:59Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-14T07:17:55Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

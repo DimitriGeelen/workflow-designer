@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-494: T-420 gate: agent_send_auto_discover posts content under key 'message' and is allowed at exit 0
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-14T07:18:01Z
+# ============================================================================
+
+task_id: T-494
+task_name: "T-420 gate: agent_send_auto_discover posts content under key 'message' and is allowed at exit 0"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-14T06:59:46Z
+completed: 2026-08-14T07:17:55Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-14T09:17:51+02:00
+last_commit: 2026-08-14T09:17:51+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the attribution gate was waving through a real producer at exit 0, and the class had been printed on every run for four days with no task id. CONTENT_KEYS was (payload,payload_b64,text); agent_send_auto_discover carries content in 'message', drives channel.post into a peer's dm topic and says WRITES state in its own schema, so decide() found carried empty and returned 0 — an unattributed envelope on a shared record, the one direction the gate's author called unrecoverable. T-426 had ALREADY measured that agent_contact used 'message' and closed it by NAME, and _t426-gate-misfire-matrix.sh has been printing 'the FN class is not closed, only this instance of it' ever since. That prediction was exactly right and nothing was scheduled against it: PL-139 with the author's knowledge attached. Both halves closed now — Rule 2 entries for the four members, and message/body_file added to CONTENT_KEYS so the class is closed by shape. channel_edit, agent_edit and chat_arc_broadcast were already blocked but by Rule 1, with a remedy naming metadata= and project=, neither of which exists on their schemas; they now refuse with remedies that name something real. emit_to deliberately NOT excused beside its sibling emit: its description says 'via the hub' and I cannot settle that from outside, and excusing it would be loosening on an uncertainty against the gate's own asymmetry. Teeth run against git show HEAD: of the gate — agent_send_auto_discover 0 to 2, compliant post 0 to 0, reads 0 to 0. First teeth run reported the compliant post as 2 to 0 and that was my harness, not the gate: EXPECTED_LABEL derives from the grandparent directory basename and the scratchpad copy expected the session UUID. Third control this week that answered confidently through a mechanism unrelated to its subject, and this one would have been published as a regression. mutation-check 15/15, misfire matrix 23/0, suite 73 passed 0 failed
+
+# Key outcomes
+outcomes:
+  - '`agent_send_auto_discover` is refused by Rule 2 with a remedy that names a tool'
+  - '`channel_edit`, `agent_edit` and `chat_arc_broadcast` are refused with **followable**'
+  - '**`emit_to` is NOT added to Rule 0.** Its sibling `emit` is excused as'
+  - '**Teeth:** a driver proves the gate returns 2 for `agent_send_auto_discover`, and'
+  - 'Every remedy string is checked against the tool''s live schema — no remedy names a'
+  - '`_t420-gate-mutation-check.sh` and `_t426-gate-misfire-matrix.sh` still pass, and'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-494-t-420-gate-agentsendautodiscover-posts-c.md'
+  - 'tools/_t420-rail-attribution-gate.py'
+  - 'tools/_t426-gate-misfire-matrix.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-14T09:17:51"
+    action: "T-494: the attribution gate was waving through a real producer at exit 0, and the class had been printed on every run for four days with no task id. CONTENT_KEYS was (payload,payload_b64,text); agent_send_auto_discover carries content in 'message', drives channel.post into a peer's dm topic and says WRITES state in its own schema, so decide() found carried empty and returned 0 — an unattributed envelope on a shared record, the one direction the gate's author called unrecoverable. T-426 had ALREADY measured that agent_contact used 'message' and closed it by NAME, and _t426-gate-misfire-matrix.sh has been printing 'the FN class is not closed, only this instance of it' ever since. That prediction was exactly right and nothing was scheduled against it: PL-139 with the author's knowledge attached. Both halves closed now — Rule 2 entries for the four members, and message/body_file added to CONTENT_KEYS so the class is closed by shape. channel_edit, agent_edit and chat_arc_broadcast were already blocked but by Rule 1, with a remedy naming metadata= and project=, neither of which exists on their schemas; they now refuse with remedies that name something real. emit_to deliberately NOT excused beside its sibling emit: its description says 'via the hub' and I cannot settle that from outside, and excusing it would be loosening on an uncertainty against the gate's own asymmetry. Teeth run against git show HEAD: of the gate — agent_send_auto_discover 0 to 2, compliant post 0 to 0, reads 0 to 0. First teeth run reported the compliant post as 2 to 0 and that was my harness, not the gate: EXPECTED_LABEL derives from the grandparent directory basename and the scratchpad copy expected the session UUID. Third control this week that answered confidently through a mechanism unrelated to its subject, and this one would have been published as a regression. mutation-check 15/15, misfire matrix 23/0, suite 73 passed 0 failed"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 18 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 18
+  commits: 1
+  files_changed: 3
+  lines_added: 188
+  lines_removed: 9
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-494-t-420-gate-agentsendautodiscover-posts-c.md
+generated_by: context-agent-hybrid

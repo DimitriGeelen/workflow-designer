@@ -1345,3 +1345,10 @@ learnings:
   date: 2026-08-14
   context: Added via context agent
   application: TBD
+- id: PL-188
+  learning: "A known-open class recorded only in a tool's LIMIT string is a prediction with no schedule: _t426-gate-misfire-matrix.sh printed 'the FN class is not closed, only this instance of it' on every run for four days, correctly predicting agent_send_auto_discover, and nothing acted because no task id existed. If it is worth printing on every run, it is worth a task id"
+  source: P-001
+  task: T-494
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD
