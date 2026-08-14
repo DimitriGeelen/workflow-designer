@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-14T06:51:51Z
-last_update: 2026-08-14T06:51:51Z
+last_update: 2026-08-14T06:57:45Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -80,7 +80,7 @@ what is already on disk and what the running process reports about itself.
       produced an instrument, `tools/_t451-unwired-guard-census.py` decides whether that
       instrument is watched / unwatched / unrunnable, and the verdict is recorded here.
       If T-418 produced no instrument, that is recorded as the finding instead.
-- [ ] `tools/_t420-rail-attribution-gate.py`'s coverage is stated as a **derived
+- [x] `tools/_t420-rail-attribution-gate.py`'s coverage is stated as a **derived
       denominator, not a claim**: the set of termlink post verbs it matches, versus the
       set of post verbs that exist. Any verb it does not match is classified as an
       exclusion-with-a-reason or an absence (PL-181) — the two must not be left
@@ -264,6 +264,53 @@ looks authoritative. **Derived-not-typed protects against transcription error, n
 against the source being wrong.** The 37 is short by up to ten.
 
 Filed as its own task (one bug = one task); T-492 does not fix the census.
+
+### F5 — The gate's DECLARED lists have expired, and one member fails silently
+
+The gate is the best-built instrument in this whole apparatus: Rule 1 derived, Rules 0
+and 2 declared, every exclusion carrying a reason and a remedy, and the declared halves
+explicitly labelled *"a property of the tool surface on 2026-08-10/11"* with an
+instruction to re-measure. AC4 is therefore not a criticism of its construction — it is
+taking the re-measure the docstring asks for, four days later.
+
+Measured against the live schemas today (2026-08-14):
+
+    tool                          content key   attribution param   gate verdict
+    channel_post                  payload       metadata            correct
+    agent_post / agent_reply      text          project             correct
+    ─────────────────────────────────────────────────────────────────────────────
+    agent_send_auto_discover      message       (none)              ALLOW  ← silent
+    emit_to                       payload       (none)              not in Rule 0
+    channel_edit                  text          (none)              unfollowable remedy
+    agent_edit                    text          (none)              unfollowable remedy
+    chat_arc_broadcast            payload       from (unknown to gate) unfollowable remedy
+
+**The severe one is `agent_send_auto_discover`.** `CONTENT_KEYS` is
+`("payload","payload_b64","text")`; its content parameter is `message`. So `carried` is
+empty and `decide()` returns 0 — allow. It posts a real envelope (its own schema says
+"WRITES state", and it drives `channel.post` internally to a `dm:*` topic). That is an
+unattributed content envelope on a shared topic, waved through at exit 0. It is the one
+direction the gate's author called out as unrecoverable: *"an absent label cannot be
+reconstructed later."*
+
+`emit_to` is the sibling of `emit`, which IS in Rule 0 — a plain fix-one-of-N residue
+(PL-145). The three edit/broadcast verbs are the T-426 unfollowable-remedy class
+recurring: they get blocked with a message naming `metadata=` and `project=`, neither
+of which exists on their schemas, which T-426 established converts a false positive
+into an untracked bypass with an authoritative tone.
+
+**And this is where F3 bites.** The gate documents its own fail-open as safe because
+the miss is caught downstream:
+
+    Fails OPEN on unparseable input (exit 0) ... The miss is visible afterwards to
+    tools/_t418-producer-attribution.py, which is the detector this gate does not replace.
+
+That detector has not run since 2026-08-09. **A fail-open is only as safe as the
+detector it defers to, and nothing in the tree checks that the detector still runs.**
+The gate's safety argument is sound and its cited compensating control is dark; from
+inside the gate's source, those two situations are indistinguishable.
+
+Filed as its own task — the declared fact expired exactly as its author predicted.
 
 ## RCA
 

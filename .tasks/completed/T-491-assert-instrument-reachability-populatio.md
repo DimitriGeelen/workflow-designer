@@ -4,20 +4,20 @@ name: "Assert instrument REACHABILITY population-wide: PL-148's remedy has never
 description: >
   PL-148 (T-426) prescribes: assert an instrument's REGISTRATION as a separate verification command from its behaviour, and state reachability as an explicit LIMIT in the instrument's own output so a green run cannot imply coverage it does not have. PL-004 (T-052) prescribes wiring every gate into CI over its full subject set with a legacy allowlist. Neither has been built as a population-wide check, and the class has now recurred five times across two projects: AEF check-onboarding-gate (38 green legs, unregistered in every consumer), 832 T-420 gate (inert to the session that registered it), 832 T-421 detector (only call site was its own completion block, exiting 1 into a void), T-490 _roundtrip-serialization-cdp.mjs (claimed to close G-002, invoked by no runner since T-187, sharpened four times on hand-run greens), T-448 bake-clean-layout --check (documented corpus gate, invoked by nothing, red on all 24 maps and silently so). Every instance was repaired by hand for that one instrument and NO repair made the next one detectable — which is precisely the fix-on-discovery pattern PL-145 identifies as what keeps a class open. Deliverable is a standing check over the POPULATION of declared instruments (not one more per-instrument verification leg) that answers: which things in this tree claim to guard something and are reached by nothing. Note the population trap measured in T-490: a census scoped to tools/_*.mjs answered 0 of 27, and T-448 is a real instance that lives outside that glob, so the population must be derived from what CLAIMS to guard, not from a file extension.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t451-unwired-guard-census.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-13T11:59:31Z
-last_update: 2026-08-14T06:01:33Z
-date_finished: null
+last_update: 2026-08-14T06:14:10Z
+date_finished: 2026-08-14T06:14:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -319,3 +319,24 @@ git diff --quiet HEAD -- tests/fixtures/aef-bpmn/typed-events.bpmn tests/fixture
 
 ### 2026-08-14T06:01:33Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-fe828efb
+- **Timestamp:** 2026-08-14T06:14:12Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** yes
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 10
+     - evidence: `python3 tools/_t451-unwired-guard-census.py --ratchet > /dev/null`
+
+- **Layer-1 escalations:** 1
+  1. **destructive-action** (high) — Destructive operation in verification or AC
+     - matched: `rm -f`
+
+### 2026-08-14T06:14:10Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
