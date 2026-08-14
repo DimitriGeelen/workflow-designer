@@ -1522,3 +1522,24 @@ decisions:
     date: 2026-08-14
     task: T-496
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-197
+    decision: "print STRICT and LOOSE unverified counts and the gap between them."
+    scope: project
+    date: 2026-08-14
+    task: T-497
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-198
+    decision: "one census covering python and shell, superseding T-496's hand count."
+    scope: project
+    date: 2026-08-14
+    task: T-497
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-199
+    decision: "state it as open in the RCA rather than claim prevention."
+    scope: project
+    date: 2026-08-14
+    task: T-497
+    rationale: "Auto-captured from task file on completion"

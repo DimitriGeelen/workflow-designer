@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-14T08:33:12Z ===
+task_id: T-497
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-497.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: measure the shell half of the derived-root harness population (T-496 stated hole)
+  Duration: 0 days (12 min)
+  Updates: 1
+  Commits: 1
+  Lines: +1064 -66 across 23 files
+  Outcomes: 7 AC checked
+  Artifacts: 23 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-497-measure-the-shell-half-of-the-derived-ro.md
+--- exit code: 0 ---

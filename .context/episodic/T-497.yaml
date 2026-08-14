@@ -1,0 +1,108 @@
+# ============================================================================
+# EPISODIC MEMORY - T-497: measure the shell half of the derived-root harness population (T-496 stated hole)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-14T08:33:12Z
+# ============================================================================
+
+task_id: T-497
+task_name: "measure the shell half of the derived-root harness population (T-496 stated hole)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-14T08:19:19Z
+completed: 2026-08-14T08:31:29Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-14T10:31:22+02:00
+last_commit: 2026-08-14T10:31:22+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the class was already written down in my own tree three days before I discovered it four times. tools/_t429-zero-leg-probe.sh, 2026-08-11, in its file header: 'These suites open with cd $(dirname $0)/.. to reach the repo root. A copy in /tmp resolves that to /tmp and the suite dies on its own setup — which would produce a non-zero exit for the WRONG REASON.' That is the class, the diagnosis and the remedy, complete, before T-494 hit it, before T-495 hit it twice, before T-496 named it as a class and I offered the remedy to AEF at rail 619 'as cheap rather than clever'. It was prose in a comment — the one location T-495 established nothing here indexes, and a comment cannot go dark in a way anything reports. _t429 had no reason to file it: the class was a passing justification for where it put a temp file, and a lesson recorded only as the rationale for a local decision is invisible outside that decision.
+
+# Key outcomes
+outcomes:
+  - 'The shell population is enumerated by a tool whose DEFINITION of "derives a root'
+  - 'The denominator is DERIVED (from a glob over the tree) and never typed — no'
+  - 'Every member is classified verifies / does-not-verify, and the rule for "verifies"'
+  - 'The tool names its own LIMIT — the shell shapes it cannot see — in its source,'
+  - 'Negative controls: a planted shell harness that derives-and-does-not-verify is'
+  - 'The measured shell number is recorded where the next reader meets the class, so'
+  - 'Bridge suite still green (no regression in pass count)'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-14 — report an interval, not a number'
+    chose: 'print STRICT and LOOSE unverified counts and the gap between them.'
+    rationale: 'the first classifier credited any `[ -f ]` in the file (mention-vs-instance,'
+    alternatives_rejected: ['picking STRICT and calling the rest a limit. That is the shape T-495']
+  - decision: '2026-08-14 — measure both halves, not just the shell one'
+    chose: 'one census covering python and shell, superseding T-496''s hand count.'
+    rationale: 'T-496''s 70/42/28 left no instrument. A shell-only tool would have created two'
+    alternatives_rejected: ['a shell-only census. Cheaper, and it builds the known failure.']
+  - decision: '2026-08-14 — do not close the "lesson lives only in a comment" hole'
+    chose: 'state it as open in the RCA rather than claim prevention.'
+    rationale: '`_t429` recorded this class correctly and nothing surfaced it for three days'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-14.yaml'
+  - '.context/audits/cron/2026-08-14-1015.yaml'
+  - '.context/audits/cron/2026-08-14-1030.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.handover.stderr'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.tasks/active/T-497-measure-the-shell-half-of-the-derived-ro.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t497-census-controls.sh'
+  - 'tools/_t497-derived-root-census.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-14T10:31:22"
+    action: "T-497: the class was already written down in my own tree three days before I discovered it four times. tools/_t429-zero-leg-probe.sh, 2026-08-11, in its file header: 'These suites open with cd $(dirname $0)/.. to reach the repo root. A copy in /tmp resolves that to /tmp and the suite dies on its own setup — which would produce a non-zero exit for the WRONG REASON.' That is the class, the diagnosis and the remedy, complete, before T-494 hit it, before T-495 hit it twice, before T-496 named it as a class and I offered the remedy to AEF at rail 619 'as cheap rather than clever'. It was prose in a comment — the one location T-495 established nothing here indexes, and a comment cannot go dark in a way anything reports. _t429 had no reason to file it: the class was a passing justification for where it put a temp file, and a lesson recorded only as the rationale for a local decision is invisible outside that decision."
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 12 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 12
+  commits: 1
+  files_changed: 23
+  lines_added: 1064
+  lines_removed: 66
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-497-measure-the-shell-half-of-the-derived-ro.md
+generated_by: context-agent-hybrid
