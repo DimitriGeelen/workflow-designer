@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T13:43:07Z
-last_update: 2026-08-14T19:09:08Z
+last_update: 2026-08-14T19:11:49Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -51,12 +51,21 @@ date_finished: null
       immediately after a commit — it holds exactly one line, the stamp of the commit that
       just ran. Read as "clean apart from the self-stamp", satisfied: T-233's 47 lines of
       completion state landed in `cf90d884`, and T-453..T-457 in `ad37ee5b`.
-- [ ] **The observation is recorded as an OBSERVATION, not a defect.** Whether this is
+- [x] **The observation is recorded as an OBSERVATION, not a defect.** Whether this is
       ordering-specific to how this window interleaved commit-then-complete, or general to
       every completion, is not established. Asserting a framework defect from a single
       window would be the inferred-rather-than-measured move this window has corrected
       itself on twice already (the caller-side count in T-451, the schema exit code in
       T-457). If it recurs, that is the trigger for a real investigation task.
+      **It recurred, so the trigger fired and the investigation ran.** The result is an
+      observation with a located mechanism (`agents/git/lib/commit.sh:113-118`), not a fix:
+      that file is vendored AEF code, and reordering when a commit stamps its task changes
+      commit semantics for every project consuming the framework. Under G-008 that is
+      AEF's call, not one to take on a "proceed as you see fit" directive. Recorded as
+      OBS-245 and sent to AEF on the rail.
+      This AC also caught its author: the Evolution entry written earlier today asserted a
+      framework defect — a two-gate deadlock — from a single unmeasured leg, which is
+      precisely the move this criterion was written to forbid. Retraction below.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -137,6 +146,12 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+# AC1: T-233's completion state is in the repository, not sitting dirty in the tree.
+# Single command, its own exit code is the verdict (no chain — see the errexit warning).
+test -z "$(git status --porcelain .tasks/active/T-233-s5b-gallery-ghost-cards-render-ghosts-as.md)"
+# AC2: the finding is filed as an observation rather than asserted as a fixed defect.
+grep -q "OBS-245" .context/inbox.yaml
 
 ## RCA
 
