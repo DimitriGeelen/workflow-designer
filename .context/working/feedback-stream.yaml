@@ -6029,3 +6029,21 @@ scan_id: R-09abc28a
 task_id: T-494
 payload:
   task_file: .tasks/active/T-494-t-420-gate-agentsendautodiscover-posts-c.md
+---
+kind: scan_emitted
+timestamp: '2026-08-14T07:58:06Z'
+scan_id: R-4b6b1074
+task_id: T-495
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-14T07:58:06Z'
+scan_id: R-4b6b1074
+task_id: T-495
+payload:
+  task_file: .tasks/active/T-495-unwired-guard-census-counts-a-tool-named.md

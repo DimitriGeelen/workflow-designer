@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-14T07:58:09Z ===
+task_id: T-495
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-495.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: unwired-guard census counts a tool named in a COMMENT as a live edge, so a discussed tool reads as wired
+  Duration: 0 days (50 min)
+  Updates: 2
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 10 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-495-unwired-guard-census-counts-a-tool-named.md
+--- exit code: 0 ---

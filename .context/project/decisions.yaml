@@ -1473,3 +1473,31 @@ decisions:
     date: 2026-08-14
     task: T-492
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-190
+    decision: "Strip comments AND bare string-expression statements, via `tokenize` + `ast`"
+    scope: project
+    date: 2026-08-14
+    task: T-495
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-191
+    decision: "Add `_composed_refs()` (literal `os.path.join` / pathlib components) alongside"
+    scope: project
+    date: 2026-08-14
+    task: T-495
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-192
+    decision: "Wire `_t495-prose-edge-probe.py` into `tests/run-bridge-tests.sh`; name every"
+    scope: project
+    date: 2026-08-14
+    task: T-495
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-193
+    decision: "The suite runs the probe in plain mode; `--discriminate` warns when every leg"
+    scope: project
+    date: 2026-08-14
+    task: T-495
+    rationale: "Auto-captured from task file on completion"

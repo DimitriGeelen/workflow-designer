@@ -1352,3 +1352,31 @@ learnings:
   date: 2026-08-14
   context: Added via context agent
   application: TBD
+- id: PL-189
+  learning: "A remedy written into a task's own filing is a hypothesis, not a specification. T-495 was filed prescribing comment-stripping; the edge it was filed FOR was a module docstring, which no comment-stripper touches. Implementing the filed remedy would have closed the task, moved the count, and left the motivating instance standing. Check the remedy against the instance before implementing it."
+  source: P-001
+  task: T-495
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD
+- id: PL-190
+  learning: "Two errors of opposite sign can cancel, and fixing one alone makes the instrument WORSE. The census counted prose as a call AND could not see composed paths; every CDP test module's docstring happened to name the harness it composes via os.path.join. Stripping prose alone reported ten instruments that run on every suite pass as dead. When a fix moves a count in the expected direction, check whether something was compensating for it."
+  source: P-001
+  task: T-495
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD
+- id: PL-191
+  learning: "A test fixture naming its real subject is an edge, not a mention. Wiring a definition probe into the suite made it a live root; its fixtures named real tools, so it resurrected the exact instrument the task existed to expose — and all 14 legs stayed green while it did. Fixtures must name things that resolve to nothing."
+  source: P-001
+  task: T-495
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD
+- id: PL-192
+  learning: "An instrument excused by its own watchdog's naming convention must be scheduled deliberately. _t495-prose-edge-probe.py ends in -probe.py, which the unwired-guard census excuses as one-shot-by-design, so it would never be reported dark. Left in a Verification block it would have run once and become invisible to the only thing that could have noticed."
+  source: P-001
+  task: T-495
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD

@@ -61,20 +61,28 @@ the defect it was warning about.
     A caller that composes a tool's path at runtime, or invokes it through a variable,
     is invisible here. This census cannot close that direction from outside.
 
-  FALSE NEGATIVE (reported live, actually unreachable)   <- T-493, was unstated
-    A reference inside a COMMENT counts as an edge. `tools/_t418-producer-attribution.py`
-    is reached from `_t420-rail-attribution-gate.py`, a genuine root, by the docstring
-    sentence "the miss is visible afterwards to <tool>" — prose about a compensating
-    control, not a call. Measured at the time of writing: 46 of 115 tool-to-tool
-    reference lines (40%) open as comments. This direction is the dangerous one, because
-    it makes an unwatched instrument read as wired, and that is this file's whole
-    subject. Filed separately rather than fixed here — stripping comments is a real
-    change of definition and would move the count a third time in one day.
+  FALSE NEGATIVE (reported live, actually unreachable)   <- T-493 stated, T-495 CLOSED
+    Prose about a tool used to count as a call to it, in two lexically different forms:
+    a `#` comment (46 of 115 tool-to-tool reference lines when T-493 measured) and a
+    STRING LITERAL. T-495 removes both — see strip_prose() — so an edge now has to come
+    from an executable position. What remains open is narrower and stated below.
+
+  STILL OPEN after T-495, in the same dangerous direction
+    * A shell HEREDOC body is executable text to the parser and prose to a reader.
+      `cat <<'LIMITS' ... LIMITS` naming a tool still reads as an edge. Not attempted:
+      heredoc tracking needs a shell parser, and a half-implemented one would be the
+      guess-shaped instrument this census exists to count.
+    * Markdown, YAML and JSON roots are read WHOLE. `strip_prose` returns an
+      unrecognised extension unchanged rather than guessing at its comment syntax.
+    * A shell string spanning multiple lines re-opens quote state per line.
 """
+import ast
 import glob
+import io
 import os
 import re
 import sys
+import tokenize
 
 TOOL_RE = re.compile(r'tools/([A-Za-z0-9_.\-]+\.(?:py|sh|mjs|js))')
 EXT = ('py', 'sh', 'mjs', 'js')
@@ -126,15 +134,226 @@ def refuse(msg):
     raise SystemExit(2)
 
 
+# ── T-495: an edge must come from an EXECUTABLE position ────────────────────────────
+# Reachability is textual, so prose ABOUT a tool was indistinguishable from a call TO it.
+# Two lexically different prose mechanisms produced the same false edge, and only one of
+# them is a comment:
+#
+#   COMMENT     `# see tools/_t400-schema-teeth.sh` — 46 of 115 tool-to-tool reference
+#               lines opened this way when T-493 measured them.
+#   DOCSTRING   `_t420-rail-attribution-gate.py` names `tools/_t418-producer-attribution.py`
+#               in its MODULE DOCSTRING as the detector it defers to. A string literal, so
+#               a `#`-stripper does not touch it. T-495 was FILED prescribing exactly that
+#               `#`-stripper; it would have closed the task, moved the count a third time,
+#               and left the one edge the task existed for standing.
+#
+# The second mechanism also fires inside THIS FILE: the LIMIT paragraph below used to name
+# `_t418` while explaining that prose creates false edges, and the census is live via the
+# gap gauge — so the paragraph documenting the defect was an instance of it, vouching for
+# the very instrument it was warning about.
+#
+# Python is therefore stripped EXACTLY, with `tokenize` for comments and `ast` for bare
+# string-expression statements, not with a regex. A regex that "handles both" would be a
+# guess about lexical structure — the same shape as the instrument this census counts.
+# Strings that are ARGUMENTS survive: `subprocess.run(['python3', 'tools/x.py'])` is a real
+# call and must stay an edge. Only a string that is an entire statement is prose.
+#
+# Blanking preserves offsets (spaces, never deletion) so the two passes compose without
+# re-deriving positions.
+PARSE_FALLBACKS = []
+
+
+def _blank(lines, sl, sc, el, ec):
+    """Overwrite [sl:sc, el:ec] with spaces. 1-indexed lines, 0-indexed columns."""
+    for i in range(sl, el + 1):
+        line = lines[i - 1]
+        a = min(sc if i == sl else 0, len(line))
+        b = min(ec if i == el else len(line), len(line))
+        if b > a:
+            lines[i - 1] = line[:a] + ' ' * (b - a) + line[b:]
+
+
+def _strip_python(text, path):
+    """Comments (tokenize) and bare string statements (ast) blanked out.
+
+    Returns None when the source cannot be tokenized or parsed. The caller must NOT
+    treat that as "no references": a file silently dropped from the graph removes
+    edges for a reason that has nothing to do with wiring, which is the census's own
+    failure mode one level up.
+    """
+    lines = text.splitlines()
+    try:
+        toks = list(tokenize.generate_tokens(io.StringIO(text).readline))
+        tree = ast.parse(text)
+    except (SyntaxError, IndentationError, ValueError, tokenize.TokenError):
+        PARSE_FALLBACKS.append(path)
+        return None
+    for t in toks:
+        if t.type == tokenize.COMMENT:
+            _blank(lines, t.start[0], t.start[1], t.end[0], t.end[1])
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant)
+                and isinstance(node.value.value, str)):
+            _blank(lines, node.lineno, node.col_offset,
+                   node.end_lineno, node.end_col_offset)
+    return '\n'.join(lines)
+
+
+def _strip_hash(text):
+    """Shell/crontab `#` comments, quote-aware and word-aware.
+
+    `#` opens a comment only at the start of a WORD, which is bash's actual rule. Without
+    that, `${VAR#prefix}` and a URL fragment would truncate a line holding a real call.
+    """
+    out = []
+    for line in text.splitlines():
+        q = None
+        res = []
+        i = 0
+        while i < len(line):
+            ch = line[i]
+            if q:
+                if ch == '\\' and q == '"' and i + 1 < len(line):
+                    res.append(ch)
+                    res.append(line[i + 1])
+                    i += 2
+                    continue
+                if ch == q:
+                    q = None
+                res.append(ch)
+            elif ch in ('"', "'"):
+                q = ch
+                res.append(ch)
+            elif ch == '#' and (i == 0 or line[i - 1].isspace()):
+                break
+            else:
+                res.append(ch)
+            i += 1
+        out.append(''.join(res))
+    return '\n'.join(out)
+
+
+def _strip_cstyle(text):
+    """`//` and `/* */` for js/mjs, quote-aware across ' " and backtick."""
+    res = []
+    i, n, q = 0, len(text), None
+    while i < n:
+        ch = text[i]
+        if q:
+            if ch == '\\' and i + 1 < n:
+                res.append(ch)
+                res.append(text[i + 1])
+                i += 2
+                continue
+            if ch == q:
+                q = None
+            res.append(ch)
+            i += 1
+        elif ch in ('"', "'", '`'):
+            q = ch
+            res.append(ch)
+            i += 1
+        elif ch == '/' and i + 1 < n and text[i + 1] == '/':
+            while i < n and text[i] != '\n':
+                res.append(' ')
+                i += 1
+        elif ch == '/' and i + 1 < n and text[i + 1] == '*':
+            j = text.find('*/', i + 2)
+            j = n if j < 0 else j + 2
+            res.append(''.join(' ' if c != '\n' else '\n' for c in text[i:j]))
+            i = j
+        else:
+            res.append(ch)
+            i += 1
+    return ''.join(res)
+
+
+def strip_prose(path, text):
+    """Non-executable text blanked, dispatched by extension.
+
+    An unrecognised extension is returned WHOLE. That is the loose direction, chosen
+    deliberately: this function's job is to remove edges, and removing them from a file
+    type whose comment syntax has not been established would be guessing.
+    """
+    ext = os.path.splitext(path)[1].lower().lstrip('.')
+    if ext == 'py':
+        stripped = _strip_python(text, path)
+        return text if stripped is None else stripped
+    if ext in ('sh', 'bash', 'crontab'):
+        return _strip_hash(text)
+    if ext in ('js', 'mjs', 'cjs'):
+        return _strip_cstyle(text)
+    return text
+
+
+# ── T-495, second half: a COMPOSED path is a call ───────────────────────────────────
+# Stripping prose alone made this census materially WORSE, and the measurement is the
+# argument: 10 of the 13 tools that stripping newly orphaned are CDP harnesses that run
+# on every bridge-suite pass, invoked as
+#
+#     HARNESS = os.path.join(ROOT, "tools", "_t125-lane-compaction-cdp.mjs")
+#
+# TWO ERRORS OF OPPOSITE SIGN WERE CANCELLING. Prose counted as a call (the T-495
+# false negative), and a composed path was invisible (the long-stated false positive).
+# Each test module's docstring happened to name the harness it composes, so the wrong
+# edge stood in for the missing one and the answer came out right. Fixing one side alone
+# converts a silently-wrong verdict into a loudly-wrong one — ten live, running
+# instruments reported dead — which is not an improvement in either direction that
+# matters. That is why this is in the same commit and not a follow-up task.
+#
+# Resolved from the AST, so only literal components count: `os.path.join(x, 'tools', 'y')`
+# and `x / 'tools' / 'y'` (pathlib). A component held in a VARIABLE stays invisible, and
+# so does an f-string interpolation — both remain in the stated false-positive direction.
+BASENAME_RE = re.compile(r'^([A-Za-z0-9_.\-]+\.(?:py|sh|mjs|js))$')
+
+
+def _consts(node):
+    """Every string Constant anywhere under `node`."""
+    return [n.value for n in ast.walk(node)
+            if isinstance(n, ast.Constant) and isinstance(n.value, str)]
+
+
+def _composed_refs(tree):
+    """Tool basenames sitting in the same literal path expression as 'tools'."""
+    found = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            parts = [a.value for a in node.args
+                     if isinstance(a, ast.Constant) and isinstance(a.value, str)]
+        elif isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
+            parts = _consts(node)
+        else:
+            continue
+        if 'tools' not in parts:
+            continue
+        for p in parts:
+            m = BASENAME_RE.match(p)
+            if m:
+                found.add(m.group(1))
+    return found
+
+
 def read_refs(paths):
     found = set()
     for p in paths:
         if not os.path.isfile(p):
             continue
         try:
-            found.update(TOOL_RE.findall(open(p, encoding='utf-8', errors='replace').read()))
+            text = open(p, encoding='utf-8', errors='replace').read()
         except OSError:
             continue
+        if os.path.splitext(p)[1].lower() == '.py':
+            stripped = _strip_python(text, p)
+            if stripped is None:            # unparseable: counted, and read WHOLE
+                found.update(TOOL_RE.findall(text))
+                continue
+            found.update(TOOL_RE.findall(stripped))
+            try:
+                found.update(_composed_refs(ast.parse(text)))
+            except (SyntaxError, ValueError):   # unreachable: _strip_python parsed it
+                pass
+            continue
+        found.update(TOOL_RE.findall(strip_prose(p, text)))
     return found
 
 
@@ -252,8 +471,12 @@ def main():
             'findings': len(findings),
             'never_referenced_by_any_task': len(orphans),
             'findings_files': findings,
-            'limit': 'reachability decided by textual reference to tools/<name>; a caller '
-                     'composing the path at runtime is invisible and its tool reads unwired',
+            'python_parse_fallbacks': len(PARSE_FALLBACKS),
+            'python_parse_fallback_files': sorted(set(PARSE_FALLBACKS)),
+            'limit': 'reachability decided by textual reference to tools/<name> in an '
+                     'EXECUTABLE position (T-495: comments and bare string statements are '
+                     'stripped). A caller composing the path at runtime is invisible and '
+                     'its tool reads unwired; a heredoc body still reads as an edge',
         }, indent=2))
         return 0        # see the docstring: the verdict is the payload, not the rc
 
@@ -280,14 +503,22 @@ def main():
             where = ','.join(sorted(set(done.get(t, [])))) or '** NO CALLER ANYWHERE **'
             print('  %-42s last ran at: %s' % (t, where[:60]))
         print()
-    print('LIMIT: reachability is decided by TEXTUAL reference to `tools/<name>`, BOTH ways.')
+    print('LIMIT: reachability is decided by TEXTUAL reference to `tools/<name>` in an')
+    print('  EXECUTABLE position, and that cuts BOTH ways.')
     print('  FALSE POSITIVE — a caller composing the path at runtime is invisible, so its')
     print('    tool is reported unwired. Cannot be closed from outside.')
-    print('  FALSE NEGATIVE — a reference inside a COMMENT counts as an edge, so a tool')
-    print('    merely DISCUSSED by a live tool reads as wired. 40% of tool-to-tool')
-    print('    reference lines open as comments. This is the direction that hides an')
-    print('    unwatched instrument, which is this census\'s own subject (T-493).')
+    print('  FALSE NEGATIVE — T-495 closed the two prose forms (comments, and string')
+    print('    literals that are whole statements). Still open, same direction:')
+    print('      * a shell HEREDOC body reads as an edge (needs a shell parser)')
+    print('      * .md/.yaml/.json roots are read whole — no comment syntax assumed')
+    print('      * a shell string spanning lines re-opens quote state per line')
     print('  Stated so a clean run cannot imply coverage it does not have (PL-148).')
+    if PARSE_FALLBACKS:
+        print('  PARSE FALLBACK — %d python file(s) could not be tokenized/parsed and were'
+              % len(set(PARSE_FALLBACKS)))
+        print('    read WHOLE, so their comments and docstrings still count as edges:')
+        for p in sorted(set(PARSE_FALLBACKS)):
+            print('      %s' % p)
 
     # ── T-491: --ratchet ────────────────────────────────────────────────────────────────
     # This census has been correct and unscheduled since T-451. Its only live caller is the

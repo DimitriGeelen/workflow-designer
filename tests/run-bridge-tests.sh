@@ -672,7 +672,7 @@ echo "== Unwired-guard ratchet over tools/ (T-451 census, T-491 ratchet) =="
 # completion, after which nothing in the tree can re-run them (PL-161).
 #
 # The census has been correct and unscheduled since T-451. Its only live caller was the
-# G-034 gap gauge in lib/gaps.py, which runs when somebody asks — so it measured a real
+# G-035 gap gauge in lib/gaps.py, which runs when somebody asks — so it measured a real
 # and growing backlog and told nobody. One step milder than the class it measures: not
 # unrunnable, just unwatched. T-490 and T-448 are two instances found by hand in the
 # interval; the census had both.
@@ -687,6 +687,29 @@ if python3 "$ROOT/tools/_t451-unwired-guard-census.py" --ratchet > /dev/null; th
   pass=$((pass + 1))
 else
   report FAIL "the unwired-guard backlog MOVED — either a standing guard lost its last live caller, or a baseline entry is now wired and tools/unwired-guard-baseline.txt is stale (run 'python3 tools/_t451-unwired-guard-census.py --ratchet' for the direction; do not silently re-baseline, a new entry is a finding to report)"
+  fail=$((fail + 1))
+fi
+
+echo
+echo "== Census edge DEFINITION controls (T-495) =="
+# The ratchet above guards the COUNT. This guards the DEFINITION the count is derived
+# from, and those are not the same assertion: `strip_prose()` deciding that a call is
+# prose moves every number in the census at once, in whichever direction the bug leans,
+# and the ratchet would report that as a backlog movement with a confident cause attached.
+#
+# Wired here rather than left in T-495's `## Verification` on purpose. A Verification block
+# runs once, at completion, and then the file it guards is unguarded — the exact class the
+# census next door exists to count (PL-161). Worse, this file is named `-probe.py`, so the
+# census's own one-shot-by-design convention would EXCUSE it and never report it dark. An
+# instrument that its own watchdog is built to overlook has to be scheduled deliberately.
+#
+# Plain mode, not --discriminate: that mode diffs against `git show HEAD:` and is only
+# meaningful from a tree whose HEAD predates T-495. Post-commit it compares the census to
+# itself, so it is an authoring-time proof, not a standing one. The probe says so itself.
+if python3 "$ROOT/tools/_t495-prose-edge-probe.py" > /dev/null; then
+  pass=$((pass + 1))
+else
+  report FAIL "the census edge definition changed — prose is counting as a call again, or a real invocation (string argument, composed os.path.join/pathlib path, shell call with a trailing comment) stopped counting (run 'python3 tools/_t495-prose-edge-probe.py' for the failing leg)"
   fail=$((fail + 1))
 fi
 

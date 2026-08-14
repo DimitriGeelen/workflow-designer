@@ -1,4 +1,4 @@
-# unwired-guard-baseline.txt — T-491, regenerated under T-493
+# unwired-guard-baseline.txt — T-491, regenerated under T-493, again under T-495
 #
 # The standing guards that had no live caller on the day this ratchet was wired — the
 # count is stated once, at the bottom, by the generator. DERIVED from
@@ -13,30 +13,52 @@
 #
 # To remove a line: wire the instrument to a live caller, or delete it. Not by editing here.
 #
-# ── WHY THIS FILE MOVED, 2026-08-14 ─────────────────────────────────────────
-# The ratchet FIRED, in the GREW direction, rc=1, and this regeneration is the response
-# to that firing — not a way to silence it. Recorded because a ratchet whose first real
-# movement is absorbed by a same-commit refresh has never been shown to work:
+# ── WHY THIS FILE MOVED, 2026-08-14 (second movement, T-495) ────────────────
+# The ratchet FIRED again, in BOTH directions this time, rc=1. Recorded before the
+# regeneration, because a ratchet whose movement is absorbed by a same-commit refresh has
+# never been shown to work:
 #
-#     RATCHET: baseline 37, current findings 66
-#       GREW by 29 — a standing guard lost its last live caller
+#     RATCHET: baseline 66, current findings 69
+#       GREW by 4    + _t358-byteid-thirdparty.mjs
+#                    + _t418-producer-attribution.py
+#                    + _t445-partial-state-mutation.sh
+#                    + bake-clean-layout.py
+#       SHRANK by 1  - census-dead-legs.py
 #
-# NOTHING WENT DARK. The instrument got better at seeing. T-493 replaced a one-hop
-# liveness union with a reachability CLOSURE from roots outside the population (dead
-# tools were vouching for each other — `_t400-schema-teeth.sh` was referenced by nine
-# dead teeth scripts) and field-scoped the gap register to `closure_check_command:`, the
-# only field lib/gaps.py executes, instead of grepping 2,362-character prose narratives.
+# The GREW side is the intended result, not damage. T-495 stopped prose counting as a
+# call: a `#` comment, and a string literal that is a whole statement (a docstring). All
+# four had been held live by a sentence ABOUT them. `_t418-producer-attribution.py` is the
+# one that matters — the T-418 attribution detector, dark since 2026-08-09, reading as
+# wired because `_t420-rail-attribution-gate.py`'s module docstring names it as the
+# compensating control the gate defers to when it fails open.
 #
-# The previous baseline was DERIVED, faithfully, from an instrument whose definition was
-# wrong. That is the lesson worth keeping: derived-not-typed protects against
-# transcription error, not against the source being wrong. A wrong number computed
-# honestly still reads as authoritative.
+# The SHRANK side is the second half of the same change and the reason it shipped in one
+# commit. Stripping prose ALONE made this census worse, not better: 10 CDP harnesses that
+# run on EVERY bridge-suite pass are invoked as
+# `os.path.join(ROOT, "tools", "<name>")` and were held live only by the docstring line
+# in the test module that composes them. TWO ERRORS OF OPPOSITE SIGN WERE CANCELLING —
+# prose counting as a call, and a composed path being invisible — so the answer came out
+# right for two wrong reasons. Removing one of them would have reported ten live, running
+# instruments dead. `_composed_refs()` resolves literal `os.path.join`/pathlib components
+# from the AST, which restored all ten and additionally rescued `census-dead-legs.py`,
+# which nothing but composition had ever reached.
 #
-# The census's LIMIT is now stated in BOTH directions, and the false-negative half
-# (a tool named in a COMMENT counts as a live edge — 40% of tool-to-tool reference
-# lines) is filed as T-495, unfixed. This count will move again when that lands.
+# WHAT THE CONTROL DID TO ITSELF, and why it is written down here.
+# `tools/_t495-prose-edge-probe.py` was wired into the bridge suite, which made it a live
+# root. Its fixtures named REAL tools, and a fixture is a string ASSIGNED to a name — an
+# argument-position string, which the new rule deliberately keeps so that a genuine
+# `subprocess.run(["tools/x.py"])` still counts. So the probe vouched for
+# `_t418-producer-attribution.py`, `_t418-capture-attribution.sh` and
+# `_t445-partial-state-mutation.sh`: the control manufactured the exact defect it was
+# built to detect, `_t418` went back to reading wired, and all 14 legs passed while it
+# happened. Fixtures are now `_t495-fixture-*`, which resolve to no file, so they cannot
+# vouch for anything. A test fixture naming its real subject is an edge, not a mention.
 #
-# Generated 2026-08-14 from 66 findings / 165 population.
+# STILL OPEN, same direction, stated rather than implied: a shell HEREDOC body reads as
+# an edge; .md/.yaml/.json roots are read whole; a shell string spanning lines re-opens
+# quote state per line. See the census LIMIT block, which prints on every run.
+#
+# Generated 2026-08-14 from 69 findings / 166 population.
 _align-distribute-diag.mjs
 _autoload-verify-cdp.mjs
 _autosave-verify-cdp.mjs
@@ -58,6 +80,7 @@ _t263-save-target-cdp.mjs
 _t343-write-equivalence.py
 _t350-verification-hygiene.py
 _t352-member-scan.py
+_t358-byteid-thirdparty.mjs
 _t358-empty-lanes-blast-radius.mjs
 _t358-export-determinism.mjs
 _t358-repair-options-cdp.mjs
@@ -80,10 +103,12 @@ _t391-p011-multiline-guard.sh
 _t396-release-tag-state.sh
 _t407-exporter-passthrough-cdp.mjs
 _t418-capture-attribution.sh
+_t418-producer-attribution.py
 _t421-enforcement-claim-drift.py
 _t428-assumption-disposition-check.py
 _t429-abstention-census.py
 _t429-apply-abstention-guard.py
+_t445-partial-state-mutation.sh
 _t465-witness-shape.sh
 _t472-stale-trigger-field.py
 _t479-endpoint-roundtrip-cdp.mjs
@@ -94,8 +119,8 @@ _t485-unknown-extension-survival.mjs
 _t486-orphaned-go-scan.py
 _undo-verify-cdp.mjs
 _versions-verify-cdp.mjs
+bake-clean-layout.py
 bpmn-cli.py
-census-dead-legs.py
 concerns-schema.py
 gallery-serve.py
 gen-rendered-thumbs.mjs

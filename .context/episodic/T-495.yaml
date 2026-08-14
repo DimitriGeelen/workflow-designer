@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-495: unwired-guard census counts a tool named in a COMMENT as a live edge, so a discussed tool reads as wired
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-14T07:58:09Z
+# ============================================================================
+
+task_id: T-495
+task_name: "unwired-guard census counts a tool named in a COMMENT as a live edge, so a discussed tool reads as wired"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-14T07:08:00Z
+completed: 2026-08-14T07:58:02Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '`read_refs()` strips non-executable text before extracting references, dispatched by'
+  - 'A Python source that fails to tokenize/parse does NOT silently vanish from the graph:'
+  - 'Negative controls prove the stripper does what is claimed, each failing for its own'
+  - '`tools/_t418-producer-attribution.py` appears in the census findings after the change.'
+  - 'The ratchet FIRES on this change, and the firing is recorded in the regenerated'
+  - 'The census LIMIT is corrected in BOTH the docstring and the printed output: it'
+  - 'Bridge suite passes with no new failures (73 passed / 0 failed at T-494).'
+  - 'Composed paths are resolved from the AST (`os.path.join(x, ''tools'', ''y'')` and'
+  - 'The probe is wired into `tests/run-bridge-tests.sh`, not left in this Verification'
+  - 'Probe leg F1 asserts no fixture name resolves to a real tool, and is shown to go red'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-14 — the filed remedy was checked before it was implemented, and it was wrong'
+    chose: 'Strip comments AND bare string-expression statements, via `tokenize` + `ast`'
+    rationale: 'T-495 was filed prescribing `#`/`//`/`/* */` stripping. The instance it was'
+    alternatives_rejected: ['Implementing the task as written. Also rejected: stripping ALL Python']
+  - decision: '2026-08-14 — composed-path resolution ships in the SAME commit, not as a follow-up'
+    chose: 'Add `_composed_refs()` (literal `os.path.join` / pathlib components) alongside'
+    rationale: 'Measured, not assumed. Stripping prose alone moved findings 66 → 79 and orphaned'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 50 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 50
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-495-unwired-guard-census-counts-a-tool-named.md
+generated_by: context-agent-hybrid
