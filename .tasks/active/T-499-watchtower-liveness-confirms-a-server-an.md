@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-14T11:51:25Z
-last_update: 2026-08-14T11:51:25Z
+last_update: 2026-08-14T11:56:35Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -69,8 +69,13 @@ date_finished: null
       not be reportable as "healthy" or as "down" (T-496/PL-193, exit 2 not 1)
       → NOT DONE. Requires changing vendored `do_url`'s contract; deliberately left
         to the operator/AEF. Stated open rather than silently dropped.
-- [ ] Bridge suite still green
-      → not re-run; no source changed in this project.
+- [x] Bridge suite still green
+      → 75 passed, 0 failed. No source changed in this project.
+
+**STATE: blocked on AEF, not on me.** The one open AC (abstention channel) requires
+changing vendored `do_url`'s contract, which is theirs. Pickup proposal sent at rail
+625; awaiting their scoping call. Deliberately NOT force-closed — the AC describes real
+remaining work and ticking it would be the AC-laundering this project keeps catching.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.

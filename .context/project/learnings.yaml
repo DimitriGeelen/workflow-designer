@@ -1422,3 +1422,10 @@ learnings:
   date: 2026-08-14
   context: Added via context agent
   application: TBD
+- id: PL-199
+  learning: "A limit I had written down that morning did not reach me that afternoon — and the file it was written in was mine. T-497's census docstring states 'DOT-NAMED files: glob.glob does not match them'. Hours later I re-derived the arc's blocking evidence with glob.glob('**/*.bpmn'), got 66 where find gets 145 (79 live under .editor-versions/, a dot directory), and was one step from telling the operator their decision brief's denominator was inflated 2x. This is T-497's own finding recursing at one remove: T-497 was about a lesson parked in _t429's header not reaching four later sessions, and its remedy — write the limit into the tool's docstring — is the same storage location that just failed me. Writing a limit next to the instrument does not make it reach the next USE of a different instrument. The durable form is the mechanical one: put the derivation command in the artifact that consumes the number, which is what T-340's brief now carries."
+  source: P-001
+  task: T-340
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD

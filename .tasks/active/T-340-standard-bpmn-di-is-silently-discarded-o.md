@@ -17,7 +17,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T10:39:05Z
-last_update: 2026-08-13T08:48:01Z
+last_update: 2026-08-14T12:06:45Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -109,6 +109,36 @@ tickable AC out of it would make a blocked task read as progressing.
       > from `(a′)` to `(b)`, and step 3 below is marked superseded). The brief also
       > re-measured the disjointness claim this ruling rests on — `BOTH = 0` still holds, now
       > over 142 files rather than the 126 measured when it was written.
+      >
+      > ### 2026-08-14 — the disjointness claim is now DERIVABLE, not restated (T-497 class)
+      >
+      > This number had been carried forward in prose across restatements as 126 / 142 / 144,
+      > which is a provenance smell regardless of whether it is right. Re-derived today:
+      >
+      > ```
+      > cd /opt/832-Workflow-designer && python3 - <<'PY'
+      > import subprocess
+      > files = subprocess.run(["find",".","-name","*.bpmn","-not","-path","./.git/*"],
+      >                        capture_output=True, text=True).stdout.split()
+      > b = sum(1 for f in files
+      >         for t in [open(f,encoding='utf-8',errors='replace').read()]
+      >         if 'aef:position' in t and ('BPMNDiagram' in t or 'bpmndi:' in t))
+      > print('scanned %d .bpmn, BOTH = %d' % (len(files), b))
+      > PY
+      > ```
+      >
+      > **Result 2026-08-14: scanned 145 .bpmn, BOTH = 0.** Breakdown: 126 carry
+      > `aef:position` only, 10 carry BPMN DI only, 9 carry neither. So the two carriers are
+      > still disjoint and scoped (b) still changes zero bytes for existing maps.
+      >
+      > The `126` in the paragraph above is the **`aef:position`-only count**, not a stale
+      > total — the two were conflated in restatement. Both figures are real.
+      >
+      > **Recorded against myself:** my first re-derivation used `glob.glob('**/*.bpmn')`
+      > and returned 66, and I was one step from reporting that this brief's denominator was
+      > inflated 2x. `glob.glob` does not match dot-directories, and 79 of the 145 live under
+      > `.editor-versions/`. I wrote that exact limit into `tools/_t497-derived-root-census.py`
+      > hours earlier the same day and still walked into it. Use the `find` form above.
       >
       > ### 2026-08-09 — AEF reached the same ruling independently (rail 487, T-403)
       >
