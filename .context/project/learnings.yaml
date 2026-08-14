@@ -1387,3 +1387,24 @@ learnings:
   date: 2026-08-14
   context: Added via context agent
   application: TBD
+- id: PL-194
+  learning: "The derived-root harness class was already written down in this tree, correctly, three days before it was 'discovered'. tools/_t429-zero-leg-probe.sh (2026-08-11) states the class, the diagnosis and the remedy verbatim: 'A copy in /tmp resolves that to /tmp and the suite dies on its own setup — which would produce a non-zero exit for the WRONG REASON'. It was then rediscovered independently four times (T-494, T-495 x2, T-496), and the remedy was offered to AEF at rail 619 'as cheap rather than clever'. The knowledge lived as PROSE IN A FILE HEADER — the one location T-495 established nothing indexes, greps, or reports dark. A lesson recorded only in the comment of the tool that learned it is not recorded."
+  source: P-001
+  task: T-497
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD
+- id: PL-195
+  learning: "A control that is INVISIBLE to the instrument it tests reports on nothing and says PASS. T-497's census controls planted their fixtures under dot-names (copying _t429's scratch-copy convention); glob.glob does not match dotfiles, so the census never saw them — control A read CLEAR because the fixture was ABSENT, not because it was clean, and control B 'passed' only because everything was clear. Absent and clean are the same observable to a glob-scoped instrument. Same shape as T-495, where the probe's own -probe.py name was excused by the census's one-shot convention: in both cases the control inherited a naming convention that placed it outside its own subject's scope."
+  source: P-001
+  task: T-497
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD
+- id: PL-196
+  learning: "Measured shell half of the derived-root class (T-496's stated hole, now closed): 162 files scanned, 42 shell members and 86 python members derive a root from their own location and resolve a subject beneath it. Unverified count is an INTERVAL, not a number — shell 30-36, python 29-35 — because the two classifier readings are wrong in opposite directions: LOOSE over-credits any existence test in the file (run-bridge-tests.sh matched on a check of a captured OUTPUT while never checking the 74 harnesses it launches; _t408 matched a 'test -f' inside a quoted fixture string), STRICT cannot see through argparse-default indirection (concerns-schema.py, tracked-secret-artifacts.py are genuinely guarded). Reporting one number would have picked a side by accident. Also: 4 shell files' only guard is 'cd $(dirname $0)/.. || exit', which guards the one step that cannot fail — cd to a parent always succeeds, including from a copy."
+  source: P-001
+  task: T-497
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD

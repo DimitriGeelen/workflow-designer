@@ -714,6 +714,23 @@ else
 fi
 
 echo
+echo "== Derived-root census controls (T-497) =="
+# Guards that the derived-root census SEPARATES guarded from unguarded, not that its
+# number is any particular value. The count is a backlog and moves legitimately; the
+# discrimination must not move at all.
+#
+# Control C is the one that earns its place: `cd "$(dirname "$0")/.." || exit 2` is the
+# dominant shell idiom here and it guards the one step that cannot fail — copy the file
+# anywhere and `cd <somewhere>/..` still succeeds, then every relative subject is missing.
+# If the census ever credits that as verification, ~4 files silently move to "safe".
+if bash "$ROOT/tools/_t497-census-controls.sh" > /dev/null 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the derived-root census stopped discriminating — an unguarded harness is being scored as verified, or the cd-guard is being credited as a subject check (run 'bash tools/_t497-census-controls.sh' for the failing control)"
+  fail=$((fail + 1))
+fi
+
+echo
 # Corpus geometry sweep (T-052): every authored map's nodes must sit inside their
 # lane bands, modulo the exact legacy allowlist. Guards against new maps silently
 # straddling bands — the G-019 blindness found in T-050.
