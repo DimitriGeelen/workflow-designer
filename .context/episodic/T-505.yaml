@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-505: Finished and invisible: census the active tasks whose ACs are all ticked but which never transitioned
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-14T20:35:06Z
+# ============================================================================
+
+task_id: T-505
+task_name: "Finished and invisible: census the active tasks whose ACs are all ticked but which never transitioned"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-14T20:26:52Z
+completed: 2026-08-14T20:33:09Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'AC1 — `tools/_t505-finished-invisible-census.py`. Derived: 68 files scanned from'
+  - 'AC2 — `DENOMINATOR: 68 task file(s) scanned, 68 with a countable AC block, 0 skipped`'
+  - 'AC3 — Both directions run, on real data and on fixtures, results below. Real: T-264'
+  - 'AC4 — Delivered in the session message and in the table below: every row carries its'
+  - 'AC5 — Zero tasks transitioned by this task. No `--status work-completed` was run'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-505-finished-and-invisible-census-the-active.md
+generated_by: context-agent-hybrid

@@ -679,6 +679,31 @@ else
 fi
 
 echo
+echo "== Finished-and-invisible census still has a population (T-505) =="
+# This leg does NOT assert the backlog is zero. It was 17 of 68 when the census was
+# written, and gating on zero would paint the suite permanently red over a bookkeeping
+# queue only the operator can drain — the mistake T-491 solved for the unwired-guard
+# backlog by gating on MOVEMENT instead of on the count.
+#
+# What it asserts is that the census can still range over the task corpus at all. The
+# instrument refuses with exit 2 when .tasks/active is missing or holds no *.md, and
+# refuses again when no task file yields a countable AC block — so a scan broken by a
+# template change, a heading rename or a relocated task tree fails here loudly instead of
+# reporting "0 finished-and-invisible", which is what a broken scan and a clean board
+# both look like from the outside.
+#
+# The leg also exists so the census has a caller that re-executes without a task
+# completing (PL-161). Wired in the same change that created the tool rather than after
+# it: T-503 was the repair for exactly that omission, and T-491's ratchet counts a tool
+# with no root caller as backlog the moment it lands in tools/.
+if python3 "$ROOT/tools/_t505-finished-invisible-census.py" > /dev/null; then
+  pass=$((pass + 1))
+else
+  report FAIL "the finished-and-invisible census could not establish a population (T-505 — run 'python3 tools/_t505-finished-invisible-census.py' for the refusal reason; exit 2 means it abstained rather than returning a verdict, most likely because .tasks/active moved, the '## Acceptance Criteria' heading was renamed, or the task template stopped carrying checkboxes)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Runner-orphan guard (T-316) =="
 # The guard for the class above: any collectable test file (test_*.py, *_test.py,
 # *.bats) that this runner does not invoke is a finding. Checks membership in
