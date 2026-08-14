@@ -1,0 +1,76 @@
+# ============================================================================
+# EPISODIC MEMORY - T-502: Pre-flight the three completion-ready human-owned tasks so the operator's close does not bounce
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-14T19:40:32Z
+# ============================================================================
+
+task_id: T-502
+task_name: "Pre-flight the three completion-ready human-owned tasks so the operator's close does not bounce"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-14T19:15:25Z
+completed: 2026-08-14T19:38:41Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-14T21:38:36+02:00
+last_commit: 2026-08-14T21:38:36+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  all three would have bounced — two on a suite line red for an unrelated reason, one on a missing build artifact
+
+# Key outcomes
+outcomes:
+  - '**Every command in the `## Verification` block of T-041, T-101 and T-102 is executed'
+  - '**Each of the three is routed with an explicit verdict: close-ready, or blocked with'
+  - '**No Human AC is ticked, no owner is changed, and no task is completed by me.** All'
+  - '**The staleness question is answered, not assumed:** these Verification blocks were'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-502-pre-flight-the-three-completion-ready-hu.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-14T21:38:36"
+    action: "T-502: all three would have bounced — two on a suite line red for an unrelated reason, one on a missing build artifact"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 23 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 23
+  commits: 1
+  files_changed: 1
+  lines_added: 50
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-502-pre-flight-the-three-completion-ready-hu.md
+generated_by: context-agent-hybrid
