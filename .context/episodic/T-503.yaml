@@ -1,0 +1,78 @@
+# ============================================================================
+# EPISODIC MEMORY - T-503: The T-355 disclosure guard was wired to a one-shot that completion spent — give it a standing caller
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-14T19:33:02Z
+# ============================================================================
+
+task_id: T-503
+task_name: "The T-355 disclosure guard was wired to a one-shot that completion spent — give it a standing caller"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-14T19:24:54Z
+completed: 2026-08-14T19:31:11Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-14T21:31:05+02:00
+last_commit: 2026-08-14T21:31:05+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a completion gate is not a guard — the T-355 probe's first wiring was spent the hour it was made
+
+# Key outcomes
+outcomes:
+  - '**`tools/_t355-foreign-tag-render-cdp.mjs` is invoked by `tests/run-bridge-tests.sh`**'
+  - '**The ratchet returns to level and the suite is green**, verified by'
+  - '**The leg fails when the disclosure regresses**, demonstrated with the probe''s own'
+  - '**The comment above the leg records why it is here**, specifically that its first'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-502-pre-flight-the-three-completion-ready-hu.md'
+  - '.tasks/active/T-503-the-t-355-disclosure-guard-was-wired-to-.md'
+  - 'tests/run-bridge-tests.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-14T21:31:05"
+    action: "T-503: a completion gate is not a guard — the T-355 probe's first wiring was spent the hour it was made"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 3
+  lines_added: 451
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-503-the-t-355-disclosure-guard-was-wired-to-.md
+generated_by: context-agent-hybrid
