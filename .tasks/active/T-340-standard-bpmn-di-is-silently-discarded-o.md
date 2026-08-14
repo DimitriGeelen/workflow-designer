@@ -17,7 +17,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T10:39:05Z
-last_update: 2026-08-14T15:12:47Z
+last_update: 2026-08-14T15:19:19Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -77,11 +77,19 @@ Each changes what we emit for a peer's content, which is the T-559 product seam.
 - [x] `EXPECTED_DI` in `tools/_t338-input-fidelity-cdp.mjs` updated to record the improvement — DI-DROPPED → DI-PRESERVED, after measuring 24/24 injected & 24/24 survived
 - [x] Bridge suite green with the changed expectation — 75 passed, 0 failed; geometry sweep 24 clean
 
-All three are downstream of the ruling below and are left **unticked and marked BLOCKED**
-rather than reworded into something satisfiable. A task whose scope is blocked should look
-blocked. No agent AC was added to cover the measurement work in `## Decisions` — that work
-is *evidence for* the ruling, not a deliverable of the task as scoped, and manufacturing a
-tickable AC out of it would make a blocked task read as progressing.
+**Superseded 2026-08-14 — kept, because the record of what a blocked task looked like is
+worth more than a tidy file.** Until PD-200 all three read `**BLOCKED** —` and unticked:
+
+> All three are downstream of the ruling below and are left **unticked and marked BLOCKED**
+> rather than reworded into something satisfiable. A task whose scope is blocked should look
+> blocked. No agent AC was added to cover the measurement work in `## Decisions` — that work
+> is *evidence for* the ruling, not a deliverable of the task as scoped, and manufacturing a
+> tickable AC out of it would make a blocked task read as progressing.
+
+That held for 12 days and then stopped being true the moment the ruling landed. Left as a
+quote rather than deleted: the paragraph is the argument for why the ACs were *not* quietly
+reworded while waiting, and deleting it on the day it expires removes the evidence that the
+discipline was kept. Nothing above it is blocked any more.
 
 ### Human
 
