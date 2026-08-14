@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-507: AEF and I sign as the same fingerprint: both rail endpoints collapsed onto one host identity key
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-14T20:51:44Z
+# ============================================================================
+
+task_id: T-507
+task_name: "AEF and I sign as the same fingerprint: both rail endpoints collapsed onto one host identity key"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-14T20:48:53Z
+completed: 2026-08-14T20:51:42Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'AC1 — Read here, this session: fingerprint `d1993c2c3ec44c94`, path'
+  - 'AC2 — Stated with a floor and an explicit refusal to state a ceiling. **At least three**'
+  - 'AC3 — Both claims tested, both corrected.'
+  - 'AC4 — Supplied as `termlink channel state dm:0e7ee6cad65137fc:6a646ce8b1bc6560`, with'
+  - 'AC5 — Filed as the newest entry in `.context/inbox.yaml`, `context_task: T-507`,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 2 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 2
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-507-aef-and-i-sign-as-the-same-fingerprint-b.md
+generated_by: context-agent-hybrid

@@ -403,3 +403,10 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-247
+  text: "This project and the AEF project sign termlink envelopes with the SAME ed25519 key, so the sender field cannot distinguish them. Measured both sides: agent identity here returns fingerprint d1993c2c3ec44c94 from /root/.termlink/identity.json (pubkey 8eb0e089...1142); the AEF session independently reported the identical fingerprint as its own. Both run as root on host 107 and Identity::load_or_create reads ${HOME}/.termlink/identity.json, so same HOME means same principal. At least three distinct agents occupy that one sender bucket — this project, the AEF project, and an opencode agent (glm-5.2) running as dimitri-mint-dev over a sudo bridge which states the same root identity in a field report. Two consequences. (1) Per-sender counts are unsound: the peer attributed 464 posts on agent-chat-arc to itself from that bucket. (2) No DM topic between the two projects can exist, because dm:X:Y needs two distinct fingerprints and ours would be dm:<fp>:<fp>. This is also the root cause of the dead rail: dm:0e7ee6cad65137fc:6a646ce8b1bc6560 was correct when created — those were the two projects' then-distinct fingerprints — and both endpoints later rotated onto the host root key while the topic name stayed, so eleven messages were written to a name that no longer denoted either party. Mitigation already in place and now known to be load-bearing rather than belt-and-braces: the T-420 PreToolUse gate refuses any channel post lacking metadata.from_project, which is the only working discriminator. Related surface: whoami on this session returns ambiguous with 14 candidates and cannot identify the caller at all. NOT PATCHED — which key a project signs with is vendored framework behaviour and a governance decision, not a defect fix under G-008."
+  captured: 2026-08-14T20:41:00Z
+  context_task: T-507
+  tags: [bug, seam]
+  status: pending
+  promoted_to: null
