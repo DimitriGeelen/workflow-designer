@@ -389,3 +389,10 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-245
+  text: "fw git commit stamps last_update AFTER the commit it belongs in. agents/git/lib/commit.sh:113-118 runs git commit, then calls update_task_timestamp on the named task if it is in active/. Consequence: git status --porcelain .tasks/ is never empty at the moment a commit reports success — it holds exactly one line, the stamp of the commit that just ran — so that check cannot be used as a saved-everything signal, and the stamp always rides in a later commit or is swept by handover. Reproduced twice today. Vendored AEF code: changing commit semantics is AEF's call under G-008, not ours to take unilaterally."
+  captured: 2026-08-14T19:11:40Z
+  context_task: T-458
+  tags: [bug]
+  status: pending
+  promoted_to: null

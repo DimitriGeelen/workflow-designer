@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T13:43:07Z
-last_update: 2026-08-14T18:33:55Z
+last_update: 2026-08-14T19:09:08Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -40,9 +40,17 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] **The five completion-state deltas are committed**, so the repository holds the same
+- [x] **The five completion-state deltas are committed**, so the repository holds the same
       completion facts the handover already describes. Verified by `git status --porcelain`
       being clean over `.tasks/`.
+      **Caveat found while verifying, and it is the substance of this task:** this AC is
+      not satisfiable as literally written, by any commit that names a task in `active/`.
+      `agents/git/lib/commit.sh:113-118` creates the commit and *then* calls
+      `update_task_timestamp`, so the named task's `last_update` is rewritten after the
+      snapshot it belongs in. `git status --porcelain .tasks/` is therefore never empty
+      immediately after a commit — it holds exactly one line, the stamp of the commit that
+      just ran. Read as "clean apart from the self-stamp", satisfied: T-233's 47 lines of
+      completion state landed in `cf90d884`, and T-453..T-457 in `ad37ee5b`.
 - [ ] **The observation is recorded as an OBSERVATION, not a defect.** Whether this is
       ordering-specific to how this window interleaved commit-then-complete, or general to
       every completion, is not established. Asserting a framework defect from a single
@@ -202,6 +210,50 @@ date_finished: null
 - **Triggered:** Nothing new filed — this is the same defect, now with a reproduction and a
   sharper statement of why the obvious workaround is not one. T-233's file is sitting
   modified-and-unstaged as the live artefact; it needs the operator's Tier 2 or the fix.
+
+### 2026-08-14 (later) — retraction: I asked the operator for an authorisation they did not need
+
+- **What changed:** The entry above is wrong where it matters most, and it is wrong in the
+  exact way this window has been cataloguing: a confident answer about the wrong subject.
+
+  It claims two gates close and *"an agent working autonomously **cannot** commit the state
+  the framework itself just wrote, by any sanctioned path."* Falsified by direct test today.
+  With focus on T-458 and a `T-458:`-prefixed message, `fw git commit` committed T-233's
+  completion state — exit 0, no `--force`, no `FW_SWITCH_FOCUS`, no Tier 2, nothing logged
+  to `.gate-bypass-log.yaml`. That is `cf90d884`.
+
+  Leg 1 was real and correctly described: focus on T-233, status `work-completed` → P-002
+  at `check-active-task.sh:447`. Leg 2 I never ran. I reasoned it from the *Write/Edit*
+  drift check, which parses the task id out of the **file path**, and asserted it of a
+  **commit**, where nothing parses a path — pattern 3 at `check-active-task.sh:316-318`
+  matches the leftmost `T-NNN:` in the commit **message**. My own wording gives the
+  inference away: "the action target parsed from the path" describes a gate that was not
+  the one under test. The bypass log's historical entries confirm the real trigger shape
+  (focus `T-195`, message `T-265:` → drift), and a `T-458:` message under T-458 focus is
+  not it.
+
+  The cost was not a wasted branch. I handed the operator a `FW_SWITCH_FOCUS=1` command and
+  told them their Tier 2 was required to clear the tree. **Asking a human to authorise a
+  bypass that is not needed spends their sovereignty on nothing**, and it teaches that the
+  gates cry wolf — which is the opposite of what a gate is for. Two gates blocking me was a
+  more interesting story than one, and I wrote it up without running the second.
+
+- **Plan impact:** "(a) the transition commits its own output, or (b) P-002 admits a task's
+  own file" — both were remedies for a deadlock that does not exist. Withdrawn.
+
+  What is left is real, smaller, and measured: `agents/git/lib/commit.sh:113-118` stamps
+  `last_update` *after* `git commit` returns. Every commit naming a task in `active/`
+  therefore ends with that task's file dirty, so the tree is never clean at the moment a
+  commit reports success, and the stamp always rides in some later commit or gets swept by
+  the handover. This is the ordering the task's title was reaching for all along — the
+  bookkeeping for a commit lands outside it — but the mechanism is the **commit agent**,
+  not the completion transition, and it fires on every commit rather than at completion.
+
+- **Triggered:** OBS-245 (stamp-after-commit ordering, `agents/git/lib/commit.sh:113-118`).
+  Filed as an observation, not fixed here: that file is vendored AEF code and the change
+  alters commit semantics for every project that consumes it, so it is AEF's call under
+  G-008 rather than something to take unilaterally on a "proceed" directive. Notified on
+  the rail.
 
 ## Decisions
 
