@@ -17,7 +17,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:27Z
-last_update: 2026-08-14T15:24:27Z
+last_update: 2026-08-14T15:26:43Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -141,7 +141,11 @@ instruction and is exactly what this week says about mention-vs-instance). There
 unbuildable until a validator exists. Left unticked and stated rather than downgraded into
 a grep, which is the failure it was written to prevent.
 
-**Status: still `captured`. No source edited under this task.**
+**Status: `started-work` (set by `fw work-on` when I opened it to record this). No source
+edited under this task, and none will be until §2's rail question is answered.** An earlier
+draft of this paragraph said `captured`, which was true when I wrote the sentence and false
+by the time it was committed — the same stale-claim shape as T-340's BLOCKED paragraph,
+caught one commit later instead of twelve days.
 
 ## Acceptance Criteria
 
