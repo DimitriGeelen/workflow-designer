@@ -396,3 +396,10 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-246
+  text: "A pending Tier 0 approval is deleted after 2 hours with no log, no notification and no record. checkpoint.sh:355-364 (PostToolUse) runs rm -f on any .context/approvals/pending-*.yaml older than STALE_AGE=7200. Thirty lines above, the approval-GRANTED branch prints a framed APPROVAL READY block and marks it notified; the expired path is completely silent. Consequence: the requesting agent cannot distinguish denied from expired from never-seen, and the operator cannot distinguish a question they declined from one withdrawn while they were away. Witnessed: the T-501 inception GO request, created 17:00:08Z, gone by 19:07Z, unanswered. A 2h TTL fits a blocked shell command; it fits an inception decision badly, since that decision is not tied to a live session. Vendored AEF code: approval-queue lifetime is a governance change for every consuming project, so the fix is AEF's call under G-008."
+  captured: 2026-08-14T19:43:42Z
+  context_task: T-504
+  tags: [bug]
+  status: pending
+  promoted_to: null
