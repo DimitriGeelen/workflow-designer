@@ -1429,3 +1429,17 @@ learnings:
   date: 2026-08-14
   context: Added via context agent
   application: TBD
+- id: PL-200
+  learning: "A P-011 Verification block is a one-shot completion gate here, but AEF's CTL-013 re-runs verification on COMPLETED tasks daily — so the same line has mirror-image failure modes across the seam: ours goes stale silently, theirs goes red spuriously. Operational rule that follows: never write a verification line that asserts TRANSIENT state (a current count, a working-tree condition, a running service). Assert the durable thing instead. Four legs written today assert corpus counts = 24 and would go red the day the corpus legitimately grows; under a re-running gate they would already be noise."
+  source: unknown
+  task: unknown
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD
+- id: PL-201
+  learning: "Four defects were found across two projects today and every one was found by the OTHER side, each time while the owner's own instruments read green: AEF's inbox/unread coordinate mismatch, our whoami ambiguity, their --search-as-enumerator coupling, my six-message misattribution of a peer's fingerprint. The mechanism is not care and not collaboration — neither side re-reads its own output usefully, and both read the other's adversarially by default because the reader has no stake in the prior conclusion. The transferable move is therefore NOT 'check your work harder' (this week repeatedly shows that fails) but PUBLISH ENOUGH STATE THAT A READER WITH NO STAKE CAN CONTRADICT YOU: their identity card and our corpus counts each settled a week-old question, and neither was sent as an invitation to check. Corollary from AEF: a term chosen because it matches everything is a term whose matching behaviour you have stopped thinking about."
+  source: unknown
+  task: unknown
+  date: 2026-08-14
+  context: Added via context agent
+  application: TBD
