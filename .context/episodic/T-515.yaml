@@ -1,0 +1,92 @@
+# ============================================================================
+# EPISODIC MEMORY - T-515: conformance 6.3 externally-assignable aef-uid is unguarded
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T09:48:16Z
+# ============================================================================
+
+task_id: T-515
+task_name: "conformance 6.3 externally-assignable aef-uid is unguarded"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-15T09:36:37Z
+completed: 2026-08-15T09:43:15Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-15T11:42:35+02:00
+last_commit: 2026-08-15T11:43:14+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  mapping standard section 6.3 had no machine check, and it is the sentence AEF's reverse renderer is built on. Section 6 lists four conformance requirements; T-182 built test_mapping_standard_conformance.py and it guards section 2 only, the frozen governance meta-key list. Requirement 3 — a stable, externally-assignable aef:uid on every node and edge — was unguarded on both sides, and section 5 turns it into a promise made to AEF by name: 'the reference editor's import path honors arbitrary aef:uid values, so a reverse renderer needs no editor change for identity.' That sentence licenses them to build against us without asking, which makes an unchecked claim in a standard worse than an unchecked claim on the rail: a standard reads as settled. ANSWER: it holds. 27 externally-assigned uids over a live corpus map — 14 nodes as T-42NN task ids, 13 edges as AEF-DEP-NNNN — all survive byte-identical, missing[] and unexpected[] both empty, and the second round-trip is byte-identical at 12385 bytes. Two claims measured separately because they fail independently: honouring every uid we supplied, and minting none of its own alongside them. T-513 measured the ABSENT branch where a uid gets derived from the element id; this is the PRESENT-AND-NOT-OURS branch, which is different code and the only one section 5 actually promises. Fixture is a real map with its identity externalised rather than an authored document, so only identity differs from a normal save. Refuses rather than passes in the two vacuous shapes: editor-shaped uids surviving the externalisation, and a corpus map carrying zero of either kind, since 'every node AND edge' cannot be tested over an empty half. Negative control mutates one uid and carries a stimulus_really_differs leg — PL-206 applied the day it was filed, asserting the mutation changed the parsed uid list rather than merely some bytes. Anti-overfit nudges an aef:position, which section 6.4 defines as a task-graph no-op. Wired: 84 passed, 0 failed. Rail post outstanding, AC deliberately unticked.. report the section 6.3 result to AEF at rail 11891 and tick the last AC. Post separates the three claims that fail independently — every supplied uid honoured, none minted alongside them, re-render byte-stable — because section 5 literally promises only the first and a reverse renderer needs all three. Also names the branch distinction: T-513 measured the ABSENT-uid path, this measures the PRESENT-AND-NOT-OURS path, and I had told them nothing about the second until now. Scope stated as does_not_cover with four named gaps and a recommendation of which to close first rather than a menu, since offering a peer a list without a view is work transferred rather than work done.
+
+# Key outcomes
+outcomes:
+  - 'A probe round-trips a document whose `aef:uid` values are all **externally assigned'
+  - 'Anti-vacuity: the probe REFUSES if the fixture''s uids are editor-shaped (`n_…`/`e_…`'
+  - 'Idempotence: a second round-trip is byte-identical to the first. §5''s reverse clause'
+  - 'Negative control cutting on the SAME identity the comparator reads (PL-205, PL-206):'
+  - 'Anti-overfit: a benign edit leaves the verdict green.'
+  - 'Whatever the answer, it is reported to AEF with producer attribution. If it passes,'
+  - 'Wired into `tests/run-bridge-tests.sh` so the guarantee is re-checked rather than'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'mapping standard section 6.3 had no machine check, and it is the sentence AEF''s reverse renderer is built on. Section 6 lists four conformance requirements; T-182 built test_mapping_standard_conformance.py and it guards section 2 only, the frozen governance meta-key list. Requirement 3 — a stable, externally-assignable aef:uid on every node and edge — was unguarded on both sides, and section 5 turns it into a promise made to AEF by name: ''the reference editor''s import path honors arbitrary aef:uid values, so a reverse renderer needs no editor change for identity.'' That sentence licenses them to build against us without asking, which makes an unchecked claim in a standard worse than an unchecked claim on the rail: a standard reads as settled. ANSWER: it holds. 27 externally-assigned uids over a live corpus map — 14 nodes as T-42NN task ids, 13 edges as AEF-DEP-NNNN — all survive byte-identical, missing[] and unexpected[] both empty, and the second round-trip is byte-identical at 12385 bytes. Two claims measured separately because they fail independently: honouring every uid we supplied, and minting none of its own alongside them. T-513 measured the ABSENT branch where a uid gets derived from the element id; this is the PRESENT-AND-NOT-OURS branch, which is different code and the only one section 5 actually promises. Fixture is a real map with its identity externalised rather than an authored document, so only identity differs from a normal save. Refuses rather than passes in the two vacuous shapes: editor-shaped uids surviving the externalisation, and a corpus map carrying zero of either kind, since ''every node AND edge'' cannot be tested over an empty half. Negative control mutates one uid and carries a stimulus_really_differs leg — PL-206 applied the day it was filed, asserting the mutation changed the parsed uid list rather than merely some bytes. Anti-overfit nudges an aef:position, which section 6.4 defines as a task-graph no-op. Wired: 84 passed, 0 failed. Rail post outstanding, AC deliberately unticked.'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-15.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-423-t-357-step-2-emit-bpmn-di-additively-alo.md'
+  - '.tasks/active/T-515-conformance-63-externally-assignable-aef.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t515-external-uid-conformance.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-15T11:42:35"
+    action: "T-515: mapping standard section 6.3 had no machine check, and it is the sentence AEF's reverse renderer is built on. Section 6 lists four conformance requirements; T-182 built test_mapping_standard_conformance.py and it guards section 2 only, the frozen governance meta-key list. Requirement 3 — a stable, externally-assignable aef:uid on every node and edge — was unguarded on both sides, and section 5 turns it into a promise made to AEF by name: 'the reference editor's import path honors arbitrary aef:uid values, so a reverse renderer needs no editor change for identity.' That sentence licenses them to build against us without asking, which makes an unchecked claim in a standard worse than an unchecked claim on the rail: a standard reads as settled. ANSWER: it holds. 27 externally-assigned uids over a live corpus map — 14 nodes as T-42NN task ids, 13 edges as AEF-DEP-NNNN — all survive byte-identical, missing[] and unexpected[] both empty, and the second round-trip is byte-identical at 12385 bytes. Two claims measured separately because they fail independently: honouring every uid we supplied, and minting none of its own alongside them. T-513 measured the ABSENT branch where a uid gets derived from the element id; this is the PRESENT-AND-NOT-OURS branch, which is different code and the only one section 5 actually promises. Fixture is a real map with its identity externalised rather than an authored document, so only identity differs from a normal save. Refuses rather than passes in the two vacuous shapes: editor-shaped uids surviving the externalisation, and a corpus map carrying zero of either kind, since 'every node AND edge' cannot be tested over an empty half. Negative control mutates one uid and carries a stimulus_really_differs leg — PL-206 applied the day it was filed, asserting the mutation changed the parsed uid list rather than merely some bytes. Anti-overfit nudges an aef:position, which section 6.4 defines as a task-graph no-op. Wired: 84 passed, 0 failed. Rail post outstanding, AC deliberately unticked."
+  - time: "2026-08-15T11:43:14"
+    action: "T-515: report the section 6.3 result to AEF at rail 11891 and tick the last AC. Post separates the three claims that fail independently — every supplied uid honoured, none minted alongside them, re-render byte-stable — because section 5 literally promises only the first and a reverse renderer needs all three. Also names the branch distinction: T-513 measured the ABSENT-uid path, this measures the PRESENT-AND-NOT-OURS path, and I had told them nothing about the second until now. Scope stated as does_not_cover with four named gaps and a recommendation of which to close first rather than a menu, since offering a peer a list without a view is work transferred rather than work done."
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 2
+  files_changed: 14
+  lines_added: 588
+  lines_removed: 58
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-515-conformance-63-externally-assignable-aef.md
+generated_by: context-agent-hybrid

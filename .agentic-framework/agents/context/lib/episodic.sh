@@ -128,9 +128,16 @@ do_generate_episodic() {
         # consumed H3 headings, leaving the `^### ` handler below with nothing
         # to fire on and producing decisions blocks whose Chose/Why/Rejected
         # fields merged into a single flat mapping (silent data corruption).
-        local decision_content=$(echo "$decisions_section" | grep -v '^## ' | grep -v '^<!--' | grep -v '^-->' | grep -v '^\s*$' | head -20)
-        if [ -n "$decision_content" ]; then
-            decisions_raw="$decision_content"
+        # T-516: extraction moved to extract-decisions.py. The filter that used to live
+        # here dropped lines matching ^<!-- and ^--> but NOT the INTERIOR of a multi-line
+        # HTML comment — and the task template's Decisions block is exactly such a comment,
+        # so `### [date] — [topic]` was emitted as a real decision on EVERY task close
+        # (832 measured 363/448 episodics, 81%). The `head -20` also discarded silently.
+        # Those are symptoms of one root cause: a line-oriented parse of a block document.
+        # A placeholder-regex filter would have hidden symptom 1 while leaving the
+        # truncation in place and making the output look clean.
+        decisions_raw=$(python3 "$(dirname "${BASH_SOURCE[0]}")/extract-decisions.py" "$task_file" 2>/dev/null)
+        if [ -n "$decisions_raw" ]; then
             has_decisions=true
         fi
     fi
@@ -322,21 +329,11 @@ HEREDOC
         # T-1871: Single-quoted YAML scalars — only escape is '→''. Avoids
         # the L-392 class where backticks/backslashes inside double-quoted
         # scalars trigger yaml.scanner.ScannerError ("unknown escape character").
-        echo "$decisions_raw" | while read -r line; do
-            if echo "$line" | grep -q '^### '; then
-                local topic=$(echo "$line" | sed 's/^### //' | sed "s/'/''/g")
-                echo "  - decision: '$topic'" >> "$episodic_file"
-            elif echo "$line" | grep -q '^\*\*Chose:\*\*\|^- \*\*Chose:\*\*'; then
-                local chose=$(echo "$line" | sed 's/.*\*\*Chose:\*\* *//' | sed "s/'/''/g")
-                echo "    chose: '$chose'" >> "$episodic_file"
-            elif echo "$line" | grep -q '^\*\*Why:\*\*\|^- \*\*Why:\*\*'; then
-                local why=$(echo "$line" | sed 's/.*\*\*Why:\*\* *//' | sed "s/'/''/g")
-                echo "    rationale: '$why'" >> "$episodic_file"
-            elif echo "$line" | grep -q '^\*\*Rejected:\*\*\|^- \*\*Rejected:\*\*'; then
-                local rej=$(echo "$line" | sed 's/.*\*\*Rejected:\*\* *//' | sed "s/'/''/g")
-                echo "    alternatives_rejected: ['$rej']" >> "$episodic_file"
-            fi
-        done
+        # T-516: already YAML, emitted whole. The old loop rebuilt each entry line-by-line
+        # and cut every value at its first newline (`sed` on one line), so a wrapped
+        # **Chose:** lost its tail — the worse half of the defect, because a truncated
+        # rationale reads as a complete one whereas a phantom entry is visibly junk.
+        echo "$decisions_raw" >> "$episodic_file"
     else
         echo "  # No decisions recorded (mechanical task or old template)" >> "$episodic_file"
     fi

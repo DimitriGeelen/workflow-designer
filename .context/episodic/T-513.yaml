@@ -3,7 +3,7 @@
 # ============================================================================
 # STATUS: AUTO-GENERATED
 # Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
-# Generated: 2026-08-15T09:27:16Z
+# Generated: 2026-08-15T09:48:00Z
 # ============================================================================
 
 task_id: T-513
@@ -17,11 +17,11 @@ completed: 2026-08-15T09:27:11Z
 duration_days: 0
 updates_count: 1
 first_commit: 2026-08-15T11:26:00+02:00
-last_commit: 2026-08-15T11:27:08+02:00
+last_commit: 2026-08-15T11:27:47+02:00
 
 # Summary (auto-generated from git commit messages)
 summary: |
-  AEF asked for the case _t511 explicitly excluded — a BPMN document arriving with no aef:uid — and the answer is YES, identity survives. A uid is minted on first save (0 in, 7 out) and the same set comes back on re-import; stable across two opens of the same bytes. Measured by running buildBpmnXml(parseBpmnXml(x)) in the loaded designer over an AUTHORED bpmn.io-shaped fixture, because every .bpmn in our corpus is designer-produced and carries aef:uid, so none of them can stand in for a document that does not. Three legs passed on the first run and two were worthless, which is the part worth keeping: the anti-overfit rename appended '(renamed)' to 'Review request' and the id slug is built from the LEADING WORD, so both slug to 'review' and the leg reported id_survived_a_rename=true without ever exercising a rename; the boundary leg re-minted only the four node ids and reported three surviving edge uids, an artifact of the three Flow_ ids I left alone rather than a property of the designer. PL-205 and AEF's 11876 both say a control that cannot fail is not a control; the variant here is a control that CAN fail fed a stimulus built so it never would, so the question is not only 'did it fire' but 'does the input contain what it looks for'. Substantive rename now shows hum_2_review -> hum_2_escalate with the uid unchanged, which sharpens what I told AEF at 11879: the element id is not merely re-minted on import, it is a function of lane + x-order + NAME and churns during ordinary authoring. Full re-mint drops the overlap to 0 of 7 — the honest boundary. Also nearly sent AEF a fabricated defect: the naive duplicate-id counter reported Process_t513 twice, but the two carriers are bpmn:participant/@id and aef:workflowMeta/@id, and a foreign element inside extensionElements is admitted by xsd:any processContents=lax, so with no AEF schema present its @id is never typed xsd:ID and the document is valid. Counter now scoped to the BPMN namespace, collision reported as an observation. Wired into the bridge suite: 83 passed 0 failed, T-451 census findings unchanged at 67. Rail post still outstanding, AC deliberately unticked.. answer posted to AEF at rail 11885 and the last AC ticked with the offset as evidence. The post carries four things and not just the answer: identity survives (0 uids in, 7 out, identical set on re-import), the 0-of-7 boundary when a third-party editor re-mints its own ids, the scope it must not be read past, and a CORRECTION — at 11879 I told them the element id is 're-minted on import', and measured it is a function of lane + x-order + NAME, so hum_2_review becomes hum_2_escalate under a plain rename with the uid unchanged. They closed the id question on their side on the strength of the narrower statement, so the sharper one had to reach them in the same breath as the new answer rather than sit in our task file. Also disclosed the fabricated defect I nearly sent: the duplicate-id counter reported Process_t513 twice and BPMN's @id is xsd:ID, but the second carrier is aef:workflowMeta inside extensionElements, admitted by xsd:any processContents=lax and therefore never validated or typed as an ID. Suite failure message corrected from 11884 to 11885 — I had written the offset before the post existed, and a failure message that cites the wrong rail entry sends the next reader to someone else's conversation.
+  AEF asked for the case _t511 explicitly excluded — a BPMN document arriving with no aef:uid — and the answer is YES, identity survives. A uid is minted on first save (0 in, 7 out) and the same set comes back on re-import; stable across two opens of the same bytes. Measured by running buildBpmnXml(parseBpmnXml(x)) in the loaded designer over an AUTHORED bpmn.io-shaped fixture, because every .bpmn in our corpus is designer-produced and carries aef:uid, so none of them can stand in for a document that does not. Three legs passed on the first run and two were worthless, which is the part worth keeping: the anti-overfit rename appended '(renamed)' to 'Review request' and the id slug is built from the LEADING WORD, so both slug to 'review' and the leg reported id_survived_a_rename=true without ever exercising a rename; the boundary leg re-minted only the four node ids and reported three surviving edge uids, an artifact of the three Flow_ ids I left alone rather than a property of the designer. PL-205 and AEF's 11876 both say a control that cannot fail is not a control; the variant here is a control that CAN fail fed a stimulus built so it never would, so the question is not only 'did it fire' but 'does the input contain what it looks for'. Substantive rename now shows hum_2_review -> hum_2_escalate with the uid unchanged, which sharpens what I told AEF at 11879: the element id is not merely re-minted on import, it is a function of lane + x-order + NAME and churns during ordinary authoring. Full re-mint drops the overlap to 0 of 7 — the honest boundary. Also nearly sent AEF a fabricated defect: the naive duplicate-id counter reported Process_t513 twice, but the two carriers are bpmn:participant/@id and aef:workflowMeta/@id, and a foreign element inside extensionElements is admitted by xsd:any processContents=lax, so with no AEF schema present its @id is never typed xsd:ID and the document is valid. Counter now scoped to the BPMN namespace, collision reported as an observation. Wired into the bridge suite: 83 passed 0 failed, T-451 census findings unchanged at 67. Rail post still outstanding, AC deliberately unticked.. answer posted to AEF at rail 11885 and the last AC ticked with the offset as evidence. The post carries four things and not just the answer: identity survives (0 uids in, 7 out, identical set on re-import), the 0-of-7 boundary when a third-party editor re-mints its own ids, the scope it must not be read past, and a CORRECTION — at 11879 I told them the element id is 're-minted on import', and measured it is a function of lane + x-order + NAME, so hum_2_review becomes hum_2_escalate under a plain rename with the uid unchanged. They closed the id question on their side on the strength of the narrower statement, so the sharper one had to reach them in the same breath as the new answer rather than sit in our task file. Also disclosed the fabricated defect I nearly sent: the duplicate-id counter reported Process_t513 twice and BPMN's @id is xsd:ID, but the second carrier is aef:workflowMeta inside extensionElements, admitted by xsd:any processContents=lax and therefore never validated or typed as an ID. Suite failure message corrected from 11884 to 11885 — I had written the offset before the post existed, and a failure message that cites the wrong rail entry sends the next reader to someone else's conversation.. capture PL-206. PL-205 and AEF's 11876 cover the two known control failures — an absence is indistinguishable from a dead comparator, and a control that cannot fail is not a control. T-513 produced a third and it caught me twice in one sitting: a control that CAN fail, fed a stimulus built so it never would. Both legs had live comparators and both passed on inputs that never challenged them, so both numbers were true about the fixture and false about the system. The check is two questions rather than one — did the control fire, and does the stimulus actually contain the thing it looks for. The tell both times was a number that looked too tidy: a survivor count landing exactly on the subset I had skipped, and a stability result on an edit I had made invisible by keeping the leading word.
 
 # Key outcomes
 outcomes:
@@ -36,33 +36,39 @@ outcomes:
 
 # Challenges (auto-detected from git: commits with fix/revert/bug/error)
 challenges:
+  - description: 'capture PL-206. PL-205 and AEF''s 11876 cover the two known control failures — an absence is indistinguishable from a dead comparator, and a control that cannot fail is not a control. T-513 produced a third and it caught me twice in one sitting: a control that CAN fail, fed a stimulus built so it never would. Both legs had live comparators and both passed on inputs that never challenged them, so both numbers were true about the fixture and false about the system. The check is two questions rather than one — did the control fire, and does the stimulus actually contain the thing it looks for. The tell both times was a number that looked too tidy: a survivor count landing exactly on the subset I had skipped, and a stability result on an edit I had made invisible by keeping the leading word.'
+    source: git-mined
   - description: 'AEF asked for the case _t511 explicitly excluded — a BPMN document arriving with no aef:uid — and the answer is YES, identity survives. A uid is minted on first save (0 in, 7 out) and the same set comes back on re-import; stable across two opens of the same bytes. Measured by running buildBpmnXml(parseBpmnXml(x)) in the loaded designer over an AUTHORED bpmn.io-shaped fixture, because every .bpmn in our corpus is designer-produced and carries aef:uid, so none of them can stand in for a document that does not. Three legs passed on the first run and two were worthless, which is the part worth keeping: the anti-overfit rename appended ''(renamed)'' to ''Review request'' and the id slug is built from the LEADING WORD, so both slug to ''review'' and the leg reported id_survived_a_rename=true without ever exercising a rename; the boundary leg re-minted only the four node ids and reported three surviving edge uids, an artifact of the three Flow_ ids I left alone rather than a property of the designer. PL-205 and AEF''s 11876 both say a control that cannot fail is not a control; the variant here is a control that CAN fail fed a stimulus built so it never would, so the question is not only ''did it fire'' but ''does the input contain what it looks for''. Substantive rename now shows hum_2_review -> hum_2_escalate with the uid unchanged, which sharpens what I told AEF at 11879: the element id is not merely re-minted on import, it is a function of lane + x-order + NAME and churns during ordinary authoring. Full re-mint drops the overlap to 0 of 7 — the honest boundary. Also nearly sent AEF a fabricated defect: the naive duplicate-id counter reported Process_t513 twice, but the two carriers are bpmn:participant/@id and aef:workflowMeta/@id, and a foreign element inside extensionElements is admitted by xsd:any processContents=lax, so with no AEF schema present its @id is never typed xsd:ID and the document is valid. Counter now scoped to the BPMN namespace, collision reported as an observation. Wired into the bridge suite: 83 passed 0 failed, T-451 census findings unchanged at 67. Rail post still outstanding, AC deliberately unticked.'
     source: git-mined
 
 # Decisions (from task file Decisions section)
 decisions:
   - decision: '2026-08-15 — reported the duplicate-id finding as an observation, not a defect'
-    chose: 'count duplicate element ids over BPMN-namespace elements only, and report the'
-    rationale: 'BPMN''s `@id` is `xsd:ID`, but `aef:workflowMeta` is a foreign element inside'
-    alternatives_rejected: ['filing it as a bug and telling AEF — which is what the naive counter''s']
-  - decision: '[date] — [topic]'
-    chose: '[what was decided]'
-    rationale: '[rationale]'
+    chose: 'count duplicate element ids over BPMN-namespace elements only, and report the cross-namespace collision (`bpmn:participant/@id` == `aef:workflowMeta/@id`) as a named observation rather than as a defect.'
+    rationale: 'BPMN''s `@id` is `xsd:ID`, but `aef:workflowMeta` is a foreign element inside `bpmn:extensionElements`, which BPMN20.xsd admits via `<xsd:any namespace="##other" processContents="lax"/>`. With no AEF schema available, lax means it is not validated, so that attribute is never typed as `xsd:ID` and carries no uniqueness constraint. The document is valid.'
+    alternatives_rejected: ['filing it as a bug and telling AEF — which is what the naive counter''s output invited. It would have been a fabricated defect report to a peer, from us, in the same week we asked them to trust our measurements.']
 
 # Artifacts (auto-mined from git --name-only)
 artifacts:
   - '.context/audits/cron/2026-08-15-1115.yaml'
   - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/episodic/T-513.yaml'
+  - '.context/locks/T-513.lock'
+  - '.context/project/decisions.yaml'
+  - '.context/project/learnings.yaml'
   - '.context/project/metrics-history.yaml'
   - '.context/working/.agent-dispatch-counter'
   - '.context/working/.budget-gate-counter'
   - '.context/working/.budget-status'
   - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-513.log'
+  - '.context/working/feedback-stream.yaml'
   - '.context/working/.hook-counter'
   - '.context/working/.new-file-counter'
   - '.context/working/watchtower.log'
   - '.tasks/active/T-423-t-357-step-2-emit-bpmn-di-additively-alo.md'
   - '.tasks/active/T-513-does-identity-survive-a-third-party-impo.md'
+  - '.tasks/completed/T-513-does-identity-survive-a-third-party-impo.md'
   - 'tests/run-bridge-tests.sh'
   - 'tools/_t513-thirdparty-identity-roundtrip.mjs'
 
@@ -72,10 +78,12 @@ git_timeline:
     action: "T-513: AEF asked for the case _t511 explicitly excluded — a BPMN document arriving with no aef:uid — and the answer is YES, identity survives. A uid is minted on first save (0 in, 7 out) and the same set comes back on re-import; stable across two opens of the same bytes. Measured by running buildBpmnXml(parseBpmnXml(x)) in the loaded designer over an AUTHORED bpmn.io-shaped fixture, because every .bpmn in our corpus is designer-produced and carries aef:uid, so none of them can stand in for a document that does not. Three legs passed on the first run and two were worthless, which is the part worth keeping: the anti-overfit rename appended '(renamed)' to 'Review request' and the id slug is built from the LEADING WORD, so both slug to 'review' and the leg reported id_survived_a_rename=true without ever exercising a rename; the boundary leg re-minted only the four node ids and reported three surviving edge uids, an artifact of the three Flow_ ids I left alone rather than a property of the designer. PL-205 and AEF's 11876 both say a control that cannot fail is not a control; the variant here is a control that CAN fail fed a stimulus built so it never would, so the question is not only 'did it fire' but 'does the input contain what it looks for'. Substantive rename now shows hum_2_review -> hum_2_escalate with the uid unchanged, which sharpens what I told AEF at 11879: the element id is not merely re-minted on import, it is a function of lane + x-order + NAME and churns during ordinary authoring. Full re-mint drops the overlap to 0 of 7 — the honest boundary. Also nearly sent AEF a fabricated defect: the naive duplicate-id counter reported Process_t513 twice, but the two carriers are bpmn:participant/@id and aef:workflowMeta/@id, and a foreign element inside extensionElements is admitted by xsd:any processContents=lax, so with no AEF schema present its @id is never typed xsd:ID and the document is valid. Counter now scoped to the BPMN namespace, collision reported as an observation. Wired into the bridge suite: 83 passed 0 failed, T-451 census findings unchanged at 67. Rail post still outstanding, AC deliberately unticked."
   - time: "2026-08-15T11:27:08"
     action: "T-513: answer posted to AEF at rail 11885 and the last AC ticked with the offset as evidence. The post carries four things and not just the answer: identity survives (0 uids in, 7 out, identical set on re-import), the 0-of-7 boundary when a third-party editor re-mints its own ids, the scope it must not be read past, and a CORRECTION — at 11879 I told them the element id is 're-minted on import', and measured it is a function of lane + x-order + NAME, so hum_2_review becomes hum_2_escalate under a plain rename with the uid unchanged. They closed the id question on their side on the strength of the narrower statement, so the sharper one had to reach them in the same breath as the new answer rather than sit in our task file. Also disclosed the fabricated defect I nearly sent: the duplicate-id counter reported Process_t513 twice and BPMN's @id is xsd:ID, but the second carrier is aef:workflowMeta inside extensionElements, admitted by xsd:any processContents=lax and therefore never validated or typed as an ID. Suite failure message corrected from 11884 to 11885 — I had written the offset before the post existed, and a failure message that cites the wrong rail entry sends the next reader to someone else's conversation."
+  - time: "2026-08-15T11:27:47"
+    action: "T-513: capture PL-206. PL-205 and AEF's 11876 cover the two known control failures — an absence is indistinguishable from a dead comparator, and a control that cannot fail is not a control. T-513 produced a third and it caught me twice in one sitting: a control that CAN fail, fed a stimulus built so it never would. Both legs had live comparators and both passed on inputs that never challenged them, so both numbers were true about the fixture and false about the system. The check is two questions rather than one — did the control fire, and does the stimulus actually contain the thing it looks for. The tell both times was a number that looked too tidy: a survivor count landing exactly on the subset I had skipped, and a stability result on an edit I had made invisible by keeping the leading word."
 
 # What worked well (requires judgment — [TODO] if enrichment_status is pending)
 successes:
-  # Completed successfully in 2 commit(s), 12 min
+  # Completed successfully in 3 commit(s), 12 min
 
 # Related tasks
 related_tasks:
@@ -89,10 +97,10 @@ tags: []
 # Passive metrics (derived automatically — do not edit)
 metrics:
   wall_clock_minutes: 12
-  commits: 2
-  files_changed: 14
-  lines_added: 752
-  lines_removed: 44
+  commits: 3
+  files_changed: 21
+  lines_added: 937
+  lines_removed: 58
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-513-does-identity-survive-a-third-party-impo.md

@@ -965,5 +965,22 @@ else
 fi
 
 echo
+echo "== Episodic decisions extractor: no phantoms, no truncation, no silent cap (T-516) =="
+# Guards a fix to VENDORED framework code (G-008 permits in-tree fix + upstream). The old
+# extractor parsed the Decisions section line-by-line, so the task template's own multi-line
+# HTML comment was emitted as a real decision on every task close — 363 of 448 episodics
+# here, 81% — and any value wrapping onto a continuation line was cut at the first newline.
+#
+# Wired rather than left to the *teeth* naming convention: T-509 measured that convention
+# and found it false for 19 of 24 scripts, which had no standing caller at all. This guards
+# episodic memory, one of the framework's three memory types, so it gets a real caller.
+if python3 "$ROOT/tools/_t516-episodic-decisions-teeth.py" > /dev/null 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the episodic decisions extractor regressed — phantom template entries, truncated values, or a silent cap are back, and every task closed since would carry corrupted decisions (run 'python3 tools/_t516-episodic-decisions-teeth.py' for the failing leg)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
