@@ -1471,3 +1471,10 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-206
+  learning: "A control that CAN fail is still worthless if its STIMULUS was built so it never would. PL-205 and AEF rail 11876 cover the two known shapes — a probe reporting an absence is indistinguishable from a dead comparator, and a control that cannot fail is not a control. T-513 produced a third: both of its legs had live, failable comparators, and both passed on inputs constructed so the comparator was never actually challenged. The anti-overfit leg renamed 'Review request' to 'Review request (renamed)' and reported id_survived_a_rename=true; the emitted id slug is built from the LEADING WORD, so both names slug to 'review' and no rename was ever exercised. The boundary leg re-minted only the four node ids and reported three surviving edge uids, which was an artifact of the three Flow_ ids left untouched rather than a property of the designer. Both numbers were true statements about the fixture and false ones about the system. So the check is two questions, not one: did the control fire, AND does the stimulus actually contain the thing the control looks for. The tell in both cases was that the number looked too tidy — a survivor count that lands exactly on a subset you happen to have skipped, or a stability result on an edit you happen to have made invisible."
+  source: P-001
+  task: T-513
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD

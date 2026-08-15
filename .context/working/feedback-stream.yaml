@@ -6389,3 +6389,21 @@ scan_id: R-bb11f554
 task_id: T-340
 payload:
   task_file: .tasks/active/T-340-standard-bpmn-di-is-silently-discarded-o.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T09:27:14Z'
+scan_id: R-0306e3ea
+task_id: T-513
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T09:27:14Z'
+scan_id: R-0306e3ea
+task_id: T-513
+payload:
+  task_file: .tasks/active/T-513-does-identity-survive-a-third-party-impo.md

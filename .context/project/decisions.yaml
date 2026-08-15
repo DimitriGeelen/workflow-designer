@@ -1592,3 +1592,10 @@ decisions:
     date: 2026-08-15
     task: T-510
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-207
+    decision: "count duplicate element ids over BPMN-namespace elements only, and report the"
+    scope: project
+    date: 2026-08-15
+    task: T-513
+    rationale: "Auto-captured from task file on completion"
