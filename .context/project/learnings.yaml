@@ -1527,3 +1527,10 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-214
+  learning: "Fix at the shared mechanism, not at the site where you happened to find the defect — a narrow fix leaves the identical bug under a different name PLUS a passing test asserting it is gone, which is strictly worse than not fixing it. T-520 found that a newline in an aef:uid was written raw into an XML attribute and destroyed by attribute-value normalisation. The obvious fix was 'escape whitespace when writing aef:uid'. The actual defect was in escAttr, the escaper shared by EVERY attribute the writer emits, so a node NAME containing a newline was corrupted by the same path with nobody looking. The uid was where the seam contract lives and therefore where the instrument pointed, not where the bug lived. AEF independently made the same argument about the alternative remedy — putting a MUST NOT on the assigner would have been 'the same silent failure mode, relocated' — and that phrase generalises to narrow fixes exactly as well as to misplaced constraints. The test to apply before shipping any fix: name the mechanism the defect actually flows through, then ask whether the fix sits at that mechanism or at one of its callers. If it sits at a caller, every other caller still has the bug and your regression test now covers only the one you looked at. Corollary for instrument design: a probe scoped to one contract will keep finding class defects through that contract, so the scope of the FINDING is never evidence for the scope of the FIX."
+  source: P-001
+  task: T-521
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
