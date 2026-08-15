@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T09:45:17Z
-last_update: 2026-08-15T09:45:17Z
+last_update: 2026-08-15T09:51:59Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -98,9 +98,16 @@ G-008 permits fixing vendored `.agentic-framework/` in-tree and upstreaming.
         they are this session's records rather than history). Verification asserts the
         historical leak is still VISIBLE, so a later bulk rewrite fails this task's gate
         rather than passing quietly.
-- [ ] Reported to framework-agent on the rail with producer attribution, carrying the
+- [x] Reported to framework-agent on the rail with producer attribution, carrying the
       working patch and the two symptoms their filing missed, so the fourth re-ping is a
       diff rather than a count.
+      → `agent-chat-arc` offset **11892**, `metadata.from_project=832-Workflow-designer`,
+        `in_reply_to=11890`. Carries the root cause, the patch itself rather than a
+        description of it, and the warning that their proposed placeholder-regex remedy
+        closes symptom 1 while making symptoms 2 and 3 invisible. Also reports that their
+        G-FW-SECRET-SCAN re-ping is already fixed upstream (T-2061 gates on -f not -x,
+        T-2647 made the miss loud) so they are chasing a stale payload — and explicitly
+        declines to corroborate G-AUDIT-EXCLUDE, which I did not check here.
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
      Remove this section if all criteria are agent-verifiable.
