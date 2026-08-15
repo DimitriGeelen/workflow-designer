@@ -924,5 +924,25 @@ else
 fi
 
 echo
+echo "== Identity survives a third-party import with no aef:uid (T-513, AEF rail 11882) =="
+# Same reasoning as the T-511 leg above, one step further out. AEF asked at 11882 for the
+# case _t511 explicitly did NOT cover — a document arriving with no aef:uid at all — because
+# that is where identity being DERIVED from the element id stops being stable. The answer we
+# send them is "yes, a uid is minted on first save and survives re-import", and that answer
+# is only worth what re-checks it.
+#
+# Guards two properties a change could break independently: that a uid is minted at all for a
+# third-party document, and that re-opening the saved file yields the SAME uid. The second is
+# the one that matters — minting a fresh uid per save would look fine in any single export.
+#
+# COST: ~40s, Chromium plus the gallery sidecar, same shape as _t511 and _t338 above.
+if timeout 300 node "$ROOT/tools/_t513-thirdparty-identity-roundtrip.mjs" > /dev/null 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a third-party BPMN document (no aef:uid) no longer keeps a stable identity across a save round-trip, or the probe's negative control stopped firing — the answer given to AEF at rail 11884 is no longer true and they must be told (run 'node tools/_t513-thirdparty-identity-roundtrip.mjs' for the verdict; rc 2 is a refusal — the fixture stopped being third-party — not an identity failure)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
