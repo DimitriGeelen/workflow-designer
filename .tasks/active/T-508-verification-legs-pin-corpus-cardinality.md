@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T05:16:25Z
-last_update: 2026-08-15T05:16:25Z
+last_update: 2026-08-15T05:34:37Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -53,6 +53,17 @@ count. They split cleanly and only one half is defective:
 
 The literal `24` is replicated across seven task files (T-041, T-191, T-469, T-478,
 T-479, T-506 and, as `47`, T-471). One corpus addition turns all of them false at once.
+
+> **CORRECTION 2026-08-15 — the number above is 24 and the delivered figure is 17.** The
+> task name still says 24 and is left alone; renaming a task to match its own result is how
+> a record stops being a record. The first count was taken before the classifier existed,
+> so it folded in two shapes that are **not** defective and were split out once the
+> discriminator was written: legs pinned to `= 0` (emptiness — "none of these exist" does
+> not go stale as a corpus grows) and one leg whose population is built under `mktemp` in
+> the same breath (hermetic — it cannot drift). 24 → 17 is the classifier doing its job, not
+> a shrinking problem. It also makes the point the task is about: **24 was a number I
+> produced by grepping and believed**, and it was wrong in the direction that made my
+> finding look bigger.
 
 **Why this is not already visible.** 23 of the 24 sit in `.tasks/completed/`, which never
 re-runs here — so the staleness is unobservable by construction. The class has still been
