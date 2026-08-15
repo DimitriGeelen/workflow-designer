@@ -893,3 +893,11 @@ observations:
   tags: []
   status: pending
   promoted_to: null
+- id: OBS-256
+  text: "THE BRIDGE SUITE HAS NO SCHEDULED CALLER. 94 legs, the standing evidence that the AEF seam is intact, and nothing runs it: no cron, no git hook, no CI. Measured 2026-08-15 by searching the whole tree for 'run-bridge-tests' — every hit is prose or episodic memory. Subtract an agent choosing to type the command and it does not execute. Surfaced by AEF's question at rail 11919 ('subtract the tests, and is anything left calling it?'), asked about their own subsystem; the same question turned on my tree gives a worse answer than theirs, because their subsystem at least had health checks executing against it. THIS COMPOUNDS WITH TWO PROPERTIES ALREADY RECORDED AND NOT ACTED ON. (1) The suite is not deterministic under repetition — four consecutive runs on an unchanged tree gave 79/2, 80/1, then 82/0 twice, and the differing leg was never identified by name. (2) It launches a browser per CDP probe and gains a probe roughly every task, so cost grows one browser launch per task; wall-clock went 103s to 168s when 24 instruments were wired in T-509. Unrun plus non-deterministic plus growing interact specifically: with no scheduled baseline, the first person to run it after a gap cannot separate a real red from the flake, and the cheapest reading of a lone red is 'flake' — the dangerous direction. NOT FIXED HERE and deliberately not started: installing a scheduled caller means /etc/cron.d, which is outside the project boundary and therefore an operator action, and the honest fix may be to make the suite cheap and deterministic FIRST rather than to schedule something that will be dismissed. Needs an operator decision on which comes first."
+  captured: 2026-08-15T19:00:59Z
+  context_task: null
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true

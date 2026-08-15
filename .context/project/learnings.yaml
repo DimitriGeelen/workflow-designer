@@ -1583,3 +1583,10 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-222
+  learning: "CONTINUOUS DECAY IS USUALLY NOT DECAY — IT IS A CONSTANT FAULT WHOSE CONSEQUENCE SCALES, AND THAT DISTINCTION DECIDES WHICH INSTRUMENT CAN SEE IT. AEF reported fw doctor at 222s and framed it as gradual degradation with no event to bisect to. But their own measurement disproves the framing: 1.94 ms per fork, perfectly linear, one stat per tracked file. The per-unit cost never moved. The code forked per file on the day it was written and forks per file today; only N grew. So there was no decay event because there was no decay. Consequences: a budget on TOTAL cost fires only once the thing is already unusable AND fires on legitimate growth too, so the realistic response is to raise the threshold rather than investigate, which trains dismissal; a budget on PER-UNIT cost never fires at all, and it is the one that feels rigorous; what catches it is an assertion about the SHAPE of the cost function ('must not spawn a process per tracked file'), which is true or false independently of N, was false on day one, and needs no timing, no load isolation and no threshold to argue about. The general rule: values are supposed to move, which is exactly why value-based instruments are blind to this class; shapes are not supposed to move, so when a quantity legitimately grows stop asserting the quantity and assert the invariant that holds at any size. Honest limit: shape assertions require someone to NAME the forbidden shapes, which is a design judgment rather than a measurement, so this is not free. Same shape found in our own tree by applying it: the bridge suite launches a browser PER CDP probe and gains a probe roughly every task — structurally identical, present since the first CDP probe, and the reason wall-clock went 103s to 168s in T-509."
+  source: P-001
+  task: T-525
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
