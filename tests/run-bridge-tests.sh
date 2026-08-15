@@ -783,6 +783,35 @@ else
 fi
 
 echo
+echo "== Instrument sweep: every runnable teeth script, every run (T-509) =="
+# T-508 wired ONE teeth script and observed it was the only one. Measured under T-509:
+# 24 exist, 22 had no standing caller, and 19 PASS TODAY — so the naming convention that
+# excuses every *teeth* file from the unwired-guard census as "one-shot by design" is false
+# for 19 of 24. PL-192 (T-495) already said an instrument excused by its own watchdog's
+# naming convention must be scheduled deliberately; this applies it to the population
+# instead of to the one probe that prompted it.
+#
+# COST, measured end-to-end rather than estimated: the suite went 103s -> 168s, +65s /
+# +63%. The sweep alone times at 44s; the extra ~20s is contention, which is why the number
+# quoted here is the SUITE delta and not the tool's own stopwatch — the first version of
+# this comment said "+44s (+43%)" from the standalone timing and was wrong about the thing
+# a reader actually cares about. Material, and a real trade-off: it buys standing coverage
+# of 19 instruments that were running nowhere. To reverse it, delete this leg — one line, no
+# other coupling. T509_TIMEOUT tunes the per-script ceiling.
+#
+# The first sweep already paid for itself: _t364-t308-teeth.py's control is red because ITS
+# OWN stored reference shas went stale (the gate it tests passes rc=0 today). It is excluded
+# BY NAME WITH A REASON rather than silently skipped, because the repair is a re-pin and a
+# re-pin is a decision. Same for _t350/_t351, which drive live servers and one of which has
+# a documented repo-deletion incident in its own header.
+if bash "$ROOT/tools/_t509-instrument-sweep.sh" > /dev/null 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "an instrument that passed on 2026-08-15 no longer does, or an exclusion went stale (run 'bash tools/_t509-instrument-sweep.sh' — it names the script and its rc; these are hermetic and leave the repo untouched, so a red here is a real regression in whatever that teeth script guards, not harness noise)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Census edge DEFINITION controls (T-495) =="
 # The ratchet above guards the COUNT. This guards the DEFINITION the count is derived
 # from, and those are not the same assertion: `strip_prose()` deciding that a call is
