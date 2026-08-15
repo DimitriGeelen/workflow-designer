@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T15:41:06Z
-last_update: 2026-08-15T22:43:22Z
+last_update: 2026-08-15T23:16:14Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -185,6 +185,53 @@ familiar "Warn: 3" is a `--section structure` figure; the full audit reports 34.
 
 This is context for the decision, not a change to it. The three options stand as written.
 
+### DISSOLVED 2026-08-16 (measured under T-534) — the addendum above is wrong, and it was the ground for rejecting (b)
+
+**D2 is not an `oe-daily` check.** It sits inside `if should_run_section "discovery"`
+(`audit.sh:3915`), and the report prints it under `=== DISCOVERY: OMISSION DETECTION ===`
+— in the header, plainly, in every full run this task ever read.
+
+Both halves of the claim fail:
+
+| claimed | measured 2026-08-16 |
+|---|---|
+| "`--section oe-daily` never emits D2" | **true** — because D2 was never an oe-daily check |
+| "the same section inside a full run emits D2" | **false** — OE-DAILY is `F=0` inside the full run too |
+| "reports different pass counts" | 66 vs 65 — the 66 was a **whole-run total spanning two sections** |
+
+Per-section, `--section oe-daily` alone vs the same sections inside the full run:
+
+    === OE-DAILY: DAILY CONTROL CHECKS ===   (65, 27, 0)   (65, 27, 0)   identical
+    === ARC-COMPLETION CHECKS ===            ( 1,  0, 0)   ( 1,  0, 0)   identical
+
+**A section run alone is byte-identical to that section inside a full run.** The instrument
+is stable; what moved was the *labelling* of its output. And the "different pass counts"
+finding was itself a total read without its split — this task's own subject matter,
+committed inside its own addendum.
+
+**Consequence for the ruling, stated but not taken:** option (b) was rejected here "on
+measured grounds, not preference". Those grounds are void — a section list containing
+`discovery` reaches the D2 FAIL perfectly well. Whether (b) is now preferable to (c) is
+yours; I am removing a false objection, not substituting a verdict.
+
+**Also corrected: the breakdown table above.** It has no `discovery` row at all, and
+attributes all 60 FAILs to `oe-daily`. 59 were genuinely `oe-daily` (CTL-030,
+`audit.sh:3665`, guarded by `compliance || oe-daily`). The 60th — D2, the only one still
+failing — was in `discovery` the whole time.
+
+**The general shape, which is the part worth carrying:** *the residue that outlives a
+cleanup is disproportionately the mis-classified item.* A remedy aimed at a class cannot
+reach the item that was never in the class, so the 59 correctly-filed FAILs were fixed and
+the one mis-filed FAIL survived. "What is left after the big fix" is a far better place to
+hunt classification errors than the original population was.
+
+**Second witness for OBS-257** (inbox has no cross-referencing), deliberately *not* filed as
+a new observation, since inflating the register is the thing OBS-257 is about: OBS-027 is
+`status: dismissed` — which reads as *handled* — yet its inference had already been copied
+into this Recommendation, where it did load-bearing work for four days with no link back to
+the register that would have flagged it when refuted. Folding an observation into a task
+copies its **conclusion** and drops the thread.
+
 ## Recommendation
 
 **Recommendation:** GO on **(c) widen the push gate fully** — sequenced, and with one
@@ -239,7 +286,7 @@ verdict for it here would repeat this task's original defect one register over.
 
 </details>
 
-**Reject (b) — widening to a section list — on measured grounds, not preference.** A
+~~**Reject (b) — widening to a section list — on measured grounds, not preference.** A
 section's audit result **depends on whether it is run alone or inside a full run**:
 `fw audit --section oe-daily` reports 61 pass / 25 warn / **0 fail** and never emits the
 D2 check at all, while the same section inside a full run emits D2 and reports different
@@ -247,7 +294,19 @@ pass counts. So a gate built from a section list can be green while the full aud
 — the gate and the number the project steers by would be **different instruments**. This
 nearly produced a false claim inside this task's own work: the before-number came from a
 full run, and taking the after-number from a section-alone run would have reported
-60 → 0 instead of 60 → 1.
+60 → 0 instead of 60 → 1.~~
+
+> **WITHDRAWN 2026-08-16 — the "measured grounds" were a mis-attribution.** D2 is a
+> `discovery` check, not an `oe-daily` one (`audit.sh:3915`), so `--section oe-daily` omits
+> it for the ordinary reason that it is not that section's check. Measured today, a section
+> run alone is **byte-identical** to that section inside a full run — OE-DAILY `(65,27,0)`
+> both ways. See `## Addendum → DISSOLVED`. **Option (b) is viable**: a section list
+> containing `discovery` reaches the D2 FAIL. I am withdrawing a false objection, not
+> ranking (b) against (c) — that ranking is the ruling itself.
+>
+> The paragraph is struck through rather than deleted: it was quoted to you as *measured*,
+> and a recommendation that silently loses its rejected option leaves no trace that the
+> rejection was ever made on bad evidence.
 
 **The sub-decision I am leaving to you, because it is about you.** The 60th FAIL is D2 —
 *"Human review queue: 2 task(s) waiting >30d: T-093, T-178"* (38d and 32d as of
@@ -348,6 +407,12 @@ make visible rather than to change unilaterally.
 # — a residue class returns wearing a different label if you guard one value only.
 test "$(grep -lE '^horizon: (now|next|later)$' .tasks/completed/*.md 2>/dev/null | wc -l)" -eq 0
 git cat-file -e 5bf8fb26^{commit}
+# The claim that rehabilitates option (b): D2 IS reachable from a section list. ~8s, against
+# 81s for a full run. The `;` is deliberate and is NOT the L-387 mistake — this audit exits 2
+# BY DESIGN while the review queue has a >30d entry, so the grep must be the verdict and the
+# audit's own exit code must not be. Stated because the errexit warning above says to prefer
+# `&&`, and `&&` here would make this line red for the very condition it is checking.
+.agentic-framework/bin/fw audit --section discovery --output /tmp/.t432-d2.yaml > /tmp/.t432-d2.txt 2>&1; grep -q "D2: Human review queue" /tmp/.t432-d2.txt
 
 ## RCA
 

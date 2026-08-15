@@ -1681,3 +1681,24 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-236
+  learning: "The residue that outlives a cleanup is disproportionately the MIS-CLASSIFIED item, because a remedy aimed at a class cannot reach the item that was never in the class. T-432 measured 60 FAILs and attributed all of them to oe-daily; 59 were genuinely oe-daily and a correctly-targeted backfill fixed them, and the single survivor turned out to have been in 'discovery' the whole time — visible in the report's own section header. So 'what is left after the big fix' is a far better place to hunt classification errors than the original population was: the population's majority hides the misfit, and the cleanup subtracts exactly the correctly-filed members."
+  source: P-001
+  task: T-534
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
+- id: PL-237
+  learning: "A defect whose visibility requires TWO conditions to co-occur is unfalsifiable under single-condition testing, and the natural minimal fixture is the single-condition one. audit.sh appended to one shared details list from two threshold branches and printed one branch's COUNT against it; with only the fail tier populated the shared list IS the fail list and the line is internally consistent, so any test, any reading, any operator glance at a single-tier queue confirms correctness. The remedy is not a better assertion but a stimulus that guarantees co-occurrence — the T-534 teeth drive all three tiers on every run rather than accepting whatever shape the live queue happens to have. Ask of any new probe: what has to be true SIMULTANEOUSLY for this defect to show, and does my fixture force it?"
+  source: P-001
+  task: T-534
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
+- id: PL-238
+  learning: "Folding an observation into a task copies its CONCLUSION and drops the thread. OBS-027 is status=dismissed, which reads as handled, yet its inference had already been transcribed into T-432's Recommendation where it did load-bearing work for four days — it was the stated 'measured grounds' for rejecting one of three options in front of the operator. When the inference was refuted, nothing linked the refutation back, because the register entry that would have been re-read was already closed. Dismissing an observation should require naming where its content now lives, or the closure is a claim that nothing depends on it."
+  source: P-001
+  task: T-534
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
