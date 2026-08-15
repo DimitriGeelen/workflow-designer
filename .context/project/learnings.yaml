@@ -1534,3 +1534,17 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-215
+  learning: "Absence-detection placed INSIDE the block it guards cannot observe the block being skipped — it can only certify a line that never ran. T-522: update-task.sh already had two controls for 'the episodic did not get generated' (T-1169 warns when the generator yields no file, T-1860 logs every invocation) and both sat inside the generation block, so when a set -e abort 110 lines earlier killed the script the loss was completely silent and cost two episodics. The remedy is not a better check but a DIFFERENT PLACEMENT: a watchdog on the EXIT trap, outside the guarded region, armed when the transition begins and disarmed when the stage is reached, so an abort anywhere between the two is reported. Corollary that keeps such a watchdog alive: it must stay silent on designed skips (partial-complete defers episodic generation on purpose) — a watchdog that alarms on a legitimate skip gets muted, and muted is worse than absent because it still looks installed"
+  source: P-001
+  task: T-522
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
+- id: PL-216
+  learning: "Under 'set -euo pipefail' a failing command substitution in an ASSIGNMENT terminates the whole script, not the loop it sits in — and 'x=$(grep PATTERN file | ...)' is the everyday carrier, because grep's no-match exit 1 is a normal result rather than an error and pipefail hands it to the assignment. T-522: one fabric card missing a 'location:' key killed update-task.sh mid-loop, AFTER the task had been moved to completed/ and rewritten, so completion looked successful while three later stages never ran. Two properties make this class nastier than it reads: the abort lands after side effects, so the visible state says success; and the trigger is DATA, not code, so the script that worked for months breaks the moment someone hand-writes a file. The idiom is '{ grep ... || true; } | ...' and it belongs on every such assignment at once — T-1374 fixed two greps in this exact block for this exact reason and left the two beside them, which is how the same bug arrived a third time"
+  source: P-001
+  task: T-522
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD

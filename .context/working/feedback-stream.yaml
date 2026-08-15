@@ -6551,3 +6551,21 @@ scan_id: R-d0ee2857
 task_id: T-521
 payload:
   task_file: .tasks/active/T-521-escattr-must-emit-character-references-f.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T14:23:12Z'
+scan_id: R-77f8d48a
+task_id: T-522
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T14:23:12Z'
+scan_id: R-77f8d48a
+task_id: T-522
+payload:
+  task_file: .tasks/active/T-522-episodic-auto-generation-silently-skippe.md

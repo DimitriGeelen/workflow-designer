@@ -1,0 +1,106 @@
+# ============================================================================
+# EPISODIC MEMORY - T-522: episodic auto-generation silently skipped for T-520 and T-521 — no episodic and no diagnostic log despite the T-1860 log-every-invocation guarantee
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T14:23:15Z
+# ============================================================================
+
+task_id: T-522
+task_name: "episodic auto-generation silently skipped for T-520 and T-521 — no episodic and no diagnostic log despite the T-1860 log-every-invocation guarantee"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-15T14:08:28Z
+completed: 2026-08-15T14:23:07Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-15T16:21:31+02:00
+last_commit: 2026-08-15T16:21:31+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  two episodics were lost and nothing said so — the component loop kills update-task.sh before episodic generation whenever a fabric card lacks 'location:'. Under 'set -euo pipefail' the assignment c_loc=$(grep "^location:" "$card" | ...) inherits grep's exit 1 through pipefail, and a failing assignment terminates the script — mid-loop, after the task file has already been moved to completed/, so completion LOOKS successful while decision capture, outcome back-prop and the episodic block 110 lines below never run. DEMONSTRATED THREE WAYS, not inferred: the assignment aborts standalone; the verbatim loop from update-task.sh:1953 exits 1 against the REAL .fabric dir, meaning every completion in this project was dying, not just the two observed; and the timeline discriminates — the two location-less cards are the two I hand-wrote during T-520, they landed at 12:13:39Z, T-520 completed 20 seconds later and T-521 next, both lost, while T-519 at 11:53:42Z was fine. Two cards without location, two tasks without episodics. THE DETECTION STORY IS THE REAL FINDING. T-1169 warns when the generator yields nothing and T-1860 logs every invocation; both live INSIDE the block that never executed, so neither can observe a skip — a control downstream of the branch that fails certifies a line that never ran. And this is the THIRD instance of one bug in one block: T-1374/G-054 guarded two greps forty lines below for exactly this reason and did not carry it to these two. That is T-521's learning arrived at from the opposite direction — fix the mechanism, not the site where it was noticed. So the remedy is not just two '|| true's: an EXIT-trap watchdog now sits OUTSIDE the guarded block, writes a NOT REACHED record honouring the T-1860 promise on the one path where the logging code itself cannot run, and stays silent on the designed partial-complete skip because a watchdog that cries on a legitimate skip gets muted. Teeth prove it by MUTATION: copy the framework, put the unguarded grep back, and require that run to lose the episodic AND name the loss; leg 5 guards the guard, since bash silently replaces an EXIT trap when a second is installed. T-520 and T-521 episodics backfilled, both non-empty and parsing. Vendored fix declared upstream: fix — a re-vendor would otherwise restore the bug. Suite 89 -> 90 passed 0 failed, T-451 ratchet unmoved at 67
+
+# Key outcomes
+outcomes:
+  - 'The completion path actually taken by T-520/T-521 is identified by file:line in'
+  - 'The identification is demonstrated, not asserted: the branch is exercised and observed'
+  - 'Episodics for T-520 and T-521 exist, are non-empty, parse as YAML, and carry the real'
+  - 'Every completion path that can move a task to `completed/` either writes the'
+  - 'A teeth script proves the fix rather than the fix proving itself: it goes RED for the'
+  - 'The vendored fix is registered in `.agentic-framework/.vendor-divergence.yaml` with'
+  - 'Bridge suite green and the T-451 unwired-guard ratchet unmoved at 67'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'two episodics were lost and nothing said so — the component loop kills update-task.sh before episodic generation whenever a fabric card lacks ''location:''. Under ''set -euo pipefail'' the assignment c_loc=$(grep "^location:" "$card" | ...) inherits grep''s exit 1 through pipefail, and a failing assignment terminates the script — mid-loop, after the task file has already been moved to completed/, so completion LOOKS successful while decision capture, outcome back-prop and the episodic block 110 lines below never run. DEMONSTRATED THREE WAYS, not inferred: the assignment aborts standalone; the verbatim loop from update-task.sh:1953 exits 1 against the REAL .fabric dir, meaning every completion in this project was dying, not just the two observed; and the timeline discriminates — the two location-less cards are the two I hand-wrote during T-520, they landed at 12:13:39Z, T-520 completed 20 seconds later and T-521 next, both lost, while T-519 at 11:53:42Z was fine. Two cards without location, two tasks without episodics. THE DETECTION STORY IS THE REAL FINDING. T-1169 warns when the generator yields nothing and T-1860 logs every invocation; both live INSIDE the block that never executed, so neither can observe a skip — a control downstream of the branch that fails certifies a line that never ran. And this is the THIRD instance of one bug in one block: T-1374/G-054 guarded two greps forty lines below for exactly this reason and did not carry it to these two. That is T-521''s learning arrived at from the opposite direction — fix the mechanism, not the site where it was noticed. So the remedy is not just two ''|| true''s: an EXIT-trap watchdog now sits OUTSIDE the guarded block, writes a NOT REACHED record honouring the T-1860 promise on the one path where the logging code itself cannot run, and stays silent on the designed partial-complete skip because a watchdog that cries on a legitimate skip gets muted. Teeth prove it by MUTATION: copy the framework, put the unguarded grep back, and require that run to lose the episodic AND name the loss; leg 5 guards the guard, since bash silently replaces an EXIT trap when a second is installed. T-520 and T-521 episodics backfilled, both non-empty and parsing. Vendored fix declared upstream: fix — a re-vendor would otherwise restore the bug. Suite 89 -> 90 passed 0 failed, T-451 ratchet unmoved at 67'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/task-create/update-task.sh'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/audits/2026-08-15.yaml'
+  - '.context/audits/cron/2026-08-15-1545.yaml'
+  - '.context/audits/cron/2026-08-15-1600.yaml'
+  - '.context/audits/cron/2026-08-15-1615.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/episodic/T-520.yaml'
+  - '.context/episodic/T-521.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.fabric/components/tools-_t520-uid-xml-safety.yaml'
+  - '.fabric/components/tools-_t520-xml-read.yaml'
+  - '.fabric/components/tools-_t522-episodic-reachability-teeth.yaml'
+  - '.tasks/active/T-423-t-357-step-2-emit-bpmn-di-additively-alo.md'
+  - '.tasks/active/T-522-episodic-auto-generation-silently-skippe.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t522-episodic-reachability-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-15T16:21:31"
+    action: "T-522: two episodics were lost and nothing said so — the component loop kills update-task.sh before episodic generation whenever a fabric card lacks 'location:'. Under 'set -euo pipefail' the assignment c_loc=$(grep \"^location:\" \"$card\" | ...) inherits grep's exit 1 through pipefail, and a failing assignment terminates the script — mid-loop, after the task file has already been moved to completed/, so completion LOOKS successful while decision capture, outcome back-prop and the episodic block 110 lines below never run. DEMONSTRATED THREE WAYS, not inferred: the assignment aborts standalone; the verbatim loop from update-task.sh:1953 exits 1 against the REAL .fabric dir, meaning every completion in this project was dying, not just the two observed; and the timeline discriminates — the two location-less cards are the two I hand-wrote during T-520, they landed at 12:13:39Z, T-520 completed 20 seconds later and T-521 next, both lost, while T-519 at 11:53:42Z was fine. Two cards without location, two tasks without episodics. THE DETECTION STORY IS THE REAL FINDING. T-1169 warns when the generator yields nothing and T-1860 logs every invocation; both live INSIDE the block that never executed, so neither can observe a skip — a control downstream of the branch that fails certifies a line that never ran. And this is the THIRD instance of one bug in one block: T-1374/G-054 guarded two greps forty lines below for exactly this reason and did not carry it to these two. That is T-521's learning arrived at from the opposite direction — fix the mechanism, not the site where it was noticed. So the remedy is not just two '|| true's: an EXIT-trap watchdog now sits OUTSIDE the guarded block, writes a NOT REACHED record honouring the T-1860 promise on the one path where the logging code itself cannot run, and stays silent on the designed partial-complete skip because a watchdog that cries on a legitimate skip gets muted. Teeth prove it by MUTATION: copy the framework, put the unguarded grep back, and require that run to lose the episodic AND name the loss; leg 5 guards the guard, since bash silently replaces an EXIT trap when a second is installed. T-520 and T-521 episodics backfilled, both non-empty and parsing. Vendored fix declared upstream: fix — a re-vendor would otherwise restore the bug. Suite 89 -> 90 passed 0 failed, T-451 ratchet unmoved at 67"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 14 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 14
+  commits: 1
+  files_changed: 30
+  lines_added: 1290
+  lines_removed: 76
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-522-episodic-auto-generation-silently-skippe.md
+generated_by: context-agent-hybrid
