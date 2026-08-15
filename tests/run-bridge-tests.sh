@@ -1250,5 +1250,22 @@ else
 fi
 
 echo
+echo "== The D2 review-queue line names only tasks meeting the bar it states (T-534) =="
+# The FAIL message printed a >30d COUNT against a list holding the >14d tier too, so it read
+# "2 task(s) waiting >30d: ... T-325(14d)" — a bar stated in the string that the instrument
+# does not hold (PL-159). Invisible unless BOTH tiers are populated, which is why it survived
+# and why this probe drives all three. It runs the real audit.sh through the TASKS_DIR seam
+# against a synthetic queue, so it asserts the subject rather than a re-implementation.
+# --section discovery, not oe-daily: D2 lives inside the discovery guard (audit.sh:3915), and
+# the section run costs ~8s where a full run costs 81s to reach the same line.
+if python3 "$ROOT/tools/_t534-d2-queue-tier-teeth.py" > "$TMP/leg-_t534-d2-queue-tier-teeth.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the D2 review-queue line names a task that does not meet the threshold it states, or a tier's count disagrees with its own list (run 'python3 tools/_t534-d2-queue-tier-teeth.py' — it names the offending task; rc 2 is a REFUSAL, meaning no D2 line was emitted at all or it no longer parses, so nothing was evaluated — not a measured pass)"
+  show_output "$TMP/leg-_t534-d2-queue-tier-teeth.out" "_t534-d2-queue-tier-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

@@ -3954,19 +3954,28 @@ fi
 
 # D2: Human Review Queue Aging (Score 20) (T-955: uses single-pass scan)
 # T-373: Tasks awaiting human review are NORMAL. Only escalate when forgotten (>30 days).
+# T-534: details are accumulated PER TIER. They were previously appended to one shared
+# `d2_details` from both the >=720h and >=336h branches, while the fail message printed the
+# fail-tier COUNT against that shared list — so the line read
+#   "2 task(s) waiting >30d: T-093(41d) T-178(36d) T-308(17d) T-310(17d) T-325(14d)"
+# naming three tasks that do not satisfy the threshold it states. PL-159: a bar stated in a
+# message string is not a bar the instrument holds. The defect is invisible unless BOTH tiers
+# are populated, which is why it survived — with only one tier live the shared list happens to
+# equal that tier's list.
 d2_info=0
 d2_warn=0
 d2_fail=0
-d2_details=""
+d2_fail_details=""
+d2_warn_details=""
 if [ -n "$ACTIVE_SCAN" ]; then
     while IFS='|' read -r t_id age_hours age_days; do
         [ -z "$t_id" ] && continue
         if [ "$age_hours" -ge 720 ]; then
             d2_fail=$((d2_fail + 1))
-            d2_details="$d2_details $t_id(${age_days}d)"
+            d2_fail_details="$d2_fail_details $t_id(${age_days}d)"
         elif [ "$age_hours" -ge 336 ]; then
             d2_warn=$((d2_warn + 1))
-            d2_details="$d2_details $t_id(${age_days}d)"
+            d2_warn_details="$d2_warn_details $t_id(${age_days}d)"
         else
             d2_info=$((d2_info + 1))
         fi
@@ -3981,11 +3990,16 @@ fi
 # shellcheck disable=SC2034 # d2_total available for debug/summary
 d2_total=$((d2_info + d2_warn + d2_fail))
 if [ "$d2_fail" -gt 0 ]; then
-    fail "D2: Human review queue — $d2_fail task(s) waiting >30d:$d2_details" \
+    # T-534: the >14d tier is appended with its OWN count and label rather than merged into
+    # the >30d list. Dropping it would "fix" the count/list mismatch by hiding a real queue,
+    # so the aging tier stays visible — just under the predicate it actually satisfies.
+    d2_msg="D2: Human review queue — $d2_fail task(s) waiting >30d:$d2_fail_details"
+    [ "$d2_warn" -gt 0 ] && d2_msg="$d2_msg; $d2_warn waiting >14d:$d2_warn_details"
+    fail "$d2_msg" \
          "Tasks may be forgotten" \
          "Review with: fw task verify (lists unchecked Human ACs)"
 elif [ "$d2_warn" -gt 0 ]; then
-    warn "D2: Human review queue — $d2_warn task(s) waiting >14d:$d2_details" \
+    warn "D2: Human review queue — $d2_warn task(s) waiting >14d:$d2_warn_details" \
          "Aging review items" \
          "Review with: fw task verify"
 elif [ "$d2_info" -gt 0 ]; then

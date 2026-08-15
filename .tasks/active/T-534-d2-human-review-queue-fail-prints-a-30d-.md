@@ -4,7 +4,7 @@ name: "D2 human-review-queue FAIL prints a >30d count against a >14d list"
 description: >
   The D2 control accumulates d2_details in BOTH the >=720h (fail) and >=336h (warn) branches, then the fail message prints the fail-tier COUNT against the union LIST: 'D2: Human review queue - 2 task(s) waiting >30d: T-093(41d) T-178(36d) T-308(17d) T-310(17d) T-325(14d)'. Count 2, list 5, three of them below the stated threshold. Invisible unless both tiers are populated, which is why it survived. Vendored .agentic-framework/agents/audit/audit.sh:3966,3969,3984 - fix in-tree per G-008 and report upstream. Found while correcting T-432.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T22:47:15Z
-last_update: 2026-08-15T22:47:15Z
+last_update: 2026-08-15T22:51:15Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -34,14 +34,104 @@ date_finished: null
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Found while correcting T-432, whose open operator ruling (c1/c2) is entirely about this
+one line. Reported by the audit as:
+
+    [FAIL] D2: Human review queue — 2 task(s) waiting >30d: T-093(41d) T-178(36d) T-308(17d) T-310(17d) T-325(14d)
+
+Count **2**, list **5**, three of them under the threshold the sentence states.
+
+## Findings
+
+### The mechanism
+
+`audit.sh` appended to a single `d2_details` from **both** tier branches:
+
+    if   [ "$age_hours" -ge 720 ]; then d2_fail=…; d2_details="$d2_details …"   # >30d
+    elif [ "$age_hours" -ge 336 ]; then d2_warn=…; d2_details="$d2_details …"   # >14d
+
+…and the FAIL message then printed the **fail-tier count** against that **shared list**.
+This is PL-159 (T-445) in its purest form: *a bar stated in a failure-message string is not
+a bar the instrument holds.*
+
+### Why it survived — the part worth keeping
+
+**The defect is unobservable unless both tiers are populated at once.** With only fail-tier
+entries present, the shared list is exactly the fail list and every reading of the line
+agrees with itself. So a test built from one aged task passes against the broken code —
+PL-206, a stimulus built so it cannot fail. The teeth therefore drive **all three tiers**
+(40d / 20d / 5d), which is also what makes leg 6 meaningful.
+
+Second reason: **nobody reads this line.** D2 renders under `--section discovery`, and the
+only audit anyone runs routinely is the push gate's `--section structure`. Cron has been
+rendering the wrong sentence roughly daily into `.context/audits/cron/` since the tiers
+first co-populated.
+
+### Correction to the filing — D2 is not an `oe-daily` check
+
+This task was filed believing D2 lived in `oe-daily`, inherited from T-432's breakdown.
+Measured: D2 sits inside `if should_run_section "discovery"` (`audit.sh:3915`), and the
+report prints it under `=== DISCOVERY: OMISSION DETECTION ===`. That is what makes the
+teeth affordable — `--section discovery` reaches the line in ~8s where a full audit needs
+81s (216s against a synthetic `TASKS_DIR`). The wider consequences of that mis-attribution
+belong to T-432 and OBS-027, not here.
+
+### The fix
+
+Two accumulators, one per tier. The `>14d` tier is **appended with its own count and
+label** rather than dropped — deleting it would reconcile count with list by hiding a real
+queue, which is a worse line than the one we started with. Result on the live tree:
+
+    [FAIL] D2: Human review queue — 2 task(s) waiting >30d: T-093(41d) T-178(36d); 3 waiting >14d: T-308(17d) T-310(17d) T-325(14d)
+
+### Evidence the teeth discriminate
+
+Both arms, on the **real binary** rather than a replay:
+
+| arm | result |
+|---|---|
+| mutate `audit.sh` to re-merge the tiers | legs **2, 3 and 7** red, naming `T-902(20d)` |
+| restore | sha256 byte-identical, 8/8 green |
+
+Leg 7 ("no task appears in both lists") went red unprompted — it was written as a
+consistency check and turned out to be a second independent detector for this mutation.
+
+Suite **96 → 97 passed, 0 failed** (313s; the familiar "168s" is T-509's stale figure,
+corrected to ~309s by T-526). T-451 unwired-guard ratchet unmoved at **67**, since the
+tool is wired rather than added to the shelf.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] **Every task named under a threshold label actually satisfies that threshold.** This is
+      the defect stated as a property rather than as a diff: today the `>30d` FAIL names
+      `T-308(17d)`. The property must hold for each element of the list, not merely for the
+      count — a fix that made the *count* 5 would also reconcile count with list and would be
+      wrong in the other direction.
+- [x] **No information is lost.** The three `>=14d` tasks currently surfaced (however
+      mislabelled) are still reported after the fix, under their own predicate and their own
+      count. Deleting them would "fix" the mismatch by hiding a real queue.
+- [x] **The `info` tier still does not appear in either list** — a task under 14d is not
+      named. Guards against a fix that reconciles the lists by printing everything.
+- [x] **Teeth exist and are proven red for the named reason**, driving the REAL `audit.sh`
+      against a synthetic queue populating all three tiers via the `TASKS_DIR` seam — not a
+      reimplementation of the branch logic in the test, which would assert a copy. Red arm
+      demonstrated against the pre-fix binary, naming the offending token.
+- [x] **The teeth REFUSE (rc 2) rather than pass when no D2 line is emitted or it no longer
+      parses.** "No usable line" is the single most likely way this test goes vacuously green
+      (PL-205), and it is not hypothetical: an empty review queue renders
+      `[PASS] D2: Human review queue — no pending items`, which does not parse. Demonstrated
+      by mutating the fixture's `owner: human` → `agent` so nothing enters the queue → rc 2,
+      teeth restored byte-identical.
+      *(This AC was filed citing OBS-027's "`--section oe-daily` never emits D2" as evidence
+      of a run-context effect. That inference is dissolved — D2 was never an oe-daily check.
+      The AC stands on its own ground; the citation was wrong and is removed rather than
+      left to propagate.)*
+- [x] **Reported upstream to AEF**, since the defect is in vendored
+      `.agentic-framework/agents/audit/audit.sh` and the fix is in-tree per G-008.
+- [x] **The push gate's section list is NOT touched.** That is T-432's open operator ruling;
+      this task fixes what the D2 line *says*, and must not pre-empt whether it gates.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -122,8 +212,41 @@ date_finished: null
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# T-534: the teeth are the verdict — a single command whose own exit code decides, so no
+# errexit-context question arises. rc 2 is a REFUSAL (no D2 line emitted / no longer parses)
+# and is correctly non-zero: nothing was evaluated is not a pass.
+# The second line asserts the instrument is still WIRED. This tree's recurring defect is not
+# broken guards, it is correct guards nobody calls (T-451 census: 67 standing guards with no
+# live caller), so a teeth script that silently leaves the suite is the likely regression.
+python3 tools/_t534-d2-queue-tier-teeth.py
+grep -q '_t534-d2-queue-tier-teeth.py' tests/run-bridge-tests.sh
 
 ## RCA
+
+**Symptom:** the D2 audit line named five tasks under a `>30d` predicate while counting two,
+three of the named being 17d, 17d and 14d old.
+
+**Root cause:** one shared `d2_details` accumulator written by two branches with *different*
+thresholds (`>=720h` and `>=336h`), consumed by a message that states only one of them. Not
+"the code was wrong" — the variable had no owner, so whichever branches wrote to it silently
+redefined what the message meant.
+
+**Why structurally allowed:** two independent reasons, and both had to hold.
+1. **The defect is invisible with one tier populated** — the shared list then equals the fail
+   list, and the line is internally consistent. Any test, or any human reading, that happened
+   to catch a single-tier queue would confirm correctness.
+2. **Nothing reads the line.** D2 renders under `--section discovery`; the push gate runs
+   `--section structure` only (T-432). The full audit is run by cron into
+   `.context/audits/cron/`, which T-529 measured as a corpus no tool reads.
+
+**Prevention** (distinct from the fix): `tools/_t534-d2-queue-tier-teeth.py`, wired as a
+standing leg in `tests/run-bridge-tests.sh`, driving the **real** `audit.sh` through the
+`TASKS_DIR` seam against a queue that populates **all three tiers** — so the condition that
+made the defect observable is now guaranteed on every run rather than left to the live
+queue's shape. The fix itself is also structural: separate per-tier accumulators mean the
+message *cannot* interpolate the wrong list, so a future edit reintroducing it would have to
+be deliberate.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -190,3 +313,6 @@ date_finished: null
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-534-d2-human-review-queue-fail-prints-a-30d-.md
 - **Context:** Initial task creation
+
+### 2026-08-15T22:51:15Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
