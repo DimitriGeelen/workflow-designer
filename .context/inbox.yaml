@@ -879,3 +879,10 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-254
+  text: "T-517 manifest: the one 'upstream: unknown' entry is settled — .agentic-framework/lib/ts/dist/loop-detect.js should be reclassified 'vendoring-repair'. Measured, not guessed: the entire diff from the vendor baseline is a single esbuild banner comment, '// lib/ts/src/loop-detect.ts' becoming '// .agentic-framework/lib/ts/src/loop-detect.ts'. That is the bundler recording its working directory, so the file is a local REBUILD artifact with no semantic difference from upstream's, and there is nothing in it to offer framework-agent. One-line edit to .agentic-framework/.vendor-divergence.yaml plus a reason line; deliberately not done in-session because budget hit urgent and opening a task lifecycle for a one-line classification would have cost more than the edit. The instrument stays green either way — kind and path are unchanged, only the upstream: taxonomy value moves — so nothing is broken by leaving it until next session."
+  captured: 2026-08-15T11:00:34Z
+  context_task: T-517
+  tags: [framework]
+  status: pending
+  promoted_to: null
