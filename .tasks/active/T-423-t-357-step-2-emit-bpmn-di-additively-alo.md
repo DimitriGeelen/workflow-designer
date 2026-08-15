@@ -17,7 +17,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:27Z
-last_update: 2026-08-14T21:10:15Z
+last_update: 2026-08-15T07:55:23Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -192,6 +192,70 @@ a grep, which is the failure it was written to prevent.
 > Building the emitter and verifying it by the one method the AC excludes would produce a
 > green task and an unvalidated emitter, which is the worst of the three outcomes available.
 
+> ### RE-MEASURED 2026-08-15 (T-510 session) — the blocker is SMALLER than stated, and one of the options put to the operator is now dominated
+>
+> The paragraph above says AC2 needs *"vendoring a third-party XSD into this repo **or**
+> installing a system validator."* Measured today, the second half is unnecessary and the
+> first half is five files. The four options I put in front of the operator were priced by
+> assumption; here they are priced by measurement.
+>
+> **(a) A validator is already installed. No host mutation is required.**
+> ```
+> python3 -c "from lxml import etree; print(etree.LIBXML_VERSION, hasattr(etree,'XMLSchema'))"
+> → (2, 9, 14) True          # lxml 5.2.1, XMLSchema present
+> command -v xmllint  → ABSENT
+> ```
+> `lxml.etree.XMLSchema` is the same libxml2 engine `xmllint --schema` drives. So option (b)
+> "install `xmllint`" buys nothing that is not already here, and it was the only option that
+> would have written outside `/opt/832-Workflow-designer` — i.e. the only one that collided
+> with the T-559 boundary as well as with scope. **Withdrawn as dominated**, not chosen.
+>
+> **(b) Our exports are validatable BY CONSTRUCTION, which was not established before.**
+> This is the finding that actually matters, because if it had gone the other way AC2 would
+> have been unsatisfiable rather than merely unbuilt. Every `aef:` element in a rendered map
+> sits inside `bpmn:extensionElements` (`arc-lifecycle.bpmn:51-58`), never loose in the BPMN
+> content model. `Semantic.xsd` types that element as
+> `<xsd:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>`,
+> and `tBaseElement` carries `<xsd:anyAttribute namespace="##other" processContents="lax"/>`.
+> `##other` admits our namespace; `lax` means "validate only if a schema for it is loaded",
+> and none will be. So the 13 `aef:` element kinds and their attributes pass through untested
+> rather than failing — a schema run would report on the BPMN and DI, which is exactly what
+> AC2 asks it to report on.
+>
+> **(c) The vendoring closure is five files, and it is the WHOLE remaining decision.**
+> Walked from the root by reading each schema's own import/include list rather than assuming
+> the set:
+> ```
+> BPMN20.xsd   include Semantic.xsd            import BPMNDI.xsd (…/BPMN/20100524/DI)
+> BPMNDI.xsd   import  DC.xsd (…/DD/20100524/DC)  import DI.xsd (…/DD/20100524/DI)
+> DI.xsd       import  DC.xsd
+> ```
+> Closure = **BPMN20.xsd, Semantic.xsd, BPMNDI.xsd, DC.xsd, DI.xsd**. Note the shape: DI
+> cannot be validated standalone — `BPMNDI.xsd` describes shapes that reference BPMN element
+> ids, so the schema run is over the whole exported document, all five files or none.
+>
+> **HONESTY MARKERS ON THE THREE ABOVE, because this task's session is the one that shipped a
+> mechanism it had not checked (PL-204):**
+> * (a) and (b)-the-`extensionElements`-shape are measured **here, on this tree**, and the
+>   commands are in `## Verification`.
+> * (b)-the-`Semantic.xsd`-quote and (c)-the-closure are read from the **served** OMG schemas
+>   through a summarising fetch. They are second-hand and **not byte-verified here**, because
+>   byte-verifying them means writing them into the tree, which is the decision itself. Treat
+>   the closure as "five files, confirm on vendoring" rather than as established fact.
+> * **Not measured at all, and it is the operator's half anyway:** the OMG licence terms. The
+>   schema files carry no notice in their own body; the spec page's terms were not read.
+> * **Not measured:** whether libxml2 2.9.14 loads this particular schema set cleanly. That
+>   is testable in one command the moment the files exist, and untestable before.
+>
+> **What this leaves in front of the operator** — one question instead of four options:
+> *may five third-party OMG schema files be vendored into this repo?* Yes → AC2 is buildable
+> today with no further asks and step 2 unblocks. No → AC2 stands unsatisfiable as written
+> and the honest move is an explicit scope amendment recorded as a decision, still theirs.
+>
+> **Still deliberately not done:** rewording AC2 into the structural check, and building the
+> emitter ahead of the ruling. The paragraph above gives the reasons and none of them
+> changed — what changed is only the price of saying yes.
+
 **Status: `started-work` (set by `fw work-on` when I opened it to record this). No source
 edited under this task, and none will be until §2's rail question is answered.** An earlier
 draft of this paragraph said `captured`, which was true when I wrote the sentence and false
@@ -316,6 +380,15 @@ caught one commit later instead of twelve days.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# ── AC2's two PRECONDITIONS, measured 2026-08-15 and pinned here ─────────────────────
+# Not global moving state: both are properties AC2 rests on, and if either stops holding
+# AC2 genuinely stops being satisfiable. The first says a schema engine exists without a
+# host change; the second says our extension content is parked where BPMN20's `xsd:any
+# processContents="lax"` admits it, so a schema run reports on the BPMN and DI rather than
+# tripping over 13 aef: element kinds. Neither counts a population.
+python3 -c "from lxml import etree; import sys; sys.exit(0 if hasattr(etree, 'XMLSchema') else 1)"
+python3 -c "import re,sys,glob; f=sorted(glob.glob('examples/aef-processes/rendered/*.bpmn'))[0]; s=open(f).read(); loose=[m for m in re.finditer(r'<aef:', s) if s.rfind('<bpmn:extensionElements', 0, m.start()) <= s.rfind('</bpmn:extensionElements>', 0, m.start())]; sys.exit(1 if loose else 0)"
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -355,6 +428,34 @@ caught one commit later instead of twelve days.
      section exists but is empty/template-only. Use --skip-evolution to bypass
      (logged Tier-2). Non-arc tasks may leave this empty.
 -->
+
+### 2026-08-15 — AC2 was priced by assumption; priced by measurement it is one yes/no
+
+- **What changed:** three things I had been treating as unknown or as costs.
+  (1) A schema engine is **already on this host** — `lxml.etree.XMLSchema`, the same libxml2
+  that backs `xmllint --schema`. Every prior statement of this blocker said "vendor a schema
+  **or install a validator**"; the second disjunct was never needed and is the only one that
+  would have written outside the project boundary.
+  (2) Our exports are **validatable by construction**, which nobody had established. All 13
+  `aef:` element kinds live under `bpmn:extensionElements`, typed in `Semantic.xsd` as
+  `xsd:any namespace="##other" processContents="lax"`, with `tBaseElement` carrying the
+  matching `anyAttribute`. Had this gone the other way — loose `aef:` elements in the BPMN
+  content model — AC2 would have been **unsatisfiable**, not merely unbuilt, and the right
+  answer would have been an AC rewrite rather than a vendoring decision.
+  (3) The vendoring closure is **five files** (`BPMN20`, `Semantic`, `BPMNDI`, `DC`, `DI`),
+  walked by reading each schema's own import list, and DI cannot be validated standalone —
+  `BPMNDI` references BPMN element ids, so it is all five or none.
+- **Plan impact:** the blocker paragraph above overstated the ask. The operator's question
+  drops from four options to one: *may five third-party OMG schema files be vendored here?*
+  Option (b), install `xmllint`, is withdrawn as dominated rather than declined.
+- **Triggered:** nothing built. Two preconditions added to `## Verification` — and the
+  second was **checked for vacuity before being trusted**, since a green from a check that
+  cannot fire is the exact defect `_t364-t308-teeth.py` exists to catch. Fed the classifier
+  three synthetic documents: `aef:` inside `extensionElements` → 0, `aef:` after the closing
+  tag → 1, `aef:` with no `extensionElements` at all → 1. The 0 on the real corpus is a
+  classification, not an absence.
+- **Not triggered, deliberately:** the emitter. Nothing here changes the argument for
+  waiting — only the price of the answer.
 
 ## Decisions
 
