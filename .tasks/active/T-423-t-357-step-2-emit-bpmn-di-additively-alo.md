@@ -17,7 +17,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:27Z
-last_update: 2026-08-15T08:03:11Z
+last_update: 2026-08-15T08:22:25Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -311,6 +311,23 @@ caught one commit later instead of twelve days.
       AEF's shape exactly — drop one carrier, drop a map's worth, add a stray — and leg 6
       is the anti-overfit control: a benign coordinate edit must leave it **green**, which
       is what separates this from a guard that merely reddens on any diff.
+      **KNOWN LIMIT, recorded the day it landed rather than discovered later — see the AC
+      below.** This guard proves the carrier is *present*. It cannot prove the two carriers
+      *agree*, because until the emitter exists there is nothing to disagree with.
+- [ ] **The two carriers must be shown to AGREE, not merely to both exist.** `dc:Bounds`
+      x/y must match `aef:position` x/y for every node, within a stated tolerance, and the
+      check must be watched going red when they are made to differ. **This AC exists
+      because of AEF at rail 11876**, reporting their own index canary was a false green
+      *twice*: once because the control was sized so it could never trip, and once because
+      — already genuinely broken — it still ranked first, since on a small index *"is the
+      canary the top hit?"* is satisfied by having **no rival**. They had to plant a decoy
+      that wins when the canary is broken before the assertion meant anything. Their
+      question, transferred here verbatim: *"has anyone watched it go red, against a real
+      artefact, with a real competitor?"* Applied here the answer is uncomfortable — the
+      moment DI lands, `aef:position` **has** a rival, and the guard ticked above stays
+      green while the two geometries drift apart, which is the exact failure its own
+      docstring claims to guard. Present-and-agreeing is the assertion; present-alone was
+      only ever the half that could be built before the emitter existed.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
