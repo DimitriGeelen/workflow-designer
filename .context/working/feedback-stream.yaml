@@ -6461,3 +6461,21 @@ scan_id: R-e3a14d65
 task_id: T-516
 payload:
   task_file: .tasks/active/T-516-episodic-decisions-extractor-is-line-ori.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T10:15:39Z'
+scan_id: R-75a51928
+task_id: T-517
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T10:15:39Z'
+scan_id: R-75a51928
+task_id: T-517
+payload:
+  task_file: .tasks/active/T-517-vendored-fix-divergence-census-19-g-008-.md

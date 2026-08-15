@@ -1,0 +1,106 @@
+# ============================================================================
+# EPISODIC MEMORY - T-517: vendored-fix divergence census: 19 G-008 in-tree framework fixes a re-vendor would silently clobber
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T10:15:42Z
+# ============================================================================
+
+task_id: T-517
+task_name: "vendored-fix divergence census: 19 G-008 in-tree framework fixes a re-vendor would silently clobber"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-15T10:01:37Z
+completed: 2026-08-15T10:15:37Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-15T12:13:19+02:00
+last_commit: 2026-08-15T12:15:31+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  G-008 let us fix vendored framework code in-tree and upstream it; nothing recorded that a fix was LOCAL, so neither half happened. 28 paths under .agentic-framework/ diverge from the pristine re-vendor baseline ebf0c721 (T-276, v1.6.763) and 8 of them carry NO content change at all — only an exec bit, invisible to content review. Cost already paid: email-archive re-pinged G-AUDIT-EXCLUDE-NOT-HONORED three times over four months while our T-374 sat here as a tested implementation of the exact remedy they proposed, its own comment reading 'T-1842 reached register.sh and drift.sh and did not reach here'. The destructive half is worse — T-276's own follow-up says 'post-vendor repair: restore exec bits demoted by old do_vendor copy (5 files) + chmod secret-scan', so the last re-vendor DID clobber and a human happened to catch it. Manifest declares every path with kind, task and an upstream taxonomy (fix / vendoring-repair / local-config / unknown) because only ONE of those should be offered upstream; designer-pin.yaml is local config, the exec bits are our vendoring losing them in transit, and lib/ts/dist/loop-detect.js is recorded as unknown rather than guessed. Set equality, NOT a count: a count of diverged files rises with every legitimate G-008 fix, which is the G-015 class T-508 catalogued, and would train its reader to re-baseline reflexively. Three-valued exit — rc 2 REFUSES when the manifest or baseline is unreachable, so 'I could not look' cannot render as 'clean'. The instrument was green on its first run against the real tree, which under PL-206 means nothing until a stimulus containing the fault is fed to it; the mode-only teeth leg then caught a real defect in the instrument itself, since git diff --raw reports a zero dst sha for UNSTAGED files and every mode-only change was being misclassified as content — in exactly the state that matters, someone having just patched vendored code and not yet committed. Manifest declares ITSELF: git diff ignores untracked files so it ran green while unstaged and would have gone red on commit, and excluding it would be a hole in a register whose point is that there are no holes. Teeth 7/7 hermetic under mktemp, suite 85 -> 87 passed 0 failed, hygiene ok, unwired FINDINGS unchanged at 67 so both tools are wired not baselined. Rail post to email-archive and framework-agent still owed, AC unticked. rail post 11893 and the last AC. Checked email-archive's G-AUDIT-EXCLUDE-NOT-HONORED instead of declining a second time, and they are right — the defect is live and we have carried the fix since T-374 without telling anyone, which is the concrete cost of G-008's upstream half never happening. Post leads with that rather than with our instrument, because a peer who has re-pinged three times in four months needs the adoption path more than they need our tooling. Stated the limit of the claim in the same breath: I cannot see upstream HEAD, so 'valid upstream' rests on our v1.6.763 baseline lacking it plus their independent observation in their own tree — two consumer trees is evidence, not proof, and corroboration that is itself unverified is how one unconfirmed claim becomes consensus. Also corrected my own morning imprecision on secret-scan: the fail-open IS fixed upstream, but they are right that upstream ships the file 644 and it is 755 here only because T-276 chmod'd it, so I should not have let that read as an upstream chmod. Fabric cards written by hand — fw fabric register emits a purpose of 'TODO: describe what this component does' and 43 existing cards already carry it. Decisions section records five real choices incl. deleting the boilerplate Human-AC section rather than taking FW_ALLOW_HUMAN_AC_TICK=1 after my own bulk tick flipped two example boxes inside it: the T-1731 guard refused the correction in both directions, which is the guard behaving correctly, and the bypass is not mine to use
+
+# Key outcomes
+outcomes:
+  - '`.agentic-framework/.vendor-divergence.yaml` records the baseline vendor commit and one'
+  - '`tools/_t517-vendor-divergence.py` compares the live vendored tree against the recorded'
+  - 'Mode-only divergence is detected. Proven by mutation, not asserted: `chmod -x` a file whose'
+  - 'The instrument REFUSES with a distinct exit code when the baseline commit is unreachable,'
+  - '`tools/_t517-vendor-divergence-teeth.py` — hermetic legs under mktemp covering: unrecorded'
+  - 'Both wired into `tests/run-bridge-tests.sh` with real callers — not excused by the `*teeth*`'
+  - 'The audit-exclude finding reported to email-archive and framework-agent on the rail:'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'rail post 11893 and the last AC. Checked email-archive''s G-AUDIT-EXCLUDE-NOT-HONORED instead of declining a second time, and they are right — the defect is live and we have carried the fix since T-374 without telling anyone, which is the concrete cost of G-008''s upstream half never happening. Post leads with that rather than with our instrument, because a peer who has re-pinged three times in four months needs the adoption path more than they need our tooling. Stated the limit of the claim in the same breath: I cannot see upstream HEAD, so ''valid upstream'' rests on our v1.6.763 baseline lacking it plus their independent observation in their own tree — two consumer trees is evidence, not proof, and corroboration that is itself unverified is how one unconfirmed claim becomes consensus. Also corrected my own morning imprecision on secret-scan: the fail-open IS fixed upstream, but they are right that upstream ships the file 644 and it is 755 here only because T-276 chmod''d it, so I should not have let that read as an upstream chmod. Fabric cards written by hand — fw fabric register emits a purpose of ''TODO: describe what this component does'' and 43 existing cards already carry it. Decisions section records five real choices incl. deleting the boilerplate Human-AC section rather than taking FW_ALLOW_HUMAN_AC_TICK=1 after my own bulk tick flipped two example boxes inside it: the T-1731 guard refused the correction in both directions, which is the guard behaving correctly, and the bypass is not mine to use'
+    source: git-mined
+  - description: 'G-008 let us fix vendored framework code in-tree and upstream it; nothing recorded that a fix was LOCAL, so neither half happened. 28 paths under .agentic-framework/ diverge from the pristine re-vendor baseline ebf0c721 (T-276, v1.6.763) and 8 of them carry NO content change at all — only an exec bit, invisible to content review. Cost already paid: email-archive re-pinged G-AUDIT-EXCLUDE-NOT-HONORED three times over four months while our T-374 sat here as a tested implementation of the exact remedy they proposed, its own comment reading ''T-1842 reached register.sh and drift.sh and did not reach here''. The destructive half is worse — T-276''s own follow-up says ''post-vendor repair: restore exec bits demoted by old do_vendor copy (5 files) + chmod secret-scan'', so the last re-vendor DID clobber and a human happened to catch it. Manifest declares every path with kind, task and an upstream taxonomy (fix / vendoring-repair / local-config / unknown) because only ONE of those should be offered upstream; designer-pin.yaml is local config, the exec bits are our vendoring losing them in transit, and lib/ts/dist/loop-detect.js is recorded as unknown rather than guessed. Set equality, NOT a count: a count of diverged files rises with every legitimate G-008 fix, which is the G-015 class T-508 catalogued, and would train its reader to re-baseline reflexively. Three-valued exit — rc 2 REFUSES when the manifest or baseline is unreachable, so ''I could not look'' cannot render as ''clean''. The instrument was green on its first run against the real tree, which under PL-206 means nothing until a stimulus containing the fault is fed to it; the mode-only teeth leg then caught a real defect in the instrument itself, since git diff --raw reports a zero dst sha for UNSTAGED files and every mode-only change was being misclassified as content — in exactly the state that matters, someone having just patched vendored code and not yet committed. Manifest declares ITSELF: git diff ignores untracked files so it ran green while unstaged and would have gone red on commit, and excluding it would be a hole in a register whose point is that there are no holes. Teeth 7/7 hermetic under mktemp, suite 85 -> 87 passed 0 failed, hygiene ok, unwired FINDINGS unchanged at 67 so both tools are wired not baselined. Rail post to email-archive and framework-agent still owed, AC unticked'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-15 — set equality rather than a count ratchet'
+    chose: 'the instrument compares the diverged SET against a declared manifest, and fires in both directions — unrecorded divergence and stale entries alike.'
+    rationale: 'the number of diverged files is a global always-moving property. It rises with every legitimate G-008 fix, so a count ratchet would go red on correct work and train whoever reads it to re-baseline reflexively, which is how a ratchet becomes a rubber stamp. T-508 catalogued exactly this as the G-015 class and found the hash-keyed baseline strictly better than the count-keyed one I had drafted then.'
+    alternatives_rejected: ['a count ratchet (`diverged <= 28`), and a one-directional check that only catches new divergence — the stale direction is what detects a re-vendor having silently eaten a fix, which is the more destructive of the two failures.']
+  - decision: '2026-08-15 — an upstream taxonomy rather than a flat divergence list'
+    chose: 'every entry carries `upstream: fix | vendoring-repair | local-config | unknown`, and one entry is genuinely recorded as `unknown`.'
+    rationale: 'the manifest has two consumers with different questions. A re-vendor asks "what must I re-apply?" and the answer is all 28. framework-agent asks "what should I adopt?" and the answer is only the 16 marked `fix` — offering them the exec bits or our designer pin would be noise that makes the real debt harder to see. The distinction is not cosmetic: the exec bits are upstream''s file that OUR vendoring lost in transit, the opposite direction of travel.'
+    alternatives_rejected: ['a flat list of 28 paths, which would have made the upstream ask unactionable; and guessing a value for `lib/ts/dist/loop-detect.js` — it is a built artifact and settling it needs a rebuild, so it is recorded as unknown. An `upstream:` value asserted without checking is precisely the folklore this manifest exists to end.']
+  - decision: '2026-08-15 — the manifest declares itself'
+    chose: '`.vendor-divergence.yaml` carries an entry for `.vendor-divergence.yaml`.'
+    rationale: 'it lives inside the tree it measures, so it is itself divergence. Noticed only because `git diff` ignores untracked files — the instrument ran green while the manifest was unstaged and would have gone red the moment it was committed.'
+    alternatives_rejected: ['special-casing it out of the comparison, which would have been a hole in a register whose entire purpose is that there are no holes, and would have been invisible to every future reader.']
+  - decision: '2026-08-15 — deleted the boilerplate Human-AC section rather than take a Tier 2 bypass'
+    chose: 'removed the unused `### Human` section wholesale, which the task template''s own guidance sanctions when every criterion is agent-verifiable.'
+    rationale: 'a bulk `- [ ]` → `- [x]` sweep over this task''s ACs also flipped the two boxes inside the section''s commented-out [REVIEW]/[REVIEWER] examples. Inert template text, but Human-AC boxes, and CLAUDE.md says never to touch those. The T-1731 guard then correctly refused to let me flip them back — it blocks the toggle in both directions, which is right.'
+    alternatives_rejected: ['`FW_ALLOW_HUMAN_AC_TICK=1`, a Tier 2 bypass that autonomous initiative does not delegate; and leaving the wrong state in place because it was only template text, which would have left a task file asserting that human criteria had been verified.']
+  - decision: '2026-08-15 — reported "valid upstream" with the inference stated rather than as fact'
+    chose: 'told email-archive their concern is valid upstream, and in the same breath said I cannot see upstream HEAD and named exactly what the claim rests on.'
+    rationale: 'what I can actually observe is that our v1.6.763 baseline lacked the fix, that we made it locally, and that they observe the defect in their own tree. Two independent consumer trees is good evidence, not proof about framework-agent''s HEAD. Corroborating a peer''s filing is worth much less if the corroboration is itself unverified — that is how one unconfirmed claim becomes consensus, which is the reason I declined to corroborate this one at 11892.'
+    alternatives_rejected: ['asserting it flatly (overstates what I measured), and declining a second time (I had now actually checked, and the check was cheap).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.fabric/components/tools-_t517-vendor-divergence-teeth.yaml'
+  - '.fabric/components/tools-_t517-vendor-divergence.yaml'
+  - '.tasks/active/T-517-vendored-fix-divergence-census-19-g-008-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t517-vendor-divergence.py'
+  - 'tools/_t517-vendor-divergence-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-15T12:13:19"
+    action: "T-517: G-008 let us fix vendored framework code in-tree and upstream it; nothing recorded that a fix was LOCAL, so neither half happened. 28 paths under .agentic-framework/ diverge from the pristine re-vendor baseline ebf0c721 (T-276, v1.6.763) and 8 of them carry NO content change at all — only an exec bit, invisible to content review. Cost already paid: email-archive re-pinged G-AUDIT-EXCLUDE-NOT-HONORED three times over four months while our T-374 sat here as a tested implementation of the exact remedy they proposed, its own comment reading 'T-1842 reached register.sh and drift.sh and did not reach here'. The destructive half is worse — T-276's own follow-up says 'post-vendor repair: restore exec bits demoted by old do_vendor copy (5 files) + chmod secret-scan', so the last re-vendor DID clobber and a human happened to catch it. Manifest declares every path with kind, task and an upstream taxonomy (fix / vendoring-repair / local-config / unknown) because only ONE of those should be offered upstream; designer-pin.yaml is local config, the exec bits are our vendoring losing them in transit, and lib/ts/dist/loop-detect.js is recorded as unknown rather than guessed. Set equality, NOT a count: a count of diverged files rises with every legitimate G-008 fix, which is the G-015 class T-508 catalogued, and would train its reader to re-baseline reflexively. Three-valued exit — rc 2 REFUSES when the manifest or baseline is unreachable, so 'I could not look' cannot render as 'clean'. The instrument was green on its first run against the real tree, which under PL-206 means nothing until a stimulus containing the fault is fed to it; the mode-only teeth leg then caught a real defect in the instrument itself, since git diff --raw reports a zero dst sha for UNSTAGED files and every mode-only change was being misclassified as content — in exactly the state that matters, someone having just patched vendored code and not yet committed. Manifest declares ITSELF: git diff ignores untracked files so it ran green while unstaged and would have gone red on commit, and excluding it would be a hole in a register whose point is that there are no holes. Teeth 7/7 hermetic under mktemp, suite 85 -> 87 passed 0 failed, hygiene ok, unwired FINDINGS unchanged at 67 so both tools are wired not baselined. Rail post to email-archive and framework-agent still owed, AC unticked"
+  - time: "2026-08-15T12:15:31"
+    action: "T-517: rail post 11893 and the last AC. Checked email-archive's G-AUDIT-EXCLUDE-NOT-HONORED instead of declining a second time, and they are right — the defect is live and we have carried the fix since T-374 without telling anyone, which is the concrete cost of G-008's upstream half never happening. Post leads with that rather than with our instrument, because a peer who has re-pinged three times in four months needs the adoption path more than they need our tooling. Stated the limit of the claim in the same breath: I cannot see upstream HEAD, so 'valid upstream' rests on our v1.6.763 baseline lacking it plus their independent observation in their own tree — two consumer trees is evidence, not proof, and corroboration that is itself unverified is how one unconfirmed claim becomes consensus. Also corrected my own morning imprecision on secret-scan: the fail-open IS fixed upstream, but they are right that upstream ships the file 644 and it is 755 here only because T-276 chmod'd it, so I should not have let that read as an upstream chmod. Fabric cards written by hand — fw fabric register emits a purpose of 'TODO: describe what this component does' and 43 existing cards already carry it. Decisions section records five real choices incl. deleting the boilerplate Human-AC section rather than taking FW_ALLOW_HUMAN_AC_TICK=1 after my own bulk tick flipped two example boxes inside it: the T-1731 guard refused the correction in both directions, which is the guard behaving correctly, and the bypass is not mine to use"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 14 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 14
+  commits: 2
+  files_changed: 7
+  lines_added: 1034
+  lines_removed: 10
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-517-vendored-fix-divergence-census-19-g-008-.md
+generated_by: context-agent-hybrid

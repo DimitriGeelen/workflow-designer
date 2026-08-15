@@ -1478,3 +1478,17 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-207
+  learning: "A permission to fix a vendored dependency in-tree AND upstream it records only the first half. The commit proves a fix happened; nothing marks it as LOCAL, so the upstream half silently never happens and the next re-vendor destroys it. Measured here: 28 diverged paths, 16 real fixes upstream lacks, and a peer re-pinged the same concern three times across four months while our tested fix for it sat in the tree unlabelled. Divergence from a vendor baseline has to be a declared artifact, not an inference from git history — and it must record FILE MODE, because 8 of the 28 carried no content change at all and content review calls those clean. Corollary worth acting on: two consumers of the same vendored dependency independently fixing the same defect is not redundancy, it is evidence the upstream path is missing."
+  source: P-001
+  task: T-517
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
+- id: PL-208
+  learning: "PL-206 refinement: asserting that a control went RED is not enough — assert it went red for the NAMED REASON. The T-517 teeth leg for mode-only divergence originally checked rc==1 plus the bare word 'mode' in the output; tightened to the bracketed classification column '[mode', it went red, and the failure was a genuine defect in the instrument rather than in the leg: git diff --raw reports an all-zero destination sha for UNSTAGED files, so every mode-only change was being classified as content — in exactly the state that matters most, someone having just patched the file and not yet committed. A loose assertion would have banked the pass, shipped the misclassification, and left the tool blind to the one class it was built for. Red for the wrong reason still counts as wrong, and the cheap tell is an assertion matching a substring that appears in prose and summary lines as well as in the field under test."
+  source: P-001
+  task: T-517
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD

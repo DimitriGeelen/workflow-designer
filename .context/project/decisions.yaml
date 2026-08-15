@@ -1599,3 +1599,38 @@ decisions:
     date: 2026-08-15
     task: T-513
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-208
+    decision: "the instrument compares the diverged SET against a declared manifest, and fires in"
+    scope: project
+    date: 2026-08-15
+    task: T-517
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-209
+    decision: "every entry carries `upstream: fix | vendoring-repair | local-config | unknown`,"
+    scope: project
+    date: 2026-08-15
+    task: T-517
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-210
+    decision: "`.vendor-divergence.yaml` carries an entry for `.vendor-divergence.yaml`."
+    scope: project
+    date: 2026-08-15
+    task: T-517
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-211
+    decision: "removed the unused `### Human` section wholesale, which the task template's own"
+    scope: project
+    date: 2026-08-15
+    task: T-517
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-212
+    decision: "told email-archive their concern is valid upstream, and in the same breath said I"
+    scope: project
+    date: 2026-08-15
+    task: T-517
+    rationale: "Auto-captured from task file on completion"

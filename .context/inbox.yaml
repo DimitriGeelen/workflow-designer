@@ -871,3 +871,11 @@ observations:
   tags: [standards]
   status: pending
   promoted_to: null
+- id: OBS-253
+  text: "The framework's own vendoring step silently destroys consumer-side state, and it is upstream of at least three of email-archive's open concerns. Evidence in our tree: T-276's post-vendor repair commit reads 'restore exec bits demoted by old do_vendor copy (5 files) + chmod secret-scan', and 8 of the 28 paths that diverge from our vendor baseline are mode-only (100644 vs 100755) with byte-identical content. A re-vendor demotes them again and no content diff can see it. Same mechanism dropped .secret-scan-patterns entirely, which is precisely the file email-archive keeps re-pinging about (rail 11889) — they observe mode 644 upstream and they are right; ours is 755 only because we chmod'd it by hand. The mode-only class is now guarded locally by tools/_t517-vendor-divergence.py, but that is OUR detection of THEIR defect: every other consumer is still blind, and the 16 local fixes this manifest declares are exactly what the next fw upgrade would erase. Reported to framework-agent at rail 11893 ask 2. Needs an upstream fix (vendoring manifest with modes, or an integrity check on fw doctor) — not something we can close from here."
+  captured: 2026-08-15T10:16:34Z
+  context_task: T-517
+  tags: [framework]
+  status: pending
+  promoted_to: null
+  urgent: true

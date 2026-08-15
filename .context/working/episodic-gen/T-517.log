@@ -1,0 +1,23 @@
+=== episodic-gen invocation: 2026-08-15T10:15:42Z ===
+task_id: T-517
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-517.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: vendored-fix divergence census: 19 G-008 in-tree framework fixes a re-vendor would silently clobber
+  Duration: 0 days (14 min)
+  Updates: 1
+  Commits: 2
+  Lines: +1034 -10 across 7 files
+  Outcomes: 7 AC checked
+  Challenges: 2 detected from git
+  Artifacts: 7 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-517-vendored-fix-divergence-census-19-g-008-.md
+--- exit code: 0 ---
