@@ -1147,5 +1147,28 @@ else
 fi
 
 echo
+echo "== The fabric coverage WARN can tell card LOSS from source growth (T-525) =="
+# The warning itself is correct and deliberate — watch-patterns.yaml records it as the standing
+# WARN the operator's T-344 [REVIEW] accepted. What it SAID was the defect: `unregistered` is a
+# difference between two independently moving quantities, so it rises whenever the tree grows
+# even while coverage improves. Measured over this project's own audit history, coverage went
+# 10.6% -> 22.5% while the headline number went 147 -> 189. T-345 fixed the SEVERITY of exactly
+# this confusion in exactly this check and left the number alone.
+#
+# The blind spot: "twenty files added and not carded" and "twenty cards DELETED" printed the same
+# line, and T-524 established cards are load-bearing rather than documentation.
+#
+# No leg may assert merely that a fabric warning appeared — the pre-change code satisfies that on
+# every run for every input. Each leg pins WHICH branch was taken, and the two legs that assert a
+# branch was NOT taken also prove the check produced a line, because a negative assertion is
+# satisfied by silence (the vacuous-leg failure caught one task earlier in T-524).
+if python3 "$ROOT/tools/_t525-fabric-coverage-teeth.py" > /dev/null 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the fabric coverage warning stopped discriminating — either it regressed to raw counts with no ratio, card loss now reads the same as source growth, an absent history renders as 'no change' instead of abstaining, or the severity moved off WARN and overturned the T-344 [REVIEW] as a side effect (run 'python3 tools/_t525-fabric-coverage-teeth.py'; rc 2 is a REFUSAL — the audit emitted no coverage line, so the message shape changed and nothing was evaluated — not a measured failure)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

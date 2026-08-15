@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-525: the fabric coverage WARN reports a raw count that rises while coverage improves, and cannot distinguish source growth from card deletion
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T15:37:21Z
+# ============================================================================
+
+task_id: T-525
+task_name: "the fabric coverage WARN reports a raw count that rises while coverage improves, and cannot distinguish source growth from card deletion"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-15T15:22:43Z
+completed: 2026-08-15T15:36:18Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**The warning reports coverage, not just a difference.** The message carries the ratio'
+  - '**Card loss is distinguishable from source growth.** The check compares `registered`'
+  - '**First run, or no comparable prior audit, ABSTAINS rather than inventing a delta.**'
+  - '**Severity is unchanged and the accepted decision is untouched.** Still `warn`, still gated'
+  - '**Teeth (PL-206): red for the NAMED reason.** A mutation-based teeth script proves the'
+  - '**A negative leg may not pass by silence** (L from T-524). Any leg asserting a branch did'
+  - '**Hermetic.** Fixtures under `mktemp`; working tree byte-identical after a run, asserted'
+  - '**Wired** into `tests/run-bridge-tests.sh`, and a fabric card written for any new tool —'
+  - '**Divergence declared** in `.agentic-framework/.vendor-divergence.yaml` with'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 13 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 13
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-525-the-fabric-coverage-warn-reports-a-raw-c.md
+generated_by: context-agent-hybrid

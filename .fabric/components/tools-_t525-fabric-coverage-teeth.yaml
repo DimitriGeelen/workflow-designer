@@ -1,0 +1,45 @@
+id: tools/_t525-fabric-coverage-teeth.py
+name: _t525-fabric-coverage-teeth
+type: script
+subsystem: verification
+location: tools/_t525-fabric-coverage-teeth.py
+tags: [teeth, audit, fabric, coverage, reporting, t-525, t-524, pl-205, pl-206]
+
+purpose: >
+  Proves the fabric coverage WARN in audit.sh DISCRIMINATES rather than merely warns. The check
+  fires whenever unregistered > 0, which is correct and deliberate — watch-patterns.yaml records
+  it as the standing WARN the operator's T-344 [REVIEW] accepted — so the existence of a warning
+  is not the property under test and no leg may assert it. The pre-change code satisfied "a
+  fabric warning appeared" on every run, for every input, forever.
+  WHAT WAS WRONG WAS THE NUMBER. `unregistered` is a difference between two independently moving
+  quantities, so it rises whenever the tree grows even while coverage improves: measured over
+  this project's own audit history, coverage went 10.6% -> 22.5% while the headline figure went
+  147 -> 189. T-345 already corrected one instance of this same confusion in this same check (it
+  printed "(coverage growing)" against a rising unregistered count) — the severity was fixed
+  then, the number was not. The consequence that makes it more than cosmetic: "twenty files were
+  added and not carded" and "twenty cards were DELETED" produced an identical line, and T-524
+  established that cards are load-bearing rather than documentation.
+  So every leg pins WHICH branch was taken — loss, growth, flat, or abstain — against history
+  controlled through the FABRIC_HISTORY_DIR seam rather than by writing fabricated audit reports
+  into the live .context/audits/, which a crashed run would leave behind and nobody would
+  recognise later.
+  Legs 3 and 5 carry the lesson from T-524 one task earlier: a NEGATIVE assertion is satisfied by
+  silence, so "the output does not say CARD LOSS" passes when there is no output — precisely the
+  broken-audit case the leg exists to catch. Both therefore also require the coverage line to be
+  present and well-formed before believing what it does not say.
+  Leg 6 guards the sovereignty edge: severity must stay WARN across every branch. Promoting it to
+  FAIL inside a reporting fix would overturn the operator's ratified T-344 decision as a side
+  effect of a change described as cosmetic.
+  Verified by mutation: reverting the message to raw counts makes this script exit 2 with a
+  refusal naming the missing coverage line — non-zero, so the suite still catches it, and honest
+  that nothing was evaluated rather than claiming a failure it did not measure.
+
+interfaces:
+  - "python3 tools/_t525-fabric-coverage-teeth.py — rc 0 all 7 legs pass, rc 1 a leg failed, rc 2 REFUSE (the audit emitted no coverage line — message shape changed, nothing evaluated, distinguishable from a pass)"
+
+depends_on:
+  - .agentic-framework/agents/audit/audit.sh
+  - .agentic-framework/bin/fw
+
+depended_by:
+  - tests/run-bridge-tests.sh

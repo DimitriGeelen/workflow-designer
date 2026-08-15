@@ -181,6 +181,36 @@ entries:
       EXIT-trap watchdog — T-1169 and T-1860 both sit INSIDE the block that never executes and
       structurally cannot report a skip, which is why this ran undetected.
 
+  - path: .agentic-framework/agents/audit/audit.sh
+    kind: content
+    task: T-525
+    upstream: fix
+    reason: >-
+      The fabric coverage check reported `N registered, M unregistered (of W watched)` and
+      nothing else. `unregistered` is a difference between two independently moving quantities,
+      so it rises whenever the watched tree grows even while coverage improves — measured over
+      this project's audit history, coverage went 10.6% -> 22.5% while the headline figure went
+      147 -> 189, i.e. the number an operator reads moves opposite to the property it describes.
+      T-345 already corrected one instance of this same confusion in this same check (it printed
+      "(coverage growing)" against a rising unregistered count); the severity was fixed then and
+      the number was not, so this is the second half rather than a new finding.
+      The consequence that makes it more than cosmetic: "twenty files were added and not carded"
+      and "twenty cards were DELETED" produced an identical line. T-524 established that cards
+      are load-bearing rather than documentation — a card that stops participating changes what
+      update-task.sh resolves and makes its own file report as unregistered — so card loss is a
+      real failure mode that the audit could not distinguish from routine growth.
+      The check now prints the coverage ratio and compares `registered` against the most recent
+      prior daily report, naming a FALL explicitly; with no comparable prior it ABSTAINS rather
+      than rendering a fabricated zero delta as "no change" (PL-205). Severity is deliberately
+      untouched — still WARN, still gated on unregistered > 0 — because the warning's existence
+      is the standing WARN the operator's T-344 [REVIEW] accepted, and promoting it inside a
+      reporting fix would overturn a ratified decision as a side effect. History is read through
+      FABRIC_HISTORY_DIR (defaulting to the real report directory) so the branches can be
+      exercised end-to-end without writing fabricated reports into a live tree.
+      Cron reports are deliberately excluded from the history scan: they run a reduced section
+      set and carry no Fabric line, so including them would silently yield "no prior" on most
+      runs — an abstention caused by the reader, not by the record.
+
   - path: .agentic-framework/agents/fabric/lib/drift.sh
     kind: content
     task: T-524

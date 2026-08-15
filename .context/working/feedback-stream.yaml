@@ -6623,3 +6623,39 @@ scan_id: R-4d31709c
 task_id: T-524
 payload:
   task_file: .tasks/active/T-524-fw-fabric-validate-exits-0-while-validat.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T15:36:13Z'
+scan_id: R-38ec52db
+task_id: T-525
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T15:36:13Z'
+scan_id: R-38ec52db
+task_id: T-525
+payload:
+  task_file: .tasks/active/T-525-the-fabric-coverage-warn-reports-a-raw-c.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T15:37:18Z'
+scan_id: R-df31db19
+task_id: T-525
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T15:37:18Z'
+scan_id: R-df31db19
+task_id: T-525
+payload:
+  task_file: .tasks/active/T-525-the-fabric-coverage-warn-reports-a-raw-c.md

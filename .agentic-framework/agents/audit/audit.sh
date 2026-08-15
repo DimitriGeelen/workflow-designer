@@ -1540,8 +1540,83 @@ print(f'{len(registered)} {unregistered} {orphaned} {watched}')
                  "$fabric_registered card(s) registered, but .fabric/watch-patterns.yaml matches nothing in this project, so '0 unregistered' is vacuous" \
                  "Edit .fabric/watch-patterns.yaml to describe this project's source layout"
         elif [ "$fabric_unreg" -gt 0 ]; then
-            warn "Fabric: $fabric_registered registered, $fabric_unreg unregistered (of $fabric_watched watched)" \
-                 "$fabric_unreg file(s) matching watch-patterns.yaml have no component card" \
+            # T-525: the EXISTENCE of this warning is correct and deliberate — the
+            # watch-patterns.yaml header records it as the standing WARN the operator's T-344
+            # [REVIEW] accepted. What it SAID was the defect. `unregistered` is a difference
+            # between two independently moving quantities, so it rises whenever the tree grows
+            # even while coverage improves: measured over this project's own audit history,
+            # coverage went 10.6% -> 22.5% while the headline number went 147 -> 189. T-345
+            # already corrected one instance of this same confusion in this same check (it used
+            # to print "(coverage growing)" against a rising unregistered count). Severity was
+            # fixed then; the number was not.
+            #
+            # The blind spot that makes it more than cosmetic: "twenty files were added and not
+            # carded" and "twenty cards were DELETED" produce the identical line, and T-524
+            # established cards are load-bearing rather than documentation. So report the ratio,
+            # and compare `registered` against the previous audit so a FALL is named as such.
+            #
+            # Assignment guarded with `|| true` — a bare `x=$(...)` under `set -euo pipefail`
+            # terminates the script when the substitution exits non-zero, which is the defect
+            # T-522 diagnosed in this same codebase. Deliberate, not noise.
+            # FABRIC_HISTORY_DIR names where prior observations are read from. It defaults to
+            # the real report directory and exists so the three branches below can be exercised
+            # end-to-end against controlled history (tools/_t525-fabric-coverage-teeth.py)
+            # instead of by writing fabricated audit reports into the live tree. Naming the
+            # source is also the honest documentation of what "previous" means here.
+            fabric_prev=$({ python3 - "${FABRIC_HISTORY_DIR:-$CONTEXT_DIR/audits}" <<'PYEOF' 2>/dev/null || true
+import glob, os, re, sys
+
+# Daily audit reports only. Cron reports run a reduced section set and carry no
+# Fabric line, so including them would silently yield "no prior" on most runs.
+audits_dir = sys.argv[1]
+best = None
+for path in sorted(glob.glob(os.path.join(audits_dir, "????-??-??.yaml"))):
+    day = os.path.basename(path)[:-5]
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+        continue
+    try:
+        with open(path) as fh:
+            m = re.search(r"Fabric:\s*(\d+)\s+registered", fh.read())
+    except Exception:
+        continue
+    if m:
+        best = (day, m.group(1))      # sorted() ⇒ last match is the most recent day
+if best:
+    print("%s %s" % best)
+PYEOF
+            } || true)
+
+            fabric_prev_day=$(echo "$fabric_prev" | awk '{print $1}')
+            fabric_prev_reg=$(echo "$fabric_prev" | awk '{print $2}')
+
+            # The daily report is overwritten in place, so on a second run the same day the
+            # prior observation IS today's file. "flat since 2026-08-15" printed ON 2026-08-15
+            # reads as nonsense and invites the reader to think the comparison is stale.
+            if [ -n "$fabric_prev_day" ] && [ "$fabric_prev_day" = "$(date +%Y-%m-%d)" ]; then
+                fabric_prev_day="earlier today"
+            fi
+
+            fabric_pct=0
+            [ "${fabric_watched:-0}" -gt 0 ] && fabric_pct=$(( fabric_registered * 100 / fabric_watched ))
+
+            if [ -z "$fabric_prev_reg" ]; then
+                # PL-205: no prior observation is an ABSTENTION. Rendering it as "no change"
+                # would be a claim about history this instrument cannot support.
+                fabric_dir_note="direction not evaluated — no prior audit report carries a Fabric line"
+                fabric_dir_evidence="first comparable run on this install"
+            elif [ "$fabric_registered" -lt "$fabric_prev_reg" ]; then
+                fabric_dir_note="CARD LOSS: $(( fabric_prev_reg - fabric_registered )) fewer cards than $fabric_prev_day ($fabric_prev_reg -> $fabric_registered)"
+                fabric_dir_evidence="registered cards FELL — this is not the accepted growth case; a deleted or malformed card stops participating in component resolution (T-522/T-524) and its own file then reports as unregistered"
+            elif [ "$fabric_registered" -eq "$fabric_prev_reg" ]; then
+                fabric_dir_note="cards flat since $fabric_prev_day ($fabric_registered)"
+                fabric_dir_evidence="registered is unchanged while the watch set moves, so any change in the unregistered count is tree growth, not carding activity"
+            else
+                fabric_dir_note="+$(( fabric_registered - fabric_prev_reg )) cards since $fabric_prev_day"
+                fabric_dir_evidence="registered GREW; a rising unregistered count alongside this is tree growth outpacing carding, not regression"
+            fi
+
+            warn "Fabric: $fabric_registered registered, $fabric_unreg unregistered (of $fabric_watched watched — ${fabric_pct}% covered, ${fabric_dir_note})" \
+                 "$fabric_unreg file(s) matching watch-patterns.yaml have no component card; $fabric_dir_evidence" \
                  "Run: fw fabric scan"
         else
             pass "Fabric: $fabric_registered registered, 0 unregistered (of $fabric_watched watched)"

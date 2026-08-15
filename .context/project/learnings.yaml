@@ -1576,3 +1576,10 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-221
+  learning: "AN ACCEPTED RECURRING WARNING IS THE IDEAL HIDING PLACE FOR A REPORTING DEFECT. The fabric coverage WARN was correct, deliberate, and RATIFIED — watch-patterns.yaml records it as the standing warning the operator's T-344 [REVIEW] accepted — and the audit's own trend analysis flagged it three times in fourteen days. Because everyone had agreed in advance the line would be there, nobody read the number in it, and the number was wrong in a way that mattered: coverage went 10.6 to 22.5 percent while the headline figure went 147 to 189, so the figure moved OPPOSITE to the property it described for six consecutive audits. The generalisation: acceptance is granted to a CONDITION but silences the whole LINE, so any defect in what the line says inherits the exemption. When a warning has been accepted rather than fixed, its message text is unaudited by construction — the acceptance is precisely what stops anyone checking. Worth re-reading the wording of every standing accepted warning on that basis. Corollary that made this actionable: a metric which is a DIFFERENCE between two independently moving quantities cannot report direction, because only one of them is under anyone's control on a given day; report the ratio and the delta of the controllable term instead."
+  source: P-001
+  task: T-525
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
