@@ -1,0 +1,98 @@
+# ============================================================================
+# EPISODIC MEMORY - T-523: _t515 gap 3 — measure whether aef:uid survives on nodes nested inside a subProcess, the last gap on our side of the seam
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T14:43:24Z
+# ============================================================================
+
+task_id: T-523
+task_name: "_t515 gap 3 — measure whether aef:uid survives on nodes nested inside a subProcess, the last gap on our side of the seam"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-15T14:28:47Z
+completed: 2026-08-15T14:43:15Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-15T16:42:43+02:00
+last_commit: 2026-08-15T16:42:43+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the third _t515 gap measured — a node nested in a subProcess keeps its uid and loses its parent. MEASURED, not inferred: the subProcess and both its children come back with aef:uid byte-identical, the sequenceFlow joining the children survives and still connects them, and the children are HOISTED to <bpmn:process> level while the subProcess returns EMPTY. Nothing disappears; the scope does. AEF keys records on uid, so a record survives and silently changes parent — worse than losing it, because losing it is countable, and precisely why no count-based instrument in this suite has ever gone red on it. THIS FALSIFIED A CLAIM SITTING IN OUR OWN SOURCE. parseBpmnXml's T-337 comment asserted 'the whole interior of an accepted element is dropped today' and I had cited it as fact when scoping the task. It is true of the FOREIGN-tag branch, which walks proc.children, and false for flow nodes, which are collected by byBpmn(proc, tag) — a descendant query. A comment used as a fact with nothing re-checking it: the T-509 class, in our tree this time. Corrected in place rather than contradicted only in a test file. TWO ARMS BECAUSE ONE ARM CANNOT NAME A CAUSE: nested and flat inject the same two nodes with the same uids and the same connecting flow, differing only in containment, so 'both vanished' would be a finding about injection rather than about subProcess. The first flat arm omitted the sequenceFlow and duly reported edge lost — a control differing from the treatment in more than the variable under test, caught before it reached the pin. TEETH MUTATE THE SUBJECT, NOT THE PROBE: restricting node collection to direct children makes the old comment TRUE, and the probe must go red, on the NESTED arm, leaving the FLAT arm untouched — without that third leg a red is equally explained by the mutant breaking the round-trip wholesale. Absent pin exits 2 with a refusal rather than passing. Verdicts come from expat via a new structure-aware reader, never the browser's DOMParser — T-520's lesson, and the reader reports ancestry because 'the uid is still somewhere in the document' is not an answer to a containment question. Suite 90 -> 92 passed 0 failed, ratchet unmoved at 67, tree byte-identical after the run. Three of four _t515 gaps now closed; the fourth is AEF's reverse renderer and stays open by agreement, not neglect
+
+# Key outcomes
+outcomes:
+  - 'The prior question is answered from the editor source and recorded: is node containment'
+  - 'A probe stages a BPMN document carrying `aef:uid` on at least one node genuinely nested'
+  - 'Every verdict comes from a conforming XML reader (expat, via `tools/_t520-xml-read.py`'
+  - 'Outcomes are classified, not reduced to pass/fail — at minimum: uid survives / uid'
+  - 'The probe is pinned so it goes red on a CHANGE, and refuses with a distinct exit code'
+  - 'The pin is proved non-vacuous: a stimulus that should move it does move it, and the'
+  - '`_t515`''s `does_not_cover` is updated to point at this probe — three of four gaps closed,'
+  - 'Wired into `tests/run-bridge-tests.sh` with a rationale block a reader can act on; suite'
+  - 'Result posted to AEF on the rail with the finding stated plainly, including whichever'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-15.yaml'
+  - '.context/audits/cron/2026-08-15-1630.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.new-file-counter'
+  - '.context/working/watchtower.log'
+  - '.fabric/components/tools-_t523-nesting-teeth.yaml'
+  - '.fabric/components/tools-_t523-subprocess-nesting.yaml'
+  - '.fabric/components/tools-_t523-xml-structure.yaml'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-523-t515-gap-3--measure-whether-aefuid-survi.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t515-external-uid-conformance.mjs'
+  - 'tools/_t523-nesting.pin.json'
+  - 'tools/_t523-nesting-teeth.py'
+  - 'tools/_t523-subprocess-nesting.mjs'
+  - 'tools/_t523-xml-structure.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-15T16:42:43"
+    action: "T-523: the third _t515 gap measured — a node nested in a subProcess keeps its uid and loses its parent. MEASURED, not inferred: the subProcess and both its children come back with aef:uid byte-identical, the sequenceFlow joining the children survives and still connects them, and the children are HOISTED to <bpmn:process> level while the subProcess returns EMPTY. Nothing disappears; the scope does. AEF keys records on uid, so a record survives and silently changes parent — worse than losing it, because losing it is countable, and precisely why no count-based instrument in this suite has ever gone red on it. THIS FALSIFIED A CLAIM SITTING IN OUR OWN SOURCE. parseBpmnXml's T-337 comment asserted 'the whole interior of an accepted element is dropped today' and I had cited it as fact when scoping the task. It is true of the FOREIGN-tag branch, which walks proc.children, and false for flow nodes, which are collected by byBpmn(proc, tag) — a descendant query. A comment used as a fact with nothing re-checking it: the T-509 class, in our tree this time. Corrected in place rather than contradicted only in a test file. TWO ARMS BECAUSE ONE ARM CANNOT NAME A CAUSE: nested and flat inject the same two nodes with the same uids and the same connecting flow, differing only in containment, so 'both vanished' would be a finding about injection rather than about subProcess. The first flat arm omitted the sequenceFlow and duly reported edge lost — a control differing from the treatment in more than the variable under test, caught before it reached the pin. TEETH MUTATE THE SUBJECT, NOT THE PROBE: restricting node collection to direct children makes the old comment TRUE, and the probe must go red, on the NESTED arm, leaving the FLAT arm untouched — without that third leg a red is equally explained by the mutant breaking the round-trip wholesale. Absent pin exits 2 with a refusal rather than passing. Verdicts come from expat via a new structure-aware reader, never the browser's DOMParser — T-520's lesson, and the reader reports ancestry because 'the uid is still somewhere in the document' is not an answer to a containment question. Suite 90 -> 92 passed 0 failed, ratchet unmoved at 67, tree byte-identical after the run. Three of four _t515 gaps now closed; the fourth is AEF's reverse renderer and stays open by agreement, not neglect"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 14 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 14
+  commits: 1
+  files_changed: 21
+  lines_added: 1169
+  lines_removed: 44
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-523-t515-gap-3--measure-whether-aefuid-survi.md
+generated_by: context-agent-hybrid

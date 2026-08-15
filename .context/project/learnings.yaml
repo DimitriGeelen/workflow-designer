@@ -1548,3 +1548,17 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-217
+  learning: "A comment stating a behavioural fact is an assumption with an expiry date, and citing it when SCOPING a task propagates the error into the deliverable's shape. T-523: parseBpmnXml carried 'the whole interior of an accepted element is dropped today'; I read it, believed it, and wrote a task expecting to measure NODE LOSS. Measured, nested flow nodes are not dropped at all — they are HOISTED to process level with their uids intact while containment is destroyed, because the collection query is a descendant query over a flat model. The comment was true of a neighbouring branch and false of this one, which is why it survived: a claim that is true SOMEWHERE is far more durable than one that is simply wrong. Two consequences worth carrying: the outcome vocabulary a probe is built with must not be inherited from the claim it is testing (a survives/dropped probe would have reported 'survives' and hidden the finding, since the third outcome had no name in it), and a test that merely disagrees with a comment leaves the next reader two claims and no way to choose — correct the comment in place or the measurement decays into folklore"
+  source: P-001
+  task: T-523
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
+- id: PL-218
+  learning: "A loss that keeps every COUNT constant is invisible to every count-based instrument, and those are most of the instruments anyone builds. T-523: a node authored inside a subProcess round-trips with the same node count, same flow count, same uid count, same uids — and a different parent. The bridge suite had 90 legs and not one could see it. The general form: when the property under test is a RELATION (containment, ownership, ordering, scope) rather than a quantity, presence-and-count checks are structurally blind, and their greenness is not evidence. The remedy is to make the instrument report ANCESTRY or the relation itself, which also means the reader has to be structure-aware — a reader returning a flat list of values reports the interesting case as identical to the boring one. Corollary for cross-project seams specifically: a relation-loss is the worst class to ship, because the record still resolves on the far side and simply means something else, with no error at either end"
+  source: P-001
+  task: T-523
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD

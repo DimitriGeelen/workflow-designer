@@ -4,20 +4,20 @@ name: "_t515 gap 3 — measure whether aef:uid survives on nodes nested inside a
 description: >
   _t515 gap 3 — measure whether aef:uid survives on nodes nested inside a subProcess, the last gap on our side of the seam
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t523-nesting-teeth.py, tools/_t523-subprocess-nesting.mjs, tools/_t523-xml-structure.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T14:28:47Z
-last_update: 2026-08-15T14:28:47Z
-date_finished: null
+last_update: 2026-08-15T14:43:15Z
+date_finished: 2026-08-15T14:43:15Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -248,3 +248,22 @@ python3 -c "import json; d=json.load(open('tools/_t523-nesting.pin.json')); asse
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-523-t515-gap-3--measure-whether-aefuid-survi.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6b525b40
+- **Timestamp:** 2026-08-15T14:43:22Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#3 (Agent)** — Every verdict comes from a conforming XML reader (expat, via `tools/_t520-xml-read.py`
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tools/_t520-xml-read.py in: Every verdict comes from a conforming XML reader (expat, via `tools/_t520-xml-read.py``
+- **AC#8 (Agent)** — Wired into `tests/run-bridge-tests.sh` with a rationale block a reader can act on; suite
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/run-bridge-tests.sh in: Wired into `tests/run-bridge-tests.sh` with a rationale block a reader can act on; suite`
+
+### 2026-08-15T14:43:15Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

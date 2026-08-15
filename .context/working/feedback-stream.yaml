@@ -6569,3 +6569,21 @@ scan_id: R-77f8d48a
 task_id: T-522
 payload:
   task_file: .tasks/active/T-522-episodic-auto-generation-silently-skippe.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T14:43:22Z'
+scan_id: R-6b525b40
+task_id: T-523
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T14:43:22Z'
+scan_id: R-6b525b40
+task_id: T-523
+payload:
+  task_file: .tasks/active/T-523-t515-gap-3--measure-whether-aefuid-survi.md
