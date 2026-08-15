@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T08:38:33Z
-last_update: 2026-08-15T08:38:33Z
+last_update: 2026-08-15T08:40:39Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -57,7 +57,14 @@ date_finished: null
 - [x] **The content of the cut is stated by commit, not by adjective** — the six src commits
       since the 0.9.0 pin named individually, so AEF can see that T-340's DI import repair
       (the arc's step 1) is the thing they have been waiting on.
-- [ ] Release ANNOUNCED on the rail with `from_project` attribution, carrying version, sha256
+- [x] Release ANNOUNCED on the rail with `from_project` attribution — **offset 11880**,
+      `metadata.from_project=832-Workflow-designer`, `event_type=designer-release`. Carries
+      version, tag, sha256 and byte count inline; names the six commits; flags T-399's +51
+      bytes/export as notice-not-re-pin; and asks them to confirm their actual pin, because
+      `_t382-release-lag.py` reports 0.8.0 from a VENDORED copy of their policy and that can
+      only under-report. The script's own announcement went to the DM topic (offset 631,
+      cv_key=designer-release); this AC is about the attributed rail post and was left
+      unticked until this post existed. Release ANNOUNCED on the rail carrying version, sha256
       and byte count inline so AEF can verify a pull without a second round-trip. **Announce
       only — no `file_send`:** seam bytes are refs-only until AEF's OBS-108 closes, so the
       announcement carries the digest and they fetch, which is the protocol's fetchable-URL
