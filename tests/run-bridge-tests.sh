@@ -1004,6 +1004,35 @@ else
 fi
 
 echo
+echo "== aef:uid values that are not XML-attribute-safe (T-520, _t515 gap 2) =="
+# §6.3 invites AEF to assign aef:uid externally and constrains nothing about the VALUE. The uid
+# rides in an XML attribute, so the character set is bounded by XML — in three ways that need
+# three different remedies: escapable (& < "), normalised-and-lossy-by-spec (newline, tab), and
+# unrepresentable (C0 controls, illegal in XML 1.0 anywhere).
+#
+# MEASURED: 8 of 11 candidates survive byte-identical, so escaping is correct. Newline and tab
+# do NOT — the editor emits them RAW into the attribute, and XML attribute-value normalisation
+# turns them into a space for any conforming parser. The uid AEF's side reads is not the uid we
+# wrote, silently, with no error at either end.
+#
+# WHY THE VERDICT IS NOT TAKEN IN THE BROWSER: the first version read the result back with
+# Chrome's DOMParser, which does not apply that normalisation, and reported every value intact.
+# The producer's own lenient parser agreed with the defect. Verdicts now come from expat via
+# tools/_t520-xml-read.py — the class of parser that reads the document on AEF's side — and the
+# disagreement between the two readers is reported as evidence rather than smoothed away.
+#
+# Characterisation, as T-518: goes red on a CHANGE, not on the defect, because what SHOULD
+# happen here is co-designed and not a test file's call.
+#
+# COST: ~40s, Chromium plus the gallery sidecar, same shape as _t511/_t513/_t515/_t518.
+if timeout 300 node "$ROOT/tools/_t520-uid-xml-safety.mjs" > /dev/null 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "aef:uid XML-attribute safety changed, or the negative control died — a uid value that used to survive a round-trip no longer does (or vice versa), which silently re-points every record AEF keys on that uid (run 'node tools/_t520-uid-xml-safety.mjs'; rc 2 is a refusal — corpus missing, staging failed, or the plain-value control did not survive — not a behaviour change)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Vendored-framework divergence matches its declared manifest (T-517) =="
 # G-008 permits fixing vendored .agentic-framework/ code in-tree AND upstreaming it. The tree
 # recorded that a fix happened (a commit); nothing recorded that the fix was LOCAL. Consequence

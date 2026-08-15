@@ -1,0 +1,49 @@
+id: tools/_t520-uid-xml-safety.mjs
+name: _t520-uid-xml-safety
+type: script
+subsystem: verification
+tags: [probe, cdp, aef-seam, identity, xml-escaping, mapping-standard, t-520, rail-11891]
+
+purpose: >
+  Measures what survives when an externally-assigned aef:uid carries a value that is not
+  XML-attribute-safe — the second of the four gaps _t515 names in its own does_not_cover, taken
+  after T-518 closed the first. Mapping standard §6.3 invites AEF to assign the uid externally
+  and constrains NOTHING about the value, but the uid rides in an XML attribute, so the
+  character set is bounded by XML in three ways that need three different remedies: escapable
+  (& < > "), normalised-and-lossy-by-spec (newline, tab, CR — XML 1.0 §3.3.3), and
+  unrepresentable (C0 controls, illegal anywhere in XML 1.0). A bare pass/fail would be the
+  wrong output, so each candidate is classified into a measured outcome and the report separates
+  what the EDITOR does from what XML makes impossible — only the first is ours to change.
+  MEASURED: 8 of 11 candidates survive byte-identical, so the escaping path is correct,
+  including non-ASCII UTF-8 and a combined all-hostile value. Newline and tab do NOT: the editor
+  emits them RAW into the attribute, and a conforming parser normalises them to a space, so the
+  uid AEF reads is not the uid we wrote — silently, with no error at either end, on a field
+  their reverse renderer keys records on. U+0001 cannot be staged at all, which is a fact about
+  XML rather than about the editor.
+  THE INSTRUMENT AGREED WITH THE DEFECT ON THE FIRST BUILD, AND THAT IS THE LESSON. The
+  round-tripped document is already in a browser, so the free way to read it back is Chrome's
+  DOMParser — which does not apply attribute-value normalisation here and reported every value
+  intact, newline included. Measuring a cross-project seam with the producer's own lenient
+  parser certifies exactly the corruption the probe exists to find. Verdicts now come from expat
+  (tools/_t520-xml-read.py), the class of parser that reads the document on AEF's side, and the
+  DISAGREEMENT between the two readers is reported as evidence rather than smoothed away.
+  The pin was also wrong twice in opposite directions: drafted from expectation as
+  `transformed`, corrected to `identical` on the browser-read measurement, then restored to
+  `transformed` for a completely different and more serious reason once the reader was fixed.
+  Getting the right answer from the wrong model is not getting it right — the fix was to change
+  the instrument, not the number.
+  CHARACTERISATION, NOT A VERDICT (as T-518): nobody has ratified what SHOULD happen, so this
+  pins observed behaviour and goes red on a CHANGE rather than legislating a co-designed
+  standard from a test file.
+
+interfaces:
+  - "node tools/_t520-uid-xml-safety.mjs — rc 0 measured and matches the pin, rc 1 behaviour changed, rc 2 REFUSE (no corpus, staging failed, negative control dead, or an unpinned candidate)"
+
+depends_on:
+  - src/aef-workflow-designer.html
+  - tools/gallery-serve.py
+  - tools/_t520-xml-read.py
+  - examples/aef-processes/rendered
+
+depended_by:
+  - tests/run-bridge-tests.sh

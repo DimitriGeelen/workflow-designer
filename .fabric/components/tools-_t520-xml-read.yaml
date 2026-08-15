@@ -1,0 +1,30 @@
+id: tools/_t520-xml-read.py
+name: _t520-xml-read
+type: script
+subsystem: verification
+tags: [probe-support, xml, conforming-parser, aef-seam, t-520]
+
+purpose: >
+  Reads aef:uid values out of a BPMN document using a CONFORMING XML parser (expat, via
+  xml.etree), and exists solely because its caller could not be trusted to read its own results.
+  _t520-uid-xml-safety.mjs drives the editor in a browser, so the obvious reader is the
+  browser's DOMParser — and that produced a false green: the editor emits a RAW newline inside
+  the aef:uid value attribute, Chrome hands it back unchanged, and a full round-trip looked
+  byte-identical. XML 1.0 §3.3.3 says otherwise, since attribute-value normalisation replaces
+  every literal newline, CR and tab in an attribute value with a SPACE before the application
+  sees it; a value must be written as a numeric character reference to survive. expat applies
+  it, as does lxml, as does Java, as does whatever reads the document on AEF's side.
+  So the divergence is not cosmetic: a uid containing whitespace reads back one way in the
+  editor and another way in every conforming consumer, with no error on either side. The general
+  form is worth stating — when verifying a SEAM, the reader must be the class of reader on the
+  far side, because the producer's own parser will happily agree with the producer's own defect.
+  Exit 0 always: an unparseable document is a RESULT here (that is one of the outcomes the
+  caller classifies), not a failure of the reader.
+
+interfaces:
+  - "python3 tools/_t520-xml-read.py < document.bpmn — emits {parsed: bool, error: str|null, uids: [...]} on stdout; always exits 0"
+
+depends_on: []
+
+depended_by:
+  - tools/_t520-uid-xml-safety.mjs
