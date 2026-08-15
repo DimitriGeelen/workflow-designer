@@ -1,0 +1,35 @@
+id: tools/_t511-unwired-node-roundtrip.mjs
+name: _t511-unwired-node-roundtrip
+type: script
+subsystem: verification
+location: tools/_t511-unwired-node-roundtrip.mjs
+tags: [probe, roundtrip, cdp, aef-seam, t-511, rail-11833-q2]
+
+purpose: >
+  Answers AEF rail 11833 Q2 — does a save round-trip drop unwired flow nodes? — by RUNNING
+  the round-trip rather than reading parseBpmnXml. Drives buildBpmnXml(parseBpmnXml(x)) in a
+  headless-Chromium-loaded designer over a fixture built from a live corpus map with two
+  injected unwired nodes (a scriptTask listed in a lane, an exclusiveGateway listed in no
+  lane). Unwired means no bpmn:incoming, no bpmn:outgoing, and absent from every sequenceFlow
+  sourceRef/targetRef. ANSWER as measured 2026-08-15: NO, both survive, 29 aef:uid in and 29
+  out. Secondary finding: the element id does NOT survive — it is re-minted from the uid via
+  computeDisplayId — so identity travels on aef:uid and anything keyed on element id across a
+  save will not match. Compares on aef:uid deliberately: the first version compared element
+  id, the attribute the exporter is documented to rewrite, and reported a false "both nodes
+  dropped". Carries a negative control that cuts the node out of the output and requires the
+  comparator to report it, without which "nothing dropped" and "the comparison is dead" are
+  indistinguishable (AEF rail 11876). Exit 0 survived-and-control-fired, 1 drop or dead
+  control, 2 misconfig. T511_CORPUS overrides the corpus directory.
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+  - target: examples/aef-processes/rendered
+    type: reads
+
+depended_by: []
+
+last_verified: 2026-08-15
+created_by: T-511
