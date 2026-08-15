@@ -1634,3 +1634,24 @@ decisions:
     date: 2026-08-15
     task: T-517
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-213
+    decision: "the probe stages D1 (authored value equal to one the editor would mint) AND D2"
+    scope: project
+    date: 2026-08-15
+    task: T-518
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-214
+    decision: "every verdict is a count of a specific uid value in the output, or a set"
+    scope: project
+    date: 2026-08-15
+    task: T-518
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-215
+    decision: "the probe records D2's duplicate-survives result as a pinned expectation and goes"
+    scope: project
+    date: 2026-08-15
+    task: T-518
+    rationale: "Auto-captured from task file on completion"

@@ -1492,3 +1492,17 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-209
+  learning: "The phrase that NAMES a gap is not always the shape of the risk. _t515's does_not_cover said 'uid collision between an externally-assigned value and one the editor would mint' — I wrote that sentence, and building faithfully to it would have tested the one direction that is GUARDED, gone green, and reported that collisions are handled. Reading the import path first showed the two directions are asymmetric: a derived uid colliding with an authored one is protected by a pre-seeded used-set, while two AUTHORED uids with the same value never enter the deriving function at all and both survive. The dangerous direction was the one my own gap statement did not describe. Before building to a gap note — especially your own — read the code path and ask which directions the stated phrase actually covers."
+  source: P-001
+  task: T-518
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
+- id: PL-210
+  learning: "Never key a before/after comparison on a field the operation under test rewrites. T-518's first implementation tracked each uid carrier across a save round-trip by its owning element's id and produced pure artifacts — one lookup returned null, another returned a different element's uid — and the reason was T-513, a finding I had made myself and reported to AEF weeks earlier: the element id is derived from lane + x-order + node name and is re-minted on EVERY save. Knowing a fact and remembering it while designing a comparator are different things. The tell is a result that is not merely wrong but incoherent (a null where a value must exist). The remedy is usually to stop needing the handle at all: counts of a specific value and set differences answered the question — do two carriers share one identity — without any per-element key, and are immune to the rewrite by construction."
+  source: P-001
+  task: T-518
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD

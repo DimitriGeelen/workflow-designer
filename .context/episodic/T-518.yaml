@@ -1,0 +1,92 @@
+# ============================================================================
+# EPISODIC MEMORY - T-518: uid collision: an externally-assigned aef:uid that equals one the editor would mint for a different node
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T10:33:31Z
+# ============================================================================
+
+task_id: T-518
+task_name: "uid collision: an externally-assigned aef:uid that equals one the editor would mint for a different node"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-15T10:23:02Z
+completed: 2026-08-15T10:33:27Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-15T12:33:22+02:00
+last_commit: 2026-08-15T12:33:22+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the uid-collision gap measured, and half of it is not what the gap statement said. Took the first of the four _t515 gaps I named to AEF at 11891 rather than waiting on their answer, since it is our own coverage of a standard we co-own. Reading the import path before building changed the test: the two directions are NOT symmetric. D1, an authored uid equal to one the editor would MINT for another node, is GUARDED — designer.html:9909 pre-seeds usedUids with every authored uid before any derivation runs and deriveUid salts deterministically, measured as the authored value occurring exactly once afterwards. D2, two elements carrying the SAME authored uid, is UNGUARDED by construction: the call site is uidEl?.getAttribute(value) || deriveUid(...), so an authored uid short-circuits and deriveUid is never entered, meaning usedUids is neither consulted nor updated and nothing on that path can observe a duplicate. Measured on arc-lifecycle: duplicate survives a full round-trip with 2 occurrences, 27 carriers before and after so nothing is dropped, 26 distinct values for 27 carriers, and edges behave identically through their own call site. D1 is the direction _t515's does_not_cover literally names, so testing only that would have gone green and I would have reported that collisions are handled — PL-206 a third time, where the phrase naming a gap was not the shape of the risk. Second self-inflicted one: the first implementation tracked carriers across the round-trip by their owning element id and produced pure artifacts, one lookup null and another a different element's uid, because T-513 — my own finding, reported to AEF at 11885 — says the element id is re-minted from lane plus x-order plus name on every save. I keyed a before/after comparison on the field the operation under test rewrites. Everything is counts and set differences now. Pinned as a CHARACTERISATION test rather than failed: nobody has ratified what should happen, section 6.3 invites external assignment and states no uniqueness requirement, and that silence IS the finding — a standing red would be a test file legislating a co-designed standard. One AC amended in place rather than silently narrowed, because 'which node holds which' is not deliverable and asking for it was the error. Reported at rail 11896 with a single recommendation instead of a menu: put the uniqueness obligation on the assigner in section 6.3, do NOT make the editor reject duplicates, since that breaks section 5's honour-what-you-were-given promise and moves the failure rather than removing it. Suite 87 -> 88 passed 0 failed
+
+# Key outcomes
+outcomes:
+  - '`tools/_t518-uid-collision.mjs` measures BOTH collision directions, because reading the'
+  - 'The collision is verified to be real BEFORE the probe draws any conclusion — the minted'
+  - 'The probe drives the real save path (`buildBpmnXml(parseBpmnXml(x))` in the loaded'
+  - 'A negative control proves the comparator can see a uid change at all, so "no collision'
+  - 'Exits 2 (refusal, distinct from both pass and fail) when the fixture cannot be made to'
+  - 'Wired into `tests/run-bridge-tests.sh` with a real caller; suite passes, 0 failed.'
+  - 'Result reported to AEF on the rail, including what it does NOT cover, and stating plainly'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the uid-collision gap measured, and half of it is not what the gap statement said. Took the first of the four _t515 gaps I named to AEF at 11891 rather than waiting on their answer, since it is our own coverage of a standard we co-own. Reading the import path before building changed the test: the two directions are NOT symmetric. D1, an authored uid equal to one the editor would MINT for another node, is GUARDED — designer.html:9909 pre-seeds usedUids with every authored uid before any derivation runs and deriveUid salts deterministically, measured as the authored value occurring exactly once afterwards. D2, two elements carrying the SAME authored uid, is UNGUARDED by construction: the call site is uidEl?.getAttribute(value) || deriveUid(...), so an authored uid short-circuits and deriveUid is never entered, meaning usedUids is neither consulted nor updated and nothing on that path can observe a duplicate. Measured on arc-lifecycle: duplicate survives a full round-trip with 2 occurrences, 27 carriers before and after so nothing is dropped, 26 distinct values for 27 carriers, and edges behave identically through their own call site. D1 is the direction _t515''s does_not_cover literally names, so testing only that would have gone green and I would have reported that collisions are handled — PL-206 a third time, where the phrase naming a gap was not the shape of the risk. Second self-inflicted one: the first implementation tracked carriers across the round-trip by their owning element id and produced pure artifacts, one lookup null and another a different element''s uid, because T-513 — my own finding, reported to AEF at 11885 — says the element id is re-minted from lane plus x-order plus name on every save. I keyed a before/after comparison on the field the operation under test rewrites. Everything is counts and set differences now. Pinned as a CHARACTERISATION test rather than failed: nobody has ratified what should happen, section 6.3 invites external assignment and states no uniqueness requirement, and that silence IS the finding — a standing red would be a test file legislating a co-designed standard. One AC amended in place rather than silently narrowed, because ''which node holds which'' is not deliverable and asking for it was the error. Reported at rail 11896 with a single recommendation instead of a menu: put the uniqueness obligation on the assigner in section 6.3, do NOT make the editor reject duplicates, since that breaks section 5''s honour-what-you-were-given promise and moves the failure rather than removing it. Suite 87 -> 88 passed 0 failed'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-15 — measure both collision directions, not the one the gap statement names'
+    chose: 'the probe stages D1 (authored value equal to one the editor would mint) AND D2 (two carriers with the same authored value), after reading the import path rather than building straight from `_t515`''s phrasing.'
+    rationale: 'the source shows the directions are not symmetric. `usedUids` is pre-seeded at designer.html:9909, so D1 is guarded; the authored-uid call site short-circuits before `deriveUid` is ever entered, so D2 has no guard at all. D1 alone would have gone green and I would have reported "collisions are handled" — a control fed a stimulus built so it cannot fire, which is PL-206 for the third time this week.'
+    alternatives_rejected: ['testing only the direction `_t515`''s does_not_cover literally names, which is what a faithful reading of my own earlier note would have produced.']
+  - decision: '2026-08-15 — key the comparison on counts, never on element id'
+    chose: 'every verdict is a count of a specific uid value in the output, or a set difference; the minted value is recovered by diffing uid sets rather than by looking up an element.'
+    rationale: 'the first version tracked carriers across the round-trip by their owning element''s `id` and produced pure artifacts — one lookup returned `null`, another returned a different element''s uid. T-513 measured that the element id is a function of lane + x-order + node name and is re-minted on every save. I filed that finding and then keyed a before/after comparison on precisely the field the operation under test rewrites.'
+    alternatives_rejected: ['adding a stable marker attribute to the fixture, which would have meant testing a document shape the editor never actually receives.']
+  - decision: '2026-08-15 — pin the observed behaviour rather than fail on it'
+    chose: 'the probe records D2''s duplicate-survives result as a pinned expectation and goes red on a CHANGE; it does not fail merely because the duplicate survives.'
+    rationale: 'nobody has ratified what should happen. §6.3 invites external uid assignment and states no uniqueness requirement — that silence IS the finding. A standing red would assert a preference no standard carries, and a test file is not where a co-designed standard gets legislated. A change in behaviour, by contrast, is exactly what AEF needs to hear before they build a reverse renderer on it.'
+    alternatives_rejected: ['failing on the duplicate (legislates), and asserting nothing (loses the regression signal entirely).']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t518-uid-collision.yaml'
+  - '.tasks/active/T-518-uid-collision-an-externally-assigned-aef.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t515-external-uid-conformance.mjs'
+  - 'tools/_t518-uid-collision.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-15T12:33:22"
+    action: "T-518: the uid-collision gap measured, and half of it is not what the gap statement said. Took the first of the four _t515 gaps I named to AEF at 11891 rather than waiting on their answer, since it is our own coverage of a standard we co-own. Reading the import path before building changed the test: the two directions are NOT symmetric. D1, an authored uid equal to one the editor would MINT for another node, is GUARDED — designer.html:9909 pre-seeds usedUids with every authored uid before any derivation runs and deriveUid salts deterministically, measured as the authored value occurring exactly once afterwards. D2, two elements carrying the SAME authored uid, is UNGUARDED by construction: the call site is uidEl?.getAttribute(value) || deriveUid(...), so an authored uid short-circuits and deriveUid is never entered, meaning usedUids is neither consulted nor updated and nothing on that path can observe a duplicate. Measured on arc-lifecycle: duplicate survives a full round-trip with 2 occurrences, 27 carriers before and after so nothing is dropped, 26 distinct values for 27 carriers, and edges behave identically through their own call site. D1 is the direction _t515's does_not_cover literally names, so testing only that would have gone green and I would have reported that collisions are handled — PL-206 a third time, where the phrase naming a gap was not the shape of the risk. Second self-inflicted one: the first implementation tracked carriers across the round-trip by their owning element id and produced pure artifacts, one lookup null and another a different element's uid, because T-513 — my own finding, reported to AEF at 11885 — says the element id is re-minted from lane plus x-order plus name on every save. I keyed a before/after comparison on the field the operation under test rewrites. Everything is counts and set differences now. Pinned as a CHARACTERISATION test rather than failed: nobody has ratified what should happen, section 6.3 invites external assignment and states no uniqueness requirement, and that silence IS the finding — a standing red would be a test file legislating a co-designed standard. One AC amended in place rather than silently narrowed, because 'which node holds which' is not deliverable and asking for it was the error. Reported at rail 11896 with a single recommendation instead of a menu: put the uniqueness obligation on the assigner in section 6.3, do NOT make the editor reject duplicates, since that breaks section 5's honour-what-you-were-given promise and moves the failure rather than removing it. Suite 87 -> 88 passed 0 failed"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 10 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 10
+  commits: 1
+  files_changed: 5
+  lines_added: 598
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-518-uid-collision-an-externally-assigned-aef.md
+generated_by: context-agent-hybrid

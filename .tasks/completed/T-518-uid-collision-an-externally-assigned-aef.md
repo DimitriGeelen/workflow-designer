@@ -4,20 +4,20 @@ name: "uid collision: an externally-assigned aef:uid that equals one the editor 
 description: >
   uid collision: an externally-assigned aef:uid that equals one the editor would mint for a different node
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t518-uid-collision.mjs]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T10:23:02Z
-last_update: 2026-08-15T10:23:02Z
-date_finished: null
+last_update: 2026-08-15T10:33:27Z
+date_finished: 2026-08-15T10:33:27Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -271,3 +271,15 @@ grep -q "_t518-uid-collision.mjs" tools/_t515-external-uid-conformance.mjs
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-518-uid-collision-an-externally-assigned-aef.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-3bc233c2
+- **Timestamp:** 2026-08-15T10:33:28Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-15T10:33:27Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
