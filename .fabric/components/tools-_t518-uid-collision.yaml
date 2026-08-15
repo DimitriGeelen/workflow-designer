@@ -1,0 +1,44 @@
+id: tools/_t518-uid-collision.mjs
+name: _t518-uid-collision
+type: script
+subsystem: verification
+location: tools/_t518-uid-collision.mjs
+tags: [probe, cdp, aef-seam, identity, collision, mapping-standard, t-518, rail-11891]
+
+purpose: >
+  Measures what the editor does when two carriers want one aef:uid — the first of four gaps
+  _t515 names in its own does_not_cover, and the one 832 told AEF at rail 11891 it would take
+  first. Matters because mapping standard §6.3 invites AEF to assign aef:uid externally and
+  their reverse renderer keys records on uid: two nodes sharing one uid means a record-keyed
+  consumer silently folds them into one, with no error on either side and a document that looks
+  conformant. READING THE SOURCE BEFORE BUILDING CHANGED THE TEST — the two directions are not
+  symmetric. D1, an authored value equal to one the editor would MINT for a different node, is
+  guarded: designer.html:9909 pre-seeds usedUids with every authored uid before any derivation
+  runs and deriveUid (9925) salts deterministically, so the derived node moves aside. D2, two
+  nodes carrying the SAME authored uid, is unguarded by construction: the call site (10090) is
+  `uidEl?.getAttribute(value) || deriveUid(...)`, so an authored uid short-circuits and
+  deriveUid is never entered — usedUids is neither consulted nor updated and nothing on that
+  path can observe a duplicate. Had the probe tested only D1, the direction _t515's phrase
+  literally names, it would have gone green and reported "collisions are handled" (PL-206).
+  MEASURED on the arc-lifecycle corpus map: D1 guarded (the authored value occurs exactly once
+  afterwards); D2 UNGUARDED — the duplicate survives a full round-trip on nodes and on edges,
+  27 uid carriers before and after with 26 distinct values, so nothing is dropped and nothing
+  warns. KEYED ON COUNTS AND SET DIFFERENCES, NEVER ON ELEMENT ID: the first version tracked
+  carriers across the round-trip by their owning element's id and produced pure artifacts —
+  T-513's own finding is that the element id is a function of lane + x-order + node name and is
+  re-minted on every save, so it is exactly the wrong handle for a before/after comparison of
+  the operation that rewrites it. CHARACTERISATION, NOT A VERDICT: nobody has ratified what
+  SHOULD happen on D2 — §6.3 states no uniqueness requirement, which is the actual finding — so
+  the observed behaviour is pinned and a CHANGE goes red, rather than this test legislating a
+  co-designed standard.
+
+interfaces:
+  - "node tools/_t518-uid-collision.mjs — rc 0 measured and matches the pin, rc 1 behaviour changed or control dead, rc 2 REFUSE"
+
+depends_on:
+  - src/aef-workflow-designer.html
+  - tools/gallery-serve.py
+  - examples/aef-processes/rendered
+
+depended_by:
+  - tests/run-bridge-tests.sh

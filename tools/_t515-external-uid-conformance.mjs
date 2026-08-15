@@ -184,7 +184,7 @@ async function main() {
         victim, stimulus_really_differs: stimulusReallyDiffers, fired: controlFired,
       },
       anti_overfit: { description: 'nudging one aef:position — a presentational-only edit per §6.4 — must leave the uid set unchanged', quiet: benignEditIsQuiet },
-      does_not_cover: 'one corpus map. Does not cover uid values that are not XML-attribute-safe, uid collision between an externally-assigned value and one the editor would mint, or subProcess-nested nodes. It also does not test the REVERSE RENDERER, which is AEF-side and cannot be exercised from here — only the editor-side promise §5 makes on its behalf.',
+      does_not_cover: 'one corpus map. Does not cover uid values that are not XML-attribute-safe or subProcess-nested nodes. It also does not test the REVERSE RENDERER, which is AEF-side and cannot be exercised from here — only the editor-side promise §5 makes on its behalf. UID COLLISION, named here as a gap when this was written, is now measured by tools/_t518-uid-collision.mjs: a derived uid colliding with an authored one is guarded, but TWO AUTHORED uids with the same value both survive a round-trip, on nodes and edges — §6.3 states no uniqueness requirement and the editor enforces none.',
     }, null, 2));
     process.exitCode = ok ? 0 : 1;
   } catch (e) {

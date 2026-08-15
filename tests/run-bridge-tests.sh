@@ -982,6 +982,28 @@ else
 fi
 
 echo
+echo "== aef:uid collision behaviour is unchanged (T-518, _t515 gap 1, AEF rail 11891) =="
+# Characterisation, not a verdict. Two collision directions, and they are NOT symmetric:
+#   D1 an authored uid equal to one the editor would MINT for another node — guarded, because
+#      designer.html:9909 pre-seeds usedUids from the document before any derivation runs.
+#   D2 two nodes carrying the SAME authored uid — unguarded, because the call site short-circuits
+#      on the attribute and deriveUid is never entered. Measured: the duplicate survives a full
+#      round-trip, on nodes and on edges, with no element dropped and no warning anywhere.
+#
+# Pinned rather than failed. Nobody has ratified what SHOULD happen — §6.3 invites external uid
+# assignment and states no uniqueness requirement, which IS the finding. So this leg goes red on
+# a CHANGE in behaviour, which is what AEF needs to hear about, rather than asserting a
+# preference no standard carries.
+#
+# COST: ~40s, Chromium plus the gallery sidecar, same shape as _t511/_t513/_t515.
+if timeout 300 node "$ROOT/tools/_t518-uid-collision.mjs" > /dev/null 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "aef:uid collision behaviour changed, or the negative control died — if the editor now rewrites or rejects duplicate authored uids, AEF's reverse renderer will see uids it never assigned and must be told before they build on it (run 'node tools/_t518-uid-collision.mjs'; rc 2 is a refusal — corpus missing or the collision could not be staged — not a behaviour change)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Vendored-framework divergence matches its declared manifest (T-517) =="
 # G-008 permits fixing vendored .agentic-framework/ code in-tree AND upstreaming it. The tree
 # recorded that a fix happened (a commit); nothing recorded that the fix was LOCAL. Consequence
