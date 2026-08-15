@@ -1464,3 +1464,10 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-205
+  learning: "A probe that reports an ABSENCE — nothing was dropped, no violations found, no drift — is indistinguishable from a probe whose comparator is dead, and the two failures produce byte-identical output. The only thing that separates them is a control that deliberately creates the absence and requires the probe to report it. Measured twice in one day: T-510's teeth-vs-gate mechanism error (PL-204) and T-511's round-trip probe, which reported 'YES, both unwired nodes dropped' because it compared element id, the one attribute the exporter is documented to re-mint, so a rename read as a deletion. In T-511 the verdict was FALSE and about to be posted to a peer project over the rail; what stopped it was not review and not care but the negative control failing to fire, which turned an odd result into an undeniable one. The tell is available before the control: when a probe reports a dramatic absence, check whether its OWN counters agree with its verdict — ids_in and ids_out were both 38 while it claimed two nodes were gone. Cheap, mechanical, and it fires before anything is published. So: any probe whose green means 'X did not happen' must carry a leg that makes X happen and watches it go red, and the leg must operate on the SAME identity the comparator reads — cutting on something it does not consult proves nothing about it."
+  source: P-001
+  task: T-511
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD

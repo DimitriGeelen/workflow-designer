@@ -6137,3 +6137,219 @@ scan_id: R-32e1776e
 task_id: T-355
 payload:
   task_file: .tasks/active/T-355-foreign-tag-nodes-render-identically-to-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-14T19:12:48Z'
+scan_id: R-c094e980
+task_id: T-458
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-14T19:12:48Z'
+scan_id: R-c094e980
+task_id: T-458
+payload:
+  task_file: .tasks/active/T-458-completion-transition-leaves-task-file-s.md
+---
+kind: scan_emitted
+timestamp: '2026-08-14T19:33:00Z'
+scan_id: R-54fa0809
+task_id: T-503
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-14T19:33:00Z'
+scan_id: R-54fa0809
+task_id: T-503
+payload:
+  task_file: .tasks/active/T-503-the-t-355-disclosure-guard-was-wired-to-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-14T19:40:29Z'
+scan_id: R-4c1e8d04
+task_id: T-502
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-14T19:40:29Z'
+scan_id: R-4c1e8d04
+task_id: T-502
+payload:
+  task_file: .tasks/active/T-502-pre-flight-the-three-completion-ready-hu.md
+---
+kind: scan_emitted
+timestamp: '2026-08-14T19:43:53Z'
+scan_id: R-71a3383a
+task_id: T-504
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-14T19:43:53Z'
+scan_id: R-71a3383a
+task_id: T-504
+payload:
+  task_file: .tasks/active/T-504-a-pending-tier-0-approval-disappeared-fr.md
+---
+kind: scan_emitted
+timestamp: '2026-08-14T20:24:41Z'
+scan_id: R-0f32bd0e
+task_id: T-487
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-14T20:24:41Z'
+scan_id: R-0f32bd0e
+task_id: T-487
+payload:
+  task_file: .tasks/active/T-487-t340-go-successor-verify-and-scope.md
+---
+kind: scan_emitted
+timestamp: '2026-08-14T20:35:04Z'
+scan_id: R-50bdacf0
+task_id: T-505
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-14T20:35:04Z'
+scan_id: R-50bdacf0
+task_id: T-505
+payload:
+  task_file: .tasks/active/T-505-finished-and-invisible-census-the-active.md
+---
+kind: scan_emitted
+timestamp: '2026-08-14T20:43:27Z'
+scan_id: R-5f557e97
+task_id: T-506
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-14T20:43:27Z'
+scan_id: R-5f557e97
+task_id: T-506
+payload:
+  task_file: .tasks/active/T-506-answer-aef-t-2993-whose-corpus-authors-a.md
+---
+kind: scan_emitted
+timestamp: '2026-08-14T20:51:42Z'
+scan_id: R-ae61d898
+task_id: T-507
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-14T20:51:42Z'
+scan_id: R-ae61d898
+task_id: T-507
+payload:
+  task_file: .tasks/active/T-507-aef-and-i-sign-as-the-same-fingerprint-b.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T05:38:44Z'
+scan_id: R-2da89187
+task_id: T-508
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T05:38:44Z'
+scan_id: R-2da89187
+task_id: T-508
+payload:
+  task_file: .tasks/active/T-508-verification-legs-pin-corpus-cardinality.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T06:05:00Z'
+scan_id: R-c2bcba74
+task_id: T-509
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T06:05:00Z'
+scan_id: R-c2bcba74
+task_id: T-509
+payload:
+  task_file: .tasks/active/T-509-every-teeth-script-but-one-is-unwatched-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T07:53:59Z'
+scan_id: R-ea7b8db5
+task_id: T-510
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T07:53:59Z'
+scan_id: R-ea7b8db5
+task_id: T-510
+payload:
+  task_file: .tasks/active/T-510-correct-a-published-claim-t364-t308-teet.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T08:29:27Z'
+scan_id: R-023e5768
+task_id: T-511
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T08:29:27Z'
+scan_id: R-023e5768
+task_id: T-511
+payload:
+  task_file: .tasks/active/T-511-answer-aef-rail-11833-q2-does-a-save-rou.md

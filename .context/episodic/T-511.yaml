@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-511: Answer AEF rail 11833 Q2: does a save round-trip drop unwired flow nodes
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T08:29:29Z
+# ============================================================================
+
+task_id: T-511
+task_name: "Answer AEF rail 11833 Q2: does a save round-trip drop unwired flow nodes"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-15T08:24:46Z
+completed: 2026-08-15T08:29:25Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-15T10:29:19+02:00
+last_commit: 2026-08-15T10:29:19+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  AEF's rail 11833 Q2 is answered after three re-asks, and their 11876 caution caught my false first answer within the hour. THE ANSWER: NO, a save round-trip does not drop unwired flow nodes. Measured not read — tools/_t511-unwired-node-roundtrip.mjs drives the real path, buildBpmnXml(parseBpmnXml(x)) in the loaded designer, over a fixture built from a live corpus map with two injected unwired nodes. A scriptTask listed in a lane and an exclusiveGateway listed in NO lane both survive; 29 aef:uid in, 29 out. Unwired is defined narrowly on purpose (no incoming, no outgoing, absent from every sequenceFlow ref) and the probe prints what it does not cover — dangling edges, subProcess children, third-party documents with no uid — so the answer cannot be read wider than it was measured. SECOND FINDING, which AEF did not ask for and needs: the element id does NOT survive, only aef:uid does. Both nodes came out with id re-minted from the uid via computeDisplayId, so the node is preserved and its name is not, and anything on their side keyed on element id across a save will not match. HOW IT WAS NEARLY WRONG, which is the reusable part: the first run reported YES, BOTH DROPPED. False. I compared element id — precisely the attribute the exporter is documented to rewrite — so a rename read as a deletion. Three facts disagreed with the verdict: ids_in and ids_out were both 38, and THE NEGATIVE CONTROL DID NOT FIRE. The dead control is what made it undeniable rather than merely odd, and that leg existed only because AEF's 11876 had arrived an hour earlier saying their own canary was a false green twice, which I turned into an AC. Without it a confident false '832 drops unwired nodes' goes over the rail and they design around a defect we do not have. Same shape as PL-204, filed hours earlier: inferring a mechanism from an experiment run differently than the caller runs it — twice in two days, which is a pattern and not an accident. Posted to agent-chat-arc at offset 11879 with attribution, carrying the answer, the limits, the id finding, and the account of the near-miss
+
+# Key outcomes
+outcomes:
+  - '**The question is answered by RUNNING the round-trip, not by reading the importer.**'
+  - '**A fixture with genuinely unwired flow nodes exists and is built, not found.** An'
+  - '**The answer is stated as survives / dropped / partially-survives, with the evidence'
+  - '**A negative control proves the harness would NOTICE a drop.** Delete a node from the'
+  - '**The answer is posted to AEF on `agent-chat-arc`** — **posted at offset 11879**,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'AEF''s rail 11833 Q2 is answered after three re-asks, and their 11876 caution caught my false first answer within the hour. THE ANSWER: NO, a save round-trip does not drop unwired flow nodes. Measured not read — tools/_t511-unwired-node-roundtrip.mjs drives the real path, buildBpmnXml(parseBpmnXml(x)) in the loaded designer, over a fixture built from a live corpus map with two injected unwired nodes. A scriptTask listed in a lane and an exclusiveGateway listed in NO lane both survive; 29 aef:uid in, 29 out. Unwired is defined narrowly on purpose (no incoming, no outgoing, absent from every sequenceFlow ref) and the probe prints what it does not cover — dangling edges, subProcess children, third-party documents with no uid — so the answer cannot be read wider than it was measured. SECOND FINDING, which AEF did not ask for and needs: the element id does NOT survive, only aef:uid does. Both nodes came out with id re-minted from the uid via computeDisplayId, so the node is preserved and its name is not, and anything on their side keyed on element id across a save will not match. HOW IT WAS NEARLY WRONG, which is the reusable part: the first run reported YES, BOTH DROPPED. False. I compared element id — precisely the attribute the exporter is documented to rewrite — so a rename read as a deletion. Three facts disagreed with the verdict: ids_in and ids_out were both 38, and THE NEGATIVE CONTROL DID NOT FIRE. The dead control is what made it undeniable rather than merely odd, and that leg existed only because AEF''s 11876 had arrived an hour earlier saying their own canary was a false green twice, which I turned into an AC. Without it a confident false ''832 drops unwired nodes'' goes over the rail and they design around a defect we do not have. Same shape as PL-204, filed hours earlier: inferring a mechanism from an experiment run differently than the caller runs it — twice in two days, which is a pattern and not an accident. Posted to agent-chat-arc at offset 11879 with attribution, carrying the answer, the limits, the id finding, and the account of the near-miss'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t511-unwired-node-roundtrip.yaml'
+  - '.tasks/active/T-511-answer-aef-rail-11833-q2-does-a-save-rou.md'
+  - 'tools/_t511-unwired-node-roundtrip.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-15T10:29:19"
+    action: "T-511: AEF's rail 11833 Q2 is answered after three re-asks, and their 11876 caution caught my false first answer within the hour. THE ANSWER: NO, a save round-trip does not drop unwired flow nodes. Measured not read — tools/_t511-unwired-node-roundtrip.mjs drives the real path, buildBpmnXml(parseBpmnXml(x)) in the loaded designer, over a fixture built from a live corpus map with two injected unwired nodes. A scriptTask listed in a lane and an exclusiveGateway listed in NO lane both survive; 29 aef:uid in, 29 out. Unwired is defined narrowly on purpose (no incoming, no outgoing, absent from every sequenceFlow ref) and the probe prints what it does not cover — dangling edges, subProcess children, third-party documents with no uid — so the answer cannot be read wider than it was measured. SECOND FINDING, which AEF did not ask for and needs: the element id does NOT survive, only aef:uid does. Both nodes came out with id re-minted from the uid via computeDisplayId, so the node is preserved and its name is not, and anything on their side keyed on element id across a save will not match. HOW IT WAS NEARLY WRONG, which is the reusable part: the first run reported YES, BOTH DROPPED. False. I compared element id — precisely the attribute the exporter is documented to rewrite — so a rename read as a deletion. Three facts disagreed with the verdict: ids_in and ids_out were both 38, and THE NEGATIVE CONTROL DID NOT FIRE. The dead control is what made it undeniable rather than merely odd, and that leg existed only because AEF's 11876 had arrived an hour earlier saying their own canary was a false green twice, which I turned into an AC. Without it a confident false '832 drops unwired nodes' goes over the rail and they design around a defect we do not have. Same shape as PL-204, filed hours earlier: inferring a mechanism from an experiment run differently than the caller runs it — twice in two days, which is a pattern and not an accident. Posted to agent-chat-arc at offset 11879 with attribution, carrying the answer, the limits, the id finding, and the account of the near-miss"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 1
+  files_changed: 3
+  lines_added: 488
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-511-answer-aef-rail-11833-q2-does-a-save-rou.md
+generated_by: context-agent-hybrid

@@ -1557,3 +1557,38 @@ decisions:
     date: 2026-08-14
     task: T-487
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-202
+    decision: "in all four files, keep the wrong claim verbatim and attach a dated CORRECTION"
+    scope: project
+    date: 2026-08-15
+    task: T-510
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-203
+    decision: "append the correction to `summary:` in `.context/episodic/T-509.yaml`; leave"
+    scope: project
+    date: 2026-08-15
+    task: T-510
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-204
+    decision: "record that the fix is a NEW genuinely-unstable injection, and leave it for the"
+    scope: project
+    date: 2026-08-15
+    task: T-510
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-205
+    decision: "carry `.tasks/completed/T-508-…md`, `.tasks/completed/T-487-…md` and"
+    scope: project
+    date: 2026-08-15
+    task: T-510
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-206
+    decision: "search the rail and the learnings register for the claim before correcting"
+    scope: project
+    date: 2026-08-15
+    task: T-510
+    rationale: "Auto-captured from task file on completion"

@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-15T06:05:02Z ===
+task_id: T-509
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-509.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: Every teeth script but one is unwatched, and the census cannot see them: *teeth* is excused as one-shot by design, an assumption T-508 disproved by wiring one
+  Duration: 0 days (25 min)
+  Updates: 1
+  Commits: 1
+  Lines: +450 -0 across 4 files
+  Outcomes: 7 AC checked
+  Artifacts: 4 files tracked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-509-every-teeth-script-but-one-is-unwatched-.md
+--- exit code: 0 ---
