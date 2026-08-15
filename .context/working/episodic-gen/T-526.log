@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-15T19:53:45Z ===
+task_id: T-526
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-526.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: name the non-deterministic bridge-suite legs by running the unchanged tree N times
+  Duration: 0 days (31 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 10 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-526-name-the-non-deterministic-bridge-suite-.md
+--- exit code: 0 ---

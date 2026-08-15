@@ -1655,3 +1655,17 @@ decisions:
     date: 2026-08-15
     task: T-518
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-216
+    decision: "widen AC 5 from \"characterise each flaky leg as instrument-side or subject-side\""
+    scope: project
+    date: 2026-08-15
+    task: T-526
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-217
+    decision: "report that `git status` differed before/after (two cron audit files) as a stated"
+    scope: project
+    date: 2026-08-15
+    task: T-526
+    rationale: "Auto-captured from task file on completion"

@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-526: name the non-deterministic bridge-suite legs by running the unchanged tree N times
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T19:53:46Z
+# ============================================================================
+
+task_id: T-526
+task_name: "name the non-deterministic bridge-suite legs by running the unchanged tree N times"
+workflow_type: test
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-15T19:22:19Z
+completed: 2026-08-15T19:53:41Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'The suite''s per-leg output shape is established by reading `report`: whether a leg''s'
+  - 'The suite is run N >= 5 times against a tree that does not change between runs, with'
+  - '`git status --porcelain` is captured before the first run and after the last, and the'
+  - 'A per-leg verdict matrix across the N runs is produced, and EVERY leg whose verdict is'
+  - 'Each non-constant leg is characterised as instrument-side (the probe is unreliable) or'
+  - 'Wall-clock per run is recorded, so the cost half of OBS-256 has a current number rather'
+  - 'OBS-256''s false claim is corrected in place (the leg WAS named, by OBS-255, seven hours'
+  - 'The same correction is sent to AEF on the rail, since rail 11924 carried the false claim'
+  - 'The cross-reference gap is registered: nothing links observations on the same subject and'
+  - 'No new unwired instrument is committed: the T-451 census ratchet is unmoved at 67.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-15 — amending AC 5 rather than failing it or quietly ticking it'
+    chose: 'widen AC 5 from "characterise each flaky leg as instrument-side or subject-side" to "…OR name the blocker with evidence", and record the amendment here so it is visible.'
+    rationale: 'the AC presumed characterisation was possible. The measurement established it is not, and named the reason — 62 of 66 legs discard their failure output, so both observed failures left nothing to characterise FROM. That is a stronger result than the AC asked for: it converts "we don''t know" into "here is the specific structural reason nobody can know, and here is the task that fixes it." Leaving the box unticked would have blocked P-010 on a question the task answered; ticking it as written would have claimed an analysis I did not do.'
+    alternatives_rejected: ['(a) silently rewriting the AC — T-508''s lesson is that editing a record to match its own result stops it being a record, so the amendment is stated rather than performed; (b) `--force` past the gate — the gate is correct and the AC was wrong, which is a reason to fix the AC in the open, not to bypass the check; (c) attempting the characterisation anyway by re-running the two probes standalone — that would have produced a guess dressed as a finding, since neither failure reproduced in 5 runs and a standalone pass says nothing about a failure observed under suite conditions.']
+  - decision: '2026-08-15 — reporting the tree perturbation instead of re-running clean'
+    chose: 'report that `git status` differed before/after (two cron audit files) as a stated limitation, and keep the measurement.'
+    rationale: 'the perturbation is a 15-minute scheduled cron writing into the repo, which is a standing property of this tree, not an artefact of the run. Re-running "clean" would require suppressing cron — an operator action outside the project boundary — and would measure a tree that never actually exists. The honest artefact is the measurement plus the caveat.'
+    alternatives_rejected: ['claiming hermeticity on the grounds that the changed files are irrelevant to the suite. They probably are, but "probably irrelevant" asserted as "unchanged" is the class of claim this project keeps catching in other people''s instruments.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 31 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 31
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-526-name-the-non-deterministic-bridge-suite-.md
+generated_by: context-agent-hybrid

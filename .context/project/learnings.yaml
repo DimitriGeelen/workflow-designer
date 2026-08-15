@@ -1590,3 +1590,17 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-223
+  learning: "A FIX APPLIED TO THE INSTANCE THAT RAISED IT DOES NOT REACH THE POPULATION, AND THE POPULATION KEEPS GROWING BY COPY. T-326 diagnosed that a leg discarding its own failure output makes an intermittent failure permanently undiagnosable, wrote that reason into the source, and wired the remedy into 4 legs. Measured today: 66 report FAIL calls, 4 show_output calls. Every probe added since was written by copying a leg that discards, so the defect propagated by the same mechanism that should have propagated the fix. This is the third instance in a week (T-508: one teeth script wired, 24 existed; T-509: 22 of 24 had no standing caller; now this), which makes it a class rather than three accidents. THE TELL IS CHEAP AND NOBODY RUNS IT: count the calls to the remedy against the calls to the thing it remedies. 4/66 is visible in one grep and had been true for weeks. THE REASON IT HIDES: a fix is recorded as a TASK, and a task closes; nothing re-asks whether the remedy still covers the population, because coverage of a growing population is not a property of the task that introduced the remedy. A ratio is the instrument, not a count — 4 was never wrong, 4-of-66 is."
+  source: P-001
+  task: T-526
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
+- id: PL-224
+  learning: "AN APPEND-ONLY REGISTER WHOSE ENTRIES NEVER REFERENCE EACH OTHER MANUFACTURES CONFIDENT WRONG CLAIMS, AND THE FAILURE IS SILENT BECAUSE EVERY ENTRY IS INDIVIDUALLY CORRECT. Measured instance: OBS-250 recorded a flake with the leg unnamed; OBS-255 localised it three hours later; OBS-256 asserted seven hours after THAT that the leg was never named, and the false claim was transmitted to a peer project. All three entries are accurate as of their own timestamp and all three read 'pending'. Nothing links them, nothing flags an entry that reopens a resolved one, and the file is read chronologically so a reader who stops at the first hit gets the OLDEST state of the question. THE DIRECTION IS THE POINT: this gets monotonically likelier as the register grows, so a register with 30 pending entries is not 30 times as useful as one with 1 — past some size it starts producing negative-value claims, which is worse than having no register, because a wrong claim carrying a register ID is trusted more than an unsourced one. GENERALISATION BEYOND THE INBOX: the same shape holds for any store where writes are cheap, reads are chronological, and resolution is recorded as a NEW entry rather than a change to the old one — changelogs, decision logs, gap registers. The discriminating question is not 'is each entry true' but 'can two entries contradict without anything noticing'."
+  source: P-001
+  task: T-526
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
