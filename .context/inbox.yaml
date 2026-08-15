@@ -886,3 +886,10 @@ observations:
   tags: [framework]
   status: pending
   promoted_to: null
+- id: OBS-255
+  text: "OBS-250 localised: the bridge suite's non-determinism is tools/_t358-teeth.py case 5, and the tell has been invisible by construction. Measured standalone, outside the suite: two consecutive runs with no input change gave rc=0 then rc=1. The flaky leg is 'defaultLanes() first lane no longer asserts sovereignty', whose subject is a CDP browser probe (_t358-lane-provenance-cdp.mjs). Failure mode is NOT 'the mutation went undetected' — it is 'went red, but not for the predicted reason (wanted sovereignty)'. So the reason-asserting form I strengthened these legs to (the PL-206 refinement captured yesterday: assert the control went red FOR THE NAMED REASON) is working exactly as intended and is what surfaced this; a bare rc-only assertion would have passed every time and hidden it. HYPOTHESIS, not measured: a CDP harness failure (launch race, port, timeout) kills the mutated run before it reaches the assertion, and a harness death is being reported as a mutation-detection failure. That is PL-205's class one level up — refusal is not distinguishable from a real red. DIAGNOSTIC GAP THAT MADE THIS EXPENSIVE: the leg prints 'not for the predicted reason (wanted X)' but never prints what the reason ACTUALLY was, so every past occurrence was uninvestigable from its own output. Remedy shape, for whoever takes it: give the probe a REFUSE exit distinct from a failing assertion, have the teeth abstain rather than FAIL on it, and print the observed reason alongside the wanted one. Cost of not fixing: the suite reports 86-88 passed at random, which trains readers to re-run until green — the reflex a ratchet exists to prevent. Found while running the suite for T-519; unrelated to that change (the flake is in the lane-provenance importer probe, T-519 touches only the vendored-framework manifest)."
+  captured: 2026-08-15T11:51:28Z
+  context_task: T-519
+  tags: []
+  status: pending
+  promoted_to: null

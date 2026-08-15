@@ -54,6 +54,13 @@ RUNTIME_STATE = (
     VENDOR_PATH + "/.context/",
 )
 
+# The `upstream:` taxonomy, kept in step with the manifest header's own documentation of it.
+# Only `fix` is debt owed to framework-agent; `superseded` means upstream already has an
+# equivalent, arrived at independently (T-519, AEF rail 11895).
+UPSTREAM_VALUES = frozenset(
+    {"fix", "superseded", "vendoring-repair", "local-config", "unknown"}
+)
+
 
 def git(*args, cwd=ROOT):
     return subprocess.run(["git"] + list(args), cwd=cwd, capture_output=True, text=True)
@@ -162,6 +169,31 @@ def main():
     for e in manifest.get("entries") or []:
         if isinstance(e, dict) and e.get("path"):
             declared[e["path"]] = e.get("kind", "content")
+
+    # T-519: the `upstream:` taxonomy was documented in this file's own header and enforced
+    # NOWHERE, so a typo or an invented value read as a valid classification and the entry
+    # silently left the upstream-debt list. That is T-509's class exactly — a convention used
+    # as a CLASSIFIER with nothing re-checking it — and adding a fifth value (`superseded`) to
+    # an unenforced list would have been me repeating the defect I catalogued. Checked here
+    # rather than in the teeth so that a bad value stops the ONE caller that matters.
+    bad_upstream = []
+    for e in manifest.get("entries") or []:
+        if not isinstance(e, dict) or not e.get("path"):
+            continue
+        v = e.get("upstream")
+        if v not in UPSTREAM_VALUES:
+            bad_upstream.append((e["path"], v))
+    if bad_upstream:
+        return refuse(
+            "manifest carries %d entry/entries whose `upstream:` value is not in the taxonomy "
+            "%s — an unrecognised value is not a classification, and an entry that is not "
+            "classified cannot be counted as upstream debt or excluded from it: %s"
+            % (
+                len(bad_upstream),
+                "/".join(sorted(UPSTREAM_VALUES)),
+                ", ".join("%s=%r" % (p, v) for p, v in bad_upstream[:5]),
+            )
+        )
 
     unrecorded = {p: k for p, k in actual.items() if p not in declared}
     stale = {p: k for p, k in declared.items() if p not in actual}

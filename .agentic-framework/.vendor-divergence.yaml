@@ -22,13 +22,30 @@
 # WHEN YOU PATCH VENDORED CODE. Add an entry. The bridge suite goes red until you do — that is
 # the point, not an obstacle.
 #
-# `upstream:` taxonomy — only ONE of these three should be offered to framework-agent:
+# `upstream:` taxonomy — exactly ONE value per entry, and only `fix` is owed to framework-agent:
 #   fix              a real code fix made here that upstream lacks. THIS is the upstream debt.
+#   superseded       upstream has an equivalent or better fix ALREADY, arrived at independently.
+#                    Ours is overwritten at the next re-vendor and that is the correct outcome.
+#                    Distinct from vendoring-repair: that one is about loss in TRANSIT, this one
+#                    is about CONVERGENCE — two trees fixing the same defect without coordinating.
 #   vendoring-repair upstream HAS it; our vendor copy lost it in transit (exec bits demoted by
 #                    the old do_vendor copy, a file the copy skipped). Nothing to upstream —
 #                    though a vendoring process that drops exec bits is itself worth reporting.
 #   local-config     project-specific by nature, never travels upstream.
 #   unknown          not yet classified. An honest to-do, not a default.
+#
+# `superseded` exists because of what happened on 2026-08-15, one day after this file was
+# written. AEF answered at rail 11895 that two of the concerns we had recorded as upstream debt
+# were already fixed on their side (T-2735, T-3015). Nothing here was wrong when written and
+# nothing here changed — THEIR tree moved. `upstream:` is the only field in this manifest that
+# makes a claim about a repository we cannot see, so it is the only one that can go stale
+# without a local edit, and no instrument on this side can ever detect that. The remedy is not
+# a better check, it is periodic triage BY THEM: post the `fix` list and let the side that can
+# read upstream rule on it. Treat every `fix` verdict as provisional and dated accordingly.
+#
+# A path bundling several tasks cannot carry one verdict for all of them. When upstream
+# supersedes SOME of an entry's changes, keep `upstream:` as the verdict for what REMAINS owed
+# and record the rest under `superseded_changes:`. See agents/audit/audit.sh below.
 
 baseline_commit: ebf0c721a94dbe9c5ed056b54de741a4c05bf336
 baseline_note: >-
@@ -45,27 +62,53 @@ entries:
     kind: content
     task: T-374, T-382, T-344, T-345, T-371
     upstream: fix
+    superseded_changes:
+      - change: T-374 — route both fabric coverage checks through expand_patterns.py so
+                `exclude:` is honored (email-archive's G-AUDIT-EXCLUDE-NOT-HONORED)
+        by: AEF T-2735, confirmed at rail 11895 on 2026-08-15
+        note: >-
+          Upstream took a DIFFERENT and better route: rather than fixing the inline glob.glob
+          block, they removed the coverage verdict from it entirely and delegated to the drift
+          check that already routes through expand_patterns.py, with a loud FAIL if the
+          expander errors. Do not send the T-374 patch — they said so explicitly.
     reason: >-
-      T-374 routed both fabric coverage checks through expand_patterns.py so `exclude:` is
-      honored, which is EXACTLY the remedy email-archive proposed at rail 11888 for
-      G-AUDIT-EXCLUDE-NOT-HONORED. T-374's own comment states AEF's T-1842 "reached register.sh
-      and drift.sh and did not reach here". Highest-value entry in this file: a peer's concern
-      has been open two months with the fix sitting here.
+      Four of this entry's five changes (T-382, T-344, T-345, T-371) remain genuine upstream
+      debt and are why the verdict stays `fix`. T-374's change is superseded — see above.
+      NOT reclassified wholesale, because one path here carries five independent changes and a
+      single verdict cannot be true of all of them; collapsing it to `superseded` would have
+      quietly written off four real fixes. The bundling is now the risk that matters: at the
+      next re-vendor upstream's audit.sh overwrites ours, and T-374 being handled there does
+      nothing for the other four. That is the T-517 learning — a fix recorded as local but
+      never upstreamed is destroyed by the next vendor step — arriving with a date on it.
 
   - path: .agentic-framework/agents/context/lib/episodic.sh
     kind: content
     task: T-516
-    upstream: fix
+    upstream: superseded
+    superseded_by: AEF T-3015 / G-081, confirmed at rail 11895 on 2026-08-15
     reason: >-
       Decisions extraction moved out of a line-oriented parse. Closes email-archive's
       G-EPISODIC-PLACEHOLDER-LEAK plus two symptoms their filing does not mention (values
       truncated at the first newline, silent head -20 cap). Disclosed at rail 11892.
+      SUPERSEDED: AEF fixed the same three symptoms at the same three lines (147, 346, 147)
+      by the same approach — extraction lifted into a Python helper — one day later and
+      independently. Their words: "arrived at independently, which is mild evidence it's the
+      obvious shape once you see the root cause rather than the symptom." Nothing to upstream.
 
   - path: .agentic-framework/agents/context/lib/extract-decisions.py
     kind: added
     task: T-516
-    upstream: fix
-    reason: Block-aware replacement parser. Ships with the episodic.sh change above.
+    upstream: superseded
+    superseded_by: AEF T-3015 — agents/context/lib/extract_decisions.py, rail 11895
+    reason: >-
+      Block-aware replacement parser. Ships with the episodic.sh change above. SUPERSEDED by
+      upstream's own helper, which does the same job. NOTE THE FILENAMES: ours is
+      extract-decisions.py (hyphen), theirs is extract_decisions.py (underscore). They differ,
+      so the next re-vendor does not overwrite ours — it lands theirs ALONGSIDE it, and the
+      overwritten episodic.sh will call theirs. Ours becomes orphaned dead code that no test
+      covers and no caller reaches, which is precisely the unwired-instrument class T-451
+      ratchets against. Deleting it is the right move AT the re-vendor, not before: until then
+      it is the live implementation. Flagged here so the re-vendor does not have to rediscover it.
 
   - path: .agentic-framework/agents/context/budget-gate.sh
     kind: content
@@ -241,13 +284,16 @@ entries:
       gone red the moment it was committed. Silently excluding it would have been a hole in a
       register whose entire purpose is that there are no holes.
 
-  # ── not yet classified ─────────────────────────────────────────────────────────────────
   - path: .agentic-framework/lib/ts/dist/loop-detect.js
     kind: content
     task: T-351
-    upstream: unknown
+    upstream: vendoring-repair
     reason: >-
       T-351 re-carried T-350's bookkeeping after 109b5e32 committed a stale blob of this file.
-      It is a built dist artifact, so whether it is a vendoring-repair or a genuine local build
-      difference needs a rebuild to settle. Recorded as unknown rather than guessed — an
+      Recorded as `unknown` at first, deliberately, because it is a built dist artifact and an
       `upstream:` value asserted without checking is the folklore this manifest exists to end.
+      SETTLED BY MEASUREMENT (OBS-254): the entire diff against the baseline is one esbuild
+      banner comment recording the bundler's working directory —
+      `// lib/ts/src/loop-detect.ts` becomes `// .agentic-framework/lib/ts/src/loop-detect.ts`.
+      That is a local rebuild artifact and nothing else; there is no code difference and
+      nothing to offer upstream.

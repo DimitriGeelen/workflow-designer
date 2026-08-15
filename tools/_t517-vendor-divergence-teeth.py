@@ -43,7 +43,7 @@ def git(repo, *args):
 
 
 MANIFEST_HEAD = "baseline_commit: %s\nbaseline_note: synthetic\nentries:\n"
-ENTRY = "  - path: %s\n    kind: %s\n    task: T-000\n    upstream: fix\n    reason: synthetic\n"
+ENTRY = "  - path: %s\n    kind: %s\n    task: T-000\n    upstream: %s\n    reason: synthetic\n"
 
 
 def make_repo(tmp, name):
@@ -66,11 +66,15 @@ def make_repo(tmp, name):
 
 
 def write_manifest(repo, base, entries):
+    """entries: (path, kind) or (path, kind, upstream). Default upstream is a valid value, so
+    a leg that is not ABOUT the taxonomy cannot fail on it by accident."""
     p = os.path.join(repo, ".agentic-framework", ".vendor-divergence.yaml")
     with open(p, "w") as f:
         f.write(MANIFEST_HEAD % base)
-        for path, kind in entries:
-            f.write(ENTRY % (path, kind))
+        for e in entries:
+            path, kind = e[0], e[1]
+            upstream = e[2] if len(e) > 2 else "fix"
+            f.write(ENTRY % (path, kind, upstream))
     return p
 
 
@@ -168,6 +172,38 @@ def main():
         repo, base, vend = make_repo(tmp, "nomanifest")
         rc, out = run_tool(repo)
         leg("absent manifest -> rc 2 REFUSE", rc == 2 and "REFUSE" in out, "rc=%d" % rc)
+
+        # ── leg 8: an `upstream:` value outside the taxonomy REFUSES, for the named reason ──
+        # T-519. The taxonomy lived in the manifest's header comment and was enforced nowhere,
+        # so "upstream: fixed" or "upstream: FIX" classified as neither debt nor not-debt and
+        # nothing said so. Asserting on the REASON and on the offending value, not merely on
+        # rc 2: this script has five other paths to rc 2, so bare rc would let an unreachable
+        # baseline or a missing manifest certify a check that never ran (PL-206).
+        repo, base, vend = make_repo(tmp, "badupstream")
+        target = ".agentic-framework/agents/f001.sh"
+        with open(os.path.join(repo, target), "a") as f:
+            f.write("# local fix\n")
+        write_manifest(repo, base, [(target, "content", "fixed-upstream-i-think")])
+        rc, out = run_tool(repo)
+        leg("`upstream:` value outside the taxonomy -> rc 2 REFUSE naming the bad value",
+            rc == 2 and "REFUSE" in out and "taxonomy" in out
+            and "fixed-upstream-i-think" in out and target in out,
+            "rc=%d" % rc)
+
+        # ── leg 9: the taxonomy check DISCRIMINATES — a valid value still passes ───────────
+        # Leg 8 on its own is satisfied by a validator that rejects EVERY value, which would
+        # make the instrument useless and permanently red. This leg is what makes leg 8 mean
+        # "recognises bad values" rather than "recognises values". Uses `superseded`, the value
+        # T-519 added, so the leg also proves the new value was actually wired and not just
+        # written into the header comment.
+        repo, base, vend = make_repo(tmp, "goodupstream")
+        with open(os.path.join(repo, target), "a") as f:
+            f.write("# local fix\n")
+        write_manifest(repo, base, [(target, "content", "superseded")])
+        rc, out = run_tool(repo)
+        leg("a VALID `upstream:` value (superseded) still passes -> rc 0, so the check "
+            "discriminates rather than rejecting everything",
+            rc == 0, "rc=%d" % rc)
 
     failed = [n for n, ok in results if not ok]
     print("\nTEETH %s — %d passed, %d failed"
