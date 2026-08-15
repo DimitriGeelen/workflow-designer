@@ -17,7 +17,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:27Z
-last_update: 2026-08-15T07:58:35Z
+last_update: 2026-08-15T08:03:11Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -294,11 +294,23 @@ caught one commit later instead of twelve days.
       change moves one of the six, announce per § Seam cost → Announcement protocol — a
       rail post, one line per artifact, `path + old → new`, before the bytes change. Notice,
       not permission.
-- [ ] A competing-carrier guard exists, in AEF's shape rather than ours: they pin
+- [x] A competing-carrier guard exists, in AEF's shape rather than ours: they pin
       `test_di_drop_has_a_competing_carrier`, which asserts the rival carrier *exists* —
       delete `aef:position` and the test goes red. Our equivalent must fail loudly the day
       step 3 removes `aef:position`, instead of silently permitting two geometries.
       (Adopting their instrument, not just their answer — T-340's Human AC records why.)
+      **DONE 2026-08-15.** `tools/_t423-position-carrier-guard.py`, wired as a standing leg
+      of `tests/run-bridge-tests.sh` (suite 80 → 81 passed, 0 failed). Three assertions,
+      none of them a count: every flow node carries **exactly one** `aef:position` (zero
+      misses), no `aef:position` lives outside a flow node's own `bpmn:extensionElements`
+      (zero strays), and at least one map with at least one node — the last because the
+      first two are both satisfied by an empty corpus, so without it deleting the corpus
+      turns the guard green. Teeth in `tools/_t423-position-carrier-teeth.py`, 6/6, picked
+      up by T-509's instrument sweep by name (population 24 → 25, runnable 19/19 → 20/20)
+      so they have a standing caller rather than a second hand-wired leg. Legs 2–4 are
+      AEF's shape exactly — drop one carrier, drop a map's worth, add a stray — and leg 6
+      is the anti-overfit control: a benign coordinate edit must leave it **green**, which
+      is what separates this from a guard that merely reddens on any diff.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -388,6 +400,29 @@ caught one commit later instead of twelve days.
 # tripping over 13 aef: element kinds. Neither counts a population.
 python3 -c "from lxml import etree; import sys; sys.exit(0 if hasattr(etree, 'XMLSchema') else 1)"
 python3 -c "import re,sys,glob; f=sorted(glob.glob('examples/aef-processes/rendered/*.bpmn'))[0]; s=open(f).read(); loose=[m for m in re.finditer(r'<aef:', s) if s.rfind('<bpmn:extensionElements', 0, m.start()) <= s.rfind('</bpmn:extensionElements>', 0, m.start())]; sys.exit(1 if loose else 0)"
+
+# ── The competing-carrier guard (landed 2026-08-15, AC ticked) ───────────────────────
+# WHY `bash tests/run-bridge-tests.sh` IS DELIBERATELY ABSENT, for the third task running:
+# the suite's green is a GLOBAL, ALWAYS-MOVING property — G-015 / PL-200's exact class.
+# Under a daily re-runner it goes red for somebody else's change and this task's record
+# would then be lying about this task. The legs below are properties of THIS deliverable.
+#
+# The teeth are the load-bearing leg. They build their own population under mkdtemp in the
+# same breath as using it, so they cannot go stale as the corpus grows (T-508's one
+# CORRECT count-pinning shape), and they prove the guard DISCRIMINATES: red on a dropped
+# carrier, red on a stray one, REFUSAL on an empty corpus, and still green on a benign
+# coordinate edit — that last one is the anti-overfit leg without which a guard that
+# reddened on any diff would pass everything else.
+python3 tools/_t423-position-carrier-teeth.py > /dev/null
+python3 tools/_t423-position-carrier-guard.py > /dev/null
+grep -q '_t423-position-carrier-guard.py' tests/run-bridge-tests.sh
+# No population pin in the guard: today's corpus size must appear nowhere in EXECUTABLE
+# code. Deliberately an AST walk and not a grep — the first version of this leg was
+# `! grep -q 306 …` and it failed, correctly, because the docstring quotes `nodes == 306`
+# in the passage explaining the shape the guard must not take. A grep cannot tell the
+# warning from the defect; excluding docstrings is the whole distinction.
+python3 -c "import ast,sys; t=ast.parse(open('tools/_t423-position-carrier-guard.py').read()); d={ast.get_docstring(n,clean=False) for n in ast.walk(t) if isinstance(n,(ast.Module,ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef))}; bad=[n for n in ast.walk(t) if isinstance(n,ast.Constant) and n.value not in d and '306' in str(n.value)]; sys.exit(1 if bad else 0)"
+python3 -c "import py_compile,sys; py_compile.compile('tools/_t423-position-carrier-guard.py', doraise=True); py_compile.compile('tools/_t423-position-carrier-teeth.py', doraise=True)"
 
 ## RCA
 
@@ -483,6 +518,32 @@ python3 -c "import re,sys,glob; f=sorted(glob.glob('examples/aef-processes/rende
   built because the context budget crossed the framework's critical line mid-session and
   writes to `tools/` are blocked there by design.
 - **Triggered:** nothing yet. Next window: build the guard, wire it, tick this AC alone.
+
+### 2026-08-15 — built, wired, and one AC of a blocked task is now closed
+
+- **What changed:** the entry above was a plan; this is its outcome. The guard and its teeth
+  exist, the guard is a standing suite leg, and that AC is ticked. **The rest of T-423 is
+  untouched and still blocked** on the operator's five-file vendoring ruling — no DI emitter,
+  no schema, no XSD. Splitting the AC out was the whole point: it was never behind the
+  blocker and had been sitting there for weeks because nobody separated the two.
+- **The measurement held.** 24 maps, 306 nodes, 306 positions, and the per-file set identity
+  is exact — the ids in each map's `laneSet/flowNodeRef` are precisely the ids of flow nodes
+  carrying one `aef:position`, on all 24, no exceptions. Three independent counts agreeing is
+  why the guard could land green rather than red on a backlog (T-491's rule).
+- **Two things the build found that the plan did not:**
+  1. **A truncation bug in my own teeth**, caught by the teeth failing rather than by review:
+     `open(v,"w").write(f(open(v).read()))` truncates before the nested read runs, so two
+     legs fed the guard an *empty file*. Both went red — for the wrong reason. Had the guard
+     been sloppier and treated an unparseable map as "no violations found", those legs would
+     have gone **green** for the wrong reason and I would have shipped teeth that prove
+     nothing. The guard refusing (rc 2) on unparseable input is what made the bug visible.
+     The comment is left in the file at the fix site.
+  2. **The no-population-pin verification leg had to become an AST walk.** The obvious
+     `! grep -q 306 …` failed — correctly — because the guard's docstring *quotes*
+     `nodes == 306` in the passage explaining the shape to avoid. A grep cannot distinguish
+     the warning from the defect. The leg now parses the module and excludes docstrings, and
+     it was checked against an injected pin to confirm it still fires.
+- **Not triggered:** the emitter, the schema, the vendoring question. Unchanged.
 
 ## Decisions
 

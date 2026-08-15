@@ -871,5 +871,36 @@ else
 fi
 
 echo
+echo "== The geometry carrier has exactly one carrier (T-423) =="
+# Adopts AEF's instrument rather than only their answer: they pin
+# test_di_drop_has_a_competing_carrier, a guard asserting the RIVAL carrier still exists so
+# that deleting it is loud. This is ours. Step 3 of T-357 adds bpmndi:BPMNShape/dc:Bounds as
+# a SECOND home for a node's geometry; the failure being guarded is not "DI is wrong" but DI
+# landing while aef:position quietly stops being emitted for some nodes — two geometries,
+# disagreeing, with nothing saying so.
+#
+# WIRED BEFORE THE EMITTER EXISTS, ON PURPOSE. A guard written at the same time as the
+# change it guards was written against the new behaviour and proves nothing. Landing it now
+# records the invariant while it is still true, so the day the emitter moves it the red
+# comes from the corpus rather than from someone's memory of what used to hold.
+#
+# It asserts NO COUNT. The obvious leg is `nodes == 306 && positions == 306` and that is
+# G-015 / PL-200's exact class — a line pinned to a growing population, which falsifies
+# itself the first time a map is added and teaches the next reader to bump the number.
+# Everything in it is emptiness-shaped (zero missing, zero strays) or -ge-shaped (at least
+# one map, at least one node per map). The anti-vacuity leg is not decoration: without it,
+# deleting the corpus turns the guard green.
+#
+# Its teeth are NOT wired separately here — tools/_t423-position-carrier-teeth.py is picked
+# up by the T-509 instrument sweep above by name, which is the standing caller T-509 built
+# the sweep to provide. Verified: population 24 -> 25, runnable 19/19 -> 20/20.
+if python3 "$ROOT/tools/_t423-position-carrier-guard.py" > /dev/null; then
+  pass=$((pass + 1))
+else
+  report FAIL "a flow node lost its aef:position, gained a second one, or a position turned up outside a flow node's own extensionElements — if this went red alongside a DI change, the two carriers have diverged and that is the whole point of the leg (run 'python3 tools/_t423-position-carrier-guard.py' for the node by name; rc 2 means it REFUSED — empty corpus or unparseable map — which is not a failure of the invariant but of the subject)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
