@@ -1064,5 +1064,30 @@ else
 fi
 
 echo
+echo "== A completed task still gets episodic memory, and a lost one is reported (T-522) =="
+# Two tasks (T-520, T-521) were completed, moved to completed/, and lost their episodic
+# summaries with no error anywhere. Root cause measured, not guessed: update-task.sh runs under
+# `set -euo pipefail`, and its component auto-populate loop assigns `c_loc=$(grep "^location:"
+# ... | ...)`. A fabric card lacking `location:` makes grep exit 1, pipefail carries it through
+# the pipe, and the ASSIGNMENT kills the whole script — after the task file has been moved, so
+# completion looks successful while every stage below the abort silently never runs. Timeline
+# pins it: two location-less cards landed at 12:13:39Z and the next two completions (12:13:59Z,
+# 13:34:03Z) lost their episodics; T-519 at 11:53:42Z did not.
+#
+# The reason this is a SUITE leg and not just a one-line patch is the detection story. T-1169
+# (warn when the generator yields nothing) and T-1860 (log every invocation) both already
+# existed, and both live INSIDE the block that never executed — a control downstream of the
+# branch that fails cannot report that failure. T-1374 fixed one instance of this identical
+# abort in this identical block and did not carry the guard to the neighbouring lines. So the
+# leg tests the WATCHDOG as much as the fix: mutate the guard back out, and the run must lose
+# the episodic AND say so by name.
+if python3 "$ROOT/tools/_t522-episodic-reachability-teeth.py" > /dev/null 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "task completion can lose its episodic memory silently again — either the pipefail guard in update-task.sh's component loop was reverted, the EXIT-trap watchdog was replaced by a second trap (bash keeps only the last), or the watchdog now alarms on the designed partial-complete skip (run 'python3 tools/_t522-episodic-reachability-teeth.py'; rc 2 is a REFUSAL — the mutation target is missing, so the legs were never evaluated — not a pass)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

@@ -2,6 +2,7 @@ id: tools/_t520-xml-read.py
 name: _t520-xml-read
 type: script
 subsystem: verification
+location: tools/_t520-xml-read.py
 tags: [probe-support, xml, conforming-parser, aef-seam, t-520]
 
 purpose: >

@@ -2,6 +2,7 @@ id: tools/_t520-uid-xml-safety.mjs
 name: _t520-uid-xml-safety
 type: script
 subsystem: verification
+location: tools/_t520-uid-xml-safety.mjs
 tags: [probe, cdp, aef-seam, identity, xml-escaping, mapping-standard, t-520, rail-11891]
 
 purpose: >

@@ -1274,11 +1274,53 @@ if [ -z "$TASK_FILE" ] || [ ! -f "$TASK_FILE" ]; then
     exit 1
 fi
 
+# === Completion watchdog (T-522) ===
+# T-1169 detects "episodic generation ran and produced nothing" and T-1860 logs every
+# invocation — but BOTH controls live INSIDE the episodic block, so neither can observe the
+# one failure mode where the block is never reached. That mode is real and it is silent:
+# `set -euo pipefail` (line 14) turns any unguarded non-zero command between the move-to-
+# completed/ and the episodic block into a bare `exit 1`, after the task file has already
+# been moved and rewritten. The operator sees a task in completed/ and no error worth
+# reading; the memory is simply missing, and stays missing until a handover notices weeks of
+# gaps. T-1374 fixed one instance, T-522 fixed another in the same block, and the pattern
+# says there will be a third.
+# So this watchdog sits OUTSIDE the block it guards, on the EXIT trap, and reports the
+# absence the inner controls structurally cannot see. It never blocks and never repairs —
+# it makes a silent abort loud, and it honours the T-1860 promise ("log EVERY invocation")
+# on the path where the logging code itself never ran.
+_T522_COMPLETION_PHASE=""       # "" none | "started" transition begun | "episodic" block reached
+_t522_completion_watchdog() {
+    local rc="${1:-0}"
+    [ "${_T522_COMPLETION_PHASE:-}" = "started" ] || return 0
+    # A partial-complete task deliberately skips episodic generation (T-1160/T-1103) and
+    # stays in active/ — that is a designed skip, not a lost one.
+    [ "${PARTIAL_COMPLETE:-false}" = true ] && return 0
+    local log="${CONTEXT_DIR:-$PROJECT_ROOT/.context}/working/episodic-gen/${TASK_ID}.log"
+    mkdir -p "$(dirname "$log")" 2>/dev/null || true
+    {
+        echo "=== episodic-gen NOT REACHED: $(date -u +%Y-%m-%dT%H:%M:%SZ) ==="
+        echo "task_id: $TASK_ID"
+        echo "detected_by: T-522 completion watchdog (EXIT trap)"
+        echo "script_exit_code: $rc"
+        echo "reason: the work-completed transition began but execution left update-task.sh"
+        echo "        before the Episodic Generation block. Under set -euo pipefail this is"
+        echo "        almost always an unguarded non-zero command between the move to"
+        echo "        completed/ and that block. Re-run with 'bash -x' to find the line."
+    } >> "$log" 2>&1
+    echo "" >&2
+    echo -e "${RED:-}ERROR: episodic generation was never reached for $TASK_ID (exit=$rc)${NC:-}" >&2
+    echo "  The task was completed but its episodic memory was NOT generated." >&2
+    echo "  This is a script-level abort, not a generator failure — see $log" >&2
+    echo -e "  Recover: $(_emit_user_command "context generate-episodic $TASK_ID" 2>/dev/null || echo "fw context generate-episodic $TASK_ID")" >&2
+}
+
 # Acquire per-task lock to prevent concurrent modifications (T-587)
 if type keylock_acquire &>/dev/null; then
     keylock_acquire "$TASK_ID"
-    trap 'keylock_release "$TASK_ID" 2>/dev/null' EXIT
 fi
+# Single composed EXIT trap (T-522): the watchdog must run even when the keylock library is
+# absent, and installing a second `trap ... EXIT` would silently replace the first.
+trap '_t522_rc=$?; _t522_completion_watchdog "$_t522_rc"; if type keylock_release >/dev/null 2>&1; then keylock_release "$TASK_ID" 2>/dev/null || true; fi' EXIT
 
 # Read current state
 OLD_STATUS=$({ grep "^status:" "$TASK_FILE" 2>/dev/null || true; } | head -1 | sed 's/status:[[:space:]]*//')
@@ -1304,6 +1346,7 @@ if [ -n "$NEW_STATUS" ]; then
         if [ "$OLD_STATUS" = "work-completed" ] && [ "$(dirname "$TASK_FILE")" = "$TASKS_DIR/active" ]; then
             # T-193: Partial-complete re-run — check if human ACs now satisfied
             echo -e "${CYAN}Re-checking partial-complete status...${NC}"
+            _T522_COMPLETION_PHASE="started"   # T-522: this branch can also move to completed/
             AC_SECTION=$(sed -n '/^## Acceptance Criteria/,/^## /p' "$TASK_FILE" 2>/dev/null | sed '$d')
             # Strip HTML comments — template examples contain checkbox patterns.
             # T-1967: two-step strip (one-line first, then range) — see line ~87.
@@ -1356,6 +1399,7 @@ if [ -n "$NEW_STATUS" ]; then
                 rm -f "$PROJECT_ROOT/.context/working/.reviewed-$TASK_ID" 2>/dev/null || true
 
                 # Generate episodic if not already present
+                _T522_COMPLETION_PHASE="episodic"   # T-522: reached the stage the watchdog guards
                 if [ ! -f "$CONTEXT_DIR/episodic/$TASK_ID.yaml" ]; then
                     echo ""
                     echo -e "${YELLOW}=== Auto-trigger: Episodic Generation ===${NC}"
@@ -1812,6 +1856,7 @@ fi
 
 # Trigger 2: work-completed → finalize
 if [ -n "$NEW_STATUS" ] && [ "$NEW_STATUS" = "work-completed" ] && [ "$OLD_STATUS" != "work-completed" ]; then
+    _T522_COMPLETION_PHASE="started"   # T-522: watchdog is now armed until the episodic stage
     # Set date_finished
     _sed_i "s/^date_finished:.*/date_finished: $TIMESTAMP/" "$TASK_FILE"
     echo ""
@@ -1952,8 +1997,22 @@ if [ -n "$NEW_STATUS" ] && [ "$NEW_STATUS" = "work-completed" ] && [ "$OLD_STATU
         LOC_TO_ID_FILE=$(mktemp)
         for card in "$FABRIC_DIR"/*.yaml; do
             [ -f "$card" ] || continue
-            c_loc=$(grep "^location:" "$card" 2>/dev/null | sed 's/^location:[[:space:]]*//' | head -1)
-            c_id=$(grep "^id:" "$card" 2>/dev/null | sed 's/^id:[[:space:]]*//' | head -1)
+            # T-522: `|| true` is load-bearing, not defensive noise. A component card that
+            # lacks `location:` (or `id:`) makes grep exit 1; under `set -euo pipefail`
+            # (line 14) pipefail propagates that through the pipe and the ASSIGNMENT ITSELF
+            # then terminates the whole script — mid-loop, exit 1, no message. The task has
+            # already been moved to completed/ by then, so completion LOOKS successful while
+            # everything below this point never runs: decision auto-capture, outcome
+            # back-prop, and the Episodic Generation block ~110 lines down. Measured: two
+            # hand-written cards without `location:` landed at 12:13:39Z on 2026-08-15 and
+            # the next two completions (T-520 12:13:59Z, T-521 13:34:03Z) both lost their
+            # episodics, while T-519 at 11:53:42Z — before the cards existed — was fine.
+            # This is the third instance of the same failure in this one block: T-1374
+            # (G-054) added `|| true` to the two greps ~40 lines below for exactly this
+            # reason and did not carry it to these two. The lesson is the one T-521 wrote
+            # down — a fix belongs at the mechanism, not at the site where it was noticed.
+            c_loc=$({ grep "^location:" "$card" 2>/dev/null || true; } | sed 's/^location:[[:space:]]*//' | head -1)
+            c_id=$({ grep "^id:" "$card" 2>/dev/null || true; } | sed 's/^id:[[:space:]]*//' | head -1)
             if [ -n "$c_loc" ] && [ -n "$c_id" ]; then
                 echo "${c_loc}=${c_id}" >> "$LOC_TO_ID_FILE"
             fi
@@ -2072,6 +2131,7 @@ with open(path, 'w') as f:
     # Partial-complete means human ACs are unchecked; the task stays in active/.
     # Generating episodic now creates premature memory of unfinalized work.
     # The human-finalization path (line ~388) handles episodic generation on final completion.
+    _T522_COMPLETION_PHASE="episodic"   # T-522: reached the stage the watchdog guards
     if [ "${PARTIAL_COMPLETE:-false}" = false ]; then
         echo ""
         echo -e "${YELLOW}=== Auto-trigger: Episodic Generation ===${NC}"

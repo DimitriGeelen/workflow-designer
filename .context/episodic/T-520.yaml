@@ -1,0 +1,98 @@
+# ============================================================================
+# EPISODIC MEMORY - T-520: measure aef:uid round-trip for values that are not XML-attribute-safe (_t515 gap 2)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T14:15:59Z
+# ============================================================================
+
+task_id: T-520
+task_name: "measure aef:uid round-trip for values that are not XML-attribute-safe (_t515 gap 2)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-15T11:55:26Z
+completed: 2026-08-15T12:13:59Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-15T14:13:39+02:00
+last_commit: 2026-08-15T14:13:39+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  _t515 gap 2 measured — escaping is correct, whitespace in a uid is silently corrupted across the seam, and my first instrument agreed with the defect. 8 of 11 candidate values round-trip byte-identical, ampersand less-than greater-than quote apostrophe, all five combined, and non-ASCII UTF-8, with the emitted attribute literal captured as evidence rather than inferred. U+0001 cannot be staged at all, which is a fact about XML 1.0 and not about the editor. The one class that fails: a uid containing a newline or tab is emitted RAW into the attribute, and XML 1.0 3.3.3 attribute-value normalisation turns it into a space for any conforming parser, so AEF reads n_a b where we wrote n_a<newline>b — no error at either end, document well-formed, and their reverse renderer keys records on that field. THE INSTRUMENT LESSON IS WORTH MORE THAN THE FINDING: the first build read the round-tripped document back with the browser's DOMParser, because the document is already in a browser and that is the free thing to do, and it reported all 11 values intact. Chrome does not apply that normalisation; expat does. The producer's own lenient parser agreed with the producer's own defect and I would have reported uid values as XML-safe. Verdicts now come from expat via tools/_t520-xml-read.py, the class of parser that reads on AEF's side, and where the two readers disagree the probe reports the disagreement as evidence rather than smoothing it. The pin was wrong twice in OPPOSITE directions — drafted transformed from the spec, corrected to identical on the browser reading, restored to transformed for a completely different and more serious reason once the reader was fixed. Getting the right answer from the wrong model is not getting it right, so the fix was the instrument and not the number. Also caught my own source going binary: a raw U+0001 written as a literal made the file unreadable to grep, now built by charCode with the reason recorded. T-451 ratchet moved +1 and I did not re-baseline it — the census documents that a runtime-composed path is invisible to it, so the repo-relative literal spells the edge out and the ratchet returned to 67 on its own. Suite 88 -> 89, 0 failed. Reported at rail 11903 with one recommendation: fix the escaping on our side rather than constrain the assigner, because a constraint nobody can mechanically check will be violated eventually and this one is invisible when it is. Not implemented here — that is a save-path behaviour change and belongs in its own task
+
+# Key outcomes
+outcomes:
+  - '`tools/_t520-uid-xml-safety.mjs` drives the REAL save path (`parseBpmnXml` ->'
+  - 'Each candidate value is classified into one of three MEASURED outcomes — survives'
+  - 'The stimulus is verified to actually carry the hostile character BEFORE the round-trip,'
+  - 'A negative control with a plain alphanumeric uid round-trips byte-identical in the same'
+  - 'Covers at minimum: `&`, `<`, `"`, `>`, a combined value, non-ASCII UTF-8, a raw newline,'
+  - 'Three-valued exit: rc 0 measured and matches the pin, rc 1 behaviour changed, rc 2 REFUSE'
+  - 'Wired into `tests/run-bridge-tests.sh`, not merely committed (T-451: new instruments are'
+  - '`_t515`''s `does_not_cover` updated to remove this gap and point at `_t520`'
+  - 'Fabric component card written by hand with a real `purpose` (the generated stub says'
+  - 'Findings reported to AEF on `agent-chat-arc` with producer attribution, separating what'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: '_t515 gap 2 measured — escaping is correct, whitespace in a uid is silently corrupted across the seam, and my first instrument agreed with the defect. 8 of 11 candidate values round-trip byte-identical, ampersand less-than greater-than quote apostrophe, all five combined, and non-ASCII UTF-8, with the emitted attribute literal captured as evidence rather than inferred. U+0001 cannot be staged at all, which is a fact about XML 1.0 and not about the editor. The one class that fails: a uid containing a newline or tab is emitted RAW into the attribute, and XML 1.0 3.3.3 attribute-value normalisation turns it into a space for any conforming parser, so AEF reads n_a b where we wrote n_a<newline>b — no error at either end, document well-formed, and their reverse renderer keys records on that field. THE INSTRUMENT LESSON IS WORTH MORE THAN THE FINDING: the first build read the round-tripped document back with the browser''s DOMParser, because the document is already in a browser and that is the free thing to do, and it reported all 11 values intact. Chrome does not apply that normalisation; expat does. The producer''s own lenient parser agreed with the producer''s own defect and I would have reported uid values as XML-safe. Verdicts now come from expat via tools/_t520-xml-read.py, the class of parser that reads on AEF''s side, and where the two readers disagree the probe reports the disagreement as evidence rather than smoothing it. The pin was wrong twice in OPPOSITE directions — drafted transformed from the spec, corrected to identical on the browser reading, restored to transformed for a completely different and more serious reason once the reader was fixed. Getting the right answer from the wrong model is not getting it right, so the fix was the instrument and not the number. Also caught my own source going binary: a raw U+0001 written as a literal made the file unreadable to grep, now built by charCode with the reason recorded. T-451 ratchet moved +1 and I did not re-baseline it — the census documents that a runtime-composed path is invisible to it, so the repo-relative literal spells the edge out and the ratchet returned to 67 on its own. Suite 88 -> 89, 0 failed. Reported at rail 11903 with one recommendation: fix the escaping on our side rather than constrain the assigner, because a constraint nobody can mechanically check will be violated eventually and this one is invisible when it is. Not implemented here — that is a save-path behaviour change and belongs in its own task'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-15.yaml'
+  - '.context/audits/cron/2026-08-15-1400.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.new-file-counter'
+  - '.context/working/watchtower.log'
+  - '.fabric/components/tools-_t520-uid-xml-safety.yaml'
+  - '.fabric/components/tools-_t520-xml-read.yaml'
+  - '.tasks/active/T-423-t-357-step-2-emit-bpmn-di-additively-alo.md'
+  - '.tasks/active/T-520-measure-aefuid-round-trip-for-values-tha.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t515-external-uid-conformance.mjs'
+  - 'tools/_t520-uid-xml-safety.mjs'
+  - 'tools/_t520-xml-read.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-15T14:13:39"
+    action: "T-520: _t515 gap 2 measured — escaping is correct, whitespace in a uid is silently corrupted across the seam, and my first instrument agreed with the defect. 8 of 11 candidate values round-trip byte-identical, ampersand less-than greater-than quote apostrophe, all five combined, and non-ASCII UTF-8, with the emitted attribute literal captured as evidence rather than inferred. U+0001 cannot be staged at all, which is a fact about XML 1.0 and not about the editor. The one class that fails: a uid containing a newline or tab is emitted RAW into the attribute, and XML 1.0 3.3.3 attribute-value normalisation turns it into a space for any conforming parser, so AEF reads n_a b where we wrote n_a<newline>b — no error at either end, document well-formed, and their reverse renderer keys records on that field. THE INSTRUMENT LESSON IS WORTH MORE THAN THE FINDING: the first build read the round-tripped document back with the browser's DOMParser, because the document is already in a browser and that is the free thing to do, and it reported all 11 values intact. Chrome does not apply that normalisation; expat does. The producer's own lenient parser agreed with the producer's own defect and I would have reported uid values as XML-safe. Verdicts now come from expat via tools/_t520-xml-read.py, the class of parser that reads on AEF's side, and where the two readers disagree the probe reports the disagreement as evidence rather than smoothing it. The pin was wrong twice in OPPOSITE directions — drafted transformed from the spec, corrected to identical on the browser reading, restored to transformed for a completely different and more serious reason once the reader was fixed. Getting the right answer from the wrong model is not getting it right, so the fix was the instrument and not the number. Also caught my own source going binary: a raw U+0001 written as a literal made the file unreadable to grep, now built by charCode with the reason recorded. T-451 ratchet moved +1 and I did not re-baseline it — the census documents that a runtime-composed path is invisible to it, so the repo-relative literal spells the edge out and the ratchet returned to 67 on its own. Suite 88 -> 89, 0 failed. Reported at rail 11903 with one recommendation: fix the escaping on our side rather than constrain the assigner, because a constraint nobody can mechanically check will be violated eventually and this one is invisible when it is. Not implemented here — that is a save-path behaviour change and belongs in its own task"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 18 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 18
+  commits: 1
+  files_changed: 19
+  lines_added: 898
+  lines_removed: 30
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-520-measure-aefuid-round-trip-for-values-tha.md
+generated_by: context-agent-hybrid

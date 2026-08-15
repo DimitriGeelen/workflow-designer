@@ -165,11 +165,21 @@ entries:
 
   - path: .agentic-framework/agents/task-create/update-task.sh
     kind: content
-    task: T-391, T-394
+    task: T-391, T-394, T-522
     upstream: fix
     reason: >-
       P-011 refused multi-line verification constructs — diagnosed from AEF's OBS-201. T-394
       states the guard boundary in the code (bash -n catches the torn opener, not a standalone).
+      T-522 adds a second, independent fix to the same file: the component auto-populate loop
+      assigned `c_loc=$(grep "^location:" "$card" ... )`, and under `set -euo pipefail` a card
+      without `location:` makes that ASSIGNMENT kill the script mid-run — after the task has
+      been moved to completed/, so completion looks clean while decision capture, outcome
+      back-prop and episodic generation silently never run. Cost two lost episodics here
+      (T-520, T-521) before a handover noticed. Upstream carries the same defect: T-1374/G-054
+      guarded two greps forty lines below for exactly this reason and did not carry it to these
+      two, so this is a third instance of one bug, not a new one. T-522 also installs an
+      EXIT-trap watchdog — T-1169 and T-1860 both sit INSIDE the block that never executes and
+      structurally cannot report a skip, which is why this ran undetected.
 
   - path: .agentic-framework/agents/context/revisit-due-scan.sh
     kind: content

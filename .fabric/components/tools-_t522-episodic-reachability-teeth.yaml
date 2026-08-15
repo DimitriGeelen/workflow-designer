@@ -1,0 +1,41 @@
+id: tools/_t522-episodic-reachability-teeth.py
+name: _t522-episodic-reachability-teeth
+type: script
+subsystem: verification
+location: tools/_t522-episodic-reachability-teeth.py
+tags: [teeth, framework-defect, vendored, episodic, pipefail, watchdog, t-522, g-008]
+
+purpose: >
+  Proves that completing a task still produces episodic memory, and — the half that matters —
+  that losing it is now LOUD. update-task.sh runs under `set -euo pipefail`; its component
+  auto-populate loop assigned `c_loc=$(grep "^location:" "$card" | ... )`, so a fabric card
+  without a `location:` key made grep exit 1, pipefail carried it through the pipe, and the
+  assignment terminated the entire script. The task file had already been moved to completed/
+  by that point, so completion looked successful while every stage below the abort never ran.
+  Two episodics (T-520, T-521) were lost this way and the only evidence was a handover warning
+  a day later. Timeline pins the cause rather than inferring it: two location-less cards landed
+  at 12:13:39Z on 2026-08-15 and the next two completions at 12:13:59Z and 13:34:03Z both lost
+  their episodics, while T-519 at 11:53:42Z did not.
+  WHY IT NEEDED A WATCHDOG AND NOT JUST A PATCH. Two controls for this exact outcome already
+  existed — T-1169 warns when the generator yields no file, T-1860 logs every invocation — and
+  both live INSIDE the block that never executed. A control downstream of the branch that fails
+  cannot observe that failure; it certifies a line that never ran. T-522 therefore added an
+  EXIT-trap watchdog outside the guarded block, and this script's mutation legs test the
+  watchdog at least as hard as the fix: put the unguarded grep back, and the run must lose the
+  episodic AND name the loss on stderr and in the invocation log.
+  Leg 5 guards the guard: bash silently REPLACES an EXIT trap when a second is installed, so a
+  later cleanup handler would delete the watchdog with no error anywhere.
+  Upstream carries the same defect (G-008): T-1374/G-054 guarded two greps forty lines below
+  for this identical reason and did not carry the guard to these two lines.
+  Hermetic — every run happens in mktemp, including a full copy of the framework for the
+  mutation. Leaves this repository byte-identical.
+
+interfaces:
+  - "python3 tools/_t522-episodic-reachability-teeth.py — rc 0 all 5 legs pass, rc 1 a leg failed, rc 2 REFUSE (mutation target absent — no leg was evaluated, distinguishable from a pass)"
+
+depends_on:
+  - .agentic-framework/agents/task-create/update-task.sh
+  - .agentic-framework/agents/context/context.sh
+
+depended_by:
+  - tests/run-bridge-tests.sh

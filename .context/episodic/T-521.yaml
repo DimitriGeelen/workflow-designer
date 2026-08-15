@@ -1,0 +1,102 @@
+# ============================================================================
+# EPISODIC MEMORY - T-521: escAttr must emit character references for whitespace so attribute values survive a conforming parser (AEF ruling, rail 11909)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T14:16:00Z
+# ============================================================================
+
+task_id: T-521
+task_name: "escAttr must emit character references for whitespace so attribute values survive a conforming parser (AEF ruling, rail 11909)"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-15T13:24:39Z
+completed: 2026-08-15T13:34:03Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-15T15:32:59+02:00
+last_commit: 2026-08-15T15:34:03+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  AEF ruled at 11909 and the escaping fix is in — one line at the shared escaper, confirmed by the instrument that found the defect. T-520 measured that escAttr wrote a raw newline or tab into an XML attribute and XML 1.0 3.3.3 normalisation turns it into a space for every conforming parser, so AEF read n_a b where we wrote n_a<newline>b, silently, on the field their reverse renderer keys records on. They chose my recommendation over the alternative and gave a better reason than mine for rejecting it: a spec MUST NOT on the assigner is a promise made by whoever wrote the importer, checked by nobody, whose violation produces a well-formed document passing every conformance check we have — the same silent failure mode relocated rather than removed. FIXED AT escAttr, NOT AT THE UID. That escaper is shared by every attribute the writer emits; T-520 found the defect through aef:uid because that is where the seam contract lives, but a node NAME containing a newline was corrupted by the identical path today. Fixing only the uid would have left the same defect under a different attribute plus a test asserting it was gone. escText deliberately untouched and the reason recorded in the code: normalisation applies to attribute values only, newlines in text content are legal and preserved, so escaping them there would invent a behaviour rather than restore one. Ampersand replacement stays first or it re-escapes the references it just emitted. VERIFIED BY THE PROBE THAT FOUND IT, not by inspection: emitted_as now shows n_a&#10;b and n_a&#9;b, expat reads both back byte-identical, the reader-disagreement flag that flagged the seam risk is gone, and the 8 already-surviving candidates still survive. The pin moved a third time — transformed from expectation, identical from a false browser read, transformed once the reader was fixed, identical now — and this is the only one of the four that reflects the editor changing rather than my understanding of it. Suite 89 passed 0 failed; the one red on the first run was OBS-255's _t358 flake, confirmed by running the sweep standalone at 22/22 rather than assumed, because a change touching every attribute write earns a real check. T-451 ratchet unmoved at 67. verification block, and the AEF report at rail 11911. Four checks, each its own verdict: the probe that found the defect, escAttr carrying all three references with ampersand still replaced first, escText NOT given attribute treatment, and a conforming parser reading a character-reference newline back intact. Also answered their reverse-renderer question — the blocker is (3), the oracle, not the corpus and not headless invocation. I can state what I put INTO a document but not what their renderer should produce from it, because correct there means the records AEF would have produced had the workflow been authored natively, which is a fact about their data model. Proposed a fixture-pair contract: we publish N documents plus a machine-readable statement of what each asserts, they publish the expected rendering, each side runs its own half against a fixed reference without executing the other's code. Respects the T-559 boundary, refs-only until OBS-108 closes, and it is more work for them than for us which is why it is a proposal and not an assumption
+
+# Key outcomes
+outcomes:
+  - '`escAttr` emits `&#10;` / `&#13;` / `&#9;` for newline, carriage return and tab, in'
+  - '`escText` is left unchanged, and the reason is recorded in the code — attribute-value'
+  - '`tools/_t520-uid-xml-safety.mjs` pin updated `newline`/`tab` from `transformed` to'
+  - 'The probe''s `emitted_as` evidence shows the character-reference form (`n_a&#10;b`), so the'
+  - 'A conforming parser (expat) reads the round-tripped uid back byte-identical — the'
+  - 'The 8 candidates that already survived still survive: no regression in `&` `<` `>` `"`'
+  - 'Bridge suite runs 89 legs with no new failure, and the T-451 ratchet is unmoved at 67'
+  - 'AEF told the ruling is implemented, on `agent-chat-arc` with producer attribution,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'verification block, and the AEF report at rail 11911. Four checks, each its own verdict: the probe that found the defect, escAttr carrying all three references with ampersand still replaced first, escText NOT given attribute treatment, and a conforming parser reading a character-reference newline back intact. Also answered their reverse-renderer question — the blocker is (3), the oracle, not the corpus and not headless invocation. I can state what I put INTO a document but not what their renderer should produce from it, because correct there means the records AEF would have produced had the workflow been authored natively, which is a fact about their data model. Proposed a fixture-pair contract: we publish N documents plus a machine-readable statement of what each asserts, they publish the expected rendering, each side runs its own half against a fixed reference without executing the other''s code. Respects the T-559 boundary, refs-only until OBS-108 closes, and it is more work for them than for us which is why it is a proposal and not an assumption'
+    source: git-mined
+  - description: 'AEF ruled at 11909 and the escaping fix is in — one line at the shared escaper, confirmed by the instrument that found the defect. T-520 measured that escAttr wrote a raw newline or tab into an XML attribute and XML 1.0 3.3.3 normalisation turns it into a space for every conforming parser, so AEF read n_a b where we wrote n_a<newline>b, silently, on the field their reverse renderer keys records on. They chose my recommendation over the alternative and gave a better reason than mine for rejecting it: a spec MUST NOT on the assigner is a promise made by whoever wrote the importer, checked by nobody, whose violation produces a well-formed document passing every conformance check we have — the same silent failure mode relocated rather than removed. FIXED AT escAttr, NOT AT THE UID. That escaper is shared by every attribute the writer emits; T-520 found the defect through aef:uid because that is where the seam contract lives, but a node NAME containing a newline was corrupted by the identical path today. Fixing only the uid would have left the same defect under a different attribute plus a test asserting it was gone. escText deliberately untouched and the reason recorded in the code: normalisation applies to attribute values only, newlines in text content are legal and preserved, so escaping them there would invent a behaviour rather than restore one. Ampersand replacement stays first or it re-escapes the references it just emitted. VERIFIED BY THE PROBE THAT FOUND IT, not by inspection: emitted_as now shows n_a&#10;b and n_a&#9;b, expat reads both back byte-identical, the reader-disagreement flag that flagged the seam risk is gone, and the 8 already-surviving candidates still survive. The pin moved a third time — transformed from expectation, identical from a false browser read, transformed once the reader was fixed, identical now — and this is the only one of the four that reflects the editor changing rather than my understanding of it. Suite 89 passed 0 failed; the one red on the first run was OBS-255''s _t358 flake, confirmed by running the sweep standalone at 22/22 rather than assumed, because a change touching every attribute write earns a real check. T-451 ratchet unmoved at 67'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/2026-08-15.yaml'
+  - '.context/audits/cron/2026-08-15-1415.yaml'
+  - '.context/audits/cron/2026-08-15-1430.yaml'
+  - '.context/audits/cron/2026-08-15-1445.yaml'
+  - '.context/audits/cron/2026-08-15-1500.yaml'
+  - '.context/audits/cron/2026-08-15-1515.yaml'
+  - '.context/audits/cron/2026-08-15-1530.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - 'src/aef-workflow-designer.html'
+  - '.tasks/active/T-423-t-357-step-2-emit-bpmn-di-additively-alo.md'
+  - '.tasks/active/T-521-escattr-must-emit-character-references-f.md'
+  - 'tools/_t520-uid-xml-safety.mjs'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-15T15:32:59"
+    action: "T-521: AEF ruled at 11909 and the escaping fix is in — one line at the shared escaper, confirmed by the instrument that found the defect. T-520 measured that escAttr wrote a raw newline or tab into an XML attribute and XML 1.0 3.3.3 normalisation turns it into a space for every conforming parser, so AEF read n_a b where we wrote n_a<newline>b, silently, on the field their reverse renderer keys records on. They chose my recommendation over the alternative and gave a better reason than mine for rejecting it: a spec MUST NOT on the assigner is a promise made by whoever wrote the importer, checked by nobody, whose violation produces a well-formed document passing every conformance check we have — the same silent failure mode relocated rather than removed. FIXED AT escAttr, NOT AT THE UID. That escaper is shared by every attribute the writer emits; T-520 found the defect through aef:uid because that is where the seam contract lives, but a node NAME containing a newline was corrupted by the identical path today. Fixing only the uid would have left the same defect under a different attribute plus a test asserting it was gone. escText deliberately untouched and the reason recorded in the code: normalisation applies to attribute values only, newlines in text content are legal and preserved, so escaping them there would invent a behaviour rather than restore one. Ampersand replacement stays first or it re-escapes the references it just emitted. VERIFIED BY THE PROBE THAT FOUND IT, not by inspection: emitted_as now shows n_a&#10;b and n_a&#9;b, expat reads both back byte-identical, the reader-disagreement flag that flagged the seam risk is gone, and the 8 already-surviving candidates still survive. The pin moved a third time — transformed from expectation, identical from a false browser read, transformed once the reader was fixed, identical now — and this is the only one of the four that reflects the editor changing rather than my understanding of it. Suite 89 passed 0 failed; the one red on the first run was OBS-255's _t358 flake, confirmed by running the sweep standalone at 22/22 rather than assumed, because a change touching every attribute write earns a real check. T-451 ratchet unmoved at 67"
+  - time: "2026-08-15T15:34:03"
+    action: "T-521: verification block, and the AEF report at rail 11911. Four checks, each its own verdict: the probe that found the defect, escAttr carrying all three references with ampersand still replaced first, escText NOT given attribute treatment, and a conforming parser reading a character-reference newline back intact. Also answered their reverse-renderer question — the blocker is (3), the oracle, not the corpus and not headless invocation. I can state what I put INTO a document but not what their renderer should produce from it, because correct there means the records AEF would have produced had the workflow been authored natively, which is a fact about their data model. Proposed a fixture-pair contract: we publish N documents plus a machine-readable statement of what each asserts, they publish the expected rendering, each side runs its own half against a fixed reference without executing the other's code. Respects the T-559 boundary, refs-only until OBS-108 closes, and it is more work for them than for us which is why it is a proposal and not an assumption"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 2
+  files_changed: 21
+  lines_added: 890
+  lines_removed: 282
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-521-escattr-must-emit-character-references-f.md
+generated_by: context-agent-hybrid
