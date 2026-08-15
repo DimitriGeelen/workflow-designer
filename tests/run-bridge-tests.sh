@@ -1121,5 +1121,31 @@ else
 fi
 
 echo
+echo "== A malformed component card is DETECTED, not merely survived (T-524) =="
+# The other half of T-522. That task made a card missing `location:` non-FATAL by guarding the
+# assignment; it did not make one VISIBLE. After the fix such a card is simply inert — it stops
+# participating in component resolution and nothing anywhere says so. Trading a loud failure for
+# a quiet one is not the same as fixing it.
+#
+# `fw fabric validate` was the natural detector and had been a stub since T-191: it printed
+# "Deep validation not yet implemented" for every card and then `return 0`. The prose was honest,
+# the exit code was not, so `fw fabric validate && echo ok` reported success for work never done
+# (PL-205, PL-178). It now checks the fields real readers assume — id, name, location, each
+# justified by a cited consumer — plus YAML parseability and id uniqueness, and REFUSES with rc 2
+# rather than passing when it evaluates nothing.
+#
+# The teeth measure the downstream harm rather than asserting it: a card without `location:`
+# contributes nothing to the `registered` set drift builds at lib/drift.sh:25, so drift reports
+# that card's own file as UNREGISTERED and the printed remedy is `fw fabric scan` — which would
+# mint a SECOND card for one file. Silence that manufactures duplicates. That leg is why
+# `location` is required rather than merely conventional.
+if python3 "$ROOT/tools/_t524-fabric-validate-teeth.py" > /dev/null 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "malformed component cards can go undetected again — either fw fabric validate regressed to a stub that returns 0, it stopped naming the offending card and field, it lost the refusal path (rc 2 on an empty register or an unknown component id, which must not look like a pass), or it now flags valid cards too (run 'python3 tools/_t524-fabric-validate-teeth.py' for the failing leg; rc 2 is a REFUSAL — the fabric agent is absent — not a pass)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

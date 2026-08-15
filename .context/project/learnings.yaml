@@ -1562,3 +1562,17 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-219
+  learning: "A NEGATIVE ASSERTION IS SATISFIED BY SILENCE. Any test leg of the form 'X was not reported' passes when NOTHING is reported at all — which is exactly the broken-instrument case the leg was written to catch. T-524's leg 3 ('the valid card is not flagged') existed to prove green is a classification rather than absence, and it passed VACUOUSLY against a validator regressed to print nothing: 3 of 10 legs survived the mutation and that was one of them. Reading the leg cannot reveal this; only feeding it the broken instrument can. The remedy is to assert that a discrimination OCCURRED — findings were reported, the valid subject is absent from them, and the counts match — never that a symptom is missing. Applies to every suite with negative legs, and the cost of finding out the other way is that the leg is green on the day it matters."
+  source: P-001
+  task: T-524
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
+- id: PL-220
+  learning: "FIXING A CRASH CAN CONVERT A LOUD FAILURE INTO A QUIET ONE, AND THAT IS NOT THE SAME AS FIXING IT. T-522 guarded the assignment so a fabric card missing 'location:' no longer killed update-task.sh mid-completion — correct, and it made the malformed card NON-FATAL without making it VISIBLE. Resilience and detection are separate deliverables and a fix that ships only the first leaves the failure in the tree with its alarm removed. Measured here rather than argued: the inert card is not merely ignored — because drift builds its 'registered' set by grepping ^location:, a card without one makes ITS OWN FILE report as unregistered, and the printed remedy is 'fw fabric scan', which would mint a SECOND card for a file that already has one. So the silence actively manufactures duplicates. The test at the end of any crash fix: after this change, what NOTICES the input that used to crash? If the answer is nothing, half the work is still open."
+  source: P-001
+  task: T-524
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD

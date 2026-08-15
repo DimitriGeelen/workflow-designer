@@ -1,0 +1,43 @@
+id: tools/_t524-fabric-validate-teeth.py
+name: _t524-fabric-validate-teeth
+type: script
+subsystem: verification
+location: tools/_t524-fabric-validate-teeth.py
+tags: [teeth, fabric, card-validity, t-524, t-522, pl-205, pl-206, pl-178]
+
+purpose: >
+  Proves `fw fabric validate` detects malformed component cards and names them — the detector
+  T-522 left absent. T-522 found that a card missing `location:` aborted update-task.sh mid-
+  completion under `set -euo pipefail` and silently lost two episodics; its fix guarded the
+  assignment, which made such a card NON-FATAL but not VISIBLE. After the fix the card is inert:
+  it stops participating in component resolution and nothing says so. A loud failure traded for a
+  quiet one is not the same as a fix, and this closes the other half.
+  THE SUBJECT WAS A STUB THAT RETURNED 0. do_validate printed "Deep validation not yet
+  implemented" for every card and exited 0, so the prose was honest and the exit code was not —
+  anything consuming the verdict rather than the text (`fw fabric validate && echo ok`, a CI leg,
+  a P-011 line) got a pass for work never done. That is why no leg here may assert only rc: a
+  teeth script built around "validate exits 0 on the real tree" would have passed against the
+  very stub being replaced.
+  Every leg feeds a stimulus CONTAINING the fault (PL-206) and asserts red for the NAMED field,
+  not merely non-zero (OBS-255's shape). Leg 3 earns its wording the hard way: written first as
+  "the valid card is not flagged", it passed VACUOUSLY against the regression, because a
+  validator printing nothing flags nothing. It now requires that a discrimination actually
+  occurred — findings reported, the valid card absent from them, exactly one of two cards
+  faulted.
+  Leg 9 is the one that justifies the required-field set instead of asserting it: it MEASURES the
+  downstream harm. A card without `location:` contributes nothing to the `registered` set drift
+  builds at lib/drift.sh:25, so drift reports that card's own file as UNREGISTERED and the
+  printed remedy is `fw fabric scan` — which would mint a SECOND card for one file. Without this
+  leg, "id, name, location are required" would be taste rather than consequence.
+  Hermetic: every fixture is built under mktemp and selected via PROJECT_ROOT; leg 10 asserts the
+  working tree is byte-identical across the run rather than trusting that it is.
+
+interfaces:
+  - "python3 tools/_t524-fabric-validate-teeth.py — rc 0 all 10 legs pass, rc 1 a leg failed, rc 2 REFUSE (the fabric agent is absent — nothing was evaluated, distinguishable from a pass)"
+
+depends_on:
+  - .agentic-framework/agents/fabric/fabric.sh
+  - .agentic-framework/agents/fabric/lib/drift.sh
+
+depended_by:
+  - tests/run-bridge-tests.sh

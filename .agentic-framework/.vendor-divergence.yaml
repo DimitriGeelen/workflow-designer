@@ -181,6 +181,32 @@ entries:
       EXIT-trap watchdog — T-1169 and T-1860 both sit INSIDE the block that never executes and
       structurally cannot report a skip, which is why this ran undetected.
 
+  - path: .agentic-framework/agents/fabric/lib/drift.sh
+    kind: content
+    task: T-524
+    upstream: fix
+    reason: >-
+      `do_validate()` was a stub that printed "Deep validation not yet implemented" for every
+      card and then `return 0`. The banner was honest; the exit code was not, so anything
+      consuming the verdict rather than the prose — `fw fabric validate && echo ok`, a CI leg, a
+      P-011 line — got a pass for work that was never done (PL-205: an abstention must be
+      distinguishable from a pass; PL-178: green while asserting nothing). The command has a
+      documented role in the subsystem's own design note (docs/reports/T-191-cf-enforcement-
+      design.md:95,142,282, where the audit is specified to advise it as the stale-edge remedy)
+      and an entry in the CLI dispatcher, so the gap between spec and implementation is the
+      defect rather than a missing feature. It now validates card well-formedness — YAML
+      parseability, the fields real readers assume (id, name, location, each justified in-code by
+      a cited consumer), and id uniqueness — and REFUSES with rc 2 when it evaluates nothing
+      (empty register, unknown component id). Scope is drawn so it does not overlap do_drift:
+      drift is card-versus-world, validate is the card itself.
+      WHY IT MATTERS UPSTREAM: this is the detector half of T-522. That fix made a card missing
+      `location:` non-fatal; it did not make one visible. Measured here, the card is not merely
+      inert — because drift builds its `registered` set by grepping `^location:` (line 25), a
+      card without one makes its own file report as UNREGISTERED, and the printed remedy is
+      `fw fabric scan`, which would mint a SECOND card for that file. Upstream carries the stub
+      verbatim, so a re-vendor without this entry would restore a command that reports success
+      for work it did not do.
+
   - path: .agentic-framework/agents/context/revisit-due-scan.sh
     kind: content
     task: T-373

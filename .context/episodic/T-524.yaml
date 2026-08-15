@@ -1,0 +1,75 @@
+# ============================================================================
+# EPISODIC MEMORY - T-524: fw fabric validate exits 0 while validating nothing - the missing detector for T-522's malformed-card class
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T15:08:29Z
+# ============================================================================
+
+task_id: T-524
+task_name: "fw fabric validate exits 0 while validating nothing - the missing detector for T-522's malformed-card class"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-15T14:56:16Z
+completed: 2026-08-15T15:08:23Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**The required-field set is DERIVED from real consumers, not invented.** Every field the'
+  - '**`fw fabric validate` no longer returns 0 for work it did not do.** It either performs the'
+  - '**It detects the T-522 card.** A card missing `location:` is reported by name and by the'
+  - '**It is green on the real tree.** All 53 current cards pass (they do carry `id:` and'
+  - '**Teeth (PL-206): red is asserted FOR THE NAMED REASON.** A mutation-based teeth script'
+  - '**Hermetic.** Teeth build their fixtures under `mktemp`; the working tree is byte-identical'
+  - '**Wired.** The validator and its teeth are reachable from `tests/run-bridge-tests.sh` — an'
+  - '**Divergence declared.** `.agentic-framework/.vendor-divergence.yaml` records the change'
+  - '**Fabric cards written for any new tool**, each carrying `location:` — the field whose'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 12 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 12
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-524-fw-fabric-validate-exits-0-while-validat.md
+generated_by: context-agent-hybrid
