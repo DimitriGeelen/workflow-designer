@@ -17,7 +17,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:27Z
-last_update: 2026-08-15T07:55:23Z
+last_update: 2026-08-15T07:58:35Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -456,6 +456,33 @@ python3 -c "import re,sys,glob; f=sorted(glob.glob('examples/aef-processes/rende
   classification, not an absence.
 - **Not triggered, deliberately:** the emitter. Nothing here changes the argument for
   waiting — only the price of the answer.
+
+### 2026-08-15 — the competing-carrier AC does not depend on the blocker, and its measurement is in
+
+- **What changed:** the last Agent AC (*"a competing-carrier guard exists, in AEF's shape"* —
+  their `test_di_drop_has_a_competing_carrier`, which goes red when the rival carrier is
+  deleted) has been sitting behind the same blocker as the rest of the task. It does not
+  belong there. That guard asserts `aef:position` **exists**; it needs no DI, no schema and
+  no emitter. It is buildable today and is the one piece of this task the operator's
+  vendoring ruling does not gate.
+- **Measured, so the next window builds instead of re-measuring:**
+  ```
+  maps=24  nodes=306  aef:position=306   maps with fewer positions than nodes: 0
+  ```
+  Exact 1:1 across the whole rendered corpus. So the invariant the guard would protect
+  holds today and the guard would not land red on a pre-existing backlog — the T-491 rule.
+- **The shape it must NOT take, and this task is the reason to say so out loud.** The
+  obvious leg is `nodes == 306 && positions == 306`. That is **population-pinned** — G-015's
+  exact class, 17 instances of which this project catalogued two days ago — and it falsifies
+  itself the first time a map is added. The correct assertion is **per-node and ratio-shaped**:
+  *every node carries exactly one `aef:position`*, i.e. zero maps where the position count is
+  under the node count. That is what the measurement above actually reports (`gaps: 0`), it
+  is an emptiness assertion, and it does not go stale as the corpus grows.
+- **Plan impact:** none to the blocked half. This AC can be split out and landed independently
+  the moment there is budget for a source-adjacent write; it is recorded here rather than
+  built because the context budget crossed the framework's critical line mid-session and
+  writes to `tools/` are blocked there by design.
+- **Triggered:** nothing yet. Next window: build the guard, wire it, tick this AC alone.
 
 ## Decisions
 
