@@ -1653,3 +1653,17 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-232
+  learning: "A channel's own analytics tools can be blind to the traffic on it, and the blindness is invisible because they return 0 rather than erroring. termlink_agent_first_post_by and termlink_agent_search_by both filter msg_type=='post'; the entire 832-AEF arc conversation is msg_type=='note'. Measured: agent_search_by(query='832-Workflow-designer') returns count 0 while channel_search finds 20 envelopes for the same string in the same offset range. first_post_by on a real fingerprint returned found:false, which reads as 'this agent never posted' and actually means 'no envelope of the filtered type'. Anything built on those tools — digests, attribution, who-said-what counts — reports on a different population than the one humans are reading, and reports it as an empty or small result rather than as an error."
+  source: P-001
+  task: T-531
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
+- id: PL-233
+  learning: "Before escalating a cross-project anomaly, grep the shared framework's source for it — the condition may already be documented as a deferred known. AEF discovered empirically that sender_id merges co-resident agents and asked which end re-keyed. agent-conversation-status.sh:87-94 already says verbatim: 'sender identity is multi-source on shared hosts', priority .metadata.agent_id // .metadata._from // .sender_id, and '.sender_id (envelope fingerprint - collapses co-resident agents) ... deferred to T-1693, so chain falls through to .sender_id'. The readers were already written to prefer explicit identity; only the producers do not populate it. That changes the remedy from a config-parity question to 'finish the deferred producer half', and it changes the framing from surprise to known-debt. Related: the two-party framing was also wrong — first_post_by on the shared fingerprint returned a THIRD project (050-email-archive), predating the observed switch window."
+  source: P-001
+  task: T-531
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
