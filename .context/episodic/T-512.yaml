@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-512: Cut designer release 0.10.0: AEF is pinned to 0.9.0 and blocked on six unreleased src commits including the T-340 DI import repair
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T08:42:07Z
+# ============================================================================
+
+task_id: T-512
+task_name: "Cut designer release 0.10.0: AEF is pinned to 0.9.0 and blocked on six unreleased src commits including the T-340 DI import repair"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-15T08:38:33Z
+completed: 2026-08-15T08:42:03Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-15T10:40:37+02:00
+last_commit: 2026-08-15T10:42:03+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  cut designer 0.10.0, because AEF is pinned to 0.9.0 and their T-2977 has been blocked on our release while six commits sat unreleased in src. The one they need is fc7f7263, T-340's DI import repair — standard BPMN DI is no longer silently discarded — which is also the arc's step 1, so this cut is the arc reaching the consumer rather than a housekeeping bump. Also in it: 4c40414c T-399 producer identity on every export, c99f49f8 T-406 readDocComment no longer inferring boilerplate ownership from text, fd68c432 T-414 narrowing DI-trailer suppression, b9074180 T-233 pending off-page refs surfaced where an operator looks, 46378578 T-355 a callActivity drawn as a serviceTask. Minor and not patch, deliberately: a behavioural repair plus a change to every exported byte is not a patch, and versioning it as one would understate the diff to the party who verifies by sha. sha256 76bf20fb4a3ababc7540e33f801908213d4b361c9194e0cb8ff4a1fbacd39534, 953047 bytes, render gate PASS. Three checks beyond the script's own, because a release is a promise to a consumer and each one is a distinct way that promise breaks: DETERMINISM, re-ran the script and the artifact is byte-identical, so the pin is reproducible rather than merely asserted; IMMUTABILITY, all 12 prior artifacts still match shas captured BEFORE the cut, snapshotted first precisely so this is a before/after and not a self-confirming read of the current tree — that is what protects AEF's live 0.9.0 pin while 0.10.0 lands beside it; and SRC PARITY, the artifact hashes equal to src, so dist is not a stale copy. Not tagged in this commit by design: the script warns that tagging before the release commit exists names the previous commit, which carries neither this VERSION nor this artifact, so the tag follows immediately. Not announced on the rail yet either, and that AC is deliberately left UNTICKED — the script announced to the DM topic at offset 631 with cv_key=designer-release, which is not the same as the attributed rail post the AC asks for. Ticking it on the strength of a different announcement would be the false-green shape this project has spent two days cataloguing. announce 0.10.0 on the rail at offset 11880 and close the task. The announcement carries version, tag, sha256 and byte count inline so AEF can verify a pull without a round-trip, names the six commits individually rather than describing the cut with an adjective, and flags T-399's +51 bytes per export as NOTICE and not a re-pin request — none of their six vendored digests is affected, but anyone diffing a fresh export against an old one will see that line and should know why. It also asks a question I would rather ask than assume: _t382-release-lag.py reports their pin as 0.8.0, which would make them two releases behind rather than one, but the tool reads a VENDORED copy of their policy and its own output says so — it reports what they had pinned at our last re-vendor and can only under-report adoption. If it is 0.8.0 then T-2977 was blocked on two releases and I have been describing the gap wrongly on this rail, so the correction is theirs to confirm. The announcement AC stayed UNTICKED through the release commit even though release-designer.sh had already announced to the DM topic at offset 631, because the AC asks for an attributed rail post and a different announcement is not that post. Ticking on the strength of an adjacent fact is the false-green shape catalogued across T-508, T-510 and PL-205
+
+# Key outcomes
+outcomes:
+  - 'VERSION bumped 0.9.0 → 0.10.0 and `scripts/release-designer.sh` run clean. Minor, not'
+  - 'Artifact `dist/aef-workflow-designer-0.10.0.html` exists and its sha256 matches the sha'
+  - 'Render gate PASS — the script''s own gate. A failed gate aborts the cut; it is never'
+  - '**Determinism: re-running the release script yields a byte-identical artifact.** A'
+  - '**Immutability: every previously released artifact is still byte-identical to its'
+  - '**The content of the cut is stated by commit, not by adjective** — the six src commits'
+  - 'Release ANNOUNCED on the rail with `from_project` attribution — **offset 11880**,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - 'dist/aef-workflow-designer-0.10.0.html'
+  - 'dist/MANIFEST.yaml'
+  - '.tasks/active/T-423-t-357-step-2-emit-bpmn-di-additively-alo.md'
+  - '.tasks/active/T-512-cut-designer-release-0100-aef-is-pinned-.md'
+  - '.tasks/completed/T-511-answer-aef-rail-11833-q2-does-a-save-rou.md'
+  - 'VERSION'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-15T10:40:37"
+    action: "T-512: cut designer 0.10.0, because AEF is pinned to 0.9.0 and their T-2977 has been blocked on our release while six commits sat unreleased in src. The one they need is fc7f7263, T-340's DI import repair — standard BPMN DI is no longer silently discarded — which is also the arc's step 1, so this cut is the arc reaching the consumer rather than a housekeeping bump. Also in it: 4c40414c T-399 producer identity on every export, c99f49f8 T-406 readDocComment no longer inferring boilerplate ownership from text, fd68c432 T-414 narrowing DI-trailer suppression, b9074180 T-233 pending off-page refs surfaced where an operator looks, 46378578 T-355 a callActivity drawn as a serviceTask. Minor and not patch, deliberately: a behavioural repair plus a change to every exported byte is not a patch, and versioning it as one would understate the diff to the party who verifies by sha. sha256 76bf20fb4a3ababc7540e33f801908213d4b361c9194e0cb8ff4a1fbacd39534, 953047 bytes, render gate PASS. Three checks beyond the script's own, because a release is a promise to a consumer and each one is a distinct way that promise breaks: DETERMINISM, re-ran the script and the artifact is byte-identical, so the pin is reproducible rather than merely asserted; IMMUTABILITY, all 12 prior artifacts still match shas captured BEFORE the cut, snapshotted first precisely so this is a before/after and not a self-confirming read of the current tree — that is what protects AEF's live 0.9.0 pin while 0.10.0 lands beside it; and SRC PARITY, the artifact hashes equal to src, so dist is not a stale copy. Not tagged in this commit by design: the script warns that tagging before the release commit exists names the previous commit, which carries neither this VERSION nor this artifact, so the tag follows immediately. Not announced on the rail yet either, and that AC is deliberately left UNTICKED — the script announced to the DM topic at offset 631 with cv_key=designer-release, which is not the same as the attributed rail post the AC asks for. Ticking it on the strength of a different announcement would be the false-green shape this project has spent two days cataloguing"
+  - time: "2026-08-15T10:42:03"
+    action: "T-512: announce 0.10.0 on the rail at offset 11880 and close the task. The announcement carries version, tag, sha256 and byte count inline so AEF can verify a pull without a round-trip, names the six commits individually rather than describing the cut with an adjective, and flags T-399's +51 bytes per export as NOTICE and not a re-pin request — none of their six vendored digests is affected, but anyone diffing a fresh export against an old one will see that line and should know why. It also asks a question I would rather ask than assume: _t382-release-lag.py reports their pin as 0.8.0, which would make them two releases behind rather than one, but the tool reads a VENDORED copy of their policy and its own output says so — it reports what they had pinned at our last re-vendor and can only under-report adoption. If it is 0.8.0 then T-2977 was blocked on two releases and I have been describing the gap wrongly on this rail, so the correction is theirs to confirm. The announcement AC stayed UNTICKED through the release commit even though release-designer.sh had already announced to the DM topic at offset 631, because the AC asks for an attributed rail post and a different announcement is not that post. Ticking on the strength of an adjacent fact is the false-green shape catalogued across T-508, T-510 and PL-205"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 2
+  files_changed: 6
+  lines_added: 10878
+  lines_removed: 17
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-512-cut-designer-release-0100-aef-is-pinned-.md
+generated_by: context-agent-hybrid

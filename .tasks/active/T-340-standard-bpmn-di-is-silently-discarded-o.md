@@ -4,12 +4,12 @@ name: "Standard BPMN DI is silently discarded on import: the whole bpmndi sub-tr
 description: >
   parseBpmnXml never reads bpmndi and buildBpmnXml never emits it, while declaring the bpmndi namespace on the root. Any BPMN document carrying standard DI loses all of it on open-save. Same class as T-337 one granularity up: an unknown sub-tree rather than an unknown flow-node tag. Latent by occupancy (0 of 175 local .bpmn files carry DI) but every mainstream BPMN modeller emits it. Found by T-339.
 
-status: started-work
+status: work-completed
 workflow_type: build
-owner: agent
+owner: human
 horizon: now
 tags: []
-components: []
+components: [tools/_t338-input-fidelity-cdp.mjs]
 related_tasks: []
 arc_id: designer-authoring-surface
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
@@ -17,8 +17,8 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T10:39:05Z
-last_update: 2026-08-14T15:19:39Z
-date_finished: null
+last_update: 2026-08-15T08:59:33Z
+date_finished: 2026-08-15T08:59:33Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -680,3 +680,15 @@ wrong — it drops it, exactly as ours does.
 
 ### 2026-08-12T19:40:09Z — status-update [task-update-agent]
 - **Change:** tags: +arc:designer-authoring-surface
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-bb11f554
+- **Timestamp:** 2026-08-15T09:02:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-15T08:59:33Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

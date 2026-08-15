@@ -6353,3 +6353,39 @@ scan_id: R-023e5768
 task_id: T-511
 payload:
   task_file: .tasks/active/T-511-answer-aef-rail-11833-q2-does-a-save-rou.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T08:42:04Z'
+scan_id: R-727db415
+task_id: T-512
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T08:42:04Z'
+scan_id: R-727db415
+task_id: T-512
+payload:
+  task_file: .tasks/active/T-512-cut-designer-release-0100-aef-is-pinned-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T09:02:44Z'
+scan_id: R-bb11f554
+task_id: T-340
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T09:02:44Z'
+scan_id: R-bb11f554
+task_id: T-340
+payload:
+  task_file: .tasks/active/T-340-standard-bpmn-di-is-silently-discarded-o.md

@@ -849,3 +849,10 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-250
+  text: "Bridge suite is NOT deterministic under repetition, observed 2026-08-15 while diagnosing a separate ratchet failure. Four consecutive runs of tests/run-bridge-tests.sh on an unchanged tree gave: 79 passed/2 failed, then 80 passed/1 failed, then (after wiring one leg) 82 passed/0 failed twice. The first two runs both contained the T-451 unwired-guard ratchet failure, which was real and has been fixed; they differ from each other by ONE OTHER LEG that failed in the first run and passed in the second, and that leg did not recur across two further runs so it was never identified by name. WHY THIS MATTERS BEYOND ONE FLAKE: this suite is the thing several task Verification blocks are tempted to cite as proof, and it is the standing evidence that the seam with AEF is intact. A suite that can differ by a leg between two runs on identical bytes means a single green is weaker evidence than it appears, and more importantly a single RED may be dismissed as flake by the next reader — which is the more dangerous direction. The suite now spawns Chromium plus a python sidecar in at least three legs (_t338, _t511, and the T-509 instrument sweep's contents), so contention on ports, browser startup or the 90s per-script sweep ceiling are the obvious suspects; the sweep's own header already records that wall-clock went 103s to 168s with about 20s of that attributed to contention rather than work. SUGGESTED NEXT STEP, not taken here because it is a measurement task rather than a fix: run the suite N times on an unchanged tree, record per-leg pass/fail, and identify which legs are non-deterministic rather than guessing. Until then, treat a lone red leg as a finding to reproduce and not as noise."
+  captured: 2026-08-15T08:59:28Z
+  context_task: T-423
+  tags: [testing]
+  status: pending
+  promoted_to: null
