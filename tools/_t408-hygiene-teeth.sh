@@ -123,6 +123,65 @@ else
   ok "(b) new serve-root diff -> rc=1, names T-906-new-diff as serve-root-diff"
 fi
 
+# --- (b3) new population-pinned leg (T-508, the third carrier shape) ---------
+build_tree; adopt
+mk active "T-908-new-poppin" 'test "$(ls examples/aef-processes/rendered/*.bpmn | wc -l)" -eq 24'
+out="$(run)"; rc=$?
+if [ "$rc" -ne 1 ]; then
+  fail "(b3) a NEW population-pinned leg must exit 1, got rc=$rc
+$out"
+elif ! echo "$out" | grep -q "T-908-new-poppin"; then
+  fail "(b3) exited 1 but never named T-908-new-poppin — it went red about something else
+$out"
+elif ! echo "$out" | grep -q "population-pinned"; then
+  fail "(b3) named the file but not the carrier KIND (population-pinned)
+$out"
+else
+  ok "(b3) new population-pinned leg -> rc=1, names T-908-new-poppin as population-pinned"
+fi
+
+# --- (b4) DISCRIMINATOR: the four look-alike shapes must NOT be carriers -----
+# This is the leg that matters most. A detector that flags all of these is worse than no
+# detector: it would push authors to weaken real invariants into `-ge` to get green. Each
+# line below pins a literal count and each is CORRECT as written.
+#   invariant — occurrences of a token in a NAMED file; "exactly 2 call sites" IS the claim
+#   emptiness — a population pinned to ZERO; does not go stale as the corpus grows
+#   hermetic  — a population the line CONSTRUCTED in the same breath; cannot drift
+#   remedy    — `-ge`, the repaired form (T-095/T-096); flagging it would flag its own fix
+build_tree; adopt
+mk active "T-909-invariant" 'test "$(grep -c '"'"'cleanLayout()'"'"' src/aef-workflow-designer.html)" = "2"'
+mk active "T-910-emptiness" 'test "$(grep -rl '"'"'forbidden'"'"' src/ | wc -l)" = "0"'
+mk active "T-911-hermetic"  'd=$(mktemp -d) && printf x > "$d/a.log" && test "$(ls "$d" | wc -l)" -eq 1'
+mk active "T-912-remedy"    'test "$(grep -c '"'"'cleanLayout()'"'"' src/aef-workflow-designer.html)" -ge 2'
+out="$(run)"; rc=$?
+if [ "$rc" -ne 0 ]; then
+  fail "(b4) the four look-alike shapes must NOT be carriers, got rc=$rc.
+Whichever is named below is being misclassified as population-pinned:
+$out"
+elif echo "$out" | grep -qE "T-909|T-910|T-911|T-912"; then
+  fail "(b4) exited 0 but a look-alike was still named — check the notice lines:
+$out"
+else
+  ok "(b4) invariant/emptiness/hermetic/-ge remedy all classified clean -> rc=0"
+fi
+
+# --- (b5) ANTI-VACUITY for (b4): prove the tree in (b4) was actually seen ----
+# (b4) passes if the discriminator works — and it would ALSO pass if the four files were
+# never scanned at all. Adding one real carrier to the same tree must turn it red, which
+# proves the population was live and (b4)'s green is about classification, not absence.
+mk active "T-913-poppin-again" 'test "$(git ls-files examples/*.bpmn | wc -l)" = "24"'
+out="$(run)"; rc=$?
+if [ "$rc" -ne 1 ]; then
+  fail "(b5) anti-vacuity: adding a real carrier to (b4)'s tree must exit 1, got rc=$rc.
+(b4)'s green may have been vacuous — the four files may never have been scanned.
+$out"
+elif ! echo "$out" | grep -q "T-913-poppin-again"; then
+  fail "(b5) exited 1 but did not name T-913-poppin-again
+$out"
+else
+  ok "(b5) anti-vacuity: same tree + one real carrier -> rc=1, so (b4) was not vacuous"
+fi
+
 # --- (b2) a new carrier LINE inside a GRANDFATHERED file ---------------------
 # The reason the baseline is keyed on line-hash and not on per-file counts: a file that
 # is already excused for one line must not become a free slot for a different one.
@@ -312,4 +371,9 @@ if [ "$fails" -ne 0 ]; then
   echo "TEETH FAIL — $fails leg(s) failed" >&2
   exit 1
 fi
-echo "TEETH PASS — 12/12 legs (control + 8 mutations + reciprocal + agreement)"
+# Count DERIVED from the counter, not hand-typed (T-508). It read "12/12" while 15 legs
+# were running: three legs added for the population-pinned kind reported themselves ok and
+# the summary went on claiming twelve. A hardcoded total is the same defect this tool
+# exists to catch — a literal asserting the size of a population that grows — and it is
+# worse here, because the line a reader trusts to say "everything ran" was the one lying.
+echo "TEETH PASS — $legs/$legs legs (control + mutations + discriminator + anti-vacuity + reciprocal + agreement)"

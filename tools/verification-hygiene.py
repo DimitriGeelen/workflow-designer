@@ -70,10 +70,87 @@ BASELINE = os.path.join(ROOT, "tools", "verification-hygiene-baseline.json")
 # line one tool calls a carrier is a carrier to the other; the teeth assert they agree.
 RE_SERVE_DIFF_A = re.compile(r"\b(diff|cmp)\b.*build/gallery")
 RE_SERVE_DIFF_B = re.compile(r"build/gallery.*\b(diff|cmp)\b")
-RE_PORT = re.compile(r":(\d{2,5})\b")
+# A port literal is either host-qualified (`http://192.168.10.107:3000`, `localhost:8834`,
+# `127.0.0.1:8834`) or bare (`:3000`, `:8834`). The original `:(\d{2,5})\b` matched the
+# colon-number in ANY context, which is fine for prose but these are EXECUTABLE lines, and
+# there the same characters occur in shapes that are not ports at all:
+#     [:400]            Python/shell slice        (T-461, T-462)
+#     T-2553:101        a task/rail reference     (T-449)
+#     update-task.sh:1018   a file:line citation
+#     13:13             a timestamp
+# Three of the four carriers this tool had accumulated since 2026-08-09 were of exactly
+# that kind — noise, not findings. They went unnoticed because the tool has no standing
+# caller (it is line 130 of tools/unwired-guard-baseline.txt), so nothing ever read its
+# output. Discovered by wiring it, which is the point of wiring it.
+# The discriminator: every false shape above has a WORD CHARACTER or `[` immediately before
+# the colon, and every genuine bare port has whitespace, a quote or a line start. Genuine
+# host-qualified ports keep their own alternative so `localhost:8834` still matches despite
+# the preceding letter.
+RE_PORT = re.compile(
+    r"(?:localhost|\d{1,3}(?:\.\d{1,3}){3}|//[A-Za-z0-9.-]+):\d{2,5}\b"  # host-qualified
+    r"|(?<![\w.\[/-]):\d{2,5}\b"                                          # bare :PORT
+)
 
 KIND_DIFF = "serve-root-diff"
 KIND_PORT = "hardcoded-port"
+
+# ── Third carrier shape (T-508, PL-200) ──────────────────────────────────────────────
+# Same G-015 defect as (a) and (b): a line asserting a GLOBAL, always-moving property
+# rather than a property of the task carrying it. Here the moving property is the SIZE OF
+# A POPULATION — `ls examples/aef-processes/rendered/*.bpmn | wc -l` = 24 is true only
+# while the corpus never grows, and a corpus is designed to grow. The literal 24 is
+# replicated across seven task files, so one corpus addition falsifies all of them at once.
+#
+# WHY IT SURFACED ONLY NOW. A P-011 block is a ONE-SHOT gate here — it runs at
+# work-completed and never again — so a stale count is unobservable by construction. AEF's
+# CTL-013 re-runs verification on completed tasks DAILY. Same line, mirror-image failure
+# modes: stale silently here, red spuriously there (PL-200). Adopting a CTL-013-style
+# re-runner is the obvious thing to take from that exchange, and doing it against this tree
+# would light these up on day one and read as "the re-runner is broken".
+#
+# THREE NEAR-IDENTICAL SHAPES ARE **NOT** CARRIERS, and getting this wrong would be worse
+# than not detecting at all — it would push authors to weaken real invariants into `-ge`:
+#   INVARIANT  `grep -c 'cleanLayout()' src/app.html` = 2
+#              Occurrences of a token in a NAMED file. "Exactly two call sites" IS the
+#              assertion, and it is a property of the code, not of a moving population.
+#   EMPTINESS  `grep -rl 'forbidden' src/ | wc -l` = 0
+#              Counts a population but pins it to ZERO. "None of these exist" does not go
+#              stale as the corpus grows; it goes red only on a genuine regression.
+#   HERMETIC   `d=$(mktemp -d) && … | wc -l` = 1
+#              Counts a population the line CONSTRUCTED in the same breath. It cannot
+#              drift. Found by inspecting a first run that flagged T-462's grep-behaviour
+#              probe, not predicted — the exclusion is deliberate, not an accident of regex.
+#
+# Already-repaired lines are also not carriers: `-ge N` is the remedy shape (T-095, T-096
+# both carry `-ge N  # was =N; call sites grew legitimately`), so matching only `=`/`-eq`
+# keeps the tool from flagging its own fix.
+KIND_POP = "population-pinned"
+
+RE_COUNTER = re.compile(r"(\bwc\s+-[lcmw]|\bgrep\s+-[a-zA-Z]*c)")
+RE_LITERAL = re.compile(r'(?:==?\s*"?(\d+)"?(?:\s|$|\))|-eq\s+(\d+)\b)')
+RE_ENUMERATOR = re.compile(
+    r"(\bls\b"
+    r"|\bfind\b"
+    r"|git\s+ls-files"
+    r"|\bgrep\s+-[a-zA-Z]*r[a-zA-Z]*l\b"   # grep -rl: prints FILENAMES, so it enumerates
+    r"|\bgrep\s+-[a-zA-Z]*l[a-zA-Z]*\b"
+    r"|\bfor\s+\w+\s+in\s+\$\("
+    r")"
+)
+RE_HERMETIC = re.compile(r"\bmktemp\b")
+
+
+def is_population_pinned(line):
+    """True when the line pins a NON-ZERO literal to the size of a population it did not
+    construct. See the block comment above for the three shapes deliberately excluded."""
+    if not RE_COUNTER.search(line) or not RE_ENUMERATOR.search(line):
+        return False
+    m = RE_LITERAL.search(line)
+    if not m:
+        return False
+    if int(m.group(1) if m.group(1) is not None else m.group(2)) == 0:
+        return False
+    return not RE_HERMETIC.search(line)
 
 
 def exec_lines(text):
@@ -98,6 +175,8 @@ def carriers_in(line):
         kinds.append(KIND_DIFF)
     if RE_PORT.search(line):
         kinds.append(KIND_PORT)
+    if is_population_pinned(line):
+        kinds.append(KIND_POP)
     return kinds
 
 
@@ -125,7 +204,7 @@ def scan():
     seen_at = {}
     collisions = []
     stats = {"task_files": len(paths), "with_block": 0, "exec_lines": 0,
-             KIND_DIFF: 0, KIND_PORT: 0}
+             KIND_DIFF: 0, KIND_PORT: 0, KIND_POP: 0}
     for p in paths:
         rel = os.path.relpath(p, ROOT)
         name = os.path.basename(p)
@@ -173,6 +252,7 @@ def write_baseline(findings, stats, note):
             "executable_lines": stats["exec_lines"],
             KIND_DIFF: stats[KIND_DIFF],
             KIND_PORT: stats[KIND_PORT],
+            KIND_POP: stats[KIND_POP],
         },
         "carriers": {rel: {k: v["kinds"] for k, v in sorted(d.items())}
                      for rel, d in sorted(findings.items())},
@@ -184,10 +264,10 @@ def write_baseline(findings, stats, note):
 
 
 def census(stats, findings):
-    print("population: files=%d with-block=%d lines=%d %s=%d %s=%d carrier-files=%d"
+    print("population: files=%d with-block=%d lines=%d %s=%d %s=%d %s=%d carrier-files=%d"
           % (stats["task_files"], stats["with_block"], stats["exec_lines"],
              KIND_DIFF, stats[KIND_DIFF], KIND_PORT, stats[KIND_PORT],
-             len(findings)))
+             KIND_POP, stats[KIND_POP], len(findings)))
 
 
 def main():

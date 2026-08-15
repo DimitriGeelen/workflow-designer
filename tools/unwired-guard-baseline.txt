@@ -59,6 +59,32 @@
 # quote state per line. See the census LIMIT block, which prints on every run.
 #
 # Generated 2026-08-14 from 69 findings / 166 population.
+
+# ── WHY THIS FILE MOVED, 2026-08-15 (third movement, T-508) ────────────────
+# The ratchet FIRED, one direction only, rc=1. Recorded BEFORE the regeneration, per the
+# note above: a movement absorbed by a same-commit refresh has never been shown to work.
+#
+#     RATCHET: baseline 69, current findings 67
+#       SHRANK by 2  - verification-hygiene.py
+#                    - _t350-verification-hygiene.py
+#
+# It shrank because the instrument was WIRED, which is the direction this file exists to
+# make possible. verification-hygiene.py is the G-015 carrier ratchet: correct, covered by
+# 15 teeth legs, and called by nothing since 2026-08-09. While unwatched its own population
+# drifted (serve-root-diff 75 -> 76) and it had never seen the third carrier shape T-508
+# added (17 population-pinned legs). It now runs in tests/run-bridge-tests.sh, together with
+# its teeth — which were unwatched too, and are excused from this census by the naming
+# convention that treats every *teeth* script as one-shot by design.
+#
+# THE SECOND ENTRY WAS NOT INTENDED AND IS RECORDED BECAUSE IT WAS NOT. The measured
+# movement one step earlier, before the teeth were wired, was `baseline 69, current 68,
+# SHRANK by 1`; this file was first written claiming exactly that. Wiring the teeth then
+# pulled _t350-verification-hygiene.py live as well, because the teeth's cross-tool
+# agreement leg (f) calls it — so one deliberate wiring discharged two entries through a
+# path nobody chose. Caught only because the regeneration printed its own removed-set
+# instead of being trusted to match the prediction. That is the argument for deriving this
+# file from --json rather than hand-typing it, restated as a thing that actually happened.
+
 _align-distribute-diag.mjs
 _autoload-verify-cdp.mjs
 _autosave-verify-cdp.mjs
@@ -78,7 +104,6 @@ _t251-visual-shots.mjs
 _t255-visual-shots.mjs
 _t263-save-target-cdp.mjs
 _t343-write-equivalence.py
-_t350-verification-hygiene.py
 _t352-member-scan.py
 _t358-byteid-thirdparty.mjs
 _t358-empty-lanes-blast-radius.mjs
@@ -127,4 +152,4 @@ gen-rendered-thumbs.mjs
 memory-application-census.py
 rail-sweep.py
 t404-gate-e2e.sh
-verification-hygiene.py
+

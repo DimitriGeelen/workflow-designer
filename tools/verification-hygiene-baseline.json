@@ -1,13 +1,19 @@
 {
  "_note": "G-015 carrier baseline (T-408). Grandfathered population awaiting the operator's leg-1 ruling. A carrier NOT listed here fails the ratchet. Never hand-edit to add entries.",
  "_generated_against": {
-  "task_files": 409,
-  "files_with_verification_block": 409,
-  "executable_lines": 1553,
-  "serve-root-diff": 75,
-  "hardcoded-port": 17
+  "task_files": 508,
+  "files_with_verification_block": 508,
+  "executable_lines": 2073,
+  "serve-root-diff": 76,
+  "hardcoded-port": 12,
+  "population-pinned": 17
  },
  "carriers": {
+  "T-041-render-inception-review-and-run-operator.md": {
+   "be3e88ea7c6e8180": [
+    "population-pinned"
+   ]
+  },
   "T-073-router-straightening-tolerance--near-ali.md": {
    "6ec7dc88e86dfbd7": [
     "serve-root-diff"
@@ -291,9 +297,6 @@
   "T-151-open-project-card-title-clipped-against-.md": {
    "6ec7dc88e86dfbd7": [
     "serve-root-diff"
-   ],
-   "96ca8c6d3a037686": [
-    "hardcoded-port"
    ]
   },
   "T-152-disambiguate-two-colliding-version-conce.md": {
@@ -302,6 +305,9 @@
    ]
   },
   "T-153-consistent-tiles-generate-thumbnails-for.md": {
+   "0c0e65a7c91f26ef": [
+    "population-pinned"
+   ],
    "6ec7dc88e86dfbd7": [
     "serve-root-diff"
    ]
@@ -381,9 +387,9 @@
     "serve-root-diff"
    ]
   },
-  "T-220-off-page-seam-editor-build--decompositio.md": {
-   "e80fe0608d97f85e": [
-    "hardcoded-port"
+  "T-191-package-and-deliver-24-map-rendered-corp.md": {
+   "7f2751f76eeb8b15": [
+    "population-pinned"
    ]
   },
   "T-234-030-jump-autosave-poisoning-bug--post-ju.md": {
@@ -413,6 +419,11 @@
     "hardcoded-port"
    ]
   },
+  "T-262-reviewer-agent-sweep-over-the-partial-co.md": {
+   "b47734e30e9614d7": [
+    "population-pinned"
+   ]
+  },
   "T-276-execute-framework-re-vendor-to-v16763--p.md": {
    "6c252443f87b14a4": [
     "hardcoded-port"
@@ -439,19 +450,66 @@
     "hardcoded-port"
    ]
   },
-  "T-298-error-escalation-ladder-pair-leg-aef-t-2.md": {
-   "a9a5356fc0ed7fec": [
-    "hardcoded-port"
+  "T-321-xml-form-has-no-node-type-vocabulary-gat.md": {
+   "bcc1f5bdd5054057": [
+    "population-pinned"
    ]
   },
-  "T-375-deliver-frozen-part-i-of-aef-bpmn-mappin.md": {
-   "ff05014490ad317f": [
-    "hardcoded-port"
+  "T-328-cross-form-behavioural-agreement-prove-p.md": {
+   "3c6a1247b40e8a00": [
+    "population-pinned"
    ]
   },
-  "T-378-verify-aefs-frozen-v1-over-claim-finding.md": {
-   "37481a152bc18612": [
-    "hardcoded-port"
+  "T-403-fold-aefs-measured-importer-answer-rail-.md": {
+   "2553aa8673de05a7": [
+    "population-pinned"
+   ]
+  },
+  "T-466-operator-decision-brief-for-the-five-arc.md": {
+   "f2c0c2951b812c19": [
+    "population-pinned"
+   ]
+  },
+  "T-469-pre-negotiate-the-t-423-seam-re-pin-with.md": {
+   "1796731e5efd6d5a": [
+    "population-pinned"
+   ],
+   "2efe04262f48f87d": [
+    "population-pinned"
+   ]
+  },
+  "T-471-the-seam-re-pin-has-more-than-one-trigge.md": {
+   "e4df52f73fa8c355": [
+    "population-pinned"
+   ]
+  },
+  "T-478-resolve-iw-1-is-the-di-generation-claim-.md": {
+   "e28e44d7b708de12": [
+    "population-pinned"
+   ],
+   "e7ba39382aaf0d10": [
+    "population-pinned"
+   ]
+  },
+  "T-479-measure-whether-the-aefendpoint-misclass.md": {
+   "a434c429388f1e1f": [
+    "population-pinned"
+   ],
+   "b7deddc6100afe85": [
+    "population-pinned"
+   ]
+  },
+  "T-502-pre-flight-the-three-completion-ready-hu.md": {
+   "6ec7dc88e86dfbd7": [
+    "serve-root-diff"
+   ]
+  },
+  "T-506-answer-aef-t-2993-whose-corpus-authors-a.md": {
+   "4ccfb883be70ef76": [
+    "population-pinned"
+   ],
+   "eb479ba0ac54c1ca": [
+    "population-pinned"
    ]
   }
  }

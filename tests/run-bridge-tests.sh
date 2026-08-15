@@ -743,6 +743,46 @@ else
 fi
 
 echo
+echo "== G-015 verification-hygiene ratchet, now watched (T-508) =="
+# verification-hygiene.py was line 130 of the unwired-guard baseline the leg above ratchets:
+# correct, tested by 15 teeth legs, and called by NOTHING. In the interval since its
+# baseline was written (2026-08-09) its own population drifted — serve-root-diff 75 -> 76
+# and, once the third carrier kind landed, 17 population-pinned legs it had never seen.
+# Nobody was told, because nobody ran it. Same shape as the T-451 census one leg up, which
+# is why this leg exists rather than another census: the fix for an unwatched instrument is
+# a caller, not a second instrument.
+#
+# Gated the same way, on MOVEMENT: the tool exits 1 only for a carrier OUTSIDE the
+# grandfathered baseline, so the 105 pre-existing carrier lines cannot paint the suite red
+# while the population still awaits the operator's G-015 leg-1 ruling. What it catches is
+# the next one written.
+if python3 "$ROOT/tools/verification-hygiene.py" > /dev/null; then
+  pass=$((pass + 1))
+else
+  report FAIL "a NEW G-015 carrier appeared in a task's ## Verification block — a line asserting a global, always-moving property (serve-root diff, hard-coded port, or a literal count pinned to a growing population) instead of a property of the task carrying it (run 'python3 tools/verification-hygiene.py' to see which line and which kind; rewrite the line, do not re-baseline — the baseline is the grandfathered population awaiting the operator's ruling, not a place to put new ones)"
+  fail=$((fail + 1))
+fi
+
+echo
+echo "== …and its teeth, also now watched (T-508) =="
+# The leg above is a guard. This is the proof the guard FIRES — PL-070: teeth prove a guard
+# fires, and a guard whose teeth never run is a guard nobody has checked. _t408-hygiene-teeth.sh
+# had no live caller either (only task files and episodics reference it), so wiring the
+# ratchet without wiring its teeth would ship the exact defect this task diagnosed.
+# ~4s, which is why it is a suite leg and not a per-commit hook.
+#
+# NOTE, and it is a finding rather than an aside: this is the ONLY teeth script the suite
+# runs. Every other tools/_t*-teeth.sh in this repo is in the same unwatched state this
+# task found verification-hygiene.py in. Not fixed here — one task, one deliverable — but
+# it is now written down somewhere that runs.
+if bash "$ROOT/tools/_t408-hygiene-teeth.sh" > /dev/null 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the G-015 hygiene ratchet's teeth failed — the guard wired one leg up can no longer be shown to fire (run 'bash tools/_t408-hygiene-teeth.sh' for the failing leg; a green ratchet with red teeth means the ratchet's green carries no information)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Census edge DEFINITION controls (T-495) =="
 # The ratchet above guards the COUNT. This guards the DEFINITION the count is derived
 # from, and those are not the same assertion: `strip_prose()` deciding that a call is
