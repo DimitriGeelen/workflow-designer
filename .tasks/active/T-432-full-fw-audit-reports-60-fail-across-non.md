@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T15:41:06Z
-last_update: 2026-08-11T20:32:34Z
+last_update: 2026-08-15T22:43:22Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -131,6 +131,12 @@ Evidence for the classification, in order:
 one-time backfill of 59 completed task files. Not done here — this task measures, and
 editing 59 completed records is its own task with its own blast radius.
 
+> **SUPERSEDED 2026-08-16 — the backfill happened, and this task did not notice.** T-434
+> (`5bf8fb26`, **2026-08-11**) backfilled all 59. Its own commit message reads *"full audit
+> 60 FAIL to 1, CTL-030 now PASS"*. Re-measured today: **466 completed tasks, 466 carrying
+> `horizon: null`, 0 stale**, and the full audit reports `[PASS] CTL-030: All completed/
+> tasks have null/absent stored horizon`. Class 1 is closed.
+
 One nuance worth recording: the 59 are **not** a contiguous historical block. 247 tasks
 with *lower* IDs are clean and 68 with *higher* IDs are clean. So "everything before date
 X" is the wrong model; what these 59 share is being completed in the window between the
@@ -153,7 +159,9 @@ task files are edited — high cost, and the safety value is near zero because t
 are terminal and the source is plugged. Widening it *after* a backfill would cost nothing
 and would catch the next regression of a class that has already recurred 8+ times upstream.
 
-That ordering is a recommendation, not a decision. The Human AC below owns it.
+> **SUPERSEDED 2026-08-16 — the prerequisite is already met, so the cost is now zero.**
+> The backfill landed under T-434 on 2026-08-11. There is no longer a sequencing question:
+> the "widen it *after* a backfill" branch is the one we are standing in.
 
 ### Addendum (2026-08-11, OBS-027 folded in here under T-436) — a section list may not reproduce the full run
 
@@ -182,7 +190,43 @@ This is context for the decision, not a change to it. The three options stand as
 **Recommendation:** GO on **(c) widen the push gate fully** — sequenced, and with one
 sub-decision that is genuinely yours and that I will not make for you.
 
-**Sequencing, because (c) applied today would block every push:**
+### CORRECTION 2026-08-16 — the sequencing below is void, and it was already void when written
+
+**The whole "sequence it" argument rests on a prerequisite that had already been met the
+day before this recommendation was written.** The backfill landed under **T-434
+(`5bf8fb26`, 2026-08-11)**; this Recommendation is dated 2026-08-12 in its own text (it
+cites the D2 ages "as of 2026-08-12") and still presents the backfill as outstanding.
+
+Worse than a stale number: T-434 produced **two** results, and this task folded in exactly
+one of them. The `## Addendum` above records T-434's section-alone-vs-full-run discrepancy
+— which *supports* the recommendation by killing option (b). T-434's other result, the
+backfill, *removes the recommendation's central obstacle*, and it is the one that went
+unrecorded. The finding that made the argument sharper was absorbed; the finding that made
+it unnecessary was not. Same selection shape as the three inflated figures logged on
+2026-08-15: the datapoint that makes the write-up better is the one that survives.
+
+**Re-measured today, directly, not inferred from T-434's commit message:**
+
+| | 2026-08-11 (as filed) | 2026-08-16 (measured) |
+|---|---|---|
+| completed tasks | 374 | **466** |
+| carrying `horizon: now` | 59 | **0** |
+| CTL-030 | 59 × FAIL | **PASS** |
+| full audit | 123 P / 32 W / **60 F** | 127 P / 40 W / **1 F** |
+
+**What this changes for the ruling — and what it does not.** The cost of option (c) is now
+**zero**, not "59 file edits". Options (a)/(b)/(c) stand as written and the recommendation
+is unchanged; only its price tag was wrong, and it was wrong in the direction that made the
+recommended option look expensive. The one surviving FAIL is D2, so **(c) collapses to
+exactly the c1/c2 sub-decision below** — the question of whether operator review latency
+should block pushes is now the *entire* content of the choice, rather than a footnote after
+a backfill.
+
+**Warn moved 32 → 40 over the same window and nobody has looked at that either.** Stated as
+an observation, not folded into this ruling: it is a different denominator and inventing a
+verdict for it here would repeat this task's original defect one register over.
+
+<details><summary>Original sequencing argument, preserved (2026-08-12) — void as of 2026-08-16</summary>
 
 1. **Backfill first.** 59 of the 60 FAILs are one class — CTL-030, *"T-NNN is in
    `.tasks/completed/` but stored `horizon='now'`"*. The check is sound
@@ -192,6 +236,8 @@ sub-decision that is genuinely yours and that I will not make for you.
    safety value on its own.
 2. **Then widen.** After the backfill, widening costs nothing and starts catching the next
    regression of a class that has already recurred 8+ times upstream.
+
+</details>
 
 **Reject (b) — widening to a section list — on measured grounds, not preference.** A
 section's audit result **depends on whether it is run alone or inside a full run**:
@@ -205,11 +251,19 @@ full run, and taking the after-number from a section-alone run would have report
 
 **The sub-decision I am leaving to you, because it is about you.** The 60th FAIL is D2 —
 *"Human review queue: 2 task(s) waiting >30d: T-093, T-178"* (38d and 32d as of
-2026-08-12). That control is **designed** to fail as the queue ages; it is reporting
-truthfully and it clears when you review those two, not when anything is fixed. So under
-full (c), **a stale review queue would block every push** — the gate would fail on
-operator latency rather than on code. That may be exactly the pressure you want, or
-exactly the pressure you do not. Choose one:
+2026-08-12; **41d and 36d as of 2026-08-16**). That control is **designed** to fail as the
+queue ages; it is reporting truthfully and it clears when you review those two, not when
+anything is fixed. So under full (c), **a stale review queue would block every push** — the
+gate would fail on operator latency rather than on code. That may be exactly the pressure
+you want, or exactly the pressure you do not. Choose one:
+
+> **2026-08-16 — the D2 line itself has a reporting defect, filed as T-534.** Today it reads
+> *"**2** task(s) waiting >30d: T-093(41d) T-178(36d) **T-308(17d) T-310(17d) T-325(14d)**"*.
+> The count is fail-tier; the list is fail ∪ warn (`audit.sh:3966,3969,3984` appends
+> `d2_details` in both branches). Two of five are over 30 days; three are not. **This does
+> not change the c1/c2 choice** — the FAIL still fires on exactly the two genuinely-stale
+> items — but it means the line you would be gating on currently overstates its own queue
+> 2.5×, so it is worth fixing before it becomes a gate rather than after.
 
 - **c1** — D2 gate-blocking. Pushes stop until the queue is served.
 - **c2** — D2 advisory, everything else blocking. Catches code regressions, does not
@@ -285,6 +339,15 @@ make visible rather than to change unilaterally.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# T-432 (2026-08-16): these assert the CORRECTION, not the audit's global verdict.
+# "full audit Fail == 1" is deliberately NOT asserted — that is a global always-moving
+# quantity (G-015) and would go red for someone else's change. What this task now claims
+# is narrower and stable: the CTL-030 residue is gone, and the commit that removed it
+# exists. Whole class asserted, not just the backfilled value, per T-434's own reasoning
+# — a residue class returns wearing a different label if you guard one value only.
+test "$(grep -lE '^horizon: (now|next|later)$' .tasks/completed/*.md 2>/dev/null | wc -l)" -eq 0
+git cat-file -e 5bf8fb26^{commit}
 
 ## RCA
 
