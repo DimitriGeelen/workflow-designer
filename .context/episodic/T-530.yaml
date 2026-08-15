@@ -1,0 +1,72 @@
+# ============================================================================
+# EPISODIC MEMORY - T-530: measure whether the handover corpus growth AEF reports as framework-level (68 percent, monotonic, driven by 12x mean file size) also holds on this tree
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T21:51:46Z
+# ============================================================================
+
+task_id: T-530
+task_name: "measure whether the handover corpus growth AEF reports as framework-level (68 percent, monotonic, driven by 12x mean file size) also holds on this tree"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-15T21:48:03Z
+completed: 2026-08-15T21:51:43Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**The final datapoint of the historical series is validated against a direct working-tree'
+  - '**The measurement is decomposed into the two factors AEF names — file COUNT and MEAN'
+  - '**Monotonicity is TESTED, not asserted.** AEF report an unbroken 27→35→49→50→60→61→68%'
+  - '**T-529''s single point is explicitly superseded, not merely extended.** T-529 measured 55%'
+  - '**The cross-project claim is stated at the strength the evidence supports.** Two projects'
+  - 'Limits are stated where they exist — including anything the instrument is structurally'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 3 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 3
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-530-measure-whether-the-handover-corpus-grow.md
+generated_by: context-agent-hybrid

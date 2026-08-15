@@ -1632,3 +1632,24 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-229
+  learning: "A corpus byte-measurement must be validated against git before it is interpreted, because os.path.getsize FOLLOWS symlinks and git does not. T-530 measured .context/handovers at 474 files / 15.06 MB from the working tree and 474 files / 14.96 MB from git ls-tree — identical file count, 0.10 MB apart. Cause: LATEST.md is a symlink to the newest handover, stored by git as a ~0 KB blob holding the target path and reported by getsize as the full 99.3 KB, so the newest file was counted twice. Corrected figure is 473 files / 14.96 MB, delta 0.00. The error was small, in the flattering direction (a bigger corpus makes the finding louder), and would have survived review because 15.06 vs 14.96 reads as rounding. Adopted from AEF's L-608 and it caught a defect in my own instrument on first use."
+  source: P-001
+  task: T-530
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
+- id: PL-230
+  learning: "Session handovers grow because the handover renders every ACTIVE TASK inline — the size is the backlog, paid once per session, forever. Measured T-530: 62.6% of all handover size growth is the '## Work in Progress' section alone, and that section tracks distinct T- refs (5 refs/1.1 KB -> 140 refs/61.3 KB). The 2026-08-08 handover is the discriminating datapoint: total size went DOWN as task count went down, which a pure time-trend does not predict. So a 13x mean-file-size growth is not a handover-writing defect and no retention policy addresses it: deleting old handovers is a one-time reclaim that does nothing to the slope, while closing or parking an active task shrinks EVERY future handover. The cost is of carrying work, not of doing it."
+  source: P-001
+  task: T-530
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
+- id: PL-231
+  learning: "When a share reverses and its numerator does not, believe the numerator — PL-222 caught in own data. T-530's handover series shows zero reversals in bytes and zero in mean file size across every weekly point, but the SHARE of .context/ reverses at 2026-07-20 (45.1% -> 39.2%) purely because the denominator grew faster that week. The share is the figure both projects instinctively quoted (AEF's 68%, T-529's 55%) and it is the only one of the three that can lie about direction. Related trap in the same task: T-529's 55% and T-530's 61.5% are NOT comparable — different instrument (du block-rounding vs byte sums) and a denominator that moved when cron audit files were deleted. Two numbers about 'the same thing' are only a trend if the instrument and the denominator both held still."
+  source: P-001
+  task: T-530
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
