@@ -4,10 +4,10 @@ name: "Verification legs pin corpus cardinality: 24 population-counting legs are
 description: >
   Verification legs pin corpus cardinality: 24 population-counting legs are contingent on a corpus designed to grow, and adopting AEF's daily re-runner would import them all red
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T05:16:25Z
-last_update: 2026-08-15T05:34:37Z
-date_finished: null
+last_update: 2026-08-15T05:38:39Z
+date_finished: 2026-08-15T05:38:39Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -403,3 +403,22 @@ that runs, and it wants its own task.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-508-verification-legs-pin-corpus-cardinality.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2da89187
+- **Timestamp:** 2026-08-15T05:38:44Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 81
+     - evidence: `bash tools/_t408-hygiene-teeth.sh > /dev/null 2>&1`
+  2. **mock-only-integration** (partial, heuristic) @ AC vs Verification cross-check
+     - evidence: `grep -q 'tools/verification-hygiene.py' tests/run-bridge-tests.sh`
+
+### 2026-08-15T05:38:39Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

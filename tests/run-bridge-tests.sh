@@ -799,11 +799,19 @@ echo "== Instrument sweep: every runnable teeth script, every run (T-509) =="
 # of 19 instruments that were running nowhere. To reverse it, delete this leg — one line, no
 # other coupling. T509_TIMEOUT tunes the per-script ceiling.
 #
-# The first sweep already paid for itself: _t364-t308-teeth.py's control is red because ITS
-# OWN stored reference shas went stale (the gate it tests passes rc=0 today). It is excluded
-# BY NAME WITH A REASON rather than silently skipped, because the repair is a re-pin and a
-# re-pin is a decision. Same for _t350/_t351, which drive live servers and one of which has
-# a documented repo-deletion incident in its own header.
+# The first sweep already paid for itself: _t364-t308-teeth.py's control is red — maps=24
+# identical=0 drifted=24. CORRECTED 2026-08-15 (T-510): this comment first said the teeth
+# script's "own stored reference shas went stale". It stores no shas. run() passes
+# REF="3bf37909~1" to _t308, so the comparison is CURRENT BUILD vs A PINNED GIT REF, and
+# every one of the 24 maps drifts by EXACTLY +51 bytes — T-399's producer-identity line
+# (18 spaces + exporter="aef-workflow-designer" + newline). So the red is EXPECTED, not a
+# regression: the control's identical=24 stopped being true the moment T-399 landed. It is
+# excluded BY NAME WITH A REASON rather than silently skipped, because the repair is NOT a
+# mere re-pin — moving BASELINE_REF past T-364 makes the injected fixture comparable, so
+# `unusable` goes to 0 and the teeth go red for the opposite reason. The script's own
+# docstring prescribes a NEW genuinely-unstable injection, and choosing that is a decision.
+# Same for _t350/_t351, which drive live servers and one of which has a documented
+# repo-deletion incident in its own header.
 if bash "$ROOT/tools/_t509-instrument-sweep.sh" > /dev/null 2>&1; then
   pass=$((pass + 1))
 else

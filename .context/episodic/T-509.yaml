@@ -1,0 +1,98 @@
+# ============================================================================
+# EPISODIC MEMORY - T-509: Every teeth script but one is unwatched, and the census cannot see them: *teeth* is excused as one-shot by design, an assumption T-508 disproved by wiring one
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T06:05:02Z
+# ============================================================================
+
+task_id: T-509
+task_name: "Every teeth script but one is unwatched, and the census cannot see them: *teeth* is excused as one-shot by design, an assumption T-508 disproved by wiring one"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-15T05:39:57Z
+completed: 2026-08-15T06:04:59Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-15T08:04:53+02:00
+last_commit: 2026-08-15T08:04:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  '*teeth* is one-shot by design' is a naming convention nobody re-checked, and it is false for 19 of 24. T-508 wired one teeth script and noted in a running comment that it was the only one; measured here, 24 exist and 22 had no standing caller. Running all 24 left git status byte-identical, so they are hermetic, and 19 pass TODAY — re-runnable, never called. PL-192 already said an instrument excused by its own watchdog's naming convention must be scheduled deliberately; T-495 applied that to the one probe that prompted it, this applies it to the population. What the unwatched state hid, found in the first sweep: _t364-t308-teeth.py's control is red, maps=24 identical=0 drifted=24, and the gate it tests passes rc=0 today — so it is the TEETH script's own stored reference shas that went stale. PL-200's class one level further in, invisible for the same single reason. Five excluded BY NAME WITH A REASON printed every run: _t350/_t351 drive live servers and _t350's header records an earlier mutant with a silently-failed safety stub DELETING THIS REPOSITORY, _t430 is parameterised and correctly refuses with no argv, two exit 2 as deliberate abstentions. Cost measured end-to-end not estimated: suite 103s -> 168s, +63%; the first comment said +44s from the standalone stopwatch and was wrong about the number a reader cares about. Stale-exclusion check moved BEFORE the run loop because its exit was unreachable whenever any script also failed — the control had passed off the run-failure branch while the stale branch never executed. Census exemption deliberately NOT narrowed: that is a +22 movement on a both-directions ratchet and a register-accounting decision, recorded as a decision. Ratchet caught my own unwired tool within minutes, exactly as built. 80 passed, 0 failed
+
+  CORRECTION 2026-08-15 (T-510) — one sentence above is wrong and is left standing so this
+  can point at it. "It is the TEETH script's own stored reference shas that went stale" is
+  false: _t364-t308-teeth.py stores no shas. Its run() passes REF="3bf37909~1" to _t308, so
+  the comparison is CURRENT BUILD vs A PINNED GIT REF. All 24 maps drift by EXACTLY +51
+  bytes — commit 4c40414c (T-399) adding exporter="aef-workflow-designer" to every export.
+  The red is therefore EXPECTED, not decay: the control's identical=24 became false by
+  design the moment T-399 landed. The remedy is also not the re-pin stated above — moving
+  BASELINE_REF past the T-364 repair makes the injected fixture comparable, so unusable
+  goes to 0 and the teeth go red for the opposite reason; the script's docstring prescribes
+  a NEW genuinely-unstable injection. Mechanism of the error: I ran _t308 WITHOUT the ref
+  argument, saw rc=0, and concluded the gate was fine and the teeth stale — inferring a
+  failure mechanism from an exit code obtained by invoking the tool differently than its
+  caller does. The git_timeline entry below quotes commit f7438c37 verbatim and is left
+  uncorrected on purpose: a transcript of an immutable commit is not a place to edit. See
+  PL-204.
+
+# Key outcomes
+outcomes:
+  - '**The population is established before anything is built.** Every `tools/*teeth*`'
+  - '**PL-192 is read and its verdict honoured before I write a line.** T-495 already'
+  - '**The exemption is proven wrong on evidence, not on principle.** At least one'
+  - '**Whatever is wired does not go red on a pre-existing backlog.** Any new standing leg'
+  - '**Cost is measured, not assumed.** Wall-clock of every teeth script proposed for the'
+  - '**The census''s own blind spot is addressed or explicitly deferred with a reason.**'
+  - 'Bridge suite green; both existing ratchets (G-015 hygiene, T-451 unwired) still green.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-509-every-teeth-script-but-one-is-unwatched-.md'
+  - '.tasks/completed/T-508-verification-legs-pin-corpus-cardinality.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t509-instrument-sweep.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-15T08:04:53"
+    action: "T-509: '*teeth* is one-shot by design' is a naming convention nobody re-checked, and it is false for 19 of 24. T-508 wired one teeth script and noted in a running comment that it was the only one; measured here, 24 exist and 22 had no standing caller. Running all 24 left git status byte-identical, so they are hermetic, and 19 pass TODAY — re-runnable, never called. PL-192 already said an instrument excused by its own watchdog's naming convention must be scheduled deliberately; T-495 applied that to the one probe that prompted it, this applies it to the population. What the unwatched state hid, found in the first sweep: _t364-t308-teeth.py's control is red, maps=24 identical=0 drifted=24, and the gate it tests passes rc=0 today — so it is the TEETH script's own stored reference shas that went stale. PL-200's class one level further in, invisible for the same single reason. Five excluded BY NAME WITH A REASON printed every run: _t350/_t351 drive live servers and _t350's header records an earlier mutant with a silently-failed safety stub DELETING THIS REPOSITORY, _t430 is parameterised and correctly refuses with no argv, two exit 2 as deliberate abstentions. Cost measured end-to-end not estimated: suite 103s -> 168s, +63%; the first comment said +44s from the standalone stopwatch and was wrong about the number a reader cares about. Stale-exclusion check moved BEFORE the run loop because its exit was unreachable whenever any script also failed — the control had passed off the run-failure branch while the stale branch never executed. Census exemption deliberately NOT narrowed: that is a +22 movement on a both-directions ratchet and a register-accounting decision, recorded as a decision. Ratchet caught my own unwired tool within minutes, exactly as built. 80 passed, 0 failed"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 25 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 25
+  commits: 1
+  files_changed: 4
+  lines_added: 450
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-509-every-teeth-script-but-one-is-unwatched-.md
+generated_by: context-agent-hybrid

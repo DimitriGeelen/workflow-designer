@@ -1457,3 +1457,10 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-204
+  learning: "Inferring a tool's failure MECHANISM from an exit code obtained by invoking it DIFFERENTLY than its caller does. T-509 reported _t364-t308-teeth.py's control red and published the cause as 'the teeth script's own stored reference shas went stale'. It stores no shas: run() passes REF=3bf37909~1 to _t308, so the comparison is CURRENT BUILD vs A PINNED GIT REF. I had run _t308 bare, with no ref argument, seen rc=0, and reasoned 'the gate is fine, so the teeth's own baseline must be stale' — two different comparisons treated as one, and the wrong one was the one I ran. Reading run() takes ten seconds and was skipped because a plausible story already fit the evidence. TWO TRANSFERABLE TELLS. (1) UNIFORMITY: all 24 maps drifted by EXACTLY +51 bytes, which is a shipped line (T-399's exporter=\"aef-workflow-designer\", 18 spaces + 32 chars + newline) and never decay — decay is ragged, a shipped change is uniform, so a constant delta across a whole corpus means 'somebody changed the producer', not 'the reference rotted'. (2) When reproducing a failure, invoke the failing tool THE WAY ITS CALLER INVOKES IT, argv included; a bare run is a different experiment wearing the same name. The conclusion 'a pinned baseline decayed silently, and nothing ran the thing that would have said so' survived intact — only the mechanism was wrong, which is the dangerous shape: a correct headline makes nobody re-check the sentence under it. Sibling of PL-203 (a control that discriminates only on rc cannot tell two failure paths apart)"
+  source: P-001
+  task: T-510
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD

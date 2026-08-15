@@ -14,11 +14,23 @@
 #   probe that prompted it. This applies it to the population.
 #
 # WHAT THE UNWATCHED STATE WAS HIDING, found in the first sweep:
-#   _t364-t308-teeth.py's CONTROL leg is red — `maps=24 identical=0 drifted=24`. The
-#   underlying gate is fine (tools/_t308-export-byte-identity-cdp.mjs exits 0 today); it is
-#   the TEETH SCRIPT's own stored reference shas that went stale. A pinned reference
-#   decaying silently, inside the instrument whose job is to prove another instrument works.
-#   Nobody could have known, because nothing ran it. That is the whole argument for this file.
+#   _t364-t308-teeth.py's CONTROL leg is red — `maps=24 identical=0 drifted=24`. A pinned
+#   baseline decaying silently, inside the instrument whose job is to prove another
+#   instrument works. Nobody could have known, because nothing ran it. That is the whole
+#   argument for this file.
+#
+#   CORRECTED 2026-08-15 (T-510), and the correction is instructive. This comment first said
+#   "the teeth script's own stored reference shas went stale". It carries no stored shas.
+#   `run()` passes REF="3bf37909~1" to _t308, so the comparison is CURRENT BUILD vs A PINNED
+#   GIT REF. The first diagnosis came from running _t308 WITHOUT that argument, seeing rc=0,
+#   and concluding the gate was fine and the teeth stale — two different comparisons treated
+#   as one. Reproduced properly: 24 maps, every one drifted, and every one by EXACTLY +51
+#   bytes. That uniformity is the tell. It is T-399 shipping producer identity — one line,
+#   18 spaces + `exporter="aef-workflow-designer"` + newline = 51 bytes on every document.
+#   So the red is EXPECTED, not a regression: the control's `identical=24` became false the
+#   moment T-399 landed, by design. The conclusion "a pinned baseline decayed" survived; the
+#   mechanism I published for it was wrong, and I had inferred it from an exit code instead
+#   of reading the tool.
 #
 # WHY NOT A BASELINE FILE
 #   There is no pre-existing backlog to grandfather: every script this sweep runs is green
@@ -47,7 +59,7 @@ EXCLUDE=(
 "_t351-teeth.sh|drives real shutdown probes with live server PIDs; exceeded 90s. Same family as _t350 and the same operator question."
 "_t430-abstention-teeth.sh|PARAMETERISED, not standalone: it takes suite paths as argv and correctly refuses with 'UNKNOWN - no suites named' when given none. Wiring it bare would gate the suite on a usage error, which would look like a finding and be noise."
 "_t364-byteid-precondition-teeth.py|exits 2 BY DESIGN, refusing to certify: it states that uid randomness can permute element ids so an 'identical' verdict is not trustworthy until the uid is pinned (T-364). Its abstention IS its output; converting that to a suite failure would punish the honesty."
-"_t364-t308-teeth.py|exits 2 with a red control - maps=24 identical=0 drifted=24 - because ITS OWN stored reference shas are stale, not because the gate it tests is broken (that gate passes rc=0 today). A real finding, reported below rather than wired, because the repair is a re-pin and a re-pin is a decision."
+"_t364-t308-teeth.py|exits 2 with a red control - maps=24 identical=0 drifted=24 - because it compares the current build against a PINNED GIT REF (3bf37909~1, 2026-08-04) that the exporter has moved past. Every map drifts by exactly +51 bytes: T-399's producer-identity line. EXPECTED, not a regression. Not wired because the remedy is not a mere re-pin - moving BASELINE_REF past T-364 makes the injected fixture comparable, so 'unusable' goes to 0 and the teeth leg goes red for the opposite reason. Its docstring prescribes a NEW genuinely-unstable injection, and choosing that is a decision."
 )
 
 is_excluded() { # $1 = basename -> prints reason, returns 0 if excluded

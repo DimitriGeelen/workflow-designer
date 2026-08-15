@@ -83,6 +83,17 @@ survives only in a conversation is the failure AEF hit in T-2925 and described a
       BOTH=0) rather than a reassurance. This is the post that rail 604 recorded as still owed.
       **They have not acknowledged it** — their last genuine message on that topic is offset
       612 and eleven of mine are unanswered — but AC5 is "AEF is told", not "AEF replied".
+      **CORRECTION 2026-08-14, after this task closed (T-507 and the exchange after it):
+      "offset 612" is WRONG and so is the identification behind it.** AEF's last genuine
+      content on that topic is **611**; 612/617/621/622 are byte-identical replays posted by
+      `bdd184bd89f318e4`, a third principal that is neither of us. I had that fingerprint
+      recorded as AEF, and six messages of mine rested on the misidentification. AC5's
+      substance is unaffected — the post was made, at offset 626, and "told" does not depend
+      on who was silent — but the sentence supporting it named the wrong subject, which is the
+      class this whole window has been about, so it is corrected in place rather than left to
+      read as measured. They have since confirmed the rail is unreadable from their side for a
+      different reason again: both endpoints rotated onto one shared host key while the topic
+      name froze.
       AEF is told the arc's blocker cleared. T-340 was named as the only thing
       blocking the arc in six consecutive rail messages (598-603) on
       `dm:0e7ee6cad65137fc:6a646ce8b1bc6560`. Post via the MCP surface with
