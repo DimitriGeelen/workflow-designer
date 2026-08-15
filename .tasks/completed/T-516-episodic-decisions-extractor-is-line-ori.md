@@ -4,10 +4,10 @@ name: "episodic decisions extractor is line-oriented over a block document"
 description: >
   episodic decisions extractor is line-oriented over a block document
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T09:45:17Z
-last_update: 2026-08-15T09:51:59Z
-date_finished: null
+last_update: 2026-08-15T09:52:41Z
+date_finished: 2026-08-15T09:52:41Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -272,3 +272,20 @@ python3 -c "import glob,re,sys; n=sum(1 for f in glob.glob('.context/episodic/*.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-516-episodic-decisions-extractor-is-line-ori.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-e3a14d65
+- **Timestamp:** 2026-08-15T09:52:42Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Verification-level findings:**
+
+  1. **empty-output-success** (partial, heuristic) @ Verification:line 49
+     - evidence: `python3 tools/_t516-episodic-decisions-teeth.py > /dev/null`
+
+### 2026-08-15T09:52:41Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

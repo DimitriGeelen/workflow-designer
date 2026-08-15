@@ -6443,3 +6443,21 @@ scan_id: R-f07cf64a
 task_id: T-515
 payload:
   task_file: .tasks/active/T-515-conformance-63-externally-assignable-aef.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T09:52:42Z'
+scan_id: R-e3a14d65
+task_id: T-516
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T09:52:42Z'
+scan_id: R-e3a14d65
+task_id: T-516
+payload:
+  task_file: .tasks/active/T-516-episodic-decisions-extractor-is-line-ori.md

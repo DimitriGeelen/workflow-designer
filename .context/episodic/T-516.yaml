@@ -1,0 +1,102 @@
+# ============================================================================
+# EPISODIC MEMORY - T-516: episodic decisions extractor is line-oriented over a block document
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T09:52:45Z
+# ============================================================================
+
+task_id: T-516
+task_name: "episodic decisions extractor is line-oriented over a block document"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-15T09:45:17Z
+completed: 2026-08-15T09:52:41Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-15T11:51:58+02:00
+last_commit: 2026-08-15T11:52:40+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the episodic decisions extractor was parsing the task template as data, and truncating the real decisions it did find. Found by checking a peer's filing against our own tree instead of assuming it was theirs — email-archive re-pinged G-EPISODIC-PLACEHOLDER-LEAK at rail 11890, third refresh, 2mo silent. Measured here: 363 of 448 episodics carry template placeholder text, including T-513, T-514 and T-515, the three tasks I closed today. One root cause with three symptoms, all from a line-oriented parse of a block-structured document. (1) The old filter dropped lines matching caret-<!-- and caret---> but not the INTERIOR of a multi-line HTML comment, and the task template's Decisions block IS such a comment, so '### [date] — [topic]' was emitted as a real decision on every task close — which is why the rate rises rather than being stable archive cruft. (2) The worse half, which email-archive's filing does not mention: values were cut at the first newline by a sed on a single line, so T-513's genuine decision read 'count duplicate element ids over BPMN-namespace elements only, and report the' — a truncated rationale reads as a complete one whereas a phantom entry is visibly junk. (3) head -20 discarded the tail silently. Their proposed remedy, a placeholder regex filter, fixes only symptom 1 and would make the output LOOK clean while 2 and 3 continued. Fixed in vendored code under G-008 with a new extract-decisions.py; episodic.sh now calls it and appends the YAML whole. Teeth 8/8 hermetic, wired into the suite rather than excused by the *teeth* naming convention that T-509 measured false for 19 of 24 scripts. One teeth leg failed first: my 'same text uncommented must extract' control kept the template's 5-space indent so ### never matched, and it failed RED, which is the direction a malformed stimulus should fail in — PL-206 twice in one day. End-to-end on the real artifact: T-513's episodic 2 entries to 1, rationale whole. Historical 360 deliberately NOT rewritten — that is stored memory and an operator decision, and Verification asserts the leak stays VISIBLE so a later bulk rewrite fails this gate rather than passing quietly. Suite 85 passed 0 failed. Rail post outstanding, AC unticked.. patch posted to framework-agent and email-archive at rail 11892, last AC ticked. Posted the file rather than a description of it, and led with the warning that matters most: their proposed placeholder-regex remedy closes the phantom-entry symptom while leaving truncation and the silent cap running, which removes the tell without removing the defect and is a worse end state than the visible leak. Also answered their G-FW-SECRET-SCAN re-ping with evidence from our tree — already fixed upstream, T-2061 gates on -f not -x because the scanner is invoked via bash so the exec bit is irrelevant, and T-2647 made the miss unmissable — so their 2mo-silent concern is a stale vendored payload rather than framework inaction. Declined to corroborate their audit-exclude concern, which I did not check here: reporting an unverified agreement as a second data point is how a single unconfirmed claim becomes consensus.
+
+# Key outcomes
+outcomes:
+  - 'HTML comment BODIES are stripped, not just their delimiter lines, so a task whose'
+  - 'A `**Chose:**` / `**Why:**` / `**Rejected:**` value that wraps across continuation'
+  - 'The 20-line cap no longer silently discards: either removed, or retained with the'
+  - 'Teeth: a mutation script proves each of the three symptoms is actually caught —'
+  - 'Regenerating T-513''s episodic yields its real decision untruncated and NO phantom'
+  - 'The 363 historical episodics are NOT rewritten. Fix-forward only — bulk-rewriting'
+  - 'Reported to framework-agent on the rail with producer attribution, carrying the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'patch posted to framework-agent and email-archive at rail 11892, last AC ticked. Posted the file rather than a description of it, and led with the warning that matters most: their proposed placeholder-regex remedy closes the phantom-entry symptom while leaving truncation and the silent cap running, which removes the tell without removing the defect and is a worse end state than the visible leak. Also answered their G-FW-SECRET-SCAN re-ping with evidence from our tree — already fixed upstream, T-2061 gates on -f not -x because the scanner is invoked via bash so the exec bit is irrelevant, and T-2647 made the miss unmissable — so their 2mo-silent concern is a stale vendored payload rather than framework inaction. Declined to corroborate their audit-exclude concern, which I did not check here: reporting an unverified agreement as a second data point is how a single unconfirmed claim becomes consensus.'
+    source: git-mined
+  - description: 'the episodic decisions extractor was parsing the task template as data, and truncating the real decisions it did find. Found by checking a peer''s filing against our own tree instead of assuming it was theirs — email-archive re-pinged G-EPISODIC-PLACEHOLDER-LEAK at rail 11890, third refresh, 2mo silent. Measured here: 363 of 448 episodics carry template placeholder text, including T-513, T-514 and T-515, the three tasks I closed today. One root cause with three symptoms, all from a line-oriented parse of a block-structured document. (1) The old filter dropped lines matching caret-<!-- and caret---> but not the INTERIOR of a multi-line HTML comment, and the task template''s Decisions block IS such a comment, so ''### [date] — [topic]'' was emitted as a real decision on every task close — which is why the rate rises rather than being stable archive cruft. (2) The worse half, which email-archive''s filing does not mention: values were cut at the first newline by a sed on a single line, so T-513''s genuine decision read ''count duplicate element ids over BPMN-namespace elements only, and report the'' — a truncated rationale reads as a complete one whereas a phantom entry is visibly junk. (3) head -20 discarded the tail silently. Their proposed remedy, a placeholder regex filter, fixes only symptom 1 and would make the output LOOK clean while 2 and 3 continued. Fixed in vendored code under G-008 with a new extract-decisions.py; episodic.sh now calls it and appends the YAML whole. Teeth 8/8 hermetic, wired into the suite rather than excused by the *teeth* naming convention that T-509 measured false for 19 of 24 scripts. One teeth leg failed first: my ''same text uncommented must extract'' control kept the template''s 5-space indent so ### never matched, and it failed RED, which is the direction a malformed stimulus should fail in — PL-206 twice in one day. End-to-end on the real artifact: T-513''s episodic 2 entries to 1, rationale whole. Historical 360 deliberately NOT rewritten — that is stored memory and an operator decision, and Verification asserts the leak stays VISIBLE so a later bulk rewrite fails this gate rather than passing quietly. Suite 85 passed 0 failed. Rail post outstanding, AC unticked.'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/context/lib/episodic.sh'
+  - '.agentic-framework/agents/context/lib/extract-decisions.py'
+  - '.context/audits/cron/2026-08-15-1145.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/episodic/T-513.yaml'
+  - '.context/episodic/T-514.yaml'
+  - '.context/episodic/T-515.yaml'
+  - '.context/locks/T-515.lock'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-515.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.new-file-counter'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-423-t-357-step-2-emit-bpmn-di-additively-alo.md'
+  - '.tasks/active/T-516-episodic-decisions-extractor-is-line-ori.md'
+  - '.tasks/completed/T-515-conformance-63-externally-assignable-aef.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t516-episodic-decisions-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-15T11:51:58"
+    action: "T-516: the episodic decisions extractor was parsing the task template as data, and truncating the real decisions it did find. Found by checking a peer's filing against our own tree instead of assuming it was theirs — email-archive re-pinged G-EPISODIC-PLACEHOLDER-LEAK at rail 11890, third refresh, 2mo silent. Measured here: 363 of 448 episodics carry template placeholder text, including T-513, T-514 and T-515, the three tasks I closed today. One root cause with three symptoms, all from a line-oriented parse of a block-structured document. (1) The old filter dropped lines matching caret-<!-- and caret---> but not the INTERIOR of a multi-line HTML comment, and the task template's Decisions block IS such a comment, so '### [date] — [topic]' was emitted as a real decision on every task close — which is why the rate rises rather than being stable archive cruft. (2) The worse half, which email-archive's filing does not mention: values were cut at the first newline by a sed on a single line, so T-513's genuine decision read 'count duplicate element ids over BPMN-namespace elements only, and report the' — a truncated rationale reads as a complete one whereas a phantom entry is visibly junk. (3) head -20 discarded the tail silently. Their proposed remedy, a placeholder regex filter, fixes only symptom 1 and would make the output LOOK clean while 2 and 3 continued. Fixed in vendored code under G-008 with a new extract-decisions.py; episodic.sh now calls it and appends the YAML whole. Teeth 8/8 hermetic, wired into the suite rather than excused by the *teeth* naming convention that T-509 measured false for 19 of 24 scripts. One teeth leg failed first: my 'same text uncommented must extract' control kept the template's 5-space indent so ### never matched, and it failed RED, which is the direction a malformed stimulus should fail in — PL-206 twice in one day. End-to-end on the real artifact: T-513's episodic 2 entries to 1, rationale whole. Historical 360 deliberately NOT rewritten — that is stored memory and an operator decision, and Verification asserts the leak stays VISIBLE so a later bulk rewrite fails this gate rather than passing quietly. Suite 85 passed 0 failed. Rail post outstanding, AC unticked."
+  - time: "2026-08-15T11:52:40"
+    action: "T-516: patch posted to framework-agent and email-archive at rail 11892, last AC ticked. Posted the file rather than a description of it, and led with the warning that matters most: their proposed placeholder-regex remedy closes the phantom-entry symptom while leaving truncation and the silent cap running, which removes the tell without removing the defect and is a worse end state than the visible leak. Also answered their G-FW-SECRET-SCAN re-ping with evidence from our tree — already fixed upstream, T-2061 gates on -f not -x because the scanner is invoked via bash so the exec bit is irrelevant, and T-2647 made the miss unmissable — so their 2mo-silent concern is a stale vendored payload rather than framework inaction. Declined to corroborate their audit-exclude concern, which I did not check here: reporting an unverified agreement as a second data point is how a single unconfirmed claim becomes consensus."
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 7 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 7
+  commits: 2
+  files_changed: 22
+  lines_added: 884
+  lines_removed: 78
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-516-episodic-decisions-extractor-is-line-ori.md
+generated_by: context-agent-hybrid

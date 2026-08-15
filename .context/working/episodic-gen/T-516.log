@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-15T09:52:44Z ===
+task_id: T-516
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-516.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: episodic decisions extractor is line-oriented over a block document
+  Duration: 0 days (7 min)
+  Updates: 1
+  Commits: 2
+  Lines: +884 -78 across 22 files
+  Outcomes: 7 AC checked
+  Challenges: 2 detected from git
+  Artifacts: 22 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-516-episodic-decisions-extractor-is-line-ori.md
+--- exit code: 0 ---
