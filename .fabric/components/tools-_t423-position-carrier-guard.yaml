@@ -1,0 +1,32 @@
+id: tools/_t423-position-carrier-guard.py
+name: _t423-position-carrier-guard
+type: script
+subsystem: verification
+location: tools/_t423-position-carrier-guard.py
+tags: [guard, bpmn, corpus-invariant, t-423, arc-designer-authoring-surface, competing-carrier]
+
+purpose: >
+  Asserts that aef:position remains the single geometry carrier for every BPMN flow node in
+  examples/aef-processes/rendered/. Adopts AEF's test_di_drop_has_a_competing_carrier shape:
+  it asserts the RIVAL carrier EXISTS, so that removing it is loud rather than silent. Exists
+  ahead of T-357 step 3, which introduces bpmndi:BPMNShape/dc:Bounds as a second home for the
+  same fact — the guarded failure is not "DI is wrong" but DI landing while aef:position
+  quietly stops being emitted, leaving two geometries that disagree with nothing saying so.
+  Three assertions, none of them a count (deliberately not G-015/PL-200's population-pinned
+  shape): every flow node carries exactly one aef:position; no aef:position lives outside a
+  flow node's own bpmn:extensionElements; at least one map with at least one node — the last
+  because the first two are both satisfied by an empty corpus. rc 0 green, 1 red, 2 refusal.
+  T423_CORPUS overrides the corpus directory (used by its teeth).
+
+depends_on:
+  - target: examples/aef-processes/rendered
+    type: reads
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+  - target: tools/_t423-position-carrier-teeth.py
+    type: calls
+
+last_verified: 2026-08-15
+created_by: T-423
