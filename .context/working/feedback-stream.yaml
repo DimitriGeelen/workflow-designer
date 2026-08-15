@@ -6677,3 +6677,21 @@ scan_id: R-710dc678
 task_id: T-526
 payload:
   task_file: .tasks/active/T-526-name-the-non-deterministic-bridge-suite-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T20:34:37Z'
+scan_id: R-669c297e
+task_id: T-528
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T20:34:37Z'
+scan_id: R-669c297e
+task_id: T-528
+payload:
+  task_file: .tasks/active/T-528-childless-subprocess-keeps-its-element-t.md

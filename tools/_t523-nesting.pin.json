@@ -13,5 +13,10 @@
     "child_b": { "outcome": "survived", "owner": "serviceTask" },
     "edge": "preserved"
   },
+  "_finding_collapsed": "T-528, added at AEF's request (rail 11926/11930) after they measured their own corpus: subProcess appears in three published maps and three drafts and EVERY ONE is childless, so this arm covers 100% of their real usage where the other two cover 0%. The answer is favourable and that is why it needs pinning rather than celebrating — a childless subProcess carrying only extensionElements comes back as a subProcess, not retyped to a task, and no placeholder child is injected. Their collapsed-subProcess dialect (their commit 226fe8680) is safe across this seam TODAY. What would break it is a future 'cleanup' that retypes an empty scope element, which is a defensible change someone could make without ever learning that three published maps depend on it not happening. children_after is pinned at 0 to catch the inverse defect, which would be just as silent: an editor that gives an empty scope a placeholder child changes what the map MEANS without dropping anything.",
+  "collapsed": {
+    "node": { "outcome": "survived", "owner": "subProcess" },
+    "children_after": 0
+  },
   "attribution": "uid-survives-containment-does-not — the node is HOISTED to process level and the subProcess is left empty"
 }

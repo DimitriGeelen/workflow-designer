@@ -91,6 +91,40 @@ const NESTED_BLOCK = `
 const FLAT_BLOCK = `${task('t523_a', CHILD_A, 'T523 flat A', 1220, 140)}${task('t523_b', CHILD_B, 'T523 flat B', 1340, 140)}
     <bpmn:sequenceFlow id="t523_flow" sourceRef="t523_a" targetRef="t523_b"/>`;
 
+// Arm COLLAPSED — a subProcess with NO flowElement children at all, carrying only its
+// extensionElements. Added for T-528 at AEF's request (rail 11926/11930) after they measured
+// their own corpus and reported that this is not an edge case for them but their ENTIRE
+// population: subProcess appears in three published maps and three drafts, and parsed rather
+// than grepped, every one is childless — `children={'extensionElements': 1}`, zero contained
+// flow nodes. They use subProcess as a TYPED MARKER, deliberately (commit 226fe8680, "G-3
+// collapsed-subProcess dialect round-trips"), corroborated by no isExpanded on any DI shape.
+//
+// WHY THE OTHER TWO ARMS DO NOT COVER THIS, which is the part worth recording: both inject a
+// subProcess WITH children, because the question they were built for was containment. Containment
+// is answerable only when there is something contained. So the pair covers 100% of the question I
+// asked and 0% of AEF's actual usage, and no amount of care about the arms I had would have
+// surfaced that — it took their corpus. A probe's coverage gap is a fact about the population it
+// was aimed at, not about the rigour of its controls.
+//
+// WHAT THIS ARM ASSERTS IS NOT WHAT THE OTHERS ASSERT. They ask whether children survive
+// containment. This asks whether the ELEMENT TYPE survives at all: a round-trip that rewrites a
+// childless subProcess into a task is a defensible cleanup — there is nothing to scope, so why
+// carry a scope element — and it would silently degrade every collapsed node in three published
+// maps to an untyped activity. "The uid came back" is the answer to a question AEF did not ask.
+//
+// Deliberately NO sequenceFlow and NO children: the arm must be childless or it is testing the
+// nested arm again under a different name. The stimulus check below enforces that rather than
+// trusting this string, because the fixture and the assertion are edited by different hands at
+// different times, and the one that goes stale silently is the fixture.
+const COLLAPSED_UID = 'n_t523_collapsed';
+const COLLAPSED_BLOCK = `
+    <bpmn:subProcess id="t523_collapsed" name="T523 collapsed">
+      <bpmn:extensionElements>
+        <aef:uid value="${COLLAPSED_UID}"/>
+        <aef:position x="1200.0" y="300.0"/>
+      </bpmn:extensionElements>
+    </bpmn:subProcess>`;
+
 // ── the pin ───────────────────────────────────────────────────────────────────────────────
 // Set from the first MEASURED run, not from expectation, and not from the source comment that
 // prompted the task. An unpinned observation REFUSES rather than passing.
@@ -184,6 +218,7 @@ async function main() {
     const arms = [
       { key: 'nested', block: NESTED_BLOCK, expectNested: true },
       { key: 'flat', block: FLAT_BLOCK, expectNested: false },
+      { key: 'collapsed', block: COLLAPSED_BLOCK, expectNested: null },
     ];
     const measured = {};
 
@@ -196,14 +231,32 @@ async function main() {
       // measuring nothing — the single most expensive mistake available here.
       const inp = await readStructure(input);
       if (!inp.parsed) return refuse(`arm ${arm.key}: injected document does not parse — the fixture is broken, not the editor`, { error: inp.error });
-      const wanted = arm.key === 'nested' ? [SUB_UID, CHILD_A, CHILD_B] : [CHILD_A, CHILD_B];
+      const wanted = arm.key === 'nested' ? [SUB_UID, CHILD_A, CHILD_B]
+        : arm.key === 'collapsed' ? [COLLAPSED_UID]
+          : [CHILD_A, CHILD_B];
       for (const w of wanted) {
         const u = find(inp, w);
         if (!u) return refuse(`arm ${arm.key}: staged uid ${w} is not present in the INPUT — staging failed`);
       }
-      const childA = find(inp, CHILD_A);
-      if (childA.in_sub !== arm.expectNested) {
-        return refuse(`arm ${arm.key}: staged child nesting is ${childA.in_sub}, expected ${arm.expectNested} — this arm is not testing what it says it tests`, { path: childA.path });
+      if (arm.key === 'collapsed') {
+        // Stimulus check for THIS arm's property (PL-206). Two things must hold in the INPUT or
+        // the arm is not testing AEF's population: the uid must be owned by a subProcess, and
+        // that subProcess must contain ZERO flow nodes. The second is the one that rots — a
+        // later edit to COLLAPSED_BLOCK that adds a child would turn this into a second nested
+        // arm, and every run would still be green while covering none of what it claims.
+        const c = find(inp, COLLAPSED_UID);
+        if (c.owner !== 'subProcess') {
+          return refuse(`arm collapsed: the staged uid is owned by <${c.owner}>, not <subProcess> — the fixture does not contain the element under test`, { path: c.path });
+        }
+        const kids = inp.flow_children_by_parent[c.owner_id];
+        if (kids) {
+          return refuse(`arm collapsed: the staged subProcess contains ${kids} flow node(s) — this arm is only a statement about CHILDLESS subProcesses, which is AEF's entire population, and a fixture with children re-tests the nested arm under another name`, { owner_id: c.owner_id, children: kids });
+        }
+      } else {
+        const childA = find(inp, CHILD_A);
+        if (childA.in_sub !== arm.expectNested) {
+          return refuse(`arm ${arm.key}: staged child nesting is ${childA.in_sub}, expected ${arm.expectNested} — this arm is not testing what it says it tests`, { path: childA.path });
+        }
       }
 
       let out;
@@ -222,6 +275,25 @@ async function main() {
       // Did the flow that joined the two injected nodes come through with them? Resolved by
       // UID, never by element id — ids are re-minted from lane and x-order on every save
       // (T-513), so matching on the id we injected would report every flow as lost.
+      if (arm.key === 'collapsed') {
+        // The property AEF depends on, stated as its own three-way outcome rather than as a
+        // boolean. "Survived" and "survived but is now a <task>" are the same fact about the uid
+        // and opposite facts about their dialect, so collapsing them would answer the question
+        // they did not ask and hide the one they did.
+        const c = find(after, COLLAPSED_UID);
+        const kidsAfter = c ? (after.flow_children_by_parent[c.owner_id] || 0) : null;
+        measured.collapsed = {
+          node: !c ? { outcome: 'dropped' }
+            : c.owner !== 'subProcess' ? { outcome: 'survived-retyped', owner: c.owner, path: c.path }
+              : { outcome: 'survived', owner: c.owner, path: c.path },
+          // Recorded because the inverse defect is possible and would be just as silent: an
+          // editor that "helpfully" gives an empty scope a placeholder child changes what the
+          // map MEANS without dropping anything, and nothing else here would notice.
+          children_after: kidsAfter,
+        };
+        continue;
+      }
+
       const ua = find(after, CHILD_A), ub = find(after, CHILD_B);
       const joined = !!(ua && ub && after.flows.some(f =>
         (f.source === ua.owner_id && f.target === ub.owner_id) ||
@@ -252,14 +324,19 @@ async function main() {
               : 'inconclusive';
 
     const observed = { arms: measured, attribution };
-    const summary = { nested: summarise(measured.nested), flat: summarise(measured.flat), attribution };
+    const summary = {
+      nested: summarise(measured.nested),
+      flat: summarise(measured.flat),
+      collapsed: summariseCollapsed(measured.collapsed),
+      attribution,
+    };
 
     if (!PIN) {
       return refuse(
         `no pin file at tools/_t523-nesting.pin.json — this run MEASURED but has no reference to compare against, which is an abstention, not a pass. Write the summary below to that file once you have read it and believe it.`,
         { observed, summary_to_pin: summary });
     }
-    for (const k of ['nested', 'flat', 'attribution']) {
+    for (const k of ['nested', 'flat', 'collapsed', 'attribution']) {
       if (!(k in PIN)) return refuse(`no pin for ${k} — "I have no reference for this" must not be indistinguishable from "it matched"`, { observed, summary_to_pin: summary });
     }
     const drift = [];
@@ -301,6 +378,20 @@ function summarise(m) {
   if (m.output_malformed) return { output_malformed: true };
   const o = x => (x ? { outcome: x.outcome, owner: x.owner ?? null } : null);
   return { sub: o(m.sub), child_a: o(m.child_a), child_b: o(m.child_b), edge: m.edge_between_children ?? null };
+}
+
+// The collapsed arm pins OUTCOME + OWNER + child count. Owner is pinned rather than merely
+// checked against the literal 'subProcess' so that a retype is recorded as WHAT it became: the
+// remedy for "it is now a task" and "it is now a callActivity" are different conversations with
+// AEF, and a boolean would start both of them the same way.
+function summariseCollapsed(m) {
+  if (!m) return null;
+  if (m.editor_threw) return { editor_threw: true };
+  if (m.output_malformed) return { output_malformed: true };
+  return {
+    node: m.node ? { outcome: m.node.outcome, owner: m.node.owner ?? null } : null,
+    children_after: m.children_after ?? null,
+  };
 }
 
 main();

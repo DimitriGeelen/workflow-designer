@@ -1604,3 +1604,10 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-225
+  learning: "A PROBE'S COVERAGE GAP IS A FACT ABOUT THE POPULATION IT WAS AIMED AT, NOT ABOUT THE RIGOUR OF ITS CONTROLS — SO NO AMOUNT OF CARE ABOUT THE ARMS YOU HAVE WILL SURFACE IT. T-523 asked whether children survive subProcess containment, and answered it correctly with two well-controlled arms, both injecting a subProcess WITH children — necessarily, because containment is only answerable when something is contained. AEF then measured their own corpus and reported that every subProcess they publish is CHILDLESS, three maps plus three drafts, zero contained flow nodes. So the pair covered 100% of the question I asked and 0% of their actual usage, and the property they depend on (does the ELEMENT TYPE survive) sits adjacent to the one I measured. THE STRUCTURAL POINT: the gap was invisible from inside because every internal check was about whether the arms tested what they claimed, and they did. Only the consumer's population could reveal that the claim was about the wrong thing. THE DISCRIMINATING QUESTION to ask of any conformance probe is therefore not 'are my controls sound' but 'what shape does the consumer actually send, and does any arm contain it' — and that is answerable only by asking them or reading their corpus, never by inspecting my own instrument. COROLLARY worth the same weight: 'the uid came back' is the answer to a question nobody asked. Report WHAT the thing became, not whether it was preserved — a boolean would have made me confirm a retype-to-task that never happened (it fell back to serviceTask) and tell a peer project so."
+  source: P-001
+  task: T-528
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD

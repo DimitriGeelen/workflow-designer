@@ -53,6 +53,14 @@ TARGET = "for (const tag of nodeTags) for (const el of byBpmn(proc, tag)) nodeWo
 MUTANT = ("for (const tag of nodeTags) for (const el of byBpmn(proc, tag)) "
           "{ if (el.parentNode !== proc) continue; nodeWork.push([tag, el, null]); }")
 
+# T-528: the mutant for the COLLAPSED arm. One line of the export tag map, turning the
+# BPMN-native subProcess tag into a plain task — the "helpful cleanup" AEF named at rail 11926
+# as the change that would kill their dialect silently across three published maps. Anchored on
+# the trailing `\n};` so it can only match the tag map's own entry and not the several other
+# places the string `subProcess:` appears (sizes, field lists, labels, icons).
+RETYPE_TARGET = "  subProcess: 'subProcess',\n};"
+RETYPE_MUTANT = "  subProcess: 'task',\n};"
+
 NESTED_DOC = """<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
                   xmlns:aef="http://anchorpoint.framework/aef/extensions">
@@ -139,6 +147,19 @@ if editor_src.count(TARGET) != 1:
         % editor_src.count(TARGET)
     )
 
+# T-528: same precondition for the retype mutant, and for the same reason one level over. If the
+# export tag map is reformatted, `.replace()` silently returns the source unchanged, the probe
+# runs against an UNMUTATED editor, and legs 7-9 would report "no drift" as a failure to detect —
+# reading as a real defect in the arm rather than as a dead mutant. Refusing here keeps the two
+# apart, which is the whole PL-205 point: an instrument that cannot run must not return a verdict.
+if editor_src.count(RETYPE_TARGET) != 1:
+    refuse(
+        "the retype mutation target appears %d times in the editor (expected exactly 1). The "
+        "export tag map's subProcess entry was reformatted or moved, so legs 7-9 would run "
+        "against an unmutated editor and report a dead mutant as a detection failure."
+        % editor_src.count(RETYPE_TARGET)
+    )
+
 print("T-523 teeth — can the nesting probe go red, and for the stated reason")
 print("subject: src/aef-workflow-designer.html (parseBpmnXml node collection)")
 print()
@@ -195,6 +216,75 @@ try:
         rc == 2 and "no pin file" in (out.get("refusal") or ""),
         "rc=%d refusal=%r. 'I have no reference' must not be indistinguishable from 'it "
         "matched'." % (rc, (out.get("refusal") or "")[:120]),
+    )
+
+    # ── legs 7-9: the COLLAPSED arm (T-528) must be able to see a RETYPE ───────────────────
+    #
+    # The collapsed arm passes on the real tree, and a green arm that cannot go red is worth
+    # nothing — which matters more here than usual, because this arm exists to reassure AEF
+    # about three published maps. Certifying their dialect on the strength of an arm nobody
+    # proved could fail would be exactly the shape they caught themselves making at 11926
+    # (clearing me on the strength of my own damage).
+    #
+    # The mutant is the failure AEF actually named: a round-trip that "helpfully" rewrites an
+    # empty scope element into a plain activity. One line, in the export tag map — which is
+    # what makes it a realistic change rather than a contrived one. Someone tidying node types
+    # could make this edit without ever learning that three published maps depend on it.
+    retype_path = os.path.join(tmp, "designer-retype.html")
+    with open(retype_path, "w") as f:
+        f.write(editor_src.replace(RETYPE_TARGET, RETYPE_MUTANT, 1))
+
+    rc, out = run_probe(src=retype_path)
+    drift = out.get("drift") or []
+    drift_keys = [d.get("key") for d in drift]
+    collapsed_drift = next((d for d in drift if d.get("key") == "collapsed"), None)
+    measured_node = (collapsed_drift or {}).get("measured", {}).get("node", {}) or {}
+
+    leg(
+        "7 a retyping mutant makes the collapsed arm go red (rc 1, drift on 'collapsed')",
+        rc == 1 and "collapsed" in drift_keys,
+        "rc=%d drift_keys=%s. If this arm cannot detect a retype it cannot certify that one is "
+        "not happening, and AEF is relying on it for three published maps." % (rc, drift_keys),
+    )
+
+    # This leg asserted `owner == "task"` on first writing and FAILED, measuring 'serviceTask':
+    # the editor does not emit the mutated tag verbatim, it falls back. The arm was right and my
+    # expectation was wrong — which is the mistake this file's own header warns about one level
+    # over ("written from a MEASURED run, not from expectation"), committed in the teeth instead
+    # of in the pin. Left recorded rather than quietly corrected, because the useful part is that
+    # the arm reported WHAT the node became; had it returned a boolean I would have "confirmed"
+    # a retype-to-task that never happened and told AEF so.
+    #
+    # So the leg now asserts the discrimination rather than my guess: retyped rather than dropped,
+    # and a concrete new owner that is not subProcess. Pinning the exact fallback tag here would
+    # re-import the same defect — it is a fact about the mutant's interaction with the fallback,
+    # not about the property under test.
+    leg(
+        "8 red for the NAMED reason — survived-retyped (not dropped), with the new owner named",
+        measured_node.get("outcome") == "survived-retyped"
+        and isinstance(measured_node.get("owner"), str)
+        and measured_node.get("owner") not in (None, "", "subProcess"),
+        "measured node=%r. 'It went red' would also be satisfied by the node being DROPPED, "
+        "which is a different defect with a different conversation attached — the remedy for "
+        "'it became something else' and 'it vanished' are not the same." % (measured_node,),
+    )
+
+    # This leg asserted the NESTED arm would be unaffected and FAILED, for a reason that was
+    # obvious once measured: the nested arm contains a subProcess of its own, so a mutant that
+    # retypes every exported subProcess necessarily drifts it. My stated rationale — "those arms
+    # carry serviceTask children, whose tag the mutant does not touch" — was true and irrelevant.
+    #
+    # The FLAT arm is the real control: it contains no subProcess at any level, so it is the only
+    # arm whose cleanliness distinguishes "the mutant retyped subProcesses" from "the mutant broke
+    # the round-trip wholesale". Narrowing the leg to flat is not weakening it; the nested arm was
+    # never capable of carrying this claim.
+    leg(
+        "9 the retype is LOCALISED — the flat arm, which contains no subProcess at all, is clean",
+        "flat" not in drift_keys,
+        "drift_keys=%s. The flat arm has no subProcess at any level, so if it drifts too the "
+        "mutant broke the round-trip wholesale and leg 7's red is explained by something other "
+        "than the retype. (The nested arm SHOULD drift — it contains a subProcess of its own — "
+        "and asserting otherwise is what this leg got wrong on first writing.)" % (drift_keys,),
     )
 
     # ── leg 6: the reader itself can see nesting ───────────────────────────────────────────
