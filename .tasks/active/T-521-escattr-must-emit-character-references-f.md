@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T13:24:39Z
-last_update: 2026-08-15T13:24:39Z
+last_update: 2026-08-15T13:33:00Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -158,6 +158,19 @@ different, invented behaviour.
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+# The probe that found the defect confirms the fix. rc 0 = every candidate matches its pin.
+timeout 300 node tools/_t520-uid-xml-safety.mjs
+
+# escAttr emits the three whitespace references, and & is still replaced first.
+python3 -c "import re,sys; s=open('src/aef-workflow-designer.html').read(); m=re.search(r'function escAttr\(s\)[^\n]*', s); t=m.group(0); sys.exit(0 if all(x in t for x in ('&#10;','&#13;','&#9;')) and t.index(chr(38)+'amp;') < t.index('&#10;') else 1)"
+
+# escText is NOT given attribute-value treatment — text content keeps its newlines.
+python3 -c "import re,sys; s=open('src/aef-workflow-designer.html').read(); t=re.search(r'function escText\(s\)[^\n]*', s).group(0); sys.exit(1 if '&#10;' in t else 0)"
+
+# A conforming parser reads a character-reference newline back intact (the property AEF relies on).
+python3 -c "import xml.etree.ElementTree as ET,sys; d='<r><u v=' + chr(34) + 'a&#10;b' + chr(34) + '/></r>'; sys.exit(0 if ET.fromstring(d).find('u').get('v')=='a'+chr(10)+'b' else 1)"
+
 
 ## RCA
 
