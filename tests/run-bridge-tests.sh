@@ -944,5 +944,26 @@ else
 fi
 
 echo
+echo "== Externally-assigned aef:uid is honoured — mapping standard §6.3 (T-515) =="
+# The mapping standard's §6 conformance requirement 3 — "carries a stable,
+# externally-assignable aef:uid on every node and edge" — had no machine check. T-182 built
+# test_mapping_standard_conformance.py but it guards §2 only, the frozen governance meta-key
+# list. §5 turns requirement 3 into a promise made to AEF specifically: "a reverse renderer
+# needs no editor change for identity." That sentence licenses them to build against us.
+#
+# Guards the two halves separately because they fail independently: the editor must honour
+# uids it did not mint (nodes AND edges — two different emit paths), and re-rendering must be
+# byte-stable, since an editor that honours a uid once but perturbs the file on every save
+# breaks the reverse path just as surely.
+#
+# COST: ~40s, Chromium plus the gallery sidecar, same shape as _t511/_t513 above.
+if timeout 300 node "$ROOT/tools/_t515-external-uid-conformance.mjs" > /dev/null 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the editor no longer honours externally-assigned aef:uid values, or re-rendering stopped being byte-stable — mapping standard §6.3 is broken and AEF's reverse path depends on it (run 'node tools/_t515-external-uid-conformance.mjs' for the verdict; rc 2 is a refusal — corpus missing, or the fixture stopped being externally-shaped — not a conformance failure)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
