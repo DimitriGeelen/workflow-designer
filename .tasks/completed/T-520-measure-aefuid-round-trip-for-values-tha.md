@@ -4,10 +4,10 @@ name: "measure aef:uid round-trip for values that are not XML-attribute-safe (_t
 description: >
   measure aef:uid round-trip for values that are not XML-attribute-safe (_t515 gap 2)
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T11:55:26Z
-last_update: 2026-08-15T11:55:26Z
-date_finished: null
+last_update: 2026-08-15T12:13:59Z
+date_finished: 2026-08-15T12:13:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -60,6 +60,16 @@ because "loud" and "silent" need different sentences in §6.3.
 Characterises, does not legislate. The editor honouring §5's promise to return what it was
 given is correct behaviour; where a value cannot survive, the obligation is the assigner's and
 the wording is AEF's call.
+
+**CORRECTION, written after the measurement — point 2 above is wrong as framed.** I described
+newline and tab as lossy-by-spec with the constraint therefore belonging on the assigner. The
+spec rule is real, but it does not apply here the way I assumed: the value IS representable, via
+`&#10;`, and the editor simply does not write it that way. So this is our escaping defect, not an
+inherent limit, and the remedy I recommended to AEF at rail 11903 is the opposite of what this
+Context predicted — fix the writer, do not constrain the assigner. Left in place rather than
+edited away, because the wrong framing is what made the browser-read false green so easy to
+accept: I was expecting a loss I considered unavoidable, so a result showing no loss looked like
+good news instead of a contradiction worth chasing.
 
 ## Acceptance Criteria
 
@@ -222,3 +232,15 @@ python3 -c "import sys,glob; bad=[f for f in glob.glob('.fabric/components/tools
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-520-measure-aefuid-round-trip-for-values-tha.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-92846085
+- **Timestamp:** 2026-08-15T12:14:03Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-15T12:13:59Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -6515,3 +6515,21 @@ scan_id: R-2a3b16d5
 task_id: T-519
 payload:
   task_file: .tasks/active/T-519-reconcile-vendor-divergence-against-aef-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T12:14:03Z'
+scan_id: R-92846085
+task_id: T-520
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T12:14:03Z'
+scan_id: R-92846085
+task_id: T-520
+payload:
+  task_file: .tasks/active/T-520-measure-aefuid-round-trip-for-values-tha.md

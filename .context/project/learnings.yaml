@@ -1520,3 +1520,10 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-213
+  learning: "When verifying a SEAM, the reader must be the class of reader on the FAR side, because the producer's own parser will agree with the producer's own defect. T-520's probe drives the editor in a browser, so the free way to read the round-tripped document back is Chrome's DOMParser. It reported all 11 candidate uid values surviving byte-identical — including one containing a raw newline, which XML 1.0 3.3.3 says is impossible, since attribute-value normalisation replaces a literal newline in an attribute with a space before the application sees it. Chrome does not apply it there; expat does, and so does everything on AEF's side. The green run was the lenient reader confirming what the lenient writer produced. Nothing about the test was lazy — the stimulus was verified, the negative control was live, the exits were three-valued — and it would still have certified a silent cross-project corruption. The tell that should have fired earlier: I was EXPECTING a loss I believed unavoidable, so a result showing no loss read as good news rather than as a contradiction of the spec worth chasing. A measurement that disagrees with a standard you just cited is not a pleasant surprise, it is an instrument fault until proven otherwise. Applies to every encode/decode boundary where both sides are not the same implementation: JSON number precision, unicode normalisation forms, path encoding, timezone handling, HTTP header folding."
+  source: P-001
+  task: T-520
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
