@@ -1,0 +1,90 @@
+# ============================================================================
+# EPISODIC MEMORY - T-508: Verification legs pin corpus cardinality: 24 population-counting legs are contingent on a corpus designed to grow, and adopting AEF's daily re-runner would import them all red
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T05:38:47Z
+# ============================================================================
+
+task_id: T-508
+task_name: "Verification legs pin corpus cardinality: 24 population-counting legs are contingent on a corpus designed to grow, and adopting AEF's daily re-runner would import them all red"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-15T05:16:25Z
+completed: 2026-08-15T05:38:39Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-15T07:34:36+02:00
+last_commit: 2026-08-15T07:35:04+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  PL-200's class already had a home and nobody was reading it. The task was filed to build a population-pinned-count detector; tools/verification-hygiene.py already implements the concept as G-015 — lines asserting a global always-moving property instead of a property of the task carrying them — with a hash-keyed baseline strictly better than the count-keyed one I drafted, whose own docstring names the failure my --ratchet would have had. T-491 repeating, found the same way: my draft printed a filename I then looked up. Standalone tool deleted before commit; the classifier survives as a third carrier kind. The real defect was that the instrument sat at line 130 of the unwired-guard baseline — correct, 15 teeth legs, called by nothing since 2026-08-09 — so adding a kind to it would have grown a list nobody reads. Wired it, and its teeth, into the bridge suite. Running it revealed RE_PORT matching [:400] slices and a T-2553:101 rail ref: hardcoded-port 20 -> 12 once a host qualifier or non-word prefix is required, a prerequisite for wiring rather than scope creep. Discriminator holds four look-alikes clean (invariant, emptiness, hermetic mktemp, the -ge remedy T-095/T-096 already carry) — flagging those would push authors to weaken real invariants. Anti-vacuity leg proves that green is classification, not absence; end-to-end mutation on the real tree names file and kind. Teeth summary said 12/12 while 15 legs ran, a hardcoded total of exactly the class under audit; now derived. Wiring the teeth discharged a SECOND baseline entry via the cross-tool agreement leg — movement recorded before regeneration, the wrong number corrected in place. This task's Verification deliberately omits 'the gate is green': that is global moving state and would go red for someone else's change under a daily re-runner. 79 passed 0 failed, both ratchets green. correct the headline figure in my own task record — 24 was the pre-classifier grep count and the delivered figure is 17. The two shapes split out are not defects: legs pinned to = 0 assert emptiness, which does not go stale as a corpus grows, and one builds its population under mktemp in the same breath, so it cannot drift. Task name left at 24 deliberately; renaming a task to match its own result stops it being a record. Worth stating plainly because 24 was a number I produced by grepping and believed, and it was wrong in the direction that made the finding look bigger
+
+# Key outcomes
+outcomes:
+  - '`population-pinned` lands as a **third carrier kind in `tools/verification-hygiene.py`**,'
+  - 'The discriminator is mechanical and separates four look-alike shapes that all pin a'
+  - 'Teeth prove the new kind FIRES and that the discriminator HOLDS (PL-070), including'
+  - 'End-to-end mutation on the REAL tree, not only the teeth''s synthetic one: a'
+  - 'The instrument is **wired to a standing caller**, which is the substantive half of'
+  - 'Its **teeth are wired too**. A guard whose teeth never run is a guard nobody has'
+  - 'The gate is on **movement, not on the count** — the 105 grandfathered carrier lines'
+  - 'Drift that accumulated while the instrument was unwatched is **named before it is'
+  - 'Both ratchets end green and the `T-451` baseline movement is **recorded before the'
+  - 'This task''s own `## Verification` contains **no population-pinned leg** — the gate'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'PL-200''s class already had a home and nobody was reading it. The task was filed to build a population-pinned-count detector; tools/verification-hygiene.py already implements the concept as G-015 — lines asserting a global always-moving property instead of a property of the task carrying them — with a hash-keyed baseline strictly better than the count-keyed one I drafted, whose own docstring names the failure my --ratchet would have had. T-491 repeating, found the same way: my draft printed a filename I then looked up. Standalone tool deleted before commit; the classifier survives as a third carrier kind. The real defect was that the instrument sat at line 130 of the unwired-guard baseline — correct, 15 teeth legs, called by nothing since 2026-08-09 — so adding a kind to it would have grown a list nobody reads. Wired it, and its teeth, into the bridge suite. Running it revealed RE_PORT matching [:400] slices and a T-2553:101 rail ref: hardcoded-port 20 -> 12 once a host qualifier or non-word prefix is required, a prerequisite for wiring rather than scope creep. Discriminator holds four look-alikes clean (invariant, emptiness, hermetic mktemp, the -ge remedy T-095/T-096 already carry) — flagging those would push authors to weaken real invariants. Anti-vacuity leg proves that green is classification, not absence; end-to-end mutation on the real tree names file and kind. Teeth summary said 12/12 while 15 legs ran, a hardcoded total of exactly the class under audit; now derived. Wiring the teeth discharged a SECOND baseline entry via the cross-tool agreement leg — movement recorded before regeneration, the wrong number corrected in place. This task''s Verification deliberately omits ''the gate is green'': that is global moving state and would go red for someone else''s change under a daily re-runner. 79 passed 0 failed, both ratchets green'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-508-verification-legs-pin-corpus-cardinality.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t408-hygiene-teeth.sh'
+  - 'tools/unwired-guard-baseline.txt'
+  - 'tools/verification-hygiene-baseline.json'
+  - 'tools/verification-hygiene.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-15T07:34:36"
+    action: "T-508: PL-200's class already had a home and nobody was reading it. The task was filed to build a population-pinned-count detector; tools/verification-hygiene.py already implements the concept as G-015 — lines asserting a global always-moving property instead of a property of the task carrying them — with a hash-keyed baseline strictly better than the count-keyed one I drafted, whose own docstring names the failure my --ratchet would have had. T-491 repeating, found the same way: my draft printed a filename I then looked up. Standalone tool deleted before commit; the classifier survives as a third carrier kind. The real defect was that the instrument sat at line 130 of the unwired-guard baseline — correct, 15 teeth legs, called by nothing since 2026-08-09 — so adding a kind to it would have grown a list nobody reads. Wired it, and its teeth, into the bridge suite. Running it revealed RE_PORT matching [:400] slices and a T-2553:101 rail ref: hardcoded-port 20 -> 12 once a host qualifier or non-word prefix is required, a prerequisite for wiring rather than scope creep. Discriminator holds four look-alikes clean (invariant, emptiness, hermetic mktemp, the -ge remedy T-095/T-096 already carry) — flagging those would push authors to weaken real invariants. Anti-vacuity leg proves that green is classification, not absence; end-to-end mutation on the real tree names file and kind. Teeth summary said 12/12 while 15 legs ran, a hardcoded total of exactly the class under audit; now derived. Wiring the teeth discharged a SECOND baseline entry via the cross-tool agreement leg — movement recorded before regeneration, the wrong number corrected in place. This task's Verification deliberately omits 'the gate is green': that is global moving state and would go red for someone else's change under a daily re-runner. 79 passed 0 failed, both ratchets green"
+  - time: "2026-08-15T07:35:04"
+    action: "T-508: correct the headline figure in my own task record — 24 was the pre-classifier grep count and the delivered figure is 17. The two shapes split out are not defects: legs pinned to = 0 assert emptiness, which does not go stale as a corpus grows, and one builds its population under mktemp in the same breath, so it cannot drift. Task name left at 24 deliberately; renaming a task to match its own result stops it being a record. Worth stating plainly because 24 was a number I produced by grepping and believed, and it was wrong in the direction that made the finding look bigger"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 22 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 22
+  commits: 2
+  files_changed: 6
+  lines_added: 700
+  lines_removed: 28
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-508-verification-legs-pin-corpus-cardinality.md
+generated_by: context-agent-hybrid

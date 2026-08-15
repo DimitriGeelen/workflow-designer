@@ -1,0 +1,93 @@
+# ============================================================================
+# EPISODIC MEMORY - T-510: Correct a published claim: _t364-t308-teeth is red because BASELINE_REF is a pinned git ref the exporter has moved past, not because of stale stored shas as T-509 asserted on the rail and in a learning
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T07:54:02Z
+# ============================================================================
+
+task_id: T-510
+task_name: "Correct a published claim: _t364-t308-teeth is red because BASELINE_REF is a pinned git ref the exporter has moved past, not because of stale stored shas as T-509 asserted on the rail and in a learning"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-15T06:20:57Z
+completed: 2026-08-15T07:53:58Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-15T09:53:54+02:00
+last_commit: 2026-08-15T09:53:54+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  I published a mechanism I never checked, and the finding it explained was right. T-509 reported _t364-t308-teeth.py's control red — maps=24 identical=0 drifted=24 — and said the cause was 'the teeth script's own stored reference shas that went stale'. It stores no shas and computes no hash. run() passes REF=3bf37909~1 to _t308, so the comparison is CURRENT BUILD vs A PINNED GIT REF. I had run _t308 bare, with no ref argument, seen rc=0, and reasoned 'the gate is fine, so the staleness is in the teeth' — two different comparisons treated as one, and the wrong one was the one I ran. Eight lines of run() would have settled it; I skipped them because a plausible story already fit. Reproduced with the caller's argv: all 24 maps drift, every one by EXACTLY +51 bytes, which is commit 4c40414c (T-399) adding exporter=aef-workflow-designer to every export, 18 spaces + 32 chars + newline. Uniformity is the tell — decay is ragged, a shipped line is uniform. So the red is EXPECTED, not a regression: the control's identical=24 became false the moment T-399 landed, and git merge-base --is-ancestor 3bf37909 4c40414c proves the pin predates the change, as a verification leg rather than a sentence. T-509's stated remedy was wrong too: a re-pin makes the injected fixture comparable on both sides, so unusable goes to 0 and the teeth go red for the opposite reason — the docstring prescribes a NEW unstable injection and that stays the operator's. Corrected in the four places it was actually published: sweep header, suite comment, T-509's record twice, episodic summary. The wrong sentence is left standing beside each correction, because a correction that deletes what it corrects is unfalsifiable by the next reader; verification asserts the MARKER is present, never that the phrase is gone. NOT corrected, deliberately: commit f7438c37 and the git_timeline entry quoting it — a transcript of immutable history is not a place to edit. AC3's own premise was false and is recorded as such rather than ticked: it said the claim went to the rail and into a learning. Searched both — agent-chat-arc has two hits for the pattern, AEF's own and my PL-200 post, neither carries it; T-509's learnings are PL-202/PL-203 and neither mentions the file. No rail correction is owed, discharged as verified-not-published. PL-204 captures the mechanism with two transferable tells: a constant delta across a whole corpus is a shipped producer change and refutes decay without reading code, and reproduce a failure with the CALLER's argv because a bare run is a different experiment wearing the same name. Sibling of PL-203 from the same session. The bridge suite is not a verification leg here — that is G-015's own class, the ratchet this project wired two tasks ago — it was run as evidence: 80 passed, 0 failed. Carried in this commit and named rather than folded: T-508's completion metadata, which said work-completed on disk and nothing in the tree for three sessions, T-487's dated correction of a rail-offset misidentification, and a T-423 timestamp. Their correct label is T-508 and the focus-drift gate refuses that under T-510 focus, offering only Tier 2 bypasses that an autonomous directive does not authorise
+
+# Key outcomes
+outcomes:
+  - 'The actual mechanism is established by READING the tool and REPRODUCING its'
+  - 'Whether the red is a REGRESSION or the EXPECTED consequence of the exporter moving'
+  - 'The wrong claim is corrected everywhere it was published: the learning captured'
+  - 'The correction states what was actually wrong (the mechanism), without overstating'
+  - 'No teeth file is edited to make it green. Its own docstring forbids pinning'
+  - 'Bridge suite still green.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'I published a mechanism I never checked, and the finding it explained was right. T-509 reported _t364-t308-teeth.py''s control red — maps=24 identical=0 drifted=24 — and said the cause was ''the teeth script''s own stored reference shas that went stale''. It stores no shas and computes no hash. run() passes REF=3bf37909~1 to _t308, so the comparison is CURRENT BUILD vs A PINNED GIT REF. I had run _t308 bare, with no ref argument, seen rc=0, and reasoned ''the gate is fine, so the staleness is in the teeth'' — two different comparisons treated as one, and the wrong one was the one I ran. Eight lines of run() would have settled it; I skipped them because a plausible story already fit. Reproduced with the caller''s argv: all 24 maps drift, every one by EXACTLY +51 bytes, which is commit 4c40414c (T-399) adding exporter=aef-workflow-designer to every export, 18 spaces + 32 chars + newline. Uniformity is the tell — decay is ragged, a shipped line is uniform. So the red is EXPECTED, not a regression: the control''s identical=24 became false the moment T-399 landed, and git merge-base --is-ancestor 3bf37909 4c40414c proves the pin predates the change, as a verification leg rather than a sentence. T-509''s stated remedy was wrong too: a re-pin makes the injected fixture comparable on both sides, so unusable goes to 0 and the teeth go red for the opposite reason — the docstring prescribes a NEW unstable injection and that stays the operator''s. Corrected in the four places it was actually published: sweep header, suite comment, T-509''s record twice, episodic summary. The wrong sentence is left standing beside each correction, because a correction that deletes what it corrects is unfalsifiable by the next reader; verification asserts the MARKER is present, never that the phrase is gone. NOT corrected, deliberately: commit f7438c37 and the git_timeline entry quoting it — a transcript of immutable history is not a place to edit. AC3''s own premise was false and is recorded as such rather than ticked: it said the claim went to the rail and into a learning. Searched both — agent-chat-arc has two hits for the pattern, AEF''s own and my PL-200 post, neither carries it; T-509''s learnings are PL-202/PL-203 and neither mentions the file. No rail correction is owed, discharged as verified-not-published. PL-204 captures the mechanism with two transferable tells: a constant delta across a whole corpus is a shipped producer change and refutes decay without reading code, and reproduce a failure with the CALLER''s argv because a bare run is a different experiment wearing the same name. Sibling of PL-203 from the same session. The bridge suite is not a verification leg here — that is G-015''s own class, the ratchet this project wired two tasks ago — it was run as evidence: 80 passed, 0 failed. Carried in this commit and named rather than folded: T-508''s completion metadata, which said work-completed on disk and nothing in the tree for three sessions, T-487''s dated correction of a rail-offset misidentification, and a T-423 timestamp. Their correct label is T-508 and the focus-drift gate refuses that under T-510 focus, offering only Tier 2 bypasses that an autonomous directive does not authorise'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-15 — the wrong sentences are left standing, with the correction beside them'
+    chose: 'in all four files, keep the wrong claim verbatim and attach a dated CORRECTION'
+    rationale: 'a correction whose first act is to delete the thing it corrects is unfalsifiable'
+    alternatives_rejected: ['silently rewriting the sentence. Cheaper, and it makes the record say I was']
+  - decision: '2026-08-15 — the episodic summary is corrected, the mined git_timeline entry is not'
+    chose: 'append the correction to `summary:` in `.context/episodic/T-509.yaml`; leave'
+    rationale: 'the summary is read as project knowledge; the timeline is a transcript of an'
+    alternatives_rejected: ['correcting both (falsifies a transcript); correcting neither (episodic']
+  - decision: '2026-08-15 — the remedy for `_t364-t308-teeth.py` is stated as a decision, not applied'
+    chose: 'record that the fix is a NEW genuinely-unstable injection, and leave it for the'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-509.yaml'
+  - '.context/project/learnings.yaml'
+  - '.tasks/active/T-423-t-357-step-2-emit-bpmn-di-additively-alo.md'
+  - '.tasks/active/T-510-correct-a-published-claim-t364-t308-teet.md'
+  - '.tasks/completed/T-487-t340-go-successor-verify-and-scope.md'
+  - '.tasks/completed/T-508-verification-legs-pin-corpus-cardinality.md'
+  - '.tasks/completed/T-509-every-teeth-script-but-one-is-unwatched-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t509-instrument-sweep.sh'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-15T09:53:54"
+    action: "T-510: I published a mechanism I never checked, and the finding it explained was right. T-509 reported _t364-t308-teeth.py's control red — maps=24 identical=0 drifted=24 — and said the cause was 'the teeth script's own stored reference shas that went stale'. It stores no shas and computes no hash. run() passes REF=3bf37909~1 to _t308, so the comparison is CURRENT BUILD vs A PINNED GIT REF. I had run _t308 bare, with no ref argument, seen rc=0, and reasoned 'the gate is fine, so the staleness is in the teeth' — two different comparisons treated as one, and the wrong one was the one I ran. Eight lines of run() would have settled it; I skipped them because a plausible story already fit. Reproduced with the caller's argv: all 24 maps drift, every one by EXACTLY +51 bytes, which is commit 4c40414c (T-399) adding exporter=aef-workflow-designer to every export, 18 spaces + 32 chars + newline. Uniformity is the tell — decay is ragged, a shipped line is uniform. So the red is EXPECTED, not a regression: the control's identical=24 became false the moment T-399 landed, and git merge-base --is-ancestor 3bf37909 4c40414c proves the pin predates the change, as a verification leg rather than a sentence. T-509's stated remedy was wrong too: a re-pin makes the injected fixture comparable on both sides, so unusable goes to 0 and the teeth go red for the opposite reason — the docstring prescribes a NEW unstable injection and that stays the operator's. Corrected in the four places it was actually published: sweep header, suite comment, T-509's record twice, episodic summary. The wrong sentence is left standing beside each correction, because a correction that deletes what it corrects is unfalsifiable by the next reader; verification asserts the MARKER is present, never that the phrase is gone. NOT corrected, deliberately: commit f7438c37 and the git_timeline entry quoting it — a transcript of immutable history is not a place to edit. AC3's own premise was false and is recorded as such rather than ticked: it said the claim went to the rail and into a learning. Searched both — agent-chat-arc has two hits for the pattern, AEF's own and my PL-200 post, neither carries it; T-509's learnings are PL-202/PL-203 and neither mentions the file. No rail correction is owed, discharged as verified-not-published. PL-204 captures the mechanism with two transferable tells: a constant delta across a whole corpus is a shipped producer change and refutes decay without reading code, and reproduce a failure with the CALLER's argv because a bare run is a different experiment wearing the same name. Sibling of PL-203 from the same session. The bridge suite is not a verification leg here — that is G-015's own class, the ratchet this project wired two tasks ago — it was run as evidence: 80 passed, 0 failed. Carried in this commit and named rather than folded: T-508's completion metadata, which said work-completed on disk and nothing in the tree for three sessions, T-487's dated correction of a rail-offset misidentification, and a T-423 timestamp. Their correct label is T-508 and the focus-drift gate refuses that under T-510 focus, offering only Tier 2 bypasses that an autonomous directive does not authorise"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 93 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 93
+  commits: 1
+  files_changed: 9
+  lines_added: 603
+  lines_removed: 24
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-510-correct-a-published-claim-t364-t308-teet.md
+generated_by: context-agent-hybrid
