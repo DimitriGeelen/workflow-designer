@@ -9313,7 +9313,18 @@ $('btn-pending-refs').onclick = openPendingRefModal; // T-228 (S4a): pending off
 // ============================================================================
 //  BPMN XML build
 // ============================================================================
-function escAttr(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+// T-521 — the whitespace references are not decoration. XML 1.0 §3.3.3 attribute-value
+// normalisation replaces a literal newline, carriage return or tab in an ATTRIBUTE VALUE with a
+// space before the application ever sees it, so a raw one is destroyed by every conforming
+// parser. T-520 measured this end to end: an aef:uid of "n_a<newline>b" was written raw here and
+// read back as "n_a b" by expat, silently, on the field AEF's reverse renderer keys records on.
+// It looked fine from inside the browser only because Chrome's DOMParser does not apply the
+// rule — the producer's own reader agreeing with the producer's own defect.
+// The `&` replacement MUST stay first, or it re-escapes the ampersands of the references below.
+function escAttr(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/\n/g, '&#10;').replace(/\r/g, '&#13;').replace(/\t/g, '&#9;'); }
+// escText is deliberately NOT given the same treatment: normalisation applies to attribute
+// values only, and newlines in element text content are legal and preserved. Escaping them here
+// would invent a behaviour rather than restore one.
 function escText(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
 const TYPE_TAG = {

@@ -14,8 +14,11 @@
  *                    concatenation emits a malformed document instead.
  *   normalised       XML attribute-value normalisation (XML 1.0 §3.3.3) replaces a literal
  *                    newline or tab with a SPACE unless it is written as a character reference.
- *                    A value carrying one cannot survive an attribute round-trip in general.
- *                    This is not a defect in any implementation — it is the wire format.
+ *                    I first read this as an unavoidable limit of the wire format and it is not:
+ *                    the value IS representable, as &#10;, and writing the raw form instead is a
+ *                    WRITER defect. escAttr did exactly that until T-521 fixed it on AEF's
+ *                    ruling at rail 11909. Kept in the taxonomy because a future writer can
+ *                    regress into it, and this probe is what would catch that.
  *   unrepresentable  most C0 control characters are illegal in XML 1.0 anywhere, escaped or
  *                    not. No conforming document can carry them at all.
  *
@@ -96,14 +99,20 @@ const CANDIDATES = [
 // back as `n_a b`. The editor writes something a conforming parser cannot read back, and the
 // browser reader agreed with the defect because it is the same lenient reader that produced it.
 //
-// So the second correction restores `transformed` — the value I first guessed — but for a
+// So the second correction restored `transformed` — the value I first guessed — but for a
 // completely different and much more serious reason than the one I guessed it for. Getting the
 // right answer from the wrong model is not getting it right; the fix was to change the
 // INSTRUMENT (verdicts now come from a conforming parser), not the number.
+//
+// THIRD AND FINAL MOVE, T-521: back to `identical`, this time because the DEFECT WAS FIXED.
+// AEF ruled at rail 11909 that the writer should emit the character reference rather than the
+// spec constrain the assigner, and escAttr now does. This is the one pin change of the three
+// that reflects the editor changing rather than my understanding of it — the probe that found
+// the defect is what confirms the fix, which is the only reason to trust it.
 const PIN = {
   plain: 'identical', ampersand: 'identical', lt: 'identical', quot: 'identical',
   gt: 'identical', apos: 'identical', combined: 'identical', nonascii: 'identical',
-  newline: 'transformed', tab: 'transformed', ctrl: 'not-representable-in-xml',
+  newline: 'identical', tab: 'identical', ctrl: 'not-representable-in-xml',
 };
 
 function findChrome() { const cache = join(homedir(), '.cache', 'ms-playwright'); const c = []; if (existsSync(cache)) for (const d of readdirSync(cache)) if (d.startsWith('chromium-')) c.push(join(cache, d, 'chrome-linux64', 'chrome')); c.sort().reverse(); for (const x of c) if (existsSync(x)) return x; throw new Error('no chromium'); }
