@@ -1,0 +1,48 @@
+id: tools/_t513-thirdparty-identity-roundtrip.mjs
+name: _t513-thirdparty-identity-roundtrip
+type: script
+subsystem: verification
+location: tools/_t513-thirdparty-identity-roundtrip.mjs
+tags: [probe, roundtrip, cdp, aef-seam, identity, t-513, rail-11882, rail-11885]
+
+purpose: >
+  Answers AEF rail 11882 — does identity survive a third-party import, i.e. a BPMN document
+  arriving with no aef:uid at all? — by RUNNING buildBpmnXml(parseBpmnXml(x)) in a
+  headless-Chromium-loaded designer. This is precisely the case _t511 named in its own
+  does_not_cover and excluded, asked back at us by the peer who would be harmed by a wrong
+  answer. THIRD-PARTY means the string "aef:" does not appear in the document at all: geometry
+  arrives as BPMN DI dc:Bounds and element ids are bpmn.io-shaped. The fixture is AUTHORED
+  rather than taken from the corpus, because every .bpmn under examples/aef-processes/rendered
+  is designer-produced and carries aef:uid, so none of them can stand in for a document that
+  does not — and stripping aef out of one of ours would leave our own id shapes behind and
+  quietly test a different population. ANSWER as measured 2026-08-15: YES. Zero aef:uid in,
+  seven out (minted on first save), and the identical uid set returns on re-import; also
+  stable across two opens of the same bytes, since the T-364 derivation is FNV-1a over the
+  element id rather than random. BOUNDARY, measured not asserted: re-mint every element id in
+  the fixture as a third-party editor re-exporting would, and 0 of 7 uids survive — identity
+  survives OUR save, not THEIR re-export. SECONDARY FINDING that sharpens what we told AEF at
+  rail 11879: the emitted element id is a function of lane + x-order + the node's NAME
+  (hum_2_review becomes hum_2_escalate under a plain rename, uid unchanged), so it churns
+  during ordinary authoring and not only across an import. Carries a negative control that
+  cuts an aef:uid — the same identity the comparator reads — out of the saved document and
+  requires the comparator to notice (PL-205), plus an anti-overfit leg requiring a substantive
+  rename to leave the verdict green. Duplicate element ids are counted over BPMN-namespace
+  elements ONLY: a naive all-namespace count reports bpmn:participant/@id colliding with
+  aef:workflowMeta/@id as a schema violation, which it is not — foreign elements inside
+  bpmn:extensionElements are admitted by xsd:any processContents="lax" and are never typed as
+  xsd:ID absent an AEF schema. Exit 0 survived-and-controls-fired, 1 a real NO or a dead
+  control, 2 the fixture stopped being third-party. T513_DUMP=1 writes the first export to
+  stderr for investigation.
+
+depends_on:
+  - target: src/aef-workflow-designer.html
+    type: reads
+  - target: tools/gallery-serve.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: called_by
+
+last_verified: 2026-08-15
+created_by: T-513

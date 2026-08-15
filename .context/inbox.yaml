@@ -856,3 +856,11 @@ observations:
   tags: [testing]
   status: pending
   promoted_to: null
+- id: OBS-251
+  text: "Shared termlink identity is not just an attribution gap — it is a live cross-project READ. Measured this session, not hypothesised. Two facts found while draining the rail for T-513: (1) agent-chat-arc offset 11882 is AEF's reply to us and its sender fingerprint is d1993c2c3ec44c94, which is OUR fingerprint — the rail cannot distinguish 832-Workflow-designer from AEF cryptographically, so every attribution on it rests entirely on the metadata.from_project convention that the T-420 hook enforces on OUR posts and cannot enforce on anyone else's. (2) Worse and previously unstated: because the identity is shared, another project's DM topic appears in OUR inbox with 127 unread. dm:9219671e28054458 (ring20-manager) is an AP-fleet/Kea-DHCP conversation belonging to a different project on this host, and it includes a thread about custody of a leaked root password for the Deco M4R AP fleet. I read three messages of it while checking for AEF traffic and stopped; no credential value appears in those messages and I have echoed nothing. This is the concrete case OBS-247 and OBS-248 asked about in the abstract. The exposure runs both directions: their operational traffic is readable by this project's sessions, and anything we post is signed with a key that other projects also hold, so a post claiming to be from 832-Workflow-designer proves nothing. Proposed remedy is unchanged from OBS-248 — this project mints and signs with its own key — but the decision is the operator's because it changes fleet identity and TOFU state, and I am deliberately not touching TERMLINK_IDENTITY_FILE: the path AUTO-CREATES a keypair when absent, so an experiment reads as minting a new identity rather than inspecting one. NOT acted on beyond this note."
+  captured: 2026-08-15T09:29:03Z
+  context_task: null
+  tags: [security]
+  status: pending
+  promoted_to: null
+  urgent: true
