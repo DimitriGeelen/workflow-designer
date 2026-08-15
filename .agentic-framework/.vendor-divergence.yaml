@@ -1,0 +1,253 @@
+# Vendored-framework divergence manifest (832 T-517)
+#
+# WHAT THIS IS. Every path under .agentic-framework/ that differs from the vendor baseline —
+# the last pristine re-vendor. G-008 permits fixing vendored code in-tree AND upstreaming it.
+# The tree records that a fix happened (a commit). Nothing recorded that the fix was LOCAL.
+# That gap is not theoretical: email-archive re-pinged G-AUDIT-EXCLUDE-NOT-HONORED three times
+# over four months while T-374 sat here as a tested implementation of their proposed remedy.
+#
+# WHAT IT IS FOR, TWO THINGS:
+#   1. RE-VENDOR SAFETY. `fw upgrade` overwrites this tree. This is the re-apply list.
+#      T-276's own follow-up commit reads "post-vendor repair — restore exec bits demoted by
+#      old do_vendor copy (5 files) + chmod secret-scan" — the last re-vendor DID clobber, and
+#      it was caught by hand. Eight entries below carry NO content change at all, only an exec
+#      bit, so a reviewer diffing content would report them clean.
+#   2. UPSTREAM DEBT. `upstream: fix` marks a local fix that upstream does not have.
+#
+# HOW IT IS CHECKED. tools/_t517-vendor-divergence.py asserts the ACTUAL diverged set equals
+# the declared set, both directions. Set equality, not a count: a count rises with every
+# legitimate G-008 fix, so a count ratchet would fire on correct work and train its reader to
+# re-baseline reflexively (the G-015 class tools/verification-hygiene.py catalogues, 832 T-508).
+#
+# WHEN YOU PATCH VENDORED CODE. Add an entry. The bridge suite goes red until you do — that is
+# the point, not an obstacle.
+#
+# `upstream:` taxonomy — only ONE of these three should be offered to framework-agent:
+#   fix              a real code fix made here that upstream lacks. THIS is the upstream debt.
+#   vendoring-repair upstream HAS it; our vendor copy lost it in transit (exec bits demoted by
+#                    the old do_vendor copy, a file the copy skipped). Nothing to upstream —
+#                    though a vendoring process that drops exec bits is itself worth reporting.
+#   local-config     project-specific by nature, never travels upstream.
+#   unknown          not yet classified. An honest to-do, not a default.
+
+baseline_commit: ebf0c721a94dbe9c5ed056b54de741a4c05bf336
+baseline_note: >-
+  T-276 — re-vendor of framework v1.6.763 (28c7a1bd3, GitHub mirror). The last point at which
+  this tree matched upstream. Chosen as the baseline rather than the two T-276 follow-up commits
+  (70627849, a69b5324) precisely BECAUSE those follow-ups are the post-vendor repair: measuring
+  from after them would hide the exec-bit demotion class that this manifest exists to make
+  visible.
+
+entries:
+
+  # ── upstream debt: local fixes framework-agent does not have ────────────────────────────
+  - path: .agentic-framework/agents/audit/audit.sh
+    kind: content
+    task: T-374, T-382, T-344, T-345, T-371
+    upstream: fix
+    reason: >-
+      T-374 routed both fabric coverage checks through expand_patterns.py so `exclude:` is
+      honored, which is EXACTLY the remedy email-archive proposed at rail 11888 for
+      G-AUDIT-EXCLUDE-NOT-HONORED. T-374's own comment states AEF's T-1842 "reached register.sh
+      and drift.sh and did not reach here". Highest-value entry in this file: a peer's concern
+      has been open two months with the fix sitting here.
+
+  - path: .agentic-framework/agents/context/lib/episodic.sh
+    kind: content
+    task: T-516
+    upstream: fix
+    reason: >-
+      Decisions extraction moved out of a line-oriented parse. Closes email-archive's
+      G-EPISODIC-PLACEHOLDER-LEAK plus two symptoms their filing does not mention (values
+      truncated at the first newline, silent head -20 cap). Disclosed at rail 11892.
+
+  - path: .agentic-framework/agents/context/lib/extract-decisions.py
+    kind: added
+    task: T-516
+    upstream: fix
+    reason: Block-aware replacement parser. Ships with the episodic.sh change above.
+
+  - path: .agentic-framework/agents/context/budget-gate.sh
+    kind: content
+    task: T-401
+    upstream: fix
+    reason: Budget gauge read false-critical after compaction; usage scoped to the session's own mode.
+
+  - path: .agentic-framework/lib/context_tokens.py
+    kind: added
+    task: T-401
+    upstream: fix
+    reason: Token accounting extracted so the gauge and its tests share one implementation.
+
+  - path: .agentic-framework/web/test_context_tokens.py
+    kind: added
+    task: T-401
+    upstream: fix
+    reason: Tests for the above.
+
+  - path: .agentic-framework/agents/context/checkpoint.sh
+    kind: content
+    task: T-401
+    upstream: fix
+    reason: Fallback path aligned with the corrected gauge.
+
+  - path: .agentic-framework/agents/context/lib/safe-commands.sh
+    kind: content
+    task: T-404, T-405, T-390
+    upstream: fix
+    reason: >-
+      The Bash gate mis-classified read-only commands as writes (quote-aware redirect
+      predicate), base-command extraction judged only the first word of a chain, and
+      knowledge-capture verbs could not run in the no-task state.
+
+  - path: .agentic-framework/web/test_safe_commands.py
+    kind: added
+    task: T-404, T-405
+    upstream: fix
+    reason: Tests for the above.
+
+  - path: .agentic-framework/agents/context/check-active-task.sh
+    kind: content
+    task: T-386
+    upstream: fix
+    reason: The focus-drift gate recommended a command it then refused.
+
+  - path: .agentic-framework/agents/context/lib/focus.sh
+    kind: content
+    task: T-381
+    upstream: fix
+    reason: >-
+      `fw context focus` accepted a completed task id that its own gate rejects; the writer is
+      now scoped to active/.
+
+  - path: .agentic-framework/agents/task-create/update-task.sh
+    kind: content
+    task: T-391, T-394
+    upstream: fix
+    reason: >-
+      P-011 refused multi-line verification constructs — diagnosed from AEF's OBS-201. T-394
+      states the guard boundary in the code (bash -n catches the torn opener, not a standalone).
+
+  - path: .agentic-framework/agents/context/revisit-due-scan.sh
+    kind: content
+    task: T-373
+    upstream: fix
+    reason: A DEFER decision with no revisit date was the one deferral state the scanner could not see.
+
+  - path: .agentic-framework/agents/handover/handover.sh
+    kind: content
+    task: T-373
+    upstream: fix
+    reason: Surfaces the deferral state above in the handover.
+
+  - path: .agentic-framework/agents/fabric/lib/enrich.py
+    kind: content
+    task: T-343
+    upstream: fix
+    reason: >-
+      `fw fabric enrich` discarded edges silently; now counts unconditionally and names targets.
+
+  - path: .agentic-framework/agents/healing/lib/resolve.sh
+    kind: content
+    task: T-295
+    upstream: fix
+    reason: >-
+      `fw healing resolve` appended learnings at a hardcoded indent; now detects the file's
+      actual list indent.
+
+  # ── vendoring repair: upstream has it, our copy lost it in transit ──────────────────────
+  # These are NOT upstream debt. But a vendoring process that silently demotes exec bits and
+  # drops a catalogue file is itself worth reporting to framework-agent — it is the mechanism
+  # that will destroy the `fix` entries above at the next re-vendor.
+  - path: .agentic-framework/.secret-scan-patterns
+    kind: added
+    task: T-276
+    upstream: vendoring-repair
+    reason: >-
+      Upstream file (its own header says T-1844) that the old do_vendor copy skipped; restored
+      by hand from the sha-verified clone.
+
+  - path: .agentic-framework/agents/git/lib/secret-scan.sh
+    kind: mode
+    task: T-276
+    upstream: vendoring-repair
+    reason: >-
+      100644 => 100755. Directly relevant to email-archive's G-FW-SECRET-SCAN-SILENT-SKIP
+      (rail 11889): they observe mode 644 and they are right that upstream ships it that way.
+      It is 755 here only because T-276 chmod'd it. Not load-bearing though — hooks.sh:304
+      gates on -f not -x (AEF T-2061) and invokes via `bash "$SCANNER"`, so the exec bit is
+      irrelevant to whether the scanner runs. The fail-open they report IS fixed upstream.
+
+  - path: .agentic-framework/agents/audit/orchestrator-mcp-scan.sh
+    kind: mode
+    task: T-276
+    upstream: vendoring-repair
+    reason: 100644 => 100755, exec bit demoted by the old do_vendor copy.
+
+  - path: .agentic-framework/agents/context/commit-cadence.sh
+    kind: mode
+    task: T-276
+    upstream: vendoring-repair
+    reason: 100644 => 100755, exec bit demoted by the old do_vendor copy.
+
+  - path: .agentic-framework/agents/context/loop-detect.sh
+    kind: mode
+    task: T-276
+    upstream: vendoring-repair
+    reason: 100644 => 100755, exec bit demoted by the old do_vendor copy.
+
+  - path: .agentic-framework/agents/git/lib/master-guard.sh
+    kind: mode
+    task: T-276
+    upstream: vendoring-repair
+    reason: 100644 => 100755, exec bit demoted by the old do_vendor copy.
+
+  - path: .agentic-framework/lib/build.sh
+    kind: mode
+    task: T-276
+    upstream: vendoring-repair
+    reason: 100644 => 100755, exec bit demoted by the old do_vendor copy.
+
+  - path: .agentic-framework/agents/designer/designer.sh
+    kind: mode
+    task: T-296
+    upstream: vendoring-repair
+    reason: 100644 => 100755, restored during the 0.8.0 release intake run.
+
+  - path: .agentic-framework/docs/spikes/T-586-loop-detect-ts/loop-detect.js
+    kind: mode
+    task: T-276
+    upstream: vendoring-repair
+    reason: 100644 => 100755, exec bit demoted by the old do_vendor copy.
+
+  # ── local config: never travels upstream ───────────────────────────────────────────────
+  - path: .agentic-framework/policy/designer-pin.yaml
+    kind: content
+    task: T-296
+    upstream: local-config
+    reason: >-
+      AEF's pin of OUR released designer artifact (their T-2521 contract file), updated here
+      when we cut 0.8.0. Project-specific state by construction. Note the pin bump itself is
+      the operator's call, not ours (AEF stated this at DM 536 §1).
+
+  - path: .agentic-framework/.vendor-divergence.yaml
+    kind: added
+    task: T-517
+    upstream: local-config
+    reason: >-
+      This file. It lives inside the tree it measures, so it is itself divergence and declares
+      itself rather than being special-cased out. Noticed only because `git diff` ignores
+      untracked files: the instrument ran green while this manifest was unstaged and would have
+      gone red the moment it was committed. Silently excluding it would have been a hole in a
+      register whose entire purpose is that there are no holes.
+
+  # ── not yet classified ─────────────────────────────────────────────────────────────────
+  - path: .agentic-framework/lib/ts/dist/loop-detect.js
+    kind: content
+    task: T-351
+    upstream: unknown
+    reason: >-
+      T-351 re-carried T-350's bookkeeping after 109b5e32 committed a stale blob of this file.
+      It is a built dist artifact, so whether it is a vendoring-repair or a genuine local build
+      difference needs a rebuild to settle. Recorded as unknown rather than guessed — an
+      `upstream:` value asserted without checking is the folklore this manifest exists to end.

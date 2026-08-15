@@ -982,5 +982,36 @@ else
 fi
 
 echo
+echo "== Vendored-framework divergence matches its declared manifest (T-517) =="
+# G-008 permits fixing vendored .agentic-framework/ code in-tree AND upstreaming it. The tree
+# recorded that a fix happened (a commit); nothing recorded that the fix was LOCAL. Consequence
+# measured: email-archive re-pinged G-AUDIT-EXCLUDE-NOT-HONORED three times over four months
+# while our T-374 sat here as a tested implementation of the exact remedy they proposed.
+#
+# The other half is destructive rather than merely wasteful. `fw upgrade` overwrites this tree,
+# and T-276's own follow-up commit reads "post-vendor repair — restore exec bits demoted by old
+# do_vendor copy (5 files) + chmod secret-scan": the last re-vendor DID clobber local state and
+# it was caught by hand. Eight of the 28 diverged paths carry NO content change at all, only an
+# exec bit, so content review cannot see them.
+#
+# Two legs, deliberately separate. The instrument on the REAL tree is the live check; the teeth
+# prove it can go red at all. The instrument went green on its first run, and green on a fresh
+# control means nothing until a stimulus containing the fault has been fed to it (PL-206) —
+# the mode-only teeth leg then caught a genuine misclassification in the instrument itself.
+if python3 "$ROOT/tools/_t517-vendor-divergence.py" > /dev/null 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "vendored framework divergence no longer matches .agentic-framework/.vendor-divergence.yaml — either vendored code was patched without declaring it, or a declared local fix has vanished (a re-vendor would do exactly that). Run 'python3 tools/_t517-vendor-divergence.py'; rc 2 is a REFUSAL (manifest or baseline unreachable), not a clean tree"
+  fail=$((fail + 1))
+fi
+
+if python3 "$ROOT/tools/_t517-vendor-divergence-teeth.py" > /dev/null 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the divergence instrument stopped detecting the classes it claims to — mode-only divergence, stale entries, or an unreachable baseline refusing instead of passing (run 'python3 tools/_t517-vendor-divergence-teeth.py' for the failing leg)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
