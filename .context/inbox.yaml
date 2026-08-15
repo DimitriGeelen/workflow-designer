@@ -336,7 +336,24 @@ observations:
     from the section-alone run would have compared two different instruments and reported 60 to 0 instead
     of 60 to 1. Bears directly on T-432''s gate-scope decision — widening the push gate to a SECTION LIST
     may not reproduce what the full audit reports, so a gate built from sections could be green while
-    the full audit is not.'
+    the full audit is not.
+
+
+    REFUTED 2026-08-16 (measured under T-534, recorded here because this entry as written asserts
+    something false and a reader would re-derive the same wrong inference). D2 is NOT an oe-daily
+    check: it sits inside "if should_run_section discovery" (audit.sh:3915) and the report prints it
+    under "=== DISCOVERY: OMISSION DETECTION ===". So oe-daily omits it for the ordinary reason that
+    it is not that section''s check, and inside a FULL run OE-DAILY is F=0 too. The "different pass
+    counts" half was 66 vs 65, where 66 was a whole-run TOTAL spanning two sections; per-section the
+    comparison is byte-identical — OE-DAILY (65,27,0) both ways, ARC-COMPLETION (1,0,0) both ways.
+    A section run alone equals that section inside a full run. The conclusion drawn from this entry
+    was used in T-432 to reject option (b) on "measured grounds"; that objection is withdrawn there.
+
+
+    Kept as dismissed rather than reopened: the entry needs no action, only a correct record. Noted
+    as a second witness for OBS-257 — this entry was already status=dismissed while its inference was
+    doing load-bearing work inside a live recommendation, with nothing linking the two, so dismissal
+    silently claimed that nothing depended on it.'
   captured: 2026-08-11 20:56:54+00:00
   context_task: T-434
   tags: []
