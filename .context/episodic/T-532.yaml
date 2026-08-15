@@ -1,0 +1,74 @@
+# ============================================================================
+# EPISODIC MEMORY - T-532: count and classify the hermeticity copy-family across the teeth population: how many legs assert whole-tree state instead of their own subject
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T22:06:28Z
+# ============================================================================
+
+task_id: T-532
+task_name: "count and classify the hermeticity copy-family across the teeth population: how many legs assert whole-tree state instead of their own subject"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-15T22:02:21Z
+completed: 2026-08-15T22:06:25Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**The population is counted over the whole teeth corpus, not the sweep''s 26.** OBS-259'
+  - '**Every hit is CLASSIFIED by what it actually asserts, not counted as one bucket.** The'
+  - '**AEF''s reframing is applied and tested, not just quoted.** They argued (rail 11945) that'
+  - '**The count is reproducible by someone else.** The classifier is a committed script, not a'
+  - '**Nothing is "fixed" in this task.** OBS-259 names three candidate remedies and one of them'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-16 — the census is deliberately NOT wired, and the ratchet moves 67 → 68'
+    chose: 'leave `_t532-hermeticity-scope-census.py` unwired, accept the T-451 unwired-guard ratchet moving 67 → 68, and record the movement rather than avoid it.'
+    rationale: 'the census is currently RED (rc 1) because the two defects it measures are real and this task is scoped not to fix them. Wiring a red check into the bridge suite would take the suite from 95/0 to 94/1 for a known-unfixed defect, which trains exactly the reflex T-526 documented — "the cheapest reading of a lone red is ''flake''". The wiring belongs to the fixing task, as its prevention, which is the shape T-527 used.'
+    alternatives_rejected: ['fixing the two instances here to make wiring possible. One task, one deliverable; and the remedy is a genuine choice (scope to the subject''s write-set, snapshot only tracked state, or serialise the suite) whose third option touches cron and the handover agent — operator territory per OBS-259.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 4 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 4
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-532-count-and-classify-the-hermeticity-copy-.md
+generated_by: context-agent-hybrid

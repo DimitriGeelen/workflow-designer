@@ -1690,3 +1690,10 @@ decisions:
     date: 2026-08-15
     task: T-527
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-221
+    decision: "leave `_t532-hermeticity-scope-census.py` unwired, accept the T-451 unwired-guard"
+    scope: project
+    date: 2026-08-15
+    task: T-532
+    rationale: "Auto-captured from task file on completion"
