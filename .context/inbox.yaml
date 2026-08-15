@@ -1,420 +1,851 @@
-# Observation Inbox - Unprocessed observations
-# Capture: fw note "text"
-# Review:  fw note list
-# Triage:  fw note triage
 observations:
 - id: OBS-001
-  text: "check-active-task.sh:92-107 — has_bash_write_pattern is tested BEFORE the T-2052 bootstrap exemption (elif), so a bootstrap verb carrying a write pattern (e.g. 'fw context focus T-X > log') is judged on focus state and blocked. MEASURED in T-381, not a wedge risk: all four remedies the block message actually prints (bare + 'cd && ' form, context focus + work-on) are ALLOWED. Defensible as-is (a redirect is a write, and writes need a task) — recorded so the ordering is a decision rather than an accident. Probe leg exists but is deliberately unscored: tools/_t381-focus-gate-wedge.sh B2."
-  captured: 2026-08-08T15:22:21Z
+  text: 'check-active-task.sh:92-107 — has_bash_write_pattern is tested BEFORE the T-2052 bootstrap exemption
+    (elif), so a bootstrap verb carrying a write pattern (e.g. ''fw context focus T-X > log'') is judged
+    on focus state and blocked. MEASURED in T-381, not a wedge risk: all four remedies the block message
+    actually prints (bare + ''cd && '' form, context focus + work-on) are ALLOWED. Defensible as-is (a
+    redirect is a write, and writes need a task) — recorded so the ordering is a decision rather than
+    an accident. Probe leg exists but is deliberately unscored: tools/_t381-focus-gate-wedge.sh B2.'
+  captured: 2026-08-08 15:22:21+00:00
   context_task: T-381
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-002
-  text: "fw handover is BLOCKED by check-active-task when no task is focused - the command CLAUDE.md mandates at Session End Protocol step 4 cannot run at session end, because completing the last task nulls focus. Same family as T-381 (wedge in the wrap-up path). Workaround used: create a session-capture task (T-380/T-384 precedent), which is honest but means every session ends by creating a task whose only purpose is to permit the handover. Candidate fix: add 'fw handover' to the T-2054 no-active-task exemption alongside 'git commit' - CLAUDE.md already lists handover as allowed at critical budget, so the two policies disagree."
-  captured: 2026-08-08T16:17:32Z
+  text: 'fw handover is BLOCKED by check-active-task when no task is focused - the command CLAUDE.md mandates
+    at Session End Protocol step 4 cannot run at session end, because completing the last task nulls focus.
+    Same family as T-381 (wedge in the wrap-up path). Workaround used: create a session-capture task (T-380/T-384
+    precedent), which is honest but means every session ends by creating a task whose only purpose is
+    to permit the handover. Candidate fix: add ''fw handover'' to the T-2054 no-active-task exemption
+    alongside ''git commit'' - CLAUDE.md already lists handover as allowed at critical budget, so the
+    two policies disagree.'
+  captured: 2026-08-08 16:17:32+00:00
   context_task: T-384
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-003
-  text: "Focus-drift gate infers the action target from any task id appearing anywhere in the Bash command string, INCLUDING inside a quoted payload/heredoc that is merely prose. Writing a rail message whose text mentions a completed task was blocked as 'action targets a different task' when the action was writing a file. Any command carrying prose that mentions another task trips it — which describes every cross-project rail message. Remedy direction: derive the target from the fw sub-command's own argument position, not from a scan of the whole string. Hit live at T-390."
-  captured: 2026-08-08T17:59:15Z
+  text: 'Focus-drift gate infers the action target from any task id appearing anywhere in the Bash command
+    string, INCLUDING inside a quoted payload/heredoc that is merely prose. Writing a rail message whose
+    text mentions a completed task was blocked as ''action targets a different task'' when the action
+    was writing a file. Any command carrying prose that mentions another task trips it — which describes
+    every cross-project rail message. Remedy direction: derive the target from the fw sub-command''s own
+    argument position, not from a scan of the whole string. Hit live at T-390.'
+  captured: 2026-08-08 17:59:15+00:00
   context_task: T-390
-  tags: [gap]
+  tags:
+  - gap
   status: dismissed
   promoted_to: null
 - id: OBS-004
-  text: "check-active-task.sh:92 has_bash_write_pattern runs BEFORE the line-98 task-bootstrap exemption, so a redirect-looking character inside a quoted task NAME blocks task creation. Measured: fw work-on with an ASCII arrow in the name is BLOCKED; identical command without it creates the task. The block message advises 'fw task create --name ...' which fails the same way. Fifth instance of the gate-refuses-its-own-remedy class (G-026); first where the trigger is the content of a human-readable string. SIXTH instance found immediately after: this very note was blocked on its first attempt because its own text contained the arrow. Reported to AEF at rail 478."
-  captured: 2026-08-08T18:59:15Z
+  text: 'check-active-task.sh:92 has_bash_write_pattern runs BEFORE the line-98 task-bootstrap exemption,
+    so a redirect-looking character inside a quoted task NAME blocks task creation. Measured: fw work-on
+    with an ASCII arrow in the name is BLOCKED; identical command without it creates the task. The block
+    message advises ''fw task create --name ...'' which fails the same way. Fifth instance of the gate-refuses-its-own-remedy
+    class (G-026); first where the trigger is the content of a human-readable string. SIXTH instance found
+    immediately after: this very note was blocked on its first attempt because its own text contained
+    the arrow. Reported to AEF at rail 478.'
+  captured: 2026-08-08 18:59:15+00:00
   context_task: null
-  tags: [gap]
+  tags:
+  - gap
   status: dismissed
   promoted_to: null
 - id: OBS-005
-  text: "T-404 asymmetry paper-cut, observed immediately: destructive verbs are judged on the RAW command string, so any command whose ARGUMENTS quote a destructive verb is classified as a write. Concretely, 'fw context add-learning' was blocked when the learning text quoted a recursive-delete invocation as an example — i.e. you cannot record a learning ABOUT a dangerous command without an active task. This is the documented, tested, conservative side of the T-404 decision (a false negative there would let sh -c with a quoted destructive verb past), so it is correct as designed, not a defect. Capturing it because the cost is now observed rather than hypothetical: if it recurs, the fix is to judge verbs on the quote-stripped string for the FIRST segment only, keeping raw-string scanning for sh/bash -c payloads."
-  captured: 2026-08-09T08:43:10Z
+  text: 'T-404 asymmetry paper-cut, observed immediately: destructive verbs are judged on the RAW command
+    string, so any command whose ARGUMENTS quote a destructive verb is classified as a write. Concretely,
+    ''fw context add-learning'' was blocked when the learning text quoted a recursive-delete invocation
+    as an example — i.e. you cannot record a learning ABOUT a dangerous command without an active task.
+    This is the documented, tested, conservative side of the T-404 decision (a false negative there would
+    let sh -c with a quoted destructive verb past), so it is correct as designed, not a defect. Capturing
+    it because the cost is now observed rather than hypothetical: if it recurs, the fix is to judge verbs
+    on the quote-stripped string for the FIRST segment only, keeping raw-string scanning for sh/bash -c
+    payloads.'
+  captured: 2026-08-09 08:43:10+00:00
   context_task: null
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-006
-  text: "add"
-  captured: 2026-08-09T10:59:11Z
+  text: add
+  captured: 2026-08-09 10:59:11+00:00
   context_task: null
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-007
-  text: "G-015 containment now exists (T-408/T-409). tools/verification-hygiene.py baselines the 85 carrier files (75 serve-root-diff + 17 hardcoded-port) and fails on any carrier outside the baseline, so the population can no longer grow silently while leg 1 waits. The port count moved 11 (register, 2026-08-02) -> 17 (2026-08-09): six new carriers authored in seven days under the open gap — that measurement is why containment was built. Leg 2 was already done by T-350 (--build-only). Leg 1 (narrow the 75 lines or drop the convention) remains UNRULED and NO existing verification line was edited; this task's own gate pins the census at 75/17 so an edit to them fails there."
-  captured: 2026-08-09T10:59:27Z
+  text: 'G-015 containment now exists (T-408/T-409). tools/verification-hygiene.py baselines the 85 carrier
+    files (75 serve-root-diff + 17 hardcoded-port) and fails on any carrier outside the baseline, so the
+    population can no longer grow silently while leg 1 waits. The port count moved 11 (register, 2026-08-02)
+    -> 17 (2026-08-09): six new carriers authored in seven days under the open gap — that measurement
+    is why containment was built. Leg 2 was already done by T-350 (--build-only). Leg 1 (narrow the 75
+    lines or drop the convention) remains UNRULED and NO existing verification line was edited; this task''s
+    own gate pins the census at 75/17 so an edit to them fails there.'
+  captured: 2026-08-09 10:59:27+00:00
   context_task: T-408
-  tags: [gap]
+  tags:
+  - gap
   status: dismissed
   promoted_to: null
 - id: OBS-008
-  text: "audit.sh (~line 2107) classifies a gap's alternate closure field as 'unread' only when the key name contains the substring 'trigger'. Proven insufficient by T-400 teeth leg (a): G-027's actual field was closure_condition, which contains no 'trigger', so the entry that motivated the whole check would STILL be reported as MISSING a closure condition it visibly contains. Near-synonyms do not reliably share a substring with the field they shadow. tools/concerns-schema.py now covers this project-side via an explicit read-field allowlist; the framework-side heuristic is unchanged and remains weak for any future non-'trigger' synonym. Framework-side fix would be upstream (G-008)."
-  captured: 2026-08-09T11:06:37Z
+  text: 'audit.sh (~line 2107) classifies a gap''s alternate closure field as ''unread'' only when the
+    key name contains the substring ''trigger''. Proven insufficient by T-400 teeth leg (a): G-027''s
+    actual field was closure_condition, which contains no ''trigger'', so the entry that motivated the
+    whole check would STILL be reported as MISSING a closure condition it visibly contains. Near-synonyms
+    do not reliably share a substring with the field they shadow. tools/concerns-schema.py now covers
+    this project-side via an explicit read-field allowlist; the framework-side heuristic is unchanged
+    and remains weak for any future non-''trigger'' synonym. Framework-side fix would be upstream (G-008).'
+  captured: 2026-08-09 11:06:37+00:00
   context_task: T-400
-  tags: [framework]
+  tags:
+  - framework
   status: dismissed
   promoted_to: null
 - id: OBS-009
-  text: "G-013 second independent witness, measured 2026-08-09. This session's pre-push audit reported 'Pass: 19 Warn: 3 Fail: 0' and I read it as the state of the tree. The FULL audit run minutes later: Pass 124 / Warn 29 / Fail 60. Of those, 59 are CTL-030 (completed tasks carrying stored horizon='now'; legacy files — current completions correctly write horizon: null, verified on T-408/T-409/T-400, none of which appear in the list). So the routinely-visible number says 0 FAIL while the real number is 60, exactly the subset-presented-as-whole shape G-013 registers. I only saw it because I ran the full audit by hand for an unrelated reason. Raising as evidence, not acting: G-013's decision_trigger already specifies closure (scope stated in the summary line itself, or the cron path runs the full set) and that is a framework-side change to audit.sh."
-  captured: 2026-08-09T11:10:56Z
+  text: 'G-013 second independent witness, measured 2026-08-09. This session''s pre-push audit reported
+    ''Pass: 19 Warn: 3 Fail: 0'' and I read it as the state of the tree. The FULL audit run minutes later:
+    Pass 124 / Warn 29 / Fail 60. Of those, 59 are CTL-030 (completed tasks carrying stored horizon=''now'';
+    legacy files — current completions correctly write horizon: null, verified on T-408/T-409/T-400, none
+    of which appear in the list). So the routinely-visible number says 0 FAIL while the real number is
+    60, exactly the subset-presented-as-whole shape G-013 registers. I only saw it because I ran the full
+    audit by hand for an unrelated reason. Raising as evidence, not acting: G-013''s decision_trigger
+    already specifies closure (scope stated in the summary line itself, or the cron path runs the full
+    set) and that is a framework-side change to audit.sh.'
+  captured: 2026-08-09 11:10:56+00:00
   context_task: T-102
-  tags: [gap]
+  tags:
+  - gap
   status: dismissed
   promoted_to: null
 - id: OBS-010
-  text: "Framework-side, fleet-wide: fw vendor writes .agentic-framework/.gitignore covering only __pycache__/*.pyc/*.pyo/.DS_Store. Any AEF consumer that tracks .context/working/ wholesale publishes its Watchtower signing key. Ours tracked 371 files there and published the key for 2 months (T-410). One-line fix in the vendored gitignore template, widest blast radius. Reported to AEF at rail 498."
-  captured: 2026-08-09T11:37:03Z
+  text: 'Framework-side, fleet-wide: fw vendor writes .agentic-framework/.gitignore covering only __pycache__/*.pyc/*.pyo/.DS_Store.
+    Any AEF consumer that tracks .context/working/ wholesale publishes its Watchtower signing key. Ours
+    tracked 371 files there and published the key for 2 months (T-410). One-line fix in the vendored gitignore
+    template, widest blast radius. Reported to AEF at rail 498.'
+  captured: 2026-08-09 11:37:03+00:00
   context_task: T-102
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-011
-  text: "add"
-  captured: 2026-08-10T18:40:27Z
+  text: add
+  captured: 2026-08-10 18:40:27+00:00
   context_task: null
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-012
-  text: "832 has no equivalent of AEF's rail-post emitter: every MCP termlink post carries from_project only because an agent typed it into the metadata map by hand. AEF closed this class structurally (their fw rail post attaches + normalises the label when the caller omits it, rail 513 §1); our side still runs on habit, and T-418's detector catches the miss only after the fact as UNATTRIBUTED — detection, not prevention. Same promise-vs-mechanism shape that already failed three times on the AEF rail. Admitted at rail 514 §4. Needs a posting wrapper or equivalent single source."
-  captured: 2026-08-10T18:40:54Z
+  text: '832 has no equivalent of AEF''s rail-post emitter: every MCP termlink post carries from_project
+    only because an agent typed it into the metadata map by hand. AEF closed this class structurally (their
+    fw rail post attaches + normalises the label when the caller omits it, rail 513 §1); our side still
+    runs on habit, and T-418''s detector catches the miss only after the fact as UNATTRIBUTED — detection,
+    not prevention. Same promise-vs-mechanism shape that already failed three times on the AEF rail. Admitted
+    at rail 514 §4. Needs a posting wrapper or equivalent single source.'
+  captured: 2026-08-10 18:40:54+00:00
   context_task: null
-  tags: [seam]
+  tags:
+  - seam
   status: dismissed
   promoted_to: null
 - id: OBS-013
-  text: "fw note silently mis-captures when given a subcommand-like first argument: 'fw note add \"real text\"' stores the literal string 'add' as the observation and discards the rest, exit 0, success message. The verbs list (list/count/triage/promote/dismiss) makes 'add' the natural guess, and free-text capture means any typo'd verb becomes a valid one-word observation. Silent wrong-capture, not a refusal — the operator sees success and the content is gone. Suggested fix: reject a bare first argument that looks like a verb but is not one, or require --text. Vendored framework (G-008 in-tree fix + upstream)."
-  captured: 2026-08-10T18:40:58Z
+  text: 'fw note silently mis-captures when given a subcommand-like first argument: ''fw note add "real
+    text"'' stores the literal string ''add'' as the observation and discards the rest, exit 0, success
+    message. The verbs list (list/count/triage/promote/dismiss) makes ''add'' the natural guess, and free-text
+    capture means any typo''d verb becomes a valid one-word observation. Silent wrong-capture, not a refusal
+    — the operator sees success and the content is gone. Suggested fix: reject a bare first argument that
+    looks like a verb but is not one, or require --text. Vendored framework (G-008 in-tree fix + upstream).'
+  captured: 2026-08-10 18:40:58+00:00
   context_task: null
-  tags: [tooling]
+  tags:
+  - tooling
   status: dismissed
   promoted_to: null
 - id: OBS-014
-  text: "fw hook-enable has no inverse. Registering is one governed command; DEREGISTERING is hand-edited JSON against the file that holds check-tier0, check-active-task, budget-gate and the plan-mode block. T-420 hit the cost directly: a probe registration merged into the existing 'Bash' group, and removing it by group deleted the Tier 0 gate for two tool calls. The asymmetry is the flaw — a framework that makes it easy to add an enforcement hook and unsupported to remove one guarantees the removal happens by improvisation, on the highest-consequence file, with no gate watching. Remedy direction: fw hook-disable --script <path> --matcher <pat> --event <evt>, removing the COMMAND from its group and dropping the group only when it empties, plus a post-write assertion that every previously-registered command is still present. Vendored framework (G-008 in-tree fix + upstream)."
-  captured: 2026-08-10T19:25:30Z
+  text: 'fw hook-enable has no inverse. Registering is one governed command; DEREGISTERING is hand-edited
+    JSON against the file that holds check-tier0, check-active-task, budget-gate and the plan-mode block.
+    T-420 hit the cost directly: a probe registration merged into the existing ''Bash'' group, and removing
+    it by group deleted the Tier 0 gate for two tool calls. The asymmetry is the flaw — a framework that
+    makes it easy to add an enforcement hook and unsupported to remove one guarantees the removal happens
+    by improvisation, on the highest-consequence file, with no gate watching. Remedy direction: fw hook-disable
+    --script <path> --matcher <pat> --event <evt>, removing the COMMAND from its group and dropping the
+    group only when it empties, plus a post-write assertion that every previously-registered command is
+    still present. Vendored framework (G-008 in-tree fix + upstream).'
+  captured: 2026-08-10 19:25:30+00:00
   context_task: T-420
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-015
-  text: "Claude Code SNAPSHOTS hook configuration at session start: a hook registered mid-session does not fire for the rest of that session. Measured in T-420 with a discriminating probe — a trivial hook registered on matcher 'Bash' (a matcher already proven live) also failed to fire, which separates 'my matcher pattern is wrong' from 'registrations are snapshotted'. Consequence for this project: ANY task whose deliverable is a PreToolUse/PostToolUse gate cannot verify live interception within the session that builds it. The mutation check proves the script's logic; it cannot prove the wiring. Worth an audit of prior hook-adding tasks (T-1730, T-1849, T-1886, check-visual-verification) for ACs that claim interception evidence they could not have had."
-  captured: 2026-08-10T19:25:34Z
+  text: 'Claude Code SNAPSHOTS hook configuration at session start: a hook registered mid-session does
+    not fire for the rest of that session. Measured in T-420 with a discriminating probe — a trivial hook
+    registered on matcher ''Bash'' (a matcher already proven live) also failed to fire, which separates
+    ''my matcher pattern is wrong'' from ''registrations are snapshotted''. Consequence for this project:
+    ANY task whose deliverable is a PreToolUse/PostToolUse gate cannot verify live interception within
+    the session that builds it. The mutation check proves the script''s logic; it cannot prove the wiring.
+    Worth an audit of prior hook-adding tasks (T-1730, T-1849, T-1886, check-visual-verification) for
+    ACs that claim interception evidence they could not have had.'
+  captured: 2026-08-10 19:25:34+00:00
   context_task: T-420
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-016
-  text: "T-421's finding is NOT drift — measured 2026-08-10: .claude/settings.json has TWO revisions in the repo's entire history (T-001 setup 2026-06-04, and T-420 today). All 17 registered hooks arrived in the vendoring commit and nobody has added, removed or moved one in 67 days. So the 21 unregistered scripts were never turned OFF, they were never turned ON — the vendored default was never reconciled against the vendored prose. The framework's templates describe a framework configured the way the framework configures ITSELF; the consumer inherited the sentences without the settings. Implication: likely fleet-wide — any AEF consumer whose settings.json still matches its setup commit carries the same false promise. Reported to AEF at rail 520 §2; they have the vantage point to check the fleet, we do not."
-  captured: 2026-08-10T19:56:44Z
+  text: 'T-421''s finding is NOT drift — measured 2026-08-10: .claude/settings.json has TWO revisions
+    in the repo''s entire history (T-001 setup 2026-06-04, and T-420 today). All 17 registered hooks arrived
+    in the vendoring commit and nobody has added, removed or moved one in 67 days. So the 21 unregistered
+    scripts were never turned OFF, they were never turned ON — the vendored default was never reconciled
+    against the vendored prose. The framework''s templates describe a framework configured the way the
+    framework configures ITSELF; the consumer inherited the sentences without the settings. Implication:
+    likely fleet-wide — any AEF consumer whose settings.json still matches its setup commit carries the
+    same false promise. Reported to AEF at rail 520 §2; they have the vantage point to check the fleet,
+    we do not.'
+  captured: 2026-08-10 19:56:44+00:00
   context_task: T-209
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-017
-  text: "AEF rail 519 §2, adopted: a DECLARED list or detector that produces false positives does not get IGNORED — it gets a dismissal ritual, and the ritual becomes the defect. Their evidence is their own D3: baseline noise from legitimate hook additions produced an advisory 'just re-baseline after review' with nothing checking the review happened, and that advisory is now the path that makes an accidental gate deletion permanent and green. I had modelled the bad end state as 'the instrument gets switched off' — which is the HARMLESS one. Applies to two things I shipped today: T-420's declared refusal list (false positive blocks a legitimate post; remedy is to edit the list — a dismissal ritual with an editable target) and T-421's claim detector (narrowed twice to kill 6 of 9 false positives; I recorded the risk as 'learn to skip it'). Check first next session: what does each do when it fires wrongly, and does the printed remedy launder the miss?"
-  captured: 2026-08-10T19:56:45Z
+  text: 'AEF rail 519 §2, adopted: a DECLARED list or detector that produces false positives does not
+    get IGNORED — it gets a dismissal ritual, and the ritual becomes the defect. Their evidence is their
+    own D3: baseline noise from legitimate hook additions produced an advisory ''just re-baseline after
+    review'' with nothing checking the review happened, and that advisory is now the path that makes an
+    accidental gate deletion permanent and green. I had modelled the bad end state as ''the instrument
+    gets switched off'' — which is the HARMLESS one. Applies to two things I shipped today: T-420''s declared
+    refusal list (false positive blocks a legitimate post; remedy is to edit the list — a dismissal ritual
+    with an editable target) and T-421''s claim detector (narrowed twice to kill 6 of 9 false positives;
+    I recorded the risk as ''learn to skip it''). Check first next session: what does each do when it
+    fires wrongly, and does the printed remedy launder the miss?'
+  captured: 2026-08-10 19:56:45+00:00
   context_task: T-209
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-018
-  text: "A ruling that lands in a task file does not reach the registers that index it. A-020 was answered NO at rail 417 on 2026-08-03 and recorded in T-357's Open Questions as IW-1b 'answered — NO'. The assumption register still read 'untested' seven days later, and I filed a whole build task (T-425) on the strength of the register plus a stale research artifact. Third instance of the PL-145 shape (T-340 AC1, T-341 AC1, T-209 were prose-filed rulings; this one is a register-filed one). The register and the task file are two carriers for one fact with no reconciliation between them, exactly the competing-carrier problem PL-114 names for geometry. Candidate check: for every assumption still 'untested', does its owning task's Open Questions record a disposition?"
-  captured: 2026-08-10T20:27:58Z
+  text: 'A ruling that lands in a task file does not reach the registers that index it. A-020 was answered
+    NO at rail 417 on 2026-08-03 and recorded in T-357''s Open Questions as IW-1b ''answered — NO''. The
+    assumption register still read ''untested'' seven days later, and I filed a whole build task (T-425)
+    on the strength of the register plus a stale research artifact. Third instance of the PL-145 shape
+    (T-340 AC1, T-341 AC1, T-209 were prose-filed rulings; this one is a register-filed one). The register
+    and the task file are two carriers for one fact with no reconciliation between them, exactly the competing-carrier
+    problem PL-114 names for geometry. Candidate check: for every assumption still ''untested'', does
+    its owning task''s Open Questions record a disposition?'
+  captured: 2026-08-10 20:27:58+00:00
   context_task: T-425
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-019
-  text: "Remedy text in check-active-task.sh:441 prints 'fw work-on $CURRENT_TASK' unconditionally when the focused task has status captured — it never asks whether the focused task SHOULD start. Live FP-destructive specimen 2026-08-11: focus was T-423, whose AC#1 reads 'this task does not start until T-340 is ruled and step 1 has landed'. Following the printed remedy would have violated the guard T-423 exists to hold and left it in started-work with nothing recording the violation. AEF-owned instrument (vendored); reported on agent-chat-arc thread T-426. Class: a block message is the most authoritative text an agent sees, so a wrong remedy is MORE likely to be followed, not less."
-  captured: 2026-08-11T09:11:31Z
+  text: 'Remedy text in check-active-task.sh:441 prints ''fw work-on $CURRENT_TASK'' unconditionally when
+    the focused task has status captured — it never asks whether the focused task SHOULD start. Live FP-destructive
+    specimen 2026-08-11: focus was T-423, whose AC#1 reads ''this task does not start until T-340 is ruled
+    and step 1 has landed''. Following the printed remedy would have violated the guard T-423 exists to
+    hold and left it in started-work with nothing recording the violation. AEF-owned instrument (vendored);
+    reported on agent-chat-arc thread T-426. Class: a block message is the most authoritative text an
+    agent sees, so a wrong remedy is MORE likely to be followed, not less.'
+  captured: 2026-08-11 09:11:31+00:00
   context_task: T-426
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-020
-  text: "CLAUDE.md documents the context-budget ladder as 120K warn / 150K urgent / 170K critical BLOCK, but budget-gate.sh computes them as percentages of CONTEXT_WINDOW (default 300000): 225K / 255K / 285K. The prose is a 200K-window artifact. Same claim-drift family as T-421 but about VALUES rather than registration — the detector only looks at hook NAMES, so nothing would catch a stale number. Surfaced while checking whether the 170K critical block applied at 171717 tokens; the gate said level=ok and the two disagreed."
-  captured: 2026-08-11T11:42:12Z
+  text: 'CLAUDE.md documents the context-budget ladder as 120K warn / 150K urgent / 170K critical BLOCK,
+    but budget-gate.sh computes them as percentages of CONTEXT_WINDOW (default 300000): 225K / 255K /
+    285K. The prose is a 200K-window artifact. Same claim-drift family as T-421 but about VALUES rather
+    than registration — the detector only looks at hook NAMES, so nothing would catch a stale number.
+    Surfaced while checking whether the 170K critical block applied at 171717 tokens; the gate said level=ok
+    and the two disagreed.'
+  captured: 2026-08-11 11:42:12+00:00
   context_task: T-402
   tags: []
   status: promoted
   promoted_to: task
 - id: OBS-021
-  text: "validation_method is inert across the ENTIRE assumption register: 20 of 20 rows read TBD, including all four that were disposed with real evidence. The field has never steered a single disposition — A-017/A-018/A-019/A-020 were each answered by a method (rail question, CDP spike, source measurement) that the row does not record. PL-127 instance about a register rather than a schema: the name is obviously right, which is why nobody noticed it was never filled. Consequence: there is no way to ask 'how would this assumption be settled' before committing to settle it, so an assumption's cost is invisible until someone tries. Measured under T-428 (tools/_t428-assumption-disposition-check.py reports the census but deliberately does NOT fail on it — it is a property of the register's design, and folding it into the dangling count would hide it)."
-  captured: 2026-08-11T13:06:27Z
+  text: 'validation_method is inert across the ENTIRE assumption register: 20 of 20 rows read TBD, including
+    all four that were disposed with real evidence. The field has never steered a single disposition —
+    A-017/A-018/A-019/A-020 were each answered by a method (rail question, CDP spike, source measurement)
+    that the row does not record. PL-127 instance about a register rather than a schema: the name is obviously
+    right, which is why nobody noticed it was never filled. Consequence: there is no way to ask ''how
+    would this assumption be settled'' before committing to settle it, so an assumption''s cost is invisible
+    until someone tries. Measured under T-428 (tools/_t428-assumption-disposition-check.py reports the
+    census but deliberately does NOT fail on it — it is a property of the register''s design, and folding
+    it into the dangling count would hide it).'
+  captured: 2026-08-11 13:06:27+00:00
   context_task: T-428
-  tags: [tooling]
+  tags:
+  - tooling
   status: dismissed
   promoted_to: null
 - id: OBS-022
-  text: "add"
-  captured: 2026-08-11T14:23:40Z
+  text: add
+  captured: 2026-08-11 14:23:40+00:00
   context_task: T-429
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-023
-  text: "T-429 measured 35 of 35 counter-bearing suites in tools/ as able to exit 0 having run no legs. The class generalises beyond bash: any check whose verdict derives from a tally of FAILURES alone reports 'clean' when it means 'empty'. Unasked so far: the 60+ .mjs CDP probes (out of T-429 scope entirely) and every python check that prints PASS on a zero finding count without printing what it examined."
-  captured: 2026-08-11T14:23:58Z
+  text: 'T-429 measured 35 of 35 counter-bearing suites in tools/ as able to exit 0 having run no legs.
+    The class generalises beyond bash: any check whose verdict derives from a tally of FAILURES alone
+    reports ''clean'' when it means ''empty''. Unasked so far: the 60+ .mjs CDP probes (out of T-429 scope
+    entirely) and every python check that prints PASS on a zero finding count without printing what it
+    examined.'
+  captured: 2026-08-11 14:23:58+00:00
   context_task: T-429
   tags: []
   status: promoted
   promoted_to: task
 - id: OBS-024
-  text: "fw note has no unknown-subcommand error: 'fw note add \"real text\"' captures the literal string 'add' as the observation and silently discards the argument that follows. The inbox then holds a well-formed entry with no content, which is indistinguishable from a real one until someone reads it. Same family as T-429's finding — a record that exists and says nothing looks exactly like a record."
-  captured: 2026-08-11T14:23:58Z
+  text: 'fw note has no unknown-subcommand error: ''fw note add "real text"'' captures the literal string
+    ''add'' as the observation and silently discards the argument that follows. The inbox then holds a
+    well-formed entry with no content, which is indistinguishable from a real one until someone reads
+    it. Same family as T-429''s finding — a record that exists and says nothing looks exactly like a record.'
+  captured: 2026-08-11 14:23:58+00:00
   context_task: T-429
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-025
-  text: "The owner vocabulary has three incompatible value sets in simultaneous use and nothing reconciles them: the frozen mapping standard says human|agent, AEF's shipped VALID_OWNERS says human claude-code, and this tree practises agent x304 / human x118 / claude-code x9. AEF's is_valid_owner() is defined at lib/enums.sh:101 and called from NOWHERE, which is why no value was ever rejected. Not an A-012 gap (representability is via the lane and holds) — a separate drift, and the question 'which is authoritative, agent or claude-code' is AEF's to answer."
-  captured: 2026-08-11T15:36:24Z
+  text: 'The owner vocabulary has three incompatible value sets in simultaneous use and nothing reconciles
+    them: the frozen mapping standard says human|agent, AEF''s shipped VALID_OWNERS says human claude-code,
+    and this tree practises agent x304 / human x118 / claude-code x9. AEF''s is_valid_owner() is defined
+    at lib/enums.sh:101 and called from NOWHERE, which is why no value was ever rejected. Not an A-012
+    gap (representability is via the lane and holds) — a separate drift, and the question ''which is authoritative,
+    agent or claude-code'' is AEF''s to answer.'
+  captured: 2026-08-11 15:36:24+00:00
   context_task: T-431
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-026
-  text: "A-014 (AEF record reconstructs a faithful process map deterministically) is child-3's premise, not the arc anchor's. T-184 reverse-discovery was DEFERRED by operator 2026-07-11 with revisit trigger 'child-2 shipped + demand to edit existing task graphs' — not fired. Carried on the anchor blocker list regardless, and sent to AEF as blocking. With A-012 (answerable locally, T-431) that is two of three so-called anchor blockers that were not blockers. Class: 'blocking' was read as a property of the ASSUMPTION when it is a property of the assumption PLUS the schedule. Nothing re-checks a blocker list against the deferral state of the child that owns it."
-  captured: 2026-08-11T16:45:59Z
+  text: 'A-014 (AEF record reconstructs a faithful process map deterministically) is child-3''s premise,
+    not the arc anchor''s. T-184 reverse-discovery was DEFERRED by operator 2026-07-11 with revisit trigger
+    ''child-2 shipped + demand to edit existing task graphs'' — not fired. Carried on the anchor blocker
+    list regardless, and sent to AEF as blocking. With A-012 (answerable locally, T-431) that is two of
+    three so-called anchor blockers that were not blockers. Class: ''blocking'' was read as a property
+    of the ASSUMPTION when it is a property of the assumption PLUS the schedule. Nothing re-checks a blocker
+    list against the deferral state of the child that owns it.'
+  captured: 2026-08-11 16:45:59+00:00
   context_task: T-402
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-027
-  text: "A section's audit result depends on whether it is run ALONE or inside a FULL run. 'fw audit --section oe-daily' reports 61 pass / 25 warn / 0 fail and never emits the D2 human-review-queue check; the same section inside a full run emits D2 and reports different pass counts. Nearly produced a false claim in T-434: the before-number (60 FAIL) came from a full run, and taking the after-number from the section-alone run would have compared two different instruments and reported 60 to 0 instead of 60 to 1. Bears directly on T-432's gate-scope decision — widening the push gate to a SECTION LIST may not reproduce what the full audit reports, so a gate built from sections could be green while the full audit is not."
-  captured: 2026-08-11T20:56:54Z
+  text: 'A section''s audit result depends on whether it is run ALONE or inside a FULL run. ''fw audit
+    --section oe-daily'' reports 61 pass / 25 warn / 0 fail and never emits the D2 human-review-queue
+    check; the same section inside a full run emits D2 and reports different pass counts. Nearly produced
+    a false claim in T-434: the before-number (60 FAIL) came from a full run, and taking the after-number
+    from the section-alone run would have compared two different instruments and reported 60 to 0 instead
+    of 60 to 1. Bears directly on T-432''s gate-scope decision — widening the push gate to a SECTION LIST
+    may not reproduce what the full audit reports, so a gate built from sections could be green while
+    the full audit is not.'
+  captured: 2026-08-11 20:56:54+00:00
   context_task: T-434
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-028
-  text: "add"
-  captured: 2026-08-11T21:25:21Z
+  text: add
+  captured: 2026-08-11 21:25:21+00:00
   context_task: T-430
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-029
-  text: "tools/concerns-schema.py accounts for no field named 'context', and the live .context/project/concerns.yaml carries one in 2 entries — so _t400-schema-teeth's RECIPROC leg has been red on the real register. Pre-existing at HEAD, surfaced while baselining T-430, deliberately not fixed there (one bug, one task). Either 'context' is load-bearing and the schema should read it, or it is prose and should be declared as such."
-  captured: 2026-08-11T21:25:32Z
+  text: tools/concerns-schema.py accounts for no field named 'context', and the live .context/project/concerns.yaml
+    carries one in 2 entries — so _t400-schema-teeth's RECIPROC leg has been red on the real register.
+    Pre-existing at HEAD, surfaced while baselining T-430, deliberately not fixed there (one bug, one
+    task). Either 'context' is load-bearing and the schema should read it, or it is prose and should be
+    declared as such.
+  captured: 2026-08-11 21:25:32+00:00
   context_task: T-430
-  tags: [bug]
+  tags:
+  - bug
   status: promoted
   promoted_to: task
 - id: OBS-030
-  text: "_t429-zero-leg-probe.sh reads a non-zero PROCESS EXIT as GUARDED, which is only sound while the suite is otherwise green — on a suite carrying any real failure it reports GUARDED for a file with no guard at all (measured on _t400-schema-teeth with the guard deleted, T-430). Same mention-vs-instance class the probe was built to find. Superseded for T-430's purposes by _t430-abstention-teeth.sh (neuters every increment-bearing helper; requires rc==2 AND the ABSTAINED line). The old probe is unmodified and still cited by T-429's record — decide whether to annotate it in place or leave the limitation documented only in T-430."
-  captured: 2026-08-11T21:25:39Z
+  text: _t429-zero-leg-probe.sh reads a non-zero PROCESS EXIT as GUARDED, which is only sound while the
+    suite is otherwise green — on a suite carrying any real failure it reports GUARDED for a file with
+    no guard at all (measured on _t400-schema-teeth with the guard deleted, T-430). Same mention-vs-instance
+    class the probe was built to find. Superseded for T-430's purposes by _t430-abstention-teeth.sh (neuters
+    every increment-bearing helper; requires rc==2 AND the ABSTAINED line). The old probe is unmodified
+    and still cited by T-429's record — decide whether to annotate it in place or leave the limitation
+    documented only in T-430.
+  captured: 2026-08-11 21:25:39+00:00
   context_task: T-430
-  tags: [tooling]
+  tags:
+  - tooling
   status: promoted
   promoted_to: task
 - id: OBS-031
-  text: "fw note promote uses the ENTIRE observation body as the new task's name field, and sets description to the one-line stub 'Promoted from observation OBS-NNN' — so the paragraph lands where a title belongs and the summary slot holds nothing. Four promotions in this triage produced task names of 300-700 characters, which is what every handover, task list and review URL then prints as the title. Measured, then repaired by hand: name replaced with a real title, body moved into description so the observation text is not lost. Same fw note UX family as the verb mis-capture — the command's output is well-formed and exits 0, so nothing reports that the two fields are swapped. Retained deliberately rather than opened as a third upstream message: it should ride with the response to the batch already sent."
-  captured: 2026-08-11T22:04:13Z
+  text: 'fw note promote uses the ENTIRE observation body as the new task''s name field, and sets description
+    to the one-line stub ''Promoted from observation OBS-NNN'' — so the paragraph lands where a title
+    belongs and the summary slot holds nothing. Four promotions in this triage produced task names of
+    300-700 characters, which is what every handover, task list and review URL then prints as the title.
+    Measured, then repaired by hand: name replaced with a real title, body moved into description so the
+    observation text is not lost. Same fw note UX family as the verb mis-capture — the command''s output
+    is well-formed and exits 0, so nothing reports that the two fields are swapped. Retained deliberately
+    rather than opened as a third upstream message: it should ride with the response to the batch already
+    sent.'
+  captured: 2026-08-11 22:04:13+00:00
   context_task: T-436
-  tags: [tooling]
+  tags:
+  - tooling
   status: pending
   promoted_to: null
 - id: OBS-032
-  text: "add"
-  captured: 2026-08-12T09:40:19Z
+  text: add
+  captured: 2026-08-12 09:40:19+00:00
   context_task: T-440
   tags: []
   status: dismissed
   promoted_to: null
   urgent: true
 - id: OBS-033
-  text: "P-002 makes a partial-complete task unable to commit its own state change under its own id. Reproduced on T-449: 'fw task update T-449 --status work-completed' writes the frontmatter, the Recommendation block and .context/working/.reviewed-T-449, then P-002 blocks 'fw git commit -a -m T-449:...' with 'Task T-449 has status work-completed'. Plain 'fw git commit' passes the gate but stages nothing, and 'git add' is blocked too. The focus-drift gate (T-1730) simultaneously refuses the commit under any other task's focus, so the only remaining paths are a Tier 2 bypass or letting the handover sweep it up under T-005 - both weakening the traceability P-002 exists to protect, since the artefacts of completing T-449 land in a commit whose subject says T-005. This is the ordinary end-state of EVERY partial-complete task, not an edge case."
-  captured: 2026-08-12T09:40:56Z
+  text: 'P-002 makes a partial-complete task unable to commit its own state change under its own id. Reproduced
+    on T-449: ''fw task update T-449 --status work-completed'' writes the frontmatter, the Recommendation
+    block and .context/working/.reviewed-T-449, then P-002 blocks ''fw git commit -a -m T-449:...'' with
+    ''Task T-449 has status work-completed''. Plain ''fw git commit'' passes the gate but stages nothing,
+    and ''git add'' is blocked too. The focus-drift gate (T-1730) simultaneously refuses the commit under
+    any other task''s focus, so the only remaining paths are a Tier 2 bypass or letting the handover sweep
+    it up under T-005 - both weakening the traceability P-002 exists to protect, since the artefacts of
+    completing T-449 land in a commit whose subject says T-005. This is the ordinary end-state of EVERY
+    partial-complete task, not an edge case.'
+  captured: 2026-08-12 09:40:56+00:00
   context_task: T-449
   tags: []
   status: pending
   promoted_to: null
 - id: OBS-034
-  text: "fw note silently discards its payload when the first argument is an unrecognised subcommand. 'fw note add \"<1200 chars>\" --urgent' captured text='add', urgent=true, exit 0, no warning - the entire observation was lost and the inbox gained a one-word URGENT row. There is no 'add' subcommand (usage is 'fw note \"text\"'), so it fell through to the capture path with the subcommand as content and every remaining positional argument dropped. Two harms, and the second is the worse one: the payload is lost silently, and the urgency signal is inflated by a row that says nothing - an urgency signal dies by inflation, not by silence. This lives in the vendored .agentic-framework (AEF's tool), so the fix is theirs; reported across the seam. Suggested shape: reject an unrecognised first token that is followed by further positional args, rather than treating it as content."
-  captured: 2026-08-12T09:41:04Z
+  text: 'fw note silently discards its payload when the first argument is an unrecognised subcommand.
+    ''fw note add "<1200 chars>" --urgent'' captured text=''add'', urgent=true, exit 0, no warning - the
+    entire observation was lost and the inbox gained a one-word URGENT row. There is no ''add'' subcommand
+    (usage is ''fw note "text"''), so it fell through to the capture path with the subcommand as content
+    and every remaining positional argument dropped. Two harms, and the second is the worse one: the payload
+    is lost silently, and the urgency signal is inflated by a row that says nothing - an urgency signal
+    dies by inflation, not by silence. This lives in the vendored .agentic-framework (AEF''s tool), so
+    the fix is theirs; reported across the seam. Suggested shape: reject an unrecognised first token that
+    is followed by further positional args, rather than treating it as content.'
+  captured: 2026-08-12 09:41:04+00:00
   context_task: T-440
-  tags: [bug]
+  tags:
+  - bug
   status: pending
   promoted_to: null
 - id: OBS-035
-  text: "add"
-  captured: 2026-08-12T19:22:17Z
+  text: add
+  captured: 2026-08-12 19:22:17+00:00
   context_task: null
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-036
-  text: "The learning prompt printed by 'fw task update --status work-completed' recommends 'fw fix-learned T-XXX', but the same transition clears focus (T-354), so the recommended command is immediately blocked by check-active-task (P-002). Observed T-465, 2026-08-12. Prompt and gate disagree about whether a just-completed task is still a context you may write against. Consequence: learnings go uncaptured when freshest — T-463 and T-464 both show no learning reference, plausibly this. Remedy candidates: (a) fix-learned accepts a just-completed id without focus, (b) emit the prompt BEFORE clearing focus, (c) capture the learning inline in the transition."
-  captured: 2026-08-12T19:22:37Z
+  text: 'The learning prompt printed by ''fw task update --status work-completed'' recommends ''fw fix-learned
+    T-XXX'', but the same transition clears focus (T-354), so the recommended command is immediately blocked
+    by check-active-task (P-002). Observed T-465, 2026-08-12. Prompt and gate disagree about whether a
+    just-completed task is still a context you may write against. Consequence: learnings go uncaptured
+    when freshest — T-463 and T-464 both show no learning reference, plausibly this. Remedy candidates:
+    (a) fix-learned accepts a just-completed id without focus, (b) emit the prompt BEFORE clearing focus,
+    (c) capture the learning inline in the transition.'
+  captured: 2026-08-12 19:22:37+00:00
   context_task: T-465
-  tags: [framework]
+  tags:
+  - framework
   status: dismissed
   promoted_to: null
 - id: OBS-037
-  text: "check-human-ac-tick (T-1731) is symmetric: it blocks [x] -> [ ] as well as [ ] -> [x] under ### Human. Consequence: an agent that wrongly ticks a Human-AC-shaped line cannot restore the invariant the guard protects without FW_ALLOW_HUMAN_AC_TICK=1 - the same Tier-2 override as violating it. Hit in T-466 after a blanket tick caught two [REVIEW] EXAMPLE lines inside the ### Human template comment. Not bypassed; left ticked and reported. Two sub-findings: (1) the guard matches example text inside HTML comments, so the template ships lines that look like Human ACs to the guard but are read as ACs by nothing else; (2) PL-165's shape - a gate that cannot accept a correction in the safe direction. Candidate remedy: allow [x] -> [ ] unconditionally (un-ticking cannot fabricate human approval), or exclude commented regions from the match."
-  captured: 2026-08-12T19:45:35Z
+  text: 'check-human-ac-tick (T-1731) is symmetric: it blocks [x] -> [ ] as well as [ ] -> [x] under ###
+    Human. Consequence: an agent that wrongly ticks a Human-AC-shaped line cannot restore the invariant
+    the guard protects without FW_ALLOW_HUMAN_AC_TICK=1 - the same Tier-2 override as violating it. Hit
+    in T-466 after a blanket tick caught two [REVIEW] EXAMPLE lines inside the ### Human template comment.
+    Not bypassed; left ticked and reported. Two sub-findings: (1) the guard matches example text inside
+    HTML comments, so the template ships lines that look like Human ACs to the guard but are read as ACs
+    by nothing else; (2) PL-165''s shape - a gate that cannot accept a correction in the safe direction.
+    Candidate remedy: allow [x] -> [ ] unconditionally (un-ticking cannot fabricate human approval), or
+    exclude commented regions from the match.'
+  captured: 2026-08-12 19:45:35+00:00
   context_task: T-466
   tags: []
   status: pending
   promoted_to: null
 - id: OBS-038
-  text: "Vendored Human-AC tick guard (.agentic-framework/agents/context/check-human-ac-tick.py, v1.6.354) counts checkboxes inside HTML guidance comments and zips old/new positionally, so deleting a template comment is reported as a Human-AC tick. MEASURED: 16 of 387 task files with a commented ### Human section fabricate a (0,' ','x') toggle; 343 of 440 carry phantom boxes. Under agent control the effect is a spurious BLOCK (safe); with FW_ALLOW_HUMAN_AC_TICK=1 log_bypass() writes a tick that never happened into the Tier-2 audit trail. AEF fixed this upstream as T-2954 (lib/comment_strip.py, absent here) — remedy is an operator-decided version bump, not a local patch. Evidence: docs/reports/T-476-obs037-exposure.md"
-  captured: 2026-08-12T21:23:07Z
+  text: 'Vendored Human-AC tick guard (.agentic-framework/agents/context/check-human-ac-tick.py, v1.6.354)
+    counts checkboxes inside HTML guidance comments and zips old/new positionally, so deleting a template
+    comment is reported as a Human-AC tick. MEASURED: 16 of 387 task files with a commented ### Human
+    section fabricate a (0,'' '',''x'') toggle; 343 of 440 carry phantom boxes. Under agent control the
+    effect is a spurious BLOCK (safe); with FW_ALLOW_HUMAN_AC_TICK=1 log_bypass() writes a tick that never
+    happened into the Tier-2 audit trail. AEF fixed this upstream as T-2954 (lib/comment_strip.py, absent
+    here) — remedy is an operator-decided version bump, not a local patch. Evidence: docs/reports/T-476-obs037-exposure.md'
+  captured: 2026-08-12 21:23:07+00:00
   context_task: T-476
-  tags: [bug]
+  tags:
+  - bug
   status: pending
   promoted_to: null
 - id: OBS-039
-  text: "Frozen standard docs/standards/aef-bpmn-mapping-v1.md §1 lists aef:endpoint under the PRESENTATIONAL class ('diagram cosmetics', 'derived, never authoritative', 'change alone MUST be a no-op for the task graph'). It is not cosmetic: it is the executable command a task node runs (src:1867 properties field 'fw … | agent prompt | watchtower view'; src:1958 seed 'fw context build --task ${task_id} --depth 2'; src:9286 emitted beside contextReads/artifactsWrites; tools/yaml-to-bpmn.py:56 lists endpoint in META_KEYS). Both reference implementations treat it as semantic, and §1's semantic class covers governance meta-keys — so the standard contradicts itself within one section. Consequence: a conforming consumer may DISCARD aef:endpoint, dropping the command from every service task. Probable cause: name collision with the edge-endpoint drag handle (80+ presentational sites vs 1 semantic). Part I is frozen and two-party — correction is a v1.2 item for operator + AEF, NOT agent-editable. Evidence: docs/reports/T-357-di-adoption.md §'Standard defect'"
-  captured: 2026-08-12T21:59:23Z
+  text: 'Frozen standard docs/standards/aef-bpmn-mapping-v1.md §1 lists aef:endpoint under the PRESENTATIONAL
+    class (''diagram cosmetics'', ''derived, never authoritative'', ''change alone MUST be a no-op for
+    the task graph''). It is not cosmetic: it is the executable command a task node runs (src:1867 properties
+    field ''fw … | agent prompt | watchtower view''; src:1958 seed ''fw context build --task ${task_id}
+    --depth 2''; src:9286 emitted beside contextReads/artifactsWrites; tools/yaml-to-bpmn.py:56 lists
+    endpoint in META_KEYS). Both reference implementations treat it as semantic, and §1''s semantic class
+    covers governance meta-keys — so the standard contradicts itself within one section. Consequence:
+    a conforming consumer may DISCARD aef:endpoint, dropping the command from every service task. Probable
+    cause: name collision with the edge-endpoint drag handle (80+ presentational sites vs 1 semantic).
+    Part I is frozen and two-party — correction is a v1.2 item for operator + AEF, NOT agent-editable.
+    Evidence: docs/reports/T-357-di-adoption.md §''Standard defect'''
+  captured: 2026-08-12 21:59:23+00:00
   context_task: T-477
-  tags: [bug]
+  tags:
+  - bug
   status: pending
   promoted_to: null
 - id: OBS-040
-  text: "T-361 corrected DI_TRAILER in src/ but did not correct the ALREADY-GENERATED corpus: 24 of 24 examples/aef-processes/rendered/*.bpmn still carry 'AEF generates it from node coordinates', a statement AEF confirmed false at rail 497 (A-020 invalidated). 0 corpus documents carry the corrected trailer. 17 of the 24 have been imported into AEF's corpus where the false sentence now reads as their content. MECHANISM NOTE for T-101: src:9710 interpolates ${DI_TRAILER}, so re-exporting the 24 maps through buildBpmnXml corrects all 24 for free; patching coordinates in place does NOT. Choose the mechanism deliberately before T-101 runs. Evidence: docs/reports/T-357-di-adoption.md §'IW-1 ANSWERED'"
-  captured: 2026-08-12T22:08:56Z
+  text: 'T-361 corrected DI_TRAILER in src/ but did not correct the ALREADY-GENERATED corpus: 24 of 24
+    examples/aef-processes/rendered/*.bpmn still carry ''AEF generates it from node coordinates'', a statement
+    AEF confirmed false at rail 497 (A-020 invalidated). 0 corpus documents carry the corrected trailer.
+    17 of the 24 have been imported into AEF''s corpus where the false sentence now reads as their content.
+    MECHANISM NOTE for T-101: src:9710 interpolates ${DI_TRAILER}, so re-exporting the 24 maps through
+    buildBpmnXml corrects all 24 for free; patching coordinates in place does NOT. Choose the mechanism
+    deliberately before T-101 runs. Evidence: docs/reports/T-357-di-adoption.md §''IW-1 ANSWERED'''
+  captured: 2026-08-12 22:08:56+00:00
   context_task: T-478
-  tags: [bug]
+  tags:
+  - bug
   status: pending
   promoted_to: null
 - id: OBS-041
-  text: "aef:endpoint is unguarded on the seam: tools/_roundtrip-serialization-cdp.mjs is our only true semantic fixed-point test and 'endpoint' appears NOWHERE in it — its projection is a fixed METAKEYS list and presentational content is excluded by design, following the standard's classes. So the OBS-039 misclassification has propagated out of the standard into our verification. T-479 measured no loss today (30 docs, 155 endpoints in/out, 0 lossy, positive control fired), so this is latent not live — but a future regression dropping aef:endpoint would be SILENT. Fix = add endpoint to the round-trip projection (a fix task, not a measurement). Evidence: docs/reports/T-357-di-adoption.md §'Severity, measured'"
-  captured: 2026-08-12T22:25:47Z
+  text: 'aef:endpoint is unguarded on the seam: tools/_roundtrip-serialization-cdp.mjs is our only true
+    semantic fixed-point test and ''endpoint'' appears NOWHERE in it — its projection is a fixed METAKEYS
+    list and presentational content is excluded by design, following the standard''s classes. So the OBS-039
+    misclassification has propagated out of the standard into our verification. T-479 measured no loss
+    today (30 docs, 155 endpoints in/out, 0 lossy, positive control fired), so this is latent not live
+    — but a future regression dropping aef:endpoint would be SILENT. Fix = add endpoint to the round-trip
+    projection (a fix task, not a measurement). Evidence: docs/reports/T-357-di-adoption.md §''Severity,
+    measured'''
+  captured: 2026-08-12 22:25:47+00:00
   context_task: T-479
-  tags: [bug]
+  tags:
+  - bug
   status: dismissed
   promoted_to: null
 - id: OBS-042
-  text: "bake-clean-layout.py:110 docstring claims the committed corpus is 'editor node ids, bpmndi DI, hand-carried aef:meta notes'. The bpmndi DI clause is false: all 24 examples/aef-processes/rendered/*.bpmn declare xmlns:bpmndi but contain ZERO bpmndi:BPMNDiagram / BPMNShape / BPMNEdge elements (measured T-479). Low severity (justification comment, not logic) but it is in the very tool T-101 runs, and it would mislead exactly the person deciding whether the corpus already carries DI — which is the arc's central question."
-  captured: 2026-08-12T22:25:47Z
+  text: 'bake-clean-layout.py:110 docstring claims the committed corpus is ''editor node ids, bpmndi DI,
+    hand-carried aef:meta notes''. The bpmndi DI clause is false: all 24 examples/aef-processes/rendered/*.bpmn
+    declare xmlns:bpmndi but contain ZERO bpmndi:BPMNDiagram / BPMNShape / BPMNEdge elements (measured
+    T-479). Low severity (justification comment, not logic) but it is in the very tool T-101 runs, and
+    it would mislead exactly the person deciding whether the corpus already carries DI — which is the
+    arc''s central question.'
+  captured: 2026-08-12 22:25:47+00:00
   context_task: T-479
-  tags: [bug]
+  tags:
+  - bug
   status: pending
   promoted_to: null
 - id: OBS-043
-  text: "P-011 verification gate silently REWRITES executable commands: update-task.sh:978-983 strips HTML comment spans (re.sub(r'<!--.*?-->','')) from the ## Verification block before running it. The strip is span-based over raw block text with no command-boundary or quote awareness, so a LIVE command carrying '<!--' and '-->' as literal data has its middle deleted. Reproduced byte-exact: leg \"grep -q 'lines.push(`  <!-- ${DI_TRAILER} -->`)' src/...\" became \"grep -q 'lines.push(`  `)' src/...\". Mine went RED so I saw it; had the collapsed pattern still matched it would have PASSED while checking nothing — a false green in the verification gate itself. Fifth site in AEF's comment-rule census (rail 588) and a new semantic: strips comment spans from EXECUTED content. Vendored framework — fix belongs upstream, not local. NOTE: this supersedes the T-478 learning blaming backticks; AEF measured (593 s2) that single quotes DO protect backticks under a single eval, and our gate is a single eval (update-task.sh:1101)."
-  captured: 2026-08-12T22:34:55Z
+  text: 'P-011 verification gate silently REWRITES executable commands: update-task.sh:978-983 strips
+    HTML comment spans (re.sub(r''<!--.*?-->'','''')) from the ## Verification block before running it.
+    The strip is span-based over raw block text with no command-boundary or quote awareness, so a LIVE
+    command carrying ''<!--'' and ''-->'' as literal data has its middle deleted. Reproduced byte-exact:
+    leg "grep -q ''lines.push(`  <!-- ${DI_TRAILER} -->`)'' src/..." became "grep -q ''lines.push(`  `)''
+    src/...". Mine went RED so I saw it; had the collapsed pattern still matched it would have PASSED
+    while checking nothing — a false green in the verification gate itself. Fifth site in AEF''s comment-rule
+    census (rail 588) and a new semantic: strips comment spans from EXECUTED content. Vendored framework
+    — fix belongs upstream, not local. NOTE: this supersedes the T-478 learning blaming backticks; AEF
+    measured (593 s2) that single quotes DO protect backticks under a single eval, and our gate is a single
+    eval (update-task.sh:1101).'
+  captured: 2026-08-12 22:34:55+00:00
   context_task: T-481
-  tags: [bug]
+  tags:
+  - bug
   status: pending
   promoted_to: null
 - id: OBS-044
-  text: "add"
-  captured: 2026-08-12T23:00:17Z
+  text: add
+  captured: 2026-08-12 23:00:17+00:00
   context_task: null
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-045
-  text: "The round-trip harness preflight self-test proves the MECHANISM detects drift, not any individual key: it perturbs the FIRST key whose regex matches and then breaks, reporting hit='tier' on every run because 'tier' is first in the list. So 'harness green and selftest passes' carries ZERO information about any key added after 'tier' — including endpoint (T-480) and the eight scalar keys (T-482), each of which needed a separate probe to falsify. Compounding it: the two METAKEYS copies are ALREADY divergent — the guard carries errorStatus/timerSpec/busTopic/hostRef/interrupting and the preflight does not — so the teeth-proof exercises a strict SUBSET of what the guard projects. Per-key P-011 legs pin individual keys at count 2 and must NOT be read as evidence the two lists agree. Evidence: tools/_roundtrip-serialization-cdp.mjs, .tasks/completed/T-482-project-the-six-remaining-structured-sem.md findings."
-  captured: 2026-08-12T23:00:37Z
+  text: 'The round-trip harness preflight self-test proves the MECHANISM detects drift, not any individual
+    key: it perturbs the FIRST key whose regex matches and then breaks, reporting hit=''tier'' on every
+    run because ''tier'' is first in the list. So ''harness green and selftest passes'' carries ZERO information
+    about any key added after ''tier'' — including endpoint (T-480) and the eight scalar keys (T-482),
+    each of which needed a separate probe to falsify. Compounding it: the two METAKEYS copies are ALREADY
+    divergent — the guard carries errorStatus/timerSpec/busTopic/hostRef/interrupting and the preflight
+    does not — so the teeth-proof exercises a strict SUBSET of what the guard projects. Per-key P-011
+    legs pin individual keys at count 2 and must NOT be read as evidence the two lists agree. Evidence:
+    tools/_roundtrip-serialization-cdp.mjs, .tasks/completed/T-482-project-the-six-remaining-structured-sem.md
+    findings.'
+  captured: 2026-08-12 23:00:37+00:00
   context_task: T-482
-  tags: [verification]
+  tags:
+  - verification
   status: pending
   promoted_to: null
 - id: OBS-046
-  text: "Our editor SILENTLY DROPS all extension content it does not know, measured behaviourally across 23 corpus documents with the positive control holding 23/23: (a) an unknown aef:-namespaced element, (b) an unknown foreign-namespace element, (c) an unknown ATTRIBUTE on a known element — all three DROPPED in every document. parseBpmnXml is a strict allowlist reading specific named elements with no preserve-everything catch-all (the only passthrough, T-259 src:9318-9325, is narrow: eventDefKind/eventDefBinding). CONSEQUENCE FOR THE SEAM: when AEF ships a v1.2 aef: element, any round trip through a pinned editor — open, move one node, save — eats it with no error and no warning. This constrains their v1.2 rollout and is theirs to know. Inverse polarity of AEF's _KNOWN_EXT (rail 601 section 3): theirs preserves-except-a-skip-list so a member handled nowhere is dropped; ours parses-only-what-it-names so anything unnamed is dropped. Evidence: tools/_t485-unknown-extension-survival.mjs, .tasks/completed/T-485."
-  captured: 2026-08-13T07:05:58Z
+  text: 'Our editor SILENTLY DROPS all extension content it does not know, measured behaviourally across
+    23 corpus documents with the positive control holding 23/23: (a) an unknown aef:-namespaced element,
+    (b) an unknown foreign-namespace element, (c) an unknown ATTRIBUTE on a known element — all three
+    DROPPED in every document. parseBpmnXml is a strict allowlist reading specific named elements with
+    no preserve-everything catch-all (the only passthrough, T-259 src:9318-9325, is narrow: eventDefKind/eventDefBinding).
+    CONSEQUENCE FOR THE SEAM: when AEF ships a v1.2 aef: element, any round trip through a pinned editor
+    — open, move one node, save — eats it with no error and no warning. This constrains their v1.2 rollout
+    and is theirs to know. Inverse polarity of AEF''s _KNOWN_EXT (rail 601 section 3): theirs preserves-except-a-skip-list
+    so a member handled nowhere is dropped; ours parses-only-what-it-names so anything unnamed is dropped.
+    Evidence: tools/_t485-unknown-extension-survival.mjs, .tasks/completed/T-485.'
+  captured: 2026-08-13 07:05:58+00:00
   context_task: T-485
-  tags: [seam]
+  tags:
+  - seam
   status: pending
   promoted_to: null
 - id: OBS-047
-  text: "fw inception decide does not validate that the target task is workflow_type: inception. Run against a build task it is refused by Tier 0 and by the CLAUDECODE=1 check — both on the command name — so the operator never learns the command is categorically inapplicable. Cost this time: three failed routes, one 404 from an inferred /inception/ URL, and one session ending with the ruling unrecorded. Candidate fix: validate task type first and print the applicable mechanism (Human AC / fw context add-decision) in the refusal."
-  captured: 2026-08-13T08:20:40Z
+  text: 'fw inception decide does not validate that the target task is workflow_type: inception. Run against
+    a build task it is refused by Tier 0 and by the CLAUDECODE=1 check — both on the command name — so
+    the operator never learns the command is categorically inapplicable. Cost this time: three failed
+    routes, one 404 from an inferred /inception/ URL, and one session ending with the ruling unrecorded.
+    Candidate fix: validate task type first and print the applicable mechanism (Human AC / fw context
+    add-decision) in the refusal.'
+  captured: 2026-08-13 08:20:40+00:00
   context_task: T-487
   tags: []
   status: pending
   promoted_to: null
 - id: OBS-048
-  text: "The editor-seam semantic fixed point projects 34 keys but only 26 have ever been proven to detect drift (T-488, proven_fraction 26/34 over 18 fixtures). 7 are NEVER-PRESENT — section, autoTrigger, trigger, gatewayKind, scopeOf, owner, linkId appear in no fixture at all — and 1 is NOT-EXERCISABLE: hostRef's carrier exists in boundary-events.bpmn but that document has a single activity, so a boundary event has no alternative host to re-point at. Remedies differ: the 7 need a fixture that sets them, hostRef needs a second attachable activity added to an existing fixture. Not a defect in the guard (0 BLIND) — a coverage gap in the fixture corpus that was invisible until the self-test started reporting a denominator."
-  captured: 2026-08-13T08:44:16Z
+  text: 'The editor-seam semantic fixed point projects 34 keys but only 26 have ever been proven to detect
+    drift (T-488, proven_fraction 26/34 over 18 fixtures). 7 are NEVER-PRESENT — section, autoTrigger,
+    trigger, gatewayKind, scopeOf, owner, linkId appear in no fixture at all — and 1 is NOT-EXERCISABLE:
+    hostRef''s carrier exists in boundary-events.bpmn but that document has a single activity, so a boundary
+    event has no alternative host to re-point at. Remedies differ: the 7 need a fixture that sets them,
+    hostRef needs a second attachable activity added to an existing fixture. Not a defect in the guard
+    (0 BLIND) — a coverage gap in the fixture corpus that was invisible until the self-test started reporting
+    a denominator.'
+  captured: 2026-08-13 08:44:16+00:00
   context_task: T-488
-  tags: [verification]
+  tags:
+  - verification
   status: pending
   promoted_to: null
 - id: OBS-049
-  text: "AEF's OBS-NNN identifiers are NOT stable and must not be treated as durable citations on the rail. agents/observe/observe.sh:36-44 computes the next id as max+1 over entries CURRENTLY in the file, and triage removes entries — so triaging the highest-numbered observation lowers the high-water mark and the next note reuses its id. Confirmed live on their side: their Tier 0 note was assigned OBS-238 while their task T-2950 is titled 'OBS-238: audit CTL-013...'. Two unrelated observations, one id. Scope is narrow and worth keeping straight: ONLY the id that was the current maximum at capture time and was then triaged is at risk, so historical citations are not retroactively wrong, only unverifiable-by-id where that held. Consequence for us: when citing an AEF observation across the seam, carry its TEXT or task ref, not just OBS-NNN. Our own ids are unaffected (different implementation) but the same max-over-survivors shape is worth checking here."
-  captured: 2026-08-13T08:45:58Z
+  text: 'AEF''s OBS-NNN identifiers are NOT stable and must not be treated as durable citations on the
+    rail. agents/observe/observe.sh:36-44 computes the next id as max+1 over entries CURRENTLY in the
+    file, and triage removes entries — so triaging the highest-numbered observation lowers the high-water
+    mark and the next note reuses its id. Confirmed live on their side: their Tier 0 note was assigned
+    OBS-238 while their task T-2950 is titled ''OBS-238: audit CTL-013...''. Two unrelated observations,
+    one id. Scope is narrow and worth keeping straight: ONLY the id that was the current maximum at capture
+    time and was then triaged is at risk, so historical citations are not retroactively wrong, only unverifiable-by-id
+    where that held. Consequence for us: when citing an AEF observation across the seam, carry its TEXT
+    or task ref, not just OBS-NNN. Our own ids are unaffected (different implementation) but the same
+    max-over-survivors shape is worth checking here.'
+  captured: 2026-08-13 08:45:58+00:00
   context_task: T-487
-  tags: [seam]
+  tags:
+  - seam
   status: dismissed
   promoted_to: null
 - id: OBS-239
-  text: "AEF's OBS-NNN ids can be REUSED and ours cannot, despite both trees running byte-identical next_id code (.agentic-framework/agents/observe/observe.sh:36-43, max+1 over entries currently in the file). The hazard needs TWO conditions and only one is shared: (1) max-over-survivors id allocation — shared; (2) triage REMOVES the entry — theirs does, ours does not. Measured here: 49 observations, ids OBS-001..OBS-049, ZERO gaps, and dismissed OBS-041 is still in inbox.yaml with a changed status rather than deleted. AEF confirmed reuse live on their side (their Tier 0 note took OBS-238 while their task T-2950 is titled 'OBS-238: audit CTL-013...'). Consequence for the rail: cite AEF observations by TEXT or task ref, never by OBS-NNN alone, and only where that id was the current max at capture and later triaged. Consequence for us: none today, but our safety rests on the retention behaviour, not on the allocator — if triage ever starts deleting rows we inherit the collision immediately, silently, and with no test watching."
-  captured: 2026-08-13T08:46:33Z
+  text: 'AEF''s OBS-NNN ids can be REUSED and ours cannot, despite both trees running byte-identical next_id
+    code (.agentic-framework/agents/observe/observe.sh:36-43, max+1 over entries currently in the file).
+    The hazard needs TWO conditions and only one is shared: (1) max-over-survivors id allocation — shared;
+    (2) triage REMOVES the entry — theirs does, ours does not. Measured here: 49 observations, ids OBS-001..OBS-049,
+    ZERO gaps, and dismissed OBS-041 is still in inbox.yaml with a changed status rather than deleted.
+    AEF confirmed reuse live on their side (their Tier 0 note took OBS-238 while their task T-2950 is
+    titled ''OBS-238: audit CTL-013...''). Consequence for the rail: cite AEF observations by TEXT or
+    task ref, never by OBS-NNN alone, and only where that id was the current max at capture and later
+    triaged. Consequence for us: none today, but our safety rests on the retention behaviour, not on the
+    allocator — if triage ever starts deleting rows we inherit the collision immediately, silently, and
+    with no test watching.'
+  captured: 2026-08-13 08:46:33+00:00
   context_task: T-487
-  tags: [seam]
+  tags:
+  - seam
   status: pending
   promoted_to: null
 - id: OBS-240
-  text: "next_id() in .agentic-framework/agents/observe/observe.sh:36-43 greps 'OBS-[0-9]+' over the ENTIRE inbox file with no field awareness, so an observation whose BODY TEXT cites another project's observation id permanently advances our own counter to that value. Discovered by accident and byte-confirmed: our ids ran OBS-001..OBS-049 with zero gaps; a note whose text quoted AEF's 'OBS-238' was assigned OBS-239. 'OBS-238' occurs in exactly two places in inbox.yaml, both text: bodies, and zero times as an id: field. Consequence is not the cosmetic jump: we cite AEF constantly on the DM rail, their ids are in the 200s, and their ids are REUSABLE (their triage deletes rows, ours does not) — so quoting them drags our numbering into a range that collides with theirs inside a shared conversation where both sides write bare OBS-NNN. Same failure family as OBS-043 and the T-484 regex census: a scan with no field or boundary awareness that always answers. Vendored AEF tool, so the fix is upstream: scope the scan to id: fields. Workaround here until then: do not write a bare peer OBS-NNN into an observation body."
-  captured: 2026-08-13T08:47:11Z
+  text: 'next_id() in .agentic-framework/agents/observe/observe.sh:36-43 greps ''OBS-[0-9]+'' over the
+    ENTIRE inbox file with no field awareness, so an observation whose BODY TEXT cites another project''s
+    observation id permanently advances our own counter to that value. Discovered by accident and byte-confirmed:
+    our ids ran OBS-001..OBS-049 with zero gaps; a note whose text quoted AEF''s ''OBS-238'' was assigned
+    OBS-239. ''OBS-238'' occurs in exactly two places in inbox.yaml, both text: bodies, and zero times
+    as an id: field. Consequence is not the cosmetic jump: we cite AEF constantly on the DM rail, their
+    ids are in the 200s, and their ids are REUSABLE (their triage deletes rows, ours does not) — so quoting
+    them drags our numbering into a range that collides with theirs inside a shared conversation where
+    both sides write bare OBS-NNN. Same failure family as OBS-043 and the T-484 regex census: a scan with
+    no field or boundary awareness that always answers. Vendored AEF tool, so the fix is upstream: scope
+    the scan to id: fields. Workaround here until then: do not write a bare peer OBS-NNN into an observation
+    body.'
+  captured: 2026-08-13 08:47:11+00:00
   context_task: T-487
-  tags: [bug]
+  tags:
+  - bug
   status: pending
   promoted_to: null
 - id: OBS-241
-  text: "add"
-  captured: 2026-08-13T11:47:57Z
+  text: add
+  captured: 2026-08-13 11:47:57+00:00
   context_task: T-490
   tags: []
   status: dismissed
   promoted_to: null
 - id: OBS-242
-  text: "Our only true semantic fixed-point guard across the editor seam (tools/_roundtrip-serialization-cdp.mjs) was invoked by NO test runner. Written for T-187, sharpened by T-480/T-482/T-483, rebuilt by T-488, extended by T-489 — every green it ever produced was a hand-run invocation that expired with the session. Three tasks in two days reported results from it and none noticed; I stated in a handover and on the AEF rail that it was wired at run-bridge-tests.sh:603, which is a DIFFERENT probe (_t338-input-fidelity-cdp.mjs). The tell was available throughout: every defect ever found in it was found by an agent READING the file, never by the file failing. PL-161 names the shape. Wired into the suite by T-490 as leg 72. Open generalisation: how many other tools/_*-cdp.mjs probes are cited as standing evidence but invoked by no runner?"
-  captured: 2026-08-13T11:48:35Z
+  text: 'Our only true semantic fixed-point guard across the editor seam (tools/_roundtrip-serialization-cdp.mjs)
+    was invoked by NO test runner. Written for T-187, sharpened by T-480/T-482/T-483, rebuilt by T-488,
+    extended by T-489 — every green it ever produced was a hand-run invocation that expired with the session.
+    Three tasks in two days reported results from it and none noticed; I stated in a handover and on the
+    AEF rail that it was wired at run-bridge-tests.sh:603, which is a DIFFERENT probe (_t338-input-fidelity-cdp.mjs).
+    The tell was available throughout: every defect ever found in it was found by an agent READING the
+    file, never by the file failing. PL-161 names the shape. Wired into the suite by T-490 as leg 72.
+    Open generalisation: how many other tools/_*-cdp.mjs probes are cited as standing evidence but invoked
+    by no runner?'
+  captured: 2026-08-13 11:48:35+00:00
   context_task: T-490
   tags: []
   status: pending
   promoted_to: null
 - id: OBS-243
-  text: "fw note swallows extra positional arguments silently. 'fw note add \"real text\"' captured the literal word add as the observation body and discarded the real text with no warning and exit 0 — the usage is 'fw note \"text\"' with no subcommand, and 'add' is a plausible guess because every sibling command (fw context add-learning, fw task create) takes a verb. The failure is silent and the artifact looks successful: an id is allocated and reported, so the capture reads as done. Cost is a lost observation that nobody knows is lost. Fix: error on unconsumed positional args rather than taking the first as the body. Vendored-framework fix (G-008 upstreamable)."
-  captured: 2026-08-13T11:48:50Z
+  text: 'fw note swallows extra positional arguments silently. ''fw note add "real text"'' captured the
+    literal word add as the observation body and discarded the real text with no warning and exit 0 —
+    the usage is ''fw note "text"'' with no subcommand, and ''add'' is a plausible guess because every
+    sibling command (fw context add-learning, fw task create) takes a verb. The failure is silent and
+    the artifact looks successful: an id is allocated and reported, so the capture reads as done. Cost
+    is a lost observation that nobody knows is lost. Fix: error on unconsumed positional args rather than
+    taking the first as the body. Vendored-framework fix (G-008 upstreamable).'
+  captured: 2026-08-13 11:48:50+00:00
   context_task: T-490
   tags: []
   status: pending
   promoted_to: null
 - id: OBS-244
-  text: "tools/_t258-annotation-seam-cdp.mjs regenerates the TRACKED artefact .playwright-mcp/t258-annotation-badges.png non-deterministically: it alternates between exactly two renderings, flipping on every run. Measured, not inferred — two consecutive runs with zero source change differed by 14743 of 146496 pixels, and the second run came back byte-identical to HEAD. Two consequences. (1) Whether 'git status' is clean after running the bridge suite is a coin flip on run parity, so a dirty tree after a test run carries no information. (2) The image exists to be READ as T-258's visual verification, so a reviewer diffing it sees a change that is not one, which is the credibility cost the artefact was created to avoid. Not caused by T-355: the corpus contains no out-of-allowlist direct child of bpmn:process (only conditionExpression, which is a sequenceFlow child and outside the foreign-node population), so no corpus map can render a foreign node at all. Suspect the harness screenshots without awaiting a settled state — badges applied vs stripped would explain a two-state flip. Found while investigating why a tracked png I never touched showed modified before a commit."
-  captured: 2026-08-14T18:33:28Z
+  text: 'tools/_t258-annotation-seam-cdp.mjs regenerates the TRACKED artefact .playwright-mcp/t258-annotation-badges.png
+    non-deterministically: it alternates between exactly two renderings, flipping on every run. Measured,
+    not inferred — two consecutive runs with zero source change differed by 14743 of 146496 pixels, and
+    the second run came back byte-identical to HEAD. Two consequences. (1) Whether ''git status'' is clean
+    after running the bridge suite is a coin flip on run parity, so a dirty tree after a test run carries
+    no information. (2) The image exists to be READ as T-258''s visual verification, so a reviewer diffing
+    it sees a change that is not one, which is the credibility cost the artefact was created to avoid.
+    Not caused by T-355: the corpus contains no out-of-allowlist direct child of bpmn:process (only conditionExpression,
+    which is a sequenceFlow child and outside the foreign-node population), so no corpus map can render
+    a foreign node at all. Suspect the harness screenshots without awaiting a settled state — badges applied
+    vs stripped would explain a two-state flip. Found while investigating why a tracked png I never touched
+    showed modified before a commit.'
+  captured: 2026-08-14 18:33:28+00:00
   context_task: T-458
-  tags: [bug]
+  tags:
+  - bug
   status: pending
   promoted_to: null
 - id: OBS-245
-  text: "fw git commit stamps last_update AFTER the commit it belongs in. agents/git/lib/commit.sh:113-118 runs git commit, then calls update_task_timestamp on the named task if it is in active/. Consequence: git status --porcelain .tasks/ is never empty at the moment a commit reports success — it holds exactly one line, the stamp of the commit that just ran — so that check cannot be used as a saved-everything signal, and the stamp always rides in a later commit or is swept by handover. Reproduced twice today. Vendored AEF code: changing commit semantics is AEF's call under G-008, not ours to take unilaterally."
-  captured: 2026-08-14T19:11:40Z
+  text: 'fw git commit stamps last_update AFTER the commit it belongs in. agents/git/lib/commit.sh:113-118
+    runs git commit, then calls update_task_timestamp on the named task if it is in active/. Consequence:
+    git status --porcelain .tasks/ is never empty at the moment a commit reports success — it holds exactly
+    one line, the stamp of the commit that just ran — so that check cannot be used as a saved-everything
+    signal, and the stamp always rides in a later commit or is swept by handover. Reproduced twice today.
+    Vendored AEF code: changing commit semantics is AEF''s call under G-008, not ours to take unilaterally.'
+  captured: 2026-08-14 19:11:40+00:00
   context_task: T-458
-  tags: [bug]
+  tags:
+  - bug
   status: pending
   promoted_to: null
 - id: OBS-246
-  text: "A pending Tier 0 approval is deleted after 2 hours with no log, no notification and no record. checkpoint.sh:355-364 (PostToolUse) runs rm -f on any .context/approvals/pending-*.yaml older than STALE_AGE=7200. Thirty lines above, the approval-GRANTED branch prints a framed APPROVAL READY block and marks it notified; the expired path is completely silent. Consequence: the requesting agent cannot distinguish denied from expired from never-seen, and the operator cannot distinguish a question they declined from one withdrawn while they were away. Witnessed: the T-501 inception GO request, created 17:00:08Z, gone by 19:07Z, unanswered. A 2h TTL fits a blocked shell command; it fits an inception decision badly, since that decision is not tied to a live session. Vendored AEF code: approval-queue lifetime is a governance change for every consuming project, so the fix is AEF's call under G-008."
-  captured: 2026-08-14T19:43:42Z
+  text: 'A pending Tier 0 approval is deleted after 2 hours with no log, no notification and no record.
+    checkpoint.sh:355-364 (PostToolUse) runs rm -f on any .context/approvals/pending-*.yaml older than
+    STALE_AGE=7200. Thirty lines above, the approval-GRANTED branch prints a framed APPROVAL READY block
+    and marks it notified; the expired path is completely silent. Consequence: the requesting agent cannot
+    distinguish denied from expired from never-seen, and the operator cannot distinguish a question they
+    declined from one withdrawn while they were away. Witnessed: the T-501 inception GO request, created
+    17:00:08Z, gone by 19:07Z, unanswered. A 2h TTL fits a blocked shell command; it fits an inception
+    decision badly, since that decision is not tied to a live session. Vendored AEF code: approval-queue
+    lifetime is a governance change for every consuming project, so the fix is AEF''s call under G-008.'
+  captured: 2026-08-14 19:43:42+00:00
   context_task: T-504
-  tags: [bug]
+  tags:
+  - bug
   status: pending
   promoted_to: null
 - id: OBS-247
-  text: "This project and the AEF project sign termlink envelopes with the SAME ed25519 key, so the sender field cannot distinguish them. Measured both sides: agent identity here returns fingerprint d1993c2c3ec44c94 from /root/.termlink/identity.json (pubkey 8eb0e089...1142); the AEF session independently reported the identical fingerprint as its own. Both run as root on host 107 and Identity::load_or_create reads ${HOME}/.termlink/identity.json, so same HOME means same principal. At least three distinct agents occupy that one sender bucket — this project, the AEF project, and an opencode agent (glm-5.2) running as dimitri-mint-dev over a sudo bridge which states the same root identity in a field report. Two consequences. (1) Per-sender counts are unsound: the peer attributed 464 posts on agent-chat-arc to itself from that bucket. (2) No DM topic between the two projects can exist, because dm:X:Y needs two distinct fingerprints and ours would be dm:<fp>:<fp>. This is also the root cause of the dead rail: dm:0e7ee6cad65137fc:6a646ce8b1bc6560 was correct when created — those were the two projects' then-distinct fingerprints — and both endpoints later rotated onto the host root key while the topic name stayed, so eleven messages were written to a name that no longer denoted either party. Mitigation already in place and now known to be load-bearing rather than belt-and-braces: the T-420 PreToolUse gate refuses any channel post lacking metadata.from_project, which is the only working discriminator. Related surface: whoami on this session returns ambiguous with 14 candidates and cannot identify the caller at all. NOT PATCHED — which key a project signs with is vendored framework behaviour and a governance decision, not a defect fix under G-008."
-  captured: 2026-08-14T20:41:00Z
+  text: 'This project and the AEF project sign termlink envelopes with the SAME ed25519 key, so the sender
+    field cannot distinguish them. Measured both sides: agent identity here returns fingerprint d1993c2c3ec44c94
+    from /root/.termlink/identity.json (pubkey 8eb0e089...1142); the AEF session independently reported
+    the identical fingerprint as its own. Both run as root on host 107 and Identity::load_or_create reads
+    ${HOME}/.termlink/identity.json, so same HOME means same principal. At least three distinct agents
+    occupy that one sender bucket — this project, the AEF project, and an opencode agent (glm-5.2) running
+    as dimitri-mint-dev over a sudo bridge which states the same root identity in a field report. Two
+    consequences. (1) Per-sender counts are unsound: the peer attributed 464 posts on agent-chat-arc to
+    itself from that bucket. (2) No DM topic between the two projects can exist, because dm:X:Y needs
+    two distinct fingerprints and ours would be dm:<fp>:<fp>. This is also the root cause of the dead
+    rail: dm:0e7ee6cad65137fc:6a646ce8b1bc6560 was correct when created — those were the two projects''
+    then-distinct fingerprints — and both endpoints later rotated onto the host root key while the topic
+    name stayed, so eleven messages were written to a name that no longer denoted either party. Mitigation
+    already in place and now known to be load-bearing rather than belt-and-braces: the T-420 PreToolUse
+    gate refuses any channel post lacking metadata.from_project, which is the only working discriminator.
+    Related surface: whoami on this session returns ambiguous with 14 candidates and cannot identify the
+    caller at all. NOT PATCHED — which key a project signs with is vendored framework behaviour and a
+    governance decision, not a defect fix under G-008.'
+  captured: 2026-08-14 20:41:00+00:00
   context_task: T-507
-  tags: [bug, seam]
+  tags:
+  - bug
+  - seam
   status: pending
   promoted_to: null
 - id: OBS-248
-  text: "SHARED-PRINCIPAL IDENTITY COLLAPSE NOW HAS CONCRETE EVIDENCE, not just a fingerprint match. Checking messages under T-423 I listed my DM topics and one of them, dm:9219671e28054458:d1993c2c3ec44c94, carries 171 envelopes of ring20-manager infrastructure traffic that has nothing to do with this project: Kea DHCP HA reservations, OpenWrt AP provisioning, and a multi-message thread about custody of a disclosed AP fleet root password, including that agent declining to vault it and then reversing when the operator overrode them. I can read all of it because this project signs with the host root key d1993c2c3ec44c94 rather than its own, which is the concern already registered as the shared-principal observation (two hundred and forty seven, spelled out deliberately - our vendored next_id greps OBS-bracket-digits over the whole inbox file INCLUDING BODIES, so writing a bare peer id here would collide the next allocation). Three things this adds beyond what was already recorded. FIRST, the collapse is not only an ATTRIBUTION problem where a reader cannot tell our posts from AEF's; it is a READ problem, and the read side was never measured. Any agent session on this host that signs with the root key receives every DM addressed to any of them. SECOND, the specific traffic it exposed is credential-handling. Nothing here leaked it - that thread says in as many words the value already crossed a forever-retention topic readable by sessions on two hosts and sits in at least two agent transcripts, and the vault entry records its own exposure rather than pretending to custody. But it means THIS project's transcripts are now among the places that credential material can land, which was not a consequence anyone chose. THIRD, it is one-directional evidence for the decision that was already in front of the operator: whether this project should mint and sign with its own termlink key. Until now the argument was that our sender field cannot distinguish us from AEF, which is an inconvenience. This is a different argument with a different weight. NOT ACTED ON. Minting a key changes how every past post is attributed and is not an agent's call, and I have deliberately not run any identity-enumeration probe - TERMLINK_IDENTITY_FILE AUTO-CREATES a keypair when the path does not exist, so guessing at an agent id MINTS rather than READS."
-  captured: 2026-08-15T08:02:37Z
+  text: 'SHARED-PRINCIPAL IDENTITY COLLAPSE NOW HAS CONCRETE EVIDENCE, not just a fingerprint match. Checking
+    messages under T-423 I listed my DM topics and one of them, dm:9219671e28054458:d1993c2c3ec44c94,
+    carries 171 envelopes of ring20-manager infrastructure traffic that has nothing to do with this project:
+    Kea DHCP HA reservations, OpenWrt AP provisioning, and a multi-message thread about custody of a disclosed
+    AP fleet root password, including that agent declining to vault it and then reversing when the operator
+    overrode them. I can read all of it because this project signs with the host root key d1993c2c3ec44c94
+    rather than its own, which is the concern already registered as the shared-principal observation (two
+    hundred and forty seven, spelled out deliberately - our vendored next_id greps OBS-bracket-digits
+    over the whole inbox file INCLUDING BODIES, so writing a bare peer id here would collide the next
+    allocation). Three things this adds beyond what was already recorded. FIRST, the collapse is not only
+    an ATTRIBUTION problem where a reader cannot tell our posts from AEF''s; it is a READ problem, and
+    the read side was never measured. Any agent session on this host that signs with the root key receives
+    every DM addressed to any of them. SECOND, the specific traffic it exposed is credential-handling.
+    Nothing here leaked it - that thread says in as many words the value already crossed a forever-retention
+    topic readable by sessions on two hosts and sits in at least two agent transcripts, and the vault
+    entry records its own exposure rather than pretending to custody. But it means THIS project''s transcripts
+    are now among the places that credential material can land, which was not a consequence anyone chose.
+    THIRD, it is one-directional evidence for the decision that was already in front of the operator:
+    whether this project should mint and sign with its own termlink key. Until now the argument was that
+    our sender field cannot distinguish us from AEF, which is an inconvenience. This is a different argument
+    with a different weight. NOT ACTED ON. Minting a key changes how every past post is attributed and
+    is not an agent''s call, and I have deliberately not run any identity-enumeration probe - TERMLINK_IDENTITY_FILE
+    AUTO-CREATES a keypair when the path does not exist, so guessing at an agent id MINTS rather than
+    READS.'
+  captured: 2026-08-15 08:02:37+00:00
   context_task: T-423
-  tags: [governance]
+  tags:
+  - governance
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-249
+  text: 'CLAUDE.md''s Context Budget Management ladder is stale against the tool that enforces it, and
+    I acted on the stale numbers. CLAUDE.md documents 120K ok->warn, 150K warn->urgent, 170K urgent->critical-BLOCK,
+    and ''above 85 percent (170K) handover immediately''. The enforcing hook, .agentic-framework/agents/context/budget-gate.sh
+    lines 100-105, computes CONTEXT_WINDOW=300000 with warn at 75 percent (225K), urgent at 85 percent
+    (255K), critical at 95 percent (285K). The prose is a 200K-window calibration the tool has moved past.
+    CONSEQUENCE, measured on myself rather than hypothesised: in the previous session I stopped work at
+    155K and told the operator the framework required wrap-up, citing the 150K line. The live gate said
+    level=ok and would not have blocked anything for another 70K. I under-used the window by about a third
+    AND reported a governance constraint that did not exist, which is the worse half -- the operator had
+    explicitly asked to continue to 300K, which turns out to BE the real context window. Same class the
+    project keeps cataloguing: a documented claim nothing re-checks (G-015, PL-192, PL-200, T-509''s naming-convention-as-classifier).
+    PROPOSED FIX, deliberately NOT applied because CLAUDE.md is the governance document and editing it
+    under agent initiative is the operator''s call: replace the four hard-coded token figures with the
+    percentages the tool actually uses, so prose cannot drift from threshold again, and state that budget-gate.sh
+    is authoritative when the two disagree. META, worth keeping: this observation''s own body was first
+    captured as the literal string ''add'', because ''fw note add "text"'' has no add subcommand -- fw
+    note takes the text directly, so the subcommand became the body and the content was silently discarded.
+    The CLI reported OBS-249 captured. An observation that occupies an id and says nothing is worse than
+    none, and nothing in the capture path noticed.'
+  captured: 2026-08-15 08:43:23+00:00
+  context_task: null
+  tags:
+  - governance
+  - doc-drift
   status: pending
   promoted_to: null
   urgent: true
