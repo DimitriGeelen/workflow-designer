@@ -1,0 +1,498 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]: AEF · BPMN
+        - generic [ref=e6]: Workflow Designer
+        - generic [ref=e7]: ·
+        - button "📂 Open project…" [ref=e8] [cursor=pointer]
+        - button "🔗 Pending refs…" [ref=e9] [cursor=pointer]
+        - button "+" [ref=e10] [cursor=pointer]
+      - generic [ref=e11]:
+        - button "−" [ref=e12] [cursor=pointer]
+        - generic "Current zoom — click for 100%" [ref=e13] [cursor=pointer]: fit
+        - button "+" [ref=e14] [cursor=pointer]
+        - button "⤢" [pressed] [ref=e15] [cursor=pointer]
+        - button "◧" [ref=e16] [cursor=pointer]
+        - button "◨" [ref=e17] [cursor=pointer]
+        - button "⛶" [ref=e18] [cursor=pointer]
+        - button "+ Add Lane" [ref=e19] [cursor=pointer]
+        - button "Reset" [ref=e20] [cursor=pointer]
+        - button "✨ Clean layout" [ref=e21] [cursor=pointer]
+        - button "View XML" [ref=e22] [cursor=pointer]
+        - button "⚙ Settings" [ref=e23] [cursor=pointer]
+        - button "Load…" [ref=e24] [cursor=pointer]
+        - button "🕘 Versions" [ref=e25] [cursor=pointer]
+        - button "⤓ Save to project" [ref=e26] [cursor=pointer]
+        - button "Save" [ref=e27] [cursor=pointer]
+    - main [ref=e28]:
+      - complementary [ref=e29]:
+        - generic [ref=e30]:
+          - generic [ref=e31]: Tool
+          - generic [ref=e32] [cursor=pointer]: Select / Move
+          - generic [ref=e33] [cursor=pointer]: Connect →
+        - generic [ref=e34]:
+          - generic [ref=e35]: Events
+          - generic [ref=e40] [cursor=pointer]:
+            - generic [ref=e41]: Start
+            - generic [ref=e42]: startEvent
+          - generic [ref=e47] [cursor=pointer]:
+            - generic [ref=e48]: End
+            - generic [ref=e49]: endEvent
+        - generic [ref=e50]:
+          - generic [ref=e51]: Tasks
+          - generic [ref=e57] [cursor=pointer]:
+            - generic [ref=e58]: Service Task
+            - generic [ref=e59]: agent · Initiative
+          - generic [ref=e66] [cursor=pointer]:
+            - generic [ref=e67]: User Task
+            - generic [ref=e68]: human · Sovereignty
+          - generic [ref=e74] [cursor=pointer]:
+            - generic [ref=e75]: Script Task
+            - generic [ref=e76]: fw · Authority
+          - generic [ref=e83] [cursor=pointer]:
+            - generic [ref=e84]: Sub-process
+            - generic [ref=e85]: collapsed composite
+        - generic [ref=e86]:
+          - generic [ref=e87]: Gateways
+          - generic [ref=e93] [cursor=pointer]:
+            - generic [ref=e94]: Exclusive (XOR)
+            - generic [ref=e95]: decision
+          - generic [ref=e101] [cursor=pointer]:
+            - generic [ref=e102]: Parallel (AND)
+            - generic [ref=e103]: fork / join
+        - generic [ref=e104]:
+          - generic [ref=e105]: Handoffs
+          - generic [ref=e111] [cursor=pointer]:
+            - generic [ref=e112]: Handoff →
+            - generic [ref=e113]: to another workflow
+          - generic [ref=e119] [cursor=pointer]:
+            - generic [ref=e120]: ← Handoff
+            - generic [ref=e121]: from another workflow
+        - generic [ref=e122]:
+          - generic [ref=e123]: Typed events
+          - generic [ref=e129] [cursor=pointer]:
+            - generic [ref=e130]: Error
+            - generic [ref=e131]: on status:issues
+          - generic [ref=e138] [cursor=pointer]:
+            - generic [ref=e139]: Timer
+            - generic [ref=e140]: cron / horizon
+          - generic [ref=e147] [cursor=pointer]:
+            - generic [ref=e148]: Message
+            - generic [ref=e149]: on bus topic
+        - generic [ref=e150]:
+          - generic [ref=e151]: Lanes
+          - generic [ref=e152] [cursor=pointer]:
+            - img [ref=e154]:
+              - generic [ref=e156]: +
+            - generic [ref=e157]:
+              - generic [ref=e158]: Add Lane
+              - generic [ref=e159]: swimlane · authority
+        - generic [ref=e160]: Click a palette item then click the canvas to place — or drag it straight onto the canvas. To connect, switch to Connect, click source, then click target. + Add Lane appends a new swimlane to the pool.
+      - generic [ref=e162]:
+        - img [ref=e163]:
+          - generic [ref=e164]:
+            - generic [ref=e166]: investigate · workflow:investigate
+            - generic [ref=e168] [cursor=pointer]:
+              - generic [ref=e170]: Human
+              - generic [ref=e171]: Sovereignty
+            - generic [ref=e175] [cursor=pointer]:
+              - generic [ref=e177]: Framework
+              - generic [ref=e178]: Authority
+            - generic [ref=e182] [cursor=pointer]: Agent · Initiative
+            - generic [ref=e190] [cursor=pointer]: + Add another lane
+          - generic:
+            - generic: frw_1_investigation
+            - generic: frw_2_load
+            - generic: agt_1_decompose
+            - generic: agt_2_fan
+            - generic: agt_4_search
+            - generic: agt_3_search-2
+            - generic: agt_5_search-3
+            - generic: agt_6_join
+            - generic: agt_7_synthesize
+            - generic: agt_8_sufficient
+            - generic: frw_3_write
+            - generic: hum_1_human
+            - generic: hum_2_ready
+            - generic: frw_4_abandoned
+          - generic [ref=e192]:
+            - generic [ref=e194] [cursor=pointer]
+            - generic [ref=e197] [cursor=pointer]
+            - generic [ref=e200] [cursor=pointer]
+            - generic [ref=e203] [cursor=pointer]
+            - generic [ref=e206] [cursor=pointer]
+            - generic [ref=e208]:
+              - generic [ref=e209] [cursor=pointer]
+              - generic: sufficient
+            - generic [ref=e212]:
+              - generic [ref=e213] [cursor=pointer]
+              - generic: insufficient · loop
+            - generic [ref=e217] [cursor=pointer]
+            - generic [ref=e219]: dispatch
+            - generic [ref=e221]:
+              - generic [ref=e222] [cursor=pointer]
+              - generic: abandon
+          - generic [ref=e225]:
+            - generic [ref=e226] [cursor=pointer]: Investigation requested
+            - generic [ref=e228] [cursor=pointer]:
+              - generic: Load context
+              - generic: bundle
+              - generic: 2→1
+            - generic [ref=e232] [cursor=pointer]:
+              - generic: Decompose
+              - generic: problem
+              - generic: 1→1
+            - generic [ref=e236] [cursor=pointer]: Fan out
+            - generic [ref=e239] [cursor=pointer]:
+              - generic: Search
+              - generic: codebase
+              - generic: 1→1
+            - generic [ref=e243] [cursor=pointer]:
+              - generic: Search
+              - generic: episodes
+              - generic: 1→1
+            - generic [ref=e247] [cursor=pointer]:
+              - generic: Search tasks &
+              - generic: arcs
+              - generic: 1→1
+            - generic [ref=e251] [cursor=pointer]: Join
+            - generic [ref=e254] [cursor=pointer]:
+              - generic: Synthesize
+              - generic: findings
+              - generic: 3→1
+            - generic [ref=e258] [cursor=pointer]: Sufficient?
+            - generic [ref=e261] [cursor=pointer]:
+              - generic: Write report
+              - generic: 2→2
+            - generic [ref=e265] [cursor=pointer]:
+              - generic: Human review &
+              - generic: route
+              - generic: 1→1
+            - generic [ref=e270] [cursor=pointer]: Ready
+            - generic [ref=e272] [cursor=pointer]: Abandoned
+        - generic: "Mode: select"
+      - complementary [ref=e274]:
+        - generic [ref=e321]:
+          - generic [ref=e322]: workflow
+          - generic [ref=e323]: investigate
+        - generic [ref=e324]:
+          - generic [ref=e325]: Workflow
+          - generic [ref=e326]:
+            - generic [ref=e327]:
+              - text: ID
+              - generic [ref=e328]: · identifier · lowercase, no spaces · unique in library · Enter/blur applies
+            - textbox [ref=e329]: investigate
+          - generic [ref=e330]:
+            - generic [ref=e331]:
+              - text: Title
+              - generic [ref=e332]: · human-readable name shown in picker
+            - textbox [ref=e333]: Investigate
+          - generic [ref=e334]:
+            - generic [ref=e335]:
+              - text: Workflow version
+              - generic [ref=e336]: · bump manually when contract changes
+            - textbox [ref=e337]: "1"
+          - generic [ref=e338]:
+            - generic [ref=e339]:
+              - text: Description
+              - generic [ref=e340]: · free text · what this workflow does
+            - textbox [ref=e341]: Decompose a question, gather context across code/history/related tasks, synthesize findings, and route to human review.
+          - generic [ref=e342]:
+            - generic [ref=e343]:
+              - text: Source
+              - generic [ref=e344]: · optional · path to originating doc
+            - textbox [ref=e345]: agents/dispatch/investigate.md
+          - generic [ref=e346]:
+            - generic [ref=e347]:
+              - text: Default tier
+              - generic [ref=e348]: · 0–3 · applies to nodes without explicit tier
+            - textbox [ref=e349]: "2"
+        - generic [ref=e350]:
+          - generic [ref=e351]:
+            - text: Tips
+            - generic [ref=e352]: "aef:"
+          - generic [ref=e353]:
+            - text: Click a node or edge to inspect.
+            - generic [ref=e354]: Connect
+            - text: mode → click source, then target.Drag selected nodes to reposition.
+            - generic [ref=e355]: Delete
+            - text: removes selection ·
+            - generic [ref=e356]: Esc
+            - text: clears it.
+  - generic [ref=e358]:
+    - generic [ref=e359]:
+      - strong [ref=e360]: Open project map
+      - searchbox "Filter…" [active] [ref=e361]
+      - button "✕" [ref=e362] [cursor=pointer]
+    - generic [ref=e363]:
+      - generic [ref=e364]:
+        - button "aef-task-lifecycle preview aef-task-lifecycle aef-task-lifecycle saved · v1" [ref=e365] [cursor=pointer]:
+          - img "aef-task-lifecycle preview" [ref=e366]
+          - generic [ref=e367]:
+            - generic [ref=e368]: aef-task-lifecycle
+            - generic [ref=e369]: aef-task-lifecycle
+            - generic [ref=e370]: saved · v1
+        - button "🗑" [ref=e371] [cursor=pointer]
+      - generic [ref=e372]:
+        - button "arc-lifecycle preview arc-lifecycle arc-lifecycle saved · v5" [ref=e373] [cursor=pointer]:
+          - img "arc-lifecycle preview" [ref=e374]
+          - generic [ref=e375]:
+            - generic [ref=e376]: arc-lifecycle
+            - generic [ref=e377]: arc-lifecycle
+            - generic [ref=e378]: saved · v5
+        - button "🗑" [ref=e379] [cursor=pointer]
+      - generic [ref=e380]:
+        - button "assumption-validation preview assumption-validation assumption-validation saved · v4" [ref=e381] [cursor=pointer]:
+          - img "assumption-validation preview" [ref=e382]
+          - generic [ref=e383]:
+            - generic [ref=e384]: assumption-validation
+            - generic [ref=e385]: assumption-validation
+            - generic [ref=e386]: saved · v4
+        - button "🗑" [ref=e387] [cursor=pointer]
+      - generic [ref=e388]:
+        - button "audit-process preview audit-process audit-process saved · v2" [ref=e389] [cursor=pointer]:
+          - img "audit-process preview" [ref=e390]
+          - generic [ref=e391]:
+            - generic [ref=e392]: audit-process
+            - generic [ref=e393]: audit-process
+            - generic [ref=e394]: saved · v2
+        - button "🗑" [ref=e395] [cursor=pointer]
+      - generic [ref=e396]:
+        - button "claim-smoke-legacy preview claim-smoke-legacy claim-smoke-legacy saved · v1" [ref=e397] [cursor=pointer]:
+          - img "claim-smoke-legacy preview" [ref=e398]
+          - generic [ref=e399]:
+            - generic [ref=e400]: claim-smoke-legacy
+            - generic [ref=e401]: claim-smoke-legacy
+            - generic [ref=e402]: saved · v1
+        - button "🗑" [ref=e403] [cursor=pointer]
+      - generic [ref=e404]:
+        - button "▦ claim-smoke-ref claim-smoke-ref saved · v1" [ref=e405] [cursor=pointer]:
+          - generic [ref=e406]: ▦
+          - generic [ref=e407]:
+            - generic [ref=e408]: claim-smoke-ref
+            - generic [ref=e409]: claim-smoke-ref
+            - generic [ref=e410]: saved · v1
+        - button "🗑" [ref=e411] [cursor=pointer]
+      - generic [ref=e412]:
+        - button "▦ claim-smoke-ref2 claim-smoke-ref2 saved · v1" [ref=e413] [cursor=pointer]:
+          - generic [ref=e414]: ▦
+          - generic [ref=e415]:
+            - generic [ref=e416]: claim-smoke-ref2
+            - generic [ref=e417]: claim-smoke-ref2
+            - generic [ref=e418]: saved · v1
+        - button "🗑" [ref=e419] [cursor=pointer]
+      - generic [ref=e420]:
+        - button "▦ claim-smoke-target claim-smoke-target saved · v5" [ref=e421] [cursor=pointer]:
+          - generic [ref=e422]: ▦
+          - generic [ref=e423]:
+            - generic [ref=e424]: claim-smoke-target
+            - generic [ref=e425]: claim-smoke-target
+            - generic [ref=e426]: saved · v5
+        - button "🗑" [ref=e427] [cursor=pointer]
+      - generic [ref=e428]:
+        - button "▦ claim-smoke-target2 claim-smoke-target2 saved · v2" [ref=e429] [cursor=pointer]:
+          - generic [ref=e430]: ▦
+          - generic [ref=e431]:
+            - generic [ref=e432]: claim-smoke-target2
+            - generic [ref=e433]: claim-smoke-target2
+            - generic [ref=e434]: saved · v2
+        - button "🗑" [ref=e435] [cursor=pointer]
+      - generic [ref=e436]:
+        - button "context-memory preview context-memory context-memory saved · v3" [ref=e437] [cursor=pointer]:
+          - img "context-memory preview" [ref=e438]
+          - generic [ref=e439]:
+            - generic [ref=e440]: context-memory
+            - generic [ref=e441]: context-memory
+            - generic [ref=e442]: saved · v3
+        - button "🗑" [ref=e443] [cursor=pointer]
+      - generic [ref=e444]:
+        - button "cross-host-dispatch preview cross-host-dispatch cross-host-dispatch rendered" [ref=e445] [cursor=pointer]:
+          - img "cross-host-dispatch preview" [ref=e446]
+          - generic [ref=e447]:
+            - generic [ref=e448]: cross-host-dispatch
+            - generic [ref=e449]: cross-host-dispatch
+            - generic [ref=e450]: rendered
+        - button "🗑" [ref=e451] [cursor=pointer]
+      - generic [ref=e452]:
+        - button "error-escalation-ladder preview error-escalation-ladder error-escalation-ladder saved · v4" [ref=e453] [cursor=pointer]:
+          - img "error-escalation-ladder preview" [ref=e454]
+          - generic [ref=e455]:
+            - generic [ref=e456]: error-escalation-ladder
+            - generic [ref=e457]: error-escalation-ladder
+            - generic [ref=e458]: saved · v4
+        - button "🗑" [ref=e459] [cursor=pointer]
+      - generic [ref=e460]:
+        - button "fabric-blast-radius preview fabric-blast-radius fabric-blast-radius saved · v3" [ref=e461] [cursor=pointer]:
+          - img "fabric-blast-radius preview" [ref=e462]
+          - generic [ref=e463]:
+            - generic [ref=e464]: fabric-blast-radius
+            - generic [ref=e465]: fabric-blast-radius
+            - generic [ref=e466]: saved · v3
+        - button "🗑" [ref=e467] [cursor=pointer]
+      - generic [ref=e468]:
+        - button "git-commit-flow preview git-commit-flow git-commit-flow saved · v4" [ref=e469] [cursor=pointer]:
+          - img "git-commit-flow preview" [ref=e470]
+          - generic [ref=e471]:
+            - generic [ref=e472]: git-commit-flow
+            - generic [ref=e473]: git-commit-flow
+            - generic [ref=e474]: saved · v4
+        - button "🗑" [ref=e475] [cursor=pointer]
+      - generic [ref=e476]:
+        - button "harvest-pipeline preview harvest-pipeline harvest-pipeline saved · v5" [ref=e477] [cursor=pointer]:
+          - img "harvest-pipeline preview" [ref=e478]
+          - generic [ref=e479]:
+            - generic [ref=e480]: harvest-pipeline
+            - generic [ref=e481]: harvest-pipeline
+            - generic [ref=e482]: saved · v5
+        - button "🗑" [ref=e483] [cursor=pointer]
+      - generic [ref=e484]:
+        - button "healing-loop preview healing-loop healing-loop saved · v3" [ref=e485] [cursor=pointer]:
+          - img "healing-loop preview" [ref=e486]
+          - generic [ref=e487]:
+            - generic [ref=e488]: healing-loop
+            - generic [ref=e489]: healing-loop
+            - generic [ref=e490]: saved · v3
+        - button "🗑" [ref=e491] [cursor=pointer]
+      - generic [ref=e492]:
+        - button "inception-lifecycle preview inception-lifecycle inception-lifecycle rendered" [ref=e493] [cursor=pointer]:
+          - img "inception-lifecycle preview" [ref=e494]
+          - generic [ref=e495]:
+            - generic [ref=e496]: inception-lifecycle
+            - generic [ref=e497]: inception-lifecycle
+            - generic [ref=e498]: rendered
+        - button "🗑" [ref=e499] [cursor=pointer]
+      - generic [ref=e500]:
+        - button "inception-review preview inception-review inception-review rendered" [ref=e501] [cursor=pointer]:
+          - img "inception-review preview" [ref=e502]
+          - generic [ref=e503]:
+            - generic [ref=e504]: inception-review
+            - generic [ref=e505]: inception-review
+            - generic [ref=e506]: rendered
+        - button "🗑" [ref=e507] [cursor=pointer]
+      - generic [ref=e508]:
+        - button "investigate preview investigate investigate saved · v1" [ref=e509] [cursor=pointer]:
+          - img "investigate preview" [ref=e510]
+          - generic [ref=e511]:
+            - generic [ref=e512]: investigate
+            - generic [ref=e513]: investigate
+            - generic [ref=e514]: saved · v1
+        - button "🗑" [ref=e515] [cursor=pointer]
+      - generic [ref=e516]:
+        - button "promotion-pipeline preview promotion-pipeline promotion-pipeline rendered" [ref=e517] [cursor=pointer]:
+          - img "promotion-pipeline preview" [ref=e518]
+          - generic [ref=e519]:
+            - generic [ref=e520]: promotion-pipeline
+            - generic [ref=e521]: promotion-pipeline
+            - generic [ref=e522]: rendered
+        - button "🗑" [ref=e523] [cursor=pointer]
+      - generic [ref=e524]:
+        - button "release-pipeline preview release-pipeline release-pipeline rendered" [ref=e525] [cursor=pointer]:
+          - img "release-pipeline preview" [ref=e526]
+          - generic [ref=e527]:
+            - generic [ref=e528]: release-pipeline
+            - generic [ref=e529]: release-pipeline
+            - generic [ref=e530]: rendered
+        - button "🗑" [ref=e531] [cursor=pointer]
+      - generic [ref=e532]:
+        - button "resume-status preview resume-status resume-status saved · v2" [ref=e533] [cursor=pointer]:
+          - img "resume-status preview" [ref=e534]
+          - generic [ref=e535]:
+            - generic [ref=e536]: resume-status
+            - generic [ref=e537]: resume-status
+            - generic [ref=e538]: saved · v2
+        - button "🗑" [ref=e539] [cursor=pointer]
+      - generic [ref=e540]:
+        - button "review-emission preview review-emission review-emission saved · v3" [ref=e541] [cursor=pointer]:
+          - img "review-emission preview" [ref=e542]
+          - generic [ref=e543]:
+            - generic [ref=e544]: review-emission
+            - generic [ref=e545]: review-emission
+            - generic [ref=e546]: saved · v3
+        - button "🗑" [ref=e547] [cursor=pointer]
+      - generic [ref=e548]:
+        - button "revisit-due-scan preview revisit-due-scan revisit-due-scan rendered" [ref=e549] [cursor=pointer]:
+          - img "revisit-due-scan preview" [ref=e550]
+          - generic [ref=e551]:
+            - generic [ref=e552]: revisit-due-scan
+            - generic [ref=e553]: revisit-due-scan
+            - generic [ref=e554]: rendered
+        - button "🗑" [ref=e555] [cursor=pointer]
+      - generic [ref=e556]:
+        - button "s4-e2e-probe preview s4-e2e-probe s4-e2e-probe saved · v2" [ref=e557] [cursor=pointer]:
+          - img "s4-e2e-probe preview" [ref=e558]
+          - generic [ref=e559]:
+            - generic [ref=e560]: s4-e2e-probe
+            - generic [ref=e561]: s4-e2e-probe
+            - generic [ref=e562]: saved · v2
+        - button "🗑" [ref=e563] [cursor=pointer]
+      - generic [ref=e564]:
+        - button "session-capture preview session-capture session-capture rendered" [ref=e565] [cursor=pointer]:
+          - img "session-capture preview" [ref=e566]
+          - generic [ref=e567]:
+            - generic [ref=e568]: session-capture
+            - generic [ref=e569]: session-capture
+            - generic [ref=e570]: rendered
+        - button "🗑" [ref=e571] [cursor=pointer]
+      - generic [ref=e572]:
+        - button "session-handover preview session-handover session-handover rendered" [ref=e573] [cursor=pointer]:
+          - img "session-handover preview" [ref=e574]
+          - generic [ref=e575]:
+            - generic [ref=e576]: session-handover
+            - generic [ref=e577]: session-handover
+            - generic [ref=e578]: rendered
+        - button "🗑" [ref=e579] [cursor=pointer]
+      - generic [ref=e580]:
+        - button "t229-birth-probe preview t229-birth-probe t229-birth-probe saved · v1" [ref=e581] [cursor=pointer]:
+          - img "t229-birth-probe preview" [ref=e582]
+          - generic [ref=e583]:
+            - generic [ref=e584]: t229-birth-probe
+            - generic [ref=e585]: t229-birth-probe
+            - generic [ref=e586]: saved · v1
+        - button "🗑" [ref=e587] [cursor=pointer]
+      - generic [ref=e588]:
+        - button "task-gate preview task-gate task-gate saved · v3" [ref=e589] [cursor=pointer]:
+          - img "task-gate preview" [ref=e590]
+          - generic [ref=e591]:
+            - generic [ref=e592]: task-gate
+            - generic [ref=e593]: task-gate
+            - generic [ref=e594]: saved · v3
+        - button "🗑" [ref=e595] [cursor=pointer]
+      - generic [ref=e596]:
+        - button "task-lifecycle preview task-lifecycle task-lifecycle saved · v2" [ref=e597] [cursor=pointer]:
+          - img "task-lifecycle preview" [ref=e598]
+          - generic [ref=e599]:
+            - generic [ref=e600]: task-lifecycle
+            - generic [ref=e601]: task-lifecycle
+            - generic [ref=e602]: saved · v2
+        - button "🗑" [ref=e603] [cursor=pointer]
+      - generic [ref=e604]:
+        - button "tier0-escalation preview tier0-escalation tier0-escalation saved · v3" [ref=e605] [cursor=pointer]:
+          - img "tier0-escalation preview" [ref=e606]
+          - generic [ref=e607]:
+            - generic [ref=e608]: tier0-escalation
+            - generic [ref=e609]: tier0-escalation
+            - generic [ref=e610]: saved · v3
+        - button "🗑" [ref=e611] [cursor=pointer]
+      - generic [ref=e612]:
+        - button "upgrade-process preview upgrade-process upgrade-process rendered" [ref=e613] [cursor=pointer]:
+          - img "upgrade-process preview" [ref=e614]
+          - generic [ref=e615]:
+            - generic [ref=e616]: upgrade-process
+            - generic [ref=e617]: upgrade-process
+            - generic [ref=e618]: rendered
+        - button "🗑" [ref=e619] [cursor=pointer]
+      - generic [ref=e620]:
+        - button "verification-gate preview verification-gate verification-gate saved · v2" [ref=e621] [cursor=pointer]:
+          - img "verification-gate preview" [ref=e622]
+          - generic [ref=e623]:
+            - generic [ref=e624]: verification-gate
+            - generic [ref=e625]: verification-gate
+            - generic [ref=e626]: saved · v2
+        - button "🗑" [ref=e627] [cursor=pointer]
+      - button "◌ future-map 4300eae7… ◌ pending ref · referenced by 1" [ref=e628] [cursor=pointer]:
+        - generic [ref=e629]: ◌
+        - generic [ref=e630]:
+          - generic [ref=e631]: future-map
+          - generic [ref=e632]: 4300eae7…
+          - generic [ref=e633]: ◌ pending ref · referenced by 1

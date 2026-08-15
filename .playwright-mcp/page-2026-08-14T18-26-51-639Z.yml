@@ -1,0 +1,221 @@
+- generic [ref=f1e2]:
+  - banner [ref=f1e3]:
+    - generic [ref=f1e4]:
+      - generic [ref=f1e5]: AEF · BPMN
+      - generic [ref=f1e6]: Workflow Designer
+      - generic [ref=f1e7]: ·
+      - button "📂 Open project…" [ref=f1e8] [cursor=pointer]
+      - button "🔗 Pending refs…" [ref=f1e9] [cursor=pointer]
+      - button "+" [ref=f1e10] [cursor=pointer]
+    - generic [ref=f1e11]:
+      - button "−" [ref=f1e12] [cursor=pointer]
+      - generic "Current zoom — click for 100%" [ref=f1e13] [cursor=pointer]: fit
+      - button "+" [ref=f1e14] [cursor=pointer]
+      - button "⤢" [pressed] [ref=f1e15] [cursor=pointer]
+      - button "◧" [ref=f1e16] [cursor=pointer]
+      - button "◨" [ref=f1e17] [cursor=pointer]
+      - button "⛶" [ref=f1e18] [cursor=pointer]
+      - button "+ Add Lane" [ref=f1e19] [cursor=pointer]
+      - button "Reset" [ref=f1e20] [cursor=pointer]
+      - button "✨ Clean layout" [ref=f1e21] [cursor=pointer]
+      - button "View XML" [ref=f1e22] [cursor=pointer]
+      - button "⚙ Settings" [ref=f1e23] [cursor=pointer]
+      - button "Load…" [ref=f1e24] [cursor=pointer]
+      - button "🕘 Versions" [ref=f1e25] [cursor=pointer]
+      - button "⤓ Save to project" [ref=f1e26] [cursor=pointer]
+      - button "Save" [ref=f1e27] [cursor=pointer]
+  - main [ref=f1e28]:
+    - complementary [ref=f1e29]:
+      - generic [ref=f1e30]:
+        - generic [ref=f1e31]: Tool
+        - generic [ref=f1e32] [cursor=pointer]: Select / Move
+        - generic [ref=f1e33] [cursor=pointer]: Connect →
+      - generic [ref=f1e34]:
+        - generic [ref=f1e35]: Events
+        - generic [ref=f1e40] [cursor=pointer]:
+          - generic [ref=f1e41]: Start
+          - generic [ref=f1e42]: startEvent
+        - generic [ref=f1e47] [cursor=pointer]:
+          - generic [ref=f1e48]: End
+          - generic [ref=f1e49]: endEvent
+      - generic [ref=f1e50]:
+        - generic [ref=f1e51]: Tasks
+        - generic [ref=f1e57] [cursor=pointer]:
+          - generic [ref=f1e58]: Service Task
+          - generic [ref=f1e59]: agent · Initiative
+        - generic [ref=f1e66] [cursor=pointer]:
+          - generic [ref=f1e67]: User Task
+          - generic [ref=f1e68]: human · Sovereignty
+        - generic [ref=f1e74] [cursor=pointer]:
+          - generic [ref=f1e75]: Script Task
+          - generic [ref=f1e76]: fw · Authority
+        - generic [ref=f1e83] [cursor=pointer]:
+          - generic [ref=f1e84]: Sub-process
+          - generic [ref=f1e85]: collapsed composite
+      - generic [ref=f1e86]:
+        - generic [ref=f1e87]: Gateways
+        - generic [ref=f1e93] [cursor=pointer]:
+          - generic [ref=f1e94]: Exclusive (XOR)
+          - generic [ref=f1e95]: decision
+        - generic [ref=f1e101] [cursor=pointer]:
+          - generic [ref=f1e102]: Parallel (AND)
+          - generic [ref=f1e103]: fork / join
+      - generic [ref=f1e104]:
+        - generic [ref=f1e105]: Handoffs
+        - generic [ref=f1e111] [cursor=pointer]:
+          - generic [ref=f1e112]: Handoff →
+          - generic [ref=f1e113]: to another workflow
+        - generic [ref=f1e119] [cursor=pointer]:
+          - generic [ref=f1e120]: ← Handoff
+          - generic [ref=f1e121]: from another workflow
+      - generic [ref=f1e122]:
+        - generic [ref=f1e123]: Typed events
+        - generic [ref=f1e129] [cursor=pointer]:
+          - generic [ref=f1e130]: Error
+          - generic [ref=f1e131]: on status:issues
+        - generic [ref=f1e138] [cursor=pointer]:
+          - generic [ref=f1e139]: Timer
+          - generic [ref=f1e140]: cron / horizon
+        - generic [ref=f1e147] [cursor=pointer]:
+          - generic [ref=f1e148]: Message
+          - generic [ref=f1e149]: on bus topic
+      - generic [ref=f1e150]:
+        - generic [ref=f1e151]: Lanes
+        - generic [ref=f1e152] [cursor=pointer]:
+          - img [ref=f1e154]:
+            - generic [ref=f1e156]: +
+          - generic [ref=f1e157]:
+            - generic [ref=f1e158]: Add Lane
+            - generic [ref=f1e159]: swimlane · authority
+      - generic [ref=f1e160]: Click a palette item then click the canvas to place — or drag it straight onto the canvas. To connect, switch to Connect, click source, then click target. + Add Lane appends a new swimlane to the pool.
+    - generic [ref=f1e162]:
+      - img [ref=f1e163]:
+        - generic [ref=f1e164]:
+          - generic [ref=f1e166]: investigate · workflow:investigate
+          - generic [ref=f1e168] [cursor=pointer]:
+            - generic [ref=f1e170]: Human
+            - generic [ref=f1e171]: Sovereignty
+          - generic [ref=f1e175] [cursor=pointer]:
+            - generic [ref=f1e177]: Framework
+            - generic [ref=f1e178]: Authority
+          - generic [ref=f1e182] [cursor=pointer]: Agent · Initiative
+          - generic [ref=f1e190] [cursor=pointer]: + Add another lane
+        - generic:
+          - generic: frw_1_investigation
+          - generic: frw_2_load
+          - generic: agt_1_decompose
+          - generic: agt_2_fan
+          - generic: agt_4_search
+          - generic: agt_3_search-2
+          - generic: agt_5_search-3
+          - generic: agt_6_join
+          - generic: agt_7_synthesize
+          - generic: agt_8_sufficient
+          - generic: frw_3_write
+          - generic: hum_1_human
+          - generic: hum_2_ready
+          - generic: frw_4_abandoned
+        - generic [ref=f1e192]:
+          - generic [ref=f1e194] [cursor=pointer]
+          - generic [ref=f1e197] [cursor=pointer]
+          - generic [ref=f1e200] [cursor=pointer]
+          - generic [ref=f1e203] [cursor=pointer]
+          - generic [ref=f1e206] [cursor=pointer]
+          - generic [ref=f1e208]:
+            - generic [ref=f1e209] [cursor=pointer]
+            - generic: sufficient
+          - generic [ref=f1e212]:
+            - generic [ref=f1e213] [cursor=pointer]
+            - generic: insufficient · loop
+          - generic [ref=f1e217] [cursor=pointer]
+          - generic [ref=f1e219]: dispatch
+          - generic [ref=f1e221]:
+            - generic [ref=f1e222] [cursor=pointer]
+            - generic: abandon
+        - generic [ref=f1e225]:
+          - generic [ref=f1e226] [cursor=pointer]: Investigation requested
+          - generic [ref=f1e228] [cursor=pointer]:
+            - generic: Load context
+            - generic: bundle
+            - generic: 2→1
+          - generic [ref=f1e232] [cursor=pointer]:
+            - generic: Decompose
+            - generic: problem
+            - generic: 1→1
+          - generic [ref=f1e236] [cursor=pointer]: Fan out
+          - generic [ref=f1e239] [cursor=pointer]:
+            - generic: Search
+            - generic: codebase
+            - generic: 1→1
+          - generic [ref=f1e243] [cursor=pointer]:
+            - generic: Search
+            - generic: episodes
+            - generic: 1→1
+          - generic [ref=f1e247] [cursor=pointer]:
+            - generic: Search tasks &
+            - generic: arcs
+            - generic: 1→1
+          - generic [ref=f1e251] [cursor=pointer]: Join
+          - generic [ref=f1e254] [cursor=pointer]:
+            - generic: Synthesize
+            - generic: findings
+            - generic: 3→1
+          - generic [ref=f1e258] [cursor=pointer]: Sufficient?
+          - generic [ref=f1e261] [cursor=pointer]:
+            - generic: Write report
+            - generic: 2→2
+          - generic [ref=f1e265] [cursor=pointer]:
+            - generic: Human review &
+            - generic: route
+            - generic: 1→1
+          - generic [ref=f1e270] [cursor=pointer]: Ready
+          - generic [ref=f1e272] [cursor=pointer]: Abandoned
+      - generic: "Mode: select"
+    - complementary [ref=f1e274]:
+      - generic [ref=f1e280]:
+        - generic [ref=f1e281]: workflow
+        - generic [ref=f1e282]: investigate
+      - generic [ref=f1e283]:
+        - generic [ref=f1e284]: Workflow
+        - generic [ref=f1e285]:
+          - generic [ref=f1e286]:
+            - text: ID
+            - generic [ref=f1e287]: · identifier · lowercase, no spaces · unique in library · Enter/blur applies
+          - textbox [ref=f1e288]: investigate
+        - generic [ref=f1e289]:
+          - generic [ref=f1e290]:
+            - text: Title
+            - generic [ref=f1e291]: · human-readable name shown in picker
+          - textbox [ref=f1e292]: Investigate
+        - generic [ref=f1e293]:
+          - generic [ref=f1e294]:
+            - text: Workflow version
+            - generic [ref=f1e295]: · bump manually when contract changes
+          - textbox [ref=f1e296]: "1"
+        - generic [ref=f1e297]:
+          - generic [ref=f1e298]:
+            - text: Description
+            - generic [ref=f1e299]: · free text · what this workflow does
+          - textbox [ref=f1e300]: Decompose a question, gather context across code/history/related tasks, synthesize findings, and route to human review.
+        - generic [ref=f1e301]:
+          - generic [ref=f1e302]:
+            - text: Source
+            - generic [ref=f1e303]: · optional · path to originating doc
+          - textbox [ref=f1e304]: agents/dispatch/investigate.md
+        - generic [ref=f1e305]:
+          - generic [ref=f1e306]:
+            - text: Default tier
+            - generic [ref=f1e307]: · 0–3 · applies to nodes without explicit tier
+          - textbox [ref=f1e308]: "2"
+      - generic [ref=f1e309]:
+        - generic [ref=f1e310]:
+          - text: Tips
+          - generic [ref=f1e311]: "aef:"
+        - generic [ref=f1e312]:
+          - text: Click a node or edge to inspect.
+          - generic [ref=f1e313]: Connect
+          - text: mode → click source, then target.Drag selected nodes to reposition.
+          - generic [ref=f1e314]: Delete
+          - text: removes selection ·
+          - generic [ref=f1e315]: Esc
+          - text: clears it.

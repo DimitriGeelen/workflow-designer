@@ -1,0 +1,5 @@
+[     375ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:3099/favicon.ico:0
+[ 2278712ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3099/api/thumb?id=claim-smoke-ref&v=1:0
+[ 2278728ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3099/api/thumb?id=claim-smoke-ref2&v=1:0
+[ 2278728ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3099/api/thumb?id=claim-smoke-target&v=5:0
+[ 2278741ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:3099/api/thumb?id=claim-smoke-target2&v=2:0
