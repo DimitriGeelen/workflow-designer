@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-15T11:53:46Z ===
+task_id: T-519
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-519.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: reconcile vendor-divergence against AEF 11895 and post the upstream-debt list for triage
+  Duration: 0 days (20 min)
+  Updates: 1
+  Commits: 1
+  Lines: +727 -99 across 25 files
+  Outcomes: 9 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 25 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-519-reconcile-vendor-divergence-against-aef-.md
+--- exit code: 0 ---

@@ -6497,3 +6497,21 @@ scan_id: R-3bc233c2
 task_id: T-518
 payload:
   task_file: .tasks/active/T-518-uid-collision-an-externally-assigned-aef.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T11:53:45Z'
+scan_id: R-2a3b16d5
+task_id: T-519
+payload:
+  overall: CONCERN
+  finding_count: 2
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T11:53:45Z'
+scan_id: R-2a3b16d5
+task_id: T-519
+payload:
+  task_file: .tasks/active/T-519-reconcile-vendor-divergence-against-aef-.md

@@ -4,20 +4,20 @@ name: "reconcile vendor-divergence against AEF 11895 and post the upstream-debt 
 description: >
   reconcile vendor-divergence against AEF 11895 and post the upstream-debt list for triage
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t517-vendor-divergence.py, tools/_t517-vendor-divergence-teeth.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T11:32:48Z
-last_update: 2026-08-15T11:32:48Z
-date_finished: null
+last_update: 2026-08-15T11:53:42Z
+date_finished: 2026-08-15T11:53:42Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -155,14 +155,7 @@ python3 -c "import yaml,sys; e=yaml.safe_load(open('.agentic-framework/.vendor-d
 grep -q 'UPSTREAM_VALUES = frozenset' tools/_t517-vendor-divergence.py
 
 # The three entries AEF's 11895 falsified now say so, and audit.sh is NOT wholesale reclassified.
-python3 -c "
-import yaml,sys
-e={x['path']:x for x in yaml.safe_load(open('.agentic-framework/.vendor-divergence.yaml'))['entries']}
-a=e['.agentic-framework/agents/audit/audit.sh']
-ok = (e['.agentic-framework/agents/context/lib/episodic.sh']['upstream']=='superseded'
-      and e['.agentic-framework/agents/context/lib/extract-decisions.py']['upstream']=='superseded'
-      and a['upstream']=='fix' and a.get('superseded_changes'))
-sys.exit(0 if ok else 1)"
+python3 -c "import yaml,sys; e={x['path']:x for x in yaml.safe_load(open('.agentic-framework/.vendor-divergence.yaml'))['entries']}; b='.agentic-framework/agents/context/lib/'; a=e['.agentic-framework/agents/audit/audit.sh']; sys.exit(0 if (e[b+'episodic.sh']['upstream']=='superseded' and e[b+'extract-decisions.py']['upstream']=='superseded' and a['upstream']=='fix' and a.get('superseded_changes')) else 1)"
 
 ## RCA
 
@@ -231,3 +224,22 @@ sys.exit(0 if ok else 1)"
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-519-reconcile-vendor-divergence-against-aef-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-2a3b16d5
+- **Timestamp:** 2026-08-15T11:53:45Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 2
+
+**Per-AC findings:**
+
+- **AC#2 (Agent)** — `agents/context/lib/episodic.sh` and `agents/context/lib/extract-decisions.py`
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=agents/context/lib/episodic.sh in: `agents/context/lib/episodic.sh` and `agents/context/lib/extract-decisions.py``
+- **AC#4 (Agent)** — OBS-254 applied: `lib/ts/dist/loop-detect.js` `unknown` -> `vendoring-repair`
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=lib/ts/dist/loop-detect.js in: OBS-254 applied: `lib/ts/dist/loop-detect.js` `unknown` -> `vendoring-repair``
+
+### 2026-08-15T11:53:42Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

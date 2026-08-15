@@ -1506,3 +1506,17 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-211
+  learning: "A register field that asserts something about a repository you cannot read is the only field that goes stale with NO local edit, and no local instrument can ever detect it. T-517's .vendor-divergence.yaml was correct when written on 2026-08-14; AEF's reply on the 15th falsified three of its 28 entries because THEIR tree moved. Every other field in that manifest (path, kind, task) is a fact about our own tree and any drift is observable here. 'upstream:' is a claim about theirs. The instinct on discovering this is to build a better check — there is none to build, because the input is not visible from this side. The remedy is structural in a different direction: schedule the triage OUT, to the side that can read the thing, and treat every such verdict as provisional and dated. Generalises to any cached claim about an external system: pinned peer versions, 'known upstream' bug lists, third-party API capability notes. The test is 'could this become false while my repo is untouched?' — if yes, it needs an expiry and an owner, not an assertion."
+  source: P-001
+  task: T-519
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
+- id: PL-212
+  learning: "A register keyed on a PATH cannot carry one verdict when that path bundles several independent changes, and the moment you discover it is the moment you are about to be wrong in the expensive direction. .vendor-divergence.yaml records agents/audit/audit.sh as one entry with one upstream: verdict, but five tasks changed that file. When AEF confirmed one of the five was fixed on their side, the tempting edit was to flip the entry to 'superseded' — which would have silently written off four real fixes and, worse, marked them safe to lose at the next re-vendor, since 'superseded' MEANS 'being overwritten is the correct outcome'. The granularity of the KEY (path) and the granularity of the CLAIM (per-change) were different all along and nothing surfaced that until an external answer arrived addressing a subset. Remedy used: keep the entry's verdict for what REMAINS true and record the resolved subset in a separate field, so the count of outstanding debt stays honest. General rule: before flipping a register entry on new evidence, check whether the evidence covers the WHOLE entry or only part of it — and if the entry cannot express 'partly', that is a schema defect, not a judgement call."
+  source: P-001
+  task: T-519
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD

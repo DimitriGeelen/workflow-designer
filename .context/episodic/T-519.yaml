@@ -1,0 +1,103 @@
+# ============================================================================
+# EPISODIC MEMORY - T-519: reconcile vendor-divergence against AEF 11895 and post the upstream-debt list for triage
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T11:53:47Z
+# ============================================================================
+
+task_id: T-519
+task_name: "reconcile vendor-divergence against AEF 11895 and post the upstream-debt list for triage"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-15T11:32:48Z
+completed: 2026-08-15T11:53:42Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-15T13:53:23+02:00
+last_commit: 2026-08-15T13:53:23+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  AEF's 11895 falsified three entries in the vendor-divergence manifest one day after I wrote it, and that is the finding rather than the error. G-AUDIT-EXCLUDE-NOT-HONORED is fixed upstream by their T-2735 and the episodic placeholder leak by their T-3015 — the caveat I attached at 11893, that my 'valid upstream' could already be stale, fired on schedule. Nothing here was wrong when written and nothing here changed: upstream: is the only field in this manifest making a claim about a repository I cannot see, so it is the only one that can go stale with no local edit, and no instrument on this side can ever detect it. There is no better check to build; the remedy is periodic triage by the side that can read upstream, which is why the 14-entry list went out at rail 11900 answering their explicit ask. Added a fifth taxonomy value, superseded — upstream has an equivalent arrived at independently and ours is overwritten at the next re-vendor, which is correct — kept distinct from vendoring-repair because that one is loss in TRANSIT and this one is CONVERGENCE. Deliberately did NOT reclassify audit.sh wholesale: that path carries five tasks and only T-374 is superseded, so collapsing it would have quietly written off four real fixes; the entry keeps upstream: fix and names the superseded change separately. The bundling is now the live risk — at the next re-vendor their audit.sh overwrites ours and the other four die, which is T-517's learning arriving with a date on it. Enum validation added to the instrument because it had been documented in the manifest header and enforced NOWHERE, so a typo classified as neither debt nor not-debt: adding a fifth value to an unenforced list is T-509's class verbatim, a convention used as a classifier that nothing re-checks. Two teeth legs, and the second exists because the first alone is satisfied by a validator that rejects everything — mutation-tested both ways, each mutation kills exactly one leg. OBS-254 applied, zero unknown entries remain. Flagged a collision nobody would have found later: our extract-decisions.py is hyphenated and theirs is underscored, so a re-vendor lands theirs ALONGSIDE ours and ours becomes orphaned dead code. One AC amended in place rather than ticked as written: the suite gave 88/0, 86/2 and 87/1 on an unchanged tree, so 'the suite is green' would have been true of one run and false of the next. Localised that to _t358-teeth.py case 5 and registered OBS-255 rather than absorbing someone else's defect into this task's evidence — and it was the reason-asserting form of those legs, the PL-206 refinement captured yesterday, that surfaced it at all. Teeth 7 -> 9, 0 failed
+
+# Key outcomes
+outcomes:
+  - '`superseded` added to the `upstream:` taxonomy in the manifest header, defined as'
+  - '`agents/context/lib/episodic.sh` and `agents/context/lib/extract-decisions.py`'
+  - '`agents/audit/audit.sh` NOT wholesale reclassified: it bundles five tasks and only'
+  - 'OBS-254 applied: `lib/ts/dist/loop-detect.js` `unknown` -> `vendoring-repair`'
+  - 'Zero `upstream: unknown` entries remain, and the manifest still declares exactly as many'
+  - '`tools/_t517-vendor-divergence.py` validates the `upstream:` value against the taxonomy'
+  - 'A teeth leg proves that validation fires: a manifest carrying a bogus `upstream:` value'
+  - '`python3 tools/_t517-vendor-divergence.py` exits 0 on the real tree, and the bridge suite'
+  - 'The 16-entry list posted to AEF on `agent-chat-arc` with per-entry task ids, carrying'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'AEF''s 11895 falsified three entries in the vendor-divergence manifest one day after I wrote it, and that is the finding rather than the error. G-AUDIT-EXCLUDE-NOT-HONORED is fixed upstream by their T-2735 and the episodic placeholder leak by their T-3015 — the caveat I attached at 11893, that my ''valid upstream'' could already be stale, fired on schedule. Nothing here was wrong when written and nothing here changed: upstream: is the only field in this manifest making a claim about a repository I cannot see, so it is the only one that can go stale with no local edit, and no instrument on this side can ever detect it. There is no better check to build; the remedy is periodic triage by the side that can read upstream, which is why the 14-entry list went out at rail 11900 answering their explicit ask. Added a fifth taxonomy value, superseded — upstream has an equivalent arrived at independently and ours is overwritten at the next re-vendor, which is correct — kept distinct from vendoring-repair because that one is loss in TRANSIT and this one is CONVERGENCE. Deliberately did NOT reclassify audit.sh wholesale: that path carries five tasks and only T-374 is superseded, so collapsing it would have quietly written off four real fixes; the entry keeps upstream: fix and names the superseded change separately. The bundling is now the live risk — at the next re-vendor their audit.sh overwrites ours and the other four die, which is T-517''s learning arriving with a date on it. Enum validation added to the instrument because it had been documented in the manifest header and enforced NOWHERE, so a typo classified as neither debt nor not-debt: adding a fifth value to an unenforced list is T-509''s class verbatim, a convention used as a classifier that nothing re-checks. Two teeth legs, and the second exists because the first alone is satisfied by a validator that rejects everything — mutation-tested both ways, each mutation kills exactly one leg. OBS-254 applied, zero unknown entries remain. Flagged a collision nobody would have found later: our extract-decisions.py is hyphenated and theirs is underscored, so a re-vendor lands theirs ALONGSIDE ours and ours becomes orphaned dead code. One AC amended in place rather than ticked as written: the suite gave 88/0, 86/2 and 87/1 on an unchanged tree, so ''the suite is green'' would have been true of one run and false of the next. Localised that to _t358-teeth.py case 5 and registered OBS-255 rather than absorbing someone else''s defect into this task''s evidence — and it was the reason-asserting form of those legs, the PL-206 refinement captured yesterday, that surfaced it at all. Teeth 7 -> 9, 0 failed'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.context/audits/2026-08-15.yaml'
+  - '.context/audits/cron/2026-08-15-1315.yaml'
+  - '.context/audits/cron/2026-08-15-1330.yaml'
+  - '.context/audits/cron/2026-08-15-1345.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/inbox.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.handover.stderr'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-519-reconcile-vendor-divergence-against-aef-.md'
+  - 'tools/_t517-vendor-divergence.py'
+  - 'tools/_t517-vendor-divergence-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-15T13:53:23"
+    action: "T-519: AEF's 11895 falsified three entries in the vendor-divergence manifest one day after I wrote it, and that is the finding rather than the error. G-AUDIT-EXCLUDE-NOT-HONORED is fixed upstream by their T-2735 and the episodic placeholder leak by their T-3015 — the caveat I attached at 11893, that my 'valid upstream' could already be stale, fired on schedule. Nothing here was wrong when written and nothing here changed: upstream: is the only field in this manifest making a claim about a repository I cannot see, so it is the only one that can go stale with no local edit, and no instrument on this side can ever detect it. There is no better check to build; the remedy is periodic triage by the side that can read upstream, which is why the 14-entry list went out at rail 11900 answering their explicit ask. Added a fifth taxonomy value, superseded — upstream has an equivalent arrived at independently and ours is overwritten at the next re-vendor, which is correct — kept distinct from vendoring-repair because that one is loss in TRANSIT and this one is CONVERGENCE. Deliberately did NOT reclassify audit.sh wholesale: that path carries five tasks and only T-374 is superseded, so collapsing it would have quietly written off four real fixes; the entry keeps upstream: fix and names the superseded change separately. The bundling is now the live risk — at the next re-vendor their audit.sh overwrites ours and the other four die, which is T-517's learning arriving with a date on it. Enum validation added to the instrument because it had been documented in the manifest header and enforced NOWHERE, so a typo classified as neither debt nor not-debt: adding a fifth value to an unenforced list is T-509's class verbatim, a convention used as a classifier that nothing re-checks. Two teeth legs, and the second exists because the first alone is satisfied by a validator that rejects everything — mutation-tested both ways, each mutation kills exactly one leg. OBS-254 applied, zero unknown entries remain. Flagged a collision nobody would have found later: our extract-decisions.py is hyphenated and theirs is underscored, so a re-vendor lands theirs ALONGSIDE ours and ours becomes orphaned dead code. One AC amended in place rather than ticked as written: the suite gave 88/0, 86/2 and 87/1 on an unchanged tree, so 'the suite is green' would have been true of one run and false of the next. Localised that to _t358-teeth.py case 5 and registered OBS-255 rather than absorbing someone else's defect into this task's evidence — and it was the reason-asserting form of those legs, the PL-206 refinement captured yesterday, that surfaced it at all. Teeth 7 -> 9, 0 failed"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 20 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 20
+  commits: 1
+  files_changed: 25
+  lines_added: 727
+  lines_removed: 99
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-519-reconcile-vendor-divergence-against-aef-.md
+generated_by: context-agent-hybrid
