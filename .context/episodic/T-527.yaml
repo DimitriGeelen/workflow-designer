@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-527: propagate T-326's failure-output capture to the 62 bridge-suite legs that discard it
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T21:17:24Z
+# ============================================================================
+
+task_id: T-527
+task_name: "propagate T-326's failure-output capture to the 62 bridge-suite legs that discard it"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-15T19:51:49Z
+completed: 2026-08-15T21:17:21Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**The population is counted properly before anything is changed.** The task was filed'
+  - 'Every if-guarded leg that discards its probe''s output now captures it to a file under the'
+  - 'The whole population is converted, not the interesting subset. Doing the 6 AEF-seam probes'
+  - 'Any leg deliberately left discarding is named with its reason in a comment, so the next'
+  - 'The mechanism is demonstrated, not assumed: a leg is forced to fail and its captured'
+  - '`bash -n tests/run-bridge-tests.sh` parses, ratchet unmoved at 67, and the suite''s'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-15 — AC6''s "green at 94" was amended, twice, for two different reasons'
+    chose: 'report the suite''s actual result as evidence in the task body, and drop "94" as a literal pass condition. The expected figure is now **95**: this task adds one standing leg (`_t527-capture-invariant.sh`).'
+    rationale: 'two things falsified the original wording after it was written. (1) The first clean regression run came back **93 passed / 1 failed**, and the red was `_t525-fabric-coverage-teeth.py` — which passes 7/7 standalone. Its leg 7 asserts "the working tree is byte-identical after the run" by comparing whole-tree `git status` before vs after its own 61-second window, so ANY writer anywhere in the repo turns it red. The PreCompact handover committed at 22:56:58, inside that run (22:53:28→22:58:31). Demonstrated, not inferred: a persistent new file created mid-run drove it red naming `?? _t527-probe-marker.tmp`. A hard-coded "94" would have made this task''s completion gate depend on whether anything else touched the repo during a five-minute window. (2) Adding the prevention leg changes the count by construction. Leaving AC6 reading "94" and ticking it anyway would have been the gate certifying a number that no longer described the thing.'
+    alternatives_rejected: ['fixing the `_t525` hermeticity leg here. Different bug, different root cause, own task (CLAUDE.md: one bug = one task). Filed as an observation instead.']
+  - decision: '2026-08-15 — the pinned `show_output == 27` was removed from ## Verification after it blocked me'
+    chose: 'verify with `bash -n` plus `tools/_t527-capture-invariant.sh`, and pin no count.'
+    rationale: 'the gate caught me. I wrote `-eq 27` into ## Verification, then added the standing invariant leg — which contains a `show_output` call — and the count became 28. P-011 refused completion, correctly. This is the exact defect the Decisions entry above describes (a count of an always-moving population goes stale for reasons unrelated to what it is checking), committed by me against myself, inside the single task whose subject is that class. Bumping 27 → 28 would have restored the green and preserved the defect for the next person to add a leg. The invariant does not move.'
+    alternatives_rejected: ['keeping the count as a record that 23 legs were converted. That is a historical fact and belongs in the AC and the commit message, which is where it now lives. A completion gate should assert a property that must remain true, not a number that was true once.']
+  - decision: '2026-08-15 — the suite is deliberately NOT in this task''s ## Verification'
+    chose: 'verify with three deterministic greps (`bash -n`, `show_output` == 27, discarding guards == 0) and report the suite run in the body.'
+    rationale: 'the suite takes ~305s and T-526 measured it red on 2 of 5 identical runs. Wiring a known-flaky five-minute suite into P-011 would make the completion gate itself non-deterministic — the exact defect class this task exists to make legible.'
+    alternatives_rejected: ['wiring the full suite in for thoroughness. It would convert a real gate into a coin flip, and the first time it blocked a good task the response would be `--force`, which trains exactly the wrong reflex.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 85 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 85
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-527-propagate-t-326s-failure-output-capture-.md
+generated_by: context-agent-hybrid

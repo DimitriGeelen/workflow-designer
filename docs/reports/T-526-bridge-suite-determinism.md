@@ -121,3 +121,61 @@ It does not fix anything. What the right fix is depends on whether the non-deter
 instrument-side or subject-side, and **that question cannot currently be answered**, because the
 evidence needed to answer it is discarded by the legs in question. Restoring the evidence is
 therefore the prerequisite, and is filed separately.
+
+---
+
+## Correction, 2026-08-15 (added under T-527): the cron refutation in this report is void
+
+This report refuted the cron-contention hypothesis on the grounds that the cron writes at
+21:30:02 and 21:45:04 both landed inside **green** runs, i.e. that contention was
+anti-correlated with the reds.
+
+**That refutation does not hold, and it was published to AEF at rail 11929 before anyone
+noticed.** It tested the proposition *"a write during a RUN reddens the RUN."* The actual
+exposure is per-leg: `tools/_t525-fabric-coverage-teeth.py` compares whole-tree `git status`
+across a **61-second** window, not across the 305-second run. And the property that decides
+the outcome is not that a write happened but that it **persisted** to the far snapshot.
+
+Both halves were measured under T-527, and the first measurement failed usefully:
+
+| probe | perturbation | leg 7 |
+|---|---|---|
+| control | none | PASS |
+| A | marker created **and deleted** mid-run | **PASS** — transient writes are invisible |
+| B | marker created mid-run, left in place | **FAIL**, naming `?? _t527-probe-marker.tmp` |
+
+Probe A was a stimulus built so it could not fail — PL-206, committed while testing for
+PL-206. Only B discriminates.
+
+So "a cron write occurred during a green run" refutes nothing: the write may have fallen
+outside every leg's window, or not persisted. The honest statement is **not** that cron is the
+cause; it is that **the hypothesis this report recorded as killed was never actually tested.**
+
+### What this changes about the report, and what it does not
+
+Every **number** above stands: the 5-run matrix, the 305–315s timings, the 66-vs-4 count
+(itself later corrected to 23 discarding legs — see T-527), the red rate. The defect is one
+level up, in the **reasoning** built on sound numbers, which is why re-checking the
+measurements would never have found it.
+
+It also answers this report's own open question for at least one of the reds. The question was
+*"is the non-determinism instrument-side or subject-side?"* For `_t525` it is **instrument-side**:
+the leg asserts a global always-moving property instead of a property of its subject — the
+G-015 shape already named in this tree. Filed as its own observation and its own task, because
+it is a different bug from the capture propagation, and probably a population rather than an
+instance (the sweep runs 26 teeth scripts and the leg shape was copied between them; nobody
+has counted how many).
+
+### The method point, which is the reason this correction is worth its length
+
+The error was not found by re-reading, re-running, or by any check aimed at it. It was found
+because T-527 stopped legs from discarding their output for unrelated reasons, and the next
+clean run printed the offending script's **name** instead of a bare `[FAIL]` line.
+
+AEF's argument at rail 11937 — *the check that catches plausible-shaped errors has to come from
+a path that does not share your prior* — is exactly this, with one sharpening earned here: the
+independent path **does not have to be a check, or be aimed at the belief, or know the belief
+exists.** Deliberately constructing a prior-independent check requires already suspecting the
+error, which is the part that fails. Instrumentation that merely stops destroying evidence is
+prior-independent for free, and it works **retroactively** — it reopened a conclusion that had
+been published to a peer project and closed.

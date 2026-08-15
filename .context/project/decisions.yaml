@@ -1669,3 +1669,24 @@ decisions:
     date: 2026-08-15
     task: T-526
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-218
+    decision: "report the suite's actual result as evidence in the task body, and drop \"94\" as a"
+    scope: project
+    date: 2026-08-15
+    task: T-527
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-219
+    decision: "verify with `bash -n` plus `tools/_t527-capture-invariant.sh`, and pin no count."
+    scope: project
+    date: 2026-08-15
+    task: T-527
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-220
+    decision: "verify with three deterministic greps (`bash -n`, `show_output` == 27, discarding"
+    scope: project
+    date: 2026-08-15
+    task: T-527
+    rationale: "Auto-captured from task file on completion"

@@ -35,6 +35,32 @@ report() { printf '  [%s] %s\n' "$1" "$2"; }
 #
 # Failure-only by design: a suite that prints every leg's stdout buries the
 # signal it exists to surface.
+#
+# T-527: this helper existed for weeks and was called by FOUR legs. Every other
+# if-guarded leg redirected its probe to /dev/null, so T-326's reasoning above —
+# written into this file, in this comment — applied to 4 legs while 23 discarded.
+# Each new probe was added by copying a leg that discarded, so the defect
+# propagated by the same mechanism that should have propagated the fix.
+#
+# Measured consequence, not inferred (T-526, N=5 on an unchanged tree): 2 of 5
+# runs went red, on two different legs, neither reproducing — and BOTH failures
+# were uninvestigable from their own output. One of them was the T-509 sweep,
+# whose own FAIL message advertises that it "names the script and its rc", true
+# only if a human re-runs it by hand, which requires the flake to still be there.
+#
+# Worth stating because it decides the scope: 6 of the 10 CDP legs were among the
+# discarders, and those 6 are exactly the AEF-seam conformance probes. Every
+# answer given to AEF on the rail rested on an instrument that left nothing behind
+# when it failed. Converting only those 6 was the available shortcut and would have
+# been this fix's own subject matter — a remedy landing on the instances that
+# prompted it while the population grows around it. All 23 are converted.
+#
+# The count that filed the task was WRONG and the error is instructive: "62 legs"
+# came from 66 `report FAIL` calls minus 4 `show_output` calls, which counts two
+# different populations — most `report FAIL` sites are inside per-corpus loops, not
+# standalone legs. A difference between two independently-moving counts cannot
+# report the quantity you want, which is the exact finding of T-525 two tasks
+# earlier, committed here by the person who wrote it down.
 show_output() {
   local file="$1" label="$2"
   [ -s "$file" ] || { printf '      (no output captured from %s)\n' "$label"; return; }
@@ -623,10 +649,11 @@ echo "== Editor seam is a semantic fixed point, per-key (T-187/T-488/T-489/T-490
 # from the emitter and must have no orphans (T-490), no projected key may survive mutation
 # of its own wire carrier without moving the projection (BLIND), and at least one key must
 # actually be exercised (PL-084 — zero LIVE is vacuity, not safety).
-if node "$ROOT/tools/_roundtrip-serialization-cdp.mjs" > /dev/null; then
+if node "$ROOT/tools/_roundtrip-serialization-cdp.mjs" > "$TMP/leg-_roundtrip-serialization-cdp.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "the editor↔bridge semantic fixed point broke, or the guard's key denominator no longer matches what the emitter projects (T-490: an emitter-projected key outside KEYSPEC makes the coverage fraction a claim about the list, not the seam — run 'node tools/_roundtrip-serialization-cdp.mjs' and read denominator.problems)"
+  show_output "$TMP/leg-_roundtrip-serialization-cdp.out" "_roundtrip-serialization-cdp.mjs"
   fail=$((fail + 1))
 fi
 
@@ -671,10 +698,11 @@ echo "== Foreign nodes disclose rather than impersonate (T-355, T-337) =="
 # _roundtrip-serialization-cdp.mjs (T-490, PL-161) and the mistake was repeated anyway.
 # Two instances is a pattern: a completion gate is not a guard, and the only durable
 # remedy is a caller that re-executes without a task completing.
-if node "$ROOT/tools/_t355-foreign-tag-render-cdp.mjs" > /dev/null; then
+if node "$ROOT/tools/_t355-foreign-tag-render-cdp.mjs" > "$TMP/leg-_t355-foreign-tag-render-cdp.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "a BPMN element this editor does not implement is being drawn with marks that claim a type it was never given, or the foreign branch stopped running ahead of the type branches, or export stopped re-emitting the foreign tag verbatim (T-355/T-337 — run 'node tools/_t355-foreign-tag-render-cdp.mjs' for the per-leg verdict; the CONTROL leg failing instead means a NATIVE serviceTask lost its dot, which is the opposite defect)"
+  show_output "$TMP/leg-_t355-foreign-tag-render-cdp.out" "_t355-foreign-tag-render-cdp.mjs"
   fail=$((fail + 1))
 fi
 
@@ -696,10 +724,11 @@ echo "== Finished-and-invisible census still has a population (T-505) =="
 # completing (PL-161). Wired in the same change that created the tool rather than after
 # it: T-503 was the repair for exactly that omission, and T-491's ratchet counts a tool
 # with no root caller as backlog the moment it lands in tools/.
-if python3 "$ROOT/tools/_t505-finished-invisible-census.py" > /dev/null; then
+if python3 "$ROOT/tools/_t505-finished-invisible-census.py" > "$TMP/leg-_t505-finished-invisible-census.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "the finished-and-invisible census could not establish a population (T-505 — run 'python3 tools/_t505-finished-invisible-census.py' for the refusal reason; exit 2 means it abstained rather than returning a verdict, most likely because .tasks/active moved, the '## Acceptance Criteria' heading was renamed, or the task template stopped carrying checkboxes)"
+  show_output "$TMP/leg-_t505-finished-invisible-census.out" "_t505-finished-invisible-census.py"
   fail=$((fail + 1))
 fi
 
@@ -735,10 +764,11 @@ echo "== Unwired-guard ratchet over tools/ (T-451 census, T-491 ratchet) =="
 # and equally when it SHRINKS (the baseline now lies and must be tightened) — PL-004
 # prescribed exactly this, allowlist WITH stale-entry detection, and only the allowlist
 # half was ever built.
-if python3 "$ROOT/tools/_t451-unwired-guard-census.py" --ratchet > /dev/null; then
+if python3 "$ROOT/tools/_t451-unwired-guard-census.py" --ratchet > "$TMP/leg-_t451-unwired-guard-census.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "the unwired-guard backlog MOVED — either a standing guard lost its last live caller, or a baseline entry is now wired and tools/unwired-guard-baseline.txt is stale (run 'python3 tools/_t451-unwired-guard-census.py --ratchet' for the direction; do not silently re-baseline, a new entry is a finding to report)"
+  show_output "$TMP/leg-_t451-unwired-guard-census.out" "_t451-unwired-guard-census.py"
   fail=$((fail + 1))
 fi
 
@@ -756,10 +786,11 @@ echo "== G-015 verification-hygiene ratchet, now watched (T-508) =="
 # grandfathered baseline, so the 105 pre-existing carrier lines cannot paint the suite red
 # while the population still awaits the operator's G-015 leg-1 ruling. What it catches is
 # the next one written.
-if python3 "$ROOT/tools/verification-hygiene.py" > /dev/null; then
+if python3 "$ROOT/tools/verification-hygiene.py" > "$TMP/leg-verification-hygiene.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "a NEW G-015 carrier appeared in a task's ## Verification block — a line asserting a global, always-moving property (serve-root diff, hard-coded port, or a literal count pinned to a growing population) instead of a property of the task carrying it (run 'python3 tools/verification-hygiene.py' to see which line and which kind; rewrite the line, do not re-baseline — the baseline is the grandfathered population awaiting the operator's ruling, not a place to put new ones)"
+  show_output "$TMP/leg-verification-hygiene.out" "verification-hygiene.py"
   fail=$((fail + 1))
 fi
 
@@ -775,10 +806,11 @@ echo "== …and its teeth, also now watched (T-508) =="
 # runs. Every other tools/_t*-teeth.sh in this repo is in the same unwatched state this
 # task found verification-hygiene.py in. Not fixed here — one task, one deliverable — but
 # it is now written down somewhere that runs.
-if bash "$ROOT/tools/_t408-hygiene-teeth.sh" > /dev/null 2>&1; then
+if bash "$ROOT/tools/_t408-hygiene-teeth.sh" > "$TMP/leg-_t408-hygiene-teeth.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "the G-015 hygiene ratchet's teeth failed — the guard wired one leg up can no longer be shown to fire (run 'bash tools/_t408-hygiene-teeth.sh' for the failing leg; a green ratchet with red teeth means the ratchet's green carries no information)"
+  show_output "$TMP/leg-_t408-hygiene-teeth.out" "_t408-hygiene-teeth.sh"
   fail=$((fail + 1))
 fi
 
@@ -812,10 +844,11 @@ echo "== Instrument sweep: every runnable teeth script, every run (T-509) =="
 # docstring prescribes a NEW genuinely-unstable injection, and choosing that is a decision.
 # Same for _t350/_t351, which drive live servers and one of which has a documented
 # repo-deletion incident in its own header.
-if bash "$ROOT/tools/_t509-instrument-sweep.sh" > /dev/null 2>&1; then
+if bash "$ROOT/tools/_t509-instrument-sweep.sh" > "$TMP/leg-_t509-instrument-sweep.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "an instrument that passed on 2026-08-15 no longer does, or an exclusion went stale (run 'bash tools/_t509-instrument-sweep.sh' — it names the script and its rc; these are hermetic and leave the repo untouched, so a red here is a real regression in whatever that teeth script guards, not harness noise)"
+  show_output "$TMP/leg-_t509-instrument-sweep.out" "_t509-instrument-sweep.sh"
   fail=$((fail + 1))
 fi
 
@@ -835,10 +868,11 @@ echo "== Census edge DEFINITION controls (T-495) =="
 # Plain mode, not --discriminate: that mode diffs against `git show HEAD:` and is only
 # meaningful from a tree whose HEAD predates T-495. Post-commit it compares the census to
 # itself, so it is an authoring-time proof, not a standing one. The probe says so itself.
-if python3 "$ROOT/tools/_t495-prose-edge-probe.py" > /dev/null; then
+if python3 "$ROOT/tools/_t495-prose-edge-probe.py" > "$TMP/leg-_t495-prose-edge-probe.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "the census edge definition changed — prose is counting as a call again, or a real invocation (string argument, composed os.path.join/pathlib path, shell call with a trailing comment) stopped counting (run 'python3 tools/_t495-prose-edge-probe.py' for the failing leg)"
+  show_output "$TMP/leg-_t495-prose-edge-probe.out" "_t495-prose-edge-probe.py"
   fail=$((fail + 1))
 fi
 
@@ -852,10 +886,11 @@ echo "== Derived-root census controls (T-497) =="
 # dominant shell idiom here and it guards the one step that cannot fail — copy the file
 # anywhere and `cd <somewhere>/..` still succeeds, then every relative subject is missing.
 # If the census ever credits that as verification, ~4 files silently move to "safe".
-if bash "$ROOT/tools/_t497-census-controls.sh" > /dev/null 2>&1; then
+if bash "$ROOT/tools/_t497-census-controls.sh" > "$TMP/leg-_t497-census-controls.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "the derived-root census stopped discriminating — an unguarded harness is being scored as verified, or the cd-guard is being credited as a subject check (run 'bash tools/_t497-census-controls.sh' for the failing control)"
+  show_output "$TMP/leg-_t497-census-controls.out" "_t497-census-controls.sh"
   fail=$((fail + 1))
 fi
 
@@ -894,10 +929,11 @@ echo "== The geometry carrier has exactly one carrier (T-423) =="
 # Its teeth are NOT wired separately here — tools/_t423-position-carrier-teeth.py is picked
 # up by the T-509 instrument sweep above by name, which is the standing caller T-509 built
 # the sweep to provide. Verified: population 24 -> 25, runnable 19/19 -> 20/20.
-if python3 "$ROOT/tools/_t423-position-carrier-guard.py" > /dev/null; then
+if python3 "$ROOT/tools/_t423-position-carrier-guard.py" > "$TMP/leg-_t423-position-carrier-guard.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "a flow node lost its aef:position, gained a second one, or a position turned up outside a flow node's own extensionElements — if this went red alongside a DI change, the two carriers have diverged and that is the whole point of the leg (run 'python3 tools/_t423-position-carrier-guard.py' for the node by name; rc 2 means it REFUSED — empty corpus or unparseable map — which is not a failure of the invariant but of the subject)"
+  show_output "$TMP/leg-_t423-position-carrier-guard.out" "_t423-position-carrier-guard.py"
   fail=$((fail + 1))
 fi
 
@@ -916,10 +952,11 @@ echo "== Unwired flow nodes survive a save round-trip (T-511, AEF rail 11833 Q2)
 #
 # COST: ~40s — it spawns Chromium plus the gallery sidecar. Precedent is _t338, which the
 # suite already runs the same way. To reverse: delete this leg, one line, no other coupling.
-if timeout 300 node "$ROOT/tools/_t511-unwired-node-roundtrip.mjs" > /dev/null 2>&1; then
+if timeout 300 node "$ROOT/tools/_t511-unwired-node-roundtrip.mjs" > "$TMP/leg-_t511-unwired-node-roundtrip.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "a save round-trip now drops unwired flow nodes, or the probe's own negative control stopped firing — either way the answer given to AEF at rail 11879 is no longer true and they must be told (run 'node tools/_t511-unwired-node-roundtrip.mjs' for the verdict; rc 2 is a refusal — empty corpus or no chromium — not a fidelity failure)"
+  show_output "$TMP/leg-_t511-unwired-node-roundtrip.out" "_t511-unwired-node-roundtrip.mjs"
   fail=$((fail + 1))
 fi
 
@@ -936,10 +973,11 @@ echo "== Identity survives a third-party import with no aef:uid (T-513, AEF rail
 # the one that matters — minting a fresh uid per save would look fine in any single export.
 #
 # COST: ~40s, Chromium plus the gallery sidecar, same shape as _t511 and _t338 above.
-if timeout 300 node "$ROOT/tools/_t513-thirdparty-identity-roundtrip.mjs" > /dev/null 2>&1; then
+if timeout 300 node "$ROOT/tools/_t513-thirdparty-identity-roundtrip.mjs" > "$TMP/leg-_t513-thirdparty-identity-roundtrip.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "a third-party BPMN document (no aef:uid) no longer keeps a stable identity across a save round-trip, or the probe's negative control stopped firing — the answer given to AEF at rail 11885 is no longer true and they must be told (run 'node tools/_t513-thirdparty-identity-roundtrip.mjs' for the verdict; rc 2 is a refusal — the fixture stopped being third-party — not an identity failure)"
+  show_output "$TMP/leg-_t513-thirdparty-identity-roundtrip.out" "_t513-thirdparty-identity-roundtrip.mjs"
   fail=$((fail + 1))
 fi
 
@@ -957,10 +995,11 @@ echo "== Externally-assigned aef:uid is honoured — mapping standard §6.3 (T-5
 # breaks the reverse path just as surely.
 #
 # COST: ~40s, Chromium plus the gallery sidecar, same shape as _t511/_t513 above.
-if timeout 300 node "$ROOT/tools/_t515-external-uid-conformance.mjs" > /dev/null 2>&1; then
+if timeout 300 node "$ROOT/tools/_t515-external-uid-conformance.mjs" > "$TMP/leg-_t515-external-uid-conformance.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "the editor no longer honours externally-assigned aef:uid values, or re-rendering stopped being byte-stable — mapping standard §6.3 is broken and AEF's reverse path depends on it (run 'node tools/_t515-external-uid-conformance.mjs' for the verdict; rc 2 is a refusal — corpus missing, or the fixture stopped being externally-shaped — not a conformance failure)"
+  show_output "$TMP/leg-_t515-external-uid-conformance.out" "_t515-external-uid-conformance.mjs"
   fail=$((fail + 1))
 fi
 
@@ -974,10 +1013,11 @@ echo "== Episodic decisions extractor: no phantoms, no truncation, no silent cap
 # Wired rather than left to the *teeth* naming convention: T-509 measured that convention
 # and found it false for 19 of 24 scripts, which had no standing caller at all. This guards
 # episodic memory, one of the framework's three memory types, so it gets a real caller.
-if python3 "$ROOT/tools/_t516-episodic-decisions-teeth.py" > /dev/null 2>&1; then
+if python3 "$ROOT/tools/_t516-episodic-decisions-teeth.py" > "$TMP/leg-_t516-episodic-decisions-teeth.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "the episodic decisions extractor regressed — phantom template entries, truncated values, or a silent cap are back, and every task closed since would carry corrupted decisions (run 'python3 tools/_t516-episodic-decisions-teeth.py' for the failing leg)"
+  show_output "$TMP/leg-_t516-episodic-decisions-teeth.out" "_t516-episodic-decisions-teeth.py"
   fail=$((fail + 1))
 fi
 
@@ -996,10 +1036,11 @@ echo "== aef:uid collision behaviour is unchanged (T-518, _t515 gap 1, AEF rail 
 # preference no standard carries.
 #
 # COST: ~40s, Chromium plus the gallery sidecar, same shape as _t511/_t513/_t515.
-if timeout 300 node "$ROOT/tools/_t518-uid-collision.mjs" > /dev/null 2>&1; then
+if timeout 300 node "$ROOT/tools/_t518-uid-collision.mjs" > "$TMP/leg-_t518-uid-collision.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "aef:uid collision behaviour changed, or the negative control died — if the editor now rewrites or rejects duplicate authored uids, AEF's reverse renderer will see uids it never assigned and must be told before they build on it (run 'node tools/_t518-uid-collision.mjs'; rc 2 is a refusal — corpus missing or the collision could not be staged — not a behaviour change)"
+  show_output "$TMP/leg-_t518-uid-collision.out" "_t518-uid-collision.mjs"
   fail=$((fail + 1))
 fi
 
@@ -1025,10 +1066,11 @@ echo "== aef:uid values that are not XML-attribute-safe (T-520, _t515 gap 2) =="
 # happen here is co-designed and not a test file's call.
 #
 # COST: ~40s, Chromium plus the gallery sidecar, same shape as _t511/_t513/_t515/_t518.
-if timeout 300 node "$ROOT/tools/_t520-uid-xml-safety.mjs" > /dev/null 2>&1; then
+if timeout 300 node "$ROOT/tools/_t520-uid-xml-safety.mjs" > "$TMP/leg-_t520-uid-xml-safety.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "aef:uid XML-attribute safety changed, or the negative control died — a uid value that used to survive a round-trip no longer does (or vice versa), which silently re-points every record AEF keys on that uid (run 'node tools/_t520-uid-xml-safety.mjs'; rc 2 is a refusal — corpus missing, staging failed, or the plain-value control did not survive — not a behaviour change)"
+  show_output "$TMP/leg-_t520-uid-xml-safety.out" "_t520-uid-xml-safety.mjs"
   fail=$((fail + 1))
 fi
 
@@ -1049,17 +1091,19 @@ echo "== Vendored-framework divergence matches its declared manifest (T-517) =="
 # prove it can go red at all. The instrument went green on its first run, and green on a fresh
 # control means nothing until a stimulus containing the fault has been fed to it (PL-206) —
 # the mode-only teeth leg then caught a genuine misclassification in the instrument itself.
-if python3 "$ROOT/tools/_t517-vendor-divergence.py" > /dev/null 2>&1; then
+if python3 "$ROOT/tools/_t517-vendor-divergence.py" > "$TMP/leg-_t517-vendor-divergence.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "vendored framework divergence no longer matches .agentic-framework/.vendor-divergence.yaml — either vendored code was patched without declaring it, or a declared local fix has vanished (a re-vendor would do exactly that). Run 'python3 tools/_t517-vendor-divergence.py'; rc 2 is a REFUSAL (manifest or baseline unreachable), not a clean tree"
+  show_output "$TMP/leg-_t517-vendor-divergence.out" "_t517-vendor-divergence.py"
   fail=$((fail + 1))
 fi
 
-if python3 "$ROOT/tools/_t517-vendor-divergence-teeth.py" > /dev/null 2>&1; then
+if python3 "$ROOT/tools/_t517-vendor-divergence-teeth.py" > "$TMP/leg-_t517-vendor-divergence-teeth.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "the divergence instrument stopped detecting the classes it claims to — mode-only divergence, stale entries, or an unreachable baseline refusing instead of passing (run 'python3 tools/_t517-vendor-divergence-teeth.py' for the failing leg)"
+  show_output "$TMP/leg-_t517-vendor-divergence-teeth.out" "_t517-vendor-divergence-teeth.py"
   fail=$((fail + 1))
 fi
 
@@ -1081,17 +1125,19 @@ echo "== A node nested in a subProcess keeps its uid AND its parent (T-523) =="
 # go red, to go red on the NESTED arm specifically, and to leave the FLAT arm alone. Without that
 # last one a red is equally explained by the mutant breaking the round-trip wholesale, and the
 # probe would be taking credit for a detection it never localised.
-if timeout 300 node "$ROOT/tools/_t523-subprocess-nesting.mjs" > /dev/null 2>&1; then
+if timeout 300 node "$ROOT/tools/_t523-subprocess-nesting.mjs" > "$TMP/leg-_t523-subprocess-nesting.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "subProcess containment behaviour changed — a nested node's uid, its connecting flow, or whether it stays nested is no longer what AEF was told (run 'node tools/_t523-subprocess-nesting.mjs'; rc 2 is a REFUSAL — no corpus, staging failed, negative control dead, or no pin file — not a behaviour change)"
+  show_output "$TMP/leg-_t523-subprocess-nesting.out" "_t523-subprocess-nesting.mjs"
   fail=$((fail + 1))
 fi
 
-if timeout 600 python3 "$ROOT/tools/_t523-nesting-teeth.py" > /dev/null 2>&1; then
+if timeout 600 python3 "$ROOT/tools/_t523-nesting-teeth.py" > "$TMP/leg-_t523-nesting-teeth.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "the nesting probe stopped being able to detect the alternative behaviour — either the mutation target in parseBpmnXml moved (rc 2, a refusal), the probe no longer goes red on a mutant that drops nested nodes, or it no longer refuses when its pin file is absent (run 'python3 tools/_t523-nesting-teeth.py' for the failing leg)"
+  show_output "$TMP/leg-_t523-nesting-teeth.out" "_t523-nesting-teeth.py"
   fail=$((fail + 1))
 fi
 
@@ -1113,10 +1159,11 @@ echo "== A completed task still gets episodic memory, and a lost one is reported
 # abort in this identical block and did not carry the guard to the neighbouring lines. So the
 # leg tests the WATCHDOG as much as the fix: mutate the guard back out, and the run must lose
 # the episodic AND say so by name.
-if python3 "$ROOT/tools/_t522-episodic-reachability-teeth.py" > /dev/null 2>&1; then
+if python3 "$ROOT/tools/_t522-episodic-reachability-teeth.py" > "$TMP/leg-_t522-episodic-reachability-teeth.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "task completion can lose its episodic memory silently again — either the pipefail guard in update-task.sh's component loop was reverted, the EXIT-trap watchdog was replaced by a second trap (bash keeps only the last), or the watchdog now alarms on the designed partial-complete skip (run 'python3 tools/_t522-episodic-reachability-teeth.py'; rc 2 is a REFUSAL — the mutation target is missing, so the legs were never evaluated — not a pass)"
+  show_output "$TMP/leg-_t522-episodic-reachability-teeth.out" "_t522-episodic-reachability-teeth.py"
   fail=$((fail + 1))
 fi
 
@@ -1139,10 +1186,11 @@ echo "== A malformed component card is DETECTED, not merely survived (T-524) =="
 # that card's own file as UNREGISTERED and the printed remedy is `fw fabric scan` — which would
 # mint a SECOND card for one file. Silence that manufactures duplicates. That leg is why
 # `location` is required rather than merely conventional.
-if python3 "$ROOT/tools/_t524-fabric-validate-teeth.py" > /dev/null 2>&1; then
+if python3 "$ROOT/tools/_t524-fabric-validate-teeth.py" > "$TMP/leg-_t524-fabric-validate-teeth.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "malformed component cards can go undetected again — either fw fabric validate regressed to a stub that returns 0, it stopped naming the offending card and field, it lost the refusal path (rc 2 on an empty register or an unknown component id, which must not look like a pass), or it now flags valid cards too (run 'python3 tools/_t524-fabric-validate-teeth.py' for the failing leg; rc 2 is a REFUSAL — the fabric agent is absent — not a pass)"
+  show_output "$TMP/leg-_t524-fabric-validate-teeth.out" "_t524-fabric-validate-teeth.py"
   fail=$((fail + 1))
 fi
 
@@ -1162,10 +1210,26 @@ echo "== The fabric coverage WARN can tell card LOSS from source growth (T-525) 
 # every run for every input. Each leg pins WHICH branch was taken, and the two legs that assert a
 # branch was NOT taken also prove the check produced a line, because a negative assertion is
 # satisfied by silence (the vacuous-leg failure caught one task earlier in T-524).
-if python3 "$ROOT/tools/_t525-fabric-coverage-teeth.py" > /dev/null 2>&1; then
+if python3 "$ROOT/tools/_t525-fabric-coverage-teeth.py" > "$TMP/leg-_t525-fabric-coverage-teeth.out" 2>&1; then
   pass=$((pass + 1))
 else
   report FAIL "the fabric coverage warning stopped discriminating — either it regressed to raw counts with no ratio, card loss now reads the same as source growth, an absent history renders as 'no change' instead of abstaining, or the severity moved off WARN and overturned the T-344 [REVIEW] as a side effect (run 'python3 tools/_t525-fabric-coverage-teeth.py'; rc 2 is a REFUSAL — the audit emitted no coverage line, so the message shape changed and nothing was evaluated — not a measured failure)"
+  show_output "$TMP/leg-_t525-fabric-coverage-teeth.out" "_t525-fabric-coverage-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
+echo "== Every leg still captures its own failure output (T-527) =="
+# The standing form of T-527's fix. T-326 wired the remedy into 4 legs and wrote the reason
+# into this file; 23 legs added afterwards were copied from a discarding template anyway,
+# because a discarding leg and a capturing one are byte-identical in every GREEN run. This
+# leg is the signal that was missing for that whole period. It asserts the INVARIANT (zero
+# discards) rather than a leg count, so it does not go red for whoever next adds a leg.
+if bash "$ROOT/tools/_t527-capture-invariant.sh" > "$TMP/leg-_t527-capture-invariant.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a bridge-suite leg discards its probe's output again, or the capture helper itself went missing (run 'bash tools/_t527-capture-invariant.sh' — it prints the offending line numbers; rc 2 is a REFUSAL, meaning show_output() is gone or the suite's leg idiom changed, so nothing was evaluated — not a measured pass)"
+  show_output "$TMP/leg-_t527-capture-invariant.out" "_t527-capture-invariant.sh"
   fail=$((fail + 1))
 fi
 

@@ -1611,3 +1611,24 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-226
+  learning: "A wrong REFUTATION is more dangerous than a wrong measurement, and it can sit on entirely correct numbers. T-526 killed the cron-contention hypothesis because cron writes landed in green runs; T-527 showed the exposure window is per-leg (61s) not per-run (305s) and that the deciding property is whether the write PERSISTS, so the refutation tested a proposition nobody held. Every number in T-526 was right — the error was one level up, in reasoning built on them, which is why re-running and re-checking would never have found it. A measurement that is wrong invites correction; a refutation that is wrong CLOSES the investigation, and it gets transmitted (rail 11929) as settled."
+  source: P-001
+  task: T-527
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
+- id: PL-227
+  learning: "Instrumentation that merely stops destroying evidence is prior-independent for free, and it works retroactively. AEF's argument (rail 11937) is that errors with plausible shapes survive measurement because plausibility is a function of your own priors, so catching them requires a path that does not share the prior — but deliberately building such a path requires already suspecting the error, which is the part that fails. T-527 sharpens it: the independent path need not be a check, need not be aimed at the belief, need not know the belief exists. Replacing '> /dev/null' with a captured file on 23 legs, for unrelated reasons, made the very next run print the offending script's NAME — reopening a conclusion already published to a peer and closed. Cost about an hour and finds nothing on demand; it changes the odds that an error, when something eventually trips over it, is legible instead of a shrug."
+  source: P-001
+  task: T-527
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
+- id: PL-228
+  learning: "A completion gate must assert a property that must REMAIN true, never a number that WAS true. T-527 pinned 'show_output == 27' in its own Verification, then added a leg containing a show_output call, and P-011 blocked its own author within the same task — the G-015 defect (a count of an always-moving population) committed inside the task whose subject is that class. Bumping 27 to 28 restores green and preserves the defect for whoever next adds a leg. The remedy is an invariant ('zero if-guards discard'), which does not move as the population grows, plus an abstention (rc 2) when the thing that makes the invariant meaningful is missing — 'zero discards' is vacuously true of a suite whose capture helper was deleted."
+  source: P-001
+  task: T-527
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
