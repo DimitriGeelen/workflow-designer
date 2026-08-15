@@ -6407,3 +6407,21 @@ scan_id: R-0306e3ea
 task_id: T-513
 payload:
   task_file: .tasks/active/T-513-does-identity-survive-a-third-party-impo.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T09:33:18Z'
+scan_id: R-e11776a9
+task_id: T-514
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T09:33:18Z'
+scan_id: R-e11776a9
+task_id: T-514
+payload:
+  task_file: .tasks/active/T-514-forward-compile-identity-rests-on-an-uns.md

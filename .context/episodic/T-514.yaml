@@ -1,0 +1,87 @@
+# ============================================================================
+# EPISODIC MEMORY - T-514: forward-compile identity rests on an unstated upstream precondition
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T09:33:20Z
+# ============================================================================
+
+task_id: T-514
+task_name: "forward-compile identity rests on an unstated upstream precondition"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-15T09:31:42Z
+completed: 2026-08-15T09:33:17Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-15T11:33:13+02:00
+last_commit: 2026-08-15T11:33:13+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the forward-compile standard's identity rule is correct and rests on a precondition neither standard states. Went looking for whether T-513's measurement broke anything in the standards and found the opposite first: forward-compile section 4 already names the third-party case exactly — a node whose uid does not resolve, a fresh editor-minted n_ uid, is a create proposal — and T-513 measured that the designer mints precisely that shape, so a bpmn.io document saved once here lands on their create branch with no special-casing. Checked before filing, which is why this is not a gap report. The real finding is one level down and it is inherited rather than local: the minted uid is FNV-1a over the UPSTREAM element id, so for a document never assigned an AEF uid, create-vs-modify is only as stable as the producing tool's ids. Measured both ways — same bytes twice give an identical uid set, full re-mint gives 0 of 7 survivors. Deliberately NOT asserted: whether bpmn.io or Camunda preserve ids across an edit, which is their tools' property and unknowable from this repo, so the failure mode is named without claiming it fires. Section 4's 'sole discriminator' phrasing invites reading identity as self-contained in the document when it is not. Registered as OBS-252 rather than left in a task file, because completed tasks archive and the register does not, and raised at rail 11887 as a proposed sentence rather than a defect. Neither standard edited — verified by git diff rather than by intending to leave them alone, since a normative change to a co-designed artifact is AEF's and the operator's call and the mapping standard is frozen under agent control outright.
+
+# Key outcomes
+outcomes:
+  - 'The precondition is stated in a form that names what is measured and what is assumed,'
+  - 'Registered where it survives this session — an observation, not only a task file,'
+  - 'Raised with AEF on the rail with producer attribution, as a proposed addition to'
+  - 'Neither `docs/standards/aef-bpmn-mapping-v1.md` nor'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '[date] — [topic]'
+    chose: '[what was decided]'
+    rationale: '[rationale]'
+    alternatives_rejected: ['[alternatives and why not]']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/audits/cron/2026-08-15-1130.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/inbox.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/watchtower.log'
+  - '.tasks/active/T-423-t-357-step-2-emit-bpmn-di-additively-alo.md'
+  - '.tasks/active/T-514-forward-compile-identity-rests-on-an-uns.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-15T11:33:13"
+    action: "T-514: the forward-compile standard's identity rule is correct and rests on a precondition neither standard states. Went looking for whether T-513's measurement broke anything in the standards and found the opposite first: forward-compile section 4 already names the third-party case exactly — a node whose uid does not resolve, a fresh editor-minted n_ uid, is a create proposal — and T-513 measured that the designer mints precisely that shape, so a bpmn.io document saved once here lands on their create branch with no special-casing. Checked before filing, which is why this is not a gap report. The real finding is one level down and it is inherited rather than local: the minted uid is FNV-1a over the UPSTREAM element id, so for a document never assigned an AEF uid, create-vs-modify is only as stable as the producing tool's ids. Measured both ways — same bytes twice give an identical uid set, full re-mint gives 0 of 7 survivors. Deliberately NOT asserted: whether bpmn.io or Camunda preserve ids across an edit, which is their tools' property and unknowable from this repo, so the failure mode is named without claiming it fires. Section 4's 'sole discriminator' phrasing invites reading identity as self-contained in the document when it is not. Registered as OBS-252 rather than left in a task file, because completed tasks archive and the register does not, and raised at rail 11887 as a proposed sentence rather than a defect. Neither standard edited — verified by git diff rather than by intending to leave them alone, since a normative change to a co-designed artifact is AEF's and the operator's call and the mapping standard is frozen under agent control outright."
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 1 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 1
+  commits: 1
+  files_changed: 12
+  lines_added: 435
+  lines_removed: 26
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-514-forward-compile-identity-rests-on-an-uns.md
+generated_by: context-agent-hybrid
