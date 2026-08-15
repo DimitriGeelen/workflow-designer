@@ -864,3 +864,10 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-252
+  text: "Forward-compile identity rests on an UNSTATED UPSTREAM PRECONDITION. aef-bpmn-forward-compile-v1.md section 4 makes aef:uid resolution the SOLE modify/create discriminator and correctly names the third-party case — a node whose uid does not resolve, a fresh editor-minted n_ uid, is a create proposal. T-513 confirms the designer produces exactly that shape on third-party import, so the rule itself is right. The gap is one level down: the minted uid is FNV-1a over the upstream element id, so for a document never assigned an AEF uid, the create-vs-modify verdict is only as stable as the UPSTREAM TOOL's element ids. MEASURED (T-513): the same bytes twice yield an identical uid set, and re-minting every element id yields 0 of 7 survivors. NOT MEASURED and deliberately not asserted: whether bpmn.io or Camunda preserve element ids across an ordinary edit — that is a property of their tools and is not checkable from this repo. The consequence if an upstream editor does re-mint: the same logical process forward-compiles to a second full set of CREATE proposals rather than modifies, i.e. duplicate tasks, and nothing in either standard would flag it. Section 4's 'sole discriminator' phrasing invites the opposite reading, that identity is self-contained in the document, when it is inherited from whatever produced the ids. NOT a defect in AEF's compiler, which is correct as written — an inherited precondition that is currently folklore. Proposed remedy is one normative sentence in their section 4 naming the dependency; NOT applied, because both standards are co-designed and the mapping standard is frozen under agent control outright, so wording changes are AEF's and the operator's call."
+  captured: 2026-08-15T09:32:29Z
+  context_task: T-514
+  tags: [standards]
+  status: pending
+  promoted_to: null
