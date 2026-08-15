@@ -1443,3 +1443,17 @@ learnings:
   date: 2026-08-14
   context: Added via context agent
   application: TBD
+- id: PL-202
+  learning: "A naming convention used as a CLASSIFIER is an assumption with an expiry date, and nothing re-checks it because a convention is not code. _t451's unwired-guard census excuses every tools/*teeth*, *probe*, *mutation* file as 'one-shot by design'. That was true when written. Measured under T-509 it is false for 19 of 24: they are hermetic (running all 24 left git status byte-identical) and pass today, so they are re-runnable and were simply never called. The exemption did not decay because anyone changed it — it decayed because the FILES changed category underneath it while the pattern kept matching. Corollary that generalises: an exemption granted by pattern-match must name the PROPERTY it stands for, not the shape of the filename, because the property is testable and the filename is not. 'One-shot' can be checked by running the thing twice. 'Named *teeth*' can only be re-read. Where PL-182 said reachability is not binary, this is one level up: the CATEGORY was never in question, and that is why nobody looked"
+  source: P-001
+  task: T-509
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
+- id: PL-203
+  learning: "An exit branch placed AFTER a loop that can also fail is UNREACHABLE whenever the loop fails, so a control asserting only the exit code certifies a line that never executed. T-509's sweep checked stale exclusions, then ran 19 scripts, then exited on stale — but the run-failure exit came first, so with the exclusion list mutated the control saw rc=1 off the RUN branch while the stale branch had never run. rc alone could not tell the two apart and the control read green. Two fixes, both cheap: move the branch BEFORE the work it guards (also correct on the merits — a sweep driven by an exclusion list known to be wrong produces a verdict about the wrong population), and assert something only that branch produces. The tell that caught it was TIMING: the correct version fails in 0s because the run loop never starts, the wrong one takes ~90s. When two failure paths share an exit code, the control must discriminate on message, side-effect or wall-clock — never on rc. Same family as T-491's control C passing because set -e aborted before the assertion"
+  source: P-001
+  task: T-509
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
