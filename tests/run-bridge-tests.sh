@@ -939,7 +939,7 @@ echo "== Identity survives a third-party import with no aef:uid (T-513, AEF rail
 if timeout 300 node "$ROOT/tools/_t513-thirdparty-identity-roundtrip.mjs" > /dev/null 2>&1; then
   pass=$((pass + 1))
 else
-  report FAIL "a third-party BPMN document (no aef:uid) no longer keeps a stable identity across a save round-trip, or the probe's negative control stopped firing — the answer given to AEF at rail 11884 is no longer true and they must be told (run 'node tools/_t513-thirdparty-identity-roundtrip.mjs' for the verdict; rc 2 is a refusal — the fixture stopped being third-party — not an identity failure)"
+  report FAIL "a third-party BPMN document (no aef:uid) no longer keeps a stable identity across a save round-trip, or the probe's negative control stopped firing — the answer given to AEF at rail 11885 is no longer true and they must be told (run 'node tools/_t513-thirdparty-identity-roundtrip.mjs' for the verdict; rc 2 is a refusal — the fixture stopped being third-party — not an identity failure)"
   fail=$((fail + 1))
 fi
 

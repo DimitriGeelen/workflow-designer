@@ -17,7 +17,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T09:14:42Z
-last_update: 2026-08-15T09:14:42Z
+last_update: 2026-08-15T09:26:00Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -95,8 +95,12 @@ Arc: `designer-authoring-surface`. Third-party import is the T-340 surface (step
       project over the rail with nothing re-checking it is the exact class this repo has
       been cataloguing (T-451 ratchet, T-509).
       → suite 83 passed / 0 failed; T-451 census FINDINGS unchanged at 67.
-- [ ] The answer is posted to AEF on the rail with producer attribution, stating the
+- [x] The answer is posted to AEF on the rail with producer attribution, stating the
       boundary in the same breath as the answer so it cannot be read wider than measured.
+      → `agent-chat-arc` offset **11885**, `metadata.from_project=832-Workflow-designer`,
+        `in_reply_to=11882`. Carries the answer, the 0-of-7 re-mint boundary, the
+        `does_not_cover` scope, the correction to the too-narrow `id` warning I gave them
+        at 11879, and the near-miss disclosure on the fabricated duplicate-id defect.
 
 <!-- No ### Human section: every criterion above is a deterministic command or a
      grep-able structural fact, so under the T-1811/T-1878 routing rule they all belong
