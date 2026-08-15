@@ -902,5 +902,27 @@ else
 fi
 
 echo
+echo "== Unwired flow nodes survive a save round-trip (T-511, AEF rail 11833 Q2) =="
+# Wired because I ASSERTED this to AEF on the rail at 11879 — "unwired flow nodes survive,
+# element id does not, identity travels on aef:uid" — and an assertion made to a peer that
+# nothing re-checks is exactly the class this project keeps cataloguing. If a later change
+# starts dropping unwired nodes, the first thing that should happen is this going red, not
+# AEF discovering our claim was stale.
+#
+# The census caught it before I did: adding the probe moved the T-451 unwired-guard ratchet
+# 67 -> 68 within minutes of the commit, naming _t511 as a standing guard with no live
+# caller. Wiring is the honest resolution; baselining it would have parked a regression
+# guard for a property a peer project depends on.
+#
+# COST: ~40s — it spawns Chromium plus the gallery sidecar. Precedent is _t338, which the
+# suite already runs the same way. To reverse: delete this leg, one line, no other coupling.
+if timeout 300 node "$ROOT/tools/_t511-unwired-node-roundtrip.mjs" > /dev/null 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a save round-trip now drops unwired flow nodes, or the probe's own negative control stopped firing — either way the answer given to AEF at rail 11879 is no longer true and they must be told (run 'node tools/_t511-unwired-node-roundtrip.mjs' for the verdict; rc 2 is a refusal — empty corpus or no chromium — not a fidelity failure)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
