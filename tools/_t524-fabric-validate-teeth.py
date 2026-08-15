@@ -112,7 +112,20 @@ print("subject: .agentic-framework/agents/fabric/lib/drift.sh do_validate()")
 print()
 
 tmp = tempfile.mkdtemp(prefix="t524-teeth-")
-before = run(["git", "status", "--porcelain"])[1]
+
+# T-533: SCOPED to this subject's write-set, not to the whole tree. The original form compared
+# `git status --porcelain` over the entire repository across this script's run, so any unrelated
+# writer reddened it (demonstrated under T-527). `do_validate()` in drift.sh performs no writes
+# — checked, no redirects — and this script's fixtures live under mktemp, outside the repo. So
+# the paths at risk are the fabric cards: if validate ever started writing where it only reads,
+# THAT is what this leg must catch.
+# Pathspec inline, not hoisted: see the note in _t525 — the census reads scope from the call
+# site, so a variable concatenation false-positives as whole-tree.
+def tree_state():
+    return run(["git", "status", "--porcelain", "--", ".fabric"])[1]
+
+
+before = tree_state()
 try:
     # ── legs 1-3: the T-522 card, alongside a valid one ────────────────────────────────────
     root = register(tmp, "missing-location",
@@ -202,11 +215,12 @@ try:
 finally:
     shutil.rmtree(tmp, ignore_errors=True)
 
-after = run(["git", "status", "--porcelain"])[1]
-leg("10 hermetic — the working tree is byte-identical after the run",
+after = tree_state()
+leg("10 hermetic — the subject's write-set (.fabric) is byte-identical after the run",
     before == after,
-    "git status changed across the run. Fixtures must live under mktemp; a teeth script that "
-    "dirties the tree makes every later verdict in the session ambiguous.")
+    "git status changed across the run WITHIN .fabric. Fixtures must live under mktemp, and "
+    "`fw fabric validate` must not write cards it only reads. Scoped in T-533: an unrelated "
+    "writer elsewhere in the repo can no longer cause this, so a red here is the subject.")
 
 print()
 total = passes + len(failures)

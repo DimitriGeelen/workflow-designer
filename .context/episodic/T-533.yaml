@@ -1,0 +1,72 @@
+# ============================================================================
+# EPISODIC MEMORY - T-533: scope the two whole-tree hermeticity assertions to their subjects write-sets and wire the T-532 census
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T22:22:56Z
+# ============================================================================
+
+task_id: T-533
+task_name: "scope the two whole-tree hermeticity assertions to their subjects write-sets and wire the T-532 census"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-15T22:07:21Z
+completed: 2026-08-15T22:21:44Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '**Each snapshot is scoped to the paths its OWN subject writes, and the write-set is'
+  - '**The leg still fails when its subject genuinely dirties the tree.** Narrowing a snapshot'
+  - '**The leg no longer reddens when an UNRELATED writer touches the repo.** This is the'
+  - '**`tools/_t532-hermeticity-scope-census.py` is wired as a standing bridge-suite leg and'
+  - '**The T-451 unwired-guard ratchet returns to 67**, discharging the movement T-532 recorded'
+  - 'Bridge suite green, and the count reported honestly rather than asserted.'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 14 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 14
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-533-scope-the-two-whole-tree-hermeticity-ass.md
+generated_by: context-agent-hybrid

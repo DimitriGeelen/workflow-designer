@@ -1234,5 +1234,21 @@ else
 fi
 
 echo
+echo "== Hermeticity assertions are scoped to their subject, not the tree (T-532/T-533) =="
+# A probe asserting "I left the tree as I found it" is right to do so; asserting it over the
+# WHOLE repository is not, because any unrelated writer — cron on a 15-minute timer, a handover
+# commit, a concurrent agent — reddens it while it passes standalone. That is what made this
+# suite non-deterministic (T-526's 2-of-5 reds) and it cost a full investigation to localise.
+# Measured population was 2, one copy-family propagated in 28 minutes; both are scoped now.
+# This leg is what stops the third copy, since the template is the previous task's teeth script.
+if python3 "$ROOT/tools/_t532-hermeticity-scope-census.py" > "$TMP/leg-_t532-hermeticity-scope-census.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a probe asserts hermeticity over the whole tree again, so it will go red whenever anything else writes to the repo during its window and green when run standalone (run 'python3 tools/_t532-hermeticity-scope-census.py' — it names the file; rc 2 is a REFUSAL, meaning the census disagrees with its own hand-derived ground truth or the corpus vanished, so nothing was evaluated)"
+  show_output "$TMP/leg-_t532-hermeticity-scope-census.out" "_t532-hermeticity-scope-census.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

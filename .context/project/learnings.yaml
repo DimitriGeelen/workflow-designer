@@ -1667,3 +1667,17 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-234
+  learning: "Scope a hermeticity assertion to the subject's write-set, and exclude paths owned by OTHER actors on a timer. T-533 scoped _t525 to .context/audits but EXCLUDED .context/audits/cron, because cron writes there every 15 minutes — including it would have rebuilt the whole-tree defect at 1/15th scale and looked like a fix. Two arms are needed to prove the scoping is real: an unrelated writer elsewhere in the repo must leave the leg GREEN (this is the defect being fixed), and the subject's own write-set being dirtied must still make it RED (or the invariant has been narrowed into a decoration, PL-206). Also: a 1-second script cannot be perturbed at t=3s — the first red arm failed because the stimulus fired after the run ended, the same mistake as T-527's probe A, and the tell was measuring the runtime rather than assuming it."
+  source: P-001
+  task: T-533
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD
+- id: PL-235
+  learning: "A static classifier gets WORSE as authors document the pattern it detects, unless it strips comments. T-533's census flagged both files it had just certified, because the fix's own explanatory comments contained `git status --porcelain` in backticks and backtick is a shell-invocation prefix. Incentives inverted: writing a clear comment about the defect creates a false positive, so the pressure is to under-document exactly the thing that needs explaining. Second instance in the same task: hoisting the pathspec into a SCOPE variable made the call site read as unscoped, because the classifier judges argv syntactically — fixed by inlining the pathspec, which is better code regardless. General rule: when a checker's subject is source text, its own prose and its subjects' prose are part of the input, and both must be excluded deliberately rather than by hoping the regex misses them."
+  source: P-001
+  task: T-533
+  date: 2026-08-15
+  context: Added via context agent
+  application: TBD

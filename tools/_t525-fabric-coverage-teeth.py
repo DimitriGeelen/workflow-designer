@@ -29,7 +29,7 @@ Legs:
   6  severity is UNCHANGED across all branches. The operator's T-344 [REVIEW] accepted this
      warning; a reporting fix that quietly promoted it to FAIL would overturn that decision
      under cover of a cosmetic change.
-  7  hermetic — the working tree is byte-identical after the run.
+  7  hermetic — the SUBJECT'S WRITE-SET is byte-identical after the run (scoped, T-533).
 
 Exit 0 all legs pass, 1 a leg failed, 2 REFUSE (the audit did not produce a coverage line at
 all — nothing was evaluated, and that is not a pass).
@@ -113,8 +113,26 @@ print("subject: .agentic-framework/agents/audit/audit.sh (fabric coverage check)
 print()
 
 tmp = tempfile.mkdtemp(prefix="t525-teeth-")
-before = subprocess.run(["git", "status", "--porcelain"], cwd=REPO,
-                        capture_output=True, text=True, check=False).stdout
+
+# T-533: SCOPED to this subject's write-set, not to the whole tree.
+# The original form compared `git status --porcelain` over the entire repository across this
+# script's ~61-second run, so ANY other writer — cron, a handover commit, a concurrent agent —
+# turned leg 7 red while the script passed 7/7 standalone. Demonstrated under T-527: one
+# persistent file created mid-run drove it red naming the marker. That made the bridge suite
+# non-deterministic and cost a whole investigation (T-526) to localise.
+# The subject here is `fw audit`, which writes its report under `.context/audits/`. The `cron/`
+# subdirectory is EXCLUDED because it belongs to a different actor on a 15-minute timer — the
+# single likeliest unrelated writer, and including it would rebuild the defect at 1/15th scale.
+# Pathspec kept INLINE in the argv literal, not hoisted to a variable: the T-532 census judges
+# scope syntactically from the call site, so a `+ SCOPE` concatenation reads to it as unscoped
+# and false-positives. Caught by running the census against this fix.
+def tree_state():
+    return subprocess.run(["git", "status", "--porcelain", "--",
+                           ".context/audits", ":(exclude).context/audits/cron"],
+                          cwd=REPO, capture_output=True, text=True, check=False).stdout
+
+
+before = tree_state()
 try:
     # ── leg 1: the real run reaches the check and reports a ratio ──────────────────────────
     base, base_warn, base_fail, base_raw = audit()
@@ -182,13 +200,15 @@ try:
 finally:
     shutil.rmtree(tmp, ignore_errors=True)
 
-after = subprocess.run(["git", "status", "--porcelain"], cwd=REPO,
-                       capture_output=True, text=True, check=False).stdout
-leg("7 hermetic — the working tree is byte-identical after the run",
+after = tree_state()
+leg("7 hermetic — the subject's write-set is byte-identical after the run",
     before == after,
-    "git status changed across the run. The audit writes its report to .context/audits/, so a "
-    "leg that let it run unconstrained would dirty the tree and make every later verdict in the "
-    "session ambiguous.\nbefore:\n%s\nafter:\n%s" % (before, after))
+    "git status changed across the run WITHIN THIS SUBJECT'S WRITE-SET (.context/audits, "
+    "excluding cron/). The audit writes its report there, so a leg that let it run "
+    "unconstrained would dirty the tree and make every later verdict in the session ambiguous. "
+    "Note this is scoped (T-533): an unrelated writer elsewhere in the repo can no longer cause "
+    "this, so a red here is the subject, not the environment.\nbefore:\n%s\nafter:\n%s"
+    % (before, after))
 
 print()
 total = passes + len(failures)

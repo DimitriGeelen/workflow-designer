@@ -81,15 +81,34 @@ COMPARE = re.compile(r"\bbefore\b[^\n]{0,40}(==|!=)[^\n]{0,40}\bafter\b"
 # with this or it is not measuring what it claims. Kept as a list of names, not a count: a
 # count would go stale silently as the corpus grows, which is the G-015 defect this tree keeps
 # finding. When one of these is legitimately fixed, delete its name here in the same commit.
-GROUND_TRUTH = {
-    "tools/_t524-fabric-validate-teeth.py",
-    "tools/_t525-fabric-coverage-teeth.py",
-}
+GROUND_TRUTH = set()
+# Emptied by T-533 in the same commit that scoped both instances — the two names below were the
+# entire measured population and both are fixed:
+#   tools/_t524-fabric-validate-teeth.py  -> scoped to .fabric
+#   tools/_t525-fabric-coverage-teeth.py  -> scoped to .context/audits, excluding cron/
+# Leaving them here after the fix would make this census REFUSE (rc 2) forever, which is the
+# self-test working correctly and would have been the wrong thing to silence.
 
 # This file quotes the patterns it searches for, so scanning itself yields self-matches. T-527
 # solved the same problem by putting the checker in a different file from its subject; here the
 # subject IS the directory the checker lives in, so it must exclude itself explicitly.
 SELF = os.path.abspath(__file__)
+
+
+COMMENT = re.compile(r"^\s*(#|//)")
+
+
+def strip_comments(src):
+    """Drop whole-line comments before classifying.
+
+    T-533 found this the hard way: after both instances were scoped, the census still flagged
+    them. The cause was the fix's own explanatory comments — prose containing `git status
+    --porcelain` in backticks, which SH_CALL reads as a shell invocation. A checker that is
+    confused by comments ABOUT the pattern it detects gets steadily more wrong as authors
+    document the thing, which is the opposite of the intended incentive. Line-based only: a
+    trailing comment after real code is left alone, since the code on that line is real.
+    """
+    return "\n".join("" if COMMENT.match(ln) else ln for ln in src.splitlines())
 
 
 def scoped(argv_tail):
@@ -133,6 +152,7 @@ def main():
             continue
 
         rel = os.path.relpath(path, ROOT)
+        src = strip_comments(src)
         calls = [m.group(1) for m in PY_CALL.finditer(src)]
         calls += [m.group(1) for m in SH_CALL.finditer(src)]
 
