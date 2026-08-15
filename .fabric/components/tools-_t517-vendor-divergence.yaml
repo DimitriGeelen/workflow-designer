@@ -1,0 +1,45 @@
+id: tools/_t517-vendor-divergence.py
+name: _t517-vendor-divergence
+type: script
+subsystem: verification
+location: tools/_t517-vendor-divergence.py
+tags: [guard, vendoring, g-008, aef-seam, upstream-debt, t-517, rail-11888, rail-11893]
+
+purpose: >
+  Holds the vendored .agentic-framework/ tree against its vendor baseline and asserts the
+  diverged SET equals the set declared in .agentic-framework/.vendor-divergence.yaml. G-008
+  permits fixing vendored framework code in-tree AND upstreaming it; the tree recorded that a
+  fix happened (a commit) but nothing recorded that a fix was LOCAL, so the upstream half
+  silently never happened. Measured cost, not hypothetical: email-archive re-pinged
+  G-AUDIT-EXCLUDE-NOT-HONORED three times across four months (rail 11888) while our T-374 sat
+  here as a tested implementation of the exact remedy they proposed — T-374's own comment reads
+  "T-1842 reached register.sh and drift.sh and did not reach here". The destructive half is
+  worse: fw upgrade overwrites this tree and T-276's follow-up commit reads "post-vendor repair
+  — restore exec bits demoted by old do_vendor copy (5 files) + chmod secret-scan", so the last
+  re-vendor DID clobber local state and a human happened to catch it. Of 28 diverged paths, 8
+  carry NO content change at all — only 100644 => 100755 — so content review reports them clean
+  and a re-vendor demotes them invisibly. SET EQUALITY, NOT A COUNT, deliberately: a count of
+  diverged files is a global always-moving property that rises with every legitimate G-008 fix,
+  which is the G-015 class tools/verification-hygiene.py already catalogues (T-508), and a count
+  ratchet would fire on correct work and train its reader to re-baseline reflexively. Fires in
+  BOTH directions — unrecorded divergence (someone patched vendored code without declaring it)
+  and stale entries (a declared local fix that no longer diverges, meaning either upstream
+  adopted it or the fix was lost). THREE-VALUED EXIT: rc 2 REFUSES when the manifest is absent
+  or unparseable, when the baseline commit is unreachable, or when the baseline holds under 100
+  files under the vendored path — because an empty diff against a wrong reference point is
+  indistinguishable from a clean tree, and rendering "I could not look" as green is the PL-205
+  failure. Classifies unstaged working-tree entries by hashing them with git hash-object: git
+  diff --raw reports an all-zero destination sha for unstaged files, which made every mode-only
+  change read as content in exactly the state that matters most — someone has just patched
+  vendored code and has not committed yet. That defect was caught by the teeth script's
+  mode-only leg, not by review.
+
+interfaces:
+  - "python3 tools/_t517-vendor-divergence.py — rc 0 declared==actual, rc 1 divergence differs, rc 2 REFUSE"
+
+depends_on:
+  - .agentic-framework/.vendor-divergence.yaml
+  - git
+
+depended_by:
+  - tests/run-bridge-tests.sh

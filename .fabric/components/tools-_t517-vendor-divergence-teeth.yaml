@@ -1,0 +1,37 @@
+id: tools/_t517-vendor-divergence-teeth.py
+name: _t517-vendor-divergence-teeth
+type: script
+subsystem: verification
+location: tools/_t517-vendor-divergence-teeth.py
+tags: [teeth, guard, vendoring, pl-206, pl-205, t-517]
+
+purpose: >
+  Proves tools/_t517-vendor-divergence.py can go red, and red for the right reason. The
+  instrument was green on its first run against the real tree, which under PL-206 — a control
+  that CAN fail is still worthless if its stimulus was built so it never would — means nothing
+  until a stimulus containing the fault has been fed to it. Seven hermetic legs, each building
+  a throwaway git repository under mktemp with a synthetic 120-file vendored tree, committing it
+  as the baseline and then mutating the working tree: unrecorded content divergence goes red
+  naming the path; unrecorded MODE-ONLY divergence goes red and is CLASSIFIED as mode; a stale
+  manifest entry goes red in the opposite direction; an unreachable baseline, a baseline holding
+  no vendored files, and an absent manifest each REFUSE with rc 2 rather than passing. One
+  anti-vacuity leg asserts a declared-and-matching tree is green, so that red elsewhere means
+  classification rather than a uniformly broken comparator (PL-205). Nothing outside the temp
+  directory is read or written, which matters more than usual because this tool's subject IS
+  the state of the real vendored tree. EARNED ITS KEEP IMMEDIATELY: the mode-only leg asserts on
+  the bracketed classification column rather than merely on rc 1, and that tightening exposed a
+  genuine defect in the instrument — git diff --raw reports an all-zero destination sha for
+  unstaged files, so mode-only changes were being misclassified as content. Red for the wrong
+  reason still counts as wrong. Wired into tests/run-bridge-tests.sh with a real caller rather
+  than excused by the *teeth* naming convention, which T-509 measured and found false for 19 of
+  24 scripts that had no standing caller at all.
+
+interfaces:
+  - "python3 tools/_t517-vendor-divergence-teeth.py — rc 0 all legs passed, rc 1 a leg failed, rc 2 subject missing"
+
+depends_on:
+  - tools/_t517-vendor-divergence.py
+  - git
+
+depended_by:
+  - tests/run-bridge-tests.sh

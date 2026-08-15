@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T10:01:37Z
-last_update: 2026-08-15T10:01:37Z
+last_update: 2026-08-15T10:13:20Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -70,7 +70,7 @@ for two months while the remedy sat in our tree, unlabelled.
       classification rather than a dead comparator. Exits 0.
 - [x] Both wired into `tests/run-bridge-tests.sh` with real callers — not excused by the `*teeth*`
       naming convention T-509 measured false for 19 of 24 scripts. Suite passes, 0 failed.
-- [ ] The audit-exclude finding reported to email-archive and framework-agent on the rail:
+- [x] The audit-exclude finding reported to email-archive and framework-agent on the rail:
       their concern is valid upstream, T-374 is the tested implementation of the exact fix they
       proposed, and the secret-scan exec bit is a LOCAL repair here (upstream still ships 644)
       even though the `-f` gate makes it non-load-bearing.
@@ -203,14 +203,61 @@ itself (the fix is upstreaming T-374, which is AEF's call, not ours).
 
 ## Decisions
 
-<!-- Record decisions ONLY when choosing between alternatives.
-     Skip for tasks with no meaningful choices.
-     Format:
-     ### [date] — [topic]
-     - **Chose:** [what was decided]
-     - **Why:** [rationale]
-     - **Rejected:** [alternatives and why not]
--->
+### 2026-08-15 — set equality rather than a count ratchet
+- **Chose:** the instrument compares the diverged SET against a declared manifest, and fires in
+  both directions — unrecorded divergence and stale entries alike.
+- **Why:** the number of diverged files is a global always-moving property. It rises with every
+  legitimate G-008 fix, so a count ratchet would go red on correct work and train whoever reads
+  it to re-baseline reflexively, which is how a ratchet becomes a rubber stamp. T-508 catalogued
+  exactly this as the G-015 class and found the hash-keyed baseline strictly better than the
+  count-keyed one I had drafted then.
+- **Rejected:** a count ratchet (`diverged <= 28`), and a one-directional check that only catches
+  new divergence — the stale direction is what detects a re-vendor having silently eaten a fix,
+  which is the more destructive of the two failures.
+
+### 2026-08-15 — an upstream taxonomy rather than a flat divergence list
+- **Chose:** every entry carries `upstream: fix | vendoring-repair | local-config | unknown`,
+  and one entry is genuinely recorded as `unknown`.
+- **Why:** the manifest has two consumers with different questions. A re-vendor asks "what must
+  I re-apply?" and the answer is all 28. framework-agent asks "what should I adopt?" and the
+  answer is only the 16 marked `fix` — offering them the exec bits or our designer pin would be
+  noise that makes the real debt harder to see. The distinction is not cosmetic: the exec bits
+  are upstream's file that OUR vendoring lost in transit, the opposite direction of travel.
+- **Rejected:** a flat list of 28 paths, which would have made the upstream ask unactionable;
+  and guessing a value for `lib/ts/dist/loop-detect.js` — it is a built artifact and settling it
+  needs a rebuild, so it is recorded as unknown. An `upstream:` value asserted without checking
+  is precisely the folklore this manifest exists to end.
+
+### 2026-08-15 — the manifest declares itself
+- **Chose:** `.vendor-divergence.yaml` carries an entry for `.vendor-divergence.yaml`.
+- **Why:** it lives inside the tree it measures, so it is itself divergence. Noticed only
+  because `git diff` ignores untracked files — the instrument ran green while the manifest was
+  unstaged and would have gone red the moment it was committed.
+- **Rejected:** special-casing it out of the comparison, which would have been a hole in a
+  register whose entire purpose is that there are no holes, and would have been invisible to
+  every future reader.
+
+### 2026-08-15 — deleted the boilerplate Human-AC section rather than take a Tier 2 bypass
+- **Chose:** removed the unused `### Human` section wholesale, which the task template's own
+  guidance sanctions when every criterion is agent-verifiable.
+- **Why:** a bulk `- [ ]` → `- [x]` sweep over this task's ACs also flipped the two boxes inside
+  the section's commented-out [REVIEW]/[REVIEWER] examples. Inert template text, but Human-AC
+  boxes, and CLAUDE.md says never to touch those. The T-1731 guard then correctly refused to let
+  me flip them back — it blocks the toggle in both directions, which is right.
+- **Rejected:** `FW_ALLOW_HUMAN_AC_TICK=1`, a Tier 2 bypass that autonomous initiative does not
+  delegate; and leaving the wrong state in place because it was only template text, which would
+  have left a task file asserting that human criteria had been verified.
+
+### 2026-08-15 — reported "valid upstream" with the inference stated rather than as fact
+- **Chose:** told email-archive their concern is valid upstream, and in the same breath said I
+  cannot see upstream HEAD and named exactly what the claim rests on.
+- **Why:** what I can actually observe is that our v1.6.763 baseline lacked the fix, that we made
+  it locally, and that they observe the defect in their own tree. Two independent consumer trees
+  is good evidence, not proof about framework-agent's HEAD. Corroborating a peer's filing is
+  worth much less if the corroboration is itself unverified — that is how one unconfirmed claim
+  becomes consensus, which is the reason I declined to corroborate this one at 11892.
+- **Rejected:** asserting it flatly (overstates what I measured), and declining a second time
+  (I had now actually checked, and the check was cheap).
 
 ## Decision
 
