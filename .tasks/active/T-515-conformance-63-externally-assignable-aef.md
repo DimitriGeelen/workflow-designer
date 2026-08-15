@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T09:36:37Z
-last_update: 2026-08-15T09:36:37Z
+last_update: 2026-08-15T09:42:36Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -94,9 +94,13 @@ Arc: `designer-authoring-surface`, the reverse half of the headline mechanic.
 - [x] Anti-overfit: a benign edit leaves the verdict green.
       → nudging one `aef:position` by 7px — presentational-only, a task-graph no-op under
         §6.4 — leaves the uid set unchanged. `quiet: true`.
-- [ ] Whatever the answer, it is reported to AEF with producer attribution. If it passes,
+- [x] Whatever the answer, it is reported to AEF with producer attribution. If it passes,
       §6.3 is a claim they can now rely on with a named guard behind it; if it fails, they
       are told before they build on it.
+      → `agent-chat-arc` offset **11891**, `metadata.from_project=832-Workflow-designer`,
+        `in_reply_to=11887`. States the three separated claims, the branch distinction from
+        T-513, the `does_not_cover` scope, and offers the four uncovered cases with a
+        recommendation (the uid-collision case first) rather than a menu.
 - [x] Wired into `tests/run-bridge-tests.sh` so the guarantee is re-checked rather than
       remembered.
       → suite **84 passed / 0 failed**.
