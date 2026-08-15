@@ -1,0 +1,45 @@
+id: tools/_t523-subprocess-nesting.mjs
+name: _t523-subprocess-nesting
+type: script
+subsystem: verification
+location: tools/_t523-subprocess-nesting.mjs
+tags: [probe, cdp, aef-seam, identity, subprocess, containment, mapping-standard, t-523]
+
+purpose: >
+  Measures what happens to an externally-assigned aef:uid on a node NESTED INSIDE a
+  <bpmn:subProcess> — the third of the four gaps _t515 names in its own does_not_cover, and the
+  last one on our side of the T-559 boundary.
+  WHY IT IS NOT "DOES THE UID SURVIVE". A uid can survive while its containment does not, and
+  that is a third outcome rather than a shade of the first. MEASURED: the subProcess and both
+  its children come back with uids byte-identical, the sequenceFlow joining the children
+  survives and still connects them — and the children are HOISTED to <bpmn:process> level while
+  the subProcess returns EMPTY. AEF keys records on uid, so the record survives and silently
+  changes parent. That is worse than losing it, because losing it is countable; this is why no
+  count-based instrument in the bridge suite has ever gone red on it.
+  TWO ARMS, BECAUSE ONE ARM CANNOT NAME A CAUSE. The NESTED arm injects a subProcess with two
+  flow nodes and a flow; the FLAT arm injects the same nodes with the same uids and the same
+  flow at process level. If both vanished, the finding would be about injection and reporting it
+  as a nesting defect would be fabrication. The first version of the flat arm omitted the
+  sequenceFlow and duly reported `edge: lost` — a control differing from the treatment in more
+  than the variable under test, caught before it reached the pin.
+  IT FALSIFIED A CLAIM IN THE SOURCE. parseBpmnXml asserted "the whole interior of an accepted
+  element is dropped today". True of the foreign-tag branch, false for flow nodes, and cited as
+  fact for months — the T-509 class. Corrected in place by this task.
+  Verdicts come from a conforming parser (tools/_t523-xml-structure.py), never the browser's own
+  DOMParser: T-520 established the hard way that the producer's parser agrees with the
+  producer's defect. CHARACTERISATION, NOT A VERDICT (as T-518, T-520) — nobody has ratified
+  what SHOULD happen to a nested node's uid, so this pins what IS and goes red on a CHANGE.
+
+interfaces:
+  - "node tools/_t523-subprocess-nesting.mjs — rc 0 measured and matches tools/_t523-nesting.pin.json, rc 1 behaviour changed, rc 2 REFUSE (no corpus, staging failed, negative control dead, or no pin file)"
+  - "env T523_SRC — point at a mutated copy of the editor (used by the teeth); T523_PIN — alternative pin path; T523_CORPUS — alternative corpus"
+
+depends_on:
+  - src/aef-workflow-designer.html
+  - tools/gallery-serve.py
+  - tools/_t523-xml-structure.py
+  - examples/aef-processes/rendered
+
+depended_by:
+  - tests/run-bridge-tests.sh
+  - tools/_t523-nesting-teeth.py

@@ -1,0 +1,38 @@
+id: tools/_t523-nesting-teeth.py
+name: _t523-nesting-teeth
+type: script
+subsystem: verification
+location: tools/_t523-nesting-teeth.py
+tags: [teeth, mutation, aef-seam, subprocess, containment, t-523, pl-206]
+
+purpose: >
+  Proves tools/_t523-subprocess-nesting.mjs can go red at all, and that it goes red for the
+  stated reason. The probe came back green on its first run against the pin it had just been
+  given, and a green instrument on a fresh control means nothing until a stimulus containing the
+  fault has been fed to it (PL-206) — doubly so here, where the subject is a 10k-line HTML file
+  and "would it notice" cannot be answered by reading.
+  THE MUTATION IS ON THE SUBJECT, NOT THE PROBE. parseBpmnXml collects flow nodes with a
+  DESCENDANT query, which is exactly why nested children are found and re-emitted flat; the
+  mutant restricts it to direct children, making true the very claim the source comment used to
+  assert ("the whole interior of an accepted element is dropped today"). It is the plausible
+  alternative reality, so a probe that cannot separate the two cannot tell anyone anything.
+  Leg 3 is the one that is easy to leave out and shouldn't be: the mutation must be LOCALISED to
+  the nested arm. Without it, leg 1's red is equally explained by the mutant breaking the
+  round-trip wholesale, and the probe takes credit for a detection it never localised.
+  Leg 5 pins the abstention: an absent pin file must exit 2 with a refusal that says so, because
+  "I have no reference for this" must never be indistinguishable from "it matched" (PL-205).
+  Leg 6 checks the reader itself distinguishes nesting on hand-built documents with no browser
+  involved — if it were blind to in_sub, every other leg would agree with it and all of them
+  would be wrong.
+  Hermetic: mutant and temp pins under mktemp. Leaves the repository byte-identical.
+
+interfaces:
+  - "python3 tools/_t523-nesting-teeth.py — rc 0 all 6 legs pass, rc 1 a leg failed, rc 2 REFUSE (mutation target moved — nothing was evaluated, distinguishable from a pass)"
+
+depends_on:
+  - src/aef-workflow-designer.html
+  - tools/_t523-subprocess-nesting.mjs
+  - tools/_t523-xml-structure.py
+
+depended_by:
+  - tests/run-bridge-tests.sh

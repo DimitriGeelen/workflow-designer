@@ -1,0 +1,17 @@
+{
+  "_why": "Pin for tools/_t523-subprocess-nesting.mjs. Written from a MEASURED run, not from expectation, and specifically not from the claim in parseBpmnXml's T-337 comment ('the whole interior of an accepted element is dropped today') — which this measurement falsifies for flow nodes. Movement here is the signal: an entry changing means the editor's treatment of subProcess containment changed, which is a seam fact AEF keys records on. Element ids are deliberately absent: they are re-minted from lane and x-order on every save (T-513), so pinning them would go red on changes that mean nothing.",
+  "_finding": "A subProcess and its children all survive with their uids intact. The children are HOISTED to <bpmn:process> level and the subProcess comes back EMPTY. The sequenceFlow between the children survives and still connects them. So nothing disappears and the scope silently stops existing — the loss is structural, not quantitative, which is why no count-based instrument has ever noticed it.",
+  "nested": {
+    "sub": { "outcome": "survived", "owner": "subProcess" },
+    "child_a": { "outcome": "survived-flattened", "owner": "serviceTask" },
+    "child_b": { "outcome": "survived-flattened", "owner": "serviceTask" },
+    "edge": "preserved"
+  },
+  "flat": {
+    "sub": null,
+    "child_a": { "outcome": "survived", "owner": "serviceTask" },
+    "child_b": { "outcome": "survived", "owner": "serviceTask" },
+    "edge": "preserved"
+  },
+  "attribution": "uid-survives-containment-does-not — the node is HOISTED to process level and the subProcess is left empty"
+}

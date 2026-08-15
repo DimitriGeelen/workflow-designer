@@ -10055,8 +10055,22 @@ function parseBpmnXml(text) {
   //
   // Scope boundary, stated rather than implied: this reaches direct children of
   // <bpmn:process> only. A foreign tag nested inside an accepted subProcess is NOT
-  // covered — the whole interior of an accepted element is dropped today, which is
-  // T-347's population, not this one. Foreign-NAMESPACE children of <bpmn:process>
+  // covered.
+  //
+  // T-523 CORRECTION — this comment used to continue "the whole interior of an
+  // accepted element is dropped today", and that is FALSE for flow nodes. Measured
+  // (tools/_t523-subprocess-nesting.mjs): the allowlisted loop above uses
+  // byBpmn(proc, tag), a DESCENDANT query, so a serviceTask nested inside a
+  // subProcess IS collected — and since state.nodes is flat and export writes from
+  // it, the node comes back as a direct child of <bpmn:process>. Its aef:uid
+  // survives byte-identical and the sequenceFlow between two such nodes survives
+  // and still connects them. What is lost is CONTAINMENT: the subProcess returns
+  // empty. So the outcome is hoisting, not deletion, and nothing counts down —
+  // which is why no count-based instrument has ever noticed.
+  // The claim was a comment nobody re-checked (the T-509 class); it stayed
+  // plausible for months because it is true of the FOREIGN-tag branch below, which
+  // does only walk proc.children. Interior foreign content and non-flow-node
+  // content remain T-347's population. Foreign-NAMESPACE children of <bpmn:process>
   // are also left alone: typing a camunda:* element as a BPMN flow node would be a
   // guess, and root-level foreign content is a separate question (T-340's class).
   const PROCESS_NON_FLOWNODE = new Set([

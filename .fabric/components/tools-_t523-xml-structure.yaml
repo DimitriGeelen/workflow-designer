@@ -1,0 +1,35 @@
+id: tools/_t523-xml-structure.py
+name: _t523-xml-structure
+type: script
+subsystem: verification
+location: tools/_t523-xml-structure.py
+tags: [probe-support, xml, conforming-parser, aef-seam, containment, t-523]
+
+purpose: >
+  Reads every aef:uid out of a BPMN document WITH ITS STRUCTURAL CONTEXT — owner element, owner
+  id, full ancestor path, and whether any ancestor is a subProcess — using a conforming parser
+  (expat via xml.etree). Also reports each subProcess's direct flow-node child count and every
+  sequenceFlow with source, target and nesting.
+  Sibling of tools/_t520-xml-read.py and it exists for the same reason: when verifying a SEAM,
+  the reader must be the class of reader on the far side, because the producer's own parser will
+  happily agree with the producer's own defect. What it adds is ANCESTRY — "the uid is still
+  somewhere in the document" is not an answer to T-523's question, since a uid that survives
+  while its containment is flattened is a different outcome from one that survives intact, and a
+  flat list of values reports the interesting case as identical to the boring one.
+  The flow reporting was added after the first measured run, which showed nested nodes being
+  hoisted rather than dropped: the immediate next question is whether the edge that joined them
+  came along, because two surviving nodes arriving DISCONNECTED is a quieter loss than two nodes
+  not arriving. Answering half a question in a format that looks like a whole answer is its own
+  defect.
+  Exits 0 always — an unparseable document is a RESULT the caller classifies, not a failure of
+  the reader; anything else would make "the editor emitted garbage" indistinguishable from "the
+  reader broke".
+
+interfaces:
+  - "python3 tools/_t523-xml-structure.py < document.bpmn — emits {parsed, error, uids:[{value, owner, owner_id, path, in_sub}], flow_children_by_parent, flows} on stdout; always exits 0"
+
+depends_on: []
+
+depended_by:
+  - tools/_t523-subprocess-nesting.mjs
+  - tools/_t523-nesting-teeth.py

@@ -1064,6 +1064,38 @@ else
 fi
 
 echo
+echo "== A node nested in a subProcess keeps its uid AND its parent (T-523) =="
+# Third of the four gaps _t515 names in its own does_not_cover, and the last one on our side of
+# the boundary. MEASURED: a node authored inside <bpmn:subProcess> comes back with its aef:uid
+# byte-identical, the sequenceFlow joining two such nodes survives and still connects them — and
+# the node is HOISTED to <bpmn:process> level while the subProcess returns EMPTY. Nothing
+# disappears; the scope does. That is the outcome no count-based instrument in this suite can
+# see, because every count is unchanged.
+#
+# It also falsified a claim sitting in parseBpmnXml ("the whole interior of an accepted element
+# is dropped today"), which was true of the foreign-tag branch and false for flow nodes, and had
+# been quietly cited as fact for months. Comment corrected in place; the T-509 class again.
+#
+# Two legs on purpose. The probe measures the real tree. The teeth MUTATE the editor — restricting
+# node collection to direct children, i.e. making the old comment true — and require the probe to
+# go red, to go red on the NESTED arm specifically, and to leave the FLAT arm alone. Without that
+# last one a red is equally explained by the mutant breaking the round-trip wholesale, and the
+# probe would be taking credit for a detection it never localised.
+if timeout 300 node "$ROOT/tools/_t523-subprocess-nesting.mjs" > /dev/null 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "subProcess containment behaviour changed — a nested node's uid, its connecting flow, or whether it stays nested is no longer what AEF was told (run 'node tools/_t523-subprocess-nesting.mjs'; rc 2 is a REFUSAL — no corpus, staging failed, negative control dead, or no pin file — not a behaviour change)"
+  fail=$((fail + 1))
+fi
+
+if timeout 600 python3 "$ROOT/tools/_t523-nesting-teeth.py" > /dev/null 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the nesting probe stopped being able to detect the alternative behaviour — either the mutation target in parseBpmnXml moved (rc 2, a refusal), the probe no longer goes red on a mutant that drops nested nodes, or it no longer refuses when its pin file is absent (run 'python3 tools/_t523-nesting-teeth.py' for the failing leg)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== A completed task still gets episodic memory, and a lost one is reported (T-522) =="
 # Two tasks (T-520, T-521) were completed, moved to completed/, and lost their episodic
 # summaries with no error anywhere. Root cause measured, not guessed: update-task.sh runs under
