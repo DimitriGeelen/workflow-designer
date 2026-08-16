@@ -153,6 +153,39 @@ entries:
       wrong one. The added text also states the coupling the omission hid — `--quadrant` is
       inert without a cost estimate, because compute_cost returns source:'absent' and every
       quadrant renders '-', so all four filters print "No tasks match" with no hint why.
+
+  - path: .agentic-framework/web/app.py
+    kind: content
+    task: T-544
+    upstream: fix
+    reason: >-
+      GENERIC upstream debt — AEF's own Watchtower carries this bug identically and is in
+      fact one of the two colliding instances. app.py sets SESSION_COOKIE_NAME =
+      f"fw_session_{Config.PORT}" (T-2278) precisely because RFC 6265 does not scope cookies
+      by port, so two Watchtowers on one host otherwise share a cookie slot and overwrite
+      each other's session. But Config.PORT reads FW_PORT or falls back to 3000 and is never
+      updated by `--port`, which moves only the listening socket; create_app() additionally
+      runs at MODULE level, before argparse exists. So the guard names the DEFAULT port, not
+      the bound one. Measured on this host: AEF's instance on :3000 and this project's on
+      :3012 both emitted `fw_session_3000`, and because each signs with its own
+      .context/working/.fw-secret-key neither could decode the other's cookie — session came
+      back empty, session.get("_csrf_token") was None, and every state-changing POST 403'd.
+      Operator hit it clicking Approve on /approvals, on a freshly loaded page, with
+      Watchtower up 2d03h and no restart — which is why "Session expired" was actively
+      misleading: nothing had expired. A guard that names the wrong port is worse than no
+      guard; it reads as protection in review AND in its own comment, and the failure it
+      permits surfaces as session expiry rather than as a collision.
+      Fixed in main(), where the bound port is first known, rather than by assigning
+      Config.PORT: other call sites read Config.PORT as "the configured port", and having the
+      CLI mutate shared config to correct a cookie name trades one action-at-a-distance for
+      another. Only the cookie name must follow the socket.
+      SECOND DEFECT FOUND IN THE SAME REPRODUCTION, NOT PATCHED HERE — one bug, one task: the
+      403 handler returns a full 67KB HTML page to /api/* clients. The Approve control is an
+      htmx POST, so the operator's browser surfaced that document as raw text — what they
+      pasted was literally base.html line 12 (<title>) followed by line 14 (the theme
+      bootstrap script). An /api/* endpoint should content-negotiate and answer JSON; the
+      handler branches on CSRF-vs-generic but never on what the client asked for.
+
   - path: .agentic-framework/agents/audit/audit.sh
     kind: content
     task: T-374, T-382, T-344, T-345, T-371

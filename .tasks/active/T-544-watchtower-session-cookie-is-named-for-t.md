@@ -1,19 +1,10 @@
 ---
-id: T-543
-name: "T-523 nesting teeth legs 7-8 fail intermittently inside the bridge suite but
-  never standalone"
+id: T-544
+name: "Watchtower session cookie is named for the DEFAULT port, not the bound one, so two instances on one host destroy each other's sessions"
 description: >
-  Legs 7 and 8 of tools/_t523-nesting-teeth.py (the retyping-mutant arm) reported
-  FAIL in one bridge-suite run on 2026-08-16 with 'rc=1 drift_keys=[] measured node={}',
-  then passed 9/9 twice standalone and 0-failed on the immediately following full-suite
-  run. An empty measured node is the arm seeing nothing, not seeing the wrong thing
-  — which is the failure mode the arm exists to distinguish. A probe that intermittently
-  cannot see certifies on nothing whenever it happens to be green, and AEF depends
-  on this arm for three published maps (T-528). Suspect suite-level interference:
-  legs 6 and 9 print out of order, so something is concurrent, and the arm drives
-  a CDP/browser path. Establish the rate before fixing.
+  app.py sets SESSION_COOKIE_NAME = f'fw_session_{Config.PORT}' to stop two Watchtowers on one host sharing a cookie (RFC 6265 does not scope cookies by port). Config.PORT reads FW_PORT or defaults to 3000; the --port CLI flag sets only the local variable passed to app.run() and never updates Config.PORT. So this project's instance on :3012 and AEF's on :3000 BOTH emit fw_session_3000 for the same host, each overwriting the other, and each signs with its own .fw-secret-key so the other cannot even decode it — session is silently empty, session.get('_csrf_token') is None, every state-changing POST 403s as 'Session expired'. Operator hit this clicking Approve on /approvals. The port suffix is the exact defence that fails.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -24,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-16T14:26:20Z
-last_update: '2026-08-16T14:33:48Z'
-date_finished:
+created: 2026-08-16T14:45:03Z
+last_update: 2026-08-16T14:45:15Z
+date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -37,36 +28,9 @@ date_finished:
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
-bvp_scores_proposed:
-  - ts: '2026-08-16T14:33:05Z'
-    estimator: bvp-estimator-v1-heuristic
-    scores:
-      D1: 4
-      D2: 0
-      D3: 2
-      D4: 2
-      F-RECALL: 0
-      F2: 0
-      F4: 0
-      F3: 0
-      F1: 1
-    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
-      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
-      (no-signal); F2=0 (no-signal); F4=0 (no-signal); F3=0 (no-signal); F1=1 
-      (prose:process-enablement-incidental)
-    rubric_sha: e4a00f38e801
-cost_estimate_proposed:
-  - ts: '2026-08-16T14:33:48Z'
-    estimator: bvp-estimator-v1-heuristic
-    cost_estimate:
-      tier: 2
-      effort: 7
-    rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=7 
-      (no-signal)
-    rubric_sha: e4a00f38e801
 ---
 
-# T-543: T-523 nesting teeth legs 7-8 fail intermittently inside the bridge suite but never standalone
+# T-544: Watchtower session cookie is named for the DEFAULT port, not the bound one, so two instances on one host destroy each other's sessions
 
 ## Context
 
@@ -76,8 +40,18 @@ cost_estimate_proposed:
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [x] The session cookie name is derived from the port the server ACTUALLY
+      binds, not from `Config.PORT` — verified by observing `Set-Cookie` on
+      the running :3012 instance name itself `fw_session_3012`
+- [x] The two instances on this host emit DIFFERENT cookie names, so neither
+      can overwrite the other (measured against both :3000 and :3012)
+- [x] `FW_PORT` and the `--port` flag agree — setting either produces the same
+      cookie name, and neither silently wins over the other
+- [x] A probe asserts the property that a server bound to port N names its
+      cookie for N, wired into `tests/run-bridge-tests.sh`, and it goes red
+      against a build that reads the default instead
+- [x] The divergence is declared in `.agentic-framework/.vendor-divergence.yaml`
+      (G-008) — this is vendored AEF code and the bug is AEF's too
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -159,6 +133,12 @@ cost_estimate_proposed:
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# Boots a real instance on a real non-default port and reads the real Set-Cookie.
+# rc 2 is a REFUSAL (never answered / set no cookie), not a pass.
+python3 tools/_t544-session-cookie-port-teeth.py
+# Vendored divergence declared (G-008) — app.py is AEF's code and this bug is AEF's too.
+python3 tools/_t517-vendor-divergence.py
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -222,32 +202,10 @@ cost_estimate_proposed:
 
 ## Updates
 
-### 2026-08-16T14:26:20Z — task-created [task-create-agent]
+### 2026-08-16T14:45:03Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-543-t-523-nesting-teeth-legs-7-8-fail-interm.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-544-watchtower-session-cookie-is-named-for-t.md
 - **Context:** Initial task creation
 
-## Second instance, same session — this is a class, not one flaky probe
-
-2026-08-16, after T-544 landed: `tools/_t509-instrument-sweep.sh` reported FAIL
-as a bridge-suite leg, then ran **rc=0, "SWEEP PASS — 32/32 runnable teeth
-scripts green"** standalone immediately after. Identical shape to the T-523
-finding above: green alone, red inside the suite, no source change between.
-
-That makes two distinct instruments failing only in suite context in one
-session, which reframes this task. The subject is not "_t523 is flaky" but
-**the suite has a resource or concurrency interaction that makes probes fail
-non-deterministically**, and every such failure is indistinguishable from a
-real regression at the moment it is read.
-
-A candidate cause worth ruling out FIRST, because it is mine and it is new:
-`_t544-session-cookie-port-teeth.py` boots a real Watchtower instance (~9s) and
-is itself one of the 32 scripts the T-509 sweep runs, so it now executes twice
-per suite run — once as its own leg, once inside the sweep — and the sweep caps
-each script at 90s. T-542's probe also grew the sweep population. If load is
-the mechanism, I introduced it today and should say so rather than let the next
-reader hunt it.
-
-Do not "fix" this by loosening a timeout until the mechanism is measured. A
-suite that goes green by waiting longer has not stopped being wrong; it has
-stopped reporting.
+### 2026-08-16T14:45:15Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

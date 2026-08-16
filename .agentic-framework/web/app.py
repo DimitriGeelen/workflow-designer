@@ -460,6 +460,27 @@ def main():
     host = Config.HOST
     port = args.port
 
+    # T-544: re-derive the port-scoped cookie name from the port actually bound.
+    #
+    # create_app() runs at MODULE level (above), before argparse exists, so the
+    # T-2278 cookie name is built from `Config.PORT` — which reads FW_PORT or
+    # falls back to 3000 and is never updated by `--port`. `--port` changes the
+    # listening socket and nothing else. Consequence measured on this host:
+    # AEF's Watchtower on :3000 and this project's on :3012 BOTH emitted
+    # `fw_session_3000`; RFC 6265 does not scope cookies by port, so each
+    # overwrote the other's session on the same host, and because each instance
+    # signs with its own `.context/working/.fw-secret-key` the survivor's cookie
+    # could not even be decoded by the other — `session` came back empty,
+    # `session.get("_csrf_token")` was None, and every state-changing POST 403'd
+    # as "Session expired". That is precisely the failure T-2278's comment says
+    # the port suffix exists to prevent; the defence was reading the wrong port.
+    #
+    # Set it here rather than assigning Config.PORT: Config.PORT is read by other
+    # call sites as "the configured port", and making the CLI mutate shared
+    # config to fix a cookie name would trade one action-at-a-distance for
+    # another. The cookie name is the only thing that must follow the socket.
+    app.config["SESSION_COOKIE_NAME"] = f"fw_session_{port}"
+
     def handle_sigint(sig, frame):
         print("\nShutting down Watchtower...")
         sys.exit(0)

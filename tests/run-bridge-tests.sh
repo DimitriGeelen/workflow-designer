@@ -1392,6 +1392,29 @@ else
   fail=$((fail + 1))
 fi
 
+echo "== The session cookie is named for the port actually bound (T-544) =="
+# web/app.py scopes SESSION_COOKIE_NAME by port on purpose — RFC 6265 does not scope
+# cookies by port, so two Watchtowers on one host otherwise share a cookie slot and each
+# overwrites the other's session. The defence was reading the WRONG port: the name came
+# from Config.PORT (FW_PORT, else 3000) and `--port` only moves the socket, while
+# create_app() runs at module import before argparse exists. Measured: AEF's instance on
+# :3000 and this project's on :3012 both emitted fw_session_3000, and since each signs
+# with its own .fw-secret-key neither could decode the other's — session empty,
+# _csrf_token None, every state-changing POST 403 as "Session expired" on a freshly
+# loaded page. A guard naming the wrong port reads as protection in review and lets the
+# failure present as an expired session rather than as a collision.
+# Measured end-to-end, not read: the leg boots a real instance on a real non-default port
+# and reads the real Set-Cookie, because the defect was source that looked correct.
+# Mutation-verified — reverting the fix makes it emit fw_session_3000 on a port in the
+# 57000s and both legs go red.
+if python3 "$ROOT/tools/_t544-session-cookie-port-teeth.py" > "$TMP/leg-_t544-session-cookie-port.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the Watchtower session cookie is no longer named for the port it binds, so two instances on one host share a cookie slot and CSRF 403s on both (run 'python3 tools/_t544-session-cookie-port-teeth.py'; rc 2 is a REFUSAL — the instance never answered or set no cookie, so nothing was measured and it is not a pass)"
+  show_output "$TMP/leg-_t544-session-cookie-port.out" "_t544-session-cookie-port-teeth.py"
+  fail=$((fail + 1))
+fi
+
 echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
