@@ -40,9 +40,13 @@
 #   less than its name claims.
 #
 # EXIT CODES
-#   0  every non-excluded script passed
-#   1  at least one regressed, or an exclusion is stale
+#   0  every non-excluded script ran and passed
+#   1  at least one REGRESSED, or an exclusion is stale
 #   2  refusal — could not establish a population. Never 1 from a broken scan (T-430).
+#   3  INCOMPLETE (T-548) — no regression, but at least one instrument did not finish
+#      (rc=124) or declined to certify (rc=2). Distinct from 1 because "it broke" and
+#      "I never found out" are different claims and only one of them sends a reader
+#      looking for a bug. Still non-zero: an uncovered instrument is not a green.
 
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -108,18 +112,51 @@ for e in "${EXCLUDE[@]}"; do
 done
 echo
 
-pass=0; fail=0; ran=0
-declare -a FAILED=()
+# ── CLASSIFICATION (T-548) ────────────────────────────────────────────────────────────
+# Until T-548 every non-zero exit was counted as `fail` and announced as "an instrument
+# that passed on 2026-08-15 no longer does … a red here is a real regression in the thing
+# it guards". Two exit codes make that sentence false, and both were being said anyway:
+#
+#   124  GNU timeout's code. The instrument DID NOT FINISH. Nothing regressed in the thing
+#        it guards — the sweep never found out either way. T-543 measured the case that
+#        exposed it: _t525-fabric-coverage-teeth.py costs 86.04s against this 90s cap and
+#        passes 7/7 standalone, so it crosses whenever the machine is busy, and the reader
+#        was sent hunting a fabric-coverage bug that does not exist.
+#
+#     2  ABSTENTION. The exclusion list above already argues this, for one file, by name:
+#        _t364 "exits 2 BY DESIGN, refusing to certify … converting that to a suite failure
+#        would punish the honesty." That reasoning is about a PROPERTY and was written into
+#        an exemption keyed on a FILENAME, so every other probe that declines to certify was
+#        still recorded as a regression. T-509's own shape, in T-509's own tool — which is
+#        why this is fixed in the classifier rather than by adding two more names.
+#
+# The three-way exit code exists so a caller can tell them apart without parsing prose.
+# An incomplete sweep is NOT reported as green: exit 3 still fails the suite. The defect
+# being repaired is the MISLABEL, not the redness — a probe that cannot finish inside its
+# budget is a real condition needing attention, just a different one from a regression.
+pass=0; ran=0
+declare -a REGRESSED=() TIMEDOUT=() ABSTAINED=() TIGHT=()
 for f in "${ALL[@]}"; do
   if reason="$(is_excluded "$f")"; then continue; fi
   case "$f" in *.py) runner="python3";; *) runner="bash";; esac
   ran=$((ran + 1))
-  if timeout "$TIMEOUT" "$runner" "tools/$f" > /dev/null 2>&1; then
-    pass=$((pass + 1))
-  else
-    rc=$?
-    fail=$((fail + 1))
-    FAILED+=("$f (rc=$rc)")
+  started=$SECONDS
+  timeout "$TIMEOUT" "$runner" "tools/$f" > /dev/null 2>&1
+  rc=$?
+  elapsed=$((SECONDS - started))
+  case "$rc" in
+    0)   pass=$((pass + 1));;
+    124) TIMEDOUT+=("$f (did not finish within ${TIMEOUT}s)");;
+    2)   ABSTAINED+=("$f (rc=2, declined to certify)");;
+    *)   REGRESSED+=("$f (rc=$rc)");;
+  esac
+  # Headroom, reported on GREEN runs too. _t525 sat at 86s of a 90s budget — 95.6% — and
+  # nothing said so until the run it first crossed, at which point it presented as a
+  # regression in fabric coverage. A budget that is nearly spent is visible in advance or
+  # it is not visible at all; this is the leading indicator the old loop threw away by
+  # never measuring elapsed time.
+  if [ "$rc" -eq 0 ] && [ $((elapsed * 100)) -ge $((TIMEOUT * 75)) ]; then
+    TIGHT+=("$f (${elapsed}s of ${TIMEOUT}s budget)")
   fi
 done
 
@@ -128,14 +165,54 @@ if [ "$ran" -eq 0 ]; then
   exit 2
 fi
 
-echo "RAN $ran, passed $pass, failed $fail"
-if [ "$fail" -ne 0 ]; then
+echo "RAN $ran, passed $pass, regressed ${#REGRESSED[@]}, did-not-finish ${#TIMEDOUT[@]}, abstained ${#ABSTAINED[@]}"
+
+if [ "${#TIGHT[@]}" -ne 0 ]; then
+  echo
+  echo "HEADROOM WARNING — passed, but close to the ${TIMEOUT}s cap. These will start"
+  echo "reporting as did-not-finish under load before they report anything else:"
+  for x in "${TIGHT[@]}"; do echo "  - $x"; done
+fi
+
+# The uncovered section prints BEFORE the regression exit, and this ordering is load-bearing.
+# The first version exited 1 inside the regression branch, so a timeout occurring in the same
+# run as a regression was never mentioned — the louder finding swallowed the instrument nobody
+# heard from, which is a quieter version of the same defect this task exists to fix. Caught by
+# leg 5 of _t548's teeth on their first run, not by reading the code back.
+if [ "${#TIMEDOUT[@]}" -ne 0 ] || [ "${#ABSTAINED[@]}" -ne 0 ]; then
+  echo >&2
+  if [ "${#REGRESSED[@]}" -ne 0 ]; then
+    echo "SWEEP INCOMPLETE — separately from the regression(s) below, the sweep did not" >&2
+    echo "cover everything it names:" >&2
+  else
+    echo "SWEEP INCOMPLETE — no regression found, but the sweep did not cover everything" >&2
+    echo "it names. This is not a green and it is not a regression report:" >&2
+  fi
+  for x in "${TIMEDOUT[@]}"; do
+    echo "  - DID NOT FINISH: $x" >&2
+    echo "      Nothing is claimed about what it guards — it was killed, not failed." >&2
+    echo "      Raising T509_TIMEOUT buys headroom the instrument will consume again if" >&2
+    echo "      its cost tracks a growing tree; measure the cost before moving the cap." >&2
+  done
+  for x in "${ABSTAINED[@]}"; do
+    echo "  - ABSTAINED: $x" >&2
+    echo "      It refused to certify. Its abstention IS its output; read that output" >&2
+    echo "      rather than treating this as a regression in what it guards." >&2
+  done
+fi
+
+if [ "${#REGRESSED[@]}" -ne 0 ]; then
   echo >&2
   echo "SWEEP FAIL — an instrument that passed on 2026-08-15 no longer does:" >&2
-  for x in "${FAILED[@]}"; do echo "  - $x" >&2; done
+  for x in "${REGRESSED[@]}"; do echo "  - $x" >&2; done
   echo "Run it directly for its own output. These are hermetic and leave the repo" >&2
   echo "untouched, so a red here is a real regression in the thing it guards." >&2
   exit 1
 fi
+
+if [ "${#TIMEDOUT[@]}" -ne 0 ] || [ "${#ABSTAINED[@]}" -ne 0 ]; then
+  exit 3
+fi
+
 echo "SWEEP PASS — $pass/$ran runnable teeth scripts green."
 exit 0

@@ -844,10 +844,33 @@ echo "== Instrument sweep: every runnable teeth script, every run (T-509) =="
 # docstring prescribes a NEW genuinely-unstable injection, and choosing that is a decision.
 # Same for _t350/_t351, which drive live servers and one of which has a documented
 # repo-deletion incident in its own header.
-if bash "$ROOT/tools/_t509-instrument-sweep.sh" > "$TMP/leg-_t509-instrument-sweep.out" 2>&1; then
+# T-548: this leg's own FAIL text used to repeat the sweep's mistake — it asserted "a real
+# regression in whatever that teeth script guards" for EVERY non-zero exit, so a probe killed
+# by the 90s timeout was announced to the suite reader as a regression twice over. The sweep
+# now discriminates by exit code and so does this, because a message that names the wrong
+# cause is worse than no message: it is confident, and it points somewhere.
+sweep_rc=0
+bash "$ROOT/tools/_t509-instrument-sweep.sh" > "$TMP/leg-_t509-instrument-sweep.out" 2>&1 || sweep_rc=$?
+if [ "$sweep_rc" -eq 0 ]; then
+  # The headroom warning is a LEADING indicator and this leg redirects the sweep's output
+  # to a file that is only shown on failure — so on the green runs where the warning is the
+  # whole point, nobody saw it. Caught by reading this leg's own suite output after wiring
+  # it, not by design: _t525 was sitting at 81s of 90s and the suite printed a bare pass.
+  # Written WITHOUT an `if grep -q ... "$TMP/leg-*"` wrapper on purpose: _t527 guards that
+  # shape because it is how a leg discards the evidence for its own verdict, and it flagged
+  # my first draft of these three lines. The guard is right about the pattern even though
+  # this use surfaces output rather than swallowing it — sed prints nothing when it matches
+  # nothing, so the conditional was never needed and weakening the guard to fit my code
+  # would have been the wrong trade by a wide margin.
+  sed -n '/HEADROOM WARNING/,/^$/p' "$TMP/leg-_t509-instrument-sweep.out" 2>/dev/null | sed 's/^/  /'
   pass=$((pass + 1))
 else
-  report FAIL "an instrument that passed on 2026-08-15 no longer does, or an exclusion went stale (run 'bash tools/_t509-instrument-sweep.sh' — it names the script and its rc; these are hermetic and leave the repo untouched, so a red here is a real regression in whatever that teeth script guards, not harness noise)"
+  case "$sweep_rc" in
+    1) report FAIL "an instrument that passed on 2026-08-15 no longer does, or an exclusion went stale (run 'bash tools/_t509-instrument-sweep.sh' — it names the script and its rc; these are hermetic and leave the repo untouched, so this one IS a real regression in whatever that teeth script guards, not harness noise)";;
+    3) report FAIL "the instrument sweep did not COVER everything it names — at least one probe was killed by the ${T509_TIMEOUT:-90}s cap (rc=124) or declined to certify (rc=2). NOT a regression: nothing is claimed about what those instruments guard, because they were never heard from. The sweep's output names each one. Do not repair this by raising T509_TIMEOUT before measuring the probe's cost — T-543 measured _t525 at 86s of 90s and its cost tracks the size of the watched tree, so the headroom would be consumed again";;
+    2) report FAIL "the instrument sweep REFUSED — it could not establish a population to sweep (no tools/*teeth* found, or every script excluded). Nothing was measured, which is not a pass";;
+    *) report FAIL "the instrument sweep exited $sweep_rc, which is not one of its documented codes (0 pass, 1 regression, 2 refusal, 3 incomplete). Read its output before trusting any reading of this leg";;
+  esac
   show_output "$TMP/leg-_t509-instrument-sweep.out" "_t509-instrument-sweep.sh"
   fail=$((fail + 1))
 fi
@@ -1471,6 +1494,33 @@ if python3 "$ROOT/tools/_t547-hx-prompt-decode-teeth.py" > "$TMP/leg-_t547-hx-pr
 else
   report FAIL "an operator's hx-prompt rationale is being stored percent-encoded again, or a literal percent sign is being destroyed by an unconditional decode — on /api/bvp/driver/reject or the SOVEREIGN /api/bvp/driver/remove (run 'python3 tools/_t547-hx-prompt-decode-teeth.py'; rc 2 is a REFUSAL — the app would not import or htmx's companion-header contract could not be re-read, so nothing was measured and it is not a pass)"
   show_output "$TMP/leg-_t547-hx-prompt-decode.out" "_t547-hx-prompt-decode-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
+echo "== The sweep tells 'it broke' apart from 'I never found out' (T-548) =="
+# _t509 counted every non-zero exit as a regression and announced each as "an instrument that
+# passed on 2026-08-15 no longer does … a real regression in the thing it guards". Two codes
+# make that false. 124 is GNU timeout's: T-543 measured _t525 at 86.04s against a 90s cap,
+# passing 7/7 standalone, so it crosses whenever the machine is busy and the reader was sent
+# hunting a fabric-coverage bug that does not exist. rc=2 is an ABSTENTION, and the sweep's
+# own exclusion list already argued that case — for one file, BY NAME — reasoning about a
+# property but writing it into a filename exemption, so every other abstaining probe was
+# still called a regression. T-509's shape inside T-509's own tool. The classifier now
+# discriminates: 0 passed, 1 regressed, 3 incomplete (did-not-finish or abstained), and
+# incomplete is still non-zero because an uncovered instrument is not a green. The probe
+# drives the REAL sweep over synthetic probes with known exit codes in a mktemp tree, and
+# pins the WORDS as well as the codes — the defect was never in the arithmetic, it was in
+# the sentence, so a probe checking only rc would have stayed green throughout. Leg 5 was
+# red on its first run against my own fix: the regression branch exited before the
+# uncovered section printed, so a timeout in the same run as a regression was swallowed by
+# the louder finding. Mutation-verified against four mutants (124-as-regression,
+# 2-as-regression, incomplete-softened-to-pass, headroom-warning-removed).
+if python3 "$ROOT/tools/_t548-sweep-classification-teeth.py" > "$TMP/leg-_t548-sweep-classification.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the instrument sweep has stopped distinguishing a regression from a probe that never finished or declined to certify — or it has started calling an uncovered sweep green (run 'python3 tools/_t548-sweep-classification-teeth.py'; rc 2 is a REFUSAL — the sweep's wording or exclusion list could not be parsed, so nothing was measured and it is not a pass)"
+  show_output "$TMP/leg-_t548-sweep-classification.out" "_t548-sweep-classification-teeth.py"
   fail=$((fail + 1))
 fi
 
