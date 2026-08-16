@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-548: _t509 sweep reports a probe that did not finish (rc=124) as a regression
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-16T17:53:22Z
+# ============================================================================
+
+task_id: T-548
+task_name: "_t509 sweep reports a probe that did not finish (rc=124) as a regression"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-16T17:23:05Z
+completed: 2026-08-16T17:53:10Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-16T19:52:41+02:00
+last_commit: 2026-08-16T19:52:41+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  'it broke' and 'I never found out' are different claims, and the sweep had been making the first one whenever it meant the second. _t509 counted every non-zero exit as a regression and announced each as 'an instrument that passed on 2026-08-15 no longer does ... a real regression in the thing it guards'. 124 is GNU timeout's code: T-543 measured _t525 at 86.04s against a 90s cap, passing 7/7 standalone, so it crosses whenever the machine is busy and the reader was sent hunting a fabric-coverage bug that does not exist. rc=2 is an ABSTENTION and is the sharper half: the sweep's OWN exclusion list already argues the case — '_t364 exits 2 BY DESIGN, refusing to certify ... converting that to a suite failure would punish the honesty' — a correct argument about a PROPERTY recorded as an exemption for an INSTANCE, so every other abstaining probe kept being called a regression while the reasoning that would have prevented it sat in the same file. T-509's shape inside T-509's own tool, and the fifth encounter with that shape this week; fixed in the classifier rather than by adding two more names, because adding names would have been faster and would have left the sixth probe wrong. Now: 0 passed, 1 regressed, 2 refusal, 3 INCOMPLETE (did-not-finish or abstained). Incomplete is still non-zero — an instrument nobody heard from is not a green — and the repair being made here is the MISLABEL, not the redness. HEADROOM WARNING added and it fired on its first real run: _t525 at 81s of 90s, named on a GREEN sweep, which is the leading indicator that did not exist for the weeks it sat at ~95% before anyone heard anything. THREE THINGS WENT WRONG IN MY OWN WORK AND ALL THREE WERE CAUGHT BY INSTRUMENTS RATHER THAN BY REVIEW. Leg 5 was red on its first run against my fix: a regression and a timeout in the same run reported only the regression, because I exited inside the regression branch before the uncovered section printed — the louder finding swallowing the instrument nobody heard from, a quieter version of the defect this task exists to fix. _t527 flagged my bridge-suite edit for wrapping the headroom surfacing in 'if grep -q ... $TMP/leg-*', the shape it guards because that is how a leg discards the evidence for its own verdict; my use surfaced output rather than swallowing it so the finding was a false positive on intent and the guard was still right about the pattern, restructured to a bare sed that needs no conditional, and weakening the guard to fit my code was available and would have been a bad trade. And the headroom warning was invisible exactly where it mattered — the leg redirects the sweep's stdout to a file shown only on failure, so on the green runs where a leading indicator is the whole point nobody saw it; found by reading the suite's own output, not by design. THE ACCEPTANCE CRITERION WAS AMENDED MID-TASK AND THAT IS THE RESULT: it read 'full suite green', and on the first suite run after wiring _t525 genuinely crossed the cap and the sweep correctly reported SWEEP INCOMPLETE / DID NOT FINISH / 'nothing is claimed about what it guards — it was killed, not failed'. The repair working on the real failure it was built for, on first exposure. Leaving the AC would have left exactly two ways to satisfy it, raise the cap or retry the leg, which are the two repairs T-543 ruled out; an AC that can only be met by doing the wrong thing is the AC that is wrong. Teeth drive the REAL sweep over synthetic probes with known exit codes in a mktemp tree and pin THE WORDS as well as the codes, because the defect was never in the arithmetic — the sweep counted correctly and described the count wrongly — so a probe checking only rc would have stayed green throughout. Mutation-verified against four mutants (124-as-regression, 2-as-regression, incomplete-softened-to-pass, headroom-removed). NOT DONE, deliberately, carrying T-543's AC4: no timeout raised, no retry added, no leg quarantined, and the by-name exclusions NOT narrowed even though the classifier now makes two of them redundant — that is a population change and a register-accounting decision for the operator. _t525's 86s cost is filed as T-549
+
+# Key outcomes
+outcomes:
+  - 'The run loop classifies by exit code into four outcomes — `0` passed,'
+  - 'No timeout or abstention is ever described as "an instrument that passed'
+  - 'Exit codes discriminate: `0` all ran and passed, `1` at least one genuine'
+  - '`tests/run-bridge-tests.sh`''s FAIL text for this leg no longer asserts'
+  - '**Headroom warning:** every instrument''s elapsed time is measured, and any'
+  - '`tools/_t548-sweep-classification-teeth.py` drives the real sweep over'
+  - 'Teeth are mutation-verified and hermetic (synthetic probes live under'
+  - 'Wired into `tests/run-bridge-tests.sh`, and the suite''s remaining red — if'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: '''it broke'' and ''I never found out'' are different claims, and the sweep had been making the first one whenever it meant the second. _t509 counted every non-zero exit as a regression and announced each as ''an instrument that passed on 2026-08-15 no longer does ... a real regression in the thing it guards''. 124 is GNU timeout''s code: T-543 measured _t525 at 86.04s against a 90s cap, passing 7/7 standalone, so it crosses whenever the machine is busy and the reader was sent hunting a fabric-coverage bug that does not exist. rc=2 is an ABSTENTION and is the sharper half: the sweep''s OWN exclusion list already argues the case — ''_t364 exits 2 BY DESIGN, refusing to certify ... converting that to a suite failure would punish the honesty'' — a correct argument about a PROPERTY recorded as an exemption for an INSTANCE, so every other abstaining probe kept being called a regression while the reasoning that would have prevented it sat in the same file. T-509''s shape inside T-509''s own tool, and the fifth encounter with that shape this week; fixed in the classifier rather than by adding two more names, because adding names would have been faster and would have left the sixth probe wrong. Now: 0 passed, 1 regressed, 2 refusal, 3 INCOMPLETE (did-not-finish or abstained). Incomplete is still non-zero — an instrument nobody heard from is not a green — and the repair being made here is the MISLABEL, not the redness. HEADROOM WARNING added and it fired on its first real run: _t525 at 81s of 90s, named on a GREEN sweep, which is the leading indicator that did not exist for the weeks it sat at ~95% before anyone heard anything. THREE THINGS WENT WRONG IN MY OWN WORK AND ALL THREE WERE CAUGHT BY INSTRUMENTS RATHER THAN BY REVIEW. Leg 5 was red on its first run against my fix: a regression and a timeout in the same run reported only the regression, because I exited inside the regression branch before the uncovered section printed — the louder finding swallowing the instrument nobody heard from, a quieter version of the defect this task exists to fix. _t527 flagged my bridge-suite edit for wrapping the headroom surfacing in ''if grep -q ... $TMP/leg-*'', the shape it guards because that is how a leg discards the evidence for its own verdict; my use surfaced output rather than swallowing it so the finding was a false positive on intent and the guard was still right about the pattern, restructured to a bare sed that needs no conditional, and weakening the guard to fit my code was available and would have been a bad trade. And the headroom warning was invisible exactly where it mattered — the leg redirects the sweep''s stdout to a file shown only on failure, so on the green runs where a leading indicator is the whole point nobody saw it; found by reading the suite''s own output, not by design. THE ACCEPTANCE CRITERION WAS AMENDED MID-TASK AND THAT IS THE RESULT: it read ''full suite green'', and on the first suite run after wiring _t525 genuinely crossed the cap and the sweep correctly reported SWEEP INCOMPLETE / DID NOT FINISH / ''nothing is claimed about what it guards — it was killed, not failed''. The repair working on the real failure it was built for, on first exposure. Leaving the AC would have left exactly two ways to satisfy it, raise the cap or retry the leg, which are the two repairs T-543 ruled out; an AC that can only be met by doing the wrong thing is the AC that is wrong. Teeth drive the REAL sweep over synthetic probes with known exit codes in a mktemp tree and pin THE WORDS as well as the codes, because the defect was never in the arithmetic — the sweep counted correctly and described the count wrongly — so a probe checking only rc would have stayed green throughout. Mutation-verified against four mutants (124-as-regression, 2-as-regression, incomplete-softened-to-pass, headroom-removed). NOT DONE, deliberately, carrying T-543''s AC4: no timeout raised, no retry added, no leg quarantined, and the by-name exclusions NOT narrowed even though the classifier now makes two of them redundant — that is a population change and a register-accounting decision for the operator. _t525''s 86s cost is filed as T-549'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t548-sweep-classification-teeth.yaml'
+  - '.tasks/active/T-548-t509-sweep-reports-a-probe-that-did-not-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t509-instrument-sweep.sh'
+  - 'tools/_t548-sweep-classification-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-16T19:52:41"
+    action: "T-548: 'it broke' and 'I never found out' are different claims, and the sweep had been making the first one whenever it meant the second. _t509 counted every non-zero exit as a regression and announced each as 'an instrument that passed on 2026-08-15 no longer does ... a real regression in the thing it guards'. 124 is GNU timeout's code: T-543 measured _t525 at 86.04s against a 90s cap, passing 7/7 standalone, so it crosses whenever the machine is busy and the reader was sent hunting a fabric-coverage bug that does not exist. rc=2 is an ABSTENTION and is the sharper half: the sweep's OWN exclusion list already argues the case — '_t364 exits 2 BY DESIGN, refusing to certify ... converting that to a suite failure would punish the honesty' — a correct argument about a PROPERTY recorded as an exemption for an INSTANCE, so every other abstaining probe kept being called a regression while the reasoning that would have prevented it sat in the same file. T-509's shape inside T-509's own tool, and the fifth encounter with that shape this week; fixed in the classifier rather than by adding two more names, because adding names would have been faster and would have left the sixth probe wrong. Now: 0 passed, 1 regressed, 2 refusal, 3 INCOMPLETE (did-not-finish or abstained). Incomplete is still non-zero — an instrument nobody heard from is not a green — and the repair being made here is the MISLABEL, not the redness. HEADROOM WARNING added and it fired on its first real run: _t525 at 81s of 90s, named on a GREEN sweep, which is the leading indicator that did not exist for the weeks it sat at ~95% before anyone heard anything. THREE THINGS WENT WRONG IN MY OWN WORK AND ALL THREE WERE CAUGHT BY INSTRUMENTS RATHER THAN BY REVIEW. Leg 5 was red on its first run against my fix: a regression and a timeout in the same run reported only the regression, because I exited inside the regression branch before the uncovered section printed — the louder finding swallowing the instrument nobody heard from, a quieter version of the defect this task exists to fix. _t527 flagged my bridge-suite edit for wrapping the headroom surfacing in 'if grep -q ... $TMP/leg-*', the shape it guards because that is how a leg discards the evidence for its own verdict; my use surfaced output rather than swallowing it so the finding was a false positive on intent and the guard was still right about the pattern, restructured to a bare sed that needs no conditional, and weakening the guard to fit my code was available and would have been a bad trade. And the headroom warning was invisible exactly where it mattered — the leg redirects the sweep's stdout to a file shown only on failure, so on the green runs where a leading indicator is the whole point nobody saw it; found by reading the suite's own output, not by design. THE ACCEPTANCE CRITERION WAS AMENDED MID-TASK AND THAT IS THE RESULT: it read 'full suite green', and on the first suite run after wiring _t525 genuinely crossed the cap and the sweep correctly reported SWEEP INCOMPLETE / DID NOT FINISH / 'nothing is claimed about what it guards — it was killed, not failed'. The repair working on the real failure it was built for, on first exposure. Leaving the AC would have left exactly two ways to satisfy it, raise the cap or retry the leg, which are the two repairs T-543 ruled out; an AC that can only be met by doing the wrong thing is the AC that is wrong. Teeth drive the REAL sweep over synthetic probes with known exit codes in a mktemp tree and pin THE WORDS as well as the codes, because the defect was never in the arithmetic — the sweep counted correctly and described the count wrongly — so a probe checking only rc would have stayed green throughout. Mutation-verified against four mutants (124-as-regression, 2-as-regression, incomplete-softened-to-pass, headroom-removed). NOT DONE, deliberately, carrying T-543's AC4: no timeout raised, no retry added, no leg quarantined, and the by-name exclusions NOT narrowed even though the classifier now makes two of them redundant — that is a population change and a register-accounting decision for the operator. _t525's 86s cost is filed as T-549"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 30 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 30
+  commits: 1
+  files_changed: 5
+  lines_added: 721
+  lines_removed: 17
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-548-t509-sweep-reports-a-probe-that-did-not-.md
+generated_by: context-agent-hybrid
