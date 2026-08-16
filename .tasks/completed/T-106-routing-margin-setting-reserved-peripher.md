@@ -2,12 +2,16 @@
 id: T-106
 name: "Routing margin setting: reserved periphery band for loop-back edges"
 description: >
-  T-092 Phase C option 3: expose a routing-margin preference (none/8/16px) that widens the reserved periphery band orthoLoopBack() uses for loop-back/long-run edges, so they skirt the content instead of sharing a corridor with row-2 nodes (survey finding 5). Editor-local pref like straightening/channel-sep; render-only, no stored geometry mutation (PD-044 trivially safe).
+  T-092 Phase C option 3: expose a routing-margin preference (none/8/16px) that widens
+  the reserved periphery band orthoLoopBack() uses for loop-back/long-run edges, so
+  they skirt the content instead of sharing a corridor with row-2 nodes (survey finding
+  5). Editor-local pref like straightening/channel-sep; render-only, no stored geometry
+  mutation (PD-044 trivially safe).
 
 status: work-completed
 workflow_type: build
 owner: human
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +20,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T18:36:00Z
-last_update: 2026-07-29T15:39:16Z
+last_update: '2026-08-16T12:33:37Z'
 date_finished: 2026-07-05T18:52:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +32,24 @@ date_finished: 2026-07-05T18:52:23Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:37Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 3
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=3 (body:portability-abstraction); F-RECALL=2 (body:lightly-promoted); 
+      F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=1 
+      (body/components:component-fabric-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-106: Routing margin setting: reserved periphery band for loop-back edges

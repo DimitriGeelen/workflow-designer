@@ -1,13 +1,23 @@
 ---
 id: T-237
-name: "eventDef/linkEventCatch vocabulary collision: typed catch events misclassified as workflow handoffs (AEF rail 153, 0.3.1)"
+name: "eventDef/linkEventCatch vocabulary collision: typed catch events misclassified
+  as workflow handoffs (AEF rail 153, 0.3.1)"
 description: >
-  Peer-reported (AEF rail offset 153, operator-escalated twice their side): 0.3.0 editor classifies EVERY bpmn:intermediateCatchEvent as linkEventCatch (handoff-from-another-workflow), even when the node carries aef:eventDef (T-204 typed-event vocabulary, e.g. kind=message binding=bus:...). Repro on AEF corpus map aef-dispatch-loop node agt_msg_result: typed message-catch, zero aef:link -> properties panel shows type linkEventCatch, Target workflow none, permanently-inert Open-target-workflow affordance. Ask for 0.3.1 (rides with T-234): eventDef-bearing catches classify/render as the typed event (distinct type label, NO jump affordance); linkEventCatch reserved for aef:link carriers (bare catches: our call, record in Decisions). Check throw side for the same ambiguity (intermediateThrowEvent + eventDef vs + link).
+  Peer-reported (AEF rail offset 153, operator-escalated twice their side): 0.3.0
+  editor classifies EVERY bpmn:intermediateCatchEvent as linkEventCatch (handoff-from-another-workflow),
+  even when the node carries aef:eventDef (T-204 typed-event vocabulary, e.g. kind=message
+  binding=bus:...). Repro on AEF corpus map aef-dispatch-loop node agt_msg_result:
+  typed message-catch, zero aef:link -> properties panel shows type linkEventCatch,
+  Target workflow none, permanently-inert Open-target-workflow affordance. Ask for
+  0.3.1 (rides with T-234): eventDef-bearing catches classify/render as the typed
+  event (distinct type label, NO jump affordance); linkEventCatch reserved for aef:link
+  carriers (bare catches: our call, record in Decisions). Check throw side for the
+  same ambiguity (intermediateThrowEvent + eventDef vs + link).
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: [bug, designer, aef-integration]
 components: []
 related_tasks: []
@@ -16,7 +26,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-22T10:41:18Z
-last_update: 2026-07-22T11:02:00Z
+last_update: '2026-08-16T12:33:45Z'
 date_finished: 2026-07-22T11:02:00Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +38,24 @@ date_finished: 2026-07-22T11:02:00Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:45Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-237: eventDef/linkEventCatch vocabulary collision: typed catch events misclassified as workflow handoffs (AEF rail 153, 0.3.1)

@@ -1,13 +1,20 @@
 ---
 id: T-183
-name: "Child-2: Forward bridge — 832 support (emission spec + reference fixtures for AEF translator)"
+name: "Child-2: Forward bridge — 832 support (emission spec + reference fixtures for
+  AEF translator)"
 description: >
-  arc: designer-authoring-surface child-2 (forward bridge), GO'd by operator 2026-07-11. AEF-LED build (translator + enrichment + sovereignty gate). 832's supporting deliverable: (a) confirm the editor emits the full v1 semantic vocabulary + stable aef:uid (already shipped), (b) provide AEF a reference BPMN fixture set + the forward-compile spec derived from docs/standards/aef-bpmn-mapping-v1.md, (c) modify-vs-create semantics doc (uid-resolves test). Not started — teed up; depends on child-1 standard (done, T-182).
+  arc: designer-authoring-surface child-2 (forward bridge), GO'd by operator 2026-07-11.
+  AEF-LED build (translator + enrichment + sovereignty gate). 832's supporting deliverable:
+  (a) confirm the editor emits the full v1 semantic vocabulary + stable aef:uid (already
+  shipped), (b) provide AEF a reference BPMN fixture set + the forward-compile spec
+  derived from docs/standards/aef-bpmn-mapping-v1.md, (c) modify-vs-create semantics
+  doc (uid-resolves test). Not started — teed up; depends on child-1 standard (done,
+  T-182).
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +23,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-11T05:30:52Z
-last_update: 2026-07-11T11:49:17Z
+last_update: '2026-08-16T12:33:42Z'
 date_finished: 2026-07-11T11:49:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +35,23 @@ date_finished: 2026-07-11T11:49:17Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:42Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=2 (body:env-class-handled); F-RECALL=0 (no-signal); F-AUTONOMY=0 
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-183: Child-2: Forward bridge — 832 support (emission spec + reference fixtures for AEF translator)

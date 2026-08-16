@@ -1,13 +1,19 @@
 ---
 id: T-202
-name: "Write-out: guard designer .bpmn export carries the promote content contract (aef:uid + lane authority)"
+name: "Write-out: guard designer .bpmn export carries the promote content contract
+  (aef:uid + lane authority)"
 description: >
-  Post-GO on T-201 write-out inception. Seam resolved: content-authority=832, gated-write=AEF via fw bpmn promote -> fw task create (T-2541). This is 832's side of the content contract: guarantee the designer .bpmn export carries a stable aef:uid and a defined lane authority for every owner-bearing node, so promote can derive owner (IW-9) and stamp provenance with no gaps. Machine-verifiable guard; end-to-end integration waits on AEF T-2541 promote+Spike-1.
+  Post-GO on T-201 write-out inception. Seam resolved: content-authority=832, gated-write=AEF
+  via fw bpmn promote -> fw task create (T-2541). This is 832's side of the content
+  contract: guarantee the designer .bpmn export carries a stable aef:uid and a defined
+  lane authority for every owner-bearing node, so promote can derive owner (IW-9)
+  and stamp provenance with no gaps. Machine-verifiable guard; end-to-end integration
+  waits on AEF T-2541 promote+Spike-1.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T08:44:10Z
-last_update: 2026-07-18T08:51:21Z
+last_update: '2026-08-16T12:33:43Z'
 date_finished: 2026-07-18T08:51:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +34,24 @@ date_finished: 2026-07-18T08:51:21Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:43Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=2 (body:env-class-handled); F-RECALL=2 (body:lightly-promoted); 
+      F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-202: Write-out: guard designer .bpmn export carries the promote content contract (aef:uid + lane authority)

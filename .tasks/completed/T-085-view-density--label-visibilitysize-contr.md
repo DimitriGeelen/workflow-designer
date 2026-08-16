@@ -2,12 +2,18 @@
 id: T-085
 name: "View density + label visibility/size controls in editor settings"
 description: >
-  Operator request 2026-07-04 (forwarded scoping message): extend the T-075 settings page with view controls. (1) Density tight/normal/wide scaling node-to-node spacing inside lanes (scales ROW_PITCH/tidy-rows from T-079; default lane heights possibly later slice). (2) Show/hide checkboxes per label class: lane labels, node id sub-labels, edge labels, pool header. (3) Global label size S/M/L affecting lane + node labels. Config in localStorage first slice (per-workflow YAML override = later slice). Companion to T-084 label-fit ladder.
+  Operator request 2026-07-04 (forwarded scoping message): extend the T-075 settings
+  page with view controls. (1) Density tight/normal/wide scaling node-to-node spacing
+  inside lanes (scales ROW_PITCH/tidy-rows from T-079; default lane heights possibly
+  later slice). (2) Show/hide checkboxes per label class: lane labels, node id sub-labels,
+  edge labels, pool header. (3) Global label size S/M/L affecting lane + node labels.
+  Config in localStorage first slice (per-workflow YAML override = later slice). Companion
+  to T-084 label-fit ladder.
 
 status: work-completed
 workflow_type: build
 owner: human
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T14:04:33Z
-last_update: 2026-07-29T15:39:10Z
+last_update: '2026-08-16T12:33:35Z'
 date_finished: 2026-07-04T21:52:46Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +34,23 @@ date_finished: 2026-07-04T21:52:46Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:35Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 4
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=4 (body:cross-machine); F-RECALL=0 (no-signal); F-AUTONOMY=0 
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-085: View density + label visibility/size controls in editor settings

@@ -1,18 +1,27 @@
 ---
 id: T-068
-name: "Inception: constituents/subProcess construct for collapsed nodes (FC-11 x4, FC-15)"
+name: "Inception: constituents/subProcess construct for collapsed nodes (FC-11 x4,
+  FC-15)"
 description: >
-  One question: should the schema grow a first-class way to declare a node's constituents (sub-gates, sub-steps, iteration bodies) — and if so, as (a) a constituents: list vocabulary, (b) a real subProcess node type, or (c) neither (keep the aef.x-* workaround)? Evidence: FC-11 hit 4 times (verification-gate g_gates, git-commit-flow x-checks, resume-status x-sources, session-capture x-captures — rule-of-three exceeded); FC-15 (blast-radius: no scope construct, iteration bodies unboundable, nesting/recursion inexpressible) likely shares the same fix; FC-16 (missing parallelism) is adjacent but separable. Go/no-go is human (Tier-0 style sovereignty). Produces docs/reports/T-068-*.md research artifact per C-001 BEFORE exploration.
+  One question: should the schema grow a first-class way to declare a node's constituents
+  (sub-gates, sub-steps, iteration bodies) — and if so, as (a) a constituents: list
+  vocabulary, (b) a real subProcess node type, or (c) neither (keep the aef.x-* workaround)?
+  Evidence: FC-11 hit 4 times (verification-gate g_gates, git-commit-flow x-checks,
+  resume-status x-sources, session-capture x-captures — rule-of-three exceeded); FC-15
+  (blast-radius: no scope construct, iteration bodies unboundable, nesting/recursion
+  inexpressible) likely shares the same fix; FC-16 (missing parallelism) is adjacent
+  but separable. Go/no-go is human (Tier-0 style sovereignty). Produces docs/reports/T-068-*.md
+  research artifact per C-001 BEFORE exploration.
 
 status: work-completed
 workflow_type: inception
 owner: human
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-04T08:38:51Z
-last_update: 2026-07-04T13:33:31Z
+last_update: '2026-08-16T12:33:34Z'
 date_finished: 2026-07-04T13:33:31Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -22,6 +31,23 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:34Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 2
+      F3: 2
+      F1: 2
+      F2: 2
+    rationale: D1=2 (no-signal); D2=2 (no-signal); D3=2 (no-signal); D4=2 
+      (no-signal); F-RECALL=2 (no-signal); F-AUTONOMY=2 (no-signal); F3=2 
+      (no-signal); F1=2 (no-signal); F2=2 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-068: Inception: constituents/subProcess construct for collapsed nodes (FC-11 x4, FC-15)

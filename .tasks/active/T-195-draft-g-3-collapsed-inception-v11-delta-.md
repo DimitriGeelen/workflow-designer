@@ -1,8 +1,18 @@
 ---
 id: T-195
-name: "Draft G-3 collapsed-inception v1.1 delta proposal + reconcile forward-compile §8"
+name: "Draft G-3 collapsed-inception v1.1 delta proposal + reconcile forward-compile
+  §8"
 description: >
-  Ratified G-3 form (collapsed subProcess, go/no-go gateway IMPLIED at boundary, no child gateway, sovereignty-lane owner) supersedes the old exclusiveGateway-terminal strawman still in mapping-v1 Part II (:133) and forward-compile §8 (:164). No G-3 v1.1 delta exists (parallel gap to the T-189 IW-9 delta). Deliver: (1) a proposal doc docs/reports/T-195-g3-collapsed-inception-delta.md with exact before->after edits for BOTH standards (frozen mapping-v1 Part II bullet + forward-compile §8 open item), graduation held for Dimitri; (2) reconcile forward-compile §8's stale open-item line to match §5's already-updated ratified framing (support-deliverable status maintenance, non-normative). Do NOT edit the frozen mapping-v1 standard under agent control — the proposal proposes; Dimitri graduates.
+  Ratified G-3 form (collapsed subProcess, go/no-go gateway IMPLIED at boundary, no
+  child gateway, sovereignty-lane owner) supersedes the old exclusiveGateway-terminal
+  strawman still in mapping-v1 Part II (:133) and forward-compile §8 (:164). No G-3
+  v1.1 delta exists (parallel gap to the T-189 IW-9 delta). Deliver: (1) a proposal
+  doc docs/reports/T-195-g3-collapsed-inception-delta.md with exact before->after
+  edits for BOTH standards (frozen mapping-v1 Part II bullet + forward-compile §8
+  open item), graduation held for Dimitri; (2) reconcile forward-compile §8's stale
+  open-item line to match §5's already-updated ratified framing (support-deliverable
+  status maintenance, non-normative). Do NOT edit the frozen mapping-v1 standard under
+  agent control — the proposal proposes; Dimitri graduates.
 
 status: started-work
 workflow_type: build
@@ -16,8 +26,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-12T19:38:17Z
-last_update: 2026-07-27T22:14:13Z
-date_finished: null
+last_update: '2026-08-16T12:33:25Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +38,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:25Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=2 (body:env-class-handled); F-RECALL=2 (body:lightly-promoted); 
+      F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=1 
+      (body/components:component-fabric-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-195: Draft G-3 collapsed-inception v1.1 delta proposal + reconcile forward-compile §8

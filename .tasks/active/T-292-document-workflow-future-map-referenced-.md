@@ -2,7 +2,10 @@
 id: T-292
 name: "Document workflow 'future-map' (referenced, not yet created)"
 description: >
-  Off-page connector(s) reference a workflow that does not exist yet (T-2571 ghost). uuid: 4300eae7-f2b4-4a1f-abcf-a2812a882a5e. Referenced by: claim-smoke-legacy:frw_2_handoff-2. Create/document the workflow in the designer, then bind the identity: fw bpmn claim 4300eae7-f2b4-4a1f-abcf-a2812a882a5e <project>
+  Off-page connector(s) reference a workflow that does not exist yet (T-2571 ghost).
+  uuid: 4300eae7-f2b4-4a1f-abcf-a2812a882a5e. Referenced by: claim-smoke-legacy:frw_2_handoff-2.
+  Create/document the workflow in the designer, then bind the identity: fw bpmn claim
+  4300eae7-f2b4-4a1f-abcf-a2812a882a5e <project>
 
 status: captured
 workflow_type: build
@@ -16,10 +19,11 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-28T20:02:13Z
-last_update: 2026-07-28T20:02:13Z
-date_finished: null
+last_update: '2026-08-16T12:33:26Z'
+date_finished:
 revisit_at: 2026-08-28
-revisit_evidence_needed: "same decision as T-291 for the 'future-map' ghost (uuid-pinned, T-235 picker exemplar)"
+revisit_evidence_needed: "same decision as T-291 for the 'future-map' ghost (uuid-pinned,
+  T-235 picker exemplar)"
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,6 +34,24 @@ revisit_evidence_needed: "same decision as T-291 for the 'future-map' ghost (uui
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:26Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-292: Document workflow 'future-map' (referenced, not yet created)

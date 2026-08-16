@@ -1,13 +1,19 @@
 ---
 id: T-262
-name: "Reviewer-agent sweep over the partial-complete review queue: evidence verdicts for operator"
+name: "Reviewer-agent sweep over the partial-complete review queue: evidence verdicts
+  for operator"
 description: >
-  Operator directive 2026-07-27 ('for the 3 consider using our reviewer agent'): run fw reviewer across the ~54 partial-complete tasks awaiting Human [REVIEW] ticks, collect per-task verdicts (PASS/findings), and produce a digest the operator can rule from — evidence per task, never ticking Human ACs (T-372/T-373: suggest-with-evidence only). Output: digest report in docs/reports/ + summary to operator with per-task citations.
+  Operator directive 2026-07-27 ('for the 3 consider using our reviewer agent'): run
+  fw reviewer across the ~54 partial-complete tasks awaiting Human [REVIEW] ticks,
+  collect per-task verdicts (PASS/findings), and produce a digest the operator can
+  rule from — evidence per task, never ticking Human ACs (T-372/T-373: suggest-with-evidence
+  only). Output: digest report in docs/reports/ + summary to operator with per-task
+  citations.
 
 status: work-completed
 workflow_type: test
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T19:23:06Z
-last_update: 2026-07-27T21:23:08Z
+last_update: '2026-08-16T12:33:46Z'
 date_finished: 2026-07-27T21:23:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +34,24 @@ date_finished: 2026-07-27T21:23:08Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:46Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-262: Reviewer-agent sweep over the partial-complete review queue: evidence verdicts for operator

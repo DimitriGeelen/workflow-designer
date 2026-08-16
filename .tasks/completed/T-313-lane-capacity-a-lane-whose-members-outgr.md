@@ -1,13 +1,33 @@
 ---
 id: T-313
-name: "Lane capacity: a lane whose members outgrow its declared height renders nodes past the band edge"
+name: "Lane capacity: a lane whose members outgrow its declared height renders nodes
+  past the band edge"
 description: >
-  AEF T-2687 (rail 338) found a defect class the lane ORDERING rule is structurally blind to: a lane whose own members span more than its declared height. Order correct, nothing crossing, band simply cannot contain its content. Live instance their side: draft-knowledge-leveling agent lane spans 513px inside height=260, overflow 253px - a SECOND independent defect on the v8 promotion candidate, separate from the two-node authority call. On OUR side this is not merely a lint finding but a VISIBLE RENDER DEFECT: poolHeight sums declared lane heights while nodes draw at their own y, so nodes spill past the band edge. This is a candidate mechanism for the operator screenshot that started T-310 - roughly 14 nodes rendered BELOW every lane band with long trunk edges on a 53-node 5-lane map, with the Clean nudge firing. T-310 explained the membership half but never explained why so many sat below ALL bands; capacity does, and Clean firing fits because cleanLayout (T-125) compacts lanes to exactly the fitting height. UNCONFIRMED against that map - pen_inbound_classifier bytes were never obtained. Measured our side: all 24 rendered corpus maps have ZERO overflowing lanes, because T-101 baked Clean layout in and Clean drives lanes to the fixpoint height == (max botOf - min topOf) + 2*LANE_FIT_MARGIN. So the class arrives via IMPORTED maps authored elsewhere, not from our own corpus. Occupancy is not node height: botOf = y + h(type) + (labelBelow(type) ? 18 : 0), LANE_FIT_MARGIN=12 at both edges. Effective occupancy events 54, gateways 66, tasks 64 - the smallest shapes are not the smallest occupants.
+  AEF T-2687 (rail 338) found a defect class the lane ORDERING rule is structurally
+  blind to: a lane whose own members span more than its declared height. Order correct,
+  nothing crossing, band simply cannot contain its content. Live instance their side:
+  draft-knowledge-leveling agent lane spans 513px inside height=260, overflow 253px
+  - a SECOND independent defect on the v8 promotion candidate, separate from the two-node
+  authority call. On OUR side this is not merely a lint finding but a VISIBLE RENDER
+  DEFECT: poolHeight sums declared lane heights while nodes draw at their own y, so
+  nodes spill past the band edge. This is a candidate mechanism for the operator screenshot
+  that started T-310 - roughly 14 nodes rendered BELOW every lane band with long trunk
+  edges on a 53-node 5-lane map, with the Clean nudge firing. T-310 explained the
+  membership half but never explained why so many sat below ALL bands; capacity does,
+  and Clean firing fits because cleanLayout (T-125) compacts lanes to exactly the
+  fitting height. UNCONFIRMED against that map - pen_inbound_classifier bytes were
+  never obtained. Measured our side: all 24 rendered corpus maps have ZERO overflowing
+  lanes, because T-101 baked Clean layout in and Clean drives lanes to the fixpoint
+  height == (max botOf - min topOf) + 2*LANE_FIT_MARGIN. So the class arrives via
+  IMPORTED maps authored elsewhere, not from our own corpus. Occupancy is not node
+  height: botOf = y + h(type) + (labelBelow(type) ? 18 : 0), LANE_FIT_MARGIN=12 at
+  both edges. Effective occupancy events 54, gateways 66, tasks 64 - the smallest
+  shapes are not the smallest occupants.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +36,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-29T22:44:43Z
-last_update: 2026-07-31T08:42:33Z
+last_update: '2026-08-16T12:33:49Z'
 date_finished: 2026-07-31T08:42:33Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +48,24 @@ date_finished: 2026-07-31T08:42:33Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:49Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 3
+      D3: 0
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=3 
+      (body:component-silent-failure); D3=0 (no-signal); D4=2 
+      (body:env-class-handled); F-RECALL=0 (no-signal); F-AUTONOMY=0 
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-313: Lane capacity: a lane whose members outgrow its declared height renders nodes past the band edge

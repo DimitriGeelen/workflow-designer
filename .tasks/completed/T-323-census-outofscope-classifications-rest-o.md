@@ -1,22 +1,37 @@
 ---
 id: T-323
-name: "Census OUT_OF_SCOPE classifications rest on corpus counts where the discriminator requires expressibility (scopeOf is a GAP, not out of scope)"
+name: "Census OUT_OF_SCOPE classifications rest on corpus counts where the discriminator
+  requires expressibility (scopeOf is a GAP, not out of scope)"
 description: >
-  T-320's parity census classifies a rule OUT_OF_SCOPE when no file on the other form CARRIES the construct today. That is a corpus count, and the census's own two-axis rule forbids using one to classify: 'a gap with zero violations is still a gap'. Applied to the GAP rows, not to the OUT_OF_SCOPE rows -- the discipline itself was one-form-only. Proof: aef:scopeOf is in the shared canonical vocabulary (tools/yaml-to-bpmn.py META_KEYS, designer metaKeys src:9283) and the bridge emits it as <aef:meta scopeOf=...>. A subProcess with scopeOf pointing at itself is ERROR E-SCOPEOF-SELF rc=2 on the YAML form and VALID rc=0 on the BPMN bridged from those same bytes. So the ONLY entry the census called correctly out of scope is a GAP: 9 gap families, zero correctly out of scope. Fix is to the DISCRIMINATOR and the probes -- OUT_OF_SCOPE must mean the form cannot EXPRESS the construct (vocabulary/schema absence), and OUT_OF_SCOPE_PROBES must probe the vocabulary, not the corpus. Corpus carriers stay as priority signal only.
+  T-320's parity census classifies a rule OUT_OF_SCOPE when no file on the other form
+  CARRIES the construct today. That is a corpus count, and the census's own two-axis
+  rule forbids using one to classify: 'a gap with zero violations is still a gap'.
+  Applied to the GAP rows, not to the OUT_OF_SCOPE rows -- the discipline itself was
+  one-form-only. Proof: aef:scopeOf is in the shared canonical vocabulary (tools/yaml-to-bpmn.py
+  META_KEYS, designer metaKeys src:9283) and the bridge emits it as <aef:meta scopeOf=...>.
+  A subProcess with scopeOf pointing at itself is ERROR E-SCOPEOF-SELF rc=2 on the
+  YAML form and VALID rc=0 on the BPMN bridged from those same bytes. So the ONLY
+  entry the census called correctly out of scope is a GAP: 9 gap families, zero correctly
+  out of scope. Fix is to the DISCRIMINATOR and the probes -- OUT_OF_SCOPE must mean
+  the form cannot EXPRESS the construct (vocabulary/schema absence), and OUT_OF_SCOPE_PROBES
+  must probe the vocabulary, not the corpus. Corpus carriers stay as priority signal
+  only.
 
 status: work-completed
 workflow_type: build
 owner: claude-code
-horizon: null
+horizon:
 tags: []
-components: [tests/fixtures/invalid/E-INCEPTION-NOT-SOVEREIGN.xml, tests/fixtures/warn/W-TYPE-LANE-MISMATCH.xml, tests/test_rule_form_parity.py]
+components: [tests/fixtures/invalid/E-INCEPTION-NOT-SOVEREIGN.xml, 
+      tests/fixtures/warn/W-TYPE-LANE-MISMATCH.xml, 
+      tests/test_rule_form_parity.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-01T10:11:28Z
-last_update: 2026-08-01T10:35:47Z
+last_update: '2026-08-16T12:33:50Z'
 date_finished: 2026-08-01T10:35:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +43,24 @@ date_finished: 2026-08-01T10:35:47Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:50Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-323: Census OUT_OF_SCOPE classifications rest on corpus counts where the discriminator requires expressibility (scopeOf is a GAP, not out of scope)

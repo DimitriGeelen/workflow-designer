@@ -1,22 +1,35 @@
 ---
 id: T-322
-name: "IW-9 authority rules exist only on the XML form: the canonical YAML form has no sovereignty check (T-320 gap)"
+name: "IW-9 authority rules exist only on the XML form: the canonical YAML form has
+  no sovereignty check (T-320 gap)"
 description: >
-  T-320 census, direction XML-to-YAML. W-TYPE-LANE-MISMATCH (task-type vs lane authority) and E-INCEPTION-NOT-SOVEREIGN (an inception's go/no-go boundary MUST sit in a sovereignty lane) exist on XmlValidator only. The canonical YAML form can express both constructs -- lane authority is a REQUIRED lane field and workflowType is in the canonical aef: vocabulary (0 of 26 maps author it today) -- and no rule describes them there. The filing claim "workflowType=inception on 2/24 yaml" was wrong and is corrected in Evolution: those 2 carriers are .bpmn, the rule's own form. 0 live violations today, which is priority not classification: the absence of a rule is what makes the absence of violations unfalsifiable. Kept as one task because it is one construct (mapping-v1 section 3/7 authority collapse) on one form, not two independent defects. Governance-bearing: this is the half that decides whether an inception is human-sovereign.
+  T-320 census, direction XML-to-YAML. W-TYPE-LANE-MISMATCH (task-type vs lane authority)
+  and E-INCEPTION-NOT-SOVEREIGN (an inception's go/no-go boundary MUST sit in a sovereignty
+  lane) exist on XmlValidator only. The canonical YAML form can express both constructs
+  -- lane authority is a REQUIRED lane field and workflowType is in the canonical
+  aef: vocabulary (0 of 26 maps author it today) -- and no rule describes them there.
+  The filing claim "workflowType=inception on 2/24 yaml" was wrong and is corrected
+  in Evolution: those 2 carriers are .bpmn, the rule's own form. 0 live violations
+  today, which is priority not classification: the absence of a rule is what makes
+  the absence of violations unfalsifiable. Kept as one task because it is one construct
+  (mapping-v1 section 3/7 authority collapse) on one form, not two independent defects.
+  Governance-bearing: this is the half that decides whether an inception is human-sovereign.
 
 status: work-completed
 workflow_type: build
 owner: claude-code
-horizon: null
+horizon:
 tags: []
-components: [tests/fixtures/invalid/E-INCEPTION-NOT-SOVEREIGN.xml, tests/fixtures/warn/W-TYPE-LANE-MISMATCH.xml, tests/test_rule_form_parity.py]
+components: [tests/fixtures/invalid/E-INCEPTION-NOT-SOVEREIGN.xml, 
+      tests/fixtures/warn/W-TYPE-LANE-MISMATCH.xml, 
+      tests/test_rule_form_parity.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-31T12:16:05Z
-last_update: 2026-08-01T10:23:27Z
+last_update: '2026-08-16T12:33:50Z'
 date_finished: 2026-08-01T10:23:27Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +41,24 @@ date_finished: 2026-08-01T10:23:27Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:50Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-322: IW-9 authority rules exist only on the XML form: the canonical YAML form has no sovereignty check (T-320 gap)

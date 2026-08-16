@@ -1,13 +1,27 @@
 ---
 id: T-354
-name: "T-178 verification pins 0.2.0 against MANIFEST's always-latest sha256 field — blocks a queued human review"
+name: "T-178 verification pins 0.2.0 against MANIFEST's always-latest sha256 field
+  — blocks a queued human review"
 description: >
-  T-178 is active, status work-completed, owner human, queued at /review/T-178. Its verification block compares MANIFEST.yaml's sha256 field against dist/aef-workflow-designer-0.2.0.html. That field always names the LATEST release; it is at 0.8.0 and is internally correct (field matches the 0.8.0 artifact byte for byte). The line was true exactly once, when 0.2.0 was latest, and has been false through eight releases since. Consequence: when the operator ticks T-178's Human AC and runs work-completed, the P-011 gate refuses the completion for a reason unrelated to T-178's deliverable, which shipped. This is the G-015 shape — a verification line asserting a global, always-moving property — third carrier found after the designer.html diff family and the hard-coded ports. Found by T-353 while tallying the LATENT bucket's recorded verdict pairs: 30 of 189 are (FAIL/n/a), i.e. already red; 29 are archived and inert, this one is live. Repair is to pin the artifact the task actually released (compare against the 0.2.0 sha recorded at release time) rather than against a field that moves. NOT repaired under T-353: T-178 is another owner's active task.
+  T-178 is active, status work-completed, owner human, queued at /review/T-178. Its
+  verification block compares MANIFEST.yaml's sha256 field against dist/aef-workflow-designer-0.2.0.html.
+  That field always names the LATEST release; it is at 0.8.0 and is internally correct
+  (field matches the 0.8.0 artifact byte for byte). The line was true exactly once,
+  when 0.2.0 was latest, and has been false through eight releases since. Consequence:
+  when the operator ticks T-178's Human AC and runs work-completed, the P-011 gate
+  refuses the completion for a reason unrelated to T-178's deliverable, which shipped.
+  This is the G-015 shape — a verification line asserting a global, always-moving
+  property — third carrier found after the designer.html diff family and the hard-coded
+  ports. Found by T-353 while tallying the LATENT bucket's recorded verdict pairs:
+  30 of 189 are (FAIL/n/a), i.e. already red; 29 are archived and inert, this one
+  is live. Repair is to pin the artifact the task actually released (compare against
+  the 0.2.0 sha recorded at release time) rather than against a field that moves.
+  NOT repaired under T-353: T-178 is another owner's active task.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +30,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T11:03:24Z
-last_update: 2026-08-03T11:15:19Z
+last_update: '2026-08-16T12:33:52Z'
 date_finished: 2026-08-03T11:15:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +42,24 @@ date_finished: 2026-08-03T11:15:19Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:52Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-354: T-178 verification pins 0.2.0 against MANIFEST's always-latest sha256 field — blocks a queued human review

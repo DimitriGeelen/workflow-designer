@@ -2,12 +2,23 @@
 id: T-259
 name: "eventDef preservation passthrough: start/throw hosts survive open-save round-trip"
 description: >
-  T-257 GO build (operator-ratified 2026-07-27): cure the save-path drop of aef:eventDef on startEvent + intermediateThrowEvent carriers (AEF field defect rail 201, their T-2620). Scope per T-257 scope fence: (1) import passthrough — adoptImportedXml captures kind/binding as inert aef fields on hosts the typed-catch override skips (no node-type change, no UI); (2) export re-emit — aefExtensionXml emits the passthrough aef:eventDef canonically (binding='' when absent, matching the accepted v2 catch normalization); (3) regression leg — open fixture v1 (tests/fixtures/aef-bpmn/t257-eventdef-roundtrip) then save must keep all 3 eventDefs with kinds intact (timer/message/message on th_obs_fire/th_signal/th_pickup). OUT: typed start/throw palette/glyphs/UI (future contract round), any change to the typed-CATCH override path (T-204/T-237 unchanged). Peer intake pre-cleared at rail 215 (host-agnostic accept); restoring throw eventDefs also cures the emitterless-typed-catch lint class (T-2551).
+  T-257 GO build (operator-ratified 2026-07-27): cure the save-path drop of aef:eventDef
+  on startEvent + intermediateThrowEvent carriers (AEF field defect rail 201, their
+  T-2620). Scope per T-257 scope fence: (1) import passthrough — adoptImportedXml
+  captures kind/binding as inert aef fields on hosts the typed-catch override skips
+  (no node-type change, no UI); (2) export re-emit — aefExtensionXml emits the passthrough
+  aef:eventDef canonically (binding='' when absent, matching the accepted v2 catch
+  normalization); (3) regression leg — open fixture v1 (tests/fixtures/aef-bpmn/t257-eventdef-roundtrip)
+  then save must keep all 3 eventDefs with kinds intact (timer/message/message on
+  th_obs_fire/th_signal/th_pickup). OUT: typed start/throw palette/glyphs/UI (future
+  contract round), any change to the typed-CATCH override path (T-204/T-237 unchanged).
+  Peer intake pre-cleared at rail 215 (host-agnostic accept); restoring throw eventDefs
+  also cures the emitterless-typed-catch lint class (T-2551).
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +27,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T18:26:34Z
-last_update: 2026-07-27T18:34:28Z
+last_update: '2026-08-16T12:33:46Z'
 date_finished: 2026-07-27T18:34:28Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +39,24 @@ date_finished: 2026-07-27T18:34:28Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:46Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-259: eventDef preservation passthrough: start/throw hosts survive open-save round-trip

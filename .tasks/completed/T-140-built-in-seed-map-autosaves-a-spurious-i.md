@@ -5,24 +5,30 @@ description: >
   INVESTIGATION OUTCOME: NOT-A-BUG (diagnosis invalidated 2026-07-07). The original
   premise — that the built-in seed (id 'investigate') is *autosaved* to the version
   store at Init — is false. Code trace proves the version store (.editor-versions/<id>/)
-  is written ONLY by POST /api/save (gallery-serve.py do_POST), which on the client is
+  is written ONLY by POST /api/save (gallery-serve.py do_POST), which on the client
+  is
   called ONLY from saveToProject() (fetch('/api/save'), 1 call site), bound ONLY to
   btn-save-project.onclick (manual click) behind an _apiAvailable gate. The T-127
   autosave (autosaveNow) writes localStorage ONLY — it never touches the server. Opening
-  designer.html, including with ?load=<map> (which calls adoptImportedXml → in-memory +
+  designer.html, including with ?load=<map> (which calls adoptImportedXml → in-memory
+  +
   localStorage, not saveToProject), creates ZERO version-store entries. The 'investigate'
   residue seen in the prior session was self-inflicted: my own Playwright automation
   clicked "Save to project" while the seed was the active document. Saving the active
-  document on an explicit click is correct behaviour, not a defect. No code change is
-  warranted; making one would modify working code on a false premise. T-138 already keeps
-  such scratch saves out of the committed corpus. Optional UX hardening (warn/no-op when
-  Save is clicked on the pristine, unedited seed) is a SEPARATE feature, not this bug —
+  document on an explicit click is correct behaviour, not a defect. No code change
+  is
+  warranted; making one would modify working code on a false premise. T-138 already
+  keeps
+  such scratch saves out of the committed corpus. Optional UX hardening (warn/no-op
+  when
+  Save is clicked on the pristine, unedited seed) is a SEPARATE feature, not this
+  bug —
   filed only if the operator asks.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -31,7 +37,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-07T17:01:43Z
-last_update: 2026-07-07T17:22:44Z
+last_update: '2026-08-16T12:33:39Z'
 date_finished: 2026-07-07T17:22:44Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -43,6 +49,24 @@ date_finished: 2026-07-07T17:22:44Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:39Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-140: Built-in seed map autosaves a spurious 'investigate' version entry at Init

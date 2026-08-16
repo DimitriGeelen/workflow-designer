@@ -1,8 +1,16 @@
 ---
 id: T-351
-name: "serve-gallery.sh can never stop its own server: trap forwards SIGINT, which bash sets to SIG_IGN for background children"
+name: "serve-gallery.sh can never stop its own server: trap forwards SIGINT, which
+  bash sets to SIG_IGN for background children"
 description: >
-  serve-gallery.sh's exit trap forwards kill -INT to the gallery-serve.py child, but bash sets SIGINT to SIG_IGN for children started with & when job control is off, and python inherits the ignore across exec (confirmed in /proc/PID/status SigIgn). The child therefore survives every INT its parent sends, and orphans on parent death. The in-file comment asserts the exact inverse: that gallery-serve.py handles SIGINT and ignores SIGTERM. SIGTERM is in fact what stops it. Five orphaned gallery-serve.py processes from 2026-07-22 and 2026-07-29 are still resident on this host holding ports with deleted docroots.
+  serve-gallery.sh's exit trap forwards kill -INT to the gallery-serve.py child, but
+  bash sets SIGINT to SIG_IGN for children started with & when job control is off,
+  and python inherits the ignore across exec (confirmed in /proc/PID/status SigIgn).
+  The child therefore survives every INT its parent sends, and orphans on parent death.
+  The in-file comment asserts the exact inverse: that gallery-serve.py handles SIGINT
+  and ignores SIGTERM. SIGTERM is in fact what stops it. Five orphaned gallery-serve.py
+  processes from 2026-07-22 and 2026-07-29 are still resident on this host holding
+  ports with deleted docroots.
 
 status: work-completed
 workflow_type: build
@@ -16,7 +24,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T22:02:21Z
-last_update: 2026-08-03T00:16:55Z
+last_update: '2026-08-16T12:33:28Z'
 date_finished: 2026-08-03T00:11:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +36,24 @@ date_finished: 2026-08-03T00:11:32Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:28Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=2 
+      (body:telemetry-or-audit-entry); D3=2 (body:default-change); D4=2 
+      (body:env-class-handled); F-RECALL=0 (no-signal); F-AUTONOMY=0 
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-351: serve-gallery.sh can never stop its own server: trap forwards SIGINT, which bash sets to SIG_IGN for background children

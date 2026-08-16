@@ -2,12 +2,16 @@
 id: T-024
 name: "Synthesize cross-slice v3 design inputs from dogfood friction (T-021..T-023)"
 description: >
-  Consolidate the friction reports from the three dogfood slices (inception, task, healing lifecycles) into one decision-grade v3 design-inputs synthesis: the consolidated friction register F1-F10 with per-friction recurrence evidence, r3 SD anchors, T-020 seam mapping, and a prioritized M1/Lock-1 roadmap. Turns the dogfooding yield into an actionable product roadmap.
+  Consolidate the friction reports from the three dogfood slices (inception, task,
+  healing lifecycles) into one decision-grade v3 design-inputs synthesis: the consolidated
+  friction register F1-F10 with per-friction recurrence evidence, r3 SD anchors, T-020
+  seam mapping, and a prioritized M1/Lock-1 roadmap. Turns the dogfooding yield into
+  an actionable product roadmap.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +20,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-02T22:28:36Z
-last_update: 2026-07-02T22:30:36Z
+last_update: '2026-08-16T12:33:31Z'
 date_finished: 2026-07-02T22:30:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +32,24 @@ date_finished: 2026-07-02T22:30:36Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:31Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-024: Synthesize cross-slice v3 design inputs from dogfood friction (T-021..T-023)

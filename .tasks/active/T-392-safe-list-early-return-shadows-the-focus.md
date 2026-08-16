@@ -1,8 +1,15 @@
 ---
 id: T-392
-name: "Safe-list early-return shadows the focus-drift gate: T-390 exempted drift pattern 2"
+name: "Safe-list early-return shadows the focus-drift gate: T-390 exempted drift pattern
+  2"
 description: >
-  check-active-task.sh:95-97 exits 0 as soon as is_bash_safe_command returns true; the focus-drift gate is at line 299. Safe-listing a verb therefore also exempts it from drift ATTRIBUTION. T-390 safe-listed fw context add-*, which is drift pattern 2, so that pattern has been unreachable since T-390 landed. Reported by AEF (their T-2880, rail 476) and confirmed here by reading our own ordering. A drift check that never runs is silent in exactly the way a drift check that finds nothing is silent.
+  check-active-task.sh:95-97 exits 0 as soon as is_bash_safe_command returns true;
+  the focus-drift gate is at line 299. Safe-listing a verb therefore also exempts
+  it from drift ATTRIBUTION. T-390 safe-listed fw context add-*, which is drift pattern
+  2, so that pattern has been unreachable since T-390 landed. Reported by AEF (their
+  T-2880, rail 476) and confirmed here by reading our own ordering. A drift check
+  that never runs is silent in exactly the way a drift check that finds nothing is
+  silent.
 
 status: started-work
 workflow_type: build
@@ -16,8 +23,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T18:57:24Z
-last_update: 2026-08-08T20:00:46Z
-date_finished: null
+last_update: '2026-08-16T12:33:28Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +35,25 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:28Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 4
+      F-RECALL: 3
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=4 (body:cross-machine); F-RECALL=3 
+      (body:fw-recall-or-memory-link); F-AUTONOMY=0 (no-signal); F3=0 
+      (no-signal); F1=0 (no-signal); F2=1 
+      (body/components:component-fabric-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-392: Safe-list early-return shadows the focus-drift gate: T-390 exempted drift pattern 2

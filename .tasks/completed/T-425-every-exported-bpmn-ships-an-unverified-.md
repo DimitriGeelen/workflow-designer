@@ -2,12 +2,22 @@
 id: T-425
 name: "Every exported .bpmn ships an unverified claim about AEF's behaviour"
 description: >
-  WITHDRAWN AS A DUPLICATE — no work to do. Filed 2026-08-10 against T-357 spike 1, which quotes a DI_TRAILER reading 'BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates'. That string was repaired seven days earlier by T-361 (2026-08-03): src now reads 'BPMN DI (visual layout) omitted; node geometry travels as aef:position', naming no third party, and T-399 subsequently fixed a defect in T-361's guard. A-020 was likewise already answered NO at rail 417 and recorded in T-357's own IW-1b; the assumption register was stale and has been corrected to invalidated. Kept rather than deleted because the filing error is the finding: a research artifact was read as current fact without re-running the measurement it rested on — PL-142 applied to my own prior output. See RCA. Residue filed as OBS-018 (register/task-file divergence, 16 candidates, 1 confirmed).
+  WITHDRAWN AS A DUPLICATE — no work to do. Filed 2026-08-10 against T-357 spike 1,
+  which quotes a DI_TRAILER reading 'BPMN DI (visual layout) omitted in this demo;
+  AEF generates it from node coordinates'. That string was repaired seven days earlier
+  by T-361 (2026-08-03): src now reads 'BPMN DI (visual layout) omitted; node geometry
+  travels as aef:position', naming no third party, and T-399 subsequently fixed a
+  defect in T-361's guard. A-020 was likewise already answered NO at rail 417 and
+  recorded in T-357's own IW-1b; the assumption register was stale and has been corrected
+  to invalidated. Kept rather than deleted because the filing error is the finding:
+  a research artifact was read as current fact without re-running the measurement
+  it rested on — PL-142 applied to my own prior output. See RCA. Residue filed as
+  OBS-018 (register/task-file divergence, 16 candidates, 1 confirmed).
 
 status: work-completed
 workflow_type: build
 owner: claude-code
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: [T-357, T-423]
@@ -17,7 +27,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:50Z
-last_update: 2026-08-10T20:29:40Z
+last_update: '2026-08-16T12:33:57Z'
 date_finished: 2026-08-10T20:29:40Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -29,6 +39,24 @@ date_finished: 2026-08-10T20:29:40Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:57Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-425: Every exported .bpmn ships an unverified claim about AEF's behaviour

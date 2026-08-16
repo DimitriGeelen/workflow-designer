@@ -2,12 +2,17 @@
 id: T-534
 name: "D2 human-review-queue FAIL prints a >30d count against a >14d list"
 description: >
-  The D2 control accumulates d2_details in BOTH the >=720h (fail) and >=336h (warn) branches, then the fail message prints the fail-tier COUNT against the union LIST: 'D2: Human review queue - 2 task(s) waiting >30d: T-093(41d) T-178(36d) T-308(17d) T-310(17d) T-325(14d)'. Count 2, list 5, three of them below the stated threshold. Invisible unless both tiers are populated, which is why it survived. Vendored .agentic-framework/agents/audit/audit.sh:3966,3969,3984 - fix in-tree per G-008 and report upstream. Found while correcting T-432.
+  The D2 control accumulates d2_details in BOTH the >=720h (fail) and >=336h (warn)
+  branches, then the fail message prints the fail-tier COUNT against the union LIST:
+  'D2: Human review queue - 2 task(s) waiting >30d: T-093(41d) T-178(36d) T-308(17d)
+  T-310(17d) T-325(14d)'. Count 2, list 5, three of them below the stated threshold.
+  Invisible unless both tiers are populated, which is why it survived. Vendored .agentic-framework/agents/audit/audit.sh:3966,3969,3984
+  - fix in-tree per G-008 and report upstream. Found while correcting T-432.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +21,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T22:47:15Z
-last_update: 2026-08-15T23:15:56Z
+last_update: '2026-08-16T12:34:06Z'
 date_finished: 2026-08-15T23:15:56Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +33,24 @@ date_finished: 2026-08-15T23:15:56Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:06Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=2 
+      (body:telemetry-or-audit-entry); D3=2 (body:default-change); D4=2 
+      (body:env-class-handled); F-RECALL=0 (no-signal); F-AUTONOMY=0 
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-534: D2 human-review-queue FAIL prints a >30d count against a >14d list

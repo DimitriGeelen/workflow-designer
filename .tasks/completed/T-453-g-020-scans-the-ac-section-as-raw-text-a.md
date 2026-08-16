@@ -1,13 +1,26 @@
 ---
 id: T-453
-name: "G-020 scans the AC section as raw text: a quoted placeholder token blocks a real AC, and the templates commented Human examples make the zero-AC half inert"
+name: "G-020 scans the AC section as raw text: a quoted placeholder token blocks a
+  real AC, and the templates commented Human examples make the zero-AC half inert"
 description: >
-  G-020 (check-active-task.sh:584) decides build-readiness with two greps over the raw AC section, with no structural parse and no HTML-comment stripping. Two consequences from one root. FALSE POSITIVE: the placeholder token quoted inside a genuine acceptance criterion counts as a placeholder, so a task describing this gate cannot be filed (hit live at T-452). FALSE NEGATIVE, the serious one: the task template ships two commented example checkboxes under Human, they match REAL_AC_COUNT, so every template-created task starts at REAL_AC_COUNT=2 and the zero-AC half of the gate can never fire. Deleting the two placeholder lines - the literal instruction in the block message - leaves the gate passing with zero acceptance criteria. Measured with the gates own two commands: HAS_PLACEHOLDER=0 REAL_AC_COUNT=2 ALLOWED. The remedy already exists sixty lines above in the same file: the G-067 Open Questions gate strips HTML comments before counting (line 539, T-2554). Vendored AEF tooling, so the fix is theirs and upstreamable under G-008; reported over the rail with the reproduction.
+  G-020 (check-active-task.sh:584) decides build-readiness with two greps over the
+  raw AC section, with no structural parse and no HTML-comment stripping. Two consequences
+  from one root. FALSE POSITIVE: the placeholder token quoted inside a genuine acceptance
+  criterion counts as a placeholder, so a task describing this gate cannot be filed
+  (hit live at T-452). FALSE NEGATIVE, the serious one: the task template ships two
+  commented example checkboxes under Human, they match REAL_AC_COUNT, so every template-created
+  task starts at REAL_AC_COUNT=2 and the zero-AC half of the gate can never fire.
+  Deleting the two placeholder lines - the literal instruction in the block message
+  - leaves the gate passing with zero acceptance criteria. Measured with the gates
+  own two commands: HAS_PLACEHOLDER=0 REAL_AC_COUNT=2 ALLOWED. The remedy already
+  exists sixty lines above in the same file: the G-067 Open Questions gate strips
+  HTML comments before counting (line 539, T-2554). Vendored AEF tooling, so the fix
+  is theirs and upstreamable under G-008; reported over the rail with the reproduction.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +29,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T10:55:55Z
-last_update: 2026-08-12T12:26:15Z
+last_update: '2026-08-16T12:33:59Z'
 date_finished: 2026-08-12T12:26:15Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +41,24 @@ date_finished: 2026-08-12T12:26:15Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:59Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 1
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=1 
+      (body/components:prompt-incidental); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-453: G-020 scans the AC section as raw text: a quoted placeholder token blocks a real AC, and the templates commented Human examples make the zero-AC half inert

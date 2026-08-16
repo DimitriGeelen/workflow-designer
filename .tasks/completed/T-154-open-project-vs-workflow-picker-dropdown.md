@@ -2,12 +2,15 @@
 id: T-154
 name: "Open-project vs workflow-picker dropdown overlap (dedupe/clarify)"
 description: >
-  The toolbar workflow-picker <select> (local library switch) overlaps in function with the 'Open project…' modal. Operator noted the 3rd control should be open-project, not a duplicate of the picker. Needs a design call on how the two relate before implementing.
+  The toolbar workflow-picker <select> (local library switch) overlaps in function
+  with the 'Open project…' modal. Operator noted the 3rd control should be open-project,
+  not a duplicate of the picker. Needs a design call on how the two relate before
+  implementing.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +19,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T15:01:58Z
-last_update: 2026-07-09T19:42:12Z
+last_update: '2026-08-16T12:33:40Z'
 date_finished: 2026-07-09T19:42:12Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +31,24 @@ date_finished: 2026-07-09T19:42:12Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:40Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 3
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=3 (body:portability-abstraction); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-154: Open-project vs workflow-picker dropdown overlap (dedupe/clarify)

@@ -1,18 +1,29 @@
 ---
 id: T-247
-name: "Pull-at-tag release intake: consumers fetch designer releases by version tag (seam-contract proposal)"
+name: "Pull-at-tag release intake: consumers fetch designer releases by version tag
+  (seam-contract proposal)"
 description: >
-  Proposal (operator-directed 2026-07-23): switch consumer intake from per-peer file_send to pull-at-tag — consumer fetches dist artifact + MANIFEST.yaml at annotated tag designer-vX.Y.Z (frozen bytes, already committed at every release tag), sha-verifies against the MANIFEST at the same tag, re-pins. Preserves T-559 spirit (pin on frozen published bytes, never our working tree) and keeps the rail announce as new-version trigger + verdict handshake; drops only the delivery step. Scales 1:N, gives late joiners full history; with T-246 capabilities metadata the pull becomes self-describing. One question, one go/no-go: adopt pull-at-tag for the next release? Gates: AEF's read on the rail (proposed at offset 177), operator ruling on pull source (GitHub mirror vs LAN git server origin — reachability/credentials unverified), fallback = file_send stays available. Related: T-246.
+  Proposal (operator-directed 2026-07-23): switch consumer intake from per-peer file_send
+  to pull-at-tag — consumer fetches dist artifact + MANIFEST.yaml at annotated tag
+  designer-vX.Y.Z (frozen bytes, already committed at every release tag), sha-verifies
+  against the MANIFEST at the same tag, re-pins. Preserves T-559 spirit (pin on frozen
+  published bytes, never our working tree) and keeps the rail announce as new-version
+  trigger + verdict handshake; drops only the delivery step. Scales 1:N, gives late
+  joiners full history; with T-246 capabilities metadata the pull becomes self-describing.
+  One question, one go/no-go: adopt pull-at-tag for the next release? Gates: AEF's
+  read on the rail (proposed at offset 177), operator ruling on pull source (GitHub
+  mirror vs LAN git server origin — reachability/credentials unverified), fallback
+  = file_send stays available. Related: T-246.
 
 status: work-completed
 workflow_type: inception
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-23T10:06:24Z
-last_update: 2026-07-23T11:10:36Z
+last_update: '2026-08-16T12:33:45Z'
 date_finished: 2026-07-23T11:10:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -22,6 +33,23 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:45Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 2
+      F3: 2
+      F1: 2
+      F2: 2
+    rationale: D1=2 (no-signal); D2=2 (no-signal); D3=2 (no-signal); D4=2 
+      (no-signal); F-RECALL=2 (no-signal); F-AUTONOMY=2 (no-signal); F3=2 
+      (no-signal); F1=2 (no-signal); F2=2 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-247: Pull-at-tag release intake: consumers fetch designer releases by version tag (seam-contract proposal)

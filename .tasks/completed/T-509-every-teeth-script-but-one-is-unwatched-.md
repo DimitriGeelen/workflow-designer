@@ -1,13 +1,15 @@
 ---
 id: T-509
-name: "Every teeth script but one is unwatched, and the census cannot see them: *teeth* is excused as one-shot by design, an assumption T-508 disproved by wiring one"
+name: "Every teeth script but one is unwatched, and the census cannot see them: *teeth*
+  is excused as one-shot by design, an assumption T-508 disproved by wiring one"
 description: >
-  Every teeth script but one is unwatched, and the census cannot see them: *teeth* is excused as one-shot by design, an assumption T-508 disproved by wiring one
+  Every teeth script but one is unwatched, and the census cannot see them: *teeth*
+  is excused as one-shot by design, an assumption T-508 disproved by wiring one
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +18,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T05:39:57Z
-last_update: 2026-08-15T06:04:59Z
+last_update: '2026-08-16T12:34:04Z'
 date_finished: 2026-08-15T06:04:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +30,24 @@ date_finished: 2026-08-15T06:04:59Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:04Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=2 
+      (body:telemetry-or-audit-entry); D3=2 (body:default-change); D4=2 
+      (body:env-class-handled); F-RECALL=0 (no-signal); F-AUTONOMY=0 
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-509: Every teeth script but one is unwatched, and the census cannot see them: *teeth* is excused as one-shot by design, an assumption T-508 disproved by wiring one

@@ -1,13 +1,15 @@
 ---
 id: T-522
-name: "episodic auto-generation silently skipped for T-520 and T-521 — no episodic and no diagnostic log despite the T-1860 log-every-invocation guarantee"
+name: "episodic auto-generation silently skipped for T-520 and T-521 — no episodic
+  and no diagnostic log despite the T-1860 log-every-invocation guarantee"
 description: >
-  episodic auto-generation silently skipped for T-520 and T-521 — no episodic and no diagnostic log despite the T-1860 log-every-invocation guarantee
+  episodic auto-generation silently skipped for T-520 and T-521 — no episodic and
+  no diagnostic log despite the T-1860 log-every-invocation guarantee
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: [tools/_t522-episodic-reachability-teeth.py]
 related_tasks: []
@@ -16,7 +18,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T14:08:28Z
-last_update: 2026-08-15T14:23:07Z
+last_update: '2026-08-16T12:34:05Z'
 date_finished: 2026-08-15T14:23:07Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +30,26 @@ date_finished: 2026-08-15T14:23:07Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:05Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 3
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 1
+      F1: 1
+      F2: 1
+    rationale: D1=4 (body:structural-gate); D2=3 
+      (body:component-silent-failure); D3=2 (body:default-change); D4=2 
+      (body:env-class-handled); F-RECALL=2 (body:lightly-promoted); F-AUTONOMY=0
+      (no-signal); F3=1 (body/components:prompt-incidental); F1=1 
+      (body/components:context-fabric-incidental); F2=1 
+      (body/components:component-fabric-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-522: episodic auto-generation silently skipped for T-520 and T-521 — no episodic and no diagnostic log despite the T-1860 log-every-invocation guarantee

@@ -2,12 +2,24 @@
 id: T-314
 name: "Three sha-pinned fixtures carry the T-310 lane inversion the new rule found"
 description: >
-  T-312's lane_geometry rule fired on three sha-pinned fixtures the day it landed, all true positives. (1) tests/fixtures/aef-bpmn/inception-gonogo.bpmn (T-206 shared promote fixture): declares 'human' first, draws hum_1_inception at y=300 below both agent nodes at y=120 — wholesale inversion. (2) tests/fixtures/aef-bpmn/two-lane-joint.bpmn (T-208): same shape, 1/1 and 3/3 crossing. (3) tests/fixtures/aef-overlay/draft-knowledge-leveling-v3.bpmn (T-304, AEF-owned bytes pinned at b82668c8): wholesale inversion, 5/5 and 11/11 nodes cross — strictly larger than the two-node swap AEF reported on v8. None were repaired under T-312: (1) and (2) are sha-pinned and shared with AEF's consumer test so repair is a coordinated re-pin, and (3) is AEF's bytes which we never edit — that one is an upstream report, not our fix. The three contract tests now admit W-XML-LANE-GEOMETRY as a KNOWN, PRINTED exception (a NOTE line every run) so the tolerance cannot rot into a blind spot. This task closes the tolerance: repair ours, re-pin with AEF, and drop the exception.
+  T-312's lane_geometry rule fired on three sha-pinned fixtures the day it landed,
+  all true positives. (1) tests/fixtures/aef-bpmn/inception-gonogo.bpmn (T-206 shared
+  promote fixture): declares 'human' first, draws hum_1_inception at y=300 below both
+  agent nodes at y=120 — wholesale inversion. (2) tests/fixtures/aef-bpmn/two-lane-joint.bpmn
+  (T-208): same shape, 1/1 and 3/3 crossing. (3) tests/fixtures/aef-overlay/draft-knowledge-leveling-v3.bpmn
+  (T-304, AEF-owned bytes pinned at b82668c8): wholesale inversion, 5/5 and 11/11
+  nodes cross — strictly larger than the two-node swap AEF reported on v8. None were
+  repaired under T-312: (1) and (2) are sha-pinned and shared with AEF's consumer
+  test so repair is a coordinated re-pin, and (3) is AEF's bytes which we never edit
+  — that one is an upstream report, not our fix. The three contract tests now admit
+  W-XML-LANE-GEOMETRY as a KNOWN, PRINTED exception (a NOTE line every run) so the
+  tolerance cannot rot into a blind spot. This task closes the tolerance: repair ours,
+  re-pin with AEF, and drop the exception.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +28,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-30T20:25:02Z
-last_update: 2026-07-31T10:50:59Z
+last_update: '2026-08-16T12:33:49Z'
 date_finished: 2026-07-31T10:50:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +40,23 @@ date_finished: 2026-07-31T10:50:59Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:49Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=2 (body:env-class-handled); F-RECALL=0 (no-signal); F-AUTONOMY=0 
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-314: Three sha-pinned fixtures carry the T-310 lane inversion the new rule found

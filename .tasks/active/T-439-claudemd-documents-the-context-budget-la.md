@@ -1,9 +1,16 @@
 ---
 id: T-439
-name: "CLAUDE.md's context-budget ladder is a 200K-window artifact: prose says 120/150/170K, the gate computes 225/255/285K"
+name: "CLAUDE.md's context-budget ladder is a 200K-window artifact: prose says 120/150/170K,
+  the gate computes 225/255/285K"
 description: >
   Promoted from OBS-020 (T-436 triage). Original observation text:
-  CLAUDE.md documents the context-budget ladder as 120K warn / 150K urgent / 170K critical BLOCK, but budget-gate.sh computes them as percentages of CONTEXT_WINDOW (default 300000): 225K / 255K / 285K. The prose is a 200K-window artifact. Same claim-drift family as T-421 but about VALUES rather than registration — the detector only looks at hook NAMES, so nothing would catch a stale number. Surfaced while checking whether the 170K critical block applied at 171717 tokens; the gate said level=ok and the two disagreed.
+  CLAUDE.md documents the context-budget ladder as 120K warn / 150K urgent / 170K
+  critical BLOCK, but budget-gate.sh computes them as percentages of CONTEXT_WINDOW
+  (default 300000): 225K / 255K / 285K. The prose is a 200K-window artifact. Same
+  claim-drift family as T-421 but about VALUES rather than registration — the detector
+  only looks at hook NAMES, so nothing would catch a stale number. Surfaced while
+  checking whether the 170K critical block applied at 171717 tokens; the gate said
+  level=ok and the two disagreed.
 
 status: captured
 workflow_type: build
@@ -17,8 +24,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T22:02:14Z
-last_update: 2026-08-11T22:03:02Z
-date_finished: null
+last_update: '2026-08-16T12:33:29Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -29,6 +36,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:29Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-439: CLAUDE.md documents the context-budget ladder as 120K warn / 150K urgent / 170K critical BLOCK, but budget-gate.sh computes them as percentages of CONTEXT_WINDOW (default 300000): 225K / 255K / 285K. The prose is a 200K-window artifact. Same claim-drift family as T-421 but about VALUES rather than registration — the detector only looks at hook NAMES, so nothing would catch a stale number. Surfaced while checking whether the 170K critical block applied at 171717 tokens; the gate said level=ok and the two disagreed.

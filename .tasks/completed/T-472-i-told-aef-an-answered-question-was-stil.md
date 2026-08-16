@@ -2,12 +2,18 @@
 id: T-472
 name: "I told AEF an answered question was still open"
 description: >
-  Rail 582 told AEF that DM 548 s6 (are the three pair-drafts co-authored on your side?) is still open and that PROVENANCE.md asserts co-authorship on our evidence alone. Both false: AEF answered from records at DM 556 and T-449 (work-completed) replaced the one-sided block. Source of the error was T-443's frontmatter description, written before DM 556 landed and never re-derived. Correct on the rail, re-measure whether T-443's OTHER premise (DM 548 s5, the rename ruling) is also stale, and make the staleness detectable rather than trusting the next reader to notice.
+  Rail 582 told AEF that DM 548 s6 (are the three pair-drafts co-authored on your
+  side?) is still open and that PROVENANCE.md asserts co-authorship on our evidence
+  alone. Both false: AEF answered from records at DM 556 and T-449 (work-completed)
+  replaced the one-sided block. Source of the error was T-443's frontmatter description,
+  written before DM 556 landed and never re-derived. Correct on the rail, re-measure
+  whether T-443's OTHER premise (DM 548 s5, the rename ruling) is also stale, and
+  make the staleness detectable rather than trusting the next reader to notice.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T20:33:24Z
-last_update: 2026-08-12T20:38:17Z
+last_update: '2026-08-16T12:34:01Z'
 date_finished: 2026-08-12T20:38:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +34,24 @@ date_finished: 2026-08-12T20:38:17Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:01Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-472: I told AEF an answered question was still open

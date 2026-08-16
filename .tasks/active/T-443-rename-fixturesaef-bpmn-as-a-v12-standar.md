@@ -1,8 +1,27 @@
 ---
 id: T-443
-name: "Rename fixtures/aef-bpmn as a v1.2 standard delta - PENDING AEF ruling (T-365 option D)"
+name: "Rename fixtures/aef-bpmn as a v1.2 standard delta - PENDING AEF ruling (T-365
+  option D)"
 description: >
-  T-365 measured that tests/fixtures/aef-bpmn is normative in a FROZEN two-party standard: aef-bpmn-mapping-v1.md:142 names inception-gonogo.bpmn as a Reference fixture inside Part I (Part II begins at 146), and aef-bpmn-forward-compile-v1.md:21 names the corpus with section 5 titled after the path. So the rename is a standard delta, not a refactor, and is not the agent's to make. T-365 shipped option C (claim fixed at source in PROVENANCE.md + tools/_t365-normative-fixture-guard.py). This task carries option D. TRIGGER (FIRED — superseded, read ## Context): AEF answers DM 548 section 5. If they want the delta it queues with the v1.1 deltas T-189/T-195 are drafting; if the path stays, close this with that as the reason. Also open at DM 548 section 6 (ALSO ANSWERED — DM 556, landed by T-449): confirmation that the three pair-drafts (session-handover, dispatch-loop, offpage-seam) are considered co-authored on their side - PROVENANCE.md currently asserts it on our evidence alone. || STALE-FIELD MARKER 2026-08-12 (T-472) — both triggers fired. AEF ruled KEEP THE PATH at DM 549 section 5; section 6 was answered from records at DM 556. The body's ## Context has carried the ruling since DM 550. This field was read as current state 32 rails later and reported to AEF as an outstanding question they had already answered. Read the Context, not this field. Disposition by this field's own instruction — "if the path stays, close this with that as the reason" — is CLOSE, pending operator ratification only.
+  T-365 measured that tests/fixtures/aef-bpmn is normative in a FROZEN two-party standard:
+  aef-bpmn-mapping-v1.md:142 names inception-gonogo.bpmn as a Reference fixture inside
+  Part I (Part II begins at 146), and aef-bpmn-forward-compile-v1.md:21 names the
+  corpus with section 5 titled after the path. So the rename is a standard delta,
+  not a refactor, and is not the agent's to make. T-365 shipped option C (claim fixed
+  at source in PROVENANCE.md + tools/_t365-normative-fixture-guard.py). This task
+  carries option D. TRIGGER (FIRED — superseded, read ## Context): AEF answers DM
+  548 section 5. If they want the delta it queues with the v1.1 deltas T-189/T-195
+  are drafting; if the path stays, close this with that as the reason. Also open at
+  DM 548 section 6 (ALSO ANSWERED — DM 556, landed by T-449): confirmation that the
+  three pair-drafts (session-handover, dispatch-loop, offpage-seam) are considered
+  co-authored on their side - PROVENANCE.md currently asserts it on our evidence alone.
+  || STALE-FIELD MARKER 2026-08-12 (T-472) — both triggers fired. AEF ruled KEEP THE
+  PATH at DM 549 section 5; section 6 was answered from records at DM 556. The body's
+  ## Context has carried the ruling since DM 550. This field was read as current state
+  32 rails later and reported to AEF as an outstanding question they had already answered.
+  Read the Context, not this field. Disposition by this field's own instruction —
+  "if the path stays, close this with that as the reason" — is CLOSE, pending operator
+  ratification only.
 
 status: captured
 workflow_type: refactor
@@ -16,8 +35,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T22:28:50Z
-last_update: 2026-08-14T15:25:49Z
-date_finished: null
+last_update: '2026-08-16T12:33:29Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +47,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:29Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-443: Rename fixtures/aef-bpmn as a v1.2 standard delta - PENDING AEF ruling (T-365 option D)

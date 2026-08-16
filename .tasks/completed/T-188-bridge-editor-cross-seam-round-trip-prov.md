@@ -1,13 +1,15 @@
 ---
 id: T-188
-name: "Bridge-editor cross-seam round-trip: prove yaml-to-bpmn emission survives editor import without silent drop (G-002 half 2)"
+name: "Bridge-editor cross-seam round-trip: prove yaml-to-bpmn emission survives editor
+  import without silent drop (G-002 half 2)"
 description: >
-  Bridge-editor cross-seam round-trip: prove yaml-to-bpmn emission survives editor import without silent drop (G-002 half 2)
+  Bridge-editor cross-seam round-trip: prove yaml-to-bpmn emission survives editor
+  import without silent drop (G-002 half 2)
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: [arc:designer-authoring-surface, testing, round-trip]
 components: []
 related_tasks: [T-187, T-042, T-053]
@@ -17,7 +19,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-11T14:33:17Z
-last_update: 2026-07-11T14:38:29Z
+last_update: '2026-08-16T12:33:42Z'
 date_finished: 2026-07-11T14:38:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -29,6 +31,24 @@ date_finished: 2026-07-11T14:38:29Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:42Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 3
+      D3: 0
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=3 
+      (body:component-silent-failure); D3=0 (no-signal); D4=2 
+      (body:env-class-handled); F-RECALL=0 (no-signal); F-AUTONOMY=0 
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-188: Bridge-editor cross-seam round-trip: prove yaml-to-bpmn emission survives editor import without silent drop (G-002 half 2)

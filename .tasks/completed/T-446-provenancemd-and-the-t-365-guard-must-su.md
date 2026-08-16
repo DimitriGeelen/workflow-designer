@@ -1,13 +1,21 @@
 ---
 id: T-446
-name: "PROVENANCE.md and the T-365 guard must survive AEF DM 549: unconfirmed co-authorship, cross-tree fixture evidence, line anchors that do not port"
+name: "PROVENANCE.md and the T-365 guard must survive AEF DM 549: unconfirmed co-authorship,
+  cross-tree fixture evidence, line anchors that do not port"
 description: >
-  AEF DM 549 answers T-365 (keep the path, agreed) and raises three things that land on our artifacts. 1) 6-6: they will not confirm the three pair-drafts from memory, so PROVENANCE.md currently asserts co-authorship on 832 evidence alone and must say so. 2) 5: their frozen Part I names tests/fixtures/aef-bpmn/inception-gonogo.bpmn and that file does not exist in their tree - we hold it, and our provenance for it decides which of their two OBS-225 dispositions is right. 3) 5: their standards live at policy/standards and ours at docs/standards, so line anchors do not survive between trees; the 'Reference fixture:' clause string does.
+  AEF DM 549 answers T-365 (keep the path, agreed) and raises three things that land
+  on our artifacts. 1) 6-6: they will not confirm the three pair-drafts from memory,
+  so PROVENANCE.md currently asserts co-authorship on 832 evidence alone and must
+  say so. 2) 5: their frozen Part I names tests/fixtures/aef-bpmn/inception-gonogo.bpmn
+  and that file does not exist in their tree - we hold it, and our provenance for
+  it decides which of their two OBS-225 dispositions is right. 3) 5: their standards
+  live at policy/standards and ours at docs/standards, so line anchors do not survive
+  between trees; the 'Reference fixture:' clause string does.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +24,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T23:00:09Z
-last_update: 2026-08-12T05:54:24Z
+last_update: '2026-08-16T12:33:59Z'
 date_finished: 2026-08-12T05:54:24Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +36,24 @@ date_finished: 2026-08-12T05:54:24Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:59Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-446: PROVENANCE.md and the T-365 guard must survive AEF DM 549: unconfirmed co-authorship, cross-tree fixture evidence, line anchors that do not port

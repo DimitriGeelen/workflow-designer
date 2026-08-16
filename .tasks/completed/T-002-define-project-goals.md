@@ -2,18 +2,36 @@
 id: T-002
 name: "Define goals and architecture for 832-Workflow-designer"
 description: >
-  Inception task: define what 832-Workflow-designer will do, its constraints, and initial
+  Inception task: define what 832-Workflow-designer will do, its constraints, and
+  initial
   architecture. This is the foundational decision — everything else follows from here.
 status: work-completed
 workflow_type: inception
 owner: human
-horizon: null
+horizon:
 tags: [onboarding, inception]
 components: []
 related_tasks: []
 created: 2026-06-04T07:53:20Z
-last_update: 2026-06-05T11:58:42Z
+last_update: '2026-08-16T12:33:30Z'
 date_finished: 2026-06-05T11:11:59Z
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:30Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 2
+      F3: 2
+      F1: 2
+      F2: 2
+    rationale: D1=2 (no-signal); D2=2 (no-signal); D3=2 (no-signal); D4=2 
+      (no-signal); F-RECALL=2 (no-signal); F-AUTONOMY=2 (no-signal); F3=2 
+      (no-signal); F1=2 (no-signal); F2=2 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-002: Define goals and architecture for 832-Workflow-designer

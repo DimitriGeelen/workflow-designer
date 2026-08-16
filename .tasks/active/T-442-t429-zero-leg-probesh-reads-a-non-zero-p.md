@@ -1,9 +1,17 @@
 ---
 id: T-442
-name: "_t429-zero-leg-probe reads any non-zero exit as GUARDED — annotate the limitation in place or retire it"
+name: "_t429-zero-leg-probe reads any non-zero exit as GUARDED — annotate the limitation
+  in place or retire it"
 description: >
   Promoted from OBS-030 (T-436 triage). Original observation text:
-  _t429-zero-leg-probe.sh reads a non-zero PROCESS EXIT as GUARDED, which is only sound while the suite is otherwise green — on a suite carrying any real failure it reports GUARDED for a file with no guard at all (measured on _t400-schema-teeth with the guard deleted, T-430). Same mention-vs-instance class the probe was built to find. Superseded for T-430's purposes by _t430-abstention-teeth.sh (neuters every increment-bearing helper; requires rc==2 AND the ABSTAINED line). The old probe is unmodified and still cited by T-429's record — decide whether to annotate it in place or leave the limitation documented only in T-430.
+  _t429-zero-leg-probe.sh reads a non-zero PROCESS EXIT as GUARDED, which is only
+  sound while the suite is otherwise green — on a suite carrying any real failure
+  it reports GUARDED for a file with no guard at all (measured on _t400-schema-teeth
+  with the guard deleted, T-430). Same mention-vs-instance class the probe was built
+  to find. Superseded for T-430's purposes by _t430-abstention-teeth.sh (neuters every
+  increment-bearing helper; requires rc==2 AND the ABSTAINED line). The old probe
+  is unmodified and still cited by T-429's record — decide whether to annotate it
+  in place or leave the limitation documented only in T-430.
 
 status: captured
 workflow_type: build
@@ -17,8 +25,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T22:02:24Z
-last_update: 2026-08-11T22:03:02Z
-date_finished: null
+last_update: '2026-08-16T12:33:29Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -29,6 +37,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:29Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-442: _t429-zero-leg-probe.sh reads a non-zero PROCESS EXIT as GUARDED, which is only sound while the suite is otherwise green — on a suite carrying any real failure it reports GUARDED for a file with no guard at all (measured on _t400-schema-teeth with the guard deleted, T-430). Same mention-vs-instance class the probe was built to find. Superseded for T-430's purposes by _t430-abstention-teeth.sh (neuters every increment-bearing helper; requires rc==2 AND the ABSTAINED line). The old probe is unmodified and still cited by T-429's record — decide whether to annotate it in place or leave the limitation documented only in T-430.

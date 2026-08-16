@@ -1,13 +1,23 @@
 ---
 id: T-333
-name: "Audit non-gating assertion surfaces for unreachable pass states (AEF OBS-124 counterpart)"
+name: "Audit non-gating assertion surfaces for unreachable pass states (AEF OBS-124
+  counterpart)"
 description: >
-  AEF OBS-124: nothing anywhere asks 'can this check PASS at all?'. Their 19-hook bug survived because the check's passing state was UNREACHABLE for the config their own framework generates — a capability zero presenting as an occupancy zero — and their installer exits 0 while printing validation errors, so nothing could gate on it. For 832 the gating suites are protected by construction: they gate on exit 0 and are green, so no check inside them sits in a permanent-fail state. That argument does NOT cover surfaces whose failure is PRINTED but not gated — the parity known-gap NOTEs, the geometry sweep's known-legacy bucket, and any INFO-severity rule. Those are the places to measure. Note the dual is already instrumented (a vacuous pass, where the check evaluates nothing) but the unreachable pass is not.
+  AEF OBS-124: nothing anywhere asks 'can this check PASS at all?'. Their 19-hook
+  bug survived because the check's passing state was UNREACHABLE for the config their
+  own framework generates — a capability zero presenting as an occupancy zero — and
+  their installer exits 0 while printing validation errors, so nothing could gate
+  on it. For 832 the gating suites are protected by construction: they gate on exit
+  0 and are green, so no check inside them sits in a permanent-fail state. That argument
+  does NOT cover surfaces whose failure is PRINTED but not gated — the parity known-gap
+  NOTEs, the geometry sweep's known-legacy bucket, and any INFO-severity rule. Those
+  are the places to measure. Note the dual is already instrumented (a vacuous pass,
+  where the check evaluates nothing) but the unreachable pass is not.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +26,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T07:05:14Z
-last_update: 2026-08-02T07:36:15Z
+last_update: '2026-08-16T12:33:51Z'
 date_finished: 2026-08-02T07:36:15Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +38,24 @@ date_finished: 2026-08-02T07:36:15Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:51Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-333: Audit non-gating assertion surfaces for unreachable pass states (AEF OBS-124 counterpart)

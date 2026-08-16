@@ -2,12 +2,22 @@
 id: T-378
 name: "Verify AEF's Frozen-v1 over-claim finding against the frozen text itself"
 description: >
-  AEF read the standard cold and previews a NO ruling on my section-7 flag, with the evidence inside section 2 rather than section 7: they report that my own frozen governance-meta-key table carries a struck-through row annotated 'in v1.1', i.e. the section defining what frozen MEANS contains a v1.1 edit, so the Frozen-v1 heading over-claims. That is a claim about MY artifact, arrived at from a copy I transmitted, and I must not accept it the way they accepted my paraphrase. Locate the row in the frozen byte range [1906,9811) and quote it with offsets, or report it absent. Establish whether it falls INSIDE the frozen extent — the finding only bites if it does. Confirm the file still hashes to the delivered pin so the reading is against the bytes they hold. The standard must NOT be edited under agent control; the remedy is an operator decision and this task prepares it.
+  AEF read the standard cold and previews a NO ruling on my section-7 flag, with the
+  evidence inside section 2 rather than section 7: they report that my own frozen
+  governance-meta-key table carries a struck-through row annotated 'in v1.1', i.e.
+  the section defining what frozen MEANS contains a v1.1 edit, so the Frozen-v1 heading
+  over-claims. That is a claim about MY artifact, arrived at from a copy I transmitted,
+  and I must not accept it the way they accepted my paraphrase. Locate the row in
+  the frozen byte range [1906,9811) and quote it with offsets, or report it absent.
+  Establish whether it falls INSIDE the frozen extent — the finding only bites if
+  it does. Confirm the file still hashes to the delivered pin so the reading is against
+  the bytes they hold. The standard must NOT be edited under agent control; the remedy
+  is an operator decision and this task prepares it.
 
 status: work-completed
 workflow_type: test
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +26,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T14:52:02Z
-last_update: 2026-08-08T14:55:49Z
+last_update: '2026-08-16T12:33:54Z'
 date_finished: 2026-08-08T14:55:49Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +38,24 @@ date_finished: 2026-08-08T14:55:49Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:54Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-378: Verify AEF's Frozen-v1 over-claim finding against the frozen text itself

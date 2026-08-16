@@ -2,21 +2,36 @@
 id: T-430
 name: "Leg counters for the 11 fails-only suites T-429 refused to guard mechanically"
 description: >
-  T-429 guarded 22 of 35 suites against reporting success with no legs run. Eleven were refused BY NAME because they tally only failures, so fails==0 is both 'clean' and 'empty' and no guard can be written from the file's own state. Adding a leg counter there means reading how each suite is structured — T-429 proved an applier must not attempt it: its first draft injected the counter into fail(), the failure reporter, which would have fired the guard on every green run. One suite at a time, each verified in both directions (legs neutered -> non-zero; unmodified -> still green) with tools/_t429-zero-leg-probe.sh. Suites: _t350-build-only-probe, _t400-schema-teeth, _t408-hygiene-teeth, _t410-secret-artifact-teeth, _t411-census-teeth, _t412-announced-pair-teeth, _t414-mutation-check, _t416-mutation-check, _t416-qualifier-residue-teeth, _t418-attribution-teeth, _t419-carrier-mutation-check. Plus _t353-repair-probe, which has no identifiable verdict block. Close condition: tools/_t429-abstention-census.py exits 0.
+  T-429 guarded 22 of 35 suites against reporting success with no legs run. Eleven
+  were refused BY NAME because they tally only failures, so fails==0 is both 'clean'
+  and 'empty' and no guard can be written from the file's own state. Adding a leg
+  counter there means reading how each suite is structured — T-429 proved an applier
+  must not attempt it: its first draft injected the counter into fail(), the failure
+  reporter, which would have fired the guard on every green run. One suite at a time,
+  each verified in both directions (legs neutered -> non-zero; unmodified -> still
+  green) with tools/_t429-zero-leg-probe.sh. Suites: _t350-build-only-probe, _t400-schema-teeth,
+  _t408-hygiene-teeth, _t410-secret-artifact-teeth, _t411-census-teeth, _t412-announced-pair-teeth,
+  _t414-mutation-check, _t416-mutation-check, _t416-qualifier-residue-teeth, _t418-attribution-teeth,
+  _t419-carrier-mutation-check. Plus _t353-repair-probe, which has no identifiable
+  verdict block. Close condition: tools/_t429-abstention-census.py exits 0.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
-components: [tools/_t410-secret-artifact-teeth.sh, tools/_t411-census-teeth.sh, tools/_t412-announced-pair-teeth.sh, tools/_t414-mutation-check.sh, tools/_t416-mutation-check.sh, tools/_t416-qualifier-residue-teeth.sh, tools/_t418-attribution-teeth.sh, tools/_t418-mutation-check.sh, tools/_t419-carrier-mutation-check.sh, tools/_t430-abstention-teeth.sh]
+components: [tools/_t410-secret-artifact-teeth.sh, tools/_t411-census-teeth.sh, 
+      tools/_t412-announced-pair-teeth.sh, tools/_t414-mutation-check.sh, 
+      tools/_t416-mutation-check.sh, tools/_t416-qualifier-residue-teeth.sh, 
+      tools/_t418-attribution-teeth.sh, tools/_t418-mutation-check.sh, 
+      tools/_t419-carrier-mutation-check.sh, tools/_t430-abstention-teeth.sh]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T14:23:23Z
-last_update: 2026-08-11T21:26:11Z
+last_update: '2026-08-16T12:33:58Z'
 date_finished: 2026-08-11T21:26:11Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +43,24 @@ date_finished: 2026-08-11T21:26:11Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:58Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-430: Leg counters for the 11 fails-only suites T-429 refused to guard mechanically

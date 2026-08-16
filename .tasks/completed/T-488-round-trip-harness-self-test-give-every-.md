@@ -1,13 +1,24 @@
 ---
 id: T-488
-name: "Round-trip harness self-test: give every projected key teeth, and make the two METAKEYS copies structurally incapable of diverging"
+name: "Round-trip harness self-test: give every projected key teeth, and make the
+  two METAKEYS copies structurally incapable of diverging"
 description: >
-  The preflight self-test breaks on the first regex match, so it reports hit='tier' on every run and proves the drift mechanism for exactly one key. Every key added since — endpoint (T-480) and the eight scalars (T-482) — has teeth only from one-shot task probes, not from the standing guard. Compounding it, the two METAKEYS copies are already divergent (guard carries errorStatus/timerSpec/busTopic, preflight does not), so the teeth-proof exercises a strict subset of what the guard projects. Third defect found on reading: the mutation regex assumes key=" attribute form, but endpoint rides a standalone element, contextReads/artifactsWrites ride paths= on their own elements, decisionInput/decisionOutputs ride text content, and the link keys ride aef:link attributes — so several keys could never be perturbed by that regex even without the break. OBS-045.
+  The preflight self-test breaks on the first regex match, so it reports hit='tier'
+  on every run and proves the drift mechanism for exactly one key. Every key added
+  since — endpoint (T-480) and the eight scalars (T-482) — has teeth only from one-shot
+  task probes, not from the standing guard. Compounding it, the two METAKEYS copies
+  are already divergent (guard carries errorStatus/timerSpec/busTopic, preflight does
+  not), so the teeth-proof exercises a strict subset of what the guard projects. Third
+  defect found on reading: the mutation regex assumes key=" attribute form, but endpoint
+  rides a standalone element, contextReads/artifactsWrites ride paths= on their own
+  elements, decisionInput/decisionOutputs ride text content, and the link keys ride
+  aef:link attributes — so several keys could never be perturbed by that regex even
+  without the break. OBS-045.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: ["T-480", "T-482", "T-483", "T-484", "T-485"]
@@ -17,7 +28,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-13T08:32:12Z
-last_update: 2026-08-13T09:02:32Z
+last_update: '2026-08-16T12:34:02Z'
 date_finished: 2026-08-13T09:02:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -29,6 +40,24 @@ date_finished: 2026-08-13T09:02:32Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:02Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-488: Round-trip harness self-test: give every projected key teeth, and make the two METAKEYS copies structurally incapable of diverging

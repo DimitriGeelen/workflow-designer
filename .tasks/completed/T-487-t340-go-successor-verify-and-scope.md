@@ -1,23 +1,47 @@
 ---
 id: T-487
-name: "T-340 GO successor — verify the decision was recorded, then scope the build from the task file"
+name: "T-340 GO successor — verify the decision was recorded, then scope the build
+  from the task file"
 description: >
-  The operator ruled GO on T-340 verbally at the end of session 2026-08-13. Whether the
-  decision was ever RECORDED is unverified — the budget gate fired first. This task exists
-  so the ruling cannot evaporate: T-486 measured, one hour before it was given, that we are
-  vulnerable to exactly AEF's T-2925 failure (a GO recorded against an inception that then
-  closes, with no build slice ever created). Step 1 is verification, step 2 is scoping from
+  The operator ruled GO on T-340 verbally at the end of session 2026-08-13. Whether
+  the
+  decision was ever RECORDED is unverified — the budget gate fired first. This task
+  exists
+  so the ruling cannot evaporate: T-486 measured, one hour before it was given, that
+  we are
+  vulnerable to exactly AEF's T-2925 failure (a GO recorded against an inception that
+  then
+  closes, with no build slice ever created). Step 1 is verification, step 2 is scoping
+  from
   the task file rather than from recall.
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: ["T-340", "T-486"]
 created: 2026-08-13T07:55:00Z
-last_update: 2026-08-14T20:24:40Z
+last_update: '2026-08-16T12:34:02Z'
 date_finished: 2026-08-14T20:24:40Z
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:02Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 1
+      D3: 4
+      D4: 3
+      F-RECALL: 3
+      F-AUTONOMY: 0
+      F3: 1
+      F1: 0
+      F2: 0
+    rationale: D1=2 (body:concern-ref); D2=1 (body:log-or-error-line); D3=4 
+      (body:framework-level-ux); D4=3 (body:portability-abstraction); F-RECALL=3
+      (body:fw-recall-or-memory-link); F-AUTONOMY=0 (no-signal); F3=1 
+      (body/components:prompt-incidental); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-487: T-340 GO successor — verify, then scope

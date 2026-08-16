@@ -1,8 +1,30 @@
 ---
 id: T-433
-name: "The vendor bump is available and its version relation is formally undecidable — an operator decision, measured"
+name: "The vendor bump is available and its version relation is formally undecidable
+  — an operator decision, measured"
 description: >
-  AEF named fw upgrade against the public GitHub mirror as the sanctioned consumer pull point (DM 536 section 1). This task exists to put a MEASURED blast radius in front of the operator, because the bump is their call and mine to describe accurately. NOTE - THIS TASK WAS FILED ON A PREDICTION THAT DRIVING IT FALSIFIED, and the wrong prediction is kept in the RCA rather than deleted, because it is the second time in one session that reading a code path beat running it and then lost. Predicted: the T-1912 precheck at lib/upgrade.sh:849 compares with sort -V, this tree says 1.6.354, upstream says 1.6.9, sort -V puts 1.6.354 last, therefore the upgrade refuses as a downgrade. Every one of those facts is true and the conclusion is false. Running the upstream fw in --dry-run from inside the clone shows a newer guard, T-2713, which recognises that AEF's VERSION is a RESETTING COUNTER and that string order therefore cannot decide direction at all - it reports 'direction undecidable', warns, and PROCEEDS by default (FW_UNDECIDABLE_VERSION_PROCEED=0 to refuse). So the upgrade is available, not blocked. What is true and unchanged: no version_sha is recorded and no tag v1.6.354 exists in the framework repo, so nothing verifies this bump moves forward rather than backward; this tree's 1.6.354 label was written by ebf0c721, whose own commit message says it vendored v1.6.763; and the upstream tree labelled 1.6.9 contains T-2919/T-2923/T-2924, work from this week. Blast radius measured against a read-only clone: 285 files differ, 502 exist only upstream, 14 only here, and the vendor step would replace bin, lib, agents, web, docs, policy, templates and status-transitions.yaml wholesale (~29MB). Unblocks the T-402 close path once the bytes land.
+  AEF named fw upgrade against the public GitHub mirror as the sanctioned consumer
+  pull point (DM 536 section 1). This task exists to put a MEASURED blast radius in
+  front of the operator, because the bump is their call and mine to describe accurately.
+  NOTE - THIS TASK WAS FILED ON A PREDICTION THAT DRIVING IT FALSIFIED, and the wrong
+  prediction is kept in the RCA rather than deleted, because it is the second time
+  in one session that reading a code path beat running it and then lost. Predicted:
+  the T-1912 precheck at lib/upgrade.sh:849 compares with sort -V, this tree says
+  1.6.354, upstream says 1.6.9, sort -V puts 1.6.354 last, therefore the upgrade refuses
+  as a downgrade. Every one of those facts is true and the conclusion is false. Running
+  the upstream fw in --dry-run from inside the clone shows a newer guard, T-2713,
+  which recognises that AEF's VERSION is a RESETTING COUNTER and that string order
+  therefore cannot decide direction at all - it reports 'direction undecidable', warns,
+  and PROCEEDS by default (FW_UNDECIDABLE_VERSION_PROCEED=0 to refuse). So the upgrade
+  is available, not blocked. What is true and unchanged: no version_sha is recorded
+  and no tag v1.6.354 exists in the framework repo, so nothing verifies this bump
+  moves forward rather than backward; this tree's 1.6.354 label was written by ebf0c721,
+  whose own commit message says it vendored v1.6.763; and the upstream tree labelled
+  1.6.9 contains T-2919/T-2923/T-2924, work from this week. Blast radius measured
+  against a read-only clone: 285 files differ, 502 exist only upstream, 14 only here,
+  and the vendor step would replace bin, lib, agents, web, docs, policy, templates
+  and status-transitions.yaml wholesale (~29MB). Unblocks the T-402 close path once
+  the bytes land.
 
 status: started-work
 workflow_type: build
@@ -16,8 +38,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T20:13:47Z
-last_update: 2026-08-11T20:19:52Z
-date_finished: null
+last_update: '2026-08-16T12:33:29Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +50,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:29Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 1
+      F1: 0
+      F2: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=2 (body:env-class-handled); F-RECALL=0 (no-signal); F-AUTONOMY=0 
+      (no-signal); F3=1 (body/components:prompt-incidental); F1=0 (no-signal); 
+      F2=1 (body/components:component-fabric-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-433: The vendor bump is available and its version relation is formally undecidable — an operator decision, measured

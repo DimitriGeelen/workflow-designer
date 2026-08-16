@@ -1,13 +1,20 @@
 ---
 id: T-061
-name: "Bridge drops unknown aef: keys — free-form passthrough namespace is a closed whitelist"
+name: "Bridge drops unknown aef: keys — free-form passthrough namespace is a closed
+  whitelist"
 description: >
-  VERIFIED in T-058 (FC-13): yaml-to-bpmn.py emits only its known aef set (meta META_KEYS, decisionInput/Outputs, contextReads, artifactsWrites, io, link); any OTHER aef.* key is silently dropped (test: aef.enforcement=X absent from BPMN). Editor advertises aef: as free-form passthrough, but the bridge path is a closed whitelist. Generalized ROOT of T-059 + T-060. Fix (a) pass through unknown scalar aef.* as aef:meta attrs, or (b) drop 'free-form' language + document fixed vocab. Guard: round-trip test of arbitrary aef.* key. Under G-002.
+  VERIFIED in T-058 (FC-13): yaml-to-bpmn.py emits only its known aef set (meta META_KEYS,
+  decisionInput/Outputs, contextReads, artifactsWrites, io, link); any OTHER aef.*
+  key is silently dropped (test: aef.enforcement=X absent from BPMN). Editor advertises
+  aef: as free-form passthrough, but the bridge path is a closed whitelist. Generalized
+  ROOT of T-059 + T-060. Fix (a) pass through unknown scalar aef.* as aef:meta attrs,
+  or (b) drop 'free-form' language + document fixed vocab. Guard: round-trip test
+  of arbitrary aef.* key. Under G-002.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +23,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T22:54:23Z
-last_update: 2026-07-03T23:46:12Z
+last_update: '2026-08-16T12:33:34Z'
 date_finished: 2026-07-03T23:46:12Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +35,24 @@ date_finished: 2026-07-03T23:46:12Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:34Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 3
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=3 
+      (body:component-silent-failure); D3=2 (body:default-change); D4=2 
+      (body:env-class-handled); F-RECALL=0 (no-signal); F-AUTONOMY=0 
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-061: Bridge drops unknown aef: keys — free-form passthrough namespace is a closed whitelist

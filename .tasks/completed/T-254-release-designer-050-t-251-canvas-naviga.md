@@ -1,13 +1,21 @@
 ---
 id: T-254
-name: "Release designer 0.5.0 (T-251 canvas navigation) + rail announce per pull-at-tag contract"
+name: "Release designer 0.5.0 (T-251 canvas navigation) + rail announce per pull-at-tag
+  contract"
 description: >
-  OPERATOR-AUTHORIZED 2026-07-26 ('2 do cut and put on rail') — cut blocked in prior session only by budget gate. Steps (T-248 pattern): bump VERSION 0.4.0->0.5.0; scripts/release-designer.sh (render gate + immutability: 0.4.0 ea47db53 + 0.3.x pins untouched); verify at-tag freeze (artifact sha at designer-v0.5.0 == MANIFEST-at-tag); push master+tag to origin (ssh, never github); announce on rail dm:0e7ee6cad65137fc:6a646ce8b1bc6560 per pull-at-tag contract (version/sha256/bytes/tag, content = exactly T-251 canvas navigation, zero seam surface, markers with counting method stated); AEF pulls via fw designer sync --from-tag. Rail cursor 199.
+  OPERATOR-AUTHORIZED 2026-07-26 ('2 do cut and put on rail') — cut blocked in prior
+  session only by budget gate. Steps (T-248 pattern): bump VERSION 0.4.0->0.5.0; scripts/release-designer.sh
+  (render gate + immutability: 0.4.0 ea47db53 + 0.3.x pins untouched); verify at-tag
+  freeze (artifact sha at designer-v0.5.0 == MANIFEST-at-tag); push master+tag to
+  origin (ssh, never github); announce on rail dm:0e7ee6cad65137fc:6a646ce8b1bc6560
+  per pull-at-tag contract (version/sha256/bytes/tag, content = exactly T-251 canvas
+  navigation, zero seam surface, markers with counting method stated); AEF pulls via
+  fw designer sync --from-tag. Rail cursor 199.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +24,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-26T15:14:04Z
-last_update: 2026-07-26T15:23:24Z
+last_update: '2026-08-16T12:33:46Z'
 date_finished: 2026-07-26T15:23:24Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +36,24 @@ date_finished: 2026-07-26T15:23:24Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:46Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-254: Release designer 0.5.0 (T-251 canvas navigation) + rail announce per pull-at-tag contract

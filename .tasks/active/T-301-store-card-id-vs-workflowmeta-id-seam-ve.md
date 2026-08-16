@@ -1,8 +1,14 @@
 ---
 id: T-301
-name: "Store-card id vs workflowMeta id seam: Versions panel empty and save forks a new project"
+name: "Store-card id vs workflowMeta id seam: Versions panel empty and save forks
+  a new project"
 description: >
-  Operator field observation (2026-07-29, 0.8.0, T-101 review): loading store card t101-review-audit-process (2 versions) showed an EMPTY Versions panel, and Save to project created a NEW project audit-process v1 - the editor keys versions+save to workflowMeta.id, not the loaded store id. T-264-adjacent save-target class. One question: which identity should the Versions panel and save target adopt when a store project id differs from the map internal id?
+  Operator field observation (2026-07-29, 0.8.0, T-101 review): loading store card
+  t101-review-audit-process (2 versions) showed an EMPTY Versions panel, and Save
+  to project created a NEW project audit-process v1 - the editor keys versions+save
+  to workflowMeta.id, not the loaded store id. T-264-adjacent save-target class. One
+  question: which identity should the Versions panel and save target adopt when a
+  store project id differs from the map internal id?
 
 status: captured
 workflow_type: inception
@@ -12,8 +18,8 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-07-29T08:45:56Z
-last_update: 2026-07-29T08:45:56Z
-date_finished: null
+last_update: '2026-08-16T12:33:27Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -22,6 +28,23 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:27Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 2
+      F3: 2
+      F1: 2
+      F2: 2
+    rationale: D1=2 (no-signal); D2=2 (no-signal); D3=2 (no-signal); D4=2 
+      (no-signal); F-RECALL=2 (no-signal); F-AUTONOMY=2 (no-signal); F3=2 
+      (no-signal); F1=2 (no-signal); F2=2 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-301: Store-card id vs workflowMeta id seam: Versions panel empty and save forks a new project

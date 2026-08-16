@@ -2,7 +2,14 @@
 id: T-105
 name: "Baked corpus regression: aligned gateways collide their edge-labels (verification-gate)"
 description: >
-  Operator field report (2026-07-05, screenshot of verification-gate): after the T-101 Clean bake, the three framework-lane gateways (frw_6_every, frw_8_rca, join) sit on one aligned centre-line, so their long edge-labels ("every verify cmds exit 0", "all verify cmds exit 0", "RCA/evolution/inception gates pass?") overlap into an unreadable mess. Likely caused by align-rows (T-094) snapping the gateways to a common Y that previously staggered them enough to separate the labels. Investigate cause, then fix (edge-label collision avoidance and/or a bake that accounts for label footprint).
+  Operator field report (2026-07-05, screenshot of verification-gate): after the T-101
+  Clean bake, the three framework-lane gateways (frw_6_every, frw_8_rca, join) sit
+  on one aligned centre-line, so their long edge-labels ("every verify cmds exit 0",
+  "all verify cmds exit 0", "RCA/evolution/inception gates pass?") overlap into an
+  unreadable mess. Likely caused by align-rows (T-094) snapping the gateways to a
+  common Y that previously staggered them enough to separate the labels. Investigate
+  cause, then fix (edge-label collision avoidance and/or a bake that accounts for
+  label footprint).
 status: started-work
 workflow_type: build
 owner: human
@@ -11,8 +18,25 @@ tags: [ui, editor, bug, corpus]
 components: []
 related_tasks: [T-101, T-082, T-089, T-083]
 created: 2026-07-05T17:30:00Z
-last_update: 2026-07-05T23:20:06Z
-date_finished: null
+last_update: '2026-08-16T12:33:25Z'
+date_finished:
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:25Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=2 (body:concern-ref); D2=0 (no-signal); D3=0 (no-signal); D4=0
+      (no-signal); F-RECALL=0 (no-signal); F-AUTONOMY=0 (no-signal); F3=0 
+      (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-105: Baked corpus regression — aligned gateways collide their edge-labels (verification-gate)

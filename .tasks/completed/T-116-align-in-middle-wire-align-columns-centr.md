@@ -2,12 +2,20 @@
 id: T-116
 name: "Align-in-middle: wire Align-columns (centre-x) into Clean layout"
 description: >
-  Operator improvement A (align in middle) + B (connect on 90). cleanLayout() does per-lane tidy + align-rows (centre-y) but never align-columns (centre-x), so stacked nodes of different widths (e.g. gateway 48w over end-event 36w) keep a small centre-x offset -> vertical drops render as a tiny staircase jog instead of a dead-straight 90 deg line. Fix: run alignColumns() (T-107, already snaps vertical-edge-connected nodes to shared centre-x, with measure-after-move overlap revert) as a final global step in cleanLayout, merged into the same lastTidy so one Ctrl+Z reverts. Align-rows (Y) and align-columns (X) are orthogonal axes and cannot fight. B (clean 90) falls out for free once centres align; residual horizontal-edge jogs are a separate follow-up.
+  Operator improvement A (align in middle) + B (connect on 90). cleanLayout() does
+  per-lane tidy + align-rows (centre-y) but never align-columns (centre-x), so stacked
+  nodes of different widths (e.g. gateway 48w over end-event 36w) keep a small centre-x
+  offset -> vertical drops render as a tiny staircase jog instead of a dead-straight
+  90 deg line. Fix: run alignColumns() (T-107, already snaps vertical-edge-connected
+  nodes to shared centre-x, with measure-after-move overlap revert) as a final global
+  step in cleanLayout, merged into the same lastTidy so one Ctrl+Z reverts. Align-rows
+  (Y) and align-columns (X) are orthogonal axes and cannot fight. B (clean 90) falls
+  out for free once centres align; residual horizontal-edge jogs are a separate follow-up.
 
 status: work-completed
 workflow_type: build
 owner: human
-horizon: null
+horizon:
 tags: [ui, editor, routing, layout]
 components: []
 related_tasks: [T-105, T-107, T-094, T-101]
@@ -16,7 +24,7 @@ related_tasks: [T-105, T-107, T-094, T-101]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T22:01:16Z
-last_update: 2026-07-29T15:39:21Z
+last_update: '2026-08-16T12:33:37Z'
 date_finished: 2026-07-07T14:19:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +36,23 @@ date_finished: 2026-07-07T14:19:17Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:37Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=2 (body:env-class-handled); F-RECALL=0 (no-signal); F-AUTONOMY=0 
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-116: Align-in-middle: wire Align-columns (centre-x) into Clean layout

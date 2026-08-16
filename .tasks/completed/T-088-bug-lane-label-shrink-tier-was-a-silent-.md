@@ -1,13 +1,21 @@
 ---
 id: T-088
-name: "Bug: lane-label shrink tier was a silent no-op — CSS class rule overrides font-size presentation attribute"
+name: "Bug: lane-label shrink tier was a silent no-op — CSS class rule overrides font-size
+  presentation attribute"
 description: >
-  Probe evidence (2026-07-04): a lane-label text with font-size=8px ATTRIBUTE computes to 10px (.lane-label CSS wins over SVG presentation attributes); with inline style font-size:8px it computes to 8px. T-084's fit ladder set shrink steps as attributes, so tiers fs 9/8 never rendered smaller text — measurements stayed at 10px, making the shrink tier unreachable dead code (wrap and ellipsize tiers were honest and carried the 0/67 overflow result). Fix: mk() now sets inline style (shipped inside T-085's commit, required there so ladder steps beat the new svg[data-lsize] size CSS). This task records the RCA and the re-verified corpus invariant.
+  Probe evidence (2026-07-04): a lane-label text with font-size=8px ATTRIBUTE computes
+  to 10px (.lane-label CSS wins over SVG presentation attributes); with inline style
+  font-size:8px it computes to 8px. T-084's fit ladder set shrink steps as attributes,
+  so tiers fs 9/8 never rendered smaller text — measurements stayed at 10px, making
+  the shrink tier unreachable dead code (wrap and ellipsize tiers were honest and
+  carried the 0/67 overflow result). Fix: mk() now sets inline style (shipped inside
+  T-085's commit, required there so ladder steps beat the new svg[data-lsize] size
+  CSS). This task records the RCA and the re-verified corpus invariant.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +24,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T21:50:54Z
-last_update: 2026-07-04T21:53:32Z
+last_update: '2026-08-16T12:33:36Z'
 date_finished: 2026-07-04T21:53:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +36,24 @@ date_finished: 2026-07-04T21:53:32Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:36Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 2
+      F-RECALL: 3
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=2 (body:env-class-handled); F-RECALL=3 (body:fw-recall-or-memory-link);
+      F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-088: Bug: lane-label shrink tier was a silent no-op — CSS class rule overrides font-size presentation attribute

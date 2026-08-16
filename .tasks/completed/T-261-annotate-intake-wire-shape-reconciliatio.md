@@ -1,13 +1,25 @@
 ---
 id: T-261
-name: "Annotate intake wire-shape reconciliation: accept AEF live overlay payload (nodes/severity/text) + cut 0.7.1"
+name: "Annotate intake wire-shape reconciliation: accept AEF live overlay payload
+  (nodes/severity/text) + cut 0.7.1"
 description: >
-  Contract-shape divergence caught via crossed rail messages (219/220) minutes after the 0.7.0 cut: AEF's live overlay stack (Slice A /api/overlay + Slice B wrapper, both LIVE on :3001) posts {type:'aef:annotate', map, generated, nodes:[{uid,badge,text,severity}]} verbatim (severity info|warn|alert) — 0.7.0's intake reads annotations:[{uid,badge,tone,title}], so their re-pin would silently no-op. Real payload curled and pinned from their invitation at 219. Fix: tolerant intake — accept nodes[] (wire-canonical, theirs) AND annotations[] (documented alias); map severity->tone (info->info, warn->warn, alert->err), text->title tooltip fallback; harness leg asserts against the REAL curled payload bytes; protocol doc updated to document the wire-canonical shape first. Then cut 0.7.1, tag, announce, so their re-pin lights badges first try. One bug = one task; RCA required (shape defined without re-verifying the 197 advisory bytes).
+  Contract-shape divergence caught via crossed rail messages (219/220) minutes after
+  the 0.7.0 cut: AEF's live overlay stack (Slice A /api/overlay + Slice B wrapper,
+  both LIVE on :3001) posts {type:'aef:annotate', map, generated, nodes:[{uid,badge,text,severity}]}
+  verbatim (severity info|warn|alert) — 0.7.0's intake reads annotations:[{uid,badge,tone,title}],
+  so their re-pin would silently no-op. Real payload curled and pinned from their
+  invitation at 219. Fix: tolerant intake — accept nodes[] (wire-canonical, theirs)
+  AND annotations[] (documented alias); map severity->tone (info->info, warn->warn,
+  alert->err), text->title tooltip fallback; harness leg asserts against the REAL
+  curled payload bytes; protocol doc updated to document the wire-canonical shape
+  first. Then cut 0.7.1, tag, announce, so their re-pin lights badges first try. One
+  bug = one task; RCA required (shape defined without re-verifying the 197 advisory
+  bytes).
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +28,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T19:16:35Z
-last_update: 2026-07-27T19:21:45Z
+last_update: '2026-08-16T12:33:46Z'
 date_finished: 2026-07-27T19:21:45Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +40,24 @@ date_finished: 2026-07-27T19:21:45Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:46Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-261: Annotate intake wire-shape reconciliation: accept AEF live overlay payload (nodes/severity/text) + cut 0.7.1

@@ -1,13 +1,27 @@
 ---
 id: T-199
-name: "O-3 hole: a laneSet-less process silently accepts an inception — fix the early return + lock every absent-authority case"
+name: "O-3 hole: a laneSet-less process silently accepts an inception — fix the early
+  return + lock every absent-authority case"
 description: >
-  BUG in T-196's _check_iw9_authority (tools/validate-workflow.py): it opens with `if lane_set is None: return`, so a process carrying NO bpmn:laneSet at all skips O-3 entirely and an inception is ACCEPTED — the single case with no authority signal whatsoever is the one case not checked. Verified: (a) lane named 'Human' with no laneMeta -> ERROR, (b) laneMeta without @authority -> ERROR, (d) authority=external -> ERROR, (e) inception outside every lane -> ERROR, but (c) NO laneSet -> *** ACCEPTED ***. This makes 832's reference validator MORE LENIENT than AEF's compiler, which already fail-fasts on 'no lane / no human signal at all' (their offset 48) — and 832 vetoed AEF's name-only leniency on rail offset 49 while carrying a wider hole of its own. Fix the early return so an absent laneSet yields absent authority (=> O-3 ERROR), keep O-1 WARN quiet for lane-less diagrams (authority None is not a mismatch), and lock every absent-authority case in tests/test_validate_iw9.py so the ruling issued to AEF is guarded rather than asserted. PL-034 class — a promise with no guard.
+  BUG in T-196's _check_iw9_authority (tools/validate-workflow.py): it opens with
+  `if lane_set is None: return`, so a process carrying NO bpmn:laneSet at all skips
+  O-3 entirely and an inception is ACCEPTED — the single case with no authority signal
+  whatsoever is the one case not checked. Verified: (a) lane named 'Human' with no
+  laneMeta -> ERROR, (b) laneMeta without @authority -> ERROR, (d) authority=external
+  -> ERROR, (e) inception outside every lane -> ERROR, but (c) NO laneSet -> *** ACCEPTED
+  ***. This makes 832's reference validator MORE LENIENT than AEF's compiler, which
+  already fail-fasts on 'no lane / no human signal at all' (their offset 48) — and
+  832 vetoed AEF's name-only leniency on rail offset 49 while carrying a wider hole
+  of its own. Fix the early return so an absent laneSet yields absent authority (=>
+  O-3 ERROR), keep O-1 WARN quiet for lane-less diagrams (authority None is not a
+  mismatch), and lock every absent-authority case in tests/test_validate_iw9.py so
+  the ruling issued to AEF is guarded rather than asserted. PL-034 class — a promise
+  with no guard.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: [arc:designer-authoring-surface, conformance]
 components: []
 related_tasks: [T-196, T-189, T-195]
@@ -16,7 +30,7 @@ related_tasks: [T-196, T-189, T-195]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-17T10:58:04Z
-last_update: 2026-07-17T11:01:56Z
+last_update: '2026-08-16T12:33:43Z'
 date_finished: 2026-07-17T11:01:56Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +42,24 @@ date_finished: 2026-07-17T11:01:56Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:43Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-199: Lock the O-3 name-only-lane reading with regression tests (conformance ruling issued to AEF)

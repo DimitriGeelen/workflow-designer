@@ -2,12 +2,18 @@
 id: T-243
 name: "release designer 0.3.2 hotfix: T-240 uuid auto-resolve + T-242 dual-form contract"
 description: >
-  Operator-authorized hotfix cut (AEF ask 1, rail 168; go given 2026-07-23). Content since designer-v0.3.1: T-240 (uuid workflowRef auto-resolves jump target at load) + T-242 (dual-form alias preserved on emit, workflowRef authoritative when resolvable). Protocol per docs/aef-designer-integration-protocol.md: full bridge suite, VERSION bump 0.3.2, deterministic dist cut + MANIFEST, render gate, immutability guard (0.3.1/0.3.0 untouched), annotated tag designer-v0.3.2, push, file_send delivery to aef, rail announce (triggers their re-pin + resolves_workflow_ref flag flip + alias drop).
+  Operator-authorized hotfix cut (AEF ask 1, rail 168; go given 2026-07-23). Content
+  since designer-v0.3.1: T-240 (uuid workflowRef auto-resolves jump target at load)
+  + T-242 (dual-form alias preserved on emit, workflowRef authoritative when resolvable).
+  Protocol per docs/aef-designer-integration-protocol.md: full bridge suite, VERSION
+  bump 0.3.2, deterministic dist cut + MANIFEST, render gate, immutability guard (0.3.1/0.3.0
+  untouched), annotated tag designer-v0.3.2, push, file_send delivery to aef, rail
+  announce (triggers their re-pin + resolves_workflow_ref flag flip + alias drop).
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-23T07:35:07Z
-last_update: 2026-07-23T07:40:53Z
+last_update: '2026-08-16T12:33:45Z'
 date_finished: 2026-07-23T07:40:53Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +34,24 @@ date_finished: 2026-07-23T07:40:53Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:45Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 3
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=3 (body:portability-abstraction); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-243: release designer 0.3.2 hotfix: T-240 uuid auto-resolve + T-242 dual-form contract

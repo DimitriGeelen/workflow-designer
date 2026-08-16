@@ -2,12 +2,18 @@
 id: T-087
 name: "Node-label fit ladder: long task names must fit their rect"
 description: >
-  Screenshot evidence (session-handover map, frw_5_write): long node names wrap at 14 chars but with unlimited lines and fixed 13px pitch centered on the rect — 5 lines overflow the 64px task rect, clipped top and bottom. Apply the T-084 ladder to task-node labels: measured wrap to rect width -> shrink font one step -> clamp line count with ellipsis on the last line + full name as <title> tooltip. Render-only, no geometry mutation. Must be label-size-aware (T-085 S/M/L scales pitch). Operator-raised 2026-07-04.
+  Screenshot evidence (session-handover map, frw_5_write): long node names wrap at
+  14 chars but with unlimited lines and fixed 13px pitch centered on the rect — 5
+  lines overflow the 64px task rect, clipped top and bottom. Apply the T-084 ladder
+  to task-node labels: measured wrap to rect width -> shrink font one step -> clamp
+  line count with ellipsis on the last line + full name as <title> tooltip. Render-only,
+  no geometry mutation. Must be label-size-aware (T-085 S/M/L scales pitch). Operator-raised
+  2026-07-04.
 
 status: work-completed
 workflow_type: build
 owner: human
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T21:40:52Z
-last_update: 2026-07-29T15:42:29Z
+last_update: '2026-08-16T12:33:36Z'
 date_finished: 2026-07-04T22:09:28Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +34,24 @@ date_finished: 2026-07-04T22:09:28Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:36Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 3
+      F-RECALL: 1
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=3 (body:portability-abstraction); F-RECALL=1 
+      (body:episodic-only); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-087: Node-label fit ladder: long task names must fit their rect

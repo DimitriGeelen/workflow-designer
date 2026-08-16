@@ -2,12 +2,18 @@
 id: T-278
 name: "Process-layer package disposition note: map SD-1..15 to superseded/delivered/open"
 description: >
-  The 2026-07-02 AEF process-layer package (docs/proposals/aef-workflow-process-layer-2026-07-02/) was superseded by the T-175 framing (tasks-canonical, mapping standard as contract) but its SD-1..SD-15 decision register was never disposed and T-175 artifacts do not cite the package. Write a one-page disposition note in the proposal directory mapping each SD to superseded-by-T-175 / delivered-as-X / still-open, so deliberate deferrals (guided mode, Workflow Fabric, lenses) stay visible. Also record that Step 0 discovery (Q1-Q10) is obsolete under the pivot.
+  The 2026-07-02 AEF process-layer package (docs/proposals/aef-workflow-process-layer-2026-07-02/)
+  was superseded by the T-175 framing (tasks-canonical, mapping standard as contract)
+  but its SD-1..SD-15 decision register was never disposed and T-175 artifacts do
+  not cite the package. Write a one-page disposition note in the proposal directory
+  mapping each SD to superseded-by-T-175 / delivered-as-X / still-open, so deliberate
+  deferrals (guided mode, Workflow Fabric, lenses) stay visible. Also record that
+  Step 0 discovery (Q1-Q10) is obsolete under the pivot.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
@@ -16,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-28T14:52:17Z
-last_update: 2026-07-28T14:59:20Z
+last_update: '2026-08-16T12:33:47Z'
 date_finished: 2026-07-28T14:59:20Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +34,24 @@ date_finished: 2026-07-28T14:59:20Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:47Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-278: Process-layer package disposition note: map SD-1..15 to superseded/delivered/open

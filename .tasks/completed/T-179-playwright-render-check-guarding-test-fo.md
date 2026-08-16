@@ -2,12 +2,19 @@
 id: T-179
 name: "Playwright render-check guarding test for designer build"
 description: >
-  Add a committable Playwright render-check that guards the designer BUILD (complement to curl+sha byte-check). Serves the built artifact locally, loads it headless, asserts: (1) render — palette, canvas nodes, inspector present; (2) version/feature marker — FIELD_META.horizon present (catches stale/wrong build); (3) console clean EXCEPT the documented /api/health 404 (whitelist+comment the expected backend-absent probe; do NOT suppress in src) and favicon. Needs new node/playwright dev tooling (832 is shell+python only today; chromium already cached). Origin: T-178. See learning under T-178 (P-011).
+  Add a committable Playwright render-check that guards the designer BUILD (complement
+  to curl+sha byte-check). Serves the built artifact locally, loads it headless, asserts:
+  (1) render — palette, canvas nodes, inspector present; (2) version/feature marker
+  — FIELD_META.horizon present (catches stale/wrong build); (3) console clean EXCEPT
+  the documented /api/health 404 (whitelist+comment the expected backend-absent probe;
+  do NOT suppress in src) and favicon. Needs new node/playwright dev tooling (832
+  is shell+python only today; chromium already cached). Origin: T-178. See learning
+  under T-178 (P-011).
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +23,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-10T21:17:29Z
-last_update: 2026-07-10T21:45:05Z
+last_update: '2026-08-16T12:33:41Z'
 date_finished: 2026-07-10T21:45:05Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +35,23 @@ date_finished: 2026-07-10T21:45:05Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:41Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=2 (body:env-class-handled); F-RECALL=0 (no-signal); F-AUTONOMY=0 
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-179: Playwright render-check guarding test for designer build

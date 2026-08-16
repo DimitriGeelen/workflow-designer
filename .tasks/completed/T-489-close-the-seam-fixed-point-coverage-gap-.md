@@ -1,13 +1,22 @@
 ---
 id: T-489
-name: "Close the seam fixed-point coverage gap: author one fixture that exercises the 8 keys T-488 measured as never proven"
+name: "Close the seam fixed-point coverage gap: author one fixture that exercises
+  the 8 keys T-488 measured as never proven"
 description: >
-  T-488 measured proven_fraction 26/34: seven projected keys (section, autoTrigger, trigger, gatewayKind, scopeOf, owner, linkId) appear in no fixture at all, and hostRef's carrier exists but boundary-events.bpmn has a single activity so a boundary event has no alternative host to re-point at. The guard is sound (0 BLIND) — the corpus simply cannot exercise 8 of the 34 keys it projects. Remedy is ONE NEW fixture, not an edit to an existing one: AEF digest-pins tests/fixtures/aef-bpmn/typed-events.bpmn and boundary-events.bpmn (SHA_832_TYPED / SHA_832_BOUNDARY), so mutating either would break their guard and trigger the rail announcement protocol for no reason. OBS-048.
+  T-488 measured proven_fraction 26/34: seven projected keys (section, autoTrigger,
+  trigger, gatewayKind, scopeOf, owner, linkId) appear in no fixture at all, and hostRef's
+  carrier exists but boundary-events.bpmn has a single activity so a boundary event
+  has no alternative host to re-point at. The guard is sound (0 BLIND) — the corpus
+  simply cannot exercise 8 of the 34 keys it projects. Remedy is ONE NEW fixture,
+  not an edit to an existing one: AEF digest-pins tests/fixtures/aef-bpmn/typed-events.bpmn
+  and boundary-events.bpmn (SHA_832_TYPED / SHA_832_BOUNDARY), so mutating either
+  would break their guard and trigger the rail announcement protocol for no reason.
+  OBS-048.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: ["T-488"]
@@ -17,7 +26,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-13T08:50:32Z
-last_update: 2026-08-13T09:04:17Z
+last_update: '2026-08-16T12:34:02Z'
 date_finished: 2026-08-13T09:04:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -29,6 +38,25 @@ date_finished: 2026-08-13T09:04:17Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:02Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 1
+    rationale: D1=4 (body:structural-gate); D2=2 
+      (body:telemetry-or-audit-entry); D3=2 (body:default-change); D4=2 
+      (body:env-class-handled); F-RECALL=0 (no-signal); F-AUTONOMY=0 
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=1 
+      (body/components:component-fabric-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-489: Close the seam fixed-point coverage gap: author one fixture that exercises the 8 keys T-488 measured as never proven

@@ -1,13 +1,32 @@
 ---
 id: T-491
-name: "Assert instrument REACHABILITY population-wide: PL-148's remedy has never been built and the class has recurred five times"
+name: "Assert instrument REACHABILITY population-wide: PL-148's remedy has never been
+  built and the class has recurred five times"
 description: >
-  PL-148 (T-426) prescribes: assert an instrument's REGISTRATION as a separate verification command from its behaviour, and state reachability as an explicit LIMIT in the instrument's own output so a green run cannot imply coverage it does not have. PL-004 (T-052) prescribes wiring every gate into CI over its full subject set with a legacy allowlist. Neither has been built as a population-wide check, and the class has now recurred five times across two projects: AEF check-onboarding-gate (38 green legs, unregistered in every consumer), 832 T-420 gate (inert to the session that registered it), 832 T-421 detector (only call site was its own completion block, exiting 1 into a void), T-490 _roundtrip-serialization-cdp.mjs (claimed to close G-002, invoked by no runner since T-187, sharpened four times on hand-run greens), T-448 bake-clean-layout --check (documented corpus gate, invoked by nothing, red on all 24 maps and silently so). Every instance was repaired by hand for that one instrument and NO repair made the next one detectable — which is precisely the fix-on-discovery pattern PL-145 identifies as what keeps a class open. Deliverable is a standing check over the POPULATION of declared instruments (not one more per-instrument verification leg) that answers: which things in this tree claim to guard something and are reached by nothing. Note the population trap measured in T-490: a census scoped to tools/_*.mjs answered 0 of 27, and T-448 is a real instance that lives outside that glob, so the population must be derived from what CLAIMS to guard, not from a file extension.
+  PL-148 (T-426) prescribes: assert an instrument's REGISTRATION as a separate verification
+  command from its behaviour, and state reachability as an explicit LIMIT in the instrument's
+  own output so a green run cannot imply coverage it does not have. PL-004 (T-052)
+  prescribes wiring every gate into CI over its full subject set with a legacy allowlist.
+  Neither has been built as a population-wide check, and the class has now recurred
+  five times across two projects: AEF check-onboarding-gate (38 green legs, unregistered
+  in every consumer), 832 T-420 gate (inert to the session that registered it), 832
+  T-421 detector (only call site was its own completion block, exiting 1 into a void),
+  T-490 _roundtrip-serialization-cdp.mjs (claimed to close G-002, invoked by no runner
+  since T-187, sharpened four times on hand-run greens), T-448 bake-clean-layout --check
+  (documented corpus gate, invoked by nothing, red on all 24 maps and silently so).
+  Every instance was repaired by hand for that one instrument and NO repair made the
+  next one detectable — which is precisely the fix-on-discovery pattern PL-145 identifies
+  as what keeps a class open. Deliverable is a standing check over the POPULATION
+  of declared instruments (not one more per-instrument verification leg) that answers:
+  which things in this tree claim to guard something and are reached by nothing. Note
+  the population trap measured in T-490: a census scoped to tools/_*.mjs answered
+  0 of 27, and T-448 is a real instance that lives outside that glob, so the population
+  must be derived from what CLAIMS to guard, not from a file extension.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: [tools/_t451-unwired-guard-census.py]
 related_tasks: []
@@ -16,7 +35,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-13T11:59:31Z
-last_update: 2026-08-14T06:14:10Z
+last_update: '2026-08-16T12:34:03Z'
 date_finished: 2026-08-14T06:14:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +47,24 @@ date_finished: 2026-08-14T06:14:10Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:03Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-491: Assert instrument REACHABILITY population-wide: PL-148's remedy has never been built and the class has recurred five times

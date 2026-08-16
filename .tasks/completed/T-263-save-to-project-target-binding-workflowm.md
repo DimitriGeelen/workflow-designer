@@ -1,18 +1,25 @@
 ---
 id: T-263
-name: "Save-to-project target binding: workflowMeta id wins over dialog project-id input (AEF observation, rail 225)"
+name: "Save-to-project target binding: workflowMeta id wins over dialog project-id
+  input (AEF observation, rail 225)"
 description: >
-  AEF rail 225 observation during 0.7.0 eventDef verify: they loaded a scratch COPY of a map whose workflowMeta id still named the original; Save-to-project bound the write target from workflowMeta id and wrote onto the ORIGINAL project. Editing the dialog's project-id input (synthetically) did not rebind — may be synthetic-event artifact (real keystroke might work) or may be workflowMeta-id-wins by design. One question: which field is authoritative for the save target, and does the dialog input actually rebind on real input? Go/no-go on a fix.
+  AEF rail 225 observation during 0.7.0 eventDef verify: they loaded a scratch COPY
+  of a map whose workflowMeta id still named the original; Save-to-project bound the
+  write target from workflowMeta id and wrote onto the ORIGINAL project. Editing the
+  dialog's project-id input (synthetically) did not rebind — may be synthetic-event
+  artifact (real keystroke might work) or may be workflowMeta-id-wins by design. One
+  question: which field is authoritative for the save target, and does the dialog
+  input actually rebind on real input? Go/no-go on a fix.
 
 status: work-completed
 workflow_type: inception
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-27T20:22:54Z
-last_update: 2026-07-27T20:45:33Z
+last_update: '2026-08-16T12:33:46Z'
 date_finished: 2026-07-27T20:45:33Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -22,6 +29,23 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:46Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 2
+      F3: 2
+      F1: 2
+      F2: 2
+    rationale: D1=2 (no-signal); D2=2 (no-signal); D3=2 (no-signal); D4=2 
+      (no-signal); F-RECALL=2 (no-signal); F-AUTONOMY=2 (no-signal); F3=2 
+      (no-signal); F1=2 (no-signal); F2=2 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-263: Save-to-project target binding: workflowMeta id wins over dialog project-id input (AEF observation, rail 225)

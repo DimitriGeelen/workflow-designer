@@ -1,9 +1,14 @@
 ---
 id: T-441
-name: "concerns-schema.py accounts for no 'context' field, so _t400's RECIPROC leg is red on the live register"
+name: "concerns-schema.py accounts for no 'context' field, so _t400's RECIPROC leg
+  is red on the live register"
 description: >
   Promoted from OBS-029 (T-436 triage). Original observation text:
-  tools/concerns-schema.py accounts for no field named 'context', and the live .context/project/concerns.yaml carries one in 2 entries — so _t400-schema-teeth's RECIPROC leg has been red on the real register. Pre-existing at HEAD, surfaced while baselining T-430, deliberately not fixed there (one bug, one task). Either 'context' is load-bearing and the schema should read it, or it is prose and should be declared as such.
+  tools/concerns-schema.py accounts for no field named 'context', and the live .context/project/concerns.yaml
+  carries one in 2 entries — so _t400-schema-teeth's RECIPROC leg has been red on
+  the real register. Pre-existing at HEAD, surfaced while baselining T-430, deliberately
+  not fixed there (one bug, one task). Either 'context' is load-bearing and the schema
+  should read it, or it is prose and should be declared as such.
 
 status: captured
 workflow_type: build
@@ -17,8 +22,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T22:02:20Z
-last_update: 2026-08-11T22:03:02Z
-date_finished: null
+last_update: '2026-08-16T12:33:29Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -29,6 +34,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:29Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-441: tools/concerns-schema.py accounts for no field named 'context', and the live .context/project/concerns.yaml carries one in 2 entries — so _t400-schema-teeth's RECIPROC leg has been red on the real register. Pre-existing at HEAD, surfaced while baselining T-430, deliberately not fixed there (one bug, one task). Either 'context' is load-bearing and the schema should read it, or it is prose and should be declared as such.

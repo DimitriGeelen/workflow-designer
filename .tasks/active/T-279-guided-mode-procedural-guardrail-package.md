@@ -2,7 +2,10 @@
 id: T-279
 name: "Guided-mode procedural guardrail (package P3, Locks 3+6): revive or retire"
 description: >
-  Inception: decide whether the package's enforcement half (P3 guided mode + procedural guardrails, INSTRUCTIONS §0.3/§3.1.4/Locks 3+6) should be revived as a joint 832/AEF arc phase or formally retired. Evidence base: docs/proposals/aef-workflow-process-layer-2026-07-02/INSTRUCTIONS §0.3, §2.4 mode-gating rules, §3.2, Locks 3/6, V7.
+  Inception: decide whether the package's enforcement half (P3 guided mode + procedural
+  guardrails, INSTRUCTIONS §0.3/§3.1.4/Locks 3+6) should be revived as a joint 832/AEF
+  arc phase or formally retired. Evidence base: docs/proposals/aef-workflow-process-layer-2026-07-02/INSTRUCTIONS
+  §0.3, §2.4 mode-gating rules, §3.2, Locks 3/6, V7.
 
 status: captured
 workflow_type: inception
@@ -12,8 +15,8 @@ tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
 created: 2026-07-28T14:52:30Z
-last_update: 2026-07-28T14:52:30Z
-date_finished: null
+last_update: '2026-08-16T12:33:26Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -22,6 +25,23 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:26Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 2
+      F3: 2
+      F1: 2
+      F2: 2
+    rationale: D1=2 (no-signal); D2=2 (no-signal); D3=2 (no-signal); D4=2 
+      (no-signal); F-RECALL=2 (no-signal); F-AUTONOMY=2 (no-signal); F3=2 
+      (no-signal); F1=2 (no-signal); F2=2 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-279: Guided-mode procedural guardrail (package P3, Locks 3+6): revive or retire

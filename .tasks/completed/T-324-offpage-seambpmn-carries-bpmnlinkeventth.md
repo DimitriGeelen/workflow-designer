@@ -1,22 +1,36 @@
 ---
 id: T-324
-name: "offpage-seam.bpmn carries <bpmn:linkEventThrow>, an element no emitter can produce: coordinated re-pin with AEF"
+name: "offpage-seam.bpmn carries <bpmn:linkEventThrow>, an element no emitter can
+  produce: coordinated re-pin with AEF"
 description: >
-  T-321's vocabulary gate found 3 <bpmn:linkEventThrow> elements in tests/fixtures/aef-bpmn/offpage-seam.bpmn. That is not a BPMN element -- it is the canonical YAML type name sitting in the BPMN namespace. Neither emitter can produce it: the bridge (TYPE_MAP) and the designer (TYPE_TAG) both rename linkEventThrow to intermediateThrowEvent on export, so these bytes cannot have come from our toolchain. The file is byte-pinned in tests/test_corpus_fixture_pins.py FULL_SHA and cross-validated by AEF plus tools/_offpage-seam-parity-verify.py, so it must NOT be edited unilaterally -- repair is a coordinated re-pin in lockstep with the peer, exactly as T-314 handled the lane-geometry defect in the fixtures they hold. Until then a COUNTED tolerance in test_corpus_fixture_pins.py admits exactly 3 findings, prints a NOTE every run, and fails the build on a 4th. Before the fix was possible this defect was invisible except as an I-XML-LANE-CAPACITY-SKIP note from an unrelated rule that refuses to guess occupancy.
+  T-321's vocabulary gate found 3 <bpmn:linkEventThrow> elements in tests/fixtures/aef-bpmn/offpage-seam.bpmn.
+  That is not a BPMN element -- it is the canonical YAML type name sitting in the
+  BPMN namespace. Neither emitter can produce it: the bridge (TYPE_MAP) and the designer
+  (TYPE_TAG) both rename linkEventThrow to intermediateThrowEvent on export, so these
+  bytes cannot have come from our toolchain. The file is byte-pinned in tests/test_corpus_fixture_pins.py
+  FULL_SHA and cross-validated by AEF plus tools/_offpage-seam-parity-verify.py, so
+  it must NOT be edited unilaterally -- repair is a coordinated re-pin in lockstep
+  with the peer, exactly as T-314 handled the lane-geometry defect in the fixtures
+  they hold. Until then a COUNTED tolerance in test_corpus_fixture_pins.py admits
+  exactly 3 findings, prints a NOTE every run, and fails the build on a 4th. Before
+  the fix was possible this defect was invisible except as an I-XML-LANE-CAPACITY-SKIP
+  note from an unrelated rule that refuses to guess occupancy.
 
 status: work-completed
 workflow_type: build
 owner: claude-code
-horizon: null
+horizon:
 tags: []
-components: [tests/fixtures/invalid/E-XML-NODE-TYPE.xml, tests/test_rule_form_parity.py, tests/test_xml_node_type_vocab.py, tools/_offpage-seam-parity-verify.py]
+components: [tests/fixtures/invalid/E-XML-NODE-TYPE.xml, 
+      tests/test_rule_form_parity.py, tests/test_xml_node_type_vocab.py, 
+      tools/_offpage-seam-parity-verify.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-01T13:50:30Z
-last_update: 2026-08-01T21:28:09Z
+last_update: '2026-08-16T12:33:50Z'
 date_finished: 2026-08-01T21:28:09Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +42,24 @@ date_finished: 2026-08-01T21:28:09Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:50Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-324: offpage-seam.bpmn carries <bpmn:linkEventThrow>, an element no emitter can produce: coordinated re-pin with AEF

@@ -1,13 +1,23 @@
 ---
 id: T-404
-name: "check-active-task blocks read-only commands: drifted redirect predicate and regex over unparsed shell"
+name: "check-active-task blocks read-only commands: drifted redirect predicate and
+  regex over unparsed shell"
 description: >
-  has_bash_write_pattern runs before the safe-command allowlist and mis-classifies read-only commands as writes. Two defects: (1) the echo/printf branch at safe-commands.sh:221 uses a redirect regex lacking the stderr and fd-dup exclusions its sibling at line 252 has - copy drift, so stderr-suppression reads as a file write; (2) has_bash_write_pattern regexes the raw command string, so redirect operators inside a QUOTED argument count as real redirects. Consequence: compaction nulls focus, and the /resume skill documented Step 5 command uses stderr-suppression, so the framework post-compaction recovery command is blocked by the framework own gate. Fifth instance of the self-deadlock class this file already names (T-2052, T-2054, T-390) - including this task creation, blocked because its description quoted the operators.
+  has_bash_write_pattern runs before the safe-command allowlist and mis-classifies
+  read-only commands as writes. Two defects: (1) the echo/printf branch at safe-commands.sh:221
+  uses a redirect regex lacking the stderr and fd-dup exclusions its sibling at line
+  252 has - copy drift, so stderr-suppression reads as a file write; (2) has_bash_write_pattern
+  regexes the raw command string, so redirect operators inside a QUOTED argument count
+  as real redirects. Consequence: compaction nulls focus, and the /resume skill documented
+  Step 5 command uses stderr-suppression, so the framework post-compaction recovery
+  command is blocked by the framework own gate. Fifth instance of the self-deadlock
+  class this file already names (T-2052, T-2054, T-390) - including this task creation,
+  blocked because its description quoted the operators.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +26,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-09T08:19:08Z
-last_update: 2026-08-09T08:30:26Z
+last_update: '2026-08-16T12:33:56Z'
 date_finished: 2026-08-09T08:30:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +38,24 @@ date_finished: 2026-08-09T08:30:26Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:56Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-404: check-active-task blocks read-only commands: drifted redirect predicate and regex over unparsed shell

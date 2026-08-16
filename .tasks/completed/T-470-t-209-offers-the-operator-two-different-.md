@@ -2,12 +2,18 @@
 id: T-470
 name: "T-209 offers the operator two different recommendations"
 description: >
-  T-209's operator-facing brief contradicts itself: the ## Recommendation section (read by the review queue via _norec-verify.py's ^## Recommendation anchor) says GO on option A; the ### Human AC the operator must actually tick says 'Recommendation: C'. A and C differ substantively — C is A plus filing the typed-event byte-exact cross-validation gap. Measure whether C's extra step is still open before the operator rules, and make the two sections name the same option. Does NOT make the ruling: the decline-vs-build choice stays the operator's.
+  T-209's operator-facing brief contradicts itself: the ## Recommendation section
+  (read by the review queue via _norec-verify.py's ^## Recommendation anchor) says
+  GO on option A; the ### Human AC the operator must actually tick says 'Recommendation:
+  C'. A and C differ substantively — C is A plus filing the typed-event byte-exact
+  cross-validation gap. Measure whether C's extra step is still open before the operator
+  rules, and make the two sections name the same option. Does NOT make the ruling:
+  the decline-vs-build choice stays the operator's.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T20:19:19Z
-last_update: 2026-08-12T20:23:25Z
+last_update: '2026-08-16T12:34:01Z'
 date_finished: 2026-08-12T20:23:25Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +34,24 @@ date_finished: 2026-08-12T20:23:25Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:01Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=2 
+      (body:telemetry-or-audit-entry); D3=2 (body:default-change); D4=2 
+      (body:env-class-handled); F-RECALL=0 (no-signal); F-AUTONOMY=0 
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-470: T-209 offers the operator two different recommendations

@@ -1,13 +1,27 @@
 ---
 id: T-456
-name: "P-011 strips HTML comments from the Verification COMMAND text, mangling any command containing the markers"
+name: "P-011 strips HTML comments from the Verification COMMAND text, mangling any
+  command containing the markers"
 description: >
-  update-task.sh:981 runs re.sub(r'<!--.*?-->', '', text, flags=DOTALL) over the Verification block before executing each line. That is correct for stripping commented guidance, but it also rewrites EXECUTABLE commands: any verification line containing both markers has everything between them deleted. Discovered live 2026-08-12 while completing T-453, whose leg 2 was a comment-stripping assertion. The gate echoed what it actually ran: sed -E 's///g' file | sed '//d' | grep -c - the regex body removed. The leg passes standalone and FAILS under P-011, so the failure is invisible to anyone testing their verification commands before filing them, which is the recommended practice. Worse than a false red: a line of the form cmd-A ; cmd-B judged on B alone (T-352) could be mangled into something that still exits 0, producing a false GREEN over a check that no longer checks anything. Workaround in T-453 builds the markers from chr(60)+chr(33) so the extractor has nothing to match. Vendored AEF tooling, fix is theirs under G-008. Note the irony this was found by: a task about a gate that fails to strip HTML comments, blocked by a gate that strips them too aggressively.
+  update-task.sh:981 runs re.sub(r'<!--.*?-->', '', text, flags=DOTALL) over the Verification
+  block before executing each line. That is correct for stripping commented guidance,
+  but it also rewrites EXECUTABLE commands: any verification line containing both
+  markers has everything between them deleted. Discovered live 2026-08-12 while completing
+  T-453, whose leg 2 was a comment-stripping assertion. The gate echoed what it actually
+  ran: sed -E 's///g' file | sed '//d' | grep -c - the regex body removed. The leg
+  passes standalone and FAILS under P-011, so the failure is invisible to anyone testing
+  their verification commands before filing them, which is the recommended practice.
+  Worse than a false red: a line of the form cmd-A ; cmd-B judged on B alone (T-352)
+  could be mangled into something that still exits 0, producing a false GREEN over
+  a check that no longer checks anything. Workaround in T-453 builds the markers from
+  chr(60)+chr(33) so the extractor has nothing to match. Vendored AEF tooling, fix
+  is theirs under G-008. Note the irony this was found by: a task about a gate that
+  fails to strip HTML comments, blocked by a gate that strips them too aggressively.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +30,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T12:26:03Z
-last_update: 2026-08-12T12:36:20Z
+last_update: '2026-08-16T12:33:59Z'
 date_finished: 2026-08-12T12:36:20Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +42,24 @@ date_finished: 2026-08-12T12:36:20Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:59Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-456: P-011 strips HTML comments from the Verification COMMAND text, mangling any command containing the markers

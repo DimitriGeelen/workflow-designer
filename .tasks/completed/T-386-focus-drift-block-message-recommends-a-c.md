@@ -1,13 +1,18 @@
 ---
 id: T-386
-name: "Focus-drift block message recommends a command the gate now refuses (T-381 follow-on)"
+name: "Focus-drift block message recommends a command the gate now refuses (T-381
+  follow-on)"
 description: >
-  T-381 made fw context focus refuse completed task ids. The focus-drift block message at check-active-task.sh:364 still prints 'fw context focus $TARGET_TASK' as remedy 1, and the drift target is a completed task in the common case (a follow-up commit naming a closed task). The gate therefore recommends, first, a command it will itself reject. Flagged by AEF at rail 465 as a sharp edge from shipping our fix.
+  T-381 made fw context focus refuse completed task ids. The focus-drift block message
+  at check-active-task.sh:364 still prints 'fw context focus $TARGET_TASK' as remedy
+  1, and the drift target is a completed task in the common case (a follow-up commit
+  naming a closed task). The gate therefore recommends, first, a command it will itself
+  reject. Flagged by AEF at rail 465 as a sharp edge from shipping our fix.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +21,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T17:10:35Z
-last_update: 2026-08-08T17:22:45Z
+last_update: '2026-08-16T12:33:54Z'
 date_finished: 2026-08-08T17:22:45Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +33,24 @@ date_finished: 2026-08-08T17:22:45Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:54Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 3
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=3 
+      (body:fw-recall-or-memory-link); F-AUTONOMY=0 (no-signal); F3=0 
+      (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-386: Focus-drift block message recommends a command the gate now refuses (T-381 follow-on)

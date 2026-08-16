@@ -2,29 +2,37 @@
 id: T-466
 name: "The arc view cannot see what blocks the arc"
 description: >
-  Opened to write a decision brief for the five rulings gating arc-001; found that four of
+  Opened to write a decision brief for the five rulings gating arc-001; found that
+  four of
   the five are already briefed, well, in docs/reports/T-397-import-repair-semantics-brief.md
   (dependency map, consistency constraints, per-ruling options, copy-pasteable recording
   commands, provenance table) — last updated 2026-08-10. A second brief would be duplicated
   work, so this task is re-scoped to the two things that are actually missing.
   FIRST: the blockage is invisible from the arc. `fw arc show designer-authoring-surface`
-  lists T-423 as `[captured/now]` — indistinguishable from ready — when T-423's own first
+  lists T-423 as `[captured/now]` — indistinguishable from ready — when T-423's own
+  first
   Agent AC reads "this task does not start until T-340 is ruled and step 1 has landed".
   T-340 is step 1 of the same three-step T-357 decomposition whose steps 2 and 3 (T-423,
-  T-424) ARE arc-tagged; step 1 is not, so the one task the arc is waiting on is the one
+  T-424) ARE arc-tagged; step 1 is not, so the one task the arc is waiting on is the
+  one
   task the arc view does not show. Same shape as PL-145 one level up: a blocking relation
   recorded only in AC prose is invisible to every instrument that looks at the arc.
-  SECOND, and this overtook the first: re-deriving the blocking set instead of restating it
-  showed the set is WRONG. The arc is blocked on T-340 ALONE. T-341, T-347, T-358 and T-209
-  appear nowhere in either arc task — not as blockers, not in related_tasks, not in prose. The
-  "five" came from handover `tasks_touched`, a co-occurrence list of what one window opened,
-  restated in the next window's summary as a causal claim and inherited unchecked for three.
+  SECOND, and this overtook the first: re-deriving the blocking set instead of restating
+  it
+  showed the set is WRONG. The arc is blocked on T-340 ALONE. T-341, T-347, T-358
+  and T-209
+  appear nowhere in either arc task — not as blockers, not in related_tasks, not in
+  prose. The
+  "five" came from handover `tasks_touched`, a co-occurrence list of what one window
+  opened,
+  restated in the next window's summary as a causal claim and inherited unchecked
+  for three.
   Deliverable is the correction with its evidence plus the arc_id fix; NOT a re-brief.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -33,7 +41,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T19:37:23Z
-last_update: 2026-08-12T19:46:33Z
+last_update: '2026-08-16T12:34:00Z'
 date_finished: 2026-08-12T19:46:33Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -45,6 +53,24 @@ date_finished: 2026-08-12T19:46:33Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:00Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-466: The arc view cannot see what blocks the arc

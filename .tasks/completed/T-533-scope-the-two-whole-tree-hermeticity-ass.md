@@ -1,13 +1,19 @@
 ---
 id: T-533
-name: "scope the two whole-tree hermeticity assertions to their subjects write-sets and wire the T-532 census"
+name: "scope the two whole-tree hermeticity assertions to their subjects write-sets
+  and wire the T-532 census"
 description: >
-  T-532 measured the population at 2: _t524-fabric-validate-teeth.py leg 10 and _t525-fabric-coverage-teeth.py leg 7 both compare whole-tree git status --porcelain across their own run, so any other writer in the repo reddens them and they pass standalone. Demonstrated under T-527. One copy-family, source _t524, propagated in 28 minutes. Fix is to scope each snapshot to the paths its own subject writes, then wire tools/_t532-hermeticity-scope-census.py as a standing leg so the ratchet returns from 68 to 67.
+  T-532 measured the population at 2: _t524-fabric-validate-teeth.py leg 10 and _t525-fabric-coverage-teeth.py
+  leg 7 both compare whole-tree git status --porcelain across their own run, so any
+  other writer in the repo reddens them and they pass standalone. Demonstrated under
+  T-527. One copy-family, source _t524, propagated in 28 minutes. Fix is to scope
+  each snapshot to the paths its own subject writes, then wire tools/_t532-hermeticity-scope-census.py
+  as a standing leg so the ratchet returns from 68 to 67.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T22:07:21Z
-last_update: 2026-08-15T22:21:44Z
+last_update: '2026-08-16T12:34:06Z'
 date_finished: 2026-08-15T22:21:44Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +34,24 @@ date_finished: 2026-08-15T22:21:44Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:06Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 1
+    rationale: D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=2
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=1 (body/components:component-fabric-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-533: scope the two whole-tree hermeticity assertions to their subjects write-sets and wire the T-532 census

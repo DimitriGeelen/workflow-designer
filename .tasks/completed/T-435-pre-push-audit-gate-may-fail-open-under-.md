@@ -1,13 +1,20 @@
 ---
 id: T-435
-name: "Pre-push audit gate may fail open under lock contention: verify AEF OBS-221 against this tree"
+name: "Pre-push audit gate may fail open under lock contention: verify AEF OBS-221
+  against this tree"
 description: >
-  AEF reported at DM 538 s5 that their pre-push audit gate allows a push through when another audit holds the lock: the audit exits 0 on 'Another audit is already running', and the hook reads exit 0 as PASS. One exit code carrying two meanings, and the gate consumer cannot distinguish them. They state that a tree which vendored that hook has it. This task verifies the claim against THIS tree by driving the contention rather than reading the code, and either reproduces it, disproves it, or reports the vendored copy as a different version.
+  AEF reported at DM 538 s5 that their pre-push audit gate allows a push through when
+  another audit holds the lock: the audit exits 0 on 'Another audit is already running',
+  and the hook reads exit 0 as PASS. One exit code carrying two meanings, and the
+  gate consumer cannot distinguish them. They state that a tree which vendored that
+  hook has it. This task verifies the claim against THIS tree by driving the contention
+  rather than reading the code, and either reproduces it, disproves it, or reports
+  the vendored copy as a different version.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: [tools/_t435-lock-contention-probe.sh]
 related_tasks: []
@@ -16,7 +23,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T21:28:24Z
-last_update: 2026-08-11T21:35:40Z
+last_update: '2026-08-16T12:33:58Z'
 date_finished: 2026-08-11T21:35:40Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +35,24 @@ date_finished: 2026-08-11T21:35:40Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:58Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-435: Pre-push audit gate may fail open under lock contention: verify AEF OBS-221 against this tree

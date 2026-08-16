@@ -2,12 +2,22 @@
 id: T-117
 name: "De-jog routed edges: collapse tiny interior staircase steps to clean 90 corners"
 description: >
-  Operator improvement B (connect on 90, fuller slice). After align-in-middle (T-116), branch edges still render as a staircase with a small (6-8px) perpendicular kink where the connector between two stub-ends steps between parallel runs (e.g. promotion e_11: down, right, down7, right, down instead of a clean Z). Add a render-time de-jog post-pass on the transient _renderedPolyline: drop collinear points, then collapse an interior H-V-H / V-H-V pattern (short perpendicular step flanked by perpendicular outer segments so the outer stubs just flex) to a single straight run at the midpoint coordinate. Accept a collapse ONLY if it does not increase node crossings (polylineCrossesNodes) — a jog that clears an obstacle is left alone. Pure render cleanup, stored geometry untouched (PD-044). Endpoint-adjacent micro-steps (77% of jogs, stub meets face off-centre) are a deeper attachment-point change, deferred as a separate follow-up.
+  Operator improvement B (connect on 90, fuller slice). After align-in-middle (T-116),
+  branch edges still render as a staircase with a small (6-8px) perpendicular kink
+  where the connector between two stub-ends steps between parallel runs (e.g. promotion
+  e_11: down, right, down7, right, down instead of a clean Z). Add a render-time de-jog
+  post-pass on the transient _renderedPolyline: drop collinear points, then collapse
+  an interior H-V-H / V-H-V pattern (short perpendicular step flanked by perpendicular
+  outer segments so the outer stubs just flex) to a single straight run at the midpoint
+  coordinate. Accept a collapse ONLY if it does not increase node crossings (polylineCrossesNodes)
+  — a jog that clears an obstacle is left alone. Pure render cleanup, stored geometry
+  untouched (PD-044). Endpoint-adjacent micro-steps (77% of jogs, stub meets face
+  off-centre) are a deeper attachment-point change, deferred as a separate follow-up.
 
 status: work-completed
 workflow_type: build
 owner: human
-horizon: null
+horizon:
 tags: [ui, editor, routing, layout]
 components: []
 related_tasks: [T-116, T-114, T-105]
@@ -16,7 +26,7 @@ related_tasks: [T-116, T-114, T-105]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T22:14:10Z
-last_update: 2026-07-29T15:39:21Z
+last_update: '2026-08-16T12:33:37Z'
 date_finished: 2026-07-06T19:02:56Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +38,24 @@ date_finished: 2026-07-06T19:02:56Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:37Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-117: De-jog routed edges: collapse tiny interior staircase steps to clean 90 corners

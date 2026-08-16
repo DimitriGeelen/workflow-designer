@@ -2,12 +2,20 @@
 id: T-084
 name: "Lane-header ellipsis: truncate vertical lane names to lane height"
 description: >
-  Vertical lane-header text longer than the lane height overlaps neighbouring lane headers (context-memory: 'COMPLETED HISTORIES · EPISODIC MEMORY' in a 160px lane). RESHAPED 2026-07-04 per operator request (forwarded scoping message + screenshot): full label-fit ladder instead of bare ellipsis — (1) wrap on word/'·' boundaries up to 2 parallel vertical lines within the ~28px header strip; (2) if still too long, shrink font toward an 8px floor; (3) finally ellipsize with full name via <title> tooltip. On by default, config toggle to disable (extend T-075 settings page, localStorage first slice). Auto-grow-lane rejected: a render concern must not mutate document geometry. From context-memory evaluation 2026-07-04.
+  Vertical lane-header text longer than the lane height overlaps neighbouring lane
+  headers (context-memory: 'COMPLETED HISTORIES · EPISODIC MEMORY' in a 160px lane).
+  RESHAPED 2026-07-04 per operator request (forwarded scoping message + screenshot):
+  full label-fit ladder instead of bare ellipsis — (1) wrap on word/'·' boundaries
+  up to 2 parallel vertical lines within the ~28px header strip; (2) if still too
+  long, shrink font toward an 8px floor; (3) finally ellipsize with full name via
+  <title> tooltip. On by default, config toggle to disable (extend T-075 settings
+  page, localStorage first slice). Auto-grow-lane rejected: a render concern must
+  not mutate document geometry. From context-memory evaluation 2026-07-04.
 
 status: work-completed
 workflow_type: build
 owner: human
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +24,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T13:52:07Z
-last_update: 2026-07-29T15:39:10Z
+last_update: '2026-08-16T12:33:35Z'
 date_finished: 2026-07-04T15:29:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +36,24 @@ date_finished: 2026-07-04T15:29:26Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:35Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 3
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 1
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=3 (body:portability-abstraction); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=1 
+      (body/components:context-fabric-incidental); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-084: Lane-header ellipsis: truncate vertical lane names to lane height

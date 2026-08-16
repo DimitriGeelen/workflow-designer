@@ -1,8 +1,14 @@
 ---
 id: T-289
-name: "Mapping-v1 alignment note: framework-node typing vocab (our scriptTask vs AEF serviceTask)"
+name: "Mapping-v1 alignment note: framework-node typing vocab (our scriptTask vs AEF
+  serviceTask)"
 description: >
-  Rail 297 item 5 / our 298 reply (T-288 round): the two sides type framework-lane automation nodes differently — our tier0-escalation uses scriptTask (hook/CLI scripts), AEF's draft uses serviceTask. Both validate; mapping-v1 does not constrain the choice. Standard-alignment question for a future v1.x delta: prescribe one, or document both as acceptable with semantics (script = framework-owned shell hook, service = long-running service endpoint). No urgency — agreed 'no action now' on the rail.
+  Rail 297 item 5 / our 298 reply (T-288 round): the two sides type framework-lane
+  automation nodes differently — our tier0-escalation uses scriptTask (hook/CLI scripts),
+  AEF's draft uses serviceTask. Both validate; mapping-v1 does not constrain the choice.
+  Standard-alignment question for a future v1.x delta: prescribe one, or document
+  both as acceptable with semantics (script = framework-owned shell hook, service
+  = long-running service endpoint). No urgency — agreed 'no action now' on the rail.
 
 status: captured
 workflow_type: specification
@@ -16,8 +22,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-28T18:12:30Z
-last_update: 2026-07-28T18:12:37Z
-date_finished: null
+last_update: '2026-08-16T12:33:26Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +34,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:26Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-289: Mapping-v1 alignment note: framework-node typing vocab (our scriptTask vs AEF serviceTask)

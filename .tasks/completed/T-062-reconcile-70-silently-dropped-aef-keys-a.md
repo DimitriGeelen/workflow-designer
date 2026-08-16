@@ -1,13 +1,23 @@
 ---
 id: T-062
-name: "Reconcile ~70 silently-dropped aef keys across 14 corpus maps (surfaced by T-061 warn)"
+name: "Reconcile ~70 silently-dropped aef keys across 14 corpus maps (surfaced by
+  T-061 warn)"
 description: >
-  T-061 added a loud WARN for unknown aef.* keys; it surfaced that 14 existing corpus maps carry ~70 aef.* keys that have been silently dropped since authoring (state, note, guard, reads, writes, terminalKind, trigger, gate, exitCode, gatewayKind, autoTrigger, gates, umbrellaBypass, rule, sources, sideEffects, handoffTo, collection, softFail, external, section, ladder, etc). Prior sessions authored these believing aef: was free-form passthrough. Per-key decision: PROMOTE common/meaningful ones to known vocab (bridge META_KEYS + editor metaKeys, kept in parity by test_editor_bridge_meta_parity.py) vs RENAME one-off ones to aef.x-* explicit passthrough. Then corpus runs warn-clean. Bounded per-map mechanical work; NOT a bug fix (data was never in BPMN) — a reconciliation. Depends on T-061.
+  T-061 added a loud WARN for unknown aef.* keys; it surfaced that 14 existing corpus
+  maps carry ~70 aef.* keys that have been silently dropped since authoring (state,
+  note, guard, reads, writes, terminalKind, trigger, gate, exitCode, gatewayKind,
+  autoTrigger, gates, umbrellaBypass, rule, sources, sideEffects, handoffTo, collection,
+  softFail, external, section, ladder, etc). Prior sessions authored these believing
+  aef: was free-form passthrough. Per-key decision: PROMOTE common/meaningful ones
+  to known vocab (bridge META_KEYS + editor metaKeys, kept in parity by test_editor_bridge_meta_parity.py)
+  vs RENAME one-off ones to aef.x-* explicit passthrough. Then corpus runs warn-clean.
+  Bounded per-map mechanical work; NOT a bug fix (data was never in BPMN) — a reconciliation.
+  Depends on T-061.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +26,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T23:46:01Z
-last_update: 2026-07-04T00:15:28Z
+last_update: '2026-08-16T12:33:34Z'
 date_finished: 2026-07-04T00:15:28Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +38,24 @@ date_finished: 2026-07-04T00:15:28Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:34Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-062: Reconcile ~70 silently-dropped aef keys across 14 corpus maps (surfaced by T-061 warn)

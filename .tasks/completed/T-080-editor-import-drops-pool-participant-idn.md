@@ -1,13 +1,19 @@
 ---
 id: T-080
-name: "Editor import drops pool participant id/name — round-trip rewrites Pool_* to Process_*"
+name: "Editor import drops pool participant id/name — round-trip rewrites Pool_* to
+  Process_*"
 description: >
-  Found during T-079 round-trip verification: parseBpmnXml does not read the bpmn:participant id/name; buildBpmnXml then re-emits them derived from workflowMeta (Pool_task_lifecycle/task-lifecycle becomes Process_task-lifecycle/Process_task-lifecycle). Single-line XML drift on every import→export cycle of the editor's own output; pre-existing (confirmed on fresh untidied doc), unrelated to tidy-lane. Same seam class as G-002 — editor-internal parse/build asymmetry caught only by a manual round-trip check.
+  Found during T-079 round-trip verification: parseBpmnXml does not read the bpmn:participant
+  id/name; buildBpmnXml then re-emits them derived from workflowMeta (Pool_task_lifecycle/task-lifecycle
+  becomes Process_task-lifecycle/Process_task-lifecycle). Single-line XML drift on
+  every import→export cycle of the editor's own output; pre-existing (confirmed on
+  fresh untidied doc), unrelated to tidy-lane. Same seam class as G-002 — editor-internal
+  parse/build asymmetry caught only by a manual round-trip check.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T12:54:40Z
-last_update: 2026-07-04T12:59:38Z
+last_update: '2026-08-16T12:33:35Z'
 date_finished: 2026-07-04T12:59:38Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +34,24 @@ date_finished: 2026-07-04T12:59:38Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:35Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-080: Editor import drops pool participant id/name — round-trip rewrites Pool_* to Process_*

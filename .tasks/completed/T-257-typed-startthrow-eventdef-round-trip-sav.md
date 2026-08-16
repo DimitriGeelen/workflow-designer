@@ -1,18 +1,31 @@
 ---
 id: T-257
-name: "Typed start/throw eventDef round-trip: save drops aef:eventDef from startEvent and intermediateThrowEvent carriers"
+name: "Typed start/throw eventDef round-trip: save drops aef:eventDef from startEvent
+  and intermediateThrowEvent carriers"
 description: >
-  AEF field defect (rail 201, their T-2620 report, 2026-07-26): operator opened their draft-trigger-handling v1 (start kind=timer, throw kind=message) in the 0.4.0 editor, made a LAYOUT-ONLY edit, saved -> v2 lost both start/throw eventDefs while the catch kept its. Root lineage: this is the recorded T-237 decision (eventDef override = catch-hosts-only; throw+eventDef payload deliberately dropped as invalid hybrid; typed-THROW named a FUTURE CONTRACT ROUND and offered to AEF at rail 156) now colliding with real corpus usage - the contract round has arrived with field evidence. Impact: save silently strips typed-event semantics -> manufactures emitterless typed catches (the T-2551 lint class both sides pinned). Scope to explore: aef:eventDef preservation/rendering on startEvent + intermediateThrowEvent hosts (round-trip first, palette/UI second); AEF offered the v1/v2 byte-pair as a fixture - accept it. Everything else in their round-trip was clean (19 uids, 20 flows, name->workflowRef auto-resolve held under real operator editing).
+  AEF field defect (rail 201, their T-2620 report, 2026-07-26): operator opened their
+  draft-trigger-handling v1 (start kind=timer, throw kind=message) in the 0.4.0 editor,
+  made a LAYOUT-ONLY edit, saved -> v2 lost both start/throw eventDefs while the catch
+  kept its. Root lineage: this is the recorded T-237 decision (eventDef override =
+  catch-hosts-only; throw+eventDef payload deliberately dropped as invalid hybrid;
+  typed-THROW named a FUTURE CONTRACT ROUND and offered to AEF at rail 156) now colliding
+  with real corpus usage - the contract round has arrived with field evidence. Impact:
+  save silently strips typed-event semantics -> manufactures emitterless typed catches
+  (the T-2551 lint class both sides pinned). Scope to explore: aef:eventDef preservation/rendering
+  on startEvent + intermediateThrowEvent hosts (round-trip first, palette/UI second);
+  AEF offered the v1/v2 byte-pair as a fixture - accept it. Everything else in their
+  round-trip was clean (19 uids, 20 flows, name->workflowRef auto-resolve held under
+  real operator editing).
 
 status: work-completed
 workflow_type: inception
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-26T20:24:56Z
-last_update: 2026-07-27T18:25:49Z
+last_update: '2026-08-16T12:33:46Z'
 date_finished: 2026-07-27T18:25:49Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -22,6 +35,23 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:46Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 2
+      F3: 2
+      F1: 2
+      F2: 2
+    rationale: D1=2 (no-signal); D2=2 (no-signal); D3=2 (no-signal); D4=2 
+      (no-signal); F-RECALL=2 (no-signal); F-AUTONOMY=2 (no-signal); F3=2 
+      (no-signal); F1=2 (no-signal); F2=2 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-257: Typed start/throw eventDef round-trip: save drops aef:eventDef from startEvent and intermediateThrowEvent carriers

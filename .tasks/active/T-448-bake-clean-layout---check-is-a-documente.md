@@ -1,8 +1,24 @@
 ---
 id: T-448
-name: "bake-clean-layout --check is a documented corpus gate that nothing invokes and that has been red on all 24 maps"
+name: "bake-clean-layout --check is a documented corpus gate that nothing invokes
+  and that has been red on all 24 maps"
 description: >
-  Found while repairing T-447 (zero-population blindness in the same tool). Two facts that conceal each other: (1) tools/README documents 'python3 tools/bake-clean-layout.py --check' as the assertion that the rendered corpus is a Clean fixpoint, but NOTHING invokes it - not T-101's Verification block (which runs check-corpus-geometry.sh, run-bridge-tests.sh, run-validator-tests.sh, test_editor_bridge_structured_parity.py, _corpus-adopt-verify.py), not any test, hook or cron line. (2) It returns rc=1 with '0/24 maps are a Clean fixpoint' on the real corpus, proven pre-existing by running 'git show HEAD:tools/bake-clean-layout.py' before any T-447 edit. Nobody saw it go red because nothing runs it; wiring it now would block on all 24 maps. The failure is NOT geometry - 22 of 24 maps report moved=0 and messinessBefore=0, and every one reports byte_stable=False, so the editor's current buildBpmnXml() serialization has drifted from the committed bytes since the T-300 bake. First step is to characterise that byte delta on one map (diff the driver's xml against the committed file), decide whether the corpus should be re-baked or the check's byte-equality contract is wrong, and only then decide whether --check gets wired to a gate. Do not re-bake 24 maps before knowing what the delta is.
+  Found while repairing T-447 (zero-population blindness in the same tool). Two facts
+  that conceal each other: (1) tools/README documents 'python3 tools/bake-clean-layout.py
+  --check' as the assertion that the rendered corpus is a Clean fixpoint, but NOTHING
+  invokes it - not T-101's Verification block (which runs check-corpus-geometry.sh,
+  run-bridge-tests.sh, run-validator-tests.sh, test_editor_bridge_structured_parity.py,
+  _corpus-adopt-verify.py), not any test, hook or cron line. (2) It returns rc=1 with
+  '0/24 maps are a Clean fixpoint' on the real corpus, proven pre-existing by running
+  'git show HEAD:tools/bake-clean-layout.py' before any T-447 edit. Nobody saw it
+  go red because nothing runs it; wiring it now would block on all 24 maps. The failure
+  is NOT geometry - 22 of 24 maps report moved=0 and messinessBefore=0, and every
+  one reports byte_stable=False, so the editor's current buildBpmnXml() serialization
+  has drifted from the committed bytes since the T-300 bake. First step is to characterise
+  that byte delta on one map (diff the driver's xml against the committed file), decide
+  whether the corpus should be re-baked or the check's byte-equality contract is wrong,
+  and only then decide whether --check gets wired to a gate. Do not re-bake 24 maps
+  before knowing what the delta is.
 
 status: started-work
 workflow_type: test
@@ -16,8 +32,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T09:30:37Z
-last_update: 2026-08-13T11:59:06Z
-date_finished: null
+last_update: '2026-08-16T12:33:29Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +44,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:29Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=1 (body/components:component-fabric-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-448: bake-clean-layout --check is a documented corpus gate that nothing invokes and that has been red on all 24 maps

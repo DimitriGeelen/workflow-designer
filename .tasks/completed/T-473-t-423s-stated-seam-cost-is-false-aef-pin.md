@@ -2,12 +2,21 @@
 id: T-473
 name: "T-423's stated seam cost is false: AEF pins nothing our exporter produces"
 description: >
-  AEF measured their side at rail 584 Q1: source_bpmn_sha is a provenance field their bpmn_promote.py writes into their OWN corpus meta (sha of the staged BPMN being promoted, their file) per our IW-2 contract. It does not pin our bytes. They hold no copy of examples/aef-processes/rendered at all. So T-423's stated cost - all 24 corpus maps change bytes so AEF's pinned source_bpmn_sha fixtures need a COORDINATED re-pin - names a mechanism that does not exist, and T-423 says the re-pin is the whole cost. Correct the cost model in T-423 (description, body, and the AC that requires coordination), check whether T-340's pending ruling rests on the false premise, and record AEF's actual six pins and their announcement shape. Does not start T-423 or rule on T-340.
+  AEF measured their side at rail 584 Q1: source_bpmn_sha is a provenance field their
+  bpmn_promote.py writes into their OWN corpus meta (sha of the staged BPMN being
+  promoted, their file) per our IW-2 contract. It does not pin our bytes. They hold
+  no copy of examples/aef-processes/rendered at all. So T-423's stated cost - all
+  24 corpus maps change bytes so AEF's pinned source_bpmn_sha fixtures need a COORDINATED
+  re-pin - names a mechanism that does not exist, and T-423 says the re-pin is the
+  whole cost. Correct the cost model in T-423 (description, body, and the AC that
+  requires coordination), check whether T-340's pending ruling rests on the false
+  premise, and record AEF's actual six pins and their announcement shape. Does not
+  start T-423 or rule on T-340.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T20:41:16Z
-last_update: 2026-08-12T20:46:05Z
+last_update: '2026-08-16T12:34:01Z'
 date_finished: 2026-08-12T20:46:05Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +37,24 @@ date_finished: 2026-08-12T20:46:05Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:01Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 1
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=1 
+      (body/components:prompt-incidental); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-473: T-423's stated seam cost is false: AEF pins nothing our exporter produces

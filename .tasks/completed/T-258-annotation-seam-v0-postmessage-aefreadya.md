@@ -1,13 +1,24 @@
 ---
 id: T-258
-name: "Annotation seam v0: postMessage aef:ready/aef:annotate read-only badge layer + MANIFEST capabilities flag (T-250 GO)"
+name: "Annotation seam v0: postMessage aef:ready/aef:annotate read-only badge layer
+  + MANIFEST capabilities flag (T-250 GO)"
 description: >
-  Build the T-250 GO-ratified annotation seam, shape A (operator decision 2026-07-27): (1) designer emits postMessage {type:'aef:ready', uid list} to parent after EVERY render including initial load (renderAll rebuilds SVG so annotations wipe per render — re-handshake is the contract); (2) accept {type:'aef:annotate', annotations keyed by node uid} and render a read-only badge layer on g[data-id=uid] — never serialized into BPMN, dropped on document switch, unknown uids ignored silently; (3) add MANIFEST capabilities flag (annotation_seam) — T-246 second-consumer promotion trigger, AEF conditional-emit guard self-configures at re-pin; (4) suite leg + origin-policy decision (IW-3 deferred from T-250). Consumer contract fixed both sides: AEF feed = single Watchtower aggregation endpoint emitting aef:annotate verbatim (rail 210); their overlay v0 build is unblocked by this ratification (announced at rail 216).
+  Build the T-250 GO-ratified annotation seam, shape A (operator decision 2026-07-27):
+  (1) designer emits postMessage {type:'aef:ready', uid list} to parent after EVERY
+  render including initial load (renderAll rebuilds SVG so annotations wipe per render
+  — re-handshake is the contract); (2) accept {type:'aef:annotate', annotations keyed
+  by node uid} and render a read-only badge layer on g[data-id=uid] — never serialized
+  into BPMN, dropped on document switch, unknown uids ignored silently; (3) add MANIFEST
+  capabilities flag (annotation_seam) — T-246 second-consumer promotion trigger, AEF
+  conditional-emit guard self-configures at re-pin; (4) suite leg + origin-policy
+  decision (IW-3 deferred from T-250). Consumer contract fixed both sides: AEF feed
+  = single Watchtower aggregation endpoint emitting aef:annotate verbatim (rail 210);
+  their overlay v0 build is unblocked by this ratification (announced at rail 216).
 
 status: work-completed
 workflow_type: build
 owner: human
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +27,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T17:54:59Z
-last_update: 2026-07-29T15:39:39Z
+last_update: '2026-08-16T12:33:46Z'
 date_finished: 2026-07-27T19:10:53Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +39,24 @@ date_finished: 2026-07-27T19:10:53Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:46Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 3
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 1
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=3 (body:portability-abstraction); F-RECALL=0 (no-signal); F-AUTONOMY=0 
+      (no-signal); F3=0 (no-signal); F1=1 
+      (body/components:context-fabric-incidental); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-258: Annotation seam v0: postMessage aef:ready/aef:annotate read-only badge layer + MANIFEST capabilities flag (T-250 GO)

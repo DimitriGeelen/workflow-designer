@@ -1,13 +1,22 @@
 ---
 id: T-260
-name: "Cut designer release 0.7.0 (T-259 eventDef preservation + T-258 annotation seam + capabilities MANIFEST) and deliver to AEF"
+name: "Cut designer release 0.7.0 (T-259 eventDef preservation + T-258 annotation
+  seam + capabilities MANIFEST) and deliver to AEF"
 description: >
-  Operator-authorized cut (2026-07-27 'do 1 and 2'). Content since 0.6.0: T-259 eventDef preservation passthrough (cures AEF field defect T-2620/rail 201 — start/throw aef:eventDef survive open-save) + T-258 annotation seam v0 (postMessage aef:ready/aef:annotate read-only badge layer, T-250 GO shape A) + MANIFEST structured capabilities block (annotation_seam: 1, first capability — T-246 promotion trigger). Steps: bump VERSION 0.6.0->0.7.0, scripts/release-designer.sh (immutability guard + render gate + deterministic manifest), verify sha/bytes, tag designer-v0.7.0, push with tag, announce on rail with markers, ack. AEF re-pin at tag gets both fixes + the capability flag their conditional-emit guard self-configures on.
+  Operator-authorized cut (2026-07-27 'do 1 and 2'). Content since 0.6.0: T-259 eventDef
+  preservation passthrough (cures AEF field defect T-2620/rail 201 — start/throw aef:eventDef
+  survive open-save) + T-258 annotation seam v0 (postMessage aef:ready/aef:annotate
+  read-only badge layer, T-250 GO shape A) + MANIFEST structured capabilities block
+  (annotation_seam: 1, first capability — T-246 promotion trigger). Steps: bump VERSION
+  0.6.0->0.7.0, scripts/release-designer.sh (immutability guard + render gate + deterministic
+  manifest), verify sha/bytes, tag designer-v0.7.0, push with tag, announce on rail
+  with markers, ack. AEF re-pin at tag gets both fixes + the capability flag their
+  conditional-emit guard self-configures on.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T19:11:11Z
-last_update: 2026-07-27T19:16:20Z
+last_update: '2026-08-16T12:33:46Z'
 date_finished: 2026-07-27T19:16:20Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +37,24 @@ date_finished: 2026-07-27T19:16:20Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:46Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-260: Cut designer release 0.7.0 (T-259 eventDef preservation + T-258 annotation seam + capabilities MANIFEST) and deliver to AEF

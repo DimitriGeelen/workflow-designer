@@ -1,13 +1,21 @@
 ---
 id: T-494
-name: "T-420 gate: agent_send_auto_discover posts content under key 'message' and is allowed at exit 0"
+name: "T-420 gate: agent_send_auto_discover posts content under key 'message' and
+  is allowed at exit 0"
 description: >
-  CONTENT_KEYS is (payload,payload_b64,text); agent_send_auto_discover carries content in 'message', so decide() finds carried empty and returns 0. It drives channel.post to a dm:* topic and its schema says WRITES state, so an unattributed content envelope reaches a shared topic silently. Also in the same re-measure: emit_to is missing from Rule 0 beside its sibling emit; channel_edit, agent_edit and chat_arc_broadcast are blocked with a remedy naming metadata=/project=, neither of which exists on their schemas (T-426 unfollowable-remedy class). The gate's DECLARED lists are dated 2026-08-10/11 and the docstring asks for exactly this re-measure. Found via T-492.
+  CONTENT_KEYS is (payload,payload_b64,text); agent_send_auto_discover carries content
+  in 'message', so decide() finds carried empty and returns 0. It drives channel.post
+  to a dm:* topic and its schema says WRITES state, so an unattributed content envelope
+  reaches a shared topic silently. Also in the same re-measure: emit_to is missing
+  from Rule 0 beside its sibling emit; channel_edit, agent_edit and chat_arc_broadcast
+  are blocked with a remedy naming metadata=/project=, neither of which exists on
+  their schemas (T-426 unfollowable-remedy class). The gate's DECLARED lists are dated
+  2026-08-10/11 and the docstring asks for exactly this re-measure. Found via T-492.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: [tools/_t420-rail-attribution-gate.py]
 related_tasks: []
@@ -16,7 +24,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-14T06:59:46Z
-last_update: 2026-08-14T07:17:55Z
+last_update: '2026-08-16T12:34:03Z'
 date_finished: 2026-08-14T07:17:55Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +36,24 @@ date_finished: 2026-08-14T07:17:55Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:03Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 1
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=1 
+      (body/components:prompt-incidental); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-494: T-420 gate: agent_send_auto_discover posts content under key 'message' and is allowed at exit 0

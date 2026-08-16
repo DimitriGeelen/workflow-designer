@@ -2,12 +2,25 @@
 id: T-312
 name: "Mirror AEF's lane/geometry agreement check as a validator rule"
 description: >
-  Promised to AEF at rail 335. Their fw corpus lint gained a check that needs neither band origin nor lane heights: for each map, the y-ranges of nodes grouped by DECLARED lane must not overlap, and must run in laneSet declaration order. Run over their 11 maps it found 4 failures (draft-exception-handling v3 12/13 nodes and draft-task-creation v3 14 nodes wholesale-inverted, aef-session-lifecycle v1 PROMOTED with 3 agent-declared nodes overflowing the human band, draft-knowledge-leveling v8 with the 2 nodes T-310 predicted). T-310 fixed the designer half by reconciling at import, but our VALIDATOR still cannot see this class - tools/validate-workflow.py is purely structural, which is why both toolchains passed every affected map. This is the second geometry-vs-structure finding in a row (T-310, T-311) and the strongest argument that geometry-vs-declaration wants to be a first-class rule rather than a rendering of the existing structural rule set. Note for T-309: surfacing the CURRENT validator in the designer would have shown a clean bill of health on maps misreporting authority on nearly every node.
+  Promised to AEF at rail 335. Their fw corpus lint gained a check that needs neither
+  band origin nor lane heights: for each map, the y-ranges of nodes grouped by DECLARED
+  lane must not overlap, and must run in laneSet declaration order. Run over their
+  11 maps it found 4 failures (draft-exception-handling v3 12/13 nodes and draft-task-creation
+  v3 14 nodes wholesale-inverted, aef-session-lifecycle v1 PROMOTED with 3 agent-declared
+  nodes overflowing the human band, draft-knowledge-leveling v8 with the 2 nodes T-310
+  predicted). T-310 fixed the designer half by reconciling at import, but our VALIDATOR
+  still cannot see this class - tools/validate-workflow.py is purely structural, which
+  is why both toolchains passed every affected map. This is the second geometry-vs-structure
+  finding in a row (T-310, T-311) and the strongest argument that geometry-vs-declaration
+  wants to be a first-class rule rather than a rendering of the existing structural
+  rule set. Note for T-309: surfacing the CURRENT validator in the designer would
+  have shown a clean bill of health on maps misreporting authority on nearly every
+  node.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +29,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-29T22:05:10Z
-last_update: 2026-07-30T20:28:28Z
+last_update: '2026-08-16T12:33:49Z'
 date_finished: 2026-07-30T20:28:28Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +41,24 @@ date_finished: 2026-07-30T20:28:28Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:49Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 3
+      D3: 0
+      D4: 4
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=3 
+      (body:component-silent-failure); D3=0 (no-signal); D4=4 
+      (body:cross-machine); F-RECALL=0 (no-signal); F-AUTONOMY=0 (no-signal); 
+      F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-312: Mirror AEF's lane/geometry agreement check as a validator rule

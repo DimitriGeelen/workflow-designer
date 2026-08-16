@@ -1,13 +1,22 @@
 ---
 id: T-328
-name: "Cross-form behavioural agreement: prove paired validator rules AGREE, not merely that both forms name them"
+name: "Cross-form behavioural agreement: prove paired validator rules AGREE, not merely
+  that both forms name them"
 description: >
-  The T-320 parity guard extracts rule IDs from each validator class's source span and never validates a document, so PAIRED proves both forms NAME a rule, never that the two implementations agree about when it fires. T-309 IW-2 found a live latent instance: W-GW-AMBIGUOUS tests falsy (not e.get('condition')) while W-XML-GW-AMBIGUOUS tests existence (find(conditionExpression) is None), so an empty condition reads unconditioned on one form and conditioned on the other. Currently unreachable (both emitters truthiness-gated, 0 empty elements in 100 carrying files) and therefore latent, not dead. Build a harness that drives the SAME document through both forms via yaml-to-bpmn.py and asserts the paired rules return the same verdict.
+  The T-320 parity guard extracts rule IDs from each validator class's source span
+  and never validates a document, so PAIRED proves both forms NAME a rule, never that
+  the two implementations agree about when it fires. T-309 IW-2 found a live latent
+  instance: W-GW-AMBIGUOUS tests falsy (not e.get('condition')) while W-XML-GW-AMBIGUOUS
+  tests existence (find(conditionExpression) is None), so an empty condition reads
+  unconditioned on one form and conditioned on the other. Currently unreachable (both
+  emitters truthiness-gated, 0 empty elements in 100 carrying files) and therefore
+  latent, not dead. Build a harness that drives the SAME document through both forms
+  via yaml-to-bpmn.py and asserts the paired rules return the same verdict.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-01T22:43:26Z
-last_update: 2026-08-01T23:01:01Z
+last_update: '2026-08-16T12:33:50Z'
 date_finished: 2026-08-01T23:01:01Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +37,24 @@ date_finished: 2026-08-01T23:01:01Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:50Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-328: Cross-form behavioural agreement: prove paired validator rules AGREE, not merely that both forms name them

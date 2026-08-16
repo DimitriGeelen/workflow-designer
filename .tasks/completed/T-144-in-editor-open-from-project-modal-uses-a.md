@@ -2,12 +2,17 @@
 id: T-144
 name: "In-editor Open-from-project modal (uses /api/list, opens latest version in-place)"
 description: >
-  T-142 GO build task 2 of 2. Add an 'Open…' toolbar button (gated by detectSaveApi like Save/Versions) that opens a modal listing maps from /api/list (T-143) — thumbnail + title + source badge + latest-version label + client-side filter. Clicking a map opens it IN-PLACE (no reload) via adoptImportedXml with replace semantics, defaulting to openTarget (latest saved version, else rendered baseline). Validated in T-142 Spike 2. Mirror invariant + T-138 untouched (read path).
+  T-142 GO build task 2 of 2. Add an 'Open…' toolbar button (gated by detectSaveApi
+  like Save/Versions) that opens a modal listing maps from /api/list (T-143) — thumbnail
+  + title + source badge + latest-version label + client-side filter. Clicking a map
+  opens it IN-PLACE (no reload) via adoptImportedXml with replace semantics, defaulting
+  to openTarget (latest saved version, else rendered baseline). Validated in T-142
+  Spike 2. Mirror invariant + T-138 untouched (read path).
 
 status: work-completed
 workflow_type: build
 owner: human
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +21,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-08T12:19:53Z
-last_update: 2026-07-29T15:39:29Z
+last_update: '2026-08-16T12:33:39Z'
 date_finished: 2026-07-09T06:43:32Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +33,24 @@ date_finished: 2026-07-09T06:43:32Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:39Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 3
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=3 (body:portability-abstraction); F-RECALL=2 (body:lightly-promoted); 
+      F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-144: In-editor Open-from-project modal (uses /api/list, opens latest version in-place)

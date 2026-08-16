@@ -2,12 +2,17 @@
 id: T-143
 name: "Add read-only /api/list endpoint to gallery-serve.py"
 description: >
-  T-142 GO, build task 1 of 2-3. Add a read-only /api/list endpoint to tools/gallery-serve.py returning per map {id,title,sources[],latest,openTarget} — the corpus (rendered/*.bpmn) merged with saved maps (.editor-versions/*), resolving each map's latest saved version. Shape + cost validated in T-142 Spike 1 (24 maps, 6KB, 4.2ms). Read-only, stdlib-only, _valid_id guard, no path traversal; must not disturb T-138 corpus gate. Stdlib-only verifier like _gallery-save-allowlist-verify.py.
+  T-142 GO, build task 1 of 2-3. Add a read-only /api/list endpoint to tools/gallery-serve.py
+  returning per map {id,title,sources[],latest,openTarget} — the corpus (rendered/*.bpmn)
+  merged with saved maps (.editor-versions/*), resolving each map's latest saved version.
+  Shape + cost validated in T-142 Spike 1 (24 maps, 6KB, 4.2ms). Read-only, stdlib-only,
+  _valid_id guard, no path traversal; must not disturb T-138 corpus gate. Stdlib-only
+  verifier like _gallery-save-allowlist-verify.py.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +21,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-08T06:09:39Z
-last_update: 2026-07-08T07:22:33Z
+last_update: '2026-08-16T12:33:39Z'
 date_finished: 2026-07-08T07:22:33Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +33,24 @@ date_finished: 2026-07-08T07:22:33Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:39Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=2 (body:env-class-handled); F-RECALL=2 (body:lightly-promoted); 
+      F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-143: Add read-only /api/list endpoint to gallery-serve.py

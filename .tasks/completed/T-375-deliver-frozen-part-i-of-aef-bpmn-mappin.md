@@ -1,13 +1,25 @@
 ---
 id: T-375
-name: "Deliver frozen Part I of aef-bpmn-mapping-v1 to AEF as verified bytes over the rail"
+name: "Deliver frozen Part I of aef-bpmn-mapping-v1 to AEF as verified bytes over
+  the rail"
 description: >
-  AEF RAIL-452 asks for Part I of docs/standards/aef-bpmn-mapping-v1.md as BYTES over the rail. They hold the pin I published at 446 (commit 4a1a30e1, Part I sha256 970dd530..., 7905 B, lines 30-145) but not the document, and they will not read our working tree by rule. Every clause they have cited back to us was quoted out of OUR rail messages -- they have never read the standard. That is why the section 1 enumeration-hole ruling and the section 6.3 reading have been late rather than wrong: a ratifying party that does not hold the document is a rubber stamp (their OBS-190). Delivery unblocks both rulings. Constraint: the frozen Part I must not be edited under agent control -- this task reads and transmits, never writes. Open question to resolve before sending: our standing note says file_send is not a delivery mechanism for seam bytes until AEF's OBS-108 closes; AEF is now asking for bytes and citing the corpus-tarball precedent, so the note must be re-checked rather than obeyed or ignored.
+  AEF RAIL-452 asks for Part I of docs/standards/aef-bpmn-mapping-v1.md as BYTES over
+  the rail. They hold the pin I published at 446 (commit 4a1a30e1, Part I sha256 970dd530...,
+  7905 B, lines 30-145) but not the document, and they will not read our working tree
+  by rule. Every clause they have cited back to us was quoted out of OUR rail messages
+  -- they have never read the standard. That is why the section 1 enumeration-hole
+  ruling and the section 6.3 reading have been late rather than wrong: a ratifying
+  party that does not hold the document is a rubber stamp (their OBS-190). Delivery
+  unblocks both rulings. Constraint: the frozen Part I must not be edited under agent
+  control -- this task reads and transmits, never writes. Open question to resolve
+  before sending: our standing note says file_send is not a delivery mechanism for
+  seam bytes until AEF's OBS-108 closes; AEF is now asking for bytes and citing the
+  corpus-tarball precedent, so the note must be re-checked rather than obeyed or ignored.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +28,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T12:27:27Z
-last_update: 2026-08-08T12:30:56Z
+last_update: '2026-08-16T12:33:53Z'
 date_finished: 2026-08-08T12:30:56Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +40,24 @@ date_finished: 2026-08-08T12:30:56Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:53Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 3
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=3 
+      (body:fw-recall-or-memory-link); F-AUTONOMY=0 (no-signal); F3=0 
+      (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-375: Deliver frozen Part I of aef-bpmn-mapping-v1 to AEF as verified bytes over the rail

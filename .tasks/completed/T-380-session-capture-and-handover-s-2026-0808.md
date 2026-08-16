@@ -2,12 +2,21 @@
 id: T-380
 name: "Session capture and handover S-2026-0808 (rail cursor 460)"
 description: >
-  Session-end capture for the window that shipped T-377, T-378, T-379; rail advanced 456->460. FRAMEWORK DEFECT FOUND DURING WRAP-UP, filed here rather than lost: fw context focus accepts a task ID that is not active (T-005, archived), writes it to focus.yaml, and the check-active-task PreToolUse hook then blocks EVERY Bash and Write call including fw work-on and fw context focus themselves. The remedy the block message prints (fw work-on T-XXX) cannot run, so the tool that sets focus can wedge the gate that reads it, with no in-band recovery. Recovered by editing .context/working/focus.yaml directly, which the hook permits. Two candidate fixes: validate the ID in fw context focus, or exempt fw context focus / fw work-on from the gate.
+  Session-end capture for the window that shipped T-377, T-378, T-379; rail advanced
+  456->460. FRAMEWORK DEFECT FOUND DURING WRAP-UP, filed here rather than lost: fw
+  context focus accepts a task ID that is not active (T-005, archived), writes it
+  to focus.yaml, and the check-active-task PreToolUse hook then blocks EVERY Bash
+  and Write call including fw work-on and fw context focus themselves. The remedy
+  the block message prints (fw work-on T-XXX) cannot run, so the tool that sets focus
+  can wedge the gate that reads it, with no in-band recovery. Recovered by editing
+  .context/working/focus.yaml directly, which the hook permits. Two candidate fixes:
+  validate the ID in fw context focus, or exempt fw context focus / fw work-on from
+  the gate.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T15:04:53Z
-last_update: 2026-08-08T15:06:10Z
+last_update: '2026-08-16T12:33:54Z'
 date_finished: 2026-08-08T15:06:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +37,24 @@ date_finished: 2026-08-08T15:06:10Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:54Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 1
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=1 
+      (body:episodic-only); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-380: Session capture and handover S-2026-0808 (rail cursor 460)

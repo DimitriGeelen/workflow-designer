@@ -1,13 +1,18 @@
 ---
 id: T-091
-name: "Upstream fix bundle: env-export contamination (T-015 GO) + review.py lib path (G-004)"
+name: "Upstream fix bundle: env-export contamination (T-015 GO) + review.py lib path
+  (G-004)"
 description: >
-  T-015 decided GO: the TASKS_DIR/CONTEXT_DIR env export contamination is an upstream framework flaw. Deliverable: patch files + a maintainer-facing report covering BOTH known shared-mode bugs (T-015 env export; G-004 review.py PROJECT_ROOT/lib one-liner) plus the recommended shared-mode smoke test, staged for delivery via the ring20 cascade (T-016 channel). No vendored files modified here.
+  T-015 decided GO: the TASKS_DIR/CONTEXT_DIR env export contamination is an upstream
+  framework flaw. Deliverable: patch files + a maintainer-facing report covering BOTH
+  known shared-mode bugs (T-015 env export; G-004 review.py PROJECT_ROOT/lib one-liner)
+  plus the recommended shared-mode smoke test, staged for delivery via the ring20
+  cascade (T-016 channel). No vendored files modified here.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +21,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T22:50:45Z
-last_update: 2026-07-04T23:16:42Z
+last_update: '2026-08-16T12:33:36Z'
 date_finished: 2026-07-04T23:16:42Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +33,24 @@ date_finished: 2026-07-04T23:16:42Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:36Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 4
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=4 (body:cross-machine); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-091: Upstream fix bundle: env-export contamination (T-015 GO) + review.py lib path (G-004)

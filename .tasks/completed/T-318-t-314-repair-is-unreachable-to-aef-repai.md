@@ -1,13 +1,26 @@
 ---
 id: T-318
-name: "T-314 repair is unreachable to AEF: repaired fixtures exist only in untagged work, and the file-transfer channel is starving"
+name: "T-314 repair is unreachable to AEF: repaired fixtures exist only in untagged
+  work, and the file-transfer channel is starving"
 description: >
-  AEF cannot re-pin the T-314 fixture repair. Two independent reasons, rail 352. (1) The termlink file-transfer channel re-serves the SAME earliest historical transfer on every replay call (escalation-patterns.yaml, 4957 B) while printing 'SHA-256 verified' and exiting 0 - it looks exactly like success and hands back a months-old file, so both BPMN sends are permanently unreachable through replay. Filed AEF-side as OBS-108; affects anything either side sends after the first transfer. (2) Our published tag designer-v0.8.0 still carries the PRE-repair bytes (093858.../efb53839...), byte-identical to what AEF holds, so the T-314 repair exists only in untagged work our side. AEF explicitly does not want a re-send over the mechanism whose integrity is in question - they want a durable pullable ref they can verify without our involvement. Deliverable is to make the repaired fixtures reachable at a named ref and tell AEF which one, without minting a designer release tag for two fixtures (that would trip the release process and G-007 for unrelated content).
+  AEF cannot re-pin the T-314 fixture repair. Two independent reasons, rail 352. (1)
+  The termlink file-transfer channel re-serves the SAME earliest historical transfer
+  on every replay call (escalation-patterns.yaml, 4957 B) while printing 'SHA-256
+  verified' and exiting 0 - it looks exactly like success and hands back a months-old
+  file, so both BPMN sends are permanently unreachable through replay. Filed AEF-side
+  as OBS-108; affects anything either side sends after the first transfer. (2) Our
+  published tag designer-v0.8.0 still carries the PRE-repair bytes (093858.../efb53839...),
+  byte-identical to what AEF holds, so the T-314 repair exists only in untagged work
+  our side. AEF explicitly does not want a re-send over the mechanism whose integrity
+  is in question - they want a durable pullable ref they can verify without our involvement.
+  Deliverable is to make the repaired fixtures reachable at a named ref and tell AEF
+  which one, without minting a designer release tag for two fixtures (that would trip
+  the release process and G-007 for unrelated content).
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +29,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-31T11:37:35Z
-last_update: 2026-07-31T11:40:03Z
+last_update: '2026-08-16T12:33:49Z'
 date_finished: 2026-07-31T11:40:03Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +41,23 @@ date_finished: 2026-07-31T11:40:03Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:49Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 0
+      F-RECALL: 1
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=0 (no-signal); F-RECALL=1 (body:episodic-only); F-AUTONOMY=0 
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-318: T-314 repair is unreachable to AEF: repaired fixtures exist only in untagged work, and the file-transfer channel is starving

@@ -2,12 +2,18 @@
 id: T-115
 name: "Horizontal spacing control (mirror of Vertical spacing)"
 description: >
-  Add a Horizontal spacing settings control that re-spaces pool-wide stage columns to an absolute inter-column gap, mirroring the Vertical spacing control (respaceRows/T-108) on the x-axis. Motivated by T-105: gateway/label crowding is fundamentally a horizontal-room problem; the operator needs a lever to spread columns. respaceColumns clusters all nodes into columns by centre-x, shifts each column rigidly so consecutive column centres sit gap px apart (anchored left), clamped 130-360 (>widest node 120 so columns never fold), undoable via axis-aware lastTidy.
+  Add a Horizontal spacing settings control that re-spaces pool-wide stage columns
+  to an absolute inter-column gap, mirroring the Vertical spacing control (respaceRows/T-108)
+  on the x-axis. Motivated by T-105: gateway/label crowding is fundamentally a horizontal-room
+  problem; the operator needs a lever to spread columns. respaceColumns clusters all
+  nodes into columns by centre-x, shifts each column rigidly so consecutive column
+  centres sit gap px apart (anchored left), clamped 130-360 (>widest node 120 so columns
+  never fold), undoable via axis-aware lastTidy.
 
 status: work-completed
 workflow_type: build
 owner: human
-horizon: null
+horizon:
 tags: [ui, editor, routing, layout]
 components: []
 related_tasks: [T-105, T-108]
@@ -16,7 +22,7 @@ related_tasks: [T-105, T-108]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T21:53:54Z
-last_update: 2026-07-29T15:39:20Z
+last_update: '2026-08-16T12:33:37Z'
 date_finished: 2026-07-06T18:42:02Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +34,23 @@ date_finished: 2026-07-06T18:42:02Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:37Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=2 (body:env-class-handled); F-RECALL=0 (no-signal); F-AUTONOMY=0 
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-115: Horizontal spacing control (mirror of Vertical spacing)

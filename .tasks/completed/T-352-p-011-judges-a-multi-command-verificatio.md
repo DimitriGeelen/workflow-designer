@@ -1,13 +1,25 @@
 ---
 id: T-352
-name: "P-011 judges a multi-command verification line on its last command alone (set -e suppressed in the gate's if-condition)"
+name: "P-011 judges a multi-command verification line on its last command alone (set
+  -e suppressed in the gate's if-condition)"
 description: >
-  update-task.sh:1018 runs each verification command as 'if ( ...; eval "$cmd" ); then' — the subshell is the CONDITION of an if, so set -e (set at line 14) is suppressed inside it. A line of the form 'a; b' is therefore judged on b alone: a's failure is swallowed. The capture-then-grep shape the task template PRESCRIBES as the L-387 SIGPIPE remedy ('out=$(cmd 2>&1); echo "$out" | grep -q PAT') is exactly this shape, so the framework teaches it. PROVEN live: 'out=$(python3 tools/validate-workflow.py BROKEN.bpmn 2>&1); echo "$out" | grep -q "VALID"' returns PASS under the gate's own construct on a document the validator exits 2 on and labels INVALID — grep -q VALID matches INVALID as a substring. Structural population: 332 of 1318 verification lines contain a top-level ';'. That is an upper bound, NOT a finding — most greps pin a zero-failure token and are safe. Members must be measured individually, not counted. Reported to AEF as their own finding reproducing here (their RAIL-403).
+  update-task.sh:1018 runs each verification command as 'if ( ...; eval "$cmd" );
+  then' — the subshell is the CONDITION of an if, so set -e (set at line 14) is suppressed
+  inside it. A line of the form 'a; b' is therefore judged on b alone: a's failure
+  is swallowed. The capture-then-grep shape the task template PRESCRIBES as the L-387
+  SIGPIPE remedy ('out=$(cmd 2>&1); echo "$out" | grep -q PAT') is exactly this shape,
+  so the framework teaches it. PROVEN live: 'out=$(python3 tools/validate-workflow.py
+  BROKEN.bpmn 2>&1); echo "$out" | grep -q "VALID"' returns PASS under the gate's
+  own construct on a document the validator exits 2 on and labels INVALID — grep -q
+  VALID matches INVALID as a substring. Structural population: 332 of 1318 verification
+  lines contain a top-level ';'. That is an upper bound, NOT a finding — most greps
+  pin a zero-failure token and are safe. Members must be measured individually, not
+  counted. Reported to AEF as their own finding reproducing here (their RAIL-403).
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: [arc:designer-authoring-surface, tooling, verification-gate]
 components: []
 related_tasks: []
@@ -16,7 +28,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T23:59:29Z
-last_update: 2026-08-03T10:34:26Z
+last_update: '2026-08-16T12:33:52Z'
 date_finished: 2026-08-03T10:34:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +40,25 @@ date_finished: 2026-08-03T10:34:26Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:52Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 3
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=3 
+      (body:fw-recall-or-memory-link); F-AUTONOMY=0 (no-signal); F3=0 
+      (no-signal); F1=0 (no-signal); F2=1 
+      (body/components:component-fabric-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-352: P-011 judges a multi-command verification line on its last command alone (set -e suppressed in the gate's if-condition)

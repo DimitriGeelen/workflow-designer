@@ -2,7 +2,16 @@
 id: T-200
 name: "Release designer with IW-9 editor (VERSION bump) + flip render-gate SIG"
 description: >
-  Follow-up to T-197. T-197 retired the node-level owner override from src/ but left tests/test_designer_render.py (the release render gate over the immutable 0.2.0 dist) unchanged, because that dist legitimately still carries owner and G-007 forbids a same-version rebuild. This task cuts the release that ships the IW-9 editor: (1) bump VERSION (e.g. 0.3.0); (2) run scripts/release-designer.sh to rebuild dist from the retired-owner src; (3) in the SAME commit, flip test_designer_render.py — drop 'owner' from SIG (line ~64), from the AEF_FIELDS marker loop (~158), and from the rendered-DOM owner assertions (~183/191) — so the release render gate matches the new bytes; (4) re-pin/notify AEF per docs/aef-designer-integration-protocol.md. Human-owned: a release is a sovereignty promise (immutable bytes).
+  Follow-up to T-197. T-197 retired the node-level owner override from src/ but left
+  tests/test_designer_render.py (the release render gate over the immutable 0.2.0
+  dist) unchanged, because that dist legitimately still carries owner and G-007 forbids
+  a same-version rebuild. This task cuts the release that ships the IW-9 editor: (1)
+  bump VERSION (e.g. 0.3.0); (2) run scripts/release-designer.sh to rebuild dist from
+  the retired-owner src; (3) in the SAME commit, flip test_designer_render.py — drop
+  'owner' from SIG (line ~64), from the AEF_FIELDS marker loop (~158), and from the
+  rendered-DOM owner assertions (~183/191) — so the release render gate matches the
+  new bytes; (4) re-pin/notify AEF per docs/aef-designer-integration-protocol.md.
+  Human-owned: a release is a sovereignty promise (immutable bytes).
 
 status: started-work
 workflow_type: build
@@ -16,8 +25,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T07:39:35Z
-last_update: 2026-07-18T09:57:29Z
-date_finished: null
+last_update: '2026-08-16T12:33:25Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +37,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:25Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-200: Release designer with IW-9 editor (VERSION bump) + flip render-gate SIG

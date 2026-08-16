@@ -2,12 +2,22 @@
 id: T-119
 name: "Consolidate split migrations: two-step staircase edges to a single clean Z"
 description: >
-  Routing optimisation (improvement B, migrating-edge case). Headless census (2026-07-06): 22 edges across 13 corpus maps render a small node-centre migration as a TWO-step staircase (V-H-V-H-V or H-V-H-V-H with two same-direction small steps <=16px separated by a long perpendicular run) instead of a single clean Z. Extend simplifyRoutedPolyline (T-117/T-118) with consolidateStaircase: detect the 6-point same-sign small-step pattern, build shift-early and shift-late single-Z candidates, accept the first whose polylineCrossesNodes does not increase. Prototype (render-only, no source change): all 22 consolidate, node-cuts stay 0, total edge-edge crossings unchanged 9->9, 0 maps worsened; the one node-crossing-unsafe case (verification-gate e_04) is salvaged by the shift-late candidate. Render-only, stored geometry untouched (PD-044).
+  Routing optimisation (improvement B, migrating-edge case). Headless census (2026-07-06):
+  22 edges across 13 corpus maps render a small node-centre migration as a TWO-step
+  staircase (V-H-V-H-V or H-V-H-V-H with two same-direction small steps <=16px separated
+  by a long perpendicular run) instead of a single clean Z. Extend simplifyRoutedPolyline
+  (T-117/T-118) with consolidateStaircase: detect the 6-point same-sign small-step
+  pattern, build shift-early and shift-late single-Z candidates, accept the first
+  whose polylineCrossesNodes does not increase. Prototype (render-only, no source
+  change): all 22 consolidate, node-cuts stay 0, total edge-edge crossings unchanged
+  9->9, 0 maps worsened; the one node-crossing-unsafe case (verification-gate e_04)
+  is salvaged by the shift-late candidate. Render-only, stored geometry untouched
+  (PD-044).
 
 status: work-completed
 workflow_type: build
 owner: human
-horizon: null
+horizon:
 tags: [ui, editor, routing, layout]
 components: []
 related_tasks: [T-118, T-117, T-116]
@@ -16,7 +26,7 @@ related_tasks: [T-118, T-117, T-116]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T22:59:33Z
-last_update: 2026-07-29T15:39:23Z
+last_update: '2026-08-16T12:33:38Z'
 date_finished: 2026-07-07T14:08:39Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +38,24 @@ date_finished: 2026-07-07T14:08:39Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:38Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-119: Consolidate split migrations: two-step staircase edges to a single clean Z

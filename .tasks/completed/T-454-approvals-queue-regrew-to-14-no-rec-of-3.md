@@ -1,13 +1,27 @@
 ---
 id: T-454
-name: "Approvals queue regrew to 14 NO-REC of 32 handed-over tasks while its guard could not run"
+name: "Approvals queue regrew to 14 NO-REC of 32 handed-over tasks while its guard
+  could not run"
 description: >
-  The consequence T-450/T-451 uncovered rather than the defect. tools/_norec-verify.py last ran 2026-07-22 at 0 NO-REC (T-236's sweep) and could not run again, because its only call site is that completed task's Verification block. Measured 2026-08-12: 450 task files examined, 32 carry pending Human ACs, 14 of those have no parseable Recommendation verdict - so the operator's review queue shows 32 items of which 14 offer nothing actionable. The list: T-209 T-286 T-340 T-341 T-344 T-345 T-347 T-358 T-392 T-402 T-422 T-426 T-432 T-433. Four are arc blockers whose Agent ACs are literally marked BLOCKED pending a REVIEW ruling (T-340 T-341 T-358 T-209), so the missing verdict is load-bearing for arc designer-authoring-surface. Deliverable is an evidence-based Recommendation block per task in the T-236 style - GO with cited evidence, NO-GO, or DEFER with a revisit_at - written by the agent and RULED by the operator. Not a batch-close: each needs its own evidence per CLAUDE.md Human Task Completion Rule. Sized for a fresh window; 14 tasks each needing their own evidence read is not a tail-end-of-session job.
+  The consequence T-450/T-451 uncovered rather than the defect. tools/_norec-verify.py
+  last ran 2026-07-22 at 0 NO-REC (T-236's sweep) and could not run again, because
+  its only call site is that completed task's Verification block. Measured 2026-08-12:
+  450 task files examined, 32 carry pending Human ACs, 14 of those have no parseable
+  Recommendation verdict - so the operator's review queue shows 32 items of which
+  14 offer nothing actionable. The list: T-209 T-286 T-340 T-341 T-344 T-345 T-347
+  T-358 T-392 T-402 T-422 T-426 T-432 T-433. Four are arc blockers whose Agent ACs
+  are literally marked BLOCKED pending a REVIEW ruling (T-340 T-341 T-358 T-209),
+  so the missing verdict is load-bearing for arc designer-authoring-surface. Deliverable
+  is an evidence-based Recommendation block per task in the T-236 style - GO with
+  cited evidence, NO-GO, or DEFER with a revisit_at - written by the agent and RULED
+  by the operator. Not a batch-close: each needs its own evidence per CLAUDE.md Human
+  Task Completion Rule. Sized for a fresh window; 14 tasks each needing their own
+  evidence read is not a tail-end-of-session job.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: [tools/_norec-verify.py]
 related_tasks: []
@@ -16,7 +30,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T10:59:28Z
-last_update: 2026-08-12T12:18:52Z
+last_update: '2026-08-16T12:33:59Z'
 date_finished: 2026-08-12T12:18:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +42,24 @@ date_finished: 2026-08-12T12:18:52Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:59Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-454: Approvals queue regrew to 14 NO-REC of 32 handed-over tasks while its guard could not run

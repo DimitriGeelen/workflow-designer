@@ -1,13 +1,20 @@
 ---
 id: T-203
-name: "Disposition gate false-positive: IW-N cross-reference in rationale prose mis-tokenized as new question"
+name: "Disposition gate false-positive: IW-N cross-reference in rationale prose mis-tokenized
+  as new question"
 description: >
-  check_disposition_gate (agents/task-create/update-task.sh:770) uses an UNANCHORED regex for the IW-N question marker, so any IW-N appearing in rationale prose (a legitimate cross-reference) is tokenized as a new question block. This (a) flushes the real question with rationale=false and (b) creates a phantom empty question, producing false 'under-disposed' completion blocks. The sibling Q-N branch is already anchored (^\s*-). Fix: anchor the IW-N branch to block-start (- **IW-N / ### IW-N) only. Discovered blocking T-190 completion.
+  check_disposition_gate (agents/task-create/update-task.sh:770) uses an UNANCHORED
+  regex for the IW-N question marker, so any IW-N appearing in rationale prose (a
+  legitimate cross-reference) is tokenized as a new question block. This (a) flushes
+  the real question with rationale=false and (b) creates a phantom empty question,
+  producing false 'under-disposed' completion blocks. The sibling Q-N branch is already
+  anchored (^\s*-). Fix: anchor the IW-N branch to block-start (- **IW-N / ### IW-N)
+  only. Discovered blocking T-190 completion.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: [bug, framework, governance, disposition-gate]
 components: []
 related_tasks: []
@@ -16,7 +23,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T19:17:45Z
-last_update: 2026-07-18T19:23:45Z
+last_update: '2026-08-16T12:33:43Z'
 date_finished: 2026-07-18T19:23:45Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +35,24 @@ date_finished: 2026-07-18T19:23:45Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:43Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-203: Disposition gate false-positive: IW-N cross-reference in rationale prose mis-tokenized as new question

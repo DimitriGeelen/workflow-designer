@@ -1,13 +1,18 @@
 ---
 id: T-387
-name: "Emit the four consumer-facing release fields AEF asked for in dist/MANIFEST.yaml (G-024 consumer half)"
+name: "Emit the four consumer-facing release fields AEF asked for in dist/MANIFEST.yaml
+  (G-024 consumer half)"
 description: >
-  AEF answered the manifest-shape question at rail 464: version, released (ISO8601 UTC at cut), src_commit, supersedes — none derived from the others — so they can compute build lag and adoption lag from their own seat and drop the vendored-pin read. Emit them at cut, preserving released across idempotent re-runs, and backfill 0.8.0.
+  AEF answered the manifest-shape question at rail 464: version, released (ISO8601
+  UTC at cut), src_commit, supersedes — none derived from the others — so they can
+  compute build lag and adoption lag from their own seat and drop the vendored-pin
+  read. Emit them at cut, preserving released across idempotent re-runs, and backfill
+  0.8.0.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +21,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T17:15:17Z
-last_update: 2026-08-08T17:22:50Z
+last_update: '2026-08-16T12:33:54Z'
 date_finished: 2026-08-08T17:22:50Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +33,24 @@ date_finished: 2026-08-08T17:22:50Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:54Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 1
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=1 (body:log-or-error-line); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-387: Emit the four consumer-facing release fields AEF asked for in dist/MANIFEST.yaml (G-024 consumer half)

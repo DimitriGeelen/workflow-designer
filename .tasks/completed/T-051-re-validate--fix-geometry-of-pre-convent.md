@@ -1,13 +1,19 @@
 ---
 id: T-051
-name: "Re-validate + fix geometry of pre-convention corpus maps against lane-band gate"
+name: "Re-validate + fix geometry of pre-convention corpus maps against lane-band
+  gate"
 description: >
-  Eight older maps (arc-lifecycle, assumption-validation, audit-process, inception-lifecycle, session-handover, task-lifecycle, tier0-escalation, upgrade-process) predate the tightened T-042/T-043 lane-band convention and fail tools/check-lane-bands.py (nodes straddle lane bands). Independent of T-050. Re-lay-out each to satisfy the geometry gate; add all corpus maps to a CI geometry sweep so the gate can never silently drift past authored maps again.
+  Eight older maps (arc-lifecycle, assumption-validation, audit-process, inception-lifecycle,
+  session-handover, task-lifecycle, tier0-escalation, upgrade-process) predate the
+  tightened T-042/T-043 lane-band convention and fail tools/check-lane-bands.py (nodes
+  straddle lane bands). Independent of T-050. Re-lay-out each to satisfy the geometry
+  gate; add all corpus maps to a CI geometry sweep so the gate can never silently
+  drift past authored maps again.
 
 status: work-completed
 workflow_type: refactor
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-03T13:15:05Z
-last_update: 2026-07-03T13:43:19Z
+last_update: '2026-08-16T12:33:33Z'
 date_finished: 2026-07-03T13:43:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +34,24 @@ date_finished: 2026-07-03T13:43:19Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:33Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 3
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=3 
+      (body:fw-recall-or-memory-link); F-AUTONOMY=0 (no-signal); F3=0 
+      (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-051: Re-validate + fix geometry of pre-convention corpus maps against lane-band gate

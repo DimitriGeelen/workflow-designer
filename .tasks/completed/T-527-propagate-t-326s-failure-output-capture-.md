@@ -1,13 +1,23 @@
 ---
 id: T-527
-name: "propagate T-326's failure-output capture to the 62 bridge-suite legs that discard it"
+name: "propagate T-326's failure-output capture to the 62 bridge-suite legs that discard
+  it"
 description: >
-  T-526 measured 66 report FAIL calls against 4 show_output calls in tests/run-bridge-tests.sh: 62 legs discard the evidence of their own failure, and 6 of the 10 CDP legs (every one of them an AEF-seam conformance probe: _t511 _t513 _t515 _t518 _t520 _t523) redirect to /dev/null. T-326 diagnosed this exact defect and wrote the reason into the source, then wired the remedy into 4 legs; every probe added since was written by copying a leg that discards. Consequence measured at N=5: both intermittent failures observed (T-518 uid-collision, T-509 instrument sweep) were uninvestigable from their own output, so whether the suite's non-determinism is instrument-side or subject-side CANNOT be answered. This is the prerequisite for fixing the flake, not a cleanup. See docs/reports/T-526-bridge-suite-determinism.md.
+  T-526 measured 66 report FAIL calls against 4 show_output calls in tests/run-bridge-tests.sh:
+  62 legs discard the evidence of their own failure, and 6 of the 10 CDP legs (every
+  one of them an AEF-seam conformance probe: _t511 _t513 _t515 _t518 _t520 _t523)
+  redirect to /dev/null. T-326 diagnosed this exact defect and wrote the reason into
+  the source, then wired the remedy into 4 legs; every probe added since was written
+  by copying a leg that discards. Consequence measured at N=5: both intermittent failures
+  observed (T-518 uid-collision, T-509 instrument sweep) were uninvestigable from
+  their own output, so whether the suite's non-determinism is instrument-side or subject-side
+  CANNOT be answered. This is the prerequisite for fixing the flake, not a cleanup.
+  See docs/reports/T-526-bridge-suite-determinism.md.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +26,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T19:51:49Z
-last_update: 2026-08-15T21:17:21Z
+last_update: '2026-08-16T12:34:06Z'
 date_finished: 2026-08-15T21:17:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +38,24 @@ date_finished: 2026-08-15T21:17:21Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:06Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=2 
+      (body:telemetry-or-audit-entry); D3=2 (body:default-change); D4=2 
+      (body:env-class-handled); F-RECALL=2 (body:lightly-promoted); F-AUTONOMY=0
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-527: propagate T-326's failure-output capture to the 62 bridge-suite legs that discard it

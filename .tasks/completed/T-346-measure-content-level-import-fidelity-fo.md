@@ -1,13 +1,20 @@
 ---
 id: T-346
-name: "Measure content-level import fidelity for tags that ARE in the allowlist (unknown child elements and unknown attributes)"
+name: "Measure content-level import fidelity for tags that ARE in the allowlist (unknown
+  child elements and unknown attributes)"
 description: >
-  G-016's trigger named three populations — out-of-vocabulary tags, malformed input, unresolvable refs — and T-338/T-339 covered all three. A fourth is unnamed and unmeasured: a flow node whose TAG is in the allowlist but whose CONTENT is not fully consumed. T-259 proves the class is live and recurrent (an unconsumed aef:eventDef destroyed on layout-only open-save reached a shipped release, the rail-201 field defect). Measure what fraction of an accepted element's own children and attributes survive a round trip.
+  G-016's trigger named three populations — out-of-vocabulary tags, malformed input,
+  unresolvable refs — and T-338/T-339 covered all three. A fourth is unnamed and unmeasured:
+  a flow node whose TAG is in the allowlist but whose CONTENT is not fully consumed.
+  T-259 proves the class is live and recurrent (an unconsumed aef:eventDef destroyed
+  on layout-only open-save reached a shipped release, the rail-201 field defect).
+  Measure what fraction of an accepted element's own children and attributes survive
+  a round trip.
 
 status: work-completed
 workflow_type: test
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: [tools/_t338-input-fidelity-cdp.mjs]
 related_tasks: []
@@ -16,7 +23,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T11:28:21Z
-last_update: 2026-08-02T11:37:25Z
+last_update: '2026-08-16T12:33:51Z'
 date_finished: 2026-08-02T11:37:25Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +35,24 @@ date_finished: 2026-08-02T11:37:25Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:51Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-346: Measure content-level import fidelity for tags that ARE in the allowlist (unknown child elements and unknown attributes)

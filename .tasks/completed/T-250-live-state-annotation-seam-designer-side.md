@@ -1,18 +1,25 @@
 ---
 id: T-250
-name: "Live-state annotation seam: designer-side hook for AEF served-map overlays (their T-2620)"
+name: "Live-state annotation seam: designer-side hook for AEF served-map overlays
+  (their T-2620)"
 description: >
-  AEF proposal (rail 196, their T-2620, operator-GO'd direction their side): accept a small designer-side annotation hook in a future release so AEF can project live state (task positions, dispatch outcomes) onto served maps keyed by node uid. Candidate shapes: (A) postMessage protocol with aef:annotate/aef:ready handshake, (B) window.AefDesigner API. Read-only presentation, additive, MANIFEST capabilities flag (promotes T-246). Preliminary 832 agent lean: A (postMessage). Operator-gated: shape ratification + priority.
+  AEF proposal (rail 196, their T-2620, operator-GO'd direction their side): accept
+  a small designer-side annotation hook in a future release so AEF can project live
+  state (task positions, dispatch outcomes) onto served maps keyed by node uid. Candidate
+  shapes: (A) postMessage protocol with aef:annotate/aef:ready handshake, (B) window.AefDesigner
+  API. Read-only presentation, additive, MANIFEST capabilities flag (promotes T-246).
+  Preliminary 832 agent lean: A (postMessage). Operator-gated: shape ratification
+  + priority.
 
 status: work-completed
 workflow_type: inception
 owner: human
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-25T19:19:59Z
-last_update: 2026-07-27T17:54:08Z
+last_update: '2026-08-16T12:33:46Z'
 date_finished: 2026-07-27T17:54:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -22,6 +29,23 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:46Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 2
+      F3: 2
+      F1: 2
+      F2: 2
+    rationale: D1=2 (no-signal); D2=2 (no-signal); D3=2 (no-signal); D4=2 
+      (no-signal); F-RECALL=2 (no-signal); F-AUTONOMY=2 (no-signal); F3=2 
+      (no-signal); F1=2 (no-signal); F2=2 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-250: Live-state annotation seam: designer-side hook for AEF served-map overlays (their T-2620)

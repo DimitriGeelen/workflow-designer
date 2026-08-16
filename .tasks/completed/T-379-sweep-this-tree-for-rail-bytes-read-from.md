@@ -2,12 +2,21 @@
 id: T-379
 name: "Sweep this tree for rail bytes read from a rendered view instead of payload_b64"
 description: >
-  AEF's T-2872 root cause: they extracted a delivered artifact by slicing a human-rendered subscribe view, which prefixes a display header per record and terminates each with a newline. Their send, the hub, and their client read were all byte-faithful; the only lossy step was the choice of source. Their rule — seam bytes are read from payload_b64 and hashed before touching a file, rendered output is never a wire format — is a class check I owe on my own tree, symmetric to the G-008 upstreams. Enumerate every site here that reads termlink message CONTENT and classify each: decodes payload_b64, or consumes rendered output. A zero is only meaningful with its denominator stated: if nothing in the tree reads rail content at all, that is unmeasured rather than clean, which is the empty-denominator failure T-344 already cost this project.
+  AEF's T-2872 root cause: they extracted a delivered artifact by slicing a human-rendered
+  subscribe view, which prefixes a display header per record and terminates each with
+  a newline. Their send, the hub, and their client read were all byte-faithful; the
+  only lossy step was the choice of source. Their rule — seam bytes are read from
+  payload_b64 and hashed before touching a file, rendered output is never a wire format
+  — is a class check I owe on my own tree, symmetric to the G-008 upstreams. Enumerate
+  every site here that reads termlink message CONTENT and classify each: decodes payload_b64,
+  or consumes rendered output. A zero is only meaningful with its denominator stated:
+  if nothing in the tree reads rail content at all, that is unmeasured rather than
+  clean, which is the empty-denominator failure T-344 already cost this project.
 
 status: work-completed
 workflow_type: test
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-08T14:56:27Z
-last_update: 2026-08-08T15:01:47Z
+last_update: '2026-08-16T12:33:54Z'
 date_finished: 2026-08-08T15:01:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +37,24 @@ date_finished: 2026-08-08T15:01:47Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:54Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 3
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=3 (body:portability-abstraction); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-379: Sweep this tree for rail bytes read from a rendered view instead of payload_b64

@@ -1,13 +1,27 @@
 ---
 id: T-326
-name: "Flaky gating leg: bridge-seam-roundtrip fails intermittently with no captured diagnostic"
+name: "Flaky gating leg: bridge-seam-roundtrip fails intermittently with no captured
+  diagnostic"
 description: >
-  tests/test_bridge_seam_roundtrip.py failed once inside tests/run-bridge-tests.sh (bridge round-trip: 63 passed, 1 failed) and passed standalone and on immediate re-run of the identical command (64/0, twice). Observed 2026-08-01 during T-325's P-011 gate. The runner printed only [FAIL] with the harness output swallowed, so the failing run left no evidence of its cause; the surviving capture is in the session scratchpad as T-326-flaky-seam-roundtrip-evidence.txt. The harness drives a real Playwright chromium via tools/_bridge-seam-roundtrip-cdp.mjs, and several other legs in the same suite drive CDP too, so browser/resource contention is the first hypothesis. This matters beyond one leg: an intermittent failure in the GATING runner makes a red dismissible as 'just flaky', which is exactly how a real regression gets waved through, and it makes a green weaker evidence than it looks. Fix has two halves and the second is the important one: (1) find and remove the nondeterminism, (2) make the runner CAPTURE the failing harness output so a future intermittent failure is diagnosable at all rather than only reproducible.
+  tests/test_bridge_seam_roundtrip.py failed once inside tests/run-bridge-tests.sh
+  (bridge round-trip: 63 passed, 1 failed) and passed standalone and on immediate
+  re-run of the identical command (64/0, twice). Observed 2026-08-01 during T-325's
+  P-011 gate. The runner printed only [FAIL] with the harness output swallowed, so
+  the failing run left no evidence of its cause; the surviving capture is in the session
+  scratchpad as T-326-flaky-seam-roundtrip-evidence.txt. The harness drives a real
+  Playwright chromium via tools/_bridge-seam-roundtrip-cdp.mjs, and several other
+  legs in the same suite drive CDP too, so browser/resource contention is the first
+  hypothesis. This matters beyond one leg: an intermittent failure in the GATING runner
+  makes a red dismissible as 'just flaky', which is exactly how a real regression
+  gets waved through, and it makes a green weaker evidence than it looks. Fix has
+  two halves and the second is the important one: (1) find and remove the nondeterminism,
+  (2) make the runner CAPTURE the failing harness output so a future intermittent
+  failure is diagnosable at all rather than only reproducible.
 
 status: work-completed
 workflow_type: test
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +30,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-01T20:21:48Z
-last_update: 2026-08-01T20:40:27Z
+last_update: '2026-08-16T12:33:50Z'
 date_finished: 2026-08-01T20:40:27Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +42,24 @@ date_finished: 2026-08-01T20:40:27Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:50Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=2 (body:env-class-handled); F-RECALL=2 (body:lightly-promoted); 
+      F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-326: Flaky gating leg: bridge-seam-roundtrip fails intermittently with no captured diagnostic

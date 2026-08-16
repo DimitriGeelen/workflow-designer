@@ -1,13 +1,23 @@
 ---
 id: T-535
-name: "Audit trend detector counts verbatim check strings, so an issue is only 'recurring' while its numbers stop moving"
+name: "Audit trend detector counts verbatim check strings, so an issue is only 'recurring'
+  while its numbers stop moving"
 description: >
-  audit.sh:5520-5535 extracts each WARN/FAIL 'check:' string verbatim and aggregates with sort|uniq -c, firing at count>=3. Any check that embeds its measurement therefore produces a fresh string per run and can never aggregate. Measured over this project's 41 daily audits: the fabric COVERAGE warn appears in 37 audits and its largest identical-string group is 1 - never once reported as recurring. The fabric EDGES warn appears in 10 and is reported as 3, and only because the counts held still for three consecutive days. So the detector fires on STASIS while labelled recurrence, and is least sensitive exactly when a problem is progressing. Vendored .agentic-framework/agents/audit/audit.sh - fix in-tree per G-008 and report upstream. Found while acting on the audit's own 'candidates for practice' trend line under T-432.
+  audit.sh:5520-5535 extracts each WARN/FAIL 'check:' string verbatim and aggregates
+  with sort|uniq -c, firing at count>=3. Any check that embeds its measurement therefore
+  produces a fresh string per run and can never aggregate. Measured over this project's
+  41 daily audits: the fabric COVERAGE warn appears in 37 audits and its largest identical-string
+  group is 1 - never once reported as recurring. The fabric EDGES warn appears in
+  10 and is reported as 3, and only because the counts held still for three consecutive
+  days. So the detector fires on STASIS while labelled recurrence, and is least sensitive
+  exactly when a problem is progressing. Vendored .agentic-framework/agents/audit/audit.sh
+  - fix in-tree per G-008 and report upstream. Found while acting on the audit's own
+  'candidates for practice' trend line under T-432.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +26,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-16T06:49:21Z
-last_update: 2026-08-16T08:59:22Z
+last_update: '2026-08-16T12:34:06Z'
 date_finished: 2026-08-16T08:59:22Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +38,25 @@ date_finished: 2026-08-16T08:59:22Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:06Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 1
+      F1: 0
+      F2: 1
+    rationale: D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=2
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=1 
+      (body/components:prompt-incidental); F1=0 (no-signal); F2=1 
+      (body/components:component-fabric-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-535: Audit trend detector counts verbatim check strings, so an issue is only 'recurring' while its numbers stop moving

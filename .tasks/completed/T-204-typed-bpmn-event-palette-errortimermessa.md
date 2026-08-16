@@ -1,13 +1,25 @@
 ---
 id: T-204
-name: "Typed BPMN event palette: error/timer/message + boundary events (two-slice build)"
+name: "Typed BPMN event palette: error/timer/message + boundary events (two-slice
+  build)"
 description: >
-  Build authorized by T-190 GO (inception, firm post Spike-1+2). Add typed BPMN events to the designer palette using the aef:-extension encoding (IW-1): a BPMN event tag + aef:eventDef marker (kind=error|timer|message + binding: status:issues / cron / bus-topic), riding the tested aef:/x- round-trip channel — NO native bpmn:*EventDefinition machinery required. Two slices under one task (IW-3): Slice 1 = non-boundary error/timer/message (palette entry + subtype + aef: serialization in buildBpmnXml + bridge parity in yaml-to-bpmn.py + mapping-standard row + DI render); Slice 2 = boundary variants (host binding as additive aef field hostRef+boundaryPos+interrupting per scopeOf/constituents precedent T-081; host-follow via groupDrag ~5493; boundary-origin edges via T-168 ports; host-relative render branch in renderNodes ~2354). Target carrier: T-081 collapsed-subProcess (G-3). Guards T-187/T-188 round-trip + T-202 export-contract must stay green.
+  Build authorized by T-190 GO (inception, firm post Spike-1+2). Add typed BPMN events
+  to the designer palette using the aef:-extension encoding (IW-1): a BPMN event tag
+  + aef:eventDef marker (kind=error|timer|message + binding: status:issues / cron
+  / bus-topic), riding the tested aef:/x- round-trip channel — NO native bpmn:*EventDefinition
+  machinery required. Two slices under one task (IW-3): Slice 1 = non-boundary error/timer/message
+  (palette entry + subtype + aef: serialization in buildBpmnXml + bridge parity in
+  yaml-to-bpmn.py + mapping-standard row + DI render); Slice 2 = boundary variants
+  (host binding as additive aef field hostRef+boundaryPos+interrupting per scopeOf/constituents
+  precedent T-081; host-follow via groupDrag ~5493; boundary-origin edges via T-168
+  ports; host-relative render branch in renderNodes ~2354). Target carrier: T-081
+  collapsed-subProcess (G-3). Guards T-187/T-188 round-trip + T-202 export-contract
+  must stay green.
 
 status: work-completed
 workflow_type: build
 owner: human
-horizon: null
+horizon:
 tags: [typed-events, editor, bridge, aef, arc, feature]
 components: []
 related_tasks: []
@@ -16,7 +28,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-18T19:42:25Z
-last_update: 2026-07-29T15:42:36Z
+last_update: '2026-08-16T12:33:43Z'
 date_finished: 2026-07-19T19:27:19Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +40,24 @@ date_finished: 2026-07-19T19:27:19Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:43Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-204: Typed BPMN event palette: error/timer/message + boundary events (two-slice build)

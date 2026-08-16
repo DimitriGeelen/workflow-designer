@@ -2,7 +2,28 @@
 id: T-423
 name: "T-357 step 2: emit BPMN DI additively alongside aef:position"
 description: >
-  Second of the three nested increments under T-357's GO. Emit bpmndi (dc:Bounds for shapes, di:waypoint for edges, label bounds) on export while continuing to write aef:position. Additive: no T-225 silent-migration question because nothing the author wrote is rewritten or dropped, and the intent extensions (forceStraight, routingHint, loopDetour) stay, so the spike-3 intent gap does not bite. Costs: all 24 corpus maps change bytes. [CORRECTED 2026-08-12 by T-473 — the clause that stood here, "so AEF's pinned source_bpmn_sha fixtures need a COORDINATED re-pin — this is the first step in the arc that touches the seam", is FALSE. Measured on AEF's side at rail 584 Q1: source_bpmn_sha is a provenance field THEIR promote tool writes into THEIR corpus meta, keyed by our IW-2 contract; it pins nothing of ours. They hold no copy of examples/aef-processes/rendered at all. The 24 maps are a ZERO-cost change at the seam. See ## Seam cost, corrected.] Blocked on step 1 (T-340 option b) landing. NOT blocked on A-020 — that was answered NO at rail 417 (2026-08-03) and is recorded invalidated: AEF never parsed or emitted DI and holds no record of agreeing to. The consequence sharpens this task rather than gating it — with no downstream DI generator on either side of the seam, emitting DI is NET-NEW CAPABILITY on both sides, not the completion of a handoff someone else was already honouring. Nobody is waiting for these bytes, and [CORRECTED by T-473: "the re-pin is the whole cost" was the conclusion drawn from the false premise above — there is no re-pin, so the seam cost is zero and the remaining cost is entirely one-party: our own _t308-export-byte-identity goes 24/24 drifted] the benefit is portability to standard viewers (bpmn.io, Camunda), not AEF interop.
+  Second of the three nested increments under T-357's GO. Emit bpmndi (dc:Bounds for
+  shapes, di:waypoint for edges, label bounds) on export while continuing to write
+  aef:position. Additive: no T-225 silent-migration question because nothing the author
+  wrote is rewritten or dropped, and the intent extensions (forceStraight, routingHint,
+  loopDetour) stay, so the spike-3 intent gap does not bite. Costs: all 24 corpus
+  maps change bytes. [CORRECTED 2026-08-12 by T-473 — the clause that stood here,
+  "so AEF's pinned source_bpmn_sha fixtures need a COORDINATED re-pin — this is the
+  first step in the arc that touches the seam", is FALSE. Measured on AEF's side at
+  rail 584 Q1: source_bpmn_sha is a provenance field THEIR promote tool writes into
+  THEIR corpus meta, keyed by our IW-2 contract; it pins nothing of ours. They hold
+  no copy of examples/aef-processes/rendered at all. The 24 maps are a ZERO-cost change
+  at the seam. See ## Seam cost, corrected.] Blocked on step 1 (T-340 option b) landing.
+  NOT blocked on A-020 — that was answered NO at rail 417 (2026-08-03) and is recorded
+  invalidated: AEF never parsed or emitted DI and holds no record of agreeing to.
+  The consequence sharpens this task rather than gating it — with no downstream DI
+  generator on either side of the seam, emitting DI is NET-NEW CAPABILITY on both
+  sides, not the completion of a handoff someone else was already honouring. Nobody
+  is waiting for these bytes, and [CORRECTED by T-473: "the re-pin is the whole cost"
+  was the conclusion drawn from the false premise above — there is no re-pin, so the
+  seam cost is zero and the remaining cost is entirely one-party: our own _t308-export-byte-identity
+  goes 24/24 drifted] the benefit is portability to standard viewers (bpmn.io, Camunda),
+  not AEF interop.
 
 status: started-work
 workflow_type: build
@@ -17,8 +38,8 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:27Z
-last_update: 2026-08-15T13:34:26Z
-date_finished: null
+last_update: '2026-08-16T12:33:29Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -29,6 +50,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:29Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 1
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=1 
+      (body/components:prompt-incidental); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-423: T-357 step 2: emit BPMN DI additively alongside aef:position

@@ -1,13 +1,24 @@
 ---
 id: T-365
-name: "fixtures/aef-bpmn asserts a provenance it lacks — claim fixed at source; the rename is a two-party standard delta, not a refactor"
+name: "fixtures/aef-bpmn asserts a provenance it lacks — claim fixed at source; the
+  rename is a two-party standard delta, not a refactor"
 description: >
-  T-364/RAIL-438 surfaced this: the directory name reads as 'AEF's BPMN fixtures' and every file in it was added by an 832 task commit (T-183/192/204/208/214/215/219/235/308/310/311/312/313; three labelled pair-draft, rest ours outright). AEF has 5 files at the same path; we have 18; one of theirs is absent here. I read the name as provenance and published a corroboration claim to the peer that had to be retracted at RAIL-438 — the measurement was careful and the noun came from the filesystem. Blast radius measured: 150 files reference the string, including .context/episodic/* (historical records that must NOT be rewritten — they record what was true when written) and .agentic-framework/docs/reports/* (vendored AEF material, G-008 territory). Needs scoping before any git mv: which reference classes get rewritten, which are frozen history, and whether a rename or a split (seam-fixtures-ours vs genuinely-peer-supplied) is correct.
+  T-364/RAIL-438 surfaced this: the directory name reads as 'AEF's BPMN fixtures'
+  and every file in it was added by an 832 task commit (T-183/192/204/208/214/215/219/235/308/310/311/312/313;
+  three labelled pair-draft, rest ours outright). AEF has 5 files at the same path;
+  we have 18; one of theirs is absent here. I read the name as provenance and published
+  a corroboration claim to the peer that had to be retracted at RAIL-438 — the measurement
+  was careful and the noun came from the filesystem. Blast radius measured: 150 files
+  reference the string, including .context/episodic/* (historical records that must
+  NOT be rewritten — they record what was true when written) and .agentic-framework/docs/reports/*
+  (vendored AEF material, G-008 territory). Needs scoping before any git mv: which
+  reference classes get rewritten, which are frozen history, and whether a rename
+  or a split (seam-fixtures-ours vs genuinely-peer-supplied) is correct.
 
 status: work-completed
 workflow_type: refactor
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +27,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T13:18:53Z
-last_update: 2026-08-11T22:29:03Z
+last_update: '2026-08-16T12:33:53Z'
 date_finished: 2026-08-11T22:29:03Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +39,25 @@ date_finished: 2026-08-11T22:29:03Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:53Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 1
+      F2: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=1 
+      (body/components:context-fabric-incidental); F2=1 
+      (body/components:component-fabric-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-365: fixtures/aef-bpmn asserts a provenance it lacks — claim fixed at source; the rename is a two-party standard delta, not a refactor

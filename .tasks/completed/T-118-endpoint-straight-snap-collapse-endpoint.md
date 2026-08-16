@@ -1,13 +1,25 @@
 ---
 id: T-118
-name: "Endpoint straight-snap: collapse endpoint-adjacent micro-steps on axis-aligned edges"
+name: "Endpoint straight-snap: collapse endpoint-adjacent micro-steps on axis-aligned
+  edges"
 description: >
-  T-117 deferred follow-up (improvement B, fuller). After the re-bake, ~10 residual routing micro-steps remain corpus-wide: endpoint-adjacent 2-4px perpendicular steps on edges whose source and target ports are axis-aligned within tolerance. Two causes: (1) off-centre gateway source-port (diamond drop leaves ~4px off the bottom vertex while target is centred), (2) spurious corridor micro-offset (src==tgt centre but run drifts 2-4px in 2px steps for channel separation that separates nothing). Fix: extend simplifyRoutedPolyline (T-117) with an endpoint straight-snap — when first/last points are axis-aligned within tolerance and all interior vertices are within tolerance of a shared axis coordinate that lies within both node faces, collapse to a single straight run. Guarded by polylineCrossesNodes not increasing (PL-005 self-validating, PD-044 render-only). Genuine migrations (e.g. release e_15, 31px centre diff) excluded by tolerance.
+  T-117 deferred follow-up (improvement B, fuller). After the re-bake, ~10 residual
+  routing micro-steps remain corpus-wide: endpoint-adjacent 2-4px perpendicular steps
+  on edges whose source and target ports are axis-aligned within tolerance. Two causes:
+  (1) off-centre gateway source-port (diamond drop leaves ~4px off the bottom vertex
+  while target is centred), (2) spurious corridor micro-offset (src==tgt centre but
+  run drifts 2-4px in 2px steps for channel separation that separates nothing). Fix:
+  extend simplifyRoutedPolyline (T-117) with an endpoint straight-snap — when first/last
+  points are axis-aligned within tolerance and all interior vertices are within tolerance
+  of a shared axis coordinate that lies within both node faces, collapse to a single
+  straight run. Guarded by polylineCrossesNodes not increasing (PL-005 self-validating,
+  PD-044 render-only). Genuine migrations (e.g. release e_15, 31px centre diff) excluded
+  by tolerance.
 
 status: work-completed
 workflow_type: build
 owner: human
-horizon: null
+horizon:
 tags: [ui, editor, routing, layout]
 components: []
 related_tasks: [T-117, T-116, T-105]
@@ -16,7 +28,7 @@ related_tasks: [T-117, T-116, T-105]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T22:45:18Z
-last_update: 2026-07-29T15:39:22Z
+last_update: '2026-08-16T12:33:37Z'
 date_finished: 2026-07-07T14:18:06Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +40,24 @@ date_finished: 2026-07-07T14:18:06Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:37Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-118: Endpoint straight-snap: collapse endpoint-adjacent micro-steps on axis-aligned edges

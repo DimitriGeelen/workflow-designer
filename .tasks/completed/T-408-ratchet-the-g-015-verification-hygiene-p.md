@@ -1,13 +1,20 @@
 ---
 id: T-408
-name: "Ratchet the G-015 verification-hygiene population: grandfather the 85 known carriers, fail on any new one"
+name: "Ratchet the G-015 verification-hygiene population: grandfather the 85 known
+  carriers, fail on any new one"
 description: >
-  The G-015 carrier population is growing under an open gap: the register measured 11 hard-coded-port verification lines on 2026-08-02; today there are 17 (75 serve-root-diff lines unchanged, 85 distinct task files). CLAUDE.md's ban on hard-coded ports is prose read by nothing, and _t350-verification-hygiene.py checks a single task by ID. Build a tree-wide ratchet: baseline the known carriers, fail only on NEW ones, so leg 1 (the convention change) stays the operator's ruling while the population stops growing silently.
+  The G-015 carrier population is growing under an open gap: the register measured
+  11 hard-coded-port verification lines on 2026-08-02; today there are 17 (75 serve-root-diff
+  lines unchanged, 85 distinct task files). CLAUDE.md's ban on hard-coded ports is
+  prose read by nothing, and _t350-verification-hygiene.py checks a single task by
+  ID. Build a tree-wide ratchet: baseline the known carriers, fail only on NEW ones,
+  so leg 1 (the convention change) stays the operator's ruling while the population
+  stops growing silently.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +23,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-09T10:47:56Z
-last_update: 2026-08-09T10:54:17Z
+last_update: '2026-08-16T12:33:56Z'
 date_finished: 2026-08-09T10:54:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +35,24 @@ date_finished: 2026-08-09T10:54:17Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:56Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-408: Ratchet the G-015 verification-hygiene population: grandfather the 85 known carriers, fail on any new one

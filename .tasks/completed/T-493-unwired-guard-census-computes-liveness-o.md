@@ -1,13 +1,20 @@
 ---
 id: T-493
-name: "unwired-guard census computes liveness one-hop, so dead tools vouch for each other"
+name: "unwired-guard census computes liveness one-hop, so dead tools vouch for each
+  other"
 description: >
-  tools/_t451-unwired-guard-census.py unions every tool named inside any tool into the live set instead of computing reachability from non-tool roots. 22 tools are counted live only because a DEAD tool references them; 10 are standing instruments, not one-shots. Separately its LIVE_SOURCES greps concerns.yaml whole-file while its comment says 'gap closure conditions that RUN', so a tool named in a prose narrative reads as wired. Discovered via T-492. Fixing it grows the finding set, so suite leg 73's ratchet fires and the T-491 baseline must be regenerated deliberately.
+  tools/_t451-unwired-guard-census.py unions every tool named inside any tool into
+  the live set instead of computing reachability from non-tool roots. 22 tools are
+  counted live only because a DEAD tool references them; 10 are standing instruments,
+  not one-shots. Separately its LIVE_SOURCES greps concerns.yaml whole-file while
+  its comment says 'gap closure conditions that RUN', so a tool named in a prose narrative
+  reads as wired. Discovered via T-492. Fixing it grows the finding set, so suite
+  leg 73's ratchet fires and the T-491 baseline must be regenerated deliberately.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: [tools/_t451-unwired-guard-census.py]
 related_tasks: []
@@ -16,7 +23,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-14T06:58:01Z
-last_update: 2026-08-14T07:11:21Z
+last_update: '2026-08-16T12:34:03Z'
 date_finished: 2026-08-14T07:11:21Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +35,24 @@ date_finished: 2026-08-14T07:11:21Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:03Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-493: unwired-guard census computes liveness one-hop, so dead tools vouch for each other

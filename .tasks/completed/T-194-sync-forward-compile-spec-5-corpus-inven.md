@@ -2,12 +2,17 @@
 id: T-194
 name: "Sync forward-compile spec §5 corpus inventory with the 5th (inception) fixture"
 description: >
-  T-192 added tests/fixtures/aef-bpmn/inception-gonogo.bpmn (a hand-authored positive inception case embodying the provisional G-3 marker), but docs/standards/aef-bpmn-forward-compile-v1.md §5 still says 'Four authentic editor-emitted diagrams' and lists only 4. Close the spec-vs-reality drift accurately: distinguish the 4 authentic editor exports from the 1 hand-authored provisional-G-3 fixture, without overstating G-3's status (still Part II provisional pending Dimitri's v1.1 graduation).
+  T-192 added tests/fixtures/aef-bpmn/inception-gonogo.bpmn (a hand-authored positive
+  inception case embodying the provisional G-3 marker), but docs/standards/aef-bpmn-forward-compile-v1.md
+  §5 still says 'Four authentic editor-emitted diagrams' and lists only 4. Close the
+  spec-vs-reality drift accurately: distinguish the 4 authentic editor exports from
+  the 1 hand-authored provisional-G-3 fixture, without overstating G-3's status (still
+  Part II provisional pending Dimitri's v1.1 graduation).
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +21,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-12T19:31:01Z
-last_update: 2026-07-12T19:34:30Z
+last_update: '2026-08-16T12:33:42Z'
 date_finished: 2026-07-12T19:34:30Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +33,24 @@ date_finished: 2026-07-12T19:34:30Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:42Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-194: Sync forward-compile spec §5 corpus inventory with the 5th (inception) fixture

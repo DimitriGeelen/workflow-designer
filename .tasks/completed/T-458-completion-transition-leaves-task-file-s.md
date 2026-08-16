@@ -2,12 +2,21 @@
 id: T-458
 name: "Completion transition leaves task-file state uncommitted"
 description: >
-  Observed 2026-08-12 at the end of a five-completion window: fw task update --status work-completed rewrites the task file (status, horizon null per CTL-030, date_finished, Updates entry) and moves it to .tasks/completed/, but those content edits land AFTER the commit that staged the file. Five task files (T-453 T-454 T-455 T-456 T-457) were left dirty in the working tree even after fw handover --commit ran and pushed, so the completion state of five tasks was not in the repository while the handover describing them was. Not yet established whether this is ordering-specific to how this window interleaved commit-then-complete, or general - recording the observation with the evidence rather than asserting a defect. Deliverable is the commit itself plus the honest note; investigation is a separate task if it recurs.
+  Observed 2026-08-12 at the end of a five-completion window: fw task update --status
+  work-completed rewrites the task file (status, horizon null per CTL-030, date_finished,
+  Updates entry) and moves it to .tasks/completed/, but those content edits land AFTER
+  the commit that staged the file. Five task files (T-453 T-454 T-455 T-456 T-457)
+  were left dirty in the working tree even after fw handover --commit ran and pushed,
+  so the completion state of five tasks was not in the repository while the handover
+  describing them was. Not yet established whether this is ordering-specific to how
+  this window interleaved commit-then-complete, or general - recording the observation
+  with the evidence rather than asserting a defect. Deliverable is the commit itself
+  plus the honest note; investigation is a separate task if it recurs.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T13:43:07Z
-last_update: 2026-08-14T19:12:47Z
+last_update: '2026-08-16T12:34:00Z'
 date_finished: 2026-08-14T19:12:47Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +37,24 @@ date_finished: 2026-08-14T19:12:47Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:00Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-458: Completion transition leaves task-file state uncommitted

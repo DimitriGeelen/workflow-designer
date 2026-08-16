@@ -1,13 +1,18 @@
 ---
 id: T-496
-name: "harness subject derived from __file__ answers confidently about the wrong subject when moved"
+name: "harness subject derived from __file__ answers confidently about the wrong subject
+  when moved"
 description: >
-  Three instances in one week (T-494 EXPECTED_LABEL, T-495 probe copy x2, plus AEF's independent instance at rail 617 §3): a harness that derives its subject from its own file location is copied elsewhere to serve as a counterfactual, resolves the wrong subject, and returns an exit code shaped exactly like the right answer. Fires only when someone is being careful enough to run a counterfactual. Prevention: derive-then-assert.
+  Three instances in one week (T-494 EXPECTED_LABEL, T-495 probe copy x2, plus AEF's
+  independent instance at rail 617 §3): a harness that derives its subject from its
+  own file location is copied elsewhere to serve as a counterfactual, resolves the
+  wrong subject, and returns an exit code shaped exactly like the right answer. Fires
+  only when someone is being careful enough to run a counterfactual. Prevention: derive-then-assert.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +21,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-14T08:00:16Z
-last_update: 2026-08-14T08:04:37Z
+last_update: '2026-08-16T12:34:03Z'
 date_finished: 2026-08-14T08:04:37Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +33,24 @@ date_finished: 2026-08-14T08:04:37Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:03Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=2 
+      (body:telemetry-or-audit-entry); D3=2 (body:default-change); D4=2 
+      (body:env-class-handled); F-RECALL=2 (body:lightly-promoted); F-AUTONOMY=0
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-496: harness subject derived from __file__ answers confidently about the wrong subject when moved

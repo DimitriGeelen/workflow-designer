@@ -1,13 +1,19 @@
 ---
 id: T-230
-name: "S4b: fw bpmn claim CLI — add bpmn subcommand to vendored fw (headless ghost claim, via:cli)"
+name: "S4b: fw bpmn claim CLI — add bpmn subcommand to vendored fw (headless ghost
+  claim, via:cli)"
 description: >
-  S4b of the off-page seam: headless 'fw bpmn claim <uuid> <project>' added as a real bpmn subcommand to the vendored .agentic-framework/bin/fw (operator-decided home). Resolves a ghost by uuid in .context/designer/registry.yaml, removes it from ghosts, appends {uuid,project,ts,via:cli} to claims, writes the uuid into the target map's workflowMeta. Operates only on 832's own store (T-559 boundary). Depends on S4a/T-228 claim-recording path. Split from T-228 per operator decision 2026-07-22.
+  S4b of the off-page seam: headless 'fw bpmn claim <uuid> <project>' added as a real
+  bpmn subcommand to the vendored .agentic-framework/bin/fw (operator-decided home).
+  Resolves a ghost by uuid in .context/designer/registry.yaml, removes it from ghosts,
+  appends {uuid,project,ts,via:cli} to claims, writes the uuid into the target map's
+  workflowMeta. Operates only on 832's own store (T-559 boundary). Depends on S4a/T-228
+  claim-recording path. Split from T-228 per operator decision 2026-07-22.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: [tools/_bpmn-claim-cli-verify.py, tools/bpmn-cli.py]
 related_tasks: []
@@ -16,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T22:42:51Z
-last_update: 2026-07-22T05:59:51Z
+last_update: '2026-08-16T12:33:44Z'
 date_finished: 2026-07-22T05:59:51Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +34,25 @@ date_finished: 2026-07-22T05:59:51Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:44Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 3
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=3 
+      (body:fw-recall-or-memory-link); F-AUTONOMY=0 (no-signal); F3=0 
+      (no-signal); F1=0 (no-signal); F2=1 
+      (body/components:component-fabric-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-230: S4b: fw bpmn claim CLI — add bpmn subcommand to vendored fw (headless ghost claim, via:cli)

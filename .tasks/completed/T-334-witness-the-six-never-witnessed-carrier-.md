@@ -2,12 +2,20 @@
 id: T-334
 name: "Witness the six never-witnessed carrier rules (aef:constituents, aef:scopeOf)"
 description: >
-  T-333 found six validator rules that fire on no corpus document and no fixture: E-CONST-DUP, E-CONST-SHAPE, W-CONST-FIELD, E-SCOPEOF-DANGLING, E-SCOPEOF-SELF, W-SCOPEOF-TYPE. All six are also declared parity gaps, and the parity NOTE argues priority from carrier counts on the form that has NO rule while the form that HAS the rule has zero witnessed firings. These are shipped rules never demonstrated to work. T-309 surfaces validator findings in the designer, so a rule whose predicate is wrong surfaces a wrong finding to an author. Author one fixture per rule, confirm each fires, and delete its NEVER_WITNESSED entry (the count assertion in test_check_pass_reachability.py is answerable in both directions and will go red either way).
+  T-333 found six validator rules that fire on no corpus document and no fixture:
+  E-CONST-DUP, E-CONST-SHAPE, W-CONST-FIELD, E-SCOPEOF-DANGLING, E-SCOPEOF-SELF, W-SCOPEOF-TYPE.
+  All six are also declared parity gaps, and the parity NOTE argues priority from
+  carrier counts on the form that has NO rule while the form that HAS the rule has
+  zero witnessed firings. These are shipped rules never demonstrated to work. T-309
+  surfaces validator findings in the designer, so a rule whose predicate is wrong
+  surfaces a wrong finding to an author. Author one fixture per rule, confirm each
+  fires, and delete its NEVER_WITNESSED entry (the count assertion in test_check_pass_reachability.py
+  is answerable in both directions and will go red either way).
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +24,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T07:41:10Z
-last_update: 2026-08-02T07:45:43Z
+last_update: '2026-08-16T12:33:51Z'
 date_finished: 2026-08-02T07:45:43Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +36,24 @@ date_finished: 2026-08-02T07:45:43Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:51Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-334: Witness the six never-witnessed carrier rules (aef:constituents, aef:scopeOf)

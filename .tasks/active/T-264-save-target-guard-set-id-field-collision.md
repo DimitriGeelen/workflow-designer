@@ -1,8 +1,18 @@
 ---
 id: T-264
-name: "Save-target guard set: ID-field collision feedback + commit-on-blur + load-source mismatch confirm (T-263 GO)"
+name: "Save-target guard set: ID-field collision feedback + commit-on-blur + load-source
+  mismatch confirm (T-263 GO)"
 description: >
-  Build task authorized by T-263 GO (operator decision 2026-07-27). Three guards, zero seam surface, all in src/aef-workflow-designer.html: (1) props-panel ID field shows visible feedback when a rename collides with an existing library key (today: silent revert, 0 alerts/toasts — T-263 probe leg3); (2) ID field commits on blur/Enter instead of every input event (today: successful per-keystroke rename re-renders the panel and dumps focus mid-typing — probe leg2); (3) saveToProject confirms when the current load source names a different map than workflowMeta.id (today: silent overwrite of the original — probe leg4, the AEF rail-225 incident). workflowMeta-id-wins stays the design; no second identity authority. Evidence base: docs/reports/T-263-save-target-binding.md + tools/_t263-save-target-cdp.mjs (extend its legs into regression asserts).
+  Build task authorized by T-263 GO (operator decision 2026-07-27). Three guards,
+  zero seam surface, all in src/aef-workflow-designer.html: (1) props-panel ID field
+  shows visible feedback when a rename collides with an existing library key (today:
+  silent revert, 0 alerts/toasts — T-263 probe leg3); (2) ID field commits on blur/Enter
+  instead of every input event (today: successful per-keystroke rename re-renders
+  the panel and dumps focus mid-typing — probe leg2); (3) saveToProject confirms when
+  the current load source names a different map than workflowMeta.id (today: silent
+  overwrite of the original — probe leg4, the AEF rail-225 incident). workflowMeta-id-wins
+  stays the design; no second identity authority. Evidence base: docs/reports/T-263-save-target-binding.md
+  + tools/_t263-save-target-cdp.mjs (extend its legs into regression asserts).
 
 status: started-work
 workflow_type: build
@@ -16,8 +26,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T21:23:22Z
-last_update: 2026-08-11T22:22:17Z
-date_finished: null
+last_update: '2026-08-16T12:33:26Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +38,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:26Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 1
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=1 
+      (body/components:prompt-incidental); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-264: Save-target guard set: ID-field collision feedback + commit-on-blur + load-source mismatch confirm (T-263 GO)

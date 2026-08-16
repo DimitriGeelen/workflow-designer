@@ -1,13 +1,22 @@
 ---
 id: T-235
-name: "Author S4 picker exemplar via claim of 3ceaf02d and deliver b64+sha to AEF T-2593 intake"
+name: "Author S4 picker exemplar via claim of 3ceaf02d and deliver b64+sha to AEF
+  T-2593 intake"
 description: >
-  Author the S4 picker exemplar for AEF T-2593 intake: via the RUNNING :8834 picker, claim ghost 3ceaf02d (claim-smoke-legacy, referrer claim-smoke-ref — 832-owned fixture); author 3 aef:link legs in the adopted map per AEF spec (rail 149): (a) RESOLVED workflowRef=1f9b5f0c (aef-task-lifecycle, now LIVE after AEF re-verify), (b) GHOST workflowRef=fresh uuid not in store (save-rescan mints it), (c) LEGACY targetWorkflow=review-map name-only. Save (claim fires via:ui). Deliver like pair-draft-3: b64 chunks on the DM + sha256 + version note; AEF drops at tests/fixtures/832/s4-exemplar.{bpmn,sha256} and flips 2 skips in test_s4_exemplar_intake.py. Do NOT touch remaining AEF fixture adb0e0f2.
+  Author the S4 picker exemplar for AEF T-2593 intake: via the RUNNING :8834 picker,
+  claim ghost 3ceaf02d (claim-smoke-legacy, referrer claim-smoke-ref — 832-owned fixture);
+  author 3 aef:link legs in the adopted map per AEF spec (rail 149): (a) RESOLVED
+  workflowRef=1f9b5f0c (aef-task-lifecycle, now LIVE after AEF re-verify), (b) GHOST
+  workflowRef=fresh uuid not in store (save-rescan mints it), (c) LEGACY targetWorkflow=review-map
+  name-only. Save (claim fires via:ui). Deliver like pair-draft-3: b64 chunks on the
+  DM + sha256 + version note; AEF drops at tests/fixtures/832/s4-exemplar.{bpmn,sha256}
+  and flips 2 skips in test_s4_exemplar_intake.py. Do NOT touch remaining AEF fixture
+  adb0e0f2.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-22T06:46:37Z
-last_update: 2026-07-22T18:15:35Z
+last_update: '2026-08-16T12:33:45Z'
 date_finished: 2026-07-22T18:15:35Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +37,24 @@ date_finished: 2026-07-22T18:15:35Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:45Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-235: Author S4 picker exemplar via claim of 3ceaf02d and deliver b64+sha to AEF T-2593 intake

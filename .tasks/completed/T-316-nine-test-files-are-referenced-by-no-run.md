@@ -1,13 +1,30 @@
 ---
 id: T-316
-name: "Nine test files are referenced by no runner: green today, structurally silent tomorrow"
+name: "Nine test files are referenced by no runner: green today, structurally silent
+  tomorrow"
 description: >
-  AEF's rail 347 found seven structural guards in tests/lint/ that no runner globbed - never had - with one red since 2026-06-10, and the reason it survived was a name collision that returned green output about an unrelated tool. Swept our side: our tests/ has no orphaned SUBDIRECTORY, but the same class exists one level down. 9 of 33 tests/test_*.py are named in no runner (run-bridge-tests.sh, run-validator-tests.sh, check-corpus-geometry.sh, check-corpus-node-cuts.sh): test_bridge_seam_roundtrip, test_designer_export_contract, test_designer_owner_derived, test_designer_render, test_forward_fixtures, test_mapping_standard_conformance, test_release_immutability, test_roundtrip_serialization, test_validate_iw9. No pytest config, no conftest, no CI workflow, no fw wiring - they run only when invoked by hand. All 9 pass TODAY, which is why this is not urgent and is exactly why it is dangerous: a suite nobody runs cannot report a failure, so its silence is indistinguishable from health. Several guard the producer seam this arc depends on (forward fixtures, export contract, round-trip serialization, release immutability G-007). Fix is a directory/glob-level orphan guard that fails loudly when a tests/ file no runner references appears, verified RED against a synthetic orphan - not a one-time wiring of these nine, which would leave the next added file in the same hole.
+  AEF's rail 347 found seven structural guards in tests/lint/ that no runner globbed
+  - never had - with one red since 2026-06-10, and the reason it survived was a name
+  collision that returned green output about an unrelated tool. Swept our side: our
+  tests/ has no orphaned SUBDIRECTORY, but the same class exists one level down. 9
+  of 33 tests/test_*.py are named in no runner (run-bridge-tests.sh, run-validator-tests.sh,
+  check-corpus-geometry.sh, check-corpus-node-cuts.sh): test_bridge_seam_roundtrip,
+  test_designer_export_contract, test_designer_owner_derived, test_designer_render,
+  test_forward_fixtures, test_mapping_standard_conformance, test_release_immutability,
+  test_roundtrip_serialization, test_validate_iw9. No pytest config, no conftest,
+  no CI workflow, no fw wiring - they run only when invoked by hand. All 9 pass TODAY,
+  which is why this is not urgent and is exactly why it is dangerous: a suite nobody
+  runs cannot report a failure, so its silence is indistinguishable from health. Several
+  guard the producer seam this arc depends on (forward fixtures, export contract,
+  round-trip serialization, release immutability G-007). Fix is a directory/glob-level
+  orphan guard that fails loudly when a tests/ file no runner references appears,
+  verified RED against a synthetic orphan - not a one-time wiring of these nine, which
+  would leave the next added file in the same hole.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: [tests/test_t316_runner_orphans.py]
 related_tasks: []
@@ -16,7 +33,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-31T10:37:50Z
-last_update: 2026-07-31T11:23:24Z
+last_update: '2026-08-16T12:33:49Z'
 date_finished: 2026-07-31T11:23:24Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +45,24 @@ date_finished: 2026-07-31T11:23:24Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:49Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 3
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=3 
+      (body:component-silent-failure); D3=0 (no-signal); D4=0 (no-signal); 
+      F-RECALL=0 (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-316: Nine test files are referenced by no runner: green today, structurally silent tomorrow

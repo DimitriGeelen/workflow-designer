@@ -1,9 +1,14 @@
 ---
 id: T-440
-name: "Zero-leg blindness beyond bash: the 60+ .mjs CDP probes and every python check that prints PASS on a zero count"
+name: "Zero-leg blindness beyond bash: the 60+ .mjs CDP probes and every python check
+  that prints PASS on a zero count"
 description: >
   Promoted from OBS-023 (T-436 triage). Original observation text:
-  T-429 measured 35 of 35 counter-bearing suites in tools/ as able to exit 0 having run no legs. The class generalises beyond bash: any check whose verdict derives from a tally of FAILURES alone reports 'clean' when it means 'empty'. Unasked so far: the 60+ .mjs CDP probes (out of T-429 scope entirely) and every python check that prints PASS on a zero finding count without printing what it examined.
+  T-429 measured 35 of 35 counter-bearing suites in tools/ as able to exit 0 having
+  run no legs. The class generalises beyond bash: any check whose verdict derives
+  from a tally of FAILURES alone reports 'clean' when it means 'empty'. Unasked so
+  far: the 60+ .mjs CDP probes (out of T-429 scope entirely) and every python check
+  that prints PASS on a zero finding count without printing what it examined.
 
 status: started-work
 workflow_type: build
@@ -17,8 +22,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T22:02:17Z
-last_update: 2026-08-12T09:42:50Z
-date_finished: null
+last_update: '2026-08-16T12:33:29Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -29,6 +34,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:29Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-440: T-429 measured 35 of 35 counter-bearing suites in tools/ as able to exit 0 having run no legs. The class generalises beyond bash: any check whose verdict derives from a tally of FAILURES alone reports 'clean' when it means 'empty'. Unasked so far: the 60+ .mjs CDP probes (out of T-429 scope entirely) and every python check that prints PASS on a zero finding count without printing what it examined.

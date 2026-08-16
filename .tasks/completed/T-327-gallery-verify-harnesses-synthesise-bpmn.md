@@ -1,22 +1,42 @@
 ---
 id: T-327
-name: "Gallery verify harnesses synthesise <bpmn:linkEventThrow>, a host tag no emitter produces (4 sites)"
+name: "Gallery verify harnesses synthesise <bpmn:linkEventThrow>, a host tag no emitter
+  produces (4 sites)"
 description: >
-  Found by the T-324 whole-tree sweep (G-009: a copy-paste defect class needs a sweep, not a single-site fix). tools/_gallery-claim-verify.py:46, _gallery-list-verify.py:61, _gallery-registry-verify.py:52 and :56 each build synthetic BPMN using <bpmn:linkEventThrow> as the host element tag. That is not a BPMN element -- it is our canonical YAML type name in the BPMN namespace -- and NEITHER emitter can produce it: bridge TYPE_MAP and designer TYPE_TAG both rename it to intermediateThrowEvent on export (src/aef-workflow-designer.html:9233-9236). Same class as the defect T-324 just repaired in the byte-pinned offpage-seam.bpmn, at four more sites. All three harnesses PASS today, and the reason they pass is the finding: the store ref-scan classifies off-page legs from <aef:link> and never inspects the host tag -- structurally identical to AEF's Pass 5 blindness. So these guards prove the scanner handles a document shape the emitter CANNOT produce, and say nothing about the shape it does produce. A regression in which the designer emitted a wrong host tag would not be caught by any of them. Fix is to generate the emitter-faithful tag; the harnesses should then still pass, and that they do is the check that they were testing the right document all along. NOT bundled into T-324 (one bug = one task): T-324 is a coordinated re-pin with a peer and mixing unrelated edits would muddy the delivered sha. Also note .editor-versions/_trash/picker-e2e-referrer-*/versions/v1.bpmn carries the same tag -- a trashed artifact produced BY one of these harnesses, which is direct evidence the unfaithful shape escapes into stored documents.
+  Found by the T-324 whole-tree sweep (G-009: a copy-paste defect class needs a sweep,
+  not a single-site fix). tools/_gallery-claim-verify.py:46, _gallery-list-verify.py:61,
+  _gallery-registry-verify.py:52 and :56 each build synthetic BPMN using <bpmn:linkEventThrow>
+  as the host element tag. That is not a BPMN element -- it is our canonical YAML
+  type name in the BPMN namespace -- and NEITHER emitter can produce it: bridge TYPE_MAP
+  and designer TYPE_TAG both rename it to intermediateThrowEvent on export (src/aef-workflow-designer.html:9233-9236).
+  Same class as the defect T-324 just repaired in the byte-pinned offpage-seam.bpmn,
+  at four more sites. All three harnesses PASS today, and the reason they pass is
+  the finding: the store ref-scan classifies off-page legs from <aef:link> and never
+  inspects the host tag -- structurally identical to AEF's Pass 5 blindness. So these
+  guards prove the scanner handles a document shape the emitter CANNOT produce, and
+  say nothing about the shape it does produce. A regression in which the designer
+  emitted a wrong host tag would not be caught by any of them. Fix is to generate
+  the emitter-faithful tag; the harnesses should then still pass, and that they do
+  is the check that they were testing the right document all along. NOT bundled into
+  T-324 (one bug = one task): T-324 is a coordinated re-pin with a peer and mixing
+  unrelated edits would muddy the delivered sha. Also note .editor-versions/_trash/picker-e2e-referrer-*/versions/v1.bpmn
+  carries the same tag -- a trashed artifact produced BY one of these harnesses, which
+  is direct evidence the unfaithful shape escapes into stored documents.
 
 status: work-completed
 workflow_type: build
 owner: claude-code
-horizon: null
+horizon:
 tags: []
-components: [tests/test_xml_node_type_vocab.py, tools/_offpage-seam-parity-verify.py]
+components: [tests/test_xml_node_type_vocab.py, 
+      tools/_offpage-seam-parity-verify.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-01T21:24:20Z
-last_update: 2026-08-01T21:43:26Z
+last_update: '2026-08-16T12:33:50Z'
 date_finished: 2026-08-01T21:43:26Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +48,24 @@ date_finished: 2026-08-01T21:43:26Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:50Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 3
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=3 
+      (body:fw-recall-or-memory-link); F-AUTONOMY=0 (no-signal); F3=0 
+      (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-327: Gallery verify harnesses synthesise <bpmn:linkEventThrow>, a host tag no emitter produces (4 sites)

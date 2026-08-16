@@ -1,13 +1,19 @@
 ---
 id: T-302
-name: "REVIEWER-AC conversion sweep: automate the deterministic half of the approvals queue"
+name: "REVIEWER-AC conversion sweep: automate the deterministic half of the approvals
+  queue"
 description: >
-  Operator directive (2026-07-29): mass-automate the verifications queue via the reviewer agent. Census: 53 [REVIEWER] Human ACs (deterministic, convertible per T-1811/T-1878) vs 128 [REVIEW] (taste - stay human). Sweep: per task run fw reviewer + the AC's own Steps commands; convert passing [REVIEWER] ACs to Agent ACs with the command in ## Verification; record per-task evidence; suggest completion only where no Human ACs remain. NO batch-closing, NO [REVIEW] conversion, NO Human-AC ticking by agent.
+  Operator directive (2026-07-29): mass-automate the verifications queue via the reviewer
+  agent. Census: 53 [REVIEWER] Human ACs (deterministic, convertible per T-1811/T-1878)
+  vs 128 [REVIEW] (taste - stay human). Sweep: per task run fw reviewer + the AC's
+  own Steps commands; convert passing [REVIEWER] ACs to Agent ACs with the command
+  in ## Verification; record per-task evidence; suggest completion only where no Human
+  ACs remain. NO batch-closing, NO [REVIEW] conversion, NO Human-AC ticking by agent.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-29T11:28:25Z
-last_update: 2026-07-29T13:19:38Z
+last_update: '2026-08-16T12:33:48Z'
 date_finished: 2026-07-29T13:19:38Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +34,24 @@ date_finished: 2026-07-29T13:19:38Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:48Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 4
+      D4: 2
+      F-RECALL: 3
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=4 
+      (body:framework-level-ux); D4=2 (body:env-class-handled); F-RECALL=3 
+      (body:fw-recall-or-memory-link); F-AUTONOMY=0 (no-signal); F3=0 
+      (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-302: REVIEWER-AC conversion sweep: automate the deterministic half of the approvals queue

@@ -2,7 +2,10 @@
 id: T-102
 name: "mapMessiness false-positive: branch-stack pitch offsets fire Clean nudge spuriously"
 description: >
-  mapMessiness (T-100) counts the by-design centre offset between a branch-stack member (held at T-093 pitch by align-rows) and an aligned neighbour as a wave, firing the Clean nudge on maps Clean has already fully tidied. Fix: exclude waves where either endpoint is a branch-stack member (only nudge about mess Clean can fix).
+  mapMessiness (T-100) counts the by-design centre offset between a branch-stack member
+  (held at T-093 pitch by align-rows) and an aligned neighbour as a wave, firing the
+  Clean nudge on maps Clean has already fully tidied. Fix: exclude waves where either
+  endpoint is a branch-stack member (only nudge about mess Clean can fix).
 
 status: started-work
 workflow_type: build
@@ -16,8 +19,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T16:49:08Z
-last_update: 2026-08-09T11:36:52Z
-date_finished: null
+last_update: '2026-08-16T12:33:25Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +31,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:25Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 1
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=1 
+      (body:episodic-only); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-102: mapMessiness false-positive: branch-stack pitch offsets fire Clean nudge spuriously

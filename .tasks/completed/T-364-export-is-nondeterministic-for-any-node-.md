@@ -1,13 +1,23 @@
 ---
 id: T-364
-name: "Export is nondeterministic for any node lacking aef:uid: a fresh uid is minted per parse, so third-party documents never round-trip byte-stably"
+name: "Export is nondeterministic for any node lacking aef:uid: a fresh uid is minted
+  per parse, so third-party documents never round-trip byte-stably"
 description: >
-  Found under T-358 while measuring repair candidates. buildBpmnXml emits a fresh randomly-minted aef:uid for every node that did not arrive with one, so two consecutive parse->emit cycles of the SAME third-party input produce different bytes (kitchen-sink.bpmn: 81 lines differ). Designer-produced maps carry uids and are stable (audit-process 13563 bytes, arc-lifecycle 12270). Two consequences: (1) opening a third-party file twice yields two different documents, and any consumer keying on aef:uid sees a new identity per open; (2) the _t308 byte-identity gate (24/24 identical) is sound only for the designer-produced population that happens to carry uids, and is structurally incapable of reporting on the third-party population every repair in this arc targets. Evidence: tools/_t358-export-determinism.mjs (exit 1 today, 4 of 6 documents unstable).
+  Found under T-358 while measuring repair candidates. buildBpmnXml emits a fresh
+  randomly-minted aef:uid for every node that did not arrive with one, so two consecutive
+  parse->emit cycles of the SAME third-party input produce different bytes (kitchen-sink.bpmn:
+  81 lines differ). Designer-produced maps carry uids and are stable (audit-process
+  13563 bytes, arc-lifecycle 12270). Two consequences: (1) opening a third-party file
+  twice yields two different documents, and any consumer keying on aef:uid sees a
+  new identity per open; (2) the _t308 byte-identity gate (24/24 identical) is sound
+  only for the designer-produced population that happens to carry uids, and is structurally
+  incapable of reporting on the third-party population every repair in this arc targets.
+  Evidence: tools/_t358-export-determinism.mjs (exit 1 today, 4 of 6 documents unstable).
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +26,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-04T10:33:42Z
-last_update: 2026-08-04T14:16:11Z
+last_update: '2026-08-16T12:33:53Z'
 date_finished: 2026-08-04T14:16:11Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +38,24 @@ date_finished: 2026-08-04T14:16:11Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:53Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 3
+      F-AUTONOMY: 0
+      F3: 1
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=3 
+      (body:fw-recall-or-memory-link); F-AUTONOMY=0 (no-signal); F3=1 
+      (body/components:prompt-incidental); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-364: Export is nondeterministic for any node lacking aef:uid: a fresh uid is minted per parse, so third-party documents never round-trip byte-stably

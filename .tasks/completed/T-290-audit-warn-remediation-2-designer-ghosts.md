@@ -1,13 +1,15 @@
 ---
 id: T-290
-name: "Audit-warn remediation: 2 designer ghosts past grace window (claim-smoke-legacy referrer)"
+name: "Audit-warn remediation: 2 designer ghosts past grace window (claim-smoke-legacy
+  referrer)"
 description: >
-  Audit-warn remediation: 2 designer ghosts past grace window (claim-smoke-legacy referrer)
+  Audit-warn remediation: 2 designer ghosts past grace window (claim-smoke-legacy
+  referrer)
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +18,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-28T19:58:24Z
-last_update: 2026-07-28T20:04:25Z
+last_update: '2026-08-16T12:33:48Z'
 date_finished: 2026-07-28T20:04:25Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +30,24 @@ date_finished: 2026-07-28T20:04:25Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:48Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 4
+      D3: 2
+      D4: 2
+      F-RECALL: 3
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=4 (body:fw-audit-or-doctor); D3=2
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=3 
+      (body:fw-recall-or-memory-link); F-AUTONOMY=0 (no-signal); F3=0 
+      (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-290: Audit-warn remediation: 2 designer ghosts past grace window (claim-smoke-legacy referrer)

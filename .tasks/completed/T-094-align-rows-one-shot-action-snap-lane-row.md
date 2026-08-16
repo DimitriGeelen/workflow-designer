@@ -2,12 +2,16 @@
 id: T-094
 name: "Align rows one-shot action: snap lane row-mates to median centre-y"
 description: >
-  T-092 GO Phase A option 6: 168 same-lane node pairs sit 1-14px off each other's centre-y (mixed node heights 64/42/28 make top-aligned placements wavy; task-lifecycle 26, verification-gate 25 pairs). Add an Align-rows one-shot action (Clean toolbar menu) that snaps each lane row's members to the row median centre-y. Undoable; mutates geometry only on explicit action (PD-044).
+  T-092 GO Phase A option 6: 168 same-lane node pairs sit 1-14px off each other's
+  centre-y (mixed node heights 64/42/28 make top-aligned placements wavy; task-lifecycle
+  26, verification-gate 25 pairs). Add an Align-rows one-shot action (Clean toolbar
+  menu) that snaps each lane row's members to the row median centre-y. Undoable; mutates
+  geometry only on explicit action (PD-044).
 
 status: work-completed
 workflow_type: build
 owner: human
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +20,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T23:21:34Z
-last_update: 2026-07-29T15:42:30Z
+last_update: '2026-08-16T12:33:36Z'
 date_finished: 2026-07-04T23:40:35Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +32,24 @@ date_finished: 2026-07-04T23:40:35Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:36Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 3
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=3 (body:portability-abstraction); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-094: Align rows one-shot action: snap lane row-mates to median centre-y

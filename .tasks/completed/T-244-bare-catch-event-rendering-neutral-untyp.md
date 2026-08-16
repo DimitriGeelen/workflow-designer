@@ -1,18 +1,24 @@
 ---
 id: T-244
-name: "Bare catch-event rendering: neutral untyped glyph instead of dead link-catch UI"
+name: "Bare catch-event rendering: neutral untyped glyph instead of dead link-catch
+  UI"
 description: >
-  AEF rail 174 (their T-2613, operator-reported): a bare intermediateCatchEvent (no aef:link, no aef:eventDef) renders the link-catch UI with an empty target that can never bind — operator read it as a broken connector. Open question: should a bare catch render the link-catch UI with an empty disabled target, or a neutral untyped glyph? Low priority — AEF corpus no longer exercises the case (they typed all bare catches). One question, one go/no-go.
+  AEF rail 174 (their T-2613, operator-reported): a bare intermediateCatchEvent (no
+  aef:link, no aef:eventDef) renders the link-catch UI with an empty target that can
+  never bind — operator read it as a broken connector. Open question: should a bare
+  catch render the link-catch UI with an empty disabled target, or a neutral untyped
+  glyph? Low priority — AEF corpus no longer exercises the case (they typed all bare
+  catches). One question, one go/no-go.
 
 status: work-completed
 workflow_type: inception
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-23T09:15:35Z
-last_update: 2026-07-29T17:46:29Z
+last_update: '2026-08-16T12:33:45Z'
 date_finished: 2026-07-29T17:46:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -22,6 +28,23 @@ target_blast_radius: 3            # int 0..9. Anticipated component count of the
                                   # Guide: 0=docs only, 1=single file, 3=small subsystem (S), 5=cross-subsystem (M), 7=multi-arc (L), 9=framework-wide (XL).
 voi_score: 0.5                    # float 0..1. Value of Information — expected value of resolving this question,
                                   # independent of build cost. Higher when answer affects many tasks or unblocks a strategic decision. Required.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:45Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 2
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 2
+      F3: 2
+      F1: 2
+      F2: 2
+    rationale: D1=2 (no-signal); D2=2 (no-signal); D3=2 (no-signal); D4=2 
+      (no-signal); F-RECALL=2 (no-signal); F-AUTONOMY=2 (no-signal); F3=2 
+      (no-signal); F1=2 (no-signal); F2=2 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-244: Bare catch-event rendering: neutral untyped glyph instead of dead link-catch UI

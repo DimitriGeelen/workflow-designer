@@ -1,13 +1,19 @@
 ---
 id: T-065
-name: "Map fabric blast-radius flow (impact analysis: commit -> cards -> transitive downstream)"
+name: "Map fabric blast-radius flow (impact analysis: commit -> cards -> transitive
+  downstream)"
 description: >
-  Dogfood map of the vendored fabric agent blast-radius path: git ref -> changed files -> per-file component-card lookup (multiInstance over changed set) -> transitive downstream traversal (worklist loop) -> impact report. Ground truth: .agentic-framework/agents/fabric/fabric.sh:113-117 + lib/traverse.sh + lib/query.sh. Produces examples/aef-processes/fabric-blast-radius.workflow.yaml + friction report. First corpus map exercising a transitive-closure/worklist shape AND the T-063 structured multiInstance/aggregation keys.
+  Dogfood map of the vendored fabric agent blast-radius path: git ref -> changed files
+  -> per-file component-card lookup (multiInstance over changed set) -> transitive
+  downstream traversal (worklist loop) -> impact report. Ground truth: .agentic-framework/agents/fabric/fabric.sh:113-117
+  + lib/traverse.sh + lib/query.sh. Produces examples/aef-processes/fabric-blast-radius.workflow.yaml
+  + friction report. First corpus map exercising a transitive-closure/worklist shape
+  AND the T-063 structured multiInstance/aggregation keys.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T07:53:00Z
-last_update: 2026-07-04T07:57:14Z
+last_update: '2026-08-16T12:33:34Z'
 date_finished: 2026-07-04T07:57:14Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +34,24 @@ date_finished: 2026-07-04T07:57:14Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:34Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 1
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=1 (body/components:component-fabric-incidental)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-065: Map fabric blast-radius flow (impact analysis: commit -> cards -> transitive downstream)

@@ -3,17 +3,35 @@ id: T-136
 name: "Overlapping arrow-ends: selected line unresponsive at convergence points"
 description: >
   When 2+ edge endpoints share a connection point (fork/join), the selected line often
-  can't be clicked/selected — likely the T-133 r11 endpoint halo shadowing sibling edges.
+  can't be clicked/selected — likely the T-133 r11 endpoint halo shadowing sibling
+  edges.
 status: work-completed
 workflow_type: build
 owner: human
-horizon: null
+horizon:
 tags: [bug, editor, regression-suspect]
 components: []
 related_tasks: [T-133]
 created: 2026-07-06T16:00:00Z
-last_update: 2026-07-29T15:39:26Z
+last_update: '2026-08-16T12:33:39Z'
 date_finished: 2026-07-06T16:19:11Z
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:39Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 1
+      D2: 4
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=1 (body:fix-without-learning); D2=4 (body:fw-audit-or-doctor);
+      D3=0 (no-signal); D4=0 (no-signal); F-RECALL=0 (no-signal); F-AUTONOMY=0 
+      (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-136: Overlapping arrow-ends — selected line unresponsive at convergence points

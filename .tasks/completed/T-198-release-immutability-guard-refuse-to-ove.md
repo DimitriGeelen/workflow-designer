@@ -1,13 +1,22 @@
 ---
 id: T-198
-name: "Release immutability guard: refuse to overwrite an already-released VERSION with different bytes (G-007)"
+name: "Release immutability guard: refuse to overwrite an already-released VERSION
+  with different bytes (G-007)"
 description: >
-  scripts/release-designer.sh:29 does an unconditional cp of src over dist/aef-workflow-designer-$VERSION.html. Re-running at an already-released VERSION silently mutates the artifact AEF has pinned (0.2.0 @ e301986b, cited in mapping-v1:164) and rewrites MANIFEST.yaml's sha to match the mutation — every existing guard stays green because they check internal self-consistency (artifact==src, manifest==artifact), never immutability-vs-history. Add a fail-closed guard: if the target artifact already exists AND its bytes differ from src, abort with an actionable message (bump VERSION, or set an explicit deliberate-recut bypass). Land BEFORE T-197, the first src change since 0.2.0 shipped, whose render gate forces a build and puts the unguarded cp on the happy path. Register: G-007.
+  scripts/release-designer.sh:29 does an unconditional cp of src over dist/aef-workflow-designer-$VERSION.html.
+  Re-running at an already-released VERSION silently mutates the artifact AEF has
+  pinned (0.2.0 @ e301986b, cited in mapping-v1:164) and rewrites MANIFEST.yaml's
+  sha to match the mutation — every existing guard stays green because they check
+  internal self-consistency (artifact==src, manifest==artifact), never immutability-vs-history.
+  Add a fail-closed guard: if the target artifact already exists AND its bytes differ
+  from src, abort with an actionable message (bump VERSION, or set an explicit deliberate-recut
+  bypass). Land BEFORE T-197, the first src change since 0.2.0 shipped, whose render
+  gate forces a build and puts the unguarded cp on the happy path. Register: G-007.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: [release, arc:designer-authoring-surface]
 components: []
 related_tasks: [T-197, T-178, T-174]
@@ -16,7 +25,7 @@ related_tasks: [T-197, T-178, T-174]
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-16T05:26:33Z
-last_update: 2026-07-16T05:30:52Z
+last_update: '2026-08-16T12:33:42Z'
 date_finished: 2026-07-16T05:30:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +37,24 @@ date_finished: 2026-07-16T05:30:52Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:42Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 4
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=4 
+      (body:framework-level-ux); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-198: Release immutability guard: refuse to overwrite an already-released VERSION with different bytes (G-007)

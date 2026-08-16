@@ -1,13 +1,25 @@
 ---
 id: T-445
-name: "G-032 closure condition is satisfiable while the route is still broken: AEF's tree returns 1 of 112"
+name: "G-032 closure condition is satisfiable while the route is still broken: AEF's
+  tree returns 1 of 112"
 description: >
-  TITLE FALSIFIED BY THE FIRST MEASUREMENT, KEPT SO THE CORRECTION IS TRACEABLE. AEF (DM 549 §1) fixed handover.sh both sites, measured their own tree at 1 row of 112 pending (and 1 of 3 at :386), and reported that G-032's closure condition would have been satisfied by it. Checked against the register before building: the condition already demanded line-count EQUALITY with `fw note count`, so their partial listing fails it and G-032 would NOT have closed. What survives the correction is the instrument, not the register - _t436-inbox-route-probe.sh tested rows==0 and left the equality in a failure-message string, and my tree is pinned in DEFECT so the PARTIAL and FIXED arms had never once fired. Delivered: three named states in probe and register with PARTIAL called out as worse than the zero it replaces, a mutation harness driving all three through the probe's real entry point, and G-032 as the first entry ever to carry closure_check_command.
+  TITLE FALSIFIED BY THE FIRST MEASUREMENT, KEPT SO THE CORRECTION IS TRACEABLE. AEF
+  (DM 549 §1) fixed handover.sh both sites, measured their own tree at 1 row of 112
+  pending (and 1 of 3 at :386), and reported that G-032's closure condition would
+  have been satisfied by it. Checked against the register before building: the condition
+  already demanded line-count EQUALITY with `fw note count`, so their partial listing
+  fails it and G-032 would NOT have closed. What survives the correction is the instrument,
+  not the register - _t436-inbox-route-probe.sh tested rows==0 and left the equality
+  in a failure-message string, and my tree is pinned in DEFECT so the PARTIAL and
+  FIXED arms had never once fired. Delivered: three named states in probe and register
+  with PARTIAL called out as worse than the zero it replaces, a mutation harness driving
+  all three through the probe's real entry point, and G-032 as the first entry ever
+  to carry closure_check_command.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +28,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T22:52:35Z
-last_update: 2026-08-11T22:59:29Z
+last_update: '2026-08-16T12:33:58Z'
 date_finished: 2026-08-11T22:59:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +40,24 @@ date_finished: 2026-08-11T22:59:29Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:58Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-445: G-032 closure condition is satisfiable while the route is still broken: AEF's tree returns 1 of 112

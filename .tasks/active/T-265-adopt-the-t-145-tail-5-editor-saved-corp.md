@@ -1,8 +1,16 @@
 ---
 id: T-265
-name: "Adopt the T-145 tail: 5 editor-saved corpus maps dirty in working tree since Jul 9"
+name: "Adopt the T-145 tail: 5 editor-saved corpus maps dirty in working tree since
+  Jul 9"
 description: >
-  Working tree has carried uncommitted editor re-saves of 5 rendered corpus maps since 2026-07-09 16:37 (audit-process, harvest-pipeline, review-emission, task-lifecycle, verification-gate) — the unfinished tail of T-145 "Adopt 11 editor-saved layouts as canonical corpus" (2d33b2b): 4 were re-saved but never adopted, harvest-pipeline was re-saved again after adoption. Operator confirmed the discard-and-recreate intent. Decide: adopt (commit under this task, re-verify fixture pins + geometry sweep) or discard. Interacts with T-101 baking (T-125 compaction would re-derive geometry on bake anyway).
+  Working tree has carried uncommitted editor re-saves of 5 rendered corpus maps since
+  2026-07-09 16:37 (audit-process, harvest-pipeline, review-emission, task-lifecycle,
+  verification-gate) — the unfinished tail of T-145 "Adopt 11 editor-saved layouts
+  as canonical corpus" (2d33b2b): 4 were re-saved but never adopted, harvest-pipeline
+  was re-saved again after adoption. Operator confirmed the discard-and-recreate intent.
+  Decide: adopt (commit under this task, re-verify fixture pins + geometry sweep)
+  or discard. Interacts with T-101 baking (T-125 compaction would re-derive geometry
+  on bake anyway).
 
 status: started-work
 workflow_type: build
@@ -16,8 +24,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T22:20:48Z
-last_update: 2026-07-28T17:54:14Z
-date_finished: null
+last_update: '2026-08-16T12:33:26Z'
+date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -28,6 +36,24 @@ date_finished: null
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:26Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-265: Adopt the T-145 tail: 5 editor-saved corpus maps dirty in working tree since Jul 9

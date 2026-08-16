@@ -2,12 +2,15 @@
 id: T-284
 name: "Gallery serves the app-processes corpus (second-tenant maps visible to operator)"
 description: >
-  T-283 shipped examples/app-processes/ (second-tenant corpus home) but tools/serve-gallery.sh only assembles examples/aef-processes/rendered — the customer-refund map is invisible on the :8834 gallery. Add app-processes/rendered to the assembly (index auto-lists), rebuild the serve root, verify the map is served.
+  T-283 shipped examples/app-processes/ (second-tenant corpus home) but tools/serve-gallery.sh
+  only assembles examples/aef-processes/rendered — the customer-refund map is invisible
+  on the :8834 gallery. Add app-processes/rendered to the assembly (index auto-lists),
+  rebuild the serve root, verify the map is served.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: [arc:designer-authoring-surface]
 components: []
 related_tasks: []
@@ -16,7 +19,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-28T16:25:03Z
-last_update: 2026-07-28T17:10:46Z
+last_update: '2026-08-16T12:33:47Z'
 date_finished: 2026-07-28T17:10:46Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +31,24 @@ date_finished: 2026-07-28T17:10:46Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:47Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-284: Gallery serves the app-processes corpus (second-tenant maps visible to operator)

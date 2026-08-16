@@ -1,13 +1,23 @@
 ---
 id: T-081
-name: "subProcess node type phase 1: collapsed-only node + aef:constituents + scopeOf marker"
+name: "subProcess node type phase 1: collapsed-only node + aef:constituents + scopeOf
+  marker"
 description: >
-  Build authorized by T-068 GO (2026-07-04). Scope per docs/reports/T-068-constituents-inception.md §Spike B staged path, phase 1 ONLY: (1) schema: subProcess node type + constituents: list + optional scopeOf: back-reference; (2) bridge: bpmn:subProcess element (TYPE_MAP passthrough) + aef:constituents emission mirroring the multiInstance pattern; (3) editor: NODE_DEFAULTS entry, collapsed box glyph with plus marker + constituent-count badge, parse/build of aef:constituents (G-002: add cross-seam consistency test); (4) validator: new node type + constituents rules; (5) migrate the 4 x-* corpus maps (verification-gate g_gates, git-commit-flow x-checks, resume-status x-sources, session-capture x-captures). OUT: any child flow-node nesting (phase 2 — own inception; parser-scoping hazard fenced there).
+  Build authorized by T-068 GO (2026-07-04). Scope per docs/reports/T-068-constituents-inception.md
+  §Spike B staged path, phase 1 ONLY: (1) schema: subProcess node type + constituents:
+  list + optional scopeOf: back-reference; (2) bridge: bpmn:subProcess element (TYPE_MAP
+  passthrough) + aef:constituents emission mirroring the multiInstance pattern; (3)
+  editor: NODE_DEFAULTS entry, collapsed box glyph with plus marker + constituent-count
+  badge, parse/build of aef:constituents (G-002: add cross-seam consistency test);
+  (4) validator: new node type + constituents rules; (5) migrate the 4 x-* corpus
+  maps (verification-gate g_gates, git-commit-flow x-checks, resume-status x-sources,
+  session-capture x-captures). OUT: any child flow-node nesting (phase 2 — own inception;
+  parser-scoping hazard fenced there).
 
 status: work-completed
 workflow_type: build
 owner: human
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +26,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-04T13:34:26Z
-last_update: 2026-07-29T15:39:08Z
+last_update: '2026-08-16T12:33:35Z'
 date_finished: 2026-07-04T14:32:01Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +38,24 @@ date_finished: 2026-07-04T14:32:01Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:35Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 3
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=3 (body:portability-abstraction); F-RECALL=2 (body:lightly-promoted); 
+      F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-081: subProcess node type phase 1: collapsed-only node + aef:constituents + scopeOf marker

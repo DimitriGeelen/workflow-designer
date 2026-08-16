@@ -1,13 +1,21 @@
 ---
 id: T-231
-name: "Harden serve-gallery.sh: clean-stop-before-bind + fail-loud on port-in-use + behavior probe (committed!=serving prevention)"
+name: "Harden serve-gallery.sh: clean-stop-before-bind + fail-loud on port-in-use
+  + behavior probe (committed!=serving prevention)"
 description: >
-  serve-gallery.sh line 57 execs python3 gallery-serve.py --bind without stopping an existing server on the port; if the port is held the new process fails to bind and dies silently, leaving the STALE process serving old code (committed!=serving, hit twice: rail offset 137 + S4a). Harden: stop any gallery-serve on the target PORT first (SIGINT, it ignores SIGTERM), confirm the port is free, then bind; fail loudly if the port stays held; emit the served process's start-time so verify-live can assert start-time>commit-time. Add a post-deploy behavior probe helper (not a source grep). Prevention for the verify-live learning.
+  serve-gallery.sh line 57 execs python3 gallery-serve.py --bind without stopping
+  an existing server on the port; if the port is held the new process fails to bind
+  and dies silently, leaving the STALE process serving old code (committed!=serving,
+  hit twice: rail offset 137 + S4a). Harden: stop any gallery-serve on the target
+  PORT first (SIGINT, it ignores SIGTERM), confirm the port is free, then bind; fail
+  loudly if the port stays held; emit the served process's start-time so verify-live
+  can assert start-time>commit-time. Add a post-deploy behavior probe helper (not
+  a source grep). Prevention for the verify-live learning.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +24,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-21T23:28:52Z
-last_update: 2026-07-22T05:38:51Z
+last_update: '2026-08-16T12:33:45Z'
 date_finished: 2026-07-22T05:38:51Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +36,24 @@ date_finished: 2026-07-22T05:38:51Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:45Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 2
+      F-RECALL: 3
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=2 (body:env-class-handled); F-RECALL=3 (body:fw-recall-or-memory-link);
+      F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-231: Harden serve-gallery.sh: clean-stop-before-bind + fail-loud on port-in-use + behavior probe (committed!=serving prevention)

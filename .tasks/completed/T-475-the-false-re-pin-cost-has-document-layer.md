@@ -1,13 +1,21 @@
 ---
 id: T-475
-name: "The false re-pin cost has document-layer carriers including the arc's parent GO decision"
+name: "The false re-pin cost has document-layer carriers including the arc's parent
+  GO decision"
 description: >
-  T-473 fixed the false coordinated-re-pin premise in T-423 and T-474 fixed its five code-layer carriers. A census of .tasks/active and docs/ finds nine more, of which T-423/T-340/T-469/T-471 are already annotated and the rest are not: T-357 (the arc's PARENT GO decision), T-309, and the T-357/T-173/T-309 reports. Having just written a task about the fix-one-of-N failure mode, stopping at the code layer would be that error. Annotate the unannotated carriers with the rail-584 measurement, preserving the original wording as evidence. Does not re-open any GO decision and does not touch corpus bytes.
+  T-473 fixed the false coordinated-re-pin premise in T-423 and T-474 fixed its five
+  code-layer carriers. A census of .tasks/active and docs/ finds nine more, of which
+  T-423/T-340/T-469/T-471 are already annotated and the rest are not: T-357 (the arc's
+  PARENT GO decision), T-309, and the T-357/T-173/T-309 reports. Having just written
+  a task about the fix-one-of-N failure mode, stopping at the code layer would be
+  that error. Annotate the unannotated carriers with the rail-584 measurement, preserving
+  the original wording as evidence. Does not re-open any GO decision and does not
+  touch corpus bytes.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +24,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T21:02:04Z
-last_update: 2026-08-12T21:05:01Z
+last_update: '2026-08-16T12:34:01Z'
 date_finished: 2026-08-12T21:05:01Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +36,24 @@ date_finished: 2026-08-12T21:05:01Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:34:01Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-475: The false re-pin cost has document-layer carriers including the arc's parent GO decision

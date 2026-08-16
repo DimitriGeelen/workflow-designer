@@ -1,13 +1,30 @@
 ---
 id: T-319
-name: "Rule: exclusiveGateway whose branches all reconverge immediately is a decision without consequence (T-309 IW-4)"
+name: "Rule: exclusiveGateway whose branches all reconverge immediately is a decision
+  without consequence (T-309 IW-4)"
 description: >
-  The example that started T-309: an exclusiveGateway fanning six labelled branches - external, dependency, unknown, design, environment, code - into a single shared target. Exclusive is semantically correct there (a failure has one type; parallel would fire all six), but six branches that reconverge immediately with no intervening difference is a decision without consequence: a data field wearing a gateway's clothes. The operator spotted it by eye, which is the work the validator exists to stop doing by eye. Not covered by any current rule, including T-317's W-XML-GW-AMBIGUOUS - that fires on missing conditions, whereas this case can be fully conditioned and still pointless. NOT to be built unilaterally: unlike T-312 (predicate adopted verbatim from AEF) and T-317 (parity with an existing in-house rule), this is NEW intelligence with a taste component, and the motivating instance is AEF-authored content, so the rule would fire on peer maps. House pattern for a new cross-toolchain rule is to settle the predicate on the rail first. Open questions to pose: does 'no intervening difference' mean literally identical targetRef, or targets that converge within N nodes; is a labelled-but-conditionless fan-in already covered by W-XML-GW-AMBIGUOUS in practice; and is this a validator rule at all or an advisory the designer shows only while authoring.
+  The example that started T-309: an exclusiveGateway fanning six labelled branches
+  - external, dependency, unknown, design, environment, code - into a single shared
+  target. Exclusive is semantically correct there (a failure has one type; parallel
+  would fire all six), but six branches that reconverge immediately with no intervening
+  difference is a decision without consequence: a data field wearing a gateway's clothes.
+  The operator spotted it by eye, which is the work the validator exists to stop doing
+  by eye. Not covered by any current rule, including T-317's W-XML-GW-AMBIGUOUS -
+  that fires on missing conditions, whereas this case can be fully conditioned and
+  still pointless. NOT to be built unilaterally: unlike T-312 (predicate adopted verbatim
+  from AEF) and T-317 (parity with an existing in-house rule), this is NEW intelligence
+  with a taste component, and the motivating instance is AEF-authored content, so
+  the rule would fire on peer maps. House pattern for a new cross-toolchain rule is
+  to settle the predicate on the rail first. Open questions to pose: does 'no intervening
+  difference' mean literally identical targetRef, or targets that converge within
+  N nodes; is a labelled-but-conditionless fan-in already covered by W-XML-GW-AMBIGUOUS
+  in practice; and is this a validator rule at all or an advisory the designer shows
+  only while authoring.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +33,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-31T11:41:47Z
-last_update: 2026-07-31T12:27:53Z
+last_update: '2026-08-16T12:33:49Z'
 date_finished: 2026-07-31T12:27:53Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +45,24 @@ date_finished: 2026-07-31T12:27:53Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:49Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-319: Rule: exclusiveGateway whose branches all reconverge immediately is a decision without consequence (T-309 IW-4)

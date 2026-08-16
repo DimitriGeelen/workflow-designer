@@ -2,12 +2,22 @@
 id: T-434
 name: "Backfill horizon: null into the 59 completed tasks CTL-030 flags"
 description: >
-  T-432 measured 59 of 374 completed tasks carrying stored horizon='now' where CTL-030 expects null/absent. The source is already plugged (update-task.sh:1896 writes horizon: null at completion; verified working on T-427/T-429/T-431), so this is terminal residue from the window between the T-1068 auto-promote existing and the plug landing. Mechanical, reversible, and it converts the oe-daily section from 60 FAIL to 1 — the remaining FAIL being D2, the human review queue, which is a working signal and not a defect. Doing this BEFORE the T-432 gate-scope decision makes option (c) free: widening the push gate to oe-daily costs nothing once the residue is gone, and then catches the next regression of a class that has already recurred 8+ times upstream. Only completed/ files are touched, only the horizon field, and only where the value is 'now'.
+  T-432 measured 59 of 374 completed tasks carrying stored horizon='now' where CTL-030
+  expects null/absent. The source is already plugged (update-task.sh:1896 writes horizon:
+  null at completion; verified working on T-427/T-429/T-431), so this is terminal
+  residue from the window between the T-1068 auto-promote existing and the plug landing.
+  Mechanical, reversible, and it converts the oe-daily section from 60 FAIL to 1 —
+  the remaining FAIL being D2, the human review queue, which is a working signal and
+  not a defect. Doing this BEFORE the T-432 gate-scope decision makes option (c) free:
+  widening the push gate to oe-daily costs nothing once the residue is gone, and then
+  catches the next regression of a class that has already recurred 8+ times upstream.
+  Only completed/ files are touched, only the horizon field, and only where the value
+  is 'now'.
 
 status: work-completed
 workflow_type: refactor
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +26,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T20:45:13Z
-last_update: 2026-08-11T20:57:53Z
+last_update: '2026-08-16T12:33:58Z'
 date_finished: 2026-08-11T20:57:53Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +38,24 @@ date_finished: 2026-08-11T20:57:53Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:58Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-434: Backfill horizon: null into the 59 completed tasks CTL-030 flags

@@ -1,8 +1,19 @@
 ---
 id: T-353
-name: "Prepare the corpus for the P-011 errexit gate change (4 latent patterns + 19 DIVERGENT lines)"
+name: "Prepare the corpus for the P-011 errexit gate change (4 latent patterns + 19
+  DIVERGENT lines)"
 description: >
-  T-352 measured the blast radius of the proposed P-011 errexit fix and it inverts the case for applying it today: 0 currently-manifesting false greens, 4 latent instances (all 'grep -q VALID' against validate-workflow.py, all in ARCHIVED tasks so they never re-run), and 19 CORRECT verification lines the remedy would break (validator exits non-zero on an invalid fixture by design; 'grep -c' exits 1 when it counts zero matches). The gate change is right in principle and must not land before the corpus is ready. This task does the readying: tighten the 4 patterns so they cannot match their own denial, and convert the 19 so their intended failure is expressed as success. Blocked on an operator ruling for the completed-task edits (same class as G-015 leg 1: a convention change across other owners' tasks). See docs/reports/T-352-remedy.md sections 6 and 7.
+  T-352 measured the blast radius of the proposed P-011 errexit fix and it inverts
+  the case for applying it today: 0 currently-manifesting false greens, 4 latent instances
+  (all 'grep -q VALID' against validate-workflow.py, all in ARCHIVED tasks so they
+  never re-run), and 19 CORRECT verification lines the remedy would break (validator
+  exits non-zero on an invalid fixture by design; 'grep -c' exits 1 when it counts
+  zero matches). The gate change is right in principle and must not land before the
+  corpus is ready. This task does the readying: tighten the 4 patterns so they cannot
+  match their own denial, and convert the 19 so their intended failure is expressed
+  as success. Blocked on an operator ruling for the completed-task edits (same class
+  as G-015 leg 1: a convention change across other owners' tasks). See docs/reports/T-352-remedy.md
+  sections 6 and 7.
 
 status: work-completed
 workflow_type: build
@@ -16,7 +27,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-03T10:35:08Z
-last_update: 2026-08-03T11:10:10Z
+last_update: '2026-08-16T12:33:28Z'
 date_finished: 2026-08-03T11:09:29Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +39,24 @@ date_finished: 2026-08-03T11:09:29Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:28Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
+      (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
+      (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-353: Prepare the corpus for the P-011 errexit gate change (4 latent patterns + 19 DIVERGENT lines)

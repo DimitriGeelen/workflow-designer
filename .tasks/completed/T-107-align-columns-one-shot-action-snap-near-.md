@@ -1,13 +1,19 @@
 ---
 id: T-107
-name: "Align columns one-shot action: snap near-aligned connected nodes to shared centre-x"
+name: "Align columns one-shot action: snap near-aligned connected nodes to shared
+  centre-x"
 description: >
-  T-092 Phase C option 7: a one-shot 'Align columns' action (mirror of the shipped align-rows T-094) that snaps near-aligned connected nodes to a shared centre-x, zeroing the ~21 column near-miss pairs (survey finding 4) and removing the hidden doglegs T-073 only masks at render time. Geometry-mutating action (undoable, PD-044: explicit-action only), wired into the Clean composite. No stored geometry mutated by any render pass.
+  T-092 Phase C option 7: a one-shot 'Align columns' action (mirror of the shipped
+  align-rows T-094) that snaps near-aligned connected nodes to a shared centre-x,
+  zeroing the ~21 column near-miss pairs (survey finding 4) and removing the hidden
+  doglegs T-073 only masks at render time. Geometry-mutating action (undoable, PD-044:
+  explicit-action only), wired into the Clean composite. No stored geometry mutated
+  by any render pass.
 
 status: work-completed
 workflow_type: build
 owner: human
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-05T18:54:24Z
-last_update: 2026-07-29T15:39:17Z
+last_update: '2026-08-16T12:33:37Z'
 date_finished: 2026-07-05T19:09:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +34,24 @@ date_finished: 2026-07-05T19:09:36Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:37Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 0
+      D4: 3
+      F-RECALL: 2
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=0 (no-signal); 
+      D4=3 (body:portability-abstraction); F-RECALL=2 (body:lightly-promoted); 
+      F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 
+      (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-107: Align columns one-shot action: snap near-aligned connected nodes to shared centre-x

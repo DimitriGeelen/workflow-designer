@@ -2,12 +2,16 @@
 id: T-248
 name: "Release designer 0.4.0 — T-245 view-chrome controls; first pull-at-tag delivery"
 description: >
-  Operator 'go' 2026-07-23 on AEF's rail-185 request. Content since 0.3.2: exactly T-245 (panel toggles + fullscreen focus mode; zero seam surface). Version 0.4.0 (feature => minor bump; 0.3.1/0.3.2 were fixes). FIRST release under the T-247 pull-at-tag contract: announce version/sha/bytes/tag on rail; AEF pulls artifact+MANIFEST at tag from LAN origin (file_send fallback only on their request per their 185).
+  Operator 'go' 2026-07-23 on AEF's rail-185 request. Content since 0.3.2: exactly
+  T-245 (panel toggles + fullscreen focus mode; zero seam surface). Version 0.4.0
+  (feature => minor bump; 0.3.1/0.3.2 were fixes). FIRST release under the T-247 pull-at-tag
+  contract: announce version/sha/bytes/tag on rail; AEF pulls artifact+MANIFEST at
+  tag from LAN origin (file_send fallback only on their request per their 185).
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
 components: []
 related_tasks: []
@@ -16,7 +20,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-23T17:03:48Z
-last_update: 2026-07-23T17:06:59Z
+last_update: '2026-08-16T12:33:46Z'
 date_finished: 2026-07-23T17:06:59Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +32,24 @@ date_finished: 2026-07-23T17:06:59Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:46Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-248: Release designer 0.4.0 — T-245 view-chrome controls; first pull-at-tag delivery

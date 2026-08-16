@@ -1,22 +1,31 @@
 ---
 id: T-338
-name: "Input-fidelity guard: prove load-save preserves content, over a population that includes documents the corpus cannot express (G-016 prevention)"
+name: "Input-fidelity guard: prove load-save preserves content, over a population
+  that includes documents the corpus cannot express (G-016 prevention)"
 description: >
-  G-016 prevention leg. The tree's export-safety instrument is differential (working-tree vs git-ref output compared to each other over 24 well-formed maps), so a defect both versions share reports green and malformed input is outside the denominator. This adds the missing direction: compare EXPORTED against INPUT (flow-node/edge/lane counts preserved), over a population that deliberately includes out-of-vocabulary BPMN tags the corpus does not contain. The lossy set is MEASURED each run and compared to an expected set, not declared - so a new vocabulary gap goes red, and so does a gap that closes.
+  G-016 prevention leg. The tree's export-safety instrument is differential (working-tree
+  vs git-ref output compared to each other over 24 well-formed maps), so a defect
+  both versions share reports green and malformed input is outside the denominator.
+  This adds the missing direction: compare EXPORTED against INPUT (flow-node/edge/lane
+  counts preserved), over a population that deliberately includes out-of-vocabulary
+  BPMN tags the corpus does not contain. The lossy set is MEASURED each run and compared
+  to an expected set, not declared - so a new vocabulary gap goes red, and so does
+  a gap that closes.
 
 status: work-completed
 workflow_type: build
 owner: agent
-horizon: null
+horizon:
 tags: []
-components: [tools/_t338-input-fidelity-cdp.mjs, tools/_t342-fabric-edge-drop-probe.py, tools/_t343-write-equivalence.py]
+components: [tools/_t338-input-fidelity-cdp.mjs, 
+      tools/_t342-fabric-edge-drop-probe.py, tools/_t343-write-equivalence.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T09:38:08Z
-last_update: 2026-08-16T09:27:55Z
+last_update: '2026-08-16T12:33:51Z'
 date_finished: 2026-08-16T09:27:55Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -28,6 +37,24 @@ date_finished: 2026-08-16T09:27:55Z
 #                                 # from bvp_scores: on any driver (M3 v2-delta). Shape: list of timestamped entries.
 # cost_estimate:                  # F8 composite: 0.6×blast_radius + 0.3×tier + 0.1×effort.
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
+bvp_scores_proposed:
+  - ts: '2026-08-16T12:33:51Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 4
+      D2: 0
+      D3: 2
+      D4: 2
+      F-RECALL: 0
+      F-AUTONOMY: 0
+      F3: 0
+      F1: 0
+      F2: 0
+    rationale: D1=4 (body:structural-gate); D2=0 (no-signal); D3=2 
+      (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
+      (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
+      F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
 ---
 
 # T-338: Input-fidelity guard: prove load-save preserves content, over a population that includes documents the corpus cannot express (G-016 prevention)
