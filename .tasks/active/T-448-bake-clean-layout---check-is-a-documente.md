@@ -32,7 +32,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T09:30:37Z
-last_update: '2026-08-16T14:33:04Z'
+last_update: 2026-08-16T22:22:31Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -188,6 +188,61 @@ state that the single command above eliminates would be scaffolding around a dec
 making it. So: wire it immediately AFTER the re-bake ruling — as a fixpoint gate if re-baked, or
 with an allowlist carrying this exact two-line delta if the ruling is to defer.
 
+## Re-measured 2026-08-17 — the diagnosis held, its instrument did not
+
+Everything above was measured on 2026-08-13. Re-running it four days later contradicted one
+line of it, and the contradiction turned out to be in the gate rather than in the corpus.
+
+**1. Two maps report a non-zero `moved`, and the earlier reading of "24 of 24 at moved=0" was
+wrong.** Seven consecutive `--check` runs, deterministic in every one: `audit-process` at
+`moved=5` and `error-escalation-ladder` at `moved=9`, the other 22 at 0. `examples/` has no
+commits since before this task was filed, so the corpus did not change under the measurement.
+A `git worktree` checkout of `c6b02d7c` — the very commit whose message records "all 24 read
+moved=0" — reports the same two maps moving today. Same tree, same driver (unchanged since
+T-300), different answer four days apart. **The filing (2026-08-12: "22 of 24 report moved=0")
+and today agree; the 2026-08-13 reading is the outlier, and it is mine.** The discrepancy this
+task recorded and left open is therefore resolved against my own later measurement, not
+against the filing.
+
+**2. That mislabelled 2 of 24 maps as a LAYOUT failure — by the repair for mislabelling.**
+AC3's verdict fix decided `layout_bad` from the driver's `moved` counter. The reason that is
+the wrong source was already in the file, three lines above the call site, written at T-300:
+
+> In-state metrics (moved/netMoved) are unreliable proxies — adoptImportedXml normalizes
+> coordinates on import, so transient/net movement can be nonzero while the serialization is
+> byte-stable (T-300: audit-process + error-escalation-ladder).
+
+Those are the exact two maps. A comment stating a property, and the code below it using the
+property the comment rejects — this week's shape, in the repair for this week's shape.
+
+**Repaired:** `classify_drift()` now decides from the **diff**, which is the artifact the gate
+is about, and still reports `moved` with what a non-zero value means. All 24 maps now read
+`SERIALIZATION ONLY`, the two moving ones carrying an explicit note. Teeth:
+`tools/_t448-drift-classification-teeth.py`, 7 legs, mutation-verified against three mutants
+(counter-based rule → 4 legs red; no comment-stripping → 3 red; never-implicate-layout → 2
+red). Leg 3 is a bug the new classifier committed on its own first run: the corpus's DI
+trailer reads `node geometry travels as aef:position`, so a substring test found the marker in
+PROSE and relabelled all 24 as LAYOUT+SERIALIZATION. Kept as a leg rather than quietly fixed.
+
+**3. The re-bake blast radius was UNDERSTATED, and is now measured rather than estimated.**
+The estimate in this task read "+2/−1 lines ×24, no geometry, no DI". A real
+`bake-clean-layout.py` run in an isolated `git worktree` at HEAD — the live corpus never
+touched, verified byte-identical throughout — produces:
+
+| what | measured |
+|---|---|
+| `examples/aef-processes/rendered/*.bpmn` | **24 modified**, uniform +2/−1, no geometry |
+| `.editor-versions/*/index.json` | **15 modified** (store versions minted on byte change) |
+| new `.editor-versions/*/vN.bpmn` + `vN.png` | **30 new files** (15 maps × bytes + thumbnail) |
+| `examples/aef-processes/*.workflow.yaml` | **0** — sources untouched |
+| tracked total | **39 files, +153 −24**, plus 30 new |
+| post-bake `--check` | **24/24 fixpoint, rc 0** — one bake settles it, no oscillation |
+
+The estimate missed the store-version half entirely: 45 of the 69 touched paths are
+`.editor-versions/` artifacts, including 15 binary PNG thumbnails. Even the two `moved`>0 maps
+come out at exactly +2/−1 with no geometry change, which is the same evidence that condemned
+the counter.
+
 ## Acceptance Criteria
 
 ### Agent
@@ -195,7 +250,17 @@ with an allowlist carrying this exact two-line delta if the ruling is to defer.
 - [x] The byte delta is DIAGNOSED, not assumed: the exact difference between the committed bytes and the editor's post-Clean re-emission is captured for at least one map, and the same delta shown to hold across the corpus (or the variation characterised)
 - [x] The cause is attributed to a named mechanism (exporter change, normalisation, trailer, attribute order, DI) with the commit or code path that introduced it — not "the corpus is stale"
 - [x] The verdict line distinguishes a LAYOUT failure from a SERIALIZATION failure, so a red gate sends the reader to the right subsystem; today all 24 read `NOT A FIXPOINT` with `moved=0`, which names the layout engine for a byte problem
-- [ ] A decision is recorded on the remedy — re-bake the corpus, change the gate's contract, or defer — WITH the blast radius stated. Re-baking rewrites 24 committed corpus files whose DI content is the live subject of T-340/T-357, so if that is the remedy it is proposed to the operator, not taken under agent initiative
+      → **Found FALSE for 2 of 24 on re-measurement and repaired, not re-ticked on the old
+        evidence.** The first fix keyed on the driver's `moved` counter, which the file's own
+        T-300 comment declares an unreliable proxy and names these two maps as the case. The
+        verdict now comes from the diff; all 24 read `SERIALIZATION ONLY`. Teeth:
+        `tools/_t448-drift-classification-teeth.py`, 7/7, three mutants caught.
+- [x] A decision is recorded on the remedy — re-bake the corpus, change the gate's contract, or defer — WITH the blast radius stated. Re-baking rewrites 24 committed corpus files whose DI content is the live subject of T-340/T-357, so if that is the remedy it is proposed to the operator, not taken under agent initiative
+      → Recorded in `## Decisions` below, with the blast radius **measured in an isolated
+        worktree** rather than estimated: 39 tracked files (+153 −24) plus 30 new
+        `.editor-versions/` artifacts, and one bake reaches a 24/24 fixpoint. The remedy is
+        **proposed, not taken** — the corpus is untouched and the operator's command is in the
+        decision entry.
 - [x] The gate is either invoked by a runner over its full subject set, or its non-invocation is recorded as a deliberate, reasoned state — an unwired gate must not remain merely absent (PL-004, PL-148)
 - [x] No bytes changed under `examples/` unless the re-bake remedy is explicitly approved; `--check` runs read-only and is verified to leave the corpus clean
 
@@ -279,6 +344,18 @@ with an allowlist carrying this exact two-line delta if the ruling is to defer.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+# The verdict classifier, driven directly: 7 legs, mutation-verified against three mutants.
+python3 tools/_t448-drift-classification-teeth.py
+# Standing caller. The probe this task adds must not join the population it was written about.
+grep -q '_t448-drift-classification-teeth.py' tests/run-bridge-tests.sh
+# The verdict must not go back to reading the driver's counter. This is the specific line the
+# T-300 comment three lines above the call site already argued against.
+python3 -c "import sys; s=open('tools/bake-clean-layout.py').read(); sys.exit(0 if 'layout_bad = r[\"moved\"] != 0' not in s else 1)"
+# The gate still runs read-only over the real corpus and leaves it untouched. rc 1 is EXPECTED
+# and is the finding — the corpus is stale by two lines pending the operator's re-bake ruling
+# — so the assertion is on the corpus being unwritten, not on the gate being green.
+sh -c 'python3 tools/bake-clean-layout.py --check > /dev/null 2>&1; test -z "$(git status --porcelain examples/ .editor-versions/)"'
+
 ## RCA
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
@@ -294,6 +371,37 @@ with an allowlist carrying this exact two-line delta if the ruling is to defer.
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** `tools/bake-clean-layout.py --check` reports `0/24 maps are a Clean fixpoint` and
+exits 1, and has done since the day T-361 landed. Nobody saw it, because nothing calls it.
+
+**Root cause:** two independent failures that hid each other. (1) The gate has no caller — a
+grep over every tracked `.sh`/`.py`/`.md`/`.yaml` returns zero call sites, and the comment
+claiming "T-101 reads that exit code" names an active human-owned task, not a runner. (2) The
+corpus left its fixpoint when two deliberate emitter improvements landed after the last bake
+(`exporter=` producer identity, T-399/`4c40414c`; the DI comment rewording, T-361/`07a62951`),
+and nothing re-ran the gate that exists to say so. Each fact made the other invisible: an
+unwired gate produces no red to investigate, and a red that nobody sees produces no reason to
+wire the gate.
+
+**Why structurally allowed:** the framework has no rule that a gate must have a caller.
+PL-004 named this class at T-052 and PL-148 re-named it at T-426 citing three more instances
+across two projects; this is the fifth recorded case, and PL-148's prescribed remedy — assert
+registration separately from behaviour, over the whole population — has still never been
+built. So each instance is found by hand, one at a time, by somebody who happened to look.
+The second-order cause is narrower and is mine: the verdict repair keyed on the driver's
+`moved` counter while the file's own comment, three lines above the call site, declared that
+counter unreliable and named the two maps it would mislabel. A property stated in prose next
+to code that contradicts it is not a check, and nothing in the tree treats it as one.
+
+**Prevention:** `tools/_t448-drift-classification-teeth.py`, wired into the bridge suite, pins
+that the verdict is decided by the diff and not by the counter — 7 legs, mutation-verified
+against three mutants, including the exact pre-fix rule. That closes the second-order cause
+and gives this gate its first standing caller of any kind. It does NOT close the first cause:
+the gate itself over the corpus stays unwired, deliberately and with the reason recorded
+(wiring it today makes the suite permanently red on a benign staleness that one operator-owned
+command eliminates), and the population-wide unwired-guard check PL-148 asks for remains
+unbuilt and belongs in its own task.
 
 ## Evolution
 
@@ -329,6 +437,85 @@ with an allowlist carrying this exact two-line delta if the ruling is to defer.
      - **Why:** [rationale]
      - **Rejected:** [alternatives and why not]
 -->
+
+### 2026-08-17 — the remedy: re-bake, PROPOSED to the operator, not taken (AC4)
+
+- **Chose:** recommend **re-bake**, and leave the corpus untouched pending the operator's
+  ruling. The measurement that supports the recommendation was taken in an isolated
+  `git worktree`, so the recommendation is evidence-backed without the corpus having been
+  written to even once — verified byte-identical before and after every run in this session.
+
+- **Blast radius, measured not estimated.** A real bake produces 39 modified tracked files
+  (+153 −24) and 30 new ones:
+  - 24 `examples/aef-processes/rendered/*.bpmn`, each exactly +2/−1 — the `exporter=` producer
+    identity from T-399 and the DI comment rewording from T-361. **No geometry, on any map,
+    including the two the driver reports as `moved`>0.**
+  - 15 `.editor-versions/*/index.json`, plus 15 new `vN.bpmn` and 15 new `vN.png` thumbnails.
+    The T-145 adopt gate mints a store version on byte change, and 15 of the 24 maps are
+    tracked. **This half was missing from the earlier estimate**, and it is the larger half by
+    file count: 45 of 69 touched paths, 15 of them binary.
+  - 0 `*.workflow.yaml` — the semantic sources are not touched, as the tool's design states.
+  - Post-bake `--check` returns **24/24 fixpoint, rc 0**. One bake settles it; there is no
+    oscillation to discover afterwards.
+
+- **Why re-bake rather than defer.** The corpus currently ships a sentence T-340 has since
+  disproved on both sides — `AEF generates it from node coordinates` — and carries no producer
+  identity, which is the gap T-399 closed everywhere else. Both deltas are corrections already
+  ruled on under their own tasks; declining to bake keeps the corrected emitter and the
+  uncorrected corpus permanently out of step, which is the state that let this drift go
+  unnoticed for the weeks nothing ran the gate. The re-bake writes no geometry, so it does not
+  touch the DI content T-340/T-357 are reasoning about — which was the stated reason to be
+  careful here, and the measurement now answers it rather than deferring to it.
+
+- **Why it is still yours.** It rewrites 24 committed corpus files and mints 15 store versions
+  with new thumbnails. Nothing in the "agent may choose the approach" delegation covers
+  rewriting a committed corpus that another task is actively reasoning about; and the operator
+  may reasonably prefer to sequence it after T-357's DI adoption so the corpus is baked once
+  rather than twice.
+
+  ```
+  cd /opt/832-Workflow-designer && python3 tools/bake-clean-layout.py && python3 tools/bake-clean-layout.py --check
+  ```
+
+- **One caveat on my own recommendation, registered as OBS-272 rather than left implicit.**
+  The `moved` reading changed between 2026-08-13 and today with nothing in the repository
+  changing — the worktree test rules out every commit since. Either the earlier reading was
+  wrong, or the metric depends on something outside the tree: `moved` comes from running the
+  real editor headless in Chrome, so viewport, font metrics, DPR and browser version are all
+  inputs that no commit records. **The same driver produces the bytes a re-bake would commit.**
+  If its output is environment-dependent, then so is the corpus, and two operators baking on
+  two machines would produce two different corpora with both gates reporting a fixpoint. That
+  is not established and I am not asserting it. It is a reason to want the driver to record
+  its browser version and viewport alongside its results before the bake is run, and it is the
+  one thing I would check first if the ruling is GO.
+
+- **Rejected — change the gate's contract** (accept the two-line delta as legitimate, e.g. via
+  an allowlist): it makes the gate green over a corpus that is genuinely stale, and the
+  allowlist entry would have to be removed the day someone bakes anyway. PL-004 prescribes an
+  allowlist for legacy debt that cannot be paid; this debt is paid by one command.
+- **Rejected — defer indefinitely**: costs nothing operationally today, because the gate is
+  unwired and the staleness is benign. But it leaves a false statement in the shipped corpus
+  about the arc's central question, and it is the state that hid the drift in the first place.
+- **Rejected — bake under agent initiative**: AC4 names this out of scope in its own text, and
+  the measured radius (30 new files, 15 of them binary) is larger than the estimate it would
+  have been taken on.
+
+### 2026-08-17 — the verdict classifier reads the diff, not the driver's counter
+
+- **Chose:** decide LAYOUT vs SERIALIZATION from the lines that differ between the committed
+  bytes and the re-emission, with XML comment spans stripped before matching geometry markers.
+- **Why:** the counter and the diff disagree in both directions, and only one of them
+  describes the artifact the gate is about. `adoptImportedXml` normalises coordinates on
+  import, so Clean can move nodes in the editor's memory and leave the file untouched (T-300,
+  which names the exact two maps this mislabelled); conversely a geometry change can reach the
+  bytes on a map the driver reports as `moved=0`, which leg 4 pins.
+- **Rejected — raise a `moved` threshold** (treat small movements as noise): picks a number
+  with nothing behind it, and would still be wrong in the other direction.
+- **Rejected — drop the LAYOUT/SERIALIZATION distinction** and print one sentence again: the
+  distinction is correct and load-bearing; it was the SOURCE that was wrong.
+- **Rejected — suppress `moved` from the output** once it stopped driving the verdict: an
+  in-editor movement that leaves no trace in the bytes is a real fact about the driver, and
+  leg 2 exists to stop a future repair from quietly deleting it.
 
 ## Decision
 

@@ -44,7 +44,9 @@ The denominator is never written down as a number here; it is derived from the s
 because a restated one goes stale the day the corpus grows (PL-158).
 """
 import base64
+import difflib
 import json
+import re
 import os
 import shutil
 import subprocess
@@ -57,6 +59,80 @@ RENDERED = os.path.join(CORPUS, "rendered")
 GALLERY = os.path.join(ROOT, "build", "gallery", "rendered")
 DRIVER = os.path.join(ROOT, "tools", "_clean-layout-cdp.mjs")
 MESSINESS_MAX = 3  # T-100 CLEAN_NUDGE_MIN — a clean map scores < 3
+
+# Every carrier of geometry the emitter can write. `aef:position` is ours; the bpmndi/dc/di
+# family is standard BPMN DI, emitted only when the source carried it (T-340). If a differing
+# line names none of these, the geometry in the file did not change, whatever happened in the
+# editor's memory while Clean ran.
+GEOMETRY_MARKERS = ("aef:position", "dc:Bounds", "di:waypoint", "bpmndi:", "<dc:", "<di:")
+
+
+def changed_lines(on_disk, emitted):
+    """The lines that differ between the committed bytes and the re-emission."""
+    diff = difflib.unified_diff(on_disk.splitlines(), emitted.splitlines(), n=0, lineterm="")
+    return [l for l in diff
+            if (l.startswith("+") or l.startswith("-"))
+            and not l.startswith("+++") and not l.startswith("---")]
+
+
+def strip_comments(line):
+    """Drop `<!-- ... -->` spans. A geometry marker inside PROSE is not geometry.
+
+    Caught by this gate on its own first run after the classifier was rewritten: all 24 maps
+    jumped to LAYOUT+SERIALIZATION, because the DI trailer the corpus is stale against reads
+    `<!-- BPMN DI (visual layout) omitted; node geometry travels as aef:position -->`. The
+    marker was in the sentence describing where geometry lives, not in a coordinate. A
+    classifier keyed on substrings has to say what counts as the substring appearing.
+
+    Single-line spans only, which is what this emitter writes. A geometry attribute buried
+    inside a multi-line comment would still be counted, and that is the safe direction: it
+    over-reports layout involvement rather than hiding it.
+    """
+    return re.sub(r"<!--.*?-->", "", line)
+
+
+def classify_drift(on_disk, emitted, moved, messiness):
+    """Name WHICH subsystem a non-fixpoint implicates. Returns (why, layout_bad).
+
+    T-448 first decided this from the driver's `moved` counter, and that was wrong for two
+    maps out of twenty-four. The reason was already written down THREE LINES ABOVE the call
+    site, at T-300: "In-state metrics (moved/netMoved) are unreliable proxies —
+    adoptImportedXml normalizes coordinates on import, so transient/net movement can be
+    nonzero while the serialization is byte-stable (T-300: audit-process +
+    error-escalation-ladder)." Those are the exact two maps that were mislabelled. A comment
+    stating a property, and the code below it using the property the comment rejects.
+
+    Measured 2026-08-17, seven consecutive runs, deterministic: `audit-process` reports
+    moved=5 and `error-escalation-ladder` moved=9, and a real re-bake in an isolated worktree
+    changes their committed bytes by exactly the same +2/-1 serialization delta as the other
+    twenty-two — no geometry at all. So `moved` was sending a reader into the layout engine
+    for two maps whose layout is not implicated, which is the defect T-448 exists to repair,
+    surviving in the repair.
+
+    The verdict is now taken from the DIFF, which is the artifact the gate is about. `moved`
+    is still reported, because an in-editor movement that leaves no trace in the bytes is a
+    real thing to know about the driver — it is just not a layout failure.
+    """
+    changed = changed_lines(on_disk, emitted)
+    geometry_changed = any(m in strip_comments(l) for l in changed for m in GEOMETRY_MARKERS)
+    messy = messiness >= MESSINESS_MAX
+    layout_bad = geometry_changed or messy
+    byte_stable = not changed
+
+    if layout_bad and not byte_stable:
+        why = ("LAYOUT+SERIALIZATION (the diff touches geometry%s)"
+               % (" and the map is messy" if messy else ""))
+    elif layout_bad:
+        why = "LAYOUT (map is messy — re-run the bake)"
+    else:
+        why = ("SERIALIZATION ONLY (no geometry in the diff — the emitter changed under a "
+               "corpus that was never re-baked; diff the committed bytes against the "
+               "re-emission before touching the layout engine)")
+        if moved:
+            why += (" — note the driver reports moved=%d: Clean moved nodes in the editor's "
+                    "memory and adoptImportedXml normalised them back on import, so nothing "
+                    "reached the bytes (T-300)" % moved)
+    return why, layout_bad
 
 
 def run_driver(maps):
@@ -232,27 +308,19 @@ def main(argv):
             byte_stable = r.get("xml") is not None and r["xml"] == on_disk
             if not byte_stable or r["messinessBefore"] >= MESSINESS_MAX:
                 # T-448: name WHICH subsystem is implicated. This gate fails for two
-                # unrelated reasons and used to print one sentence for both. Measured
-                # 2026-08-13: all 24 maps read `NOT A FIXPOINT ... moved=0
-                # messinessBefore=0` — the layout algorithm moved nothing and nothing was
-                # messy, so the layout was already a fixpoint and only the SERIALIZATION
-                # differed (exporter= identity from T-399, DI comment rewording from
-                # T-361, neither ever re-baked). A reader trusting the gate's name would
-                # have gone into the layout engine looking for a byte problem.
+                # unrelated reasons and used to print one sentence for both. The corpus is
+                # stale by two lines against two deliberate emitter improvements (exporter=
+                # identity from T-399, DI comment rewording from T-361, neither ever
+                # re-baked), and a reader trusting the gate's name would have gone into the
+                # layout engine looking for a byte problem.
                 #
                 # The distinction is mechanical, not cosmetic: layout drift means re-run
                 # the bake, serialization drift means the emitter changed under a corpus
                 # nobody re-baked, and those have different owners and different risk.
-                layout_bad = r["moved"] != 0 or r["messinessBefore"] >= MESSINESS_MAX
-                if layout_bad and not byte_stable:
-                    why = "LAYOUT+SERIALIZATION"
-                elif layout_bad:
-                    why = "LAYOUT (geometry moved or map is messy — re-run the bake)"
-                else:
-                    why = ("SERIALIZATION ONLY (layout is already a fixpoint: moved=0, "
-                           "not messy — the emitter changed under a corpus that was never "
-                           "re-baked; diff the committed bytes against the re-emission "
-                           "before touching the layout engine)")
+                # The verdict is taken from the DIFF and not from the driver's `moved`
+                # counter — see classify_drift() for why that counter mislabelled two maps.
+                why, layout_bad = classify_drift(
+                    on_disk, r.get("xml") or "", r["moved"], r["messinessBefore"])
                 print("  NOT A FIXPOINT: %s [%s] (byte_stable=%s moved=%s messinessBefore=%s)"
                       % (base, why, byte_stable, r["moved"], r["messinessBefore"]))
                 fail += 1

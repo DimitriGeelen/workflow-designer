@@ -1584,5 +1584,26 @@ else
 fi
 
 echo
+echo "== The gate named the wrong subsystem for two maps (T-448) =="
+
+# ── T-448: the fixpoint gate's verdict comes from the diff ──────────────────────────────────
+# bake-clean-layout --check fails for two unrelated reasons — the layout is not a fixpoint, or
+# the emitter changed under a corpus nobody re-baked — and T-448 made the verdict say which.
+# It said it from the driver's `moved` counter, which the file's own T-300 comment calls an
+# unreliable proxy THREE LINES ABOVE the call site, naming audit-process and
+# error-escalation-ladder as the case. Those are the exact two maps it mislabelled: both
+# report moved>0 and both re-emit with the same +2/-1 serialization delta as the other 22, no
+# geometry at all. The verdict now reads the diff. Mutation-verified against three mutants
+# (counter-based rule, no comment-stripping, never-implicate-layout). Driven directly against
+# classify_drift() rather than through the gate, which needs a headless browser and 24 maps.
+if python3 "$ROOT/tools/_t448-drift-classification-teeth.py" > "$TMP/leg-_t448-drift-classification.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the Clean-fixpoint gate is naming the wrong subsystem again — either an in-editor 'moved' count with no geometry in the diff is being reported as a LAYOUT failure, or a real geometry change (aef:position or dc:Bounds) has stopped being reported as one, or a geometry marker appearing inside an XML comment is being counted as a coordinate (run 'python3 tools/_t448-drift-classification-teeth.py'; rc 2 is a REFUSAL — bake-clean-layout.py no longer exposes classify_drift/changed_lines, so nothing was measured)"
+  show_output "$TMP/leg-_t448-drift-classification.out" "_t448-drift-classification-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

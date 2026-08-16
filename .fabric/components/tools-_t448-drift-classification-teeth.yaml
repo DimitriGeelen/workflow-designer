@@ -1,0 +1,26 @@
+id: tools/_t448-drift-classification-teeth.py
+name: _t448-drift-classification-teeth
+type: script
+subsystem: instrumentation
+location: tools/_t448-drift-classification-teeth.py
+tags: [teeth, corpus, layout, serialization, t448]
+
+purpose: >
+  Drives bake-clean-layout.py's classify_drift() over synthetic (committed, re-emitted) pairs
+  built from the corpus's real +2/-1 staleness delta, and requires the LAYOUT vs SERIALIZATION
+  verdict to be decided by the diff rather than by the headless driver's in-editor `moved`
+  counter. Guards T-448's repair of a verdict that mislabelled audit-process and
+  error-escalation-ladder — the two maps the file's own T-300 comment names as the case where
+  adoptImportedXml normalises movement away before it reaches the bytes. Also pins that a
+  geometry marker appearing inside an XML comment is not a coordinate.
+
+depends_on:
+  - target: tools/bake-clean-layout.py
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-08-17
+created_by: T-448
