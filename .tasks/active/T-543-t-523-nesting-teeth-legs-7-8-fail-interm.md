@@ -25,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-16T14:26:20Z
-last_update: 2026-08-16T15:57:22Z
+last_update: 2026-08-16T16:06:10Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -109,9 +109,25 @@ of failure* (it remains the explanation for the ordering symptom).
 
 3 consecutive full-suite runs, per-leg outcomes captured.
 
-**Run 1 REPRODUCED IT** — `bridge round-trip: 104 passed, 1 failed`, the failing
-leg being `_t509-instrument-sweep.sh`. Runs 2-3 were still executing when the
-session wrapped. An earlier note here said to treat the whole arm as absent and
+**Both completed runs reproduced it — 2 of 2:**
+
+| run | result | note |
+|-----|--------|------|
+| 1 | `104 passed, 1 failed` | `_t509` sweep FAIL |
+| 2 | `100 passed, 5 failed` | `_t509` sweep FAIL + 4 more |
+| 3 | still executing at session end | — |
+
+**Rate: 2 of 2 completed full-suite runs reproduced the `_t509` failure.** With
+n=2 that bounds very little — it is emphatically not "always" — but it is no
+longer "once, unreproduced", which is what the task was filed on.
+
+**Run 2 is confounded and I caused the confound.** While it executed I ran the
+sweep and `_t525` standalone to identify the failing instrument, putting exactly
+the load that the mechanism says pushes an 86s probe past a 90s cap. So run 2's
+extra four failures are evidence FOR the mechanism and simultaneously
+unusable as an independent rate sample. Recorded rather than quietly averaged
+in: the number looks like a worsening trend and is partly my own measurement
+apparatus. An earlier note here said to treat the whole arm as absent and
 re-run from scratch; that was over-cautious and is **withdrawn** — run 1
 completed and emitted a full verdict line, so it is a complete observation, not
 a partial one.
