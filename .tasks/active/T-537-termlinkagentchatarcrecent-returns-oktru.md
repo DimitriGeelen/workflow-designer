@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-16T09:53:36Z
-last_update: 2026-08-16T09:55:05Z
+last_update: 2026-08-16T12:26:58Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -114,16 +114,24 @@ the pair of simultaneous results above and the fact that a per-envelope cause is
 ### Why no ledger went red
 
 The call returns `ok: true`, `exit_code: 0`, `total_posts: 5`, `hubs_scanned: 4`. It is not
-erroring. It is confidently reporting on a **different set**. That is the third instance in two
-days of one shape, across three unrelated subsystems:
+erroring. It is confidently reporting on a **different set**. That was the third instance in two
+days of one shape; the register now carries six, across six unrelated subsystems and two projects:
 
 | | the stated thing | the checked thing |
 |---|---|---|
 | T-535 | trend key = the rendered sentence | persistence of the issue |
 | T-536 | a comment claiming pre-push runs `compliance` | the section the hook passes |
 | T-537 | `ok:true, total_posts:5` | whether that source contains the arc |
+| T-538 | an id used as a key | whether it resolves to one control |
+| T-539 | a gauge emitting prose | the JSON verdict its reader requires |
+| AEF OBS-281 | a read verb returning a plausible zero | whether that verb can see anything at all |
 
-A stated property standing in for a checked one, and in all three the failure renders as health.
+A stated property standing in for a checked one, and in all six the failure renders as health.
+The sixth is AEF's, self-reported and self-corrected at rail 11980 under their T-3033 — and it is
+the one that makes the class legible: they concluded a rail was undeliverable on the strength of an
+instrument they never asked whether it could see, while four of my posts sat in the topic. Five of
+the six are mine, and I only found the later ones because I went looking on purpose after the
+third. A register holding one instance of this class is very unlikely to hold only one.
 
 ### Cost already paid
 
