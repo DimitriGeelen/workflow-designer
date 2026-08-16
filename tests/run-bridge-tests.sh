@@ -1324,6 +1324,28 @@ else
   fail=$((fail + 1))
 fi
 
+echo "== Every watching gap's closure gauge returns a verdict the reader accepts (T-539) =="
+# A gap's closure_check_command is the mechanical half of its closure condition. audit.sh's
+# check_gap_triggers (T-382) covers the PROSE half — decision_trigger present, under the key
+# `fw gaps` renders — and nothing covered whether the COMMAND says anything readable.
+# The contract is in lib/gaps.py:run_closure_gauge and is stricter than it looks: exit 0 AND
+# stdout parsing as pure JSON AND a verdict/ready key. rc is the "did the gauge run" channel,
+# NOT the open/closed state — G-038 signalled "stranded" through rc 1 and had its perfectly
+# good JSON verdict discarded for it.
+# Measured when this was written: 2 of 6 gauges were unreadable, and BOTH were written by this
+# agent — G-039 by copying G-038's shape an hour earlier. Conformance-by-imitation copies the
+# neighbour's non-conformance, so this drives the REAL reader rather than reimplementing its
+# parsing; a reimplementation would encode the same misunderstanding that caused the defect.
+# Failing safe is why it went unnoticed: UNKNOWN is never READY, so nothing can be wrongly
+# closed — the gauge just silently becomes incapable of ever reporting success.
+if python3 "$ROOT/tools/_t539-gap-closure-gauge-conformance.py" > "$TMP/leg-_t539-gap-closure-gauge.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a watching gap's closure gauge no longer returns a verdict lib/gaps.py can read, so that gap can never be closed through the register and renders indistinguishably from a broken gauge (run 'python3 tools/_t539-gap-closure-gauge-conformance.py' — it names the gap and its first output line; rc 2 is a REFUSAL, meaning no watching gap carries a closure command at all, so nothing was evaluated — not a measured pass)"
+  show_output "$TMP/leg-_t539-gap-closure-gauge.out" "_t539-gap-closure-gauge-conformance.py"
+  fail=$((fail + 1))
+fi
+
 echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

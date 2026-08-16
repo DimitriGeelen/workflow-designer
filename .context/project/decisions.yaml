@@ -1746,3 +1746,24 @@ decisions:
     date: 2026-08-16
     task: T-538
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-229
+    decision: "the probe imports `lib/gaps.py` and calls `run_closure_gauge`."
+    scope: project
+    date: 2026-08-16
+    task: T-539
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-230
+    decision: "G-038 now always exits 0; its stranded/OK state travels in the `verdict` key."
+    scope: project
+    date: 2026-08-16
+    task: T-539
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-231
+    decision: "no closure commands were invented for the 26 watching gaps that have none."
+    scope: project
+    date: 2026-08-16
+    task: T-539
+    rationale: "Auto-captured from task file on completion"

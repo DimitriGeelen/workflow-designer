@@ -2358,15 +2358,16 @@ concerns:
   related_tasks:
   - T-535
   - T-536
-  closure_check_command: 'python3 -c "import re,sys;a=open(''.agentic-framework/agents/audit/audit.sh'',encoding=''utf-8'').read();h=open(''.agentic-framework/agents/git/lib/hooks.sh'',encoding=''utf-8'').read();i=a.find(''CTL-028:
+  closure_check_command: 'python3 -c "import re,sys,json;a=open(''.agentic-framework/agents/audit/audit.sh'',encoding=''utf-8'').read();h=open(''.agentic-framework/agents/git/lib/hooks.sh'',encoding=''utf-8'').read();i=a.find(''CTL-028:
     Status-drift detection'');sys.exit(print(''REFUSE: CTL-028 anchor comment not found'') or 2) if i<0
     else None;m=re.search(r''if((?:\s*should_run_section .[a-z-]+.\s*\|\|?)*\s*should_run_section .[a-z-]+.)\s*;\s*then'',
     a[i:i+1200]);sys.exit(print(''REFUSE: no section gate after the CTL-028 anchor'') or 2) if not m else
     None;gate=set(re.findall(r''should_run_section .([a-z-]+).'', m.group(1)));callers=set(re.findall(r''AUDIT_SCRIPT.
     --section ([a-z-]+)'', h));sys.exit(print(''REFUSE: pre-push hook section list not found'') or 2)
-    if not callers else None;ok=bool(gate & callers);print((''OK'' if ok else ''STRANDED'')+'': CTL-028
-    gate=''+repr(sorted(gate))+'' pre-push runs=''+repr(sorted(callers))+''. Witness for the general invariant;
-    OK here does NOT close the gap on its own -- see decision_trigger.'');sys.exit(0 if ok else 1)"'
+    if not callers else None;ok=bool(gate & callers);print(json.dumps({''verdict'':''READY'' if ok else
+    ''NOT_READY'',''ready'':ok,''witness'':(''OK'' if ok else ''STRANDED'')+'': CTL-028 gate=''+repr(sorted(gate))+''
+    pre-push runs=''+repr(sorted(callers)),''note'':''READY is the CTL-028 witness only; the gap closes
+    on mechanical detection of the general invariant -- see decision_trigger'',''gap'':''G-038''}));sys.exit(0)"'
 - id: G-039
   type: gap
   status: watching
@@ -2406,6 +2407,6 @@ concerns:
   - T-535
   - T-536
   - T-538
-  closure_check_command: python3 -c "import importlib.util as u;s=u.spec_from_file_location('t538','tools/_t538-control-id-collision.py');m=u.module_from_spec(s);s.loader.exec_module(m);c=m.collisions(m.parse_sites(m.AUDIT));print('CTL-029
-    collision=' + ('PRESENT runs=%d' % len(c['CTL-029']) if 'CTL-029' in c else 'RESOLVED') + ' total_collisions=%d'
-    % len(c))"
+  closure_check_command: python3 -c "import importlib.util as u,json;s=u.spec_from_file_location('t538','tools/_t538-control-id-collision.py');m=u.module_from_spec(s);s.loader.exec_module(m);c=m.collisions(m.parse_sites(m.AUDIT));p='CTL-029'
+    in c;print(json.dumps({'verdict':'READY' if not c else 'NOT_READY','ready':not c,'ctl_029':('PRESENT
+    runs=%d'%len(c['CTL-029'])) if p else 'RESOLVED','total_collisions':len(c),'gap':'G-039'}))"

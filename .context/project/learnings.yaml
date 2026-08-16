@@ -1765,3 +1765,24 @@ learnings:
   date: 2026-08-16
   context: Added via context agent
   application: TBD
+- id: PL-248
+  learning: "CONFORMANCE-BY-IMITATION COPIES THE NEIGHBOUR'S NON-CONFORMANCE. A register entry's contract lives in the CONSUMER, not in the entries around it. T-539: 2 of 6 gap closure gauges returned UNKNOWN from lib/gaps.py:run_closure_gauge, and both were mine — G-039 authored an hour earlier by explicitly matching G-038's shape, which was already wrong. Neither would have happened by reading the 40 lines of the reader. Corollary for the instrument: a probe that REIMPLEMENTS the consumer's parsing encodes the same wrong belief that caused the defect and confirms it green; drive the real consumer instead."
+  source: P-001
+  task: T-539
+  date: 2026-08-16
+  context: Added via context agent
+  application: TBD
+- id: PL-249
+  learning: "A FAIL-SAFE DEFECT IS THE HARDEST CLASS TO NOTICE, because nothing breaks — a CAPABILITY SILENTLY DISAPPEARS. A malformed gap closure gauge yields UNKNOWN, close_gap refuses anything not READY, so no gap can ever be wrongly closed; the only consequence is that those gaps can never be closed through the register AT ALL, and they render identically to a genuinely broken gauge. There is no error, no alarm, and no wrong answer to notice — only an ability that quietly stopped existing. When auditing a mechanism, ask not just 'can it produce a wrong result' but 'can it silently lose the ability to produce a RIGHT one'."
+  source: P-001
+  task: T-539
+  date: 2026-08-16
+  context: Added via context agent
+  application: TBD
+- id: PL-250
+  learning: "DO NOT OVERLOAD AN EXIT CODE THAT THE READER ALREADY USES FOR 'DID THIS RUN'. lib/gaps.py discards stdout ENTIRELY on rc!=0, so G-038 signalling 'stranded' via sys.exit(1) destroyed its own perfectly-formed JSON verdict before it could be parsed — two meanings on one wire, and the stricter one wins silently. Where a consumer separates liveness (rc) from state (payload), state must travel in the payload and rc must mean only 'the instrument executed'. The anti-vacuity leg for this specific trap is worth pinning explicitly: a CONFORMING JSON verdict that exits 1 must be shown to yield UNKNOWN, so the next author meets it as a red leg rather than as a silent downgrade."
+  source: P-001
+  task: T-539
+  date: 2026-08-16
+  context: Added via context agent
+  application: TBD

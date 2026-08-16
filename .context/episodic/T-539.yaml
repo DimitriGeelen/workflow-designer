@@ -1,0 +1,84 @@
+# ============================================================================
+# EPISODIC MEMORY - T-539: gap closure_check_commands are checked for renderability but never for whether they can FAIL while the gap is open
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-16T11:50:54Z
+# ============================================================================
+
+task_id: T-539
+task_name: "gap closure_check_commands are checked for renderability but never for whether they can FAIL while the gap is open"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-16T11:38:07Z
+completed: 2026-08-16T11:50:46Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '`tools/_t539-gap-closure-gauge-conformance.py` evaluates every `watching`'
+  - 'It goes red on any gap whose verdict is `UNKNOWN`, naming the gap id and'
+  - 'It REFUSES (rc 2) rather than passes if zero watching gaps carry a'
+  - 'Anti-vacuity in both directions: a synthetic non-conforming command is'
+  - 'G-038 and G-039 are repaired to emit a machine-readable verdict token'
+  - '`concerns.yaml` is byte-identical (sha256) across a probe run — the probe'
+  - 'Wired into `tests/run-bridge-tests.sh`; suite green'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-16 — drive the real reader, do not reimplement its parsing'
+    chose: 'the probe imports `lib/gaps.py` and calls `run_closure_gauge`.'
+    rationale: 'the defect was a wrong belief about the contract. A probe that reimplemented the parsing would encode that same belief and confirm it. The only instrument that can catch a misunderstanding of a consumer is the consumer.'
+    alternatives_rejected: ['parsing the JSON myself, which would have been simpler, faster, and would have passed while both gauges were still broken.']
+  - decision: '2026-08-16 — exit code is "did the gauge run", not "is the gap open"'
+    chose: 'G-038 now always exits 0; its stranded/OK state travels in the `verdict` key.'
+    rationale: 'the reader discards stdout entirely on a non-zero exit, so overloading rc with state destroys the verdict. An anti-vacuity probe pins this specific trap so the next author meets it as a red leg instead of a silent UNKNOWN.'
+    alternatives_rejected: ['keeping rc 1 and teaching the reader to interpret it — that is AEF''s vendored code and its current contract is defensible; the entries were wrong, not it.']
+  - decision: '2026-08-16 — the other 26 watching gaps were left prose-only'
+    chose: 'no closure commands were invented for the 26 watching gaps that have none.'
+    rationale: 'a prose `decision_trigger` is a legitimate closure condition and is already audited by `check_gap_triggers`. Manufacturing 26 mechanical gauges to make a number go up would produce exactly the thing this task exists to catch — commands written to satisfy a check rather than to measure something.'
+    alternatives_rejected: ['treating "6 of 32" as the finding. It isn''t; the finding is that 2 of the 6 that exist could not be read.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 12 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 12
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-539-gap-closurecheckcommands-are-checked-for.md
+generated_by: context-agent-hybrid
