@@ -144,24 +144,57 @@ fi
 # leg has a population that can separate them.
 # No literal counts: the numbers move whenever a tool or a card is added, and a
 # literal integer in a gate is the moving-global defect wearing prose (G-015).
-audit_out=$("$REPO/.agentic-framework/bin/fw" audit --section structure 2>&1)
-c1=$(echo "$audit_out" | sed -n 's/.*registered, \([0-9]\+\) unregistered (of \([0-9]\+\) watched).*/\1 \2/p' | head -1)
-c2=$(echo "$audit_out" | sed -n 's/.*Fabric drift: \([0-9]\+\) source file(s) have no fabric card.*/\1/p' | head -1)
+# T-550: read the audit's OWN FINDINGS, never its summary of past ones.
+#
+# This leg used to anchor on the bare text `unregistered (of N watched)` anywhere in the
+# report, taking the first match. T-525 changed the finding to `(of N watched — P% covered,
+# <direction>)`, so that anchor stopped matching the line it was written for — and did not
+# go quiet. The report ends with a TREND ANALYSIS section that reprints recurring findings
+# from the last 14 days verbatim, in the shape they had when they were recorded, so the first
+# match became `Fabric: 40 registered, 185 unregistered (of 222 watched) (7 times)` — a
+# fortnight-old aggregate read as today's number and compared against today's drift count.
+# Measured: it reported `DISAGREE (185 vs 199)` on a day both checks said 199.
+#
+# The general shape, worth stating because it is not "the regex went stale": a report that
+# summarises its own history contains a copy of every sentence it used to print, so an anchor
+# that goes stale REBINDS onto the archive of its own past rather than failing to match. The
+# original code guarded the silence case explicitly and could not have guarded this one.
+# Note the error is not directionally safe either — it manufactured a false red here, and
+# produces a false green on any day the historical aggregate happens to equal today's drift.
+#
+# So both numbers are now required to come from a SEVERITY-MARKED line, which is what the
+# audit prefixes its own findings with and what a trend echo (`  - Fabric: ...`) never has.
+# T344_AUDIT_TRANSCRIPT substitutes a recorded report for a live run. It exists so
+# tools/_t550-audit-parse-anchor-teeth.py can present transcripts this tree cannot produce on
+# demand — a stale-anchor report, a genuine disagreement — without waiting ~17s per audit.
+if [ -n "${T344_AUDIT_TRANSCRIPT:-}" ]; then
+  audit_out=$(cat "$T344_AUDIT_TRANSCRIPT")
+else
+  audit_out=$("$REPO/.agentic-framework/bin/fw" audit --section structure 2>&1)
+fi
+findings=$(printf '%s\n' "$audit_out" | grep -E '^\[(PASS|WARN|FAIL|INFO)\]' || true)
+c1=$(printf '%s\n' "$findings" | sed -n 's/^\[[A-Z]*\] Fabric: [0-9]\+ registered, \([0-9]\+\) unregistered (of \([0-9]\+\) watched.*/\1 \2/p' | head -1)
+c2=$(printf '%s\n' "$findings" | sed -n 's/^\[[A-Z]*\] Fabric drift: \([0-9]\+\) source file(s) have no fabric card.*/\1/p' | head -1)
 n1=$(echo "$c1" | awk '{print $1}'); d1=$(echo "$c1" | awk '{print $2}')
 if [ -z "$n1" ] || [ -z "$c2" ]; then
-  # Both checks pass cleanly only when nothing is unregistered; distinguish that
-  # from a parse failure rather than reading an absent match as agreement.
-  if echo "$audit_out" | grep -q "0 unregistered (of"; then
+  # Full coverage is the one legitimate reason a count is absent, and it too must be read off
+  # a severity-marked finding rather than from anywhere in the report.
+  if printf '%s\n' "$findings" | grep -qE '^\[[A-Z]*\] Fabric: [0-9]+ registered, 0 unregistered'; then
     ok "both coverage checks report full coverage over a non-empty watch set"
   else
-    bad "could not read both coverage counts from the audit — verdict text moved;"
-    bad "      re-anchor this leg rather than treating the silence as agreement"
+    bad "could not read both coverage counts from the audit's own findings (coverage="
+    bad "      ${n1:-none}, drift=${c2:-none}). The anchor has gone stale: re-derive it from"
+    bad "      the current verdict text. Do NOT widen the search back to the whole report —"
+    bad "      TREND ANALYSIS reprints old findings verbatim, so a widened anchor silently"
+    bad "      matches a historical aggregate and reports it as today (T-550)."
   fi
 elif [ "$n1" = "$c2" ] && [ "${d1:-0}" -gt 0 ]; then
   ok "audit's two coverage checks agree: $n1 unregistered of $d1 watched"
 else
   bad "the two coverage checks DISAGREE ($n1 vs $c2, denominator $d1) — this is the"
-  bad "      T-345 defect, and it is only visible over a non-empty watch set"
+  bad "      T-345 defect, and it is only visible over a non-empty watch set."
+  bad "      Both numbers were read from severity-marked findings in this run's own"
+  bad "      output, so this is a live disagreement and not a trend echo (T-550)."
 fi
 
 echo

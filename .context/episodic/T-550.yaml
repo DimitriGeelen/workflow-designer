@@ -1,0 +1,72 @@
+# ============================================================================
+# EPISODIC MEMORY - T-550: T-344 denominator guard reads the audit's TREND ANALYSIS echo of its own superseded message as today's coverage line and reports a disagreement that does not exist
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-16T19:37:52Z
+# ============================================================================
+
+task_id: T-550
+task_name: "T-344 denominator guard reads the audit's TREND ANALYSIS echo of its own superseded message as today's coverage line and reports a disagreement that does not exist"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-16T19:27:28Z
+completed: 2026-08-16T19:37:07Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'The guard parses today''s coverage finding, not a historical echo: leg 8 reports the same'
+  - 'The parse is **anchored to the findings region**, so a line in TREND ANALYSIS (or any'
+  - 'The guard **fails loudly if its anchor ever stops matching a current finding**, rather'
+  - '`bash tools/_t344-watch-set-denominator.sh` exits 0 with all legs green, and leg 8 states'
+  - 'A teeth probe drives the guard against a **synthetic audit transcript** containing a'
+  - 'The teeth probe has a standing caller (bridge suite), because the defect survived weeks'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 9 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 9
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-550-t-344-denominator-guard-reads-the-audits.md
+generated_by: context-agent-hybrid

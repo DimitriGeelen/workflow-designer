@@ -1236,7 +1236,7 @@ echo "== The fabric coverage WARN can tell card LOSS from source growth (T-525) 
 if python3 "$ROOT/tools/_t525-fabric-coverage-teeth.py" > "$TMP/leg-_t525-fabric-coverage-teeth.out" 2>&1; then
   pass=$((pass + 1))
 else
-  report FAIL "the fabric coverage warning stopped discriminating — either it regressed to raw counts with no ratio, card loss now reads the same as source growth, an absent history renders as 'no change' instead of abstaining, or the severity moved off WARN and overturned the T-344 [REVIEW] as a side effect (run 'python3 tools/_t525-fabric-coverage-teeth.py'; rc 2 is a REFUSAL — the audit emitted no coverage line, so the message shape changed and nothing was evaluated — not a measured failure)"
+  report FAIL "the fabric coverage warning stopped discriminating — either it regressed to raw counts with no ratio, card loss now reads the same as source growth, an absent history renders as 'no change' instead of abstaining, or the severity moved off WARN and overturned the T-344 [REVIEW] as a side effect (run 'python3 tools/_t525-fabric-coverage-teeth.py'; rc 2 is a REFUSAL — either this repo emitted no coverage line so the message shape changed, or T-549's fixture no longer lands in the same arm of the check that the real tree does and has drifted from what it stands in for; in both cases nothing was evaluated and it is not a measured failure)"
   show_output "$TMP/leg-_t525-fabric-coverage-teeth.out" "_t525-fabric-coverage-teeth.py"
   fail=$((fail + 1))
 fi
@@ -1521,6 +1521,43 @@ if python3 "$ROOT/tools/_t548-sweep-classification-teeth.py" > "$TMP/leg-_t548-s
 else
   report FAIL "the instrument sweep has stopped distinguishing a regression from a probe that never finished or declined to certify — or it has started calling an uncovered sweep green (run 'python3 tools/_t548-sweep-classification-teeth.py'; rc 2 is a REFUSAL — the sweep's wording or exclusion list could not be parsed, so nothing was measured and it is not a pass)"
   show_output "$TMP/leg-_t548-sweep-classification.out" "_t548-sweep-classification-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
+echo "== A stale anchor rebinds onto the archive of its own past (T-550) =="
+
+# T-344's denominator guard read the audit's two coverage counts out of the WHOLE report with
+# `head -1`. T-525 changed the finding's wording, so its anchor stopped matching the live line
+# — and bound instead to the TREND ANALYSIS section, which reprints recurring findings from
+# the last 14 days in the shape they had when recorded. It compared a fortnight-old aggregate
+# against today's drift count and reported a disagreement that did not exist. The guard's own
+# comment shows the silence case WAS anticipated; a report that summarises its own history
+# gives a stale anchor something to match, so it never falls silent. Mutation-verified: legs
+# 1-4 all go red against the pre-T-550 parse.
+if python3 "$ROOT/tools/_t550-audit-parse-anchor-teeth.py" > "$TMP/leg-_t550-audit-parse-anchor.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the T-344 denominator guard is reading the wrong line of the audit again — either a trend-analysis echo of a superseded message is being taken for today's coverage finding, or a real disagreement between the two coverage checks has stopped being reported, or the guard fell silent instead of abstaining when its anchor went stale (run 'python3 tools/_t550-audit-parse-anchor-teeth.py'; rc 2 is a REFUSAL — the guard no longer honours T344_AUDIT_TRANSCRIPT, so the legs would have driven a live audit instead of the recorded report and agreed with themselves for the wrong reason)"
+  show_output "$TMP/leg-_t550-audit-parse-anchor.out" "_t550-audit-parse-anchor-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
+echo "== A cheaper stimulus is not a deleted test (T-549) =="
+
+# ── T-549: the fixture legs still have teeth ────────────────────────────────────────────────
+# T-549 took _t525 from 86.04s to ~24.6s by moving its four branch legs off this repository
+# and onto a 20-file fixture. That is a change to the STIMULUS, and a stimulus can be built —
+# without anyone intending it — so that the legs it drives can no longer go red (PL-206). This
+# leg breaks the audit's coverage branch three ways in a COPIED framework and requires _t525 to
+# notice each one on the correct leg. Its control run matters as much as its mutations: an
+# unmutated copy must come back green, or every red is the copy mechanism rather than a leg.
+if python3 "$ROOT/tools/_t549-fabric-coverage-mutation-teeth.py" > "$TMP/leg-_t549-coverage-mutation.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "_t525's cheap fixture legs no longer detect a broken fabric coverage check — a deliberately mutated branch (card loss printed as flat, growth printed as card loss, or an abstention printed as flat) did not turn the corresponding leg red, so that leg's green certifies nothing (run 'python3 tools/_t549-fabric-coverage-mutation-teeth.py'; rc 2 is a REFUSAL — audit.sh no longer contains the branch text this probe mutates, or the unmutated control was not green, so nothing was measured and it is not a pass)"
+  show_output "$TMP/leg-_t549-coverage-mutation.out" "_t549-fabric-coverage-mutation-teeth.py"
   fail=$((fail + 1))
 fi
 
