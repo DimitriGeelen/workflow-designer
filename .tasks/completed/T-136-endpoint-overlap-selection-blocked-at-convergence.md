@@ -13,7 +13,7 @@ tags: [bug, editor, regression-suspect]
 components: []
 related_tasks: [T-133]
 created: 2026-07-06T16:00:00Z
-last_update: '2026-08-16T13:57:16Z'
+last_update: '2026-08-16T14:33:15Z'
 date_finished: 2026-07-06T16:19:11Z
 bvp_scores_proposed:
   - ts: '2026-08-16T12:33:39Z'
@@ -31,6 +31,23 @@ bvp_scores_proposed:
     rationale: D1=1 (body:fix-without-learning); D2=4 (body:fw-audit-or-doctor);
       D3=0 (no-signal); D4=0 (no-signal); F-RECALL=0 (no-signal); F-AUTONOMY=0 
       (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-08-16T14:33:15Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 1
+      D2: 4
+      D3: 0
+      D4: 0
+      F-RECALL: 0
+      F2: 0
+      F4: 2
+      F3: 0
+      F1: 0
+    rationale: D1=1 (body:fix-without-learning); D2=4 (body:fw-audit-or-doctor);
+      D3=0 (no-signal); D4=0 (no-signal); F-RECALL=0 (no-signal); F2=0 
+      (no-signal); F4=2 (prose:routing-single-element); F3=0 (no-signal); F1=0 
+      (no-signal)
     rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-08-16T13:57:16Z'

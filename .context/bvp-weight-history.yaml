@@ -1,0 +1,30 @@
+entries:
+- verb: driver_add
+  driver: F4
+  name: V_WORKFLOW_ROUTING
+  weight: 9
+  rationale: 'operator directive 2026-08-16: anything improving workflow routing /
+    clean workflows'
+  dropped: F3
+  who: root
+  agent_session: true
+  ts: '2026-08-16T14:31:12Z'
+- verb: driver_add
+  driver: F3
+  name: V_AEF_INTEGRATION
+  weight: 9
+  rationale: 'operator directive 2026-08-16: anything improving integration into AEF'
+  dropped: F1
+  who: root
+  agent_session: true
+  ts: '2026-08-16T14:32:05Z'
+- verb: driver_add
+  driver: F1
+  name: V_SDLC_ENABLEMENT
+  weight: 9
+  rationale: 'operator directive 2026-08-16: anything enhancing workflow capability
+    to support a software development process built on the workflows'
+  dropped: F-AUTONOMY
+  who: root
+  agent_session: true
+  ts: '2026-08-16T14:32:29Z'

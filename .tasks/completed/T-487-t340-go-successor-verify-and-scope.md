@@ -22,7 +22,7 @@ tags: []
 components: []
 related_tasks: ["T-340", "T-486"]
 created: 2026-08-13T07:55:00Z
-last_update: '2026-08-16T13:58:57Z'
+last_update: '2026-08-16T14:33:41Z'
 date_finished: 2026-08-14T20:24:40Z
 bvp_scores_proposed:
   - ts: '2026-08-16T12:34:02Z'
@@ -41,6 +41,24 @@ bvp_scores_proposed:
       (body:framework-level-ux); D4=3 (body:portability-abstraction); F-RECALL=3
       (body:fw-recall-or-memory-link); F-AUTONOMY=0 (no-signal); F3=1 
       (body/components:prompt-incidental); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-08-16T14:33:41Z'
+    estimator: bvp-estimator-v1-heuristic
+    scores:
+      D1: 2
+      D2: 1
+      D3: 4
+      D4: 3
+      F-RECALL: 3
+      F2: 0
+      F4: 1
+      F3: 2
+      F1: 0
+    rationale: D1=2 (body:concern-ref); D2=1 (body:log-or-error-line); D3=4 
+      (body:framework-level-ux); D4=3 (body:portability-abstraction); F-RECALL=3
+      (body:fw-recall-or-memory-link); F2=0 (no-signal); F4=1 
+      (prose:routing/geometry-incidental); F3=2 (prose:seam-namespace); F1=0 
+      (no-signal)
     rubric_sha: e4a00f38e801
 cost_estimate_proposed:
   - ts: '2026-08-16T13:57:24Z'

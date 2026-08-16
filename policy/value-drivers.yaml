@@ -183,85 +183,6 @@ free_drivers:
   # Retirement gate stays: retire when L5/L6 autonomy criteria (auto-issue gen,
   # auto-merge, closed production-feedback loop) are green.
   # -------------------------------------------------------------------------
-  - id: F-AUTONOMY
-    name: Autonomy / Unattended Operation
-    weight: 4                     # below Orchestration; the most safety-sensitive axis
-    rationale: >
-      Reduces the number of human checkpoints low-risk work must pass, earning
-      autonomy by replacing human gates with at-least-as-safe mechanical ones.
-    polarity: positive
-    rubric:
-      0: Adds nothing, OR would remove a safety-critical human gate
-         (that is a Sovereignty violation -- scores ZERO, never high).
-      1: Runs unattended only by hand-wiring; no durable reduction in human touch.
-      2: Narrow, single-use reduction in human relay.
-      3: Closes a feedback loop so a signal reaches ACTION without a human relay
-         (e.g. wires observations back into dispatch).
-      4: Makes a class of low-risk work safely auto-eligible (bounded
-         auto_promote for HV/LC Captured->In Progress), caps intact.
-      5: Replaces a REDUNDANT human gate with an at-least-as-safe mechanical one,
-         or lands an L6 autonomy criterion. NEVER removes a Tier 0 gate.
-    guardrails: >
-      Reducing oversight on consequential (Tier 0, irreversible, high-blast-radius)
-      actions scores ZERO or NEGATIVE, never positive. Earn autonomy; don't
-      remove oversight.
-    retire_when: >
-      L5/L6 autonomy criteria (auto-issue gen, auto-merge, closed
-      production-feedback loop) are green.
-
-# ---------------------------------------------------------------------------
-# AUTO-PROMOTION  -- ships OFF. This is the autonomy-IN-OPERATION dial, distinct
-# from any driver (drivers rank autonomy-ENABLING work; this governs whether HV/LC
-# work auto-advances on the kanban without a human).
-# ---------------------------------------------------------------------------
-  - id: F3
-    name: V_PROMPT_QUALITY
-    weight: 7
-    protected: false
-    rationale: "Discriminates LLM prompt-quality work from work on other aspects.
-      Core to AEF's value as an agentic framework. Source: docs/reports/T-2305-bvp-drivers-batch-2026-06-10.md"
-    polarity: positive
-    rubric:
-      0: No prompt-quality dimension touched.
-      1: Tweaks one-off prompt phrasing or a single message; no reusable artifact.
-      2: Improves one AGENT.md / template / preamble; localized to one agent.
-      3: Adds a reusable prompt template, rubric, or naming convention agents
-        can pick up across tasks.
-      4: Closes a prompt-quality loop -- e.g. reviewer prompt pattern, sovereignty
-        preamble, multi-turn discipline guide enforced by hook/test/lint.
-      5: Improves the prompt-quality substrate itself -- meta-prompts,
-        prompts-as-data infrastructure, structural prompt-evolution mechanisms.
-    guardrails: >
-      Reward STRUCTURAL prompt improvements (reusable, gate-enforced) over
-      one-off rewording. Polish competes for budget against D2/D3.
-    retire_when: >
-      Prompt-quality substrate matures (prompts-as-data, meta-prompt registry)
-      and one-off prompt edits no longer move the needle.
-  - id: F1
-    name: V_CONTEXT_FABRIC
-    weight: 7
-    protected: false
-    rationale: 'Discriminates memory-layer work (Context Fabric: working/project/episodic
-      memory, semantic search) from work elsewhere. Load-bearing for cross-session
-      continuity. Source: docs/reports/T-2305-bvp-drivers-batch-2026-06-10.md'
-    polarity: positive
-    rubric:
-      0: No memory-layer touched.
-      1: Logs to one episodic file; session-scoped only.
-      2: Adds a working-memory entry; project-scoped but not retrievable across
-        sessions.
-      3: Writes to a layer with a retrieval contract -- project memory,
-        episodic with `fw recall`, fabric registration.
-      4: Closes a memory loop -- capture -> encode -> synced into instruction
-        files / hooks / templates agents read on subsequent runs.
-      5: Improves the retrieval/synthesis substrate itself -- selective recall,
-        condensation, semantic search index, cross-memory linking.
-    guardrails: >
-      Score MEMORY LAYER STRUCTURE (working/project/episodic + retrieval
-      contract), not raw token count. Big logs trade against D2/D3.
-    retire_when: >
-      Memory substrate (retrieval, synthesis, condensation) matures such that
-      raw capture without retrieval contract no longer rewards.
   - id: F2
     name: V_COMPONENT_FABRIC
     weight: 6
@@ -273,12 +194,12 @@ free_drivers:
     rubric:
       0: No fabric/topology touched.
       1: Registers one component card without edges.
-      2: Registers component with `depends_on` / `depended_by` populated but no
+      2: Registers component with `depends_on` / `depended_by` populated but no 
         blast-radius hook or audit detector.
       3: Adds fabric drift detection or enrichment for a subsystem.
-      4: Closes a fabric loop -- auto-enrichment cron, drift FAIL gate,
+      4: Closes a fabric loop -- auto-enrichment cron, drift FAIL gate, 
         post-commit blast-radius surface, audit detector wired to fabric.
-      5: Extends the fabric substrate itself -- new edge type, new drift class,
+      5: Extends the fabric substrate itself -- new edge type, new drift class, 
         cross-fabric correlation, fabric-fed audit dimension.
     guardrails: >
       Score TOPOLOGY UPLIFT, not "I touched a file". A card without edges is
@@ -287,6 +208,24 @@ free_drivers:
       Fabric substrate (edges, drift, blast-radius, audit integration) is
       pervasive across the codebase and incremental registration no longer
       surfaces meaningful signal.
+  - id: F4
+    name: V_WORKFLOW_ROUTING
+    weight: 9
+    protected: false
+    rationale: 'operator directive 2026-08-16: anything improving workflow routing
+      / clean workflows'
+  - id: F3
+    name: V_AEF_INTEGRATION
+    weight: 9
+    protected: false
+    rationale: 'operator directive 2026-08-16: anything improving integration into
+      AEF'
+  - id: F1
+    name: V_SDLC_ENABLEMENT
+    weight: 9
+    protected: false
+    rationale: 'operator directive 2026-08-16: anything enhancing workflow capability
+      to support a software development process built on the workflows'
 auto_promote:
   enabled: false
   bvp_norm_min: 0.85    # only top-band value
