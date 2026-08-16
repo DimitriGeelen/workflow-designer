@@ -24,7 +24,10 @@ import secrets
 import signal
 import sys
 
-from flask import Flask, abort, jsonify, render_template, request, session
+from flask import (
+    Flask, abort, jsonify, make_response, render_template, request, session,
+)
+from markupsafe import escape
 
 from web.config import Config
 from web.shared import APP_DIR, NAV_ITEMS, NAV_GROUPS, PROJECT_ROOT, build_ambient
@@ -375,6 +378,50 @@ def create_app() -> Flask:
             "project_root": str(PROJECT_ROOT),
         }
 
+    def _is_spliced_request() -> bool:
+        """True when the caller will splice or parse this body rather than
+        navigate to it — an `/api/*` fragment endpoint, or a non-boosted htmx
+        request (`hx-post`/`hx-get` on an element with an `hx-target`).
+
+        T-545: this deliberately does NOT exempt boosted navigations, though
+        `base.html` sets `hx-boost="true"` on <body> and an earlier draft of
+        this fix did exempt them to protect T-2309's full-page recovery UI.
+        That exemption was wrong, and measuring the corpus is what showed it:
+        five routes take a plain `<form method="post">` under hx-boost
+        (`/arcs/*/close`, `/assumptions/*/resolve`, `/inception/*/decide`,
+        `/inception/*/add-assumption`, `/review/*/pause/*/resolve`), so they
+        are boosted POSTs and would have kept the exact defect this task
+        exists to fix.
+
+        The deciding fact is in the shipped library, not in reasoning about
+        intent: htmx 2.0.4's default `responseHandling` is
+        `[{code:"204",swap:false},{code:"[23]..",swap:true},
+        {code:"[45]..",swap:false,error:true}]`. A 4xx is NEVER swapped —
+        boosted or not, htmx raises `htmx:responseError` and the body reaches
+        only `htmx-toast.js`. So a full page is never *rendered* for an htmx
+        403; it is only ever scraped. T-2309's page remains reachable by the
+        thing that actually displays it: a genuine non-htmx navigation.
+        """
+        return (request.path.startswith("/api/")
+                or bool(request.headers.get("HX-Request")))
+
+    def _compact_error(status: int, kind: str, human: str):
+        """A small fragment in the same content type the success path returns.
+
+        T-545: these endpoints answer htmx with HTML FRAGMENTS on success, so a
+        fragment is the honest error shape — not JSON, which the callers do not
+        parse, and emphatically not a whole document.
+
+        `kind` goes in a header rather than the body so a machine can still
+        tell a stale token from a real permission denial (the distinction
+        T-2309 introduced) without parsing prose.
+        """
+        resp = make_response(
+            f'<p class="error" role="alert">{escape(human)}</p>', status
+        )
+        resp.headers["HX-Error-Kind"] = kind
+        return resp
+
     @app.errorhandler(403)
     def forbidden(e):
         # T-2309 (P-003 fix): distinguish CSRF token failures from generic 403s.
@@ -387,6 +434,26 @@ def create_app() -> Flask:
             str(e.description) if hasattr(e, "description") else str(e)
         )
         is_csrf = description.startswith("CSRF token")
+
+        # T-545: an htmx/API caller gets a fragment, not the T-2309 page.
+        # Measured, not supposed: rendering the full page here returned 66456
+        # bytes of text/html to an `hx-post`, and `htmx-toast.js` extracts its
+        # message with `.replace(/<[^>]*>/g, '')` — a TAG stripper, which
+        # removes the tags but keeps the TEXT INSIDE <title> and <script>. The
+        # operator's Approve button therefore surfaced
+        # "Session expired — Workflow designer (function(){var t=localStorage…"
+        # — the page title followed by the theme bootstrap's JavaScript source.
+        # The full-page branch below is right for a navigation and wrong here;
+        # nothing about the 403 was wrong, only who it was written for.
+        if _is_spliced_request():
+            if is_csrf:
+                return _compact_error(
+                    403, "csrf",
+                    "Session expired. Reload the page and submit again — "
+                    "nothing was lost.",
+                )
+            return _compact_error(403, "forbidden", f"Forbidden: {description}")
+
         if is_csrf:
             return render_template(
                 "_wrapper.html",

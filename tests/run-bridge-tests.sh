@@ -1416,5 +1416,31 @@ else
 fi
 
 echo
+echo "== A 403 is written for the client that asked for it (T-545) =="
+# The operator's Approve toast read "Session expired — Workflow designer
+# (function(){var t=localStorage.getItem('wt-theme');" — not a garbled message but a
+# whole HTML document being scraped. The 403 handler rendered the full T-2309 page
+# (66456 bytes) to an hx-post, and htmx-toast.js extracts its message with
+# .replace(/<[^>]*>/g,'') — a TAG stripper, which removes <title>/<script> tags and keeps
+# the text inside them, so the page title and the theme bootstrap's JS source became the
+# error message. Two properties are pinned because fixing one leaves the defect: the
+# SHAPE (a fragment, not a document) and the CONSEQUENCE (what the shipped toast
+# expression actually produces from that body). The consequence leg reads the real regex
+# out of htmx-toast.js rather than re-typing it, so it cannot keep passing after the
+# real one changes. Leg 5 exists because the first draft of the fix exempted HX-Boosted
+# requests to protect T-2309's recovery UI and was wrong: five routes post a plain
+# <form method=post> under hx-boost and kept the defect. Leg 6 re-reads the fact the
+# whole design rests on — htmx 2.0.4 ships {code:"[45]..",swap:false}, so a 4xx is never
+# swapped and the body only ever reaches the toast. Mutation-verified against three
+# mutants; reverting the branch reproduces the operator's string verbatim.
+if python3 "$ROOT/tools/_t545-error-shape-teeth.py" > "$TMP/leg-_t545-error-shape.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a 403 to an htmx/API caller is a full HTML document again, so the toast scrapes page-title and script text instead of an actionable message (run 'python3 tools/_t545-error-shape-teeth.py'; rc 2 is a REFUSAL — the app would not import or the stimulus could not be established, so nothing was measured and it is not a pass)"
+  show_output "$TMP/leg-_t545-error-shape.out" "_t545-error-shape-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

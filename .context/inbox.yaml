@@ -957,3 +957,10 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-262
+  text: "inbox"
+  captured: 2026-08-16T15:15:16Z
+  context_task: T-544
+  tags: []
+  status: dismissed
+  promoted_to: null

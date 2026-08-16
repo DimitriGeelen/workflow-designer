@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-16T15:17:18Z ===
+task_id: T-544
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-544.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Watchtower session cookie is named for the DEFAULT port, not the bound one, so two instances on one host destroy each other's sessions
+  Duration: 0 days (32 min)
+  Updates: 2
+  Commits: 1
+  Lines: +938 -3436 across 22 files
+  Outcomes: 5 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 22 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-544-watchtower-session-cookie-is-named-for-t.md
+--- exit code: 0 ---

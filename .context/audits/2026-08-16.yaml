@@ -1,5 +1,5 @@
-# Audit Results - 2026-08-16-1707
-timestamp: 2026-08-16T15:07:43Z
+# Audit Results - 2026-08-16-1732
+timestamp: 2026-08-16T15:32:58Z
 sections: "compliance"
 summary:
   pass: 3
@@ -83,7 +83,7 @@ findings:
     check: "CTL-029: T-542 has all Agent ACs ticked but status='started-work' — completable, not closed"
     mitigation: "Run: bin/fw task update T-542 --status work-completed"
   - level: WARN
-    check: "CTL-029: T-544 has all Agent ACs ticked but status='started-work' — completable, not closed"
-    mitigation: "Run: bin/fw task update T-544 --status work-completed"
+    check: "CTL-029: T-545 has all Agent ACs ticked but status='started-work' — completable, not closed"
+    mitigation: "Run: bin/fw task update T-545 --status work-completed"
   - level: PASS
     check: "CTL-012: All 2 completed tasks have checked ACs"

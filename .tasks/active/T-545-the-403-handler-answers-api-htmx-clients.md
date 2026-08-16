@@ -1,8 +1,8 @@
 ---
-id: T-544
-name: "Watchtower session cookie is named for the DEFAULT port, not the bound one, so two instances on one host destroy each other's sessions"
+id: T-545
+name: "The 403 handler answers /api/ htmx clients with a 67KB HTML page, so a CSRF failure renders as raw markup inside the caller's page"
 description: >
-  app.py sets SESSION_COOKIE_NAME = f'fw_session_{Config.PORT}' to stop two Watchtowers on one host sharing a cookie (RFC 6265 does not scope cookies by port). Config.PORT reads FW_PORT or defaults to 3000; the --port CLI flag sets only the local variable passed to app.run() and never updates Config.PORT. So this project's instance on :3012 and AEF's on :3000 BOTH emit fw_session_3000 for the same host, each overwriting the other, and each signs with its own .fw-secret-key so the other cannot even decode it — session is silently empty, session.get('_csrf_token') is None, every state-changing POST 403s as 'Session expired'. Operator hit this clicking Approve on /approvals. The port suffix is the exact defence that fails.
+  The 403 handler answers /api/ htmx clients with a 67KB HTML page, so a CSRF failure renders as raw markup inside the caller's page
 
 status: started-work
 workflow_type: build
@@ -15,8 +15,8 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-16T14:45:03Z
-last_update: 2026-08-16T14:45:15Z
+created: 2026-08-16T15:17:24Z
+last_update: 2026-08-16T15:17:24Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,7 +30,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-544: Watchtower session cookie is named for the DEFAULT port, not the bound one, so two instances on one host destroy each other's sessions
+# T-545: The 403 handler answers /api/ htmx clients with a 67KB HTML page, so a CSRF failure renders as raw markup inside the caller's page
 
 ## Context
 
@@ -40,16 +40,27 @@ date_finished: null
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [x] The session cookie name is derived from the port the server ACTUALLY
-      binds, not from `Config.PORT` — verified by observing `Set-Cookie` on
-      the running :3012 instance name itself `fw_session_3012`
-- [x] The two instances on this host emit DIFFERENT cookie names, so neither
-      can overwrite the other (measured against both :3000 and :3012)
-- [x] `FW_PORT` and the `--port` flag agree — setting either produces the same
-      cookie name, and neither silently wins over the other
-- [x] A probe asserts the property that a server bound to port N names its
-      cookie for N, wired into `tests/run-bridge-tests.sh`, and it goes red
-      against a build that reads the default instead
+- [x] A 403 on an `/api/*` path returns a compact machine-readable body, not a
+      rendered page — measured by response size and `Content-Type`, with the
+      pre-fix size named in the probe so the improvement is a measurement
+      rather than an assertion. (The probe pins 66456 bytes — today's
+      reproduction. The 67632 recorded on T-544 was the same defect measured
+      against a different page state a session earlier; both are the document,
+      neither is a fragment.)
+- [x] The body a failing Approve produces, run through `htmx-toast.js`'s actual
+      extraction expression, yields an actionable sentence — specifically it
+      contains no `<script>` or `<title>` text and no JavaScript source. This is
+      the operator-visible symptom and is checked against the real regex from
+      the shipped file, not a re-typed copy of it
+- [x] A 403 on a normal page navigation still renders the full T-2309 "Session
+      expired" page with its Reload button — the friendly-recovery path added by
+      T-2309 is not traded away to fix the API path
+- [x] The CSRF-vs-generic-403 distinction T-2309 introduced survives on BOTH
+      branches: an API client can still tell a stale token from a real
+      permission denial
+- [x] A probe asserts all of the above, is wired into `tests/run-bridge-tests.sh`,
+      and is mutation-verified — reverting the handler change must turn it red
+      with the operator-visible symptom named, not merely a size assertion
 - [x] The divergence is declared in `.agentic-framework/.vendor-divergence.yaml`
       (G-008) — this is vendored AEF code and the bug is AEF's too
 
@@ -133,13 +144,75 @@ date_finished: null
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
-# Boots a real instance on a real non-default port and reads the real Set-Cookie.
-# rc 2 is a REFUSAL (never answered / set no cookie), not a pass.
-python3 tools/_t544-session-cookie-port-teeth.py
+# Pins the SHAPE and the CONSEQUENCE: a fragment, and what htmx-toast.js's own
+# extraction expression produces from it. rc 2 is a REFUSAL (app would not import,
+# or the stimulus could not be established), not a pass.
+python3 tools/_t545-error-shape-teeth.py
 # Vendored divergence declared (G-008) — app.py is AEF's code and this bug is AEF's too.
 python3 tools/_t517-vendor-divergence.py
 
 ## RCA
+
+**Symptom:** clicking Approve on `/approvals` produced a toast reading
+`Session expired — Workflow designer (function(){var t=localStorage.getItem('wt-theme');`
+— a page title followed by raw JavaScript source, in place of an error message.
+
+**Root cause:** the 403 handler chose its response body by *why* the request
+failed and never by *who was asking*. T-2309 split CSRF failures from generic
+403s — a real improvement — but both branches render `_wrapper.html`, which
+extends `base.html` and is therefore always a complete HTML document. An
+`hx-post` to `/api/bvp/driver/approve`, whose target is a `<div>`, received
+66456 bytes of document.
+
+**The mechanism, measured — and it is not the one T-544 recorded.** T-544's
+note assumed the browser rendered that document into the page. It did not.
+htmx 2.0.4 ships `responseHandling: [{code:"204",swap:false},
+{code:"[23]..",swap:true},{code:"[45]..",swap:false,error:true}]` — a 4xx is
+**never** swapped. The body reached only `web/static/htmx-toast.js`, whose
+`htmx:responseError` listener builds its message with
+`.replace(/<[^>]*>/g,'').trim().substring(0,100)`. That is a **tag** stripper,
+not a text extractor: it removes `<title>` and `<script>` *tags* and keeps the
+text *inside* them. Reproduced byte-for-byte against the running instance. The
+lines T-544 identified were right; the reason they reached the operator was not,
+and the difference matters because the earlier framing pointed at the swap path
+rather than at the handler.
+
+**Why structurally allowed:** nothing in the request pipeline distinguished a
+document consumer from a fragment consumer, so "render the error" had exactly
+one meaning. The failure was then *invisible in the only place anyone looks* —
+the server logged a correct 403, the handler was correct, the template was
+correct, and the corruption happened in a client-side regex written for a
+different kind of body. Two components each behaving reasonably produced
+JavaScript source in an error toast.
+
+**Prevention:** `tools/_t545-error-shape-teeth.py`, wired into
+`tests/run-bridge-tests.sh`. It pins two properties rather than one, because
+fixing either alone leaves the defect: the **shape** (a fragment, no `<html>`)
+and the **consequence** (running the shipped toast expression over the body
+yields no script source). The consequence leg reads the real regex out of
+`htmx-toast.js` rather than re-typing it, so it cannot keep passing after the
+real one changes. Leg 6 re-reads htmx's `responseHandling` default every run,
+because the entire design rests on 4xx never being swapped and a library
+upgrade could retire that silently. Mutation-verified against three mutants —
+removing the branch reproduces the operator's string verbatim.
+
+**The first draft of the fix was wrong, and measuring the corpus is what caught
+it.** It exempted `HX-Boosted` requests, reasoning that `base.html` sets
+`hx-boost="true"` on `<body>` so ordinary navigation also carries `HX-Request`,
+and that exempting boosts protected T-2309's full-page Reload UI. But five
+routes post a plain `<form method="post">` under that boost
+(`/arcs/*/close`, `/assumptions/*/resolve`, `/inception/*/decide`,
+`/inception/*/add-assumption`, `/review/*/pause/*/resolve`) — boosted POSTs,
+which the exemption would have left carrying the exact defect this task exists
+to remove. The library's own default settled it: since htmx never swaps a 4xx,
+the full page is never *displayed* for any htmx request, only scraped. T-2309's
+page stays reachable by the one thing that displays it — a genuine non-htmx
+navigation. Leg 5 is the anti-regression for that reasoning, not for the code.
+
+**Not fixed here, reported instead:** `htmx-toast.js`'s tag-stripping regex is a
+separate defect with its own root cause, latent for any HTML body from any
+endpoint — a 500 on a non-API route still feeds it a document. The remedy is a
+choice about AEF's client contract, not ours.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -202,10 +275,7 @@ python3 tools/_t517-vendor-divergence.py
 
 ## Updates
 
-### 2026-08-16T14:45:03Z — task-created [task-create-agent]
+### 2026-08-16T15:17:24Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-544-watchtower-session-cookie-is-named-for-t.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-545-the-403-handler-answers-api-htmx-clients.md
 - **Context:** Initial task creation
-
-### 2026-08-16T14:45:15Z — status-update [task-update-agent]
-- **Change:** status: captured → started-work

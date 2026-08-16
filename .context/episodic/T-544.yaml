@@ -1,0 +1,96 @@
+# ============================================================================
+# EPISODIC MEMORY - T-544: Watchtower session cookie is named for the DEFAULT port, not the bound one, so two instances on one host destroy each other's sessions
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-16T15:17:18Z
+# ============================================================================
+
+task_id: T-544
+task_name: "Watchtower session cookie is named for the DEFAULT port, not the bound one, so two instances on one host destroy each other's sessions"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-16T14:45:03Z
+completed: 2026-08-16T15:17:03Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-16T17:08:52+02:00
+last_commit: 2026-08-16T17:08:52+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  'Session expired' on Approve was never an expiry — two Watchtowers on one host were destroying each other's sessions, and the guard against exactly that was reading the wrong port. Operator clicked Approve on /approvals and got a session-expired page plus raw JS text. Reproduced with a CSRF-less POST: HTTP 403, Content-Type text/html, 67632 bytes. What they pasted is literally base.html line 12 (<title>Session expired — Workflow designer</title>) followed by line 14 (the theme bootstrap script) — the top of that document, surfaced as text because the Approve control is an htmx POST and the 403 handler answers /api/* with a full HTML page. RCA: app.py sets SESSION_COOKIE_NAME = f'fw_session_{Config.PORT}' under T-2278, whose own comment states the reason — RFC 6265 does not scope cookies by port, so two instances on one host share a cookie slot and overwrite each other. Config.PORT reads FW_PORT or falls back to 3000 and --port never updates it; --port moves the listening socket and nothing else, and create_app() runs at MODULE level before argparse exists. Measured, not inferred: AEF's Watchtower on :3000 and this project's on :3012 BOTH emitted fw_session_3000, and because each signs with its own .fw-secret-key neither could decode the other's cookie, so session came back empty, session.get('_csrf_token') was None and every state-changing POST 403'd. Watchtower had been up 2d03h with no restart and the page was freshly loaded, which is why the message was actively misleading: nothing had expired. Ruled out in order rather than guessed — secret key is persisted by T-1306 precisely to survive restarts, and uptime says there was no restart. A guard that names the wrong port is worse than no guard: it reads as protection in review AND in its own comment, and the failure it permits presents to the user as expiry rather than as a collision. Fixed in main() where the bound port is first known, deliberately NOT by assigning Config.PORT — other call sites read that as 'the configured port' and having the CLI mutate shared config to correct a cookie name trades one action-at-a-distance for another. Verified end-to-end at three points: a throwaway instance on :3099 emitted fw_session_3099, the restarted :3012 now emits fw_session_3012 where it emitted fw_session_3000 an hour ago, and AEF's :3000 is no longer collided with. Probe boots a real instance on a real non-default port and reads the real Set-Cookie, because a static check could not have established this — the defect WAS source that looked correct. Mutation-verified: reverting the fix makes it emit fw_session_3000 on a port in the 57000s and both legs go red with the collision consequence named. Generic upstream debt, declared in the vendor manifest — AEF's own Watchtower has this bug identically and is one of the two colliding instances. The HTML-403-to-a-JSON-client defect is real and deliberately NOT patched here: one bug, one task. Suite 103 -> 104 legs. T-509's sweep flaked red as a leg while returning rc=0 and 32/32 green standalone — the second instrument today to fail only in suite context, recorded on T-543 with the honest note that my new server-booting probe now runs twice per suite and may be the load I introduced
+
+# Key outcomes
+outcomes:
+  - 'The session cookie name is derived from the port the server ACTUALLY'
+  - 'The two instances on this host emit DIFFERENT cookie names, so neither'
+  - '`FW_PORT` and the `--port` flag agree — setting either produces the same'
+  - 'A probe asserts the property that a server bound to port N names its'
+  - 'The divergence is declared in `.agentic-framework/.vendor-divergence.yaml`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: '''Session expired'' on Approve was never an expiry — two Watchtowers on one host were destroying each other''s sessions, and the guard against exactly that was reading the wrong port. Operator clicked Approve on /approvals and got a session-expired page plus raw JS text. Reproduced with a CSRF-less POST: HTTP 403, Content-Type text/html, 67632 bytes. What they pasted is literally base.html line 12 (<title>Session expired — Workflow designer</title>) followed by line 14 (the theme bootstrap script) — the top of that document, surfaced as text because the Approve control is an htmx POST and the 403 handler answers /api/* with a full HTML page. RCA: app.py sets SESSION_COOKIE_NAME = f''fw_session_{Config.PORT}'' under T-2278, whose own comment states the reason — RFC 6265 does not scope cookies by port, so two instances on one host share a cookie slot and overwrite each other. Config.PORT reads FW_PORT or falls back to 3000 and --port never updates it; --port moves the listening socket and nothing else, and create_app() runs at MODULE level before argparse exists. Measured, not inferred: AEF''s Watchtower on :3000 and this project''s on :3012 BOTH emitted fw_session_3000, and because each signs with its own .fw-secret-key neither could decode the other''s cookie, so session came back empty, session.get(''_csrf_token'') was None and every state-changing POST 403''d. Watchtower had been up 2d03h with no restart and the page was freshly loaded, which is why the message was actively misleading: nothing had expired. Ruled out in order rather than guessed — secret key is persisted by T-1306 precisely to survive restarts, and uptime says there was no restart. A guard that names the wrong port is worse than no guard: it reads as protection in review AND in its own comment, and the failure it permits presents to the user as expiry rather than as a collision. Fixed in main() where the bound port is first known, deliberately NOT by assigning Config.PORT — other call sites read that as ''the configured port'' and having the CLI mutate shared config to correct a cookie name trades one action-at-a-distance for another. Verified end-to-end at three points: a throwaway instance on :3099 emitted fw_session_3099, the restarted :3012 now emits fw_session_3012 where it emitted fw_session_3000 an hour ago, and AEF''s :3000 is no longer collided with. Probe boots a real instance on a real non-default port and reads the real Set-Cookie, because a static check could not have established this — the defect WAS source that looked correct. Mutation-verified: reverting the fix makes it emit fw_session_3000 on a port in the 57000s and both legs go red with the collision consequence named. Generic upstream debt, declared in the vendor manifest — AEF''s own Watchtower has this bug identically and is one of the two colliding instances. The HTML-403-to-a-JSON-client defect is real and deliberately NOT patched here: one bug, one task. Suite 103 -> 104 legs. T-509''s sweep flaked red as a leg while returning rc=0 and 32/32 green standalone — the second instrument today to fail only in suite context, recorded on T-543 with the honest note that my new server-booting probe now runs twice per suite and may be the load I introduced'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/web/app.py'
+  - '.context/audits/2026-08-16.yaml'
+  - '.context/audits/cron/2026-08-16-1645.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/locks/T-544.lock'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/.hook-counter'
+  - '.context/working/.new-file-counter'
+  - '.context/working/watchtower.log'
+  - '.context/working/watchtower.pid'
+  - '.context/working/watchtower.port'
+  - '.context/working/watchtower.url'
+  - '.tasks/active/T-542-populate-cost-estimates-so-the-hvhc-and-.md'
+  - '.tasks/active/T-543-t-523-nesting-teeth-legs-7-8-fail-interm.md'
+  - '.tasks/active/T-544-watchtower-session-cookie-is-named-for-t.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t544-session-cookie-port-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-16T17:08:52"
+    action: "T-544: 'Session expired' on Approve was never an expiry — two Watchtowers on one host were destroying each other's sessions, and the guard against exactly that was reading the wrong port. Operator clicked Approve on /approvals and got a session-expired page plus raw JS text. Reproduced with a CSRF-less POST: HTTP 403, Content-Type text/html, 67632 bytes. What they pasted is literally base.html line 12 (<title>Session expired — Workflow designer</title>) followed by line 14 (the theme bootstrap script) — the top of that document, surfaced as text because the Approve control is an htmx POST and the 403 handler answers /api/* with a full HTML page. RCA: app.py sets SESSION_COOKIE_NAME = f'fw_session_{Config.PORT}' under T-2278, whose own comment states the reason — RFC 6265 does not scope cookies by port, so two instances on one host share a cookie slot and overwrite each other. Config.PORT reads FW_PORT or falls back to 3000 and --port never updates it; --port moves the listening socket and nothing else, and create_app() runs at MODULE level before argparse exists. Measured, not inferred: AEF's Watchtower on :3000 and this project's on :3012 BOTH emitted fw_session_3000, and because each signs with its own .fw-secret-key neither could decode the other's cookie, so session came back empty, session.get('_csrf_token') was None and every state-changing POST 403'd. Watchtower had been up 2d03h with no restart and the page was freshly loaded, which is why the message was actively misleading: nothing had expired. Ruled out in order rather than guessed — secret key is persisted by T-1306 precisely to survive restarts, and uptime says there was no restart. A guard that names the wrong port is worse than no guard: it reads as protection in review AND in its own comment, and the failure it permits presents to the user as expiry rather than as a collision. Fixed in main() where the bound port is first known, deliberately NOT by assigning Config.PORT — other call sites read that as 'the configured port' and having the CLI mutate shared config to correct a cookie name trades one action-at-a-distance for another. Verified end-to-end at three points: a throwaway instance on :3099 emitted fw_session_3099, the restarted :3012 now emits fw_session_3012 where it emitted fw_session_3000 an hour ago, and AEF's :3000 is no longer collided with. Probe boots a real instance on a real non-default port and reads the real Set-Cookie, because a static check could not have established this — the defect WAS source that looked correct. Mutation-verified: reverting the fix makes it emit fw_session_3000 on a port in the 57000s and both legs go red with the collision consequence named. Generic upstream debt, declared in the vendor manifest — AEF's own Watchtower has this bug identically and is one of the two colliding instances. The HTML-403-to-a-JSON-client defect is real and deliberately NOT patched here: one bug, one task. Suite 103 -> 104 legs. T-509's sweep flaked red as a leg while returning rc=0 and 32/32 green standalone — the second instrument today to fail only in suite context, recorded on T-543 with the honest note that my new server-booting probe now runs twice per suite and may be the load I introduced"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 32 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 32
+  commits: 1
+  files_changed: 22
+  lines_added: 938
+  lines_removed: 3436
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-544-watchtower-session-cookie-is-named-for-t.md
+generated_by: context-agent-hybrid

@@ -6965,3 +6965,21 @@ scan_id: R-065e60cb
 task_id: T-539
 payload:
   task_file: .tasks/active/T-539-gap-closurecheckcommands-are-checked-for.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T15:17:16Z'
+scan_id: R-73583b71
+task_id: T-544
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T15:17:16Z'
+scan_id: R-73583b71
+task_id: T-544
+payload:
+  task_file: .tasks/active/T-544-watchtower-session-cookie-is-named-for-t.md

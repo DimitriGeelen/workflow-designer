@@ -179,12 +179,52 @@ entries:
       Config.PORT: other call sites read Config.PORT as "the configured port", and having the
       CLI mutate shared config to correct a cookie name trades one action-at-a-distance for
       another. Only the cookie name must follow the socket.
-      SECOND DEFECT FOUND IN THE SAME REPRODUCTION, NOT PATCHED HERE — one bug, one task: the
-      403 handler returns a full 67KB HTML page to /api/* clients. The Approve control is an
-      htmx POST, so the operator's browser surfaced that document as raw text — what they
-      pasted was literally base.html line 12 (<title>) followed by line 14 (the theme
-      bootstrap script). An /api/* endpoint should content-negotiate and answer JSON; the
-      handler branches on CSRF-vs-generic but never on what the client asked for.
+      SECOND DEFECT FOUND IN THE SAME REPRODUCTION, NOT PATCHED UNDER T-544 — one bug, one
+      task. Filed and fixed as T-545; see the entry below. The mechanism recorded here
+      when T-544 landed was WRONG IN A WAY THAT WOULD HAVE MISDIRECTED THE FIX and is
+      corrected there: the browser never rendered that document. htmx 2.0.4 ships
+      responseHandling {code:"[45]..",swap:false,error:true} and does not swap a 4xx at
+      all. The lines identified were right; the reason they reached the operator was not.
+
+  - path: .agentic-framework/web/app.py
+    kind: content
+    task: T-545
+    upstream: fix
+    reason: >-
+      GENERIC upstream debt — same file, second defect, and AEF's Watchtower has it too.
+      The 403 handler chose its body by WHY the request failed (T-2309 split CSRF from
+      generic) and never by WHO was asking. An hx-post to /api/* therefore received the
+      full T-2309 "Session expired" PAGE: 66456 bytes of document delivered to a control
+      whose target is a <div>.
+      MEASURED MECHANISM, replacing the one asserted under T-544. htmx 2.0.4's default
+      responseHandling is [{code:"204",swap:false},{code:"[23]..",swap:true},
+      {code:"[45]..",swap:false,error:true}] — a 4xx is NEVER swapped, so nothing rendered
+      that page. It reached only web/static/htmx-toast.js, whose error listener extracts a
+      message with .replace(/<[^>]*>/g,'').trim().substring(0,100). That is a TAG stripper,
+      not a text extractor: it removes <title> and <script> TAGS and keeps the text INSIDE
+      them. Reproduced exactly, byte for byte with what the operator pasted:
+      "Session expired — Workflow designer\n    \n        (function(){var
+      t=localStorage.getItem('wt-theme');". The page title followed by the theme
+      bootstrap's JavaScript source, truncated at 100 characters.
+      Fix: _is_spliced_request() -> a fragment carrying HX-Error-Kind: csrf|forbidden, so
+      the T-2309 distinction survives for machines without the caller parsing prose.
+      103 bytes where 66456 stood.
+      THE FIRST DRAFT OF THIS FIX WAS WRONG AND THE CORPUS IS WHAT SHOWED IT. It exempted
+      HX-Boosted requests, reasoning that base.html sets hx-boost="true" on <body> so
+      ordinary navigation also carries HX-Request and would otherwise lose T-2309's
+      full-page Reload UI. But five routes post a plain <form method="post"> under that
+      boost (/arcs/*/close, /assumptions/*/resolve, /inception/*/decide,
+      /inception/*/add-assumption, /review/*/pause/*/resolve) — boosted POSTs, which the
+      exemption would have left carrying the defect this task exists to remove. The
+      library's own default settled it: since htmx never swaps a 4xx, the full page is
+      never DISPLAYED for any htmx request, only scraped. T-2309's page stays reachable by
+      the one thing that does display it — a genuine non-htmx navigation.
+      NOT PATCHED, REPORTED: htmx-toast.js's tag-stripping regex is a separate defect with
+      its own root cause. It is latent for any HTML body from any endpoint — a 500 on a
+      non-API route still feeds it a document — and using a tag stripper as a text
+      extractor will keep leaking element content. Left for AEF to decide, since the
+      remedy (textContent extraction, or trusting a structured error header) is a choice
+      about their client contract, not ours.
 
   - path: .agentic-framework/agents/audit/audit.sh
     kind: content
