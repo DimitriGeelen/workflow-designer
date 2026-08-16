@@ -4,20 +4,20 @@ name: "HX-Prompt rationale stored percent-encoded: server ignores htmx's URI-Aut
 description: >
   HX-Prompt rationale stored percent-encoded: server ignores htmx's URI-AutoEncoded companion header
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t547-hx-prompt-decode-teeth.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-16T16:32:42Z
-last_update: 2026-08-16T16:32:42Z
-date_finished: null
+last_update: 2026-08-16T16:56:10Z
+date_finished: 2026-08-16T16:56:10Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -306,3 +306,20 @@ unmeasured, and I am not asserting it cannot.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-547-hx-prompt-rationale-stored-percent-encod.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d8ded1c7
+- **Timestamp:** 2026-08-16T16:56:12Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#6 (Agent)** — Wired into `tests/run-bridge-tests.sh`; full suite green
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/run-bridge-tests.sh in: Wired into `tests/run-bridge-tests.sh`; full suite green`
+
+### 2026-08-16T16:56:10Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

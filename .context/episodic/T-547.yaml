@@ -1,0 +1,82 @@
+# ============================================================================
+# EPISODIC MEMORY - T-547: HX-Prompt rationale stored percent-encoded: server ignores htmx's URI-AutoEncoded companion header
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-16T16:56:15Z
+# ============================================================================
+
+task_id: T-547
+task_name: "HX-Prompt rationale stored percent-encoded: server ignores htmx's URI-AutoEncoded companion header"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-16T16:32:42Z
+completed: 2026-08-16T16:56:10Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-16T18:55:59+02:00
+last_commit: 2026-08-16T18:55:59+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  an operator's rationale was being filed as the operator did not write it, and the gate meant to force a real reason was made MORE permissive by the corruption. Three rejections in .context/bvp-driver-proposals.jsonl record the reason as 'Reject%20rationale%20(%E2%89%A530%20chars%20%E2%80%94%20why%20is...'. XHR forbids non-ASCII header values, so htmx (htmx.min.js, Cn) retries a rejected setRequestHeader with encodeURIComponent AND sets a companion HX-Prompt-URI-AutoEncoded:true declaring that it did — htmx is correct and announces itself; both bvp.py routes read HX-Prompt and never read the declaration sitting next to it. The defect is a two-header protocol consumed as if it had one. Fix: _hx_prompt() decodes only when htmx declares an encoding, and the CONDITION is the point — an unconditional unquote() turns a rationale a human typed as 'covers 50%20 of cases' into 'covers 50  of cases', so htmx's own declaration is the only way to tell an encoding from a percent sign. Applied at both call sites ahead of the R6 floor, because percent-encoding INFLATES length: pre-fix a 26-character rationale encoded to 44 and cleared a 30-character gate, so the encoding did not merely evade the gate, it widened it. One of the two routes is bvp_driver_remove, which is SOVEREIGN — there the rationale IS the record of a policy edit. Teeth pin both directions and the ordering; leg 6 pins the POPULATION rather than the two sites known today (exactly one raw read may exist, the one inside the helper) because a repair granted only to the cases that prompted it is T-509's shape and this is the fourth encounter with it this week. Hermetic by construction: the ledger writer and the fw CLI are captured rather than run, so the probe appends no audit row and touches no driver register — a probe that wrote to an append-only ledger to prove the ledger is written correctly would be its own defect. Mutation-verified against four mutants (never-decode, always-decode, remove-route-only, third-route-reads-raw); each caught by exactly the leg that owns it, and the single-route mutant localises to the SOVEREIGN endpoint by name. My first draft of the population check was a shell one-liner in Verification and was simply wrong — '_hx_prompt()' matches its own def line and docstring so the count it asserted could never hold; it is a probe leg now, where it can also name WHICH route regressed. DELIBERATELY NOT DONE: the three mangled rows stay as they are. Rewriting an append-only audit ledger to make a past record look better than it was is the wrong repair. Also NOT asserted: R6 is enforced in at least two places and only the route is fixed; whether the CLI path can receive an encoded rationale is unmeasured. Suite 106 passed 0 failed twice (452s, 458s), divergence 33/33. Both suite runs were idle-machine and both were green, which is recorded in T-543 as corroboration of its timeout mechanism rather than quietly dropped: 2 of 4 completed runs now reproduce the _t509 failure and the split tracks whether the machine was busy
+
+# Key outcomes
+outcomes:
+  - 'Both `HX-Prompt` read sites (`bvp.py` ~750 remove, ~910 reject) decode the'
+  - 'Decoding is **conditional on the companion header**, not unconditional: a'
+  - 'Decode happens **before** the `len(...) < 30` gate, so the floor measures'
+  - '`tools/_t547-hx-prompt-decode-teeth.py` pins both directions (encoded+header'
+  - 'Teeth are mutation-verified: reverting the fix turns the probe red, and the'
+  - 'Wired into `tests/run-bridge-tests.sh`; full suite green'
+  - 'Divergence declared in `.agentic-framework/.vendor-divergence.yaml`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'an operator''s rationale was being filed as the operator did not write it, and the gate meant to force a real reason was made MORE permissive by the corruption. Three rejections in .context/bvp-driver-proposals.jsonl record the reason as ''Reject%20rationale%20(%E2%89%A530%20chars%20%E2%80%94%20why%20is...''. XHR forbids non-ASCII header values, so htmx (htmx.min.js, Cn) retries a rejected setRequestHeader with encodeURIComponent AND sets a companion HX-Prompt-URI-AutoEncoded:true declaring that it did — htmx is correct and announces itself; both bvp.py routes read HX-Prompt and never read the declaration sitting next to it. The defect is a two-header protocol consumed as if it had one. Fix: _hx_prompt() decodes only when htmx declares an encoding, and the CONDITION is the point — an unconditional unquote() turns a rationale a human typed as ''covers 50%20 of cases'' into ''covers 50  of cases'', so htmx''s own declaration is the only way to tell an encoding from a percent sign. Applied at both call sites ahead of the R6 floor, because percent-encoding INFLATES length: pre-fix a 26-character rationale encoded to 44 and cleared a 30-character gate, so the encoding did not merely evade the gate, it widened it. One of the two routes is bvp_driver_remove, which is SOVEREIGN — there the rationale IS the record of a policy edit. Teeth pin both directions and the ordering; leg 6 pins the POPULATION rather than the two sites known today (exactly one raw read may exist, the one inside the helper) because a repair granted only to the cases that prompted it is T-509''s shape and this is the fourth encounter with it this week. Hermetic by construction: the ledger writer and the fw CLI are captured rather than run, so the probe appends no audit row and touches no driver register — a probe that wrote to an append-only ledger to prove the ledger is written correctly would be its own defect. Mutation-verified against four mutants (never-decode, always-decode, remove-route-only, third-route-reads-raw); each caught by exactly the leg that owns it, and the single-route mutant localises to the SOVEREIGN endpoint by name. My first draft of the population check was a shell one-liner in Verification and was simply wrong — ''_hx_prompt()'' matches its own def line and docstring so the count it asserted could never hold; it is a probe leg now, where it can also name WHICH route regressed. DELIBERATELY NOT DONE: the three mangled rows stay as they are. Rewriting an append-only audit ledger to make a past record look better than it was is the wrong repair. Also NOT asserted: R6 is enforced in at least two places and only the route is fixed; whether the CLI path can receive an encoded rationale is unmeasured. Suite 106 passed 0 failed twice (452s, 458s), divergence 33/33. Both suite runs were idle-machine and both were green, which is recorded in T-543 as corroboration of its timeout mechanism rather than quietly dropped: 2 of 4 completed runs now reproduce the _t509 failure and the split tracks whether the machine was busy'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/web/blueprints/bvp.py'
+  - '.tasks/active/T-543-t-523-nesting-teeth-legs-7-8-fail-interm.md'
+  - '.tasks/active/T-547-hx-prompt-rationale-stored-percent-encod.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t547-hx-prompt-decode-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-16T18:55:59"
+    action: "T-547: an operator's rationale was being filed as the operator did not write it, and the gate meant to force a real reason was made MORE permissive by the corruption. Three rejections in .context/bvp-driver-proposals.jsonl record the reason as 'Reject%20rationale%20(%E2%89%A530%20chars%20%E2%80%94%20why%20is...'. XHR forbids non-ASCII header values, so htmx (htmx.min.js, Cn) retries a rejected setRequestHeader with encodeURIComponent AND sets a companion HX-Prompt-URI-AutoEncoded:true declaring that it did — htmx is correct and announces itself; both bvp.py routes read HX-Prompt and never read the declaration sitting next to it. The defect is a two-header protocol consumed as if it had one. Fix: _hx_prompt() decodes only when htmx declares an encoding, and the CONDITION is the point — an unconditional unquote() turns a rationale a human typed as 'covers 50%20 of cases' into 'covers 50  of cases', so htmx's own declaration is the only way to tell an encoding from a percent sign. Applied at both call sites ahead of the R6 floor, because percent-encoding INFLATES length: pre-fix a 26-character rationale encoded to 44 and cleared a 30-character gate, so the encoding did not merely evade the gate, it widened it. One of the two routes is bvp_driver_remove, which is SOVEREIGN — there the rationale IS the record of a policy edit. Teeth pin both directions and the ordering; leg 6 pins the POPULATION rather than the two sites known today (exactly one raw read may exist, the one inside the helper) because a repair granted only to the cases that prompted it is T-509's shape and this is the fourth encounter with it this week. Hermetic by construction: the ledger writer and the fw CLI are captured rather than run, so the probe appends no audit row and touches no driver register — a probe that wrote to an append-only ledger to prove the ledger is written correctly would be its own defect. Mutation-verified against four mutants (never-decode, always-decode, remove-route-only, third-route-reads-raw); each caught by exactly the leg that owns it, and the single-route mutant localises to the SOVEREIGN endpoint by name. My first draft of the population check was a shell one-liner in Verification and was simply wrong — '_hx_prompt()' matches its own def line and docstring so the count it asserted could never hold; it is a probe leg now, where it can also name WHICH route regressed. DELIBERATELY NOT DONE: the three mangled rows stay as they are. Rewriting an append-only audit ledger to make a past record look better than it was is the wrong repair. Also NOT asserted: R6 is enforced in at least two places and only the route is fixed; whether the CLI path can receive an encoded rationale is unmeasured. Suite 106 passed 0 failed twice (452s, 458s), divergence 33/33. Both suite runs were idle-machine and both were green, which is recorded in T-543 as corroboration of its timeout mechanism rather than quietly dropped: 2 of 4 completed runs now reproduce the _t509 failure and the split tracks whether the machine was busy"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 23 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 23
+  commits: 1
+  files_changed: 6
+  lines_added: 671
+  lines_removed: 10
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-547-hx-prompt-rationale-stored-percent-encod.md
+generated_by: context-agent-hybrid
