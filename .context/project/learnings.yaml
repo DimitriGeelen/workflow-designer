@@ -1723,3 +1723,17 @@ learnings:
   date: 2026-08-16
   context: Added via context agent
   application: TBD
+- id: PL-242
+  learning: "A control can be correct, firing, and stranded where no reader looks — and that state is observationally identical to the control not existing. CTL-028 fired 263 times over 14 days into .context/audits/cron/ and nobody saw one. Cause: audit.sh gates it on 'compliance || oe-daily' with a header stating the promotion was made 'so the pre-push audit (which includes compliance) catches it', while hooks.sh runs '--section structure' only — trimmed for speed by an EARLIER task, so the comment was already false when written. Two individually-correct changes composed into a control that runs nowhere. PL-159 applied to a ROUTING claim rather than a threshold. The missing thing is an invariant, not care: nothing checks that a control's gate sections intersect the sections its automatic callers pass. Registered as G-038 with closure explicitly refusing the one-instance re-route, because re-routing one control says nothing about the next stranded one."
+  source: P-001
+  task: T-536
+  date: 2026-08-16
+  context: Added via context agent
+  application: TBD
+- id: PL-243
+  learning: "A '## Verification' block that never executes rots silently, and the bypass that skipped it is the same bypass that hid the rot. T-338 was moved active/->completed/ by bare git mv, so its P-011 gate never fired; 14 days later T-536 ran it for the first time and two legs asserted probe output strings that T-419 and T-340 had removed in the interim. The block was correct when written and had no chance to say otherwise. Two consequences worth carrying: (1) status desync and assertion rot are not separate defects, they are one skipped gate seen from two sides, so repairing the status without re-running the block would have left the rot in place; (2) assertions pinned to a subject's incidental PROSE decay while assertions pinned to its VERDICT survive — the same identity-vs-rendering split as T-535. Also measured: the P-011 gate rejects multi-line constructs outright ('MALFORMED BLOCK'), so inline python in a Verification section must be one command per line."
+  source: P-001
+  task: T-536
+  date: 2026-08-16
+  context: Added via context agent
+  application: TBD
