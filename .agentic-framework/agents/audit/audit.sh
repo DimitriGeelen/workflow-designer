@@ -19,7 +19,10 @@ FRAMEWORK_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 source "$FRAMEWORK_ROOT/lib/paths.sh"
 source "$FRAMEWORK_ROOT/lib/config.sh"
 source "$FRAMEWORK_ROOT/lib/watchtower.sh"
-AUDITS_DIR="$CONTEXT_DIR/audits"
+# T-535: env-overridable, matching the TASKS_DIR idiom in lib/paths.sh. This is the seam the
+# trend-analysis teeth drive — a controlled corpus of audit records can be supplied without
+# touching the real .context/audits, and the run's own output lands in the same sandbox.
+AUDITS_DIR="${AUDITS_DIR:-$CONTEXT_DIR/audits}"
 
 # --- Schedule Subcommand (dispatch before heavy init) ---
 if [ "${1:-}" = "schedule" ]; then
@@ -5524,15 +5527,59 @@ else
     done
 
     # Find repeated issues (appeared 3+ times)
+    #
+    # T-535: the aggregation KEY is separated from the RENDERED reading. Previously both were the
+    # verbatim check string, so any check embedding its own measurement minted a fresh key every
+    # run and could never aggregate. Measured on this project's real 9-audit window: the fabric
+    # edges warn was present in 9 of 9 audits and the coverage warn in 7 of 9, yet only ONE line
+    # was ever promoted — "Fabric: 36/40 cards have no edges" — and only because that reading
+    # held still on 08-12/13/14. The detector fired on STASIS while labelled recurrence, and was
+    # least sensitive exactly when a problem was progressing. Same family as PL-222/G-015: there a
+    # moving quantity is baked into a metric, here into an IDENTITY KEY.
+    #
+    # Normalisation preserves identifier tokens ([A-Za-z]{1,6}-[0-9]+) and folds only free-standing
+    # numbers. That distinction is load-bearing, not decorative: a naive s/[0-9]+/N/ collapses
+    # "CTL-028: ..." and "CTL-029: ..." — two different controls — into one key, which would
+    # manufacture a recurrence across unrelated checks. Verified against the 703-file cron corpus:
+    # under this rule CTL-028 and CTL-029 stay distinct, and every collapse that does occur is one
+    # check varying only in its own reading.
+    #
+    # The rendered line shows the MOST RECENT concrete reading, not the normalised key — an
+    # operator is better served by "Fabric: 37/56 cards have no edges" than by "Fabric: N/N".
     repeated_issues=()
     if [ -s "$ISSUE_COUNTS_FILE" ]; then
-        while IFS= read -r count_line; do
-            count=$(echo "$count_line" | awk '{print $1}')
-            check=$(echo "$count_line" | cut -d' ' -f2-)
-            if [ "$count" -ge 3 ] 2>/dev/null; then
-                repeated_issues+=("$check ($count times)")
-            fi
-        done < <(sort "$ISSUE_COUNTS_FILE" | uniq -c | sort -rn)
+        while IFS=$'\t' read -r count check; do
+            [ -z "$count" ] && continue
+            repeated_issues+=("$check ($count times)")
+        done < <(python3 - "$ISSUE_COUNTS_FILE" <<'TRENDPY'
+import re, sys, collections
+
+# Identifier tokens are protected via a DIGIT-FREE placeholder. A placeholder containing digits
+# is itself eaten by the digit pass below — that bug produced a key of " N :  N " during
+# development and made the conservative rule look like the over-merge it exists to prevent.
+IDENT = re.compile(r'\b[A-Za-z]{1,6}-\d+\b')
+
+def key(s):
+    holes = []
+    t = IDENT.sub(lambda m: (holes.append(m.group(0)), '\x00')[1], s)
+    t = re.sub(r'\d+', 'N', t)
+    it = iter(holes)
+    return re.sub('\x00', lambda m: next(it), t)
+
+counts, latest = collections.Counter(), {}
+with open(sys.argv[1], encoding='utf-8', errors='replace') as fh:
+    for line in fh:                      # file order is glob order, i.e. chronological
+        line = line.rstrip('\n')
+        if not line:
+            continue
+        k = key(line)
+        counts[k] += 1
+        latest[k] = line                 # last write wins => most recent reading
+for k, n in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])):
+    if n >= 3:
+        print("%d\t%s" % (n, latest[k]))
+TRENDPY
+        )
     fi
     rm -f "$ISSUE_COUNTS_FILE"
 

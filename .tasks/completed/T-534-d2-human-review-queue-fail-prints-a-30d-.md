@@ -4,10 +4,10 @@ name: "D2 human-review-queue FAIL prints a >30d count against a >14d list"
 description: >
   The D2 control accumulates d2_details in BOTH the >=720h (fail) and >=336h (warn) branches, then the fail message prints the fail-tier COUNT against the union LIST: 'D2: Human review queue - 2 task(s) waiting >30d: T-093(41d) T-178(36d) T-308(17d) T-310(17d) T-325(14d)'. Count 2, list 5, three of them below the stated threshold. Invisible unless both tiers are populated, which is why it survived. Vendored .agentic-framework/agents/audit/audit.sh:3966,3969,3984 - fix in-tree per G-008 and report upstream. Found while correcting T-432.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-15T22:47:15Z
-last_update: 2026-08-15T22:51:15Z
-date_finished: null
+last_update: 2026-08-15T23:15:56Z
+date_finished: 2026-08-15T23:15:56Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -316,3 +316,15 @@ be deliberate.
 
 ### 2026-08-15T22:51:15Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-24834d39
+- **Timestamp:** 2026-08-15T23:16:03Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-15T23:15:56Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

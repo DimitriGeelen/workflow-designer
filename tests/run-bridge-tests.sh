@@ -1266,6 +1266,24 @@ else
   fail=$((fail + 1))
 fi
 
+echo "== The trend detector aggregates an issue whose numbers move (T-535) =="
+# The counter keyed on the verbatim rendered check string, so a check embedding its own
+# measurement minted a fresh key every run and could never reach count>=3. On this project's real
+# 9-audit window the fabric edges warn was present in 9 of 9 audits and exactly one line was ever
+# promoted — the one whose reading held still for three days. The detector fired on STASIS while
+# labelled recurrence. This drives the real audit.sh through the new AUDITS_DIR seam against a
+# corpus dated RELATIVE TO TODAY (the reader has a 14-day window; pinned dates would age out into
+# a silent "no repeated issues", which reads exactly like health). The over-merge leg is the one
+# to watch: the obvious repair, s/[0-9]+/N/, fuses CTL-028 with CTL-029 and invents a recurrence
+# across two different controls, which is worse than the defect it fixes.
+if python3 "$ROOT/tools/_t535-trend-key-teeth.py" > "$TMP/leg-_t535-trend-key-teeth.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the audit trend detector either fails to aggregate an issue whose numbers move, or it merges two distinct controls that differ only in digits (run 'python3 tools/_t535-trend-key-teeth.py' — it names the failing leg; rc 2 is a REFUSAL, meaning no trend section was produced or the corpus promoted nothing, so nothing was evaluated — not a measured pass)"
+  show_output "$TMP/leg-_t535-trend-key-teeth.out" "_t535-trend-key-teeth.py"
+  fail=$((fail + 1))
+fi
+
 echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
