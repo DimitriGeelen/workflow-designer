@@ -1605,5 +1605,29 @@ else
 fi
 
 echo
+echo "== A hermeticity check that cannot pass on Mondays (T-552) =="
+
+# ── T-552: _t525's write-set assertion is content-addressed, not status-letter-addressed ────
+# _t525 leg 7 claims the probe leaves .context/audits as it found it. T-533 scoped that to the
+# subject's write-set, which was right; the comparand was `git status --porcelain`, which was
+# wrong in both directions. Porcelain reports status LETTERS, so rewriting an already-dirty
+# file is invisible — measured, .context/audits/2026-08-16.yaml moved f42311649879 ->
+# 47b2499bdbf7 with byte-identical porcelain — and that covers BOTH files the audit writes on
+# every run after the first of the day. In the other direction a CREATE reads as a violation,
+# and the first audit of any day creates <today>.yaml, so the leg was guaranteed red once every
+# 24 hours (OBS-273, found as the sweep's rc=1 on 2026-08-17 against a standalone 8/8).
+# Now a path->digest map judged against the paths the subject declares it writes, ANDed with
+# proof that the subject wrote at least one of them so a crashed audit cannot read as hermetic.
+# Driven against the pure function rather than through _t525, which costs ~61s and a real audit
+# run, and which cannot be made to cross midnight on demand.
+if python3 "$ROOT/tools/_t552-writeset-hermeticity-teeth.py" > "$TMP/leg-_t552-writeset-hermeticity.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the audit-probe hermeticity assertion has stopped discriminating — either the first audit of a day or a run crossing midnight is being reported as a violation again, or a rewritten historical audit / a fabricated report / a deletion / an audit that never ran is being reported as hermetic (run 'python3 tools/_t552-writeset-hermeticity-teeth.py'; rc 2 is a REFUSAL — tools/_writeset_hermeticity.py no longer exposes write_set_violations/declared_writes_observed, so nothing was measured)"
+  show_output "$TMP/leg-_t552-writeset-hermeticity.out" "_t552-writeset-hermeticity-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

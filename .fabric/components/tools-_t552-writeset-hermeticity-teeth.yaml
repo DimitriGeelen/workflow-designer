@@ -1,0 +1,29 @@
+id: tools/_t552-writeset-hermeticity-teeth.py
+name: _t552-writeset-hermeticity-teeth
+type: script
+subsystem: instrumentation
+tags: [teeth, hermeticity, audits, t552]
+location: tools/_t552-writeset-hermeticity-teeth.py
+
+purpose: >
+  Drives _writeset_hermeticity.write_set_violations() and declared_writes_observed() over
+  synthetic path->digest maps, pinning that _t525's leg 7 passes on the first audit of a day and
+  on a run crossing midnight (the OBS-273 defect) while still going red on a rewritten
+  historical audit, a rewritten already-dirty file, a fabricated report inside the write-set,
+  a deletion of a declared output, and an audit that never wrote at all. Carries both PL-234
+  arms: a writer outside the scope must leave the verdict green (the T-533 defect staying
+  fixed) and the subject's own write-set being dirtied must still turn it red. Ten legs,
+  mutation-verified against four mutants — pre-fix comparand (6 red), digests with no
+  allow-list (4 red), always-hermetic (5 red), and an always-firing did-it-run guard (1 red,
+  uniquely leg 9). Seam: T552_MODULE.
+
+depends_on:
+  - target: tools/_writeset_hermeticity.py
+    type: imports
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-08-17
+created_by: T-552

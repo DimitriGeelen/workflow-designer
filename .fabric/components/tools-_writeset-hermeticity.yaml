@@ -1,0 +1,30 @@
+id: tools/_writeset_hermeticity.py
+name: _writeset_hermeticity
+type: library
+subsystem: instrumentation
+tags: [hermeticity, teeth-support, audits, t552]
+location: tools/_writeset_hermeticity.py
+
+purpose: >
+  Content-addressed hermeticity for a probe's declared write-set. Snapshots a directory to a
+  path->digest map and reports every change a run was not entitled to make, judged against an
+  allow-list of the subject's declared outputs. Replaces the `git status --porcelain` comparand
+  _t525 used from T-533 to T-552, which reported status letters rather than content: it was
+  blind to any rewrite of an already-dirty file (including both files `fw audit` writes) and
+  read the legitimate creation of `.context/audits/<today>.yaml` as a violation, so the leg
+  could not pass on the first audit of any day. Also exposes declared_writes_observed(), which
+  lets a caller refuse to call a subject that never wrote anything "hermetic" (T-524).
+  Kept as a shared module rather than inline because this is the second repair to the same
+  assertion, and because it lets the verdict be driven over synthetic states — midnight
+  rollover, a rewritten historical record — that cannot be summoned in a live repository.
+
+depends_on: []
+
+depended_by:
+  - target: tools/_t525-fabric-coverage-teeth.py
+    type: imports
+  - target: tools/_t552-writeset-hermeticity-teeth.py
+    type: imports
+
+last_verified: 2026-08-17
+created_by: T-552

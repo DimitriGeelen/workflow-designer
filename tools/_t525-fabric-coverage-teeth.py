@@ -73,6 +73,10 @@ import subprocess
 import sys
 import tempfile
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _writeset_hermeticity import (declared_writes_observed, snapshot,  # noqa: E402
+                                   today_iso, write_set_violations)
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # T-549: which `fw` to drive. Defaults to the vendored one, which is the only value any
@@ -228,24 +232,32 @@ print()
 tmp = tempfile.mkdtemp(prefix="t525-teeth-")
 
 # T-533: SCOPED to this subject's write-set, not to the whole tree.
-# The original form compared `git status --porcelain` over the entire repository across this
-# script's ~61-second run, so ANY other writer — cron, a handover commit, a concurrent agent —
-# turned leg 7 red while the script passed 7/7 standalone. Demonstrated under T-527: one
-# persistent file created mid-run drove it red naming the marker. That made the bridge suite
-# non-deterministic and cost a whole investigation (T-526) to localise.
+# The original form compared over the entire repository across this script's ~61-second run, so
+# ANY other writer — cron, a handover commit, a concurrent agent — turned leg 7 red while the
+# script passed 7/7 standalone. Demonstrated under T-527: one persistent file created mid-run
+# drove it red naming the marker. That made the bridge suite non-deterministic and cost a whole
+# investigation (T-526) to localise.
 # The subject here is `fw audit`, which writes its report under `.context/audits/`. The `cron/`
 # subdirectory is EXCLUDED because it belongs to a different actor on a 15-minute timer — the
 # single likeliest unrelated writer, and including it would rebuild the defect at 1/15th scale.
-# Pathspec kept INLINE in the argv literal, not hoisted to a variable: the T-532 census judges
-# scope syntactically from the call site, so a `+ SCOPE` concatenation reads to it as unscoped
-# and false-positives. Caught by running the census against this fix.
-def tree_state():
-    return subprocess.run(["git", "status", "--porcelain", "--",
-                           ".context/audits", ":(exclude).context/audits/cron"],
-                          cwd=REPO, capture_output=True, text=True, check=False).stdout
+#
+# T-552: the SCOPE above was right; the COMPARAND was not. It was `git status --porcelain`,
+# which reports status letters rather than content — so a rewrite of any already-dirty file was
+# invisible, including both files the audit actually writes — and which reads the legitimate
+# creation of `<today>.yaml` as a violation, so the leg could not pass on the first audit of any
+# day (OBS-273). Now a path->digest map judged against the paths the subject is entitled to
+# write. See tools/_writeset_hermeticity.py for the measurements behind both halves.
+ALLOWED_WRITES = {os.path.join(".context/audits/discoveries", "LATEST.yaml")}
 
 
-before = tree_state()
+def audits_state():
+    return snapshot(REPO, ".context/audits")
+
+
+before = audits_state()
+# Read on both sides of the run: this probe takes ~61s and can straddle midnight, on which run
+# the audit legitimately writes tomorrow's report rather than today's.
+allowed_writes = set(ALLOWED_WRITES) | {".context/audits/%s.yaml" % today_iso()}
 fixture = None
 try:
     # ── leg 1: the real run reaches the check and reports a ratio ──────────────────────────
@@ -351,21 +363,32 @@ finally:
     if fixture:
         shutil.rmtree(fixture, ignore_errors=True)
 
-after = tree_state()
+after = audits_state()
+allowed_writes |= {".context/audits/%s.yaml" % today_iso()}
 if BRANCHES_ONLY:
     # Nothing in this mode writes to the real .context/audits, so the leg has no stimulus and
     # would be satisfied by that absence rather than by hermeticity — a vacuous pass of exactly
     # the kind leg 3 and leg 5 were built to refuse.
     print("  SKIP  7 (branch scope — nothing in this mode writes to the subject's write-set)")
 else:
-    leg("7 hermetic — the subject's write-set is byte-identical after the run",
-        before == after,
-        "git status changed across the run WITHIN THIS SUBJECT'S WRITE-SET (.context/audits, "
-        "excluding cron/). The audit writes its report there, so a leg that let it run "
-        "unconstrained would dirty the tree and make every later verdict in the session "
-        "ambiguous. Note this is scoped (T-533): an unrelated writer elsewhere in the repo can "
-        "no longer cause this, so a red here is the subject, not the environment.\n"
-        "before:\n%s\nafter:\n%s" % (before, after))
+    breaches = write_set_violations(before, after, allowed_writes)
+    # T-552: hermeticity is a negative claim and a negative claim is satisfied by silence
+    # (T-524), so the leg also requires that the subject DID write. `fw audit` stamps its report
+    # with a timestamp, so an audit that ran always moves at least one declared output; an empty
+    # observation here means the audit did not run, which must not read as hermetic.
+    wrote = declared_writes_observed(before, after, allowed_writes)
+    leg("7 hermetic — the subject wrote its declared outputs and nothing else",
+        not breaches and wrote,
+        "content changed across the run WITHIN THIS SUBJECT'S WRITE-SET (.context/audits, "
+        "excluding cron/) at a path the subject does not declare as output. The audit writes "
+        "its report there, so a leg that let it run unconstrained would dirty the tree and "
+        "make every later verdict in the session ambiguous. Two scopings apply: T-533 means an "
+        "unrelated writer ELSEWHERE in the repo can no longer cause this, and T-552 means the "
+        "comparand is content rather than git status letters — so a red here is a real byte "
+        "change by this run, at a path outside %r. Declared outputs observed to move: %r — if "
+        "that list is EMPTY the audit did not write at all, and this leg is red because a "
+        "subject that never ran is not a hermetic subject.\n%s"
+        % (sorted(allowed_writes), wrote, "\n".join(breaches)))
 
 print()
 total = passes + len(failures)
