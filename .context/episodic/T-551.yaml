@@ -1,0 +1,97 @@
+# ============================================================================
+# EPISODIC MEMORY - T-551: the instrument sweep discards every probe's output, so a reproduction of the intermittent-failure class yields an integer and nothing else
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-16T20:43:11Z
+# ============================================================================
+
+task_id: T-551
+task_name: "the instrument sweep discards every probe's output, so a reproduction of the intermittent-failure class yields an integer and nothing else"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-16T19:48:33Z
+completed: 2026-08-16T20:42:59Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-16T22:42:53+02:00
+last_commit: 2026-08-16T22:42:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the sweep now says what its probes said, and the first thing it caught was me. _t509 ran every probe as 'timeout N runner tools/X > /dev/null 2>&1', so a run yielded one integer per probe and nothing else. T-548 made that integer honest — regressed / did-not-finish / abstained / passed — and honesty about which of four buckets an integer falls into is still an integer. That became the binding constraint on a real problem: three instruments have failed ONLY inside a full sweep and passed every standalone attempt afterwards (_t523 rc=1, _t366 rc=2, _t344 leg 2), zero bytes retained from any of them, while _t523 alone prints nine named legs when run by hand. For that class the sweep's own closing advice — 'Run it directly for its own output' — is unsatisfiable, because running it directly is exactly what does not reproduce it; I had read that sentence as a workaround rather than as an admission, which is why it survived T-548's rewrite of the same code. Now: per-probe capture in a mktemp dir removed by a trap, printed for regressions, abstentions AND kills, bounded to the last 30 lines with the truncation STATED, and captured for passing probes too so that no branch decides in advance whose output matters using the exit code. THE MEASUREMENT IS THE POINT AND IT COST ME A REPRODUCTION. Seven sweeps ran after this landed; run 2 came back rc=1 — the fourth sighting of the intermittent class and the first since a capture existed to explain it — and I destroyed the report by timing the sweep with '> /dev/null 2>&1', four minutes after landing the fix whose entire subject is not discarding that output. The next run was green, so it is gone. Registered as OBS-270 rather than left as an anecdote, because the mechanism generalises: the capture lives in the sweep's stdout, so any caller that discards it discards the capture, and exactly one standing caller preserves it. Four further hunt runs with output kept found nothing, which settles nothing at 1-in-7 against T-543's ~9%-per-run bound — the instrument can now explain the next occurrence and has not yet had the chance, and the task says so instead of implying the capture was validated in the field. Teeth drive the REAL sweep over synthetic probes with known exit codes and known sentinels in a mktemp tree and require each sentinel to REACH THE REPORT, because the exit codes were never wrong and a probe checking only rc would have stayed green across the whole defect; mutation-verified with 5 of 7 legs red against the reconstructed pre-T-551 redirect, and the 2 that stay green are named as such. AC2 ticked and its benefit NOT claimed: nothing reads a passing probe's capture today, so 'not invisible by construction' is structural rather than realised — OBS-271. The bridge-suite wiring is staged as the T-551 leg ALONE; the T-549 and T-550 legs sit in the same file and cannot land with it, because their probes are in the operator-blocked commits and a suite referencing files that are not in the tree is red for a fresh clone. 6/6 verification, full sweep 38/38 with the tree byte-identical and no capture directories left behind
+
+# Key outcomes
+outcomes:
+  - 'Each probe''s stdout and stderr are captured per-probe rather than sent to `/dev/null`,'
+  - 'Output is captured for **passing** probes too and discarded only after the verdict is'
+  - 'The sweep''s four exit codes and their wording are **unchanged** — `_t548`''s teeth pin'
+  - 'Captured output is **bounded** so one pathological probe cannot bury the report, with the'
+  - 'The capture is **proven to work by driving a real failure**: a synthetic probe that fails'
+  - 'Temporary capture files are removed on every exit path, and the repository is'
+  - '`_t548-sweep-classification-teeth.py` still passes all six legs'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the sweep now says what its probes said, and the first thing it caught was me. _t509 ran every probe as ''timeout N runner tools/X > /dev/null 2>&1'', so a run yielded one integer per probe and nothing else. T-548 made that integer honest — regressed / did-not-finish / abstained / passed — and honesty about which of four buckets an integer falls into is still an integer. That became the binding constraint on a real problem: three instruments have failed ONLY inside a full sweep and passed every standalone attempt afterwards (_t523 rc=1, _t366 rc=2, _t344 leg 2), zero bytes retained from any of them, while _t523 alone prints nine named legs when run by hand. For that class the sweep''s own closing advice — ''Run it directly for its own output'' — is unsatisfiable, because running it directly is exactly what does not reproduce it; I had read that sentence as a workaround rather than as an admission, which is why it survived T-548''s rewrite of the same code. Now: per-probe capture in a mktemp dir removed by a trap, printed for regressions, abstentions AND kills, bounded to the last 30 lines with the truncation STATED, and captured for passing probes too so that no branch decides in advance whose output matters using the exit code. THE MEASUREMENT IS THE POINT AND IT COST ME A REPRODUCTION. Seven sweeps ran after this landed; run 2 came back rc=1 — the fourth sighting of the intermittent class and the first since a capture existed to explain it — and I destroyed the report by timing the sweep with ''> /dev/null 2>&1'', four minutes after landing the fix whose entire subject is not discarding that output. The next run was green, so it is gone. Registered as OBS-270 rather than left as an anecdote, because the mechanism generalises: the capture lives in the sweep''s stdout, so any caller that discards it discards the capture, and exactly one standing caller preserves it. Four further hunt runs with output kept found nothing, which settles nothing at 1-in-7 against T-543''s ~9%-per-run bound — the instrument can now explain the next occurrence and has not yet had the chance, and the task says so instead of implying the capture was validated in the field. Teeth drive the REAL sweep over synthetic probes with known exit codes and known sentinels in a mktemp tree and require each sentinel to REACH THE REPORT, because the exit codes were never wrong and a probe checking only rc would have stayed green across the whole defect; mutation-verified with 5 of 7 legs red against the reconstructed pre-T-551 redirect, and the 2 that stay green are named as such. AC2 ticked and its benefit NOT claimed: nothing reads a passing probe''s capture today, so ''not invisible by construction'' is structural rather than realised — OBS-271. The bridge-suite wiring is staged as the T-551 leg ALONE; the T-549 and T-550 legs sit in the same file and cannot land with it, because their probes are in the operator-blocked commits and a suite referencing files that are not in the tree is red for a fresh clone. 6/6 verification, full sweep 38/38 with the tree byte-identical and no capture directories left behind'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-16 — where the capture lives'
+    chose: 'a `mktemp -d` capture directory per sweep run, one file per probe, removed by a `trap ... EXIT INT TERM`.'
+    rationale: 'the sweep''s hermeticity is an asserted property — T-509''s header records that running all 24 probes left `git status` byte-identical, and the bridge suite still checks it. A diagnostic that writes into the tree would have traded that away for convenience. Re-measured after this change: byte-identical across three sweep runs, zero leftover capture directories, and leg 7 of the new teeth asserts the second half over six runs.'
+    alternatives_rejected: ['writing captures under `.context/working/` (survives the run, and would be read later — but it puts sweep debris into a tracked-adjacent directory and makes the hermeticity claim conditional); keeping everything in bash variables (a pathological probe''s output then lives in memory with no bound, and `$(...)` strips trailing newlines, so the report would misstate what the probe printed).']
+  - decision: '2026-08-16 — the tail, not the head, and the bound is said out loud'
+    chose: 'keep the last `T509_CAPTURE_LINES` (default 30) lines and print `--- last 30 of N lines from <probe> ---` whenever N exceeds the bound.'
+    rationale: 'these probes print per-leg lines and then a summary, so the verdict and the legs that produced it are both at the end. A silently clipped report is how a reader ends up confident about the wrong evidence — the same shape T-550 had just repaired one file over, where a stale anchor bound to a plausible-looking wrong line.'
+    alternatives_rejected: ['unbounded output (one pathological probe buries the report, and the report then stops being read, which is the defect again one level up); head-first truncation (keeps the banner and throws away the verdict).']
+  - decision: '2026-08-16 — capture on green too, and what that does and does not buy'
+    chose: 'capture every probe including passing ones, and delete the file only after the verdict is known (`0) pass=$((pass + 1)); rm -f "$cap";;`).'
+    rationale: 'the alternative decides in advance whose output is worth keeping, using the exit code — which is the assumption the whole task is about. One uniform path also means a future keep-everything mode is a deleted `rm`, not new plumbing.'
+    alternatives_rejected: ['adding a heuristic that scans a passing probe''s output for alarming shapes — that invents a classifier nobody asked for, and a wrong one would relabel green runs.']
+  - decision: '2026-08-16 — a load-bearing sentence, discovered by breaking it'
+    chose: 'keep `These are hermetic and leave the repo untouched, so a red here is a real regression in the thing it guards.` on a single source line, with a comment saying why.'
+    rationale: '`_t548-sweep-classification-teeth.py` REFUSES outright if it cannot find that literal phrase in the sweep''s source, and `_t364-tie-guard-teeth.py` goes red. I split it across two `echo` calls for line width and broke both within one run. A verification line now pins the count at 2 (the comment and the `echo`).'
+    alternatives_rejected: ['loosening the two probes to tolerate a wrapped sentence — they are asserting that the regression claim is withheld from timeouts and abstentions, which is T-548''s whole finding; weakening a guard to fit my formatting is the trade this week''s work keeps arguing against.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/inbox.yaml'
+  - '.fabric/components/tools-_t551-sweep-capture-teeth.yaml'
+  - '.tasks/active/T-551-the-instrument-sweep-discards-every-prob.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t509-instrument-sweep.sh'
+  - 'tools/_t551-sweep-capture-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-16T22:42:53"
+    action: "T-551: the sweep now says what its probes said, and the first thing it caught was me. _t509 ran every probe as 'timeout N runner tools/X > /dev/null 2>&1', so a run yielded one integer per probe and nothing else. T-548 made that integer honest — regressed / did-not-finish / abstained / passed — and honesty about which of four buckets an integer falls into is still an integer. That became the binding constraint on a real problem: three instruments have failed ONLY inside a full sweep and passed every standalone attempt afterwards (_t523 rc=1, _t366 rc=2, _t344 leg 2), zero bytes retained from any of them, while _t523 alone prints nine named legs when run by hand. For that class the sweep's own closing advice — 'Run it directly for its own output' — is unsatisfiable, because running it directly is exactly what does not reproduce it; I had read that sentence as a workaround rather than as an admission, which is why it survived T-548's rewrite of the same code. Now: per-probe capture in a mktemp dir removed by a trap, printed for regressions, abstentions AND kills, bounded to the last 30 lines with the truncation STATED, and captured for passing probes too so that no branch decides in advance whose output matters using the exit code. THE MEASUREMENT IS THE POINT AND IT COST ME A REPRODUCTION. Seven sweeps ran after this landed; run 2 came back rc=1 — the fourth sighting of the intermittent class and the first since a capture existed to explain it — and I destroyed the report by timing the sweep with '> /dev/null 2>&1', four minutes after landing the fix whose entire subject is not discarding that output. The next run was green, so it is gone. Registered as OBS-270 rather than left as an anecdote, because the mechanism generalises: the capture lives in the sweep's stdout, so any caller that discards it discards the capture, and exactly one standing caller preserves it. Four further hunt runs with output kept found nothing, which settles nothing at 1-in-7 against T-543's ~9%-per-run bound — the instrument can now explain the next occurrence and has not yet had the chance, and the task says so instead of implying the capture was validated in the field. Teeth drive the REAL sweep over synthetic probes with known exit codes and known sentinels in a mktemp tree and require each sentinel to REACH THE REPORT, because the exit codes were never wrong and a probe checking only rc would have stayed green across the whole defect; mutation-verified with 5 of 7 legs red against the reconstructed pre-T-551 redirect, and the 2 that stay green are named as such. AC2 ticked and its benefit NOT claimed: nothing reads a passing probe's capture today, so 'not invisible by construction' is structural rather than realised — OBS-271. The bridge-suite wiring is staged as the T-551 leg ALONE; the T-549 and T-550 legs sit in the same file and cannot land with it, because their probes are in the operator-blocked commits and a suite referencing files that are not in the tree is red for a fresh clone. 6/6 verification, full sweep 38/38 with the tree byte-identical and no capture directories left behind"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 54 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 54
+  commits: 1
+  files_changed: 6
+  lines_added: 764
+  lines_removed: 5
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-551-the-instrument-sweep-discards-every-prob.md
+generated_by: context-agent-hybrid
