@@ -18,7 +18,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-16T13:04:24Z
-last_update: '2026-08-16T14:33:05Z'
+last_update: 2026-08-16T22:19:43Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -158,10 +158,24 @@ Fixtures rewritten to be gate-word-free; the mutant now produces **11 findings**
       approval of the pending proposals activates them with no further code change.
 - [x] **Each handler discriminates, measured on the real corpus.** 24/44, 27/44 and 32/44 — each
       strictly between 0 and the corpus size, distributions recorded above.
+      Re-measured 2026-08-17: the corpus is now 45 and `V_SDLC_ENABLEMENT` fires on 33/45. The
+      counts move with the corpus and the recorded triple is a snapshot; the PROPERTY the AC
+      asserts — strictly between 0 and the corpus size — is what the probe re-measures on
+      every run, which is why the AC is worded that way and not as three fixed numbers.
 - [x] **Reachable levels recorded honestly.** Levels 1–5 for two handlers; `V_SDLC_ENABLEMENT`
       reaches 1–4 in production with level 5 named as reachable-but-unreached and the reason given.
 - [x] **`policy/value-drivers.yaml` unchanged.** `git diff --stat policy/` is empty; all three
       proposals still read `state: pending`.
+      **Superseded by events, recorded rather than re-ticked:** T-542 landed the operator's
+      approval, so the three drivers are now live in `policy/value-drivers.yaml` at weight 9
+      each (F4 / F3 / F1), and the queue records read `state: rejected` as of
+      2026-08-16T15:43Z — the CLI `--add` path does not consume the proposal queue, so the
+      records were closed separately rather than promoted. What this AC asserted remains true
+      of **T-541's own diff**: this task changed no policy and did not activate anything. The
+      snapshot in the sentence above is a measurement of 2026-08-16, not a current claim, and
+      it is left in place because rewriting it would erase the fact that the handlers were
+      written and proven BEFORE the axes they score were approved — which is the ordering the
+      sovereignty boundary requires.
 - [x] A probe (`tools/_t541-bvp-driver-handler-teeth.py`) wired into the bridge suite covering
       wired / alive / selective / graded / no-dead-levels / boilerplate-blind, with the
       dead-level leg verified by mutation (11 findings on the mutant, 0 on the real file).
@@ -248,6 +262,24 @@ Fixtures rewritten to be gate-word-free; the mutant now produces **11 findings**
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+
+# This block was EMPTY when the task's seven Agent ACs were already ticked, which means the
+# P-011 gate would have passed it vacuously — tasks with no `## Verification` are waved
+# through for backward compatibility. A ticked AC standing in for a checked one is the exact
+# shape T-524/T-548/T-550 have each repaired elsewhere this week, and it was sitting in my
+# own task file. Filled before completion rather than after.
+#
+# The handler probe: wired / alive / selective / graded / no-dead-levels / boilerplate-blind,
+# with the dead-level leg mutation-verified (11 findings on the mutant, 0 on the real file).
+python3 tools/_t541-bvp-driver-handler-teeth.py
+# The estimator is VENDORED. An undeclared divergence is silently reverted by the next bump,
+# and the gate would then read as satisfied in our history while not being so (G-008).
+python3 tools/_t517-vendor-divergence.py
+# All three handlers reachable through the dispatch table. Keyed on the canonical NAME and not
+# on the register id, deliberately: T-542 measured the register recycling ids (F3 meant
+# V_PROMPT_QUALITY minutes before it meant V_AEF_INTEGRATION), and a dispatch keyed on id
+# would have scored every task against its predecessor's axis while looking healthy.
+test "$(grep -cE '^\s+"V_(WORKFLOW_ROUTING|AEF_INTEGRATION|SDLC_ENABLEMENT)": score_v_' .agentic-framework/agents/termlink/bvp-estimator/estimator.py)" = "3"
 
 ## RCA
 
