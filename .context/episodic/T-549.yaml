@@ -1,0 +1,72 @@
+# ============================================================================
+# EPISODIC MEMORY - T-549: _t525 costs 5 full structure audits (86s of a 90s cap) and its cost tracks the growing watched tree
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-16T19:07:22Z
+# ============================================================================
+
+task_id: T-549
+task_name: "_t525 costs 5 full structure audits (86s of a 90s cap) and its cost tracks the growing watched tree"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-16T17:53:01Z
+completed: 2026-08-16T19:06:07Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - 'Cost is **decomposed by measurement, not estimate**: total `_t525` wall-clock, the cost of a'
+  - '`_t525` wall-clock is reduced to **at most 50% of `T509_TIMEOUT`** (≤45s), measured 3 times on'
+  - '**Discrimination is not weakened**: all 7 legs still pass, and all five branches'
+  - 'A **mutation check** proves the cheaper path still fails when the subject breaks: with the'
+  - '`T509_TIMEOUT` is unchanged, and `_t525` is not added to `_t509`''s exclusion list — the cost'
+  - 'Leg 7 still passes: the subject''s write-set (`.context/audits`, excluding `cron/`) is'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 73 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 73
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-549-t525-costs-5-full-structure-audits-86s-o.md
+generated_by: context-agent-hybrid
