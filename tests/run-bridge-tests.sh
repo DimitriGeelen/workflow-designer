@@ -1302,6 +1302,28 @@ else
   fail=$((fail + 1))
 fi
 
+echo "== A control id names exactly one control (T-538) =="
+# T-538: a control id in audit.sh must map to exactly ONE control. Two do not — CTL-029 is
+# defined twice (T-1903 at :3639, oe-daily only, remedy `fw task archive-eligible`; T-2055 at
+# :3772, compliance||oe-daily, remedy `fw task update --status work-completed`). Their status
+# predicates are disjoint so neither control is WRONG; the id is what is broken, and one real
+# oe-daily run emits 21 lines under it carrying two different remedies.
+# The discriminator is INTERLEAVING, not line distance: nine other ids emit several `pass` lines
+# from adjacent if/elif arms and must stay clean, so a "pass sites more than N lines apart" rule
+# would need a threshold nobody can justify. An id whose emissions are split by ANOTHER id's
+# emissions cannot be one if/elif chain. Leg 2 asserts the nine look-alikes stay clean, which is
+# what stops leg 1 passing on a detector that flags everything.
+# Ratchet is deliberately one-directional: a NEW collision is red, a RESOLVED one only prints.
+# The id namespace is AEF's upstream, so a guard that went red when they fixed it would be
+# telling them not to.
+if python3 "$ROOT/tools/_t538-control-id-collision.py" > "$TMP/leg-_t538-control-id-collision.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a NEW audit.sh control-id collision appeared, or the interleaving discriminator stopped separating two controls from one control's several pass arms (run 'python3 tools/_t538-control-id-collision.py' — it names the failing leg and prints the run boundaries so the verdict can be checked by eye; rc 2 is a REFUSAL, meaning the pass/warn/fail emission grammar moved and nothing was evaluated — not a measured pass)"
+  show_output "$TMP/leg-_t538-control-id-collision.out" "_t538-control-id-collision.py"
+  fail=$((fail + 1))
+fi
+
 echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

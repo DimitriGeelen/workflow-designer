@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-538: two controls share the id CTL-029 and nothing checks control-id uniqueness
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-16T11:35:53Z
+# ============================================================================
+
+task_id: T-538
+task_name: "two controls share the id CTL-029 and nothing checks control-id uniqueness"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-16T11:18:09Z
+completed: 2026-08-16T11:35:48Z
+duration_days: 0
+updates_count: 1
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '`tools/_t538-control-id-collision.py` detects an id whose emission sites are'
+  - 'It names `CTL-029` on the real `audit.sh` and does NOT name the nine'
+  - 'A mutation leg plants a second block for an existing id in a COPY of'
+  - 'A mutation leg removes the second `CTL-029` block in a COPY and the'
+  - 'Ratchet: red when a collision appears that is not in the pinned baseline;'
+  - 'The real `audit.sh` is byte-identical (sha256) before and after the run'
+  - 'Wired into `tests/run-bridge-tests.sh`; suite green'
+  - 'The collision is registered in `concerns.yaml` with a closure condition'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-16 — the collision is reported, not renumbered'
+    chose: 'leave both controls holding `CTL-029`; ship the detector, the gap, and an upstream report with the witness.'
+    rationale: 'the id namespace is AEF''s. Renumbering in our vendored copy diverges it from upstream and will conflict on the next `fw upgrade` — and AEF stated plainly at DM 536 §1 that the bump is the operator''s call. A register-allocation decision made silently by an agent inside a vendor copy is exactly the kind of change that is invisible until it collides.'
+    alternatives_rejected: ['renaming the T-2055 control to `CTL-031` in-tree. The edit itself is trivial and *is already proven to work* — leg 4 applies precisely that rename to a throwaway copy and confirms the collision disappears without a new one appearing. So the remedy is ready and tested the moment a ruling arrives; what is missing is the authority, not the change. Also rejected: renaming and "just telling AEF after".']
+  - decision: '2026-08-16 — the ratchet is one-directional on purpose'
+    chose: 'a NEW collision is red; a baselined collision that becomes RESOLVED prints a loud notice and exits 0.'
+    rationale: 'the fix belongs upstream. A guard that turned red the moment AEF renumbered the control would be a guard telling them not to.'
+    alternatives_rejected: ['the symmetric both-directions ratchet used for the T-509 census. That one is right when the movement is ours to make; here it is not.']
+  - decision: '2026-08-16 — interleaving, not line distance'
+    chose: 'two emission sites belong to different controls iff another id''s emissions lie between them.'
+    rationale: 'nine ids legitimately emit several `pass` lines, one per if/elif arm. A distance rule separates those from a real collision only by a threshold nobody can justify, and the threshold is the part that would rot. Interleaving is structural: no single if/elif chain can have another control''s output inside it. On the real file the spans differ by an order of magnitude (2–15 lines for the look-alikes, 185 for CTL-029), so a threshold would have worked *today* — which is exactly how it would have passed review and then failed later.'
+    alternatives_rejected: ['matching the `# CTL-NNN` header comments instead of the emission sites. Those include banner lines (`# CTL-002, CTL-005, CTL-006, ...`) that list many ids for one section, so the naive version reports six collisions of which five are section headers. My first grep did exactly that and had to be thrown away.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 17 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 17
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-538-two-controls-share-the-id-ctl-029-and-no.md
+generated_by: context-agent-hybrid

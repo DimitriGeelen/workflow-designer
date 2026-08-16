@@ -1725,3 +1725,24 @@ decisions:
     date: 2026-08-16
     task: T-536
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-226
+    decision: "leave both controls holding `CTL-029`; ship the detector, the gap, and an"
+    scope: project
+    date: 2026-08-16
+    task: T-538
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-227
+    decision: "a NEW collision is red; a baselined collision that becomes RESOLVED prints"
+    scope: project
+    date: 2026-08-16
+    task: T-538
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-228
+    decision: "two emission sites belong to different controls iff another id's emissions"
+    scope: project
+    date: 2026-08-16
+    task: T-538
+    rationale: "Auto-captured from task file on completion"

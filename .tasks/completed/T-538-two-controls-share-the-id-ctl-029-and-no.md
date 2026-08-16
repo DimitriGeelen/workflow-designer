@@ -1,13 +1,13 @@
 ---
-id: T-537
-name: "termlink_agent_chat_arc_recent returns ok:true over a source that does not contain the arc, so a live rail reads as silent"
+id: T-538
+name: "two controls share the id CTL-029 and nothing checks control-id uniqueness"
 description: >
-  termlink_agent_chat_arc_recent returns ok:true over a source that does not contain the arc, so a live rail reads as silent
+  two controls share the id CTL-029 and nothing checks control-id uniqueness
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -15,9 +15,9 @@ related_tasks: []
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-16T09:53:36Z
-last_update: 2026-08-16T09:55:05Z
-date_finished: null
+created: 2026-08-16T11:18:09Z
+last_update: 2026-08-16T11:35:48Z
+date_finished: 2026-08-16T11:35:48Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -30,83 +30,62 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-537: termlink_agent_chat_arc_recent returns ok:true over a source that does not contain the arc, so a live rail reads as silent
+# T-538: two controls share the id CTL-029 and nothing checks control-id uniqueness
 
 ## Context
 
-AEF posted at rail 11974: *"chat_arc_recent over 36h returns 0 posts… My own prior post at offset
-11968 is not visible through this read path either. So I am posting into something I cannot
-confirm you can read."* They had, by then, missed two of my substantive replies (11970, 11973)
-and re-asked three questions I had already answered.
+`audit.sh` defines two DIFFERENT controls under the single id `CTL-029`:
 
-Reproduced from this side. The rail is **not** broken — `termlink_channel_unread` /
-`termlink_channel_snippet` on `topic="agent-chat-arc"` return all 2004 envelopes, and I read
-11968 and 11974 in full through them. Only the fleet-walk reader is blind.
+| site | origin | section gate | predicate | remedy it prints |
+|---|---|---|---|---|
+| `audit.sh:3639` | T-1903, L-403 | `oe-daily` only | in `active/`, `status == work-completed`, ACs exist and **zero unchecked** | `bin/fw task archive-eligible` |
+| `audit.sh:3772` | T-2055 | `compliance \|\| oe-daily` | in `active/`, `status in (started-work, issues)`, all **Agent** ACs ticked | `bin/fw task update T-XXX --status work-completed` |
 
-**Filed as a record, deliberately not fixed:** termlink is not this project's code, it is shared
-tooling reached through MCP. The finding, the reproduction and the fixtures belong here; the fix
-does not. Measurement is complete — nothing below needs re-deriving.
+Their status predicates happen to be disjoint, so they never disagree about a
+single task — this is not a correctness bug in either control. It is a
+**register-integrity** bug: the id is used as a key by readers (operators
+scanning a report, `.context/audits/*.yaml` consumers, gap
+`closure_check_command`s, the T-535 trend aggregator) and the key does not
+resolve to one thing.
 
-## Findings (measurement complete)
+Measured witness, one real `--section oe-daily` run on this tree: **21 warn
+lines all labelled `CTL-029`**, from both controls, carrying two different
+remedies — the T-1903 control's single line ("2 stuck partial-complete task(s)")
+buried among 20 lines from the T-2055 control.
 
-Three **independent** causes, each sufficient on its own. Fixing any one leaves the reader blind.
+Nothing anywhere checks that a control id maps to one control.
 
-1. **The default `msg_type` filter excludes every substantive post.** `filter_msg_type` defaults
-   to `'chat'`. Both projects post with `msg_type: "note"`. The only envelopes that survive the
-   default filter are the `T-1438` vendored-arc heartbeats, which happen to be typed `chat`. So
-   the default view of a busy rail is: robot noise, no humans.
+### Not the finding I expected
 
-2. **The 30s default timeout is short for this fleet.** A defaults call returned
-   `{"error": "timeout after 30s", "verdict": "timeout"}`. It completed only at
-   `timeout_secs: 110` — 4 hubs scanned, `laptop-141` failing on network,
-   `ring20-management` serving as fallback. A timeout is easily misread as a quiet rail.
-
-3. **The fleet walk does not surface this topic at all — the one that matters.** With
-   `all_msg_types: true`, `since_hours: 36`, `timeout_secs: 110`, `limit: 5`, it returned 5
-   posts, all from `ring20-dashboard`, newest at `09:17:01Z`. **My own post at offset 11973 is
-   timestamped `09:24:43Z` — newer than every row returned — and is absent.** So it is not the
-   `limit` crowding it out and not the window. `channel_post` writes and `channel_unread` reads a
-   topic the hub-merge path does not read.
-
-### Why no ledger went red
-
-The call returns `ok: true`, `exit_code: 0`, `total_posts: 5`, `hubs_scanned: 4`. It is not
-erroring. It is confidently reporting on a **different set**. That is the third instance in two
-days of one shape, across three unrelated subsystems:
-
-| | the stated thing | the checked thing |
-|---|---|---|
-| T-535 | trend key = the rendered sentence | persistence of the issue |
-| T-536 | a comment claiming pre-push runs `compliance` | the section the hook passes |
-| T-537 | `ok:true, total_posts:5` | whether that source contains the arc |
-
-A stated property standing in for a checked one, and in all three the failure renders as health.
-
-### Cost already paid
-
-Two substantive replies (11970, 11973) went unread, and AEF re-asked three questions I had
-answered — including one whose answer gates whether their handover frontmatter change is
-breaking for me. The peer-visible symptom of this defect is not silence; it is **two agents each
-believing the other is unresponsive while both are posting.**
+T-536's closing commit recorded "CTL-029 is firing on 12 tasks in `active/`
+carrying `status=work-completed`". That is wrong and is corrected here: the
+T-2055 control filters `status in (started-work, issues)` and fires on a
+**disjoint** population (20 tasks, all `started-work`). The 12 were my own
+measurement of the task corpus, not the control's output. Of those 12, **10 are
+the framework's designed `partial-complete` state** (agent ACs done, human ACs
+genuinely open, parked in `active/` with `owner: human` exactly as CLAUDE.md
+specifies) — not drift of any kind. Only T-093 and T-178 have zero open human
+ACs, and those are the 2 the T-1903 control correctly names.
 
 ## Acceptance Criteria
 
 ### Agent
-- [x] **Reproduced from this side, not taken from the peer's report.** Defaults reproduce their
-      zero; the three causes are separated and each shown to be independently sufficient.
-- [x] **The working read path is identified and named for the peer**, with a live witness:
-      `termlink_channel_unread` reports `total: 2004, last_offset: 11974`, and
-      `termlink_channel_snippet` returned 11968 and 11974 in full.
-- [x] **Cause 3 is proven not to be a limit or window artefact** — an absent post strictly newer
-      than every returned row is the discriminator, recorded with timestamps so the peer can
-      re-run against fixed offsets (11970, 11973, 11975).
-- [x] **Reported to AEF** at rail 11975, with those offsets handed over as test fixtures.
-- [ ] **Operator decision recorded.** termlink is shared tooling outside this repo. Either the
-      finding goes upstream to the termlink owner, or it is recorded that both projects
-      standardise on `channel_*` with an explicit topic and treat `chat_arc_recent` as unusable
-      for this rail. Blocked on the operator — this task claims no fix and builds no guard,
-      because a probe asserting a third party's MCP behaviour would go red on their release
-      schedule, not on a regression here.
+- [x] `tools/_t538-control-id-collision.py` detects an id whose emission sites are
+      **interleaved** with another id's — a threshold-free structural test, not a
+      line-distance heuristic
+- [x] It names `CTL-029` on the real `audit.sh` and does NOT name the nine
+      controls that merely emit several `pass` lines from adjacent if/elif arms
+- [x] A mutation leg plants a second block for an existing id in a COPY of
+      `audit.sh` and the detector finds it (proves the detector can see)
+- [x] A mutation leg removes the second `CTL-029` block in a COPY and the
+      detector reports it resolved (proves the answer is read from structure,
+      not hardcoded)
+- [x] Ratchet: red when a collision appears that is not in the pinned baseline;
+      a resolved baseline entry prints loudly but does NOT go red
+- [x] The real `audit.sh` is byte-identical (sha256) before and after the run
+- [x] Wired into `tests/run-bridge-tests.sh`; suite green
+- [x] The collision is registered in `concerns.yaml` with a closure condition
+      that names the operator/AEF decision, since renumbering is AEF's namespace
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -187,6 +166,16 @@ believing the other is unresponsive while both are posting.**
 # reports a FAIL ("Enforcement baseline CHANGED") that accumulates silently.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
+#
+# NOTE: no pinned sha256 of audit.sh appears below on purpose. That file is vendored and
+# AEF revises it; pinning its hash here would assert a global always-moving property
+# (G-015) and go red for an unrelated upstream change. The detector checks its own
+# non-mutation of audit.sh internally (leg 6), which is the property that matters.
+python3 tools/_t538-control-id-collision.py
+grep -q '_t538-control-id-collision.py' tests/run-bridge-tests.sh
+grep -q 'A control id names exactly one control (T-538)' tests/run-bridge-tests.sh
+python3 -c "import yaml,subprocess,sys; c=[x for x in yaml.safe_load(open('.context/project/concerns.yaml'))['concerns'] if x['id']=='G-039'][0]; r=subprocess.run(['bash','-c',c['closure_check_command']],capture_output=True,text=True); sys.exit(0 if r.returncode==0 and 'CTL-029 collision=' in r.stdout else 1)"
+python3 -c "import importlib.util as u,io,contextlib,sys;s=u.spec_from_file_location('t','tools/_t538-control-id-collision.py');m=u.module_from_spec(s);s.loader.exec_module(m);m.BASELINE={};b=io.StringIO();c=contextlib.redirect_stdout(b);c.__enter__();rc=m.main();c.__exit__(None,None,None);sys.exit(0 if rc==1 else 1)"
 
 ## RCA
 
@@ -203,6 +192,28 @@ believing the other is unresponsive while both are posting.**
      The completion gate (T-1550, G-019) blocks --status work-completed when
      bug-class AND this section is empty/template-only. Use --skip-rca to bypass (logged).
 -->
+
+**Symptom:** one `fw audit --section oe-daily` run emits 21 warn lines all labelled
+`CTL-029`, from two different controls, carrying two different remedies. An operator
+cannot tell which control is speaking, and the T-1903 control's single line is buried
+under twenty from the T-2055 control.
+
+**Root cause:** T-2055 minted a new control and reused an id already held by T-1903.
+Control ids are written by hand into comment headers and into `pass`/`warn`/`fail`
+message strings. There is no allocator, no register file, and no uniqueness check —
+so reuse is invisible at author time and stays invisible afterwards.
+
+**Why structurally allowed:** `audit.sh` audits the project. Nothing audits `audit.sh`'s
+own register. Every consumer treats the id as a key — an operator scanning a report,
+`.context/audits/*.yaml` recording it, a gap `closure_check_command` grepping it, and
+the T-535 trend aggregator, which goes to deliberate trouble to protect identifier
+tokens from being folded together *precisely so CTL-028 and CTL-029 stay distinct*.
+That protection is doing careful work on a key that was never unique to begin with.
+
+**Prevention:** `tools/_t538-control-id-collision.py`, wired into the bridge suite. It
+splits emission sites into maximal same-id runs and flags any id with two or more —
+structural, threshold-free, and separate from the renumbering, which is upstream's.
+G-039 tracks the renumbering itself and explicitly refuses this detector as its closure.
 
 ## Evolution
 
@@ -239,6 +250,46 @@ believing the other is unresponsive while both are posting.**
      - **Rejected:** [alternatives and why not]
 -->
 
+### 2026-08-16 — the collision is reported, not renumbered
+
+- **Chose:** leave both controls holding `CTL-029`; ship the detector, the gap, and an
+  upstream report with the witness.
+- **Why:** the id namespace is AEF's. Renumbering in our vendored copy diverges it from
+  upstream and will conflict on the next `fw upgrade` — and AEF stated plainly at DM 536
+  §1 that the bump is the operator's call. A register-allocation decision made silently
+  by an agent inside a vendor copy is exactly the kind of change that is invisible until
+  it collides.
+- **Rejected:** renaming the T-2055 control to `CTL-031` in-tree. The edit itself is
+  trivial and *is already proven to work* — leg 4 applies precisely that rename to a
+  throwaway copy and confirms the collision disappears without a new one appearing. So
+  the remedy is ready and tested the moment a ruling arrives; what is missing is the
+  authority, not the change. Also rejected: renaming and "just telling AEF after".
+
+### 2026-08-16 — the ratchet is one-directional on purpose
+
+- **Chose:** a NEW collision is red; a baselined collision that becomes RESOLVED prints
+  a loud notice and exits 0.
+- **Why:** the fix belongs upstream. A guard that turned red the moment AEF renumbered
+  the control would be a guard telling them not to.
+- **Rejected:** the symmetric both-directions ratchet used for the T-509 census. That one
+  is right when the movement is ours to make; here it is not.
+
+### 2026-08-16 — interleaving, not line distance
+
+- **Chose:** two emission sites belong to different controls iff another id's emissions
+  lie between them.
+- **Why:** nine ids legitimately emit several `pass` lines, one per if/elif arm. A
+  distance rule separates those from a real collision only by a threshold nobody can
+  justify, and the threshold is the part that would rot. Interleaving is structural: no
+  single if/elif chain can have another control's output inside it. On the real file the
+  spans differ by an order of magnitude (2–15 lines for the look-alikes, 185 for
+  CTL-029), so a threshold would have worked *today* — which is exactly how it would have
+  passed review and then failed later.
+- **Rejected:** matching the `# CTL-NNN` header comments instead of the emission sites.
+  Those include banner lines (`# CTL-002, CTL-005, CTL-006, ...`) that list many ids for
+  one section, so the naive version reports six collisions of which five are section
+  headers. My first grep did exactly that and had to be thrown away.
+
 ## Decision
 
 <!-- Filled at completion of inception tasks via:
@@ -251,7 +302,19 @@ believing the other is unresponsive while both are posting.**
 
 ## Updates
 
-### 2026-08-16T09:53:36Z — task-created [task-create-agent]
+### 2026-08-16T11:18:09Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-537-termlinkagentchatarcrecent-returns-oktru.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-538-two-controls-share-the-id-ctl-029-and-no.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-d291a648
+- **Timestamp:** 2026-08-16T11:35:50Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-16T11:35:48Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

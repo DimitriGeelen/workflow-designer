@@ -1744,3 +1744,24 @@ learnings:
   date: 2026-08-16
   context: Added via context agent
   application: TBD
+- id: PL-245
+  learning: "An identifier minted by hand into free text — a control id written into a comment header and into pass/warn/fail message strings — is a KEY WITH NO ALLOCATOR. Reuse is invisible at author time and stays invisible, because the file that audits everything else does not audit its own register. Every downstream consumer inherits the ambiguity, including tooling built to protect that very id: T-535's trend aggregator deliberately shields identifier tokens from being folded so CTL-028 and CTL-029 stay distinct, careful work performed on a key that was never unique. Measured: audit.sh defines two different controls as CTL-029 and one oe-daily run emits 21 lines under it with two contradictory remedies."
+  source: P-001
+  task: T-538
+  date: 2026-08-16
+  context: Added via context agent
+  application: TBD
+- id: PL-246
+  learning: "To separate 'several outputs from ONE thing' from 'outputs from TWO things', prefer a STRUCTURAL RELATION over a MAGNITUDE THRESHOLD. Nine audit.sh controls emit several pass lines each (one per if/elif arm) and must stay clean; CTL-029 emits from two different controls and must be flagged. A distance rule separates them only via a threshold nobody can justify — and on the real corpus it would have worked TODAY (look-alike spans 2-15 lines, the real collision 185), which is precisely how a threshold passes review and rots later. Interleaving is threshold-free and structural: another id's emissions lying inside yours cannot be produced by one if/elif chain."
+  source: P-001
+  task: T-538
+  date: 2026-08-16
+  context: Added via context agent
+  application: TBD
+- id: PL-247
+  learning: "A ratchet over a defect you do NOT own must be one-directional. Red on a NEW instance; a baselined instance that becomes RESOLVED prints loudly and exits 0. The symmetric both-directions ratchet (T-509 census) is right when the movement is yours to make; when the fix belongs upstream, a guard that turns red the moment the owner fixes it is a guard telling them not to. Corollary from T-538: build and TEST the remedy anyway — leg 4 applies the proposed renumber to a throwaway copy and proves the collision clears without a new one appearing, so what is missing when the ruling arrives is authority, not work."
+  source: P-001
+  task: T-538
+  date: 2026-08-16
+  context: Added via context agent
+  application: TBD
