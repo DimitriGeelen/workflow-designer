@@ -68,6 +68,49 @@ Three **independent** causes, each sufficient on its own. Fixing any one leaves 
    `limit` crowding it out and not the window. `channel_post` writes and `channel_unread` reads a
    topic the hub-merge path does not read.
 
+### Cause 3, localized — 2026-08-16 (AEF's discriminating test, replicated here)
+
+AEF replied at rail 11980 and moved this past where I had left it. They eliminated hub selection
+entirely (single hub pinned, no merge, no fallback → still 0) and split the CLI along one shared
+helper, `extract_recent_posts`: every blind verb wraps it, every working verb does not. They then
+offered a hypothesis they explicitly declined to assert — a seconds-vs-milliseconds mismatch making
+the cutoff exceed every timestamp — with a test: *run digest and timeline over the same window;
+digest rows + timeline zero exonerates the transport and indicts the comparison.*
+
+**Run here, same hub (`127.0.0.1:9100`), same topic, same 7-day window, same minute:**
+
+| call | path | result |
+|---|---|---|
+| `agent_timeline` `window_secs=604800` | `extract_recent_posts` | `posts: []` |
+| `agent_stats` `window_secs=604800` | `extract_recent_posts` | `total: 0`, every bucket empty |
+| `chat_arc_recent` `hub=127.0.0.1:9100, all_msg_types, since_hours=168` | `extract_recent_posts` | `total_posts: 0`, `hubs_scanned: 1`, `hubs_failed: 0` |
+| `channel_digest` `since_mins=10080` | other | **`posts: 283`, 4 distinct senders** |
+
+Transport exonerated on a second, independent host. The 283 envelopes carry well-formed
+millisecond timestamps (`ts: 1786881141377` on 11979, `since_ms: 1786278269300`) which `digest`
+reads without complaint.
+
+**Where I diverge from AEF's hypothesis, and it matters for whoever fixes this.** "A cutoff that
+always exceeds every timestamp" predicts zero rows *on every hub for every envelope*. Their own
+complicating datum refutes it: the fleet walk did return 5 rows from `ring20-dashboard`, through
+this same helper. A global arithmetic error cannot let some envelopes through. So the surviving
+hypothesis class is **per-envelope, not global** — the reader and the writer disagree about *which
+field* carries the timestamp, or about whether it is populated at all, and `ring20-dashboard`'s
+producer populates whatever the helper reads.
+
+The schemas are consistent with exactly that: `agent_timeline` documents its rows as
+`{offset, ts_ms, peer_fp, ...}` while `channel_digest` documents `{offset, sender_id, ts, ...}`.
+Two names for the timestamp, two names for the sender, and on this hub only one of each is
+populated — 283 envelopes visible to one reader and 0 to the other, simultaneously.
+
+**So the question to hand the termlink owner is not "seconds or milliseconds".** It is: *do
+`extract_recent_posts` and the digest path read the same envelope field, and does `channel_post`
+populate both?* An unpopulated field reads as `0`, which is older than any cutoff — producing
+exactly zero, never a partial, at every window size, which is the shape both of us measured.
+
+I am not asserting the internals; I cannot see termlink's source from here. What is measured is
+the pair of simultaneous results above and the fact that a per-envelope cause is required.
+
 ### Why no ledger went red
 
 The call returns `ok: true`, `exit_code: 0`, `total_posts: 5`, `hubs_scanned: 4`. It is not
@@ -101,6 +144,13 @@ believing the other is unresponsive while both are posting.**
       than every returned row is the discriminator, recorded with timestamps so the peer can
       re-run against fixed offsets (11970, 11973, 11975).
 - [x] **Reported to AEF** at rail 11975, with those offsets handed over as test fixtures.
+- [x] **AEF's discriminating test run here and the result recorded** — `agent_timeline` /
+      `agent_stats` / hub-pinned `chat_arc_recent` all return 0 while `channel_digest` returns 283
+      on the same hub, topic, window and minute. Confirms the split on a second independent host.
+- [x] **AEF's proposed cause narrowed, not merely accepted.** A global seconds-vs-ms cutoff error
+      predicts zero everywhere and is refuted by their own `ring20-dashboard` rows passing through
+      the same helper; the cause must be per-envelope. Recorded with the reasoning that forces it,
+      so the next reader can disagree with the conclusion rather than inherit it.
 - [ ] **Operator decision recorded.** termlink is shared tooling outside this repo. Either the
       finding goes upstream to the termlink owner, or it is recorded that both projects
       standardise on `channel_*` with an explicit topic and treat `chat_arc_recent` as unusable
