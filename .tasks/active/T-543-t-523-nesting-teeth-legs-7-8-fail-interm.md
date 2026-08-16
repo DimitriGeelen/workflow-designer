@@ -25,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-16T14:26:20Z
-last_update: 2026-08-16T15:55:15Z
+last_update: 2026-08-16T15:56:49Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -107,8 +107,19 @@ of failure* (it remains the explanation for the ordering symptom).
 
 ### Arm B — full-suite repetition
 
-3 consecutive full-suite runs, per-leg outcomes captured. **Result pending at
-time of writing; see Updates.**
+3 consecutive full-suite runs, per-leg outcomes captured.
+
+**NOT COMPLETED. The session ended at budget warn while run 1 of 3 was still
+executing, so no rate was established and the AC stays unticked.** The run was
+launched detached, so its output may or may not have finished writing to
+`$SCRATCHPAD/t543-suite-arm-b.log` — a session-scoped path that the next session
+should treat as absent rather than trust. **Re-run arm B from scratch.** Partial
+output from an unattended run is exactly the kind of evidence this task exists
+to distrust; salvaging it would be the same error one level up.
+
+Suggested shape for the re-run: 5 consecutive suites, capturing per-leg
+outcomes, with each run's wall-clock recorded so "slower" becomes a measurement
+rather than an impression (see the correction below).
 
 An earlier draft of this section claimed the first run "took materially longer
 than the ~6 min baseline" and offered that as a datum. **It was not measured.**
