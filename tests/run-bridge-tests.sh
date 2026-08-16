@@ -1525,5 +1525,27 @@ else
 fi
 
 echo
+echo "== An exit code is not an account of what happened (T-551) =="
+
+# ── T-551: the sweep keeps what each probe said ─────────────────────────────────────────────
+# _t509 redirected every probe to /dev/null, so a run yielded one integer per probe and
+# nothing else. Three instruments have now failed ONLY inside a full sweep and passed every
+# standalone attempt afterwards — _t523 (rc=1), _t366 (rc=2), _t344 leg 2 — and not one byte
+# was kept from any of them, while _t523 alone prints nine named legs when run by hand. For
+# that class, "run it directly for its own output" is advice that cannot be taken: running it
+# directly is exactly what does not reproduce it. These legs drive the REAL sweep over
+# synthetic probes with known exit codes and known sentinels and require each sentinel to
+# reach the sweep's own report — for regressions, abstentions and kills alike — bounded, with
+# the bound stated, quiet on green, and with no capture files left behind. Mutation-verified:
+# 5 of 7 legs go red against the reconstructed pre-T-551 redirect.
+if python3 "$ROOT/tools/_t551-sweep-capture-teeth.py" > "$TMP/leg-_t551-sweep-capture.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the instrument sweep has gone back to discarding what its probes say — a failing, abstaining or killed probe's own output is no longer reaching the sweep's report, or the capture is unbounded, silently truncated, leaking into green runs, or leaving temp directories behind (run 'python3 tools/_t551-sweep-capture-teeth.py'; rc 2 is a REFUSAL — the sweep's EXCLUDE list could not be parsed so the fixture tree tripped the stale-exclusion exit before the run loop, and nothing was measured)"
+  show_output "$TMP/leg-_t551-sweep-capture.out" "_t551-sweep-capture-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

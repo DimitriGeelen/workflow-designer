@@ -1,0 +1,25 @@
+id: tools/_t551-sweep-capture-teeth.py
+name: _t551-sweep-capture-teeth
+type: script
+subsystem: instrumentation
+location: tools/_t551-sweep-capture-teeth.py
+tags: [teeth, sweep, diagnosability, t551]
+
+purpose: >
+  Drives the real instrument sweep (_t509) over synthetic probes with known exit codes and
+  known sentinels in a mktemp tree, and requires each sentinel to reach the sweep's own
+  report — for regressions, abstentions and kills alike — bounded, with the truncation
+  stated, silent on green, and leaving no capture directories behind. Guards T-551's repair
+  of the /dev/null redirect that reduced every probe run to an integer, which is what made
+  the intermittent-failure class (_t523, _t366, _t344 leg 2) undiagnosable.
+
+depends_on:
+  - target: tools/_t509-instrument-sweep.sh
+    type: calls
+
+depended_by:
+  - target: tests/run-bridge-tests.sh
+    type: calls
+
+last_verified: 2026-08-16
+created_by: T-551

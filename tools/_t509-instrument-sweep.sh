@@ -134,18 +134,61 @@ echo
 # An incomplete sweep is NOT reported as green: exit 3 still fails the suite. The defect
 # being repaired is the MISLABEL, not the redness — a probe that cannot finish inside its
 # budget is a real condition needing attention, just a different one from a regression.
+# T-551: capture each probe's output instead of discarding it.
+#
+# This loop used to redirect every probe to /dev/null, so the only thing surviving a run was
+# an integer. That was tolerable while the sweep's job was "did anything regress". It stopped
+# being tolerable once three instruments started failing ONLY inside a full run — _t523
+# (rc=1), _t366 (rc=2) and _t344's leg 2 — each of them green on every standalone attempt
+# afterwards. Three failures, and not one byte kept from any of them, while _t523 alone prints
+# nine named legs when you run it by hand.
+#
+# The cost of the redirect was never speed. It was that the sweep could say WHICH probe failed
+# and never WHY, so every occurrence of an intermittent had to be re-hunted from scratch and
+# none of them could be.
+#
+# Captured for passing probes too, and dropped only once the verdict is known: a probe that
+# passes while printing something alarming would otherwise be invisible by construction, which
+# is the same blind spot one level down.
+CAPDIR="$(mktemp -d "${TMPDIR:-/tmp}/t509-capture-XXXXXX")"
+trap 'rm -rf "$CAPDIR"' EXIT INT TERM
+CAPTURE_LINES="${T509_CAPTURE_LINES:-30}"
+
 pass=0; ran=0
 declare -a REGRESSED=() TIMEDOUT=() ABSTAINED=() TIGHT=()
+declare -A CAPFILE=()
+
+# Print what a probe actually said, bounded. The tail is the right end to keep: these scripts
+# print per-leg lines followed by a summary, so the last lines carry both the verdict and the
+# legs that produced it. Truncation is STATED — a silently clipped report is how you end up
+# reading the wrong evidence confidently.
+emit_capture() {
+  local name="$1" cap="${CAPFILE[$1]:-}"
+  if [ -z "$cap" ] || [ ! -s "$cap" ]; then
+    echo "      (no output captured — the probe printed nothing before it exited)" >&2
+    return
+  fi
+  local total; total=$(wc -l < "$cap")
+  if [ "$total" -gt "$CAPTURE_LINES" ]; then
+    echo "      --- last $CAPTURE_LINES of $total lines from $name ---" >&2
+  else
+    echo "      --- output from $name ($total line(s)) ---" >&2
+  fi
+  tail -n "$CAPTURE_LINES" "$cap" | sed 's/^/      | /' >&2
+}
+
 for f in "${ALL[@]}"; do
   if reason="$(is_excluded "$f")"; then continue; fi
   case "$f" in *.py) runner="python3";; *) runner="bash";; esac
   ran=$((ran + 1))
+  cap="$CAPDIR/$f.out"
+  CAPFILE["$f"]="$cap"
   started=$SECONDS
-  timeout "$TIMEOUT" "$runner" "tools/$f" > /dev/null 2>&1
+  timeout "$TIMEOUT" "$runner" "tools/$f" > "$cap" 2>&1
   rc=$?
   elapsed=$((SECONDS - started))
   case "$rc" in
-    0)   pass=$((pass + 1));;
+    0)   pass=$((pass + 1)); rm -f "$cap";;
     124) TIMEDOUT+=("$f (did not finish within ${TIMEOUT}s)");;
     2)   ABSTAINED+=("$f (rc=2, declined to certify)");;
     *)   REGRESSED+=("$f (rc=$rc)");;
@@ -193,20 +236,36 @@ if [ "${#TIMEDOUT[@]}" -ne 0 ] || [ "${#ABSTAINED[@]}" -ne 0 ]; then
     echo "      Nothing is claimed about what it guards — it was killed, not failed." >&2
     echo "      Raising T509_TIMEOUT buys headroom the instrument will consume again if" >&2
     echo "      its cost tracks a growing tree; measure the cost before moving the cap." >&2
+    # What it managed to print before the kill localises WHERE it was slow, which is the
+    # first thing anyone measuring the cost needs and the thing a bare rc=124 withholds.
+    emit_capture "${x%% *}"
   done
   for x in "${ABSTAINED[@]}"; do
     echo "  - ABSTAINED: $x" >&2
     echo "      It refused to certify. Its abstention IS its output; read that output" >&2
     echo "      rather than treating this as a regression in what it guards." >&2
+    # And here it is, rather than an instruction to go and find it. An abstention whose
+    # reasoning is discarded is indistinguishable from a probe that said nothing at all.
+    emit_capture "${x%% *}"
   done
 fi
 
 if [ "${#REGRESSED[@]}" -ne 0 ]; then
   echo >&2
   echo "SWEEP FAIL — an instrument that passed on 2026-08-15 no longer does:" >&2
-  for x in "${REGRESSED[@]}"; do echo "  - $x" >&2; done
-  echo "Run it directly for its own output. These are hermetic and leave the repo" >&2
-  echo "untouched, so a red here is a real regression in the thing it guards." >&2
+  for x in "${REGRESSED[@]}"; do
+    echo "  - $x" >&2
+    emit_capture "${x%% *}"
+  done
+  # KEEP THIS SENTENCE ON ONE LINE. Two probes read the sweep's SOURCE for the literal phrase
+  # "a real regression in the thing it guards" and assert it is withheld from timeouts and
+  # abstentions — _t548-sweep-classification-teeth.py refuses outright if it cannot find it,
+  # and _t364-tie-guard-teeth.py goes red. Splitting it across echo calls for line width broke
+  # both within one run of writing this comment's own commit.
+  echo "These are hermetic and leave the repo untouched, so a red here is a real regression in the thing it guards." >&2
+  echo "Its own output is above — and note that for the class of probes that fail only" >&2
+  echo "inside a full run, re-running it directly is precisely what does NOT reproduce" >&2
+  echo "it, so the capture above may be the only account this failure will ever have (T-551)." >&2
   exit 1
 fi
 
