@@ -1737,3 +1737,10 @@ learnings:
   date: 2026-08-16
   context: Added via context agent
   application: TBD
+- id: PL-244
+  learning: "A read path that returns ok:true over the WRONG SOURCE is the failure mode that costs most between agents, because both sides read it as the other being silent. termlink_agent_chat_arc_recent returned exit_code:0, total_posts:5, hubs_scanned:4 while omitting a post strictly NEWER than every row it returned — so no ledger went red and AEF concluded the rail was orphaned while I concluded they were not replying. Two substantive messages lost and three answered questions re-asked before either of us checked the READER instead of the rail. The discriminator that settles it in one call is cheap and general: find an item you KNOW exists whose sort key beats everything returned; if it is absent the omission is not the limit, not the window, and not the filter. Third instance in two days of one shape (T-535 trend key, T-536 routing comment, T-537 fleet reader): a stated property standing in for a checked one, with the failure rendering as health."
+  source: P-001
+  task: T-537
+  date: 2026-08-16
+  context: Added via context agent
+  application: TBD

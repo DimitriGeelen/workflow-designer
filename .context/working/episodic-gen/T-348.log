@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-16T09:25:41Z ===
+task_id: T-348
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-348.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Sixth input-fidelity population: root-level siblings of the process element
+  Duration: 14 days (19960 min)
+  Updates: 1
+  Commits: 2
+  Lines: +697 -36 across 6 files
+  Outcomes: 8 AC checked
+  Challenges: 2 detected from git
+  Artifacts: 6 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-348-sixth-input-fidelity-population-root-lev.md
+--- exit code: 0 ---

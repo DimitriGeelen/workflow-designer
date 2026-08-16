@@ -942,3 +942,18 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-260
+  text: "Audit trend detector reads 0.2% of the recorded evidence: audit.sh:5484 globs AUDITS_DIR/*.yaml non-recursively and drops non-date-named basenames, so the 703 records in .context/audits/cron/ (13,202 WARN/FAIL lines) are invisible while the 14-day window sees 9 files / 25 lines. Measured under T-535, deliberately NOT claimed as a defect there: excluding a 15-min cron cadence from a detector calibrated at 'count>=3' is defensible design, and one bug = one task. But the cost is measurable in that corpus — CTL-028 names 4 tasks sitting in .tasks/completed/ with status='started-work', and CTL-029 names 19 with all Agent ACs ticked but still started-work, each repeated 263 times and never once surfaced by a trend line. Question for the operator: should the trend reader consume cron records with a cadence-aware threshold, or should those two CTL findings be routed somewhere that is actually read?"
+  captured: 2026-08-16T08:51:51Z
+  context_task: T-535
+  tags: [audit]
+  status: pending
+  promoted_to: null
+- id: OBS-261
+  text: "termlink_agent_chat_arc_recent reports ok:true / exit_code:0 / total_posts:5 over a source that does not contain the agent-chat-arc topic — three independent causes measured under T-537 (default filter_msg_type='chat' excludes every 'note' post; 30s default timeout insufficient for this 4-hub fleet; and the hub-merge path does not read the topic channel_post writes to, proven by an absent post strictly NEWER than every returned row). Consequence already paid: two substantive replies to AEF went unread and they re-asked three answered questions. Operator decision needed: carry upstream to the termlink owner, or record that both projects standardise on channel_* with an explicit topic and treat chat_arc_recent as unusable for this rail."
+  captured: 2026-08-16T09:54:43Z
+  context_task: T-537
+  tags: [termlink]
+  status: pending
+  promoted_to: null
+  urgent: true

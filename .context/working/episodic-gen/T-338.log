@@ -21,3 +21,25 @@ Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-338.yaml
 
 Source: /opt/832-Workflow-designer/.tasks/completed/T-338-input-fidelity-guard-prove-load-save-pre.md
 --- exit code: 0 ---
+=== episodic-gen invocation: 2026-08-16T09:35:34Z ===
+task_id: T-338
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-338.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Input-fidelity guard: prove load-save preserves content, over a population that includes documents the corpus cannot express (G-016 prevention)
+  Duration: 14 days (20149 min)
+  Updates: 2
+  Commits: 3
+  Lines: +2438 -126 across 46 files
+  Outcomes: 6 AC checked
+  Challenges: 2 detected from git
+  Artifacts: 46 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-338-input-fidelity-guard-prove-load-save-pre.md
+--- exit code: 0 ---

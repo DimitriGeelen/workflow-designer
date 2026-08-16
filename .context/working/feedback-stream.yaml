@@ -6713,3 +6713,219 @@ scan_id: R-c2581d50
 task_id: T-529
 payload:
   task_file: .tasks/active/T-529-measure-handover-corpus-redundancy-after.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T21:17:21Z'
+scan_id: R-1de52214
+task_id: T-527
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T21:17:21Z'
+scan_id: R-1de52214
+task_id: T-527
+payload:
+  task_file: .tasks/active/T-527-propagate-t-326s-failure-output-capture-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T21:51:44Z'
+scan_id: R-d1db61aa
+task_id: T-530
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T21:51:44Z'
+scan_id: R-d1db61aa
+task_id: T-530
+payload:
+  task_file: .tasks/active/T-530-measure-whether-the-handover-corpus-grow.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T21:59:44Z'
+scan_id: R-978dec9e
+task_id: T-531
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T21:59:44Z'
+scan_id: R-978dec9e
+task_id: T-531
+payload:
+  task_file: .tasks/active/T-531-determine-the-direction-of-the-termlink-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T22:06:26Z'
+scan_id: R-4ecf0a1f
+task_id: T-532
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T22:06:26Z'
+scan_id: R-4ecf0a1f
+task_id: T-532
+payload:
+  task_file: .tasks/active/T-532-count-and-classify-the-hermeticity-copy-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T22:22:54Z'
+scan_id: R-4f8d2078
+task_id: T-533
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T22:22:54Z'
+scan_id: R-4f8d2078
+task_id: T-533
+payload:
+  task_file: .tasks/active/T-533-scope-the-two-whole-tree-hermeticity-ass.md
+---
+kind: scan_emitted
+timestamp: '2026-08-15T23:16:03Z'
+scan_id: R-24834d39
+task_id: T-534
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-15T23:16:03Z'
+scan_id: R-24834d39
+task_id: T-534
+payload:
+  task_file: .tasks/active/T-534-d2-human-review-queue-fail-prints-a-30d-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T08:59:35Z'
+scan_id: R-c2938468
+task_id: T-535
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T08:59:35Z'
+scan_id: R-c2938468
+task_id: T-535
+payload:
+  task_file: .tasks/active/T-535-audit-trend-detector-counts-verbatim-che.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T09:09:29Z'
+scan_id: R-145faab2
+task_id: T-335
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T09:09:29Z'
+scan_id: R-145faab2
+task_id: T-335
+payload:
+  task_file: .tasks/completed/T-335-land-the-iw-1a-anchorability-measurement.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T09:15:41Z'
+scan_id: R-ea4ef35e
+task_id: T-336
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T09:15:41Z'
+scan_id: R-ea4ef35e
+task_id: T-336
+payload:
+  task_file: .tasks/completed/T-336-value-anchor-row-agrees-for-the-wrong-re.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T09:25:39Z'
+scan_id: R-0e080acb
+task_id: T-348
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T09:25:39Z'
+scan_id: R-0e080acb
+task_id: T-348
+payload:
+  task_file: .tasks/completed/T-348-sixth-input-fidelity-population-root-lev.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T09:35:32Z'
+scan_id: R-ad089470
+task_id: T-338
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T09:35:32Z'
+scan_id: R-ad089470
+task_id: T-338
+payload:
+  task_file: .tasks/completed/T-338-input-fidelity-guard-prove-load-save-pre.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T09:39:28Z'
+scan_id: R-6d022e2e
+task_id: T-536
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T09:39:28Z'
+scan_id: R-6d022e2e
+task_id: T-536
+payload:
+  task_file: .tasks/active/T-536-tasks-in-taskscompleted-whose-frontmatte.md

@@ -21,3 +21,25 @@ Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-336.yaml
 
 Source: /opt/832-Workflow-designer/.tasks/completed/T-336-value-anchor-row-agrees-for-the-wrong-re.md
 --- exit code: 0 ---
+=== episodic-gen invocation: 2026-08-16T09:15:42Z ===
+task_id: T-336
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-336.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: VALUE anchor row agrees for the wrong reason: prove the duplicated id resolves TWICE
+  Duration: 14 days (20162 min)
+  Updates: 1
+  Commits: 1
+  Lines: +273 -7 across 2 files
+  Outcomes: 4 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 2 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-336-value-anchor-row-agrees-for-the-wrong-re.md
+--- exit code: 0 ---

@@ -21,3 +21,25 @@ Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-335.yaml
 
 Source: /opt/832-Workflow-designer/.tasks/completed/T-335-land-the-iw-1a-anchorability-measurement.md
 --- exit code: 0 ---
+=== episodic-gen invocation: 2026-08-16T09:09:30Z ===
+task_id: T-335
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-335.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Land the IW-1a anchorability measurement as a gating guard
+  Duration: 14 days (20171 min)
+  Updates: 1
+  Commits: 2
+  Lines: +727 -52 across 7 files
+  Outcomes: 8 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 7 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-335-land-the-iw-1a-anchorability-measurement.md
+--- exit code: 0 ---
