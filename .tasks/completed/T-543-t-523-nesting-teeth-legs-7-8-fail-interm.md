@@ -13,20 +13,20 @@ description: >
   legs 6 and 9 print out of order, so something is concurrent, and the arm drives
   a CDP/browser path. Establish the rate before fixing.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t547-hx-prompt-decode-teeth.py, tools/_t548-sweep-classification-teeth.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-16T14:26:20Z
-last_update: 2026-08-16T16:06:45Z
-date_finished:
+last_update: 2026-08-16T18:01:36Z
+date_finished: 2026-08-16T18:01:36Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -125,6 +125,47 @@ doing something else; both greens came from runs where I deliberately did
 nothing while the suite executed. That is what the timeout mechanism predicts,
 so runs 4 and 5 are corroboration rather than contradiction.
 
+**Run 3 is unrecoverable, confirmed rather than assumed.** Its detached watchers
+were killed with the earlier session and its scratchpad directory is empty; no
+suite process is still running (`ps` clean). The row stays "abandoned".
+
+### The rate for `_t523` — the symptom this task was actually filed on
+
+`_t509` is explained and repaired (T-548). `_t523`'s own failure —
+`drift_keys=[] measured node={}` at rc=1, 7.25s against a 600s ceiling — is
+**not** explained by the timeout mechanism and has never reproduced.
+
+| source | observations | `_t523` reproductions |
+|---|---|---|
+| Arm A (standalone, stdout redirected) | 30 | 0 |
+| Suite runs 1, 4, 5 (per-leg outcomes recorded) | 3 | 0 |
+| Suite run 2 | 1 | **unknown** — 5 failures, composition not itemised |
+
+**0 reproductions in 33 observations where the outcome is recorded.** By the
+rule of three that puts a 95% upper bound of roughly **9% per run** on the rate.
+
+Three things that bound is not:
+
+1. **It is not "rare".** 33 runs cannot distinguish a fixed probe from one that
+   fails 1 run in 20. The honest reading is "not frequent", and nothing stronger.
+2. **The denominator may be 34 and the numerator may be 1.** Run 2's five
+   failures were recorded as a count, not a list, and I cannot now exclude
+   `_t523` from them. Stated rather than rounded away, because rounding it away
+   is what turns an unbounded flake into a clean-looking zero.
+3. **It measures a system that no longer exists.** T-548 changed how the suite
+   classifies `_t509`'s exits (rc=124 is now `3`/incomplete rather than
+   `1`/regression), so any further run measures a different suite from runs 1-2.
+   Re-running to reach a designed N would not extend this table — it would start
+   a new one. That is why the rate is stated at 33 rather than padded to a
+   rounder number.
+
+**`_t523` remains unexplained, and an unreproduced flake is not a fixed one.**
+It is a probe that, on the one occasion it misbehaved, saw *nothing* rather than
+seeing the wrong thing — which is the exact failure mode the arm exists to
+distinguish — and AEF depends on that arm for three published maps (T-528).
+Captured as a standing observation rather than closed silently or left as a task
+with no actionable content.
+
 **Runs 4 and 5 are honest but incidental.** They were T-547's verification runs,
 not a designed rate experiment — I did not vary anything, I just happened to
 need two clean full-suite runs and stayed off the machine for both. They are
@@ -221,7 +262,7 @@ that stays true until the mechanism is named.
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The RATE is measured, not estimated: N consecutive full-suite runs with
+- [x] The RATE is measured, not estimated: N consecutive full-suite runs with
       per-leg outcomes captured, and the finding stated as a count over that N.
       "Did not reproduce in N runs" is a legitimate outcome PROVIDED the bound
       it puts on the rate is stated — an unreproduced flake is not a fixed one
@@ -323,7 +364,51 @@ that stays true until the mechanism is named.
 # Origin: T-1849/T-1730/T-1731 each added a legitimate hook without refreshing
 # the baseline — FAIL sat for multiple sessions until T-1886 cleaned up.
 
+python3 tools/_t548-sweep-classification-teeth.py
+python3 tools/_t523-nesting-teeth.py
+# The full suite is NOT listed. Its verdict depends on whether _t525 crosses its
+# 90s cap on that particular run (T-549), so gating this task's completion on it
+# would make the gate a coin-flip — and this is the task that argued a suite
+# which passes by waiting longer has stopped reporting.
+
 ## RCA
+
+**Symptom.** Two instruments failed as bridge-suite legs on 2026-08-16 while
+passing standalone: `_t509-instrument-sweep.sh`, and `_t523-nesting-teeth.py`
+legs 7-8 with `drift_keys=[] measured node={}` at rc=1.
+
+**Root cause — for one of the two.** `_t509` was not failing; it was
+*mis-describing*. Its run loop reduced four distinct exit meanings to a boolean
+and announced every non-zero as "a real regression in the thing it guards".
+`_t525` crosses the 90s cap under load at 86.04s. Repaired in T-548; the cost
+itself is T-549. **`_t523` is not explained.** Its exit is 1, not 124, in 7.25s
+against a 600s ceiling — three orders of magnitude of headroom — so the timeout
+mechanism cannot account for it, and it has not reproduced in 33 recorded
+observations.
+
+**Why structurally allowed.** The filing premise — *"legs 6 and 9 print out of
+order, so something is concurrent"* — was never true; the suite has zero
+backgrounding. That single false inference made two wrong repairs look
+reasonable (add a retry, raise the timeout), and both would have been changes
+made to satisfy a premise nobody had checked. The cheap discriminator that
+killed it, 30 standalone runs at 7.25s each, was available from the first
+minute; I reached for the 6-minute suite first and learned less.
+
+**Prevention.** T-548's classifier, and its teeth pinning the *wording* rather
+than only the exit code — the sweep counted correctly throughout and described
+the count wrongly, so a probe checking `rc` alone would have stayed green for
+the entire period the tool was misreporting. Plus the headroom warning, which
+names any instrument over 75% of its budget on a green run, so the next `_t525`
+is visible before it crosses rather than after.
+
+**Not fixed, and deliberately not closed as if it were.** `_t523`'s own failure
+stands unexplained with a 95% upper bound of ~9% per run — a bound too weak to
+distinguish a healthy probe from one failing 1 run in 20. Its failure mode is
+the bad one: an empty measured node is the arm seeing *nothing* rather than
+seeing the wrong thing, so whenever it happens the arm certifies on nothing
+while reporting green, and AEF depends on that arm for three published maps
+(T-528). Registered as **OBS-264** rather than left implicit in a completed
+task, because a completed task archives and stops being read.
 
 <!-- REQUIRED for bug-class tasks (workflow_type=build with bug-tag, OR title matches
      fix/bug/rca/broken/crash/error/regression/fail/hotfix).
@@ -418,3 +503,15 @@ stopped reporting.
 
 ### 2026-08-16T15:43:56Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-1683274c
+- **Timestamp:** 2026-08-16T18:01:54Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-16T18:01:36Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
