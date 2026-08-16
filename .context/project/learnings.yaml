@@ -1702,3 +1702,24 @@ learnings:
   date: 2026-08-15
   context: Added via context agent
   application: TBD
+- id: PL-239
+  learning: "When measuring an instrument's blind spot, measure the corpus it CONSUMES, not the corpus that EXISTS. T-535 was filed claiming '37 of 41 audit records' when the trend reader's non-recursive glob plus 14-day window resolves to 9 files holding 25 lines — there was never a 37 of anything. The error class is the dangerous one AEF named the same day from an unrelated probe: not a missing measurement but a CONFIDENT one against the wrong set, which no single-arm check can detect because it returns a plausible number. The remedy is mechanical — re-derive the reader's actual input set from its own selection code (glob, filter, window) before counting anything, and state the resolved input size alongside the result."
+  source: P-001
+  task: T-535
+  date: 2026-08-16
+  context: Added via context agent
+  application: TBD
+- id: PL-240
+  learning: "In a classifier, under-merging and over-merging are NOT symmetric errors and must not be traded off as if they were. T-535's naive repair s/[0-9]+/N/ fused CTL-028 with CTL-029 and printed '10 x CTL-029' — a recurrence that does not exist, attributed to one control, with the other erased. The broken original merely MISSED real recurrences; the obvious fix INVENTS them. Prefer the conservative rule (fold free-standing numbers, preserve identifier tokens) and prove the fabricating variant is reachable with a red arm, because a detector that manufactures findings destroys trust in every finding it makes, including its true ones."
+  source: P-001
+  task: T-535
+  date: 2026-08-16
+  context: Added via context agent
+  application: TBD
+- id: PL-241
+  learning: "A placeholder must not be built from the character class the next pass rewrites. T-535's normaliser stashed protected identifiers as '\\x00<index>\\x00', then ran s/[0-9]+/N/ — which ate the index, so the restore matched nothing and every identifier collapsed. The failure was silent and it MIMICKED THE DEFECT THE RULE EXISTS TO PREVENT: the output showed CTL-028 and CTL-029 merged, i.e. exactly the over-merge being guarded against, so the correct design looked disproven by its own broken instrument. Use a placeholder disjoint from every later transform's alphabet, and self-check the transform on a two-case assertion before trusting any measurement built on it."
+  source: P-001
+  task: T-535
+  date: 2026-08-16
+  context: Added via context agent
+  application: TBD

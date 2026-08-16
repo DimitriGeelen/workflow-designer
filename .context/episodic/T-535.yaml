@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-535: Audit trend detector counts verbatim check strings, so an issue is only 'recurring' while its numbers stop moving
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-16T08:59:38Z
+# ============================================================================
+
+task_id: T-535
+task_name: "Audit trend detector counts verbatim check strings, so an issue is only 'recurring' while its numbers stop moving"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-16T06:49:21Z
+completed: 2026-08-16T08:59:22Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-16T08:50:39+02:00
+last_commit: 2026-08-16T08:50:39+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  file the trend detector that fires on stasis while labelled recurrence — measured, not fixed, because teeth written at 248K budget is the failure mode this session has spent all day documenting. Found by taking the audit's own advice: every run prints 'Repeated issues detected ... 3 Fabric: 36/40 cards have no edges (3 times)' while the SAME audit's body reports 37/56. audit.sh:5519-5535 reads each WARN/FAIL check string VERBATIM and aggregates with sort|uniq -c at count>=3, so the aggregation key is the rendered sentence and any check embedding its own measurement mints a new key every run. Measured over 41 daily audit records: the fabric COVERAGE warn appears in 37 audits, largest identical-string group 1, NEVER once reported as recurring; the fabric EDGES warn appears in 10 and is reported as 3 — and only because its counts held still for three consecutive days. Seven distinct strings for one issue, 37 for the other. THE INVERSION IS THE FINDING: the only issue this detector has ever promoted in this project crossed the threshold precisely BECAUSE it stopped moving, so an issue recurring daily while steadily worsening scores 1 forever and the detector is least sensitive exactly when a problem is progressing. Downstream, the framework's 'consider creating a practice' prompt is routed by STRING STABILITY rather than by persistence — a stable trivial WARN becomes a practice candidate, a worsening one never does. EXPLICITLY NOT CLAIMED because it is the tempting version and it is false: T-525 did not cause this. T-525 added a ratio and a direction note to the coverage line which makes the string vary more, but the pre-T-525 strings are ALSO one-per-run — the line never aggregated before or after. Same family as PL-222 one level up: there a moving quantity is baked into a METRIC, here into an IDENTITY KEY. ACs written so the fix cannot be graded on a pinned count (the corpus grows daily, so an exact expected number is the G-015 defect this tree keeps finding) and so over-merging is measured rather than assumed. Vendored, so G-008 applies and it goes upstream. Focus switched via fw context focus rather than FW_SWITCH_FOCUS — the drift gate fired correctly and its bypass is Tier 2
+
+# Key outcomes
+outcomes:
+  - '**The aggregation key is separated from the rendered message.** An issue recurring with'
+  - '**Measured before/after on this project''s real audit corpus**, not on a fixture.'
+  - '**Normalisation does not over-merge.** Two genuinely different checks whose text differs'
+  - '**Teeth drive the real trend analysis** against a controlled corpus of audit records'
+  - '**The teeth REFUSE (rc 2) if the corpus yields no trend section at all** — otherwise a'
+  - '**Reported upstream to AEF** — vendored `.agentic-framework/agents/audit/audit.sh`,'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'file the trend detector that fires on stasis while labelled recurrence — measured, not fixed, because teeth written at 248K budget is the failure mode this session has spent all day documenting. Found by taking the audit''s own advice: every run prints ''Repeated issues detected ... 3 Fabric: 36/40 cards have no edges (3 times)'' while the SAME audit''s body reports 37/56. audit.sh:5519-5535 reads each WARN/FAIL check string VERBATIM and aggregates with sort|uniq -c at count>=3, so the aggregation key is the rendered sentence and any check embedding its own measurement mints a new key every run. Measured over 41 daily audit records: the fabric COVERAGE warn appears in 37 audits, largest identical-string group 1, NEVER once reported as recurring; the fabric EDGES warn appears in 10 and is reported as 3 — and only because its counts held still for three consecutive days. Seven distinct strings for one issue, 37 for the other. THE INVERSION IS THE FINDING: the only issue this detector has ever promoted in this project crossed the threshold precisely BECAUSE it stopped moving, so an issue recurring daily while steadily worsening scores 1 forever and the detector is least sensitive exactly when a problem is progressing. Downstream, the framework''s ''consider creating a practice'' prompt is routed by STRING STABILITY rather than by persistence — a stable trivial WARN becomes a practice candidate, a worsening one never does. EXPLICITLY NOT CLAIMED because it is the tempting version and it is false: T-525 did not cause this. T-525 added a ratio and a direction note to the coverage line which makes the string vary more, but the pre-T-525 strings are ALSO one-per-run — the line never aggregated before or after. Same family as PL-222 one level up: there a moving quantity is baked into a METRIC, here into an IDENTITY KEY. ACs written so the fix cannot be graded on a pinned count (the corpus grows daily, so an exact expected number is the G-015 defect this tree keeps finding) and so over-merging is measured rather than assumed. Vendored, so G-008 applies and it goes upstream. Focus switched via fw context focus rather than FW_SWITCH_FOCUS — the drift gate fired correctly and its bypass is Tier 2'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-16 — how much to normalise'
+    chose: 'fold only free-standing numbers; preserve identifier tokens matching `[A-Za-z]{1,6}-[0-9]+` (CTL-028, T-901, G-015, D2).'
+    rationale: 'the two available errors are not symmetric. Under-merging leaves an issue counted per-subject, which is honest and merely conservative. Over-merging **fabricates** a recurrence across unrelated checks and prints it under one of their names while hiding the other — the measured red arm B output is `10 x CTL-029`, a number describing nothing real. A recurrence detector that invents recurrences is worse than one that misses them.'
+    alternatives_rejected: ['naive `s/[0-9]+/N/` (fuses CTL-028 with CTL-029 — demonstrated, not theorised); and normalising prose as well as digits, which would have merged the pre- and post-T-525 coverage wordings. T-525 genuinely rewrote that sentence, so restarting its count is correct behaviour and its 8th occurrence legitimately sits under a separate key. That is a real residual limitation — a check that rewrites its own prose still resets its count — but it is a one-time reset on a deliberate wording change, not a per-run reset, and it is stated here rather than papered over.']
+  - decision: '2026-08-16 — where the teeth get their corpus'
+    chose: 'make `AUDITS_DIR` env-overridable and point the teeth at a temp dir.'
+    rationale: 'it is the same idiom `lib/paths.sh` already uses for `TASKS_DIR`, it is one line, and it makes the probe hermetic in both directions — the real `.context/audits` is neither read nor written, and the audit''s own output file lands in the sandbox.'
+    alternatives_rejected: ['re-implementing the aggregation in the test (would assert a copy, not the subject — the defect this project keeps finding); and overriding `CONTEXT_DIR`, which would have moved every other path the audit resolves.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.tasks/active/T-535-audit-trend-detector-counts-verbatim-che.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-16T08:50:39"
+    action: "T-535: file the trend detector that fires on stasis while labelled recurrence — measured, not fixed, because teeth written at 248K budget is the failure mode this session has spent all day documenting. Found by taking the audit's own advice: every run prints 'Repeated issues detected ... 3 Fabric: 36/40 cards have no edges (3 times)' while the SAME audit's body reports 37/56. audit.sh:5519-5535 reads each WARN/FAIL check string VERBATIM and aggregates with sort|uniq -c at count>=3, so the aggregation key is the rendered sentence and any check embedding its own measurement mints a new key every run. Measured over 41 daily audit records: the fabric COVERAGE warn appears in 37 audits, largest identical-string group 1, NEVER once reported as recurring; the fabric EDGES warn appears in 10 and is reported as 3 — and only because its counts held still for three consecutive days. Seven distinct strings for one issue, 37 for the other. THE INVERSION IS THE FINDING: the only issue this detector has ever promoted in this project crossed the threshold precisely BECAUSE it stopped moving, so an issue recurring daily while steadily worsening scores 1 forever and the detector is least sensitive exactly when a problem is progressing. Downstream, the framework's 'consider creating a practice' prompt is routed by STRING STABILITY rather than by persistence — a stable trivial WARN becomes a practice candidate, a worsening one never does. EXPLICITLY NOT CLAIMED because it is the tempting version and it is false: T-525 did not cause this. T-525 added a ratio and a direction note to the coverage line which makes the string vary more, but the pre-T-525 strings are ALSO one-per-run — the line never aggregated before or after. Same family as PL-222 one level up: there a moving quantity is baked into a METRIC, here into an IDENTITY KEY. ACs written so the fix cannot be graded on a pinned count (the corpus grows daily, so an exact expected number is the G-015 defect this tree keeps finding) and so over-merging is measured rather than assumed. Vendored, so G-008 applies and it goes upstream. Focus switched via fw context focus rather than FW_SWITCH_FOCUS — the drift gate fired correctly and its bypass is Tier 2"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 130 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 130
+  commits: 1
+  files_changed: 1
+  lines_added: 264
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-535-audit-trend-detector-counts-verbatim-che.md
+generated_by: context-agent-hybrid

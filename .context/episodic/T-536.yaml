@@ -1,0 +1,91 @@
+# ============================================================================
+# EPISODIC MEMORY - T-536: Tasks in .tasks/completed/ whose frontmatter still says started-work (CTL-028), surfaced 263 times in a corpus nothing reads
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-16T09:39:32Z
+# ============================================================================
+
+task_id: T-536
+task_name: "Tasks in .tasks/completed/ whose frontmatter still says started-work (CTL-028), surfaced 263 times in a corpus nothing reads"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-16T09:01:00Z
+completed: 2026-08-16T09:39:23Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-16T11:29:53+02:00
+last_commit: 2026-08-16T11:29:53+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  CTL-028 was never broken — it fired 263 times over 14 days into a sink nobody reads, and the reason is a comment that was already false when it was written. Four tasks sat in .tasks/completed/ with status='started-work' since 2026-08-02, moved by bare git mv (L-390) as R100 byte-identical renames swept into handover commits, so the state machine, the date stamp and the P-011 gate were all skipped. Population measured from the tree not taken from the audit string: 4 of 468, all owner=agent, none with a Human AC section — and the FIRST classification pass was wrong, reading the template's [REVIEW]/[REVIEWER] examples inside an HTML comment as live checkboxes, which would have mis-filed all four as partial-complete, the one state where closing them is not mine to do. Corrected before acting; PL-239 twice in one day. Repaired through fw task update with gates live, --force deliberately unused even though CTL-028's own mitigation string offers it FIRST — a wording issue reported upstream, since both options it names are bypasses and the clean path works. THE FINDING: audit.sh:3721 gates CTL-028 on compliance||oe-daily and its header says T-1882 promoted it there 'so the pre-push audit (which includes compliance) catches the bypass class BEFORE the drift ships' — but hooks.sh:839 runs --section structure only, trimmed by T-862 for speed BEFORE that comment was written. The promotion moved the control from one unrun section to another, leaving the 15-min cron as its only carrier, whose output T-535 measured the same day as invisible to the trend detector too. PL-159 applied to a ROUTING claim rather than a threshold. Neither author could have seen it. NOT FIXED: adding compliance to the pre-push hook spends push latency T-862 bought deliberately, and that is the operator's trade — registered as G-038 watching, whose closure condition explicitly REFUSES the one-instance re-route and whose stored command prints STRANDED today. Re-running a 14-day-old verification gate found the second face of the same bypass: T-338's block had NEVER executed, and two legs asserted probe strings T-419/T-340 removed weeks later — assertion rot and status desync are one bypass seen from two sides. Repaired to assert the probe's VERDICT not its prose, and labelled in-file as the goalpost move it is. Guard: tools/_t536-status-desync-teeth.py, 5 legs, 3.3s, synthetic tree via TASKS_DIR because 'the real tree is clean' is the G-015 shape; red arm makes the audit print 'All completed/ tasks have frontmatter status: work-completed' — a broken control rendering as a PASS line, which is why leg 1 asserts the finding instead of trusting silence
+
+# Key outcomes
+outcomes:
+  - '**The population is measured from the tree, not taken from the audit string.**'
+  - '**Each one is classified before anything is changed.**'
+  - '**No `owner: human` task is closed as part of this.**'
+  - '**The repair is applied through `fw task update`, not by hand-editing frontmatter.**'
+  - '**CTL-028 reports clean afterwards on a real run**, and the run is shown.'
+  - '**A regression guard exists that fails when location and status disagree.**'
+  - '**The unread-sink question is answered, not deferred.**'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'CTL-028 was never broken — it fired 263 times over 14 days into a sink nobody reads, and the reason is a comment that was already false when it was written. Four tasks sat in .tasks/completed/ with status=''started-work'' since 2026-08-02, moved by bare git mv (L-390) as R100 byte-identical renames swept into handover commits, so the state machine, the date stamp and the P-011 gate were all skipped. Population measured from the tree not taken from the audit string: 4 of 468, all owner=agent, none with a Human AC section — and the FIRST classification pass was wrong, reading the template''s [REVIEW]/[REVIEWER] examples inside an HTML comment as live checkboxes, which would have mis-filed all four as partial-complete, the one state where closing them is not mine to do. Corrected before acting; PL-239 twice in one day. Repaired through fw task update with gates live, --force deliberately unused even though CTL-028''s own mitigation string offers it FIRST — a wording issue reported upstream, since both options it names are bypasses and the clean path works. THE FINDING: audit.sh:3721 gates CTL-028 on compliance||oe-daily and its header says T-1882 promoted it there ''so the pre-push audit (which includes compliance) catches the bypass class BEFORE the drift ships'' — but hooks.sh:839 runs --section structure only, trimmed by T-862 for speed BEFORE that comment was written. The promotion moved the control from one unrun section to another, leaving the 15-min cron as its only carrier, whose output T-535 measured the same day as invisible to the trend detector too. PL-159 applied to a ROUTING claim rather than a threshold. Neither author could have seen it. NOT FIXED: adding compliance to the pre-push hook spends push latency T-862 bought deliberately, and that is the operator''s trade — registered as G-038 watching, whose closure condition explicitly REFUSES the one-instance re-route and whose stored command prints STRANDED today. Re-running a 14-day-old verification gate found the second face of the same bypass: T-338''s block had NEVER executed, and two legs asserted probe strings T-419/T-340 removed weeks later — assertion rot and status desync are one bypass seen from two sides. Repaired to assert the probe''s VERDICT not its prose, and labelled in-file as the goalpost move it is. Guard: tools/_t536-status-desync-teeth.py, 5 legs, 3.3s, synthetic tree via TASKS_DIR because ''the real tree is clean'' is the G-015 shape; red arm makes the audit print ''All completed/ tasks have frontmatter status: work-completed'' — a broken control rendering as a PASS line, which is why leg 1 asserts the finding instead of trusting silence'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-16 — repairing T-338''s stale verification instead of leaving it desynced'
+    chose: 're-point the two rotted legs at the probe''s own verdict line and at a derived population name, then close the task through the gate.'
+    rationale: 'the probe exits 0 and reports *"every measured fidelity verdict matches expectation"*; the properties it measures are unchanged, only the prose moved. Assertions pinned to incidental wording are the same defect class T-535 fixed in the trend detector''s identity key.'
+    alternatives_rejected: ['`--force` (a Tier-2 bypass, not delegated, and it would have hidden the rot); leaving T-338 desynced and reporting it (defensible, and the honest note is that I chose the repair — this is a goalpost move and is labelled as one in the findings so a reader can disagree with the call rather than discover it).']
+  - decision: '2026-08-16 — not fixing the routing gap'
+    chose: 'register G-038, report upstream, hand the trade to the operator.'
+    rationale: 'the obvious fix — add `compliance` to the pre-push hook — spends push latency at every push, which T-862 deliberately bought back. That is an operator-facing cost, and a broad autonomous directive delegates initiative, not authority over the operator''s own trade-offs.'
+    alternatives_rejected: ['doing it anyway and mentioning it afterwards; and closing the gap on the teeth, which prove the control can see but assert nothing about whether anyone is listening.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/project/concerns.yaml'
+  - '.tasks/active/T-536-tasks-in-taskscompleted-whose-frontmatte.md'
+  - '.tasks/completed/T-335-land-the-iw-1a-anchorability-measurement.md'
+  - '.tasks/completed/T-336-value-anchor-row-agrees-for-the-wrong-re.md'
+  - '.tasks/completed/T-338-input-fidelity-guard-prove-load-save-pre.md'
+  - '.tasks/completed/T-348-sixth-input-fidelity-population-root-lev.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t536-status-desync-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-16T11:29:53"
+    action: "T-536: CTL-028 was never broken — it fired 263 times over 14 days into a sink nobody reads, and the reason is a comment that was already false when it was written. Four tasks sat in .tasks/completed/ with status='started-work' since 2026-08-02, moved by bare git mv (L-390) as R100 byte-identical renames swept into handover commits, so the state machine, the date stamp and the P-011 gate were all skipped. Population measured from the tree not taken from the audit string: 4 of 468, all owner=agent, none with a Human AC section — and the FIRST classification pass was wrong, reading the template's [REVIEW]/[REVIEWER] examples inside an HTML comment as live checkboxes, which would have mis-filed all four as partial-complete, the one state where closing them is not mine to do. Corrected before acting; PL-239 twice in one day. Repaired through fw task update with gates live, --force deliberately unused even though CTL-028's own mitigation string offers it FIRST — a wording issue reported upstream, since both options it names are bypasses and the clean path works. THE FINDING: audit.sh:3721 gates CTL-028 on compliance||oe-daily and its header says T-1882 promoted it there 'so the pre-push audit (which includes compliance) catches the bypass class BEFORE the drift ships' — but hooks.sh:839 runs --section structure only, trimmed by T-862 for speed BEFORE that comment was written. The promotion moved the control from one unrun section to another, leaving the 15-min cron as its only carrier, whose output T-535 measured the same day as invisible to the trend detector too. PL-159 applied to a ROUTING claim rather than a threshold. Neither author could have seen it. NOT FIXED: adding compliance to the pre-push hook spends push latency T-862 bought deliberately, and that is the operator's trade — registered as G-038 watching, whose closure condition explicitly REFUSES the one-instance re-route and whose stored command prints STRANDED today. Re-running a 14-day-old verification gate found the second face of the same bypass: T-338's block had NEVER executed, and two legs asserted probe strings T-419/T-340 removed weeks later — assertion rot and status desync are one bypass seen from two sides. Repaired to assert the probe's VERDICT not its prose, and labelled in-file as the goalpost move it is. Guard: tools/_t536-status-desync-teeth.py, 5 legs, 3.3s, synthetic tree via TASKS_DIR because 'the real tree is clean' is the G-015 shape; red arm makes the audit print 'All completed/ tasks have frontmatter status: work-completed' — a broken control rendering as a PASS line, which is why leg 1 asserts the finding instead of trusting silence"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 38 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 38
+  commits: 1
+  files_changed: 8
+  lines_added: 723
+  lines_removed: 14
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-536-tasks-in-taskscompleted-whose-frontmatte.md
+generated_by: context-agent-hybrid

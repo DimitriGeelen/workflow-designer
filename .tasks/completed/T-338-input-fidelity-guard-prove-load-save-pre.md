@@ -4,20 +4,20 @@ name: "Input-fidelity guard: prove load-save preserves content, over a populatio
 description: >
   G-016 prevention leg. The tree's export-safety instrument is differential (working-tree vs git-ref output compared to each other over 24 well-formed maps), so a defect both versions share reports green and malformed input is outside the denominator. This adds the missing direction: compare EXPORTED against INPUT (flow-node/edge/lane counts preserved), over a population that deliberately includes out-of-vocabulary BPMN tags the corpus does not contain. The lossy set is MEASURED each run and compared to an expected set, not declared - so a new vocabulary gap goes red, and so does a gap that closes.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
 horizon: null
 tags: []
-components: []
+components: [tools/_t338-input-fidelity-cdp.mjs, tools/_t342-fabric-edge-drop-probe.py, tools/_t343-write-equivalence.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T09:38:08Z
-last_update: 2026-08-02T09:38:17Z
-date_finished: null
+last_update: 2026-08-16T09:27:55Z
+date_finished: 2026-08-16T09:27:55Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -238,3 +238,15 @@ out=$(bash tests/run-bridge-tests.sh 2>&1); echo "$out" | grep -q "0 failed"
 
 ### 2026-08-02T09:38:17Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-ad089470
+- **Timestamp:** 2026-08-16T09:35:32Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-16T09:27:55Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

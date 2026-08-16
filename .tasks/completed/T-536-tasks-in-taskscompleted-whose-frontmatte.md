@@ -4,10 +4,10 @@ name: "Tasks in .tasks/completed/ whose frontmatter still says started-work (CTL
 description: >
   Tasks in .tasks/completed/ whose frontmatter still says started-work (CTL-028), surfaced 263 times in a corpus nothing reads
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-16T09:01:00Z
-last_update: 2026-08-16T09:01:00Z
-date_finished: null
+last_update: 2026-08-16T09:39:23Z
+date_finished: 2026-08-16T09:39:23Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -263,14 +263,7 @@ and I chose the repair. Stated here so a reader can disagree with the call rathe
 # The population is empty. Asserts a property of THIS task's subject, not of the whole tree:
 # a task appearing in completed/ with a wrong status tomorrow is someone else's defect, and the
 # teeth below are what catch that — a count here would be the G-015 shape.
-test "$(python3 -c "
-import glob,re
-n=0
-for f in glob.glob('.tasks/completed/*.md'):
-    fm=open(f,encoding='utf-8',errors='replace').read().split('---',2)[1]
-    m=re.search(r'^status:\s*(\S+)',fm,re.M)
-    if (m.group(1) if m else '') != 'work-completed': n+=1
-print(n)")" -eq 0
+test "$(python3 -c "import glob,re; print(sum(1 for f in glob.glob('.tasks/completed/*.md') if (re.search(r'^status:\s*(\S+)', open(f,encoding='utf-8',errors='replace').read().split('---',2)[1], re.M) or [None,''])[1] != 'work-completed'))")" -eq 0
 # The guard exists, sees a planted disagreement, and does not flag the two look-alikes.
 # rc 2 is a REFUSAL (CTL-028 said nothing at all), never a pass.
 python3 tools/_t536-status-desync-teeth.py
@@ -279,11 +272,7 @@ grep -q '_t536-status-desync-teeth.py' tests/run-bridge-tests.sh
 # The gap is registered and its closure command actually runs from the stored YAML.
 # Exits 1 today (STRANDED) BY DESIGN, so this asserts it is renderable, not that it is green —
 # demanding green here would require taking the operator's push-latency decision for them.
-python3 -c "
-import yaml,subprocess,sys
-c=[x for x in yaml.safe_load(open('.context/project/concerns.yaml'))['concerns'] if x['id']=='G-038'][0]
-r=subprocess.run(['bash','-c',c['closure_check_command']],capture_output=True,text=True)
-sys.exit(0 if r.returncode in (0,1) and 'CTL-028 gate=' in r.stdout else 1)"
+python3 -c "import yaml,subprocess,sys; c=[x for x in yaml.safe_load(open('.context/project/concerns.yaml'))['concerns'] if x['id']=='G-038'][0]; r=subprocess.run(['bash','-c',c['closure_check_command']],capture_output=True,text=True); sys.exit(0 if r.returncode in (0,1) and 'CTL-028 gate=' in r.stdout else 1)"
 # T-338's repaired verification legs assert the probe's VERDICT, not its incidental prose.
 grep -q 'every measured fidelity verdict matches expectation' .tasks/completed/T-338-input-fidelity-guard-prove-load-save-pre.md
 
@@ -416,3 +405,15 @@ prints `STRANDED: CTL-028 gate=['compliance','oe-daily'] pre-push runs=['structu
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-536-tasks-in-taskscompleted-whose-frontmatte.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-6d022e2e
+- **Timestamp:** 2026-08-16T09:39:28Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-16T09:39:23Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

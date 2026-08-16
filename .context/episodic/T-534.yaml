@@ -1,0 +1,80 @@
+# ============================================================================
+# EPISODIC MEMORY - T-534: D2 human-review-queue FAIL prints a >30d count against a >14d list
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-15T23:16:06Z
+# ============================================================================
+
+task_id: T-534
+task_name: "D2 human-review-queue FAIL prints a >30d count against a >14d list"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-15T22:47:15Z
+completed: 2026-08-15T23:15:56Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-16T01:15:47+02:00
+last_commit: 2026-08-16T01:15:47+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the D2 review-queue line stated a bar the instrument did not hold, and it is unfalsifiable with one tier populated. audit.sh appended to a single d2_details from BOTH the >=720h and >=336h branches, then printed the fail-tier COUNT against that shared list: '2 task(s) waiting >30d: T-093(41d) T-178(36d) T-308(17d) T-310(17d) T-325(14d)' — count 2, list 5, three of them below the threshold the sentence states. PL-159 verbatim, one register over: the variable had no owner, so whichever branches wrote to it silently redefined what the message meant. WHY IT SURVIVED IS THE HALF WORTH KEEPING: the defect is unobservable unless both tiers are populated at once, because with fail-tier entries only the shared list IS the fail list and the line is internally consistent. My first instinct was a fixture with one aged task, which passes against the broken code — PL-206, a stimulus built so it cannot fail, caught before writing it rather than after. Teeth therefore drive all three tiers 40d/20d/5d through the TASKS_DIR seam against the REAL audit.sh, not a reimplementation of four lines of branch logic, which would assert a copy. Both arms on the live binary: re-merging the tiers turns legs 2, 3 AND 7 red naming T-902(20d), restore is sha256 byte-identical. Leg 7 'no task appears in both lists' was written as a consistency check and turned out to be an independent second detector I had not predicted. REFUSE arm proven too, not merely implemented: fixture owner human->agent empties the queue, the audit renders '[PASS] D2: no pending items' which does not parse, rc 2 abstention — a green there would have been the exact vacuous pass PL-205 names. Fix appends the >14d tier with ITS OWN count and label rather than dropping it: deleting it would reconcile count with list by hiding a real queue, a worse line than the broken one. SECOND FINDING, which corrects my own record rather than the code: D2 is NOT an oe-daily check. It sits inside 'if should_run_section discovery' at audit.sh:3915 and the report prints it under '=== DISCOVERY: OMISSION DETECTION ===' in the header, plainly. T-432's per-section breakdown has no discovery row at all and attributed all 60 FAILs to oe-daily; 59 were genuinely oe-daily, the 1 survivor was not. That also makes the teeth affordable — 8s via --section discovery against 81s for a full run, 216s against a synthetic TASKS_DIR. Vendored fix under G-008, reported upstream at rail 11955. Suite 96 -> 97 passed 0 failed at 313s (the familiar 168s is T-509's stale figure, corrected to ~309s by T-526 and I reached for the stale one again). T-451 ratchet unmoved at 67 because the tool is wired, not shelved. Push gate section list deliberately untouched — that is T-432's open operator ruling and this task fixes what the line SAYS, not whether it gates
+
+# Key outcomes
+outcomes:
+  - '**Every task named under a threshold label actually satisfies that threshold.** This is'
+  - '**No information is lost.** The three `>=14d` tasks currently surfaced (however'
+  - '**The `info` tier still does not appear in either list** — a task under 14d is not'
+  - '**Teeth exist and are proven red for the named reason**, driving the REAL `audit.sh`'
+  - '**The teeth REFUSE (rc 2) rather than pass when no D2 line is emitted or it no longer'
+  - '**Reported upstream to AEF**, since the defect is in vendored'
+  - '**The push gate''s section list is NOT touched.** That is T-432''s open operator ruling;'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the D2 review-queue line stated a bar the instrument did not hold, and it is unfalsifiable with one tier populated. audit.sh appended to a single d2_details from BOTH the >=720h and >=336h branches, then printed the fail-tier COUNT against that shared list: ''2 task(s) waiting >30d: T-093(41d) T-178(36d) T-308(17d) T-310(17d) T-325(14d)'' — count 2, list 5, three of them below the threshold the sentence states. PL-159 verbatim, one register over: the variable had no owner, so whichever branches wrote to it silently redefined what the message meant. WHY IT SURVIVED IS THE HALF WORTH KEEPING: the defect is unobservable unless both tiers are populated at once, because with fail-tier entries only the shared list IS the fail list and the line is internally consistent. My first instinct was a fixture with one aged task, which passes against the broken code — PL-206, a stimulus built so it cannot fail, caught before writing it rather than after. Teeth therefore drive all three tiers 40d/20d/5d through the TASKS_DIR seam against the REAL audit.sh, not a reimplementation of four lines of branch logic, which would assert a copy. Both arms on the live binary: re-merging the tiers turns legs 2, 3 AND 7 red naming T-902(20d), restore is sha256 byte-identical. Leg 7 ''no task appears in both lists'' was written as a consistency check and turned out to be an independent second detector I had not predicted. REFUSE arm proven too, not merely implemented: fixture owner human->agent empties the queue, the audit renders ''[PASS] D2: no pending items'' which does not parse, rc 2 abstention — a green there would have been the exact vacuous pass PL-205 names. Fix appends the >14d tier with ITS OWN count and label rather than dropping it: deleting it would reconcile count with list by hiding a real queue, a worse line than the broken one. SECOND FINDING, which corrects my own record rather than the code: D2 is NOT an oe-daily check. It sits inside ''if should_run_section discovery'' at audit.sh:3915 and the report prints it under ''=== DISCOVERY: OMISSION DETECTION ==='' in the header, plainly. T-432''s per-section breakdown has no discovery row at all and attributed all 60 FAILs to oe-daily; 59 were genuinely oe-daily, the 1 survivor was not. That also makes the teeth affordable — 8s via --section discovery against 81s for a full run, 216s against a synthetic TASKS_DIR. Vendored fix under G-008, reported upstream at rail 11955. Suite 96 -> 97 passed 0 failed at 313s (the familiar 168s is T-509''s stale figure, corrected to ~309s by T-526 and I reached for the stale one again). T-451 ratchet unmoved at 67 because the tool is wired, not shelved. Push gate section list deliberately untouched — that is T-432''s open operator ruling and this task fixes what the line SAYS, not whether it gates'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/audit/audit.sh'
+  - '.tasks/active/T-534-d2-human-review-queue-fail-prints-a-30d-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t534-d2-queue-tier-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-16T01:15:47"
+    action: "T-534: the D2 review-queue line stated a bar the instrument did not hold, and it is unfalsifiable with one tier populated. audit.sh appended to a single d2_details from BOTH the >=720h and >=336h branches, then printed the fail-tier COUNT against that shared list: '2 task(s) waiting >30d: T-093(41d) T-178(36d) T-308(17d) T-310(17d) T-325(14d)' — count 2, list 5, three of them below the threshold the sentence states. PL-159 verbatim, one register over: the variable had no owner, so whichever branches wrote to it silently redefined what the message meant. WHY IT SURVIVED IS THE HALF WORTH KEEPING: the defect is unobservable unless both tiers are populated at once, because with fail-tier entries only the shared list IS the fail list and the line is internally consistent. My first instinct was a fixture with one aged task, which passes against the broken code — PL-206, a stimulus built so it cannot fail, caught before writing it rather than after. Teeth therefore drive all three tiers 40d/20d/5d through the TASKS_DIR seam against the REAL audit.sh, not a reimplementation of four lines of branch logic, which would assert a copy. Both arms on the live binary: re-merging the tiers turns legs 2, 3 AND 7 red naming T-902(20d), restore is sha256 byte-identical. Leg 7 'no task appears in both lists' was written as a consistency check and turned out to be an independent second detector I had not predicted. REFUSE arm proven too, not merely implemented: fixture owner human->agent empties the queue, the audit renders '[PASS] D2: no pending items' which does not parse, rc 2 abstention — a green there would have been the exact vacuous pass PL-205 names. Fix appends the >14d tier with ITS OWN count and label rather than dropping it: deleting it would reconcile count with list by hiding a real queue, a worse line than the broken one. SECOND FINDING, which corrects my own record rather than the code: D2 is NOT an oe-daily check. It sits inside 'if should_run_section discovery' at audit.sh:3915 and the report prints it under '=== DISCOVERY: OMISSION DETECTION ===' in the header, plainly. T-432's per-section breakdown has no discovery row at all and attributed all 60 FAILs to oe-daily; 59 were genuinely oe-daily, the 1 survivor was not. That also makes the teeth affordable — 8s via --section discovery against 81s for a full run, 216s against a synthetic TASKS_DIR. Vendored fix under G-008, reported upstream at rail 11955. Suite 96 -> 97 passed 0 failed at 313s (the familiar 168s is T-509's stale figure, corrected to ~309s by T-526 and I reached for the stale one again). T-451 ratchet unmoved at 67 because the tool is wired, not shelved. Push gate section list deliberately untouched — that is T-432's open operator ruling and this task fixes what the line SAYS, not whether it gates"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 28 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 28
+  commits: 1
+  files_changed: 4
+  lines_added: 398
+  lines_removed: 10
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-534-d2-human-review-queue-fail-prints-a-30d-.md
+generated_by: context-agent-hybrid

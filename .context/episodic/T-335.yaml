@@ -3,25 +3,25 @@
 # ============================================================================
 # STATUS: AUTO-GENERATED
 # Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
-# Generated: 2026-08-02T08:59:35Z
+# Generated: 2026-08-16T09:09:31Z
 # ============================================================================
 
 task_id: T-335
 task_name: "Land the IW-1a anchorability measurement as a gating guard"
 workflow_type: build
-enrichment_status: complete  # AC checked + decisions recorded
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
 
 # Timeline
 created: 2026-08-02T08:51:36Z
-completed: 2026-08-02T08:57:30Z
-duration_days: 0
+completed: 2026-08-16T09:03:15Z
+duration_days: 14
 updates_count: 1
 first_commit: 2026-08-02T10:57:26+02:00
-last_commit: 2026-08-02T10:57:26+02:00
+last_commit: 2026-08-02T11:05:13+02:00
 
 # Summary (auto-generated from git commit messages)
 summary: |
-  land the IW-1a anchorability measurement as a gating guard — tests/test_finding_anchorability.py, bridge 67->68/0. Population read from source by ast; ANCHOR table TOTAL (unclassified emitted rule = hard fail naming it); every declared class checked against corpus + on-disk fixtures + the BRIDGED documents yaml-to-bpmn produces at run time (76 docs, 29 bridged) — 22/23 verified, 0 disagreements, the 23rd unreachable not unwitnessed. Teeth 5/5 including a leg that deletes the bridged population and requires a red: the mistake that made the first pass under-report by 2x is now wired shut. Report points at the guard, not the scratchpad
+  land the IW-1a anchorability measurement as a gating guard — tests/test_finding_anchorability.py, bridge 67->68/0. Population read from source by ast; ANCHOR table TOTAL (unclassified emitted rule = hard fail naming it); every declared class checked against corpus + on-disk fixtures + the BRIDGED documents yaml-to-bpmn produces at run time (76 docs, 29 bridged) — 22/23 verified, 0 disagreements, the 23rd unreachable not unwitnessed. Teeth 5/5 including a leg that deletes the bridged population and requires a red: the mistake that made the first pass under-report by 2x is now wired shut. Report points at the guard, not the scratchpad. capture PL-086 — after a retraction, put the retracted assumption in the harness as a failing teeth leg rather than resolving to be more careful; teeth normally attack the guard's SUBJECT, leg (e) attacks its own DENOMINATOR
 
 # Key outcomes
 outcomes:
@@ -41,13 +41,13 @@ challenges:
 
 # Decisions (from task file Decisions section)
 decisions:
-  - decision: '[date] — [topic]'
-    chose: '[what was decided]'
-    rationale: '[rationale]'
-    alternatives_rejected: ['[alternatives and why not]']
+  # No decisions recorded (mechanical task or old template)
 
 # Artifacts (auto-mined from git --name-only)
 artifacts:
+  - '.context/audits/2026-08-02.yaml'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
   - 'docs/reports/T-309-validator-surfacing.md'
   - '.tasks/active/T-335-land-the-iw-1a-anchorability-measurement.md'
   - 'tests/run-bridge-tests.sh'
@@ -57,10 +57,12 @@ artifacts:
 git_timeline:
   - time: "2026-08-02T10:57:26"
     action: "T-335: land the IW-1a anchorability measurement as a gating guard — tests/test_finding_anchorability.py, bridge 67->68/0. Population read from source by ast; ANCHOR table TOTAL (unclassified emitted rule = hard fail naming it); every declared class checked against corpus + on-disk fixtures + the BRIDGED documents yaml-to-bpmn produces at run time (76 docs, 29 bridged) — 22/23 verified, 0 disagreements, the 23rd unreachable not unwitnessed. Teeth 5/5 including a leg that deletes the bridged population and requires a red: the mistake that made the first pass under-report by 2x is now wired shut. Report points at the guard, not the scratchpad"
+  - time: "2026-08-02T11:05:13"
+    action: "T-335: capture PL-086 — after a retraction, put the retracted assumption in the harness as a failing teeth leg rather than resolving to be more careful; teeth normally attack the guard's SUBJECT, leg (e) attacks its own DENOMINATOR"
 
 # What worked well (requires judgment — [TODO] if enrichment_status is pending)
 successes:
-  # Completed successfully in 1 commit(s), 5 min
+  # Completed successfully in 2 commit(s), 20171 min
 
 # Related tasks
 related_tasks:
@@ -73,11 +75,11 @@ tags: []
 
 # Passive metrics (derived automatically — do not edit)
 metrics:
-  wall_clock_minutes: 5
-  commits: 1
-  files_changed: 4
-  lines_added: 591
-  lines_removed: 0
+  wall_clock_minutes: 20171
+  commits: 2
+  files_changed: 7
+  lines_added: 727
+  lines_removed: 52
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-335-land-the-iw-1a-anchorability-measurement.md

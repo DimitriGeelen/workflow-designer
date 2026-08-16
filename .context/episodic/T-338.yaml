@@ -3,25 +3,25 @@
 # ============================================================================
 # STATUS: AUTO-GENERATED
 # Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
-# Generated: 2026-08-02T09:45:17Z
+# Generated: 2026-08-16T09:35:34Z
 # ============================================================================
 
 task_id: T-338
 task_name: "Input-fidelity guard: prove load-save preserves content, over a population that includes documents the corpus cannot express (G-016 prevention)"
 workflow_type: build
-enrichment_status: complete  # AC checked + decisions recorded
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
 
 # Timeline
 created: 2026-08-02T09:38:08Z
-completed: 2026-08-02T09:43:39Z
-duration_days: 0
+completed: 2026-08-16T09:27:55Z
+duration_days: 14
 updates_count: 2
 first_commit: 2026-08-02T11:43:33+02:00
-last_commit: 2026-08-02T11:43:33+02:00
+last_commit: 2026-08-02T11:47:04+02:00
 
 # Summary (auto-generated from git commit messages)
 summary: |
-  land the input-fidelity guard — G-016's prevention leg, output vs INPUT. The tree's existing export-safety instrument is DIFFERENTIAL (working-tree vs git-ref output compared to each other over 24 well-formed maps), so a defect both versions share is byte-identical and green, and malformed input is outside its denominator; T-337 survived in that intersection. This compares the EXPORTED document against the INPUT one (node/flow/lane census taken from the DOCUMENT, never from editor state — state is the thing under test), over a population that deliberately includes 10 standard BPMN flow-node tags the corpus does not contain. The lossy set is MEASURED every run, not declared: a new vocabulary gap fails, AND a gap that CLOSES fails with a message saying so, which is what keeps EXPECTED_LOSSY from decaying into a permission list. Bridge 68->69/0, geometry 24 clean. Teeth 5/5 including leg (d), which empties the probe population and requires a red — the guard's own denominator. Leg (d) failed first time by going red for the WRONG reason (my mutation was a syntax error, so node died at module load); a leg that only checked rc!=0 would have banked it. Verification asserts '0 failed' and NOT a pass count: pinning 'N passed' is the G-015 shape I registered yesterday
+  land the input-fidelity guard — G-016's prevention leg, output vs INPUT. The tree's existing export-safety instrument is DIFFERENTIAL (working-tree vs git-ref output compared to each other over 24 well-formed maps), so a defect both versions share is byte-identical and green, and malformed input is outside its denominator; T-337 survived in that intersection. This compares the EXPORTED document against the INPUT one (node/flow/lane census taken from the DOCUMENT, never from editor state — state is the thing under test), over a population that deliberately includes 10 standard BPMN flow-node tags the corpus does not contain. The lossy set is MEASURED every run, not declared: a new vocabulary gap fails, AND a gap that CLOSES fails with a message saying so, which is what keeps EXPECTED_LOSSY from decaying into a permission list. Bridge 68->69/0, geometry 24 clean. Teeth 5/5 including leg (d), which empties the probe population and requires a red — the guard's own denominator. Leg (d) failed first time by going red for the WRONG reason (my mutation was a syntax error, so node died at module load); a leg that only checked rc!=0 would have banked it. Verification asserts '0 failed' and NOT a pass count: pinning 'N passed' is the G-015 shape I registered yesterday. capture L-* — a differential instrument measures change, never wrongness; a defect both sides carry is green. Prevention now exists for G-016 (bridge leg 69) ahead of T-337's fix, which is the right order: mitigation is not prevention. register the input-fidelity guard in the component fabric — fabric drift now 0 unregistered / 0 orphaned / 0 stale
 
 # Key outcomes
 outcomes:
@@ -34,19 +34,61 @@ outcomes:
 
 # Challenges (auto-detected from git: commits with fix/revert/bug/error)
 challenges:
+  - description: 'capture L-* — a differential instrument measures change, never wrongness; a defect both sides carry is green. Prevention now exists for G-016 (bridge leg 69) ahead of T-337''s fix, which is the right order: mitigation is not prevention'
+    source: git-mined
   - description: 'land the input-fidelity guard — G-016''s prevention leg, output vs INPUT. The tree''s existing export-safety instrument is DIFFERENTIAL (working-tree vs git-ref output compared to each other over 24 well-formed maps), so a defect both versions share is byte-identical and green, and malformed input is outside its denominator; T-337 survived in that intersection. This compares the EXPORTED document against the INPUT one (node/flow/lane census taken from the DOCUMENT, never from editor state — state is the thing under test), over a population that deliberately includes 10 standard BPMN flow-node tags the corpus does not contain. The lossy set is MEASURED every run, not declared: a new vocabulary gap fails, AND a gap that CLOSES fails with a message saying so, which is what keeps EXPECTED_LOSSY from decaying into a permission list. Bridge 68->69/0, geometry 24 clean. Teeth 5/5 including leg (d), which empties the probe population and requires a red — the guard''s own denominator. Leg (d) failed first time by going red for the WRONG reason (my mutation was a syntax error, so node died at module load); a leg that only checked rc!=0 would have banked it. Verification asserts ''0 failed'' and NOT a pass count: pinning ''N passed'' is the G-015 shape I registered yesterday'
     source: git-mined
 
 # Decisions (from task file Decisions section)
 decisions:
-  - decision: '[date] — [topic]'
-    chose: '[what was decided]'
-    rationale: '[rationale]'
-    alternatives_rejected: ['[alternatives and why not]']
+  # No decisions recorded (mechanical task or old template)
 
 # Artifacts (auto-mined from git --name-only)
 artifacts:
+  - '.context/audits/2026-08-02.yaml'
+  - '.context/audits/cron/2026-08-02-1015.yaml'
+  - '.context/audits/cron/2026-08-02-1030.yaml'
+  - '.context/audits/cron/2026-08-02-1045.yaml'
+  - '.context/audits/cron/2026-08-02-1100.yaml'
+  - '.context/audits/cron/2026-08-02-1115.yaml'
+  - '.context/audits/cron/2026-08-02-1130.yaml'
+  - '.context/audits/cron/2026-08-02-1145.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/episodic/T-335.yaml'
+  - '.context/episodic/T-336.yaml'
+  - '.context/episodic/T-338.yaml'
+  - '.context/handovers/LATEST.md'
+  - '.context/handovers/S-2026-0802-1012.md'
+  - '.context/handovers/S-2026-0802-1116.md'
+  - '.context/locks/T-335.lock'
+  - '.context/locks/T-336.lock'
+  - '.context/locks/T-338.lock'
+  - '.context/project/learnings.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/episodic-gen/T-335.log'
+  - '.context/working/episodic-gen/T-336.log'
+  - '.context/working/episodic-gen/T-338.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.handover.stderr'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.fabric/components/tests-test_rule_dialect_axis.yaml'
+  - '.fabric/components/tests-test_rule_form_parity.yaml'
+  - '.fabric/components/tools-_bpmn-claim-cli-verify.yaml'
+  - '.fabric/components/tools-bpmn-cli.yaml'
+  - '.fabric/components/tools-_t338-input-fidelity-cdp.yaml'
   - '.tasks/active/T-338-input-fidelity-guard-prove-load-save-pre.md'
+  - '.tasks/completed/T-338-input-fidelity-guard-prove-load-save-pre.md'
   - 'tests/run-bridge-tests.sh'
   - 'tools/_t338-input-fidelity-cdp.mjs'
 
@@ -54,10 +96,14 @@ artifacts:
 git_timeline:
   - time: "2026-08-02T11:43:33"
     action: "T-338: land the input-fidelity guard — G-016's prevention leg, output vs INPUT. The tree's existing export-safety instrument is DIFFERENTIAL (working-tree vs git-ref output compared to each other over 24 well-formed maps), so a defect both versions share is byte-identical and green, and malformed input is outside its denominator; T-337 survived in that intersection. This compares the EXPORTED document against the INPUT one (node/flow/lane census taken from the DOCUMENT, never from editor state — state is the thing under test), over a population that deliberately includes 10 standard BPMN flow-node tags the corpus does not contain. The lossy set is MEASURED every run, not declared: a new vocabulary gap fails, AND a gap that CLOSES fails with a message saying so, which is what keeps EXPECTED_LOSSY from decaying into a permission list. Bridge 68->69/0, geometry 24 clean. Teeth 5/5 including leg (d), which empties the probe population and requires a red — the guard's own denominator. Leg (d) failed first time by going red for the WRONG reason (my mutation was a syntax error, so node died at module load); a leg that only checked rc!=0 would have banked it. Verification asserts '0 failed' and NOT a pass count: pinning 'N passed' is the G-015 shape I registered yesterday"
+  - time: "2026-08-02T11:45:56"
+    action: "T-338: capture L-* — a differential instrument measures change, never wrongness; a defect both sides carry is green. Prevention now exists for G-016 (bridge leg 69) ahead of T-337's fix, which is the right order: mitigation is not prevention"
+  - time: "2026-08-02T11:47:04"
+    action: "T-338: register the input-fidelity guard in the component fabric — fabric drift now 0 unregistered / 0 orphaned / 0 stale"
 
 # What worked well (requires judgment — [TODO] if enrichment_status is pending)
 successes:
-  # Completed successfully in 1 commit(s), 5 min
+  # Completed successfully in 3 commit(s), 20149 min
 
 # Related tasks
 related_tasks:
@@ -70,11 +116,11 @@ tags: []
 
 # Passive metrics (derived automatically — do not edit)
 metrics:
-  wall_clock_minutes: 5
-  commits: 1
-  files_changed: 3
-  lines_added: 442
-  lines_removed: 0
+  wall_clock_minutes: 20149
+  commits: 3
+  files_changed: 46
+  lines_added: 2438
+  lines_removed: 126
 
 # Metadata
 source_file: /opt/832-Workflow-designer/.tasks/completed/T-338-input-fidelity-guard-prove-load-save-pre.md

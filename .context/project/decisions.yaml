@@ -1697,3 +1697,31 @@ decisions:
     date: 2026-08-15
     task: T-532
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-222
+    decision: "fold only free-standing numbers; preserve identifier tokens matching"
+    scope: project
+    date: 2026-08-16
+    task: T-535
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-223
+    decision: "make `AUDITS_DIR` env-overridable and point the teeth at a temp dir."
+    scope: project
+    date: 2026-08-16
+    task: T-535
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-224
+    decision: "re-point the two rotted legs at the probe's own verdict line and at a derived"
+    scope: project
+    date: 2026-08-16
+    task: T-536
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-225
+    decision: "register G-038, report upstream, hand the trade to the operator."
+    scope: project
+    date: 2026-08-16
+    task: T-536
+    rationale: "Auto-captured from task file on completion"
