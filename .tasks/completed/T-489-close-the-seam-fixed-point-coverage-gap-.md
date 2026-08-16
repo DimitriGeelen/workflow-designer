@@ -26,7 +26,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-13T08:50:32Z
-last_update: '2026-08-16T12:34:02Z'
+last_update: '2026-08-16T13:58:57Z'
 date_finished: 2026-08-13T09:04:17Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -56,6 +56,27 @@ bvp_scores_proposed:
       (body:env-class-handled); F-RECALL=0 (no-signal); F-AUTONOMY=0 
       (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=1 
       (body/components:component-fabric-incidental)
+    rubric_sha: e4a00f38e801
+cost_estimate_proposed:
+  - ts: '2026-08-16T13:57:24Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 7
+    rationale: blast_radius=7 
+      (paths:tests/fixtures/aef-bpmn/boundary-events.bpmn,tests/fixtures/aef-bpmn/governance-key-coverage.bpmn,tests/fixtures/aef-bpmn/typed-events.bpmn,tests/run-bridge-tests.sh);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-08-16T13:58:57Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 
+      (paths:tests/fixtures/aef-bpmn/boundary-events.bpmn,tests/fixtures/aef-bpmn/governance-key-coverage.bpmn,tests/fixtures/aef-bpmn/typed-events.bpmn,tests/run-bridge-tests.sh);
+      tier=2 (no-signal); effort=8 (no-signal)
     rubric_sha: e4a00f38e801
 ---
 

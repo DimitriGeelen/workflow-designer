@@ -15,7 +15,7 @@ tags: [ui, editor, persistence, autoload]
 components: []
 related_tasks: [T-126, T-128]
 created: 2026-07-06T09:40:00Z
-last_update: '2026-08-16T12:33:38Z'
+last_update: '2026-08-16T13:57:16Z'
 date_finished: 2026-07-06T12:34:59Z
 bvp_scores_proposed:
   - ts: '2026-08-16T12:33:38Z'
@@ -33,6 +33,17 @@ bvp_scores_proposed:
     rationale: D1=0 (no-signal); D2=0 (no-signal); D3=0 (no-signal); D4=0 
       (no-signal); F-RECALL=0 (no-signal); F-AUTONOMY=0 (no-signal); F3=1 
       (body/components:prompt-incidental); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
+cost_estimate_proposed:
+  - ts: '2026-08-16T13:57:16Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 
+      (paths:build/gallery/designer.html,src/aef-workflow-designer.html,tools/_autoload-verify-cdp.mjs,tools/_autosave-verify-cdp.mjs);
+      tier=2 (no-signal); effort=8 (no-signal)
     rubric_sha: e4a00f38e801
 ---
 

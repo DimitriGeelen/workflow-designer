@@ -6929,3 +6929,39 @@ scan_id: R-6d022e2e
 task_id: T-536
 payload:
   task_file: .tasks/active/T-536-tasks-in-taskscompleted-whose-frontmatte.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T11:35:50Z'
+scan_id: R-d291a648
+task_id: T-538
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T11:35:50Z'
+scan_id: R-d291a648
+task_id: T-538
+payload:
+  task_file: .tasks/active/T-538-two-controls-share-the-id-ctl-029-and-no.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T11:50:51Z'
+scan_id: R-065e60cb
+task_id: T-539
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T11:50:51Z'
+scan_id: R-065e60cb
+task_id: T-539
+payload:
+  task_file: .tasks/active/T-539-gap-closurecheckcommands-are-checked-for.md

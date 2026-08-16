@@ -1416,6 +1416,14 @@ USAGE:
                                   R3 regression guard (max delta ≤1)
   fw bvp estimate measure-a3 [--n N] [--output PATH]
                                   A3 latency measurement (mean <5s SLA)
+  fw bvp estimate-cost T-<id>|all|sweep|determinism [...]
+                                  propose the F8 cost components (blast_radius,
+                                  tier, effort) into cost_estimate_proposed:
+                                  (T-1935; advisory, NOT sovereignty-bearing).
+                                  REQUIRED for --quadrant: with no cost, every
+                                  task's quadrant is '-' and every quadrant
+                                  filter matches nothing. See `--help` on the
+                                  verb for the full argument list.
   fw bvp auto-promote [--dry-run]
                                   promote captured → started-work for HV/LC
                                   tasks (off by default; reads policy

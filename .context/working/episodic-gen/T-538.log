@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-16T11:35:53Z ===
+task_id: T-538
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-538.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: two controls share the id CTL-029 and nothing checks control-id uniqueness
+  Duration: 0 days (17 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 8 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-538-two-controls-share-the-id-ctl-029-and-no.md
+--- exit code: 0 ---

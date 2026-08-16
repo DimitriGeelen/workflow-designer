@@ -22,7 +22,7 @@ tags: []
 components: []
 related_tasks: ["T-340", "T-486"]
 created: 2026-08-13T07:55:00Z
-last_update: '2026-08-16T12:34:02Z'
+last_update: '2026-08-16T13:58:57Z'
 date_finished: 2026-08-14T20:24:40Z
 bvp_scores_proposed:
   - ts: '2026-08-16T12:34:02Z'
@@ -41,6 +41,27 @@ bvp_scores_proposed:
       (body:framework-level-ux); D4=3 (body:portability-abstraction); F-RECALL=3
       (body:fw-recall-or-memory-link); F-AUTONOMY=0 (no-signal); F3=1 
       (body/components:prompt-incidental); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
+cost_estimate_proposed:
+  - ts: '2026-08-16T13:57:24Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 
+      (paths:.context/handovers/LATEST.md,.context/project/decisions.yaml,src/aef-workflow-designer.html,tools/_t338-input-fidelity-cdp.mjs);
+      tier=2 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-08-16T13:58:57Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:.context/project/decisions.yaml,src/aef-workflow-designer.html,tools/_t338-input-fidelity-cdp.mjs);
+      tier=2 (no-signal); effort=8 (no-signal)
     rubric_sha: e4a00f38e801
 ---
 

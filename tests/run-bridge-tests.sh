@@ -1370,6 +1370,28 @@ else
   fail=$((fail + 1))
 fi
 
+echo "== The BVP cost axis measures surface rather than defaulting to cheapest (T-542) =="
+# blast_radius carries weight 0.6 in F8 — the dominant term — and was derived from
+# `components:` alone, which is empty on every non-completed task here. Every non-inception
+# task therefore scored 0 via `no-components`: a blind read wearing the CHEAPEST value on
+# the scale, which is precisely what an HV/LC filter promotes on. T-2189 had already named
+# this shape ("always returns 0, making inceptions look artificially cheap") and repaired
+# inceptions only; the same sentence was true of 100% of the non-inception corpus.
+# The legs hold GRADED (>=3 distinct values, guarding the binary collapse), HONEST ABSENCE
+# (nothing knowable => the key is OMITTED, not 0 and not null, so compute_cost's existing
+# 'absent' branch drops the task OUT of the ranking), MEASURED-NOT-MENTIONED (a named path
+# that does not exist must not raise cost — the existence check is what makes a rename stop
+# counting), and DECLARATION-WINS (an explicit components: list still beats the body scan).
+# Mutation-verified: dropping the existence check, returning 0 for a blind read, and
+# disabling the fallback each produce findings from the specific leg that owns them.
+if python3 "$ROOT/tools/_t542-cost-blast-radius-teeth.py" > "$TMP/leg-_t542-cost-blast-radius.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the BVP cost axis has collapsed to a flag, is reporting a blind read as the cheapest value, is counting filenames it never checked exist, or is overruling an author's declared components (run 'python3 tools/_t542-cost-blast-radius-teeth.py' — it names the leg and the property; rc 2 is a REFUSAL, meaning a fixture path moved or PROJECT_ROOT resolved elsewhere so nothing was evaluated — not a measured pass)"
+  show_output "$TMP/leg-_t542-cost-blast-radius.out" "_t542-cost-blast-radius-teeth.py"
+  fail=$((fail + 1))
+fi
+
 echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

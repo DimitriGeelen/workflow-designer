@@ -27,7 +27,7 @@ arc_id: designer-authoring-surface
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-10T20:23:36Z
-last_update: '2026-08-16T12:33:29Z'
+last_update: '2026-08-16T13:58:45Z'
 date_finished:
 revisit_at: 2026-09-11
 revisit_evidence_needed: "NOT T-340's ruling — that was my error 2026-08-14. Needs
@@ -62,6 +62,25 @@ bvp_scores_proposed:
       (body:default-change); D4=2 (body:env-class-handled); F-RECALL=0 
       (no-signal); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 (no-signal);
       F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
+cost_estimate_proposed:
+  - ts: '2026-08-16T13:57:13Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 7
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:tools/_t352-p011-errexit-probe.sh,tools/validate-workflow.py); 
+      tier=2 (no-signal); effort=7 (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-08-16T13:58:45Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 7
+    rationale: blast_radius=absent (no-signal); tier=2 (no-signal); effort=7 
+      (no-signal)
     rubric_sha: e4a00f38e801
 ---
 

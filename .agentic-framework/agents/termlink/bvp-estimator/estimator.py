@@ -2669,43 +2669,138 @@ COST_WORKFLOW_TIER = {
 }
 
 
-def score_blast_radius(fm: dict, body: str, tags: list[str]) -> tuple[int, list[str]]:
-    """Heuristic: count `components:` entries → 0/1/3/5/7/9 scale.
+def _blast_ladder(n: int, kind: str) -> tuple[int, list[str]]:
+    """Shared 0/1/3/5/7/9 ladder over a count of touched things.
 
-    Components are explicit declarations of what the task touches; longer
-    lists imply wider blast radius. The 0/1/3/5/7/9 ladder is non-linear by
-    design — a component count of 7 vs 8 is rarely meaningful, but 0 vs 1
-    vs 5+ is.
+    Non-linear by design — 7 vs 8 is rarely meaningful, 0 vs 1 vs 5+ is.
+    """
+    if n == 0: return 0, [f"→0 (no-{kind})"]
+    if n == 1: return 1, [f"→1 (single-{kind})"]
+    if n <= 3: return 3, [f"→3 ({n}-{kind})"]
+    if n <= 6: return 5, [f"→5 ({n}-{kind}-medium-blast)"]
+    if n <= 9: return 7, [f"→7 ({n}-{kind}-large-blast)"]
+    return 9, [f"→9 ({n}-{kind}-cross-cutting)"]
 
-    T-2189 inception scoring exception: inceptions' `components:` is empty
-    by definition (the build doesn't exist yet), so the formula above
-    always returns 0 — making inceptions look artificially cheap. When
-    `workflow_type: inception`, prefer the `target_blast_radius` (T-2188
-    schema) frontmatter field. See 050-Inceptions.md §Scoring Exception
-    and policy/value-drivers.yaml §inception_scoring_exception.
+
+# Repo-relative source path as written in prose: at least one directory
+# segment, then a known source extension. Anchored on a non-word/non-slash
+# boundary so `web/app.js` matches inside a sentence but `foo.web/app.js`
+# does not. Extension list is deliberately closed — an open one matches
+# version strings and sentence-ending abbreviations.
+_BODY_PATH_RE = re.compile(
+    r"(?<![\w/.-])((?:[A-Za-z0-9_.-]+/)+[A-Za-z0-9_.-]+"
+    r"\.(?:py|sh|js|mjs|css|html|yaml|yml|json|md|bpmn))"
+)
+
+
+_TEMPLATE_PATHS_CACHE: set[str] | None = None
+
+
+def _template_paths(root: Path) -> set[str]:
+    """Source paths named by the TASK TEMPLATES themselves.
+
+    `.tasks/templates/default.md` cites `tools/_t352-p011-errexit-probe.sh`
+    and `tools/validate-workflow.py` in its errexit warning, and
+    `path-c-deep-dive.md` cites `.context/handovers/LATEST.md`. Every task
+    created from a template inherits those lines, so counting them measures
+    the template, not the task.
+
+    Measured on this repo: 7 of 59 non-completed tasks had NO blast-radius
+    signal except the template's own three paths, and the whole distribution
+    sat two rungs high. Same class as the T-541 finding that
+    `score_d3_usability` scores 37 of 58 tasks off boilerplate — and the same
+    remedy, PL-239: measure the consumed corpus, not the corpus.
+
+    Known trade-off, stated rather than hidden: a task that GENUINELY works on
+    `tools/validate-workflow.py` loses that one path. Accepted, because a path
+    present in every task file carries no discriminating information by
+    construction — it cannot separate two tasks, so it can only add offset.
+    """
+    global _TEMPLATE_PATHS_CACHE
+    if _TEMPLATE_PATHS_CACHE is None:
+        acc: set[str] = set()
+        for tpl in sorted((root / ".tasks" / "templates").glob("*.md")):
+            try:
+                acc |= set(_BODY_PATH_RE.findall(tpl.read_text(encoding="utf-8")))
+            except OSError:
+                continue
+        _TEMPLATE_PATHS_CACHE = acc
+    return _TEMPLATE_PATHS_CACHE
+
+
+def _paths_named_in_body(body: str, root: Path) -> set[str]:
+    """Distinct repo-relative source paths named in the body THAT EXIST.
+
+    The existence check is what makes this a measurement rather than a
+    word count: a task quoting `web/does-not-exist.js` names nothing, and
+    a renamed file stops counting the moment the rename lands.
+
+    Template-inherited paths are subtracted — see `_template_paths`.
+    """
+    named = {p for p in _BODY_PATH_RE.findall(body) if (root / p).is_file()}
+    return named - _template_paths(root)
+
+
+def score_blast_radius(fm: dict, body: str,
+                       tags: list[str]) -> tuple[int | None, list[str]]:
+    """Heuristic: how much surface does this task touch → 0/1/3/5/7/9, or None.
+
+    Three evidence sources, most explicit first:
+
+      1. `components:` frontmatter — the author's own declaration.
+      2. `target_blast_radius:` — inceptions only (T-2189), because an
+         inception's `components:` is empty BY DEFINITION and the count
+         would otherwise read 0.
+      3. Source paths named in the body and present in the tree (T-542).
+
+    Returns `None` when no source yields evidence. That is the point of
+    this function's contract and it is not a nicety:
+
+    THE 0 THIS USED TO RETURN WAS A BLIND READ WEARING THE CHEAPEST VALUE
+    ON THE SCALE. blast_radius carries weight 0.6 in F8 — the dominant
+    term — so "the fabric has never registered this task" and "this task
+    touches nothing" produced the same, most-attractive answer, and an
+    HV/LC filter promotes on it. Measured on this repo before the change:
+    `components:` was empty on 59 of 59 non-completed active tasks, so
+    every one of the 46 non-inceptions scored br=0 via `no-components`,
+    and the whole cost axis collapsed to `inception ? 3.6 : 1.4`.
+
+    T-2189 already recognised this exact shape — its docstring says the
+    count "always returns 0, making inceptions look artificially cheap" —
+    and repaired the one population where it was noticed. The same
+    sentence is true of every task with an empty `components:`; here that
+    is 100% of the non-inception corpus. Generalising it is T-542.
+
+    `None` propagates to an ABSENT `blast_radius` key, which the existing
+    consumer (`compute_cost` in lib/bvp.sh) already reads as
+    `source: 'absent'` → `quadrant: '-'` → excluded from the ranking.
+    Declining to rank is honest; ranking it cheapest is not.
     """
     wf = (fm.get("workflow_type") or "").lower()
+
+    components = fm.get("components") or []
+    if not isinstance(components, list):
+        return None, ["→absent (components-malformed)"]
+    n = len([c for c in components if c])
+    if n:
+        return _blast_ladder(n, "components")
+
     if wf == "inception":
         tbr = fm.get("target_blast_radius")
         if tbr is not None:
             try:
-                v = int(tbr)
-                v = max(0, min(9, v))
+                v = max(0, min(9, int(tbr)))
                 return v, [f"→{v} (target_blast_radius:inception-T-2189)"]
             except (TypeError, ValueError):
-                # Malformed → fall through to components count
-                pass
+                pass  # malformed → fall through to the body-path source
 
-    components = fm.get("components") or []
-    if not isinstance(components, list):
-        return 0, ["→0 (components-malformed)"]
-    n = len([c for c in components if c])
-    if n == 0: return 0, ["→0 (no-components)"]
-    if n == 1: return 1, ["→1 (single-component)"]
-    if n <= 3: return 3, [f"→3 ({n}-components)"]
-    if n <= 6: return 5, [f"→5 ({n}-components-medium-blast)"]
-    if n <= 9: return 7, [f"→7 ({n}-components-large-blast)"]
-    return 9, [f"→9 ({n}-components-cross-cutting)"]
+    named = _paths_named_in_body(body, PROJECT_ROOT)
+    if named:
+        v, ev = _blast_ladder(len(named), "body-paths")
+        return v, ev + [f"paths:{','.join(sorted(named)[:4])}"]
+
+    return None, ["→absent (no components, no target_blast_radius, "
+                  "no existing source path named in body)"]
 
 
 def score_tier(fm: dict, body: str, tags: list[str]) -> tuple[int, list[str]]:
@@ -2751,8 +2846,16 @@ def estimate_cost(task_path: Path) -> dict:
     tier, tier_ev = score_tier(fm, body, tags)
     eff, eff_ev = score_effort(fm, body, tags)
 
+    # T-542: an unknown blast radius OMITS the key rather than writing 0 or
+    # null. `compute_cost` keys off `br is not None`, so an absent key lands
+    # on the existing `source: 'absent'` branch and the task drops out of the
+    # ranking instead of entering it at the cheapest value on the scale.
+    ce: dict = {"tier": tier, "effort": eff}
+    if br is not None:
+        ce["blast_radius"] = br
+
     return {
-        "cost_estimate": {"blast_radius": br, "tier": tier, "effort": eff},
+        "cost_estimate": ce,
         "evidence": {"blast_radius": br_ev, "tier": tier_ev, "effort": eff_ev},
         "version": ESTIMATOR_ID,
         "rubric_sha": _rubric_sha(),

@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-27T19:23:06Z
-last_update: '2026-08-16T12:33:46Z'
+last_update: '2026-08-16T13:57:19Z'
 date_finished: 2026-07-27T21:23:08Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -51,6 +51,16 @@ bvp_scores_proposed:
       (body:default-change); D4=2 (body:env-class-handled); F-RECALL=2 
       (body:lightly-promoted); F-AUTONOMY=0 (no-signal); F3=0 (no-signal); F1=0 
       (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
+cost_estimate_proposed:
+  - ts: '2026-08-16T13:57:19Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 1
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 (paths:docs/reports/T-262-reviewer-sweep.md); 
+      tier=1 (no-signal); effort=8 (no-signal)
     rubric_sha: e4a00f38e801
 ---
 

@@ -1,0 +1,21 @@
+=== episodic-gen invocation: 2026-08-16T11:50:54Z ===
+task_id: T-539
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-539.yaml
+
+  Status: ✓ complete (Auto-generated)
+  Task: gap closure_check_commands are checked for renderability but never for whether they can FAIL while the gap is open
+  Duration: 0 days (12 min)
+  Updates: 1
+  Commits: 0
+  Lines: +0 -0 across 0 files
+  Outcomes: 7 AC checked
+  Decisions: recorded from task file
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-539-gap-closurecheckcommands-are-checked-for.md
+--- exit code: 0 ---

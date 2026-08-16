@@ -13,7 +13,7 @@ tags: [onboarding]
 components: []
 related_tasks: []
 created: 2026-06-04T07:53:20Z
-last_update: '2026-08-16T12:33:30Z'
+last_update: '2026-08-16T13:57:13Z'
 date_finished: 2026-06-05T09:19:57Z
 bvp_scores_proposed:
   - ts: '2026-08-16T12:33:30Z'
@@ -32,6 +32,16 @@ bvp_scores_proposed:
       (no-signal); F-RECALL=1 (body:episodic-only); F-AUTONOMY=0 (no-signal); 
       F3=0 (no-signal); F1=1 (body/components:context-fabric-incidental); F2=0 
       (no-signal)
+    rubric_sha: e4a00f38e801
+cost_estimate_proposed:
+  - ts: '2026-08-16T13:57:13Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 4
+      blast_radius: 1
+    rationale: blast_radius=1 (paths:.context/episodic/T-001.yaml); tier=2 
+      (no-signal); effort=4 (no-signal)
     rubric_sha: e4a00f38e801
 ---
 

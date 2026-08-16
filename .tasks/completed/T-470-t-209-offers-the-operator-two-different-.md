@@ -22,7 +22,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-12T20:19:19Z
-last_update: '2026-08-16T12:34:01Z'
+last_update: '2026-08-16T13:57:23Z'
 date_finished: 2026-08-12T20:23:25Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -51,6 +51,17 @@ bvp_scores_proposed:
       (body:telemetry-or-audit-entry); D3=2 (body:default-change); D4=2 
       (body:env-class-handled); F-RECALL=0 (no-signal); F-AUTONOMY=0 
       (no-signal); F3=0 (no-signal); F1=0 (no-signal); F2=0 (no-signal)
+    rubric_sha: e4a00f38e801
+cost_estimate_proposed:
+  - ts: '2026-08-16T13:57:23Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 2
+      effort: 8
+      blast_radius: 5
+    rationale: blast_radius=5 
+      (paths:.tasks/active/T-209-832-side-compile-promote-create-producer.md,.tasks/completed/T-212-pin-shared-aef-bpmn-fixture-shas-t-559-8.md,tests/run-bridge-tests.sh,tests/test_typed_event_fixture_contract.py);
+      tier=2 (no-signal); effort=8 (no-signal)
     rubric_sha: e4a00f38e801
 ---
 

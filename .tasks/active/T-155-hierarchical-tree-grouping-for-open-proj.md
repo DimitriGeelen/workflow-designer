@@ -17,7 +17,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-09T15:01:59Z
-last_update: '2026-08-16T12:33:25Z'
+last_update: '2026-08-16T13:57:12Z'
 date_finished:
 revisit_at: 2026-08-21
 revisit_evidence_needed: "operator answers IW-1/IW-2; the recommendation (A1+B1+C1)
@@ -48,6 +48,17 @@ bvp_scores_proposed:
     rationale: D1=2 (no-signal); D2=2 (no-signal); D3=2 (no-signal); D4=2 
       (no-signal); F-RECALL=2 (no-signal); F-AUTONOMY=2 (no-signal); F3=2 
       (no-signal); F1=2 (no-signal); F2=2 (no-signal)
+    rubric_sha: e4a00f38e801
+cost_estimate_proposed:
+  - ts: '2026-08-16T13:57:12Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 4
+      effort: 8
+      blast_radius: 1
+    rationale: blast_radius=1 
+      (paths:docs/reports/T-155-tree-grouping-inception.md); tier=4 (no-signal);
+      effort=8 (no-signal)
     rubric_sha: e4a00f38e801
 ---
 

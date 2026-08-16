@@ -94,7 +94,65 @@ entries:
       new handlers strip comments themselves so they cannot join it. PL-239 — measure the consumed
       corpus, not the existing one.
 
-  # ── upstream debt: local fixes framework-agent does not have ────────────────────────────
+      T-542 EXTENDS THIS ENTRY, same file, and ALL OF IT IS GENERIC UPSTREAM DEBT:
+
+      3. score_blast_radius RETURNED 0 FOR A BLIND READ, AND 0 IS THE CHEAPEST VALUE ON THE
+      SCALE. It derived blast radius from `components:` alone; `components:` is empty on 59 of
+      59 non-completed tasks here, so all 46 non-inceptions scored 0 via `no-components` and
+      the F8 cost axis — where blast_radius carries weight 0.6, the dominant term — collapsed
+      to `inception ? 3.6 : 1.4`, with 29 of 59 tied at the modal value. That is not a tie in
+      cost; it is the absence of a fabric registration wearing the most attractive number an
+      HV/LC filter can promote on. AEF ALREADY NAMED THIS EXACT SHAPE one population earlier:
+      T-2189's own docstring says the count "always returns 0, making inceptions look
+      artificially cheap" — and repaired inceptions only, via target_blast_radius. The same
+      sentence was true of 100% of the non-inception corpus. Fixed here by (a) a third evidence
+      source, source paths named in the body AND PRESENT IN THE TREE, and (b) returning None
+      when nothing is knowable, which propagates to an OMITTED blast_radius key that
+      compute_cost already reads as source:'absent' → quadrant '-' → excluded. Declining to
+      rank is honest; ranking cheapest is not. Result: blast_radius 2 distinct values → 5, F8
+      10 distinct → 13, largest tie 29 → 15, 14 tasks honestly excluded.
+
+      4. THE BODY-PATH SIGNAL HAD TO SUBTRACT THE TASK TEMPLATES, which is finding 2 above
+      recurring in a second handler. `.tasks/templates/default.md` cites
+      tools/_t352-p011-errexit-probe.sh and tools/validate-workflow.py in its errexit warning;
+      path-c-deep-dive.md cites .context/handovers/LATEST.md. The first `estimate-cost all` run
+      scored T-542 ITSELF at blast_radius=5 with two of the four cited paths being the
+      template's. 7 of 59 tasks had no signal except the template. Note these are SHELL-comment
+      lines, not HTML comments, so stripping HTML comments would not have caught them —
+      finding 2's remedy is necessary but not sufficient, and the general rule is subtract what
+      every member of the corpus shares.
+
+      5. PROJECT_ROOT'S FALLBACK IS WRONG UNDER VENDORING — reported, deliberately NOT patched.
+      Line 73 falls back to Path(__file__).resolve().parents[3]. In AEF's own repo the estimator
+      sits at agents/termlink/bvp-estimator/, so parents[3] is the repo root and it is correct.
+      Vendored it sits at .agentic-framework/agents/termlink/bvp-estimator/, so parents[3] is
+      `.agentic-framework` — off by one, and it lands on a directory that EXISTS and contains a
+      plausible policy/ and .tasks/, so nothing errors and RUBRIC_PATH/POLICY_PATH silently read
+      the framework's copies instead of the project's. `fw bvp` always exports PROJECT_ROOT so
+      the CLI path masks it entirely; direct invocation — which lib/bvp.sh's own dispatcher
+      docstring says must work, "the script must also be invokable directly via TermLink
+      convention" — does not. Found by a probe leg going red for the wrong reason: 5 real
+      fixture paths scored as 3, because policy/value-drivers.yaml exists under BOTH roots.
+      Not patched because the fallback is correct in AEF's layout and only wrong in ours;
+      choosing the detection rule is theirs. Adjacent to the audit's existing T-2648/OBS-097
+      check, which covers web/ and lib/ Python but not agents/.
+
+  - path: .agentic-framework/lib/bvp.sh
+    kind: content
+    task: T-542
+    upstream: fix
+    reason: >-
+      Adds `fw bvp estimate-cost` to `fw bvp --help`. GENERIC upstream debt, one line of
+      substance: the verb was fully implemented under T-1935 and correctly dispatched at
+      lib/bvp.sh:1553, with its own `--help`, but it was never listed in the top-level usage
+      block — which lists `estimate` and its four subverbs. So the only route a reader has to
+      the cost half of the model was to already know it existed. Measured consequence: T-540
+      concluded "driver --init bootstraps the value half and silently not the cost half" and
+      filed the missing cost half as a defect. The cost half was there. A capability nobody can
+      find is indistinguishable from a capability nobody built, and the register recorded the
+      wrong one. The added text also states the coupling the omission hid — `--quadrant` is
+      inert without a cost estimate, because compute_cost returns source:'absent' and every
+      quadrant renders '-', so all four filters print "No tasks match" with no hint why.
   - path: .agentic-framework/agents/audit/audit.sh
     kind: content
     task: T-374, T-382, T-344, T-345, T-371

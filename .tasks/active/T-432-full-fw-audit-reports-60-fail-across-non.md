@@ -23,7 +23,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-11T15:41:06Z
-last_update: '2026-08-16T12:33:29Z'
+last_update: '2026-08-16T13:58:45Z'
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -54,6 +54,25 @@ bvp_scores_proposed:
       (body:auto-promote-class-eligibility); F3=0 (no-signal); F1=1 
       (body/components:context-fabric-incidental); F2=1 
       (body/components:component-fabric-incidental)
+    rubric_sha: e4a00f38e801
+cost_estimate_proposed:
+  - ts: '2026-08-16T13:57:13Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 1
+      effort: 8
+      blast_radius: 3
+    rationale: blast_radius=3 
+      (paths:tools/_t352-p011-errexit-probe.sh,tools/validate-workflow.py); 
+      tier=1 (no-signal); effort=8 (no-signal)
+    rubric_sha: e4a00f38e801
+  - ts: '2026-08-16T13:58:45Z'
+    estimator: bvp-estimator-v1-heuristic
+    cost_estimate:
+      tier: 1
+      effort: 8
+    rationale: blast_radius=absent (no-signal); tier=1 (no-signal); effort=8 
+      (no-signal)
     rubric_sha: e4a00f38e801
 ---
 
