@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-541: write dedicated BVP estimator handlers for the three operator-requested product
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-16T22:22:13Z
+# ============================================================================
+
+task_id: T-541
+task_name: "write dedicated BVP estimator handlers for the three operator-requested product"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-16T13:04:24Z
+completed: 2026-08-16T22:22:08Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-16T15:36:56+02:00
+last_commit: 2026-08-17T00:22:03+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the three operator-requested product drivers now score something. T-540 measured that a BVP driver without a dedicated handler falls through to score_free_driver, which substring-matches the driver's OWN ID in the task body — 0 of 55 non-inception tasks scored non-zero, silently, with fw bvp printing a column of zeros as confidently as it prints real scores. Wrote score_v_workflow_routing (24/44, levels 1-5), score_v_aef_integration (27/44, levels 1-5) and score_v_sdlc_enablement (32/44, levels 1-4) and wired them into the dispatch table under canonical names, so operator approval of P-bced1426/P-0b1db872/P-86588453 activates them with no further code change. policy/value-drivers.yaml deliberately untouched and all three proposals still pending — this adds capability, not policy. Patterns are mined from the corpus, not invented: 'AEF' appears in 43 of 58 tasks, 'workflow' 51 and 'designer' 49 because they are the project's and its peer's names, so anchoring on them would have produced drivers that fire on everything and sort nothing. Two defects found while building. A DEAD RUBRIC LEVEL: port-indicator was a level-2 routing trigger with 'port' absent from that handler's entry gate, so T-294 scored 0 and level 2 was unreturnable by any input — PL-203's class. Fixed structurally, not by adding the word: _score_by_ladder derives the gate as the union of the ladder, so a level cannot be added without becoming reachable; T-286 and T-293 were mis-scored 4 and 3 by the same rewrite and are now 2. And the estimator SCORES THE TASK TEMPLATE: parse_task does not strip HTML comments, task bodies here are 33.6% comment on average and 64% at worst, and score_d3_usability's 'default tuned' pattern matches the template's own instruction prose — 37 of 58 tasks carry a flat D3=2 they never earned, 52/58 non-zero collapsing to 15/58 once comments are stripped. Left unpatched deliberately: it is AEF's calibration and a silent change would move every D3 in the register. Declared in the vendor manifest as upstream debt with the two generic findings separated from the three project-specific handlers. My own probe's first version could not fail — mutation-testing the dead-level leg against a copy with an un-derived gate left it GREEN, because the level-2 fixture said 'Edge arrowheads' and Edge is itself a gate word, so every fixture entered through the gate rather than its own trigger. PL-206. Fixtures rewritten gate-word-free; mutant now yields 11 findings, real file 0. Suite 101 -> 102 legs, 0 failed. T-517 caught the undeclared vendor change before I declared it, which is the guard working. the verification block was EMPTY while all seven Agent ACs were ticked, which is a vacuous gate in my own task file. Tasks with no ## Verification are waved through P-011 for backward compatibility, so the completion gate would have certified this task by finding nothing to run — a ticked AC standing in for a checked one, which is the shape T-524, T-548 and T-550 have each repaired elsewhere this week. Now three real lines: the handler probe (wired / alive / selective / graded / no-dead-levels / boilerplate-blind, dead-level leg mutation-verified at 11 findings on the mutant and 0 on the real file), the vendor-divergence guard because the estimator is vendored and an undeclared divergence is reverted by the next bump while the history still reads as fixed, and a dispatch-table assertion keyed on the canonical NAME rather than the register id — T-542 measured the register recycling ids, F3 meaning V_PROMPT_QUALITY minutes before it meant V_AEF_INTEGRATION, and an id-keyed dispatch would have scored every task against its predecessor's axis while looking healthy. Two ACs annotated rather than re-ticked, because the world moved after they were written and quietly refreshing the numbers would erase the ordering that matters: the operator's approval landed under T-542, so the three drivers are now live at weight 9 each and the queue records read rejected rather than pending, and the corpus grew from 44 tasks to 45 so V_SDLC_ENABLEMENT now fires on 33/45. What the ACs assert is still true of T-541's own diff — this task changed no policy and activated nothing, and the handlers were written and proven BEFORE the axes they score were approved, which is the order the sovereignty boundary requires
+
+# Key outcomes
+outcomes:
+  - 'Three handlers — `score_v_workflow_routing`, `score_v_aef_integration`,'
+  - 'All three wired into the `handlers` dispatch table under their canonical policy names, so'
+  - '**Each handler discriminates, measured on the real corpus.** 24/44, 27/44 and 32/44 — each'
+  - '**Reachable levels recorded honestly.** Levels 1–5 for two handlers; `V_SDLC_ENABLEMENT`'
+  - '**`policy/value-drivers.yaml` unchanged.** `git diff --stat policy/` is empty; all three'
+  - 'A probe (`tools/_t541-bvp-driver-handler-teeth.py`) wired into the bridge suite covering'
+  - '**Vendored divergence declared.** `.agentic-framework/.vendor-divergence.yaml` carries the'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'the verification block was EMPTY while all seven Agent ACs were ticked, which is a vacuous gate in my own task file. Tasks with no ## Verification are waved through P-011 for backward compatibility, so the completion gate would have certified this task by finding nothing to run — a ticked AC standing in for a checked one, which is the shape T-524, T-548 and T-550 have each repaired elsewhere this week. Now three real lines: the handler probe (wired / alive / selective / graded / no-dead-levels / boilerplate-blind, dead-level leg mutation-verified at 11 findings on the mutant and 0 on the real file), the vendor-divergence guard because the estimator is vendored and an undeclared divergence is reverted by the next bump while the history still reads as fixed, and a dispatch-table assertion keyed on the canonical NAME rather than the register id — T-542 measured the register recycling ids, F3 meaning V_PROMPT_QUALITY minutes before it meant V_AEF_INTEGRATION, and an id-keyed dispatch would have scored every task against its predecessor''s axis while looking healthy. Two ACs annotated rather than re-ticked, because the world moved after they were written and quietly refreshing the numbers would erase the ordering that matters: the operator''s approval landed under T-542, so the three drivers are now live at weight 9 each and the queue records read rejected rather than pending, and the corpus grew from 44 tasks to 45 so V_SDLC_ENABLEMENT now fires on 33/45. What the ACs assert is still true of T-541''s own diff — this task changed no policy and activated nothing, and the handlers were written and proven BEFORE the axes they score were approved, which is the order the sovereignty boundary requires'
+    source: git-mined
+  - description: 'the three operator-requested product drivers now score something. T-540 measured that a BVP driver without a dedicated handler falls through to score_free_driver, which substring-matches the driver''s OWN ID in the task body — 0 of 55 non-inception tasks scored non-zero, silently, with fw bvp printing a column of zeros as confidently as it prints real scores. Wrote score_v_workflow_routing (24/44, levels 1-5), score_v_aef_integration (27/44, levels 1-5) and score_v_sdlc_enablement (32/44, levels 1-4) and wired them into the dispatch table under canonical names, so operator approval of P-bced1426/P-0b1db872/P-86588453 activates them with no further code change. policy/value-drivers.yaml deliberately untouched and all three proposals still pending — this adds capability, not policy. Patterns are mined from the corpus, not invented: ''AEF'' appears in 43 of 58 tasks, ''workflow'' 51 and ''designer'' 49 because they are the project''s and its peer''s names, so anchoring on them would have produced drivers that fire on everything and sort nothing. Two defects found while building. A DEAD RUBRIC LEVEL: port-indicator was a level-2 routing trigger with ''port'' absent from that handler''s entry gate, so T-294 scored 0 and level 2 was unreturnable by any input — PL-203''s class. Fixed structurally, not by adding the word: _score_by_ladder derives the gate as the union of the ladder, so a level cannot be added without becoming reachable; T-286 and T-293 were mis-scored 4 and 3 by the same rewrite and are now 2. And the estimator SCORES THE TASK TEMPLATE: parse_task does not strip HTML comments, task bodies here are 33.6% comment on average and 64% at worst, and score_d3_usability''s ''default tuned'' pattern matches the template''s own instruction prose — 37 of 58 tasks carry a flat D3=2 they never earned, 52/58 non-zero collapsing to 15/58 once comments are stripped. Left unpatched deliberately: it is AEF''s calibration and a silent change would move every D3 in the register. Declared in the vendor manifest as upstream debt with the two generic findings separated from the three project-specific handlers. My own probe''s first version could not fail — mutation-testing the dead-level leg against a copy with an un-derived gate left it GREEN, because the level-2 fixture said ''Edge arrowheads'' and Edge is itself a gate word, so every fixture entered through the gate rather than its own trigger. PL-206. Fixtures rewritten gate-word-free; mutant now yields 11 findings, real file 0. Suite 101 -> 102 legs, 0 failed. T-517 caught the undeclared vendor change before I declared it, which is the guard working'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/agents/termlink/bvp-estimator/estimator.py'
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.tasks/active/T-541-write-dedicated-bvp-estimator-handlers-f.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t541-bvp-driver-handler-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-16T15:36:56"
+    action: "T-541: the three operator-requested product drivers now score something. T-540 measured that a BVP driver without a dedicated handler falls through to score_free_driver, which substring-matches the driver's OWN ID in the task body — 0 of 55 non-inception tasks scored non-zero, silently, with fw bvp printing a column of zeros as confidently as it prints real scores. Wrote score_v_workflow_routing (24/44, levels 1-5), score_v_aef_integration (27/44, levels 1-5) and score_v_sdlc_enablement (32/44, levels 1-4) and wired them into the dispatch table under canonical names, so operator approval of P-bced1426/P-0b1db872/P-86588453 activates them with no further code change. policy/value-drivers.yaml deliberately untouched and all three proposals still pending — this adds capability, not policy. Patterns are mined from the corpus, not invented: 'AEF' appears in 43 of 58 tasks, 'workflow' 51 and 'designer' 49 because they are the project's and its peer's names, so anchoring on them would have produced drivers that fire on everything and sort nothing. Two defects found while building. A DEAD RUBRIC LEVEL: port-indicator was a level-2 routing trigger with 'port' absent from that handler's entry gate, so T-294 scored 0 and level 2 was unreturnable by any input — PL-203's class. Fixed structurally, not by adding the word: _score_by_ladder derives the gate as the union of the ladder, so a level cannot be added without becoming reachable; T-286 and T-293 were mis-scored 4 and 3 by the same rewrite and are now 2. And the estimator SCORES THE TASK TEMPLATE: parse_task does not strip HTML comments, task bodies here are 33.6% comment on average and 64% at worst, and score_d3_usability's 'default tuned' pattern matches the template's own instruction prose — 37 of 58 tasks carry a flat D3=2 they never earned, 52/58 non-zero collapsing to 15/58 once comments are stripped. Left unpatched deliberately: it is AEF's calibration and a silent change would move every D3 in the register. Declared in the vendor manifest as upstream debt with the two generic findings separated from the three project-specific handlers. My own probe's first version could not fail — mutation-testing the dead-level leg against a copy with an un-derived gate left it GREEN, because the level-2 fixture said 'Edge arrowheads' and Edge is itself a gate word, so every fixture entered through the gate rather than its own trigger. PL-206. Fixtures rewritten gate-word-free; mutant now yields 11 findings, real file 0. Suite 101 -> 102 legs, 0 failed. T-517 caught the undeclared vendor change before I declared it, which is the guard working"
+  - time: "2026-08-17T00:22:03"
+    action: "T-541: the verification block was EMPTY while all seven Agent ACs were ticked, which is a vacuous gate in my own task file. Tasks with no ## Verification are waved through P-011 for backward compatibility, so the completion gate would have certified this task by finding nothing to run — a ticked AC standing in for a checked one, which is the shape T-524, T-548 and T-550 have each repaired elsewhere this week. Now three real lines: the handler probe (wired / alive / selective / graded / no-dead-levels / boilerplate-blind, dead-level leg mutation-verified at 11 findings on the mutant and 0 on the real file), the vendor-divergence guard because the estimator is vendored and an undeclared divergence is reverted by the next bump while the history still reads as fixed, and a dispatch-table assertion keyed on the canonical NAME rather than the register id — T-542 measured the register recycling ids, F3 meaning V_PROMPT_QUALITY minutes before it meant V_AEF_INTEGRATION, and an id-keyed dispatch would have scored every task against its predecessor's axis while looking healthy. Two ACs annotated rather than re-ticked, because the world moved after they were written and quietly refreshing the numbers would erase the ordering that matters: the operator's approval landed under T-542, so the three drivers are now live at weight 9 each and the queue records read rejected rather than pending, and the corpus grew from 44 tasks to 45 so V_SDLC_ENABLEMENT now fires on 33/45. What the ACs assert is still true of T-541's own diff — this task changed no policy and activated nothing, and the handlers were written and proven BEFORE the axes they score were approved, which is the order the sovereignty boundary requires"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 2 commit(s), 557 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 557
+  commits: 2
+  files_changed: 5
+  lines_added: 805
+  lines_removed: 1
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-541-write-dedicated-bvp-estimator-handlers-f.md
+generated_by: context-agent-hybrid
