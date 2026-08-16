@@ -13,7 +13,7 @@ description: >
   legs 6 and 9 print out of order, so something is concurrent, and the arm drives
   a CDP/browser path. Establish the rate before fixing.
 
-status: captured
+status: started-work
 workflow_type: build
 owner: agent
 horizon: now
@@ -25,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-16T14:26:20Z
-last_update: '2026-08-16T14:33:48Z'
+last_update: 2026-08-16T15:55:15Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -70,14 +70,91 @@ cost_estimate_proposed:
 
 ## Context
 
-<!-- One sentence for small tasks. Link to design docs for substantial ones. -->
+Two instruments failed as bridge-suite legs on 2026-08-16 while passing
+standalone: `_t523-nesting-teeth.py` (legs 7-8, `drift_keys=[] measured node={}`)
+and `_t509-instrument-sweep.sh` (FAIL as a leg, rc=0 and "32/32 green"
+standalone). Treated as one population per AC5.
+
+## Findings
+
+### The premise this task was filed on is dead
+
+The description reasons: *"legs 6 and 9 print out of order, so something is
+concurrent."* That is false. `tests/run-bridge-tests.sh` contains **zero**
+backgrounding — no trailing `&`, no `xargs -P`, no `wait`
+(`grep -c ' &$\|xargs -P\|^wait$'` → 0). The suite is strictly serial, so no leg
+can interfere with another by running at the same time as it.
+
+Out-of-order lines have a duller explanation that costs nothing to believe:
+under the suite each leg's stdout is redirected to a file, and Python
+block-buffers stdout when it is not a tty while stderr stays unbuffered. Lines
+from one process interleave with its own — not with another leg's.
+
+**Recorded as dead rather than quietly dropped**, because the concurrency
+hypothesis is what made "add a retry" or "raise the timeout" look reasonable,
+and both would have been changes made to satisfy a premise that was never true.
+
+### Arm A — the redirect alone does not reproduce it
+
+The cheapest remaining difference between suite and standalone context is that
+the suite redirects stdout to a file. Tested directly: **30 consecutive
+standalone runs of `_t523-nesting-teeth.py` with stdout redirected to a file —
+30 passed, 0 failed.** One run takes 7.25s, so this is a cheap discriminator and
+there was no reason to reach for the 6-minute suite first.
+
+That eliminates the redirect, and with it the buffering explanation as a *cause
+of failure* (it remains the explanation for the ordering symptom).
+
+### Arm B — full-suite repetition
+
+3 consecutive full-suite runs, per-leg outcomes captured. **Result pending at
+time of writing; see Updates.**
+
+An earlier draft of this section claimed the first run "took materially longer
+than the ~6 min baseline" and offered that as a datum. **It was not measured.**
+I inferred elapsed time from how many steps I had taken while waiting, then
+checked `ps`: the run was 5:54 in and sitting on `_t525-fabric-coverage-teeth.py`,
+i.e. entirely normal. Corrected in place rather than deleted, because a task
+about a probe that certifies on nothing is the wrong place to leave an
+impression dressed as a measurement — and the error is the same one the task
+exists to study, made by me, in the file describing it.
+
+### What is NOT yet established
+
+The mechanism. Remaining differences between suite and standalone context, none
+yet tested: ~100 legs of accumulated system state before this one runs; the
+suite's exported environment; and — our own doing, per AC6 — the fact that
+`_t544` (which boots a real HTTP server) was added to the suite today and is
+additionally run a second time inside `_t509`'s sweep under a 90s cap.
+
+**No timeout has been loosened, no retry added, no leg quarantined.** Per AC4
+that stays true until the mechanism is named.
 
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] [First criterion]
-- [ ] [Second criterion]
+- [ ] The RATE is measured, not estimated: N consecutive full-suite runs with
+      per-leg outcomes captured, and the finding stated as a count over that N.
+      "Did not reproduce in N runs" is a legitimate outcome PROVIDED the bound
+      it puts on the rate is stated — an unreproduced flake is not a fixed one
+- [x] The claim this task was filed on — "legs 6 and 9 print out of order, so
+      something is concurrent" — is CHECKED against how the suite actually
+      invokes legs, not carried forward as a premise. If the suite is serial,
+      that hypothesis is dead and must be recorded as dead
+- [ ] The mechanism is named with evidence, or the task records explicitly that
+      it was not established and what was ruled out
+- [x] No timeout is loosened, no retry is added, and no leg is quarantined
+      before the mechanism is named. A suite that passes by waiting longer has
+      stopped reporting, not stopped being wrong — this is a constraint on the
+      fix, and it is an acceptance criterion so that violating it is visible
+- [x] The two instruments are treated as one population, not two incidents:
+      `_t523-nesting-teeth.py` and `_t509-instrument-sweep.sh` both failed as
+      suite legs while passing standalone on the same day, and any mechanism
+      offered must account for both or say why they are unrelated
+- [x] If load introduced today is implicated, that is stated as our own doing:
+      `_t544` and `_t545` were added to the suite this session and `_t544`
+      boots a real server, which `_t509`'s sweep also runs under a 90s cap
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
@@ -251,3 +328,6 @@ reader hunt it.
 Do not "fix" this by loosening a timeout until the mechanism is measured. A
 suite that goes green by waiting longer has not stopped being wrong; it has
 stopped reporting.
+
+### 2026-08-16T15:43:56Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work

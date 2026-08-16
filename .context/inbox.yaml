@@ -964,3 +964,10 @@ observations:
   tags: []
   status: dismissed
   promoted_to: null
+- id: OBS-263
+  text: "Every termlink session on this host shares one identity_fingerprint (d1993c2c3ec44c94) — ours, AEF's five, and the email-archive ones. Verified against termlink_list_sessions and channel_state: the T-1438 vendored-arc heartbeats and our own T-546 pickup post carry the SAME sender_id, so sender_id cannot distinguish which project or agent wrote a message. Attribution on the rail therefore rests entirely on envelope.metadata, which the tool docs state is NOT signed ('trusted-mesh threat model treats metadata as routing-only'). Consequence: our T-420 attribution gate makes our own posts self-declare honestly, but it cannot authenticate an INBOUND post claiming to be from AEF — anything on this host can mint that claim. Bears directly on the credential question raised 2026-08-16: a secret arriving over this rail could not be attributed to a sender even in principle."
+  captured: 2026-08-16T15:51:00Z
+  context_task: T-543
+  tags: [security]
+  status: pending
+  promoted_to: null

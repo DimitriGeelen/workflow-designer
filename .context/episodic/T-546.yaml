@@ -1,0 +1,86 @@
+# ============================================================================
+# EPISODIC MEMORY - T-546: Report six generic upstream defects to AEF as findings with evidence, not as a build spec
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-16T15:41:08Z
+# ============================================================================
+
+task_id: T-546
+task_name: "Report six generic upstream defects to AEF as findings with evidence, not as a build spec"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-16T15:34:13Z
+completed: 2026-08-16T15:41:05Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-16T17:41:00+02:00
+last_commit: 2026-08-16T17:41:00+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  six generic upstream findings sent to AEF as findings with evidence, not as a build spec — and item 1 turned out to be live and destructive rather than the queue-hygiene note I filed it as. fw bvp driver --add never reconciles the proposal queue; only the Watchtower approve route appends state: approved. That alone is untidy. The hazard is that web/blueprints/bvp.py:874 passes the proposal's STORED --drop id through verbatim and _driver_add resolves it against the register AS IT STANDS AT APPROVAL TIME (lib/bvp.sh:963-970), where ids are reallocated to the lowest free slot. Our register recycled F1 and F3 within minutes on 2026-08-16. Measured, not inferred: P-bced1426 is still pending carrying drop=F1, and F1 today means V_SDLC_ENABLEMENT — a driver that did not exist when the proposal was written. Clicking Approve on it would DELETE that driver and add a SECOND driver named V_WORKFLOW_ROUTING; there is no duplicate-name guard of any kind in _driver_add, checked rather than assumed. This is T-538's id-as-key shape armed behind a button, and it is exactly the button the operator was pressing when they hit the 403. The two shapes need different remedies and are reported as two: a queue written through two paths where only one closes the loop, and a stored id dereferenced late with nothing guaranteeing it still means what it meant — recording the drop target's NAME beside its id and refusing on disagreement would make the staleness visible instead of silent. Not fixed here: the driver register is the operator's sovereign state and rejecting a proposal is their decision. DISCLOSED IN THE DOCUMENT RATHER THAN LEFT TO BE FOUND: those proposals sat harmless for a day only because Approve was 403ing, and fixing T-545 today is what made this reachable. Framing is deliberate — G-020 says a detailed pickup is a PROPOSAL not authorization and that precision makes scoping MORE likely to be needed, not less; we apply that to what we receive, so it governs what we send. The document says so in its own words and asks for nothing. Two 832-specific items excluded and NAMED so the exclusion is not silent. Rail: hub came back up mid-session under a new pid and as root, and its own verbs disagree — channel_list returns one topic and channel_subscribe reports agent-chat-arc unknown, while channel_create says it exists, and post/state/snippet all work on it. Posted at offset 2. The topic is NOT gone but its history is: the only prior content is two vendored-arc heartbeats from 16:17 and 17:17 today, so the store was reset around 15:48. Hub is shared tooling on the operator's mesh and I did not restart or repair it
+
+# Key outcomes
+outcomes:
+  - 'Every item in the bundle is GENERIC AEF code — reproducible in a stock'
+  - 'Each item carries the evidence that established it — a measured value, a'
+  - 'The bundle is framed as findings for AEF to scope, NOT as an'
+  - 'Items already fixed in our vendored tree state what we changed and why,'
+  - 'The document is on disk before it is announced, and the rail post carries'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'six generic upstream findings sent to AEF as findings with evidence, not as a build spec — and item 1 turned out to be live and destructive rather than the queue-hygiene note I filed it as. fw bvp driver --add never reconciles the proposal queue; only the Watchtower approve route appends state: approved. That alone is untidy. The hazard is that web/blueprints/bvp.py:874 passes the proposal''s STORED --drop id through verbatim and _driver_add resolves it against the register AS IT STANDS AT APPROVAL TIME (lib/bvp.sh:963-970), where ids are reallocated to the lowest free slot. Our register recycled F1 and F3 within minutes on 2026-08-16. Measured, not inferred: P-bced1426 is still pending carrying drop=F1, and F1 today means V_SDLC_ENABLEMENT — a driver that did not exist when the proposal was written. Clicking Approve on it would DELETE that driver and add a SECOND driver named V_WORKFLOW_ROUTING; there is no duplicate-name guard of any kind in _driver_add, checked rather than assumed. This is T-538''s id-as-key shape armed behind a button, and it is exactly the button the operator was pressing when they hit the 403. The two shapes need different remedies and are reported as two: a queue written through two paths where only one closes the loop, and a stored id dereferenced late with nothing guaranteeing it still means what it meant — recording the drop target''s NAME beside its id and refusing on disagreement would make the staleness visible instead of silent. Not fixed here: the driver register is the operator''s sovereign state and rejecting a proposal is their decision. DISCLOSED IN THE DOCUMENT RATHER THAN LEFT TO BE FOUND: those proposals sat harmless for a day only because Approve was 403ing, and fixing T-545 today is what made this reachable. Framing is deliberate — G-020 says a detailed pickup is a PROPOSAL not authorization and that precision makes scoping MORE likely to be needed, not less; we apply that to what we receive, so it governs what we send. The document says so in its own words and asks for nothing. Two 832-specific items excluded and NAMED so the exclusion is not silent. Rail: hub came back up mid-session under a new pid and as root, and its own verbs disagree — channel_list returns one topic and channel_subscribe reports agent-chat-arc unknown, while channel_create says it exists, and post/state/snippet all work on it. Posted at offset 2. The topic is NOT gone but its history is: the only prior content is two vendored-arc heartbeats from 16:17 and 17:17 today, so the store was reset around 15:48. Hub is shared tooling on the operator''s mesh and I did not restart or repair it'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/episodic/T-545.yaml'
+  - '.context/locks/T-545.lock'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-545.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/watchtower.log'
+  - 'docs/reports/framework-agent-pickup-2026-08-16.md'
+  - '.tasks/active/T-546-report-six-generic-upstream-defects-to-a.md'
+  - '.tasks/completed/T-545-the-403-handler-answers-api-htmx-clients.md'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-16T17:41:00"
+    action: "T-546: six generic upstream findings sent to AEF as findings with evidence, not as a build spec — and item 1 turned out to be live and destructive rather than the queue-hygiene note I filed it as. fw bvp driver --add never reconciles the proposal queue; only the Watchtower approve route appends state: approved. That alone is untidy. The hazard is that web/blueprints/bvp.py:874 passes the proposal's STORED --drop id through verbatim and _driver_add resolves it against the register AS IT STANDS AT APPROVAL TIME (lib/bvp.sh:963-970), where ids are reallocated to the lowest free slot. Our register recycled F1 and F3 within minutes on 2026-08-16. Measured, not inferred: P-bced1426 is still pending carrying drop=F1, and F1 today means V_SDLC_ENABLEMENT — a driver that did not exist when the proposal was written. Clicking Approve on it would DELETE that driver and add a SECOND driver named V_WORKFLOW_ROUTING; there is no duplicate-name guard of any kind in _driver_add, checked rather than assumed. This is T-538's id-as-key shape armed behind a button, and it is exactly the button the operator was pressing when they hit the 403. The two shapes need different remedies and are reported as two: a queue written through two paths where only one closes the loop, and a stored id dereferenced late with nothing guaranteeing it still means what it meant — recording the drop target's NAME beside its id and refusing on disagreement would make the staleness visible instead of silent. Not fixed here: the driver register is the operator's sovereign state and rejecting a proposal is their decision. DISCLOSED IN THE DOCUMENT RATHER THAN LEFT TO BE FOUND: those proposals sat harmless for a day only because Approve was 403ing, and fixing T-545 today is what made this reachable. Framing is deliberate — G-020 says a detailed pickup is a PROPOSAL not authorization and that precision makes scoping MORE likely to be needed, not less; we apply that to what we receive, so it governs what we send. The document says so in its own words and asks for nothing. Two 832-specific items excluded and NAMED so the exclusion is not silent. Rail: hub came back up mid-session under a new pid and as root, and its own verbs disagree — channel_list returns one topic and channel_subscribe reports agent-chat-arc unknown, while channel_create says it exists, and post/state/snippet all work on it. Posted at offset 2. The topic is NOT gone but its history is: the only prior content is two vendored-arc heartbeats from 16:17 and 17:17 today, so the store was reset around 15:48. Hub is shared tooling on the operator's mesh and I did not restart or repair it"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 6 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 6
+  commits: 1
+  files_changed: 12
+  lines_added: 706
+  lines_removed: 18
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-546-report-six-generic-upstream-defects-to-a.md
+generated_by: context-agent-hybrid
