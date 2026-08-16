@@ -2341,3 +2341,53 @@ concerns:
     Either one diverging keeps the gap open. The agent-side values CANNOT be obtained by spawning -- spawning
     is what escapes the shim -- so they come from a witness written in the agent tool shell; missing or
     stale is NOT_READY, never READY.'',''limit'':''grep only; other tools may be shimmed and are not covered''}))"'
+
+- id: G-038
+  type: gap
+  status: watching
+  severity: high
+  title: A control's declared audience is not checked against the sections its automatic callers
+    actually run, so a control can be correct, firing, and stranded where no reader looks
+  detected: '2026-08-16'
+  origin_task: T-536
+  context: >-
+    CTL-028 (status drift, git mv bypassing the state machine) fired 263 times over 14 days and
+    not one firing was ever seen. The control is not broken. audit.sh:3721 gates it on
+    `compliance || oe-daily`; its own header states the promotion was made "so the pre-push audit
+    (which includes compliance) catches the bypass class BEFORE the drift ships". The pre-push
+    audit does not include compliance: agents/git/lib/hooks.sh:839 runs `--section structure` and
+    nothing else, trimmed by T-862 for speed BEFORE T-1882 wrote that comment. The promotion moved
+    the control from one unrun section to another, leaving the 15-minute cron as its only live
+    carrier, whose output lands in .context/audits/cron/ -- measured under T-535 as invisible to
+    the trend detector as well. This is PL-159 applied to a ROUTING claim rather than a threshold
+    - a property asserted in a comment is not a property the system holds. Neither task could
+    have caught it - T-862 predates the promotion, T-1882 had no reason to re-read a git hook it
+    was not touching. The missing thing is an invariant, not care.
+  evidence:
+  - 'T-536: 4 tasks in .tasks/completed/ carried status=started-work for 14 days; CTL-028 named
+    all four correctly, 263 times, into .context/audits/cron/.'
+  - 'Measured: CTL-028 gate = [compliance, oe-daily]; pre-push hook section list = [structure].
+    Disjoint.'
+  - 'The 14-day blindness satisfies the G-019 >7-day trigger on its own, independent of severity.'
+  decision_trigger: >-
+    CLOSES only when a control whose gate set is disjoint from every automatic caller's section
+    set is DETECTED mechanically - not when CTL-028 specifically is re-routed. Explicitly REFUSED
+    as closure: (a) adding `compliance` to the pre-push hook, which fixes this one instance and
+    spends the operator's push latency that T-862 deliberately bought back - and is the
+    operator's trade to make, not the agent's; (b) closing T-536, which records that the four
+    tasks were repaired and says nothing about the next stranded control; (c) the teeth in
+    tools/_t536-status-desync-teeth.py, which prove CTL-028 can SEE a planted disagreement but
+    assert nothing about whether anyone is listening when it speaks.
+  related_tasks:
+  - T-535
+  - T-536
+  closure_check_command: 'python3 -c "import re,sys;a=open(''.agentic-framework/agents/audit/audit.sh'',encoding=''utf-8'').read();h=open(''.agentic-framework/agents/git/lib/hooks.sh'',encoding=''utf-8'').read();i=a.find(''CTL-028:
+    Status-drift detection'');sys.exit(print(''REFUSE: CTL-028 anchor comment not found'') or 2)
+    if i<0 else None;m=re.search(r''if((?:\s*should_run_section .[a-z-]+.\s*\|\|?)*\s*should_run_section
+    .[a-z-]+.)\s*;\s*then'', a[i:i+1200]);sys.exit(print(''REFUSE: no section gate after the
+    CTL-028 anchor'') or 2) if not m else None;gate=set(re.findall(r''should_run_section .([a-z-]+).'',
+    m.group(1)));callers=set(re.findall(r''AUDIT_SCRIPT. --section ([a-z-]+)'', h));sys.exit(print(''REFUSE:
+    pre-push hook section list not found'') or 2) if not callers else None;ok=bool(gate
+    & callers);print((''OK'' if ok else ''STRANDED'')+'': CTL-028 gate=''+repr(sorted(gate))+''
+    pre-push runs=''+repr(sorted(callers))+''. Witness for the general invariant; OK here does
+    NOT close the gap on its own -- see decision_trigger.'');sys.exit(0 if ok else 1)"'

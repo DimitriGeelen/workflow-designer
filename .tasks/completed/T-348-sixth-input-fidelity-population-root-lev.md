@@ -4,20 +4,20 @@ name: "Sixth input-fidelity population: root-level siblings of the process eleme
 description: >
   Populations 1-5 all ask about a single bpmn:process and what lives inside it (unknown tag, unknown branch, malformed doc, unresolvable ref, content of an accepted element). Nothing has ever asked what happens to definitions' OTHER children — bpmn:collaboration, participant/messageFlow, bpmn:message, bpmn:signal, bpmn:error, bpmn:dataStore, or a second bpmn:process. These are referenced BY nodes, so dropping them may emit a document with dangling references rather than merely a poorer one: a different consequence class from T-347.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
 horizon: null
 tags: []
-components: []
+components: [tools/_t338-input-fidelity-cdp.mjs]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-02T12:44:22Z
-last_update: 2026-08-02T12:47:11Z
-date_finished: null
+last_update: 2026-08-16T09:25:15Z
+date_finished: 2026-08-16T09:25:15Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -319,3 +319,15 @@ node --check tools/_t338-input-fidelity-cdp.mjs
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-348-sixth-input-fidelity-population-root-lev.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-0e080acb
+- **Timestamp:** 2026-08-16T09:25:39Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-16T09:25:15Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

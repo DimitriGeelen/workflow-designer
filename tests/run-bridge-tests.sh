@@ -1284,6 +1284,24 @@ else
   fail=$((fail + 1))
 fi
 
+echo "== A task's location and its frontmatter status cannot silently disagree (T-536) =="
+# CTL-028 was never broken — it fired 263 times over 14 days and nobody saw one of them, because
+# audit.sh:3721 gates it on `compliance || oe-daily` while the pre-push hook runs `--section
+# structure` only (hooks.sh:839, trimmed by T-862 before T-1882's comment claimed otherwise).
+# This drives the control through the TASKS_DIR seam against a SYNTHETIC tree with a planted
+# disagreement, so what is asserted is the control's ability to see rather than the real tree's
+# current cleanliness — the latter is a global always-moving property (G-015) that would go red
+# for someone else's mistake and green when the control is deleted. Under the red arm the mutant
+# prints "All completed/ tasks have frontmatter status: work-completed": a broken control reads
+# as health, which is why leg 1 asserts the finding instead of trusting silence.
+if python3 "$ROOT/tools/_t536-status-desync-teeth.py" > "$TMP/leg-_t536-status-desync-teeth.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a task in .tasks/completed/ whose frontmatter says otherwise is no longer detected, or a correctly-closed task is flagged (run 'python3 tools/_t536-status-desync-teeth.py' — it names the failing leg; rc 2 is a REFUSAL, meaning CTL-028 emitted nothing at all on --section compliance, so nothing was evaluated — not a measured pass)"
+  show_output "$TMP/leg-_t536-status-desync-teeth.out" "_t536-status-desync-teeth.py"
+  fail=$((fail + 1))
+fi
+
 echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

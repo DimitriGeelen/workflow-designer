@@ -112,9 +112,23 @@ relaxing.
 node tools/_t338-input-fidelity-cdp.mjs
 # Its population is non-empty in BOTH legs — the guard must not pass by testing nothing.
 out=$(node tools/_t338-input-fidelity-cdp.mjs 2>&1); echo "$out" | grep -q "24 corpus maps round-tripped"
-out=$(node tools/_t338-input-fidelity-cdp.mjs 2>&1); echo "$out" | grep -q "out-of-vocabulary tags probed"
+# STALE ASSERTIONS REPAIRED 2026-08-16 UNDER T-536 — read this before "simplifying" it.
+# These two legs asserted the literal strings "out-of-vocabulary tags probed" and
+# "callActivity". Both were correct at abc5baa5 (this task's own commit) and were removed
+# from the probe afterwards by T-419 (competing-carrier rewrite) and T-340 (DI repair).
+# The probe still passes and still measures the same properties; only its prose moved.
+#
+# THE REASON THE ROT WAS NEVER CAUGHT: this block has never once executed. T-338 was moved
+# active/ -> completed/ by a bare `git mv` on 2026-08-02 (L-390), so the P-011 gate it was
+# written for was bypassed, and by the time T-536 ran it for the first time its subject had
+# been rewritten twice underneath it. A verification block is a ONE-SHOT gate (PL-161); one
+# that never fires is indistinguishable from one that passes.
+#
+# Re-pointed at the probe's own VERDICT and at a population name it derives rather than
+# prints in passing — assertions on what the instrument concludes, not on how it phrases it.
+out=$(node tools/_t338-input-fidelity-cdp.mjs 2>&1); echo "$out" | grep -q "every measured fidelity verdict matches expectation"
 # It actually exercised out-of-allowlist tags (the population the corpus cannot express).
-out=$(node tools/_t338-input-fidelity-cdp.mjs 2>&1); echo "$out" | grep -q "callActivity"
+out=$(node tools/_t338-input-fidelity-cdp.mjs 2>&1); echo "$out" | grep -q "foreign-flownode"
 # Wired into the GATING runner, not merely present on disk (T-316 class).
 grep -q "_t338-input-fidelity-cdp.mjs" tests/run-bridge-tests.sh
 # The suite still passes. Deliberately asserts "0 failed" and NOT a pass count:
