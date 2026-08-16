@@ -1786,3 +1786,10 @@ learnings:
   date: 2026-08-16
   context: Added via context agent
   application: TBD
+- id: PL-251
+  learning: "A SCOPING REPAIR DOES NOT AUDIT THE COMPARAND. T-533 correctly narrowed _t525 leg 7 from the whole tree to the subject's write-set and PL-234 was written from that repair, but nobody asked what the check was COMPARING. It was 'git status --porcelain', which reports status letters rather than content, and that was wrong in both directions simultaneously: blind to any rewrite of an already-dirty file (both files fw audit writes are in that state on every run after the first of the day) and red on the legitimate creation of the daily report (so it could not pass on the first audit of any day). Only the red half was ever investigated, because the blind half produced greens. General rule: when repairing WHERE a check looks, also state what it compares and whether that comparand can express the property claimed. A second, sharper corollary from the same task: PL-235 recurred inside the fix's own verification line — an assertion that a defective idiom is gone failed against the fix's own comment EXPLAINING the idiom, so any static assertion whose subject is source text must strip comments before matching."
+  source: P-001
+  task: T-552
+  date: 2026-08-16
+  context: Added via context agent
+  application: TBD
