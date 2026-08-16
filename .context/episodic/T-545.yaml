@@ -1,0 +1,103 @@
+# ============================================================================
+# EPISODIC MEMORY - T-545: The 403 handler answers /api/ htmx clients with a 67KB HTML page, so a CSRF failure renders as raw markup inside the caller's page
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-16T15:33:55Z
+# ============================================================================
+
+task_id: T-545
+task_name: "The 403 handler answers /api/ htmx clients with a 67KB HTML page, so a CSRF failure renders as raw markup inside the caller's page"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-16T15:17:24Z
+completed: 2026-08-16T15:33:50Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-16T17:33:45+02:00
+last_commit: 2026-08-16T17:33:45+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a 403 was written for the wrong reader, and the mechanism I recorded yesterday was wrong in the direction that would have misdirected the fix. The handler chose its body by WHY the request failed — T-2309 split CSRF from generic, a real improvement — and never by WHO was asking, so an hx-post whose target is a div received 66456 bytes of complete HTML document. T-544's note said the browser rendered that document into the page. It did not: htmx 2.0.4 ships responseHandling {code:'[45]..',swap:false,error:true} and never swaps a 4xx, so the body reached ONLY htmx-toast.js, whose error listener extracts its message with .replace(/<[^>]*>/g,'').trim().substring(0,100). That is a TAG stripper, not a text extractor — it removes <title> and <script> tags and keeps the text INSIDE them. Reproduced byte-for-byte against the running instance: 'Session expired — Workflow designer (function(){var t=localStorage.getItem(' is the page title followed by the theme bootstrap's JavaScript source, truncated at 100 chars. The lines I identified yesterday were right and the reason they reached the operator was not, which matters because the earlier framing pointed at the swap path rather than at the handler. Fix is _is_spliced_request() -> a fragment carrying HX-Error-Kind: csrf|forbidden so the T-2309 distinction survives for machines without parsing prose; 103 bytes where 66456 stood. MY FIRST DRAFT WAS WRONG AND THE CORPUS CAUGHT IT, not review: it exempted HX-Boosted requests to protect T-2309's full-page Reload UI, since base.html sets hx-boost on body and ordinary navigation therefore also carries HX-Request. But five routes post a plain <form method=post> under that boost — /arcs/*/close, /assumptions/*/resolve, /inception/*/decide, /inception/*/add-assumption, /review/*/pause/*/resolve — so they are boosted POSTs and the exemption would have left them carrying the exact defect the task exists to remove. The library's own default settled it: since a 4xx is never swapped, the full page is never DISPLAYED for any htmx request, only scraped, and T-2309's page stays reachable by the one thing that displays it, a genuine non-htmx navigation. Probe pins TWO properties because fixing either alone leaves the defect — the SHAPE (a fragment, no <html>) and the CONSEQUENCE (the shipped toast expression over that body yields no script source) — and it reads the real regex out of htmx-toast.js rather than re-typing it, so it cannot keep passing after the real one changes. Leg 6 re-reads htmx's responseHandling every run because the whole design rests on it and an upgrade could retire it silently. Leg 4 went red on its first run for the RIGHT reason and the wrong cause: csrf_protect is a before_request on every POST, so my synthetic generic-403 route was CSRF-blocked before it was reached and the leg was comparing a CSRF failure with itself. Fixing that exposed a second self-defect — the refusal guard matched a bare 'CSRF' substring, which every rendered page carries in a meta tag, so under the revert mutant the probe ABSTAINED exactly where it owed an accusation. A control that declines to answer when the defect returns is not a control. Mutation-verified against three mutants, each killed by the leg that owns it, and the revert mutant reproduces the operator's string verbatim. NOT patched, reported: the tag-stripping regex is a separate defect with its own root cause, latent for any HTML body from any endpoint. Suite 104 -> 105 legs, 0 failed; T-509's sweep did not flake this run
+
+# Key outcomes
+outcomes:
+  - 'A 403 on an `/api/*` path returns a compact machine-readable body, not a'
+  - 'The body a failing Approve produces, run through `htmx-toast.js`''s actual'
+  - 'A 403 on a normal page navigation still renders the full T-2309 "Session'
+  - 'The CSRF-vs-generic-403 distinction T-2309 introduced survives on BOTH'
+  - 'A probe asserts all of the above, is wired into `tests/run-bridge-tests.sh`,'
+  - 'The divergence is declared in `.agentic-framework/.vendor-divergence.yaml`'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'a 403 was written for the wrong reader, and the mechanism I recorded yesterday was wrong in the direction that would have misdirected the fix. The handler chose its body by WHY the request failed — T-2309 split CSRF from generic, a real improvement — and never by WHO was asking, so an hx-post whose target is a div received 66456 bytes of complete HTML document. T-544''s note said the browser rendered that document into the page. It did not: htmx 2.0.4 ships responseHandling {code:''[45]..'',swap:false,error:true} and never swaps a 4xx, so the body reached ONLY htmx-toast.js, whose error listener extracts its message with .replace(/<[^>]*>/g,'''').trim().substring(0,100). That is a TAG stripper, not a text extractor — it removes <title> and <script> tags and keeps the text INSIDE them. Reproduced byte-for-byte against the running instance: ''Session expired — Workflow designer (function(){var t=localStorage.getItem('' is the page title followed by the theme bootstrap''s JavaScript source, truncated at 100 chars. The lines I identified yesterday were right and the reason they reached the operator was not, which matters because the earlier framing pointed at the swap path rather than at the handler. Fix is _is_spliced_request() -> a fragment carrying HX-Error-Kind: csrf|forbidden so the T-2309 distinction survives for machines without parsing prose; 103 bytes where 66456 stood. MY FIRST DRAFT WAS WRONG AND THE CORPUS CAUGHT IT, not review: it exempted HX-Boosted requests to protect T-2309''s full-page Reload UI, since base.html sets hx-boost on body and ordinary navigation therefore also carries HX-Request. But five routes post a plain <form method=post> under that boost — /arcs/*/close, /assumptions/*/resolve, /inception/*/decide, /inception/*/add-assumption, /review/*/pause/*/resolve — so they are boosted POSTs and the exemption would have left them carrying the exact defect the task exists to remove. The library''s own default settled it: since a 4xx is never swapped, the full page is never DISPLAYED for any htmx request, only scraped, and T-2309''s page stays reachable by the one thing that displays it, a genuine non-htmx navigation. Probe pins TWO properties because fixing either alone leaves the defect — the SHAPE (a fragment, no <html>) and the CONSEQUENCE (the shipped toast expression over that body yields no script source) — and it reads the real regex out of htmx-toast.js rather than re-typing it, so it cannot keep passing after the real one changes. Leg 6 re-reads htmx''s responseHandling every run because the whole design rests on it and an upgrade could retire it silently. Leg 4 went red on its first run for the RIGHT reason and the wrong cause: csrf_protect is a before_request on every POST, so my synthetic generic-403 route was CSRF-blocked before it was reached and the leg was comparing a CSRF failure with itself. Fixing that exposed a second self-defect — the refusal guard matched a bare ''CSRF'' substring, which every rendered page carries in a meta tag, so under the revert mutant the probe ABSTAINED exactly where it owed an accusation. A control that declines to answer when the defect returns is not a control. Mutation-verified against three mutants, each killed by the leg that owns it, and the revert mutant reproduces the operator''s string verbatim. NOT patched, reported: the tag-stripping regex is a separate defect with its own root cause, latent for any HTML body from any endpoint. Suite 104 -> 105 legs, 0 failed; T-509''s sweep did not flake this run'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.agentic-framework/.vendor-divergence.yaml'
+  - '.agentic-framework/web/app.py'
+  - '.context/audits/2026-08-16.yaml'
+  - '.context/audits/cron/2026-08-16-1715.yaml'
+  - '.context/audits/cron/LATEST-CRON.yaml'
+  - '.context/audits/discoveries/LATEST.yaml'
+  - '.context/episodic/T-544.yaml'
+  - '.context/inbox.yaml'
+  - '.context/project/metrics-history.yaml'
+  - '.context/working/.budget-gate-counter'
+  - '.context/working/.budget-status'
+  - '.context/working/.compact-log'
+  - '.context/working/.edit-counter'
+  - '.context/working/episodic-gen/T-544.log'
+  - '.context/working/feedback-stream.yaml'
+  - '.context/working/.hook-counter'
+  - '.context/working/.loop-detect.json'
+  - '.context/working/.new-file-counter'
+  - '.context/working/.pre-compact.last-run'
+  - '.context/working/.session-metrics.yaml'
+  - '.context/working/.session-start-ts'
+  - '.context/working/.session-turn-offset'
+  - '.context/working/watchtower.log'
+  - '.context/working/watchtower.pid'
+  - '.tasks/active/T-545-the-403-handler-answers-api-htmx-clients.md'
+  - '.tasks/completed/T-544-watchtower-session-cookie-is-named-for-t.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t545-error-shape-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-16T17:33:45"
+    action: "T-545: a 403 was written for the wrong reader, and the mechanism I recorded yesterday was wrong in the direction that would have misdirected the fix. The handler chose its body by WHY the request failed — T-2309 split CSRF from generic, a real improvement — and never by WHO was asking, so an hx-post whose target is a div received 66456 bytes of complete HTML document. T-544's note said the browser rendered that document into the page. It did not: htmx 2.0.4 ships responseHandling {code:'[45]..',swap:false,error:true} and never swaps a 4xx, so the body reached ONLY htmx-toast.js, whose error listener extracts its message with .replace(/<[^>]*>/g,'').trim().substring(0,100). That is a TAG stripper, not a text extractor — it removes <title> and <script> tags and keeps the text INSIDE them. Reproduced byte-for-byte against the running instance: 'Session expired — Workflow designer (function(){var t=localStorage.getItem(' is the page title followed by the theme bootstrap's JavaScript source, truncated at 100 chars. The lines I identified yesterday were right and the reason they reached the operator was not, which matters because the earlier framing pointed at the swap path rather than at the handler. Fix is _is_spliced_request() -> a fragment carrying HX-Error-Kind: csrf|forbidden so the T-2309 distinction survives for machines without parsing prose; 103 bytes where 66456 stood. MY FIRST DRAFT WAS WRONG AND THE CORPUS CAUGHT IT, not review: it exempted HX-Boosted requests to protect T-2309's full-page Reload UI, since base.html sets hx-boost on body and ordinary navigation therefore also carries HX-Request. But five routes post a plain <form method=post> under that boost — /arcs/*/close, /assumptions/*/resolve, /inception/*/decide, /inception/*/add-assumption, /review/*/pause/*/resolve — so they are boosted POSTs and the exemption would have left them carrying the exact defect the task exists to remove. The library's own default settled it: since a 4xx is never swapped, the full page is never DISPLAYED for any htmx request, only scraped, and T-2309's page stays reachable by the one thing that displays it, a genuine non-htmx navigation. Probe pins TWO properties because fixing either alone leaves the defect — the SHAPE (a fragment, no <html>) and the CONSEQUENCE (the shipped toast expression over that body yields no script source) — and it reads the real regex out of htmx-toast.js rather than re-typing it, so it cannot keep passing after the real one changes. Leg 6 re-reads htmx's responseHandling every run because the whole design rests on it and an upgrade could retire it silently. Leg 4 went red on its first run for the RIGHT reason and the wrong cause: csrf_protect is a before_request on every POST, so my synthetic generic-403 route was CSRF-blocked before it was reached and the leg was comparing a CSRF failure with itself. Fixing that exposed a second self-defect — the refusal guard matched a bare 'CSRF' substring, which every rendered page carries in a meta tag, so under the revert mutant the probe ABSTAINED exactly where it owed an accusation. A control that declines to answer when the defect returns is not a control. Mutation-verified against three mutants, each killed by the leg that owns it, and the revert mutant reproduces the operator's string verbatim. NOT patched, reported: the tag-stripping regex is a separate defect with its own root cause, latent for any HTML body from any endpoint. Suite 104 -> 105 legs, 0 failed; T-509's sweep did not flake this run"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 16 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 16
+  commits: 1
+  files_changed: 28
+  lines_added: 1139
+  lines_removed: 132
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-545-the-403-handler-answers-api-htmx-clients.md
+generated_by: context-agent-hybrid

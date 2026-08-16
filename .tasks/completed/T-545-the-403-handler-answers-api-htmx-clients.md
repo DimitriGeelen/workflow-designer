@@ -4,10 +4,10 @@ name: "The 403 handler answers /api/ htmx clients with a 67KB HTML page, so a CS
 description: >
   The 403 handler answers /api/ htmx clients with a 67KB HTML page, so a CSRF failure renders as raw markup inside the caller's page
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-16T15:17:24Z
-last_update: 2026-08-16T15:17:24Z
-date_finished: null
+last_update: 2026-08-16T15:33:50Z
+date_finished: 2026-08-16T15:33:50Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -279,3 +279,20 @@ choice about AEF's client contract, not ours.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-545-the-403-handler-answers-api-htmx-clients.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-949f3b56
+- **Timestamp:** 2026-08-16T15:33:52Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#5 (Agent)** — A probe asserts all of the above, is wired into `tests/run-bridge-tests.sh`,
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=tests/run-bridge-tests.sh in: A probe asserts all of the above, is wired into `tests/run-bridge-tests.sh`,`
+
+### 2026-08-16T15:33:50Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-16T15:33:54Z ===
+task_id: T-545
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-545.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: The 403 handler answers /api/ htmx clients with a 67KB HTML page, so a CSRF failure renders as raw markup inside the caller's page
+  Duration: 0 days (16 min)
+  Updates: 1
+  Commits: 1
+  Lines: +1139 -132 across 28 files
+  Outcomes: 6 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 28 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-545-the-403-handler-answers-api-htmx-clients.md
+--- exit code: 0 ---
