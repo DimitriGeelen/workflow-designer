@@ -1,0 +1,83 @@
+# ============================================================================
+# EPISODIC MEMORY - T-552: _t525 hermeticity leg cannot pass on the first audit of any day
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-16T23:29:42Z
+# ============================================================================
+
+task_id: T-552
+task_name: "_t525 hermeticity leg cannot pass on the first audit of any day"
+workflow_type: build
+enrichment_status: auto-complete  # Mechanical task — AC checked, no decisions to record
+
+# Timeline
+created: 2026-08-16T23:11:25Z
+completed: 2026-08-16T23:29:27Z
+duration_days: 0
+updates_count: 1
+first_commit: 2026-08-17T01:29:21+02:00
+last_commit: 2026-08-17T01:29:21+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  a hermeticity check that could not pass on the first audit of any day, and was blind the other twenty-three hours. _t525 leg 7 asserts the probe leaves .context/audits as it found it; T-533 scoped that correctly to the subject's write-set and PL-234 was written from that repair, but nobody looked at the COMPARAND. It was git status --porcelain, which reports STATUS LETTERS rather than content, and that is wrong in both directions at once. Blind: a file already dirty stays ' M' however often it is rewritten — measured, appending to .context/audits/2026-08-16.yaml moved its digest f42311649879 to 47b2499bdbf7 and left porcelain byte-identical — and BOTH files fw audit writes sit in that state on every run after the first of the day, so the assertion was passing on silence. Red: a CREATE reads as a violation and the first audit of any day creates <today>.yaml, which is the rc=1 that surfaced this (OBS-273). The half that complained got investigated; the half that agreed could not be seen. That is this week's shape again — a stated property standing in for a checked one, with the failure rendering as health. Now a path->digest map judged against an allow-list DERIVED FROM MEASUREMENT rather than from reading audit.sh: two consecutive runs touched exactly <today>.yaml and discoveries/LATEST.yaml and none of the other 44 files. ANDed with declared_writes_observed(), because hermeticity is a negative claim and a negative claim is satisfied by silence (T-524) — an audit that crashed before writing must not read as hermetic. A CORRECTION TO MY OWN FIRST READING: the blindness is narrower than I first wrote. Mutating a COMMITTED, CLEAN historical audit does add a ' M' line, so the old form could see that case; the true statement is 'blind to any file already dirty', and the task records the narrower claim rather than the one that made the bug sound worse. PL-235 landed on this task's own verification line: the assertion 'porcelain is gone from _t525' failed against the fix's own explanatory comment naming the string, so it strips comments first — the same lesson T-533 produced, arriving in T-533's successor. Ten legs, mutation-verified against four mutants: pre-fix comparand 6 red, digests-without-allow-list 4 red, always-hermetic 5 red, and an always-firing did-it-run guard 1 red at leg 9 uniquely. Legs 5 and 10 are red on no mutant by design — they are the must-stay-green arms. Comparison extracted to tools/_writeset_hermeticity.py so the next probe inherits both halves instead of copying the porcelain idiom a third time. NOT FIXED AND NAMED: nothing checks the POPULATION of hermeticity assertions for this idiom; T-532's census judges pathspec scope syntactically and would not flag a scoped-but-status-letter comparand. Fifth recorded instance of PL-148 and still its own task. 4/4 verification, _t525 8/8 standalone, sweep 40/40, both live-file probe mutations restored with no marker surviving in any audit diff
+
+# Key outcomes
+outcomes:
+  - 'Leg 7 compares **content**, not porcelain status letters: the before/after comparand is a'
+  - 'The permitted delta is an explicit allow-list **derived from measurement**, not guessed:'
+  - 'Leg 7 is GREEN on the first audit of a day. Proven deterministically by driving the'
+  - 'A mutated **historical** audit file (e.g. a rewritten `.context/audits/2026-08-09.yaml`)'
+  - 'PL-234''s two arms still hold, re-measured against the new form: an unrelated writer'
+  - '`tools/_t552-writeset-hermeticity-teeth.py` exists, drives the extracted comparison'
+  - '`_t525` passes standalone and the full instrument sweep passes with the tree'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  - description: 'a hermeticity check that could not pass on the first audit of any day, and was blind the other twenty-three hours. _t525 leg 7 asserts the probe leaves .context/audits as it found it; T-533 scoped that correctly to the subject''s write-set and PL-234 was written from that repair, but nobody looked at the COMPARAND. It was git status --porcelain, which reports STATUS LETTERS rather than content, and that is wrong in both directions at once. Blind: a file already dirty stays '' M'' however often it is rewritten — measured, appending to .context/audits/2026-08-16.yaml moved its digest f42311649879 to 47b2499bdbf7 and left porcelain byte-identical — and BOTH files fw audit writes sit in that state on every run after the first of the day, so the assertion was passing on silence. Red: a CREATE reads as a violation and the first audit of any day creates <today>.yaml, which is the rc=1 that surfaced this (OBS-273). The half that complained got investigated; the half that agreed could not be seen. That is this week''s shape again — a stated property standing in for a checked one, with the failure rendering as health. Now a path->digest map judged against an allow-list DERIVED FROM MEASUREMENT rather than from reading audit.sh: two consecutive runs touched exactly <today>.yaml and discoveries/LATEST.yaml and none of the other 44 files. ANDed with declared_writes_observed(), because hermeticity is a negative claim and a negative claim is satisfied by silence (T-524) — an audit that crashed before writing must not read as hermetic. A CORRECTION TO MY OWN FIRST READING: the blindness is narrower than I first wrote. Mutating a COMMITTED, CLEAN historical audit does add a '' M'' line, so the old form could see that case; the true statement is ''blind to any file already dirty'', and the task records the narrower claim rather than the one that made the bug sound worse. PL-235 landed on this task''s own verification line: the assertion ''porcelain is gone from _t525'' failed against the fix''s own explanatory comment naming the string, so it strips comments first — the same lesson T-533 produced, arriving in T-533''s successor. Ten legs, mutation-verified against four mutants: pre-fix comparand 6 red, digests-without-allow-list 4 red, always-hermetic 5 red, and an always-firing did-it-run guard 1 red at leg 9 uniquely. Legs 5 and 10 are red on no mutant by design — they are the must-stay-green arms. Comparison extracted to tools/_writeset_hermeticity.py so the next probe inherits both halves instead of copying the porcelain idiom a third time. NOT FIXED AND NAMED: nothing checks the POPULATION of hermeticity assertions for this idiom; T-532''s census judges pathspec scope syntactically and would not flag a scoped-but-status-letter comparand. Fifth recorded instance of PL-148 and still its own task. 4/4 verification, _t525 8/8 standalone, sweep 40/40, both live-file probe mutations restored with no marker surviving in any audit diff'
+    source: git-mined
+
+# Decisions (from task file Decisions section)
+decisions:
+  # No decisions recorded (mechanical task or old template)
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.fabric/components/tools-_t552-writeset-hermeticity-teeth.yaml'
+  - '.fabric/components/tools-_writeset-hermeticity.yaml'
+  - '.tasks/active/T-552-t525-hermeticity-leg-cannot-pass-on-the-.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tools/_t525-fabric-coverage-teeth.py'
+  - 'tools/_t552-writeset-hermeticity-teeth.py'
+  - 'tools/_writeset_hermeticity.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-17T01:29:21"
+    action: "T-552: a hermeticity check that could not pass on the first audit of any day, and was blind the other twenty-three hours. _t525 leg 7 asserts the probe leaves .context/audits as it found it; T-533 scoped that correctly to the subject's write-set and PL-234 was written from that repair, but nobody looked at the COMPARAND. It was git status --porcelain, which reports STATUS LETTERS rather than content, and that is wrong in both directions at once. Blind: a file already dirty stays ' M' however often it is rewritten — measured, appending to .context/audits/2026-08-16.yaml moved its digest f42311649879 to 47b2499bdbf7 and left porcelain byte-identical — and BOTH files fw audit writes sit in that state on every run after the first of the day, so the assertion was passing on silence. Red: a CREATE reads as a violation and the first audit of any day creates <today>.yaml, which is the rc=1 that surfaced this (OBS-273). The half that complained got investigated; the half that agreed could not be seen. That is this week's shape again — a stated property standing in for a checked one, with the failure rendering as health. Now a path->digest map judged against an allow-list DERIVED FROM MEASUREMENT rather than from reading audit.sh: two consecutive runs touched exactly <today>.yaml and discoveries/LATEST.yaml and none of the other 44 files. ANDed with declared_writes_observed(), because hermeticity is a negative claim and a negative claim is satisfied by silence (T-524) — an audit that crashed before writing must not read as hermetic. A CORRECTION TO MY OWN FIRST READING: the blindness is narrower than I first wrote. Mutating a COMMITTED, CLEAN historical audit does add a ' M' line, so the old form could see that case; the true statement is 'blind to any file already dirty', and the task records the narrower claim rather than the one that made the bug sound worse. PL-235 landed on this task's own verification line: the assertion 'porcelain is gone from _t525' failed against the fix's own explanatory comment naming the string, so it strips comments first — the same lesson T-533 produced, arriving in T-533's successor. Ten legs, mutation-verified against four mutants: pre-fix comparand 6 red, digests-without-allow-list 4 red, always-hermetic 5 red, and an always-firing did-it-run guard 1 red at leg 9 uniquely. Legs 5 and 10 are red on no mutant by design — they are the must-stay-green arms. Comparison extracted to tools/_writeset_hermeticity.py so the next probe inherits both halves instead of copying the porcelain idiom a third time. NOT FIXED AND NAMED: nothing checks the POPULATION of hermeticity assertions for this idiom; T-532's census judges pathspec scope syntactically and would not flag a scoped-but-status-letter comparand. Fifth recorded instance of PL-148 and still its own task. 4/4 verification, _t525 8/8 standalone, sweep 40/40, both live-file probe mutations restored with no marker surviving in any audit diff"
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 18 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 18
+  commits: 1
+  files_changed: 7
+  lines_added: 773
+  lines_removed: 22
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-552-t525-hermeticity-leg-cannot-pass-on-the-.md
+generated_by: context-agent-hybrid

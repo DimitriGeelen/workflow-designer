@@ -4,20 +4,20 @@ name: "_t525 hermeticity leg cannot pass on the first audit of any day"
 description: >
   _t525 hermeticity leg cannot pass on the first audit of any day
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t525-fabric-coverage-teeth.py, tools/_t552-writeset-hermeticity-teeth.py, tools/_writeset_hermeticity.py]
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-16T23:11:25Z
-last_update: 2026-08-16T23:11:25Z
-date_finished: null
+last_update: 2026-08-16T23:29:27Z
+date_finished: 2026-08-16T23:29:27Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -315,3 +315,20 @@ recorded against five times and it still belongs in its own task, not this one.
 - **Action:** Created task via task-create agent
 - **Output:** /opt/832-Workflow-designer/.tasks/active/T-552-t525-hermeticity-leg-cannot-pass-on-the-.md
 - **Context:** Initial task creation
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-afafa43b
+- **Timestamp:** 2026-08-16T23:29:41Z
+- **Catalogue:** v1.3-seed
+- **Overall:** CONCERN
+- **Needs Human:** no
+- **Findings:** 1
+
+**Per-AC findings:**
+
+- **AC#4 (Agent)** — A mutated **historical** audit file (e.g. a rewritten `.context/audits/2026-08-09.yaml`)
+  - **AC-verify-mismatch** (narrow, heuristic) — `path=context/audits/2026-08-09.yaml in: A mutated **historical** audit file (e.g. a rewritten `.context/audits/2026-08-09.yaml`)`
+
+### 2026-08-16T23:29:27Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
