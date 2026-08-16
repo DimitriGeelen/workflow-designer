@@ -25,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-16T14:26:20Z
-last_update: 2026-08-16T15:56:49Z
+last_update: 2026-08-16T15:57:22Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -109,17 +109,66 @@ of failure* (it remains the explanation for the ordering symptom).
 
 3 consecutive full-suite runs, per-leg outcomes captured.
 
-**NOT COMPLETED. The session ended at budget warn while run 1 of 3 was still
-executing, so no rate was established and the AC stays unticked.** The run was
-launched detached, so its output may or may not have finished writing to
-`$SCRATCHPAD/t543-suite-arm-b.log` — a session-scoped path that the next session
-should treat as absent rather than trust. **Re-run arm B from scratch.** Partial
-output from an unattended run is exactly the kind of evidence this task exists
-to distrust; salvaging it would be the same error one level up.
+**Run 1 REPRODUCED IT** — `bridge round-trip: 104 passed, 1 failed`, the failing
+leg being `_t509-instrument-sweep.sh`. Runs 2-3 were still executing when the
+session wrapped. An earlier note here said to treat the whole arm as absent and
+re-run from scratch; that was over-cautious and is **withdrawn** — run 1
+completed and emitted a full verdict line, so it is a complete observation, not
+a partial one.
 
-Suggested shape for the re-run: 5 consecutive suites, capturing per-leg
-outcomes, with each run's wall-clock recorded so "slower" becomes a measurement
-rather than an impression (see the correction below).
+## MECHANISM — established, and it is not flakiness
+
+Reproduced standalone within minutes of the suite run:
+
+```
+$ bash tools/_t509-instrument-sweep.sh          → rc=1
+RAN 33, passed 32, failed 1
+SWEEP FAIL — an instrument that passed on 2026-08-15 no longer does:
+  - _t525-fabric-coverage-teeth.py (rc=124)
+
+$ /usr/bin/time python3 tools/_t525-fabric-coverage-teeth.py
+7/7 legs passed        WALL 86.04 s        rc=0
+```
+
+**rc=124 is `timeout`'s exit code.** `_t525` takes **86.04s against the sweep's
+90s cap** — 4.5% headroom. It passes cleanly on its own and crosses the cap
+whenever anything else is competing for the machine. That is why it looked like
+a suite-only failure: the suite is simply the most reliable way to put load on
+the box. It is not the suite. It is *any* concurrent load — the standalone
+reproduction above happened while arm B was still running.
+
+**The real defect is in `_t509`'s reporting, not in `_t525`.** The sweep
+conflates *"the instrument failed"* with *"the instrument did not finish"*. Its
+own message asserts a regression — "an instrument that passed on 2026-08-15 no
+longer does" — and its own explanatory text says "a red here is a real
+regression in the thing it guards." **That sentence is false for rc=124.**
+Nothing regressed in fabric coverage; a probe ran out of wall-clock. The reader
+is sent to look for a bug that does not exist, which is the same shape this
+project keeps meeting: an abstention rendered as a verdict.
+
+Note the sweep already knows how to honour abstention — it exempts
+`_t364-t308-teeth.py` **by name** for exiting 2 "BY DESIGN, refusing to
+certify… converting that to a suite failure would punish the honesty." rc=124 is
+the same category of answer arriving through a different door, and it is not
+recognised. T-509's own shape again: an exemption granted to the case that
+prompted it, never generalised to the class.
+
+**Still not fixed, and deliberately.** Two separable repairs, and the tempting
+one is wrong: raising the 90s cap buys headroom that `_t525` will consume again,
+because its cost tracks the size of the watched tree (today's audit: 251 watched
+files, 198 unregistered, and the set grows with the repo). The repair that
+holds is teaching `_t509` to report rc=124 as *did-not-finish* rather than as a
+regression. Both are next-session work; AC4 stands.
+
+## `_t523` is NOT explained by this — recorded per AC5
+
+The two instruments are one population only in that both surfaced as suite legs.
+`_t523`'s symptom was `drift_keys=[] measured node={}` at rc=1, not rc=124, and
+`_t523` runs in 7.25s against a 600s suite timeout — three orders of magnitude
+of headroom. **The timeout mechanism cannot account for it.** Arm A's 30/30
+leaves it unreproduced and its rate unbounded. Saying so explicitly because the
+satisfying move here is to declare the population solved on the strength of the
+half that was.
 
 An earlier draft of this section claimed the first run "took materially longer
 than the ~6 min baseline" and offered that as a datum. **It was not measured.**
@@ -153,7 +202,7 @@ that stays true until the mechanism is named.
       something is concurrent" — is CHECKED against how the suite actually
       invokes legs, not carried forward as a premise. If the suite is serial,
       that hypothesis is dead and must be recorded as dead
-- [ ] The mechanism is named with evidence, or the task records explicitly that
+- [x] The mechanism is named with evidence, or the task records explicitly that
       it was not established and what was ruled out
 - [x] No timeout is loosened, no retry is added, and no leg is quarantined
       before the mechanism is named. A suite that passes by waiting longer has
