@@ -1767,3 +1767,45 @@ decisions:
     date: 2026-08-16
     task: T-539
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-232
+    decision: "a `mktemp -d` capture directory per sweep run, one file per probe, removed by a"
+    scope: project
+    date: 2026-08-16
+    task: T-551
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-233
+    decision: "keep the last `T509_CAPTURE_LINES` (default 30) lines and print"
+    scope: project
+    date: 2026-08-16
+    task: T-551
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-234
+    decision: "capture every probe including passing ones, and delete the file only after the"
+    scope: project
+    date: 2026-08-16
+    task: T-551
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-235
+    decision: "keep `These are hermetic and leave the repo untouched, so a red here is a real"
+    scope: project
+    date: 2026-08-16
+    task: T-551
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-236
+    decision: "recommend **re-bake**, and leave the corpus untouched pending the operator's"
+    scope: project
+    date: 2026-08-16
+    task: T-448
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-237
+    decision: "decide LAYOUT vs SERIALIZATION from the lines that differ between the committed"
+    scope: project
+    date: 2026-08-16
+    task: T-448
+    rationale: "Auto-captured from task file on completion"
