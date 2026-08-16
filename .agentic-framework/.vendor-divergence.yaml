@@ -57,6 +57,43 @@ baseline_note: >-
 
 entries:
 
+  - path: .agentic-framework/agents/termlink/bvp-estimator/estimator.py
+    kind: content
+    task: T-541
+    upstream: fix
+    reason: >-
+      Adds three project-specific BVP driver handlers — score_v_workflow_routing,
+      score_v_aef_integration, score_v_sdlc_enablement — plus the _score_by_ladder helper they
+      share, and wires all three into estimate_task's dispatch table. Operator requested the
+      drivers on 2026-08-16 (weight 9 each); T-540 filed them to the proposal queue and measured
+      that without handlers they score 0 on all 55 non-inception tasks, because score_free_driver
+      substring-matches the driver's own id in the task body. The handlers are LATENT until the
+      operator approves proposals P-bced1426 / P-0b1db872 / P-86588453 — policy/value-drivers.yaml
+      is deliberately untouched — which is the same shape score_f_autonomy shipped in under
+      T-2329.
+
+      TWO PARTS OF THIS ARE GENERIC AND ARE THE ACTUAL UPSTREAM DEBT, not the three
+      project-specific handlers (which AEF has no use for):
+
+      1. _score_by_ladder DERIVES THE ENTRY GATE FROM THE LADDER. Every hand-written handler in
+      this file keeps a `touch` gate listing "does this driver apply at all", then a ladder of
+      level patterns beneath it, with nothing making the gate a superset. Where it is not, the
+      omitted level triggers are dead code — no input can return that level. Hit here for real:
+      `port-indicator` was a level-2 trigger with "port" absent from the gate, so T-294 scored 0
+      and level 2 was unreachable across the whole corpus. Same class as PL-203. Worth AEF's
+      attention as a shape their existing handlers may also carry.
+
+      2. parse_task() DOES NOT STRIP HTML COMMENTS, and handlers therefore score the task
+      TEMPLATE. Task bodies here are 33.6% HTML comment on average (max 64%) — the Human-AC
+      guidance block, the Verification errexit essay, the RCA/Evolution/Decisions templates — and
+      that text is byte-identical in every task. Measured consequence in AEF's own code:
+      score_d3_usability's "default tuned" pattern matches the template's own instruction prose,
+      giving 37 of 58 non-completed tasks a flat D3=2 they never earned (52/58 non-zero collapses
+      to 15/58 once comments are stripped). NOT patched here — it is their scoring calibration and
+      changing it silently would move every D3 score in the register. Reported instead. The three
+      new handlers strip comments themselves so they cannot join it. PL-239 — measure the consumed
+      corpus, not the existing one.
+
   # ── upstream debt: local fixes framework-agent does not have ────────────────────────────
   - path: .agentic-framework/agents/audit/audit.sh
     kind: content

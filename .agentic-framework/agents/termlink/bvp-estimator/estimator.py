@@ -2239,6 +2239,191 @@ def score_free_driver(driver_id: str, fm: dict, body: str, tags: list[str]) -> t
     return min(hits, 2), [f"body/tag hits for '{driver_id}': {hits}", f"→{min(hits, 2)}"]
 
 
+# ---- 832-Workflow-designer product drivers (T-541) --------------------------
+#
+# Operator-requested 2026-08-16, filed to the proposal queue by T-540 as
+# V_WORKFLOW_ROUTING / V_AEF_INTEGRATION / V_SDLC_ENABLEMENT (weight 9 each).
+# LATENT until the operator approves those proposals in Watchtower — same shape
+# as score_f_autonomy (T-2329), which shipped before its policy carve opened.
+#
+# WHY THESE STRIP HTML COMMENTS AND THE OTHER HANDLERS DO NOT
+#   parse_task() (line 218) returns the body verbatim, comments included, and a
+#   task file is 33.6% HTML comment on average in this project (max 64%) — the
+#   Human-AC guidance block, the Verification errexit essay, the RCA/Evolution/
+#   Decisions templates. That boilerplate is IDENTICAL in every task, so any
+#   pattern matching it scores the template rather than the work.
+#   Measured, not assumed: score_d3_usability's "default tuned" pattern matches
+#   the template's own instruction prose, giving 37 of 58 non-completed tasks a
+#   flat D3=2 they never earned (52/58 non-zero drops to 15/58 once comments are
+#   stripped). That is an upstream defect in AEF's estimator, reported rather
+#   than silently patched here. These three handlers strip first so they cannot
+#   join it. PL-239 — measure the consumed corpus, not the existing one.
+#
+# WHY THE OBVIOUS KEYWORDS ARE ABSENT
+#   Corpus frequencies over the 58 non-completed tasks, boilerplate stripped:
+#   "workflow" 51, "designer" 49, "AEF" 43. The project is named
+#   832-Workflow-designer and AEF is its peer, so those words appear in nearly
+#   every task regardless of subject. Matching them yields a driver that fires
+#   on everything, which ranks nothing. Each handler below is anchored on terms
+#   that actually discriminate (lanes 16, seam 16, validator 26, ...).
+
+_HTML_COMMENT_RE = re.compile(r'<!--.*?-->', re.S)
+
+
+def _prose(body: str) -> str:
+    """Task body with template boilerplate removed. See block comment above."""
+    return _HTML_COMMENT_RE.sub('', body or '')
+
+
+def _score_by_ladder(text: str, ladder: list, incidental: list,
+                     label: str, extra_gate_text: str = "") -> tuple[int, list[str]]:
+    """Score `text` against a descending (level, patterns, evidence) ladder.
+
+    THE ENTRY GATE IS DERIVED, NOT MAINTAINED SEPARATELY.
+    The hand-written handlers in this file each keep a `touch` gate listing the
+    patterns that mean "this driver applies at all", and then a ladder of level
+    patterns underneath it. Nothing makes the gate a superset of the ladder, and
+    when it is not, every level pattern the gate omits is DEAD CODE — the level
+    can never be returned no matter what a task says.
+
+    Measured, not theorised: the first cut of score_v_workflow_routing listed
+    `port-indicator` as a level-2 trigger but omitted "port" from its gate, so
+    T-294 ("Port-indicator pin click does not register") scored 0 and level 2 was
+    unreachable across the whole corpus. Same class as PL-203 — an exit branch
+    placed where control never arrives.
+
+    Here the gate IS the union of every ladder pattern plus the incidental set,
+    so a level cannot be added without becoming reachable.
+    """
+    all_pats = [p for _lvl, pats, _ev in ladder for p in pats] + list(incidental)
+    if not (_has_any(text, all_pats) or (extra_gate_text and _has_any(extra_gate_text, incidental))):
+        return 0, [f"→0 (no {label} signal)"]
+    for lvl, pats, evidence in ladder:
+        if _has_any(text, pats):
+            return lvl, [f"prose:{evidence}", f"→{lvl} ({evidence})"]
+    return 1, [f"prose:{label}-incidental", f"→1 (incidental {label} touch)"]
+
+
+def score_v_workflow_routing(fm: dict, body: str, tags: list[str]) -> tuple[int, list[str]]:
+    """V_WORKFLOW_ROUTING — routing quality: does this produce cleaner workflows?
+
+    T-541. Operator's wording: "anything that improves workflow routing (clean
+    workflows)". Scores the GEOMETRY AND ROUTING of the rendered workflow —
+    lanes, edges, waypoints, overlap, layout — not workflow semantics.
+
+    Rubric:
+      0: No routing or geometry dimension.
+      1: Incidental mention of lanes/edges/geometry.
+      2: One element's routing or geometry (arrowhead z-order, port pin, drag).
+      3: A routing DEFECT CLASS — overlap, collision, messiness misfire.
+      4: Structural geometry change across the corpus (bake layout, compaction).
+      5: The layout/routing ENGINE itself, or the geometry source of truth.
+
+    Ordering note: the single-element level sits ABOVE the defect-class level in
+    the ladder below, because "arrowheads render above badges" and "endpoint
+    reconnect drag fails" are single-element bugs whose prose also trips the
+    generic collision/overlap patterns. Descending order alone mis-scored both
+    (T-286 -> 4, T-293 -> 3) until the specific test ran first.
+    """
+    ladder = [
+        (5, [r"cleanLayout (engine|algorithm|pass|rewrite)",
+             r"layout (engine|algorithm|strategy|pass)",
+             r"routing (engine|algorithm|strategy)",
+             r"BPMN DI\b.{0,40}(geometry|source of truth|adopt|retire)",
+             r"(adopt|retire).{0,40}\bBPMN DI\b",
+             r"retire aef:position"], "routing-engine"),
+        (2, [r"arrowhead", r"\bport[- ]indicator", r"endpoint (reconnect|drag)",
+             r"\bz[- ]?index\b", r"renders? above", r"pin click", r"mousedown"],
+            "routing-single-element"),
+        (4, [r"bake.{0,30}layout", r"lane[- ]compaction", r"vertical (lane[- ])?compaction",
+             r"corpus.{0,30}(layout|geometry)", r"(layout|geometry).{0,30}corpus",
+             r"emit BPMN DI", r"process[- ]dependency graph"], "routing-structural"),
+        (3, [r"\boverlap", r"collide|collision", r"messiness",
+             r"false[- ]positive.{0,30}(layout|pitch|branch)",
+             r"(silently|incorrectly) (reassign|reroute)", r"unresolvable flowNodeRef",
+             r"aligned gateways", r"branch[- ]stack"], "routing-defect-class"),
+    ]
+    incidental = [r"\blanes?\b", r"\bpools?\b", r"\bedges?\b", r"\bgeometry\b", r"\blayout\b",
+                  r"\brouting\b|\broute[sd]?\b", r"sequenceFlow", r"flowNodeRef", r"\bgateway",
+                  r"\bwaypoint", r"cleanLayout", r"compaction"]
+    return _score_by_ladder(_prose(body), ladder, incidental, "routing/geometry",
+                            _components_text(fm))
+
+
+def score_v_aef_integration(fm: dict, body: str, tags: list[str]) -> tuple[int, list[str]]:
+    """V_AEF_INTEGRATION — the 832<->AEF seam.
+
+    T-541. Operator's wording: "anything to improve integration into AEF".
+    Deliberately NOT anchored on the bare token "AEF": it appears in 43 of the 58
+    non-completed tasks because it is the peer project's name, not a signal.
+    Anchored on seam machinery instead — contracts, fixtures, the mapping
+    standard, round-trip fidelity, the vendor pin, the aef: namespace.
+
+    Rubric:
+      0: No seam dimension.
+      1: Incidental seam-adjacent mention.
+      2: aef: namespace / metadata field work.
+      3: A consumer-visible defect at the seam.
+      4: Fixtures, vendor pin, or version relationship gating the seam.
+      5: The seam CONTRACT itself — producer contract, mapping-standard delta,
+         round-trip fidelity across the boundary.
+    """
+    ladder = [
+        (5, [r"producer[- ]contract", r"mapping[- ]standard delta", r"standard delta",
+             r"seam (contract|bytes|fidelity)", r"round[- ]trip (fidelity|defect|contract)",
+             r"conformance key", r"contract\+fixture|contract and fixture"], "seam-contract"),
+        (4, [r"\bfixture", r"vendor (bump|pin)", r"version relat", r"release lag",
+             r"peer pin", r"vendored (arc|bpmn|standard|schema|fixture)"], "seam-fixture-or-pin"),
+        (3, [r"\bconsumer\b.{0,40}(defect|triage|facing|broken)",
+             r"(defect|triage).{0,40}\bconsumer\b",
+             r"AEF (consumer|record)", r"reverse discovery"], "seam-consumer-defect"),
+        (2, [r"aef:", r"aef[- ]bpmn", r"framework[- ]node typing"], "seam-namespace"),
+    ]
+    incidental = [r"\bseam\b", r"round[- ]trip", r"producer", r"\bconsumer\b",
+                  r"\bcontract\b", r"mapping[- ]standard"]
+    return _score_by_ladder(_prose(body), ladder, incidental, "AEF seam")
+
+
+def score_v_sdlc_enablement(fm: dict, body: str, tags: list[str]) -> tuple[int, list[str]]:
+    """V_SDLC_ENABLEMENT — workflows as the substrate a dev process runs on.
+
+    T-541. Operator's wording: "anything to enhance workflow capability to
+    support a software development process based on the workflows". Scores
+    whether the work moves the designer from "draws diagrams" toward "runs a
+    development process". Anchored away from "workflow" (51/58) and "designer"
+    (49/58), which are the project's own name, and away from bare "process"
+    (17/58 as incidental prose).
+
+    Rubric:
+      0: No process-enablement dimension.
+      1: Incidental process/validator mention.
+      2: Editor capability that makes authoring a process practical.
+      3: Conformance or validation surfacing that makes workflows trustworthy.
+      4: Named document workflows, guided mode, audience lenses.
+      5: Workflow COMPOSITION — fabric, process-dependency graph, callActivity.
+
+    Level 5 is reachable only on inception tasks in today's corpus (workflow
+    fabric, callActivity, tenancy are all still inceptions), and inceptions are
+    routed to _score_inception_voi before any handler runs. So level 5 is
+    REACHABLE BUT CURRENTLY UNREACHED in production scoring. Recorded rather than
+    presented as a working part of the scale.
+    """
+    ladder = [
+        (5, [r"workflow fabric", r"process[- ]dependency graph", r"callActivity",
+             r"sub[- ]?workflow (call|composition)", r"tenant[- ]neutral",
+             r"hosting and tenancy", r"collaboration and concurrency"], "process-composition"),
+        (4, [r"document workflow", r"review-map|future-map", r"guided[- ]mode",
+             r"audience (render )?lens", r"procedural guardrail"], "process-named-workflow"),
+        (3, [r"conformance", r"validator findings", r"surface .{0,30}validat",
+             r"stateKind", r"process[- ]level"], "process-conformance"),
+        (2, [r"\beditor\b.{0,40}(capability|create|claim|save|version)",
+             r"create from pending", r"off[- ]page claim", r"save[- ]target"],
+            "process-editor-capability"),
+    ]
+    incidental = [r"\bvalidator\b", r"software development process", r"sub[- ]?workflow"]
+    return _score_by_ladder(_prose(body), ladder, incidental, "process-enablement")
+
+
 # ---- top-level orchestration ------------------------------------------------
 
 def _score_inception_voi(fm: dict, body: str, tags: list[str]) -> tuple[int, list[str]]:
@@ -2342,6 +2527,13 @@ def estimate_task(task_path: Path, drivers: dict[str, int]) -> dict:
         # the score_free_driver keyword fallback for rubric-anchored scoring.
         "feedback-loop-completeness": score_feedback_loop_completeness,
         "estimator-fidelity": score_estimator_fidelity,
+        # T-541 — 832-Workflow-designer product drivers. LATENT until the
+        # operator approves proposals P-bced1426 / P-0b1db872 / P-86588453 in
+        # Watchtower; keyed to the canonical names so approval activates them
+        # with no further code change (same shape as F-AUTONOMY under T-2329).
+        "V_WORKFLOW_ROUTING": score_v_workflow_routing,
+        "V_AEF_INTEGRATION": score_v_aef_integration,
+        "V_SDLC_ENABLEMENT": score_v_sdlc_enablement,
     }
     # T-2343: name-alias map for drivers whose policy id differs from their
     # canonical name (e.g. policy id F3, handler key V_PROMPT_QUALITY).

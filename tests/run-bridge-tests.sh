@@ -1346,6 +1346,30 @@ else
   fail=$((fail + 1))
 fi
 
+echo "== The three product BVP drivers discriminate rather than score zero (T-541) =="
+# T-540 measured that a BVP driver with no dedicated handler falls through to
+# score_free_driver, which substring-matches the driver's OWN ID in the task body: 0 of 55
+# non-inception tasks scored non-zero. The failure is silent — `fw bvp` prints a column of
+# zeros exactly as confidently as it prints real scores, and the driver's weight buys nothing.
+# T-541 wrote the three handlers; this leg defends the properties a green `fw bvp` cannot show:
+# each handler is still WIRED into the dispatch table (checked behaviourally, via the
+# fallback's own evidence fingerprint), ALIVE (fires on at least one task), SELECTIVE (silent
+# on at least one — a driver that fires on everything sorts nothing), GRADED (>=3 distinct
+# non-zero levels, guarding the D1 shape where weight 9 buys a binary flag), free of DEAD
+# LEVELS (one gate-word-free fixture per rubric level — the PL-203 shape, where a level's
+# trigger is missing from the entry gate and no input can ever return it), and
+# BOILERPLATE-BLIND (scoring the task template's comment text alone must return 0, which
+# score_d3_usability fails on 37 of 58 tasks).
+# The level fixtures are mutation-verified: against a copy whose entry gate is not derived
+# from the ladder, they produce 11 findings; against the real file, none.
+if python3 "$ROOT/tools/_t541-bvp-driver-handler-teeth.py" > "$TMP/leg-_t541-bvp-driver-handlers.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a product BVP driver handler is dead, vacuous, ungraded, unwired, has an unreachable rubric level, or is scoring the task template rather than the task (run 'python3 tools/_t541-bvp-driver-handler-teeth.py' — it names the driver and the property; rc 2 is a REFUSAL, meaning the handlers or the corpus are missing so nothing was evaluated — not a measured pass)"
+  show_output "$TMP/leg-_t541-bvp-driver-handlers.out" "_t541-bvp-driver-handler-teeth.py"
+  fail=$((fail + 1))
+fi
+
 echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
