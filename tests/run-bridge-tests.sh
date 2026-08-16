@@ -1442,5 +1442,38 @@ else
 fi
 
 echo
+echo "== An operator's rationale is stored as the operator wrote it (T-547) =="
+# Three rejections in .context/bvp-driver-proposals.jsonl carry
+# "Reject%20rationale%20(%E2%89%A530%20chars%20%E2%80%94%20why%20is..." as the operator's
+# recorded reason. XHR forbids non-ASCII header values, so htmx (htmx.min.js, `Cn`) retries
+# a rejected setRequestHeader with encodeURIComponent AND sets a companion
+# HX-Prompt-URI-AutoEncoded:true to declare it did — htmx is correct here. Both bvp.py
+# routes read HX-Prompt raw and ignored that declaration, so one em-dash or curly
+# apostrophe filed percent-encoded bytes as the audit record; a pure-ASCII rationale
+# round-trips fine, which is why it went unseen. Both directions are pinned because
+# fixing one creates the other: an UNCONDITIONAL unquote() turns a rationale a human
+# typed as "covers 50%20 of cases" into "covers 50  of cases", so the decode has to be
+# gated on htmx's own declaration. Leg 3 pins ORDERING — decode before the ≥30 R6 floor,
+# or the floor measures the inflated encoded form and passes a 26-character rationale.
+# Leg 4 covers `--remove`, which is SOVEREIGN: there the rationale IS the record of a
+# policy edit. Leg 5 re-reads the companion-header mechanism out of htmx and REFUSES if
+# it is gone, because the conditional decode would then be dead code while every other
+# leg stayed green. Leg 6 pins the POPULATION rather than the two sites known today —
+# exactly one raw read of the header may exist, the one inside the helper — because a fix
+# applied only to the cases that prompted it is T-509's shape and this is the fourth time
+# it has come round. Hermetic by construction: the ledger writer and the fw CLI are
+# captured, not run, so no audit row is appended and no driver register is touched.
+# Mutation-verified against four mutants (never-decode, always-decode, remove-route-only,
+# third-route-reads-raw); each is caught by exactly the leg that owns it, and the
+# single-route mutant localises to the SOVEREIGN endpoint by name.
+if python3 "$ROOT/tools/_t547-hx-prompt-decode-teeth.py" > "$TMP/leg-_t547-hx-prompt-decode.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "an operator's hx-prompt rationale is being stored percent-encoded again, or a literal percent sign is being destroyed by an unconditional decode — on /api/bvp/driver/reject or the SOVEREIGN /api/bvp/driver/remove (run 'python3 tools/_t547-hx-prompt-decode-teeth.py'; rc 2 is a REFUSAL — the app would not import or htmx's companion-header contract could not be re-read, so nothing was measured and it is not a pass)"
+  show_output "$TMP/leg-_t547-hx-prompt-decode.out" "_t547-hx-prompt-decode-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

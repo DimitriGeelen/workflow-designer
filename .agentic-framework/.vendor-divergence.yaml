@@ -531,3 +531,42 @@ entries:
       `// lib/ts/src/loop-detect.ts` becomes `// .agentic-framework/lib/ts/src/loop-detect.ts`.
       That is a local rebuild artifact and nothing else; there is no code difference and
       nothing to offer upstream.
+
+  - path: .agentic-framework/web/blueprints/bvp.py
+    kind: content
+    task: T-547
+    upstream: fix
+    reason: >-
+      GENERIC upstream debt — AEF's own Watchtower serves these routes. Two endpoints take an
+      operator's policy-decision rationale from the browser through htmx's `hx-prompt` and file
+      it as the audit record: bvp_driver_remove (SOVEREIGN — the rationale IS the record of a
+      policy edit) and bvp_driver_reject. Both read the `HX-Prompt` header raw.
+      MEASURED, not inferred. XHR forbids non-ASCII header values, so htmx (web/static/
+      htmx.min.js, function `Cn`) retries a rejected setRequestHeader with encodeURIComponent
+      AND sets a companion `<header>-URI-AutoEncoded: true` declaring that it did:
+      `try{t.setRequestHeader(n,r)}catch(e){t.setRequestHeader(n,encodeURIComponent(r));
+      t.setRequestHeader(n+"-URI-AutoEncoded","true")}`. htmx behaves correctly and announces
+      itself; the server never looked. Evidence on the live ledger — three rejections in
+      .context/bvp-driver-proposals.jsonl carry
+      "Reject%20rationale%20(%E2%89%A530%20chars%20%E2%80%94%20why%20is..." as the operator's
+      stated reason. One em-dash, curly apostrophe, arrow or accented letter is enough; a
+      pure-ASCII rationale round-trips cleanly, which is exactly why this went unnoticed since
+      T-2079 introduced the pattern.
+      Fix: _hx_prompt() decodes only when htmx declares an encoding. The condition is the
+      point, not incidental — an unconditional unquote() silently turns a rationale a human
+      typed as "covers 50%20 of cases" into "covers 50  of cases", and trusting htmx's own
+      declaration is the only way to tell an encoding from a percent sign. Applied at both
+      call sites, ahead of the ≥30-character R6 floor so the floor measures the real rationale
+      rather than its inflated encoded form (pre-fix, a 26-character rationale encoded to 44
+      and cleared the gate).
+      NOT DONE, DELIBERATELY: the three already-mangled rows are left as they are.
+      bvp-driver-proposals.jsonl is an append-only audit ledger, and rewriting history to make
+      a past record look better than it was is the wrong repair.
+      Teeth: tools/_t547-hx-prompt-decode-teeth.py, wired into tests/run-bridge-tests.sh.
+      Hermetic — the ledger writer and the fw CLI are captured rather than run, so the probe
+      appends no row and touches no driver register. Leg 6 pins the POPULATION and not merely
+      the two sites known today — exactly one raw read of the header may exist, the one inside
+      the helper — because a fix granted only to the cases that prompted it is T-509's shape,
+      met here for the fourth time. Mutation-verified against four mutants (never-decode,
+      always-decode, remove-route-only, third-route-reads-raw); each is caught by exactly the
+      leg that owns it and the single-route mutant localises to the SOVEREIGN endpoint by name.

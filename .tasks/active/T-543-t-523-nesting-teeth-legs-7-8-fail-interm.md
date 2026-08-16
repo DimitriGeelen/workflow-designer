@@ -25,7 +25,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-16T14:26:20Z
-last_update: 2026-08-16T16:06:10Z
+last_update: 2026-08-16T16:06:45Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -113,13 +113,24 @@ of failure* (it remains the explanation for the ordering symptom).
 
 | run | result | note |
 |-----|--------|------|
-| 1 | `104 passed, 1 failed` | `_t509` sweep FAIL |
-| 2 | `100 passed, 5 failed` | `_t509` sweep FAIL + 4 more |
-| 3 | still executing at session end | — |
+| 1 | `104 passed, 1 failed` | `_t509` sweep FAIL — machine in use |
+| 2 | `100 passed, 5 failed` | `_t509` sweep FAIL + 4 more — **confounded, load applied by me** |
+| 3 | abandoned (session ended) | — |
+| 4 | `106 passed, 0 failed`, 452s | **idle machine**, no concurrent commands (T-547 verification run) |
+| 5 | `106 passed, 0 failed`, 458s | **idle machine**, no concurrent commands (T-547 verification run) |
 
-**Rate: 2 of 2 completed full-suite runs reproduced the `_t509` failure.** With
-n=2 that bounds very little — it is emphatically not "always" — but it is no
-longer "once, unreproduced", which is what the task was filed on.
+**Rate: 2 of 4 completed full-suite runs reproduced the `_t509` failure** — and
+the split is not random. Both failures came from runs where the machine was
+doing something else; both greens came from runs where I deliberately did
+nothing while the suite executed. That is what the timeout mechanism predicts,
+so runs 4 and 5 are corroboration rather than contradiction.
+
+**Runs 4 and 5 are honest but incidental.** They were T-547's verification runs,
+not a designed rate experiment — I did not vary anything, I just happened to
+need two clean full-suite runs and stayed off the machine for both. They are
+recorded because withholding a green that arrived by accident would bias the
+table exactly as much as averaging in the confounded run would. The designed
+5-run measurement the rate AC asks for is still not done.
 
 **Run 2 is confounded and I caused the confound.** While it executed I ran the
 sweep and `_t525` standalone to identify the failing instrument, putting exactly

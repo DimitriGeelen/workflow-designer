@@ -24,6 +24,7 @@ import json
 import re
 import subprocess
 from pathlib import Path
+from urllib.parse import unquote
 
 import yaml
 from flask import Blueprint, render_template, request
@@ -40,6 +41,35 @@ bp = Blueprint("bvp", __name__)
 POLICY_PATH = PROJECT_ROOT / "policy" / "value-drivers.yaml"
 PROPOSALS_PATH = PROJECT_ROOT / ".context" / "bvp-driver-proposals.jsonl"
 TSHIRT = {"S": 2, "M": 4, "L": 6, "XL": 8}
+
+
+def _hx_prompt() -> str:
+    """T-547: the operator's `hx-prompt` answer, decoded if htmx had to encode it.
+
+    XHR forbids non-ASCII header values, so htmx (htmx.min.js, `Cn`) retries a
+    rejected setRequestHeader with `encodeURIComponent` AND sets a companion
+    `<header>-URI-AutoEncoded: true` declaring that it did. htmx behaves
+    correctly; reading `HX-Prompt` raw is what stores `%E2%80%94` as the
+    operator's words. One em-dash, curly apostrophe or accented letter in a
+    rationale is enough — which is why pure-ASCII rationales hid this.
+
+    The decode is CONDITIONAL on the companion header, deliberately. An
+    unconditional `unquote()` would corrupt a rationale a human typed as
+    "covers 50%20 of cases": that string is pure ASCII, so htmx sends it
+    unencoded with no companion header, and decoding it anyway silently turns
+    it into "covers 50  of cases". Trusting htmx's own declaration is the only
+    way to tell an encoding from a percent sign.
+
+    Returns "" when the header is absent, so existing
+    `_hx_prompt() or request.form.get(...)` fallbacks for CLI/API callers
+    (which send the rationale as a form field) keep working unchanged.
+    """
+    raw = request.headers.get("HX-Prompt")
+    if not raw:
+        return ""
+    if (request.headers.get("HX-Prompt-URI-AutoEncoded") or "").lower() == "true":
+        return unquote(raw)
+    return raw
 
 
 def _load_proposals(state_filter: str | None = "pending") -> list[dict]:
@@ -747,7 +777,7 @@ def bvp_driver_remove():
         or ""
     ).strip()
     rationale = (
-        request.headers.get("HX-Prompt")
+        _hx_prompt()                      # T-547: decoded when htmx encoded it
         or request.form.get("rationale")
         or ""
     ).strip()
@@ -907,7 +937,7 @@ def bvp_driver_reject():
     """
     proposal_id = (request.args.get("id") or request.form.get("id") or "").strip()
     rationale_decision = (
-        request.headers.get("HX-Prompt")
+        _hx_prompt()                      # T-547: decoded when htmx encoded it
         or request.form.get("rationale_decision")
         or ""
     ).strip()
