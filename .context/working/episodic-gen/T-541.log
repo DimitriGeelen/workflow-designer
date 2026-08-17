@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-16T22:22:13Z ===
+task_id: T-541
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-541.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: write dedicated BVP estimator handlers for the three operator-requested product
+  Duration: 0 days (557 min)
+  Updates: 1
+  Commits: 2
+  Lines: +805 -1 across 5 files
+  Outcomes: 7 AC checked
+  Challenges: 2 detected from git
+  Artifacts: 5 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-541-write-dedicated-bvp-estimator-handlers-f.md
+--- exit code: 0 ---

@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-17T14:11:52Z ===
+task_id: T-556
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-556.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Rail sender fingerprint is host-wide, so 'has AEF replied' cannot be answered by sender
+  Duration: 0 days (503 min)
+  Updates: 1
+  Commits: 14
+  Lines: +1088 -23 across 3 files
+  Outcomes: 7 AC checked
+  Challenges: 8 detected from git
+  Artifacts: 3 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-556-rail-sender-fingerprint-is-host-wide-so-.md
+--- exit code: 0 ---

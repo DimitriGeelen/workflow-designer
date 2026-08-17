@@ -1166,3 +1166,10 @@ observations:
   tags: [tooling]
   status: pending
   promoted_to: null
+- id: OBS-290
+  text: "fw note capture returns 1 on success when no task context resolves. observe.sh do_capture ended with '[ -n \"$task\" ] && echo -e \"  context: $task\"' as its LAST statement, so an empty $task made the function return 1 - and under set -euo pipefail the script exited 1 with the observation row already written. A successful capture reporting failure, the exact mirror of OBS-287 (a failed capture reporting success). Invisible in this project because focus.yaml is essentially always set, so $task was never empty here; surfaced only by running the capture path against an isolated PROJECT_ROOT while building T-557's test, where the test's own leg 4 went red on a capture that had in fact worked. Fixed in the same commit as T-557's guard because the test cannot assert anything about exit codes while one of them lies, and the fix is one if-block plus an explicit return 0. Filed separately because the root cause is different: T-557's bug loses the payload, this one loses the truth of the verdict. Worth a population sweep - the trailing-'[ test ] && echo' idiom as the last statement of a function is a general shape and this tree has many shell functions."
+  captured: 2026-08-17T14:19:05Z
+  context_task: T-557
+  tags: [tooling]
+  status: pending
+  promoted_to: null

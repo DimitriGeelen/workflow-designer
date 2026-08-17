@@ -239,6 +239,22 @@ else
 fi
 
 echo
+echo "== fw note refuses payload-losing calls (T-557, framework tooling) =="
+# `fw note` used to route any unrecognised first word to the capture path, where it became
+# the observation TEXT and the payload was discarded at exit 0. It destroyed 11 observations
+# between 2026-08-09 and 2026-08-17, including OBS-274 — T-556's central finding, which sat
+# pending+urgent for nine hours as the literal string "add" while being cited in three commit
+# messages. Guarded here rather than only in the framework repo because the register is this
+# project's memory intake: a silent loss here is invisible everywhere downstream, and the
+# vendored copy is what actually runs. Isolated PROJECT_ROOT — never touches the live inbox.
+if python3 "$ROOT/tests/test_note_capture_refuses_lost_payload.py"; then
+  pass=$((pass + 1))
+else
+  report FAIL "fw note can silently discard an observation payload again (guard reverted in the vendored .agentic-framework, or a re-vendor overwrote it — check agents/observe/observe.sh do_capture; the fix is upstream-pending, so a framework bump can legitimately regress this)"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== pair-draft corpus fixture pins: sha + validator-clean (T-216, browser-independent) =="
 # Byte-pin + validator-clean guard for the pair-draft diagrams AEF cross-holds byte-exact
 # (session-handover rail 92; dispatch-loop rail 99+101). Pure Python — no editor harness

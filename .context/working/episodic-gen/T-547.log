@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-16T16:56:15Z ===
+task_id: T-547
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-547.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: HX-Prompt rationale stored percent-encoded: server ignores htmx's URI-AutoEncoded companion header
+  Duration: 0 days (23 min)
+  Updates: 1
+  Commits: 1
+  Lines: +671 -10 across 6 files
+  Outcomes: 7 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 6 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-547-hx-prompt-rationale-stored-percent-encod.md
+--- exit code: 0 ---

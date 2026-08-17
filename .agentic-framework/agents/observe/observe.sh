@@ -53,7 +53,48 @@ get_focus_task() {
 
 # --- Commands ---
 
+# T-557: count POSITIONAL arguments, skipping flags and their values.
+# `fw note` takes exactly one positional — the observation text. Any second positional
+# means the caller's payload is about to be silently discarded, in one of two ways:
+#   fw note add "<900 chars>"   -> "add" becomes the text, the payload is dropped
+#   fw note this is a finding   -> "this" becomes the text, the rest is dropped
+# Both were exit 0 with "OBS-NNN captured" before this guard existed.
+_note_positional_count() {
+    local n=0
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --task|-t|--tag) shift 2 2>/dev/null || shift ;;
+            --urgent|-u)     shift ;;
+            --)              shift; n=$((n + $#)); break ;;
+            -*)              shift ;;
+            *)               n=$((n + 1)); shift ;;
+        esac
+    done
+    printf '%s' "$n"
+}
+
 do_capture() {
+    # T-557: refuse rather than silently truncate. The rule is SHAPE-based (how many
+    # positionals) rather than a list of subcommand words we have historically mistyped —
+    # a word list would have caught the eleven husks in .context/inbox.yaml and missed the
+    # twelfth. Placed before ensure_inbox so a refused call touches no state at all.
+    local _pos
+    _pos=$(_note_positional_count "$@")
+    if [ "$_pos" -gt 1 ]; then
+        echo -e "${RED}REFUSED: fw note takes exactly one text argument, got $_pos.${NC}" >&2
+        echo "  Nothing was written to the inbox." >&2
+        echo "" >&2
+        echo "  You probably meant one of:" >&2
+        echo "    fw note \"<the whole observation in one quoted string>\"" >&2
+        echo "    fw note \"<text>\" --task T-XXX --tag <tag> --urgent" >&2
+        echo "" >&2
+        echo "  Note: there is no 'add' subcommand. \`fw note add \"...\"\` used to capture" >&2
+        echo "  the word 'add' as the observation and discard the rest, at exit 0 — it" >&2
+        echo "  destroyed 11 observations between 2026-08-09 and 2026-08-17 (T-557)." >&2
+        echo "  Real subcommands: list, count, triage, promote, dismiss." >&2
+        return 2
+    fi
+
     ensure_inbox
     local text="$1"
     shift || true
@@ -118,7 +159,17 @@ EOF
     else
         echo -e "${GREEN}$id${NC} captured: \"$text\""
     fi
-    [ -n "$task" ] && echo -e "  context: $task"
+    # T-557: `[ -n "$task" ] && echo ...` as the LAST statement made do_capture return 1
+    # whenever no task context was resolved — a successful capture reporting failure, and
+    # under `set -e` the script exited 1 with the row already written. Invisible in this
+    # project because focus.yaml is essentially always set, so $task was never empty here;
+    # found by running the capture path against an isolated PROJECT_ROOT. Distinct defect
+    # from the one this task fixes and the exact mirror of it: that one reports success
+    # while losing data, this one reports failure while succeeding. Recorded as OBS-290.
+    if [ -n "$task" ]; then
+        echo -e "  context: $task"
+    fi
+    return 0
 }
 
 do_list() {

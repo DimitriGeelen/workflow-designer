@@ -7019,3 +7019,237 @@ scan_id: R-089671c4
 task_id: T-546
 payload:
   task_file: .tasks/active/T-546-report-six-generic-upstream-defects-to-a.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T16:56:12Z'
+scan_id: R-d8ded1c7
+task_id: T-547
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T16:56:12Z'
+scan_id: R-d8ded1c7
+task_id: T-547
+payload:
+  task_file: .tasks/active/T-547-hx-prompt-rationale-stored-percent-encod.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T17:53:18Z'
+scan_id: R-81563f78
+task_id: T-548
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T17:53:18Z'
+scan_id: R-81563f78
+task_id: T-548
+payload:
+  task_file: .tasks/active/T-548-t509-sweep-reports-a-probe-that-did-not-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T18:01:54Z'
+scan_id: R-1683274c
+task_id: T-543
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T18:01:54Z'
+scan_id: R-1683274c
+task_id: T-543
+payload:
+  task_file: .tasks/active/T-543-t-523-nesting-teeth-legs-7-8-fail-interm.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T19:00:55Z'
+scan_id: R-d845e2ff
+task_id: T-549
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T19:00:55Z'
+scan_id: R-d845e2ff
+task_id: T-549
+payload:
+  task_file: .tasks/active/T-549-t525-costs-5-full-structure-audits-86s-o.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T19:01:21Z'
+scan_id: R-d9c19b95
+task_id: T-549
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T19:01:21Z'
+scan_id: R-d9c19b95
+task_id: T-549
+payload:
+  task_file: .tasks/active/T-549-t525-costs-5-full-structure-audits-86s-o.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T19:07:17Z'
+scan_id: R-09fe2cc6
+task_id: T-549
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T19:07:17Z'
+scan_id: R-09fe2cc6
+task_id: T-549
+payload:
+  task_file: .tasks/active/T-549-t525-costs-5-full-structure-audits-86s-o.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T19:35:56Z'
+scan_id: R-1bf18a32
+task_id: T-550
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T19:35:56Z'
+scan_id: R-1bf18a32
+task_id: T-550
+payload:
+  task_file: .tasks/active/T-550-t-344-denominator-guard-reads-the-audits.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T19:37:49Z'
+scan_id: R-ef97653d
+task_id: T-550
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T19:37:49Z'
+scan_id: R-ef97653d
+task_id: T-550
+payload:
+  task_file: .tasks/active/T-550-t-344-denominator-guard-reads-the-audits.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T20:43:10Z'
+scan_id: R-2cbef817
+task_id: T-551
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T20:43:10Z'
+scan_id: R-2cbef817
+task_id: T-551
+payload:
+  task_file: .tasks/active/T-551-the-instrument-sweep-discards-every-prob.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T22:22:11Z'
+scan_id: R-3953299b
+task_id: T-541
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T22:22:11Z'
+scan_id: R-3953299b
+task_id: T-541
+payload:
+  task_file: .tasks/active/T-541-write-dedicated-bvp-estimator-handlers-f.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T22:53:54Z'
+scan_id: R-f78c24ff
+task_id: T-448
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T22:53:54Z'
+scan_id: R-f78c24ff
+task_id: T-448
+payload:
+  task_file: .tasks/active/T-448-bake-clean-layout---check-is-a-documente.md
+---
+kind: scan_emitted
+timestamp: '2026-08-16T23:29:41Z'
+scan_id: R-afafa43b
+task_id: T-552
+payload:
+  overall: CONCERN
+  finding_count: 1
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-16T23:29:41Z'
+scan_id: R-afafa43b
+task_id: T-552
+payload:
+  task_file: .tasks/active/T-552-t525-hermeticity-leg-cannot-pass-on-the-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-17T14:11:45Z'
+scan_id: R-66f8e7e0
+task_id: T-556
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-17T14:11:45Z'
+scan_id: R-66f8e7e0
+task_id: T-556
+payload:
+  task_file: .tasks/active/T-556-rail-sender-fingerprint-is-host-wide-so-.md
