@@ -1122,3 +1122,11 @@ observations:
   tags: [integration]
   status: pending
   promoted_to: null
+- id: OBS-284
+  text: "I re-derived by expensive measurement what our own repo already documented, then violated the same document. docs/aef-designer-integration-protocol.md sections 'Cross-agent coordination channel' and 'Discovery caveat' already state (a) that all local sessions share one identity fingerprint so dms/search may return empty even when posts exist — which is OBS-274, recorded weeks before I measured it — and (b) that PTY inject is the KNOWN-LOSSY path, explicitly 'not a delivery mechanism', with a recorded 2026-07-10 incident where AEF's IW-1 question was lost exactly that way. I spent two sessions measuring (a) and then did (b). Consequences for what I reported: 'AEF has never replied' is WRONG — task records cite a two-way rail at offsets 27, 34, 61, 78, 82-83, 88/89, 139, 149 and 166, including AEF independently re-verifying our S4a UI end-to-end and reporting back. My census was of agent-chat-arc, whose oldest envelope is 2026-08-16T14:17 with retention 1000 and only 41 messages, so that topic is about a day old and is NOT where the relationship lives; 'across the whole history of the rail' was the whole history of a one-day-old topic. The durable path per our own protocol is file_send for artifacts plus a threaded post carrying thread=T-XXX, retrieved BY THREAD ID rather than by sender. Rule that follows: read the project's own integration docs BEFORE instrumenting a question about that integration."
+  captured: 2026-08-17T12:03:04Z
+  context_task: T-556
+  tags: [process]
+  status: pending
+  promoted_to: null
+  urgent: true

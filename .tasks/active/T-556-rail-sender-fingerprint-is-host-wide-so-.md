@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-17T05:48:20Z
-last_update: 2026-08-17T08:07:42Z
+last_update: 2026-08-17T11:54:51Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -229,6 +229,55 @@ of them a five-way parallel triage. That is an outward-facing, consequential act
 pickup message we send is a proposal, not an instruction — the same rule that governs what we
 accept from them (G-020, in reverse). It is also the operator's mesh. Recorded as the
 recommendation for AC6, with the decision left where it belongs.
+
+### THE CENTRAL CONCLUSION OF THIS TASK IS WRONG — 2026-08-17, found after the send
+
+`docs/aef-designer-integration-protocol.md` has been in this repository the whole time and
+answers, in prose, the question this task spent two sessions instrumenting. Three passages:
+
+> **Discovery caveat:** all local sessions share one identity fingerprint, so a bare `dms`/`search`
+> can't pin a single sender and may return empty even when posts exist. Mitigation: keep an
+> explicit `thread=T-XXX` on every post and treat `file_send` as the durable backbone; a peer that
+> "can't find" a post should read the thread by id, not search by sender.
+
+> **Lossy (do NOT rely on for anything durable):** PTY inject into a peer session. […] This is
+> exactly how AEF's IW-1 question failed to reach 832 durably (2026-07-10): delivered by inject,
+> never submitted, lost on continue. Inject is fine for a live nudge you can confirm was consumed;
+> it is **not** a delivery mechanism.
+
+> **Rule of thumb:** if it must survive the peer's next `--continue`, it goes through `file_send`
+> (artifact) or a threaded channel post (message). Never through an unconfirmed inject.
+
+**So OBS-274 is a re-discovery, not a discovery.** The host-wide fingerprint collapse was written
+down weeks ago, with its mitigation. I measured it from scratch, at length, and registered it as
+new. And having measured it, I then delivered by PTY inject — the one method the same document
+names as not a delivery mechanism, citing a prior incident of precisely the failure I produced.
+
+**"AEF has never replied" is wrong, and it is the claim I have repeated to the operator most.**
+Our own task records cite a sustained two-way rail with AEF: offset 27 (DM rail, T-189), 34
+(fixture delivered, T-443), 61 (0.3.0 release notified, T-200), 78 (AEF's producer-contract
+proposal, T-209), 82–83 and 88/89 (fixture cross-validation and delivery), 139 and **149 — where
+AEF independently re-verified our S4a picker end-to-end on the running UI and reported back
+*"S4a UI leg CLOSED our side. Your T-228 [REVIEW] can cite this run."*** — and 166 (a field
+observation, T-241). That is not a silent peer. That is a working collaboration.
+
+**What the census actually measured.** `agent-chat-arc` holds 41 envelopes, retention 1000 so
+nothing was evicted, and its oldest is `2026-08-16T14:17:01Z`. **The topic is about one day old.**
+Every number in the census stands, and the sentence I wrapped around them does not: "AEF has never
+posted, across the whole history of the rail" was the whole history of a one-day-old topic, not of
+the relationship. The seven findings at offsets 2 and 5 were posted to a new topic that is not
+where this collaboration lives — so the mis-delivery hypothesis I raised, retracted, and then
+declared measured-as-"right room" was correct the first time.
+
+**The corrected picture.** The durable path is `file_send` for artifacts plus a threaded post
+carrying `thread=T-XXX`, retrieved *by thread id, not by sender* — the doc says explicitly that
+sender-keyed retrieval returns empty even when posts exist, which is exactly the false negative
+this task was opened about and exactly the one I then reproduced by hand.
+
+**The rule this earns:** read the project's own integration documentation *before* instrumenting a
+question about that integration. Every defect in "Four defects in the read surface" below is real
+and worth keeping; none of them needed to be found to answer the question that was asked.
+Registered as OBS-284 (urgent).
 
 ### SENT on operator approval, and it did not reach an agent — 2026-08-17
 

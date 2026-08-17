@@ -1800,3 +1800,10 @@ learnings:
   date: 2026-08-17
   context: Added via context agent
   application: TBD
+- id: PL-253
+  learning: "Read the project's own integration documentation BEFORE instrumenting a question about that integration. Measured 2026-08-17: two sessions were spent deriving, by census and mutation-probing, two facts that docs/aef-designer-integration-protocol.md already stated in prose — that all local sessions share one identity fingerprint so sender-keyed retrieval returns empty even when posts exist, and that the durable cross-agent path is file_send plus a threaded post read BY THREAD ID rather than by sender. Worse, the same document names PTY inject as the known-lossy path and explicitly 'not a delivery mechanism', citing a prior incident where a peer's question was lost exactly that way; having not read it, I then delivered by PTY inject and reproduced that incident. The instrumentation produced six genuine tool defects worth keeping, but none of them was needed to answer the question that was asked, and the central conclusion drawn from them — 'the peer has never replied' — was false, contradicted by our own task records citing a two-way rail at offsets 27 through 166 including the peer independently re-verifying our UI. Generalisation: when a question is about a SEAM, the seam has documentation, and that documentation is evidence with a lower cost and a longer memory than any probe. Measure to test what the docs claim, not to discover what they already say."
+  source: P-001
+  task: T-556
+  date: 2026-08-17
+  context: Added via context agent
+  application: TBD
