@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-17T05:48:20Z
-last_update: 2026-08-17T12:03:53Z
+last_update: 2026-08-17T12:41:58Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -592,6 +592,71 @@ first. Nothing in your six read as authorisation, and the two you excluded as 83
 are the reason the other six were easy to act on."* Recorded because it is the one part of
 the exchange that was a governance judgement rather than a measurement, and it held.
 
+## OBS-274 WAS NEVER RECORDED — found 2026-08-17 while writing this task's own gate
+
+Writing the Verification block above required asserting that the inbox holds no malformed
+rows. It holds eleven, and **one of them is OBS-274** — this task's flagship finding, the
+one cited in `## Context`, in three commit messages, in two handovers, and in everything I
+reported to the operator. Its `text` field is the string `add`.
+
+    - id: OBS-274
+      text: "add"
+      captured: 2026-08-17T05:48:39Z
+      context_task: T-556
+      status: pending
+      urgent: true
+
+It was captured at 05:48 by `fw note add "<900 chars>"`. There is no `add` subcommand;
+`observe.sh:305` routes any unrecognised first word to `do_capture "$@"`, which takes `$1`
+as the observation text. The payload went nowhere and the tool printed `OBS-274 captured`.
+
+**So for nine hours the register held an urgent, pending, empty row, and every artifact
+that counts urgents counted it.** The handover reported "57 pending (3 urgent)". The count
+was right. One of the three was a word.
+
+Re-filed in full as **OBS-288** (urgent); the husk dismissed with a pointer rather than
+edited, because the husk is the evidence.
+
+### It has happened eleven times, since the register's sixth entry
+
+    OBS-006  2026-08-09    OBS-032  2026-08-12 (urgent)    OBS-262  2026-08-16 ("inbox")
+    OBS-011  2026-08-10    OBS-035  2026-08-12             OBS-274  2026-08-17 (urgent)
+    OBS-022  2026-08-11    OBS-044  2026-08-12             OBS-285  2026-08-17
+    OBS-028  2026-08-11    OBS-241  2026-08-13
+
+Ten `add`, one `inbox`. Eleven observations someone thought they had filed. Nine were
+dismissed by earlier sessions — which is the part that turns a papercut into an
+eight-day blindness, and it has a second cause.
+
+### Why nobody caught it: the dismissal reason is never written down
+
+`do_dismiss` (`observe.sh:229-248`) parses `--reason`, defaults it to `not actionable`,
+**echoes it at line 247, and never persists it.** The only write is `_sed_i` flipping
+`status: pending` to `status: dismissed`. Verified against my own dismissals from ten
+minutes ago: `grep 'EMPTY ROW' .context/inbox.yaml` → **0**.
+
+So every session that met a husk saw one junk row, cleared it, and left no trace of the
+diagnosis. The next session saw one junk row too — never a series. **The pattern was only
+visible to whoever counted, and nothing in the register invited counting.** A dismissal
+reason is the only place a register can distinguish *"this row is empty because the tool
+ate it"* from *"this row was not actionable"*, and those opposite facts are currently
+stored identically. Filed as **OBS-289**.
+
+### The guard that exists is on the branch that cannot lose data
+
+`observe.sh:300` rejects an unrecognised **flag** (`-*`) with `Unknown flag` and exit 1.
+The author did consider unrecognised input. But a flag typo loses nothing — it errors
+loudly — while a *subcommand* typo silently eats the payload, and that branch falls
+through to `*)`. A guard is present, reads as input validation in review, and covers the
+harmless case.
+
+That is this week's shape, in the register whose whole job is to catch this week's shape:
+**a stated property standing in for a checked one, with the failure rendering as health** —
+here as a healthy pending count, an urgent flag, and the word `captured`.
+
+Follow-up tasks are filed separately (one bug, one task); this section records the
+discovery and the evidence, not the repair.
+
 ## Acceptance Criteria
 
 ### Agent
@@ -692,6 +757,56 @@ the exchange that was a governance judgement rather than a measurement, and it h
 -->
 
 ## Verification
+
+# WHAT THIS BLOCK CAN AND CANNOT REACH — read before adding to it.
+# This task's central finding lives on an external message bus. A verification command
+# cannot assert "AEF answered": the rail is not in this repository, reading it from Bash
+# is blocked by the T-559 boundary (/root/.termlink is out of bounds), and a check that
+# shelled out to termlink would be asserting a live third party's state inside a
+# completion gate — which would go red on a hub restart and tell us nothing about this
+# task. So the rail evidence is recorded as quoted envelopes with offsets under
+# "AEF ANSWERED", and what is mechanically checked here is the part that IS ours: that
+# the findings were written down, parse, and are still present. Stating the limit rather
+# than padding the block with a command that would pass for the wrong reason.
+
+# 1. The registers this task wrote to still parse. Both were appended to by hand today.
+python3 -c "import yaml,sys; yaml.safe_load(open('.context/project/learnings.yaml')); yaml.safe_load(open('.context/inbox.yaml'))"
+
+# 2. PL-254 — the rule this task exists to produce — is in the learnings register, not
+#    only in the task prose. A learning recorded in a task file and nowhere else is
+#    invisible to every future session; the register is the surface that gets read.
+grep -q "PL-254" .context/project/learnings.yaml
+
+# 3. The observations are filed, and no PENDING row is a swallowed-payload husk.
+#    Leg 3b is the teeth and its comparand is deliberate: it counts husks that are still
+#    PENDING, not husks that exist. Eleven exist (OBS-006/011/022/028/032/035/044/241/
+#    262/274/285) and they are kept on purpose — a dismissed husk is the evidence for
+#    OBS-287, and deleting the evidence to make a check pass is how the eight-day
+#    blindness happened in the first place. What must never be true again is a husk
+#    sitting PENDING and counted, which is what OBS-274 did for nine hours while being
+#    cited in three commit messages. Asserted with python rather than grep -c because the
+#    property is "pending AND husk" — a two-field predicate a line-grep cannot express,
+#    and a grep that answered it approximately is exactly this task's subject.
+#    The unwrap is load-bearing, not defensive noise: .context/inbox.yaml is a MAPPING
+#    with one key, `observations`, not a top-level list. The first version of this leg
+#    iterated the parsed object directly, which yields the KEY STRING 'observations',
+#    so isinstance(r,dict) was never true, the husk list was always empty, and the leg
+#    passed on every possible input including the one it exists to reject. It went green
+#    on the real file and would have gone green on a file full of pending husks. Caught
+#    by mutation-testing it, not by running it — and the mutant run ALSO misled, exiting
+#    1 on a traceback rather than on a detection (PL-206: a control that fails for the
+#    wrong reason is indistinguishable from one that works). A vacuous gate written into
+#    the task about vacuous gates; kept as a comment because the near-miss is the lesson.
+grep -q "OBS-287" .context/inbox.yaml
+python3 -c "import yaml,sys; d=yaml.safe_load(open('.context/inbox.yaml')); rows=d if isinstance(d,list) else d['observations']; assert isinstance(rows,list) and rows, 'inbox shape changed — this leg cannot see rows'; h=[r['id'] for r in rows if isinstance(r,dict) and len(str(r.get('text','')))<40 and r.get('status')=='pending']; print('pending husks:',h); sys.exit(1 if h else 0)"
+
+# 4. The peer's answer is recorded in the task with the offsets that make it checkable by
+#    someone who does not trust this summary — they can re-read 41-45 themselves.
+grep -q "AEF ANSWERED" .tasks/active/T-556-rail-sender-fingerprint-is-host-wide-so-.md
+
+# 5. No Agent AC left unchecked. P-010 gates on this too, but stating it here means the
+#    block fails for the RIGHT reason if an AC is ever un-ticked by a later edit.
+test 0 -eq "$(sed -n '/^### Agent/,/^### Human/p' .tasks/active/T-556-rail-sender-fingerprint-is-host-wide-so-.md | grep -c '^- \[ \]')"
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.

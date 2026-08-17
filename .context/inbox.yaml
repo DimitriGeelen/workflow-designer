@@ -1051,7 +1051,7 @@ observations:
   captured: 2026-08-17T05:48:39Z
   context_task: T-556
   tags: []
-  status: pending
+  status: dismissed
   promoted_to: null
   urgent: true
 - id: OBS-275
@@ -1147,6 +1147,21 @@ observations:
 - id: OBS-287
   text: "fw note swallows an unrecognised first argument as the observation TEXT and reports success. 'fw note add \"<900 chars>\"' printed 'OBS-285 captured: add' - the subcommand word became the whole observation and the real payload was discarded silently. No error, no warning, exit 0. The verb has real subcommands (list, count, triage, promote, dismiss) so 'add' is a plausible guess, and every other fw verb in this framework IS subcommand-shaped (fw task create, fw context add-learning, fw bvp driver --add), which makes the bare-text form the exception rather than the rule. Cost: a junk inbox entry that had to be dismissed, and - had I not read the output - a finding I believed was filed and was not. This is the week's shape in the observation capture path itself: a tool reporting success while doing nothing with the thing it was given, where the failure renders as a normal captured-confirmation line. Fix candidates, in increasing cost: reject a first argument matching a known-subcommand-shaped word (no spaces, under ~12 chars) with 'did you mean fw note \"text\"?'; or warn when the captured text is shorter than a threshold; or accept 'add' as an alias. Sibling of OBS-275 (filter_sender ok:true over a broken filter) and of AEF's own L-602."
   captured: 2026-08-17T12:40:57Z
+  context_task: T-556
+  tags: [tooling]
+  status: pending
+  promoted_to: null
+- id: OBS-288
+  text: "RE-FILING OBS-274, WHICH WAS NEVER RECORDED. The inbox row OBS-274 contains the literal text 'add' - captured 2026-08-17T05:48:39Z, status pending, urgent true. The payload was discarded by the same 'fw note add' misfire as OBS-285 (see OBS-287). Every citation of OBS-274 since - in T-556's Context, in three commit messages, in the handovers, and in what I reported to the operator - has pointed at a row containing one word. THE CONTENT, restated: the rail sender fingerprint is HOST-WIDE. termlink identity lives in /root/.termlink and every project on this machine signs with d1993c2c3ec44c94, so termlink_agent_chat_arc_recent - which resolves sender as metadata.agent_id then metadata._from then sender_id, and surfaces none of metadata.from_project - collapses every host-local project into one indistinguishable sender. 'Has AEF replied' is therefore unanswerable by sender and must be keyed on metadata.from_project, enumerated by offset. Amendments since: from_project is SELF-ASSERTED metadata, attributable but NOT authenticated (OBS-286), so even the corrected method answers 'who claims to have posted'; and reading BY THREAD is unsound too, because a peer's reply is filed under the REPLIER's focus task (PL-254). The write path was always correct - _t420's gate requires from_project on our posts. THE COMPOUNDING IS THE POINT: a finding about tools that report success while doing nothing was itself lost to a tool reporting success while doing nothing, and it then sat PENDING and URGENT for nine hours, rendering in every audit and handover as one of three urgent observations awaiting triage. The count was right, the row was empty. That is this week's shape twice over, in the register that exists to catch it."
+  captured: 2026-08-17T14:08:07Z
+  context_task: T-556
+  tags: []
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-289
+  text: "fw note dismiss --reason accepts a reason, ECHOES it, and never persists it. agents/observe/observe.sh:229-248 - do_dismiss parses --reason into a local, defaults it to 'not actionable', and the only write is _sed_i flipping 'status: pending' to 'status: dismissed'. Line 247 prints the reason to stdout and that is where it dies. The inbox row keeps keys id/text/captured/context_task/tags/status/promoted_to and has no field for it. Verified: my own dismissals of OBS-274 and OBS-285 minutes ago left zero trace of their reasons; grep 'EMPTY ROW' .context/inbox.yaml returns 0. WHY THIS IS THE SERIOUS ONE OF THE PAIR: it is what made OBS-287's data loss invisible for eight days. Eleven observations have been destroyed by the fw-note-add misfire since 2026-08-09 (OBS-006, 011, 022, 028, 032, 035, 044, 241, 262, 274, 285 - ten 'add' and one 'inbox'). Nine were dismissed by earlier sessions. Every one of those sessions saw a junk row, dismissed it, and left NO RECORD OF WHY - so the next session saw one junk row too, never a series. The pattern was only visible to whoever counted, and nothing in the register invited counting. A dismissal reason is the only place a register can say 'this row is empty because the tool ate it' rather than 'this row was not actionable', and those are opposite facts stored identically. Fix is small - add dismissed_reason and dismissed_at to the row - but it needs its own task because the root cause is different from OBS-287's (that one loses input at capture, this one loses judgement at triage)."
+  captured: 2026-08-17T14:09:30Z
   context_task: T-556
   tags: [tooling]
   status: pending
