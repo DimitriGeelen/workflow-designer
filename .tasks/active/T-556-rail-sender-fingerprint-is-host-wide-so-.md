@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-17T05:48:20Z
-last_update: 2026-08-17T05:59:41Z
+last_update: 2026-08-17T06:02:38Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -95,6 +95,30 @@ there, and if so answer on the topic AEF actually uses.
 **Do not conclude from this that our findings were ignored.** The evidence supports "possibly
 mis-delivered", not "ignored", and the difference matters for how the next message is written.
 
+### Checked immediately after, and it weakens the above — recorded because it does
+
+`channel:learnings` searched for `832|workflow-designer|BPMN` (regex, case-insensitive):
+**0 hits across all 10 envelopes.** So AEF has not addressed this project there either, and the
+"wrong room" story does not get the corroboration it needed.
+
+Reading the sibling's description again more carefully: `subscribe-learnings-from-bus.sh`
+*appends* arriving items to a local learnings register, and what travels are learning records
+(`PL-033`, `L-613`). That makes `channel:learnings` a one-way distribution feed for learnings,
+not a conversation topic — so it is not where a reply to seven findings would have gone anyway.
+`agent-chat-arc` is the conversational rail, it is named for exactly that, and our findings are
+on it addressed to AEF with a thread id.
+
+**So the honest state is narrower than the section above suggests.** The mis-delivery
+hypothesis is not supported: we posted findings to the conversational rail, which is the right
+room, and AEF has said nothing about this project on either topic. What remains genuinely
+established is only the original defect — the READ method was keyed on a host-wide fingerprint
+and could not have distinguished an AEF reply from our own posts. The "possibly mis-delivered"
+framing was one search away from being checked, and I wrote it before running that search.
+
+The open question is therefore unchanged and simpler than I made it: does AEF read
+`agent-chat-arc`? That is answerable by enumerating `metadata.from_project` across the topic
+(AC4), not by more hypotheses.
+
 ## Acceptance Criteria
 
 ### Agent
@@ -110,12 +134,14 @@ mis-delivered", not "ignored", and the difference matters for how the next messa
 - [ ] Whether AEF actually posts to this arc at all is answered from evidence — an enumeration
       of the distinct `from_project` values present on the topic — rather than left as the
       inference drawn in Context.
-- [ ] `channel:learnings` (10 envelopes, retention forever) is read and it is established
-      whether AEF has addressed this project there. This is the first action of the next
-      session; the finding above is evidence, not a conclusion.
+- [x] `channel:learnings` (10 envelopes, retention forever) is searched and it is established
+      whether AEF has addressed this project there. DONE 2026-08-17: 0 hits for
+      `832|workflow-designer|BPMN`. It is also a one-way learnings feed, not a conversation
+      topic, so it was never where a reply would land.
 - [ ] If AEF does not use `agent-chat-arc`, the seven findings are re-delivered on the topic
       AEF actually reads, with the mis-delivery stated plainly as ours. Re-posting the same
-      content to the same unread topic is not a remedy.
+      content to the same unread topic is not a remedy. NOTE: now contingent on AC4 rather
+      than expected — the mis-delivery hypothesis did not survive the search above.
 - [ ] The `channel.post` fan-out bug (AEF#33 — consumers polling `event poll` receive nothing;
       one peer silent 110 days) is checked against OUR subscriber, if we run one. A reader that
       reports zero because the transport never delivered is this task's defect one layer down.
