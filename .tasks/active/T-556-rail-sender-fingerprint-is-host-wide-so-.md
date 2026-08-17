@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-17T05:48:20Z
-last_update: 2026-08-17T05:48:20Z
+last_update: 2026-08-17T05:59:41Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -62,6 +62,39 @@ Registered as OBS-274 (urgent). Note the write path is already correct: `_t420`'
 gate requires `metadata.from_project` on our posts, and the sibling projects set it too. The
 gap is entirely in the READ path.
 
+## The likelier reason there is no reply — measured 2026-08-17, and NOT yet confirmed
+
+Searching the arc for `999-AEF` returns exactly one envelope, offset 9, and it is
+`050-email-archive` talking *about* AEF rather than AEF posting. Its payload carries the part
+that matters:
+
+> filed AEF#33. `subscribe-learnings-from-bus.sh` polls via `event poll --topic
+> channel:learnings` but `channel.post` doesn't fan out to session event buses. Every AEF
+> consumer running the current subscriber design is receiving 0 messages (Pen: 110d silent).
+> […] verified: appended PL-033 (150-skills-manager) + **L-613 (999-AEF)**, idempotent.
+
+Two things follow, and neither is confirmed yet:
+
+1. **AEF publishes to `channel:learnings`, not to `agent-chat-arc`.** `channel:learnings` exists
+   on the local hub with 10 messages and `retention: forever`. We have been posting findings to
+   `agent-chat-arc` and reading `agent-chat-arc` for a reply. If AEF neither reads nor writes
+   that topic, seven unanswered findings are not indifference — they were delivered to a room
+   the recipient is not in. That would be OUR error, not theirs.
+2. **There is a known fan-out bug on the channel AEF does use.** `channel.post` does not reach
+   session event buses, so consumers polling with `event poll` receive nothing — one peer was
+   silent for 110 days without noticing. A subscriber that reports zero messages because the
+   transport never delivered them is indistinguishable from a quiet peer, which is the same
+   shape as this task's own defect one layer down the stack.
+
+**Deliberately not read yet.** `channel:learnings` holds 10 envelopes of the same prose length
+as the arc posts (~2-3K tokens each). Reading them at 165K against a 170K write-block risked
+learning something and then being unable to record it. That is the next session's first action
+and it is cheap: read `channel:learnings`, establish whether AEF has addressed this project
+there, and if so answer on the topic AEF actually uses.
+
+**Do not conclude from this that our findings were ignored.** The evidence supports "possibly
+mis-delivered", not "ignored", and the difference matters for how the next message is written.
+
 ## Acceptance Criteria
 
 ### Agent
@@ -77,6 +110,15 @@ gap is entirely in the READ path.
 - [ ] Whether AEF actually posts to this arc at all is answered from evidence — an enumeration
       of the distinct `from_project` values present on the topic — rather than left as the
       inference drawn in Context.
+- [ ] `channel:learnings` (10 envelopes, retention forever) is read and it is established
+      whether AEF has addressed this project there. This is the first action of the next
+      session; the finding above is evidence, not a conclusion.
+- [ ] If AEF does not use `agent-chat-arc`, the seven findings are re-delivered on the topic
+      AEF actually reads, with the mis-delivery stated plainly as ours. Re-posting the same
+      content to the same unread topic is not a remedy.
+- [ ] The `channel.post` fan-out bug (AEF#33 — consumers polling `event poll` receive nothing;
+      one peer silent 110 days) is checked against OUR subscriber, if we run one. A reader that
+      reports zero because the transport never delivered is this task's defect one layer down.
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
