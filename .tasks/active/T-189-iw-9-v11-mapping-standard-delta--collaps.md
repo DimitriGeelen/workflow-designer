@@ -19,7 +19,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-07-11T16:56:45Z
-last_update: '2026-08-16T14:32:59Z'
+last_update: 2026-08-17T14:27:24Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -109,6 +109,13 @@ Agent may draft the delta on operator GO; agent must NOT unilaterally edit froze
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
 - [x] v1.1 authority-collapse delta is drafted as a PROPOSAL document at `docs/reports/T-189-iw9-authority-collapse-delta.md` — the FROZEN v1 standard (`docs/standards/aef-bpmn-mapping-v1.md`) is NOT edited under agent control
 - [x] The proposal specifies exact before→after textual changes to BOTH standards IW-9 touches — `aef-bpmn-mapping-v1.md` §2/§3 and `aef-bpmn-forward-compile-v1.md` §2/§3.1/§3.2/§5.1 (its §8 anticipates a v1.1 of both) — realizing: Lane authority (4-valued `aef:laneMeta authority`) = sole who-performs carrier; workflow_type = kind-of-work; node-level `owner` override REMOVED
+      **ANNOTATED 2026-08-17, not re-ticked.** This was true when written and is true of the
+      document as it stood on 2026-07-12. It stopped being a complete statement of the delta
+      on 2026-08-02, when four further items were recorded in this task and not in the
+      proposal — two of which bear on §2/§3 directly. The AC is a claim about a file on a
+      given day; nothing re-checks it when the file stops tracking the task (PL-142). Left
+      ticked because re-ticking would erase the ordering that matters — the proposal was
+      complete, then the world moved. §0 of the proposal now carries the gap explicitly.
 - [x] The proposal states the graduation blast-radius across both test paths (`tests/test_mapping_standard_conformance.py` and `tests/test_forward_fixtures.py`, plus editor/bridge `metaKeys`/`META_KEYS`) — both verified conformance-safe/green as written, so the version bump is scoped before it happens
 - [x] Open sub-questions that genuinely need an operator ruling (e.g. lane-vs-task-type tiebreak when a serviceTask sits in a human lane) are enumerated rather than silently resolved
 - [x] Proposal document is referenced from this task and AEF is informed on the DM rail that the 832-side delta is drafted and awaiting Dimitri's sign-off (rail offset 27)
@@ -145,7 +152,7 @@ Agent may draft the delta on operator GO; agent must NOT unilaterally edit froze
 -->
 - [ ] [REVIEW] Operator sign-off to graduate the IW-9 delta into the FROZEN v1 standard (v1 → v1.1)
   **Steps:**
-  1. Read the drafted delta: `docs/reports/T-189-iw9-authority-collapse-delta.md` (exact before→after changes to `docs/standards/aef-bpmn-mapping-v1.md` §2/§3, plus graduation blast-radius on the conformance test)
+  1. Read the drafted delta: `docs/reports/T-189-iw9-authority-collapse-delta.md` — **start at §0 CURRENCY WARNING.** The delta body was last edited 2026-07-12; four items recorded against this task since are NOT in it, and two of them bear on §2/§3 directly (the `AUTHORITY_OWNER` disagreement with AEF, and `authority: none` as a shipped counter-example to "Lane = who-performs by construction"). §0 lists them without resolving them. Before 2026-08-17 this step pointed at the document with no indication it had stopped tracking the task, so a sign-off would have ruled on the July proposal.
   2. Rule on the enumerated open sub-questions (esp. the lane-vs-task-type tiebreak) — the delta cannot be finalized until these are decided
   3. If GO: authorize the agent to graduate — apply the §2/§3 edits to frozen v1, bump to v1.1, and update `tests/test_mapping_standard_conformance.py` to match — then run the conformance suite green and complete this task. If NO-GO/refine: annotate the delta and hand back.
   **Expected:** A recorded GO/refine/NO-GO decision on the delta; on GO, explicit authorization to edit the frozen standard (that edit is gated on this sign-off — see Context)

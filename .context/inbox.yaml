@@ -1173,3 +1173,10 @@ observations:
   tags: [tooling]
   status: pending
   promoted_to: null
+- id: OBS-291
+  text: "A [REVIEW] AC can point at a proposal document that has stopped tracking the task, and nothing detects it. T-189's Human AC step 1 tells the operator to read docs/reports/T-189-iw9-authority-collapse-delta.md. That file was last edited 2026-07-12 (11e2826a). Four further v1.1 items were recorded in the TASK on 2026-08-02 and after, and none is in the document - including two that bear on the delta's own sections: our AUTHORITY_OWNER maps authority to agent while AEF's T-2717 maps it to no owner (a live peer disagreement on the exact axis IW-9 collapses, which the proposal states as settled), and authority: none has no collapse map while examples/aef-processes/context-memory.workflow.yaml lanes by MEMORY TYPE giving 7 task nodes with no derivable owner - a shipped counter-example to the proposal's premise that Lane means who-performs by construction. So a sign-off would have ruled on the July proposal while believing it ruled on the current one. The Agent ACs are all ticked and all were TRUE WHEN WRITTEN - AC2 says the proposal specifies exact before-to-after changes, and it did, on 2026-07-12. PL-142 instance at the seam between a task and its own referenced artifact. THE STRUCTURAL GAP: nothing checks that a document referenced by a [REVIEW] AC is not older than the task content it is supposed to represent. Cheap detector shape - for every task with an unchecked [REVIEW] AC whose Steps name a repo path, compare that path's last-commit date against the task file's, and warn when the task is newer by more than N days. Would have fired on T-189 five weeks ago. Fixed in place for T-189 with a currency section; the population-wide check is unbuilt and is a sibling of T-555."
+  captured: 2026-08-17T14:29:35Z
+  context_task: T-189
+  tags: [governance]
+  status: pending
+  promoted_to: null

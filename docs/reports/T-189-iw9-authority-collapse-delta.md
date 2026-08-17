@@ -12,6 +12,48 @@
 
 ---
 
+## 0. CURRENCY WARNING — read before §3 (added 2026-08-17, T-189)
+
+**The delta below was last edited 2026-07-12 (`11e2826a`). Four further items have been
+recorded against this task since, and NONE of them is in this document.** They live only in
+`.tasks/active/T-189-*.md` under *"v1.1 items accumulated after the proposal was written
+(2026-08-02)"*.
+
+This matters because T-189's `[REVIEW]` acceptance criterion instructs the operator, in step
+1, to *"read the drafted delta: `docs/reports/T-189-iw9-authority-collapse-delta.md`"*. That
+instruction was written when this file was the whole delta. It no longer is. A sign-off given
+on §3 as it stands would be a ruling on the 2026-07-12 proposal, not on the current one — and
+nothing in the file said so until this section was added.
+
+Not resolved here. Listing them is the whole of this change; **deciding them is the ruling
+being asked for**, and folding an agent's answer into the delta the operator is about to
+approve is how a proposal quietly becomes a decision.
+
+| # | item | does it change §3's text? |
+|---|---|---|
+| 1 | **`AUTHORITY_OWNER` disagrees with AEF.** Ours maps `authority` → **agent**; AEF's T-2717 maps it → **no owner**. AEF measured the separating case (rail 375): flipping a `serviceTask` to `userTask` in a Framework lane yields owner **human** with no warning on their side, and **agent** plus `W-TYPE-LANE-MISMATCH` on ours. | **YES — potentially §3's collapse map.** This is a live disagreement with the peer on the exact axis IW-9 collapses. §3 currently states `authority→agent` as settled. |
+| 2 | **`<bpmn:documentation>` is unemittable**, not merely unused: 0 occurrences across 175 `.bpmn`, and absent from the designer export, `yaml-to-bpmn.py` and `bpmn-to-yaml.py`. `aef:meta note` carries 100% of the explanatory load on both sides. Recommendation recorded in the task: carry BOTH with a stated precedence rather than migrate. | Adjacent — a carrier question, not an authority-axis question. Would extend the delta's scope, not contradict §3. |
+| 3 | **Audience of the `note` field.** One field silently picks a reader and has picked the implementer. Admission test AEF has adopted: a newcomer note MUST NOT be derivable by truncating the implementer note. | Adjacent, same batch as (2). |
+| 6 | **`authority: none` has no collapse map, and our own corpus contains a lane axis that is not the actor axis.** `AUTHORITIES` (`validate-workflow.py:62`) accepts five members; frozen §3 names four outcomes. `examples/aef-processes/context-memory.workflow.yaml` lanes by *memory type* (Working / Project / Episodic), giving 7 task nodes with no derivable owner. | **YES — this is a counter-example to the premise.** §2 asserts Lane = who-performs *by construction*; one shipped map in this repository says otherwise. |
+
+*(The numbering is the task's own and is not contiguous — items 4 and 5 are referenced there
+as belonging to earlier batches. Four items are recorded in that section; this table reports
+what is verifiably there rather than smoothing the gap in the sequence.)*
+
+**Two of the four bear on §2/§3 directly** — item 1 as a peer disagreement about a mapping
+this document states as settled, item 6 as a shipped counter-example to the axiom §2 rests on.
+The other two would widen the delta rather than change it.
+
+**Why this was missed for five weeks.** T-189's Agent ACs are all ticked and all were true
+when written: AC2 says the proposal *"specifies exact before→after changes"* — it did, on
+2026-07-12. The AC is a claim about a document on a given day; the document then stopped
+tracking the task. Nothing re-checks a ticked AC against a file that moved underneath it
+(PL-142). This section is the cheap fix; the structural one — a check that a proposal
+referenced by a `[REVIEW]` AC is not older than the task content it represents — is not
+filed here and is not this task's to build.
+
+---
+
 ## 1. The problem (IW-9)
 
 Authority — *who is accountable for a unit of work* — is currently **triple-encoded** across three
