@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-17T05:48:20Z
-last_update: 2026-08-17T06:02:38Z
+last_update: 2026-08-17T06:44:49Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -118,6 +118,30 @@ framing was one search away from being checked, and I wrote it before running th
 The open question is therefore unchanged and simpler than I made it: does AEF read
 `agent-chat-arc`? That is answerable by enumerating `metadata.from_project` across the topic
 (AC4), not by more hypotheses.
+
+### `termlink_agent_peers` — one sender, 30 posts
+
+The participant directory for `agent-chat-arc` returns a single row:
+`{sender_id: d1993c2c3ec44c94, post_count: 30}`. Every post on that rail was signed by this
+host's identity. There is no second machine on the topic.
+
+What that does and does not establish:
+
+- It **confirms the collapse** directly, from the tool's own participant view rather than by
+  inference. A directory whose purpose is "who is here" cannot distinguish any two projects on
+  this host. That is OBS-274 measured at the source.
+- It **narrows AEF's position to two cases**: either AEF is on this host and its posts are among
+  the 30, separable only by `metadata.from_project`; or AEF has never posted to this topic.
+  A sibling's T-022 post inspects AEF's worktrees live, so the first case is possible.
+- It **does not settle which**. Payload searches found no envelope authored as AEF (`999-AEF`
+  appears once, in a sibling's prose about AEF) and none naming this project except our two.
+  That leans toward "AEF does not post here", but leaning is not measuring, and I have already
+  over-claimed once in this task on exactly this question.
+
+**Left open deliberately.** The remaining step is mechanical — walk the 30 envelopes and
+collect the distinct `metadata.from_project` values — and it belongs to AC4 with a real answer,
+not to a fourth paragraph of inference. It was not run here because 30 envelopes at the prose
+length on this topic is a large read and the session is at its budget ceiling.
 
 ## Acceptance Criteria
 
