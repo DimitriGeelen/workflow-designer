@@ -1054,3 +1054,33 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-275
+  text: "termlink_agent_chat_arc_recent's filter_sender matches nothing for any value. Measured 2026-08-17 on agent-chat-arc: filter_sender=dimitrimintdev-vendored -> 0 posts, filter_sender=d1993c2c3ec44c94 -> 0 posts, both strings the same tool prints in its own 'sender' field, same 720h window, hub reported as scanned; an unfiltered call in the same minute returns both senders. Every filtered call returns ok:true total_posts:0, indistinguishable from 'that sender never posted'. A question answered with this filter gets a confident wrong negative. Both arms tested — the positive control failed too, which is the only reason the negative was not recorded as a finding (PL-206)."
+  captured: 2026-08-17T07:35:40Z
+  context_task: T-556
+  tags: [bug]
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-276
+  text: "termlink_agent_envelope returns an empty payload while reporting found:true. Measured 2026-08-17: payload_b64:'' and payload_decoded:'' on all 35 offsets of agent-chat-arc, including offset 33 which termlink_agent_recent returns with a full 1.5KB payload seconds earlier. The tool is documented for forensics ('what exactly was at offset X with all fields') and answers 'found it, here it is: nothing'. Its metadata half is sound. A caller checking found:true before reading gets a success verdict on an empty result."
+  captured: 2026-08-17T07:35:46Z
+  context_task: T-556
+  tags: [bug]
+  status: pending
+  promoted_to: null
+- id: OBS-277
+  text: "termlink_agent_recent documents a metadata field it does not return. Docstring promises (offset, ts, sender_id, msg_type, payload_b64, metadata, signature); the actual record is (artifact_ref, msg_type, offset, payload_b64, sender_id, topic, ts) — no metadata, no signature. Measured 2026-08-17. Consequence: the two readers on this topic are exact complements — recent has payload without metadata, envelope has metadata without payload — so neither alone can answer 'who said what', and a caller trusting the docstring concludes attribution is unreadable. I drew exactly that wrong conclusion before checking the other reader."
+  captured: 2026-08-17T07:35:52Z
+  context_task: T-556
+  tags: [bug]
+  status: pending
+  promoted_to: null
+- id: OBS-278
+  text: "The termlink fleet hub census is unstable and reports ok:true regardless of how much of the fleet it failed to reach. Measured 2026-08-17: across five consecutive termlink_agent_chat_arc_recent calls hubs_failed was 1, 2, 1, 3, 2 — laptop-141 never reachable ('network'), both ring20-* hubs intermittently timing out. Every call returned ok:true. A 'who is here' or 'has anyone replied' answer computed while a hub is unreachable is rendered identically to one computed over the whole fleet; the shortfall appears only as a summary field a caller must know to read. Default timeout_secs=30 is also insufficient: two calls failed outright, timeout_secs=110 succeeded."
+  captured: 2026-08-17T07:36:00Z
+  context_task: T-556
+  tags: [bug]
+  status: pending
+  promoted_to: null
+  urgent: true

@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-17T05:48:20Z
-last_update: 2026-08-17T06:44:49Z
+last_update: 2026-08-17T06:54:52Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -143,21 +143,121 @@ collect the distinct `metadata.from_project` values — and it belongs to AC4 wi
 not to a fourth paragraph of inference. It was not run here because 30 envelopes at the prose
 length on this topic is a large read and the session is at its budget ceiling.
 
+### The census, run 2026-08-17 — four projects, one fingerprint, no AEF
+
+The walk was performed over the topic's entire history, offsets 0–34 (35 envelopes), via
+`termlink_agent_envelope` per offset. Every envelope carries `sender_id: d1993c2c3ec44c94`.
+Distinct `metadata.from_project`:
+
+| `from_project`             | envelopes | what they are                                        |
+|----------------------------|-----------|------------------------------------------------------|
+| `010-termlink`             | 19        | 18 hourly T-1438 heartbeats (`_from: dimitrimintdev-vendored`) + one hub registration at offset 34 (`agent_id: termlink-107`) |
+| `0503-codex-cli-playground`| 7         | the T-022 worktree-reliability evidence chain (11–15, 19) and T-023 (30) |
+| `050-email-archive`        | 5         | the T-1948 governance sweeps that carry metadata (8, 9, 16, 20, 22) |
+| `832-Workflow-designer`    | 2         | offsets 2 (T-546, six findings) and 5 (T-547, seventh, `in_reply_to: offset-2`) — ours |
+| *(absent — no metadata)*   | 2         | T-1948 sweeps #11 and #12 at offsets 31 and 33, posted unattributed |
+| **`999-AEF` / any AEF id** | **0**     | **AEF has never posted to this topic**                |
+
+**AC4 is answered, and it agrees with the inference it was meant to test.** AEF does not use
+`agent-chat-arc`. Not "has not replied recently" — has never posted, across the whole 35-envelope
+history of the rail. The seven findings were delivered to a room AEF has never been in.
+
+**OBS-274 is now quantified rather than asserted.** The collapse is not two projects sharing a
+fingerprint, it is **four**, and `termlink_agent_peers` renders all four as a single row whose
+`post_count` is the sum. The directory is not merely imprecise about which project spoke; on this
+host it cannot represent the concept of a project at all.
+
+Two corrections to what I wrote above, both mine:
+
+- *"There is no second machine on the topic"* is true and was the wrong thing to measure. There is
+  no second **machine**, and there are four second **projects**. Reading a host-keyed directory and
+  reporting a project-level conclusion is the same substitution this task was opened about, and I
+  made it while writing the task about it.
+- I inferred, from `termlink_agent_recent` returning no `metadata` field, that `from_project` was
+  unreadable and the enumeration therefore unperformable. That was wrong, and I checked it before
+  recording it: `termlink_agent_envelope` returns metadata correctly. Offset 33's `metadata: null`
+  was truthful — that sibling's post genuinely carries none.
+
+### Four defects in the read surface, measured on the way
+
+These are what made the question resist three sessions. None of them announce themselves; all four
+return success.
+
+1. **`termlink_agent_chat_arc_recent`'s `filter_sender` matches nothing, for any value.**
+   `dimitrimintdev-vendored` → 0 posts. `d1993c2c3ec44c94` → 0 posts. Both are strings the *same
+   tool* prints in its own `sender` field, in the same 720h window, on a hub it reported as
+   scanned; an unfiltered call in the same minute returns both. Every filtered call returns
+   `ok: true, total_posts: 0` — a silent empty indistinguishable from "that sender never posted."
+   **Had I answered AC4 with this filter, I would have gotten a clean, confident, wrong "no AEF"** —
+   the right answer by luck, from a control that cannot produce any other answer (PL-206). The
+   negative arm is only meaningful because the positive control was run first and also failed.
+2. **`termlink_agent_envelope` returns an empty payload while reporting `found: true`.**
+   `payload_b64: ""` and `payload_decoded: ""` on all 35 offsets, including offset 33, which
+   `termlink_agent_recent` returns with a full 1.5KB payload seconds earlier. The tool documented
+   for forensics — *"what exactly was at offset X with all fields"* — answers "found it, here it
+   is: nothing." Its metadata half is sound, which is why the census was possible.
+3. **`termlink_agent_recent` documents a `metadata` field it does not return.** Docstring promises
+   `(offset, ts, sender_id, msg_type, payload_b64, metadata, signature)`; the record contains
+   `artifact_ref, msg_type, offset, payload_b64, sender_id, topic, ts`. No `metadata`, no
+   `signature`. The two readers are exact complements — `recent` has payload without metadata,
+   `envelope` has metadata without payload — and neither alone can answer "who said what".
+4. **The fleet hub census is unstable and reports `ok: true` regardless.** Across five consecutive
+   calls `hubs_failed` was 1, 2, 1, 3, 2, with `laptop-141` never reachable ("network") and the two
+   `ring20-*` hubs intermittently timing out. The default 30s timeout is insufficient — two calls
+   failed outright; `timeout_secs: 110` succeeded. **A "who is here" answer computed while a hub is
+   unreachable is reported identically to one computed over the whole fleet.** The census above is
+   therefore complete only for `workstation-107-public`, which is where all 35 envelopes live.
+
+### The recipe, written down (AC1)
+
+The enumeration is not re-derivable from either reader alone, so it is recorded here rather than
+rediscovered next session:
+
+```
+# Who has spoken on agent-chat-arc, by project rather than by host:
+#   1. termlink_agent_chat_arc_recent(limit=50, since_hours=720, timeout_secs=110)
+#      -> newest ts and the post count. Read `summary.failed_hubs` FIRST: a non-empty
+#         list means the answer is partial, and the call still returns ok: true.
+#   2. termlink_agent_recent(limit=1) -> the newest offset N. (Its `metadata` is absent
+#         despite the docstring; do not key on it.)
+#   3. termlink_agent_envelope(offset) for offset in 0..N -> metadata.from_project.
+#         Payloads come back empty, which is a defect and also what makes this cheap:
+#         a full 35-envelope census costs ~10 lines per call and no prose.
+# Do NOT use filter_sender. It returns 0 for every value, including ones the tool itself
+# prints, and it says ok: true while doing it.
+```
+
 ## Acceptance Criteria
 
 ### Agent
 <!-- Criteria the agent can verify (code, tests, commands). P-010 gates on these. -->
-- [ ] The "has the peer replied" check keys on `metadata.from_project`, not on `sender`, and
+- [x] The "has the peer replied" check keys on `metadata.from_project`, not on `sender`, and
       the helper that answers it is written down rather than re-derived per session.
-- [ ] A probe demonstrates the collapse: two envelopes from different `from_project` values
+      DONE 2026-08-17: recipe recorded under "The recipe, written down (AC1)". It is a recipe
+      rather than a script because the only surface that returns `from_project` is the MCP
+      deep-fetch, which a repo tool cannot call; and because two of the three steps carry a
+      documented-but-false promise that the next session would otherwise walk into again.
+- [x] A probe demonstrates the collapse: two envelopes from different `from_project` values
       with identical `sender_id` are shown to be indistinguishable under a sender-keyed filter
       and distinguishable under a project-keyed one. Without the second arm this is a claim,
       not a check.
-- [ ] The negative result is re-derived by the new method and agrees with the payload-search
+      DONE 2026-08-17: both arms measured over all 35 envelopes. Sender-keyed — every envelope
+      returns `sender_id: d1993c2c3ec44c94`, and `termlink_agent_peers` renders the four
+      projects as one row. Project-keyed — the same 35 separate cleanly into 010-termlink (19),
+      0503-codex-cli-playground (7), 050-email-archive (5), 832-Workflow-designer (2), plus 2
+      unattributed. The discrimination is real, not a decoration: it also surfaced the two
+      posts that carry no attribution at all, which the sender view cannot represent.
+- [x] The negative result is re-derived by the new method and agrees with the payload-search
       finding recorded above (exactly two envelopes naming this project, both ours).
-- [ ] Whether AEF actually posts to this arc at all is answered from evidence — an enumeration
+      DONE 2026-08-17: exactly two, offsets 2 (T-546) and 5 (T-547, `in_reply_to: offset-2`).
+      Agrees with the payload search on both count and identity. Two independent methods over
+      different fields — prose text vs envelope metadata — reaching the same pair.
+- [x] Whether AEF actually posts to this arc at all is answered from evidence — an enumeration
       of the distinct `from_project` values present on the topic — rather than left as the
       inference drawn in Context.
+      DONE 2026-08-17: four distinct values over offsets 0–34, none of them AEF. The finding is
+      stronger than the inference it replaces — not "AEF has not replied" but "AEF has never
+      posted to this topic," across its entire history.
 - [x] `channel:learnings` (10 envelopes, retention forever) is searched and it is established
       whether AEF has addressed this project there. DONE 2026-08-17: 0 hits for
       `832|workflow-designer|BPMN`. It is also a one-way learnings feed, not a conversation
