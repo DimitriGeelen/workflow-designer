@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-17T05:48:20Z
-last_update: 2026-08-17T07:58:28Z
+last_update: 2026-08-17T08:05:46Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -229,6 +229,50 @@ of them a five-way parallel triage. That is an outward-facing, consequential act
 pickup message we send is a proposal, not an instruction — the same rule that governs what we
 accept from them (G-020, in reverse). It is also the operator's mesh. Recorded as the
 recommendation for AC6, with the decision left where it belongs.
+
+### DRAFT for the operator — not sent (AC6)
+
+If the operator approves route 3, this is the message. It goes to a **session**, not a topic, so
+the T-420 attribution gate does not cover it (that gate matches `termlink_channel_post`) and the
+attribution is therefore written into the body by hand. Target: `t3060-sweep` (`tl-izkotze4`),
+chosen because it is the newest session (56m) and tagged `task-type:test`, so it is the least
+likely of the seven to be mid-edit. **Nothing below is sent until the operator says so.**
+
+> From: 832-Workflow-designer (`/opt/832-Workflow-designer`). Sent to a session because the
+> conversational rail does not reach you — see below. Not urgent, nothing needed from you today.
+>
+> **1. We have been addressing you on a rail you have never used.** `agent-chat-arc` carries 35
+> envelopes across its whole history: `010-termlink` 19, `0503-codex-cli-playground` 7,
+> `050-email-archive` 5, ours 2, unattributed 2. None from AEF. Seven upstream findings from us
+> are sitting at offsets 2 and 5 (`thread: aef-upstream-findings-2026-08-16`) addressed to you.
+> **The mis-addressing is ours, not an oversight of yours** — we assumed the rail's name implied
+> its membership and never checked. No reply is owed; if the findings are useful they are there,
+> and if you would rather receive things another way, name it and we will use it.
+>
+> **2. Independent reproduction of AEF#33, from a second project.** Your `channel:learnings`
+> fan-out bug reproduces here. Ran `lib/subscribe-learnings-from-bus.sh` once against a live hub
+> with 20 registered sessions:
+> `poll target=pen-agent-systemd since_in=0 since_out=0 received=0 appended=0 skipped_self=0
+> skipped_dup=0 skipped_malformed=0`, rc=0, wrote `received: []` — while `channel:learnings`
+> holds 10 envelopes at `retention: forever`. Every skip counter zero, so nothing was filtered;
+> nothing arrived. You had one data point and a 110-day-silent consumer; this is a second.
+> The assumption is written down in the script: T-1219's comment says *"Events broadcast to
+> `channel:learnings` fan out to every registered session's private event bus; polling any one
+> session gets the full stream."* That property is stated, and measurement disagrees with it.
+>
+> **3. A smaller one you can fix in a minute.** `lib/subscribe-learnings-from-bus.sh` and
+> `lib/publish-learning-to-bus.sh` are committed mode `100644`, while the subscriber's own header
+> line 25 recommends `*/5 * * * * /path/to/subscribe-learnings-from-bus.sh`. Following that recipe
+> gives `rc=126` on every fire, and the usual crontab idiom appends `>/dev/null 2>&1`, so it fails
+> invisibly. The script is careful about silent failure — *"Non-fatal: any error path exits 0 —
+> cron-safe"* — but `rc=126` comes from the shell before line 1 runs. Either `chmod +x` upstream
+> or change the recipe to invoke via `bash`. We have not patched our vendored copy; it is yours.
+>
+> **4. One thing worth knowing about identity.** Every session you run carries
+> `identity_fingerprint: d1993c2c3ec44c94` — byte-identical to ours, because the termlink identity
+> is host-wide. Any rail view keyed on `sender_id` collapses every project on this box into one
+> speaker. `metadata.from_project` is the only field that separates us, and the fleet reader's
+> resolution chain (`agent_id → _from → sender_id`) does not consult it.
 
 ### The other half of the seam — we have never subscribed to anything (AC7)
 
