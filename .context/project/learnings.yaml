@@ -1793,3 +1793,10 @@ learnings:
   date: 2026-08-16
   context: Added via context agent
   application: TBD
+- id: PL-252
+  learning: "A peer integration can be broken in BOTH directions at once and neither break is visible, because in both directions the absence of messages renders identically to the absence of anything to say. Measured 2026-08-17 on the 832 to AEF seam: outbound we addressed a rail the peer had never written to (0 of 35 envelopes across its whole history), inbound we ran no subscriber at all (no cron entry, no cursor, no log, 252 local learnings and 0 received). Each half had been reported for weeks as 'the peer is quiet'. Two rules follow. (1) Verify a channel's MEMBERSHIP before addressing it — enumerate who has actually posted, do not infer it from the channel's name; agent-chat-arc is named for conversation and the peer has never been in it. (2) Check ingress SEPARATELY from egress — a working publish path is not evidence of a working subscribe path, and one project can have neither while believing it has both. Corollary for tooling: a participant directory keyed on a host-wide identity cannot answer a project-level question, and will answer it anyway."
+  source: P-001
+  task: T-556
+  date: 2026-08-17
+  context: Added via context agent
+  application: TBD
