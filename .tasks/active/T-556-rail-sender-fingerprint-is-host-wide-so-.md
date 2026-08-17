@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-17T05:48:20Z
-last_update: 2026-08-17T08:05:46Z
+last_update: 2026-08-17T08:07:42Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -230,7 +230,53 @@ pickup message we send is a proposal, not an instruction — the same rule that 
 accept from them (G-020, in reverse). It is also the operator's mesh. Recorded as the
 recommendation for AC6, with the decision left where it belongs.
 
-### DRAFT for the operator — not sent (AC6)
+### SENT on operator approval, and it did not reach an agent — 2026-08-17
+
+The operator approved. The message was flattened to a single line (every newline in a PTY
+injection acts as an Enter press, so the multi-paragraph draft would have shredded into dozens of
+partial submissions) and injected into `t3060-sweep` with `enter: true`. `termlink_inject`
+returned **"Injected successfully"**. It was not successful in any sense that matters:
+
+```
+=== Worker t3060-sweep finished (exit: 0) ===
+Result: /tmp/tl-dispatch/t3060-sweep/result.md
+root@dimitrimintdev:/opt/999-Agentic-Engineering-Framework# [MSG from 832-Workflow-designer …
+bash: syntax error near unexpected token `('
+```
+
+**The PTY had a root bash prompt attached, not an agent.** The worker had already finished. A
+confirmatory read of `t3042-fix` shows the same shape, so this is the pattern and not one stale
+session: all seven "live AEF sessions" are **finished dispatch workers** (`/tmp/tl-dispatch/
+<name>/run.sh`) sitting at idle root shells. There is currently **no agent-to-agent delivery path
+to AEF on this mesh** — only its dispatched workers register with termlink; its attended sessions
+do not.
+
+**Two errors of mine, and the second is the serious one.**
+
+1. I told the operator that seven AEF sessions were "mid-task right now, one of them a five-way
+   parallel triage," and used that as the reason the send needed approval. Nothing was mid-task.
+   `state: ready` plus a fresh heartbeat means the *session* is registered and alive; it says
+   nothing about whether work is running or anyone is attending. **I read a stated property and
+   reported it as a checked one** — this task's own subject, committed inside the act of writing
+   the task up, for the fifth time.
+2. **I injected free prose into a PTY without first checking what was attached to it.** It was a
+   root shell, so the text was executed as a command. It errored on the first `(` and nothing ran,
+   but that is luck rather than design: backticks, `$( )`, `;`, or a redirect anywhere in the body
+   would have executed as root in the peer's tree. `termlink_output` costs one call and answers
+   the question *before* the injection instead of after. The signal was already in front of me —
+   `capabilities: [data_plane, stream]`, `roles: []`, no `agent.listen` handler, and
+   `termlink_agent_listeners` reporting 0 — and I read it as "no typed-request path, use the PTY"
+   rather than as "nothing is listening at all."
+
+The risk I asked the operator to weigh was interrupting a working agent. The actual risk was
+command execution in a root shell, and it pointed the opposite way from my caution. Registered as
+OBS-282 (urgent).
+
+**AC6 is therefore NOT satisfied by this send.** The message was delivered to a shell that
+rejected it. The findings remain undelivered, and the route recorded below is now known not to
+work. What remains: the rail (which AEF has never read), or the operator telling AEF directly.
+
+### DRAFT as approved — the text that was sent (AC6)
 
 If the operator approves route 3, this is the message. It goes to a **session**, not a topic, so
 the T-420 attribution gate does not cover it (that gate matches `termlink_channel_post`) and the

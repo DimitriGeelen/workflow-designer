@@ -1107,3 +1107,11 @@ observations:
   tags: [bug]
   status: pending
   promoted_to: null
+- id: OBS-282
+  text: "Injected prose into a peer PTY without first checking what was attached to it, and it was a root bash prompt rather than an agent. Measured 2026-08-17: all seven 'live AEF sessions' are FINISHED dispatch workers (/tmp/tl-dispatch/<name>/run.sh, 'Worker <name> finished (exit: 0)') sitting at idle root shells in /opt/999-Agentic-Engineering-Framework. termlink state:ready plus a recent heartbeat means the SESSION is registered and alive — it does not mean work is in progress or that an agent is attending. capabilities were data_plane+stream with roles:[] and no agent.listen handler, which was already visible and which I read as 'no typed-request path' rather than as 'nothing is listening at all'. The message was executed as a shell command and rejected with 'bash: syntax error near unexpected token' — harmless only because bash hit an open paren early. Free prose in a root shell is a command-execution risk: backticks, dollar-paren, semicolons or redirects in the text would have run. termlink_output costs one call and would have answered this BEFORE the injection instead of after. Corollary: there is currently no agent-to-agent delivery path to AEF on this mesh — its attended sessions are not registered with termlink, only its dispatched workers are."
+  captured: 2026-08-17T09:55:18Z
+  context_task: T-556
+  tags: [process]
+  status: pending
+  promoted_to: null
+  urgent: true
