@@ -1092,3 +1092,18 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-280
+  text: "Reproduced the channel:learnings fan-out bug from this project, independently of the peer who filed it. Ran the vendored subscriber once (2026-08-17T08:04:15Z) against a live hub with 20 registered sessions: 'poll target=pen-agent-systemd since_in=0 since_out=0 received=0 appended=0 skipped_self=0 skipped_dup=0 skipped_malformed=0', rc=0, and it wrote received: [] — while channel:learnings demonstrably holds 10 envelopes at retention: forever. The script's own design comment states the property the fix rests on: 'Events broadcast to channel:learnings fan out to every registered session private event bus; polling any one session gets the full stream.' Measured: nothing fans out. So the T-1219 fix replaced event collect with event poll on an assumption about the transport that was never verified — a stated property standing in for a checked one, inside the repair for the previous bug. The failure renders as health: every skip counter zero, exit 0, a log line that reads like a successful empty poll. A consumer with this installed accumulates healthy-looking zero lines indefinitely; one peer was silent 110 days."
+  captured: 2026-08-17T08:04:37Z
+  context_task: T-556
+  tags: [bug]
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-281
+  text: "The learnings-bus scripts are committed non-executable while their own install recipe is a direct invocation. lib/subscribe-learnings-from-bus.sh and lib/publish-learning-to-bus.sh are both mode 100644 in git, and the subscriber's header line 25 reads: 'Recommended install: */5 * * * * /path/to/subscribe-learnings-from-bus.sh'. Following that recipe produces rc=126 (Permission denied) on every fire, forever — and the idiom used in practice appends '>/dev/null 2>&1', so the failure is invisible. The script is written to be defensive about exactly this class of problem ('Non-fatal: any error path exits 0 — cron-safe', 'Silent no-op when termlink missing, hub down, or no sessions') but rc=126 comes from the shell before line 1 runs, so the one failure mode its careful error handling cannot cover is the one the documented install actually produces. Fix is either chmod +x in the upstream tree or an install recipe that invokes via bash. Vendored code, so G-008 applies — fixable in-tree and upstreamable."
+  captured: 2026-08-17T08:04:45Z
+  context_task: T-556
+  tags: [bug]
+  status: pending
+  promoted_to: null

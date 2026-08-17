@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-17T05:48:20Z
-last_update: 2026-08-17T07:36:19Z
+last_update: 2026-08-17T07:58:28Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -230,6 +230,64 @@ pickup message we send is a proposal, not an instruction — the same rule that 
 accept from them (G-020, in reverse). It is also the operator's mesh. Recorded as the
 recommendation for AC6, with the decision left where it belongs.
 
+### The other half of the seam — we have never subscribed to anything (AC7)
+
+The rail is the outbound half. Checking the inbound half found it missing entirely:
+
+- **No subscriber runs for this project.** The host crontab contains exactly one
+  `subscribe-learnings-from-bus.sh` line and it is `050-email-archive`'s. We have no cron entry,
+  no `.subscribe-learnings-bus.cursor`, no log, and no `.context/project/received-learnings.yaml`.
+- **No publisher either.** Nothing wires `publish-learning-to-bus.sh` into our hooks.
+- **252 learnings in `learnings.yaml`, all ours. 0 received, 0 published.**
+
+So the 832↔AEF seam is broken in *both* directions, and both breaks are the same shape: outbound,
+we address a rail the peer has never written to; inbound, we are not connected to the bus the peer
+publishes on. Neither could be noticed, because in both directions the absence of messages renders
+exactly like the absence of anything to say.
+
+**Then I ran the subscriber by hand, and it reproduces AEF#33 from our side.** The first attempt
+failed `rc=126`, which is a finding rather than an obstacle (below). Invoked via `bash`, against a
+live hub with 20 registered sessions:
+
+```
+2026-08-17T08:04:15Z target-changed old= new=pen-agent-systemd reset-cursor
+2026-08-17T08:04:15Z poll target=pen-agent-systemd since_in=0 since_out=0 received=0 appended=0 \
+                     skipped_self=0 skipped_dup=0 skipped_malformed=0
+rc=0    →  received: []
+```
+
+`channel:learnings` holds 10 envelopes at `retention: forever`. The poller received none of them.
+Every skip counter is zero, so this is not filtering — nothing arrived. **This is an independent
+reproduction of AEF#33 from a second project**, which is worth more to the peer than agreement:
+they had one data point and a 110-day-silent consumer.
+
+And the interesting part is where the assumption sits. The script's own design comment states the
+property its fix depends on:
+
+> Events broadcast to `channel:learnings` fan out to every registered session's private event bus;
+> polling any one session gets the full stream. (v1 used `event collect` which only delivers
+> events broadcast by the collector's own session — missed cross-session traffic entirely.)
+
+That is T-1219's repair of T-1217's bug, and it rests on a transport property that was written down
+rather than checked. **A stated property standing in for a checked one, inside the repair for the
+previous bug** — the same shape as T-448, T-541 and T-552 this week, now found in the vendored
+framework rather than in our own instrumentation. The failure renders as health: exit 0, all
+counters zero, a log line indistinguishable from a successful poll of an empty topic.
+
+**`rc=126` — the defensive script that cannot defend against not starting.** Both bus scripts are
+mode `100644` in git, while the subscriber's header line 25 recommends
+`*/5 * * * * /path/to/subscribe-learnings-from-bus.sh` — a direct invocation, which cannot execute.
+The script is unusually careful about silent failure (`Non-fatal: any error path exits 0 —
+cron-safe`, `Silent no-op when termlink missing, hub down, or no sessions`), but `rc=126` is
+produced by the shell before line 1 runs, and the install idiom appends `>/dev/null 2>&1`. The one
+failure mode its error handling cannot reach is the one its own documented install produces.
+Vendored, so G-008 applies: fixable in-tree and upstreamable (OBS-281).
+
+**Not installed.** Adding a cron entry writes outside `/opt/832-Workflow-designer`, which is the
+T-559 boundary, and it would install a subscriber that is currently known to receive nothing.
+Recommended to the operator as a pair: fix the mode, then install — in that order, because
+installing first produces a healthy-looking log either way.
+
 ### Four defects in the read surface, measured on the way
 
 These are what made the question resist three sessions. None of them announce themselves; all four
@@ -326,9 +384,14 @@ rediscovered next session:
       as you see fit". The recommendation is written up under "AEF is live on this host right
       now"; the decision is the operator's. What is NOT recommended is re-posting the seven
       findings to `agent-chat-arc` — that is the remedy this AC already names as no remedy.
-- [ ] The `channel.post` fan-out bug (AEF#33 — consumers polling `event poll` receive nothing;
+- [x] The `channel.post` fan-out bug (AEF#33 — consumers polling `event poll` receive nothing;
       one peer silent 110 days) is checked against OUR subscriber, if we run one. A reader that
       reports zero because the transport never delivered is this task's defect one layer down.
+      DONE 2026-08-17: we run no subscriber — no cron entry, no cursor, no log, no
+      `received-learnings.yaml`. So the answer to "if we run one" is no, and the bug does not
+      affect us, for a worse reason than if it did. Ran it by hand to answer the question
+      properly; see "The other half of the seam" below. It reproduces, and two further defects
+      were measured on the way (OBS-280, OBS-281).
 
 ### Human
 <!-- Criteria requiring human verification (UI/UX, subjective quality). Not blocking.
