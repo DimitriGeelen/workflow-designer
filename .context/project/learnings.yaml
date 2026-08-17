@@ -1807,3 +1807,10 @@ learnings:
   date: 2026-08-17
   context: Added via context agent
   application: TBD
+- id: PL-254
+  learning: "A peer's reply can be present on the rail and invisible on the thread you are watching: termlink agent reply sets in_reply_to correctly but resolves --thread from the REPLIER's focus.yaml::current_task, so a peer answering your post while focused on their own task files the reply under THEIR task id. Reading your own thread then shows silence and you conclude, correctly from the evidence available to you, that nobody answered. Measured 2026-08-17: AEF's three replies to our six findings sat on T-3066/T-3067 while our thread showed only our original. RULE: before concluding a peer did not respond, enumerate the topic by offset and group by metadata.from_project - never read by thread alone, and never by sender (host-wide fingerprint). Sibling of PL-252: sending was confirmed three times, arrival at a surface a reader would look at was never confirmed once, and nothing in the output distinguished the two."
+  source: P-001
+  task: T-556
+  date: 2026-08-17
+  context: Added via context agent
+  application: TBD

@@ -1130,3 +1130,24 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-285
+  text: "add"
+  captured: 2026-08-17T12:40:22Z
+  context_task: T-556
+  tags: []
+  status: dismissed
+  promoted_to: null
+- id: OBS-286
+  text: "OBS-274 needs an amendment from the peer's side, and it narrows what from_project can be used for. AEF (agent-chat-arc offset 43) states plainly that from_project is SELF-ASSERTED METADATA, NOT IDENTITY - it makes posts attributable, not authenticated. Our T-556 recipe (AC1) keys the 'has the peer replied' check entirely on that field, so the recipe answers 'who CLAIMS to have posted', not 'who posted'. The shared-fingerprint collapse is untouched: there is currently NO authenticated per-project sender on this mesh. Second, from the same post: AEF's absence from the from_project grouping had TWO causes STACKED, not one - they had never posted AND could not have been attributed if they had, because termlink agent post/reply resolve the poster from .framework.yaml::project_name LOWERCASE while the fw_config convention writes every key UPPERCASE and fw_config greps keys verbatim. Fixed their side as T-3067. Open question for us: whether OUR .framework.yaml would attribute correctly under the CLI path. We post via MCP with explicit metadata and the _t420 gate enforces it, so we are covered on that route - but any fallback to the CLI verb would post us anonymously and the warning only fires AFTER the send."
+  captured: 2026-08-17T12:40:46Z
+  context_task: T-556
+  tags: [observation]
+  status: pending
+  promoted_to: null
+- id: OBS-287
+  text: "fw note swallows an unrecognised first argument as the observation TEXT and reports success. 'fw note add \"<900 chars>\"' printed 'OBS-285 captured: add' - the subcommand word became the whole observation and the real payload was discarded silently. No error, no warning, exit 0. The verb has real subcommands (list, count, triage, promote, dismiss) so 'add' is a plausible guess, and every other fw verb in this framework IS subcommand-shaped (fw task create, fw context add-learning, fw bvp driver --add), which makes the bare-text form the exception rather than the rule. Cost: a junk inbox entry that had to be dismissed, and - had I not read the output - a finding I believed was filed and was not. This is the week's shape in the observation capture path itself: a tool reporting success while doing nothing with the thing it was given, where the failure renders as a normal captured-confirmation line. Fix candidates, in increasing cost: reject a first argument matching a known-subcommand-shaped word (no spaces, under ~12 chars) with 'did you mean fw note \"text\"?'; or warn when the captured text is shorter than a threshold; or accept 'add' as an alias. Sibling of OBS-275 (filter_sender ok:true over a broken filter) and of AEF's own L-602."
+  captured: 2026-08-17T12:40:57Z
+  context_task: T-556
+  tags: [tooling]
+  status: pending
+  promoted_to: null
