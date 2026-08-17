@@ -16,7 +16,7 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-17T05:48:20Z
-last_update: 2026-08-17T06:54:52Z
+last_update: 2026-08-17T07:36:19Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -178,6 +178,58 @@ Two corrections to what I wrote above, both mine:
   recording it: `termlink_agent_envelope` returns metadata correctly. Offset 33's `metadata: null`
   was truthful — that sibling's post genuinely carries none.
 
+### Correction to the paragraph above, made before it hardened
+
+I wrote that the findings "were delivered to an address that has never had a reader." **That is
+not what the census measured and I am striking it.** A reader leaves no envelope. Thirty-five
+posts with no AEF among them establishes that AEF has never *written* here; it says nothing
+about whether AEF *reads* here. This is the fourth time in this task that the same question has
+produced an over-claim from me, and the shape is identical each time: a property that was
+convenient to state, standing in for one that was actually checked.
+
+What readership evidence exists, and it is thin in both directions:
+
+- `termlink_agent_ack_status` returns `[]` — **no receipts exist on this topic from anyone, ever.**
+  The positive control is `termlink_agent_unread`, which returns `total: 35` from the same
+  subsystem, so the ack machinery can see the topic and the empty result is truthful rather than
+  another silent zero. It also independently corroborates the census count: 35 envelopes, 0–34.
+- Because *nobody* has ever acked on this rail, the absence of an AEF receipt is not evidence
+  about AEF. The receipt channel is unused, not informative.
+- `termlink_agent_listeners` reports 0 listeners on `agent-presence`, including offline. I did not
+  find a positive control for that one, so I am not drawing anything from it.
+
+**So: whether AEF reads `agent-chat-arc` is not answerable from any surface I found.** The right
+statement is the narrow one — AEF has never posted here, and readership is unobservable.
+
+### AEF is live on this host right now, and reachable by a different route
+
+`termlink_list_sessions(name: "t30")` returns **seven AEF sessions**, all
+`cwd: /opt/999-Agentic-Engineering-Framework`, all `state: ready`, all heartbeating within the
+last minute: `t3042-fix` (14h, `task:T-3042`), `t3047-triage-1..5` (9h, `task:T-3047`, five
+parallel), `t3060-sweep` (56m, `task:T-3060`, `task-type:test`). Termlink `0.11.1411`.
+
+Three things follow, and they matter more than the census did:
+
+1. **AEF uses termlink, heavily.** It is not absent from the mesh — it registers tagged sessions
+   per task and fans out parallel triage workers. It simply does not use the conversational rail.
+   So the transport is sound and the topic was the wrong assumption, which is closer to the
+   "wrong room" story I retracted yesterday than to the "right room, no answer" story I replaced
+   it with. Neither was right: the room is right for a conversation and AEF has never entered it.
+2. **Every AEF session carries `identity_fingerprint: d1993c2c3ec44c94`** — byte-identical to
+   ours. This is OBS-274 confirmed from the peer's side rather than inferred from ours. If AEF
+   ever did post to the arc, its envelopes would be indistinguishable from ours by `sender_id`,
+   and only `metadata.from_project` would separate them. The defect this task was opened about is
+   not hypothetical for this peer; it is exactly the peer it would have blinded us to.
+3. **There is a direct route to AEF that does not depend on the arc at all** — the session
+   surface (`termlink_send` / `termlink_inject` / `termlink_agent_ask` against a live session id).
+
+**I have not used route 3 and will not without the operator.** Injecting into another project's
+live agent session drives someone else's running work: seven sessions are mid-task right now, one
+of them a five-way parallel triage. That is an outward-facing, consequential act on a peer, and a
+pickup message we send is a proposal, not an instruction — the same rule that governs what we
+accept from them (G-020, in reverse). It is also the operator's mesh. Recorded as the
+recommendation for AC6, with the decision left where it belongs.
+
 ### Four defects in the read surface, measured on the way
 
 These are what made the question resist three sessions. None of them announce themselves; all four
@@ -266,6 +318,14 @@ rediscovered next session:
       AEF actually reads, with the mis-delivery stated plainly as ours. Re-posting the same
       content to the same unread topic is not a remedy. NOTE: now contingent on AC4 rather
       than expected — the mis-delivery hypothesis did not survive the search above.
+      2026-08-17: AC4 resolved the contingency to YES — AEF has never posted here — and the
+      route is identified but **blocked on the operator, not on me**. AEF is live on this host
+      with seven ready sessions, so the reachable surface is `termlink_send`/`termlink_inject`/
+      `termlink_agent_ask` against a session id, not a topic. Driving a peer's running agent is
+      an outward-facing act on someone else's work-in-progress and is not delegated by "proceed
+      as you see fit". The recommendation is written up under "AEF is live on this host right
+      now"; the decision is the operator's. What is NOT recommended is re-posting the seven
+      findings to `agent-chat-arc` — that is the remedy this AC already names as no remedy.
 - [ ] The `channel.post` fan-out bug (AEF#33 — consumers polling `event poll` receive nothing;
       one peer silent 110 days) is checked against OUR subscriber, if we run one. A reader that
       reports zero because the transport never delivered is this task's defect one layer down.

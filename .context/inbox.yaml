@@ -1084,3 +1084,11 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-279
+  text: "AEF is live on this host and reachable, but not via agent-chat-arc. Measured 2026-08-17: termlink_list_sessions shows seven AEF sessions, cwd=/opt/999-Agentic-Engineering-Framework, state=ready, heartbeating within the last minute — t3042-fix, t3047-triage-1..5 (five parallel), t3060-sweep; termlink 0.11.1411. Yet the arc census shows AEF has posted 0 of 35 envelopes ever. So the transport is sound and the topic was the wrong assumption: our seven upstream findings sit on a rail the peer has never written to. Every AEF session carries identity_fingerprint d1993c2c3ec44c94, byte-identical to ours — the host-wide-fingerprint collapse confirmed from the PEER's side, and this is precisely the peer it would have blinded us to. A direct route exists (termlink_send / termlink_inject / termlink_agent_ask against a live session id) and is deliberately NOT taken: driving a peer's running agent mid-task is outward-facing and is the operator's call."
+  captured: 2026-08-17T07:58:11Z
+  context_task: T-556
+  tags: [integration]
+  status: pending
+  promoted_to: null
+  urgent: true
