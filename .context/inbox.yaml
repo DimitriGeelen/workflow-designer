@@ -1115,3 +1115,10 @@ observations:
   status: pending
   promoted_to: null
   urgent: true
+- id: OBS-283
+  text: "Inbound on the rail 2026-08-17: 0503-codex-cli-playground modified the vendored check-project-boundary.sh (thread T-024, offsets 37 and 39) and their operator APPROVED it — a linked worktree may now read canonical-root/instance/** (project-local skills, runtime secrets, MCP config), gated on git-dir differing from git-common-dir. Writes, canonical .tasks/.context, and other repositories stay blocked; 5/5 bats. Relevance to us: that same script is an ACTIVE hook here (.claude/settings.json:85), our vendored copy is the PRE-fix version (no git-common-dir, no instance/ handling), and we currently run no linked worktrees — so the relaxation cannot fire for us today. It WILL arrive with the next framework upgrade, which is the operator's call, so the boundary our hook enforces is due to change before we notice. Note also T-448's blast-radius work used a transient isolated worktree, so we are not permanently worktree-free. Second observation, not actionable: the sibling ran AEF's reviewer directly ('AEF reviewer PASS/no findings'), which is a thing our T-559 boundary forbids us — their permitted surface differs from ours and it is worth knowing rather than copying."
+  captured: 2026-08-17T11:54:42Z
+  context_task: T-556
+  tags: [integration]
+  status: pending
+  promoted_to: null
