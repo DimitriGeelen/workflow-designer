@@ -145,11 +145,22 @@ change and does not belong in the same task as a derivation change.
 
 - **IW-0: Should export always emit `<aef:workflowMeta>`?**
   confidence: 2
-  disposition: open
+  disposition: deferred
   rationale: The proposal bundles it as "round-trip closure" and rates it low risk. It is
     the only item in the package that changes bytes the editor already writes correctly,
     and T-308/T-358 byte-identity gates exist precisely there. Separable, and separating
     it is the reason the recommendation below is conditional rather than a flat GO.
+    DEFERRED, NOT ANSWERED — 2026-08-20, on the operator's GO. The GO is on the narrowed
+    package, and this item is the part that was narrowed OUT; it is carried forward
+    undecided rather than resolved here. Recording it as `answered` would convert a
+    carve-out into a ruling nobody made, which is the same substitution §0 of the report
+    was written to undo. What makes it decidable later, stated so the deferral has an
+    exit: measure whether emitting `<aef:workflowMeta>` on every export changes the bytes
+    of any of the 24 rendered corpus maps, and run T-308/T-358's byte-identity gates
+    against the result. If nothing moves, the risk that motivated the carve-out is not
+    there and the item is cheap; if something moves, the gate failure is attributable to
+    this change alone — which is exactly what bundling it into the GO would have destroyed.
+    Needs its own build task, not a line in this one.
 
 - **IW-1: Can ID derivation use deriveSlug() without breaking existing round-tripped workflows?**
   confidence: 4

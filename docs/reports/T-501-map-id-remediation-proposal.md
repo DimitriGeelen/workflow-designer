@@ -7,6 +7,44 @@
 
 ---
 
+## §0.0 — ADDENDUM, ADDED AFTER THE RULING (2026-08-20)
+
+**The GO was recorded before this arrived, and it does not change it.** Written down
+because the alternative is a document that quietly reads as though the operator had seen
+this. They did not. It strengthens the case for the transform the GO already selects; it
+would not have argued for a different decision.
+
+**999-AEF measured their side and the drafted fix is worse than §0 C-4 says.** Asked on
+the rail whether their hand-authored documents carry distinct `<bpmn:process id>` values
+or Camunda `Process_1` defaults, they answered (offset 158) with something neither side
+had thought to check: every one of their fifteen ids is semantic, distinct, and shaped
+`Process_<name>` — `Process_aef-task-lifecycle`, `Process_aef-dispatch-loop`, and so on.
+They then declined to say what `deriveSlug` would do with them, on the grounds that they
+do not have the source and guessing would be the same borrowed number this report struck
+from its own evidence. Their framing: 1 vs 15 on one unread character.
+
+**Measured here: it is 1.** All five of their named ids yield `process`; distinct = 1.
+The mechanism is not the split — `/[\s\-]+/` contains no underscore — it is the *prior*
+`.replace(/[^a-z0-9\s\-]/g, ' ')`, which maps every out-of-class character to a space, so
+`_` becomes whitespace and the split then eats it. Control, separating that from the
+16-character truncation they also suspected: `deriveSlug('Process_zzzz') === 'process'`,
+where a whitespace-only split would have left `process_zzzz`.
+
+**So C-4's "14 → 4" understates the blast radius.** The collapse is not driven by short
+names; it is driven by a shared first token. Any corpus that prefixes ids by convention
+degrades toward a single bucket, and `Process_` is the BPMN-tooling default — eight of
+our own fourteen already went to `process` by that route. A consumer with a naming
+convention is *more* exposed than one without, which is the opposite of the intuition.
+
+**One caveat attached to their number rather than banked.** They also reported 15 of 15
+of their documents carry `<aef:workflowMeta>` and zero reach the fallback, and concluded
+the corrected `:9162` transform is "sufficient for us". Those are different code paths:
+when `workflowMeta` is present its id is used directly, so their process ids are only
+consulted on a branch nothing of theirs reaches. Their exposure today is zero under
+either transform, and becomes non-zero only if one of their emitters can drop the
+extension element. Their measurement is sound and is about a population that is currently
+unreachable — recorded that way here rather than cited as peer confirmation.
+
 ## §0 — WHAT THIS DOCUMENT GOT WRONG (read before §1)
 
 Added 2026-08-20. Everything below §0 is the 2026-08-14 text, unedited. This section
