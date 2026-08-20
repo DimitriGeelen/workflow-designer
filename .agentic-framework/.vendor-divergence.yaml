@@ -668,3 +668,40 @@ entries:
       Both broken episodics were REGENERATED through the fixed generator rather than
       hand-edited, per the framework's own error text ("do not edit the output by hand").
       Reported upstream on framework:pickup as msg_type=pickup-bug-report.
+
+  - path: .agentic-framework/web/blueprints/fabric.py
+    kind: content
+    task: T-568
+    upstream: fix
+    reason: >-
+      GENERIC — every consumer project ships this file and every one of them has this bug.
+      _load_components() cached the parsed component cards under os.stat(COMP_DIR).st_mtime
+      at :33 — the mtime of the DIRECTORY, not of the cards it holds. POSIX bumps a
+      directory's mtime when an entry is created, deleted or renamed and NOT when a file
+      already inside it is written, so the two fabric verbs split: `fw fabric register`
+      creates a card file and invalidated correctly, while `fw fabric enrich` rewrites cards
+      IN PLACE and never did. The page then served the pre-enrichment card for the entire
+      life of the server process at HTTP 200 with no warning and no log line.
+      NOT A THEORETICAL PATH. AEF's own audit emits `[WARN] Fabric: N/M cards have no edges —
+      Mitigation: Run: fw fabric enrich` on every run; an operator who obeys the framework's
+      own priority action lands exactly on the invisible half. Reported by
+      001-CashWeb-Lightspeed-Ecwid-integration, who lost a diagnosis to it — they concluded
+      Watchtower was serving a different checkout and found the real cause only on a second
+      pass. Their reproduction takes ten seconds: edit a card, fetch the page (stale),
+      `touch .fabric/components` (the directory), fetch again (correct), nothing else changed.
+      THE FIX IS NOT THE SUGGESTED (count, max-mtime) PAIR, and the reason is measured rather
+      than argued: on this filesystem five back-to-back writes produced st_mtime_ns deltas of
+      exactly 0, so any mtime-derived key has an aliasing window — and a key that never
+      changes again is never re-read, making that window permanent rather than brief. The key
+      is now a sha256 over each card's NAME and BYTES. Cost measured before it was chosen:
+      65 cards / 61,598 bytes — read+sha256 1.36 ms against yaml.safe_load 98.58 ms, so the
+      digest costs 1.4% of the parse it avoids and the cache keeps its point. The name is in
+      the digest because a rename moves neither mtime nor bytes, and rename is the one case
+      the directory key did get right. The bytes are read ONCE and used for both the digest
+      and the parse: hashing and then re-opening leaves a window where a write between the two
+      lands parsed content under the pre-write digest, which is the same defect in a smaller
+      costume.
+      Sibling caches were checked rather than assumed: web/shared.py:498 (mtime_cached_get)
+      and web/blueprints/costs.py:141 key a FILE's cache on THAT FILE's own stat, which is
+      correct in kind. fabric.py was the only site keying a collection on a directory.
+      Reported upstream on framework:pickup as msg_type=pickup-bug-report.

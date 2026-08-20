@@ -1,6 +1,7 @@
 """Watchtower – Component Fabric browser."""
 
 import glob
+import hashlib
 import logging
 import os
 
@@ -23,29 +24,70 @@ else:
 FABRIC_DIR = os.path.join(ACTUAL_PROJECT_ROOT, ".fabric")
 COMP_DIR = os.path.join(FABRIC_DIR, "components")
 
-# mtime-based cache for component loading
-_comp_cache = {"mtime": 0, "data": []}
+# Content-digest cache for component loading (T-568).
+#
+# WAS: keyed on os.stat(COMP_DIR).st_mtime — the mtime of the DIRECTORY, not of the cards
+# it holds. POSIX bumps a directory's mtime when an entry is created, deleted or renamed
+# and NOT when a file already inside it is written, so the two fabric verbs split:
+# `fw fabric register` creates a file and invalidated correctly, while `fw fabric enrich`
+# rewrites cards IN PLACE and never did. The page then served the pre-enrichment card for
+# the life of the process — HTTP 200, correct-looking, silently out of date. Reported by
+# 001-CashWeb-Lightspeed-Ecwid-integration, who lost a diagnosis to it; our own audit's
+# standing priority action is "Run: fw fabric enrich", so we were routing operators
+# straight at the invisible half.
+#
+# NOT the suggested (count, max-mtime) pair, and the reason is measured rather than
+# argued: on this filesystem five back-to-back writes produced st_mtime_ns deltas of
+# exactly 0 — the kernel's file-time clock is coarser than the interval between a write
+# and the request that follows it. Any mtime-derived key therefore has an aliasing window
+# in which an edit is invisible FOREVER, not merely briefly, because a key that never
+# changes again is never re-read.
+#
+# A digest over the card bytes has no such window, and the cost was measured before it was
+# chosen: 65 cards / 61,598 bytes — read+sha256 1.36 ms, yaml.safe_load 98.58 ms. The
+# digest costs 1.4% of the parse it avoids, so the cache keeps its whole point.
+#
+# The bytes are read ONCE and used for both the digest and the parse. Hashing and then
+# re-opening would leave a window where a write between the two lands parsed content under
+# the pre-write digest — stale until the next unrelated change, which is the same defect
+# in a smaller costume.
+_comp_cache = {"key": None, "data": []}
 
 
 def _load_components():
-    """Load all component cards (cached by directory mtime)."""
+    """Load all component cards (cached by a digest of the card files themselves)."""
     try:
-        dir_mtime = os.stat(COMP_DIR).st_mtime
+        os.stat(COMP_DIR)
     except OSError:
         return []
-    if dir_mtime == _comp_cache["mtime"] and _comp_cache["data"]:
-        return _comp_cache["data"]
-    components = []
+    digest = hashlib.sha256()
+    blobs = []
     for path in sorted(glob.glob(os.path.join(COMP_DIR, "*.yaml"))):
         try:
-            with open(path) as f:
-                data = yaml.safe_load(f)
+            with open(path, "rb") as f:
+                raw = f.read()
+        except OSError:
+            continue
+        # The NAME is hashed too: a rename moves neither a file's mtime nor its bytes,
+        # and it is the one case the old directory-mtime key did get right.
+        digest.update(os.path.basename(path).encode("utf-8", "surrogateescape"))
+        digest.update(b"\0")
+        digest.update(raw)
+        digest.update(b"\0")
+        blobs.append((path, raw))
+    key = digest.hexdigest()
+    if key == _comp_cache["key"]:
+        return _comp_cache["data"]
+    components = []
+    for path, raw in blobs:
+        try:
+            data = yaml.safe_load(raw)
             if data:
                 data["_card_file"] = os.path.basename(path)
                 components.append(data)
         except Exception:
             pass
-    _comp_cache["mtime"] = dir_mtime
+    _comp_cache["key"] = key
     _comp_cache["data"] = components
     return components
 

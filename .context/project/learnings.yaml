@@ -1821,3 +1821,10 @@ learnings:
   date: 2026-08-20
   context: Added via context agent
   application: TBD
+- id: PL-256
+  learning: "A verification that RESTORES state must restore it at the precision the system COMPARES at, or the restore itself becomes the change that hides the defect. T-568's live probe pinned a directory's mtime with stat -c %Y and touch -d @<seconds> — both whole-second — around an in-place file edit, to prove the page updates when ONLY the file's bytes moved. The directory's real mtime carried a fractional part, so the restore silently CHANGED it, the broken directory-mtime cache invalidated for that reason, and the probe reported PASS against unfixed code. The fix is os.utime(d, ns=(a_ns, m_ns)) plus an st_mtime_ns equality assertion immediately after — assert the restore, do not assume it. GENERAL SHAPE, and it is the week's shape from a new angle: the control arm of a test is itself an intervention, and an imprecise control does not weaken the test, it INVERTS it — a probe that passes because its own setup broke is indistinguishable in output from a probe that passes because the code is right. Applies to any before/after check that resets a timestamp, a mtime, a clock, a counter or a cursor: compare the restored value to the captured one before drawing any conclusion."
+  source: P-011
+  task: T-568
+  date: 2026-08-20
+  context: Added via context agent
+  application: TBD

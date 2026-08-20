@@ -695,6 +695,49 @@ else
 fi
 
 echo
+echo "== Episodic memory is still readable, unattended (T-567, G-040) =="
+# T-567 fixed the generator; nothing yet READS the corpus, which is the gap G-040 keeps
+# open. This leg is not that closure — the gap closes when the CRON audit parses it — but
+# it does mean a corrupt episodic can no longer survive a commit unnoticed. --min pins a
+# floor so the check cannot pass by having nothing to check.
+if python3 "$ROOT/tools/_t567-episodic-parse-check.py" --min 488 --match-git > "$TMP/leg-_t567-parse.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "episodic memory is not readable as claimed — an episodic failed to parse, or a timeline entry stopped matching the git subject it was mined from, or the corpus fell below its floor (T-567 — run 'python3 tools/_t567-episodic-parse-check.py --min 488 --match-git')"
+  show_output "$TMP/leg-_t567-parse.out" "_t567-episodic-parse-check.py"
+  fail=$((fail + 1))
+fi
+
+echo
+echo "== A card edit reaches the RUNNING dashboard, not just the loader (T-568) =="
+# PL-148: a correct loader the live process never picked up is still a stale page. The
+# probe tests the deployed Watchtower when one is reachable and spawns its own on an
+# ephemeral port when none is — it must never pass by not running.
+if python3 "$ROOT/tools/_t568-live-card-visibility-probe.py" > "$TMP/leg-_t568-live.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "an in-place card edit did not reach the live dashboard, or no Watchtower could be reached OR started so the check never ran (T-568 — run 'python3 tools/_t568-live-card-visibility-probe.py'; exit 2 means it could not run, which is NOT a pass)"
+  show_output "$TMP/leg-_t568-live.out" "_t568-live-card-visibility-probe.py"
+  fail=$((fail + 1))
+fi
+
+echo
+echo "== An edited component card is visible to the page that shows it (T-568) =="
+# Watchtower cached the parsed cards under the mtime of the DIRECTORY holding them, and
+# POSIX does not move a directory's mtime when a file inside it is written. So
+# `fw fabric register` invalidated and `fw fabric enrich` — our own audit's standing
+# priority action — never did, for the life of the process, at HTTP 200. Mutant A is the
+# shipping code and must redden the in-place-edit leg and only that one; mutant B deletes
+# the caching, which also returns the right answer and must redden only the cache leg.
+if bash "$ROOT/tools/_t568-fabric-card-cache-teeth.sh" > "$TMP/leg-_t568-fabric-cache.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "an edit to a component card can once again be invisible to /fabric, or the cache was repaired by being deleted (T-568 — run 'bash tools/_t568-fabric-card-cache-teeth.sh'; a mutant that reddens MORE than its own leg is not discriminating and the probe is measuring its own fragility)"
+  show_output "$TMP/leg-_t568-fabric-cache.out" "_t568-fabric-card-cache-teeth.sh"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== A commit message cannot corrupt the episodic it is recorded in (T-567) =="
 # mine_git_timeline wrote git subjects into a DOUBLE-quoted YAML scalar escaping only `"`,
 # so any backslash before a non-escape character made the episodic unparseable. Two of 488
