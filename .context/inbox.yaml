@@ -1210,3 +1210,18 @@ observations:
   tags: [design]
   status: pending
   promoted_to: null
+- id: OBS-296
+  text: "OBS-294'S DETECTOR WAS MEASURED BEFORE BEING BUILT, AND THE MEASUREMENT CHANGED THE ANSWER TWICE. Ran the proposed task-vs-report verdict comparison across all active tasks. TEN active tasks have a docs/reports/T-<id>-*.md companion. FIRST RUN: 0 disagreements — and it reported 'report states no verdict' for T-501, the file whose GO started this. The task writes '**Recommendation:** GO' and the report writes '**Recommendation: GO**' with the colon INSIDE the bold; my pattern required the first form. A detector blind to one of the two spellings its own motivating case uses, reporting CLEAN. Fifth instance of the week's shape this session and the first one inside an instrument I had written ten minutes earlier to detect that shape. SECOND RUN, pattern widened to '\\*{0,2}Recommendation\\b[:\\*\\s]*': T-501 now resolves report=GO task=GO (aligned, because I repaired it today), and the real coverage becomes visible — NINE OF TEN companion reports contain NO recommendation line at all. They are analyses, not proposals, so the comparison abstains on 90 percent of the population it can see. THE DETECTOR IS STILL WORTH BUILDING BUT THE CASE IS THINNER THAN OBS-294 STATES: one instance, caught after six days, over a population where nine of ten cases are unjudgeable. Whoever builds it must (a) accept both spellings and assert BOTH in a fixture, (b) count and REPORT abstentions rather than folding them into a clean verdict — a 9/10 abstention rate rendered as '0 disagreements' is the same failure as OBS-293's abstain-counted-as-pass, and (c) not treat a missing verdict as agreement. Recorded here rather than by editing OBS-294, which is evidence of what was believed at filing time."
+  captured: 2026-08-20T01:12:34Z
+  context_task: T-501
+  tags: [governance]
+  status: pending
+  promoted_to: null
+- id: OBS-297
+  text: "SECOND QUOTING FAILURE IN ONE SESSION, SAME SHAPE, DIFFERENT MECHANISM — VERIFICATION LEGS WRITTEN INTO TASK FILES ARE eval'd AND SILENTLY MIS-MATCH. T-501 leg 2 used '\\[' in a BRE grep, which matched nothing while the count it guards is 3; T-301 leg 4 used a double-quoted pattern containing ${encodeURIComponent(id)}, which the shell expanded to empty before grep ever saw it. Both were caught only because I RAN the extracted legs through the same 'if ( eval \"$cmd\" )' loop update-task.sh:1018 uses, rather than trusting that a grep I had run interactively would survive being pasted into a task file. THE FAILURE DIRECTION MATTERS AND DIFFERS BY LEG SHAPE: a bare 'grep -q PATTERN file' that mis-quotes goes RED (loud, caught immediately, as both of these did). But 'test N -eq \"$(grep -c ...)\"' with a mis-quoted pattern returns 0 and the test compares against zero — and a leg asserting 'test 0 -eq' would then PASS on a broken pattern. So the same defect is loud for existence legs and SILENT for count legs, and count legs are exactly where it is tempting to write a complex pattern. DETECTOR SHAPE, decidable and cheap: for every ## Verification line containing grep, if the pattern is double-quoted AND contains an unescaped $ or a backslash-bracket, warn — those are the two forms that change meaning between an interactive shell and eval. Would have fired on both legs today. NOT BUILT; it is a completion-gate change and its own task. Sibling of OBS-292 (task Verification blocks that name a suite without running it): both are about the gap between what a Verification line SAYS it checks and what it EXECUTES."
+  captured: 2026-08-20T01:17:17Z
+  context_task: T-301
+  tags: [tooling]
+  status: pending
+  promoted_to: null
+  urgent: true

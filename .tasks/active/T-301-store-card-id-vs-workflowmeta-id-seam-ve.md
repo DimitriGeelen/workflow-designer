@@ -10,15 +10,15 @@ description: >
   question: which identity should the Versions panel and save target adopt when a
   store project id differs from the map internal id?
 
-status: captured
+status: started-work
 workflow_type: inception
 owner: agent
-horizon: later
+horizon: now
 tags: []
 components: []
 related_tasks: []
 created: 2026-07-29T08:45:56Z
-last_update: '2026-08-16T14:33:01Z'
+last_update: 2026-08-20T01:12:46Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -77,11 +77,71 @@ cost_estimate_proposed:
 
 ## Problem Statement
 
-<!-- What problem are we exploring? For whom? Why now? -->
+Two identities name the same map and only a convention keeps them equal.
+
+The **store card id** is the file stem: the project browser fetches `rendered/<m.id>.bpmn`
+and `/api/version?id=<m.id>`, and the server keys versions by it. The **document id** is
+`state.workflowMeta.id`, derived inside `parseBpmnXml` from the document's own bytes.
+
+`openProjectMap(m)` (`src/aef-workflow-designer.html:8756`) fetches by the card id and then
+hands the bytes to `adoptImportedXml(text, {replace:true, userImport:true})`, which re-derives
+the id from the document and sets `activeKey` to *that*. From then on the card id is gone:
+
+- `openVersionsModal` (`:8588`) fetches `/api/versions?id=state.workflowMeta.id` → **empty panel**
+- `saveToProject` (`:8467`) POSTs `{id: state.workflowMeta.id}` → **a new project record**
+
+One divergence, both reported symptoms, and nothing in between notices. T-264's load-source
+mismatch confirm does not fire here: it is guarded by `_loadSrcKey != null`, which the `?load`
+deep-link path sets and this path does not (`tests/test_t264_save_target_guards.py:19` covers
+the deep-link stem mismatch only).
+
+**But it is not currently reachable, and that is the finding.** Measured over both served
+corpora — `examples/aef-processes/rendered` (24) and `build/gallery/rendered` (25) — **zero
+documents have `workflowMeta.id != stem`.** One gallery document, `customer-refund.bpmn`, has
+no `<aef:workflowMeta>` at all and derives its id from `<bpmn:process name>`; it comes out as
+`customer-refund`, equal to its stem by luck.
+
+So the invariant `stem == workflowMeta.id` is load-bearing, currently true, and **asserted
+nowhere.**
+
+## Coupling to T-501 — the proposed fix there would activate the defect here
+
+T-501's remediation proposal derives identity via `deriveSlug(procId)`.
+`deriveSlug('customer-refund') === 'customer'` (verified). That single gallery document is
+the only one whose id is not pinned by a `workflowMeta` element, so under the T-501 proposal
+its document id becomes `customer` while its store card stays `customer-refund` — and the
+chain above fires for the first time: Versions panel empty, save forks `customer`.
+
+Neither task's write-up mentions the other. T-501 is triaged as an import-path defect and
+T-301 as a store-seam defect; the corpus is one file away from them being the same incident.
+This is why T-501's revised recommendation replaces that transform, and it is an independent
+second reason to.
 
 ## Assumptions
 
-<!-- Key assumptions to test. Register with: fw assumption add "Statement" --task T-XXX -->
+- **A1 — The card id and the document id can diverge.** TESTED, HOLDS structurally: the open
+  path discards the card id and re-derives from bytes. No code keeps them in step.
+- **A2 — They currently DO diverge somewhere in the store.** TESTED, **FALSIFIED — but only
+  after I corrected the population I was measuring.** First pass measured the two `rendered/`
+  roots (49 documents, 0 divergent) and I was ready to write "not reachable". This task's own
+  2026-08-14 recommendation names a live instance I had not looked for: store card
+  `t101-review-audit-process`, 2 versions, opening with an empty Versions panel and forking
+  `audit-process v1`. That is a card in `.editor-versions/`, not in `rendered/` — a different
+  population, and the one the symptom actually lives in. Re-measured: **24 store cards, 0
+  divergent**, and no `t101-review-audit-process` card exists any more. So the answer survives
+  the correction, and the correction is recorded because a measurement that scopes the wrong
+  population and comes out clean is indistinguishable from one that scoped the right one.
+- **A2b — Nothing can produce the divergence.** **FALSIFIED, by the instance above.** The
+  editor cannot create it: every path that writes a card writes `workflowMeta.id` as the key.
+  A *store-level* copy or rename can, and did — `t101-review-audit-process` was a review copy
+  of `audit-process` whose stored bytes still said `audit-process`. The workaround the
+  2026-08-14 note recommends (rename review-copy store ids to match) is what removed it. So
+  the reachable population is "cards created outside the editor", which is exactly the
+  population no editor-side guard can constrain.
+- **A3 — The two symptoms have one root cause.** TESTED, HOLDS. Both read
+  `state.workflowMeta.id` after `adoptImportedXml` has overwritten it.
+- **A4 — T-264's guard already covers this.** TESTED, **FALSIFIED.** It is gated on
+  `_loadSrcKey`, which only the `?load` deep-link path sets.
 
 ## Open Questions
 
@@ -101,21 +161,79 @@ cost_estimate_proposed:
      FW_SKIP_DISPOSITION_GATE=1 (env-var, T-1890 producer/consumer parity).
 -->
 
+<!-- Filed 2026-08-20 BEFORE any investigation, because the G-067 gate blocked Bash until
+     they existed. That ordering is the point: these are what the title asserts, written
+     down as questions so the answers can contradict them. The title states two symptoms
+     and one cause; whether the cause is one cause or two is IW-3. -->
+
+- **IW-1: Is the Versions panel empty because the store card's id differs from `workflowMeta.id`?**
+  confidence: 3
+  disposition: answered
+  rationale: YES structurally — `openVersionsModal` (`:8588`) queries
+    `/api/versions?id=state.workflowMeta.id`, which `openProjectMap` → `adoptImportedXml` has
+    already re-derived from the document bytes, discarding the `m.id` it fetched by. But 0 of
+    49 served documents currently diverge, so the panel is not empty for anyone today.
+
+- **IW-2: Does saving fork a NEW project record rather than updating the existing one, and if so at which write?**
+  confidence: 3
+  disposition: answered
+  rationale: YES, at `saveToProject` (`:8467`), which POSTs `{id: state.workflowMeta.id}`.
+    Same divergence, same moment. Not reachable today for the same reason as IW-1.
+
+- **IW-3: Are these one defect or two?**
+  confidence: 3
+  disposition: answered
+  rationale: ONE. Both read `state.workflowMeta.id` after `adoptImportedXml` overwrote it with
+    a value derived from bytes rather than from the card that was opened. One build task, not
+    two — the title's two symptoms are one line of causality.
+
+- **IW-4: Is there a second identity authority, contrary to the T-263 ruling?**
+  confidence: 3
+  disposition: answered
+  rationale: YES, and naming it is the useful output of this inception. T-263 ruled
+    `workflowMeta.id` is the save target and there is no second identity authority. In practice
+    the file stem IS one: the server keys versions by it, the browser fetches
+    `rendered/<stem>.bpmn` by it, and the delete/thumb/list surfaces all use it. The ruling
+    holds only while `stem == workflowMeta.id`, an invariant that is currently true across all
+    49 served documents and **asserted nowhere.** T-263 did not create a single authority; it
+    declared which of two wins, and left the agreement between them unguarded.
+
+- **IW-5: Does the T-501 remediation proposal change the answer to IW-2?** (filed during exploration)
+  confidence: 3
+  disposition: answered
+  rationale: YES. `deriveSlug('customer-refund') === 'customer'`, and `customer-refund.bpmn` is
+    the single served document with no `<aef:workflowMeta>` to pin its id. Adopting T-501's
+    drafted `deriveSlug` fix makes this defect reachable for the first time, on that file,
+    silently. The two tasks are coupled and neither write-up said so.
+
 ## Exploration Plan
 
-<!-- How will we validate assumptions? Spikes, prototypes, research? Time-box each. -->
+Executed 2026-08-20, ~35 min, static analysis only. No source edited.
+
+1. Trace both symptoms to the id they read. DONE — `:8588` and `:8467`, same expression.
+2. Establish where the card id is lost. DONE — `openProjectMap` (`:8756`) fetches by `m.id`
+   then lets `adoptImportedXml` re-derive.
+3. Check whether an existing guard covers it. DONE — T-264's does not (`_loadSrcKey` gate).
+4. **Measure reachability before recommending anything.** DONE — 0 of 49. This is the step
+   that changed the recommendation from "fix the bug" to "assert the invariant".
 
 ## Technical Constraints
 
-<!-- What platform, browser, network, or hardware constraints apply?
-     For web apps: HTTPS requirements, browser API restrictions, CORS, device support.
-     For hardware APIs (mic, camera, GPS, Bluetooth): access requirements, permissions model.
-     For infrastructure: network topology, firewall rules, latency bounds.
-     Fill this BEFORE building. Discovering constraints after implementation wastes sessions. -->
+- Static analysis only. Nothing here drove the editor in a browser; the causal chain is read
+  from source and the corpus figures are read from files. A build task owes a CDP probe that
+  opens a card whose stem differs from its `workflowMeta.id` and observes both symptoms —
+  and no such document exists today, so the probe must synthesise one.
+- The invariant is enforceable cheaply on the *corpus* (a file check) and expensively in the
+  *editor* (a browser probe). Those are different guarantees and a build task should not
+  claim the second by shipping the first.
 
 ## Scope Fence
 
-<!-- What's IN scope for this exploration? What's explicitly OUT? -->
+IN: asserting `stem == workflowMeta.id` across the served corpora; deciding whether
+`openProjectMap` should carry the card id forward.
+
+OUT: changing the T-263 ruling (that is a standard question, not a bug fix); the T-501
+derivation change, which is its own task and its own operator decision.
 
 ## Acceptance Criteria
 
@@ -152,6 +270,22 @@ cost_estimate_proposed:
 
 # Shell commands that MUST pass before work-completed. One per line.
 # Lines starting with # are comments (skipped). Empty lines ignored.
+#
+# Leg 1 — the divergence census the recommendation rests on. Prints the three populations and
+# the divergent count; the grep pins ZERO. If a divergent card appears between now and the
+# ruling, this goes red rather than letting "not reachable today" stand unexamined. Note it
+# is deliberately NOT the corpus gate the recommendation proposes building — that gate belongs
+# to the build task and must fail the SUITE, not one task's completion.
+python3 -c "import os,glob,xml.etree.ElementTree as ET; wid=lambda p:(lambda m:(m[0].get('id') if m else None))([e for e in ET.parse(p).getroot().iter() if e.tag.endswith('workflowMeta')]); R=[(os.path.basename(p)[:-5],wid(p)) for r in ['examples/aef-processes/rendered','build/gallery/rendered'] for p in sorted(glob.glob(os.path.join(r,'*.bpmn')))]; C=[(d,wid(sorted(glob.glob(os.path.join('.editor-versions',d,'*.bpmn')))[-1])) for d in sorted(os.listdir('.editor-versions')) if os.path.isdir(os.path.join('.editor-versions',d)) and not d.startswith('_') and glob.glob(os.path.join('.editor-versions',d,'*.bpmn'))]; bad=[x for x in R+C if x[1] is not None and x[1]!=x[0]]; print('RENDERED=%d CARDS=%d DIVERGENT=%d %s' % (len(R),len(C),len(bad),bad))" > /tmp/.t301-census 2>&1 && grep -q "DIVERGENT=0 \[\]" /tmp/.t301-census
+# Leg 2 — the coupling to T-501 is still live: the one served document with no workflowMeta
+# is still there, and the transform T-501 proposes still collapses its stem. If either stops
+# being true, IW-5's rationale is stale and the recommendation's point 4 must be re-argued.
+test -f build/gallery/rendered/customer-refund.bpmn && ! grep -q "workflowMeta" build/gallery/rendered/customer-refund.bpmn
+node -e "const d=s=>{if(!s)return 'node';const w=s.toLowerCase().replace(/[^a-z0-9\s\-]/g,' ').split(/[\s\-]+/).filter(x=>x.length>1);return (w[0]||'node').slice(0,16)}; process.exit(d('customer-refund')==='customer'?0:1)"
+# Leg 3 — the read and write sites still read the document id, which is what makes them one
+# defect (IW-3). If either is changed to carry the card id, this inception is answered by code.
+grep -qF 'fetch(`/api/versions?id=${encodeURIComponent(id)}`)' src/aef-workflow-designer.html && grep -qF 'JSON.stringify({ id, bpmn, png, note })' src/aef-workflow-designer.html
+#
 # For inception tasks, verification is often not needed (decisions, not code).
 #
 # Toolchain hint (L-291): if a GO decision will mean editing *.vbproj/*.csproj/*.xaml,
@@ -161,9 +295,58 @@ cost_estimate_proposed:
 
 ## Recommendation
 
-**Recommendation:** DEFER
+**Recommendation:** GO, but on a smaller and different thing than the title asks for — assert
+the invariant, do not chase the symptom.
 
-**Rationale:** Real coherence gap, low urgency: the editor keys Versions+save to workflowMeta.id, so a store card whose id differs (t101-review-audit-process, 2 versions) opens with an empty Versions panel and Save forks a new project (audit-process v1, byte-equal modulo one aef:anchors line — no data loss). Workaround exists (name review-copy store ids to match the map id); operator review queue is already deep; decide identity semantics when the next save-target round (T-264 class) opens.
+> Supersedes the 2026-08-14 DEFER, preserved verbatim below. That DEFER was correct on
+> urgency and its named instance is now gone; what it did not have is the reachability
+> measurement or the T-501 coupling, and the second one changes the urgency.
+
+**Rationale:**
+
+1. **The causal chain is real and complete** — `openProjectMap` fetches by card id, then lets
+   `adoptImportedXml` re-derive the id from bytes; `openVersionsModal` and `saveToProject`
+   both read the re-derived value. One divergence, both symptoms (IW-3).
+2. **It is not reachable today.** 0 divergences across 49 rendered documents and 24 store
+   cards. The named instance has been cleaned up.
+3. **The editor cannot produce it; the store can.** Every editor write path keys the card by
+   `workflowMeta.id`. `t101-review-audit-process` was made by copying at the store level. So
+   an editor-side fix guards the path that was never the source, and the honest guard is a
+   corpus check: `stem == workflowMeta.id` for every card and every rendered document. That
+   check would have caught the reported instance the day it appeared, costs one file walk,
+   and is the only thing here that is cheap *and* catches the real producer.
+4. **T-501 makes it reachable, silently** (IW-5). `deriveSlug('customer-refund') === 'customer'`
+   and `customer-refund.bpmn` is the one served document with no `workflowMeta` to pin its id.
+   If T-501's drafted fix ships, this defect fires on that file for the first time. That is
+   the argument for landing the invariant check *before* any T-501 build task, not after.
+5. **The T-263 question is real but is not a bug** (IW-4). The file stem is a second identity
+   authority in practice. T-263 declared which one wins; it did not remove the other or
+   require them to agree. Reopening that is a standard-level decision and belongs in its own
+   inception, not smuggled into a fix for an empty panel.
+
+**Proposed build scope (one deliverable):** a corpus check asserting `stem == workflowMeta.id`
+across `examples/aef-processes/rendered`, `build/gallery/rendered` and `.editor-versions/*/`,
+wired into `tests/run-bridge-tests.sh`, with a fixture that synthesises a divergent card and
+requires it to be caught. Explicitly NOT: changing `openProjectMap`, changing T-263, or
+carrying the card id through `adoptImportedXml` — all three are larger, and none of them
+addresses the producer.
+
+**Evidence:**
+
+- `src/aef-workflow-designer.html:8756` `openProjectMap` fetches `m.id`, adopts, discards it.
+- `:8588` versions read, `:8467` save write — both `state.workflowMeta.id`.
+- `:9214` `adoptImportedXml` sets `activeKey` from the document, not from the caller.
+- T-264's guard is gated on `_loadSrcKey`, unset on this path; `tests/test_t264_save_target_guards.py:19` covers the deep-link case only.
+- Divergence census: 24 + 25 rendered documents, 24 store cards, **0 divergent**.
+- `deriveSlug('customer-refund') === 'customer'` (node, verified); `build/gallery/rendered/customer-refund.bpmn` has no `<aef:workflowMeta>`.
+
+---
+
+**Superseded 2026-08-14 recommendation, preserved verbatim:**
+
+> **Recommendation:** DEFER
+>
+> Real coherence gap, low urgency: the editor keys Versions+save to workflowMeta.id, so a store card whose id differs (t101-review-audit-process, 2 versions) opens with an empty Versions panel and Save forks a new project (audit-process v1, byte-equal modulo one aef:anchors line — no data loss). Workaround exists (name review-copy store ids to match the map id); operator review queue is already deep; decide identity semantics when the next save-target round (T-264 class) opens.
 
 ## Decisions
 
@@ -204,3 +387,10 @@ cost_estimate_proposed:
 | Claim | Type | Status |
 |-------|------|--------|
 | `T-264` | task | ✓ pass |
+
+### 2026-08-20T01:12:45Z — status-update [task-update-agent]
+- **Change:** status: captured → started-work
+- **Change:** horizon: later → now (auto-sync)
+
+### 2026-08-20T01:12:46Z — status-update [task-update-agent]
+- **Change:** horizon: now → now
