@@ -12,7 +12,7 @@ tags: []
 components: []
 related_tasks: []
 created: 2026-08-14T16:55:53Z
-last_update: '2026-08-16T14:33:04Z'
+last_update: 2026-08-20T00:53:38Z
 date_finished:
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -197,15 +197,15 @@ change and does not belong in the same task as a derivation change.
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -351,7 +351,84 @@ IW-0 (always-emit `workflowMeta`) is not in that list and needs its own decision
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Recommendation: GO on a NARROWED package — three fixes, with D1's proposed fix replaced.
+The fourth item (always-emit `workflowMeta`) is carved out and remains undecided (IW-0).
+
+> Supersedes the 2026-08-14 DEFER, preserved verbatim at the end of this section. That
+> DEFER was right to hesitate and wrong about why: it cites unscoped cost and vendored-build
+> risk, when the actual blocker was that nobody had run the derivation against a corpus.
+> It has now been run.
+>
+> It also supersedes the GO in `docs/reports/T-501-map-id-remediation-proposal.md`,
+> which was written the same day and disagreed with this field. Both are dated 2026-08-14,
+> neither cited the other, and the operator would have read them side by side at this gate.
+> That report now carries a §0 saying so; nothing under its §0 was edited.
+
+Rationale:
+
+The three reported defects are real and still present at v0.10.0, verified line by line.
+The reason this is a GO rather than the original GO is that one of the four proposed fixes
+would have made things worse, and that only became visible by running it.
+
+1. D1's fix must not use `deriveSlug()`. It is a summariser written for node labels —
+   first word longer than one character, truncated to 16 — not a slugifier. Over the 14
+   corpus documents that actually reach the fallback it produces 4 distinct ids
+   (`process` ×8, `proc` ×4, `id` ×1, `009164cd` ×1), all of which pass the save
+   validator. Today those same 14 produce 14 ids and all 14 are rejected. The proposed
+   fix therefore converts a loud, total, save-time failure into a silent, near-total
+   collision — the failure would render as health. Three of the four branches in the
+   proposed line are also unreachable: `deriveSlug` is total and never returns falsy.
+2. The correct transform is already in the tree, at `:9162` in `createFromPendingRef`.
+   Applied to the identifier it gives 10 distinct ids and 0 invalid over the same 14. The
+   build work is to lift it into a shared helper and call it from all four sites — not to
+   author it, which is what the proposal budgeted 30 minutes for.
+3. D2 has three sites, not two (`:2685`, `:5223`, `:9162`). Unifying two of three
+   leaves `renameActiveWorkflow` still able to mint `-cash-sync`.
+4. Collisions are already handled and stay out of scope: `:9214` appends `_v<n>` and
+   writes it back. But that policy is downstream of the transform, so a lossy transform
+   turns eight distinguishable documents into `process`, `process_v2` … `process_v8`.
+   That is the whole argument for point 1 in one sentence.
+5. The round-trip closure is carved out. It is the only item that changes bytes the
+   editor already writes correctly, and T-308/T-358 byte-identity gates live exactly
+   there. Bundling a byte-identity change with a derivation change means one gate failure
+   cannot be attributed. IW-0 stays open.
+
+Cost is lower than the proposal estimated for D2 (the function exists) and higher for
+verification: the census below is static analysis of inputs. Nothing here has driven
+`parseBpmnXml` in a browser, so the build task owes a CDP probe over the 14 documents
+before any AC is ticked — asserting a fix in source is what this project has spent the
+week learning is not the same as asserting it runs.
+
+Evidence:
+
+- `src/aef-workflow-designer.html:9950` — `id: aefMetaEl?.getAttribute('id') || procName || 'imported'`. D1 present at v0.10.0.
+- `:5223`, `:2685` — the two unguarded sanitizers; `:8433` — the validator they disagree with; `:9162` — the correct rule, already shipping.
+- `:1658` — `deriveSlug()`. `deriveSlug('proc_stock_sync') === 'proc'`; `deriveSlug('Cash to Ecwid stock sync') === 'cash'`; `deriveSlug('') === 'node'` (total ⇒ the proposed `||` chain is dead after its first operand).
+- Corpus census over 60 documents in `examples/aef-processes/rendered`, `tests/fixtures/aef-bpmn`, `tests/fixtures/third-party`, `tests/fixtures/lane-provenance`: 46 carry `<aef:workflowMeta>`, 14 do not. Current rule → 14 distinct / 14 invalid. Proposed `deriveSlug` → 4 distinct / 0 invalid. In-tree `:9162` rule → 10 distinct / 0 invalid, the only collision being five files that genuinely all declare `<bpmn:process id="Process_1">`.
+- Of the 46 documents that do carry `workflowMeta`, 0 have an id failing `/^[a-z0-9][a-z0-9_-]$/` and 0 have a leading dash or underscore (IW-3, measured rather than reasoned).
+- Script and pinned expected output: `docs/reports/T-501-map-id-remediation-proposal.md` §0.1.
+- NOT evidence, and excluded: the proposal's "126 of 145" and "145-file sweep" describe the 001-CashWeb tree, which is behind the T-559 boundary and was not read.
+- A measurement error of my own is recorded at §0 C-7: the first census pass used a regex instead of an XML parser and under-reported 14 invalid as 7. Re-run with `xml.etree` before any conclusion was drawn.
+
+If this is a GO, the build work decomposes as (one deliverable each):
+
+1. Lift `sanitizeWorkflowId()` / `isValidWorkflowId()` into shared helpers; call from `:2685`, `:5223`, `:9162`. No behaviour change intended at `:9162`.
+2. Replace the `:9950` derivation with `workflowMeta id → slugify(procId) → slugify(procName) → 'imported'`, plus a CDP probe over the 14 fallback documents asserting distinct-id count and validator pass.
+3. Load-time normalisation + one-time notice (D3).
+
+IW-0 (always-emit `workflowMeta`) is not in that list and needs its own decision first.
+
+---
+
+Superseded 2026-08-14 recommendation, preserved verbatim:
+
+> Recommendation: DEFER
+>
+> Consumer defect report with three separable root causes well-diagnosed. Need to scope implementation cost and risk to existing exports/vendored builds before recommending GO. The fallback-to-display-name issue is a category error; the sanitizer/validator mismatch affects user-facing behavior; late validation creates poor UX. Evidence: hand-authored BPMN is a real corpus path. Decision depends on testing impact on v0.8.0 already in the wild and round-trip behavior for v0.9+ exports.
+
+**Date**: 2026-08-20T09:15:09Z
 
 ## Updates
 
@@ -360,3 +437,81 @@ IW-0 (always-emit `workflowMeta`) is not in that list and needs its own decision
 
 ### 2026-08-14T16:57:57Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+### 2026-08-20T09:15:09Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Recommendation: GO on a NARROWED package — three fixes, with D1's proposed fix replaced.
+The fourth item (always-emit `workflowMeta`) is carved out and remains undecided (IW-0).
+
+> Supersedes the 2026-08-14 DEFER, preserved verbatim at the end of this section. That
+> DEFER was right to hesitate and wrong about why: it cites unscoped cost and vendored-build
+> risk, when the actual blocker was that nobody had run the derivation against a corpus.
+> It has now been run.
+>
+> It also supersedes the GO in `docs/reports/T-501-map-id-remediation-proposal.md`,
+> which was written the same day and disagreed with this field. Both are dated 2026-08-14,
+> neither cited the other, and the operator would have read them side by side at this gate.
+> That report now carries a §0 saying so; nothing under its §0 was edited.
+
+Rationale:
+
+The three reported defects are real and still present at v0.10.0, verified line by line.
+The reason this is a GO rather than the original GO is that one of the four proposed fixes
+would have made things worse, and that only became visible by running it.
+
+1. D1's fix must not use `deriveSlug()`. It is a summariser written for node labels —
+   first word longer than one character, truncated to 16 — not a slugifier. Over the 14
+   corpus documents that actually reach the fallback it produces 4 distinct ids
+   (`process` ×8, `proc` ×4, `id` ×1, `009164cd` ×1), all of which pass the save
+   validator. Today those same 14 produce 14 ids and all 14 are rejected. The proposed
+   fix therefore converts a loud, total, save-time failure into a silent, near-total
+   collision — the failure would render as health. Three of the four branches in the
+   proposed line are also unreachable: `deriveSlug` is total and never returns falsy.
+2. The correct transform is already in the tree, at `:9162` in `createFromPendingRef`.
+   Applied to the identifier it gives 10 distinct ids and 0 invalid over the same 14. The
+   build work is to lift it into a shared helper and call it from all four sites — not to
+   author it, which is what the proposal budgeted 30 minutes for.
+3. D2 has three sites, not two (`:2685`, `:5223`, `:9162`). Unifying two of three
+   leaves `renameActiveWorkflow` still able to mint `-cash-sync`.
+4. Collisions are already handled and stay out of scope: `:9214` appends `_v<n>` and
+   writes it back. But that policy is downstream of the transform, so a lossy transform
+   turns eight distinguishable documents into `process`, `process_v2` … `process_v8`.
+   That is the whole argument for point 1 in one sentence.
+5. The round-trip closure is carved out. It is the only item that changes bytes the
+   editor already writes correctly, and T-308/T-358 byte-identity gates live exactly
+   there. Bundling a byte-identity change with a derivation change means one gate failure
+   cannot be attributed. IW-0 stays open.
+
+Cost is lower than the proposal estimated for D2 (the function exists) and higher for
+verification: the census below is static analysis of inputs. Nothing here has driven
+`parseBpmnXml` in a browser, so the build task owes a CDP probe over the 14 documents
+before any AC is ticked — asserting a fix in source is what this project has spent the
+week learning is not the same as asserting it runs.
+
+Evidence:
+
+- `src/aef-workflow-designer.html:9950` — `id: aefMetaEl?.getAttribute('id') || procName || 'imported'`. D1 present at v0.10.0.
+- `:5223`, `:2685` — the two unguarded sanitizers; `:8433` — the validator they disagree with; `:9162` — the correct rule, already shipping.
+- `:1658` — `deriveSlug()`. `deriveSlug('proc_stock_sync') === 'proc'`; `deriveSlug('Cash to Ecwid stock sync') === 'cash'`; `deriveSlug('') === 'node'` (total ⇒ the proposed `||` chain is dead after its first operand).
+- Corpus census over 60 documents in `examples/aef-processes/rendered`, `tests/fixtures/aef-bpmn`, `tests/fixtures/third-party`, `tests/fixtures/lane-provenance`: 46 carry `<aef:workflowMeta>`, 14 do not. Current rule → 14 distinct / 14 invalid. Proposed `deriveSlug` → 4 distinct / 0 invalid. In-tree `:9162` rule → 10 distinct / 0 invalid, the only collision being five files that genuinely all declare `<bpmn:process id="Process_1">`.
+- Of the 46 documents that do carry `workflowMeta`, 0 have an id failing `/^[a-z0-9][a-z0-9_-]$/` and 0 have a leading dash or underscore (IW-3, measured rather than reasoned).
+- Script and pinned expected output: `docs/reports/T-501-map-id-remediation-proposal.md` §0.1.
+- NOT evidence, and excluded: the proposal's "126 of 145" and "145-file sweep" describe the 001-CashWeb tree, which is behind the T-559 boundary and was not read.
+- A measurement error of my own is recorded at §0 C-7: the first census pass used a regex instead of an XML parser and under-reported 14 invalid as 7. Re-run with `xml.etree` before any conclusion was drawn.
+
+If this is a GO, the build work decomposes as (one deliverable each):
+
+1. Lift `sanitizeWorkflowId()` / `isValidWorkflowId()` into shared helpers; call from `:2685`, `:5223`, `:9162`. No behaviour change intended at `:9162`.
+2. Replace the `:9950` derivation with `workflowMeta id → slugify(procId) → slugify(procName) → 'imported'`, plus a CDP probe over the 14 fallback documents asserting distinct-id count and validator pass.
+3. Load-time normalisation + one-time notice (D3).
+
+IW-0 (always-emit `workflowMeta`) is not in that list and needs its own decision first.
+
+---
+
+Superseded 2026-08-14 recommendation, preserved verbatim:
+
+> Recommendation: DEFER
+>
+> Consumer defect report with three separable root causes well-diagnosed. Need to scope implementation cost and risk to existing exports/vendored builds before recommending GO. The fallback-to-display-name issue is a category error; the sanitizer/validator mismatch affects user-facing behavior; late validation creates poor UX. Evidence: hand-authored BPMN is a real corpus path. Decision depends on testing impact on v0.8.0 already in the wild and round-trip behavior for v0.9+ exports.
