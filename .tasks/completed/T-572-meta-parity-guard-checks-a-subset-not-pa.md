@@ -4,10 +4,10 @@ name: "meta-parity guard checks a subset, not parity: 9 bridge keys the editor n
 description: >
   tests/test_editor_bridge_meta_parity.py asserts ONE direction: check(editor_keys, bridge_keys) returns editor keys missing from the bridge, and the self-test at :94 confirms that is the only case it flags. Measured with the test's own extractors: editor metaKeys = 20, bridge META_KEYS = 29, and 9 keys the bridge EMITS were absent from the editor's export whitelist -- determinism, authority, endpoint, sideEffect, autoTriggerKind, restoresFrom, compensationSnapshot, compensatedBy, advisory. check() returns [] on that, so the guard has been green for the entire period in which opening a bridge-produced map in the editor and saving it destroyed up to 9 keys (T-570 measured and fixed the destruction; this task is about the guard that should have reported it). The file is NAMED parity and its assertion is SUBSET. That is the week's recurring shape once more -- a stated property standing in for a checked one, with the gap rendering as green. Note the fix is NOT simply 'assert equality': the two lists legitimately differ, because the editor now carries unlisted scalars generically rather than by name (T-570 src:9550) while the bridge enumerates its vocabulary. The guard has to assert the property that actually matters -- every key the bridge can emit survives an editor round trip -- which is a ROUND-TRIP assertion, not a set comparison, and should be measured against the editor rather than against its source text.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [bug, designer, test-guard]
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T17:06:18Z
-last_update: 2026-08-20T17:55:08Z
-date_finished: null
+last_update: 2026-08-20T18:16:50Z
+date_finished: 2026-08-20T18:16:50Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -118,8 +118,24 @@ itself — a silent exclusion list is the shape this task exists to remove.
 - [x] The existing subset assertion (editor→bridge) is PRESERVED and still green; it guards a
       real and different risk and is not replaced by the round trip.
 - [x] The new guard is wired into `tests/run-bridge-tests.sh` in the SAME commit (T-568: a tool
-      called only from a task's `## Verification
+      called only from a task's Verification block is unwired the moment that task closes).
+- [x] Suite passes with a count floor asserted, not just "0 failed" (deleting legs also yields 0).
+      → 124 → **125 passed, 0 failed**; floor of 125 asserted below.
+- [x] The 47-day blindness is registered as a gap, not just fixed (G-019: mitigation is not
+      prevention). → **G-041**, with a closure trigger that explicitly refuses this task's own
+      probe as closure.
 
+## Verification
+
+# Shell commands that MUST pass before work-completed. One per line.
+#
+# NOTE (repair, 2026-08-20): this block was spliced into the middle of the AC list by a
+# `s.index('## Verification')` that matched an earlier BACKTICKED MENTION of the heading in AC 10.
+# The heading ended up glued to the end of that line, `^## Verification` never matched, the gate's
+# sed range returned zero lines, and `[ -z "$verify_cmds" ] && return 0` passed the task SILENTLY
+# with all ten legs unrun. Repaired and re-run by hand; the framework half is filed as T-574.
+# No heading is referenced by its literal text in this file any more.
+#
 # The guard itself: 6 legs in headless Chromium, fixture derived from the bridge's META_KEYS.
 node tools/_t572-bridge-vocabulary-roundtrip-cdp.mjs
 # Control run first, then 3 mutants; each must redden exactly its own legs AND lose exactly its own keys.
@@ -277,3 +293,15 @@ reassurance-prose census and is unexamined — a lead, not a finding, and not th
 
 ### 2026-08-20T17:55:08Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-cfccf6dc
+- **Timestamp:** 2026-08-20T18:16:50Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-20T18:16:50Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

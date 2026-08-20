@@ -1,0 +1,100 @@
+# ============================================================================
+# EPISODIC MEMORY - T-572: meta-parity guard checks a subset, not parity: 9 bridge keys the editor never named stayed green
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-20T18:16:53Z
+# ============================================================================
+
+task_id: T-572
+task_name: "meta-parity guard checks a subset, not parity: 9 bridge keys the editor never named stayed green"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-20T17:06:18Z
+completed: 2026-08-20T18:16:50Z
+duration_days: 0
+updates_count: 2
+first_commit: 2026-08-20T20:16:36+02:00
+last_commit: 2026-08-20T20:16:36+02:00
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  the guard named 'parity' did not merely check a subset — its docstring ARGUED the direction it does not check was safe, and that argument is what stopped anyone adding the check. tests/test_editor_bridge_meta_parity.py asserts editor_metaKeys ⊆ bridge_META_KEYS, which is correct and useful. The defect is the sentence beside it: "those flow bridge→editor via the generic absorption, so the reverse direction is not a data-loss risk." That is a claim about a ROUND TRIP checked against the READ side alone. Import is generic (src:10255) — true, and verifiable by reading the source, which is presumably how it was verified. Export was not: it filtered through a 20-key whitelist, so a key was absorbed on load and DESTROYED on save. Nine bridge keys sat outside that whitelist and the sentence named three of them — determinism, endpoint, sideEffect — as its reassurance. check() returned [] for 47 DAYS (added 2026-07-04 2baf13ce, corrected today) and was working exactly as written the whole time. A narrow guard with no claim invites the next person to widen it; a narrow guard carrying a reasoned argument for its own sufficiency actively deters them, and nothing anywhere evaluates that argument. PL-034 exactly: a guard that checks internal self-consistency cannot detect a broken promise.
+
+# Key outcomes
+outcomes:
+  - 'A round-trip guard exists that derives its fixture keys from the bridge''s `META_KEYS`'
+  - 'The guard drives a REAL editor load→export→re-parse (CDP, headless Chromium) and asserts'
+  - 'Survival channel per key is MEASURED before the assertion is written, and every key that'
+  - 'Values are checked, not just key presence: at least one carried key holds a hostile value'
+  - 'A control arm runs first on unmutated source and must be green — "every mutant died" is'
+  - 'Mutation teeth: reverting T-570''s carriage in a tmpdir copy MUST redden the new guard.'
+  - 'Teeth discriminate: each mutant reddens exactly its own legs, and a mutant reddening more'
+  - 'The false claim in `test_editor_bridge_meta_parity.py`''s docstring is corrected in place'
+  - 'The existing subset assertion (editor→bridge) is PRESERVED and still green; it guards a'
+  - 'The new guard is wired into `tests/run-bridge-tests.sh` in the SAME commit (T-568: a tool'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-20 — Round trip, not set equality'
+    chose: 'Assert that every key the bridge can emit survives an editor load→export→re-parse, measured in the page. Left the `⊆` assertion in place alongside it.'
+    rationale: 'The two whitelists now legitimately differ — the editor carries unlisted scalars *generically* (T-570) while the bridge *enumerates* its vocabulary. The property that matters is survival, and survival is behaviour.'
+    alternatives_rejected: ['replacing the `⊆` test. It guards a real and opposite risk (an editor-authored key the bridge drops on YAML→BPMN) that the round trip does not cover.']
+  - decision: '2026-08-20 — The fixture is derived from the producer, not written by hand'
+    chose: 'Read `META_KEYS` from `tools/yaml-to-bpmn.py` at run time, through the parity test''s own `bridge_meta_keys` extractor, and generate the fixture from whatever comes back.'
+    rationale: 'The direct lesson of T-570 — a census over what the corpus happens to carry measures the SAMPLE; the producer''s vocabulary is the POPULATION. A hand-written fixture pins today''s 29 keys and is silent on the 30th, which is how a guard goes stale without anyone noticing. Mutant B is the tooth: it appends a key that appears nowhere in the probe and requires the guard to lose exactly that key.'
+    alternatives_rejected: ['a second regex in the probe. Two extractors can drift into disagreeing about what the bridge''s vocabulary IS while both claiming to check whether it survives.']
+  - decision: '2026-08-20 — Measured the survival channel before writing the assertion'
+    chose: 'Run the round trip first — 29 keys × 15 fixture nodes × 10 distinct editor types — and let the result decide the assertion. Result: 0 lost, 0 changed, so `EXEMPT` is empty and the assertion is made on `node.aef` after re-parse, channel-agnostic.'
+    rationale: 'The obvious assertion, "every bridge key comes back as an `<aef:meta>` attribute", is false for `endpoint`, which migrates to its own element and is not lost. Writing it first would have produced a guard reporting a defect that is not there — the same error T-570''s first census made, and the same one my own teeth then made (expected 9 lost under mutant A, measured 8, `endpoint` again).'
+    alternatives_rejected: ['a silent exclusion filter. That is precisely the shape this task removes, so exemptions live in a named `EXEMPT` map with a reason string, and leg 6 asserts every entry carries one. It is empty today and the leg says so out loud.']
+  - decision: '2026-08-20 — Registered the blindness as a gap rather than closing on the fix'
+    chose: 'G-041, severity high, with a closure trigger that names this task''s own probe and docstring correction as explicitly NOT closure.'
+    rationale: 'G-019 — mitigation is not prevention. 47 days blind is past the 7-day threshold, and six tasks committed on 2026-08-20 (T-562, T-566, T-568, T-569, T-570, T-572) share the shape.'
+    alternatives_rejected: ['folding it into G-023 (an agent citing a gate beyond its scope) or G-034 (zero-population blindness). Both are adjacent; neither covers an artifact carrying its own false reassurance in the place a reader goes to find out what is covered.']
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  - '.context/locks/T-572.lock'
+  - '.context/project/concerns.yaml'
+  - '.tasks/active/T-572-meta-parity-guard-checks-a-subset-not-pa.md'
+  - 'tests/run-bridge-tests.sh'
+  - 'tests/test_editor_bridge_meta_parity.py'
+  - 'tools/_t572-bridge-vocabulary-roundtrip-cdp.mjs'
+  - 'tools/_t572-bridge-vocabulary-teeth.py'
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  - time: "2026-08-20T20:16:36"
+    action: 'T-572: the guard named ''parity'' did not merely check a subset — its docstring ARGUED the direction it does not check was safe, and that argument is what stopped anyone adding the check. tests/test_editor_bridge_meta_parity.py asserts editor_metaKeys ⊆ bridge_META_KEYS, which is correct and useful. The defect is the sentence beside it: "those flow bridge→editor via the generic absorption, so the reverse direction is not a data-loss risk." That is a claim about a ROUND TRIP checked against the READ side alone. Import is generic (src:10255) — true, and verifiable by reading the source, which is presumably how it was verified. Export was not: it filtered through a 20-key whitelist, so a key was absorbed on load and DESTROYED on save. Nine bridge keys sat outside that whitelist and the sentence named three of them — determinism, endpoint, sideEffect — as its reassurance. check() returned [] for 47 DAYS (added 2026-07-04 2baf13ce, corrected today) and was working exactly as written the whole time. A narrow guard with no claim invites the next person to widen it; a narrow guard carrying a reasoned argument for its own sufficiency actively deters them, and nothing anywhere evaluates that argument. PL-034 exactly: a guard that checks internal self-consistency cannot detect a broken promise.'
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 1 commit(s), 70 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: [bug, designer, test-guard]
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 70
+  commits: 1
+  files_changed: 7
+  lines_added: 758
+  lines_removed: 107
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-572-meta-parity-guard-checks-a-subset-not-pa.md
+generated_by: context-agent-hybrid

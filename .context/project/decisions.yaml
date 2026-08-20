@@ -1886,3 +1886,31 @@ decisions:
     date: 2026-08-20
     task: T-570
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-249
+    decision: "Assert that every key the bridge can emit survives an editor load→export→re-parse,"
+    scope: project
+    date: 2026-08-20
+    task: T-572
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-250
+    decision: "Read `META_KEYS` from `tools/yaml-to-bpmn.py` at run time, through the parity"
+    scope: project
+    date: 2026-08-20
+    task: T-572
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-251
+    decision: "Run the round trip first — 29 keys × 15 fixture nodes × 10 distinct editor types —"
+    scope: project
+    date: 2026-08-20
+    task: T-572
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-252
+    decision: "G-041, severity high, with a closure trigger that names this task's own probe and"
+    scope: project
+    date: 2026-08-20
+    task: T-572
+    rationale: "Auto-captured from task file on completion"
