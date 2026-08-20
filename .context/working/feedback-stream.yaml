@@ -7423,3 +7423,21 @@ scan_id: R-322ed4e3
 task_id: T-571
 payload:
   task_file: .tasks/active/T-571-remove-stray-0-byte-file-47b2499bdbf7-sw.md
+---
+kind: scan_emitted
+timestamp: '2026-08-20T17:36:55Z'
+scan_id: R-14a82916
+task_id: T-570
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-20T17:36:55Z'
+scan_id: R-14a82916
+task_id: T-570
+payload:
+  task_file: .tasks/active/T-570-aefmeta-keys-absent-from-metakeys-are-im.md

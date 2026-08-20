@@ -4,10 +4,10 @@ name: "aef:meta keys absent from metaKeys are imported, hidden, then silently dr
 description: >
   Import reads EVERY attribute of <aef:meta> into n.aef unconditionally (src:10183, 'for (const a of metaEl.attributes) aef[a.name] = a.value'). Export emits only keys on the metaKeys whitelist (src:9430, metaKeys.filter(k => aefKeys.includes(k))). The two lists are therefore asymmetric, and any key present in a source document but absent from metaKeys is loaded into memory, rendered nowhere, and dropped on re-export with no warning. Measured over 91 bpmn files / 714 aef:meta values: 'determinism' appears 12 times (examples/app-processes/rendered/customer-refund.bpmn) and is in NEITHER metaKeys NOR AEF_FIELDS. This is distinct from T-566 (invisibility) and worse: T-566 is content nobody can read, this is content the editor destroys. It is also the exact failure 001-CashWeb was asked about on agent-chat-arc T-064 -- 'content an author might unknowingly overwrite because they cannot see it' -- with our own corpus as the witness rather than theirs. T-566's read-only disclosure makes such a key VISIBLE but does not make it survive; the fix here is about the export whitelist, not the panel. Derived from reading two call sites; MUST be measured by an actual import->export round trip before any change.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: [bug, designer, round-trip]
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T14:45:26Z
-last_update: 2026-08-20T16:55:24Z
-date_finished: null
+last_update: 2026-08-20T17:27:43Z
+date_finished: 2026-08-20T17:27:43Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -114,7 +114,7 @@ node tools/_t570-meta-carriage-cdp.mjs
 python3 tools/_t570-meta-carriage-teeth.py
 python3 tests/test_editor_bridge_meta_parity.py
 python3 tests/test_editor_bridge_structured_parity.py
-python3 tools/_t566-note-field-cdp.mjs
+node tools/_t566-note-field-cdp.mjs
 # Positive counts, not absence assertions (T-560): "no metaKeys-only filter remains" passes
 # just as readily when the pattern is mis-quoted. metaKeys stays at exactly 20 literals (no
 # contract widening), and the carriage path exists exactly once — one definition, one
@@ -330,3 +330,15 @@ defect is not, and it gets its own task rather than being folded in.
 
 ### 2026-08-20T16:55:24Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-14a82916
+- **Timestamp:** 2026-08-20T17:36:55Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-20T17:27:43Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed

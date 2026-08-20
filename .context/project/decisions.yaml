@@ -1865,3 +1865,24 @@ decisions:
     date: 2026-08-20
     task: T-566
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-246
+    decision: "emit, on the existing `<aef:meta>` element, every scalar `node.aef` value that no"
+    scope: project
+    date: 2026-08-20
+    task: T-570
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-247
+    decision: "skip a key only when another emitter will ACTUALLY emit it for this node's current"
+    scope: project
+    date: 2026-08-20
+    task: T-570
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-248
+    decision: "ship carriage here; file the subset-shaped parity guard as T-572 and the Emits"
+    scope: project
+    date: 2026-08-20
+    task: T-570
+    rationale: "Auto-captured from task file on completion"
