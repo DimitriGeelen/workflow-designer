@@ -695,6 +695,36 @@ else
 fi
 
 echo
+echo "== Workflow-id sanitizer and validator agree, at every site (T-562, T-501 D2) =="
+# The sanitizer was written inline three times and judged by a fourth inline regex, and
+# the three disagreed with the judge — a map could be renamed to an id the save path
+# would then refuse. T-562 lifted both into single helpers and closed a hole the T-501
+# census could not see: the shipping rule stripped a leading `-` but not a leading `_`,
+# so `_foo` survived sanitisation and failed validation. The corpus contains no such
+# name, which is why the census measured 0 invalid and was right about what it read.
+#
+# The probe drives a real rename in a real browser rather than reading the source, and
+# its leg 6 is what separates "the helper is correct" from "the call site uses it".
+if node "$ROOT/tools/_t562-workflow-id-helpers-cdp.mjs" > "$TMP/leg-_t562-workflow-id-helpers.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the workflow-id sanitizer and the save validator stopped agreeing, or a call site went back to an inline copy (T-562 — run 'node tools/_t562-workflow-id-helpers-cdp.mjs'; leg 6 red alone means the HELPER is fine and a CALL SITE is unwired, which greps for the helper name will not show)"
+  show_output "$TMP/leg-_t562-workflow-id-helpers.out" "_t562-workflow-id-helpers-cdp.mjs"
+  fail=$((fail + 1))
+fi
+
+# Mutation test for the probe above. Without it, "7/7 legs passed" is also what a probe
+# asserting nothing prints. Four mutants, each a fix someone would plausibly ship; the
+# C arm (helper correct, call site unwired) must redden leg 6 and only leg 6.
+if bash "$ROOT/tools/_t562-workflow-id-helpers-teeth.sh" > "$TMP/leg-_t562-teeth.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the T-562 workflow-id probe stopped discriminating — a mutant survived, or the call-site arm no longer isolates wiring from correctness (run 'bash tools/_t562-workflow-id-helpers-teeth.sh')"
+  show_output "$TMP/leg-_t562-teeth.out" "_t562-workflow-id-helpers-teeth.sh"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Foreign nodes disclose rather than impersonate (T-355, T-337) =="
 # T-337 made the importer PRESERVE elements outside our allowlist and re-emit them
 # verbatim. The canvas then drew them through the ordinary type branches, so a

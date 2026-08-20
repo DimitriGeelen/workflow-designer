@@ -1665,6 +1665,45 @@ function deriveSlug(displayName) {
   return (words[0] || 'node').slice(0, 16);
 }
 
+// ── Workflow identity: the sanitizer and the validator that judges it (T-562) ──────
+// NOT deriveSlug, and the adjacency is deliberate so the next reader sees the
+// difference. deriveSlug above is a SUMMARISER for node labels — first word longer
+// than one character, truncated to 16. Using it for machine identity collapses
+// distinct documents onto a shared first token: measured over the 14 corpus documents
+// that reach the id fallback it yields 4 ids (`process` ×8, `proc` ×4, `id`, a hash),
+// and all 4 PASS the validator — a loud save-time rejection turned into a silent
+// collision (T-501 §Decision item 1).
+//
+// These two were written inline at three sites (renameActiveWorkflow, the ID property
+// field, createFromPendingRef) and judged by a fourth inline regex in the save guard,
+// and the three disagreed with the judge (T-501 D2). The contract that makes them one
+// unit: sanitizeWorkflowId's output always satisfies isValidWorkflowId, or is the
+// caller's fallback.
+//
+// `fallback` is a parameter rather than a constant because the sites differ in a way
+// that matters: createFromPendingRef needs a usable id ('workflow'), while the two
+// rename paths need '' so an unusable input REFUSES the rename instead of silently
+// renaming the map to "workflow".
+function sanitizeWorkflowId(raw, fallback = '') {
+  const s = String(raw == null ? '' : raw)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_\-]/g, '-')
+    // Leading separators of BOTH kinds. The shipping :9162 rule stripped `-` only, so
+    // `_foo` survived as `_foo` and the validator rejected it on the first character.
+    // The corpus contains no such name, which is why the T-501 census measured 0
+    // invalid and was right about the population it read.
+    .replace(/^[-_]+/, '')
+    // Trailing `-` only. A trailing `_` is legal per the validator and trimming it
+    // would change ids that already round-trip.
+    .replace(/-+$/, '');
+  return s || fallback;
+}
+
+function isValidWorkflowId(id) {
+  return /^[a-z0-9][a-z0-9_-]*$/.test(id);
+}
+
 // Derive a slug that's unique within its lane (among other nodes in that lane).
 // If the base slug collides with siblings, append `-2`, `-3`, ... until unique.
 function deriveUniqueSlug(node, displayName) {
@@ -2682,7 +2721,9 @@ function mintUuid() {
 }
 
 function renameActiveWorkflow(newId) {
-  newId = (newId || '').trim().toLowerCase().replace(/[^a-z0-9_\-]/g, '-');
+  // T-562: was an inline sanitizer that disagreed with the save validator. Empty
+  // fallback preserves the refuse-on-unusable-input behaviour below.
+  newId = sanitizeWorkflowId(newId, '');
   if (!newId || newId === activeKey) return false;
   if (library.has(newId)) return false; // collision
   library.delete(activeKey);
@@ -5220,7 +5261,7 @@ function renderProperties() {
     // On collision renameActiveWorkflow refuses; surface that instead of silently
     // reverting (T-263 leg3 / the rail-225 overwrite trap).
     sMeta.appendChild(field('ID', wm.id, v => {
-      const trimmed = (v || '').trim().toLowerCase().replace(/[^a-z0-9_\-]/g, '-');
+      const trimmed = sanitizeWorkflowId(v, '');   // T-562: shared helper
       if (!trimmed || trimmed === activeKey) { renderProperties(); return; }
       if (!renameActiveWorkflow(trimmed)) {
         _idRenameNotice = `id "${trimmed}" already exists in this library — rename not applied`;
@@ -8430,7 +8471,7 @@ async function saveToProject() {
   try {
     saveActiveToLibrary();
     const id = state.workflowMeta.id;
-    if (!/^[a-z0-9][a-z0-9_-]*$/.test(id)) {
+    if (!isValidWorkflowId(id)) {   // T-562: was an inline copy of the regex
       alert('To save to the project, the map ID must be lowercase letters, numbers, "-" or "_" (no spaces). Edit the ID field first.');
       return;
     }
@@ -9159,7 +9200,7 @@ function createFromPendingRef(ghost) {
   if (!ghost || !ghost.uuid) return;
   saveActiveToLibrary();
   // Slugify the ghost name for a friendly starting id; fall back to a unique 'workflow_N'.
-  let base = String(ghost.name || 'workflow').trim().toLowerCase().replace(/[^a-z0-9_\-]/g, '-').replace(/^-+|-+$/g, '') || 'workflow';
+  let base = sanitizeWorkflowId(ghost.name, 'workflow');   // T-562: shared helper
   let id = base, n = 2;
   while (library.has(id)) id = `${base}_${n++}`;
   const title = ghost.name || 'Untitled workflow';
