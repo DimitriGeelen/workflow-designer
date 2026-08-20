@@ -7369,3 +7369,39 @@ scan_id: R-1facef60
 task_id: T-568
 payload:
   task_file: .tasks/active/T-568-fabric-card-cache-is-keyed-on-directory-.md
+---
+kind: scan_emitted
+timestamp: '2026-08-20T13:44:31Z'
+scan_id: R-409a4888
+task_id: T-569
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-20T13:44:31Z'
+scan_id: R-409a4888
+task_id: T-569
+payload:
+  task_file: .tasks/active/T-569-component-card-purpose-is-autoescaped-so.md
+---
+kind: scan_emitted
+timestamp: '2026-08-20T15:12:28Z'
+scan_id: R-e237c94d
+task_id: T-566
+payload:
+  overall: PASS
+  finding_count: 0
+  suppressed_count: 0
+  auto_ticked_count: 0
+  catalogue_version: v1.3-seed
+---
+kind: verdict_recorded
+timestamp: '2026-08-20T15:12:28Z'
+scan_id: R-e237c94d
+task_id: T-566
+payload:
+  task_file: .tasks/active/T-566-make-aefnote-readable-and-writable-in-th.md

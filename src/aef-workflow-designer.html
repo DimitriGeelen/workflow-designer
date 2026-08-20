@@ -1824,29 +1824,39 @@ const NODE_DEFAULTS = {
 };
 
 // Which aef:* fields are meaningful for each node type.
+// T-566: `note` is listed on EVERY type, and that is a deliberate departure from how
+// the rest of this table is built. Every other key here is type-specific because it
+// carries type-specific semantics — `emits` on a startEvent would be meaningless, a
+// `timerSpec` on a task has nothing to bind to. `note` carries no semantics the node
+// type could contradict: it is author prose about the node. Restricting it to
+// "task-like and event types" (as requested by 001-CashWeb) would reproduce this same
+// report from the next consumer who put a note on a gateway. T-197's principle is that
+// a field appears where it is AUTHORABLE, not everywhere it can be stored — prose is
+// authorable everywhere. Note the ordering: `note` is LAST in each list so it renders
+// below the structured fields rather than pushing them down.
 const AEF_FIELDS = {
-  startEvent:   ['triggeredBy', 'contextReads'],
-  endEvent:     ['emits'],
+  startEvent:   ['triggeredBy', 'contextReads', 'note'],
+  endEvent:     ['emits', 'note'],
   // T-197 (IW-9 v1.1): node-level `owner` is NOT authorable — it derives from
   // the node's lane authority (Axis 1). The panel shows it read-only via
   // ownerFromAuthority(); it is retained in the metaKeys writer for O-2
   // reverse-render laning, but never offered as an editable field here.
-  serviceTask:  ['horizon', 'workflowType', 'tier', 'agentType', 'endpoint', 'contextReads', 'artifactsWrites'],
-  userTask:     ['horizon', 'workflowType', 'tier', 'endpoint', 'decisionOutputs'],
-  scriptTask:   ['horizon', 'workflowType', 'tier', 'endpoint', 'contextReads', 'artifactsWrites'],
-  exclusiveGateway: ['decisionInput', 'decisionOwner'],
-  parallelGateway: [],
-  linkEventThrow: ['workflowRef', 'name', 'targetWorkflow', 'linkId'],
-  linkEventCatch: ['workflowRef', 'name', 'targetWorkflow', 'linkId'],
+  serviceTask:  ['horizon', 'workflowType', 'tier', 'agentType', 'endpoint', 'contextReads', 'artifactsWrites', 'note'],
+  userTask:     ['horizon', 'workflowType', 'tier', 'endpoint', 'decisionOutputs', 'note'],
+  scriptTask:   ['horizon', 'workflowType', 'tier', 'endpoint', 'contextReads', 'artifactsWrites', 'note'],
+  exclusiveGateway: ['decisionInput', 'decisionOwner', 'note'],
+  parallelGateway: ['note'],
+  linkEventThrow: ['workflowRef', 'name', 'targetWorkflow', 'linkId', 'note'],
+  linkEventCatch: ['workflowRef', 'name', 'targetWorkflow', 'linkId', 'note'],
   // T-204 Slice 1: one kind-specific binding field per typed event (single source
   // of truth is EVENT_BINDING_FIELD, mirrored here for the inspector panel).
   // T-204 Slice 2: additive boundary-attachment fields (hostRef/boundaryPos/
   // interrupting) — an empty hostRef leaves the event in-flow; setting it makes the
   // event a bpmn:boundaryEvent on that host (per the T-081 scopeOf node→node precedent).
-  eventError:   ['errorStatus', 'hostRef', 'boundaryPos', 'interrupting'],
-  eventTimer:   ['timerSpec', 'hostRef', 'boundaryPos', 'interrupting'],
-  eventMessage: ['busTopic', 'hostRef', 'boundaryPos', 'interrupting'],
-  subProcess:   ['horizon', 'workflowType', 'tier', 'endpoint', 'contextReads', 'artifactsWrites', 'scopeOf'],
+  eventError:   ['errorStatus', 'hostRef', 'boundaryPos', 'interrupting', 'note'],
+  eventTimer:   ['timerSpec', 'hostRef', 'boundaryPos', 'interrupting', 'note'],
+  eventMessage: ['busTopic', 'hostRef', 'boundaryPos', 'interrupting', 'note'],
+  subProcess:   ['horizon', 'workflowType', 'tier', 'endpoint', 'contextReads', 'artifactsWrites', 'scopeOf', 'note'],
 };
 
 // T-308 (T-244 GO, path b): neutral presentation for a BARE catch event.
@@ -1902,6 +1912,10 @@ function ownerFromAuthority(authority) {
 const OWNER_BEARING_TYPES = new Set(['serviceTask', 'userTask', 'scriptTask', 'subProcess']);
 
 const FIELD_META = {
+  // T-566: free author prose. textarea because the content this exists to surface is
+  // multi-line by nature — 001-CashWeb's 27 nodes carry API references, auth rules,
+  // call lines and pseudo code. No `special`, so it takes the plain field() path.
+  note:           { label: 'Note',            hint: 'free notes · multi-line', textarea: true },
   triggeredBy:    { label: 'Triggered by',    hint: 'event or fw command', textarea: false },
   contextReads:   { label: 'Context reads',   hint: 'paths · comma-separated', textarea: true },
   artifactsWrites:{ label: 'Artifacts writes',hint: 'paths · comma-separated', textarea: true },
@@ -5793,6 +5807,64 @@ function renderProperties() {
       sAef.appendChild(ownerField);
     }
     props.appendChild(sAef);
+  }
+
+  // T-566: DISCLOSE every aef: key the panel would otherwise drop on the floor.
+  //
+  // `note` was the key that bit two consumers (999-AEF T-2974, 001-CashWeb T-064). The
+  // SHAPE that bit them is this panel: it iterates AEF_FIELDS[n.type] and renders one
+  // control per listed key, so anything the whitelist does not name is invisible —
+  // silently, with no readout and no count. Fixing only `note` leaves that shape intact
+  // and the next project files the same report about a different key. Measured over 91
+  // bpmn files / 714 aef:meta values: 305 (42.7%) sit outside AEF_FIELDS across 14
+  // distinct keys, of which `note` is 92. This branch is what covers the other 213.
+  //
+  // READ-ONLY, and that is a design constraint rather than laziness (T-197). Some of
+  // these keys are DERIVED (`owner` collapses from lane authority) and some are
+  // STRUCTURAL (`gatewayKind`, `scopeOf` — set by the shape of the diagram, not typed
+  // by an author). An edit box on those would be a lie: the value would be overwritten
+  // on the next render or the next export. Disclosure tells the truth about what the
+  // document carries without claiming this panel is where it is authored.
+  //
+  // NOT a fix for T-570. A key absent from the export metaKeys whitelist is still
+  // dropped on re-export; this makes it visible on the way past, which is strictly
+  // better than silence but is not preservation.
+  const shownKeys = new Set(aefFields || []);
+  if (OWNER_BEARING_TYPES.has(n.type)) shownKeys.add('owner');
+  // constituents has its own section below; io/link fields are already in AEF_FIELDS.
+  shownKeys.add('constituents');
+  const hiddenKeys = Object.keys(n.aef || {})
+    .filter(k => !shownKeys.has(k))
+    // Objects and arrays are structured payloads with their own surfaces, not scalars
+    // to print. Empty strings are absence, not content.
+    .filter(k => {
+      const v = n.aef[k];
+      return v !== null && v !== undefined && typeof v !== 'object' && String(v).trim() !== '';
+    })
+    .sort();
+  if (hiddenKeys.length) {
+    const sOther = section(`Other extensions · ${hiddenKeys.length}`, false);
+    const why = document.createElement('div');
+    why.className = 'field-hint';
+    why.style.cssText = 'display:block;margin:2px 0 8px;line-height:1.45';
+    why.textContent = 'Carried by this node in the source document. Shown read-only — these '
+      + 'keys are either derived from the diagram or not authored here. They are not lost.';
+    sOther.appendChild(why);
+    for (const k of hiddenKeys) {
+      const row = document.createElement('div');
+      row.className = 'field';
+      const lab = document.createElement('div');
+      lab.className = 'field-label';
+      lab.textContent = k;
+      const val = document.createElement('div');
+      val.className = 'field-input';
+      val.style.cssText = 'background: var(--surface); color: var(--text-faint); '
+        + 'user-select: text; white-space: pre-wrap; word-break: break-word;';
+      val.textContent = String(n.aef[k]);
+      row.append(lab, val);
+      sOther.appendChild(row);
+    }
+    props.appendChild(sOther);
   }
 
   // Constituents (T-081, FC-11) — what this collapsed composite is composed of.

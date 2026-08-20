@@ -695,6 +695,25 @@ else
 fi
 
 echo
+echo "== aef:note is authorable, and no carried key is invisible (T-566) =="
+# Reported independently by 999-AEF (T-2974) and 001-CashWeb (T-064): `note` round-trips
+# faithfully through save/load and is displayed nowhere. The teeth run the CDP probe on
+# unmutated source first (control), then three mutants. Mutant A is the shipping code and
+# must redden the note legs while leaving the DISCLOSURE legs green — with `note` unlisted
+# the general branch is what catches it, which is the whole design point. Mutant B is the
+# "just fix note" patch: it satisfies both reporters and leaves the shape that produced
+# them intact. Mutant C shows every key and puts an edit box on the derived ones (T-197).
+# Wired here in the same commit that adds it — a tool called only from a task's
+# Verification block becomes unwired the moment that task completes (T-568's lesson).
+if python3 "$ROOT/tools/_t566-note-field-teeth.py" > "$TMP/leg-_t566-note.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "aef:note stopped being authorable in the inspector, or a carried aef: key went invisible again (T-566 — run 'python3 tools/_t566-note-field-teeth.py'; a mutant that reddens MORE than its own legs is not discriminating, and CANNOT RUN is not a pass)"
+  show_output "$TMP/leg-_t566-note.out" "_t566-note-field-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== A card's purpose is readable AND safe (T-569) =="
 # The card is the only project-owned surface Watchtower's nav already reaches, and an
 # autoescaped purpose made it unlinkable. Two legs pulling opposite ways: the link must

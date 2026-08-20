@@ -1,22 +1,22 @@
 ---
-id: T-566
-name: "Make aef:note readable and writable in the inspector (CashWeb T-064, AEF T-2974 defect 1)"
+id: T-570
+name: "aef:meta keys absent from metaKeys are imported, hidden, then silently dropped on re-export"
 description: >
-  The Extensions panel iterates AEF_FIELDS (src:1827) and silently drops every aef: key not on it. 'note' is in the export metaKeys set (src:9425) so it round-trips faithfully through save/load, but no node type lists it, so nothing can read or write it. Confirmed independently at v0.10.0; reported by 999-AEF (T-2974 defect 1) and independently by 001-CashWeb (their T-064, 27 nodes of API references, auth rules and pseudo code invisible). Standard §2 explicitly places 'note' outside the frozen v1 governance-scalar contract, so this needs no standard bump. Two things to decide rather than inherit from the request: which node types (T-197's principle is that a field appears where it is AUTHORABLE, not everywhere it can be stored), and whether the fix is one more whitelist entry or a general fallback branch for unlisted aef: keys — 'note' is the key that bit two consumers, but a panel that iterates a whitelist and drops the rest is the shape that bit them.
+  Import reads EVERY attribute of <aef:meta> into n.aef unconditionally (src:10183, 'for (const a of metaEl.attributes) aef[a.name] = a.value'). Export emits only keys on the metaKeys whitelist (src:9430, metaKeys.filter(k => aefKeys.includes(k))). The two lists are therefore asymmetric, and any key present in a source document but absent from metaKeys is loaded into memory, rendered nowhere, and dropped on re-export with no warning. Measured over 91 bpmn files / 714 aef:meta values: 'determinism' appears 12 times (examples/app-processes/rendered/customer-refund.bpmn) and is in NEITHER metaKeys NOR AEF_FIELDS. This is distinct from T-566 (invisibility) and worse: T-566 is content nobody can read, this is content the editor destroys. It is also the exact failure 001-CashWeb was asked about on agent-chat-arc T-064 -- 'content an author might unknowingly overwrite because they cannot see it' -- with our own corpus as the witness rather than theirs. T-566's read-only disclosure makes such a key VISIBLE but does not make it survive; the fix here is about the export whitelist, not the panel. Derived from reading two call sites; MUST be measured by an actual import->export round trip before any change.
 
 status: captured
 workflow_type: build
 owner: agent
 horizon: now
-tags: []
+tags: [bug, designer, round-trip]
 components: []
 related_tasks: []
 # arc_id:                         # T-1849: optional — slug (e.g. "arc-grooming") OR arc-NNN (e.g. "arc-005")
 #                                 # When set, must resolve to .context/arcs/<id>.yaml; PreToolUse hook
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
-created: 2026-08-20T09:56:32Z
-last_update: 2026-08-20T09:56:32Z
+created: 2026-08-20T14:45:26Z
+last_update: 2026-08-20T14:45:26Z
 date_finished: null
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
@@ -30,7 +30,7 @@ date_finished: null
 #                                 # Q2 fallback: T-shirt S/M/L/XL mapped to 2/4/6/8 when blast_radius is not yet computable.
 ---
 
-# T-566: Make aef:note readable and writable in the inspector (CashWeb T-064, AEF T-2974 defect 1)
+# T-570: aef:meta keys absent from metaKeys are imported, hidden, then silently dropped on re-export
 
 ## Context
 
@@ -186,7 +186,7 @@ date_finished: null
 
 ## Updates
 
-### 2026-08-20T09:56:32Z — task-created [task-create-agent]
+### 2026-08-20T14:45:26Z — task-created [task-create-agent]
 - **Action:** Created task via task-create agent
-- **Output:** /opt/832-Workflow-designer/.tasks/active/T-566-make-aefnote-readable-and-writable-in-th.md
+- **Output:** /opt/832-Workflow-designer/.tasks/active/T-570-aefmeta-keys-absent-from-metakeys-are-im.md
 - **Context:** Initial task creation

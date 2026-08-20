@@ -1844,3 +1844,24 @@ decisions:
     date: 2026-08-20
     task: T-568
     rationale: "Auto-captured from task file on completion"
+
+  - id: PD-243
+    decision: "add `note` as an editable field, AND add a read-only disclosure branch that"
+    scope: project
+    date: 2026-08-20
+    task: T-566
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-244
+    decision: "list `note` on every type in AEF_FIELDS, including gateways."
+    scope: project
+    date: 2026-08-20
+    task: T-566
+    rationale: "Auto-captured from task file on completion"
+
+  - id: PD-245
+    decision: "a probe leg that round-trips through `parseBpmnXml(buildBpmnXml(state))` and"
+    scope: project
+    date: 2026-08-20
+    task: T-566
+    rationale: "Auto-captured from task file on completion"

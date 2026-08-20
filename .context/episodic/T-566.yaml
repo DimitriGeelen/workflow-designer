@@ -1,0 +1,85 @@
+# ============================================================================
+# EPISODIC MEMORY - T-566: Make aef:note readable and writable in the inspector (CashWeb T-064, AEF T-2974 defect 1)
+# ============================================================================
+# STATUS: AUTO-GENERATED
+# Hybrid episodic: git-mined timeline/metrics + task-file decisions/AC.
+# Generated: 2026-08-20T15:12:30Z
+# ============================================================================
+
+task_id: T-566
+task_name: "Make aef:note readable and writable in the inspector (CashWeb T-064, AEF T-2974 defect 1)"
+workflow_type: build
+enrichment_status: complete  # AC checked + decisions recorded
+
+# Timeline
+created: 2026-08-20T09:56:32Z
+completed: 2026-08-20T15:03:40Z
+duration_days: 0
+updates_count: 2
+
+# Summary (auto-generated from git commit messages)
+summary: |
+  >
+
+# Key outcomes
+outcomes:
+  - '`note` is an editable multi-line field in the Extensions panel — on ALL 13 node types,'
+  - 'Editing `note` in the panel writes through to `n.aef.note` and reaches the exported'
+  - 'Multi-line content survives the round trip — `note` rides an XML attribute, where a'
+  - 'Every `aef:` key present on a node but absent from `AEF_FIELDS[n.type]` is DISCLOSED'
+  - 'The disclosure offers no edit control, so derived (`owner`) and structural'
+  - 'A CDP probe drives the real page rather than reading source (PL-148): 6/6 legs'
+  - 'Teeth harness with a control run first; 3 mutants, each reddening exactly its own'
+  - 'Bridge meta-parity still passes with `metaKeys` unchanged at 20 — this task adds no'
+  - 'Whole bridge suite passes with a count floor: 122 → 123 passed, 0 failed'
+
+# Challenges (auto-detected from git: commits with fix/revert/bug/error)
+challenges:
+  # No challenges detected in commit messages
+
+# Decisions (from task file Decisions section)
+decisions:
+  - decision: '2026-08-20 — Both scopes, not one: `note` AND a general disclosure'
+    chose: 'add `note` as an editable field, AND add a read-only disclosure branch that renders every `aef:` key the node carries but `AEF_FIELDS[n.type]` does not name.'
+    rationale: 'measured over 91 bpmn files / 714 `aef:meta` values — 305 (42.7%) sit outside AEF_FIELDS across 14 distinct keys, of which `note` is 92. Shipping only the whitelist entry fixes 92 and leaves 213 in the same condition, at which point the next consumer files the same report about `terminalKind` (60) or `state` (56). `note` is the key that bit two projects; a panel that iterates a whitelist and silently drops the rest is the SHAPE that bit them. Mutant A makes the point mechanically: with `note` unlisted, the disclosure branch is what catches it.'
+    alternatives_rejected: ['whitelist-entry-only (mutant B — satisfies both reporters, leaves the shape). Also rejected: making the disclosure editable (mutant C) — T-197 establishes that `owner` is DERIVED from lane authority and `gatewayKind`/`scopeOf` are structural, so an edit box on them would be overwritten on the next render and is a lie.']
+  - decision: '2026-08-20 — `note` on all 13 node types, not "task-like and event"'
+    chose: 'list `note` on every type in AEF_FIELDS, including gateways.'
+    rationale: '001-CashWeb asked for "task-like and event types" and I told them a blanket add was "the tempting version and probably the wrong one". On reading the table that was wrong, and the correction is worth stating rather than quietly shipping. Every other key in AEF_FIELDS is type-specific because it carries type-specific SEMANTICS — `emits` on a startEvent is meaningless, a `timerSpec` on a task has nothing to bind to. `note` carries no semantics a node type could contradict: it is author prose. T-197''s principle is that a field appears where it is AUTHORABLE, and prose is authorable everywhere. Restricting it would have produced this same report from the next author who put a note on a gateway.'
+    alternatives_rejected: ['the requested narrower set — it would have needed a defensible reason to exclude gateways and there is none.']
+  - decision: '2026-08-20 — Multi-line asserted on the bytes, not on the textarea'
+    chose: 'a probe leg that round-trips through `parseBpmnXml(buildBpmnXml(state))` and requires the newline back, plus the presence of `&#10;` in the emitted XML.'
+    rationale: '`note` is serialised as an XML ATTRIBUTE, and attribute-value normalisation collapses a literal newline to a space. "Multi-line note" is therefore a claim about `escAttr`, not about the panel — a textarea that renders three lines and re-loads as one would satisfy any panel-level assertion. `escAttr` already emits `&#10;` (src:9437) and the comment beside it shows the author knew the rule; this leg pins that behaviour so a later "simplification" of escAttr cannot silently flatten the reporter''s content.'
+
+# Artifacts (auto-mined from git --name-only)
+artifacts:
+  # No artifacts found in git
+
+# Timeline (auto-mined from git log)
+git_timeline:
+  # No git timeline available
+
+# What worked well (requires judgment — [TODO] if enrichment_status is pending)
+successes:
+  # Completed successfully in 0 commit(s), 307 min
+
+# Related tasks
+related_tasks:
+  blocked: []
+  absorbed: []
+  spawned: []
+
+# Tags for retrieval
+tags: []
+
+# Passive metrics (derived automatically — do not edit)
+metrics:
+  wall_clock_minutes: 307
+  commits: 0
+  files_changed: 0
+  lines_added: 0
+  lines_removed: 0
+
+# Metadata
+source_file: /opt/832-Workflow-designer/.tasks/completed/T-566-make-aefnote-readable-and-writable-in-th.md
+generated_by: context-agent-hybrid

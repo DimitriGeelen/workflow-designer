@@ -1,0 +1,22 @@
+=== episodic-gen invocation: 2026-08-20T13:44:34Z ===
+task_id: T-569
+FRAMEWORK_ROOT: /opt/832-Workflow-designer/.agentic-framework
+PROJECT_ROOT: /opt/832-Workflow-designer
+CONTEXT_DIR: /opt/832-Workflow-designer/.context
+CONTEXT_AGENT: /opt/832-Workflow-designer/.agentic-framework/agents/context/context.sh
+cwd: /opt/832-Workflow-designer
+--- context.sh output ---
+Episodic generated: /opt/832-Workflow-designer/.context/episodic/T-569.yaml
+
+  Status: ✓ auto-complete (Auto-generated)
+  Task: Component card purpose is autoescaped, so a consumer project's cards cannot link to anything it publishes
+  Duration: 0 days (42 min)
+  Updates: 2
+  Commits: 1
+  Lines: +37264 -51515 across 755 files
+  Outcomes: 8 AC checked
+  Challenges: 1 detected from git
+  Artifacts: 755 files tracked
+
+Source: /opt/832-Workflow-designer/.tasks/completed/T-569-component-card-purpose-is-autoescaped-so.md
+--- exit code: 0 ---

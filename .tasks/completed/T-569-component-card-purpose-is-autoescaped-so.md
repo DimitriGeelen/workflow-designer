@@ -4,10 +4,10 @@ name: "Component card purpose is autoescaped, so a consumer project's cards cann
 description: >
   fabric_detail.html:35 renders {{ component.purpose }} under Jinja autoescape, so a markdown link in a project-owned card renders as literal text. Reported by 001-CashWeb-Lightspeed-Ecwid-integration as the second of two Watchtower findings: NAV_GROUPS is a hardcoded list of blueprint endpoints, /file/<dir>/ has no index and /search does not index docs/reports, so the fabric card is the only project-owned surface the nav already reaches — and an autoescaped purpose makes it unlinkable. Their framing is the substantive part: AEF's Carrier Discipline guidance requires an artefact be reachable without instructions, and that clause is currently unsatisfiable by any consumer project. Fix: render purpose through web/shared.py:662 render_markdown_safe (markdown2 safe_mode=escape) using the established blueprint-side *_html + | safe pattern (arcs.py:600, review.py:179, tasks.py:831), NOT a template filter — markdown2 emits block-level <p> which would nest inside the template's own <p>. Same task closes render_markdown_safe's ImportError branch, which returns RAW text and is harmless only while no caller marks it safe. Bonus already present: that helper auto-links T-XXX refs, bare URLs and T-1722 artefact paths, so docs/reports/* in a purpose becomes clickable with no markdown syntax at all.
 
-status: started-work
+status: work-completed
 workflow_type: build
 owner: agent
-horizon: now
+horizon: null
 tags: []
 components: []
 related_tasks: []
@@ -16,8 +16,8 @@ related_tasks: []
 #                                 # (check-arc-id) blocks save under agent control if it doesn't resolve.
 #                                 # Empty/missing → unassigned (allowed). See CLAUDE.md §Task System.
 created: 2026-08-20T12:53:55Z
-last_update: 2026-08-20T13:22:08Z
-date_finished: null
+last_update: 2026-08-20T13:36:09Z
+date_finished: 2026-08-20T13:36:09Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── BVP scoring fields (T-1918, arc-006). See docs/reports/T-1915-bvp-inception.md for semantics. ──
@@ -296,3 +296,15 @@ carries the compensating idiom and is the model for the eventual fix. One bug, o
 
 ### 2026-08-20T13:22:08Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
+
+## Reviewer Verdict (v1.5)
+
+- **Scan ID:** R-409a4888
+- **Timestamp:** 2026-08-20T13:44:31Z
+- **Catalogue:** v1.3-seed
+- **Overall:** PASS
+- **Needs Human:** no
+- **Findings:** none
+
+### 2026-08-20T13:36:09Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
