@@ -2451,3 +2451,52 @@ concerns:
     \    try: yaml.safe_load(open(f,encoding='utf-8'))\n    except Exception: bad.append(f)\nsrc=open('.agentic-framework/agents/audit/audit.sh',encoding='utf-8',errors='replace').read()\n\
     wired='.context/episodic' in src and 'safe_load' in src\nprint(json.dumps({'verdict':'READY' if (wired\
     \ and not bad) else 'NOT_READY','ready':bool(wired and not bad),'unparseable_episodics':len(bad),'audit_parses_episodics':wired,'gap':'G-040'}))\""
+
+- id: G-041
+  type: blindness
+  status: watching
+  severity: high
+  title: A guard can carry, in its own prose, a safety argument for the direction it does not check — and the argument is what stops anyone adding the check
+  detected: '2026-08-20'
+  origin_task: T-572
+  context: 'tests/test_editor_bridge_meta_parity.py asserts editor_metaKeys ⊆ bridge_META_KEYS. That
+    is a correct and useful check. The defect is not the narrow scope — it is that the file''s docstring
+    ARGUED the other direction needed no check: "those flow bridge→editor via the generic absorption, so
+    the reverse direction is not a data-loss risk." That is a claim about a ROUND TRIP, justified by
+    reading the READ side only. Import was generic; export was not. Nine bridge keys were destroyed on
+    every save for 47 days and the sentence named three of them as its reassurance. A narrow guard with
+    no claim invites the next person to widen it. A narrow guard carrying a written argument for its own
+    sufficiency actively deters them, and the argument is never evaluated by anything. This is distinct
+    from G-023 (an AGENT citing a gate beyond its scope) and G-034 (an instrument examining an empty
+    population): here the ARTIFACT itself carries the false reassurance, in the place a reader goes to
+    find out what is covered.'
+  evidence:
+  - 'test_editor_bridge_meta_parity.py:24-27 asserted "the reverse direction is not a data-loss risk" and
+    named determinism/endpoint/sideEffect as examples — all three were among the nine keys being destroyed'
+  - '47 days green (added 2026-07-04, 2baf13ce; corrected 2026-08-20, T-572) with check() returning [] the
+    whole time'
+  - 'SIX tasks committed on 2026-08-20 share the shape "a stated property standing in for a checked one,
+    with the failure rendering as health": T-562, T-566, T-568, T-569, T-570, T-572. T-572 is the first
+    found inside a GUARD rather than in product code'
+  - 'The T-572 teeth caught the same class in the author: mutant A''s expected loss was written as nine
+    keys and measured as eight, because `endpoint` survives on its own element — a whitelist difference
+    asserted where a round trip was meant, one task after T-570 corrected exactly that error'
+  decision_trigger: 'CLOSES when a routine, unattended instrument makes a guard''s COVERAGE legible next
+    to its claims — e.g. each seam guard declares which direction(s)/properties it evaluates, and a
+    scheduled check flags prose asserting a property no leg evaluates. Explicitly NOT closure: (a) T-572
+    adding the round-trip probe — that repairs this one seam and leaves every other guard''s prose
+    unexamined; (b) correcting this one docstring — that is the mess cleaned up; (c) a convention or
+    learning that says "do not write unchecked safety claims" — the claim here was written in good faith
+    by someone who believed it, so a rule against writing it does not detect the next one.
+
+    READ THE CLOSURE CHECK''S COUNT AS A CENSUS TO REVIEW, NOT A DEFECT COUNT. It is a phrase grep, so
+    it matches text that QUOTES a reassurance as much as text that makes one — at registration it returns
+    3, of which two are T-572''s own artifacts quoting the very sentence being corrected. The third,
+    tools/_t364-x-tie-census.py, is unexamined and is a lead, not a finding. A crude proxy is used
+    deliberately: the honest instrument is the coverage manifest, and the grep only says how much prose
+    a human still has to read.'
+  related_tasks:
+  - T-572
+  - T-570
+  - T-566
+  closure_check_command: "python3 -c \"import glob,re,json,os\nPAT=re.compile(r'not a (data-loss )?risk|is safe|cannot happen|no need to check|does not need|not a concern',re.I)\nhits=[]\nfor f in glob.glob('tests/*.py')+glob.glob('tools/_t*.py')+glob.glob('tools/_t*.mjs'):\n    t=open(f,encoding='utf-8',errors='replace').read()\n    if PAT.search(t): hits.append(os.path.basename(f))\nmanifest=os.path.exists('.context/guard-coverage.yaml')\nprint(json.dumps({'verdict':'READY' if (manifest and not hits) else 'NOT_READY','ready':bool(manifest and not hits),'guards_with_reassurance_prose':len(hits),'files':hits[:12],'coverage_manifest_exists':manifest,'gap':'G-041'}))\""

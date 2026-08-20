@@ -732,6 +732,24 @@ else
 fi
 
 echo
+echo "== every key our bridge can emit survives an editor round trip (T-572) =="
+# The ⊆ guard (test_editor_bridge_meta_parity.py, run above) asserts one direction and its
+# docstring used to ARGUE the other direction was safe — a claim about a round trip, checked
+# against the read side alone. It returned [] for 47 days while the editor destroyed nine keys
+# the bridge emits. This leg checks the property instead of asserting it: the fixture is
+# DERIVED from the bridge's own META_KEYS at run time, so a key added to the producer is
+# covered with no edit here, and a real load→export→re-parse decides. Mutant A is the exact
+# state the ⊆ guard called green; mutant B whitelists all nine known casualties and adds a
+# 30th key the probe never names, which only a derived fixture can see.
+if python3 "$ROOT/tools/_t572-bridge-vocabulary-teeth.py" > "$TMP/leg-_t572-vocab.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a key the bridge emits no longer survives an editor round trip, or the guard stopped discriminating (T-572 — run 'python3 tools/_t572-bridge-vocabulary-teeth.py'; a mutant that reddens MORE than its own legs, or loses a DIFFERENT key set than named, is not discriminating, and CANNOT RUN is not a pass)"
+  show_output "$TMP/leg-_t572-vocab.out" "_t572-bridge-vocabulary-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== A card's purpose is readable AND safe (T-569) =="
 # The card is the only project-owned surface Watchtower's nav already reaches, and an
 # autoescaped purpose made it unlinkable. Two legs pulling opposite ways: the link must

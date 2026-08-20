@@ -22,9 +22,37 @@ attribute absorption.
 Invariant enforced here:
   Every key the editor's `metaKeys` writer emits into `<aef:meta>` MUST also be
   in the bridge's `META_KEYS` tuple — otherwise the bridge drops it. (⊆, not ==:
-  the bridge legitimately emits more keys than the editor authors, e.g.
-  determinism/endpoint/sideEffect; those flow bridge→editor via the generic
-  absorption, so the reverse direction is not a data-loss risk.)
+  the bridge legitimately emits more keys than the editor authors, and forcing
+  every bridge key onto `metaKeys` would be a false constraint.)
+
+THE REVERSE DIRECTION IS NOT CHECKED HERE, AND FOR 47 DAYS THIS DOCSTRING SAID
+IT DID NOT NEED TO BE — added 2026-07-04 (2baf13ce), corrected 2026-08-20
+(T-572). The sentence that stood here was:
+
+    "the bridge legitimately emits more keys than the editor authors, e.g.
+     determinism/endpoint/sideEffect; those flow bridge→editor via the generic
+     absorption, so the reverse direction is not a data-loss risk."
+
+"Not a data-loss risk" is a claim about a ROUND TRIP. It was checked against the
+READ side alone. Import is generic (src:10255) — that half is true and visible in
+the source. Export was not: it filtered through a 20-key whitelist, so a key was
+absorbed on load and DESTROYED on save. Nine bridge keys were outside that
+whitelist and the sentence above named three of them as its reassurance:
+determinism, endpoint, sideEffect. `check()` returned [] the entire time, because
+`check()` was never looking (PL-034 — a guard that checks internal
+self-consistency cannot detect a broken promise).
+
+T-570 gave export generic carriage, which is what makes the claim true today, and
+nothing about THIS file holds it that way: revert the carriage and the ⊆
+assertion below goes green again while nine keys die on every save.
+
+  The round trip is checked by tools/_t572-bridge-vocabulary-roundtrip-cdp.mjs,
+  which derives its fixture from `META_KEYS` at run time and drives a real editor
+  load→export→re-parse in headless Chromium. Both guards run in
+  tests/run-bridge-tests.sh. This file is the ⊆ half and is not sufficient alone.
+
+Do not restore a safety claim to this docstring that no leg evaluates. If a
+direction matters, something has to run.
 
 Pure stdlib: both whitelists are literal lists in their source files.
 Exit 0 = editor metaKeys ⊆ bridge META_KEYS. Exit 1 = a key the editor writes is
