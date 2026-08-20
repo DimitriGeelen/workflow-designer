@@ -1195,3 +1195,18 @@ observations:
   tags: [tooling]
   status: pending
   promoted_to: null
+- id: OBS-294
+  text: "A DECISION GATE CAN BE FED TWO ARTIFACTS THAT DISAGREE ON THE DECISION, AND NOTHING COMPARES THEM. T-501 carried Recommendation: DEFER in the task and Recommendation: GO in docs/reports/T-501-map-id-remediation-proposal.md, both written 2026-08-14, neither citing the other. The Human AC sends the operator to 'fw task review T-501', which renders the TASK's field, while the report sits open beside it saying the opposite — so which answer the operator approved would have depended on which pane they read. Sibling of OBS-291 (stale document behind an unchecked [REVIEW] AC) but a distinct and cheaper check: OBS-291 compares DATES, this compares the DECISION FIELD ITSELF. DETECTOR SHAPE: for each active task with an unchecked decision-bearing AC, if docs/reports/T-<id>-*.md exists and contains a line matching '^\\*\\*Recommendation:', compare its verdict token (GO|NO-GO|DEFER) against the task's ## Recommendation verdict token and warn on disagreement. Decidable from two greps, no dates, no judgement. It would have fired on T-501 for six days. Not built here; T-501 is an inception and building a completion-gate check is its own task."
+  captured: 2026-08-20T00:52:30Z
+  context_task: T-501
+  tags: [governance]
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-295
+  text: "A PROPOSED FIX WOULD HAVE TURNED A LOUD TOTAL FAILURE INTO A SILENT NEAR-TOTAL COLLISION, AND ONLY RUNNING IT SHOWED THAT. T-501's remediation proposal (2026-08-14, recommendation GO) proposed deriving map identity via deriveSlug(procId). deriveSlug (src/aef-workflow-designer.html:1658) is named like a slugifier and is a SUMMARISER: first word longer than one char, truncated to 16. Measured over the 14 corpus documents that actually reach the fallback path, it collapses them to FOUR ids — process x8, proc x4, id x1, 009164cd x1 — and every one PASSES the save validator, where today all 14 of 14 are rejected loudly at save. bizagi-nested-ns.bpmn becomes the literal string 'id'. Three of the four branches in the proposed || chain are also dead: deriveSlug is total and never returns falsy. NO LIVE MISUSE EXISTS — every current caller (1717, 2065, 10261) derives a NODE slug from a display name, which is what the function is for. The hazard is the NAME, and it was one review away from being taken at face value. NOT A DETECTOR SHAPE, because 'is this transform lossy for its new use' is not decidable by grep. The transferable rule is narrower: when a fix reuses an existing helper, run the helper over the real corpus and count DISTINCT OUTPUTS before adopting it — a transform that reduces cardinality where identity is wanted converts rejection into collision, and collision is the quiet one. The correct transform was already in the tree three lines away at :9162 and yields 10 distinct, 0 invalid."
+  captured: 2026-08-20T00:52:47Z
+  context_task: T-501
+  tags: [design]
+  status: pending
+  promoted_to: null

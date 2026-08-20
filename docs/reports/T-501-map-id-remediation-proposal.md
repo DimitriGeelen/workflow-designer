@@ -3,7 +3,187 @@
 **Task:** T-501 (Map ID round-trip defect triage)  
 **From:** AEF consumer report (CashWeb-Lightspeed-Ecwid-integration / T-019)  
 **Scope:** Three separable defects (D1, D2, D3) + round-trip closure  
-**Date:** 2026-08-14
+**Date:** 2026-08-14 · **§0 added 2026-08-20 after re-measurement**
+
+---
+
+## §0 — WHAT THIS DOCUMENT GOT WRONG (read before §1)
+
+Added 2026-08-20. Everything below §0 is the 2026-08-14 text, unedited. This section
+says which of its claims survived measurement and which did not. It is at the top
+because a reader who opens this file at the decision gate is being asked to approve
+its recommendation, and one of the things that changed is the recommendation.
+
+**The document and the task disagreed about the answer.** This file says
+`Recommendation: GO` (§Executive Summary). `.tasks/active/T-501-*.md` says
+`Recommendation: DEFER`. Both were written on 2026-08-14, neither cites the other,
+and the Human AC sends the operator to `fw task review T-501`, which renders the
+*task's* recommendation while this file sits open beside it saying the opposite.
+Neither was re-derived from the source. This is the OBS-291 class — a document that
+stopped tracking the task it represents — with the sharper property that the two
+artifacts contradict each other on the single field the gate exists to decide.
+
+### C-1 — The three defects are REAL and still present at v0.10.0 (claim stands)
+
+Verified against `src/aef-workflow-designer.html` on 2026-08-20. The line numbers in
+this document have drifted (the file grew from ~10.1k to 10,612 lines) but the code
+at each site is byte-for-byte what §D1/§D2/§D3 quote:
+
+| Defect | Claimed line | Actual line at v0.10.0 | Code |
+|---|---|---|---|
+| D1 fallback to display name | 9845 | **9950** | `id: aefMetaEl?.getAttribute('id') \|\| procName \|\| 'imported',` |
+| D2 sanitizer (properties panel) | 5183 | **5223** | `.trim().toLowerCase().replace(/[^a-z0-9_\-]/g, '-')` |
+| D2 validator (save) | 8393 | **8433** | `if (!/^[a-z0-9][a-z0-9_-]*$/.test(id))` |
+
+### C-2 — D2 has a THIRD site this document never found
+
+`renameActiveWorkflow()` at **line 2685** applies the identical sanitizer and the
+identical missing leading-character rule. §D2 lists two sites and proposes unifying
+them; unifying two of three leaves the rename path still able to mint `-cash-sync`.
+
+### C-3 — The fix this document proposes ALREADY EXISTS IN THE TREE, three lines away
+
+`createFromPendingRef()` at **line 9162** is the correct rule, written for ghost
+adoption and never generalised:
+
+```js
+let base = String(ghost.name || 'workflow').trim().toLowerCase()
+             .replace(/[^a-z0-9_\-]/g, '-').replace(/^-+|-+$/g, '') || 'workflow';
+```
+
+That is `sanitizeWorkflowId()` from §D2, already implemented and already shipping.
+§D2 proposes writing it from scratch. The work is to *lift* it to a shared helper and
+call it from all four sites (2685, 5223, 9162, and the new load-time site), not to
+author it.
+
+### C-4 — THE D1 FIX AS WRITTEN WOULD BE A REGRESSION. Do not implement it.
+
+§D1 proposes:
+
+```js
+id: aefMetaEl?.getAttribute('id') || deriveSlug(procId) || deriveSlug(procName) || 'imported',
+```
+
+`deriveSlug()` (line 1658) is **not a slugifier**. It is a *summariser*, written for
+node labels: it takes the first word longer than one character and truncates to 16
+chars. Applied to an identifier it discards the identifier.
+
+Measured over the 60 BPMN documents in `examples/aef-processes/rendered`,
+`tests/fixtures/aef-bpmn`, `tests/fixtures/third-party` and
+`tests/fixtures/lane-provenance` (script in §0.1, re-runnable):
+
+- **46 carry `<aef:workflowMeta>`; 14 do not** — those 14 are the live fallback path.
+- **Today: all 14 of 14 derive an id the save validator rejects.** The defect is
+  total on that path, not partial. This is *stronger* than §D1 claims.
+- **Under the proposed fix: 14 files collapse to 4 distinct ids** — `process` ×8,
+  `proc` ×4, `id` ×1, `009164cd` ×1 — and **every one of the four passes the
+  validator.**
+
+So the proposed fix converts a loud, total, save-time failure into a silent,
+near-total collision. `bizagi-nested-ns.bpmn` (`Id_f2afc6ec-e5fc-…`) becomes the
+literal string `id`. The consumer's own reported map, `name="Cash to Ecwid stock
+sync"`, becomes `cash`. That is the failure mode this project has been finding all
+week: the broken state renders as health.
+
+**And three of the four branches are unreachable.** `deriveSlug()` is total — it
+returns `'node'` for empty input and can never return a falsy value — so
+`deriveSlug(procId)` always short-circuits the chain. `deriveSlug(procName)` and
+`'imported'` are dead code in the proposed line. `procId` is itself already
+`|| 'imported'` at line 9947, so the guard is doubly dead.
+
+**The correct transform is C-3's, applied to the identifier.** Same 14 files, same
+script: **10 distinct ids, 0 invalid.** `Process_0dp8lmr` stays `process_0dp8lmr`
+instead of becoming `process`.
+
+### C-5 — The one collision that survives is real, and the tree already handles it
+
+Under the correct transform, 5 of the 14 still collide — on `process_1`, because five
+different third-party fixtures literally declare `<bpmn:process id="Process_1">`
+(Camunda's default). No transform can separate them; the information is not in the
+document. That collision is honest and it is **already handled**: `loadBpmnIntoLibrary`
+at line 9214 appends `_v<n>` until unique and writes the result back to
+`workflowMeta.id`.
+
+This is the load-bearing point for scoping. The `_v<n>` policy sits *downstream* of
+the transform, so the transform decides what it is disambiguating. With the correct
+rule the operator sees `process_1`, `process_0dp8lmr`, `process_0k3ryf8` and one
+`_v2…_v5` run over genuinely identical inputs. With `deriveSlug` they see
+`process`, `process_v2` … `process_v8` — eight distinct documents rendered as serial
+numbers, because the distinguishing bytes were destroyed before the policy could use
+them. §D1's risk table rates this phase "Medium"; the risk is not in changing
+derivation, it is in *which* function does the deriving.
+
+### C-6 — Claims this document makes that are NOT verifiable from this repository
+
+- *"Corpus measurement: 126 of 145 hand-authored BPMN have NO workflowMeta"* (§Round-Trip
+  Closure) and the *"145-file sweep"* in §Testing Strategy refer to the **consumer's**
+  tree (001-CashWeb). Under the T-559 boundary we cannot read it. **Neither number was
+  checked here and neither should be cited as evidence in this repository.** The
+  832-side equivalent, measured above, is 14 of 60.
+- §Consumer Impact's claims about the v0.8.0 vendored build are unverified here.
+
+### C-7 — A measurement error of my own, recorded because it is the same class
+
+The first pass at the §0.1 census used a regex (`<bpmn:process\b[^>]*>`) instead of an
+XML parser and reported **7** of 14 invalid under the current rule, plus a phantom
+`imported ×7` collision bucket. Both were artifacts of the regex failing on multi-line
+and namespace-prefixed process elements. The corrected figure is 14 of 14. A measuring
+instrument that silently under-reports is the defect this task is about; it was
+re-run with `xml.etree` before any conclusion was drawn, and the wrong first number is
+left here rather than deleted.
+
+### §0.1 — The census, re-runnable
+
+```python
+import os, re, collections, xml.etree.ElementTree as ET
+roots = ['examples/aef-processes/rendered', 'tests/fixtures/aef-bpmn',
+         'tests/fixtures/third-party', 'tests/fixtures/lane-provenance']
+BPMN = '{http://www.omg.org/spec/BPMN/20100524/MODEL}'
+VAL  = re.compile(r'^[a-z0-9][a-z0-9_-]*$')
+
+def derive_slug(s):                      # src:1658 — the SUMMARISER (proposed, wrong)
+    if not s: return 'node'
+    w = [x for x in re.split(r'[\s\-]+', re.sub(r'[^a-z0-9\s\-]', ' ', s.lower())) if len(x) > 1]
+    return (w[0] if w else 'node')[:16]
+
+def slugify_id(s):                       # src:9162 — the SLUGIFIER (already in tree, right)
+    t = re.sub(r'[^a-z0-9_\-]', '-', (s or '').strip().lower())
+    return re.sub(r'^[-_]+|[-_]+$', '', t) or 'workflow'
+
+rows = []
+for root in roots:
+    for dp, _, fns in os.walk(root):
+        for fn in sorted(fns):
+            if not fn.endswith(('.bpmn', '.xml')): continue
+            r = ET.parse(os.path.join(dp, fn)).getroot()
+            if any('workflowMeta' in el.tag for el in r.iter()): continue   # fallback not reached
+            p = [el for el in r.iter(BPMN + 'process')]
+            rows.append((fn, p[0].get('id') if p else None, p[0].get('name') if p else None))
+
+for label, fn_ in (('current  ', lambda i, n: n or i or 'imported'),
+                   ('proposed ', lambda i, n: derive_slug(i or 'imported')),
+                   ('corrected', lambda i, n: slugify_id(i or 'imported'))):
+    ids = collections.Counter(fn_(i, n) for _, i, n in rows)
+    bad = sum(1 for _, i, n in rows if not VAL.match(fn_(i, n)))
+    print('%s: %d files -> %d distinct, %d invalid' % (label, len(rows), len(ids), bad))
+```
+
+Expected on 2026-08-20 (`src` at v0.10.0):
+
+```
+current  : 14 files -> 14 distinct, 14 invalid
+proposed : 14 files ->  4 distinct,  0 invalid     <-- silent collision
+corrected: 14 files -> 10 distinct,  0 invalid
+```
+
+### §0.2 — What this changes about the recommendation
+
+The 2026-08-14 GO was for a package whose headline item would have made things worse.
+The 2026-08-14 DEFER was right to hesitate and wrong about why — it cites unscoped
+cost and vendored-build risk, and the actual blocker was that nobody had run the
+derivation against a corpus. It has now been run. The revised recommendation, its
+conditions and its remaining open question are on the task, not here, because the
+task is what `fw task review` renders.
 
 ---
 
@@ -12,6 +192,11 @@
 Three separable defects prevent hand-authored BPMN without `<aef:workflowMeta>` from round-tripping correctly. All three are localized, independent fixes with bounded scope. The root cause (D1) is a category error: map identity derives from a display name instead of an identifier. Fixes are implementable in parallel and validate independently.
 
 **Recommendation: GO** — Implement all three defects + round-trip closure. Fix cost is low; risk is low; benefit is high for corpus integrity.
+
+> **SUPERSEDED 2026-08-20 — see §0.** This line is left as written because it is what
+> the operator would have been approving. It is no longer the recommendation: §D1's fix
+> was measured against the corpus and would collapse 14 documents onto 4 ids (§0 C-4).
+> The live recommendation is on the task file, which is what `fw task review` renders.
 
 ---
 

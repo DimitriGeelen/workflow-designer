@@ -1814,3 +1814,10 @@ learnings:
   date: 2026-08-17
   context: Added via context agent
   application: TBD
+- id: PL-255
+  learning: "When a proposed fix reuses an existing helper, run that helper over the real corpus and count DISTINCT OUTPUTS before adopting it. A transform that reduces cardinality where identity is wanted converts a loud rejection into a silent collision, and the silent one is worse. T-501: deriveSlug() is named like a slugifier and is a summariser; it would have collapsed 14 fallback documents onto 4 valid ids where today all 14 are rejected at save."
+  source: P-001
+  task: T-501
+  date: 2026-08-20
+  context: Added via context agent
+  application: TBD
