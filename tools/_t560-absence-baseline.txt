@@ -1,0 +1,21 @@
+# T-560 ratchet baseline — number of UNCONTROLLED absence-asserting Verification legs
+# across .tasks/{active,completed}. Produced by tools/_t560-absence-assertion-census.py.
+#
+# An "uncontrolled absence assertion" is a P-011 leg that asserts something is NOT
+# present, where nothing establishes that the search could have found it. A broken
+# pattern and a satisfied assertion produce the identical green.
+#
+# This number may FALL freely — lower it in the same commit that fixes legs, because
+# leaving it high silently re-admits exactly that many. It may not RISE: the census
+# exits 1 and the bridge suite goes red.
+#
+# 2026-08-20 (T-560): armed at the corpus as found. 92 absence legs of 2316 examined
+# across 478 files; 4 PATTERN-controlled, 10 EXISTENCE-controlled, 78 uncontrolled.
+# NOT a backlog anyone committed to burning down — the great majority sit in completed
+# tasks and are historical record. The ratchet's job is to stop the 79th.
+#
+# The first arming said 81, from a census that counted any `-eq 0` comparison. Seven of
+# those took their zero from a PARSED NUMBER rather than from an empty search result and
+# fail loud when the parse breaks, so they carry none of the silent-failure risk this
+# ratchet exists for. Found by dogfooding — one of the seven was this task's own suite leg.
+78

@@ -1667,5 +1667,28 @@ else
 fi
 
 echo
+echo "== A Verification leg that asserts ABSENCE is satisfied by silence (T-560) =="
+
+# ── T-560: two directions of the same mistake, one of them invisible ─────────────────────
+# A P-011 leg asserting something is NOT present goes green when its pattern is broken —
+# mis-quoted, shell-expanded before grep sees it, or aimed at a path that does not exist.
+# The assertion and its own failure are the same observable and the gate cannot tell them
+# apart. Two legs were caught mis-quoted in one session (T-501 leg 2, T-301 leg 4) and BOTH
+# were caught only because they asserted PRESENCE. The census counts the population where
+# the identical mistake is silent, and ratchets on the UNCONTROLLED subset so the corpus's
+# ~81 historical instances do not hold the suite permanently red (OBS-293: a leg that is
+# always red teaches readers to rerun rather than to look).
+# These teeth exist because "81 uncontrolled" is indistinguishable from "flags everything"
+# and from "control detector always returns NONE" unless something pins both edges. Leg 2
+# is the load-bearing one: an absence assertion WITH a positive control must not be flagged.
+if python3 "$ROOT/tools/_t560-absence-census-teeth.py" > "$TMP/leg-_t560-absence-census.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the absence-assertion census has stopped discriminating — either an uncontrolled absence leg is no longer flagged, or a leg carrying a positive control is now flagged (which makes the tool noise rather than a gate), or exceeding the ratchet baseline no longer exits 1, or T560_TASK_ROOT leaked and the census is reading a synthetic tree (run 'python3 tools/_t560-absence-census-teeth.py'; rc 2 is a REFUSAL — the census is missing, so nothing was measured)"
+  show_output "$TMP/leg-_t560-absence-census.out" "_t560-absence-census-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]
