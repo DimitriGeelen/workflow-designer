@@ -10,16 +10,16 @@ description: >
   question: which identity should the Versions panel and save target adopt when a
   store project id differs from the map internal id?
 
-status: started-work
+status: work-completed
 workflow_type: inception
 owner: agent
-horizon: now
+horizon: null
 tags: []
-components: []
+components: [tools/_t517-vendor-divergence.py, tools/_t517-vendor-divergence-teeth.py]
 related_tasks: []
 created: 2026-07-29T08:45:56Z
-last_update: 2026-08-20T01:12:46Z
-date_finished:
+last_update: 2026-08-20T09:14:52Z
+date_finished: 2026-08-20T09:14:52Z
 # revisit_at: YYYY-MM-DD          # T-1451: set on DEFER decisions to enable G-053 daily revisit scan
 # revisit_evidence_needed:        # T-1451: one-line description of what evidence makes the revisit actionable
 # ── Inception scoring exception (T-2186 Slice 2 / T-2188). See 050-Inceptions.md §Scoring Exception. ──
@@ -239,15 +239,15 @@ derivation change, which is its own task and its own operator decision.
 
 ### Agent
 <!-- @auto-tick-on-decide -->
-- [ ] Problem statement validated
+- [x] Problem statement validated
 <!-- @auto-tick-on-decide -->
-- [ ] Assumptions tested
+- [x] Assumptions tested
 <!-- @auto-tick-on-decide -->
-- [ ] Recommendation written with rationale
+- [x] Recommendation written with rationale
 
 ### Human
 <!-- @auto-tick-on-decide -->
-- [ ] [REVIEW] Review exploration findings and approve go/no-go decision
+- [x] [REVIEW] Review exploration findings and approve go/no-go decision
   **Steps:**
   1. Run: `fw task review T-XXX` (opens Watchtower with recommendation, assumptions, research artifacts)
   2. Review the Agent Recommendation section and go/no-go criteria evaluation
@@ -361,7 +361,62 @@ addresses the producer.
 
 ## Decision
 
-<!-- Filled at completion via: fw inception decide T-XXX go|no-go --rationale "..." -->
+**Decision**: GO
+
+**Rationale**: Recommendation: GO, but on a smaller and different thing than the title asks for — assert
+the invariant, do not chase the symptom.
+
+> Supersedes the 2026-08-14 DEFER, preserved verbatim below. That DEFER was correct on
+> urgency and its named instance is now gone; what it did not have is the reachability
+> measurement or the T-501 coupling, and the second one changes the urgency.
+
+Rationale:
+
+1. The causal chain is real and complete — `openProjectMap` fetches by card id, then lets
+   `adoptImportedXml` re-derive the id from bytes; `openVersionsModal` and `saveToProject`
+   both read the re-derived value. One divergence, both symptoms (IW-3).
+2. It is not reachable today. 0 divergences across 49 rendered documents and 24 store
+   cards. The named instance has been cleaned up.
+3. The editor cannot produce it; the store can. Every editor write path keys the card by
+   `workflowMeta.id`. `t101-review-audit-process` was made by copying at the store level. So
+   an editor-side fix guards the path that was never the source, and the honest guard is a
+   corpus check: `stem == workflowMeta.id` for every card and every rendered document. That
+   check would have caught the reported instance the day it appeared, costs one file walk,
+   and is the only thing here that is cheap and catches the real producer.
+4. T-501 makes it reachable, silently (IW-5). `deriveSlug('customer-refund') === 'customer'`
+   and `customer-refund.bpmn` is the one served document with no `workflowMeta` to pin its id.
+   If T-501's drafted fix ships, this defect fires on that file for the first time. That is
+   the argument for landing the invariant check before any T-501 build task, not after.
+5. The T-263 question is real but is not a bug (IW-4). The file stem is a second identity
+   authority in practice. T-263 declared which one wins; it did not remove the other or
+   require them to agree. Reopening that is a standard-level decision and belongs in its own
+   inception, not smuggled into a fix for an empty panel.
+
+Proposed build scope (one deliverable): a corpus check asserting `stem == workflowMeta.id`
+across `examples/aef-processes/rendered`, `build/gallery/rendered` and `.editor-versions//`,
+wired into `tests/run-bridge-tests.sh`, with a fixture that synthesises a divergent card and
+requires it to be caught. Explicitly NOT: changing `openProjectMap`, changing T-263, or
+carrying the card id through `adoptImportedXml` — all three are larger, and none of them
+addresses the producer.
+
+Evidence:
+
+- `src/aef-workflow-designer.html:8756` `openProjectMap` fetches `m.id`, adopts, discards it.
+- `:8588` versions read, `:8467` save write — both `state.workflowMeta.id`.
+- `:9214` `adoptImportedXml` sets `activeKey` from the document, not from the caller.
+- T-264's guard is gated on `_loadSrcKey`, unset on this path; `tests/test_t264_save_target_guards.py:19` covers the deep-link case only.
+- Divergence census: 24 + 25 rendered documents, 24 store cards, 0 divergent.
+- `deriveSlug('customer-refund') === 'customer'` (node, verified); `build/gallery/rendered/customer-refund.bpmn` has no `<aef:workflowMeta>`.
+
+---
+
+Superseded 2026-08-14 recommendation, preserved verbatim:
+
+> Recommendation: DEFER
+>
+> Real coherence gap, low urgency: the editor keys Versions+save to workflowMeta.id, so a store card whose id differs (t101-review-audit-process, 2 versions) opens with an empty Versions panel and Save forks a new project (audit-process v1, byte-equal modulo one aef:anchors line — no data loss). Workaround exists (name review-copy store ids to match the map id); operator review queue is already deep; decide identity semantics when the next save-target round (T-264 class) opens.
+
+**Date**: 2026-08-20T09:14:52Z
 
 ## Updates
 
@@ -370,27 +425,102 @@ addresses the producer.
 
 ## Reviewer Verdict (v1.5)
 
-- **Scan ID:** R-93a094a2
-- **Timestamp:** 2026-07-29T13:13:46Z
+- **Scan ID:** R-cab65317
+- **Timestamp:** 2026-08-20T09:14:53Z
 - **Catalogue:** v1.3-seed
-- **Overall:** PASS
+- **Overall:** CONCERN
 - **Needs Human:** no
-- **Findings:** none
+- **Findings:** 3
 
+**Verification-level findings:**
+
+  1. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-1
+     - evidence: `IW-1 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  2. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-2
+     - evidence: `IW-2 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
+  3. **disposition-incomplete** (partial, heuristic) @ ## Open Questions: IW-3
+     - evidence: `IW-3 disposition='answered' but rationale has no evidence citation (T-NNNN, file:line, docs/reports/, G-/L-/D-id, dialogue-log, or commit hash)`
 ## Recommendation Verdict (v1.0)
 
-- **Scan ID:** RC-6922acf5
-- **Timestamp:** 2026-07-29T13:13:46Z
-- **Overall:** CONFIRMED
-- **Claims:** 1
+- **Scan ID:** RC-98618f8f
+- **Timestamp:** 2026-08-20T09:14:53Z
+- **Overall:** CONTRADICTED
+- **Claims:** 9
 
 | Claim | Type | Status |
 |-------|------|--------|
+| `workflowMeta.id` | module | ✗ fail — symbol not found in lib/ agents/ bin/ |
+| `tests/run-bridge-tests.sh` | file | ✓ pass |
+| `src/aef-workflow-designer.html:8756` | file_line | ✓ pass |
+| `m.id` | module | ✗ fail — symbol not found in lib/ agents/ bin/ |
+| `tests/test_t264_save_target_guards.py:19` | file_line | ✓ pass |
+| `build/gallery/rendered/customer-refund.bpmn` | file | ✓ pass |
+| `T-501` | task | ✓ pass |
+| `T-263` | task | ✓ pass |
 | `T-264` | task | ✓ pass |
-
 ### 2026-08-20T01:12:45Z — status-update [task-update-agent]
 - **Change:** status: captured → started-work
 - **Change:** horizon: later → now (auto-sync)
 
 ### 2026-08-20T01:12:46Z — status-update [task-update-agent]
 - **Change:** horizon: now → now
+
+### 2026-08-20T09:14:52Z — inception-decision [inception-workflow]
+- **Action:** Recorded inception decision
+- **Decision:** GO
+- **Rationale:** Recommendation: GO, but on a smaller and different thing than the title asks for — assert
+the invariant, do not chase the symptom.
+
+> Supersedes the 2026-08-14 DEFER, preserved verbatim below. That DEFER was correct on
+> urgency and its named instance is now gone; what it did not have is the reachability
+> measurement or the T-501 coupling, and the second one changes the urgency.
+
+Rationale:
+
+1. The causal chain is real and complete — `openProjectMap` fetches by card id, then lets
+   `adoptImportedXml` re-derive the id from bytes; `openVersionsModal` and `saveToProject`
+   both read the re-derived value. One divergence, both symptoms (IW-3).
+2. It is not reachable today. 0 divergences across 49 rendered documents and 24 store
+   cards. The named instance has been cleaned up.
+3. The editor cannot produce it; the store can. Every editor write path keys the card by
+   `workflowMeta.id`. `t101-review-audit-process` was made by copying at the store level. So
+   an editor-side fix guards the path that was never the source, and the honest guard is a
+   corpus check: `stem == workflowMeta.id` for every card and every rendered document. That
+   check would have caught the reported instance the day it appeared, costs one file walk,
+   and is the only thing here that is cheap and catches the real producer.
+4. T-501 makes it reachable, silently (IW-5). `deriveSlug('customer-refund') === 'customer'`
+   and `customer-refund.bpmn` is the one served document with no `workflowMeta` to pin its id.
+   If T-501's drafted fix ships, this defect fires on that file for the first time. That is
+   the argument for landing the invariant check before any T-501 build task, not after.
+5. The T-263 question is real but is not a bug (IW-4). The file stem is a second identity
+   authority in practice. T-263 declared which one wins; it did not remove the other or
+   require them to agree. Reopening that is a standard-level decision and belongs in its own
+   inception, not smuggled into a fix for an empty panel.
+
+Proposed build scope (one deliverable): a corpus check asserting `stem == workflowMeta.id`
+across `examples/aef-processes/rendered`, `build/gallery/rendered` and `.editor-versions//`,
+wired into `tests/run-bridge-tests.sh`, with a fixture that synthesises a divergent card and
+requires it to be caught. Explicitly NOT: changing `openProjectMap`, changing T-263, or
+carrying the card id through `adoptImportedXml` — all three are larger, and none of them
+addresses the producer.
+
+Evidence:
+
+- `src/aef-workflow-designer.html:8756` `openProjectMap` fetches `m.id`, adopts, discards it.
+- `:8588` versions read, `:8467` save write — both `state.workflowMeta.id`.
+- `:9214` `adoptImportedXml` sets `activeKey` from the document, not from the caller.
+- T-264's guard is gated on `_loadSrcKey`, unset on this path; `tests/test_t264_save_target_guards.py:19` covers the deep-link case only.
+- Divergence census: 24 + 25 rendered documents, 24 store cards, 0 divergent.
+- `deriveSlug('customer-refund') === 'customer'` (node, verified); `build/gallery/rendered/customer-refund.bpmn` has no `<aef:workflowMeta>`.
+
+---
+
+Superseded 2026-08-14 recommendation, preserved verbatim:
+
+> Recommendation: DEFER
+>
+> Real coherence gap, low urgency: the editor keys Versions+save to workflowMeta.id, so a store card whose id differs (t101-review-audit-process, 2 versions) opens with an empty Versions panel and Save forks a new project (audit-process v1, byte-equal modulo one aef:anchors line — no data loss). Workaround exists (name review-copy store ids to match the map id); operator review queue is already deep; decide identity semantics when the next save-target round (T-264 class) opens.
+
+### 2026-08-20T09:14:52Z — status-update [task-update-agent]
+- **Change:** status: started-work → work-completed
+- **Reason:** Inception decision: GO
