@@ -2410,3 +2410,44 @@ concerns:
   closure_check_command: python3 -c "import importlib.util as u,json;s=u.spec_from_file_location('t538','tools/_t538-control-id-collision.py');m=u.module_from_spec(s);s.loader.exec_module(m);c=m.collisions(m.parse_sites(m.AUDIT));p='CTL-029'
     in c;print(json.dumps({'verdict':'READY' if not c else 'NOT_READY','ready':not c,'ctl_029':('PRESENT
     runs=%d'%len(c['CTL-029'])) if p else 'RESOLVED','total_collisions':len(c),'gap':'G-039'}))"
+- id: G-040
+  type: blindness
+  status: watching
+  severity: medium
+  title: Episodic memory is written and never read again, so a corrupt episodic is invisible from the
+    moment it is generated
+  detected: '2026-08-20'
+  origin_task: T-567
+  context: 'Completing T-562 raised a YAML ScannerError from the episodic generator. The task still completed,
+    moved to completed/, and the file was still written — only the CONTENT was lost. Measuring the population
+    found a second casualty: T-431 had been unparseable since 2026-08-11, NINE DAYS, and nothing anywhere
+    reported it. The generator''s error is raised once, at generation time, to whoever happens to be watching
+    that terminal; after that nothing in this project ever parses .context/episodic/*.yaml again. The
+    audit''s YAML check covers 10 ''project YAML files'' and does not include the 488 episodics. So the
+    failure mode is not ''the generator has a bug'' — that is T-567 and it is fixed — it is that episodic
+    memory has no reader, and an unread store cannot report its own corruption. Any future generator defect,
+    encoding change or partial write lands in exactly the same silence.'
+  evidence:
+  - '2 of 488 episodics unparseable when first measured: T-431 (\| from a regex alternation, dead since
+    2026-08-11) and T-562 (\- from a character class, dead on arrival today)'
+  - The audit reports 'All 10 project YAML files parse correctly' and PASSES while two episodics are unparseable
+    — the check's population excludes .context/episodic/ entirely
+  - The generator's own error text says 'do not edit the output by hand ... report on framework:pickup',
+    which is correct advice that only reaches a human who is looking at the terminal at that second
+  - T-431 was completed, its episodic written, its content unreadable, and it was cited as normal completed
+    work for nine days
+  decision_trigger: 'CLOSES when a ROUTINE, unattended instrument parses every .context/episodic/*.yaml
+    and fails loudly on any that does not — i.e. the audit (which runs on cron every 15 minutes) gains
+    the check, or an equivalent scheduled gate does. Explicitly NOT closure: (a) T-567 fixing the double-quoting
+    — that repairs the known cause and leaves the blindness intact; (b) the bridge-suite leg added by
+    T-567 — it is real prevention but runs only when someone runs the suite, which is exactly the ''a
+    human was watching'' condition that failed here; (c) both broken episodics now parsing — that is the
+    mess cleaned up, not the reason it went unnoticed for nine days.'
+  related_tasks:
+  - T-567
+  - T-562
+  - T-431
+  closure_check_command: "python3 -c \"import glob,yaml,json;bad=[]\nfor f in glob.glob('.context/episodic/*.yaml'):\n\
+    \    try: yaml.safe_load(open(f,encoding='utf-8'))\n    except Exception: bad.append(f)\nsrc=open('.agentic-framework/agents/audit/audit.sh',encoding='utf-8',errors='replace').read()\n\
+    wired='.context/episodic' in src and 'safe_load' in src\nprint(json.dumps({'verdict':'READY' if (wired\
+    \ and not bad) else 'NOT_READY','ready':bool(wired and not bad),'unparseable_episodics':len(bad),'audit_parses_episodics':wired,'gap':'G-040'}))\""

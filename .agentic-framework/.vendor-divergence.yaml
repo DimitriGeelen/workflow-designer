@@ -642,3 +642,29 @@ entries:
       `os.environ.get("PROJECT_ROOT", <derivation>)` — so the broken expression is a fallback
       that PROJECT_ROOT normally pre-empts. Latent, not firing, deliberately left alone: it is
       a second bug in a second file and gets its own task if it ever bites.
+
+  - path: .agentic-framework/agents/context/lib/episodic.sh
+    kind: content
+    task: T-567
+    upstream: fix
+    reason: >-
+      GENERIC — this corrupts episodic memory in ANY project whose commit messages contain a
+      backslash, which is routine for a project whose messages quote regexes or paths.
+      mine_git_timeline's subjects were emitted at :367-369 into a DOUBLE-quoted YAML scalar
+      escaping only `"` (sed 's/"/\\"/g'). A double-quoted YAML scalar interprets a fixed
+      escape set, so any backslash before a non-escape character makes the whole file
+      unparseable. T-562's message quoted /[^a-z0-9_\-]/g and produced `\-`; T-431's quoted an
+      alternation and produced `\|`.
+      MEASURED, not assumed: 2 of 488 episodics in this project were unparseable, and T-431
+      had been dead since 2026-08-11 — nine days — because the ScannerError is raised at
+      GENERATION time and the file is never parsed again. The task still completes, the file
+      is still written, and the episodic memory of a finished task is simply gone.
+      THE FIX WAS ALREADY IN THE SAME FILE, two blocks away: the `challenges` and `artifacts`
+      emitters mine the SAME `git log --format=%s` subjects and have always used
+      single-quoted YAML with `''` doubling. T-562's own episodic held the offending message
+      SAFELY at line 37 in the challenges block while line 61 killed the file — the same bytes,
+      two quoting styles, one of them wrong. The change makes the timeline block match its
+      siblings; it does not invent an escaping scheme.
+      Both broken episodics were REGENERATED through the fixed generator rather than
+      hand-edited, per the framework's own error text ("do not edit the output by hand").
+      Reported upstream on framework:pickup as msg_type=pickup-bug-report.

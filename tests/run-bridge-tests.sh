@@ -695,6 +695,21 @@ else
 fi
 
 echo
+echo "== A commit message cannot corrupt the episodic it is recorded in (T-567) =="
+# mine_git_timeline wrote git subjects into a DOUBLE-quoted YAML scalar escaping only `"`,
+# so any backslash before a non-escape character made the episodic unparseable. Two of 488
+# were already dead — T-431 since 2026-08-11 — and nothing noticed, because the error is
+# raised at generation time and the file is never read again. The round-trip leg is the
+# point: a generator that emitted nothing would parse perfectly.
+if bash "$ROOT/tools/_t567-episodic-yaml-safety-teeth.sh" > "$TMP/leg-_t567-episodic.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "a commit message can once again corrupt the episodic that records it, or an episodic stopped matching the git subject it was mined from (T-567 — run 'bash tools/_t567-episodic-yaml-safety-teeth.sh'; mutant B green means the file parses because it is EMPTY, which is the opposite of the property)"
+  show_output "$TMP/leg-_t567-episodic.out" "_t567-episodic-yaml-safety-teeth.sh"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "== Workflow-id sanitizer and validator agree, at every site (T-562, T-501 D2) =="
 # The sanitizer was written inline three times and judged by a fourth inline regex, and
 # the three disagreed with the judge — a map could be renamed to an id the save path

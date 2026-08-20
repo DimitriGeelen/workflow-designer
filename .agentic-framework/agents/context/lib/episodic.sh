@@ -364,9 +364,21 @@ HEREDOC
                 # Format: "2026-02-17 14:00:00 +0100 T-116: message"
                 local ts=$(echo "$line" | awk '{print $1"T"$2}')
                 local msg=$(echo "$line" | cut -d' ' -f4-)
-                local escaped_msg=$(echo "$msg" | sed 's/"/\\"/g')
+                # T-567: SINGLE-quoted, matching the challenges and artifacts blocks
+                # below, which mine the same `git log --format=%s` subjects.
+                #
+                # This was double-quoted with only `"` escaped, and a double-quoted YAML
+                # scalar interprets a fixed escape set — so any backslash before a
+                # non-escape character makes the file unparseable. A commit message
+                # quoting a regex (`/[^a-z0-9_\-]/g`) or an alternation (`\|`) is enough.
+                # Two of 488 episodics were already dead this way, T-431 for nine days.
+                #
+                # Single-quoted YAML interprets NO escapes; the only special sequence is
+                # '' for a literal quote. That is why the sibling blocks have always been
+                # safe on the very same bytes that killed this one.
+                local escaped_msg=$(echo "$msg" | sed "s/'/''/g")
                 echo "  - time: \"$ts\"" >> "$episodic_file"
-                echo "    action: \"$escaped_msg\"" >> "$episodic_file"
+                echo "    action: '$escaped_msg'" >> "$episodic_file"
             fi
         done
     else
