@@ -592,9 +592,17 @@ check_inception_scope_trace() {
     # Run reachability check via Python helper
     # Returns: "OK" or one failure per line prefixed with "FAIL:"
     local py_output failures
-    py_output=$(python3 - "$TASK_FILE" "$PROJECT_ROOT" <<'PYEOF'
+    py_output=$(FW_ROOT_FOR_PY="$FRAMEWORK_ROOT" python3 - "$TASK_FILE" "$PROJECT_ROOT" <<'PYEOF'
 import sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+# T-561: this block runs as `python3 -`, so __file__ is the literal '<stdin>'. The
+# original line walked three dirnames up from abspath(__file__) — correct for a script
+# at <framework>/agents/task-create/, and it resolves to '/' from stdin, so lib/ was
+# never on sys.path and every inception completion died at the import below. The shell
+# already knows FRAMEWORK_ROOT (it stats lib/inception_decisions.py with it one line
+# up); pass it in rather than re-derive it from a __file__ that does not exist.
+_fw_root = os.environ.get("FW_ROOT_FOR_PY", "")
+if _fw_root and _fw_root not in sys.path:
+    sys.path.insert(0, _fw_root)
 # argv[0] = "-" (stdin), argv[1] = task_file, argv[2] = project_root
 # But when called via bash heredoc, sys.argv may differ. Use env instead.
 import os

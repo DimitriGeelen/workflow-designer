@@ -609,3 +609,36 @@ entries:
       met here for the fourth time. Mutation-verified against four mutants (never-decode,
       always-decode, remove-route-only, third-route-reads-raw); each is caught by exactly the
       leg that owns it and the single-route mutant localises to the SOVEREIGN endpoint by name.
+
+  - path: .agentic-framework/agents/task-create/update-task.sh
+    kind: content
+    task: T-561
+    upstream: fix
+    reason: >-
+      GENERIC upstream debt — this crashes every inception completion in any project, AEF's
+      own included. The `inception_decisions` reachability gate runs its helper as
+      `python3 - <<'PYEOF'` and set sys.path with
+      `os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))`.
+      That expression is correct for a script living at <framework>/agents/task-create/ and
+      wrong for this one, because code read from stdin has `__file__` set to the literal
+      string `<stdin>`. MEASURED, not inferred: abspath('<stdin>') resolves against the CWD,
+      so from /opt/832-Workflow-designer the three dirname calls yield '/'. The framework root
+      was never added, and the very next statement — `from lib.inception_decisions import ...`
+      — raised ModuleNotFoundError. The gates all PASSED first (verification 5/5, disposition
+      ✓, decision ✓) and the traceback landed after them, so the operator saw a task that had
+      cleared every check and still did not complete.
+      Fix: pass FRAMEWORK_ROOT in through the environment. The shell computes it one line
+      above to stat lib/inception_decisions.py, so the value was already in hand and was being
+      re-derived from a `__file__` that does not exist. The env channel is required rather
+      than stylistic — the heredoc is quoted (<<'PYEOF'), so no shell expansion reaches it.
+      WHY IT SURVIVED: the block is only reached by an inception task whose gates have all
+      passed AND whose frontmatter carries a populated `inception_decisions:` field. T-501 is
+      the first task in this project to satisfy both. A grandfather guard immediately above
+      (`[ -f "$lib_py" ] || return 0`) means a project WITHOUT the helper skips silently — so
+      the failure needs the library to be present, which is to say it fires only where the
+      feature is fully installed.
+      POPULATION CHECKED rather than assumed unique: one other `abspath(__file__)` derivation
+      of a root exists in the vendored tree, agents/audit/audit.sh:5624, and it is GUARDED —
+      `os.environ.get("PROJECT_ROOT", <derivation>)` — so the broken expression is a fallback
+      that PROJECT_ROOT normally pre-empts. Latent, not firing, deliberately left alone: it is
+      a second bug in a second file and gets its own task if it ever bites.
