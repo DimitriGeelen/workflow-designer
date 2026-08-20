@@ -47,6 +47,7 @@ Exit 0 no whole-tree assertions, 1 at least one found, 2 REFUSE (corpus missing/
 nothing was evaluated, and that is not a pass: PL-205).
 """
 
+import ast
 import os
 import re
 import sys
@@ -98,8 +99,48 @@ SELF = os.path.abspath(__file__)
 COMMENT = re.compile(r"^\s*(#|//)")
 
 
-def strip_comments(src):
-    """Drop whole-line comments before classifying.
+def _strip_py_docstrings(src):
+    """Blank bare string statements — module, class and function docstrings.
+
+    T-558. `strip_comments` below closed the `#` half of this in T-533 and the docstring half
+    stayed open for five days, until T-552 extracted `tools/_writeset_hermeticity.py`, whose
+    module docstring explains at length that the FIRST form of that assertion used
+    `git status --porcelain` and why the digest comparand replaced it. That module contains no
+    subprocess call of any kind — it walks a subdirectory and hashes bytes — and this census
+    reported it as the corpus's one WHOLE-TREE assertion, on the strength of a sentence
+    describing the thing it stopped doing.
+
+    That is precisely the failure mode `strip_comments` names: "a checker that is confused by
+    comments ABOUT the pattern it detects gets steadily more wrong as authors document the
+    thing." A docstring is a comment the tokenizer does not call a comment. The sibling census
+    `tools/_t451-unwired-guard-census.py` reached the same conclusion under T-495 and blanks
+    `ast.Expr(Constant str)` for the same reason; this is that fix arriving in the second
+    census.
+
+    Spans are BLANKED rather than deleted so line numbering and any real code sharing a line
+    with a docstring's closing quotes survive. On a file that will not parse the source is
+    returned unchanged: the resulting prose can only produce a FALSE WHOLE-TREE, which is the
+    loud direction, and a false clean is what GROUND_TRUTH exists to prevent.
+    """
+    try:
+        tree = ast.parse(src)
+    except (SyntaxError, ValueError):
+        return src
+    lines = src.splitlines()
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant)
+                and isinstance(node.value.value, str)
+                and node.end_lineno is not None):
+            for ln in range(node.lineno - 1, node.end_lineno):
+                if 0 <= ln < len(lines):
+                    start = node.col_offset if ln == node.lineno - 1 else 0
+                    end = node.end_col_offset if ln == node.end_lineno - 1 else len(lines[ln])
+                    lines[ln] = lines[ln][:start] + " " * (end - start) + lines[ln][end:]
+    return "\n".join(lines)
+
+
+def strip_comments(src, path=""):
+    """Drop whole-line comments before classifying, and Python docstrings (T-558).
 
     T-533 found this the hard way: after both instances were scoped, the census still flagged
     them. The cause was the fix's own explanatory comments — prose containing `git status
@@ -108,6 +149,8 @@ def strip_comments(src):
     document the thing, which is the opposite of the intended incentive. Line-based only: a
     trailing comment after real code is left alone, since the code on that line is real.
     """
+    if path.endswith(".py"):
+        src = _strip_py_docstrings(src)
     return "\n".join("" if COMMENT.match(ln) else ln for ln in src.splitlines())
 
 
@@ -152,7 +195,7 @@ def main():
             continue
 
         rel = os.path.relpath(path, ROOT)
-        src = strip_comments(src)
+        src = strip_comments(src, path)
         calls = [m.group(1) for m in PY_CALL.finditer(src)]
         calls += [m.group(1) for m in SH_CALL.finditer(src)]
 

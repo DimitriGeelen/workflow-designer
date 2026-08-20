@@ -57,6 +57,45 @@ baseline_note: >-
 
 entries:
 
+  - path: .agentic-framework/agents/observe/observe.sh
+    kind: content
+    task: T-557
+    upstream: fix
+    reason: >-
+      `fw note` silently destroyed eleven observations between 2026-08-09 and 2026-08-17.
+      do_dispatch routes any unrecognised FIRST WORD to do_capture (the `*)` arm of the case
+      at ~line 305), and do_capture takes `$1` as the observation TEXT while the flag loop's
+      `*) shift ;;` discards everything after it. So `fw note add "<900 chars>"` — where no
+      `add` subcommand exists — files the word "add" and drops the payload, at exit 0, with
+      "OBS-NNN captured". Eleven husks: OBS-006/011/022/028/032/035/044/241/262/274/285, ten
+      "add" and one "inbox". OBS-274 was the flagship finding of T-556 and sat pending+urgent
+      for nine hours as one word while every artifact that counts urgents counted it.
+
+      THE GUARD IS SHAPE-BASED, NOT A WORD LIST. `_note_positional_count()` counts positional
+      arguments, skipping flags and their values; `fw note` takes exactly one positional, so
+      ">1 positional" is the general statement of "your payload is about to vanish". A word
+      list ("add", "inbox", ...) would have caught all eleven husks and missed the twelfth,
+      and would not catch unquoted prose (`fw note this is a finding` captured only "this").
+      Refusal happens BEFORE ensure_inbox, so a refused call touches no state.
+
+      SECOND FIX IN THE SAME FILE, the exact mirror of the first: do_capture ended with
+      `[ -n "$task" ] && echo ...` as its LAST statement, so an empty task context returned 1
+      under set -e — a successful capture reporting failure, where the other reports success
+      while failing. Invisible in this project because focus.yaml is always set; found only by
+      running against an isolated PROJECT_ROOT.
+
+      WHY THIS IS UPSTREAM DEBT AND NOT LOCAL POLICY: the defect is in the vendored dispatch
+      itself and AEF's register runs the same code. Note the guard that already existed sits on
+      the branch that CANNOT lose data — the `-*)` arm rejects an unrecognised FLAG loudly with
+      exit 1 — so input validation was considered and applied to the harmless case while the
+      subcommand typo, which eats the payload, fell through to the catch-all.
+
+      A related defect in the same file is NOT fixed here and is filed separately as OBS-289:
+      do_dismiss parses `--reason`, defaults it, ECHOES it, and never persists it, so a
+      register cannot distinguish "the tool ate this row" from "this row was not actionable".
+      Pinned by tests/test_note_capture_refuses_lost_payload.py (6 legs, 4 mutants), wired into
+      tests/run-bridge-tests.sh.
+
   - path: .agentic-framework/agents/termlink/bvp-estimator/estimator.py
     kind: content
     task: T-541

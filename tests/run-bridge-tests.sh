@@ -1645,5 +1645,27 @@ else
 fi
 
 echo
+echo "== The hermeticity census still sees a real one after it stopped seeing prose (T-558) =="
+
+# ── T-558: the T-532 census went from 1 finding to 0, and so would deleting it ───────────
+# T-558 taught _t532 to blank Python docstrings before classifying, the way it already blanked
+# `#` comments under T-533. That removed its single WHOLE-TREE finding — tools/_writeset_
+# hermeticity.py, a module with no subprocess call of any kind, flagged on the strength of a
+# docstring explaining the porcelain comparand it REPLACED. "1 finding -> 0 findings" is also
+# what deleting the classifier produces, so the two are separated here rather than asserted:
+# a real unscoped before/after assertion is planted in the scanned directory and must be
+# flagged AND must still drive rc=1, while the same words in a docstring must not be.
+# Mutants live under tools/ because that is what the census scans — one written elsewhere is
+# never read, and a leg that runs no code reads as a pass (PL-206, and the T-557 mutation run
+# where mutants died on a path error and the exit 1 was mistaken for a detection).
+if python3 "$ROOT/tools/_t558-hermeticity-census-teeth.py" > "$TMP/leg-_t558-hermeticity-census.out" 2>&1; then
+  pass=$((pass + 1))
+else
+  report FAIL "the hermeticity-scope census has stopped discriminating — either prose in a docstring is being read as an invocation again, or a REAL unscoped before/after 'git status' assertion is no longer detected, or a detected one no longer fails the census (run 'python3 tools/_t558-hermeticity-census-teeth.py'; rc 2 is a REFUSAL — the census is missing or a previous run left mutant residue in tools/, so nothing was measured)"
+  show_output "$TMP/leg-_t558-hermeticity-census.out" "_t558-hermeticity-census-teeth.py"
+  fail=$((fail + 1))
+fi
+
+echo
 echo "bridge round-trip: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

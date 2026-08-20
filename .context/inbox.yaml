@@ -1180,3 +1180,18 @@ observations:
   tags: [governance]
   status: pending
   promoted_to: null
+- id: OBS-292
+  text: "Three tasks in one session (T-448, T-552, T-557) each wired a new probe into tests/run-bridge-tests.sh, each asserted in its own Verification block that the probe was REGISTERED -- grep -q '<probe>' tests/run-bridge-tests.sh -- and not one of them RAN tests/run-bridge-tests.sh. All three completed green while leaving the suite at 109 passed / 4 failed, and the red went unnoticed for a day because nothing between a task's own probe and a session handover ever runs the suite. Found only by executing T-101's Verification block by hand to check whether an all-ACs-ticked task would survive the P-011 gate; T-101 leg 2 IS the suite, so a rank-5 HV/HC task could not have completed. DETECTOR SHAPE: for any task whose diff touches tests/run-bridge-tests.sh, require 'run-bridge-tests.sh' to appear in that task's ## Verification -- both are in the same commit, so this is decidable at completion time from the task file plus git diff --name-only. Sibling of PL-148 (an instrument's registration must be asserted by something other than the instrument): here the instrument asserted its own registration and nothing asserted the host suite still passed. Not built here."
+  captured: 2026-08-19T23:46:37Z
+  context_task: T-558
+  tags: [tooling]
+  status: pending
+  promoted_to: null
+  urgent: true
+- id: OBS-293
+  text: "The bridge suite is NON-DETERMINISTIC and a transient abstention reddens it. Measured 2026-08-18 across four consecutive full runs of tests/run-bridge-tests.sh on a tree that did not change between them: 114/0, 113/1, 114/0. The one red was the T-509 instrument sweep reporting 'RAN 41, passed 37, regressed 0, did-not-finish 0, abstained 4' -- _t525-fabric-coverage-teeth.py, _t534-d2-queue-tier-teeth.py, _t535-trend-key-teeth.py and _t536-status-desync-teeth.py all refused with rc=2, each saying the fw audit it drives emitted no section at all (no fabric coverage line, no D2 line, no TREND ANALYSIS section, no CTL-028 line). Four independent probes losing their stimulus in the same run points at ONE audit-level event rather than four coincidences; the sweep re-run alone two minutes later was 41/41 green with nothing in the tree changed. CANDIDATE MECHANISM NOT MEASURED: all four spawn a real fw audit and the audit writes shared state under .context/audits/ (T-552 measured that write-set), so repeated audit runs inside one suite pass are the natural suspect -- stated as a hypothesis, not a finding. WHY IT MATTERS BEYOND FLAKINESS: the sweep's own FAIL message says 'NOT a regression: nothing is claimed about what those instruments guard, because they were never run', which is exactly right, and the suite nevertheless counts it as a failed leg. So an ABSTENTION -- the honest refusal T-430 discipline exists to produce -- is indistinguishable at the suite level from a REGRESSION. Any task whose Verification runs the suite (T-101, T-558) can fail for a reason that asserts nothing about the code under test, and a reader who reruns and sees green learns to rerun rather than to look."
+  captured: 2026-08-20T00:15:12Z
+  context_task: T-558
+  tags: [tooling]
+  status: pending
+  promoted_to: null

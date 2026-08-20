@@ -13,6 +13,33 @@
 #
 # To remove a line: wire the instrument to a live caller, or delete it. Not by editing here.
 #
+# ── WHY THIS FILE MOVED, 2026-08-18 (third movement, T-558) ─────────────────
+# The ratchet fired one-directional, rc=1, and it was RIGHT:
+#
+#     RATCHET: baseline 67, current findings 66
+#       SHRANK by 1  - bake-clean-layout.py
+#
+# `bake-clean-layout.py` acquired a real live caller on 2026-08-17. T-448's teeth file
+# loads it as a module to drive `classify_drift()` directly:
+#
+#     tools/_t448-drift-classification-teeth.py:44
+#       TOOL = os.environ.get("T448_TOOL") or os.path.join(ROOT, "tools", "bake-clean-layout.py")
+#     tools/_t448-drift-classification-teeth.py:87
+#       spec = importlib.util.spec_from_file_location("bake_clean_layout", TOOL)
+#
+# and that teeth file is wired at tests/run-bridge-tests.sh:1613. So the module's code
+# now executes on every bridge-suite pass, via T-495's composed-path edge — which is the
+# exact mechanism whose ABSENCE put this entry in the baseline on 2026-08-14. It arrived
+# because prose stopped counting as a call; it leaves because a call appeared.
+#
+# WHAT THIS DOES NOT MEAN, and the reason to say so here rather than let a reader infer
+# it: the CORPUS GATE is still not run. `bake-clean-layout.py --check` over the 24
+# rendered maps remains unwired, deliberately, with T-448's reason recorded on that task
+# ("wiring it today paints the suite red on a benign staleness one command removes").
+# What became wired is the module, imported for one function. "Its code executes in the
+# suite" and "its gate is enforced" are different claims and this census measures only
+# the first. The re-bake ruling is still open on T-448.
+#
 # ── WHY THIS FILE MOVED, 2026-08-14 (second movement, T-495) ────────────────
 # The ratchet FIRED again, in BOTH directions this time, rc=1. Recorded before the
 # regeneration, because a ratchet whose movement is absorbed by a same-commit refresh has
@@ -144,7 +171,6 @@ _t485-unknown-extension-survival.mjs
 _t486-orphaned-go-scan.py
 _undo-verify-cdp.mjs
 _versions-verify-cdp.mjs
-bake-clean-layout.py
 bpmn-cli.py
 concerns-schema.py
 gallery-serve.py

@@ -43,15 +43,26 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOOL = os.environ.get("T448_TOOL") or os.path.join(ROOT, "tools", "bake-clean-layout.py")
 
-# The corpus's real staleness, verbatim from `git diff` of a re-bake run in an isolated
-# worktree on 2026-08-17. Paraphrasing a stimulus makes it a different stimulus.
+# The corpus's real staleness: the DIFF SHAPE is verbatim from `git diff` of a re-bake run
+# in an isolated worktree on 2026-08-17 — the added `exporter` attribute, the rewritten DI
+# comment, +2/-1 and no geometry. Paraphrasing a stimulus makes it a different stimulus, so
+# that shape is copied rather than described.
+#
+# The node element is <bpmn:scriptTask> (T-558). It was <bpmn:task>, which is not in
+# validate-workflow.py's XML_NODE_TYPES: NEITHER emitter can produce it and the corpus
+# contains zero instances across 24 rendered maps, so the fixture asserted classification
+# over a document shape that cannot occur — caught by the T-327 harness-emitter-fidelity
+# gate, which went red on this file from the commit that introduced it. scriptTask is the
+# corpus's most common node type (111 occurrences) and carries `aef:position` identically,
+# so the stimulus this file actually depends on is unchanged while the document it is
+# embedded in became one the emitters can emit.
 COMMITTED = """<?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
                   xmlns:aef="urn:aef:workflow"
                   id="defs_1">
   <!-- BPMN DI (visual layout) omitted in this demo; AEF generates it from node coordinates -->
   <bpmn:process id="p1">
-    <bpmn:task id="t1" name="Do the thing" aef:position="120,240" />
+    <bpmn:scriptTask id="t1" name="Do the thing" aef:position="120,240" />
   </bpmn:process>
 </bpmn:definitions>
 """
@@ -63,15 +74,15 @@ REEMITTED = """<?xml version="1.0" encoding="UTF-8"?>
                   id="defs_1">
   <!-- BPMN DI (visual layout) omitted; node geometry travels as aef:position -->
   <bpmn:process id="p1">
-    <bpmn:task id="t1" name="Do the thing" aef:position="120,240" />
+    <bpmn:scriptTask id="t1" name="Do the thing" aef:position="120,240" />
   </bpmn:process>
 </bpmn:definitions>
 """
 
 MOVED_GEOMETRY = REEMITTED.replace('aef:position="120,240"', 'aef:position="180,300"')
 MOVED_DI = REEMITTED.replace(
-    '    <bpmn:task id="t1" name="Do the thing" aef:position="120,240" />',
-    '    <bpmn:task id="t1" name="Do the thing" aef:position="120,240" />\n'
+    '    <bpmn:scriptTask id="t1" name="Do the thing" aef:position="120,240" />',
+    '    <bpmn:scriptTask id="t1" name="Do the thing" aef:position="120,240" />\n'
     '    <dc:Bounds x="180" y="300" width="100" height="80" />')
 
 
